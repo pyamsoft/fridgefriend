@@ -1,0 +1,40 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    package="com.pyamsoft.fridge">
+
+  <application
+      android:name="com.pyamsoft.fridge.MyFridgeSmells"
+      android:allowBackup="true"
+      android:icon="@mipmap/ic_launcher"
+      android:label="@string/app_name"
+      android:roundIcon="@mipmap/ic_launcher_round"
+      android:supportsRtl="true"
+      android:theme="@style/Theme.Fridge.Light.Normal"
+      tools:ignore="GoogleAppIndexingWarning">
+
+    <!-- Support super wide screen -->
+    <meta-data
+        android:name="android.max_aspect"
+        android:value="2.1"/>
+
+    <!-- Main Activity -->
+    <activity
+        android:name="com.pyamsoft.fridge.entry.EntryActivity"
+        android:excludeFromRecents="false"
+        android:exported="true"
+        android:label="@string/app_name"
+        android:launchMode="singleTask"
+        android:noHistory="false"
+        android:theme="@style/Theme.Fridge.Splash"
+        android:windowSoftInputMode="adjustResize">
+
+      <intent-filter>
+        <action android:name="android.intent.action.MAIN"/>
+        <category android:name="android.intent.category.LAUNCHER"/>
+      </intent-filter>
+
+    </activity>
+
+
+  </application>
+</manifest>

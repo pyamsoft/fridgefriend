@@ -1,0 +1,1 @@
+include ':app', ':fridge-entry', ':fridge-deps', ':fridge-api'

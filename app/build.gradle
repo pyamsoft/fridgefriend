@@ -1,0 +1,120 @@
+/*
+ * Copyright 2019 Peter Kenji Yamanaka
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
+apply plugin: "com.android.application"
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-kapt'
+apply plugin: "com.getkeepsafe.dexcount"
+
+//noinspection GroovyMissingReturnStatement
+android {
+  compileSdkVersion rootProject.ext.maxSdk
+
+  defaultConfig {
+    applicationId "com.pyamsoft.myfridgesmells"
+    minSdkVersion rootProject.ext.minSdk
+    targetSdkVersion rootProject.ext.maxSdk
+    versionCode 1
+    versionName "0.0.1"
+
+    // For vector drawables
+    vectorDrawables.useSupportLibrary = true
+
+    resConfigs "en"
+  }
+
+  compileOptions {
+    sourceCompatibility JavaVersion.VERSION_1_8
+    targetCompatibility JavaVersion.VERSION_1_8
+  }
+
+  packagingOptions {
+    exclude 'META-INF/rxjava.properties'
+  }
+
+  dataBinding {
+    enabled true
+  }
+
+  signingConfigs {
+    release {
+      //noinspection GroovyAssignabilityCheck
+      storeFile new File(RELEASE_STORE_FILE)
+
+      //noinspection GroovyAssignabilityCheck
+      keyAlias RELEASE_KEY_ALIAS
+
+      //noinspection GroovyAssignabilityCheck
+      keyPassword RELEASE_KEY_PASSWD
+
+      //noinspection GroovyAssignabilityCheck
+      storePassword RELEASE_STORE_PASSWD
+    }
+  }
+
+  buildTypes {
+    release {
+      //noinspection GroovyAssignabilityCheck
+      signingConfig signingConfigs.release
+      minifyEnabled true
+      shrinkResources true
+      proguardFiles getDefaultProguardFile("proguard-android-optimize.txt"),
+          "proguard-rules.pro"
+    }
+
+    debug {
+      applicationIdSuffix ".dev"
+      versionNameSuffix "-dev"
+    }
+  }
+}
+
+// Kapt flags
+kapt {
+  correctErrorTypes = true
+  useBuildCache = true
+  mapDiagnosticLocations = true
+
+  javacOptions {
+    option("-Xlint:unchecked")
+    option("-Xlint:deprecation")
+    option("-Xmaxerrs", 10000)
+  }
+}
+
+dependencies {
+
+  // Leak Canary
+  debugImplementation "com.squareup.leakcanary:leakcanary-support-fragment:$leakCanary"
+  debugImplementation "com.squareup.leakcanary:leakcanary-android:$leakCanary"
+  releaseImplementation "com.squareup.leakcanary:leakcanary-android-no-op:$leakCanary"
+  testImplementation "com.squareup.leakcanary:leakcanary-android-no-op:$leakCanary"
+
+  // FastAdapter
+  implementation "com.mikepenz:fastadapter:$fastAdapter@aar"
+  implementation "com.mikepenz:fastadapter-commons:$fastAdapter@aar"
+
+  // Room
+  implementation "androidx.room:room-rxjava2:$room"
+  implementation "androidx.room:room-runtime:$room"
+  kapt "androidx.room:room-compiler:$room"
+
+  // Dagger
+  kapt "com.google.dagger:dagger-compiler:$dagger"
+
+  implementation project(":fridge-entry")
+}
