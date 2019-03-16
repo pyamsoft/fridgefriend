@@ -15,57 +15,63 @@
  *
  */
 
-package com.pyamsoft.fridge.entry.impl
+package com.pyamsoft.fridge.entry.main.impl
 
 import android.os.Bundle
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.lifecycle.LifecycleOwner
-import com.pyamsoft.fridge.entry.EntryListUiComponent
-import com.pyamsoft.fridge.entry.EntryListUiComponent.Callback
+import com.pyamsoft.fridge.entry.main.MainToolbarUiComponent
+import com.pyamsoft.fridge.entry.main.MainToolbarUiComponent.Callback
 import com.pyamsoft.pydroid.arch.BaseUiComponent
 import com.pyamsoft.pydroid.arch.doOnDestroy
+import com.pyamsoft.pydroid.ui.widget.shadow.DropshadowView
 import javax.inject.Inject
 
-internal class EntryListUiComponentImpl @Inject internal constructor(
-  private val listView: EntryList,
-  private val presenter: EntryListPresenter
-) : BaseUiComponent<EntryListUiComponent.Callback>(),
-  EntryListUiComponent,
-  EntryListPresenter.Callback {
+internal class MainToolbarUiComponentImpl @Inject internal constructor(
+  private val toolbar: MainToolbar,
+  private val dropshadow: DropshadowView
+) : BaseUiComponent<MainToolbarUiComponent.Callback>(),
+  MainToolbarUiComponent {
+
+  override fun id(): Int {
+    return toolbar.id()
+  }
 
   override fun onBind(owner: LifecycleOwner, savedInstanceState: Bundle?, callback: Callback) {
     owner.doOnDestroy {
-      listView.teardown()
-      presenter.unbind()
+      toolbar.teardown()
+      dropshadow.teardown()
     }
 
-    listView.inflate(savedInstanceState)
-    presenter.bind(this)
+    toolbar.inflate(savedInstanceState)
+    dropshadow.inflate(savedInstanceState)
   }
 
   override fun saveState(outState: Bundle) {
-    listView.saveState(outState)
+    toolbar.saveState(outState)
+    dropshadow.saveState(outState)
   }
 
-  override fun id(): Int {
-    return listView.id()
-  }
-
-  override fun layout(root: ConstraintLayout, aboveId: Int) {
+  override fun layout(constraintLayout: ConstraintLayout) {
     ConstraintSet().apply {
-      clone(root)
+      clone(constraintLayout)
 
-      listView.also {
-        connect(it.id(), ConstraintSet.TOP, aboveId, ConstraintSet.BOTTOM)
+      toolbar.also {
+        connect(it.id(), ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP)
         connect(it.id(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
         connect(it.id(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
-        connect(it.id(), ConstraintSet.BOTTOM, ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM)
         constrainWidth(it.id(), ConstraintSet.MATCH_CONSTRAINT)
-        constrainHeight(it.id(), ConstraintSet.MATCH_CONSTRAINT)
       }
 
-      applyTo(root)
+      dropshadow.also {
+        connect(it.id(), ConstraintSet.TOP, toolbar.id(), ConstraintSet.BOTTOM)
+        connect(it.id(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
+        connect(it.id(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
+        constrainWidth(it.id(), ConstraintSet.MATCH_CONSTRAINT)
+      }
+
+      applyTo(constraintLayout)
     }
   }
 

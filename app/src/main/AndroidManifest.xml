@@ -19,7 +19,7 @@
 
     <!-- Main Activity -->
     <activity
-        android:name="com.pyamsoft.fridge.entry.EntryActivity"
+        android:name="com.pyamsoft.fridge.main.MainActivity"
         android:excludeFromRecents="false"
         android:exported="true"
         android:label="@string/app_name"

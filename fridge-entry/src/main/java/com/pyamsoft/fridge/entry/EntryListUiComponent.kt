@@ -15,12 +15,12 @@
  *
  */
 
-package com.pyamsoft.fridge.entry.impl
+package com.pyamsoft.fridge.entry
 
 import androidx.annotation.CheckResult
 import androidx.annotation.IdRes
 import androidx.constraintlayout.widget.ConstraintLayout
-import com.pyamsoft.fridge.entry.impl.EntryListUiComponent.Callback
+import com.pyamsoft.fridge.entry.EntryListUiComponent.Callback
 import com.pyamsoft.pydroid.arch.UiComponent
 
 interface EntryListUiComponent : UiComponent<Callback> {

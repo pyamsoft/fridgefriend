@@ -15,31 +15,20 @@
  *
  */
 
-package com.pyamsoft.fridge.entry.impl
+package com.pyamsoft.fridge.entry.main
 
-import android.os.Bundle
-import com.pyamsoft.pydroid.arch.UiView
-import com.pyamsoft.pydroid.ui.app.ToolbarActivity
-import com.pyamsoft.pydroid.ui.arch.InvalidIdException
-import javax.inject.Inject
+import androidx.annotation.CheckResult
+import androidx.annotation.IdRes
+import androidx.constraintlayout.widget.ConstraintLayout
+import com.pyamsoft.pydroid.arch.UiComponent
 
-internal class EntryToolbar @Inject internal constructor(
-  private val toolbarActivity: ToolbarActivity,
-  private val callback: EntryToolbar.Callback
-) : UiView {
+interface MainToolbarUiComponent : UiComponent<MainToolbarUiComponent.Callback> {
 
-  override fun id(): Int {
-    throw InvalidIdException
-  }
+  @IdRes
+  @CheckResult
+  fun id() :Int
 
-  override fun inflate(savedInstanceState: Bundle?) {
-  }
-
-  override fun saveState(outState: Bundle) {
-  }
-
-  override fun teardown() {
-  }
+  fun layout(constraintLayout: ConstraintLayout)
 
   interface Callback
 

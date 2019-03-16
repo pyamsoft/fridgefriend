@@ -15,7 +15,7 @@
  *
  */
 
-package com.pyamsoft.fridge.entry
+package com.pyamsoft.fridge.main
 
 import android.os.Bundle
 import android.view.View
@@ -26,17 +26,18 @@ import com.pyamsoft.fridge.BuildConfig
 import com.pyamsoft.fridge.FridgeComponent
 import com.pyamsoft.fridge.Injector
 import com.pyamsoft.fridge.R
-import com.pyamsoft.fridge.entry.impl.EntryListUiComponent
-import com.pyamsoft.fridge.entry.impl.EntryToolbarUiComponent
+import com.pyamsoft.fridge.entry.EntryListFragment
+import com.pyamsoft.fridge.entry.main.FragmentContainerUiComponent
+import com.pyamsoft.fridge.entry.main.MainToolbarUiComponent
 import com.pyamsoft.pydroid.ui.rating.ChangeLogBuilder
 import com.pyamsoft.pydroid.ui.rating.RatingActivity
 import com.pyamsoft.pydroid.ui.rating.buildChangeLog
 import com.pyamsoft.pydroid.ui.theme.ThemeInjector
+import com.pyamsoft.pydroid.ui.util.commit
 import javax.inject.Inject
 
-internal class EntryActivity : RatingActivity(),
-  EntryListUiComponent.Callback,
-  EntryToolbarUiComponent.Callback {
+internal class MainActivity : RatingActivity(),
+  MainToolbarUiComponent.Callback {
 
   override val applicationIcon: Int = R.mipmap.ic_launcher
 
@@ -47,7 +48,7 @@ internal class EntryActivity : RatingActivity(),
   }
 
   override val fragmentContainerId: Int
-    get() = entryList.id()
+    get() = container.id()
 
   override val snackbarRoot: View
     get() = requireNotNull(snackbarContainer)
@@ -55,8 +56,8 @@ internal class EntryActivity : RatingActivity(),
   // Nullable to prevent memory leak
   private var snackbarContainer: CoordinatorLayout? = null
 
-  @field:Inject internal lateinit var toolbar: EntryToolbarUiComponent
-  @field:Inject internal lateinit var entryList: EntryListUiComponent
+  @field:Inject internal lateinit var toolbar: MainToolbarUiComponent
+  @field:Inject internal lateinit var container: FragmentContainerUiComponent
 
   override fun onCreate(savedInstanceState: Bundle?) {
     setDynamicTheme()
@@ -67,14 +68,15 @@ internal class EntryActivity : RatingActivity(),
     val contentContainer = findViewById<ConstraintLayout>(R.id.content_container)
 
     Injector.obtain<FridgeComponent>(applicationContext)
-      .plusEntryComponent()
+      .plusMainComponent()
       .toolbarActivityProvider(this)
       .parent(contentContainer)
       .build()
       .inject(this)
 
-    inflateComponents(savedInstanceState)
-    layoutComponents(contentContainer)
+    inflateComponents(contentContainer, savedInstanceState)
+
+    pushFragment()
   }
 
   private fun setDynamicTheme() {
@@ -88,20 +90,29 @@ internal class EntryActivity : RatingActivity(),
     setTheme(theme)
   }
 
-  private fun inflateComponents(savedInstanceState: Bundle?) {
-    entryList.bind(this, savedInstanceState, this)
+  private fun inflateComponents(constraintLayout: ConstraintLayout, savedInstanceState: Bundle?) {
+    container.bind(this, savedInstanceState, Unit)
     toolbar.bind(this, savedInstanceState, this)
+
+    toolbar.layout(constraintLayout)
+    container.layout(constraintLayout, toolbar.id())
   }
 
-  private fun layoutComponents(contentContainer: ConstraintLayout) {
-    toolbar.layout(contentContainer)
-    entryList.layout(contentContainer, toolbar.id())
+  private fun pushFragment() {
+    val fm = supportFragmentManager
+    if (fm.findFragmentById(fragmentContainerId) == null) {
+      fm.beginTransaction().add(
+        fragmentContainerId,
+        EntryListFragment.newInstance(),
+        EntryListFragment.TAG
+      ).commit(this)
+    }
   }
 
   override fun onSaveInstanceState(outState: Bundle) {
     super.onSaveInstanceState(outState)
-    entryList.saveState(outState)
     toolbar.saveState(outState)
+    container.saveState(outState)
   }
 
   override fun onDestroy() {

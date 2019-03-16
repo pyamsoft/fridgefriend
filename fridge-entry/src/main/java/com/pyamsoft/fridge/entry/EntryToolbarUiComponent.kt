@@ -17,31 +17,13 @@
 
 package com.pyamsoft.fridge.entry
 
-import android.view.ViewGroup
-import androidx.annotation.CheckResult
-import com.pyamsoft.pydroid.ui.app.ToolbarActivity
-import dagger.BindsInstance
-import dagger.Subcomponent
+import com.pyamsoft.fridge.entry.EntryToolbarUiComponent.Callback
+import com.pyamsoft.pydroid.arch.UiComponent
 
-@EntryScope
-@Subcomponent(modules = [EntryModule::class])
-internal interface EntryComponent {
+interface EntryToolbarUiComponent : UiComponent<Callback> {
 
-  fun inject(fragment: EntryListFragment)
+  interface Callback {
 
-  @Subcomponent.Builder
-  interface Builder {
-
-    @BindsInstance
-    @CheckResult
-    fun parent(parent: ViewGroup): Builder
-
-    @BindsInstance
-    @CheckResult
-    fun toolbarActivity(activity: ToolbarActivity): Builder
-
-    @CheckResult
-    fun build(): EntryComponent
   }
 
 }

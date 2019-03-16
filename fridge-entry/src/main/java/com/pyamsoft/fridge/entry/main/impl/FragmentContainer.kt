@@ -15,32 +15,19 @@
  *
  */
 
-package com.pyamsoft.fridge.entry.impl
+package com.pyamsoft.fridge.entry.main.impl
 
-import android.os.Bundle
-import com.pyamsoft.pydroid.arch.UiView
-import com.pyamsoft.pydroid.ui.app.ToolbarActivity
-import com.pyamsoft.pydroid.ui.arch.InvalidIdException
+import android.view.ViewGroup
+import androidx.constraintlayout.widget.ConstraintLayout
+import com.pyamsoft.fridge.entry.R
+import com.pyamsoft.pydroid.arch.BaseUiView
 import javax.inject.Inject
 
-internal class EntryToolbar @Inject internal constructor(
-  private val toolbarActivity: ToolbarActivity,
-  private val callback: EntryToolbar.Callback
-) : UiView {
+internal class FragmentContainer @Inject internal constructor(
+  parent: ViewGroup
+) : BaseUiView<Unit>(parent, Unit) {
 
-  override fun id(): Int {
-    throw InvalidIdException
-  }
+  override val layout: Int = R.layout.layout_constraint
 
-  override fun inflate(savedInstanceState: Bundle?) {
-  }
-
-  override fun saveState(outState: Bundle) {
-  }
-
-  override fun teardown() {
-  }
-
-  interface Callback
-
+  override val layoutRoot by lazyView<ConstraintLayout>(R.id.layout_constraint)
 }

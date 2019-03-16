@@ -15,21 +15,25 @@
  *
  */
 
-package com.pyamsoft.fridge.entry.impl
+package com.pyamsoft.fridge.entry.main.impl
 
-import androidx.annotation.CheckResult
-import androidx.annotation.IdRes
-import androidx.constraintlayout.widget.ConstraintLayout
-import com.pyamsoft.fridge.entry.impl.EntryToolbarUiComponent.Callback
-import com.pyamsoft.pydroid.arch.UiComponent
+import com.pyamsoft.fridge.entry.impl.EntryToolbarPresenter.Callback
+import com.pyamsoft.fridge.entry.main.MainScope
+import com.pyamsoft.pydroid.arch.BasePresenter
+import com.pyamsoft.pydroid.core.bus.RxBus
+import javax.inject.Inject
 
-interface EntryToolbarUiComponent : UiComponent<Callback> {
+@MainScope
+internal class MainToolbarPresenter @Inject internal constructor(
 
-  @IdRes
-  @CheckResult
-  fun id(): Int
+) : BasePresenter<Unit, Callback>(RxBus.empty()),
+  MainToolbar.Callback {
 
-  fun layout(root: ConstraintLayout)
+  override fun onBind() {
+  }
+
+  override fun onUnbind() {
+  }
 
   interface Callback {
 

@@ -18,18 +18,15 @@
 package com.pyamsoft.fridge.entry.impl
 
 import android.os.Bundle
-import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.constraintlayout.widget.ConstraintSet
 import androidx.lifecycle.LifecycleOwner
-import com.pyamsoft.fridge.entry.impl.EntryToolbarUiComponent.Callback
+import com.pyamsoft.fridge.entry.EntryToolbarUiComponent
+import com.pyamsoft.fridge.entry.EntryToolbarUiComponent.Callback
 import com.pyamsoft.pydroid.arch.BaseUiComponent
 import com.pyamsoft.pydroid.arch.doOnDestroy
-import com.pyamsoft.pydroid.ui.widget.shadow.DropshadowView
 import javax.inject.Inject
 
 internal class EntryToolbarUiComponentImpl @Inject internal constructor(
   private val toolbar: EntryToolbar,
-  private val dropshadow: DropshadowView,
   private val presenter: EntryToolbarPresenter
 ) : BaseUiComponent<EntryToolbarUiComponent.Callback>(),
   EntryToolbarUiComponent,
@@ -38,44 +35,15 @@ internal class EntryToolbarUiComponentImpl @Inject internal constructor(
   override fun onBind(owner: LifecycleOwner, savedInstanceState: Bundle?, callback: Callback) {
     owner.doOnDestroy {
       toolbar.teardown()
-      dropshadow.teardown()
       presenter.unbind()
     }
 
     toolbar.inflate(savedInstanceState)
-    dropshadow.inflate(savedInstanceState)
     presenter.bind(this)
   }
 
   override fun saveState(outState: Bundle) {
     toolbar.saveState(outState)
-    dropshadow.saveState(outState)
-  }
-
-  override fun id(): Int {
-    return toolbar.id()
-  }
-
-  override fun layout(root: ConstraintLayout) {
-    ConstraintSet().apply {
-      clone(root)
-
-      toolbar.also {
-        connect(it.id(), ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP)
-        connect(it.id(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
-        connect(it.id(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
-        constrainWidth(it.id(), ConstraintSet.MATCH_CONSTRAINT)
-      }
-
-      dropshadow.also {
-        connect(it.id(), ConstraintSet.TOP, toolbar.id(), ConstraintSet.BOTTOM)
-        connect(it.id(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
-        connect(it.id(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
-        constrainWidth(it.id(), ConstraintSet.MATCH_CONSTRAINT)
-      }
-
-      applyTo(root)
-    }
   }
 
 }

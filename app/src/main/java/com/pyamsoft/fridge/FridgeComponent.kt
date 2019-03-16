@@ -21,6 +21,7 @@ import android.app.Application
 import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.FridgeComponent.FridgeProvider
 import com.pyamsoft.fridge.entry.EntryComponent
+import com.pyamsoft.fridge.main.MainComponent
 import com.pyamsoft.pydroid.core.threads.Enforcer
 import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.ui.theme.Theming
@@ -36,6 +37,9 @@ internal interface FridgeComponent {
 
   @CheckResult
   fun plusEntryComponent(): EntryComponent.Builder
+
+  @CheckResult
+  fun plusMainComponent(): MainComponent.Builder
 
   @Component.Builder
   interface Builder {

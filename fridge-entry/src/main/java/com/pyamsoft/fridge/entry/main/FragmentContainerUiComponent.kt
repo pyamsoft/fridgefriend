@@ -15,30 +15,19 @@
  *
  */
 
-package com.pyamsoft.fridge.entry.impl
+package com.pyamsoft.fridge.entry.main
 
 import androidx.annotation.CheckResult
-import com.pyamsoft.fridge.entry.impl.EntryList.Callback
-import dagger.Binds
-import dagger.Module
+import androidx.annotation.IdRes
+import androidx.constraintlayout.widget.ConstraintLayout
+import com.pyamsoft.pydroid.arch.UiComponent
 
-@Module
-abstract class EntryModule {
+interface FragmentContainerUiComponent : UiComponent<Unit> {
 
-  @Binds
+  @IdRes
   @CheckResult
-  internal abstract fun bindListCallback(impl: EntryListPresenter): Callback
+  fun id(): Int
 
-  @Binds
-  @CheckResult
-  internal abstract fun bindListComponent(impl: EntryListUiComponentImpl): EntryListUiComponent
-
-  @Binds
-  @CheckResult
-  internal abstract fun bindToolbarCallback(impl: EntryToolbarPresenter): EntryToolbar.Callback
-
-  @Binds
-  @CheckResult
-  internal abstract fun bindToolbarComponent(impl: EntryToolbarUiComponentImpl): EntryToolbarUiComponent
+  fun layout(constraintLayout: ConstraintLayout, aboveId: Int)
 
 }
