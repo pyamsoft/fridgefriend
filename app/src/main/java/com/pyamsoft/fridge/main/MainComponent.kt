@@ -19,7 +19,6 @@ package com.pyamsoft.fridge.main
 
 import android.view.ViewGroup
 import androidx.annotation.CheckResult
-import com.pyamsoft.fridge.R
 import com.pyamsoft.fridge.entry.main.MainModule
 import com.pyamsoft.fridge.entry.main.MainScope
 import com.pyamsoft.fridge.main.MainComponent.MainProvider
@@ -29,7 +28,6 @@ import dagger.BindsInstance
 import dagger.Module
 import dagger.Provides
 import dagger.Subcomponent
-import javax.inject.Named
 
 @MainScope
 @Subcomponent(modules = [MainProvider::class, MainModule::class])
@@ -59,13 +57,6 @@ internal interface MainComponent {
     @JvmStatic
     fun provideDropshadow(parent: ViewGroup): DropshadowView {
       return DropshadowView(parent)
-    }
-
-    @Provides
-    @JvmStatic
-    @Named("app_name")
-    fun provideAppNameRes(): Int {
-      return R.string.app_name
     }
 
   }

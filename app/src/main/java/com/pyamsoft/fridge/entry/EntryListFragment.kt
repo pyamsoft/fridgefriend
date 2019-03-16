@@ -27,7 +27,10 @@ import androidx.fragment.app.Fragment
 import com.pyamsoft.fridge.FridgeComponent
 import com.pyamsoft.fridge.Injector
 import com.pyamsoft.fridge.R
+import com.pyamsoft.fridge.extensions.fragmentContainerId
+import com.pyamsoft.fridge.setting.SettingsFragment
 import com.pyamsoft.pydroid.ui.app.requireToolbarActivity
+import com.pyamsoft.pydroid.ui.util.commit
 import javax.inject.Inject
 
 internal class EntryListFragment : Fragment(),
@@ -56,14 +59,24 @@ internal class EntryListFragment : Fragment(),
       .build()
       .inject(this)
 
-    entryList.bind(this, savedInstanceState, this)
-    toolbar.bind(this, savedInstanceState, this)
+    entryList.bind(viewLifecycleOwner, savedInstanceState, this)
+    toolbar.bind(viewLifecycleOwner, savedInstanceState, this)
   }
 
   override fun onSaveInstanceState(outState: Bundle) {
     super.onSaveInstanceState(outState)
     entryList.saveState(outState)
     toolbar.saveState(outState)
+  }
+
+  override fun onNavigateToSettings() {
+    val fm = requireActivity().supportFragmentManager
+    if (fm.findFragmentByTag(SettingsFragment.TAG) == null) {
+      fm.beginTransaction()
+        .replace(fragmentContainerId, SettingsFragment.newInstance(), SettingsFragment.TAG)
+        .addToBackStack(null)
+        .commit(viewLifecycleOwner)
+    }
   }
 
   companion object {

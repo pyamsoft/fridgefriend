@@ -47,6 +47,10 @@ internal class MainToolbar @Inject internal constructor(
     inflateToolbar()
   }
 
+  override fun onTeardown() {
+    toolbarActivityProvider.setToolbar(null)
+  }
+
   private fun inflateToolbar() {
     val theme: Int
     if (theming.isDarkTheme()) {
@@ -61,10 +65,6 @@ internal class MainToolbar @Inject internal constructor(
       ViewCompat.setElevation(this, 4f.toDp(context).toFloat())
       toolbarActivityProvider.setToolbar(this)
     }
-  }
-
-  override fun onTeardown() {
-    toolbarActivityProvider.setToolbar(null)
   }
 
   interface Callback {

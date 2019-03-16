@@ -15,19 +15,18 @@
  *
  */
 
-package com.pyamsoft.fridge.entry.impl
+package com.pyamsoft.fridge.entry.setting.impl
 
-import com.pyamsoft.fridge.entry.EntryScope
-import com.pyamsoft.fridge.entry.impl.EntryToolbarPresenter.Callback
+import com.pyamsoft.fridge.entry.setting.SettingScope
 import com.pyamsoft.pydroid.arch.BasePresenter
 import com.pyamsoft.pydroid.core.bus.RxBus
 import javax.inject.Inject
 
-@EntryScope
-internal class EntryToolbarPresenter @Inject internal constructor(
+@SettingScope
+internal class SettingToolbarPresenter @Inject internal constructor(
 
-) : BasePresenter<Unit, Callback>(RxBus.empty()),
-  EntryToolbar.Callback {
+) : BasePresenter<Unit, SettingToolbarPresenter.Callback>(RxBus.empty()),
+  SettingToolbar.Callback {
 
   override fun onBind() {
   }
@@ -35,13 +34,13 @@ internal class EntryToolbarPresenter @Inject internal constructor(
   override fun onUnbind() {
   }
 
-  override fun onSettingsClicked() {
-    callback.handleSettingsClicked()
+  override fun onNavigateClicked() {
+    callback.handleNavigateBack()
   }
 
   interface Callback {
 
-    fun handleSettingsClicked()
+    fun handleNavigateBack()
 
   }
 

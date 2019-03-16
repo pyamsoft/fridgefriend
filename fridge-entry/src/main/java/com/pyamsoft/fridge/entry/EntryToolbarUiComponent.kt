@@ -24,6 +24,8 @@ interface EntryToolbarUiComponent : UiComponent<Callback> {
 
   interface Callback {
 
+    fun onNavigateToSettings()
+
   }
 
 }

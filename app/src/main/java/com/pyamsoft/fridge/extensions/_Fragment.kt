@@ -15,27 +15,10 @@
  *
  */
 
-package com.pyamsoft.fridge.entry.main.impl
+package com.pyamsoft.fridge.extensions
 
-import com.pyamsoft.fridge.entry.main.MainScope
-import com.pyamsoft.pydroid.arch.BasePresenter
-import com.pyamsoft.pydroid.core.bus.RxBus
-import javax.inject.Inject
+import androidx.fragment.app.Fragment
+import com.pyamsoft.fridge.main.MainActivity
 
-@MainScope
-internal class MainToolbarPresenter @Inject internal constructor(
-
-) : BasePresenter<Unit, MainToolbarPresenter.Callback>(RxBus.empty()),
-  MainToolbar.Callback {
-
-  override fun onBind() {
-  }
-
-  override fun onUnbind() {
-  }
-
-  interface Callback {
-
-  }
-
-}
+val Fragment.fragmentContainerId: Int
+  get() = (requireActivity() as MainActivity).fragmentContainerId
