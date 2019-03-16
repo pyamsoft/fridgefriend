@@ -18,9 +18,10 @@
 package com.pyamsoft.fridge.setting
 
 import androidx.annotation.CheckResult
-import com.pyamsoft.fridge.setting.impl.SettingToolbar
-import com.pyamsoft.fridge.setting.impl.SettingToolbarPresenter
-import com.pyamsoft.fridge.setting.impl.SettingToolbarUiComponentImpl
+import com.pyamsoft.fridge.setting.toolbar.SettingToolbar
+import com.pyamsoft.fridge.setting.toolbar.SettingToolbarPresenter
+import com.pyamsoft.fridge.setting.toolbar.SettingToolbarUiComponent
+import com.pyamsoft.fridge.setting.toolbar.SettingToolbarUiComponentImpl
 import dagger.Binds
 import dagger.Module
 

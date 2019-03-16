@@ -27,6 +27,8 @@ import com.pyamsoft.fridge.FridgeComponent
 import com.pyamsoft.fridge.Injector
 import com.pyamsoft.fridge.R
 import com.pyamsoft.fridge.entry.EntryListFragment
+import com.pyamsoft.fridge.main.container.FragmentContainerUiComponent
+import com.pyamsoft.fridge.main.toolbar.MainToolbarUiComponent
 import com.pyamsoft.pydroid.ui.rating.ChangeLogBuilder
 import com.pyamsoft.pydroid.ui.rating.RatingActivity
 import com.pyamsoft.pydroid.ui.rating.buildChangeLog

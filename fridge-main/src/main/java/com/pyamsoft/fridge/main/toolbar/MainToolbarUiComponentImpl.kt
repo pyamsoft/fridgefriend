@@ -15,14 +15,13 @@
  *
  */
 
-package com.pyamsoft.fridge.main.impl
+package com.pyamsoft.fridge.main.toolbar
 
 import android.os.Bundle
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.lifecycle.LifecycleOwner
-import com.pyamsoft.fridge.main.MainToolbarUiComponent
-import com.pyamsoft.fridge.main.MainToolbarUiComponent.Callback
+import com.pyamsoft.fridge.main.toolbar.MainToolbarUiComponent.Callback
 import com.pyamsoft.pydroid.arch.BaseUiComponent
 import com.pyamsoft.pydroid.arch.doOnDestroy
 import com.pyamsoft.pydroid.ui.widget.shadow.DropshadowView

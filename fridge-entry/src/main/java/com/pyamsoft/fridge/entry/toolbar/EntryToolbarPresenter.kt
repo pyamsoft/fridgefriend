@@ -15,19 +15,34 @@
  *
  */
 
-package com.pyamsoft.fridge.main.impl
+package com.pyamsoft.fridge.entry.toolbar
 
-import android.view.ViewGroup
-import androidx.constraintlayout.widget.ConstraintLayout
-import com.pyamsoft.fridge.main.R
-import com.pyamsoft.pydroid.arch.BaseUiView
+import com.pyamsoft.fridge.entry.EntryScope
+import com.pyamsoft.fridge.entry.toolbar.EntryToolbarPresenter.Callback
+import com.pyamsoft.pydroid.arch.BasePresenter
+import com.pyamsoft.pydroid.core.bus.RxBus
 import javax.inject.Inject
 
-internal class FragmentContainer @Inject internal constructor(
-  parent: ViewGroup
-) : BaseUiView<Unit>(parent, Unit) {
+@EntryScope
+internal class EntryToolbarPresenter @Inject internal constructor(
 
-  override val layout: Int = R.layout.layout_constraint
+) : BasePresenter<Unit, Callback>(RxBus.empty()),
+  EntryToolbar.Callback {
 
-  override val layoutRoot by lazyView<ConstraintLayout>(R.id.layout_constraint)
+  override fun onBind() {
+  }
+
+  override fun onUnbind() {
+  }
+
+  override fun onSettingsClicked() {
+    callback.handleSettingsClicked()
+  }
+
+  interface Callback {
+
+    fun handleSettingsClicked()
+
+  }
+
 }

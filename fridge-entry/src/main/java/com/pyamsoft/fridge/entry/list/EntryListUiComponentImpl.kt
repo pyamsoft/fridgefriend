@@ -15,43 +15,47 @@
  *
  */
 
-package com.pyamsoft.fridge.main.impl
+package com.pyamsoft.fridge.entry.list
 
 import android.os.Bundle
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.lifecycle.LifecycleOwner
-import com.pyamsoft.fridge.main.FragmentContainerUiComponent
+import com.pyamsoft.fridge.entry.list.EntryListUiComponent.Callback
 import com.pyamsoft.pydroid.arch.BaseUiComponent
 import com.pyamsoft.pydroid.arch.doOnDestroy
 import javax.inject.Inject
 
-internal class FragmentContainerUiComponentImpl @Inject internal constructor(
-  private val container: FragmentContainer
-) : BaseUiComponent<Unit>(),
-  FragmentContainerUiComponent {
+internal class EntryListUiComponentImpl @Inject internal constructor(
+  private val listView: EntryList,
+  private val presenter: EntryListPresenter
+) : BaseUiComponent<EntryListUiComponent.Callback>(),
+  EntryListUiComponent,
+  EntryListPresenter.Callback {
 
-  override fun id(): Int {
-    return container.id()
-  }
-
-  override fun onBind(owner: LifecycleOwner, savedInstanceState: Bundle?, callback: Unit) {
+  override fun onBind(owner: LifecycleOwner, savedInstanceState: Bundle?, callback: Callback) {
     owner.doOnDestroy {
-      container.teardown()
+      listView.teardown()
+      presenter.unbind()
     }
 
-    container.inflate(savedInstanceState)
+    listView.inflate(savedInstanceState)
+    presenter.bind(this)
   }
 
   override fun saveState(outState: Bundle) {
-    container.saveState(outState)
+    listView.saveState(outState)
   }
 
-  override fun layout(constraintLayout: ConstraintLayout, aboveId: Int) {
-    ConstraintSet().apply {
-      clone(constraintLayout)
+  override fun id(): Int {
+    return listView.id()
+  }
 
-      container.also {
+  override fun layout(root: ConstraintLayout, aboveId: Int) {
+    ConstraintSet().apply {
+      clone(root)
+
+      listView.also {
         connect(it.id(), ConstraintSet.TOP, aboveId, ConstraintSet.BOTTOM)
         connect(it.id(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
         connect(it.id(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
@@ -60,7 +64,7 @@ internal class FragmentContainerUiComponentImpl @Inject internal constructor(
         constrainHeight(it.id(), ConstraintSet.MATCH_CONSTRAINT)
       }
 
-      applyTo(constraintLayout)
+      applyTo(root)
     }
   }
 

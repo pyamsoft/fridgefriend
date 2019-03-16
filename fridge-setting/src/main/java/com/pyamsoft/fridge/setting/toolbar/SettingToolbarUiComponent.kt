@@ -15,24 +15,16 @@
  *
  */
 
-package com.pyamsoft.fridge.entry
+package com.pyamsoft.fridge.setting.toolbar
 
-import androidx.annotation.CheckResult
-import androidx.annotation.IdRes
-import androidx.constraintlayout.widget.ConstraintLayout
-import com.pyamsoft.fridge.entry.EntryListUiComponent.Callback
+import com.pyamsoft.fridge.setting.toolbar.SettingToolbarUiComponent.Callback
 import com.pyamsoft.pydroid.arch.UiComponent
 
-interface EntryListUiComponent : UiComponent<Callback> {
-
-  @IdRes
-  @CheckResult
-  fun id(): Int
-
-  fun layout(root: ConstraintLayout, aboveId: Int)
+interface SettingToolbarUiComponent : UiComponent<Callback> {
 
   interface Callback {
 
+    fun onNavigateBack()
   }
 
 }

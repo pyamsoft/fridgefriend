@@ -15,7 +15,7 @@
  *
  */
 
-package com.pyamsoft.fridge.entry.impl
+package com.pyamsoft.fridge.entry.list
 
 import android.os.Bundle
 import android.view.View
@@ -24,13 +24,14 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.pyamsoft.fridge.entry.R
+import com.pyamsoft.fridge.entry.list.EntryList.Callback
 import com.pyamsoft.pydroid.arch.BaseUiView
 import javax.inject.Inject
 
 internal class EntryList @Inject internal constructor(
   parent: ViewGroup,
-  callback: EntryList.Callback
-) : BaseUiView<EntryList.Callback>(parent, callback) {
+  callback: Callback
+) : BaseUiView<Callback>(parent, callback) {
 
   override val layout: Int = R.layout.swipe_refresh_list
 

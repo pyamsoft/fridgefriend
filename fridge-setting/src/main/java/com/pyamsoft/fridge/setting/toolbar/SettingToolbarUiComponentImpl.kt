@@ -15,24 +15,26 @@
  *
  */
 
-package com.pyamsoft.fridge.entry.impl
+package com.pyamsoft.fridge.setting.toolbar
 
 import android.os.Bundle
 import androidx.lifecycle.LifecycleOwner
-import com.pyamsoft.fridge.entry.EntryToolbarUiComponent
-import com.pyamsoft.fridge.entry.EntryToolbarUiComponent.Callback
 import com.pyamsoft.pydroid.arch.BaseUiComponent
 import com.pyamsoft.pydroid.arch.doOnDestroy
 import javax.inject.Inject
 
-internal class EntryToolbarUiComponentImpl @Inject internal constructor(
-  private val toolbar: EntryToolbar,
-  private val presenter: EntryToolbarPresenter
-) : BaseUiComponent<EntryToolbarUiComponent.Callback>(),
-  EntryToolbarUiComponent,
-  EntryToolbarPresenter.Callback {
+internal class SettingToolbarUiComponentImpl @Inject internal constructor(
+  private val toolbar: SettingToolbar,
+  private val presenter: SettingToolbarPresenter
+) : BaseUiComponent<SettingToolbarUiComponent.Callback>(),
+  SettingToolbarUiComponent,
+  SettingToolbarPresenter.Callback {
 
-  override fun onBind(owner: LifecycleOwner, savedInstanceState: Bundle?, callback: Callback) {
+  override fun onBind(
+    owner: LifecycleOwner,
+    savedInstanceState: Bundle?,
+    callback: SettingToolbarUiComponent.Callback
+  ) {
     owner.doOnDestroy {
       toolbar.teardown()
       presenter.unbind()
@@ -46,8 +48,8 @@ internal class EntryToolbarUiComponentImpl @Inject internal constructor(
     toolbar.saveState(outState)
   }
 
-  override fun handleSettingsClicked() {
-    callback.onNavigateToSettings()
+  override fun handleNavigateBack() {
+    callback.onNavigateBack()
   }
 
 }

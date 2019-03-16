@@ -15,15 +15,17 @@
  *
  */
 
-package com.pyamsoft.fridge.setting
+package com.pyamsoft.fridge.entry.toolbar
 
+import com.pyamsoft.fridge.entry.toolbar.EntryToolbarUiComponent.Callback
 import com.pyamsoft.pydroid.arch.UiComponent
 
-interface SettingToolbarUiComponent : UiComponent<SettingToolbarUiComponent.Callback> {
+interface EntryToolbarUiComponent : UiComponent<Callback> {
 
   interface Callback {
 
-    fun onNavigateBack()
+    fun onNavigateToSettings()
+
   }
 
 }

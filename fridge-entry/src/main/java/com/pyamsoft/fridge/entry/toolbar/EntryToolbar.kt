@@ -15,48 +15,68 @@
  *
  */
 
-package com.pyamsoft.fridge.setting.impl
+package com.pyamsoft.fridge.entry.toolbar
 
 import android.os.Bundle
+import android.view.MenuItem
+import com.pyamsoft.fridge.entry.R
 import com.pyamsoft.pydroid.arch.UiView
 import com.pyamsoft.pydroid.ui.app.ToolbarActivity
 import com.pyamsoft.pydroid.ui.arch.InvalidIdException
-import com.pyamsoft.pydroid.ui.util.DebouncedOnClickListener
 import com.pyamsoft.pydroid.ui.util.setUpEnabled
 import javax.inject.Inject
+import javax.inject.Named
 
-internal class SettingToolbar @Inject internal constructor(
+internal class EntryToolbar @Inject internal constructor(
   private val toolbarActivity: ToolbarActivity,
-  private val callback: SettingToolbar.Callback
+  @Named("app_name") private val appNameRes: Int,
+  private val callback: Callback
 ) : UiView {
 
   override fun id(): Int {
     throw InvalidIdException
   }
 
+  private var settingsItem: MenuItem? = null
+
   override fun inflate(savedInstanceState: Bundle?) {
-    toolbarActivity.requireToolbar { toolbar ->
-      toolbar.setTitle("Settings")
-      toolbar.setUpEnabled(true)
-      toolbar.setNavigationOnClickListener(DebouncedOnClickListener.create {
-        callback.onNavigateClicked()
-      })
-    }
+    setupToolbar()
+    inflateMenu()
   }
 
   override fun saveState(outState: Bundle) {
   }
 
   override fun teardown() {
-    toolbarActivity.withToolbar { toolbar ->
+    settingsItem?.setOnMenuItemClickListener(null)
+    settingsItem = null
+    toolbarActivity.withToolbar { it.menu.removeItem(R.id.menu_item_settings) }
+  }
+
+  private fun setupToolbar() {
+    toolbarActivity.requireToolbar { toolbar ->
       toolbar.setUpEnabled(false)
-      toolbar.setNavigationOnClickListener(null)
+      toolbar.setTitle(appNameRes)
+    }
+  }
+
+  private fun inflateMenu() {
+    toolbarActivity.requireToolbar { toolbar ->
+      toolbar.inflateMenu(R.menu.toolbar_menu)
+      toolbar.menu.findItem(R.id.menu_item_settings).also {
+        it.setOnMenuItemClickListener {
+          callback.onSettingsClicked()
+          return@setOnMenuItemClickListener true
+        }
+        settingsItem = it
+      }
     }
   }
 
   interface Callback {
 
-    fun onNavigateClicked()
+    fun onSettingsClicked()
 
   }
+
 }

@@ -18,12 +18,14 @@
 package com.pyamsoft.fridge.entry
 
 import androidx.annotation.CheckResult
-import com.pyamsoft.fridge.entry.impl.EntryList.Callback
-import com.pyamsoft.fridge.entry.impl.EntryListPresenter
-import com.pyamsoft.fridge.entry.impl.EntryListUiComponentImpl
-import com.pyamsoft.fridge.entry.impl.EntryToolbar
-import com.pyamsoft.fridge.entry.impl.EntryToolbarPresenter
-import com.pyamsoft.fridge.entry.impl.EntryToolbarUiComponentImpl
+import com.pyamsoft.fridge.entry.list.EntryList.Callback
+import com.pyamsoft.fridge.entry.list.EntryListPresenter
+import com.pyamsoft.fridge.entry.list.EntryListUiComponent
+import com.pyamsoft.fridge.entry.list.EntryListUiComponentImpl
+import com.pyamsoft.fridge.entry.toolbar.EntryToolbar
+import com.pyamsoft.fridge.entry.toolbar.EntryToolbarPresenter
+import com.pyamsoft.fridge.entry.toolbar.EntryToolbarUiComponent
+import com.pyamsoft.fridge.entry.toolbar.EntryToolbarUiComponentImpl
 import dagger.Binds
 import dagger.Module
 

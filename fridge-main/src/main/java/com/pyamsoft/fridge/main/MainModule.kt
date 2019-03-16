@@ -18,10 +18,12 @@
 package com.pyamsoft.fridge.main
 
 import androidx.annotation.CheckResult
-import com.pyamsoft.fridge.main.impl.FragmentContainerUiComponentImpl
-import com.pyamsoft.fridge.main.impl.MainToolbar
-import com.pyamsoft.fridge.main.impl.MainToolbarPresenter
-import com.pyamsoft.fridge.main.impl.MainToolbarUiComponentImpl
+import com.pyamsoft.fridge.main.container.FragmentContainerUiComponent
+import com.pyamsoft.fridge.main.container.FragmentContainerUiComponentImpl
+import com.pyamsoft.fridge.main.toolbar.MainToolbar
+import com.pyamsoft.fridge.main.toolbar.MainToolbarPresenter
+import com.pyamsoft.fridge.main.toolbar.MainToolbarUiComponent
+import com.pyamsoft.fridge.main.toolbar.MainToolbarUiComponentImpl
 import dagger.Binds
 import dagger.Module
 

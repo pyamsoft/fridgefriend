@@ -15,28 +15,19 @@
  *
  */
 
-package com.pyamsoft.fridge.entry.impl
+package com.pyamsoft.fridge.main.container
 
-import com.pyamsoft.fridge.entry.EntryScope
-import com.pyamsoft.fridge.entry.impl.EntryListPresenter.Callback
-import com.pyamsoft.pydroid.arch.BasePresenter
-import com.pyamsoft.pydroid.core.bus.RxBus
-import javax.inject.Inject
+import androidx.annotation.CheckResult
+import androidx.annotation.IdRes
+import androidx.constraintlayout.widget.ConstraintLayout
+import com.pyamsoft.pydroid.arch.UiComponent
 
-@EntryScope
-internal class EntryListPresenter @Inject internal constructor(
+interface FragmentContainerUiComponent : UiComponent<Unit> {
 
-) : BasePresenter<Unit, Callback>(RxBus.empty()),
-  EntryList.Callback {
+  @IdRes
+  @CheckResult
+  fun id(): Int
 
-  override fun onBind() {
-  }
-
-  override fun onUnbind() {
-  }
-
-  interface Callback {
-
-  }
+  fun layout(constraintLayout: ConstraintLayout, aboveId: Int)
 
 }
