@@ -19,8 +19,8 @@ package com.pyamsoft.fridge.main
 
 import android.view.ViewGroup
 import androidx.annotation.CheckResult
-import com.pyamsoft.fridge.entry.main.MainModule
-import com.pyamsoft.fridge.entry.main.MainScope
+import com.pyamsoft.fridge.main.MainModule
+import com.pyamsoft.fridge.main.MainScope
 import com.pyamsoft.fridge.main.MainComponent.MainProvider
 import com.pyamsoft.pydroid.ui.app.ToolbarActivityProvider
 import com.pyamsoft.pydroid.ui.widget.shadow.DropshadowView

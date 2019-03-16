@@ -12,6 +12,8 @@
             <option value="$PROJECT_DIR$/fridge-api" />
             <option value="$PROJECT_DIR$/fridge-deps" />
             <option value="$PROJECT_DIR$/fridge-entry" />
+            <option value="$PROJECT_DIR$/fridge-main" />
+            <option value="$PROJECT_DIR$/fridge-setting" />
           </set>
         </option>
         <option name="resolveModulePerSourceSet" value="false" />

@@ -15,10 +15,9 @@
  *
  */
 
-package com.pyamsoft.fridge.entry.setting.impl
+package com.pyamsoft.fridge.setting.impl
 
 import android.os.Bundle
-import com.pyamsoft.fridge.entry.R
 import com.pyamsoft.pydroid.arch.UiView
 import com.pyamsoft.pydroid.ui.app.ToolbarActivity
 import com.pyamsoft.pydroid.ui.arch.InvalidIdException
@@ -37,7 +36,7 @@ internal class SettingToolbar @Inject internal constructor(
 
   override fun inflate(savedInstanceState: Bundle?) {
     toolbarActivity.requireToolbar { toolbar ->
-      toolbar.setTitle(R.string.settings)
+      toolbar.setTitle("Settings")
       toolbar.setUpEnabled(true)
       toolbar.setNavigationOnClickListener(DebouncedOnClickListener.create {
         callback.onNavigateClicked()

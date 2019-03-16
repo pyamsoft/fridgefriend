@@ -15,19 +15,24 @@
  *
  */
 
-package com.pyamsoft.fridge.entry.main.impl
+package com.pyamsoft.fridge.setting
 
-import android.view.ViewGroup
-import androidx.constraintlayout.widget.ConstraintLayout
-import com.pyamsoft.fridge.entry.R
-import com.pyamsoft.pydroid.arch.BaseUiView
-import javax.inject.Inject
+import androidx.annotation.CheckResult
+import com.pyamsoft.fridge.setting.impl.SettingToolbar
+import com.pyamsoft.fridge.setting.impl.SettingToolbarPresenter
+import com.pyamsoft.fridge.setting.impl.SettingToolbarUiComponentImpl
+import dagger.Binds
+import dagger.Module
 
-internal class FragmentContainer @Inject internal constructor(
-  parent: ViewGroup
-) : BaseUiView<Unit>(parent, Unit) {
+@Module
+abstract class SettingModule {
 
-  override val layout: Int = R.layout.layout_constraint
+  @Binds
+  @CheckResult
+  internal abstract fun bindToolbarCallback(impl: SettingToolbarPresenter): SettingToolbar.Callback
 
-  override val layoutRoot by lazyView<ConstraintLayout>(R.id.layout_constraint)
+  @Binds
+  @CheckResult
+  internal abstract fun bindToolbarComponent(impl: SettingToolbarUiComponentImpl): SettingToolbarUiComponent
+
 }

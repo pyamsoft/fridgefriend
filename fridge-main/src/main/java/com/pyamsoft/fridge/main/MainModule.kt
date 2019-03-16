@@ -15,24 +15,29 @@
  *
  */
 
-package com.pyamsoft.fridge.entry.setting
+package com.pyamsoft.fridge.main
 
 import androidx.annotation.CheckResult
-import com.pyamsoft.fridge.entry.setting.impl.SettingToolbar
-import com.pyamsoft.fridge.entry.setting.impl.SettingToolbarPresenter
-import com.pyamsoft.fridge.entry.setting.impl.SettingToolbarUiComponentImpl
+import com.pyamsoft.fridge.main.impl.FragmentContainerUiComponentImpl
+import com.pyamsoft.fridge.main.impl.MainToolbar
+import com.pyamsoft.fridge.main.impl.MainToolbarPresenter
+import com.pyamsoft.fridge.main.impl.MainToolbarUiComponentImpl
 import dagger.Binds
 import dagger.Module
 
 @Module
-abstract class SettingModule {
+abstract class MainModule {
 
   @Binds
   @CheckResult
-  internal abstract fun bindToolbarCallback(impl: SettingToolbarPresenter): SettingToolbar.Callback
+  internal abstract fun bindToolbarCallback(impl: MainToolbarPresenter): MainToolbar.Callback
 
   @Binds
   @CheckResult
-  internal abstract fun bindToolbarComponent(impl: SettingToolbarUiComponentImpl): SettingToolbarUiComponent
+  internal abstract fun bindToolbarComponent(impl: MainToolbarUiComponentImpl): MainToolbarUiComponent
+
+  @Binds
+  @CheckResult
+  internal abstract fun bindContainerComponent(impl: FragmentContainerUiComponentImpl): FragmentContainerUiComponent
 
 }

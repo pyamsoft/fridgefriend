@@ -15,19 +15,9 @@
  *
  */
 
-package com.pyamsoft.fridge.entry.main
+package com.pyamsoft.fridge.setting
 
-import androidx.annotation.CheckResult
-import androidx.annotation.IdRes
-import androidx.constraintlayout.widget.ConstraintLayout
-import com.pyamsoft.pydroid.arch.UiComponent
+import javax.inject.Scope
 
-interface FragmentContainerUiComponent : UiComponent<Unit> {
-
-  @IdRes
-  @CheckResult
-  fun id(): Int
-
-  fun layout(constraintLayout: ConstraintLayout, aboveId: Int)
-
-}
+@Scope
+annotation class SettingScope

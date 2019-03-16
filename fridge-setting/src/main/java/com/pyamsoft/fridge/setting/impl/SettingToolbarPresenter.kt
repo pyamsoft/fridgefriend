@@ -15,9 +15,33 @@
  *
  */
 
-package com.pyamsoft.fridge.entry.main
+package com.pyamsoft.fridge.setting.impl
 
-import javax.inject.Scope
+import com.pyamsoft.fridge.setting.SettingScope
+import com.pyamsoft.pydroid.arch.BasePresenter
+import com.pyamsoft.pydroid.core.bus.RxBus
+import javax.inject.Inject
 
-@Scope
-annotation class MainScope
+@SettingScope
+internal class SettingToolbarPresenter @Inject internal constructor(
+
+) : BasePresenter<Unit, SettingToolbarPresenter.Callback>(RxBus.empty()),
+  SettingToolbar.Callback {
+
+  override fun onBind() {
+  }
+
+  override fun onUnbind() {
+  }
+
+  override fun onNavigateClicked() {
+    callback.handleNavigateBack()
+  }
+
+  interface Callback {
+
+    fun handleNavigateBack()
+
+  }
+
+}

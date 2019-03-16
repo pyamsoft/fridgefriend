@@ -15,9 +15,21 @@
  *
  */
 
-package com.pyamsoft.fridge.entry.setting
+package com.pyamsoft.fridge.main
 
-import javax.inject.Scope
+import androidx.annotation.CheckResult
+import androidx.annotation.IdRes
+import androidx.constraintlayout.widget.ConstraintLayout
+import com.pyamsoft.pydroid.arch.UiComponent
 
-@Scope
-annotation class SettingScope
+interface MainToolbarUiComponent : UiComponent<MainToolbarUiComponent.Callback> {
+
+  @IdRes
+  @CheckResult
+  fun id(): Int
+
+  fun layout(constraintLayout: ConstraintLayout)
+
+  interface Callback
+
+}

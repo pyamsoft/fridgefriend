@@ -109,4 +109,6 @@ dependencies {
   kapt "com.google.dagger:dagger-compiler:$dagger"
 
   implementation project(":fridge-entry")
+  implementation project(":fridge-main")
+  implementation project(":fridge-setting")
 }

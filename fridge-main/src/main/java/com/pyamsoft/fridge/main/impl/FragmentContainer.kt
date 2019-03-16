@@ -15,15 +15,19 @@
  *
  */
 
-package com.pyamsoft.fridge.entry.setting
+package com.pyamsoft.fridge.main.impl
 
-import com.pyamsoft.pydroid.arch.UiComponent
+import android.view.ViewGroup
+import androidx.constraintlayout.widget.ConstraintLayout
+import com.pyamsoft.fridge.main.R
+import com.pyamsoft.pydroid.arch.BaseUiView
+import javax.inject.Inject
 
-interface SettingToolbarUiComponent : UiComponent<SettingToolbarUiComponent.Callback> {
+internal class FragmentContainer @Inject internal constructor(
+  parent: ViewGroup
+) : BaseUiView<Unit>(parent, Unit) {
 
-  interface Callback {
+  override val layout: Int = R.layout.layout_constraint
 
-    fun onNavigateBack()
-  }
-
+  override val layoutRoot by lazyView<ConstraintLayout>(R.id.layout_constraint)
 }

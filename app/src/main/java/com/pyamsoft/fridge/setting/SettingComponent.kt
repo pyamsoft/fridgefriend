@@ -19,8 +19,8 @@ package com.pyamsoft.fridge.setting
 
 import android.view.ViewGroup
 import androidx.annotation.CheckResult
-import com.pyamsoft.fridge.entry.setting.SettingModule
-import com.pyamsoft.fridge.entry.setting.SettingScope
+import com.pyamsoft.fridge.setting.SettingModule
+import com.pyamsoft.fridge.setting.SettingScope
 import com.pyamsoft.pydroid.ui.app.ToolbarActivity
 import dagger.BindsInstance
 import dagger.Subcomponent

@@ -1,1 +1,1 @@
-include ':app', ':fridge-entry', ':fridge-deps', ':fridge-api'
+include ':app', ':fridge-entry', ':fridge-deps', ':fridge-api', ':fridge-main', ':fridge-setting'

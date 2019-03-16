@@ -15,15 +15,15 @@
  *
  */
 
-package com.pyamsoft.fridge.entry.main.impl
+package com.pyamsoft.fridge.main.impl
 
 import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.ViewCompat
-import com.pyamsoft.fridge.entry.R
-import com.pyamsoft.fridge.entry.main.impl.MainToolbar.Callback
+import com.pyamsoft.fridge.main.R
+import com.pyamsoft.fridge.main.impl.MainToolbar.Callback
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.ui.app.ToolbarActivityProvider
 import com.pyamsoft.pydroid.ui.theme.Theming

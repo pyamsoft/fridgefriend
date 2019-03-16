@@ -15,11 +15,11 @@
  *
  */
 
-package com.pyamsoft.fridge.entry.setting.impl
+package com.pyamsoft.fridge.setting.impl
 
 import android.os.Bundle
 import androidx.lifecycle.LifecycleOwner
-import com.pyamsoft.fridge.entry.setting.SettingToolbarUiComponent
+import com.pyamsoft.fridge.setting.SettingToolbarUiComponent
 import com.pyamsoft.pydroid.arch.BaseUiComponent
 import com.pyamsoft.pydroid.arch.doOnDestroy
 import javax.inject.Inject

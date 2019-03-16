@@ -15,33 +15,19 @@
  *
  */
 
-package com.pyamsoft.fridge.entry.setting.impl
+package com.pyamsoft.fridge.main
 
-import com.pyamsoft.fridge.entry.setting.SettingScope
-import com.pyamsoft.pydroid.arch.BasePresenter
-import com.pyamsoft.pydroid.core.bus.RxBus
-import javax.inject.Inject
+import androidx.annotation.CheckResult
+import androidx.annotation.IdRes
+import androidx.constraintlayout.widget.ConstraintLayout
+import com.pyamsoft.pydroid.arch.UiComponent
 
-@SettingScope
-internal class SettingToolbarPresenter @Inject internal constructor(
+interface FragmentContainerUiComponent : UiComponent<Unit> {
 
-) : BasePresenter<Unit, SettingToolbarPresenter.Callback>(RxBus.empty()),
-  SettingToolbar.Callback {
+  @IdRes
+  @CheckResult
+  fun id(): Int
 
-  override fun onBind() {
-  }
-
-  override fun onUnbind() {
-  }
-
-  override fun onNavigateClicked() {
-    callback.handleNavigateBack()
-  }
-
-  interface Callback {
-
-    fun handleNavigateBack()
-
-  }
+  fun layout(constraintLayout: ConstraintLayout, aboveId: Int)
 
 }
