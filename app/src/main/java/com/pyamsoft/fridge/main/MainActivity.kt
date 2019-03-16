@@ -101,11 +101,9 @@ internal class MainActivity : RatingActivity(),
   private fun pushFragment() {
     val fm = supportFragmentManager
     if (fm.findFragmentById(fragmentContainerId) == null) {
-      fm.beginTransaction().add(
-        fragmentContainerId,
-        EntryListFragment.newInstance(),
-        EntryListFragment.TAG
-      ).commit(this)
+      fm.beginTransaction()
+        .add(fragmentContainerId, EntryListFragment.newInstance(), EntryListFragment.TAG)
+        .commit(this)
     }
   }
 
