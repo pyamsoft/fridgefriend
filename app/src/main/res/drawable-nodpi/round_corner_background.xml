@@ -16,16 +16,12 @@
   ~
   -->
 
-<merge>
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
 
-  <androidx.appcompat.widget.Toolbar
-      xmlns:android="http://schemas.android.com/apk/res/android"
-      android:id="@+id/colored_toolbar"
-      android:layout_width="match_parent"
-      android:layout_height="?attr/actionBarSize"
-      android:background="?attr/colorPrimary"
-      android:theme="@style/ThemeOverlay.MaterialComponents.Dark.ActionBar"
-      />
+  <solid android:color="?android:attr/windowBackground"/>
 
-</merge>
+  <corners android:radius="16dp"/>
+
+</shape>
 

@@ -15,30 +15,23 @@
  *
  */
 
-package com.pyamsoft.fridge.entry.list
+package com.pyamsoft.fridge.create.title
 
 import android.view.ViewGroup
-import android.widget.TextView
-import androidx.recyclerview.widget.RecyclerView
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-import com.pyamsoft.fridge.entry.R
-import com.pyamsoft.fridge.entry.list.EntryList.Callback
+import com.google.android.material.textfield.TextInputLayout
+import com.pyamsoft.fridge.create.R
+import com.pyamsoft.fridge.create.title.CreateTitle.Callback
 import com.pyamsoft.pydroid.arch.BaseUiView
 import javax.inject.Inject
 
-internal class EntryList @Inject internal constructor(
+internal class CreateTitle @Inject internal constructor(
   parent: ViewGroup,
   callback: Callback
 ) : BaseUiView<Callback>(parent, callback) {
 
-  override val layout: Int = R.layout.entry_list
+  override val layout: Int = R.layout.create_title
 
-  override val layoutRoot by lazyView<SwipeRefreshLayout>(R.id.entry_swipe_refresh)
+  override val layoutRoot by lazyView<TextInputLayout>(R.id.entry_create_title)
 
-  private val recyclerView by lazyView<RecyclerView>(R.id.entry_list)
-  private val emptyState by lazyView<TextView>(R.id.entry_empty)
-
-  interface Callback {
-
-  }
+  interface Callback
 }

@@ -39,9 +39,9 @@ internal class MainToolbar @Inject internal constructor(
   callback: Callback
 ) : BaseUiView<Callback>(parent, callback) {
 
-  override val layout: Int = R.layout.colored_toolbar
+  override val layout: Int = R.layout.main_toolbar
 
-  override val layoutRoot by lazyView<Toolbar>(R.id.colored_toolbar)
+  override val layoutRoot by lazyView<Toolbar>(R.id.main_toolbar)
 
   override fun onInflated(view: View, savedInstanceState: Bundle?) {
     inflateToolbar()

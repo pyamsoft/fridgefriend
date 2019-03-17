@@ -20,6 +20,7 @@ package com.pyamsoft.fridge
 import android.app.Application
 import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.FridgeComponent.FridgeProvider
+import com.pyamsoft.fridge.create.CreateComponent
 import com.pyamsoft.fridge.entry.EntryComponent
 import com.pyamsoft.fridge.main.MainComponent
 import com.pyamsoft.fridge.setting.SettingComponent
@@ -37,6 +38,9 @@ import javax.inject.Singleton
 @Singleton
 @Component(modules = [FridgeProvider::class])
 internal interface FridgeComponent {
+
+  @CheckResult
+  fun plusCreateComponent(): CreateComponent.Builder
 
   @CheckResult
   fun plusEntryComponent(): EntryComponent.Builder
