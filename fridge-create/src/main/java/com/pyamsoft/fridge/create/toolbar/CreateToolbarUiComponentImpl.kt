@@ -17,23 +17,34 @@
 
 package com.pyamsoft.fridge.create.toolbar
 
+import android.graphics.drawable.Drawable
 import android.os.Bundle
+import android.view.View
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.lifecycle.LifecycleOwner
+import com.pyamsoft.fridge.create.R
 import com.pyamsoft.fridge.create.toolbar.CreateToolbarUiComponent.Callback
 import com.pyamsoft.pydroid.arch.BaseUiComponent
 import com.pyamsoft.pydroid.arch.doOnDestroy
+import com.pyamsoft.pydroid.loader.ImageLoader
+import com.pyamsoft.pydroid.loader.ImageTarget
+import com.pyamsoft.pydroid.loader.Loaded
+import com.pyamsoft.pydroid.ui.theme.Theming
 import com.pyamsoft.pydroid.ui.widget.shadow.DropshadowView
 import javax.inject.Inject
 
 internal class CreateToolbarUiComponentImpl @Inject internal constructor(
+  private val theming: Theming,
+  private val imageLoader: ImageLoader,
   private val toolbar: CreateToolbar,
   private val dropshadowView: DropshadowView,
   private val presenter: CreateToolbarPresenter
 ) : BaseUiComponent<CreateToolbarUiComponent.Callback>(),
   CreateToolbarUiComponent,
   CreateToolbarPresenter.Callback {
+
+  private var background: Loaded? = null
 
   override fun id(): Int {
     return toolbar.id()
@@ -44,6 +55,7 @@ internal class CreateToolbarUiComponentImpl @Inject internal constructor(
       toolbar.teardown()
       dropshadowView.teardown()
       presenter.unbind()
+      background?.dispose()
     }
 
     toolbar.inflate(savedInstanceState)
@@ -79,6 +91,43 @@ internal class CreateToolbarUiComponentImpl @Inject internal constructor(
 
       applyTo(constraintLayout)
     }
+
+    // TODO better place for this
+    setBackground(constraintLayout)
+  }
+
+  private fun setBackground(constraintLayout: ConstraintLayout) {
+    val drawable: Int
+    if (theming.isDarkTheme()) {
+      drawable = R.drawable.dialog_background_dark
+    } else {
+      drawable = R.drawable.dialog_background_light
+    }
+
+    background?.dispose()
+    background = imageLoader.load(drawable)
+      .into(object : ImageTarget<Drawable> {
+        override fun clear() {
+          constraintLayout.background = null
+        }
+
+        override fun setError(error: Drawable?) {
+          constraintLayout.background = error
+        }
+
+        override fun setImage(image: Drawable) {
+          constraintLayout.background = image
+        }
+
+        override fun setPlaceholder(placeholder: Drawable?) {
+          constraintLayout.background = placeholder
+        }
+
+        override fun view(): View {
+          return constraintLayout
+        }
+
+      })
   }
 
 }

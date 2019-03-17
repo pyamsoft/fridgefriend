@@ -16,12 +16,8 @@
   ~
   -->
 
-<shape xmlns:android="http://schemas.android.com/apk/res/android"
-    android:shape="rectangle">
-
-  <solid android:color="?android:attr/windowBackground"/>
-
-  <corners android:radius="16dp"/>
-
-</shape>
-
+<inset
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:drawable="@drawable/round_corner_background_light"
+    android:inset="16dp"
+    />

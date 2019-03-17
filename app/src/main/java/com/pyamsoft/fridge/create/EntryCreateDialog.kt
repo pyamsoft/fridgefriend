@@ -19,7 +19,6 @@ package com.pyamsoft.fridge.create
 
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
-import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.view.Gravity
 import android.view.LayoutInflater
@@ -33,20 +32,14 @@ import com.pyamsoft.fridge.Injector
 import com.pyamsoft.fridge.R
 import com.pyamsoft.fridge.create.title.CreateTitleUiComponent
 import com.pyamsoft.fridge.create.toolbar.CreateToolbarUiComponent
-import com.pyamsoft.pydroid.loader.ImageLoader
-import com.pyamsoft.pydroid.loader.ImageTarget
-import com.pyamsoft.pydroid.loader.Loaded
 import javax.inject.Inject
 
 internal class EntryCreateDialog : DialogFragment(),
   CreateToolbarUiComponent.Callback,
   CreateTitleUiComponent.Callback {
 
-  @field:Inject internal lateinit var imageLoader: ImageLoader
   @field:Inject internal lateinit var toolbar: CreateToolbarUiComponent
   @field:Inject internal lateinit var title: CreateTitleUiComponent
-
-  private var background: Loaded? = null
 
   override fun onCreateView(
     inflater: LayoutInflater,
@@ -66,7 +59,7 @@ internal class EntryCreateDialog : DialogFragment(),
       .build()
       .inject(this)
 
-    setDialogBackground(parent)
+    setDialogBackground()
     title.bind(viewLifecycleOwner, savedInstanceState, this)
     toolbar.bind(viewLifecycleOwner, savedInstanceState, this)
 
@@ -74,32 +67,8 @@ internal class EntryCreateDialog : DialogFragment(),
     title.layout(parent, toolbar.id())
   }
 
-  private fun setDialogBackground(parent: ConstraintLayout) {
+  private fun setDialogBackground() {
     dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-    background?.dispose()
-    background = imageLoader.load(R.drawable.dialog_background)
-      .into(object : ImageTarget<Drawable> {
-        override fun clear() {
-          parent.background = null
-        }
-
-        override fun setError(error: Drawable?) {
-          parent.background = error
-        }
-
-        override fun setImage(image: Drawable) {
-          parent.background = image
-        }
-
-        override fun setPlaceholder(placeholder: Drawable?) {
-          parent.background = placeholder
-        }
-
-        override fun view(): View {
-          return parent
-        }
-
-      })
   }
 
   override fun onSaveInstanceState(outState: Bundle) {
@@ -117,11 +86,6 @@ internal class EntryCreateDialog : DialogFragment(),
       )
       setGravity(Gravity.CENTER)
     }
-  }
-
-  override fun onDestroyView() {
-    super.onDestroyView()
-    background?.dispose()
   }
 
   override fun onClose() {

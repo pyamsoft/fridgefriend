@@ -81,6 +81,8 @@ internal class EntryListFragment : Fragment(),
         .addToBackStack(null)
         .commit(viewLifecycleOwner)
     }
+
+    EntryCreateDialog.newInstance().show(requireActivity(), EntryCreateDialog.TAG)
   }
 
   companion object {
