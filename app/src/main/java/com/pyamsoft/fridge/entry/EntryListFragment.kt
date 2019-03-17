@@ -27,22 +27,25 @@ import androidx.fragment.app.Fragment
 import com.pyamsoft.fridge.FridgeComponent
 import com.pyamsoft.fridge.Injector
 import com.pyamsoft.fridge.R
-import com.pyamsoft.fridge.create.EntryCreateDialog
+import com.pyamsoft.fridge.detail.EntryCreateFragment
+import com.pyamsoft.fridge.entry.action.EntryActionUiComponent
 import com.pyamsoft.fridge.entry.list.EntryListUiComponent
 import com.pyamsoft.fridge.entry.toolbar.EntryToolbarUiComponent
 import com.pyamsoft.fridge.extensions.fragmentContainerId
 import com.pyamsoft.fridge.setting.SettingsFragment
 import com.pyamsoft.pydroid.ui.app.requireToolbarActivity
 import com.pyamsoft.pydroid.ui.util.commit
-import com.pyamsoft.pydroid.ui.util.show
+import timber.log.Timber
 import javax.inject.Inject
 
 internal class EntryListFragment : Fragment(),
   EntryListUiComponent.Callback,
+  EntryActionUiComponent.Callback,
   EntryToolbarUiComponent.Callback {
 
   @field:Inject internal lateinit var toolbar: EntryToolbarUiComponent
   @field:Inject internal lateinit var list: EntryListUiComponent
+  @field:Inject internal lateinit var action: EntryActionUiComponent
 
   override fun onCreateView(
     inflater: LayoutInflater,
@@ -64,25 +67,39 @@ internal class EntryListFragment : Fragment(),
       .inject(this)
 
     list.bind(viewLifecycleOwner, savedInstanceState, this)
+    action.bind(viewLifecycleOwner, savedInstanceState, this)
     toolbar.bind(viewLifecycleOwner, savedInstanceState, this)
+
+    action.show()
   }
 
   override fun onSaveInstanceState(outState: Bundle) {
     super.onSaveInstanceState(outState)
     list.saveState(outState)
     toolbar.saveState(outState)
+    action.saveState(outState)
   }
 
-  override fun onNavigateToSettings() {
+  private inline fun pushFragment(tag: String, crossinline createFragment: () -> Fragment) {
     val fm = requireActivity().supportFragmentManager
-    if (fm.findFragmentByTag(SettingsFragment.TAG) == null) {
+    if (fm.findFragmentByTag(tag) == null) {
       fm.beginTransaction()
-        .replace(fragmentContainerId, SettingsFragment.newInstance(), SettingsFragment.TAG)
+        .replace(fragmentContainerId, createFragment(), tag)
         .addToBackStack(null)
         .commit(viewLifecycleOwner)
     }
+  }
 
-    EntryCreateDialog.newInstance().show(requireActivity(), EntryCreateDialog.TAG)
+  override fun onNavigateToSettings() {
+    pushFragment(SettingsFragment.TAG) { SettingsFragment.newInstance() }
+  }
+
+  override fun onCreateNew() {
+    pushFragment(EntryCreateFragment.TAG) { EntryCreateFragment.newInstance() }
+  }
+
+  override fun onStartShopping() {
+    Timber.d("TODO: Start shopping")
   }
 
   companion object {

@@ -18,7 +18,11 @@
 package com.pyamsoft.fridge.entry
 
 import androidx.annotation.CheckResult
-import com.pyamsoft.fridge.entry.list.EntryList.Callback
+import com.pyamsoft.fridge.entry.action.EntryAction
+import com.pyamsoft.fridge.entry.action.EntryActionPresenter
+import com.pyamsoft.fridge.entry.action.EntryActionUiComponent
+import com.pyamsoft.fridge.entry.action.EntryActionUiComponentImpl
+import com.pyamsoft.fridge.entry.list.EntryList
 import com.pyamsoft.fridge.entry.list.EntryListPresenter
 import com.pyamsoft.fridge.entry.list.EntryListUiComponent
 import com.pyamsoft.fridge.entry.list.EntryListUiComponentImpl
@@ -34,7 +38,15 @@ abstract class EntryModule {
 
   @Binds
   @CheckResult
-  internal abstract fun bindListCallback(impl: EntryListPresenter): Callback
+  internal abstract fun bindCreateCallback(impl: EntryActionPresenter): EntryAction.Callback
+
+  @Binds
+  @CheckResult
+  internal abstract fun bindCreateComponent(impl: EntryActionUiComponentImpl): EntryActionUiComponent
+
+  @Binds
+  @CheckResult
+  internal abstract fun bindListCallback(impl: EntryListPresenter): EntryList.Callback
 
   @Binds
   @CheckResult

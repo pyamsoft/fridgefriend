@@ -1,2 +1,2 @@
 include ':app', ':fridge-entry', ':fridge-deps', ':fridge-api', ':fridge-main', ':fridge-setting',
-    ':fridge-create'
+    ':fridge-detail'
