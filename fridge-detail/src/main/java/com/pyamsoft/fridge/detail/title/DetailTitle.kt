@@ -17,6 +17,8 @@
 
 package com.pyamsoft.fridge.detail.title
 
+import android.os.Bundle
+import android.view.View
 import android.view.ViewGroup
 import com.google.android.material.textfield.TextInputLayout
 import com.pyamsoft.fridge.detail.R
@@ -32,6 +34,10 @@ internal class DetailTitle @Inject internal constructor(
   override val layout: Int = R.layout.detail_title
 
   override val layoutRoot by lazyView<TextInputLayout>(R.id.entry_detail_title)
+
+  override fun onInflated(view: View, savedInstanceState: Bundle?) {
+    layoutRoot.post { layoutRoot.requestFocus() }
+  }
 
   interface Callback
 }
