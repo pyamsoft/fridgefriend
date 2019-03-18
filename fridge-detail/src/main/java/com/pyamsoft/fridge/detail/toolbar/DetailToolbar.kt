@@ -18,6 +18,8 @@
 package com.pyamsoft.fridge.detail.toolbar
 
 import android.os.Bundle
+import android.view.MenuItem
+import com.pyamsoft.fridge.detail.R
 import com.pyamsoft.pydroid.arch.UiView
 import com.pyamsoft.pydroid.ui.app.ToolbarActivity
 import com.pyamsoft.pydroid.ui.arch.InvalidIdException
@@ -30,6 +32,8 @@ internal class DetailToolbar @Inject internal constructor(
   private val callback: Callback
 ) : UiView {
 
+  private var saveMenuItem: MenuItem? = null
+
   override fun id(): Int {
     throw InvalidIdException
   }
@@ -40,6 +44,14 @@ internal class DetailToolbar @Inject internal constructor(
       toolbar.setNavigationOnClickListener(DebouncedOnClickListener.create {
         callback.onNavigationClicked()
       })
+
+      toolbar.inflateMenu(R.menu.menu_detail)
+      val saveItem = toolbar.menu.findItem(R.id.menu_item_save)
+      saveItem.setOnMenuItemClickListener {
+        callback.onSaveClicked()
+        return@setOnMenuItemClickListener true
+      }
+      saveMenuItem = saveItem
     }
   }
 
@@ -50,12 +62,18 @@ internal class DetailToolbar @Inject internal constructor(
     toolbarActivity.withToolbar { toolber ->
       toolber.setUpEnabled(false)
       toolber.setNavigationOnClickListener(null)
+
+      saveMenuItem?.setOnMenuItemClickListener(null)
+      saveMenuItem = null
+      toolber.menu.removeItem(R.id.menu_item_save)
     }
   }
 
   interface Callback {
 
     fun onNavigationClicked()
+
+    fun onSaveClicked()
   }
 
 }

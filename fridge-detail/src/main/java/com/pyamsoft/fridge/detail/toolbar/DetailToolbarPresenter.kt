@@ -38,9 +38,15 @@ internal class DetailToolbarPresenter @Inject internal constructor(
     callback.handleBack()
   }
 
+  override fun onSaveClicked() {
+    callback.handleSave()
+  }
+
   interface Callback {
 
     fun handleBack()
+
+    fun handleSave()
   }
 
 }

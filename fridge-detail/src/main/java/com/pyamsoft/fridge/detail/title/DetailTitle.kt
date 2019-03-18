@@ -36,7 +36,11 @@ internal class DetailTitle @Inject internal constructor(
   override val layoutRoot by lazyView<TextInputLayout>(R.id.entry_detail_title)
 
   override fun onInflated(view: View, savedInstanceState: Bundle?) {
-    layoutRoot.post { layoutRoot.requestFocus() }
+    layoutRoot.requestFocus()
+  }
+
+  override fun onTeardown() {
+    layoutRoot.clearFocus()
   }
 
   interface Callback

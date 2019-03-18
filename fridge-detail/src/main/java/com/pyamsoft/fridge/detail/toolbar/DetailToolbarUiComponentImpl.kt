@@ -49,4 +49,8 @@ internal class DetailToolbarUiComponentImpl @Inject internal constructor(
     callback.onBack()
   }
 
+  override fun handleSave() {
+    callback.onSave()
+  }
+
 }

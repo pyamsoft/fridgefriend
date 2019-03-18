@@ -72,6 +72,11 @@ internal class DetailFragment : Fragment(),
     requireActivity().onBackPressed()
   }
 
+  override fun onSave() {
+    // TODO: Save details
+    requireActivity().onBackPressed()
+  }
+
   companion object {
 
     const val TAG = "EntryCreateDialog"

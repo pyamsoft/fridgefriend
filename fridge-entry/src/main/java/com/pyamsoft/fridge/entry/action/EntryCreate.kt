@@ -80,25 +80,23 @@ internal class EntryCreate @Inject internal constructor(
   }
 
   internal inline fun show(gap: Int, margin: Int, crossinline onShown: () -> Unit) {
-    layoutRoot.popShow(
-      startDelay = 350L,
-      listener = object : ViewPropertyAnimatorListenerAdapter() {
-        override fun onAnimationStart(view: View?) {
-          super.onAnimationStart(view)
-          view?.isVisible = true
+    layoutRoot.popShow(listener = object : ViewPropertyAnimatorListenerAdapter() {
+      override fun onAnimationStart(view: View?) {
+        super.onAnimationStart(view)
+        view?.isVisible = true
 
-          // Causes visibility to update?
-          layoutRoot.updateLayoutParams<MarginLayoutParams> {
-            marginEnd = gap + margin
-            bottomMargin = (margin * 1.5).toInt()
-          }
+        // Causes visibility to update?
+        layoutRoot.updateLayoutParams<MarginLayoutParams> {
+          marginEnd = gap + margin
+          bottomMargin = (margin * 1.5).toInt()
         }
+      }
 
-        override fun onAnimationEnd(view: View?) {
-          super.onAnimationEnd(view)
-          onShown()
-        }
-      })
+      override fun onAnimationEnd(view: View?) {
+        super.onAnimationEnd(view)
+        onShown()
+      }
+    })
   }
 
   interface Callback {
