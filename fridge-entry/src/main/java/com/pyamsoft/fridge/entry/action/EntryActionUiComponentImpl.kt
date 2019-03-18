@@ -24,7 +24,8 @@ import com.pyamsoft.pydroid.arch.doOnDestroy
 import javax.inject.Inject
 
 internal class EntryActionUiComponentImpl @Inject internal constructor(
-  private val actionView: EntryAction,
+  private val create: EntryCreate,
+  private val shop: EntryShop,
   private val presenter: EntryActionPresenter
 ) : BaseUiComponent<EntryActionUiComponent.Callback>(),
   EntryActionUiComponent,
@@ -36,16 +37,19 @@ internal class EntryActionUiComponentImpl @Inject internal constructor(
     callback: EntryActionUiComponent.Callback
   ) {
     owner.doOnDestroy {
-      actionView.teardown()
+      create.teardown()
+      shop.teardown()
       presenter.unbind()
     }
 
-    actionView.inflate(savedInstanceState)
+    shop.inflate(savedInstanceState)
+    create.inflate(savedInstanceState)
     presenter.bind(this)
   }
 
   override fun saveState(outState: Bundle) {
-    actionView.saveState(outState)
+    create.saveState(outState)
+    shop.saveState(outState)
   }
 
   override fun handleCreate() {
@@ -57,7 +61,7 @@ internal class EntryActionUiComponentImpl @Inject internal constructor(
   }
 
   override fun show() {
-    actionView.show()
+    shop.onLaidOut { gap, margin -> create.show(gap, margin) { shop.show() } }
   }
 
 }

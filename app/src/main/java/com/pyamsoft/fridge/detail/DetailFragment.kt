@@ -32,7 +32,7 @@ import com.pyamsoft.fridge.detail.toolbar.DetailToolbarUiComponent
 import com.pyamsoft.pydroid.ui.app.requireToolbarActivity
 import javax.inject.Inject
 
-internal class EntryCreateFragment : Fragment(),
+internal class DetailFragment : Fragment(),
   DetailToolbarUiComponent.Callback,
   DetailTitleUiComponent.Callback {
 
@@ -79,7 +79,7 @@ internal class EntryCreateFragment : Fragment(),
     @JvmStatic
     @CheckResult
     fun newInstance(): Fragment {
-      return EntryCreateFragment().apply {
+      return DetailFragment().apply {
         arguments = Bundle().apply {
         }
       }

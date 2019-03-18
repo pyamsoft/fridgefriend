@@ -27,7 +27,7 @@ import dagger.Subcomponent
 @Subcomponent(modules = [DetailModule::class])
 internal interface DetailComponent {
 
-  fun inject(fragment: EntryCreateFragment)
+  fun inject(fragment: DetailFragment)
 
   @Subcomponent.Builder
   interface Builder {

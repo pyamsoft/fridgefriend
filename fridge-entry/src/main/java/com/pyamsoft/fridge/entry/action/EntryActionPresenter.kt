@@ -26,7 +26,8 @@ import javax.inject.Inject
 internal class EntryActionPresenter @Inject internal constructor(
 
 ) : BasePresenter<Unit, EntryActionPresenter.Callback>(RxBus.empty()),
-  EntryAction.Callback {
+  EntryCreate.Callback,
+  EntryShop.Callback {
 
   override fun onBind() {
   }
