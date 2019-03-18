@@ -60,8 +60,4 @@ internal class EntryActionUiComponentImpl @Inject internal constructor(
     actionView.show()
   }
 
-  override fun hide() {
-    actionView.hide()
-  }
-
 }

@@ -24,8 +24,6 @@ interface EntryActionUiComponent : UiComponent<Callback> {
 
   fun show()
 
-  fun hide()
-
   interface Callback {
 
     fun onCreateNew()

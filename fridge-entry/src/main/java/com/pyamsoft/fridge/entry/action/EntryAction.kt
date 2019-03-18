@@ -21,8 +21,10 @@ import android.content.res.ColorStateList
 import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.Animation
+import android.view.animation.Animation.AnimationListener
+import android.view.animation.AnimationUtils
 import androidx.core.content.ContextCompat
-import androidx.core.view.ViewPropertyAnimatorListenerAdapter
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.pyamsoft.fridge.entry.R
 import com.pyamsoft.pydroid.arch.BaseUiView
@@ -54,11 +56,11 @@ internal class EntryAction @Inject internal constructor(
 
   override fun onInflated(view: View, savedInstanceState: Bundle?) {
     createButton.setOnDebouncedClickListener {
-      hide { callback.onCreateClicked() }
+      it.wiggle { callback.onCreateClicked() }
     }
 
     shopButton.setOnDebouncedClickListener {
-      hide { callback.onShopClicked() }
+      it.wiggle { callback.onShopClicked() }
     }
 
     val createBackground: Int
@@ -93,23 +95,33 @@ internal class EntryAction @Inject internal constructor(
   }
 
   override fun show() {
-    createButton.popShow(FIRST_DELAY_TIME * 3)
+    createButton.popShow(FIRST_DELAY_TIME * 2)
     shopButton.popShow(STAGGERED_DELAY_TIME * 2)
   }
 
   override fun hide() {
-    hide(DEFAULT_HIDE_CALLBACK)
+    shopButton.popHide(FIRST_DELAY_TIME)
+    createButton.popHide(STAGGERED_DELAY_TIME)
   }
 
-  private inline fun hide(crossinline onHide: () -> Unit) {
-    shopButton.popHide(FIRST_DELAY_TIME)
-    createButton.popHide(
-      STAGGERED_DELAY_TIME,
-      listener = object : ViewPropertyAnimatorListenerAdapter() {
-        override fun onAnimationEnd(view: View?) {
-          onHide()
+  private inline fun View.wiggle(crossinline onAnimationComplete: () -> Unit) {
+    val animation = AnimationUtils.loadAnimation(context, R.anim.wiggle).apply {
+      setAnimationListener(object : AnimationListener {
+
+        override fun onAnimationRepeat(animation: Animation?) {
         }
+
+        override fun onAnimationEnd(animation: Animation?) {
+          onAnimationComplete()
+          setAnimationListener(null)
+        }
+
+        override fun onAnimationStart(animation: Animation?) {
+        }
+
       })
+    }
+    startAnimation(animation)
   }
 
   interface Callback {
@@ -122,9 +134,8 @@ internal class EntryAction @Inject internal constructor(
 
   companion object {
 
-    private val DEFAULT_HIDE_CALLBACK = {}
-    private const val FIRST_DELAY_TIME = 150L
-    private const val STAGGERED_DELAY_TIME = 400L
+    private const val FIRST_DELAY_TIME = 100L
+    private const val STAGGERED_DELAY_TIME = 300L
   }
 
 }
