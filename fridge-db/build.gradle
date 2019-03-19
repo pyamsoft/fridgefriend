@@ -66,10 +66,10 @@ kapt {
 
 dependencies {
 
-  kapt "com.google.dagger:dagger-compiler:$dagger"
-
-  implementation project(':fridge-db')
-  implementation project(':fridge-deps')
+  // PYDroid
+  implementation "com.pyamsoft.pydroid:core:$pydroid"
 }
+
+
 
 

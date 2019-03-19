@@ -66,10 +66,16 @@ kapt {
 
 dependencies {
 
+  // Room
+  implementation "androidx.room:room-rxjava2:$room"
+  implementation "androidx.room:room-runtime:$room"
+  kapt "androidx.room:room-compiler:$room"
+
   kapt "com.google.dagger:dagger-compiler:$dagger"
 
   implementation project(':fridge-db')
   implementation project(':fridge-deps')
 }
+
 
 

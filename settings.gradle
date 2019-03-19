@@ -1,2 +1,3 @@
-include ':app', ':fridge-entry', ':fridge-deps', ':fridge-main', ':fridge-setting',
+include ':app', ':fridge-entry', ':fridge-deps', ':fridge-main', ':fridge-setting', ':fridge-db',
+    ':fridge-db-room',
     ':fridge-detail'

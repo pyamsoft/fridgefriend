@@ -9,6 +9,8 @@
           <set>
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/app" />
+            <option value="$PROJECT_DIR$/fridge-db" />
+            <option value="$PROJECT_DIR$/fridge-db-room" />
             <option value="$PROJECT_DIR$/fridge-deps" />
             <option value="$PROJECT_DIR$/fridge-detail" />
             <option value="$PROJECT_DIR$/fridge-entry" />
