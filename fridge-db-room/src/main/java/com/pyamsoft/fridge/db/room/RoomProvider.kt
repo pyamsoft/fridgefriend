@@ -30,6 +30,7 @@ import com.pyamsoft.fridge.db.room.impl.FridgeDbImpl
 import com.pyamsoft.fridge.db.room.impl.RoomFridgeDb
 import dagger.Module
 import dagger.Provides
+import javax.inject.Named
 import javax.inject.Singleton
 
 @Module
@@ -53,6 +54,7 @@ object RoomProvider {
   @JvmStatic
   @Provides
   @CheckResult
+  @Named("room-realtime")
   internal fun provideRealtimeDao(db: FridgeDb): FridgeDbRealtime {
     return db.realtime()
   }
@@ -60,6 +62,7 @@ object RoomProvider {
   @JvmStatic
   @Provides
   @CheckResult
+  @Named("room-query-dao")
   internal fun provideQueryDao(db: FridgeDb): FridgeDbQueryDao {
     return db.query()
   }
@@ -67,6 +70,7 @@ object RoomProvider {
   @JvmStatic
   @Provides
   @CheckResult
+  @Named("room-insert-dao")
   internal fun provideInsertDao(db: FridgeDb): FridgeDbInsertDao {
     return db.insert()
   }
@@ -74,6 +78,7 @@ object RoomProvider {
   @JvmStatic
   @Provides
   @CheckResult
+  @Named("room-update-dao")
   internal fun provideUpdateDao(db: FridgeDb): FridgeDbUpdateDao {
     return db.update()
   }
@@ -81,6 +86,7 @@ object RoomProvider {
   @JvmStatic
   @Provides
   @CheckResult
+  @Named("room-delete-dao")
   internal fun provideDeleteDao(db: FridgeDb): FridgeDbDeleteDao {
     return db.delete()
   }
