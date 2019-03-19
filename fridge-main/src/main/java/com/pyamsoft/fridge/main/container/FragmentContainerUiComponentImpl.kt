@@ -18,8 +18,6 @@
 package com.pyamsoft.fridge.main.container
 
 import android.os.Bundle
-import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.constraintlayout.widget.ConstraintSet
 import androidx.lifecycle.LifecycleOwner
 import com.pyamsoft.pydroid.arch.BaseUiComponent
 import com.pyamsoft.pydroid.arch.doOnDestroy
@@ -42,25 +40,8 @@ internal class FragmentContainerUiComponentImpl @Inject internal constructor(
     container.inflate(savedInstanceState)
   }
 
-  override fun saveState(outState: Bundle) {
+  override fun onSaveState(outState: Bundle) {
     container.saveState(outState)
-  }
-
-  override fun layout(constraintLayout: ConstraintLayout, aboveId: Int) {
-    ConstraintSet().apply {
-      clone(constraintLayout)
-
-      container.also {
-        connect(it.id(), ConstraintSet.TOP, aboveId, ConstraintSet.BOTTOM)
-        connect(it.id(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
-        connect(it.id(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
-        connect(it.id(), ConstraintSet.BOTTOM, ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM)
-        constrainWidth(it.id(), ConstraintSet.MATCH_CONSTRAINT)
-        constrainHeight(it.id(), ConstraintSet.MATCH_CONSTRAINT)
-      }
-
-      applyTo(constraintLayout)
-    }
   }
 
 }

@@ -17,22 +17,11 @@
 
 package com.pyamsoft.fridge.entry.list
 
-import androidx.annotation.CheckResult
-import androidx.annotation.IdRes
-import androidx.constraintlayout.widget.ConstraintLayout
 import com.pyamsoft.fridge.entry.list.EntryListUiComponent.Callback
 import com.pyamsoft.pydroid.arch.UiComponent
 
 interface EntryListUiComponent : UiComponent<Callback> {
 
-  @IdRes
-  @CheckResult
-  fun id(): Int
-
-  fun layout(root: ConstraintLayout, aboveId: Int)
-
-  interface Callback {
-
-  }
+  interface Callback
 
 }

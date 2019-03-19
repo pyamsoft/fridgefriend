@@ -17,19 +17,10 @@
 
 package com.pyamsoft.fridge.main.toolbar
 
-import androidx.annotation.CheckResult
-import androidx.annotation.IdRes
-import androidx.constraintlayout.widget.ConstraintLayout
 import com.pyamsoft.fridge.main.toolbar.MainToolbarUiComponent.Callback
 import com.pyamsoft.pydroid.arch.UiComponent
 
 interface MainToolbarUiComponent : UiComponent<Callback> {
-
-  @IdRes
-  @CheckResult
-  fun id(): Int
-
-  fun layout(constraintLayout: ConstraintLayout)
 
   interface Callback
 

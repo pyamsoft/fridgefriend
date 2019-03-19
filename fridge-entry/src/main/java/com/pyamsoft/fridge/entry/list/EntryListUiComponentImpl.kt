@@ -18,12 +18,11 @@
 package com.pyamsoft.fridge.entry.list
 
 import android.os.Bundle
-import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.constraintlayout.widget.ConstraintSet
 import androidx.lifecycle.LifecycleOwner
 import com.pyamsoft.fridge.entry.list.EntryListUiComponent.Callback
 import com.pyamsoft.pydroid.arch.BaseUiComponent
 import com.pyamsoft.pydroid.arch.doOnDestroy
+import com.pyamsoft.pydroid.ui.arch.InvalidIdException
 import javax.inject.Inject
 
 internal class EntryListUiComponentImpl @Inject internal constructor(
@@ -32,6 +31,10 @@ internal class EntryListUiComponentImpl @Inject internal constructor(
 ) : BaseUiComponent<EntryListUiComponent.Callback>(),
   EntryListUiComponent,
   EntryListPresenter.Callback {
+
+  override fun id(): Int {
+    throw InvalidIdException
+  }
 
   override fun onBind(owner: LifecycleOwner, savedInstanceState: Bundle?, callback: Callback) {
     owner.doOnDestroy {
@@ -43,29 +46,8 @@ internal class EntryListUiComponentImpl @Inject internal constructor(
     presenter.bind(this)
   }
 
-  override fun saveState(outState: Bundle) {
+  override fun onSaveState(outState: Bundle) {
     listView.saveState(outState)
-  }
-
-  override fun id(): Int {
-    return listView.id()
-  }
-
-  override fun layout(root: ConstraintLayout, aboveId: Int) {
-    ConstraintSet().apply {
-      clone(root)
-
-      listView.also {
-        connect(it.id(), ConstraintSet.TOP, aboveId, ConstraintSet.BOTTOM)
-        connect(it.id(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
-        connect(it.id(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
-        connect(it.id(), ConstraintSet.BOTTOM, ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM)
-        constrainWidth(it.id(), ConstraintSet.MATCH_CONSTRAINT)
-        constrainHeight(it.id(), ConstraintSet.MATCH_CONSTRAINT)
-      }
-
-      applyTo(root)
-    }
   }
 
 }

@@ -22,6 +22,7 @@ import androidx.lifecycle.LifecycleOwner
 import com.pyamsoft.fridge.entry.toolbar.EntryToolbarUiComponent.Callback
 import com.pyamsoft.pydroid.arch.BaseUiComponent
 import com.pyamsoft.pydroid.arch.doOnDestroy
+import com.pyamsoft.pydroid.ui.arch.InvalidIdException
 import javax.inject.Inject
 
 internal class EntryToolbarUiComponentImpl @Inject internal constructor(
@@ -30,6 +31,10 @@ internal class EntryToolbarUiComponentImpl @Inject internal constructor(
 ) : BaseUiComponent<EntryToolbarUiComponent.Callback>(),
   EntryToolbarUiComponent,
   EntryToolbarPresenter.Callback {
+
+  override fun id(): Int {
+    throw InvalidIdException
+  }
 
   override fun onBind(owner: LifecycleOwner, savedInstanceState: Bundle?, callback: Callback) {
     owner.doOnDestroy {
@@ -41,7 +46,7 @@ internal class EntryToolbarUiComponentImpl @Inject internal constructor(
     presenter.bind(this)
   }
 
-  override fun saveState(outState: Bundle) {
+  override fun onSaveState(outState: Bundle) {
     toolbar.saveState(outState)
   }
 

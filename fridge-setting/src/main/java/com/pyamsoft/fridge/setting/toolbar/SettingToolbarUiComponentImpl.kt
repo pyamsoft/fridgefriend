@@ -21,6 +21,7 @@ import android.os.Bundle
 import androidx.lifecycle.LifecycleOwner
 import com.pyamsoft.pydroid.arch.BaseUiComponent
 import com.pyamsoft.pydroid.arch.doOnDestroy
+import com.pyamsoft.pydroid.ui.arch.InvalidIdException
 import javax.inject.Inject
 
 internal class SettingToolbarUiComponentImpl @Inject internal constructor(
@@ -29,6 +30,10 @@ internal class SettingToolbarUiComponentImpl @Inject internal constructor(
 ) : BaseUiComponent<SettingToolbarUiComponent.Callback>(),
   SettingToolbarUiComponent,
   SettingToolbarPresenter.Callback {
+
+  override fun id(): Int {
+    throw InvalidIdException
+  }
 
   override fun onBind(
     owner: LifecycleOwner,
@@ -44,7 +49,7 @@ internal class SettingToolbarUiComponentImpl @Inject internal constructor(
     presenter.bind(this)
   }
 
-  override fun saveState(outState: Bundle) {
+  override fun onSaveState(outState: Bundle) {
     toolbar.saveState(outState)
   }
 

@@ -21,6 +21,7 @@ import android.os.Bundle
 import android.view.View
 import androidx.annotation.StyleRes
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.constraintlayout.widget.ConstraintSet
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import com.pyamsoft.fridge.BuildConfig
 import com.pyamsoft.fridge.FridgeComponent
@@ -29,6 +30,7 @@ import com.pyamsoft.fridge.R
 import com.pyamsoft.fridge.entry.EntryListFragment
 import com.pyamsoft.fridge.main.container.FragmentContainerUiComponent
 import com.pyamsoft.fridge.main.toolbar.MainToolbarUiComponent
+import com.pyamsoft.pydroid.arch.layout
 import com.pyamsoft.pydroid.ui.rating.ChangeLogBuilder
 import com.pyamsoft.pydroid.ui.rating.RatingActivity
 import com.pyamsoft.pydroid.ui.rating.buildChangeLog
@@ -91,11 +93,26 @@ internal class MainActivity : RatingActivity(),
   }
 
   private fun inflateComponents(constraintLayout: ConstraintLayout, savedInstanceState: Bundle?) {
-    container.bind(this, savedInstanceState, Unit)
-    toolbar.bind(this, savedInstanceState, this)
+    container.bind(constraintLayout, this, savedInstanceState, Unit)
+    toolbar.bind(constraintLayout, this, savedInstanceState, this)
+    constraintLayout.layout {
 
-    toolbar.layout(constraintLayout)
-    container.layout(constraintLayout, toolbar.id())
+      toolbar.also {
+        connect(it.id(), ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP)
+        connect(it.id(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
+        connect(it.id(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
+        constrainWidth(it.id(), ConstraintSet.MATCH_CONSTRAINT)
+      }
+
+      container.also {
+        connect(it.id(), ConstraintSet.TOP, toolbar.id(), ConstraintSet.BOTTOM)
+        connect(it.id(), ConstraintSet.BOTTOM, ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM)
+        connect(it.id(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
+        connect(it.id(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
+        constrainHeight(it.id(), ConstraintSet.MATCH_CONSTRAINT)
+        constrainWidth(it.id(), ConstraintSet.MATCH_CONSTRAINT)
+      }
+    }
   }
 
   private fun pushFragment() {

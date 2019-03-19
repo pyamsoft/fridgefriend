@@ -17,17 +17,6 @@
 
 package com.pyamsoft.fridge.main.container
 
-import androidx.annotation.CheckResult
-import androidx.annotation.IdRes
-import androidx.constraintlayout.widget.ConstraintLayout
 import com.pyamsoft.pydroid.arch.UiComponent
 
-interface FragmentContainerUiComponent : UiComponent<Unit> {
-
-  @IdRes
-  @CheckResult
-  fun id(): Int
-
-  fun layout(constraintLayout: ConstraintLayout, aboveId: Int)
-
-}
+interface FragmentContainerUiComponent : UiComponent<Unit>

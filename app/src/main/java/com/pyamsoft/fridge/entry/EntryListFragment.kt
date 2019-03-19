@@ -34,7 +34,6 @@ import com.pyamsoft.fridge.entry.toolbar.EntryToolbarUiComponent
 import com.pyamsoft.fridge.extensions.fragmentContainerId
 import com.pyamsoft.fridge.setting.SettingsFragment
 import com.pyamsoft.pydroid.ui.app.requireToolbarActivity
-import com.pyamsoft.pydroid.ui.util.Snackbreak
 import com.pyamsoft.pydroid.ui.util.commit
 import timber.log.Timber
 import javax.inject.Inject

@@ -18,7 +18,6 @@
 package com.pyamsoft.fridge.main.toolbar
 
 import android.os.Bundle
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.lifecycle.LifecycleOwner
 import com.pyamsoft.fridge.main.toolbar.MainToolbarUiComponent.Callback
@@ -47,30 +46,17 @@ internal class MainToolbarUiComponentImpl @Inject internal constructor(
     dropshadow.inflate(savedInstanceState)
   }
 
-  override fun saveState(outState: Bundle) {
+  override fun onSaveState(outState: Bundle) {
     toolbar.saveState(outState)
     dropshadow.saveState(outState)
   }
 
-  override fun layout(constraintLayout: ConstraintLayout) {
-    ConstraintSet().apply {
-      clone(constraintLayout)
-
-      toolbar.also {
-        connect(it.id(), ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP)
-        connect(it.id(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
-        connect(it.id(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
-        constrainWidth(it.id(), ConstraintSet.MATCH_CONSTRAINT)
-      }
-
-      dropshadow.also {
-        connect(it.id(), ConstraintSet.TOP, toolbar.id(), ConstraintSet.BOTTOM)
-        connect(it.id(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
-        connect(it.id(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
-        constrainWidth(it.id(), ConstraintSet.MATCH_CONSTRAINT)
-      }
-
-      applyTo(constraintLayout)
+  override fun onLayout(set: ConstraintSet) {
+    dropshadow.also {
+      set.connect(it.id(), ConstraintSet.TOP, toolbar.id(), ConstraintSet.BOTTOM)
+      set.connect(it.id(), ConstraintSet.START, toolbar.id(), ConstraintSet.START)
+      set.connect(it.id(), ConstraintSet.END, toolbar.id(), ConstraintSet.END)
+      set.constrainWidth(it.id(), ConstraintSet.MATCH_CONSTRAINT)
     }
   }
 
