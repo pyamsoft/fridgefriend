@@ -35,10 +35,10 @@ internal data class RoomFridgeItem internal constructor(
   val name: String,
 
   @field:ColumnInfo(name = COLUMN_EXPIRE_TIME)
-  val expireTime: Long,
+  val expireTime: Date,
 
   @field:ColumnInfo(name = COLUMN_PRESENCE)
-  val presence: String
+  val presence: Presence
 ) : FridgeItem {
 
   @Ignore
@@ -53,14 +53,12 @@ internal data class RoomFridgeItem internal constructor(
 
   @Ignore
   override fun expireTime(): Date {
-    return Date().apply {
-      time = expireTime
-    }
+    return expireTime
   }
 
   @Ignore
   override fun presence(): Presence {
-    return FridgeItem.Presence.valueOf(presence)
+    return presence
   }
 
   companion object {
@@ -78,8 +76,8 @@ internal data class RoomFridgeItem internal constructor(
       return RoomFridgeItem(
         item.id(),
         item.name(),
-        item.expireTime().time,
-        item.presence().name
+        item.expireTime(),
+        item.presence()
       )
     }
   }

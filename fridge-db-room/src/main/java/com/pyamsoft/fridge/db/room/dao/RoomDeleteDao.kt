@@ -18,22 +18,47 @@
 package com.pyamsoft.fridge.db.room.dao
 
 import androidx.room.Dao
+import androidx.room.Delete
+import androidx.room.Query
 import com.pyamsoft.fridge.db.FridgeDbDeleteDao
+import com.pyamsoft.fridge.db.FridgeItem
+import com.pyamsoft.fridge.db.room.impl.RoomFridgeItem
+import com.pyamsoft.fridge.db.room.impl.applyDbSchedulers
 import io.reactivex.Completable
+import io.reactivex.Single
 
 @Dao
 internal abstract class RoomDeleteDao internal constructor() : FridgeDbDeleteDao {
 
+  override fun delete(item: FridgeItem): Completable {
+    return Single.just(item)
+      .map { RoomFridgeItem.create(it) }
+      .flatMapCompletable {
+        return@flatMapCompletable Completable.fromAction { daoDelete(it) }
+          .applyDbSchedulers()
+      }
+  }
+
+  @Delete
+  internal abstract fun daoDelete(item: RoomFridgeItem)
+
+  override fun deleteGroup(items: List<FridgeItem>): Completable {
+    return Single.just(items)
+      .flatMapCompletable {
+        val roomItems = items.map { RoomFridgeItem.create(it) }
+        return@flatMapCompletable Completable.fromAction { daoDeleteGroup(roomItems) }
+          .applyDbSchedulers()
+      }
+  }
+
+  @Delete
+  internal abstract fun daoDeleteGroup(items: List<RoomFridgeItem>)
+
   override fun deleteAll(): Completable {
-    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    return Completable.fromAction { daoDeleteAll() }
   }
 
-  override fun deleteWithId(id: String): Completable {
-    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-  }
-
-  override fun deleteWithName(name: String): Completable {
-    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-  }
+  @Query("DELETE FROM ${RoomFridgeItem.TABLE_NAME} WHERE 1 = 1")
+  internal abstract fun daoDeleteAll()
 
 }

@@ -25,7 +25,7 @@ sealed class FridgeChangeEvent {
 
   data class Delete(val id: String) : FridgeChangeEvent()
 
-  data class DeleteGroup(val name: String) : FridgeChangeEvent()
+  data class DeleteGroup(val ids: List<String>) : FridgeChangeEvent()
 
   object DeleteAll : FridgeChangeEvent()
 

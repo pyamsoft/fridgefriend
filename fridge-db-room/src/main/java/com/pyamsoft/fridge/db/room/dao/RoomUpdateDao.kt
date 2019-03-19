@@ -18,15 +18,28 @@
 package com.pyamsoft.fridge.db.room.dao
 
 import androidx.room.Dao
+import androidx.room.OnConflictStrategy
+import androidx.room.Update
 import com.pyamsoft.fridge.db.FridgeDbUpdateDao
 import com.pyamsoft.fridge.db.FridgeItem
+import com.pyamsoft.fridge.db.room.impl.RoomFridgeItem
+import com.pyamsoft.fridge.db.room.impl.applyDbSchedulers
 import io.reactivex.Completable
+import io.reactivex.Single
 
 @Dao
 internal abstract class RoomUpdateDao internal constructor() : FridgeDbUpdateDao {
 
   override fun update(item: FridgeItem): Completable {
-    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    return Single.just(item)
+      .map { RoomFridgeItem.create(it) }
+      .flatMapCompletable {
+        return@flatMapCompletable Completable.fromAction { daoUpdate(it) }
+          .applyDbSchedulers()
+      }
   }
+
+  @Update(onConflict = OnConflictStrategy.FAIL)
+  internal abstract fun daoUpdate(item: RoomFridgeItem)
 
 }

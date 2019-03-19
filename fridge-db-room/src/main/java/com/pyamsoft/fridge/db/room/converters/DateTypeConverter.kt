@@ -15,20 +15,27 @@
  *
  */
 
-package com.pyamsoft.fridge.db
+package com.pyamsoft.fridge.db.room.converters
 
 import androidx.annotation.CheckResult
-import io.reactivex.Completable
+import androidx.room.TypeConverter
+import java.util.Date
 
-interface FridgeDbDeleteDao {
+internal object DateTypeConverter {
 
+  @JvmStatic
+  @TypeConverter
   @CheckResult
-  fun delete(item: FridgeItem): Completable
+  fun toDate(time: Long): Date {
+    return Date().apply {
+      this.time = time
+    }
+  }
 
+  @JvmStatic
+  @TypeConverter
   @CheckResult
-  fun deleteGroup(items: List<FridgeItem>): Completable
-
-  @CheckResult
-  fun deleteAll(): Completable
-
+  fun toMillis(date: Date): Long {
+    return date.time
+  }
 }

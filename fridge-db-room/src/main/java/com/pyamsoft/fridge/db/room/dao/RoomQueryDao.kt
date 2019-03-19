@@ -41,15 +41,31 @@ internal abstract class RoomQueryDao internal constructor() : FridgeDbQueryDao {
   internal abstract fun daoQueryAll(): Maybe<List<RoomFridgeItem>>
 
   override fun queryWithId(id: String): Single<FridgeItem> {
-    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    return daoQueryWithId(id).map { it }
   }
+
+  @Query("SELECT * FROM ${RoomFridgeItem.TABLE_NAME} WHERE ${RoomFridgeItem.COLUMN_ID} = :id")
+  @CheckResult
+  internal abstract fun daoQueryWithId(id: String): Single<RoomFridgeItem>
 
   override fun queryWithName(name: String): Single<List<FridgeItem>> {
-    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    return daoQueryWithName(name)
+      .toSingle(emptyList())
+      .map { it }
   }
 
+  @Query("SELECT * FROM ${RoomFridgeItem.TABLE_NAME} WHERE ${RoomFridgeItem.COLUMN_NAME} = :name")
+  @CheckResult
+  internal abstract fun daoQueryWithName(name: String): Maybe<List<RoomFridgeItem>>
+
   override fun queryWithPresence(presence: Presence): Single<List<FridgeItem>> {
-    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    return daoQueryWithPresence(presence)
+      .toSingle(emptyList())
+      .map { it }
   }
+
+  @Query("SELECT * FROM ${RoomFridgeItem.TABLE_NAME} WHERE ${RoomFridgeItem.COLUMN_PRESENCE} = :presence")
+  @CheckResult
+  internal abstract fun daoQueryWithPresence(presence: Presence): Maybe<List<RoomFridgeItem>>
 
 }

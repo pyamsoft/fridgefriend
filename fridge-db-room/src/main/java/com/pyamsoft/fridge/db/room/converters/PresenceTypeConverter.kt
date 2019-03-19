@@ -15,20 +15,25 @@
  *
  */
 
-package com.pyamsoft.fridge.db
+package com.pyamsoft.fridge.db.room.converters
 
 import androidx.annotation.CheckResult
-import io.reactivex.Completable
+import androidx.room.TypeConverter
+import com.pyamsoft.fridge.db.FridgeItem.Presence
 
-interface FridgeDbDeleteDao {
+internal object PresenceTypeConverter {
 
+  @JvmStatic
+  @TypeConverter
   @CheckResult
-  fun delete(item: FridgeItem): Completable
+  fun toPresence(name: String): Presence {
+    return Presence.valueOf(name)
+  }
 
+  @JvmStatic
+  @TypeConverter
   @CheckResult
-  fun deleteGroup(items: List<FridgeItem>): Completable
-
-  @CheckResult
-  fun deleteAll(): Completable
-
+  fun toName(presence: Presence): String {
+    return presence.name
+  }
 }

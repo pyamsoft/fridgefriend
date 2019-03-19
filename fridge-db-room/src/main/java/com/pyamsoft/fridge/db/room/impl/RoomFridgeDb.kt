@@ -20,6 +20,7 @@ package com.pyamsoft.fridge.db.room.impl
 import androidx.annotation.CheckResult
 import androidx.room.Database
 import androidx.room.RoomDatabase
+import androidx.room.TypeConverters
 import com.pyamsoft.fridge.db.FridgeChangeEvent
 import com.pyamsoft.fridge.db.FridgeChangeEvent.Delete
 import com.pyamsoft.fridge.db.FridgeChangeEvent.DeleteAll
@@ -33,6 +34,8 @@ import com.pyamsoft.fridge.db.FridgeDbRealtime
 import com.pyamsoft.fridge.db.FridgeDbUpdateDao
 import com.pyamsoft.fridge.db.FridgeItem
 import com.pyamsoft.fridge.db.FridgeItem.Presence
+import com.pyamsoft.fridge.db.room.converters.DateTypeConverter
+import com.pyamsoft.fridge.db.room.converters.PresenceTypeConverter
 import com.pyamsoft.fridge.db.room.dao.RoomDeleteDao
 import com.pyamsoft.fridge.db.room.dao.RoomInsertDao
 import com.pyamsoft.fridge.db.room.dao.RoomQueryDao
@@ -43,6 +46,7 @@ import io.reactivex.Observable
 import io.reactivex.Single
 
 @Database(entities = [RoomFridgeItem::class], version = 1)
+@TypeConverters(PresenceTypeConverter::class, DateTypeConverter::class)
 internal abstract class RoomFridgeDb internal constructor() : RoomDatabase(),
   FridgeDb {
 
@@ -134,24 +138,24 @@ internal abstract class RoomFridgeDb internal constructor() : RoomDatabase(),
   override fun delete(): FridgeDbDeleteDao {
     return object : FridgeDbDeleteDao {
 
+      override fun delete(item: FridgeItem): Completable {
+        synchronized(lock) {
+          return roomDeleteDao().delete(item)
+            .doOnComplete { publishRealtime(Delete(item.id())) }
+        }
+      }
+
+      override fun deleteGroup(items: List<FridgeItem>): Completable {
+        synchronized(lock) {
+          return roomDeleteDao().deleteGroup(items)
+            .doOnComplete { publishRealtime(DeleteGroup(items.map { it.id() })) }
+        }
+      }
+
       override fun deleteAll(): Completable {
         synchronized(lock) {
           return roomDeleteDao().deleteAll()
             .doOnComplete { publishRealtime(DeleteAll) }
-        }
-      }
-
-      override fun deleteWithId(id: String): Completable {
-        synchronized(lock) {
-          return roomDeleteDao().deleteWithId(id)
-            .doOnComplete { publishRealtime(Delete(id)) }
-        }
-      }
-
-      override fun deleteWithName(name: String): Completable {
-        synchronized(lock) {
-          return roomDeleteDao().deleteWithName(name)
-            .doOnComplete { publishRealtime(DeleteGroup(name)) }
         }
       }
 
