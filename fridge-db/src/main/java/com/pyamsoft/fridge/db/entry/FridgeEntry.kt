@@ -15,27 +15,20 @@
  *
  */
 
-package com.pyamsoft.fridge.db.room.converters
+package com.pyamsoft.fridge.db.entry
 
 import androidx.annotation.CheckResult
-import androidx.room.TypeConverter
 import java.util.Date
 
-internal object DateTypeConverter {
+interface FridgeEntry {
 
-  @JvmStatic
-  @TypeConverter
   @CheckResult
-  fun toDate(time: Long): Date {
-    return Date().apply {
-      this.time = time
-    }
-  }
+  fun id(): String
 
-  @JvmStatic
-  @TypeConverter
   @CheckResult
-  fun toMillis(date: Date): Long {
-    return date.time
-  }
+  fun name(): String
+
+  @CheckResult
+  fun createdTime(): Date
+
 }

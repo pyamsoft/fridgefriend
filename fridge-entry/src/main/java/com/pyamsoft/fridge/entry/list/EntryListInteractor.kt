@@ -19,10 +19,10 @@ package com.pyamsoft.fridge.entry.list
 
 import androidx.annotation.CheckResult
 import com.popinnow.android.repo.Repo
-import com.pyamsoft.fridge.db.FridgeChangeEvent
-import com.pyamsoft.fridge.db.FridgeDbQueryDao
-import com.pyamsoft.fridge.db.FridgeDbRealtime
-import com.pyamsoft.fridge.db.FridgeItem
+import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent
+import com.pyamsoft.fridge.db.item.FridgeItemQueryDao
+import com.pyamsoft.fridge.db.item.FridgeItemRealtime
+import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.entry.EntryScope
 import com.pyamsoft.pydroid.core.cache.Cache
 import io.reactivex.Observable
@@ -31,8 +31,8 @@ import javax.inject.Inject
 
 @EntryScope
 internal class EntryListInteractor @Inject internal constructor(
-  private val queryDao: FridgeDbQueryDao,
-  private val realtime: FridgeDbRealtime,
+  private val queryDao: FridgeItemQueryDao,
+  private val realtime: FridgeItemRealtime,
   private val repo: Repo<List<FridgeItem>>
 ) : Cache {
 
@@ -42,7 +42,7 @@ internal class EntryListInteractor @Inject internal constructor(
   }
 
   @CheckResult
-  fun listenForChanges(): Observable<FridgeChangeEvent> {
+  fun listenForChanges(): Observable<FridgeItemChangeEvent> {
     return realtime.listenForChanges()
       .doOnNext { repo.clear() }
   }

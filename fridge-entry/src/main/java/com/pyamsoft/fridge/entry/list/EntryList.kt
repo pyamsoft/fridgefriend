@@ -21,7 +21,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-import com.pyamsoft.fridge.db.FridgeItem
+import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.entry.R
 import com.pyamsoft.fridge.entry.list.EntryList.Callback
 import com.pyamsoft.pydroid.arch.BaseUiView

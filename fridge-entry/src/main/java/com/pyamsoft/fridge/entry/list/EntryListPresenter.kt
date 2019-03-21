@@ -17,14 +17,14 @@
 
 package com.pyamsoft.fridge.entry.list
 
-import com.pyamsoft.fridge.db.FridgeChangeEvent.Delete
-import com.pyamsoft.fridge.db.FridgeChangeEvent.DeleteAll
-import com.pyamsoft.fridge.db.FridgeChangeEvent.DeleteGroup
-import com.pyamsoft.fridge.db.FridgeChangeEvent.Insert
-import com.pyamsoft.fridge.db.FridgeChangeEvent.InsertGroup
-import com.pyamsoft.fridge.db.FridgeChangeEvent.Update
-import com.pyamsoft.fridge.db.FridgeChangeEvent.UpdateGroup
-import com.pyamsoft.fridge.db.FridgeItem
+import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent.Delete
+import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent.DeleteAll
+import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent.DeleteGroup
+import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent.Insert
+import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent.InsertGroup
+import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent.Update
+import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent.UpdateGroup
+import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.entry.EntryScope
 import com.pyamsoft.fridge.entry.list.EntryListPresenter.Callback
 import com.pyamsoft.pydroid.arch.BasePresenter

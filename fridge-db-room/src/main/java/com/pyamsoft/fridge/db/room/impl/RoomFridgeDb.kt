@@ -21,68 +21,70 @@ import androidx.annotation.CheckResult
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
-import com.pyamsoft.fridge.db.FridgeChangeEvent
-import com.pyamsoft.fridge.db.FridgeChangeEvent.Delete
-import com.pyamsoft.fridge.db.FridgeChangeEvent.DeleteAll
-import com.pyamsoft.fridge.db.FridgeChangeEvent.DeleteGroup
-import com.pyamsoft.fridge.db.FridgeChangeEvent.Insert
-import com.pyamsoft.fridge.db.FridgeChangeEvent.InsertGroup
-import com.pyamsoft.fridge.db.FridgeChangeEvent.Update
-import com.pyamsoft.fridge.db.FridgeChangeEvent.UpdateGroup
-import com.pyamsoft.fridge.db.FridgeDbDeleteDao
-import com.pyamsoft.fridge.db.FridgeDbInsertDao
-import com.pyamsoft.fridge.db.FridgeDbQueryDao
-import com.pyamsoft.fridge.db.FridgeDbRealtime
-import com.pyamsoft.fridge.db.FridgeDbUpdateDao
-import com.pyamsoft.fridge.db.FridgeItem
-import com.pyamsoft.fridge.db.FridgeItem.Presence
-import com.pyamsoft.fridge.db.room.converters.DateTypeConverter
-import com.pyamsoft.fridge.db.room.converters.PresenceTypeConverter
-import com.pyamsoft.fridge.db.room.dao.RoomDeleteDao
-import com.pyamsoft.fridge.db.room.dao.RoomInsertDao
-import com.pyamsoft.fridge.db.room.dao.RoomQueryDao
-import com.pyamsoft.fridge.db.room.dao.RoomUpdateDao
+import com.pyamsoft.fridge.db.item.FridgeItem
+import com.pyamsoft.fridge.db.item.FridgeItem.Presence
+import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent
+import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent.Delete
+import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent.DeleteAll
+import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent.DeleteGroup
+import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent.Insert
+import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent.InsertGroup
+import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent.Update
+import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent.UpdateGroup
+import com.pyamsoft.fridge.db.item.FridgeItemDeleteDao
+import com.pyamsoft.fridge.db.item.FridgeItemInsertDao
+import com.pyamsoft.fridge.db.item.FridgeItemQueryDao
+import com.pyamsoft.fridge.db.item.FridgeItemRealtime
+import com.pyamsoft.fridge.db.item.FridgeItemUpdateDao
+import com.pyamsoft.fridge.db.room.converter.DateTypeConverter
+import com.pyamsoft.fridge.db.room.converter.PresenceTypeConverter
+import com.pyamsoft.fridge.db.room.dao.RoomFridgeItemDeleteDao
+import com.pyamsoft.fridge.db.room.dao.RoomFridgeItemInsertDao
+import com.pyamsoft.fridge.db.room.dao.RoomFridgeItemQueryDao
+import com.pyamsoft.fridge.db.room.dao.RoomFridgeItemUpdateDao
+import com.pyamsoft.fridge.db.room.entity.RoomFridgeEntry
+import com.pyamsoft.fridge.db.room.entity.RoomFridgeItem
 import com.pyamsoft.pydroid.core.bus.RxBus
 import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.Single
 
-@Database(entities = [RoomFridgeItem::class], version = 1)
+@Database(entities = [RoomFridgeItem::class, RoomFridgeEntry::class], version = 1)
 @TypeConverters(PresenceTypeConverter::class, DateTypeConverter::class)
 internal abstract class RoomFridgeDb internal constructor() : RoomDatabase(),
   FridgeDb {
 
-  private val realtimeChangeBus = RxBus.create<FridgeChangeEvent>()
+  private val realtimeChangeBus = RxBus.create<FridgeItemChangeEvent>()
   private val lock = Any()
 
   @CheckResult
-  internal abstract fun roomQueryDao(): RoomQueryDao
+  internal abstract fun roomQueryDao(): RoomFridgeItemQueryDao
 
   @CheckResult
-  internal abstract fun roomInsertDao(): RoomInsertDao
+  internal abstract fun roomInsertDao(): RoomFridgeItemInsertDao
 
   @CheckResult
-  internal abstract fun roomUpdateDao(): RoomUpdateDao
+  internal abstract fun roomUpdateDao(): RoomFridgeItemUpdateDao
 
   @CheckResult
-  internal abstract fun roomDeleteDao(): RoomDeleteDao
+  internal abstract fun roomDeleteDao(): RoomFridgeItemDeleteDao
 
-  private fun publishRealtime(event: FridgeChangeEvent) {
+  private fun publishRealtime(event: FridgeItemChangeEvent) {
     realtimeChangeBus.publish(event)
   }
 
-  override fun realtime(): FridgeDbRealtime {
-    return object : FridgeDbRealtime {
+  override fun realtime(): FridgeItemRealtime {
+    return object : FridgeItemRealtime {
 
-      override fun listenForChanges(): Observable<FridgeChangeEvent> {
+      override fun listenForChanges(): Observable<FridgeItemChangeEvent> {
         return realtimeChangeBus.listen()
       }
 
     }
   }
 
-  override fun query(): FridgeDbQueryDao {
-    return object : FridgeDbQueryDao {
+  override fun query(): FridgeItemQueryDao {
+    return object : FridgeItemQueryDao {
 
       override fun queryAll(): Single<List<FridgeItem>> {
         synchronized(lock) {
@@ -117,8 +119,8 @@ internal abstract class RoomFridgeDb internal constructor() : RoomDatabase(),
     }
   }
 
-  override fun insert(): FridgeDbInsertDao {
-    return object : FridgeDbInsertDao {
+  override fun insert(): FridgeItemInsertDao {
+    return object : FridgeItemInsertDao {
 
       override fun insert(item: FridgeItem): Completable {
         synchronized(lock) {
@@ -137,8 +139,8 @@ internal abstract class RoomFridgeDb internal constructor() : RoomDatabase(),
     }
   }
 
-  override fun update(): FridgeDbUpdateDao {
-    return object : FridgeDbUpdateDao {
+  override fun update(): FridgeItemUpdateDao {
+    return object : FridgeItemUpdateDao {
 
       override fun update(item: FridgeItem): Completable {
         synchronized(lock) {
@@ -157,8 +159,8 @@ internal abstract class RoomFridgeDb internal constructor() : RoomDatabase(),
     }
   }
 
-  override fun delete(): FridgeDbDeleteDao {
-    return object : FridgeDbDeleteDao {
+  override fun delete(): FridgeItemDeleteDao {
+    return object : FridgeItemDeleteDao {
 
       override fun delete(item: FridgeItem): Completable {
         synchronized(lock) {

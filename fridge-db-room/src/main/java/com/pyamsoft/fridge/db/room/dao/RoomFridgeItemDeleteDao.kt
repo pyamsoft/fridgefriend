@@ -20,15 +20,16 @@ package com.pyamsoft.fridge.db.room.dao
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Query
-import com.pyamsoft.fridge.db.FridgeDbDeleteDao
-import com.pyamsoft.fridge.db.FridgeItem
-import com.pyamsoft.fridge.db.room.impl.RoomFridgeItem
+import com.pyamsoft.fridge.db.item.FridgeItemDeleteDao
+import com.pyamsoft.fridge.db.item.FridgeItem
+import com.pyamsoft.fridge.db.room.entity.RoomFridgeItem
 import com.pyamsoft.fridge.db.room.impl.applyDbSchedulers
 import io.reactivex.Completable
 import io.reactivex.Single
 
 @Dao
-internal abstract class RoomDeleteDao internal constructor() : FridgeDbDeleteDao {
+internal abstract class RoomFridgeItemDeleteDao internal constructor() :
+  FridgeItemDeleteDao {
 
   override fun delete(item: FridgeItem): Completable {
     return Single.just(item)

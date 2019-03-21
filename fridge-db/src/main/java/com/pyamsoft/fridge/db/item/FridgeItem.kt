@@ -15,20 +15,30 @@
  *
  */
 
-package com.pyamsoft.fridge.db
+package com.pyamsoft.fridge.db.item
 
 import androidx.annotation.CheckResult
-import io.reactivex.Completable
+import java.util.Date
 
-interface FridgeDbDeleteDao {
-
-  @CheckResult
-  fun delete(item: FridgeItem): Completable
+interface FridgeItem {
 
   @CheckResult
-  fun deleteGroup(items: List<FridgeItem>): Completable
+  fun id(): String
 
   @CheckResult
-  fun deleteAll(): Completable
+  fun entryId(): String
 
+  @CheckResult
+  fun name(): String
+
+  @CheckResult
+  fun expireTime(): Date
+
+  @CheckResult
+  fun presence(): Presence
+
+  enum class Presence {
+    HAVE,
+    NEED
+  }
 }

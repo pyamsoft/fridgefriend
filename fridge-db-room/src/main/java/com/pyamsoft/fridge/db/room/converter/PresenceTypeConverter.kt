@@ -15,11 +15,11 @@
  *
  */
 
-package com.pyamsoft.fridge.db.room.converters
+package com.pyamsoft.fridge.db.room.converter
 
 import androidx.annotation.CheckResult
 import androidx.room.TypeConverter
-import com.pyamsoft.fridge.db.FridgeItem.Presence
+import com.pyamsoft.fridge.db.item.FridgeItem.Presence
 
 internal object PresenceTypeConverter {
 

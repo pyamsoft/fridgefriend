@@ -15,27 +15,20 @@
  *
  */
 
-package com.pyamsoft.fridge.db
+package com.pyamsoft.fridge.db.item
 
 import androidx.annotation.CheckResult
-import com.pyamsoft.fridge.db.FridgeItem.Presence
-import io.reactivex.Single
+import io.reactivex.Completable
 
-interface FridgeDbQueryDao {
-
-  @CheckResult
-  fun queryAll(): Single<List<FridgeItem>>
+interface FridgeItemDeleteDao {
 
   @CheckResult
-  fun queryWithId(id: String): Single<FridgeItem>
+  fun delete(item: FridgeItem): Completable
 
   @CheckResult
-  fun queryWithEntryId(entryId: String): Single<List<FridgeItem>>
+  fun deleteGroup(items: List<FridgeItem>): Completable
 
   @CheckResult
-  fun queryWithName(name: String): Single<List<FridgeItem>>
-
-  @CheckResult
-  fun queryWithPresence(presence: Presence): Single<List<FridgeItem>>
+  fun deleteAll(): Completable
 
 }

@@ -15,22 +15,27 @@
  *
  */
 
-package com.pyamsoft.fridge.db
+package com.pyamsoft.fridge.db.room.converter
 
-sealed class FridgeChangeEvent {
+import androidx.annotation.CheckResult
+import androidx.room.TypeConverter
+import java.util.Date
 
-  data class Insert(val item: FridgeItem) : FridgeChangeEvent()
+internal object DateTypeConverter {
 
-  data class InsertGroup(val items: List<FridgeItem>) : FridgeChangeEvent()
+  @JvmStatic
+  @TypeConverter
+  @CheckResult
+  fun toDate(time: Long): Date {
+    return Date().apply {
+      this.time = time
+    }
+  }
 
-  data class Update(val item: FridgeItem) : FridgeChangeEvent()
-
-  data class UpdateGroup(val items: List<FridgeItem>) : FridgeChangeEvent()
-
-  data class Delete(val id: String) : FridgeChangeEvent()
-
-  data class DeleteGroup(val ids: List<String>) : FridgeChangeEvent()
-
-  object DeleteAll : FridgeChangeEvent()
-
+  @JvmStatic
+  @TypeConverter
+  @CheckResult
+  fun toMillis(date: Date): Long {
+    return date.time
+  }
 }

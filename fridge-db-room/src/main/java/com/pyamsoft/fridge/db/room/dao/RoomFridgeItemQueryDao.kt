@@ -20,15 +20,16 @@ package com.pyamsoft.fridge.db.room.dao
 import androidx.annotation.CheckResult
 import androidx.room.Dao
 import androidx.room.Query
-import com.pyamsoft.fridge.db.FridgeDbQueryDao
-import com.pyamsoft.fridge.db.FridgeItem
-import com.pyamsoft.fridge.db.FridgeItem.Presence
-import com.pyamsoft.fridge.db.room.impl.RoomFridgeItem
+import com.pyamsoft.fridge.db.item.FridgeItemQueryDao
+import com.pyamsoft.fridge.db.item.FridgeItem
+import com.pyamsoft.fridge.db.item.FridgeItem.Presence
+import com.pyamsoft.fridge.db.room.entity.RoomFridgeItem
 import io.reactivex.Maybe
 import io.reactivex.Single
 
 @Dao
-internal abstract class RoomQueryDao internal constructor() : FridgeDbQueryDao {
+internal abstract class RoomFridgeItemQueryDao internal constructor() :
+  FridgeItemQueryDao {
 
   override fun queryAll(): Single<List<FridgeItem>> {
     return daoQueryAll()

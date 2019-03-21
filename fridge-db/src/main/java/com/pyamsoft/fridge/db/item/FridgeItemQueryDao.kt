@@ -15,30 +15,27 @@
  *
  */
 
-package com.pyamsoft.fridge.db
+package com.pyamsoft.fridge.db.item
 
 import androidx.annotation.CheckResult
-import java.util.Date
+import com.pyamsoft.fridge.db.item.FridgeItem.Presence
+import io.reactivex.Single
 
-interface FridgeItem {
-
-  @CheckResult
-  fun id(): String
+interface FridgeItemQueryDao {
 
   @CheckResult
-  fun entryId(): String
+  fun queryAll(): Single<List<FridgeItem>>
 
   @CheckResult
-  fun name(): String
+  fun queryWithId(id: String): Single<FridgeItem>
 
   @CheckResult
-  fun expireTime(): Date
+  fun queryWithEntryId(entryId: String): Single<List<FridgeItem>>
 
   @CheckResult
-  fun presence(): Presence
+  fun queryWithName(name: String): Single<List<FridgeItem>>
 
-  enum class Presence {
-    HAVE,
-    NEED
-  }
+  @CheckResult
+  fun queryWithPresence(presence: Presence): Single<List<FridgeItem>>
+
 }

@@ -15,12 +15,12 @@
  *
  */
 
-package com.pyamsoft.fridge.db
+package com.pyamsoft.fridge.db.item
 
 import androidx.annotation.CheckResult
 import io.reactivex.Completable
 
-interface FridgeDbUpdateDao {
+interface FridgeItemUpdateDao {
 
   @CheckResult
   fun update(item: FridgeItem): Completable

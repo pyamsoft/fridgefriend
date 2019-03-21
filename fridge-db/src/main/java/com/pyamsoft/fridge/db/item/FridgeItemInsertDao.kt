@@ -15,14 +15,17 @@
  *
  */
 
-package com.pyamsoft.fridge.db
+package com.pyamsoft.fridge.db.item
 
 import androidx.annotation.CheckResult
-import io.reactivex.Observable
+import io.reactivex.Completable
 
-interface FridgeDbRealtime {
+interface FridgeItemInsertDao {
 
   @CheckResult
-  fun listenForChanges(): Observable<FridgeChangeEvent>
+  fun insert(item: FridgeItem): Completable
+
+  @CheckResult
+  fun insertGroup(items: List<FridgeItem>): Completable
 
 }

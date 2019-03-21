@@ -20,16 +20,17 @@ package com.pyamsoft.fridge.db.room.dao
 import androidx.room.Dao
 import androidx.room.OnConflictStrategy
 import androidx.room.Update
-import com.pyamsoft.fridge.db.FridgeDbUpdateDao
-import com.pyamsoft.fridge.db.FridgeItem
-import com.pyamsoft.fridge.db.room.impl.RoomFridgeItem
+import com.pyamsoft.fridge.db.item.FridgeItemUpdateDao
+import com.pyamsoft.fridge.db.item.FridgeItem
+import com.pyamsoft.fridge.db.room.entity.RoomFridgeItem
 import com.pyamsoft.fridge.db.room.impl.applyDbSchedulers
 import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.Single
 
 @Dao
-internal abstract class RoomUpdateDao internal constructor() : FridgeDbUpdateDao {
+internal abstract class RoomFridgeItemUpdateDao internal constructor() :
+  FridgeItemUpdateDao {
 
   override fun update(item: FridgeItem): Completable {
     return Single.just(item)

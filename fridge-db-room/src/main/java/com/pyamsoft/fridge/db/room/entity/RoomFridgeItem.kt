@@ -15,18 +15,28 @@
  *
  */
 
-package com.pyamsoft.fridge.db.room.impl
+package com.pyamsoft.fridge.db.room.entity
 
 import androidx.annotation.CheckResult
 import androidx.room.ColumnInfo
 import androidx.room.Entity
+import androidx.room.ForeignKey
 import androidx.room.Ignore
 import androidx.room.PrimaryKey
-import com.pyamsoft.fridge.db.FridgeItem
-import com.pyamsoft.fridge.db.FridgeItem.Presence
+import com.pyamsoft.fridge.db.item.FridgeItem
+import com.pyamsoft.fridge.db.item.FridgeItem.Presence
 import java.util.Date
 
-@Entity(tableName = RoomFridgeItem.TABLE_NAME)
+@Entity(
+  tableName = RoomFridgeItem.TABLE_NAME, foreignKeys = arrayOf(
+    ForeignKey(
+      entity = RoomFridgeEntry::class,
+      parentColumns = arrayOf(RoomFridgeEntry.COLUMN_ID),
+      childColumns = arrayOf(RoomFridgeItem.COLUMN_ENTRY_ID),
+      onDelete = ForeignKey.CASCADE
+    )
+  )
+)
 internal data class RoomFridgeItem internal constructor(
   @field:[PrimaryKey ColumnInfo(name = COLUMN_ID)]
   val id: String,
@@ -71,13 +81,12 @@ internal data class RoomFridgeItem internal constructor(
 
   companion object {
 
-    internal const val TABLE_NAME = "room_fridge_item_table"
-
-    internal const val COLUMN_ID = "_id"
-    internal const val COLUMN_ENTRY_ID = "entry_id"
-    internal const val COLUMN_NAME = "name"
-    internal const val COLUMN_EXPIRE_TIME = "expire_time"
-    internal const val COLUMN_PRESENCE = "presence"
+    @Ignore internal const val TABLE_NAME = "room_fridge_item_table"
+    @Ignore internal const val COLUMN_ID = "_id"
+    @Ignore internal const val COLUMN_ENTRY_ID = "entry_id"
+    @Ignore internal const val COLUMN_NAME = "name"
+    @Ignore internal const val COLUMN_EXPIRE_TIME = "expire_time"
+    @Ignore internal const val COLUMN_PRESENCE = "presence"
 
     @Ignore
     @JvmStatic

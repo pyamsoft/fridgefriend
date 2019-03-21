@@ -20,11 +20,11 @@ package com.pyamsoft.fridge.db.room
 import android.content.Context
 import androidx.annotation.CheckResult
 import androidx.room.Room
-import com.pyamsoft.fridge.db.FridgeDbDeleteDao
-import com.pyamsoft.fridge.db.FridgeDbInsertDao
-import com.pyamsoft.fridge.db.FridgeDbQueryDao
-import com.pyamsoft.fridge.db.FridgeDbRealtime
-import com.pyamsoft.fridge.db.FridgeDbUpdateDao
+import com.pyamsoft.fridge.db.item.FridgeItemDeleteDao
+import com.pyamsoft.fridge.db.item.FridgeItemInsertDao
+import com.pyamsoft.fridge.db.item.FridgeItemQueryDao
+import com.pyamsoft.fridge.db.item.FridgeItemRealtime
+import com.pyamsoft.fridge.db.item.FridgeItemUpdateDao
 import com.pyamsoft.fridge.db.room.impl.FridgeDb
 import com.pyamsoft.fridge.db.room.impl.FridgeDbImpl
 import com.pyamsoft.fridge.db.room.impl.RoomFridgeDb
@@ -55,7 +55,7 @@ object RoomProvider {
   @Provides
   @CheckResult
   @Named("room-realtime")
-  internal fun provideRealtimeDao(db: FridgeDb): FridgeDbRealtime {
+  internal fun provideRealtimeDao(db: FridgeDb): FridgeItemRealtime {
     return db.realtime()
   }
 
@@ -63,7 +63,7 @@ object RoomProvider {
   @Provides
   @CheckResult
   @Named("room-query-dao")
-  internal fun provideQueryDao(db: FridgeDb): FridgeDbQueryDao {
+  internal fun provideQueryDao(db: FridgeDb): FridgeItemQueryDao {
     return db.query()
   }
 
@@ -71,7 +71,7 @@ object RoomProvider {
   @Provides
   @CheckResult
   @Named("room-insert-dao")
-  internal fun provideInsertDao(db: FridgeDb): FridgeDbInsertDao {
+  internal fun provideInsertDao(db: FridgeDb): FridgeItemInsertDao {
     return db.insert()
   }
 
@@ -79,7 +79,7 @@ object RoomProvider {
   @Provides
   @CheckResult
   @Named("room-update-dao")
-  internal fun provideUpdateDao(db: FridgeDb): FridgeDbUpdateDao {
+  internal fun provideUpdateDao(db: FridgeDb): FridgeItemUpdateDao {
     return db.update()
   }
 
@@ -87,7 +87,7 @@ object RoomProvider {
   @Provides
   @CheckResult
   @Named("room-delete-dao")
-  internal fun provideDeleteDao(db: FridgeDb): FridgeDbDeleteDao {
+  internal fun provideDeleteDao(db: FridgeDb): FridgeItemDeleteDao {
     return db.delete()
   }
 

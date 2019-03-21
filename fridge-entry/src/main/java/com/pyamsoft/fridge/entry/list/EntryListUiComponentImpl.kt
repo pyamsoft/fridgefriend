@@ -19,7 +19,7 @@ package com.pyamsoft.fridge.entry.list
 
 import android.os.Bundle
 import androidx.lifecycle.LifecycleOwner
-import com.pyamsoft.fridge.db.FridgeItem
+import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.entry.list.EntryListUiComponent.Callback
 import com.pyamsoft.pydroid.arch.BaseUiComponent
 import com.pyamsoft.pydroid.arch.doOnDestroy
