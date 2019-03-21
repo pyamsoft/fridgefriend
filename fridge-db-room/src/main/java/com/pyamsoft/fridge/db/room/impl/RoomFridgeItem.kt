@@ -31,6 +31,9 @@ internal data class RoomFridgeItem internal constructor(
   @field:[PrimaryKey ColumnInfo(name = COLUMN_ID)]
   val id: String,
 
+  @field:ColumnInfo(name = COLUMN_ENTRY_ID)
+  val entryId: String,
+
   @field:ColumnInfo(name = COLUMN_NAME)
   val name: String,
 
@@ -44,6 +47,11 @@ internal data class RoomFridgeItem internal constructor(
   @Ignore
   override fun id(): String {
     return id
+  }
+
+  @Ignore
+  override fun entryId(): String {
+    return entryId
   }
 
   @Ignore
@@ -66,15 +74,18 @@ internal data class RoomFridgeItem internal constructor(
     internal const val TABLE_NAME = "room_fridge_item_table"
 
     internal const val COLUMN_ID = "_id"
+    internal const val COLUMN_ENTRY_ID = "entry_id"
     internal const val COLUMN_NAME = "name"
     internal const val COLUMN_EXPIRE_TIME = "expire_time"
     internal const val COLUMN_PRESENCE = "presence"
 
+    @Ignore
     @JvmStatic
     @CheckResult
     internal fun create(item: FridgeItem): RoomFridgeItem {
       return RoomFridgeItem(
         item.id(),
+        item.entryId(),
         item.name(),
         item.expireTime(),
         item.presence()

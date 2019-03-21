@@ -26,7 +26,9 @@ import com.pyamsoft.fridge.db.FridgeChangeEvent.Delete
 import com.pyamsoft.fridge.db.FridgeChangeEvent.DeleteAll
 import com.pyamsoft.fridge.db.FridgeChangeEvent.DeleteGroup
 import com.pyamsoft.fridge.db.FridgeChangeEvent.Insert
+import com.pyamsoft.fridge.db.FridgeChangeEvent.InsertGroup
 import com.pyamsoft.fridge.db.FridgeChangeEvent.Update
+import com.pyamsoft.fridge.db.FridgeChangeEvent.UpdateGroup
 import com.pyamsoft.fridge.db.FridgeDbDeleteDao
 import com.pyamsoft.fridge.db.FridgeDbInsertDao
 import com.pyamsoft.fridge.db.FridgeDbQueryDao
@@ -94,6 +96,12 @@ internal abstract class RoomFridgeDb internal constructor() : RoomDatabase(),
         }
       }
 
+      override fun queryWithEntryId(entryId: String): Single<List<FridgeItem>> {
+        synchronized(lock) {
+          return roomQueryDao().queryWithEntryId(entryId)
+        }
+      }
+
       override fun queryWithName(name: String): Single<List<FridgeItem>> {
         synchronized(lock) {
           return roomQueryDao().queryWithName(name)
@@ -119,6 +127,13 @@ internal abstract class RoomFridgeDb internal constructor() : RoomDatabase(),
         }
       }
 
+      override fun insertGroup(items: List<FridgeItem>): Completable {
+        synchronized(lock) {
+          return roomInsertDao().insertGroup(items)
+            .doOnComplete { publishRealtime(InsertGroup(items)) }
+        }
+      }
+
     }
   }
 
@@ -129,6 +144,13 @@ internal abstract class RoomFridgeDb internal constructor() : RoomDatabase(),
         synchronized(lock) {
           return roomUpdateDao().update(item)
             .doOnComplete { publishRealtime(Update(item)) }
+        }
+      }
+
+      override fun updateGroup(items: List<FridgeItem>): Completable {
+        synchronized(lock) {
+          return roomUpdateDao().updateGroup(items)
+            .doOnComplete { publishRealtime(UpdateGroup(items)) }
         }
       }
 

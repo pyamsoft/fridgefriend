@@ -25,6 +25,7 @@ import com.pyamsoft.fridge.db.FridgeItem
 import com.pyamsoft.fridge.db.room.impl.RoomFridgeItem
 import com.pyamsoft.fridge.db.room.impl.applyDbSchedulers
 import io.reactivex.Completable
+import io.reactivex.Observable
 import io.reactivex.Single
 
 @Dao
@@ -32,7 +33,7 @@ internal abstract class RoomInsertDao internal constructor() : FridgeDbInsertDao
 
   override fun insert(item: FridgeItem): Completable {
     return Single.just(item)
-      .map { RoomFridgeItem.create(item) }
+      .map { RoomFridgeItem.create(it) }
       .flatMapCompletable {
         return@flatMapCompletable Completable.fromAction { daoInsert(it) }
           .applyDbSchedulers()
@@ -41,5 +42,18 @@ internal abstract class RoomInsertDao internal constructor() : FridgeDbInsertDao
 
   @Insert(onConflict = OnConflictStrategy.FAIL)
   internal abstract fun daoInsert(item: RoomFridgeItem)
+
+  override fun insertGroup(items: List<FridgeItem>): Completable {
+    return Observable.fromIterable(items)
+      .map { RoomFridgeItem.create(it) }
+      .toList()
+      .flatMapCompletable {
+        return@flatMapCompletable Completable.fromAction { daoInsertGroup(it) }
+          .applyDbSchedulers()
+      }
+  }
+
+  @Insert(onConflict = OnConflictStrategy.FAIL)
+  internal abstract fun daoInsertGroup(items: List<RoomFridgeItem>)
 
 }

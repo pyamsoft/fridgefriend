@@ -48,6 +48,14 @@ internal abstract class RoomQueryDao internal constructor() : FridgeDbQueryDao {
   @CheckResult
   internal abstract fun daoQueryWithId(id: String): Single<RoomFridgeItem>
 
+  override fun queryWithEntryId(entryId: String): Single<List<FridgeItem>> {
+    return daoQueryWithEntryId(entryId).map { it }
+  }
+
+  @Query("SELECT * FROM ${RoomFridgeItem.TABLE_NAME} WHERE ${RoomFridgeItem.COLUMN_ENTRY_ID} = :entryId")
+  @CheckResult
+  internal abstract fun daoQueryWithEntryId(entryId: String): Single<List<RoomFridgeItem>>
+
   override fun queryWithName(name: String): Single<List<FridgeItem>> {
     return daoQueryWithName(name)
       .toSingle(emptyList())

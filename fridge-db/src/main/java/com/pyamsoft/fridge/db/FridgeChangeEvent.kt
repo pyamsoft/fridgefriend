@@ -21,7 +21,11 @@ sealed class FridgeChangeEvent {
 
   data class Insert(val item: FridgeItem) : FridgeChangeEvent()
 
+  data class InsertGroup(val items: List<FridgeItem>) : FridgeChangeEvent()
+
   data class Update(val item: FridgeItem) : FridgeChangeEvent()
+
+  data class UpdateGroup(val items: List<FridgeItem>) : FridgeChangeEvent()
 
   data class Delete(val id: String) : FridgeChangeEvent()
 

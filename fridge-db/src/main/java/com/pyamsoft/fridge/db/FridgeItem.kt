@@ -26,6 +26,9 @@ interface FridgeItem {
   fun id(): String
 
   @CheckResult
+  fun entryId(): String
+
+  @CheckResult
   fun name(): String
 
   @CheckResult

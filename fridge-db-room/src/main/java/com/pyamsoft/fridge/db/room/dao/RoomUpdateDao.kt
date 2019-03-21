@@ -25,6 +25,7 @@ import com.pyamsoft.fridge.db.FridgeItem
 import com.pyamsoft.fridge.db.room.impl.RoomFridgeItem
 import com.pyamsoft.fridge.db.room.impl.applyDbSchedulers
 import io.reactivex.Completable
+import io.reactivex.Observable
 import io.reactivex.Single
 
 @Dao
@@ -41,5 +42,18 @@ internal abstract class RoomUpdateDao internal constructor() : FridgeDbUpdateDao
 
   @Update(onConflict = OnConflictStrategy.FAIL)
   internal abstract fun daoUpdate(item: RoomFridgeItem)
+
+  override fun updateGroup(items: List<FridgeItem>): Completable {
+    return Observable.fromIterable(items)
+      .map { RoomFridgeItem.create(it) }
+      .toList()
+      .flatMapCompletable {
+        return@flatMapCompletable Completable.fromAction { daoUpdateGroup(it) }
+          .applyDbSchedulers()
+      }
+  }
+
+  @Update(onConflict = OnConflictStrategy.FAIL)
+  internal abstract fun daoUpdateGroup(items: List<RoomFridgeItem>)
 
 }

@@ -21,9 +21,11 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+import com.pyamsoft.fridge.db.FridgeItem
 import com.pyamsoft.fridge.entry.R
 import com.pyamsoft.fridge.entry.list.EntryList.Callback
 import com.pyamsoft.pydroid.arch.BaseUiView
+import com.pyamsoft.pydroid.ui.util.refreshing
 import javax.inject.Inject
 
 internal class EntryList @Inject internal constructor(
@@ -37,6 +39,24 @@ internal class EntryList @Inject internal constructor(
 
   private val recyclerView by lazyView<RecyclerView>(R.id.entry_list)
   private val emptyState by lazyView<TextView>(R.id.entry_empty)
+
+  fun beginRefresh() {
+    layoutRoot.refreshing(true)
+    // TODO clear list
+  }
+
+  fun setList(items: List<FridgeItem>) {
+    // TODO add items to list
+  }
+
+  fun showError(throwable: Throwable) {
+    // TODO clear list
+    // TODO set error text
+  }
+
+  fun finishRefresh() {
+    // TODO Decide view state based on number of list items
+  }
 
   interface Callback {
 

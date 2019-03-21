@@ -19,6 +19,7 @@ package com.pyamsoft.fridge.entry.list
 
 import android.os.Bundle
 import androidx.lifecycle.LifecycleOwner
+import com.pyamsoft.fridge.db.FridgeItem
 import com.pyamsoft.fridge.entry.list.EntryListUiComponent.Callback
 import com.pyamsoft.pydroid.arch.BaseUiComponent
 import com.pyamsoft.pydroid.arch.doOnDestroy
@@ -48,6 +49,50 @@ internal class EntryListUiComponentImpl @Inject internal constructor(
 
   override fun onSaveState(outState: Bundle) {
     listView.saveState(outState)
+  }
+
+  override fun onListRefreshBegin() {
+    listView.beginRefresh()
+  }
+
+  override fun onListRefreshed(data: List<FridgeItem>) {
+    listView.setList(data)
+  }
+
+  override fun onListRefreshError(throwable: Throwable) {
+    listView.showError(throwable)
+  }
+
+  override fun onListRefreshComplete() {
+    listView.finishRefresh()
+  }
+
+  override fun onRealtimeInsert(item: FridgeItem) {
+    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+  }
+
+  override fun onRealtimeInsert(items: List<FridgeItem>) {
+    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+  }
+
+  override fun onRealtimeUpdate(item: FridgeItem) {
+    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+  }
+
+  override fun onRealtimeUpdate(items: List<FridgeItem>) {
+    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+  }
+
+  override fun onRealtimeDelete(id: String) {
+    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+  }
+
+  override fun onRealtimeDelete(ids: List<String>) {
+    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+  }
+
+  override fun onRealtimeDeleteAll() {
+    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
   }
 
 }

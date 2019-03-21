@@ -24,6 +24,7 @@ import com.pyamsoft.fridge.entry.action.EntryActionUiComponentImpl
 import com.pyamsoft.fridge.entry.action.EntryCreate
 import com.pyamsoft.fridge.entry.action.EntryShop
 import com.pyamsoft.fridge.entry.list.EntryList
+import com.pyamsoft.fridge.entry.list.EntryListInteractor
 import com.pyamsoft.fridge.entry.list.EntryListPresenter
 import com.pyamsoft.fridge.entry.list.EntryListUiComponent
 import com.pyamsoft.fridge.entry.list.EntryListUiComponentImpl
@@ -31,11 +32,18 @@ import com.pyamsoft.fridge.entry.toolbar.EntryToolbar
 import com.pyamsoft.fridge.entry.toolbar.EntryToolbarPresenter
 import com.pyamsoft.fridge.entry.toolbar.EntryToolbarUiComponent
 import com.pyamsoft.fridge.entry.toolbar.EntryToolbarUiComponentImpl
+import com.pyamsoft.pydroid.core.cache.Cache
 import dagger.Binds
 import dagger.Module
+import javax.inject.Named
 
 @Module
 abstract class EntryModule {
+
+  @Binds
+  @CheckResult
+  @Named("cache-entry")
+  internal abstract fun bindEntryCache(impl: EntryListInteractor): Cache
 
   @Binds
   @CheckResult

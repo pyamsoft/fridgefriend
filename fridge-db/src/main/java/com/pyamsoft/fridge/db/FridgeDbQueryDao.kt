@@ -30,6 +30,9 @@ interface FridgeDbQueryDao {
   fun queryWithId(id: String): Single<FridgeItem>
 
   @CheckResult
+  fun queryWithEntryId(entryId: String): Single<List<FridgeItem>>
+
+  @CheckResult
   fun queryWithName(name: String): Single<List<FridgeItem>>
 
   @CheckResult
