@@ -103,10 +103,10 @@ dependencies {
   // Dagger
   kapt "com.google.dagger:dagger-compiler:$dagger"
 
-  implementation project(':fridge-db-room')
-  implementation project(':fridge-deps')
-  implementation project(':fridge-detail')
-  implementation project(":fridge-entry")
-  implementation project(":fridge-main")
-  implementation project(":fridge-setting")
+  api project(':fridge-db-room')
+  api project(':fridge-deps')
+  api project(':fridge-detail')
+  api project(":fridge-entry")
+  api project(":fridge-main")
+  api project(":fridge-setting")
 }
