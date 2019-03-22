@@ -19,6 +19,7 @@ package com.pyamsoft.fridge.entry.list
 
 import android.os.Bundle
 import androidx.lifecycle.LifecycleOwner
+import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.entry.list.EntryListUiComponent.Callback
 import com.pyamsoft.pydroid.arch.BaseUiComponent
@@ -55,7 +56,7 @@ internal class EntryListUiComponentImpl @Inject internal constructor(
     listView.beginRefresh()
   }
 
-  override fun onListRefreshed(data: List<FridgeItem>) {
+  override fun onListRefreshed(data: List<FridgeEntry>) {
     listView.setList(data)
   }
 
@@ -67,19 +68,11 @@ internal class EntryListUiComponentImpl @Inject internal constructor(
     listView.finishRefresh()
   }
 
-  override fun onRealtimeInsert(item: FridgeItem) {
+  override fun onRealtimeInsert(entry: FridgeEntry) {
     TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
   }
 
-  override fun onRealtimeInsert(items: List<FridgeItem>) {
-    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-  }
-
-  override fun onRealtimeUpdate(item: FridgeItem) {
-    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-  }
-
-  override fun onRealtimeUpdate(items: List<FridgeItem>) {
+  override fun onRealtimeUpdate(entry: FridgeEntry) {
     TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
   }
 

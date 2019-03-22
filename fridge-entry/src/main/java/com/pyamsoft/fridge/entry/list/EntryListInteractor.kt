@@ -19,10 +19,10 @@ package com.pyamsoft.fridge.entry.list
 
 import androidx.annotation.CheckResult
 import com.popinnow.android.repo.Repo
-import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent
-import com.pyamsoft.fridge.db.item.FridgeItemQueryDao
-import com.pyamsoft.fridge.db.item.FridgeItemRealtime
-import com.pyamsoft.fridge.db.item.FridgeItem
+import com.pyamsoft.fridge.db.entry.FridgeEntry
+import com.pyamsoft.fridge.db.entry.FridgeEntryChangeEvent
+import com.pyamsoft.fridge.db.entry.FridgeEntryQueryDao
+import com.pyamsoft.fridge.db.entry.FridgeEntryRealtime
 import com.pyamsoft.fridge.entry.EntryScope
 import com.pyamsoft.pydroid.core.cache.Cache
 import io.reactivex.Observable
@@ -31,18 +31,18 @@ import javax.inject.Inject
 
 @EntryScope
 internal class EntryListInteractor @Inject internal constructor(
-  private val queryDao: FridgeItemQueryDao,
-  private val realtime: FridgeItemRealtime,
-  private val repo: Repo<List<FridgeItem>>
+  private val queryDao: FridgeEntryQueryDao,
+  private val realtime: FridgeEntryRealtime,
+  private val repo: Repo<List<FridgeEntry>>
 ) : Cache {
 
   @CheckResult
-  fun getEntries(force: Boolean): Single<List<FridgeItem>> {
+  fun getEntries(force: Boolean): Single<List<FridgeEntry>> {
     return repo.get(force) { queryDao.queryAll() }
   }
 
   @CheckResult
-  fun listenForChanges(): Observable<FridgeItemChangeEvent> {
+  fun listenForChanges(): Observable<FridgeEntryChangeEvent> {
     return realtime.listenForChanges()
       .doOnNext { repo.clear() }
   }

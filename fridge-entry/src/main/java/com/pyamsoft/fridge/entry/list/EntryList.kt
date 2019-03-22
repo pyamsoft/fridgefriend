@@ -21,7 +21,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-import com.pyamsoft.fridge.db.item.FridgeItem
+import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.entry.R
 import com.pyamsoft.fridge.entry.list.EntryList.Callback
 import com.pyamsoft.pydroid.arch.BaseUiView
@@ -45,7 +45,7 @@ internal class EntryList @Inject internal constructor(
     // TODO clear list
   }
 
-  fun setList(items: List<FridgeItem>) {
+  fun setList(entries: List<FridgeEntry>) {
     // TODO add items to list
   }
 

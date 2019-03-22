@@ -24,6 +24,7 @@ import com.popinnow.android.repo.Repo
 import com.popinnow.android.repo.moshi.MoshiPersister
 import com.popinnow.android.repo.newRepoBuilder
 import com.pyamsoft.fridge.FridgeComponent.FridgeProvider
+import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.room.RoomProvider
 import com.pyamsoft.fridge.detail.DetailComponent
@@ -113,13 +114,31 @@ internal interface FridgeComponent {
     @Provides
     @JvmStatic
     @Singleton
-    internal fun provideFridgeItemRepo(context: Context, moshi: Moshi): Repo<List<FridgeItem>> {
+    internal fun provideFridgeItemListRepo(context: Context, moshi: Moshi): Repo<List<FridgeItem>> {
       val type = Types.newParameterizedType(List::class.java, FridgeItem::class.java)
       return newRepoBuilder<List<FridgeItem>>()
         .memoryCache(5, MINUTES)
         .persister(
           2, HOURS,
           File(context.cacheDir, "fridge-item-list"),
+          MoshiPersister.create(moshi, type)
+        )
+        .build()
+    }
+
+    @Provides
+    @JvmStatic
+    @Singleton
+    internal fun provideFridgeEntryListRepo(
+      context: Context,
+      moshi: Moshi
+    ): Repo<List<FridgeEntry>> {
+      val type = Types.newParameterizedType(List::class.java, FridgeItem::class.java)
+      return newRepoBuilder<List<FridgeEntry>>()
+        .memoryCache(5, MINUTES)
+        .persister(
+          2, HOURS,
+          File(context.cacheDir, "fridge-entry-list"),
           MoshiPersister.create(moshi, type)
         )
         .build()

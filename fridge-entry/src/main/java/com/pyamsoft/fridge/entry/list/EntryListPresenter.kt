@@ -17,14 +17,11 @@
 
 package com.pyamsoft.fridge.entry.list
 
-import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent.Delete
-import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent.DeleteAll
-import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent.DeleteGroup
-import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent.Insert
-import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent.InsertGroup
-import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent.Update
-import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent.UpdateGroup
-import com.pyamsoft.fridge.db.item.FridgeItem
+import com.pyamsoft.fridge.db.entry.FridgeEntry
+import com.pyamsoft.fridge.db.entry.FridgeEntryChangeEvent.Delete
+import com.pyamsoft.fridge.db.entry.FridgeEntryChangeEvent.DeleteAll
+import com.pyamsoft.fridge.db.entry.FridgeEntryChangeEvent.Insert
+import com.pyamsoft.fridge.db.entry.FridgeEntryChangeEvent.Update
 import com.pyamsoft.fridge.entry.EntryScope
 import com.pyamsoft.fridge.entry.list.EntryListPresenter.Callback
 import com.pyamsoft.pydroid.arch.BasePresenter
@@ -74,12 +71,9 @@ internal class EntryListPresenter @Inject internal constructor(
       .observeOn(AndroidSchedulers.mainThread())
       .subscribe {
         return@subscribe when (it) {
-          is Insert -> callback.onRealtimeInsert(it.item)
-          is InsertGroup -> callback.onRealtimeInsert(it.items)
-          is Update -> callback.onRealtimeUpdate(it.item)
-          is UpdateGroup -> callback.onRealtimeInsert(it.items)
+          is Insert -> callback.onRealtimeInsert(it.entry)
+          is Update -> callback.onRealtimeUpdate(it.entry)
           is Delete -> callback.onRealtimeDelete(it.id)
-          is DeleteGroup -> callback.onRealtimeDelete(it.ids)
           is DeleteAll -> callback.onRealtimeDeleteAll()
         }
       }
@@ -89,19 +83,15 @@ internal class EntryListPresenter @Inject internal constructor(
 
     fun onListRefreshBegin()
 
-    fun onListRefreshed(data: List<FridgeItem>)
+    fun onListRefreshed(data: List<FridgeEntry>)
 
     fun onListRefreshError(throwable: Throwable)
 
     fun onListRefreshComplete()
 
-    fun onRealtimeInsert(item: FridgeItem)
+    fun onRealtimeInsert(entry: FridgeEntry)
 
-    fun onRealtimeInsert(items: List<FridgeItem>)
-
-    fun onRealtimeUpdate(item: FridgeItem)
-
-    fun onRealtimeUpdate(items: List<FridgeItem>)
+    fun onRealtimeUpdate(entry: FridgeEntry)
 
     fun onRealtimeDelete(id: String)
 
