@@ -79,6 +79,21 @@ internal data class RoomFridgeItem internal constructor(
     return presence
   }
 
+  @Ignore
+  override fun copy(name: String): FridgeItem {
+    return FridgeItem.create(this, name = name)
+  }
+
+  @Ignore
+  override fun copy(expireTime: Date): FridgeItem {
+    return FridgeItem.create(this, expireTime = expireTime)
+  }
+
+  @Ignore
+  override fun copy(presence: Presence): FridgeItem {
+    return FridgeItem.create(this, presence = presence)
+  }
+
   companion object {
 
     @Ignore internal const val TABLE_NAME = "room_fridge_item_table"

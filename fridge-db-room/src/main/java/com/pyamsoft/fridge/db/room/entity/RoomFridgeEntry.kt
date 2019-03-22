@@ -52,6 +52,16 @@ internal data class RoomFridgeEntry internal constructor(
     return createdTime
   }
 
+  @Ignore
+  override fun copy(name: String): FridgeEntry {
+    return FridgeEntry.create(this, name = name)
+  }
+
+  @Ignore
+  override fun copy(createdTime: Date): FridgeEntry {
+    return FridgeEntry.create(this, createdTime = createdTime)
+  }
+
   companion object {
 
     @Ignore internal const val TABLE_NAME = "room_fridge_entry_table"

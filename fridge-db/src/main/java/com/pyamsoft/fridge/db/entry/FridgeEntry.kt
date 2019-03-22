@@ -18,6 +18,7 @@
 package com.pyamsoft.fridge.db.entry
 
 import androidx.annotation.CheckResult
+import com.pyamsoft.fridge.db.IdGenerator
 import java.util.Date
 
 interface FridgeEntry {
@@ -30,5 +31,77 @@ interface FridgeEntry {
 
   @CheckResult
   fun createdTime(): Date
+
+  @CheckResult
+  fun copy(name: String): FridgeEntry
+
+  @CheckResult
+  fun copy(createdTime: Date): FridgeEntry
+
+  companion object {
+
+    const val DEFAULT_NAME = ""
+    val DEFAULT_CREATED_TIME = Date(0)
+
+    @CheckResult
+    fun create(name: String = DEFAULT_NAME, createdTime: Date = DEFAULT_CREATED_TIME): FridgeEntry {
+      return object : FridgeEntryImpl() {
+
+        private val id = IdGenerator.generate()
+
+        override fun id(): String {
+          return id
+        }
+
+        override fun name(): String {
+          return name
+        }
+
+        override fun createdTime(): Date {
+          return createdTime
+        }
+      }
+    }
+
+    @CheckResult
+    fun create(
+      entry: FridgeEntry,
+      name: String = entry.name(),
+      createdTime: Date = entry.createdTime()
+    ): FridgeEntry {
+      return object : FridgeEntryImpl() {
+
+        override fun id(): String {
+          return entry.id()
+        }
+
+        override fun name(): String {
+          return name
+        }
+
+        override fun createdTime(): Date {
+          return createdTime
+        }
+
+      }
+
+    }
+
+    private abstract class FridgeEntryImpl protected constructor() : FridgeEntry {
+
+      final override fun copy(name: String): FridgeEntry {
+        return FridgeEntry.create(this, name = name)
+      }
+
+      final override fun copy(createdTime: Date): FridgeEntry {
+        return FridgeEntry.create(
+          this,
+          createdTime = createdTime
+        )
+      }
+
+    }
+
+  }
 
 }

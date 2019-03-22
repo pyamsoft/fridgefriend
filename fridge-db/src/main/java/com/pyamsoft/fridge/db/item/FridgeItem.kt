@@ -18,6 +18,8 @@
 package com.pyamsoft.fridge.db.item
 
 import androidx.annotation.CheckResult
+import com.pyamsoft.fridge.db.IdGenerator
+import com.pyamsoft.fridge.db.entry.FridgeEntry
 import java.util.Date
 
 interface FridgeItem {
@@ -37,8 +39,105 @@ interface FridgeItem {
   @CheckResult
   fun presence(): Presence
 
+  @CheckResult
+  fun copy(name: String): FridgeItem
+
+  @CheckResult
+  fun copy(expireTime: Date): FridgeItem
+
+  @CheckResult
+  fun copy(presence: Presence): FridgeItem
+
   enum class Presence {
     HAVE,
     NEED
+  }
+
+  companion object {
+
+    const val DEFAULT_NAME = ""
+    val DEFAULT_PRESENCE = Presence.NEED
+    val DEFAULT_EXPIRE_TIME = Date(0)
+
+    @CheckResult
+    fun create(
+      entry: FridgeEntry,
+      name: String = DEFAULT_NAME,
+      expireTime: Date = DEFAULT_EXPIRE_TIME,
+      presence: Presence = DEFAULT_PRESENCE
+    ): FridgeItem {
+      return object : FridgeItemImpl() {
+
+        private val id = IdGenerator.generate()
+
+        override fun id(): String {
+          return id
+        }
+
+        override fun entryId(): String {
+          return entry.id()
+        }
+
+        override fun name(): String {
+          return name
+        }
+
+        override fun expireTime(): Date {
+          return expireTime
+        }
+
+        override fun presence(): Presence {
+          return presence
+        }
+
+      }
+    }
+
+    @CheckResult
+    fun create(
+      item: FridgeItem,
+      name: String = item.name(),
+      expireTime: Date = item.expireTime(),
+      presence: Presence = item.presence()
+    ): FridgeItem {
+      return object : FridgeItemImpl() {
+
+        override fun id(): String {
+          return item.id()
+        }
+
+        override fun entryId(): String {
+          return item.entryId()
+        }
+
+        override fun name(): String {
+          return name
+        }
+
+        override fun expireTime(): Date {
+          return expireTime
+        }
+
+        override fun presence(): Presence {
+          return presence
+        }
+
+      }
+    }
+
+    protected abstract class FridgeItemImpl protected constructor() : FridgeItem {
+
+      final override fun copy(name: String): FridgeItem {
+        return create(this, name = name)
+      }
+
+      final override fun copy(expireTime: Date): FridgeItem {
+        return create(this, expireTime = expireTime)
+      }
+
+      final override fun copy(presence: Presence): FridgeItem {
+        return create(this, presence = presence)
+      }
+    }
   }
 }
