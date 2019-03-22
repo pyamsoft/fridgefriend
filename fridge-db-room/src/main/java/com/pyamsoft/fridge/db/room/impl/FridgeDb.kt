@@ -19,12 +19,21 @@ package com.pyamsoft.fridge.db.room.impl
 
 import androidx.annotation.CheckResult
 
-internal interface RoomFridgeDb {
+internal interface FridgeDb<Realtime : Any, Query : Any, Insert : Any, Update : Any, Delete : Any> {
 
   @CheckResult
-  fun items(): FridgeItemDb
+  fun realtime(): Realtime
 
   @CheckResult
-  fun entries(): FridgeEntryDb
+  fun query(): Query
+
+  @CheckResult
+  fun insert(): Insert
+
+  @CheckResult
+  fun update(): Update
+
+  @CheckResult
+  fun delete(): Delete
 
 }

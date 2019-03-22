@@ -17,28 +17,16 @@
 
 package com.pyamsoft.fridge.db.room.impl
 
-import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.db.item.FridgeItemDeleteDao
 import com.pyamsoft.fridge.db.item.FridgeItemInsertDao
 import com.pyamsoft.fridge.db.item.FridgeItemQueryDao
 import com.pyamsoft.fridge.db.item.FridgeItemRealtime
 import com.pyamsoft.fridge.db.item.FridgeItemUpdateDao
 
-internal interface FridgeItemDb {
-
-  @CheckResult
-  fun realtimeItems(): FridgeItemRealtime
-
-  @CheckResult
-  fun queryItems(): FridgeItemQueryDao
-
-  @CheckResult
-  fun insertItems(): FridgeItemInsertDao
-
-  @CheckResult
-  fun updateItems(): FridgeItemUpdateDao
-
-  @CheckResult
-  fun deleteItems(): FridgeItemDeleteDao
-
-}
+internal interface FridgeItemDb : FridgeDb<
+    FridgeItemRealtime,
+    FridgeItemQueryDao,
+    FridgeItemInsertDao,
+    FridgeItemUpdateDao,
+    FridgeItemDeleteDao
+    >

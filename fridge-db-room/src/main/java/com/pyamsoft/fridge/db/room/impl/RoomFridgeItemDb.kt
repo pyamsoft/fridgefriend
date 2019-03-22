@@ -38,7 +38,7 @@ import io.reactivex.Observable
 import io.reactivex.Single
 
 internal class RoomFridgeItemDb internal constructor(
-  private val room: RoomFridgeDb
+  private val room: RoomFridgeDbImpl
 ) : FridgeItemDb {
 
   private val realtimeChangeBus = RxBus.create<FridgeItemChangeEvent>()
@@ -48,7 +48,7 @@ internal class RoomFridgeItemDb internal constructor(
     realtimeChangeBus.publish(event)
   }
 
-  override fun realtimeItems(): FridgeItemRealtime {
+  override fun realtime(): FridgeItemRealtime {
     return object : FridgeItemRealtime {
 
       override fun listenForChanges(): Observable<FridgeItemChangeEvent> {
@@ -58,55 +58,55 @@ internal class RoomFridgeItemDb internal constructor(
     }
   }
 
-  override fun queryItems(): FridgeItemQueryDao {
+  override fun query(): FridgeItemQueryDao {
     return object : FridgeItemQueryDao {
 
       override fun queryAll(): Single<List<FridgeItem>> {
         synchronized(lock) {
-          return room.roomQueryDao().queryAll()
+          return room.roomItemQueryDao().queryAll()
         }
       }
 
       override fun queryWithId(id: String): Single<FridgeItem> {
         synchronized(lock) {
-          return room.roomQueryDao().queryWithId(id)
+          return room.roomItemQueryDao().queryWithId(id)
         }
       }
 
       override fun queryWithEntryId(entryId: String): Single<List<FridgeItem>> {
         synchronized(lock) {
-          return room.roomQueryDao().queryWithEntryId(entryId)
+          return room.roomItemQueryDao().queryWithEntryId(entryId)
         }
       }
 
       override fun queryWithName(name: String): Single<List<FridgeItem>> {
         synchronized(lock) {
-          return room.roomQueryDao().queryWithName(name)
+          return room.roomItemQueryDao().queryWithName(name)
         }
       }
 
       override fun queryWithPresence(presence: Presence): Single<List<FridgeItem>> {
         synchronized(lock) {
-          return room.roomQueryDao().queryWithPresence(presence)
+          return room.roomItemQueryDao().queryWithPresence(presence)
         }
       }
 
     }
   }
 
-  override fun insertItems(): FridgeItemInsertDao {
+  override fun insert(): FridgeItemInsertDao {
     return object : FridgeItemInsertDao {
 
       override fun insert(item: FridgeItem): Completable {
         synchronized(lock) {
-          return room.roomInsertDao().insert(item)
+          return room.roomItemInsertDao().insert(item)
             .doOnComplete { publishRealtime(Insert(item)) }
         }
       }
 
       override fun insertGroup(items: List<FridgeItem>): Completable {
         synchronized(lock) {
-          return room.roomInsertDao().insertGroup(items)
+          return room.roomItemInsertDao().insertGroup(items)
             .doOnComplete { publishRealtime(InsertGroup(items)) }
         }
       }
@@ -114,19 +114,19 @@ internal class RoomFridgeItemDb internal constructor(
     }
   }
 
-  override fun updateItems(): FridgeItemUpdateDao {
+  override fun update(): FridgeItemUpdateDao {
     return object : FridgeItemUpdateDao {
 
       override fun update(item: FridgeItem): Completable {
         synchronized(lock) {
-          return room.roomUpdateDao().update(item)
+          return room.roomItemUpdateDao().update(item)
             .doOnComplete { publishRealtime(Update(item)) }
         }
       }
 
       override fun updateGroup(items: List<FridgeItem>): Completable {
         synchronized(lock) {
-          return room.roomUpdateDao().updateGroup(items)
+          return room.roomItemUpdateDao().updateGroup(items)
             .doOnComplete { publishRealtime(UpdateGroup(items)) }
         }
       }
@@ -134,26 +134,26 @@ internal class RoomFridgeItemDb internal constructor(
     }
   }
 
-  override fun deleteItems(): FridgeItemDeleteDao {
+  override fun delete(): FridgeItemDeleteDao {
     return object : FridgeItemDeleteDao {
 
       override fun delete(item: FridgeItem): Completable {
         synchronized(lock) {
-          return room.roomDeleteDao().delete(item)
+          return room.roomItemDeleteDao().delete(item)
             .doOnComplete { publishRealtime(Delete(item.id())) }
         }
       }
 
       override fun deleteGroup(items: List<FridgeItem>): Completable {
         synchronized(lock) {
-          return room.roomDeleteDao().deleteGroup(items)
+          return room.roomItemDeleteDao().deleteGroup(items)
             .doOnComplete { publishRealtime(DeleteGroup(items.map { it.id() })) }
         }
       }
 
       override fun deleteAll(): Completable {
         synchronized(lock) {
-          return room.roomDeleteDao().deleteAll()
+          return room.roomItemDeleteDao().deleteAll()
             .doOnComplete { publishRealtime(DeleteAll) }
         }
       }

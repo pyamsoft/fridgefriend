@@ -15,16 +15,14 @@
  *
  */
 
-package com.pyamsoft.fridge.db.room.impl
+package com.pyamsoft.fridge.db.entry
 
 import androidx.annotation.CheckResult
+import io.reactivex.Observable
 
-internal interface RoomFridgeDb {
-
-  @CheckResult
-  fun items(): FridgeItemDb
+interface FridgeEntryRealtime {
 
   @CheckResult
-  fun entries(): FridgeEntryDb
+  fun listenForChanges(): Observable<FridgeEntryChangeEvent>
 
 }
