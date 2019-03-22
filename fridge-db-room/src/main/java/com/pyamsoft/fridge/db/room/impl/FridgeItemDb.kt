@@ -17,34 +17,28 @@
 
 package com.pyamsoft.fridge.db.room.impl
 
+import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.db.item.FridgeItemDeleteDao
 import com.pyamsoft.fridge.db.item.FridgeItemInsertDao
 import com.pyamsoft.fridge.db.item.FridgeItemQueryDao
 import com.pyamsoft.fridge.db.item.FridgeItemRealtime
 import com.pyamsoft.fridge.db.item.FridgeItemUpdateDao
 
-internal class FridgeDbImpl internal constructor(
-  private val roomImpl: FridgeDb
-) : FridgeDb {
+internal interface FridgeItemDb {
 
-  override fun realtime(): FridgeItemRealtime {
-    return roomImpl.realtime()
-  }
+  @CheckResult
+  fun realtimeItems(): FridgeItemRealtime
 
-  override fun query(): FridgeItemQueryDao {
-    return roomImpl.query()
-  }
+  @CheckResult
+  fun queryItems(): FridgeItemQueryDao
 
-  override fun insert(): FridgeItemInsertDao {
-    return roomImpl.insert()
-  }
+  @CheckResult
+  fun insertItems(): FridgeItemInsertDao
 
-  override fun update(): FridgeItemUpdateDao {
-    return roomImpl.update()
-  }
+  @CheckResult
+  fun updateItems(): FridgeItemUpdateDao
 
-  override fun delete(): FridgeItemDeleteDao {
-    return roomImpl.delete()
-  }
+  @CheckResult
+  fun deleteItems(): FridgeItemDeleteDao
 
 }

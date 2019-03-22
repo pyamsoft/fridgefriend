@@ -15,7 +15,7 @@
  *
  */
 
-package com.pyamsoft.fridge.db.room.dao
+package com.pyamsoft.fridge.db.room.dao.item
 
 import androidx.annotation.CheckResult
 import androidx.room.Dao

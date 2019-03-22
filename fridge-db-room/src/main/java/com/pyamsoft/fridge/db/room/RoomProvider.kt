@@ -25,12 +25,10 @@ import com.pyamsoft.fridge.db.item.FridgeItemInsertDao
 import com.pyamsoft.fridge.db.item.FridgeItemQueryDao
 import com.pyamsoft.fridge.db.item.FridgeItemRealtime
 import com.pyamsoft.fridge.db.item.FridgeItemUpdateDao
-import com.pyamsoft.fridge.db.room.impl.FridgeDb
-import com.pyamsoft.fridge.db.room.impl.FridgeDbImpl
+import com.pyamsoft.fridge.db.room.impl.FridgeItemDb
 import com.pyamsoft.fridge.db.room.impl.RoomFridgeDb
 import dagger.Module
 import dagger.Provides
-import javax.inject.Named
 import javax.inject.Singleton
 
 @Module
@@ -40,50 +38,55 @@ object RoomProvider {
   @JvmStatic
   @Provides
   @CheckResult
-  internal fun provideDb(context: Context): FridgeDb {
-    val room = Room.databaseBuilder(
+  internal fun provideDb(context: Context): RoomFridgeDb {
+    return Room.databaseBuilder(
       context.applicationContext,
       RoomFridgeDb::class.java,
       "fridge_item_room_db.db"
     )
       .build()
-
-    return FridgeDbImpl(room)
   }
 
   @JvmStatic
   @Provides
   @CheckResult
-  internal fun provideRealtimeDao(db: FridgeDb): FridgeItemRealtime {
-    return db.realtime()
+  internal fun provideFridgeItemDb(room: RoomFridgeDb): FridgeItemDb {
+    return room
   }
 
   @JvmStatic
   @Provides
   @CheckResult
-  internal fun provideQueryDao(db: FridgeDb): FridgeItemQueryDao {
-    return db.query()
+  internal fun provideRealtimeDao(db: FridgeItemDb): FridgeItemRealtime {
+    return db.realtimeItems()
   }
 
   @JvmStatic
   @Provides
   @CheckResult
-  internal fun provideInsertDao(db: FridgeDb): FridgeItemInsertDao {
-    return db.insert()
+  internal fun provideQueryDao(db: FridgeItemDb): FridgeItemQueryDao {
+    return db.queryItems()
   }
 
   @JvmStatic
   @Provides
   @CheckResult
-  internal fun provideUpdateDao(db: FridgeDb): FridgeItemUpdateDao {
-    return db.update()
+  internal fun provideInsertDao(db: FridgeItemDb): FridgeItemInsertDao {
+    return db.insertItems()
   }
 
   @JvmStatic
   @Provides
   @CheckResult
-  internal fun provideDeleteDao(db: FridgeDb): FridgeItemDeleteDao {
-    return db.delete()
+  internal fun provideUpdateDao(db: FridgeItemDb): FridgeItemUpdateDao {
+    return db.updateItems()
+  }
+
+  @JvmStatic
+  @Provides
+  @CheckResult
+  internal fun provideDeleteDao(db: FridgeItemDb): FridgeItemDeleteDao {
+    return db.deleteItems()
   }
 
 }

@@ -15,7 +15,7 @@
  *
  */
 
-package com.pyamsoft.fridge.db.room.impl
+package com.pyamsoft.fridge.db.room.dao
 
 import androidx.annotation.CheckResult
 import io.reactivex.Completable

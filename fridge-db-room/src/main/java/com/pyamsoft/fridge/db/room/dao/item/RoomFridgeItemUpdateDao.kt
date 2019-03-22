@@ -15,15 +15,15 @@
  *
  */
 
-package com.pyamsoft.fridge.db.room.dao
+package com.pyamsoft.fridge.db.room.dao.item
 
 import androidx.room.Dao
 import androidx.room.OnConflictStrategy
 import androidx.room.Update
 import com.pyamsoft.fridge.db.item.FridgeItemUpdateDao
 import com.pyamsoft.fridge.db.item.FridgeItem
+import com.pyamsoft.fridge.db.room.dao.applyDbSchedulers
 import com.pyamsoft.fridge.db.room.entity.RoomFridgeItem
-import com.pyamsoft.fridge.db.room.impl.applyDbSchedulers
 import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.Single
