@@ -19,9 +19,8 @@ package com.pyamsoft.fridge.db.room.dao.item
 
 import androidx.room.Dao
 import androidx.room.Delete
-import androidx.room.Query
-import com.pyamsoft.fridge.db.item.FridgeItemDeleteDao
 import com.pyamsoft.fridge.db.item.FridgeItem
+import com.pyamsoft.fridge.db.item.FridgeItemDeleteDao
 import com.pyamsoft.fridge.db.room.dao.applyDbSchedulers
 import com.pyamsoft.fridge.db.room.entity.RoomFridgeItem
 import io.reactivex.Completable
@@ -42,24 +41,5 @@ internal abstract class RoomFridgeItemDeleteDao internal constructor() :
 
   @Delete
   internal abstract fun daoDelete(item: RoomFridgeItem)
-
-  override fun deleteGroup(items: List<FridgeItem>): Completable {
-    return Single.just(items)
-      .flatMapCompletable {
-        val roomItems = items.map { RoomFridgeItem.create(it) }
-        return@flatMapCompletable Completable.fromAction { daoDeleteGroup(roomItems) }
-          .applyDbSchedulers()
-      }
-  }
-
-  @Delete
-  internal abstract fun daoDeleteGroup(items: List<RoomFridgeItem>)
-
-  override fun deleteAll(): Completable {
-    return Completable.fromAction { daoDeleteAll() }
-  }
-
-  @Query("DELETE FROM ${RoomFridgeItem.TABLE_NAME} WHERE 1 = 1")
-  internal abstract fun daoDeleteAll()
 
 }

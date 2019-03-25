@@ -25,7 +25,4 @@ interface FridgeItemUpdateDao {
   @CheckResult
   fun update(item: FridgeItem): Completable
 
-  @CheckResult
-  fun updateGroup(items: List<FridgeItem>): Completable
-
 }

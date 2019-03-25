@@ -21,12 +21,8 @@ import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent.Delete
-import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent.DeleteAll
-import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent.DeleteGroup
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent.Insert
-import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent.InsertGroup
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent.Update
-import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent.UpdateGroup
 import com.pyamsoft.fridge.db.item.FridgeItemDeleteDao
 import com.pyamsoft.fridge.db.item.FridgeItemInsertDao
 import com.pyamsoft.fridge.db.item.FridgeItemQueryDao
@@ -51,8 +47,9 @@ internal class RoomFridgeItemDb internal constructor(
   override fun realtime(): FridgeItemRealtime {
     return object : FridgeItemRealtime {
 
-      override fun listenForChanges(): Observable<FridgeItemChangeEvent> {
+      override fun listenForChanges(entryId: String): Observable<FridgeItemChangeEvent> {
         return realtimeChangeBus.listen()
+          .filter { it.entryId == entryId }
       }
 
     }
@@ -104,13 +101,6 @@ internal class RoomFridgeItemDb internal constructor(
         }
       }
 
-      override fun insertGroup(items: List<FridgeItem>): Completable {
-        synchronized(lock) {
-          return room.roomItemInsertDao().insertGroup(items)
-            .doOnComplete { publishRealtime(InsertGroup(items)) }
-        }
-      }
-
     }
   }
 
@@ -124,13 +114,6 @@ internal class RoomFridgeItemDb internal constructor(
         }
       }
 
-      override fun updateGroup(items: List<FridgeItem>): Completable {
-        synchronized(lock) {
-          return room.roomItemUpdateDao().updateGroup(items)
-            .doOnComplete { publishRealtime(UpdateGroup(items)) }
-        }
-      }
-
     }
   }
 
@@ -140,21 +123,7 @@ internal class RoomFridgeItemDb internal constructor(
       override fun delete(item: FridgeItem): Completable {
         synchronized(lock) {
           return room.roomItemDeleteDao().delete(item)
-            .doOnComplete { publishRealtime(Delete(item.id())) }
-        }
-      }
-
-      override fun deleteGroup(items: List<FridgeItem>): Completable {
-        synchronized(lock) {
-          return room.roomItemDeleteDao().deleteGroup(items)
-            .doOnComplete { publishRealtime(DeleteGroup(items.map { it.id() })) }
-        }
-      }
-
-      override fun deleteAll(): Completable {
-        synchronized(lock) {
-          return room.roomItemDeleteDao().deleteAll()
-            .doOnComplete { publishRealtime(DeleteAll) }
+            .doOnComplete { publishRealtime(Delete(item)) }
         }
       }
 

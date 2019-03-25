@@ -23,6 +23,6 @@ import io.reactivex.Observable
 interface FridgeItemRealtime {
 
   @CheckResult
-  fun listenForChanges(): Observable<FridgeItemChangeEvent>
+  fun listenForChanges(entryId: String): Observable<FridgeItemChangeEvent>
 
 }

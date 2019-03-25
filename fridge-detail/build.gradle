@@ -68,6 +68,7 @@ dependencies {
 
   kapt "com.google.dagger:dagger-compiler:$dagger"
 
+  api project(':fridge-db')
   api project(':fridge-deps')
 }
 

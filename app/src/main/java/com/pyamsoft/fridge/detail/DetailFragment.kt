@@ -29,6 +29,7 @@ import com.pyamsoft.fridge.Injector
 import com.pyamsoft.fridge.R
 import com.pyamsoft.fridge.detail.title.DetailTitleUiComponent
 import com.pyamsoft.fridge.detail.toolbar.DetailToolbarUiComponent
+import com.pyamsoft.pydroid.ui.app.requireArguments
 import com.pyamsoft.pydroid.ui.app.requireToolbarActivity
 import javax.inject.Inject
 
@@ -54,6 +55,7 @@ internal class DetailFragment : Fragment(),
     Injector.obtain<FridgeComponent>(view.context.applicationContext)
       .plusDetailComponent()
       .toolbarActivity(requireToolbarActivity())
+      .entryId(requireArguments().getString(ENTRY_ID, ""))
       .parent(parent)
       .build()
       .inject(this)
@@ -80,14 +82,28 @@ internal class DetailFragment : Fragment(),
   companion object {
 
     const val TAG = "EntryCreateDialog"
+    private const val ENTRY_ID = "entry_id"
 
     @JvmStatic
     @CheckResult
-    fun newInstance(): Fragment {
+    private fun newInstance(id: String): Fragment {
       return DetailFragment().apply {
         arguments = Bundle().apply {
+          putString(ENTRY_ID, id)
         }
       }
+    }
+
+    @JvmStatic
+    @CheckResult
+    fun edit(id: String): Fragment {
+      return newInstance(id)
+    }
+
+    @JvmStatic
+    @CheckResult
+    fun create(): Fragment {
+      return newInstance("")
     }
   }
 

@@ -25,10 +25,4 @@ interface FridgeItemDeleteDao {
   @CheckResult
   fun delete(item: FridgeItem): Completable
 
-  @CheckResult
-  fun deleteGroup(items: List<FridgeItem>): Completable
-
-  @CheckResult
-  fun deleteAll(): Completable
-
 }

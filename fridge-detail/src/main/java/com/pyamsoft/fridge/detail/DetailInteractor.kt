@@ -15,7 +15,7 @@
  *
  */
 
-package com.pyamsoft.fridge.entry.list
+package com.pyamsoft.fridge.detail
 
 import androidx.annotation.CheckResult
 import com.popinnow.android.repo.Repo
@@ -28,14 +28,14 @@ import io.reactivex.Observable
 import io.reactivex.Single
 import javax.inject.Inject
 
-internal class EntryListInteractor @Inject internal constructor(
+internal class DetailInteractor @Inject internal constructor(
   private val queryDao: FridgeEntryQueryDao,
   private val realtime: FridgeEntryRealtime,
   private val repo: Repo<List<FridgeEntry>>
 ) : Cache {
 
   @CheckResult
-  fun getEntries(force: Boolean): Single<List<FridgeEntry>> {
+  fun getDetails(force: Boolean): Single<List<FridgeEntry>> {
     return repo.get(force) { queryDao.queryAll() }
   }
 

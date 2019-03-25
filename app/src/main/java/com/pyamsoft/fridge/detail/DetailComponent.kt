@@ -22,6 +22,7 @@ import androidx.annotation.CheckResult
 import com.pyamsoft.pydroid.ui.app.ToolbarActivity
 import dagger.BindsInstance
 import dagger.Subcomponent
+import javax.inject.Named
 
 @DetailScope
 @Subcomponent(modules = [DetailModule::class])
@@ -39,6 +40,10 @@ internal interface DetailComponent {
     @BindsInstance
     @CheckResult
     fun toolbarActivity(toolbarActivity: ToolbarActivity): Builder
+
+    @BindsInstance
+    @CheckResult
+    fun entryId(@Named("entry_id") entryId: String): Builder
 
     @CheckResult
     fun build(): DetailComponent

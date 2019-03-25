@@ -95,7 +95,7 @@ internal class EntryListFragment : Fragment(),
   }
 
   override fun onCreateNew() {
-    pushFragment(DetailFragment.TAG) { DetailFragment.newInstance() }
+    pushFragment(DetailFragment.TAG) { DetailFragment.create() }
   }
 
   override fun onStartShopping() {

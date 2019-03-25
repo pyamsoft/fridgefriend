@@ -25,7 +25,4 @@ interface FridgeItemInsertDao {
   @CheckResult
   fun insert(item: FridgeItem): Completable
 
-  @CheckResult
-  fun insertGroup(items: List<FridgeItem>): Completable
-
 }

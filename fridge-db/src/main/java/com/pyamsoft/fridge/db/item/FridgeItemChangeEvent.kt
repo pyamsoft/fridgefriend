@@ -17,20 +17,12 @@
 
 package com.pyamsoft.fridge.db.item
 
-sealed class FridgeItemChangeEvent {
+sealed class FridgeItemChangeEvent(open val entryId: String) {
 
-  data class Insert(val item: FridgeItem) : FridgeItemChangeEvent()
+  data class Insert(val item: FridgeItem) : FridgeItemChangeEvent(item.entryId())
 
-  data class InsertGroup(val items: List<FridgeItem>) : FridgeItemChangeEvent()
+  data class Update(val item: FridgeItem) : FridgeItemChangeEvent(item.entryId())
 
-  data class Update(val item: FridgeItem) : FridgeItemChangeEvent()
-
-  data class UpdateGroup(val items: List<FridgeItem>) : FridgeItemChangeEvent()
-
-  data class Delete(val id: String) : FridgeItemChangeEvent()
-
-  data class DeleteGroup(val ids: List<String>) : FridgeItemChangeEvent()
-
-  object DeleteAll : FridgeItemChangeEvent()
+  data class Delete(val item: FridgeItem) : FridgeItemChangeEvent(item.entryId())
 
 }
