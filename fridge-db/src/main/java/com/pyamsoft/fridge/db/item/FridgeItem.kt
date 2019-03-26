@@ -55,18 +55,18 @@ interface FridgeItem {
 
   companion object {
 
-    const val DEFAULT_NAME = ""
+    const val EMPTY_NAME = ""
+    val EMPTY_EXPIRE_TIME = Date(0)
     val DEFAULT_PRESENCE = Presence.NEED
-    val DEFAULT_EXPIRE_TIME = Date(0)
 
     @CheckResult
     fun empty(): FridgeItem {
-      return JsonMappableFridgeItem("", "", DEFAULT_NAME, DEFAULT_EXPIRE_TIME, DEFAULT_PRESENCE)
+      return JsonMappableFridgeItem("", "", EMPTY_NAME, EMPTY_EXPIRE_TIME, DEFAULT_PRESENCE)
     }
 
     @CheckResult
     fun create(entry: FridgeEntry): FridgeItem {
-      return create(entry, DEFAULT_NAME, DEFAULT_EXPIRE_TIME, DEFAULT_PRESENCE)
+      return create(entry, EMPTY_NAME, Date(), DEFAULT_PRESENCE)
     }
 
     @CheckResult

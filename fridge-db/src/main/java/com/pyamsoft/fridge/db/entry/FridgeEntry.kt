@@ -40,17 +40,17 @@ interface FridgeEntry {
 
   companion object {
 
-    const val DEFAULT_NAME = ""
-    val DEFAULT_CREATED_TIME = Date(0)
+    const val EMPTY_NAME = ""
+    val EMPTY_CREATED_TIME = Date(0)
 
     @CheckResult
     fun empty(): FridgeEntry {
-      return JsonMappableFridgeEntry("", DEFAULT_NAME, DEFAULT_CREATED_TIME)
+      return JsonMappableFridgeEntry("", EMPTY_NAME, EMPTY_CREATED_TIME)
     }
 
     @CheckResult
     fun create(): FridgeEntry {
-      return create(DEFAULT_NAME, DEFAULT_CREATED_TIME)
+      return create(EMPTY_NAME, Date())
     }
 
     @CheckResult
