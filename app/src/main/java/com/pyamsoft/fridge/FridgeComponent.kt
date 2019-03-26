@@ -21,6 +21,7 @@ import android.app.Application
 import android.content.Context
 import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.FridgeComponent.FridgeProvider
+import com.pyamsoft.fridge.db.DbProvider
 import com.pyamsoft.fridge.db.room.RoomProvider
 import com.pyamsoft.fridge.detail.DetailComponent
 import com.pyamsoft.fridge.entry.EntryComponent
@@ -41,6 +42,7 @@ import javax.inject.Singleton
 @Component(
   modules = [
     FridgeProvider::class,
+    DbProvider::class,
     RoomProvider::class
   ]
 )

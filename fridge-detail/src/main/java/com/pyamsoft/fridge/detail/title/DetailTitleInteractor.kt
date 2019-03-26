@@ -86,7 +86,7 @@ internal class DetailTitleInteractor @Inject internal constructor(
   @CheckResult
   private fun update(entry: FridgeEntry, name: String): Completable {
     enforcer.assertNotOnMainThread()
-    return updateDao.update(entry.copy(name))
+    return updateDao.update(entry.name(name))
   }
 
   internal data class NameUpdate(val name: String, val firstUpdate: Boolean)

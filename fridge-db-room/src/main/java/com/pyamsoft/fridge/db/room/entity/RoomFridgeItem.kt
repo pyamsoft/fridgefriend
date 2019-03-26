@@ -80,17 +80,17 @@ internal data class RoomFridgeItem internal constructor(
   }
 
   @Ignore
-  override fun copy(name: String): FridgeItem {
+  override fun name(name: String): FridgeItem {
     return FridgeItem.create(this, name = name)
   }
 
   @Ignore
-  override fun copy(expireTime: Date): FridgeItem {
+  override fun expireTime(expireTime: Date): FridgeItem {
     return FridgeItem.create(this, expireTime = expireTime)
   }
 
   @Ignore
-  override fun copy(presence: Presence): FridgeItem {
+  override fun presence(presence: Presence): FridgeItem {
     return FridgeItem.create(this, presence = presence)
   }
 

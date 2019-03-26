@@ -28,6 +28,7 @@ import com.pyamsoft.fridge.db.item.FridgeItemInsertDao
 import com.pyamsoft.fridge.db.item.FridgeItemQueryDao
 import com.pyamsoft.fridge.db.item.FridgeItemRealtime
 import com.pyamsoft.fridge.db.item.FridgeItemUpdateDao
+import com.pyamsoft.fridge.db.item.JsonMappableFridgeItem
 import com.pyamsoft.pydroid.core.bus.RxBus
 import io.reactivex.Completable
 import io.reactivex.Observable
@@ -36,7 +37,7 @@ import timber.log.Timber
 
 internal class RoomFridgeItemDb internal constructor(
   private val room: RoomFridgeDbImpl,
-  private val repo: MultiRepo<List<FridgeItem>>
+  private val repo: MultiRepo<List<JsonMappableFridgeItem>>
 ) : FridgeItemDb {
 
   private val realtimeChangeBus = RxBus.create<FridgeItemChangeEvent>()
@@ -64,7 +65,10 @@ internal class RoomFridgeItemDb internal constructor(
       override fun queryAll(force: Boolean, entryId: String): Single<List<FridgeItem>> {
         synchronized(lock) {
           Timber.i("QUERY")
-          return repo.get(entryId, force) { room.roomItemQueryDao().queryAll(force, entryId) }
+          return repo.get(entryId, force) {
+            return@get room.roomItemQueryDao().queryAll(force, entryId)
+              .map { it.map { entry -> JsonMappableFridgeItem.from(entry) } }
+          }.map { it }
         }
       }
 

@@ -36,6 +36,9 @@ buildscript {
     // Us
     pydroid = "19.1.1"
 
+    // Repo
+    repo = "0.3.1"
+
     // AndroidX
     preference = "1.0.0"
     annotation = "1.0.1"
@@ -46,6 +49,8 @@ buildscript {
 
     // Dagger
     dagger = "2.21"
+
+    moshi = "1.8.0"
 
     // Fast Adapter
     fastAdapter = "3.3.1"

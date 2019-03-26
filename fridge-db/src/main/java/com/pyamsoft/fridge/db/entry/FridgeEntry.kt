@@ -33,10 +33,10 @@ interface FridgeEntry {
   fun createdTime(): Date
 
   @CheckResult
-  fun copy(name: String): FridgeEntry
+  fun name(name: String): FridgeEntry
 
   @CheckResult
-  fun copy(createdTime: Date): FridgeEntry
+  fun createdTime(createdTime: Date): FridgeEntry
 
   companion object {
 
@@ -45,20 +45,7 @@ interface FridgeEntry {
 
     @CheckResult
     fun empty(): FridgeEntry {
-      return object : FridgeEntryImpl() {
-
-        override fun id(): String {
-          return ""
-        }
-
-        override fun name(): String {
-          return DEFAULT_NAME
-        }
-
-        override fun createdTime(): Date {
-          return DEFAULT_CREATED_TIME
-        }
-      }
+      return JsonMappableFridgeEntry("", DEFAULT_NAME, DEFAULT_CREATED_TIME)
     }
 
     @CheckResult
@@ -68,22 +55,7 @@ interface FridgeEntry {
 
     @CheckResult
     fun create(name: String, createdTime: Date): FridgeEntry {
-      return object : FridgeEntryImpl() {
-
-        private val id = IdGenerator.generate()
-
-        override fun id(): String {
-          return id
-        }
-
-        override fun name(): String {
-          return name
-        }
-
-        override fun createdTime(): Date {
-          return createdTime
-        }
-      }
+      return JsonMappableFridgeEntry(IdGenerator.generate(), name, createdTime)
     }
 
     @CheckResult
@@ -92,37 +64,7 @@ interface FridgeEntry {
       name: String = entry.name(),
       createdTime: Date = entry.createdTime()
     ): FridgeEntry {
-      return object : FridgeEntryImpl() {
-
-        override fun id(): String {
-          return entry.id()
-        }
-
-        override fun name(): String {
-          return name
-        }
-
-        override fun createdTime(): Date {
-          return createdTime
-        }
-
-      }
-
-    }
-
-    private abstract class FridgeEntryImpl protected constructor() : FridgeEntry {
-
-      final override fun copy(name: String): FridgeEntry {
-        return FridgeEntry.create(this, name = name)
-      }
-
-      final override fun copy(createdTime: Date): FridgeEntry {
-        return FridgeEntry.create(
-          this,
-          createdTime = createdTime
-        )
-      }
-
+      return JsonMappableFridgeEntry(entry.id(), name, createdTime)
     }
 
   }

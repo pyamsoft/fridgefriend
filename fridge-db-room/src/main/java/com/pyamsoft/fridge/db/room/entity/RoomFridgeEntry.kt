@@ -53,12 +53,12 @@ internal data class RoomFridgeEntry internal constructor(
   }
 
   @Ignore
-  override fun copy(name: String): FridgeEntry {
+  override fun name(name: String): FridgeEntry {
     return FridgeEntry.create(this, name = name)
   }
 
   @Ignore
-  override fun copy(createdTime: Date): FridgeEntry {
+  override fun createdTime(createdTime: Date): FridgeEntry {
     return FridgeEntry.create(this, createdTime = createdTime)
   }
 

@@ -40,13 +40,13 @@ interface FridgeItem {
   fun presence(): Presence
 
   @CheckResult
-  fun copy(name: String): FridgeItem
+  fun name(name: String): FridgeItem
 
   @CheckResult
-  fun copy(expireTime: Date): FridgeItem
+  fun expireTime(expireTime: Date): FridgeItem
 
   @CheckResult
-  fun copy(presence: Presence): FridgeItem
+  fun presence(presence: Presence): FridgeItem
 
   enum class Presence {
     HAVE,
@@ -61,29 +61,7 @@ interface FridgeItem {
 
     @CheckResult
     fun empty(): FridgeItem {
-      return object : FridgeItemImpl() {
-
-        override fun id(): String {
-          return ""
-        }
-
-        override fun entryId(): String {
-          return ""
-        }
-
-        override fun name(): String {
-          return DEFAULT_NAME
-        }
-
-        override fun expireTime(): Date {
-          return DEFAULT_EXPIRE_TIME
-        }
-
-        override fun presence(): Presence {
-          return DEFAULT_PRESENCE
-        }
-
-      }
+      return JsonMappableFridgeItem("", "", DEFAULT_NAME, DEFAULT_EXPIRE_TIME, DEFAULT_PRESENCE)
     }
 
     @CheckResult
@@ -98,31 +76,7 @@ interface FridgeItem {
       expireTime: Date,
       presence: Presence
     ): FridgeItem {
-      return object : FridgeItemImpl() {
-
-        private val id = IdGenerator.generate()
-
-        override fun id(): String {
-          return id
-        }
-
-        override fun entryId(): String {
-          return entry.id()
-        }
-
-        override fun name(): String {
-          return name
-        }
-
-        override fun expireTime(): Date {
-          return expireTime
-        }
-
-        override fun presence(): Presence {
-          return presence
-        }
-
-      }
+      return JsonMappableFridgeItem(IdGenerator.generate(), entry.id(), name, expireTime, presence)
     }
 
     @CheckResult
@@ -132,44 +86,9 @@ interface FridgeItem {
       expireTime: Date = item.expireTime(),
       presence: Presence = item.presence()
     ): FridgeItem {
-      return object : FridgeItemImpl() {
-
-        override fun id(): String {
-          return item.id()
-        }
-
-        override fun entryId(): String {
-          return item.entryId()
-        }
-
-        override fun name(): String {
-          return name
-        }
-
-        override fun expireTime(): Date {
-          return expireTime
-        }
-
-        override fun presence(): Presence {
-          return presence
-        }
-
-      }
+      return JsonMappableFridgeItem(item.id(), item.entryId(), name, expireTime, presence)
     }
 
-    protected abstract class FridgeItemImpl protected constructor() : FridgeItem {
-
-      final override fun copy(name: String): FridgeItem {
-        return create(this, name = name)
-      }
-
-      final override fun copy(expireTime: Date): FridgeItem {
-        return create(this, expireTime = expireTime)
-      }
-
-      final override fun copy(presence: Presence): FridgeItem {
-        return create(this, presence = presence)
-      }
-    }
   }
+
 }
