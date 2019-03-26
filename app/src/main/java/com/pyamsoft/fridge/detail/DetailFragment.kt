@@ -86,24 +86,12 @@ internal class DetailFragment : Fragment(),
 
     @JvmStatic
     @CheckResult
-    private fun newInstance(id: String): Fragment {
+    fun newInstance(id: String): Fragment {
       return DetailFragment().apply {
         arguments = Bundle().apply {
           putString(ENTRY_ID, id)
         }
       }
-    }
-
-    @JvmStatic
-    @CheckResult
-    fun edit(id: String): Fragment {
-      return newInstance(id)
-    }
-
-    @JvmStatic
-    @CheckResult
-    fun create(): Fragment {
-      return newInstance("")
     }
   }
 

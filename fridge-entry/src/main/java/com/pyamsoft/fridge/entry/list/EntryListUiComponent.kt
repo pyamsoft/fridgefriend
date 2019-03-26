@@ -22,6 +22,10 @@ import com.pyamsoft.pydroid.arch.UiComponent
 
 interface EntryListUiComponent : UiComponent<Callback> {
 
-  interface Callback
+  interface Callback {
+
+    fun onEditEntry(id: String)
+
+  }
 
 }

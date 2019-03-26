@@ -77,6 +77,7 @@ internal class EntryCreate @Inject internal constructor(
   override fun onTeardown() {
     layoutRoot.setOnClickListener(null)
     createIconLoaded?.dispose()
+    createIconLoaded = null
   }
 
   internal inline fun show(gap: Int, margin: Int, crossinline onShown: () -> Unit) {

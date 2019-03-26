@@ -43,7 +43,7 @@ internal interface DetailComponent {
 
     @BindsInstance
     @CheckResult
-    fun entryId(@Named("entry_id") entryId: String): Builder
+    fun entryId(@Named("detail_entry_id") entryId: String): Builder
 
     @CheckResult
     fun build(): DetailComponent

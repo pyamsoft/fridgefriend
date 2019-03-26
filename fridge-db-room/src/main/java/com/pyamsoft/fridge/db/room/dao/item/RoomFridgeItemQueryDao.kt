@@ -20,61 +20,23 @@ package com.pyamsoft.fridge.db.room.dao.item
 import androidx.annotation.CheckResult
 import androidx.room.Dao
 import androidx.room.Query
-import com.pyamsoft.fridge.db.item.FridgeItemQueryDao
 import com.pyamsoft.fridge.db.item.FridgeItem
-import com.pyamsoft.fridge.db.item.FridgeItem.Presence
+import com.pyamsoft.fridge.db.item.FridgeItemQueryDao
 import com.pyamsoft.fridge.db.room.entity.RoomFridgeItem
 import io.reactivex.Maybe
 import io.reactivex.Single
 
 @Dao
-internal abstract class RoomFridgeItemQueryDao internal constructor() :
-  FridgeItemQueryDao {
+internal abstract class RoomFridgeItemQueryDao internal constructor() : FridgeItemQueryDao {
 
-  override fun queryAll(): Single<List<FridgeItem>> {
-    return daoQueryAll()
+  override fun queryAll(force: Boolean, entryId: String): Single<List<FridgeItem>> {
+    return daoQueryAll(entryId)
       .toSingle(emptyList())
       .map { it }
-  }
-
-  @Query("SELECT * FROM ${RoomFridgeItem.TABLE_NAME}")
-  @CheckResult
-  internal abstract fun daoQueryAll(): Maybe<List<RoomFridgeItem>>
-
-  override fun queryWithId(id: String): Single<FridgeItem> {
-    return daoQueryWithId(id).map { it }
-  }
-
-  @Query("SELECT * FROM ${RoomFridgeItem.TABLE_NAME} WHERE ${RoomFridgeItem.COLUMN_ID} = :id")
-  @CheckResult
-  internal abstract fun daoQueryWithId(id: String): Single<RoomFridgeItem>
-
-  override fun queryWithEntryId(entryId: String): Single<List<FridgeItem>> {
-    return daoQueryWithEntryId(entryId).map { it }
   }
 
   @Query("SELECT * FROM ${RoomFridgeItem.TABLE_NAME} WHERE ${RoomFridgeItem.COLUMN_ENTRY_ID} = :entryId")
   @CheckResult
-  internal abstract fun daoQueryWithEntryId(entryId: String): Single<List<RoomFridgeItem>>
-
-  override fun queryWithName(name: String): Single<List<FridgeItem>> {
-    return daoQueryWithName(name)
-      .toSingle(emptyList())
-      .map { it }
-  }
-
-  @Query("SELECT * FROM ${RoomFridgeItem.TABLE_NAME} WHERE ${RoomFridgeItem.COLUMN_NAME} = :name")
-  @CheckResult
-  internal abstract fun daoQueryWithName(name: String): Maybe<List<RoomFridgeItem>>
-
-  override fun queryWithPresence(presence: Presence): Single<List<FridgeItem>> {
-    return daoQueryWithPresence(presence)
-      .toSingle(emptyList())
-      .map { it }
-  }
-
-  @Query("SELECT * FROM ${RoomFridgeItem.TABLE_NAME} WHERE ${RoomFridgeItem.COLUMN_PRESENCE} = :presence")
-  @CheckResult
-  internal abstract fun daoQueryWithPresence(presence: Presence): Maybe<List<RoomFridgeItem>>
+  internal abstract fun daoQueryAll(entryId: String): Maybe<List<RoomFridgeItem>>
 
 }

@@ -20,7 +20,6 @@ package com.pyamsoft.fridge.entry.list
 import android.os.Bundle
 import androidx.lifecycle.LifecycleOwner
 import com.pyamsoft.fridge.db.entry.FridgeEntry
-import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.entry.list.EntryListUiComponent.Callback
 import com.pyamsoft.pydroid.arch.BaseUiComponent
 import com.pyamsoft.pydroid.arch.doOnDestroy
@@ -52,40 +51,40 @@ internal class EntryListUiComponentImpl @Inject internal constructor(
     listView.saveState(outState)
   }
 
-  override fun onListRefreshBegin() {
+  override fun handleListRefreshBegin() {
     listView.beginRefresh()
   }
 
-  override fun onListRefreshed(data: List<FridgeEntry>) {
+  override fun handleListRefreshed(data: List<FridgeEntry>) {
     listView.setList(data)
   }
 
-  override fun onListRefreshError(throwable: Throwable) {
+  override fun handleListRefreshError(throwable: Throwable) {
     listView.showError(throwable)
   }
 
-  override fun onListRefreshComplete() {
+  override fun handleListRefreshComplete() {
     listView.finishRefresh()
   }
 
-  override fun onRealtimeInsert(entry: FridgeEntry) {
-    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+  override fun handleEditEntry(entry: FridgeEntry) {
+    callback.onEditEntry(entry.id())
   }
 
-  override fun onRealtimeUpdate(entry: FridgeEntry) {
-    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+  override fun handleRealtimeInsert(entry: FridgeEntry) {
+    listView.insert(entry)
   }
 
-  override fun onRealtimeDelete(id: String) {
-    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+  override fun handleRealtimeUpdate(entry: FridgeEntry) {
+    listView.update(entry)
   }
 
-  override fun onRealtimeDelete(ids: List<String>) {
-    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+  override fun handleRealtimeDelete(id: String) {
+    listView.delete(id)
   }
 
-  override fun onRealtimeDeleteAll() {
-    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+  override fun handleRealtimeDeleteAll() {
+    listView.deleteAll()
   }
 
 }

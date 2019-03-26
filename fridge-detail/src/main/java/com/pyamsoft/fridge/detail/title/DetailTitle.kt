@@ -18,6 +18,8 @@
 package com.pyamsoft.fridge.detail.title
 
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.View
 import android.view.ViewGroup
 import com.google.android.material.textfield.TextInputLayout
@@ -34,14 +36,61 @@ internal class DetailTitle @Inject internal constructor(
   override val layout: Int = R.layout.detail_title
 
   override val layoutRoot by lazyView<TextInputLayout>(R.id.entry_detail_title)
+  private var watcher: TextWatcher? = null
 
   override fun onInflated(view: View, savedInstanceState: Bundle?) {
     layoutRoot.requestFocus()
+    addTextWatcher()
+  }
+
+  private fun addTextWatcher() {
+    requireNotNull(layoutRoot.editText).let {
+      watcher = object : TextWatcher {
+
+        override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+        }
+
+        override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+        }
+
+        override fun afterTextChanged(s: Editable?) {
+          if (s != null) {
+            callback.onUpdateName(s.toString())
+          }
+        }
+
+      }
+      it.addTextChangedListener(watcher)
+    }
+  }
+
+  private fun removeTextWatcher() {
+    watcher?.let { layoutRoot.editText?.removeTextChangedListener(it) }
+    watcher = null
   }
 
   override fun onTeardown() {
     layoutRoot.clearFocus()
+    removeTextWatcher()
   }
 
-  interface Callback
+  fun updateName(name: String, firstUpdate: Boolean) {
+    removeTextWatcher()
+    val editText = requireNotNull(layoutRoot.editText)
+    editText.setTextKeepState(name)
+    if (firstUpdate && name.isNotBlank()) {
+      editText.setSelection(name.length)
+    }
+    addTextWatcher()
+  }
+
+  fun showTitleUpdateError(throwable: Throwable) {
+    // TODO
+  }
+
+  interface Callback {
+
+    fun onUpdateName(name: String)
+
+  }
 }

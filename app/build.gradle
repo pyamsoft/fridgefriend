@@ -96,15 +96,11 @@ dependencies {
   releaseImplementation "com.squareup.leakcanary:leakcanary-android-no-op:$leakCanary"
   testImplementation "com.squareup.leakcanary:leakcanary-android-no-op:$leakCanary"
 
-  // FastAdapter
-  implementation "com.mikepenz:fastadapter:$fastAdapter@aar"
-  implementation "com.mikepenz:fastadapter-commons:$fastAdapter@aar"
-
   // Dagger
   kapt "com.google.dagger:dagger-compiler:$dagger"
 
   api project(':fridge-db-room')
-  api project(':fridge-deps')
+  api project(':fridge-core')
   api project(':fridge-detail')
   api project(":fridge-entry")
   api project(":fridge-main")

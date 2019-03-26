@@ -26,7 +26,7 @@ interface EntryActionUiComponent : UiComponent<Callback> {
 
   interface Callback {
 
-    fun onCreateNew()
+    fun onCreateNew(id: String)
 
     fun onStartShopping()
 

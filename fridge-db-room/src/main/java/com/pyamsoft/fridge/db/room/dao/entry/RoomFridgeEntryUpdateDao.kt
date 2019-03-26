@@ -28,8 +28,7 @@ import io.reactivex.Completable
 import io.reactivex.Single
 
 @Dao
-internal abstract class RoomFridgeEntryUpdateDao internal constructor() :
-  FridgeEntryUpdateDao {
+internal abstract class RoomFridgeEntryUpdateDao internal constructor() : FridgeEntryUpdateDao {
 
   override fun update(entry: FridgeEntry): Completable {
     return Single.just(entry)

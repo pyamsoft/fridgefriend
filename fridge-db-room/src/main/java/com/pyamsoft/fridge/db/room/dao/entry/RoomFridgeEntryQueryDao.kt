@@ -25,12 +25,12 @@ import com.pyamsoft.fridge.db.entry.FridgeEntryQueryDao
 import com.pyamsoft.fridge.db.room.entity.RoomFridgeEntry
 import io.reactivex.Maybe
 import io.reactivex.Single
+import timber.log.Timber
 
 @Dao
-internal abstract class RoomFridgeEntryQueryDao internal constructor() :
-  FridgeEntryQueryDao {
+internal abstract class RoomFridgeEntryQueryDao internal constructor() : FridgeEntryQueryDao {
 
-  override fun queryAll(): Single<List<FridgeEntry>> {
+  override fun queryAll(force: Boolean): Single<List<FridgeEntry>> {
     return daoQueryAll()
       .toSingle(emptyList())
       .map { it }
@@ -39,13 +39,5 @@ internal abstract class RoomFridgeEntryQueryDao internal constructor() :
   @Query("SELECT * FROM ${RoomFridgeEntry.TABLE_NAME}")
   @CheckResult
   internal abstract fun daoQueryAll(): Maybe<List<RoomFridgeEntry>>
-
-  override fun queryWithId(id: String): Single<FridgeEntry> {
-    return daoQueryWithId(id).map { it }
-  }
-
-  @Query("SELECT * FROM ${RoomFridgeEntry.TABLE_NAME} WHERE ${RoomFridgeEntry.COLUMN_ID} = :id")
-  @CheckResult
-  internal abstract fun daoQueryWithId(id: String): Single<RoomFridgeEntry>
 
 }

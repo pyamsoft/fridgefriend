@@ -42,11 +42,6 @@ abstract class EntryModule {
 
   @Binds
   @CheckResult
-  @Named("cache-entry")
-  internal abstract fun bindEntryCache(impl: EntryListInteractor): Cache
-
-  @Binds
-  @CheckResult
   internal abstract fun bindCreateCallback(impl: EntryActionPresenter): EntryCreate.Callback
 
   @Binds

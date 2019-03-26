@@ -15,29 +15,27 @@
  *
  */
 
-package com.pyamsoft.fridge.entry.list
+package com.pyamsoft.fridge.entry.action
 
 import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.db.entry.FridgeEntry
-import com.pyamsoft.fridge.db.entry.FridgeEntryChangeEvent
-import com.pyamsoft.fridge.db.entry.FridgeEntryQueryDao
-import com.pyamsoft.fridge.db.entry.FridgeEntryRealtime
-import io.reactivex.Observable
+import com.pyamsoft.fridge.db.entry.FridgeEntryInsertDao
+import com.pyamsoft.pydroid.core.threads.Enforcer
 import io.reactivex.Single
 import javax.inject.Inject
 
-internal class EntryListInteractor @Inject internal constructor(
-  private val queryDao: FridgeEntryQueryDao,
-  private val realtime: FridgeEntryRealtime
+internal class EntryActionInteractor @Inject internal constructor(
+  private val enforcer: Enforcer,
+  private val insertDao: FridgeEntryInsertDao
 ) {
 
   @CheckResult
-  fun getEntries(force: Boolean): Single<List<FridgeEntry>> {
-    return queryDao.queryAll(force)
-  }
-
-  @CheckResult
-  fun listenForChanges(): Observable<FridgeEntryChangeEvent> {
-    return realtime.listenForChanges()
+  fun create(): Single<FridgeEntry> {
+    return Single.just(FridgeEntry.empty())
+      .flatMap { entry ->
+        enforcer.assertNotOnMainThread()
+        return@flatMap insertDao.insert(entry)
+          .andThen(Single.just(entry))
+      }
   }
 }

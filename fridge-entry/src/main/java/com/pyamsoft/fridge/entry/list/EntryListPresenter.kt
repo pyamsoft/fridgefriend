@@ -56,12 +56,12 @@ internal class EntryListPresenter @Inject internal constructor(
     refreshDisposable = interactor.getEntries(force)
       .subscribeOn(Schedulers.io())
       .observeOn(AndroidSchedulers.mainThread())
-      .doOnSubscribe { callback.onListRefreshBegin() }
-      .doAfterTerminate { callback.onListRefreshComplete() }
+      .doOnSubscribe { callback.handleListRefreshBegin() }
+      .doAfterTerminate { callback.handleListRefreshComplete() }
       .doAfterSuccess { beginListeningForChanges() }
-      .subscribe({ callback.onListRefreshed(it) }, {
+      .subscribe({ callback.handleListRefreshed(it) }, {
         Timber.e(it, "Error refreshing entry list")
-        callback.onListRefreshError(it)
+        callback.handleListRefreshError(it)
       })
   }
 
@@ -71,33 +71,38 @@ internal class EntryListPresenter @Inject internal constructor(
       .observeOn(AndroidSchedulers.mainThread())
       .subscribe {
         return@subscribe when (it) {
-          is Insert -> callback.onRealtimeInsert(it.entry)
-          is Update -> callback.onRealtimeUpdate(it.entry)
-          is Delete -> callback.onRealtimeDelete(it.id)
-          is DeleteAll -> callback.onRealtimeDeleteAll()
+          is Insert -> callback.handleRealtimeInsert(it.entry)
+          is Update -> callback.handleRealtimeUpdate(it.entry)
+          is Delete -> callback.handleRealtimeDelete(it.id)
+          is DeleteAll -> callback.handleRealtimeDeleteAll()
         }
       }
   }
 
+  override fun onItemClicked(entry: FridgeEntry) {
+    Timber.d("Edit entry: $entry")
+    callback.handleEditEntry(entry)
+  }
+
   interface Callback {
 
-    fun onListRefreshBegin()
+    fun handleEditEntry(entry: FridgeEntry)
 
-    fun onListRefreshed(data: List<FridgeEntry>)
+    fun handleListRefreshBegin()
 
-    fun onListRefreshError(throwable: Throwable)
+    fun handleListRefreshed(data: List<FridgeEntry>)
 
-    fun onListRefreshComplete()
+    fun handleListRefreshError(throwable: Throwable)
 
-    fun onRealtimeInsert(entry: FridgeEntry)
+    fun handleListRefreshComplete()
 
-    fun onRealtimeUpdate(entry: FridgeEntry)
+    fun handleRealtimeInsert(entry: FridgeEntry)
 
-    fun onRealtimeDelete(id: String)
+    fun handleRealtimeUpdate(entry: FridgeEntry)
 
-    fun onRealtimeDelete(ids: List<String>)
+    fun handleRealtimeDelete(id: String)
 
-    fun onRealtimeDeleteAll()
+    fun handleRealtimeDeleteAll()
 
   }
 

@@ -18,24 +18,11 @@
 package com.pyamsoft.fridge.db.item
 
 import androidx.annotation.CheckResult
-import com.pyamsoft.fridge.db.item.FridgeItem.Presence
 import io.reactivex.Single
 
 interface FridgeItemQueryDao {
 
   @CheckResult
-  fun queryAll(): Single<List<FridgeItem>>
-
-  @CheckResult
-  fun queryWithId(id: String): Single<FridgeItem>
-
-  @CheckResult
-  fun queryWithEntryId(entryId: String): Single<List<FridgeItem>>
-
-  @CheckResult
-  fun queryWithName(name: String): Single<List<FridgeItem>>
-
-  @CheckResult
-  fun queryWithPresence(presence: Presence): Single<List<FridgeItem>>
+  fun queryAll(force: Boolean, entryId: String): Single<List<FridgeItem>>
 
 }

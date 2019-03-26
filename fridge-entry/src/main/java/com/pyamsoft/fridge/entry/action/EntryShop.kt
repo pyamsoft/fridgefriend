@@ -55,6 +55,7 @@ internal class EntryShop @Inject internal constructor(
   override fun onTeardown() {
     layoutRoot.setOnClickListener(null)
     shopIconLoaded?.dispose()
+    shopIconLoaded = null
   }
 
   internal inline fun onLaidOut(crossinline onLaidOut: (gap: Int, margin: Int) -> Unit) {

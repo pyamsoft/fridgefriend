@@ -20,23 +20,39 @@ package com.pyamsoft.fridge.entry.action
 import com.pyamsoft.fridge.entry.EntryScope
 import com.pyamsoft.pydroid.arch.BasePresenter
 import com.pyamsoft.pydroid.core.bus.RxBus
+import com.pyamsoft.pydroid.core.singleDisposable
+import com.pyamsoft.pydroid.core.tryDispose
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.schedulers.Schedulers
+import timber.log.Timber
 import javax.inject.Inject
 
 @EntryScope
 internal class EntryActionPresenter @Inject internal constructor(
-
+  private val interactor: EntryActionInteractor
 ) : BasePresenter<Unit, EntryActionPresenter.Callback>(RxBus.empty()),
   EntryCreate.Callback,
   EntryShop.Callback {
+
+  private var createDisposable by singleDisposable()
 
   override fun onBind() {
   }
 
   override fun onUnbind() {
+    createDisposable.tryDispose()
   }
 
   override fun onCreateClicked() {
-    callback.handleCreate()
+    createDisposable = interactor.create()
+      .subscribeOn(Schedulers.io())
+      .observeOn(AndroidSchedulers.mainThread())
+      .subscribe({
+        callback.handleCreate(it.id())
+      }, {
+        Timber.e(it, "Error creating new entry")
+        callback.handleCreateError(it)
+      })
   }
 
   override fun onShopClicked() {
@@ -45,7 +61,9 @@ internal class EntryActionPresenter @Inject internal constructor(
 
   interface Callback {
 
-    fun handleCreate()
+    fun handleCreateError(throwable: Throwable)
+
+    fun handleCreate(id: String)
 
     fun handleShop()
 

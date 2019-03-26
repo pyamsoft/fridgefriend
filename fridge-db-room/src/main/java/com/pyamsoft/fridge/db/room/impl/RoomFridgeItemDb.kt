@@ -17,8 +17,8 @@
 
 package com.pyamsoft.fridge.db.room.impl
 
+import com.popinnow.android.repo.MultiRepo
 import com.pyamsoft.fridge.db.item.FridgeItem
-import com.pyamsoft.fridge.db.item.FridgeItem.Presence
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent.Delete
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent.Insert
@@ -32,15 +32,18 @@ import com.pyamsoft.pydroid.core.bus.RxBus
 import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.Single
+import timber.log.Timber
 
 internal class RoomFridgeItemDb internal constructor(
-  private val room: RoomFridgeDbImpl
+  private val room: RoomFridgeDbImpl,
+  private val repo: MultiRepo<List<FridgeItem>>
 ) : FridgeItemDb {
 
   private val realtimeChangeBus = RxBus.create<FridgeItemChangeEvent>()
   private val lock = Any()
 
   private fun publishRealtime(event: FridgeItemChangeEvent) {
+    repo.clear()
     realtimeChangeBus.publish(event)
   }
 
@@ -58,33 +61,10 @@ internal class RoomFridgeItemDb internal constructor(
   override fun query(): FridgeItemQueryDao {
     return object : FridgeItemQueryDao {
 
-      override fun queryAll(): Single<List<FridgeItem>> {
+      override fun queryAll(force: Boolean, entryId: String): Single<List<FridgeItem>> {
         synchronized(lock) {
-          return room.roomItemQueryDao().queryAll()
-        }
-      }
-
-      override fun queryWithId(id: String): Single<FridgeItem> {
-        synchronized(lock) {
-          return room.roomItemQueryDao().queryWithId(id)
-        }
-      }
-
-      override fun queryWithEntryId(entryId: String): Single<List<FridgeItem>> {
-        synchronized(lock) {
-          return room.roomItemQueryDao().queryWithEntryId(entryId)
-        }
-      }
-
-      override fun queryWithName(name: String): Single<List<FridgeItem>> {
-        synchronized(lock) {
-          return room.roomItemQueryDao().queryWithName(name)
-        }
-      }
-
-      override fun queryWithPresence(presence: Presence): Single<List<FridgeItem>> {
-        synchronized(lock) {
-          return room.roomItemQueryDao().queryWithPresence(presence)
+          Timber.i("QUERY")
+          return repo.get(entryId, force) { room.roomItemQueryDao().queryAll(force, entryId) }
         }
       }
 
@@ -96,6 +76,7 @@ internal class RoomFridgeItemDb internal constructor(
 
       override fun insert(item: FridgeItem): Completable {
         synchronized(lock) {
+          Timber.i("INSERT: $item")
           return room.roomItemInsertDao().insert(item)
             .doOnComplete { publishRealtime(Insert(item)) }
         }
@@ -109,6 +90,7 @@ internal class RoomFridgeItemDb internal constructor(
 
       override fun update(item: FridgeItem): Completable {
         synchronized(lock) {
+          Timber.i("UPDATE: $item")
           return room.roomItemUpdateDao().update(item)
             .doOnComplete { publishRealtime(Update(item)) }
         }
@@ -122,6 +104,7 @@ internal class RoomFridgeItemDb internal constructor(
 
       override fun delete(item: FridgeItem): Completable {
         synchronized(lock) {
+          Timber.i("DELETE: $item")
           return room.roomItemDeleteDao().delete(item)
             .doOnComplete { publishRealtime(Delete(item)) }
         }

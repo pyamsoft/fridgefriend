@@ -57,12 +57,16 @@ internal class EntryActionUiComponentImpl @Inject internal constructor(
     shop.saveState(outState)
   }
 
-  override fun handleCreate() {
-    callback.onCreateNew()
+  override fun handleCreate(id: String) {
+    callback.onCreateNew(id)
   }
 
   override fun handleShop() {
     callback.onStartShopping()
+  }
+
+  override fun handleCreateError(throwable: Throwable) {
+    // TODO
   }
 
   override fun show() {

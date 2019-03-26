@@ -15,29 +15,31 @@
  *
  */
 
-package com.pyamsoft.fridge.entry.list
+package com.pyamsoft.fridge.detail.list
 
 import androidx.annotation.CheckResult
-import com.pyamsoft.fridge.db.entry.FridgeEntry
-import com.pyamsoft.fridge.db.entry.FridgeEntryChangeEvent
-import com.pyamsoft.fridge.db.entry.FridgeEntryQueryDao
-import com.pyamsoft.fridge.db.entry.FridgeEntryRealtime
+import com.pyamsoft.fridge.db.item.FridgeItem
+import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent
+import com.pyamsoft.fridge.db.item.FridgeItemQueryDao
+import com.pyamsoft.fridge.db.item.FridgeItemRealtime
 import io.reactivex.Observable
 import io.reactivex.Single
 import javax.inject.Inject
+import javax.inject.Named
 
-internal class EntryListInteractor @Inject internal constructor(
-  private val queryDao: FridgeEntryQueryDao,
-  private val realtime: FridgeEntryRealtime
+internal class DetailListInteractor @Inject internal constructor(
+  private val queryDao: FridgeItemQueryDao,
+  private val realtime: FridgeItemRealtime,
+  @Named("detail_entry_id") private val entryId: String
 ) {
 
   @CheckResult
-  fun getEntries(force: Boolean): Single<List<FridgeEntry>> {
-    return queryDao.queryAll(force)
+  fun getItems(force: Boolean): Single<List<FridgeItem>> {
+    return queryDao.queryAll(force, entryId)
   }
 
   @CheckResult
-  fun listenForChanges(): Observable<FridgeEntryChangeEvent> {
-    return realtime.listenForChanges()
+  fun listenForChanges(): Observable<FridgeItemChangeEvent> {
+    return realtime.listenForChanges(entryId)
   }
 }

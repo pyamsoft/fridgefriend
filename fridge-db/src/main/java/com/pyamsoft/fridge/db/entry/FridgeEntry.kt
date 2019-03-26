@@ -44,7 +44,12 @@ interface FridgeEntry {
     val DEFAULT_CREATED_TIME = Date(0)
 
     @CheckResult
-    fun create(name: String = DEFAULT_NAME, createdTime: Date = DEFAULT_CREATED_TIME): FridgeEntry {
+    fun empty(): FridgeEntry {
+      return create(DEFAULT_NAME, DEFAULT_CREATED_TIME)
+    }
+
+    @CheckResult
+    fun create(name: String, createdTime: Date): FridgeEntry {
       return object : FridgeEntryImpl() {
 
         private val id = IdGenerator.generate()

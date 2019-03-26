@@ -21,21 +21,56 @@ import com.pyamsoft.fridge.detail.DetailScope
 import com.pyamsoft.fridge.detail.title.DetailTitlePresenter.Callback
 import com.pyamsoft.pydroid.arch.BasePresenter
 import com.pyamsoft.pydroid.core.bus.RxBus
+import com.pyamsoft.pydroid.core.singleDisposable
+import com.pyamsoft.pydroid.core.tryDispose
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.schedulers.Schedulers
+import timber.log.Timber
 import javax.inject.Inject
 
 @DetailScope
 internal class DetailTitlePresenter @Inject internal constructor(
-
+  private val interactor: DetailTitleInteractor
 ) : BasePresenter<Unit, Callback>(RxBus.empty()),
   DetailTitle.Callback {
 
+  private var observeNameDisposable by singleDisposable()
+  private var updateNameDisposable by singleDisposable()
+
   override fun onBind() {
+    observeName(false)
   }
 
   override fun onUnbind() {
+    observeNameDisposable.tryDispose()
+    updateNameDisposable.tryDispose()
+  }
+
+  fun observeName(force: Boolean) {
+    observeNameDisposable = interactor.observeEntryName(force)
+      .subscribeOn(Schedulers.io())
+      .observeOn(AndroidSchedulers.mainThread())
+      .subscribe({ callback.handleNameUpdated(it.name, it.firstUpdate) }, {
+        Timber.e(it, "Error observing entry name")
+        callback.handleNameUpdateError(it)
+      })
+  }
+
+  override fun onUpdateName(name: String) {
+    updateNameDisposable = interactor.saveName(name)
+      .subscribeOn(Schedulers.io())
+      .observeOn(AndroidSchedulers.mainThread())
+      .subscribe({ Timber.d("Entry name updated: $name") }, {
+        Timber.e(it, "Error updating entry name")
+        callback.handleNameUpdateError(it)
+      })
   }
 
   interface Callback {
+
+    fun handleNameUpdated(name: String, firstUpdate: Boolean)
+
+    fun handleNameUpdateError(throwable: Throwable)
 
   }
 

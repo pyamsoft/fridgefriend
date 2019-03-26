@@ -21,6 +21,10 @@ import androidx.annotation.CheckResult
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
+import com.popinnow.android.repo.MultiRepo
+import com.popinnow.android.repo.Repo
+import com.pyamsoft.fridge.db.entry.FridgeEntry
+import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.room.converter.DateTypeConverter
 import com.pyamsoft.fridge.db.room.converter.PresenceTypeConverter
 import com.pyamsoft.fridge.db.room.dao.entry.RoomFridgeEntryDeleteDao
@@ -38,8 +42,16 @@ import com.pyamsoft.fridge.db.room.entity.RoomFridgeItem
 @TypeConverters(PresenceTypeConverter::class, DateTypeConverter::class)
 internal abstract class RoomFridgeDbImpl internal constructor() : RoomDatabase(), RoomFridgeDb {
 
-  private val itemDb by lazy { RoomFridgeItemDb(this) }
-  private val entryDb by lazy { RoomFridgeEntryDb(this) }
+  private val itemDb by lazy { RoomFridgeItemDb(this, itemRepo) }
+  private val entryDb by lazy { RoomFridgeEntryDb(this, entryRepo) }
+
+  private lateinit var entryRepo: Repo<List<FridgeEntry>>
+  private lateinit var itemRepo: MultiRepo<List<FridgeItem>>
+
+  internal fun setRepos(entryRepo: Repo<List<FridgeEntry>>, itemRepo: MultiRepo<List<FridgeItem>>) {
+    this.entryRepo = entryRepo
+    this.itemRepo = itemRepo
+  }
 
   @CheckResult
   internal abstract fun roomItemQueryDao(): RoomFridgeItemQueryDao

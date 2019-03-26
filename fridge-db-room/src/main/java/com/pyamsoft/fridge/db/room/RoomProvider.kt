@@ -20,11 +20,17 @@ package com.pyamsoft.fridge.db.room
 import android.content.Context
 import androidx.annotation.CheckResult
 import androidx.room.Room
+import com.popinnow.android.repo.MultiRepo
+import com.popinnow.android.repo.Repo
+import com.popinnow.android.repo.newMultiRepo
+import com.popinnow.android.repo.newRepoBuilder
+import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.entry.FridgeEntryDeleteDao
 import com.pyamsoft.fridge.db.entry.FridgeEntryInsertDao
 import com.pyamsoft.fridge.db.entry.FridgeEntryQueryDao
 import com.pyamsoft.fridge.db.entry.FridgeEntryRealtime
 import com.pyamsoft.fridge.db.entry.FridgeEntryUpdateDao
+import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItemDeleteDao
 import com.pyamsoft.fridge.db.item.FridgeItemInsertDao
 import com.pyamsoft.fridge.db.item.FridgeItemQueryDao
@@ -34,24 +40,61 @@ import com.pyamsoft.fridge.db.room.impl.FridgeEntryDb
 import com.pyamsoft.fridge.db.room.impl.FridgeItemDb
 import com.pyamsoft.fridge.db.room.impl.RoomFridgeDb
 import com.pyamsoft.fridge.db.room.impl.RoomFridgeDbImpl
+import com.squareup.moshi.Moshi
+import com.squareup.moshi.Types
 import dagger.Module
 import dagger.Provides
+import java.util.concurrent.TimeUnit.MINUTES
 import javax.inject.Singleton
 
 @Module
 object RoomProvider {
 
+  @Provides
+  @JvmStatic
+  @Singleton
+  internal fun provideFridgeItemListRepo(
+    context: Context,
+    moshi: Moshi
+  ): MultiRepo<List<FridgeItem>> {
+    val type = Types.newParameterizedType(List::class.java, FridgeItem::class.java)
+    return newMultiRepo {
+      return@newMultiRepo newRepoBuilder<List<FridgeItem>>()
+        .memoryCache(5, MINUTES)
+        .build()
+    }
+  }
+
+  @Provides
+  @JvmStatic
+  @Singleton
+  internal fun provideFridgeEntryListRepo(
+    context: Context,
+    moshi: Moshi
+  ): Repo<List<FridgeEntry>> {
+    val type = Types.newParameterizedType(List::class.java, FridgeItem::class.java)
+    return newRepoBuilder<List<FridgeEntry>>()
+      .memoryCache(5, MINUTES)
+      .build()
+  }
+
   @Singleton
   @JvmStatic
   @Provides
   @CheckResult
-  internal fun provideDb(context: Context): RoomFridgeDb {
+  internal fun provideDb(
+    context: Context,
+    entryRepo: Repo<List<FridgeEntry>>,
+    itemRepo: MultiRepo<List<FridgeItem>>
+  ): RoomFridgeDb {
     return Room.databaseBuilder(
       context.applicationContext,
       RoomFridgeDbImpl::class.java,
       "fridge_room_db.db"
     )
-      .build()
+      .build().apply {
+        setRepos(entryRepo, itemRepo)
+      }
   }
 
   @JvmStatic

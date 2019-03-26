@@ -17,6 +17,7 @@
 
 package com.pyamsoft.fridge.db.room.impl
 
+import com.popinnow.android.repo.Repo
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.entry.FridgeEntryChangeEvent
 import com.pyamsoft.fridge.db.entry.FridgeEntryChangeEvent.Delete
@@ -32,15 +33,18 @@ import com.pyamsoft.pydroid.core.bus.RxBus
 import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.Single
+import timber.log.Timber
 
 internal class RoomFridgeEntryDb internal constructor(
-  private val room: RoomFridgeDbImpl
+  private val room: RoomFridgeDbImpl,
+  private val repo: Repo<List<FridgeEntry>>
 ) : FridgeEntryDb {
 
   private val realtimeChangeBus = RxBus.create<FridgeEntryChangeEvent>()
   private val lock = Any()
 
   private fun publishRealtime(event: FridgeEntryChangeEvent) {
+    repo.clear()
     realtimeChangeBus.publish(event)
   }
 
@@ -57,15 +61,10 @@ internal class RoomFridgeEntryDb internal constructor(
   override fun query(): FridgeEntryQueryDao {
     return object : FridgeEntryQueryDao {
 
-      override fun queryAll(): Single<List<FridgeEntry>> {
+      override fun queryAll(force: Boolean): Single<List<FridgeEntry>> {
         synchronized(lock) {
-          return room.roomEntryQueryDao().queryAll()
-        }
-      }
-
-      override fun queryWithId(id: String): Single<FridgeEntry> {
-        synchronized(lock) {
-          return room.roomEntryQueryDao().queryWithId(id)
+          Timber.i("QUERY")
+          return repo.get(force) { room.roomEntryQueryDao().queryAll(force) }
         }
       }
 
@@ -77,6 +76,7 @@ internal class RoomFridgeEntryDb internal constructor(
 
       override fun insert(entry: FridgeEntry): Completable {
         synchronized(lock) {
+          Timber.i("INSERT: $entry")
           return room.roomEntryInsertDao().insert(entry)
             .doOnComplete { publishRealtime(Insert(entry)) }
         }
@@ -90,6 +90,7 @@ internal class RoomFridgeEntryDb internal constructor(
 
       override fun update(entry: FridgeEntry): Completable {
         synchronized(lock) {
+          Timber.i("UPDATE: $entry")
           return room.roomEntryUpdateDao().update(entry)
             .doOnComplete { publishRealtime(Update(entry)) }
         }
@@ -103,6 +104,7 @@ internal class RoomFridgeEntryDb internal constructor(
 
       override fun delete(entry: FridgeEntry): Completable {
         synchronized(lock) {
+          Timber.i("DELETE: $entry")
           return room.roomEntryDeleteDao().delete(entry)
             .doOnComplete { publishRealtime(Delete(entry.id())) }
         }
@@ -110,6 +112,7 @@ internal class RoomFridgeEntryDb internal constructor(
 
       override fun deleteAll(): Completable {
         synchronized(lock) {
+          Timber.i("DELETE: ALL")
           return room.roomEntryDeleteDao().deleteAll()
             .doOnComplete { publishRealtime(DeleteAll) }
         }

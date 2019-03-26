@@ -50,4 +50,12 @@ internal class DetailTitleUiComponentImpl @Inject internal constructor(
     title.saveState(outState)
   }
 
+  override fun handleNameUpdateError(throwable: Throwable) {
+    title.showTitleUpdateError(throwable)
+  }
+
+  override fun handleNameUpdated(name: String, firstUpdate: Boolean) {
+    title.updateName(name, firstUpdate)
+  }
+
 }
