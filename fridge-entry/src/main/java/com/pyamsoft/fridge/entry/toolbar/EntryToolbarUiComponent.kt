@@ -22,6 +22,8 @@ import com.pyamsoft.pydroid.arch.UiComponent
 
 interface EntryToolbarUiComponent : UiComponent<Callback> {
 
+  fun showMenu(show: Boolean)
+
   interface Callback {
 
     fun onNavigateToSettings()

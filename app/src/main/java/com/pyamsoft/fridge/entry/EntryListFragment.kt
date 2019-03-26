@@ -80,31 +80,45 @@ internal class EntryListFragment : Fragment(),
     action.saveState(outState)
   }
 
-  private inline fun pushFragment(tag: String, crossinline createFragment: () -> Fragment) {
+  private inline fun pushFragment(
+    tag: String,
+    replace: Boolean,
+    crossinline createFragment: () -> Fragment
+  ) {
     val fm = requireActivity().supportFragmentManager
     if (fm.findFragmentByTag(tag) == null) {
-      fm.beginTransaction()
-        .hide(this)
-        .add(fragmentContainerId, createFragment(), tag)
+      fm.beginTransaction().let {
+        if (replace) {
+          return@let it.replace(fragmentContainerId, createFragment(), tag)
+        } else {
+          return@let it.hide(this)
+            .add(fragmentContainerId, createFragment(), tag)
+        }
+      }
         .addToBackStack(null)
         .commit(viewLifecycleOwner)
     }
   }
 
   override fun onNavigateToSettings() {
-    pushFragment(SettingsFragment.TAG) { SettingsFragment.newInstance() }
+    pushFragment(SettingsFragment.TAG, true) { SettingsFragment.newInstance() }
   }
 
   override fun onCreateNew(id: String) {
-    pushFragment(DetailFragment.TAG) { DetailFragment.newInstance(id) }
+    pushFragment(DetailFragment.TAG, false) { DetailFragment.newInstance(id) }
   }
 
   override fun onEditEntry(id: String) {
-    pushFragment(DetailFragment.TAG) { DetailFragment.newInstance(id) }
+    pushFragment(DetailFragment.TAG, false) { DetailFragment.newInstance(id) }
   }
 
   override fun onStartShopping() {
     Timber.d("TODO: Start shopping")
+  }
+
+  override fun onHiddenChanged(hidden: Boolean) {
+    super.onHiddenChanged(hidden)
+    toolbar.showMenu(!hidden)
   }
 
   companion object {

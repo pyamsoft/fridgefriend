@@ -54,4 +54,8 @@ internal class EntryToolbarUiComponentImpl @Inject internal constructor(
     callback.onNavigateToSettings()
   }
 
+  override fun showMenu(show: Boolean) {
+    toolbar.showMenu(show)
+  }
+
 }

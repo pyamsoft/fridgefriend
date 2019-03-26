@@ -41,16 +41,13 @@ internal class EntryToolbar @Inject internal constructor(
 
   override fun inflate(savedInstanceState: Bundle?) {
     setupToolbar()
-    inflateMenu()
   }
 
   override fun saveState(outState: Bundle) {
   }
 
   override fun teardown() {
-    settingsItem?.setOnMenuItemClickListener(null)
-    settingsItem = null
-    toolbarActivity.withToolbar { it.menu.removeItem(R.id.menu_item_settings) }
+    hideMenu()
   }
 
   private fun setupToolbar() {
@@ -58,18 +55,36 @@ internal class EntryToolbar @Inject internal constructor(
       toolbar.setUpEnabled(false)
       toolbar.setTitle(appNameRes)
     }
+
+    inflateMenu()
+  }
+
+  private fun hideMenu() {
+    settingsItem?.setOnMenuItemClickListener(null)
+    settingsItem = null
+    toolbarActivity.withToolbar { it.menu.removeItem(R.id.menu_item_settings) }
   }
 
   private fun inflateMenu() {
     toolbarActivity.requireToolbar { toolbar ->
-      toolbar.inflateMenu(R.menu.toolbar_menu)
-      toolbar.menu.findItem(R.id.menu_item_settings).also {
-        it.setOnMenuItemClickListener {
-          callback.onSettingsClicked()
-          return@setOnMenuItemClickListener true
+      if (toolbar.menu.findItem(R.id.menu_item_settings) == null) {
+        toolbar.inflateMenu(R.menu.toolbar_menu)
+        toolbar.menu.findItem(R.id.menu_item_settings).also {
+          it.setOnMenuItemClickListener {
+            callback.onSettingsClicked()
+            return@setOnMenuItemClickListener true
+          }
+          settingsItem = it
         }
-        settingsItem = it
       }
+    }
+  }
+
+  fun showMenu(show: Boolean) {
+    if (show) {
+      setupToolbar()
+    } else {
+      hideMenu()
     }
   }
 
