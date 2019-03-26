@@ -89,20 +89,17 @@ kapt {
 }
 
 dependencies {
-
   // Leak Canary
   debugImplementation "com.squareup.leakcanary:leakcanary-support-fragment:$leakCanary"
   debugImplementation "com.squareup.leakcanary:leakcanary-android:$leakCanary"
   releaseImplementation "com.squareup.leakcanary:leakcanary-android-no-op:$leakCanary"
   testImplementation "com.squareup.leakcanary:leakcanary-android-no-op:$leakCanary"
-
   // Dagger
   kapt "com.google.dagger:dagger-compiler:$dagger"
-
   api project(':fridge-db-room')
   api project(':fridge-core')
   api project(':fridge-detail')
-  api project(":fridge-entry")
-  api project(":fridge-main")
-  api project(":fridge-setting")
+  api project(':fridge-entry')
+  api project(':fridge-main')
+  api project(':fridge-setting')
 }

@@ -66,21 +66,12 @@ kapt {
 
 dependencies {
 
-  // PYDroid
-  implementation "com.pyamsoft.pydroid:core:$pydroid"
-
-  // Repo
-  implementation "com.popinnow.android.repo:repo:$repo"
-  implementation "com.popinnow.android.repo:repo-persister-moshi:$repo"
-
   // Moshi
   implementation "com.squareup.moshi:moshi:$moshi"
   implementation "com.squareup.moshi:moshi-adapters:$moshi"
   kapt "com.squareup.moshi:moshi-kotlin-codegen:$moshi"
 
-  // Dagger
-  api "com.google.dagger:dagger:$dagger"
-  kapt "com.google.dagger:dagger-compiler:$dagger"
+  implementation project(":fridge-core")
 }
 
 

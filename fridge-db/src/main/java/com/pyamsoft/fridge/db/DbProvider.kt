@@ -41,6 +41,7 @@ import javax.inject.Singleton
 object DbProvider {
 
   @CheckResult
+  @JvmStatic
   private fun createDateAwareMoshi(moshi: Moshi): Moshi {
     return moshi.newBuilder().add(Date::class.java, Rfc3339DateJsonAdapter()).build()
   }

@@ -34,10 +34,7 @@ buildscript {
     maxSdk = 28
 
     // Us
-    pydroid = "19.1.1"
-
-    // Repo
-    repo = "0.3.1"
+    pydroid = "19.1.2-SNAPSHOT"
 
     // AndroidX
     preference = "1.0.0"
