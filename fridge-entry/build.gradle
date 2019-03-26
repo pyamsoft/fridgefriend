@@ -68,10 +68,6 @@ dependencies {
 
   kapt "com.google.dagger:dagger-compiler:$dagger"
 
-  // FastAdapter
-  implementation "com.mikepenz:fastadapter:$fastAdapter@aar"
-  implementation "com.mikepenz:fastadapter-commons:$fastAdapter@aar"
-
   api project(':fridge-core')
   api project(':fridge-db')
 }

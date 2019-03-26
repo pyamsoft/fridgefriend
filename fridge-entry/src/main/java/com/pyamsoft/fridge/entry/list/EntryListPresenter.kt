@@ -55,7 +55,7 @@ internal class EntryListPresenter @Inject internal constructor(
     refresh(true)
   }
 
-  fun refresh(force: Boolean) {
+  private fun refresh(force: Boolean) {
     realtimeChangeDisposable.tryDispose()
     refreshDisposable = interactor.getEntries(force)
       .subscribeOn(Schedulers.io())
@@ -77,7 +77,7 @@ internal class EntryListPresenter @Inject internal constructor(
         return@subscribe when (it) {
           is Insert -> callback.handleRealtimeInsert(it.entry)
           is Update -> callback.handleRealtimeUpdate(it.entry)
-          is Delete -> callback.handleRealtimeDelete(it.id)
+          is Delete -> callback.handleRealtimeDelete(it.entry)
           is DeleteAll -> callback.handleRealtimeDeleteAll()
         }
       }
@@ -104,7 +104,7 @@ internal class EntryListPresenter @Inject internal constructor(
 
     fun handleRealtimeUpdate(entry: FridgeEntry)
 
-    fun handleRealtimeDelete(id: String)
+    fun handleRealtimeDelete(entry: FridgeEntry)
 
     fun handleRealtimeDeleteAll()
 

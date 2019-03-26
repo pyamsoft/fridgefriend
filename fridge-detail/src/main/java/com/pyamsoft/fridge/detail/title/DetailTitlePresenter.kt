@@ -57,12 +57,14 @@ internal class DetailTitlePresenter @Inject internal constructor(
       }).destroy()
   }
 
-  override fun onUpdateName(name: String, immediate: Boolean) {
+  override fun onUpdateName(name: String, finalUpdate: Boolean) {
     val source: Completable
-    if (immediate) {
-      source = interactor.saveName(name)
+    if (finalUpdate) {
+      source = interactor.saveName(name, finalUpdate)
     } else {
-      source = Completable.complete().delay(1, SECONDS).andThen(interactor.saveName(name))
+      source = Completable.complete()
+        .delay(1, SECONDS)
+        .andThen(interactor.saveName(name, finalUpdate))
     }
 
     updateDisposable = source
@@ -72,7 +74,7 @@ internal class DetailTitlePresenter @Inject internal constructor(
         // Dispose ourselves here after we are done
         updateDisposable.tryDispose()
       }
-      .subscribe({ Timber.d("Entry name updated: $name") }, {
+      .subscribe({ }, {
         Timber.e(it, "Error updating entry name")
         callback.handleNameUpdateError(it)
       })

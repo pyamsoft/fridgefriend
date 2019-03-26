@@ -22,7 +22,6 @@ import androidx.lifecycle.LifecycleOwner
 import com.pyamsoft.fridge.detail.title.DetailTitleUiComponent.Callback
 import com.pyamsoft.pydroid.arch.BaseUiComponent
 import com.pyamsoft.pydroid.arch.doOnDestroy
-import com.pyamsoft.pydroid.ui.arch.InvalidIdException
 import javax.inject.Inject
 
 internal class DetailTitleUiComponentImpl @Inject internal constructor(
@@ -33,7 +32,7 @@ internal class DetailTitleUiComponentImpl @Inject internal constructor(
   DetailTitlePresenter.Callback {
 
   override fun id(): Int {
-    throw InvalidIdException
+    return title.id()
   }
 
   override fun onBind(owner: LifecycleOwner, savedInstanceState: Bundle?, callback: Callback) {

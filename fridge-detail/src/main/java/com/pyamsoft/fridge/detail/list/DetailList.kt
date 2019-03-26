@@ -15,47 +15,40 @@
  *
  */
 
-package com.pyamsoft.fridge.entry.list
+package com.pyamsoft.fridge.detail.list
 
 import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import androidx.annotation.CheckResult
-import androidx.core.view.isVisible
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.mikepenz.fastadapter.FastAdapter
 import com.mikepenz.fastadapter.adapters.ModelAdapter
-import com.pyamsoft.fridge.db.entry.FridgeEntry
-import com.pyamsoft.fridge.entry.R
+import com.pyamsoft.fridge.db.item.FridgeItem
+import com.pyamsoft.fridge.detail.R
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.ui.util.refreshing
 import javax.inject.Inject
+import javax.inject.Named
 
-internal class EntryList @Inject internal constructor(
+internal class DetailList @Inject internal constructor(
+  @Named("detail_entry_id") private val entryId: String,
   parent: ViewGroup,
   callback: Callback
-) : BaseUiView<EntryList.Callback>(parent, callback) {
+) : BaseUiView<DetailList.Callback>(parent, callback) {
 
-  override val layout: Int = R.layout.entry_list
+  override val layout: Int = R.layout.detail_list
 
-  override val layoutRoot by lazyView<SwipeRefreshLayout>(R.id.entry_swipe_refresh)
+  override val layoutRoot by lazyView<SwipeRefreshLayout>(R.id.detail_swipe_refresh)
 
-  private val recyclerView by lazyView<RecyclerView>(R.id.entry_list)
-  private val emptyState by lazyView<TextView>(R.id.entry_empty)
+  private val recyclerView by lazyView<RecyclerView>(R.id.detail_list)
 
-  private var modelAdapter: ModelAdapter<FridgeEntry, EntryItem<*, *>>? = null
+  private var modelAdapter: ModelAdapter<FridgeItem, DetailListItem>? = null
 
   override fun onInflated(view: View, savedInstanceState: Bundle?) {
-    modelAdapter = ModelAdapter {
-      if (it.id().isNotBlank()) {
-        return@ModelAdapter EntryListItem(it, callback)
-      } else {
-        return@ModelAdapter EntrySpaceItem(it)
-      }
-    }
+    modelAdapter = ModelAdapter { DetailListItem(it, entryId, callback) }
 
     recyclerView.layoutManager = LinearLayoutManager(view.context).apply {
       isItemPrefetchEnabled = true
@@ -63,7 +56,7 @@ internal class EntryList @Inject internal constructor(
     }
 
     recyclerView.adapter =
-      FastAdapter.with<EntryItem<*, *>, ModelAdapter<FridgeEntry, *>>(usingAdapter())
+      FastAdapter.with<DetailListItem, ModelAdapter<FridgeItem, *>>(usingAdapter())
 
     layoutRoot.setOnRefreshListener {
       callback.onRefresh()
@@ -80,30 +73,17 @@ internal class EntryList @Inject internal constructor(
   }
 
   @CheckResult
-  private fun usingAdapter(): ModelAdapter<FridgeEntry, *> {
+  private fun usingAdapter(): ModelAdapter<FridgeItem, *> {
     return requireNotNull(modelAdapter)
-  }
-
-  private fun showList() {
-    emptyState.isVisible = false
-    recyclerView.isVisible = true
-  }
-
-  private fun hideList() {
-    recyclerView.isVisible = false
-    emptyState.isVisible = true
   }
 
   fun beginRefresh() {
     layoutRoot.refreshing(true)
     usingAdapter().clear()
-
-    showList()
   }
 
-  fun setList(entries: List<FridgeEntry>) {
-    usingAdapter().add(FridgeEntry.empty())
-    usingAdapter().add(entries)
+  fun setList(items: List<FridgeItem>) {
+    usingAdapter().add(items)
   }
 
   fun showError(throwable: Throwable) {
@@ -115,31 +95,44 @@ internal class EntryList @Inject internal constructor(
   fun finishRefresh() {
     layoutRoot.refreshing(false)
 
-    if (usingAdapter().adapterItemCount <= 1) {
-      hideList()
-    } else {
-      showList()
+    if (usingAdapter().adapterItemCount == 0) {
+      // This list is empty, add our first item
+      insert(FridgeItem.create(entryId = entryId))
     }
   }
 
-  fun insert(entry: FridgeEntry) {
-    showList()
-    usingAdapter().add(entry)
+  @CheckResult
+  private fun isThisEntry(item: FridgeItem): Boolean {
+    return item.entryId() == entryId
   }
 
-  fun update(entry: FridgeEntry) {
-    for ((index, e) in usingAdapter().models.withIndex()) {
-      if (entry.id() == e.id()) {
-        usingAdapter().set(index, entry)
-        break
+  fun insert(item: FridgeItem) {
+    if (!updateExistingItem(item)) {
+      if (isThisEntry(item)) {
+        usingAdapter().add(item)
       }
     }
   }
 
-  fun delete(entry: FridgeEntry) {
+  fun update(item: FridgeItem) {
+    updateExistingItem(item)
+  }
+
+  private fun updateExistingItem(item: FridgeItem): Boolean {
+    for ((index, e) in usingAdapter().models.withIndex()) {
+      if (item.id() == e.id() && item.entryId() == e.entryId() && isThisEntry(item)) {
+        usingAdapter().set(index, item)
+        return true
+      }
+    }
+
+    return false
+  }
+
+  fun delete(item: FridgeItem) {
     var index = -1
     for ((i, e) in usingAdapter().models.withIndex()) {
-      if (e.id() == entry.id()) {
+      if (item.id() == e.id() && item.entryId() == e.entryId() && isThisEntry(item)) {
         index = i
         break
       }
@@ -150,11 +143,7 @@ internal class EntryList @Inject internal constructor(
     }
   }
 
-  fun deleteAll() {
-    usingAdapter().clear()
-  }
-
-  interface Callback : EntryListItem.Callback {
+  interface Callback : DetailListItem.Callback {
 
     fun onRefresh()
 

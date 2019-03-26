@@ -36,8 +36,8 @@
       android:padding="8dp"
       >
 
-    <TextView
-        android:id="@+id/entry_item_name"
+    <EditText
+        android:id="@+id/detail_item_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"

@@ -49,13 +49,15 @@ interface FridgeEntry {
     }
 
     @CheckResult
-    fun create(): FridgeEntry {
-      return create(EMPTY_NAME, Date())
+    @JvmOverloads
+    fun create(id: String = IdGenerator.generate()): FridgeEntry {
+      return create(id, EMPTY_NAME, Date())
     }
 
     @CheckResult
-    fun create(name: String, createdTime: Date): FridgeEntry {
-      return JsonMappableFridgeEntry(IdGenerator.generate(), name, createdTime)
+    @JvmOverloads
+    fun create(id: String = IdGenerator.generate(), name: String, createdTime: Date): FridgeEntry {
+      return JsonMappableFridgeEntry(id, name, createdTime)
     }
 
     @CheckResult

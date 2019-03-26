@@ -110,7 +110,7 @@ internal class RoomFridgeEntryDb internal constructor(
         synchronized(lock) {
           Timber.i("DELETE: $entry")
           return room.roomEntryDeleteDao().delete(entry)
-            .doOnComplete { publishRealtime(Delete(entry.id())) }
+            .doOnComplete { publishRealtime(Delete(entry)) }
         }
       }
 

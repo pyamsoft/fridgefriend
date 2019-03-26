@@ -56,7 +56,7 @@ internal class EntryListItem internal constructor(
     private val callback: EntryListItem.Callback
   ) : RecyclerView.ViewHolder(itemView) {
 
-    private val entryName = itemView.findViewById<TextView>(R.id.entry_name)
+    private val entryName = itemView.findViewById<TextView>(R.id.entry_item_name)
 
     fun bind(entry: FridgeEntry) {
       itemView.setOnDebouncedClickListener { callback.onItemClicked(entry) }

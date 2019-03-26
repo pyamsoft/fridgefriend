@@ -19,7 +19,6 @@ package com.pyamsoft.fridge.db.item
 
 import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.db.IdGenerator
-import com.pyamsoft.fridge.db.entry.FridgeEntry
 import java.util.Date
 
 interface FridgeItem {
@@ -56,27 +55,24 @@ interface FridgeItem {
   companion object {
 
     const val EMPTY_NAME = ""
-    val EMPTY_EXPIRE_TIME = Date(0)
     val DEFAULT_PRESENCE = Presence.NEED
 
     @CheckResult
-    fun empty(): FridgeItem {
-      return JsonMappableFridgeItem("", "", EMPTY_NAME, EMPTY_EXPIRE_TIME, DEFAULT_PRESENCE)
+    @JvmOverloads
+    fun create(id: String = IdGenerator.generate(), entryId: String): FridgeItem {
+      return create(id, entryId, EMPTY_NAME, Date(), DEFAULT_PRESENCE)
     }
 
     @CheckResult
-    fun create(entry: FridgeEntry): FridgeItem {
-      return create(entry, EMPTY_NAME, Date(), DEFAULT_PRESENCE)
-    }
-
-    @CheckResult
+    @JvmOverloads
     fun create(
-      entry: FridgeEntry,
+      id: String = IdGenerator.generate(),
+      entryId: String,
       name: String,
       expireTime: Date,
       presence: Presence
     ): FridgeItem {
-      return JsonMappableFridgeItem(IdGenerator.generate(), entry.id(), name, expireTime, presence)
+      return JsonMappableFridgeItem(id, entryId, name, expireTime, presence)
     }
 
     @CheckResult

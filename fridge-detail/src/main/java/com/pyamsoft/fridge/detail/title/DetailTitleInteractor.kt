@@ -20,44 +20,34 @@ package com.pyamsoft.fridge.detail.title
 import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.entry.FridgeEntryChangeEvent.Update
+import com.pyamsoft.fridge.db.entry.FridgeEntryInsertDao
 import com.pyamsoft.fridge.db.entry.FridgeEntryQueryDao
 import com.pyamsoft.fridge.db.entry.FridgeEntryRealtime
 import com.pyamsoft.fridge.db.entry.FridgeEntryUpdateDao
+import com.pyamsoft.fridge.detail.DetailInteractor
+import com.pyamsoft.pydroid.core.optional.Optional
+import com.pyamsoft.pydroid.core.optional.Optional.Present
+import com.pyamsoft.pydroid.core.optional.asOptional
 import com.pyamsoft.pydroid.core.threads.Enforcer
 import io.reactivex.Completable
 import io.reactivex.Observable
-import io.reactivex.Single
 import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Named
 
 internal class DetailTitleInteractor @Inject internal constructor(
-  private val enforcer: Enforcer,
-  private val queryDao: FridgeEntryQueryDao,
   private val updateDao: FridgeEntryUpdateDao,
   private val realtime: FridgeEntryRealtime,
-  @Named("detail_entry_id") private val entryId: String
-) {
-
-  init {
-    Timber.d("New interactor: $entryId")
-  }
+  enforcer: Enforcer,
+  queryDao: FridgeEntryQueryDao,
+  insertDao: FridgeEntryInsertDao,
+  @Named("detail_entry_id") entryId: String
+) : DetailInteractor(enforcer, queryDao, insertDao, entryId) {
 
   @CheckResult
   fun observeEntryName(force: Boolean): Observable<NameUpdate> {
     return listenForNameChanges()
       .startWith(getEntryName(force))
-  }
-
-  @CheckResult
-  private fun getEntryForId(force: Boolean): Single<FridgeEntry> {
-    return queryDao.queryAll(force)
-      .flatMapObservable {
-        enforcer.assertNotOnMainThread()
-        return@flatMapObservable Observable.fromIterable(it)
-      }
-      .filter { it.id() == entryId }
-      .singleOrError()
   }
 
   @CheckResult
@@ -78,13 +68,34 @@ internal class DetailTitleInteractor @Inject internal constructor(
   }
 
   @CheckResult
-  fun saveName(name: String): Completable {
+  fun saveName(name: String, finalUpdate: Boolean): Completable {
     return getEntryForId(false)
-      .flatMapCompletable { update(it, name) }
+      .map { it.asOptional() }
+      .toSingle(Optional.ofNullable(null))
+      .flatMapCompletable {
+        if (it is Present) {
+          val entry = it.value
+          return@flatMapCompletable update(entry, name)
+        } else {
+          if (finalUpdate) {
+            Timber.w("saveName called as a finalUpdate, but Entry does not exist.")
+            if (name.isBlank()) {
+              Timber.w("Name is blank, do not create")
+              return@flatMapCompletable Completable.complete()
+            } else {
+              Timber.i("Name provided, create entry")
+            }
+          }
+
+          Timber.d("saveName called but Entry does not exist, create it")
+          return@flatMapCompletable guaranteeEntryExists(name).ignoreElement()
+        }
+      }
   }
 
   @CheckResult
   private fun update(entry: FridgeEntry, name: String): Completable {
+    Timber.d("Updating entry name [${entry.id()}]: $name")
     enforcer.assertNotOnMainThread()
     return updateDao.update(entry.name(name))
   }

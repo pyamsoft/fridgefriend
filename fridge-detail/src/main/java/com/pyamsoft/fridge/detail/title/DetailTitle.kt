@@ -56,7 +56,7 @@ internal class DetailTitle @Inject internal constructor(
 
         override fun afterTextChanged(s: Editable?) {
           if (s != null) {
-            callback.onUpdateName(s.toString(), false)
+            callback.onUpdateName(s.toString(), finalUpdate = false)
           }
         }
 
@@ -76,7 +76,7 @@ internal class DetailTitle @Inject internal constructor(
     if (editText != null) {
       val text = editText.text.toString()
       Timber.d("Final name commit on destroy: $text")
-      callback.onUpdateName(text, true)
+      callback.onUpdateName(text, finalUpdate = true)
     }
     layoutRoot.clearFocus()
     removeTextWatcher()
@@ -98,7 +98,7 @@ internal class DetailTitle @Inject internal constructor(
 
   interface Callback {
 
-    fun onUpdateName(name: String, immediate: Boolean)
+    fun onUpdateName(name: String, finalUpdate: Boolean)
 
   }
 }
