@@ -20,7 +20,6 @@ package com.pyamsoft.fridge.entry.list
 import android.view.View
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import com.mikepenz.fastadapter.items.ModelAbstractItem
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.entry.R
 import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
@@ -28,7 +27,7 @@ import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
 internal class EntryListItem internal constructor(
   entry: FridgeEntry,
   private val callback: EntryListItem.Callback
-) : ModelAbstractItem<FridgeEntry, EntryListItem, EntryListItem.ViewHolder>(entry) {
+) : EntryItem<EntryListItem, EntryListItem.ViewHolder>(entry) {
 
   override fun getType(): Int {
     return R.id.id_entry_list_item

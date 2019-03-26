@@ -15,27 +15,12 @@
  *
  */
 
-package com.pyamsoft.fridge.entry.action
+package com.pyamsoft.fridge.entry.list
 
-import androidx.annotation.CheckResult
+import androidx.recyclerview.widget.RecyclerView
+import com.mikepenz.fastadapter.items.ModelAbstractItem
 import com.pyamsoft.fridge.db.entry.FridgeEntry
-import com.pyamsoft.fridge.db.entry.FridgeEntryInsertDao
-import com.pyamsoft.pydroid.core.threads.Enforcer
-import io.reactivex.Single
-import javax.inject.Inject
 
-internal class EntryActionInteractor @Inject internal constructor(
-  private val enforcer: Enforcer,
-  private val insertDao: FridgeEntryInsertDao
-) {
-
-  @CheckResult
-  fun create(): Single<FridgeEntry> {
-    return Single.just(FridgeEntry.create())
-      .flatMap { entry ->
-        enforcer.assertNotOnMainThread()
-        return@flatMap insertDao.insert(entry)
-          .andThen(Single.just(entry))
-      }
-  }
-}
+internal abstract class EntryItem<I : EntryItem<I, VH>, VH : RecyclerView.ViewHolder> protected constructor(
+  entry: FridgeEntry
+) : ModelAbstractItem<FridgeEntry, I, VH>(entry)

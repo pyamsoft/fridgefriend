@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
+
 <!--
   ~ Copyright 2019 Peter Kenji Yamanaka
   ~
@@ -16,7 +17,9 @@
   ~
   -->
 
-<resources>
-  <item name="id_entry_list_item" type="id"/>
-  <item name="id_entry_space_item" type="id"/>
-</resources>
+<View
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="8dp"
+    />
+

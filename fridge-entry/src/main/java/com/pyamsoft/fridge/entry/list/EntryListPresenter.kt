@@ -51,6 +51,10 @@ internal class EntryListPresenter @Inject internal constructor(
     realtimeChangeDisposable.tryDispose()
   }
 
+  override fun onRefresh() {
+    refresh(true)
+  }
+
   fun refresh(force: Boolean) {
     realtimeChangeDisposable.tryDispose()
     refreshDisposable = interactor.getEntries(force)

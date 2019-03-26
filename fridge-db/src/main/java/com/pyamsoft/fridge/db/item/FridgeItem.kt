@@ -60,7 +60,34 @@ interface FridgeItem {
     val DEFAULT_EXPIRE_TIME = Date(0)
 
     @CheckResult
-    fun empty(entry: FridgeEntry): FridgeItem {
+    fun empty(): FridgeItem {
+      return object : FridgeItemImpl() {
+
+        override fun id(): String {
+          return ""
+        }
+
+        override fun entryId(): String {
+          return ""
+        }
+
+        override fun name(): String {
+          return DEFAULT_NAME
+        }
+
+        override fun expireTime(): Date {
+          return DEFAULT_EXPIRE_TIME
+        }
+
+        override fun presence(): Presence {
+          return DEFAULT_PRESENCE
+        }
+
+      }
+    }
+
+    @CheckResult
+    fun create(entry: FridgeEntry): FridgeItem {
       return create(entry, DEFAULT_NAME, DEFAULT_EXPIRE_TIME, DEFAULT_PRESENCE)
     }
 

@@ -22,6 +22,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.annotation.CheckResult
+import androidx.core.view.isVisible
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
@@ -45,10 +46,16 @@ internal class EntryList @Inject internal constructor(
   private val recyclerView by lazyView<RecyclerView>(R.id.entry_list)
   private val emptyState by lazyView<TextView>(R.id.entry_empty)
 
-  private var modelAdapter: ModelAdapter<FridgeEntry, EntryListItem>? = null
+  private var modelAdapter: ModelAdapter<FridgeEntry, EntryItem<*, *>>? = null
 
   override fun onInflated(view: View, savedInstanceState: Bundle?) {
-    modelAdapter = ModelAdapter { EntryListItem(it, callback) }
+    modelAdapter = ModelAdapter {
+      if (it.id().isNotBlank()) {
+        return@ModelAdapter EntryListItem(it, callback)
+      } else {
+        return@ModelAdapter EntrySpaceItem(it)
+      }
+    }
 
     recyclerView.layoutManager = LinearLayoutManager(view.context).apply {
       isItemPrefetchEnabled = true
@@ -56,31 +63,63 @@ internal class EntryList @Inject internal constructor(
     }
 
     recyclerView.adapter =
-      FastAdapter.with<EntryListItem, ModelAdapter<FridgeEntry, EntryListItem>>(usingAdapter())
+      FastAdapter.with<EntryItem<*, *>, ModelAdapter<FridgeEntry, *>>(usingAdapter())
+
+    layoutRoot.setOnRefreshListener {
+      callback.onRefresh()
+    }
+  }
+
+  override fun onTeardown() {
+    super.onTeardown()
+    usingAdapter().clear()
+    recyclerView.adapter = null
+    modelAdapter = null
+
+    layoutRoot.setOnRefreshListener(null)
   }
 
   @CheckResult
-  fun usingAdapter(): ModelAdapter<FridgeEntry, EntryListItem> {
+  fun usingAdapter(): ModelAdapter<FridgeEntry, *> {
     return requireNotNull(modelAdapter)
+  }
+
+  private fun showList() {
+    emptyState.isVisible = false
+    recyclerView.isVisible = true
+  }
+
+  private fun hideList() {
+    recyclerView.isVisible = false
+    emptyState.isVisible = true
   }
 
   fun beginRefresh() {
     layoutRoot.refreshing(true)
     usingAdapter().clear()
+
+    showList()
   }
 
   fun setList(entries: List<FridgeEntry>) {
+    usingAdapter().add(FridgeEntry.empty())
     usingAdapter().add(entries)
   }
 
   fun showError(throwable: Throwable) {
-    // TODO clear list
+    usingAdapter().clear()
+
     // TODO set error text
   }
 
   fun finishRefresh() {
     layoutRoot.refreshing(false)
-    // TODO Decide view state based on number of list items
+
+    if (usingAdapter().adapterItemCount <= 1) {
+      hideList()
+    } else {
+      showList()
+    }
   }
 
   fun insert(entry: FridgeEntry) {
@@ -115,6 +154,8 @@ internal class EntryList @Inject internal constructor(
   }
 
   interface Callback : EntryListItem.Callback {
+
+    fun onRefresh()
 
   }
 }

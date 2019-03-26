@@ -45,6 +45,24 @@ interface FridgeEntry {
 
     @CheckResult
     fun empty(): FridgeEntry {
+      return object : FridgeEntryImpl() {
+
+        override fun id(): String {
+          return ""
+        }
+
+        override fun name(): String {
+          return DEFAULT_NAME
+        }
+
+        override fun createdTime(): Date {
+          return DEFAULT_CREATED_TIME
+        }
+      }
+    }
+
+    @CheckResult
+    fun create(): FridgeEntry {
       return create(DEFAULT_NAME, DEFAULT_CREATED_TIME)
     }
 
