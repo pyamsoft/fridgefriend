@@ -84,7 +84,8 @@ internal class EntryListFragment : Fragment(),
     val fm = requireActivity().supportFragmentManager
     if (fm.findFragmentByTag(tag) == null) {
       fm.beginTransaction()
-        .replace(fragmentContainerId, createFragment(), tag)
+        .hide(this)
+        .add(fragmentContainerId, createFragment(), tag)
         .addToBackStack(null)
         .commit(viewLifecycleOwner)
     }

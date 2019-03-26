@@ -23,9 +23,11 @@ import com.pyamsoft.pydroid.arch.BasePresenter
 import com.pyamsoft.pydroid.core.bus.RxBus
 import com.pyamsoft.pydroid.core.singleDisposable
 import com.pyamsoft.pydroid.core.tryDispose
+import io.reactivex.Completable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import timber.log.Timber
+import java.util.concurrent.TimeUnit.SECONDS
 import javax.inject.Inject
 
 @DetailScope
@@ -34,32 +36,42 @@ internal class DetailTitlePresenter @Inject internal constructor(
 ) : BasePresenter<Unit, Callback>(RxBus.empty()),
   DetailTitle.Callback {
 
-  private var observeNameDisposable by singleDisposable()
-  private var updateNameDisposable by singleDisposable()
+  private var updateDisposable by singleDisposable()
 
   override fun onBind() {
     observeName(false)
   }
 
   override fun onUnbind() {
-    observeNameDisposable.tryDispose()
-    updateNameDisposable.tryDispose()
+    // Don't dispose updateDisposable here as it may need to outlive the View
+    // since the final commit happens as the View is tearing down
   }
 
-  fun observeName(force: Boolean) {
-    observeNameDisposable = interactor.observeEntryName(force)
+  private fun observeName(force: Boolean) {
+    interactor.observeEntryName(force)
       .subscribeOn(Schedulers.io())
       .observeOn(AndroidSchedulers.mainThread())
       .subscribe({ callback.handleNameUpdated(it.name, it.firstUpdate) }, {
         Timber.e(it, "Error observing entry name")
         callback.handleNameUpdateError(it)
-      })
+      }).destroy()
   }
 
-  override fun onUpdateName(name: String) {
-    updateNameDisposable = interactor.saveName(name)
+  override fun onUpdateName(name: String, immediate: Boolean) {
+    val source: Completable
+    if (immediate) {
+      source = interactor.saveName(name)
+    } else {
+      source = Completable.complete().delay(1, SECONDS).andThen(interactor.saveName(name))
+    }
+
+    updateDisposable = source
       .subscribeOn(Schedulers.io())
       .observeOn(AndroidSchedulers.mainThread())
+      .doAfterTerminate {
+        // Dispose ourselves here after we are done
+        updateDisposable.tryDispose()
+      }
       .subscribe({ Timber.d("Entry name updated: $name") }, {
         Timber.e(it, "Error updating entry name")
         callback.handleNameUpdateError(it)

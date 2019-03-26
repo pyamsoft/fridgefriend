@@ -26,6 +26,7 @@ import com.google.android.material.textfield.TextInputLayout
 import com.pyamsoft.fridge.detail.R
 import com.pyamsoft.fridge.detail.title.DetailTitle.Callback
 import com.pyamsoft.pydroid.arch.BaseUiView
+import timber.log.Timber
 import javax.inject.Inject
 
 internal class DetailTitle @Inject internal constructor(
@@ -55,7 +56,7 @@ internal class DetailTitle @Inject internal constructor(
 
         override fun afterTextChanged(s: Editable?) {
           if (s != null) {
-            callback.onUpdateName(s.toString())
+            callback.onUpdateName(s.toString(), false)
           }
         }
 
@@ -70,6 +71,13 @@ internal class DetailTitle @Inject internal constructor(
   }
 
   override fun onTeardown() {
+    // Final commit
+    val editText = layoutRoot.editText
+    if (editText != null) {
+      val text = editText.text.toString()
+      Timber.d("Final name commit on destroy: $text")
+      callback.onUpdateName(text, true)
+    }
     layoutRoot.clearFocus()
     removeTextWatcher()
   }
@@ -90,7 +98,7 @@ internal class DetailTitle @Inject internal constructor(
 
   interface Callback {
 
-    fun onUpdateName(name: String)
+    fun onUpdateName(name: String, immediate: Boolean)
 
   }
 }
