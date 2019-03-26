@@ -123,6 +123,7 @@ internal class EntryList @Inject internal constructor(
   }
 
   fun insert(entry: FridgeEntry) {
+    showList()
     usingAdapter().add(entry)
   }
 
