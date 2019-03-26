@@ -67,7 +67,7 @@ kapt {
 dependencies {
 
   // PYDroid
-  implementation "com.pyamsoft.pydroid:core:$pydroid"
+  implementation "com.pyamsoft.pydroid:bootstrap:$pydroid"
 }
 
 

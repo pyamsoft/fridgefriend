@@ -72,8 +72,8 @@ dependencies {
   implementation "com.mikepenz:fastadapter:$fastAdapter@aar"
   implementation "com.mikepenz:fastadapter-commons:$fastAdapter@aar"
 
-  api project(':fridge-db')
   api project(':fridge-core')
+  api project(':fridge-db')
 }
 
 
