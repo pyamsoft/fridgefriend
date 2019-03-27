@@ -22,6 +22,7 @@ import android.text.TextWatcher
 import android.view.View
 import android.widget.EditText
 import android.widget.ImageView
+import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence
@@ -130,21 +131,26 @@ internal class DetailListItem internal constructor(
       deleteIconLoaded?.dispose()
       deleteIconLoaded = null
 
-      deleteIconLoaded = imageLoader.load(R.drawable.ic_close_24dp)
-        .mutate { drawable ->
-          val color: Int
-          if (theming.isDarkTheme()) {
-            color = R.color.white
-          } else {
-            color = R.color.black
-          }
-          return@mutate drawable.tintWith(itemView.context, color)
-        }.into(itemDelete)
+      if (item.model.isReal()) {
+        itemDelete.isVisible = true
+        deleteIconLoaded = imageLoader.load(R.drawable.ic_close_24dp)
+          .mutate { drawable ->
+            val color: Int
+            if (theming.isDarkTheme()) {
+              color = R.color.white
+            } else {
+              color = R.color.black
+            }
+            return@mutate drawable.tintWith(itemView.context, color)
+          }.into(itemDelete)
 
-      itemDelete.setOnDebouncedClickListener {
-        itemDelete.setOnClickListener(null)
+        itemDelete.setOnDebouncedClickListener {
+          itemDelete.setOnClickListener(null)
 
-        item.callback.onDelete(item.model)
+          item.callback.onDelete(item.model)
+        }
+      } else {
+        itemDelete.isVisible = false
       }
     }
 
