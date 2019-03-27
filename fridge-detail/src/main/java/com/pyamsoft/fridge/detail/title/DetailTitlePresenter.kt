@@ -60,11 +60,11 @@ internal class DetailTitlePresenter @Inject internal constructor(
   override fun onUpdateName(name: String, finalUpdate: Boolean) {
     val source: Completable
     if (finalUpdate) {
-      source = interactor.saveName(name, finalUpdate)
+      source = interactor.saveName(name.trim(), finalUpdate)
     } else {
       source = Completable.complete()
         .delay(1, SECONDS)
-        .andThen(interactor.saveName(name, finalUpdate))
+        .andThen(interactor.saveName(name.trim(), finalUpdate))
     }
 
     updateDisposable = source

@@ -33,7 +33,6 @@ import com.pyamsoft.pydroid.core.bus.RxBus
 import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.Single
-import timber.log.Timber
 
 internal class RoomFridgeItemDb internal constructor(
   private val room: RoomFridgeDbImpl,
@@ -64,7 +63,6 @@ internal class RoomFridgeItemDb internal constructor(
 
       override fun queryAll(force: Boolean, entryId: String): Single<List<FridgeItem>> {
         synchronized(lock) {
-          Timber.i("QUERY")
           return repo.get(entryId, force) {
             return@get room.roomItemQueryDao().queryAll(force, entryId)
               .map { it.map { entry -> JsonMappableFridgeItem.from(entry) } }
@@ -80,7 +78,6 @@ internal class RoomFridgeItemDb internal constructor(
 
       override fun insert(item: FridgeItem): Completable {
         synchronized(lock) {
-          Timber.i("INSERT: $item")
           return room.roomItemInsertDao().insert(item)
             .doOnComplete { publishRealtime(Insert(item)) }
         }
@@ -94,7 +91,6 @@ internal class RoomFridgeItemDb internal constructor(
 
       override fun update(item: FridgeItem): Completable {
         synchronized(lock) {
-          Timber.i("UPDATE: $item")
           return room.roomItemUpdateDao().update(item)
             .doOnComplete { publishRealtime(Update(item)) }
         }
@@ -108,7 +104,6 @@ internal class RoomFridgeItemDb internal constructor(
 
       override fun delete(item: FridgeItem): Completable {
         synchronized(lock) {
-          Timber.i("DELETE: $item")
           return room.roomItemDeleteDao().delete(item)
             .doOnComplete { publishRealtime(Delete(item)) }
         }

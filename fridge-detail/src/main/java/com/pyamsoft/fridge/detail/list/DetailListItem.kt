@@ -17,27 +17,30 @@
 
 package com.pyamsoft.fridge.detail.list
 
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.View
 import android.widget.EditText
 import androidx.recyclerview.widget.RecyclerView
-import com.mikepenz.fastadapter.items.ModelAbstractItem
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence
 import com.pyamsoft.fridge.detail.R
+import timber.log.Timber
 import java.util.Date
 
 internal class DetailListItem internal constructor(
   item: FridgeItem,
+  private val nonPersistedEditableStateMap: MutableMap<String, Int>,
   private val entryId: String,
   private val callback: DetailListItem.Callback
-) : ModelAbstractItem<FridgeItem, DetailListItem, DetailListItem.ViewHolder>(item) {
+) : DetailItem<DetailListItem, DetailListItem.ViewHolder>(item) {
 
   override fun getType(): Int {
     return R.id.id_item_list_item
   }
 
   override fun getViewHolder(v: View): ViewHolder {
-    return ViewHolder(v, entryId, callback)
+    return ViewHolder(v, nonPersistedEditableStateMap)
   }
 
   override fun getLayoutRes(): Int {
@@ -46,7 +49,7 @@ internal class DetailListItem internal constructor(
 
   override fun bindView(holder: ViewHolder, payloads: MutableList<Any>) {
     super.bindView(holder, payloads)
-    holder.bind(model)
+    holder.bind(this)
   }
 
   override fun unbindView(holder: ViewHolder) {
@@ -54,35 +57,124 @@ internal class DetailListItem internal constructor(
     holder.unbind()
   }
 
+  override fun finalCommitOnDestroy() {
+    Timber.d("Performing final commit on dying list item: $model")
+    commit(finalUpdate = true)
+  }
+
+  private fun commit(
+    name: String = model.name(),
+    expireTime: Date = model.expireTime(),
+    presence: Presence = model.presence(),
+    finalUpdate: Boolean
+  ) {
+    if (model.entryId() == entryId) {
+
+      // Commit a new model from a dif
+      val oldModel = model
+      var newModel = model
+      if (oldModel.name() != name) {
+        newModel = newModel.name(name)
+      }
+      if (oldModel.expireTime() != expireTime) {
+        newModel = newModel.expireTime(expireTime)
+      }
+      if (oldModel.presence() != presence) {
+        newModel = newModel.presence(presence)
+      }
+
+      if (newModel != oldModel) {
+        withModel(newModel)
+      }
+
+      if (finalUpdate) {
+        Timber.d("Final item commit on unbind: $model")
+      }
+
+      callback.onCommit(model, finalUpdate)
+    }
+  }
+
   class ViewHolder internal constructor(
     itemView: View,
-    private val entryId: String,
-    private val callback: DetailListItem.Callback
+    private val nonPersistedEditableStateMap: MutableMap<String, Int>
   ) : RecyclerView.ViewHolder(itemView) {
 
     private val itemName = itemView.findViewById<EditText>(R.id.detail_item_name)
 
-    private var itemId: String = ""
+    private var nameWatcher: TextWatcher? = null
 
-    fun bind(item: FridgeItem) {
-      itemId = item.id()
+    private var boundItem: DetailListItem? = null
 
-      itemName.setTextKeepState(item.name())
+    fun bind(item: DetailListItem) {
+      boundItem = item
+
+      removeListeners()
+      Timber.d("Bind item $item")
+      itemName.setText(item.model.name())
+
+      // Restore cursor position from the list widge storage map
+      if (nonPersistedEditableStateMap.containsKey(item.model.id())) {
+        val location = nonPersistedEditableStateMap[item.model.id()] ?: 0
+        Timber.d("Restore edit text selection from storage map for: ${item.model.id()}: $location")
+        itemName.setSelection(location)
+        nonPersistedEditableStateMap.remove(item.model.id())
+      }
+
+      val watcher = object : TextWatcher {
+
+        override fun afterTextChanged(s: Editable?) {
+          if (s != null) {
+            commit(name = s.toString(), finalUpdate = false)
+          }
+        }
+
+        override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+        }
+
+        override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+        }
+
+      }
+      itemName.addTextChangedListener(watcher)
+      nameWatcher = watcher
+    }
+
+    private fun removeListeners() {
+      // Unbind all listeners
+      nameWatcher?.let { itemName.removeTextChangedListener(it) }
+      nameWatcher = null
     }
 
     fun unbind() {
-      if (itemId.isNotBlank()) {
-        val name = itemName.text.toString().trim()
-        val expireTime = Date()
-        val presence = Presence.NEED
-        callback.onCommit(
-          FridgeItem.create(itemId, entryId, name, expireTime, presence),
-          finalUpdate = true
-        )
-      }
+      removeListeners()
+
+      // Cleaup
       itemName.text.clear()
 
-      itemId = ""
+      boundItem = null
+    }
+
+    private fun commit(
+      name: String = itemName.text.toString(),
+      expireTime: Date = Date(),
+      presence: Presence = Presence.NEED,
+      finalUpdate: Boolean
+    ) {
+      boundItem?.let { item ->
+        saveEditingState()
+        item.commit(name, expireTime, presence, finalUpdate)
+      }
+    }
+
+    private fun saveEditingState() {
+      // Commit editing location to the storage map
+      val item = boundItem
+      if (item != null) {
+        val location = itemName.selectionEnd
+        Timber.d("Save edit text selection from storage map for: ${item.model.id()}: $location")
+        nonPersistedEditableStateMap[item.model.id()] = location
+      }
     }
 
   }

@@ -23,22 +23,27 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.CheckResult
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.constraintlayout.widget.ConstraintSet
 import androidx.fragment.app.Fragment
 import com.pyamsoft.fridge.FridgeComponent
 import com.pyamsoft.fridge.Injector
 import com.pyamsoft.fridge.R
+import com.pyamsoft.fridge.detail.list.DetailListUiComponent
 import com.pyamsoft.fridge.detail.title.DetailTitleUiComponent
 import com.pyamsoft.fridge.detail.toolbar.DetailToolbarUiComponent
+import com.pyamsoft.pydroid.arch.layout
 import com.pyamsoft.pydroid.ui.app.requireArguments
 import com.pyamsoft.pydroid.ui.app.requireToolbarActivity
 import javax.inject.Inject
 
 internal class DetailFragment : Fragment(),
+  DetailListUiComponent.Callback,
   DetailToolbarUiComponent.Callback,
   DetailTitleUiComponent.Callback {
 
   @field:Inject internal lateinit var toolbar: DetailToolbarUiComponent
   @field:Inject internal lateinit var title: DetailTitleUiComponent
+  @field:Inject internal lateinit var list: DetailListUiComponent
 
   override fun onCreateView(
     inflater: LayoutInflater,
@@ -60,8 +65,27 @@ internal class DetailFragment : Fragment(),
       .build()
       .inject(this)
 
-    title.bind(viewLifecycleOwner, savedInstanceState, this)
-    toolbar.bind(viewLifecycleOwner, savedInstanceState, this)
+    list.bind(parent, viewLifecycleOwner, savedInstanceState, this)
+    title.bind(parent, viewLifecycleOwner, savedInstanceState, this)
+    toolbar.bind(parent, viewLifecycleOwner, savedInstanceState, this)
+
+    parent.layout {
+      title.also {
+        connect(it.id(), ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP)
+        connect(it.id(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
+        connect(it.id(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
+        constrainWidth(it.id(), ConstraintSet.MATCH_CONSTRAINT)
+      }
+
+      list.also {
+        connect(it.id(), ConstraintSet.TOP, title.id(), ConstraintSet.BOTTOM)
+        connect(it.id(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
+        connect(it.id(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
+        connect(it.id(), ConstraintSet.BOTTOM, ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM)
+        constrainWidth(it.id(), ConstraintSet.MATCH_CONSTRAINT)
+        constrainHeight(it.id(), ConstraintSet.MATCH_CONSTRAINT)
+      }
+    }
   }
 
   override fun onSaveInstanceState(outState: Bundle) {

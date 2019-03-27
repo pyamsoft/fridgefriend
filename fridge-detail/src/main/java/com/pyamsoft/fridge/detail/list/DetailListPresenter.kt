@@ -28,6 +28,7 @@ import com.pyamsoft.pydroid.core.singleDisposable
 import com.pyamsoft.pydroid.core.tryDispose
 import io.reactivex.Completable
 import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import timber.log.Timber
 import java.util.concurrent.TimeUnit.SECONDS
@@ -41,14 +42,15 @@ internal class DetailListPresenter @Inject internal constructor(
 
   private var refreshDisposable by singleDisposable()
   private var realtimeDisposable by singleDisposable()
-  private var updateDisposable by singleDisposable()
+
+  private val keyedUpdateDisposableMap by lazy { LinkedHashMap<String, Disposable>() }
 
   override fun onBind() {
     refreshList(false)
   }
 
   override fun onUnbind() {
-    // Don't dispose updateDisposable here as it may need to outlive the View
+    // Don't clear keyedUpdateDisposableMap here as it may need to outlive the View
     // since the final commit happens as the View is tearing down
     refreshDisposable.tryDispose()
     realtimeDisposable.tryDispose()
@@ -95,17 +97,22 @@ internal class DetailListPresenter @Inject internal constructor(
         .andThen(interactor.commit(item, finalUpdate))
     }
 
-    updateDisposable = source
+    keyedUpdateDisposableMap[item.id()]?.tryDispose()
+    keyedUpdateDisposableMap[item.id()] = source
       .subscribeOn(Schedulers.io())
       .observeOn(AndroidSchedulers.mainThread())
       .doAfterTerminate {
-        // Dispose ourselves here after we are done
-        updateDisposable.tryDispose()
+        keyedUpdateDisposableMap[item.id()]?.tryDispose()
+        keyedUpdateDisposableMap.remove(item.id())
       }
       .subscribe({ }, {
         Timber.e(it, "Error updating item: ${item.id()}")
         callback.handleUpdateItemError(it)
       })
+  }
+
+  override fun onAddNewClicked() {
+    callback.handleAddNewItem()
   }
 
   interface Callback {
@@ -125,6 +132,8 @@ internal class DetailListPresenter @Inject internal constructor(
     fun handleRealtimeUpdate(item: FridgeItem)
 
     fun handleRealtimeDelete(item: FridgeItem)
+
+    fun handleAddNewItem()
 
   }
 

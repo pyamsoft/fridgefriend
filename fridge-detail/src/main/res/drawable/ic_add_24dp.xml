@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="utf-8"?>
 <!--
   ~ Copyright 2019 Peter Kenji Yamanaka
   ~
@@ -16,7 +15,12 @@
   ~
   -->
 
-<resources>
-  <item name="id_item_list_item" type="id"/>
-  <item name="id_item_add_new_item" type="id"/>
-</resources>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:height="24dp"
+    android:viewportHeight="24.0"
+    android:viewportWidth="24.0"
+    android:width="24dp">
+  <path
+      android:fillColor="#FFFFFF"
+      android:pathData="M19,13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+</vector>

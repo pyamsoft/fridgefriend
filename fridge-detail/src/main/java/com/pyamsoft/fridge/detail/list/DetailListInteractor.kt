@@ -62,7 +62,7 @@ internal class DetailListInteractor @Inject internal constructor(
   @CheckResult
   fun commit(item: FridgeItem, finalUpdate: Boolean): Completable {
     if (item.name().isBlank()) {
-      Timber.w("Do not commit empty name FridgeItem")
+      Timber.w("Do not commit empty name FridgeItem: $item")
       return Completable.complete()
     } else {
       return guaranteeEntryExists()

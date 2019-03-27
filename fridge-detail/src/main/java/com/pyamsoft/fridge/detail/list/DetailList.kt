@@ -21,6 +21,7 @@ import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.CheckResult
+import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
@@ -29,12 +30,17 @@ import com.mikepenz.fastadapter.adapters.ModelAdapter
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.detail.R
 import com.pyamsoft.pydroid.arch.BaseUiView
+import com.pyamsoft.pydroid.loader.ImageLoader
+import com.pyamsoft.pydroid.ui.theme.Theming
 import com.pyamsoft.pydroid.ui.util.refreshing
 import javax.inject.Inject
 import javax.inject.Named
+import kotlin.LazyThreadSafetyMode.NONE
 
 internal class DetailList @Inject internal constructor(
   @Named("detail_entry_id") private val entryId: String,
+  private val theming: Theming,
+  private val imageLoader: ImageLoader,
   parent: ViewGroup,
   callback: Callback
 ) : BaseUiView<DetailList.Callback>(parent, callback) {
@@ -45,18 +51,31 @@ internal class DetailList @Inject internal constructor(
 
   private val recyclerView by lazyView<RecyclerView>(R.id.detail_list)
 
-  private var modelAdapter: ModelAdapter<FridgeItem, DetailListItem>? = null
+  private var decoration: DividerItemDecoration? = null
+  private var modelAdapter: ModelAdapter<FridgeItem, DetailItem<*, *>>? = null
+
+  private val nonPersistedEditableStateMap by lazy(NONE) { LinkedHashMap<String, Int>() }
 
   override fun onInflated(view: View, savedInstanceState: Bundle?) {
-    modelAdapter = ModelAdapter { DetailListItem(it, entryId, callback) }
+    modelAdapter = ModelAdapter { item ->
+      if (item.id().isBlank()) {
+        return@ModelAdapter AddNewListItem(item, theming, imageLoader, callback)
+      } else {
+        return@ModelAdapter DetailListItem(item, nonPersistedEditableStateMap, entryId, callback)
+      }
+    }
 
     recyclerView.layoutManager = LinearLayoutManager(view.context).apply {
       isItemPrefetchEnabled = true
       initialPrefetchItemCount = 3
     }
 
+    val decor = DividerItemDecoration(view.context, DividerItemDecoration.VERTICAL)
+    recyclerView.addItemDecoration(decor)
+    decoration = decor
+
     recyclerView.adapter =
-      FastAdapter.with<DetailListItem, ModelAdapter<FridgeItem, *>>(usingAdapter())
+      FastAdapter.with<DetailItem<*, *>, ModelAdapter<FridgeItem, *>>(usingAdapter())
 
     layoutRoot.setOnRefreshListener {
       callback.onRefresh()
@@ -64,10 +83,20 @@ internal class DetailList @Inject internal constructor(
   }
 
   override fun onTeardown() {
-    super.onTeardown()
+    // One final commit as we die
+    usingAdapter().adapterItems
+      .map { it as DetailItem<*, *> }
+      .forEach { it.finalCommitOnDestroy() }
+
+    // Throws
+    // recyclerView.adapter = null
     usingAdapter().clear()
-    recyclerView.adapter = null
     modelAdapter = null
+
+    decoration?.let { recyclerView.removeItemDecoration(it) }
+    decoration = null
+
+    nonPersistedEditableStateMap.clear()
 
     layoutRoot.setOnRefreshListener(null)
   }
@@ -94,10 +123,11 @@ internal class DetailList @Inject internal constructor(
 
   fun finishRefresh() {
     layoutRoot.refreshing(false)
+    usingAdapter().add(FridgeItem.empty())
 
-    if (usingAdapter().adapterItemCount == 0) {
-      // This list is empty, add our first item
-      insert(FridgeItem.create(entryId = entryId))
+    // This list is empty, add our first item
+    if (usingAdapter().adapterItemCount == 1) {
+      addNewItem()
     }
   }
 
@@ -109,8 +139,24 @@ internal class DetailList @Inject internal constructor(
   fun insert(item: FridgeItem) {
     if (!updateExistingItem(item)) {
       if (isThisEntry(item)) {
-        usingAdapter().add(item)
+        addToEndBeforeAddNew(item)
       }
+    }
+  }
+
+  private fun addToEndBeforeAddNew(item: FridgeItem) {
+    var index = -1
+    for ((i, e) in usingAdapter().models.withIndex()) {
+      if (e.id().isBlank()) {
+        index = i
+        break
+      }
+    }
+
+    when {
+      index == 0 -> usingAdapter().add(0, item)
+      index > 0 -> usingAdapter().add(index, item)
+      else -> usingAdapter().add(item)
     }
   }
 
@@ -143,7 +189,11 @@ internal class DetailList @Inject internal constructor(
     }
   }
 
-  interface Callback : DetailListItem.Callback {
+  fun addNewItem() {
+    insert(FridgeItem.create(entryId = entryId))
+  }
+
+  interface Callback : DetailListItem.Callback, AddNewListItem.Callback {
 
     fun onRefresh()
 
