@@ -54,6 +54,7 @@ internal class DetailList @Inject internal constructor(
   private var decoration: DividerItemDecoration? = null
   private var modelAdapter: ModelAdapter<FridgeItem, DetailItem<*, *>>? = null
 
+  // Used to persist the position of the cursor in list item edit texts
   private val nonPersistedEditableStateMap by lazy(NONE) { LinkedHashMap<String, Int>() }
 
   override fun onInflated(view: View, savedInstanceState: Bundle?) {
