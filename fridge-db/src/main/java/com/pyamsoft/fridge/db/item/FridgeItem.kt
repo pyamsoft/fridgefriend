@@ -39,6 +39,9 @@ interface FridgeItem {
   fun presence(): Presence
 
   @CheckResult
+  fun isReal(): Boolean
+
+  @CheckResult
   fun name(name: String): FridgeItem
 
   @CheckResult
@@ -46,6 +49,9 @@ interface FridgeItem {
 
   @CheckResult
   fun presence(presence: Presence): FridgeItem
+
+  @CheckResult
+  fun makeReal(): FridgeItem
 
   enum class Presence {
     HAVE,
@@ -60,13 +66,13 @@ interface FridgeItem {
 
     @CheckResult
     fun empty(): FridgeItem {
-      return create("", "", EMPTY_NAME, EMPTY_CREATED_TIME, DEFAULT_PRESENCE)
+      return create("", "", EMPTY_NAME, EMPTY_CREATED_TIME, DEFAULT_PRESENCE, false)
     }
 
     @CheckResult
     @JvmOverloads
     fun create(id: String = IdGenerator.generate(), entryId: String): FridgeItem {
-      return create(id, entryId, EMPTY_NAME, Date(), DEFAULT_PRESENCE)
+      return create(id, entryId, EMPTY_NAME, Date(), DEFAULT_PRESENCE, false)
     }
 
     @CheckResult
@@ -76,9 +82,10 @@ interface FridgeItem {
       entryId: String,
       name: String,
       expireTime: Date,
-      presence: Presence
+      presence: Presence,
+      isReal: Boolean
     ): FridgeItem {
-      return JsonMappableFridgeItem(id, entryId, name, expireTime, presence)
+      return JsonMappableFridgeItem(id, entryId, name, expireTime, presence, isReal)
     }
 
     @CheckResult
@@ -86,9 +93,10 @@ interface FridgeItem {
       item: FridgeItem,
       name: String = item.name(),
       expireTime: Date = item.expireTime(),
-      presence: Presence = item.presence()
+      presence: Presence = item.presence(),
+      isReal: Boolean = false
     ): FridgeItem {
-      return JsonMappableFridgeItem(item.id(), item.entryId(), name, expireTime, presence)
+      return JsonMappableFridgeItem(item.id(), item.entryId(), name, expireTime, presence, isReal)
     }
 
   }

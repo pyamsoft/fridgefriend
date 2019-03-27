@@ -62,7 +62,14 @@ internal class DetailList @Inject internal constructor(
       if (item.id().isBlank()) {
         return@ModelAdapter AddNewListItem(item, theming, imageLoader, callback)
       } else {
-        return@ModelAdapter DetailListItem(item, nonPersistedEditableStateMap, entryId, callback)
+        return@ModelAdapter DetailListItem(
+          item,
+          theming,
+          imageLoader,
+          nonPersistedEditableStateMap,
+          entryId,
+          callback
+        )
       }
     }
 
@@ -125,9 +132,11 @@ internal class DetailList @Inject internal constructor(
   fun finishRefresh() {
     layoutRoot.refreshing(false)
     usingAdapter().add(FridgeItem.empty())
+    addNewItemIfEmpty()
+  }
 
-    // This list is empty, add our first item
-    if (usingAdapter().adapterItemCount == 1) {
+  private fun addNewItemIfEmpty() {
+    if (usingAdapter().adapterItemCount <= 1) {
       addNewItem()
     }
   }
@@ -188,6 +197,8 @@ internal class DetailList @Inject internal constructor(
     if (index >= 0) {
       usingAdapter().remove(index)
     }
+
+    addNewItemIfEmpty()
   }
 
   fun addNewItem() {

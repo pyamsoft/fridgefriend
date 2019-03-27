@@ -80,18 +80,28 @@ internal data class RoomFridgeItem internal constructor(
   }
 
   @Ignore
+  override fun isReal(): Boolean {
+    return true
+  }
+
+  @Ignore
   override fun name(name: String): FridgeItem {
-    return FridgeItem.create(this, name = name)
+    return FridgeItem.create(this, name = name, isReal = isReal())
   }
 
   @Ignore
   override fun expireTime(expireTime: Date): FridgeItem {
-    return FridgeItem.create(this, expireTime = expireTime)
+    return FridgeItem.create(this, expireTime = expireTime, isReal = isReal())
   }
 
   @Ignore
   override fun presence(presence: Presence): FridgeItem {
-    return FridgeItem.create(this, presence = presence)
+    return FridgeItem.create(this, presence = presence, isReal = isReal())
+  }
+
+  @Ignore
+  override fun makeReal(): FridgeItem {
+    return FridgeItem.create(this, isReal = isReal())
   }
 
   companion object {

@@ -21,15 +21,23 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.view.View
 import android.widget.EditText
+import android.widget.ImageView
 import androidx.recyclerview.widget.RecyclerView
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence
 import com.pyamsoft.fridge.detail.R
+import com.pyamsoft.pydroid.loader.ImageLoader
+import com.pyamsoft.pydroid.loader.Loaded
+import com.pyamsoft.pydroid.ui.theme.Theming
+import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
+import com.pyamsoft.pydroid.util.tintWith
 import timber.log.Timber
 import java.util.Date
 
 internal class DetailListItem internal constructor(
   item: FridgeItem,
+  private val theming: Theming,
+  private val imageLoader: ImageLoader,
   private val nonPersistedEditableStateMap: MutableMap<String, Int>,
   private val entryId: String,
   private val callback: DetailListItem.Callback
@@ -40,7 +48,7 @@ internal class DetailListItem internal constructor(
   }
 
   override fun getViewHolder(v: View): ViewHolder {
-    return ViewHolder(v, nonPersistedEditableStateMap)
+    return ViewHolder(v, theming, imageLoader, nonPersistedEditableStateMap)
   }
 
   override fun getLayoutRes(): Int {
@@ -97,20 +105,50 @@ internal class DetailListItem internal constructor(
 
   class ViewHolder internal constructor(
     itemView: View,
+    private val theming: Theming,
+    private val imageLoader: ImageLoader,
     private val nonPersistedEditableStateMap: MutableMap<String, Int>
   ) : RecyclerView.ViewHolder(itemView) {
 
+    private var boundItem: DetailListItem? = null
+
     private val itemName = itemView.findViewById<EditText>(R.id.detail_item_name)
+    private val itemDelete = itemView.findViewById<ImageView>(R.id.detail_item_delete)
 
     private var nameWatcher: TextWatcher? = null
-
-    private var boundItem: DetailListItem? = null
+    private var deleteIconLoaded: Loaded? = null
 
     fun bind(item: DetailListItem) {
       boundItem = item
-
       removeListeners()
-      Timber.d("Bind item $item")
+
+      setupName(item)
+      setupDelete(item)
+    }
+
+    private fun setupDelete(item: DetailListItem) {
+      deleteIconLoaded?.dispose()
+      deleteIconLoaded = null
+
+      deleteIconLoaded = imageLoader.load(R.drawable.ic_close_24dp)
+        .mutate { drawable ->
+          val color: Int
+          if (theming.isDarkTheme()) {
+            color = R.color.white
+          } else {
+            color = R.color.black
+          }
+          return@mutate drawable.tintWith(itemView.context, color)
+        }.into(itemDelete)
+
+      itemDelete.setOnDebouncedClickListener {
+        itemDelete.setOnClickListener(null)
+
+        item.callback.onDelete(item.model)
+      }
+    }
+
+    private fun setupName(item: DetailListItem) {
       itemName.setText(item.model.name())
 
       // Restore cursor position from the list widge storage map
@@ -152,6 +190,11 @@ internal class DetailListItem internal constructor(
       // Cleaup
       itemName.text.clear()
 
+      itemDelete.setOnClickListener(null)
+      itemDelete.setImageDrawable(null)
+      deleteIconLoaded?.dispose()
+      deleteIconLoaded = null
+
       boundItem = null
     }
 
@@ -182,6 +225,8 @@ internal class DetailListItem internal constructor(
   interface Callback {
 
     fun onCommit(item: FridgeItem, finalUpdate: Boolean)
+
+    fun onDelete(item: FridgeItem)
 
   }
 

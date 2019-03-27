@@ -22,6 +22,7 @@ import com.pyamsoft.fridge.db.entry.FridgeEntryInsertDao
 import com.pyamsoft.fridge.db.entry.FridgeEntryQueryDao
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent
+import com.pyamsoft.fridge.db.item.FridgeItemDeleteDao
 import com.pyamsoft.fridge.db.item.FridgeItemInsertDao
 import com.pyamsoft.fridge.db.item.FridgeItemQueryDao
 import com.pyamsoft.fridge.db.item.FridgeItemRealtime
@@ -42,6 +43,7 @@ internal class DetailListInteractor @Inject internal constructor(
   private val queryDao: FridgeItemQueryDao,
   private val insertDao: FridgeItemInsertDao,
   private val updateDao: FridgeItemUpdateDao,
+  private val deleteDao: FridgeItemDeleteDao,
   private val realtime: FridgeItemRealtime,
   entryQueryDao: FridgeEntryQueryDao,
   entryInsertDao: FridgeEntryInsertDao,
@@ -89,5 +91,11 @@ internal class DetailListInteractor @Inject internal constructor(
           return@flatMapCompletable insertDao.insert(item)
         }
       }
+  }
+
+  @CheckResult
+  fun delete(item: FridgeItem): Completable {
+    Timber.d("Deleting item [${item.id()}]: $item")
+    return deleteDao.delete(item)
   }
 }

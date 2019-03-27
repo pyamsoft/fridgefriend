@@ -65,7 +65,7 @@ internal class RoomFridgeEntryDb internal constructor(
         synchronized(lock) {
           return repo.get(force) {
             return@get room.roomEntryQueryDao().queryAll(force)
-              .map { it.map { entry -> JsonMappableFridgeEntry.from(entry) } }
+              .map { it.map { entry -> JsonMappableFridgeEntry.from(entry.makeReal()) } }
           }.map { it }
         }
       }
@@ -79,7 +79,7 @@ internal class RoomFridgeEntryDb internal constructor(
       override fun insert(entry: FridgeEntry): Completable {
         synchronized(lock) {
           return room.roomEntryInsertDao().insert(entry)
-            .doOnComplete { publishRealtime(Insert(entry)) }
+            .doOnComplete { publishRealtime(Insert(entry.makeReal())) }
         }
       }
 
@@ -92,7 +92,7 @@ internal class RoomFridgeEntryDb internal constructor(
       override fun update(entry: FridgeEntry): Completable {
         synchronized(lock) {
           return room.roomEntryUpdateDao().update(entry)
-            .doOnComplete { publishRealtime(Update(entry)) }
+            .doOnComplete { publishRealtime(Update(entry.makeReal())) }
         }
       }
 
@@ -105,7 +105,7 @@ internal class RoomFridgeEntryDb internal constructor(
       override fun delete(entry: FridgeEntry): Completable {
         synchronized(lock) {
           return room.roomEntryDeleteDao().delete(entry)
-            .doOnComplete { publishRealtime(Delete(entry)) }
+            .doOnComplete { publishRealtime(Delete(entry.makeReal())) }
         }
       }
 

@@ -44,13 +44,14 @@ internal class DetailListPresenter @Inject internal constructor(
   private var realtimeDisposable by singleDisposable()
 
   private val keyedUpdateDisposableMap by lazy { LinkedHashMap<String, Disposable>() }
+  private val keyedDeleteDisposableMap by lazy { LinkedHashMap<String, Disposable>() }
 
   override fun onBind() {
     refreshList(false)
   }
 
   override fun onUnbind() {
-    // Don't clear keyedUpdateDisposableMap here as it may need to outlive the View
+    // Don't clear keyedDisposableMaps here as it may need to outlive the View
     // since the final commit happens as the View is tearing down
     refreshDisposable.tryDispose()
     realtimeDisposable.tryDispose()
@@ -97,6 +98,8 @@ internal class DetailListPresenter @Inject internal constructor(
         .andThen(interactor.commit(item, finalUpdate))
     }
 
+    // This map is shared with deletes
+    // A delete operation will stop an update operation
     keyedUpdateDisposableMap[item.id()]?.tryDispose()
     keyedUpdateDisposableMap[item.id()] = source
       .subscribeOn(Schedulers.io())
@@ -115,6 +118,25 @@ internal class DetailListPresenter @Inject internal constructor(
     callback.handleAddNewItem()
   }
 
+  override fun onDelete(item: FridgeItem) {
+    // Stop any pending updates
+    keyedUpdateDisposableMap[item.id()]?.tryDispose()
+    keyedUpdateDisposableMap.remove(item.id())
+
+    keyedDeleteDisposableMap[item.id()]?.tryDispose()
+    keyedDeleteDisposableMap[item.id()] = interactor.delete(item)
+      .subscribeOn(Schedulers.io())
+      .observeOn(AndroidSchedulers.mainThread())
+      .doAfterTerminate {
+        keyedDeleteDisposableMap[item.id()]?.tryDispose()
+        keyedDeleteDisposableMap.remove(item.id())
+      }
+      .subscribe({ }, {
+        Timber.e(it, "Error deleting item: ${item.id()}")
+        callback.handleDeleteItemError(it)
+      })
+  }
+
   interface Callback {
 
     fun handleListRefreshBegin()
@@ -125,8 +147,6 @@ internal class DetailListPresenter @Inject internal constructor(
 
     fun handleListRefreshComplete()
 
-    fun handleUpdateItemError(throwable: Throwable)
-
     fun handleRealtimeInsert(item: FridgeItem)
 
     fun handleRealtimeUpdate(item: FridgeItem)
@@ -134,6 +154,10 @@ internal class DetailListPresenter @Inject internal constructor(
     fun handleRealtimeDelete(item: FridgeItem)
 
     fun handleAddNewItem()
+
+    fun handleUpdateItemError(throwable: Throwable)
+
+    fun handleDeleteItemError(throwable: Throwable)
 
   }
 

@@ -22,18 +22,34 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:padding="16dp"
+    android:orientation="horizontal"
+    android:paddingBottom="8dp"
+    android:paddingEnd="16dp"
+    android:paddingStart="16dp"
+    android:paddingTop="8dp"
     >
 
   <EditText
       android:id="@+id/detail_item_name"
-      android:layout_width="match_parent"
+      android:layout_width="0dp"
       android:layout_height="wrap_content"
+      android:layout_weight="1"
+      android:gravity="center_vertical|start"
       android:hint="@string/item_name_hint"
       android:importantForAutofill="no"
       android:inputType="textAutoComplete"
       android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
       tools:targetApi="o"
+      />
+
+  <ImageView
+      android:id="@+id/detail_item_delete"
+      android:layout_width="24dp"
+      android:layout_height="24dp"
+      android:layout_gravity="center"
+      android:layout_marginStart="16dp"
+      android:contentDescription="@string/blank"
+      tools:src="@drawable/ic_close_24dp"
       />
 
 </LinearLayout>

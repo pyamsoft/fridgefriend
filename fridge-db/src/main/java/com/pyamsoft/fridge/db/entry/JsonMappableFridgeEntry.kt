@@ -25,7 +25,8 @@ import java.util.Date
 data class JsonMappableFridgeEntry internal constructor(
   internal val id: String,
   internal val name: String,
-  internal val createdTime: Date
+  internal val createdTime: Date,
+  internal val isReal: Boolean
 ) : FridgeEntry {
 
   override fun id(): String {
@@ -40,6 +41,10 @@ data class JsonMappableFridgeEntry internal constructor(
     return createdTime
   }
 
+  override fun isReal(): Boolean {
+    return isReal
+  }
+
   override fun name(name: String): FridgeEntry {
     return this.copy(name = name)
   }
@@ -48,12 +53,16 @@ data class JsonMappableFridgeEntry internal constructor(
     return this.copy(createdTime = createdTime)
   }
 
+  override fun makeReal(): FridgeEntry {
+    return this.copy(isReal = true)
+  }
+
   companion object {
 
     @JvmStatic
     @CheckResult
     fun from(entry: FridgeEntry): JsonMappableFridgeEntry {
-      return JsonMappableFridgeEntry(entry.id(), entry.name(), entry.createdTime())
+      return JsonMappableFridgeEntry(entry.id(), entry.name(), entry.createdTime(), entry.isReal())
     }
   }
 

@@ -62,7 +62,7 @@ internal abstract class DetailInteractor protected constructor(
         if (it is Present) {
           return@flatMap Single.just(it.value)
         } else {
-          val entry = FridgeEntry.create(entryId, name, createdTime)
+          val entry = FridgeEntry.create(entryId, name, createdTime, isReal = true)
           return@flatMap insertDao.insert(entry)
             .andThen(Single.just(entry))
         }

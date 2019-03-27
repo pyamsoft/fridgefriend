@@ -66,10 +66,6 @@ internal class DetailListUiComponentImpl @Inject internal constructor(
     list.finishRefresh()
   }
 
-  override fun handleUpdateItemError(throwable: Throwable) {
-    list.showError(throwable)
-  }
-
   override fun handleRealtimeInsert(item: FridgeItem) {
     list.insert(item)
   }
@@ -80,6 +76,14 @@ internal class DetailListUiComponentImpl @Inject internal constructor(
 
   override fun handleRealtimeDelete(item: FridgeItem) {
     list.delete(item)
+  }
+
+  override fun handleUpdateItemError(throwable: Throwable) {
+    list.showError(throwable)
+  }
+
+  override fun handleDeleteItemError(throwable: Throwable) {
+    list.showError(throwable)
   }
 
   override fun handleAddNewItem() {

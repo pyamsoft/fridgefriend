@@ -33,10 +33,16 @@ interface FridgeEntry {
   fun createdTime(): Date
 
   @CheckResult
+  fun isReal(): Boolean
+
+  @CheckResult
   fun name(name: String): FridgeEntry
 
   @CheckResult
   fun createdTime(createdTime: Date): FridgeEntry
+
+  @CheckResult
+  fun makeReal(): FridgeEntry
 
   companion object {
 
@@ -45,28 +51,34 @@ interface FridgeEntry {
 
     @CheckResult
     fun empty(): FridgeEntry {
-      return JsonMappableFridgeEntry("", EMPTY_NAME, EMPTY_CREATED_TIME)
+      return JsonMappableFridgeEntry("", EMPTY_NAME, EMPTY_CREATED_TIME, false)
     }
 
     @CheckResult
     @JvmOverloads
     fun create(id: String = IdGenerator.generate()): FridgeEntry {
-      return create(id, EMPTY_NAME, Date())
+      return create(id, EMPTY_NAME, Date(), false)
     }
 
     @CheckResult
     @JvmOverloads
-    fun create(id: String = IdGenerator.generate(), name: String, createdTime: Date): FridgeEntry {
-      return JsonMappableFridgeEntry(id, name, createdTime)
+    fun create(
+      id: String = IdGenerator.generate(),
+      name: String,
+      createdTime: Date,
+      isReal: Boolean
+    ): FridgeEntry {
+      return JsonMappableFridgeEntry(id, name, createdTime, isReal)
     }
 
     @CheckResult
     fun create(
       entry: FridgeEntry,
       name: String = entry.name(),
-      createdTime: Date = entry.createdTime()
+      createdTime: Date = entry.createdTime(),
+      isReal: Boolean = false
     ): FridgeEntry {
-      return JsonMappableFridgeEntry(entry.id(), name, createdTime)
+      return JsonMappableFridgeEntry(entry.id(), name, createdTime, isReal)
     }
 
   }

@@ -53,13 +53,23 @@ internal data class RoomFridgeEntry internal constructor(
   }
 
   @Ignore
+  override fun isReal(): Boolean {
+    return true
+  }
+
+  @Ignore
   override fun name(name: String): FridgeEntry {
-    return FridgeEntry.create(this, name = name)
+    return FridgeEntry.create(this, name = name, isReal = isReal())
   }
 
   @Ignore
   override fun createdTime(createdTime: Date): FridgeEntry {
-    return FridgeEntry.create(this, createdTime = createdTime)
+    return FridgeEntry.create(this, createdTime = createdTime, isReal = isReal())
+  }
+
+  @Ignore
+  override fun makeReal(): FridgeEntry {
+    return FridgeEntry.create(this, isReal = isReal())
   }
 
   companion object {
