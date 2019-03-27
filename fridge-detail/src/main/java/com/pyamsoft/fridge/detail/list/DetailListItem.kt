@@ -131,26 +131,22 @@ internal class DetailListItem internal constructor(
       deleteIconLoaded?.dispose()
       deleteIconLoaded = null
 
-      if (item.model.isReal()) {
-        itemDelete.isVisible = true
-        deleteIconLoaded = imageLoader.load(R.drawable.ic_close_24dp)
-          .mutate { drawable ->
-            val color: Int
-            if (theming.isDarkTheme()) {
-              color = R.color.white
-            } else {
-              color = R.color.black
-            }
-            return@mutate drawable.tintWith(itemView.context, color)
-          }.into(itemDelete)
+      itemDelete.isVisible = true
+      deleteIconLoaded = imageLoader.load(R.drawable.ic_close_24dp)
+        .mutate { drawable ->
+          val color: Int
+          if (theming.isDarkTheme()) {
+            color = R.color.white
+          } else {
+            color = R.color.black
+          }
+          return@mutate drawable.tintWith(itemView.context, color)
+        }.into(itemDelete)
 
-        itemDelete.setOnDebouncedClickListener {
-          itemDelete.setOnClickListener(null)
+      itemDelete.setOnDebouncedClickListener {
+        itemDelete.setOnClickListener(null)
 
-          item.callback.onDelete(item.model)
-        }
-      } else {
-        itemDelete.isVisible = false
+        item.callback.onDelete(item.model)
       }
     }
 
