@@ -95,7 +95,12 @@ internal class DetailListInteractor @Inject internal constructor(
 
   @CheckResult
   fun delete(item: FridgeItem): Completable {
-    Timber.d("Deleting item [${item.id()}]: $item")
-    return deleteDao.delete(item)
+    if (!item.isReal()) {
+      Timber.w("Cannot delete item that is not real: [${item.id()}]: $item")
+      return Completable.complete()
+    } else {
+      Timber.d("Deleting item [${item.id()}]: $item")
+      return deleteDao.delete(item)
+    }
   }
 }
