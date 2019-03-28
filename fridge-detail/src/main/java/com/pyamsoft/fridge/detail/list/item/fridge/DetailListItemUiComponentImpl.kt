@@ -15,66 +15,55 @@
  *
  */
 
-package com.pyamsoft.fridge.detail.list
+package com.pyamsoft.fridge.detail.list.item.fridge
 
 import android.os.Bundle
 import androidx.lifecycle.LifecycleOwner
 import com.pyamsoft.fridge.db.item.FridgeItem
-import com.pyamsoft.fridge.detail.list.DetailListUiComponent.Callback
+import com.pyamsoft.fridge.detail.list.item.fridge.DetailListItemUiComponent.Callback
 import com.pyamsoft.pydroid.arch.BaseUiComponent
 import com.pyamsoft.pydroid.arch.doOnDestroy
 import javax.inject.Inject
 
-internal class DetailListUiComponentImpl @Inject internal constructor(
-  private val list: DetailList,
-  private val presenter: DetailListPresenter
-) : BaseUiComponent<DetailListUiComponent.Callback>(),
-  DetailListUiComponent,
-  DetailListPresenter.Callback {
+internal class DetailListItemUiComponentImpl @Inject internal constructor(
+  private val itemView: DetailListItemView,
+  private val presenter: DetailItemPresenter
+) : BaseUiComponent<DetailListItemUiComponent.Callback>(),
+  DetailListItemUiComponent,
+  DetailItemPresenter.Callback {
 
   override fun id(): Int {
-    return list.id()
+    return itemView.id()
   }
 
   override fun onBind(owner: LifecycleOwner, savedInstanceState: Bundle?, callback: Callback) {
     owner.doOnDestroy {
-      list.teardown()
+      itemView.teardown()
       presenter.unbind()
     }
 
-    list.inflate(savedInstanceState)
+    itemView.inflate(savedInstanceState)
     presenter.bind(this)
   }
 
   override fun onSaveState(outState: Bundle) {
-    list.saveState(outState)
+    itemView.saveState(outState)
   }
 
-  override fun handleListRefreshBegin() {
-    list.beginRefresh()
+  override fun handleNonRealItemDelete(item: FridgeItem) {
+    callback.onNonRealItemDelete(item)
   }
 
-  override fun handleListRefreshed(items: List<FridgeItem>) {
-    list.setList(items)
+  override fun handleUpdateItemError(throwable: Throwable) {
+    callback.onUpdateItemError(throwable)
   }
 
-  override fun handleListRefreshError(throwable: Throwable) {
-    list.showError(throwable)
+  override fun handleDeleteItemError(throwable: Throwable) {
+    callback.onDeleteItemError(throwable)
   }
 
-  override fun handleListRefreshComplete() {
-    list.finishRefresh()
+  override fun handleModelUpdate(item: FridgeItem) {
+    callback.onModelUpdate(item)
   }
 
-  override fun handleRealtimeInsert(item: FridgeItem) {
-    list.insert(item)
-  }
-
-  override fun handleRealtimeUpdate(item: FridgeItem) {
-    list.update(item)
-  }
-
-  override fun handleRealtimeDelete(item: FridgeItem) {
-    list.delete(item)
-  }
 }

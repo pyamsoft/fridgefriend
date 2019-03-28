@@ -68,7 +68,7 @@ internal class DetailTitleInteractor @Inject internal constructor(
   }
 
   @CheckResult
-  fun saveName(name: String, finalUpdate: Boolean): Completable {
+  fun saveName(name: String): Completable {
     return getEntryForId(false)
       .map { it.asOptional() }
       .toSingle(Optional.ofNullable(null))
@@ -77,16 +77,6 @@ internal class DetailTitleInteractor @Inject internal constructor(
           val entry = it.value
           return@flatMapCompletable update(entry, name)
         } else {
-          if (finalUpdate) {
-            Timber.w("saveName called as a finalUpdate, but Entry does not exist.")
-            if (name.isBlank()) {
-              Timber.w("Name is blank, do not create")
-              return@flatMapCompletable Completable.complete()
-            } else {
-              Timber.i("Name provided, create entry")
-            }
-          }
-
           Timber.d("saveName called but Entry does not exist, create it")
           return@flatMapCompletable guaranteeEntryExists(name).ignoreElement()
         }

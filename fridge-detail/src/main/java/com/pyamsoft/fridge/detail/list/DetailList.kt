@@ -29,21 +29,23 @@ import com.mikepenz.fastadapter.FastAdapter
 import com.mikepenz.fastadapter.adapters.ModelAdapter
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.detail.R
+import com.pyamsoft.fridge.detail.list.item.add.AddNewListItem
+import com.pyamsoft.fridge.detail.list.item.DetailItem
+import com.pyamsoft.fridge.detail.list.item.DetailItemUiComponentFactory
+import com.pyamsoft.fridge.detail.list.item.fridge.DetailListItem
 import com.pyamsoft.pydroid.arch.BaseUiView
-import com.pyamsoft.pydroid.loader.ImageLoader
-import com.pyamsoft.pydroid.ui.theme.Theming
 import com.pyamsoft.pydroid.ui.util.refreshing
 import javax.inject.Inject
 import javax.inject.Named
-import kotlin.LazyThreadSafetyMode.NONE
 
 internal class DetailList @Inject internal constructor(
   @Named("detail_entry_id") private val entryId: String,
-  private val theming: Theming,
-  private val imageLoader: ImageLoader,
+  private val factory: DetailItemUiComponentFactory,
   parent: ViewGroup,
   callback: Callback
-) : BaseUiView<DetailList.Callback>(parent, callback) {
+) : BaseUiView<DetailList.Callback>(parent, callback),
+  DetailListItem.Callback,
+  AddNewListItem.Callback {
 
   override val layout: Int = R.layout.detail_list
 
@@ -54,21 +56,19 @@ internal class DetailList @Inject internal constructor(
   private var decoration: DividerItemDecoration? = null
   private var modelAdapter: ModelAdapter<FridgeItem, DetailItem<*, *>>? = null
 
-  // Used to persist the position of the cursor in list item edit texts
-  private val nonPersistedEditableStateMap by lazy(NONE) { LinkedHashMap<String, Int>() }
-
   override fun onInflated(view: View, savedInstanceState: Bundle?) {
     modelAdapter = ModelAdapter { item ->
       if (item.id().isBlank()) {
-        return@ModelAdapter AddNewListItem(item, theming, imageLoader, callback)
+        return@ModelAdapter AddNewListItem(
+          item,
+          factory,
+          this
+        )
       } else {
         return@ModelAdapter DetailListItem(
           item,
-          theming,
-          imageLoader,
-          nonPersistedEditableStateMap,
-          entryId,
-          callback
+          factory,
+          this
         )
       }
     }
@@ -91,10 +91,6 @@ internal class DetailList @Inject internal constructor(
   }
 
   override fun onTeardown() {
-    // One final commit as we die
-    usingAdapter().adapterItems
-      .map { it as DetailItem<*, *> }
-      .forEach { it.finalCommitOnDestroy() }
 
     // Throws
     // recyclerView.adapter = null
@@ -103,8 +99,6 @@ internal class DetailList @Inject internal constructor(
 
     decoration?.let { recyclerView.removeItemDecoration(it) }
     decoration = null
-
-    nonPersistedEditableStateMap.clear()
 
     layoutRoot.setOnRefreshListener(null)
   }
@@ -137,7 +131,7 @@ internal class DetailList @Inject internal constructor(
 
   private fun addNewItemIfEmpty() {
     if (usingAdapter().adapterItemCount <= 1) {
-      addNewItem()
+      onAddNewItem()
     }
   }
 
@@ -201,11 +195,23 @@ internal class DetailList @Inject internal constructor(
     addNewItemIfEmpty()
   }
 
-  fun addNewItem() {
+  override fun onAddNewItem() {
     insert(FridgeItem.create(entryId = entryId))
   }
 
-  interface Callback : DetailListItem.Callback, AddNewListItem.Callback {
+  override fun onDelete(item: FridgeItem) {
+    delete(item)
+  }
+
+  override fun onCommitError(throwable: Throwable) {
+    showError(throwable)
+  }
+
+  override fun onDeleteError(throwable: Throwable) {
+    showError(throwable)
+  }
+
+  interface Callback {
 
     fun onRefresh()
 

@@ -26,12 +26,9 @@ import com.pyamsoft.pydroid.arch.BasePresenter
 import com.pyamsoft.pydroid.core.bus.RxBus
 import com.pyamsoft.pydroid.core.singleDisposable
 import com.pyamsoft.pydroid.core.tryDispose
-import io.reactivex.Completable
 import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import timber.log.Timber
-import java.util.concurrent.TimeUnit.SECONDS
 import javax.inject.Inject
 
 @DetailScope
@@ -43,16 +40,11 @@ internal class DetailListPresenter @Inject internal constructor(
   private var refreshDisposable by singleDisposable()
   private var realtimeDisposable by singleDisposable()
 
-  private val keyedUpdateDisposableMap by lazy { LinkedHashMap<String, Disposable>() }
-  private val keyedDeleteDisposableMap by lazy { LinkedHashMap<String, Disposable>() }
-
   override fun onBind() {
     refreshList(false)
   }
 
   override fun onUnbind() {
-    // Don't clear keyedDisposableMaps here as it may need to outlive the View
-    // since the final commit happens as the View is tearing down
     refreshDisposable.tryDispose()
     realtimeDisposable.tryDispose()
   }
@@ -88,66 +80,6 @@ internal class DetailListPresenter @Inject internal constructor(
       }
   }
 
-  override fun onCommit(item: FridgeItem, finalUpdate: Boolean) {
-    val source: Completable
-    if (finalUpdate) {
-      source = interactor.commit(item, finalUpdate)
-    } else {
-      source = Completable.complete()
-        .delay(1, SECONDS)
-        .andThen(interactor.commit(item, finalUpdate))
-    }
-
-    // This map is shared with deletes
-    // A delete operation will stop an update operation
-    keyedUpdateDisposableMap[item.id()]?.tryDispose()
-    keyedUpdateDisposableMap[item.id()] = source
-      .subscribeOn(Schedulers.io())
-      .observeOn(AndroidSchedulers.mainThread())
-      .doAfterTerminate {
-        keyedUpdateDisposableMap[item.id()]?.tryDispose()
-        keyedUpdateDisposableMap.remove(item.id())
-      }
-      .subscribe({ }, {
-        Timber.e(it, "Error updating item: ${item.id()}")
-        callback.handleUpdateItemError(it)
-      })
-  }
-
-  override fun onAddNewClicked() {
-    callback.handleAddNewItem()
-  }
-
-  override fun onDelete(item: FridgeItem) {
-    // Stop any pending updates
-    keyedUpdateDisposableMap[item.id()]?.tryDispose()
-    keyedUpdateDisposableMap.remove(item.id())
-
-    // If this item is not real, its an empty placeholder
-    // The user may still wish to delete it from their list
-    // in case they have too many placeholders.
-    // Directly call the realtime delete callback as if the
-    // delete had actually happened
-    if (!item.isReal()) {
-      Timber.w("Delete called on a non-real item: $item, fake callback")
-      callback.handleRealtimeDelete(item)
-      return
-    }
-
-    keyedDeleteDisposableMap[item.id()]?.tryDispose()
-    keyedDeleteDisposableMap[item.id()] = interactor.delete(item)
-      .subscribeOn(Schedulers.io())
-      .observeOn(AndroidSchedulers.mainThread())
-      .doAfterTerminate {
-        keyedDeleteDisposableMap[item.id()]?.tryDispose()
-        keyedDeleteDisposableMap.remove(item.id())
-      }
-      .subscribe({ }, {
-        Timber.e(it, "Error deleting item: ${item.id()}")
-        callback.handleDeleteItemError(it)
-      })
-  }
-
   interface Callback {
 
     fun handleListRefreshBegin()
@@ -163,12 +95,6 @@ internal class DetailListPresenter @Inject internal constructor(
     fun handleRealtimeUpdate(item: FridgeItem)
 
     fun handleRealtimeDelete(item: FridgeItem)
-
-    fun handleAddNewItem()
-
-    fun handleUpdateItemError(throwable: Throwable)
-
-    fun handleDeleteItemError(throwable: Throwable)
 
   }
 

@@ -17,6 +17,7 @@
 
 package com.pyamsoft.fridge.detail.title
 
+import com.pyamsoft.fridge.detail.DetailConstants
 import com.pyamsoft.fridge.detail.DetailScope
 import com.pyamsoft.fridge.detail.title.DetailTitlePresenter.Callback
 import com.pyamsoft.pydroid.arch.BasePresenter
@@ -27,7 +28,6 @@ import io.reactivex.Completable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import timber.log.Timber
-import java.util.concurrent.TimeUnit.SECONDS
 import javax.inject.Inject
 
 @DetailScope
@@ -57,17 +57,10 @@ internal class DetailTitlePresenter @Inject internal constructor(
       }).destroy()
   }
 
-  override fun onUpdateName(name: String, finalUpdate: Boolean) {
-    val source: Completable
-    if (finalUpdate) {
-      source = interactor.saveName(name.trim(), finalUpdate)
-    } else {
-      source = Completable.complete()
-        .delay(1, SECONDS)
-        .andThen(interactor.saveName(name.trim(), finalUpdate))
-    }
-
-    updateDisposable = source
+  override fun onUpdateName(name: String) {
+    updateDisposable = Completable.complete()
+      .delay(DetailConstants.COMMIT_TIMEOUT_DURATION, DetailConstants.COMMIT_TIMEOUT_UNIT)
+      .andThen(interactor.saveName(name.trim()))
       .subscribeOn(Schedulers.io())
       .observeOn(AndroidSchedulers.mainThread())
       .doAfterTerminate {

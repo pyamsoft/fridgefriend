@@ -15,15 +15,28 @@
  *
  */
 
-package com.pyamsoft.fridge.detail.list
+package com.pyamsoft.fridge.detail.list.item
 
-import androidx.recyclerview.widget.RecyclerView
-import com.mikepenz.fastadapter.items.ModelAbstractItem
-import com.pyamsoft.fridge.db.item.FridgeItem
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.LifecycleRegistry
+import com.pyamsoft.pydroid.util.fakeBind
+import com.pyamsoft.pydroid.util.fakeUnbind
 
-internal abstract class DetailItem<I : DetailItem<I, VH>, VH : RecyclerView.ViewHolder> protected constructor(
-  item: FridgeItem
-) : ModelAbstractItem<FridgeItem, I, VH>(item) {
+internal class ListItemLifecycle internal constructor() : LifecycleOwner {
 
-  abstract fun finalCommitOnDestroy()
+  private val registry = LifecycleRegistry(this)
+
+  override fun getLifecycle(): Lifecycle {
+    return registry
+  }
+
+  fun bind() {
+    registry.fakeBind()
+  }
+
+  fun unbind() {
+    registry.fakeUnbind()
+  }
+
 }
