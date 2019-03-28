@@ -98,9 +98,8 @@ internal class DetailFragment : Fragment(),
     requireActivity().onBackPressed()
   }
 
-  override fun onSave() {
-    // TODO: Save details
-    requireActivity().onBackPressed()
+  override fun onError(throwable: Throwable) {
+    // TODO display error to user
   }
 
   companion object {

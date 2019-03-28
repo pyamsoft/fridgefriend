@@ -32,7 +32,7 @@ internal class DetailToolbar @Inject internal constructor(
   private val callback: Callback
 ) : UiView {
 
-  private var saveMenuItem: MenuItem? = null
+  private var deleteMenuItem: MenuItem? = null
 
   override fun id(): Int {
     throw InvalidIdException
@@ -46,12 +46,13 @@ internal class DetailToolbar @Inject internal constructor(
       })
 
       toolbar.inflateMenu(R.menu.menu_detail)
-      val saveItem = toolbar.menu.findItem(R.id.menu_item_save)
-      saveItem.setOnMenuItemClickListener {
-        callback.onSaveClicked()
+      val deleteItem = toolbar.menu.findItem(R.id.menu_item_delete)
+      deleteItem.isVisible = false
+      deleteItem.setOnMenuItemClickListener {
+        callback.onDeleteClicked()
         return@setOnMenuItemClickListener true
       }
-      saveMenuItem = saveItem
+      deleteMenuItem = deleteItem
     }
   }
 
@@ -63,17 +64,21 @@ internal class DetailToolbar @Inject internal constructor(
       toolber.setUpEnabled(false)
       toolber.setNavigationOnClickListener(null)
 
-      saveMenuItem?.setOnMenuItemClickListener(null)
-      saveMenuItem = null
-      toolber.menu.removeItem(R.id.menu_item_save)
+      deleteMenuItem?.setOnMenuItemClickListener(null)
+      deleteMenuItem = null
+      toolber.menu.removeItem(R.id.menu_item_delete)
     }
+  }
+
+  fun setDeleteEnabled(real: Boolean) {
+    deleteMenuItem?.isVisible = real
   }
 
   interface Callback {
 
     fun onNavigationClicked()
 
-    fun onSaveClicked()
+    fun onDeleteClicked()
   }
 
 }

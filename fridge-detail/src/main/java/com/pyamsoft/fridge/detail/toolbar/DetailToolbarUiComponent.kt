@@ -25,7 +25,7 @@ interface DetailToolbarUiComponent : UiComponent<DetailToolbarUiComponent.Callba
 
     fun onBack()
 
-    fun onSave()
+    fun onError(throwable: Throwable)
 
   }
 

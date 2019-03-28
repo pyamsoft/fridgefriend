@@ -20,33 +20,74 @@ package com.pyamsoft.fridge.detail.toolbar
 import com.pyamsoft.fridge.detail.DetailScope
 import com.pyamsoft.pydroid.arch.BasePresenter
 import com.pyamsoft.pydroid.core.bus.RxBus
+import com.pyamsoft.pydroid.core.singleDisposable
+import com.pyamsoft.pydroid.core.tryDispose
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.schedulers.Schedulers
+import timber.log.Timber
 import javax.inject.Inject
 
 @DetailScope
 internal class DetailToolbarPresenter @Inject internal constructor(
-
+  private val interactor: DetailToolbarInteractor
 ) : BasePresenter<Unit, DetailToolbarPresenter.Callback>(RxBus.empty()),
   DetailToolbar.Callback {
 
+  private var deleteDisposable by singleDisposable()
+
   override fun onBind() {
+    observeReal(false)
+    listenForDelete()
   }
 
   override fun onUnbind() {
+    // Do not dispose delete disposable here, we want it to finish
+  }
+
+  private fun observeReal(force: Boolean) {
+    interactor.observeEntryReal(force)
+      .subscribeOn(Schedulers.io())
+      .observeOn(AndroidSchedulers.mainThread())
+      .subscribe({ callback.handleRealUpdated(it) }, {
+        Timber.e(it, "Error observing entry real")
+        callback.handleRealUpdateError(it)
+      }).destroy()
+  }
+
+  private fun listenForDelete() {
+    interactor.listenForDeleted()
+      .subscribeOn(Schedulers.io())
+      .observeOn(AndroidSchedulers.mainThread())
+      .subscribe { callback.handleDeleted() }
+      .destroy()
   }
 
   override fun onNavigationClicked() {
     callback.handleBack()
   }
 
-  override fun onSaveClicked() {
-    callback.handleSave()
+  override fun onDeleteClicked() {
+    deleteDisposable = interactor.delete()
+      .subscribeOn(Schedulers.io())
+      .observeOn(AndroidSchedulers.mainThread())
+      .doAfterTerminate { deleteDisposable.tryDispose() }
+      .subscribe({}, {
+        Timber.e(it, "Error observing delete stream")
+        callback.handleDeleteError(it)
+      })
   }
 
   interface Callback {
 
     fun handleBack()
 
-    fun handleSave()
+    fun handleDeleted()
+
+    fun handleRealUpdated(real: Boolean)
+
+    fun handleRealUpdateError(throwable: Throwable)
+
+    fun handleDeleteError(throwable: Throwable)
   }
 
 }

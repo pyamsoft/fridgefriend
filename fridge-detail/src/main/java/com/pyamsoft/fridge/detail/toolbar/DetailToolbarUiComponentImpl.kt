@@ -54,8 +54,20 @@ internal class DetailToolbarUiComponentImpl @Inject internal constructor(
     callback.onBack()
   }
 
-  override fun handleSave() {
-    callback.onSave()
+  override fun handleRealUpdated(real: Boolean) {
+    toolbar.setDeleteEnabled(real)
+  }
+
+  override fun handleDeleted() {
+    callback.onBack()
+  }
+
+  override fun handleRealUpdateError(throwable: Throwable) {
+    callback.onError(throwable)
+  }
+
+  override fun handleDeleteError(throwable: Throwable) {
+    callback.onError(throwable)
   }
 
 }

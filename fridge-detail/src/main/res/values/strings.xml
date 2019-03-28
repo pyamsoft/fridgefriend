@@ -17,7 +17,7 @@
 
 <resources>
   <string name="detail_title_hint">List Name</string>
-  <string name="save">Save</string>
+  <string name="delete">Delete</string>
   <string name="add_new_item">Add New Item</string>
   <string name="item_name_hint">Item Name</string>
 </resources>
