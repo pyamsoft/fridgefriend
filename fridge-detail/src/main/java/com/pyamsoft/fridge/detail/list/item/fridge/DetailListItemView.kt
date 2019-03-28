@@ -36,12 +36,14 @@ import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
 import com.pyamsoft.pydroid.util.tintWith
 import timber.log.Timber
 import java.util.Date
+import javax.inject.Inject
+import javax.inject.Named
 import kotlin.LazyThreadSafetyMode.NONE
 
-internal class DetailListItemView internal constructor(
+internal class DetailListItemView @Inject internal constructor(
+  @Named("detail_entry_id") private val entryId: String,
   private val item: FridgeItem,
   private val parent: View,
-  private val entryId: String,
   private val theming: Theming,
   private val imageLoader: ImageLoader,
   private val nonPersistedEditableStateMap: MutableMap<String, Int>,

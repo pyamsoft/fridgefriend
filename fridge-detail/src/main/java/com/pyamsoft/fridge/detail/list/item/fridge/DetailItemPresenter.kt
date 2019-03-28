@@ -20,6 +20,7 @@ package com.pyamsoft.fridge.detail.list.item.fridge
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.detail.DetailConstants
 import com.pyamsoft.fridge.detail.list.DetailListInteractor
+import com.pyamsoft.fridge.detail.list.item.DetailItemScope
 import com.pyamsoft.fridge.detail.list.item.fridge.DetailItemPresenter.Callback
 import com.pyamsoft.pydroid.arch.BasePresenter
 import com.pyamsoft.pydroid.core.bus.RxBus
@@ -31,7 +32,7 @@ import io.reactivex.schedulers.Schedulers
 import timber.log.Timber
 import javax.inject.Inject
 
-// Not scoped by Dagger, see DetailItemUiComponentFactory for scoping implementation
+@DetailItemScope
 internal class DetailItemPresenter @Inject internal constructor(
   private val interactor: DetailListInteractor
 ) : BasePresenter<Unit, Callback>(RxBus.empty()),

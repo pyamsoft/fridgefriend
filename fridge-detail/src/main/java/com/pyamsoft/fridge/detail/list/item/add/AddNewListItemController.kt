@@ -15,35 +15,35 @@
  *
  */
 
-package com.pyamsoft.fridge.detail.list.item.fridge
+package com.pyamsoft.fridge.detail.list.item.add
 
 import android.view.View
 import androidx.recyclerview.widget.RecyclerView
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.detail.R
 import com.pyamsoft.fridge.detail.list.item.DetailItem
-import com.pyamsoft.fridge.detail.list.item.DetailItemUiComponentFactory
+import com.pyamsoft.fridge.detail.list.item.DetailItemComponent
 import com.pyamsoft.fridge.detail.list.item.ListItemLifecycle
-import com.pyamsoft.fridge.detail.list.item.fridge.DetailListItem.ViewHolder
-import com.pyamsoft.fridge.detail.list.item.fridge.DetailListItemUiComponent.Callback
+import com.pyamsoft.fridge.detail.list.item.add.AddNewListItemController.ViewHolder
+import javax.inject.Inject
 
-internal class DetailListItem internal constructor(
+internal class AddNewListItemController internal constructor(
   item: FridgeItem,
-  private val factory: DetailItemUiComponentFactory,
-  private val callback: Callback
-) : DetailItem<DetailListItem, ViewHolder>(item),
-  Callback {
+  private val builder: DetailItemComponent.Builder,
+  private val callback: AddNewListItemController.Callback
+) : DetailItem<AddNewListItemController, ViewHolder>(item),
+  AddNewItemUiComponent.Callback {
 
   override fun getType(): Int {
-    return R.id.id_item_list_item
+    return R.id.id_item_add_new_item
   }
 
   override fun getViewHolder(v: View): ViewHolder {
-    return ViewHolder(v, factory)
+    return ViewHolder(v, builder)
   }
 
   override fun getLayoutRes(): Int {
-    return R.layout.detail_list_item
+    return R.layout.add_new_list_item
   }
 
   override fun bindView(holder: ViewHolder, payloads: MutableList<Any>) {
@@ -56,36 +56,33 @@ internal class DetailListItem internal constructor(
     holder.unbind()
   }
 
-  override fun onNonRealItemDelete(item: FridgeItem) {
-    callback.onDelete(item)
-  }
-
-  override fun onUpdateItemError(throwable: Throwable) {
-    callback.onCommitError(throwable)
-  }
-
-  override fun onDeleteItemError(throwable: Throwable) {
-    callback.onDeleteError(throwable)
-  }
-
-  override fun onModelUpdate(item: FridgeItem) {
-    withModel(item)
+  override fun onAddNewItem() {
+    callback.onAddNewItem()
   }
 
   class ViewHolder internal constructor(
     itemView: View,
-    private val factory: DetailItemUiComponentFactory
+    private val builder: DetailItemComponent.Builder
   ) : RecyclerView.ViewHolder(itemView) {
 
     private var lifecycle: ListItemLifecycle? = null
 
-    fun bind(item: FridgeItem, callback: com.pyamsoft.fridge.detail.list.item.fridge.DetailListItemUiComponent.Callback) {
+    @field:Inject internal lateinit var component: AddNewItemUiComponent
+
+    init {
+    }
+
+    fun bind(item: FridgeItem, callback: AddNewItemUiComponent.Callback) {
       lifecycle?.unbind()
+
+      builder
+        .parent(itemView)
+        .item(item)
+        .build()
+        .inject(this)
 
       val owner = ListItemLifecycle()
       lifecycle = owner
-
-      val component = factory.createItem(itemView, item)
       component.bind(owner, null, callback)
       owner.bind()
     }
@@ -94,16 +91,11 @@ internal class DetailListItem internal constructor(
       lifecycle?.unbind()
       lifecycle = null
     }
-
   }
 
   interface Callback {
 
-    fun onDelete(item: FridgeItem)
-
-    fun onDeleteError(throwable: Throwable)
-
-    fun onCommitError(throwable: Throwable)
+    fun onAddNewItem()
 
   }
 

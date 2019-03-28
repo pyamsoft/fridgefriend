@@ -17,12 +17,13 @@
 
 package com.pyamsoft.fridge.detail.list.item.add
 
+import com.pyamsoft.fridge.detail.list.item.DetailItemScope
 import com.pyamsoft.fridge.detail.list.item.add.AddNewItemPresenter.Callback
 import com.pyamsoft.pydroid.arch.BasePresenter
 import com.pyamsoft.pydroid.core.bus.RxBus
 import javax.inject.Inject
 
-// Not scoped by Dagger, see DetailItemUiComponentFactory for scoping implementation
+@DetailItemScope
 internal class AddNewItemPresenter @Inject internal constructor(
 ) : BasePresenter<Unit, Callback>(RxBus.empty()),
   AddNewItemView.Callback {

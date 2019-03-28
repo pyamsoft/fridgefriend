@@ -29,23 +29,28 @@ import com.mikepenz.fastadapter.FastAdapter
 import com.mikepenz.fastadapter.adapters.ModelAdapter
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.detail.R
-import com.pyamsoft.fridge.detail.list.item.add.AddNewListItem
+import com.pyamsoft.fridge.detail.list.item.DaggerDetailItemComponent
 import com.pyamsoft.fridge.detail.list.item.DetailItem
-import com.pyamsoft.fridge.detail.list.item.DetailItemUiComponentFactory
-import com.pyamsoft.fridge.detail.list.item.fridge.DetailListItem
+import com.pyamsoft.fridge.detail.list.item.add.AddNewListItemController
+import com.pyamsoft.fridge.detail.list.item.fridge.DetailListItemController
 import com.pyamsoft.pydroid.arch.BaseUiView
+import com.pyamsoft.pydroid.loader.ImageLoader
+import com.pyamsoft.pydroid.ui.theme.Theming
 import com.pyamsoft.pydroid.ui.util.refreshing
 import javax.inject.Inject
 import javax.inject.Named
 
 internal class DetailList @Inject internal constructor(
   @Named("detail_entry_id") private val entryId: String,
-  private val factory: DetailItemUiComponentFactory,
+  private val interactor: DetailListInteractor,
+  private val imageLoader: ImageLoader,
+  private val stateMap: MutableMap<String, Int>,
+  private val theming: Theming,
   parent: ViewGroup,
   callback: Callback
 ) : BaseUiView<DetailList.Callback>(parent, callback),
-  DetailListItem.Callback,
-  AddNewListItem.Callback {
+  DetailListItemController.Callback,
+  AddNewListItemController.Callback {
 
   override val layout: Int = R.layout.detail_list
 
@@ -57,17 +62,24 @@ internal class DetailList @Inject internal constructor(
   private var modelAdapter: ModelAdapter<FridgeItem, DetailItem<*, *>>? = null
 
   override fun onInflated(view: View, savedInstanceState: Bundle?) {
+    val builder = DaggerDetailItemComponent.builder()
+      .interactor(interactor)
+      .entryId(entryId)
+      .imageLoader(imageLoader)
+      .stateMap(stateMap)
+      .theming(theming)
+
     modelAdapter = ModelAdapter { item ->
       if (item.id().isBlank()) {
-        return@ModelAdapter AddNewListItem(
+        return@ModelAdapter AddNewListItemController(
           item,
-          factory,
+          builder,
           this
         )
       } else {
-        return@ModelAdapter DetailListItem(
+        return@ModelAdapter DetailListItemController(
           item,
-          factory,
+          builder,
           this
         )
       }

@@ -28,9 +28,10 @@ import com.pyamsoft.pydroid.ui.arch.InvalidIdException
 import com.pyamsoft.pydroid.ui.theme.Theming
 import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
 import com.pyamsoft.pydroid.util.tintWith
+import javax.inject.Inject
 import kotlin.LazyThreadSafetyMode.NONE
 
-internal class AddNewItemView internal constructor(
+internal class AddNewItemView @Inject internal constructor(
   private val parent: View,
   private val theming: Theming,
   private val imageLoader: ImageLoader,
