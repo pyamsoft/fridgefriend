@@ -43,7 +43,16 @@ import com.pyamsoft.fridge.db.room.entity.RoomFridgeItem
 internal abstract class RoomFridgeDbImpl internal constructor() : RoomDatabase(), RoomFridgeDb {
 
   private val itemDb by lazy { RoomFridgeItemDb(this, itemRepo) }
-  private val entryDb by lazy { RoomFridgeEntryDb(this, entryRepo, itemRepo) }
+  private val entryDb by lazy {
+    RoomFridgeEntryDb(this, entryRepo, object : ClearCache {
+
+      override fun clear() {
+        entryRepo.clear()
+        itemRepo.clear()
+      }
+
+    })
+  }
 
   private lateinit var entryRepo: Repo<List<JsonMappableFridgeEntry>>
   private lateinit var itemRepo: MultiRepo<List<JsonMappableFridgeItem>>
