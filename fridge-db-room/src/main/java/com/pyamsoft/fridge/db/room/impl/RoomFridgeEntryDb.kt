@@ -18,6 +18,7 @@
 package com.pyamsoft.fridge.db.room.impl
 
 import com.popinnow.android.repo.Repo
+import com.popinnow.android.repo.internal.Clearable
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.entry.FridgeEntryChangeEvent
 import com.pyamsoft.fridge.db.entry.FridgeEntryChangeEvent.Delete
@@ -37,7 +38,8 @@ import io.reactivex.Single
 
 internal class RoomFridgeEntryDb internal constructor(
   private val room: RoomFridgeDbImpl,
-  private val repo: Repo<List<JsonMappableFridgeEntry>>
+  private val repo: Repo<List<JsonMappableFridgeEntry>>,
+  private val itemCache: Clearable
 ) : FridgeEntryDb {
 
   private val realtimeChangeBus = RxBus.create<FridgeEntryChangeEvent>()
@@ -45,6 +47,7 @@ internal class RoomFridgeEntryDb internal constructor(
 
   private fun publishRealtime(event: FridgeEntryChangeEvent) {
     repo.clear()
+    itemCache.clear()
     realtimeChangeBus.publish(event)
   }
 

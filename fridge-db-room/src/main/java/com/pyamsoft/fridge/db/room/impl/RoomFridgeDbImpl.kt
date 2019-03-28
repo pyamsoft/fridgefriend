@@ -24,7 +24,6 @@ import androidx.room.TypeConverters
 import com.popinnow.android.repo.MultiRepo
 import com.popinnow.android.repo.Repo
 import com.pyamsoft.fridge.db.entry.JsonMappableFridgeEntry
-import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.JsonMappableFridgeItem
 import com.pyamsoft.fridge.db.room.converter.DateTypeConverter
 import com.pyamsoft.fridge.db.room.converter.PresenceTypeConverter
@@ -44,7 +43,7 @@ import com.pyamsoft.fridge.db.room.entity.RoomFridgeItem
 internal abstract class RoomFridgeDbImpl internal constructor() : RoomDatabase(), RoomFridgeDb {
 
   private val itemDb by lazy { RoomFridgeItemDb(this, itemRepo) }
-  private val entryDb by lazy { RoomFridgeEntryDb(this, entryRepo) }
+  private val entryDb by lazy { RoomFridgeEntryDb(this, entryRepo, itemRepo) }
 
   private lateinit var entryRepo: Repo<List<JsonMappableFridgeEntry>>
   private lateinit var itemRepo: MultiRepo<List<JsonMappableFridgeItem>>
