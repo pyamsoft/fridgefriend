@@ -47,7 +47,7 @@ internal class DetailList @Inject internal constructor(
   private val stateMap: MutableMap<String, Int>,
   private val theming: Theming,
   parent: ViewGroup,
-  callback: Callback
+  callback: DetailList.Callback
 ) : BaseUiView<DetailList.Callback>(parent, callback),
   DetailListItemController.Callback,
   AddNewListItemController.Callback {
@@ -223,9 +223,15 @@ internal class DetailList @Inject internal constructor(
     showError(throwable)
   }
 
+  override fun onOpenScanner(item: FridgeItem) {
+    callback.onOpenScanner(item)
+  }
+
   interface Callback {
 
     fun onRefresh()
+
+    fun onOpenScanner(item: FridgeItem)
 
   }
 }

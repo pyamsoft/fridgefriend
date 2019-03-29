@@ -15,25 +15,21 @@
  *
  */
 
-package com.pyamsoft.fridge.detail.list.item.fridge
+package com.pyamsoft.fridge.detail.scanner
 
-import com.pyamsoft.fridge.db.item.FridgeItem
-import com.pyamsoft.fridge.detail.list.item.fridge.DetailListItemUiComponent.Callback
-import com.pyamsoft.pydroid.arch.UiComponent
+import androidx.annotation.CheckResult
+import dagger.Binds
+import dagger.Module
 
-internal interface DetailListItemUiComponent : UiComponent<Callback> {
+@Module
+abstract class ScannerModule {
 
-  interface Callback {
+  @Binds
+  @CheckResult
+  internal abstract fun bindScannerCallback(impl: OcrScannerPresenter): OcrScannerView.Callback
 
-    fun onOpenScanner(item: FridgeItem)
-
-    fun onNonRealItemDelete(item: FridgeItem)
-
-    fun onUpdateItemError(throwable: Throwable)
-
-    fun onDeleteItemError(throwable: Throwable)
-
-    fun onModelUpdate(item: FridgeItem)
-  }
+  @Binds
+  @CheckResult
+  internal abstract fun bindScannerComponent(impl: ScannerUiComponentImpl): ScannerUiComponent
 
 }

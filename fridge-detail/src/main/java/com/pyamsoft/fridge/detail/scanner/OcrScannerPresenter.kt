@@ -17,16 +17,18 @@
 
 package com.pyamsoft.fridge.detail.scanner
 
-import com.pyamsoft.fridge.detail.DetailScope
 import com.pyamsoft.pydroid.arch.BasePresenter
 import com.pyamsoft.pydroid.core.bus.RxBus
 import com.pyamsoft.pydroid.core.singleDisposable
+import com.pyamsoft.pydroid.core.tryDispose
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.schedulers.Schedulers
 import timber.log.Timber
 import javax.inject.Inject
 
-@DetailScope
+@ScannerScope
 internal class OcrScannerPresenter @Inject internal constructor(
-
+  private val interactor: OcrScannerInteractor
 ) : BasePresenter<Unit, OcrScannerPresenter.Callback>(RxBus.empty()),
   OcrScannerView.Callback {
 
@@ -36,14 +38,26 @@ internal class OcrScannerPresenter @Inject internal constructor(
   }
 
   override fun onUnbind() {
+    frameProcessDisposable.tryDispose()
   }
 
   override fun onPreviewFrameReceived(width: Int, height: Int, rotation: Int, data: ByteArray) {
     if (!frameProcessDisposable.isDisposed) {
-      Timber.w("Preview frame received but another process action is still in place.")
-      Timber.w("Dropping the received preview frame")
+      // These logs are noisy
+      // Timber.w("Preview frame received but another process action is still in place.")
+      // Timber.w("Dropping the received preview frame")
       return
     }
+
+    frameProcessDisposable = interactor.processImage(width, height, rotation, data)
+      .subscribeOn(Schedulers.io())
+      .unsubscribeOn(Schedulers.io())
+      .observeOn(AndroidSchedulers.mainThread())
+      .doAfterTerminate { frameProcessDisposable.tryDispose() }
+      .subscribe({ callback.handleOcrResult(it) }, {
+        Timber.e(it, "Error processing preview frame for text")
+        callback.handleOcrError(it)
+      })
   }
 
   override fun onCameraError(throwable: Throwable) {
@@ -51,6 +65,10 @@ internal class OcrScannerPresenter @Inject internal constructor(
   }
 
   interface Callback {
+
+    fun handleOcrResult(text: String)
+
+    fun handleOcrError(throwable: Throwable)
 
     fun handleCameraError(throwable: Throwable)
 

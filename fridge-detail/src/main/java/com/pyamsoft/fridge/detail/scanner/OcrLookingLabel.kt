@@ -15,25 +15,28 @@
  *
  */
 
-package com.pyamsoft.fridge.detail.list.item.fridge
+package com.pyamsoft.fridge.detail.scanner
 
-import com.pyamsoft.fridge.db.item.FridgeItem
-import com.pyamsoft.fridge.detail.list.item.fridge.DetailListItemUiComponent.Callback
-import com.pyamsoft.pydroid.arch.UiComponent
+import android.view.ViewGroup
+import android.widget.TextView
+import com.pyamsoft.fridge.detail.R
+import com.pyamsoft.pydroid.arch.BaseUiView
+import javax.inject.Inject
 
-internal interface DetailListItemUiComponent : UiComponent<Callback> {
+internal class OcrLookingLabel @Inject internal constructor(
+  parent: ViewGroup
+) : BaseUiView<Unit>(parent, Unit) {
 
-  interface Callback {
+  override val layout: Int = R.layout.looking
 
-    fun onOpenScanner(item: FridgeItem)
+  override val layoutRoot by lazyView<TextView>(R.id.looking)
 
-    fun onNonRealItemDelete(item: FridgeItem)
+  override fun onTeardown() {
+    layoutRoot.text = ""
+  }
 
-    fun onUpdateItemError(throwable: Throwable)
-
-    fun onDeleteItemError(throwable: Throwable)
-
-    fun onModelUpdate(item: FridgeItem)
+  fun lookingAt(text: String) {
+    layoutRoot.text = text
   }
 
 }

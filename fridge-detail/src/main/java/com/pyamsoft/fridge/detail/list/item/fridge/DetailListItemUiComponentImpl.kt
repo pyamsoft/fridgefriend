@@ -71,4 +71,8 @@ internal class DetailListItemUiComponentImpl @Inject internal constructor(
     callback.onModelUpdate(item)
   }
 
+  override fun handleOpenScanner(item: FridgeItem) {
+    callback.onOpenScanner(item)
+  }
+
 }

@@ -15,25 +15,14 @@
  *
  */
 
-package com.pyamsoft.fridge.detail.list.item.fridge
+package com.pyamsoft.fridge.detail.scanner
 
-import com.pyamsoft.fridge.db.item.FridgeItem
-import com.pyamsoft.fridge.detail.list.item.fridge.DetailListItemUiComponent.Callback
 import com.pyamsoft.pydroid.arch.UiComponent
 
-internal interface DetailListItemUiComponent : UiComponent<Callback> {
+interface ScannerUiComponent : UiComponent<ScannerUiComponent.Callback> {
 
   interface Callback {
 
-    fun onOpenScanner(item: FridgeItem)
-
-    fun onNonRealItemDelete(item: FridgeItem)
-
-    fun onUpdateItemError(throwable: Throwable)
-
-    fun onDeleteItemError(throwable: Throwable)
-
-    fun onModelUpdate(item: FridgeItem)
   }
 
 }

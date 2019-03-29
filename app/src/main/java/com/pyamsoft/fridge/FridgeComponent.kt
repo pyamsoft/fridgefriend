@@ -26,6 +26,7 @@ import com.pyamsoft.fridge.db.room.RoomProvider
 import com.pyamsoft.fridge.detail.DetailComponent
 import com.pyamsoft.fridge.entry.EntryComponent
 import com.pyamsoft.fridge.main.MainComponent
+import com.pyamsoft.fridge.scanner.ScannerComponent
 import com.pyamsoft.fridge.setting.SettingComponent
 import com.pyamsoft.pydroid.core.threads.Enforcer
 import com.pyamsoft.pydroid.loader.ImageLoader
@@ -47,6 +48,9 @@ import javax.inject.Singleton
   ]
 )
 internal interface FridgeComponent {
+
+  @CheckResult
+  fun plusScannerComponent(): ScannerComponent.Builder
 
   @CheckResult
   fun plusDetailComponent(): DetailComponent.Builder

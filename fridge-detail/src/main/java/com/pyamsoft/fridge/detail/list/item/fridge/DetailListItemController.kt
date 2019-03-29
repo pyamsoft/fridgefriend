@@ -69,6 +69,10 @@ internal class DetailListItemController internal constructor(
     callback.onDeleteError(throwable)
   }
 
+  override fun onOpenScanner(item: FridgeItem) {
+    callback.onOpenScanner(item)
+  }
+
   override fun onModelUpdate(item: FridgeItem) {
     withModel(item)
   }
@@ -112,6 +116,8 @@ internal class DetailListItemController internal constructor(
     fun onDeleteError(throwable: Throwable)
 
     fun onCommitError(throwable: Throwable)
+
+    fun onOpenScanner(item: FridgeItem)
 
   }
 

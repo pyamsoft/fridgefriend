@@ -18,8 +18,13 @@
 package com.pyamsoft.fridge.detail.scanner
 
 import androidx.annotation.CheckResult
+import com.google.firebase.ml.vision.FirebaseVision
+import com.google.firebase.ml.vision.common.FirebaseVisionImage
+import com.google.firebase.ml.vision.common.FirebaseVisionImageMetadata
+import com.google.firebase.ml.vision.text.FirebaseVisionText
 import com.pyamsoft.pydroid.core.threads.Enforcer
 import io.reactivex.Single
+import timber.log.Timber
 import javax.inject.Inject
 
 internal class OcrScannerInteractor @Inject internal constructor(
@@ -28,8 +33,44 @@ internal class OcrScannerInteractor @Inject internal constructor(
 
   @CheckResult
   fun processImage(width: Int, height: Int, rotation: Int, data: ByteArray): Single<String> {
-    return Single.create {
+    return Single.create { emitter ->
       enforcer.assertNotOnMainThread()
+
+      val metadata = FirebaseVisionImageMetadata.Builder()
+        .setWidth(width)
+        .setHeight(height)
+        .setFormat(FirebaseVisionImageMetadata.IMAGE_FORMAT_NV21)
+        .setRotation(convertToFirebaseRotation(rotation))
+        .build()
+
+      val image = FirebaseVisionImage.fromByteArray(data, metadata)
+      val recognizer = FirebaseVision.getInstance().onDeviceTextRecognizer
+
+      recognizer.processImage(image)
+        .addOnSuccessListener { visionText: FirebaseVisionText? ->
+          if (visionText == null) {
+            Timber.w("Firebase vision text was null")
+            emitter.onSuccess("")
+          } else {
+            val text = visionText.text
+            emitter.onSuccess(text)
+          }
+        }
+        .addOnFailureListener {
+          Timber.e(it, "Firebase vision text ocr failed")
+          emitter.tryOnError(it)
+        }
+
+    }
+  }
+
+  @CheckResult
+  private fun convertToFirebaseRotation(rotation: Int): Int {
+    return when (rotation) {
+      90 -> FirebaseVisionImageMetadata.ROTATION_90
+      180 -> FirebaseVisionImageMetadata.ROTATION_180
+      270 -> FirebaseVisionImageMetadata.ROTATION_270
+      else -> FirebaseVisionImageMetadata.ROTATION_0
     }
   }
 
