@@ -11,3 +11,6 @@
 /build
 /captures
 .externalNativeBuild
+
+# Don't include these config files
+google-services.json

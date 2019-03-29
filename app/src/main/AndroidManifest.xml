@@ -17,6 +17,21 @@
         android:name="android.max_aspect"
         android:value="2.1"/>
 
+    <!-- Disable Analytics Collection from Firebase -->
+    <meta-data
+        android:name="firebase_analytics_collection_deactivated"
+        android:value="true"/>
+
+    <!-- Disable advertising id collection from Firebase -->
+    <meta-data
+        android:name="google_analytics_adid_collection_enabled"
+        android:value="false"/>
+
+    <!-- Download OCR model -->
+    <meta-data
+        android:name="com.google.firebase.ml.vision.DEPENDENCIES"
+        android:value="ocr"/>
+
     <!-- Main Activity -->
     <activity
         android:name="com.pyamsoft.fridge.main.MainActivity"

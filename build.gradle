@@ -51,6 +51,13 @@ buildscript {
 
     // Fast Adapter
     fastAdapter = "3.3.1"
+
+    // FotoApparat
+    fotoapparat = "2.7.0"
+
+    // Firebase
+    firebase = "16.0.1"
+    mlVision = "19.0.3"
   }
 
   dependencies {
@@ -63,6 +70,8 @@ buildscript {
     classpath 'com.github.ben-manes:gradle-versions-plugin:0.20.0'
 
     classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+
+    classpath 'com.google.gms:google-services:4.2.0'
   }
 }
 

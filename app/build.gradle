@@ -25,7 +25,7 @@ android {
   compileSdkVersion rootProject.ext.maxSdk
 
   defaultConfig {
-    applicationId "com.pyamsoft.myfridgesmells"
+    applicationId "com.pyamsoft.fridge"
     minSdkVersion rootProject.ext.minSdk
     targetSdkVersion rootProject.ext.maxSdk
     versionCode 1
@@ -103,3 +103,6 @@ dependencies {
   api project(':fridge-main')
   api project(':fridge-setting')
 }
+
+// Leave at bottom
+apply plugin: 'com.google.gms.google-services'
