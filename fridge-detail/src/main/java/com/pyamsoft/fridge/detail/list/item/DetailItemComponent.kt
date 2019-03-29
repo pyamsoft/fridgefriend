@@ -17,7 +17,7 @@
 
 package com.pyamsoft.fridge.detail.list.item
 
-import android.view.View
+import android.view.ViewGroup
 import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.detail.list.DetailListInteractor
@@ -29,9 +29,10 @@ import com.pyamsoft.fridge.detail.list.item.add.AddNewItemView
 import com.pyamsoft.fridge.detail.list.item.add.AddNewListItemController
 import com.pyamsoft.fridge.detail.list.item.fridge.DetailItemPresenter
 import com.pyamsoft.fridge.detail.list.item.fridge.DetailListItemController
+import com.pyamsoft.fridge.detail.list.item.fridge.DetailListItemDelete
+import com.pyamsoft.fridge.detail.list.item.fridge.DetailListItemName
 import com.pyamsoft.fridge.detail.list.item.fridge.DetailListItemUiComponent
 import com.pyamsoft.fridge.detail.list.item.fridge.DetailListItemUiComponentImpl
-import com.pyamsoft.fridge.detail.list.item.fridge.DetailListItemView
 import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.ui.theme.Theming
 import dagger.Binds
@@ -53,7 +54,7 @@ internal interface DetailItemComponent {
 
     @CheckResult
     @BindsInstance
-    fun parent(parent: View): Builder
+    fun parent(parent: ViewGroup): Builder
 
     @BindsInstance
     @CheckResult
@@ -89,7 +90,11 @@ internal interface DetailItemComponent {
 
     @Binds
     @CheckResult
-    internal abstract fun bindDetailCallback(impl: DetailItemPresenter): DetailListItemView.Callback
+    internal abstract fun bindDeleteCallback(impl: DetailItemPresenter): DetailListItemDelete.Callback
+
+    @Binds
+    @CheckResult
+    internal abstract fun bindNameCallback(impl: DetailItemPresenter): DetailListItemName.Callback
 
     @Binds
     @CheckResult

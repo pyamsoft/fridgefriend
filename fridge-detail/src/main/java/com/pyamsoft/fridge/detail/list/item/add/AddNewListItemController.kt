@@ -18,6 +18,7 @@
 package com.pyamsoft.fridge.detail.list.item.add
 
 import android.view.View
+import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.detail.R
@@ -43,7 +44,7 @@ internal class AddNewListItemController internal constructor(
   }
 
   override fun getLayoutRes(): Int {
-    return R.layout.add_new_list_item
+    return R.layout.listitem_frame
   }
 
   override fun bindView(holder: ViewHolder, payloads: MutableList<Any>) {
@@ -66,17 +67,15 @@ internal class AddNewListItemController internal constructor(
   ) : RecyclerView.ViewHolder(itemView) {
 
     private var lifecycle: ListItemLifecycle? = null
-
     @field:Inject internal lateinit var component: AddNewItemUiComponent
 
-    init {
-    }
+    private val parent: ViewGroup = itemView.findViewById(R.id.listitem_frame)
 
     fun bind(item: FridgeItem, callback: AddNewItemUiComponent.Callback) {
       lifecycle?.unbind()
 
       builder
-        .parent(itemView)
+        .parent(parent)
         .item(item)
         .build()
         .inject(this)

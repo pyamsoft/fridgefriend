@@ -23,31 +23,36 @@ import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.detail.list.item.fridge.DetailListItemUiComponent.Callback
 import com.pyamsoft.pydroid.arch.BaseUiComponent
 import com.pyamsoft.pydroid.arch.doOnDestroy
+import com.pyamsoft.pydroid.ui.arch.InvalidIdException
 import javax.inject.Inject
 
 internal class DetailListItemUiComponentImpl @Inject internal constructor(
-  private val itemView: DetailListItemView,
+  private val name: DetailListItemName,
+  private val delete: DetailListItemDelete,
   private val presenter: DetailItemPresenter
 ) : BaseUiComponent<DetailListItemUiComponent.Callback>(),
   DetailListItemUiComponent,
   DetailItemPresenter.Callback {
 
   override fun id(): Int {
-    return itemView.id()
+    throw InvalidIdException
   }
 
   override fun onBind(owner: LifecycleOwner, savedInstanceState: Bundle?, callback: Callback) {
     owner.doOnDestroy {
-      itemView.teardown()
+      name.teardown()
+      delete.teardown()
       presenter.unbind()
     }
 
-    itemView.inflate(savedInstanceState)
+    name.inflate(savedInstanceState)
+    delete.inflate(savedInstanceState)
     presenter.bind(this)
   }
 
   override fun onSaveState(outState: Bundle) {
-    itemView.saveState(outState)
+    name.saveState(outState)
+    delete.saveState(outState)
   }
 
   override fun handleNonRealItemDelete(item: FridgeItem) {

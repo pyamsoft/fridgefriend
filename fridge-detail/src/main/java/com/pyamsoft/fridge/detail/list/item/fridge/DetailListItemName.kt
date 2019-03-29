@@ -21,91 +21,44 @@ import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.View
+import android.view.ViewGroup
 import android.widget.EditText
-import android.widget.ImageView
-import androidx.core.view.isVisible
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence
 import com.pyamsoft.fridge.detail.R
-import com.pyamsoft.pydroid.arch.UiView
-import com.pyamsoft.pydroid.loader.ImageLoader
-import com.pyamsoft.pydroid.loader.Loaded
-import com.pyamsoft.pydroid.ui.arch.InvalidIdException
-import com.pyamsoft.pydroid.ui.theme.Theming
-import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
-import com.pyamsoft.pydroid.util.tintWith
+import com.pyamsoft.pydroid.arch.BaseUiView
 import timber.log.Timber
 import java.util.Date
 import javax.inject.Inject
 import javax.inject.Named
-import kotlin.LazyThreadSafetyMode.NONE
 
-internal class DetailListItemView @Inject internal constructor(
+internal class DetailListItemName @Inject internal constructor(
   @Named("detail_entry_id") private val entryId: String,
   private val item: FridgeItem,
-  private val parent: View,
-  private val theming: Theming,
-  private val imageLoader: ImageLoader,
   private val nonPersistedEditableStateMap: MutableMap<String, Int>,
-  private val callback: DetailListItemView.Callback
-) : UiView {
-
-  private val itemName by lazy(NONE) { parent.findViewById<EditText>(R.id.detail_item_name) }
-  private val itemDelete by lazy(NONE) { parent.findViewById<ImageView>(R.id.detail_item_delete) }
+  parent: ViewGroup,
+  callback: DetailListItemName.Callback
+) : BaseUiView<DetailListItemName.Callback>(parent, callback) {
 
   private var nameWatcher: TextWatcher? = null
-  private var deleteIconLoaded: Loaded? = null
 
-  override fun id(): Int {
-    throw InvalidIdException
-  }
+  override val layout: Int = R.layout.detail_list_item_name
 
-  override fun inflate(savedInstanceState: Bundle?) {
-    removeListeners()
+  override val layoutRoot by lazyView<EditText>(R.id.detail_item_name)
 
+  override fun onInflated(view: View, savedInstanceState: Bundle?) {
     setupName()
-    setupDelete()
   }
 
-  override fun saveState(outState: Bundle) {
-  }
-
-  override fun teardown() {
+  override fun onTeardown() {
     removeListeners()
 
     // Cleaup
-    itemName.text.clear()
-
-    itemDelete.setOnClickListener(null)
-    itemDelete.setImageDrawable(null)
-    deleteIconLoaded?.dispose()
-    deleteIconLoaded = null
-  }
-
-  private fun setupDelete() {
-    deleteIconLoaded?.dispose()
-    deleteIconLoaded = null
-
-    itemDelete.isVisible = true
-    deleteIconLoaded = imageLoader.load(R.drawable.ic_close_24dp)
-      .mutate { drawable ->
-        val color: Int
-        if (theming.isDarkTheme()) {
-          color = R.color.white
-        } else {
-          color = R.color.black
-        }
-        return@mutate drawable.tintWith(parent.context, color)
-      }.into(itemDelete)
-
-    itemDelete.setOnDebouncedClickListener {
-      itemDelete.setOnClickListener(null)
-      callback.onDelete(item)
-    }
+    layoutRoot.text.clear()
   }
 
   private fun setupName() {
-    itemName.setText(item.name())
+    layoutRoot.setText(item.name())
 
     // Restore cursor position from the list widge storage map
     if (nonPersistedEditableStateMap.containsKey(item.id())) {
@@ -113,7 +66,7 @@ internal class DetailListItemView @Inject internal constructor(
       val restoreTo = Math.min(item.name().length, location)
       Timber.d("Restore edit text selection from storage map for: ${item.id()}: $restoreTo")
       Timber.d("Name: ${item.name()} [${item.name().length}]")
-      itemName.setSelection(restoreTo)
+      layoutRoot.setSelection(restoreTo)
       nonPersistedEditableStateMap.remove(item.id())
     }
 
@@ -132,18 +85,18 @@ internal class DetailListItemView @Inject internal constructor(
       }
 
     }
-    itemName.addTextChangedListener(watcher)
+    layoutRoot.addTextChangedListener(watcher)
     nameWatcher = watcher
   }
 
   private fun removeListeners() {
     // Unbind all listeners
-    nameWatcher?.let { itemName.removeTextChangedListener(it) }
+    nameWatcher?.let { layoutRoot.removeTextChangedListener(it) }
     nameWatcher = null
   }
 
   private fun commit(
-    name: String = itemName.text.toString(),
+    name: String = layoutRoot.text.toString(),
     expireTime: Date = Date(),
     presence: Presence = Presence.NEED
   ) {
@@ -153,7 +106,7 @@ internal class DetailListItemView @Inject internal constructor(
 
   private fun saveEditingState() {
     // Commit editing location to the storage map
-    val location = itemName.selectionEnd
+    val location = layoutRoot.selectionEnd
     Timber.d("Save edit text selection from storage map for: ${item.id()}: $location")
     nonPersistedEditableStateMap[item.id()] = location
   }
@@ -189,8 +142,6 @@ internal class DetailListItemView @Inject internal constructor(
   interface Callback {
 
     fun onCommit(item: FridgeItem)
-
-    fun onDelete(item: FridgeItem)
 
     fun onUpdateModel(item: FridgeItem)
 

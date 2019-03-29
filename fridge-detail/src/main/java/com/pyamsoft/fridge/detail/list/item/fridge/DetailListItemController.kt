@@ -18,6 +18,7 @@
 package com.pyamsoft.fridge.detail.list.item.fridge
 
 import android.view.View
+import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.detail.R
@@ -43,7 +44,7 @@ internal class DetailListItemController internal constructor(
   }
 
   override fun getLayoutRes(): Int {
-    return R.layout.detail_list_item
+    return R.layout.listitem_linear_horizontal
   }
 
   override fun bindView(holder: ViewHolder, payloads: MutableList<Any>) {
@@ -80,11 +81,13 @@ internal class DetailListItemController internal constructor(
     private var lifecycle: ListItemLifecycle? = null
     @field:Inject internal lateinit var component: DetailListItemUiComponent
 
+    private val parent: ViewGroup = itemView.findViewById(R.id.listitem_linear_h)
+
     fun bind(item: FridgeItem, callback: DetailListItemUiComponent.Callback) {
       lifecycle?.unbind()
 
       builder
-        .parent(itemView)
+        .parent(parent)
         .item(item)
         .build()
         .inject(this)

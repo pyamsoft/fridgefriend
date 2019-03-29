@@ -15,12 +15,14 @@
  *
  */
 
-package com.pyamsoft.fridge.detail.list.item.add
+package com.pyamsoft.fridge.detail.list.item.fridge
 
 import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import androidx.core.view.isVisible
+import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.detail.R
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.loader.ImageLoader
@@ -30,23 +32,37 @@ import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
 import com.pyamsoft.pydroid.util.tintWith
 import javax.inject.Inject
 
-internal class AddNewItemView @Inject internal constructor(
+internal class DetailListItemDelete @Inject internal constructor(
+  private val item: FridgeItem,
   private val theming: Theming,
   private val imageLoader: ImageLoader,
   parent: ViewGroup,
-  callback: AddNewItemView.Callback
-) : BaseUiView<AddNewItemView.Callback>(parent, callback) {
+  callback: DetailListItemDelete.Callback
+) : BaseUiView<DetailListItemDelete.Callback>(parent, callback) {
 
-  private val addNewIcon by lazyView<ImageView>(R.id.detail_add_new_item_icon)
+  private var deleteIconLoaded: Loaded? = null
 
-  private var iconLoaded: Loaded? = null
+  override val layout: Int = R.layout.detail_list_item_delete
 
-  override val layout: Int = R.layout.add_new_list_item
-
-  override val layoutRoot by lazyView<ViewGroup>(R.id.detail_add_new_item)
+  override val layoutRoot by lazyView<ImageView>(R.id.detail_item_delete)
 
   override fun onInflated(view: View, savedInstanceState: Bundle?) {
-    iconLoaded = imageLoader.load(R.drawable.ic_add_24dp)
+    setupDelete()
+  }
+
+  override fun onTeardown() {
+    layoutRoot.setOnClickListener(null)
+    layoutRoot.setImageDrawable(null)
+    deleteIconLoaded?.dispose()
+    deleteIconLoaded = null
+  }
+
+  private fun setupDelete() {
+    deleteIconLoaded?.dispose()
+    deleteIconLoaded = null
+
+    layoutRoot.isVisible = true
+    deleteIconLoaded = imageLoader.load(R.drawable.ic_close_24dp)
       .mutate { drawable ->
         val color: Int
         if (theming.isDarkTheme()) {
@@ -55,25 +71,18 @@ internal class AddNewItemView @Inject internal constructor(
           color = R.color.black
         }
         return@mutate drawable.tintWith(layoutRoot.context, color)
-      }.into(addNewIcon)
+      }.into(layoutRoot)
 
-    layoutRoot.setOnDebouncedClickListener { callback.onAddNewClicked() }
-  }
-
-  override fun onTeardown() {
-    disposeIcon()
-    addNewIcon.setImageDrawable(null)
-    layoutRoot.setOnClickListener(null)
-  }
-
-  private fun disposeIcon() {
-    iconLoaded?.dispose()
-    iconLoaded = null
+    layoutRoot.setOnDebouncedClickListener {
+      layoutRoot.setOnClickListener(null)
+      callback.onDelete(item)
+    }
   }
 
   interface Callback {
 
-    fun onAddNewClicked()
+    fun onDelete(item: FridgeItem)
+
   }
 }
 
