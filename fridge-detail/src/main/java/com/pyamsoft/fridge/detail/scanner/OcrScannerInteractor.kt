@@ -41,11 +41,22 @@ internal class OcrScannerInteractor @Inject internal constructor(
 ) {
 
   private val windowManager by lazy {
-    context.applicationContext.getSystemService(Context.WINDOW_SERVICE) as WindowManager
+    context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
   }
 
-  private val cameraManager by lazy {
-    context.applicationContext.getSystemService(Context.CAMERA_SERVICE) as CameraManager
+  private val sensorOrentation by lazy {
+    val cameraManager = context.getSystemService(Context.CAMERA_SERVICE) as CameraManager
+
+    // On most devices, the sensor orientation is 90 degrees, but for some
+    // devices it is 270 degrees. For devices with a sensor orientation of
+    // 270, rotate : CameraManagerthe image an additional 180 ((270 + 270) % 360) degrees.
+    val backCameraId = cameraManager.cameraIdList.filter {
+      val facing = cameraManager.getCameraCharacteristics(it).get(CameraCharacteristics.LENS_FACING)
+      return@filter facing == CameraCharacteristics.LENS_FACING_BACK
+    }.first()
+
+    return@lazy cameraManager.getCameraCharacteristics(backCameraId)
+      .get(CameraCharacteristics.SENSOR_ORIENTATION) ?: 0
   }
 
   @CheckResult
@@ -60,19 +71,18 @@ internal class OcrScannerInteractor @Inject internal constructor(
     return Single.create { emitter ->
       enforcer.assertNotOnMainThread()
 
-      val originalBitmap = frameData.toBitmap(frameWidth, frameHeight)
-      val croppedBitmap = cropBitmap(originalBitmap, boundingTopLeft, boundingWidth, boundingHeight)
+      val bitmap = frameData.toBitmap(frameWidth, frameHeight)
+      val cropped = cropBitmap(bitmap, boundingTopLeft, boundingWidth, boundingHeight)
 
       val metadata = Builder()
-        .setWidth(croppedBitmap.width)
-        .setHeight(croppedBitmap.height)
+        .setWidth(cropped.width)
+        .setHeight(cropped.height)
         .setFormat(FirebaseVisionImageMetadata.IMAGE_FORMAT_NV21)
         .setRotation(convertToFirebaseRotation())
         .build()
 
-      val image = FirebaseVisionImage.fromByteArray(croppedBitmap.toBytes(), metadata)
+      val image = FirebaseVisionImage.fromByteArray(cropped.toBytes(), metadata)
       val recognizer = FirebaseVision.getInstance().onDeviceTextRecognizer
-
       recognizer.processImage(image)
         .addOnSuccessListener { visionText: FirebaseVisionText? ->
           if (visionText == null) {
@@ -111,17 +121,6 @@ internal class OcrScannerInteractor @Inject internal constructor(
     // rotated to compensate for the device's rotation.
     val deviceRotation = windowManager.defaultDisplay.rotation
     val compensation = ORIENTATIONS.get(deviceRotation)
-
-    // On most devices, the sensor orientation is 90 degrees, but for some
-    // devices it is 270 degrees. For devices with a sensor orientation of
-    // 270, rotate : CameraManagerthe image an additional 180 ((270 + 270) % 360) degrees.
-    val backCameraId = cameraManager.cameraIdList.filter {
-      val facing = cameraManager.getCameraCharacteristics(it).get(CameraCharacteristics.LENS_FACING)
-      return@filter facing == CameraCharacteristics.LENS_FACING_BACK
-    }.first()
-
-    val sensorOrentation = cameraManager.getCameraCharacteristics(backCameraId)
-      .get(CameraCharacteristics.SENSOR_ORIENTATION) ?: 0
 
     val rotationCompensation = (compensation + sensorOrentation + 270) % 360
     return when (rotationCompensation) {
