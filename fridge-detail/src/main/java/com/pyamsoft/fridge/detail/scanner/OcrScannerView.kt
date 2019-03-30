@@ -74,7 +74,7 @@ internal class OcrScannerView @Inject internal constructor(
                 width,
                 height,
                 data,
-                0,
+                0 to 0,
                 0,
                 0
               )
@@ -109,7 +109,7 @@ internal class OcrScannerView @Inject internal constructor(
       frameWidth: Int,
       frameHeight: Int,
       frameData: ByteArray,
-      boundingTopLeft: Int,
+      boundingTopLeft: Pair<Int, Int>,
       boundingWidth: Int,
       boundingHeight: Int
     )

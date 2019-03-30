@@ -45,7 +45,7 @@ internal class OcrScannerPresenter @Inject internal constructor(
     frameWidth: Int,
     frameHeight: Int,
     frameData: ByteArray,
-    boundingTopLeft: Int,
+    boundingTopLeft: Pair<Int, Int>,
     boundingWidth: Int,
     boundingHeight: Int
   ) {

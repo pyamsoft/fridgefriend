@@ -47,9 +47,6 @@ internal class OcrScannerInteractor @Inject internal constructor(
   private val sensorOrentation by lazy {
     val cameraManager = context.getSystemService(Context.CAMERA_SERVICE) as CameraManager
 
-    // On most devices, the sensor orientation is 90 degrees, but for some
-    // devices it is 270 degrees. For devices with a sensor orientation of
-    // 270, rotate : CameraManagerthe image an additional 180 ((270 + 270) % 360) degrees.
     val backCameraId = cameraManager.cameraIdList.filter {
       val facing = cameraManager.getCameraCharacteristics(it).get(CameraCharacteristics.LENS_FACING)
       return@filter facing == CameraCharacteristics.LENS_FACING_BACK
@@ -64,7 +61,7 @@ internal class OcrScannerInteractor @Inject internal constructor(
     frameWidth: Int,
     frameHeight: Int,
     frameData: ByteArray,
-    boundingTopLeft: Int,
+    boundingTopLeft: Pair<Int, Int>,
     boundingWidth: Int,
     boundingHeight: Int
   ): Single<String> {
@@ -104,11 +101,12 @@ internal class OcrScannerInteractor @Inject internal constructor(
   @CheckResult
   private fun cropBitmap(
     bitmap: Bitmap,
-    boundingTopLeft: Int,
+    boundingTopLeft: Pair<Int, Int>,
     boundingWidth: Int,
     boundingHeight: Int
   ): Bitmap {
-    return bitmap
+    val (x, y) = boundingTopLeft
+    return Bitmap.createBitmap(bitmap, x, y, boundingWidth, boundingHeight)
   }
 
   // https://firebase.google.com/docs/ml-kit/android/recognize-text
@@ -122,6 +120,9 @@ internal class OcrScannerInteractor @Inject internal constructor(
     val deviceRotation = windowManager.defaultDisplay.rotation
     val compensation = ORIENTATIONS.get(deviceRotation)
 
+    // On most devices, the sensor orientation is 90 degrees, but for some
+    // devices it is 270 degrees. For devices with a sensor orientation of
+    // 270, rotate the image an additional 180 ((270 + 270) % 360) degrees.
     val rotationCompensation = (compensation + sensorOrentation + 270) % 360
     return when (rotationCompensation) {
       0 -> FirebaseVisionImageMetadata.ROTATION_0
