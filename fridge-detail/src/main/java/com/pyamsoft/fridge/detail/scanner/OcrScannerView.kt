@@ -40,6 +40,9 @@ internal class OcrScannerView @Inject internal constructor(
 
   override val layoutRoot by lazyView<CameraView>(R.id.camera_view)
 
+  // Interface with callback from the frameProcessor thread
+  private val lock = Any()
+
   private var fotoapparat: Fotoapparat? = null
 
   override fun onInflated(view: View, savedInstanceState: Bundle?) {
@@ -60,26 +63,38 @@ internal class OcrScannerView @Inject internal constructor(
       cameraConfiguration = CameraConfiguration(
         sensorSensitivity = lowestSensorSensitivity(),
         frameProcessor = { frame ->
-          val width = frame.size.width
-          val height = frame.size.height
-          val rotation = frame.rotation
-          val data = frame.image
-          callback.onPreviewFrameReceived(width, height, rotation, data)
+          synchronized(lock) {
+            val width = frame.size.width
+            val height = frame.size.height
+            val rotation = frame.rotation
+            val data = frame.image
+
+            // This frame can fire while we are tearing down
+            if (fotoapparat != null) {
+              callback.onPreviewFrameReceived(width, height, rotation, data)
+            }
+          }
         }
       )
     )
   }
 
   fun start() {
-    requireNotNull(fotoapparat).start()
+    synchronized(lock) {
+      requireNotNull(fotoapparat).start()
+    }
   }
 
   fun stop() {
-    requireNotNull(fotoapparat).stop()
+    synchronized(lock) {
+      requireNotNull(fotoapparat).stop()
+    }
   }
 
   override fun onTeardown() {
-    fotoapparat = null
+    synchronized(lock) {
+      fotoapparat = null
+    }
   }
 
   interface Callback {

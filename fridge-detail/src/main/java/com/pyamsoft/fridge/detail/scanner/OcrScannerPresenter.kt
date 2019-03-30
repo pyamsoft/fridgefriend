@@ -44,14 +44,13 @@ internal class OcrScannerPresenter @Inject internal constructor(
   override fun onPreviewFrameReceived(width: Int, height: Int, rotation: Int, data: ByteArray) {
     if (!frameProcessDisposable.isDisposed) {
       // These logs are noisy
-      // Timber.w("Preview frame received but another process action is still in place.")
-      // Timber.w("Dropping the received preview frame")
+//      Timber.w("Preview frame received but another process action is still in place.")
+//      Timber.w("Dropping the received preview frame")
       return
     }
 
     frameProcessDisposable = interactor.processImage(width, height, rotation, data)
       .subscribeOn(Schedulers.io())
-      .unsubscribeOn(Schedulers.io())
       .observeOn(AndroidSchedulers.mainThread())
       .doAfterTerminate { frameProcessDisposable.tryDispose() }
       .subscribe({ callback.handleOcrResult(it) }, {

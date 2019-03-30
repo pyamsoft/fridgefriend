@@ -17,6 +17,12 @@
 
 package com.pyamsoft.fridge.detail.scanner
 
+import android.content.Context
+import android.hardware.camera2.CameraCharacteristics
+import android.hardware.camera2.CameraManager
+import android.util.SparseIntArray
+import android.view.Surface
+import android.view.WindowManager
 import androidx.annotation.CheckResult
 import com.google.firebase.ml.vision.FirebaseVision
 import com.google.firebase.ml.vision.common.FirebaseVisionImage
@@ -28,8 +34,17 @@ import timber.log.Timber
 import javax.inject.Inject
 
 internal class OcrScannerInteractor @Inject internal constructor(
+  private val context: Context,
   private val enforcer: Enforcer
 ) {
+
+  private val windowManager by lazy {
+    context.applicationContext.getSystemService(Context.WINDOW_SERVICE) as WindowManager
+  }
+
+  private val cameraManager by lazy {
+    context.applicationContext.getSystemService(Context.CAMERA_SERVICE) as CameraManager
+  }
 
   @CheckResult
   fun processImage(width: Int, height: Int, rotation: Int, data: ByteArray): Single<String> {
@@ -40,7 +55,7 @@ internal class OcrScannerInteractor @Inject internal constructor(
         .setWidth(width)
         .setHeight(height)
         .setFormat(FirebaseVisionImageMetadata.IMAGE_FORMAT_NV21)
-        .setRotation(convertToFirebaseRotation(rotation))
+        .setRotation(convertToFirebaseRotation())
         .build()
 
       val image = FirebaseVisionImage.fromByteArray(data, metadata)
@@ -64,13 +79,46 @@ internal class OcrScannerInteractor @Inject internal constructor(
     }
   }
 
+  // https://firebase.google.com/docs/ml-kit/android/recognize-text
   @CheckResult
-  private fun convertToFirebaseRotation(rotation: Int): Int {
-    return when (rotation) {
+  private fun convertToFirebaseRotation(): Int {
+    // Get the device's current rotation relative to its "native" orientation.
+    // Then, from the ORIENTATIONS table, look up the angle the image must be
+    // rotated to compensate for the device's rotation.
+    val deviceRotation = windowManager.defaultDisplay.rotation
+    val compensation = ORIENTATIONS.get(deviceRotation)
+
+    // On most devices, the sensor orientation is 90 degrees, but for some
+    // devices it is 270 degrees. For devices with a sensor orientation of
+    // 270, rotate : CameraManagerthe image an additional 180 ((270 + 270) % 360) degrees.
+    val backCameraId = cameraManager.cameraIdList.filter {
+      val facing = cameraManager.getCameraCharacteristics(it).get(CameraCharacteristics.LENS_FACING)
+      return@filter facing == CameraCharacteristics.LENS_FACING_BACK
+    }.first()
+
+    val sensorOrentation = cameraManager.getCameraCharacteristics(backCameraId)
+      .get(CameraCharacteristics.SENSOR_ORIENTATION) ?: 0
+
+    val rotationCompensation = (compensation + sensorOrentation + 270) % 360
+    return when (rotationCompensation) {
+      0 -> FirebaseVisionImageMetadata.ROTATION_0
       90 -> FirebaseVisionImageMetadata.ROTATION_90
       180 -> FirebaseVisionImageMetadata.ROTATION_180
       270 -> FirebaseVisionImageMetadata.ROTATION_270
-      else -> FirebaseVisionImageMetadata.ROTATION_0
+      else -> {
+        Timber.w("Bad rotation value: $rotationCompensation")
+        FirebaseVisionImageMetadata.ROTATION_0
+      }
+    }
+  }
+
+  companion object {
+
+    private val ORIENTATIONS = SparseIntArray().apply {
+      append(Surface.ROTATION_0, 90)
+      append(Surface.ROTATION_90, 0)
+      append(Surface.ROTATION_180, 270)
+      append(Surface.ROTATION_270, 180)
     }
   }
 
