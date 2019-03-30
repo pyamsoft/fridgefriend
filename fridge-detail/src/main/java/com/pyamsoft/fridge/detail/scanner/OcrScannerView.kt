@@ -43,7 +43,7 @@ internal class OcrScannerView @Inject internal constructor(
   // Interface with callback from the frameProcessor thread
   private val lock = Any()
 
-  private var fotoapparat: Fotoapparat? = null
+  @Volatile private var fotoapparat: Fotoapparat? = null
 
   override fun onInflated(view: View, savedInstanceState: Bundle?) {
     fotoapparat = Fotoapparat(
@@ -66,12 +66,18 @@ internal class OcrScannerView @Inject internal constructor(
           synchronized(lock) {
             val width = frame.size.width
             val height = frame.size.height
-            val rotation = frame.rotation
             val data = frame.image
 
             // This frame can fire while we are tearing down
             if (fotoapparat != null) {
-              callback.onPreviewFrameReceived(width, height, rotation, data)
+              callback.onPreviewFrameReceived(
+                width,
+                height,
+                data,
+                0,
+                0,
+                0
+              )
             }
           }
         }
@@ -99,7 +105,14 @@ internal class OcrScannerView @Inject internal constructor(
 
   interface Callback {
 
-    fun onPreviewFrameReceived(width: Int, height: Int, rotation: Int, data: ByteArray)
+    fun onPreviewFrameReceived(
+      frameWidth: Int,
+      frameHeight: Int,
+      frameData: ByteArray,
+      boundingTopLeft: Int,
+      boundingWidth: Int,
+      boundingHeight: Int
+    )
 
     fun onCameraError(throwable: Throwable)
 

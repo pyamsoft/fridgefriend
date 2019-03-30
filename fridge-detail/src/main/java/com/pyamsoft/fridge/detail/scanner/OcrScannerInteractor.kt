@@ -18,6 +18,7 @@
 package com.pyamsoft.fridge.detail.scanner
 
 import android.content.Context
+import android.graphics.Bitmap
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraManager
 import android.util.SparseIntArray
@@ -27,6 +28,7 @@ import androidx.annotation.CheckResult
 import com.google.firebase.ml.vision.FirebaseVision
 import com.google.firebase.ml.vision.common.FirebaseVisionImage
 import com.google.firebase.ml.vision.common.FirebaseVisionImageMetadata
+import com.google.firebase.ml.vision.common.FirebaseVisionImageMetadata.Builder
 import com.google.firebase.ml.vision.text.FirebaseVisionText
 import com.pyamsoft.pydroid.core.threads.Enforcer
 import io.reactivex.Single
@@ -47,18 +49,28 @@ internal class OcrScannerInteractor @Inject internal constructor(
   }
 
   @CheckResult
-  fun processImage(width: Int, height: Int, rotation: Int, data: ByteArray): Single<String> {
+  fun processImage(
+    frameWidth: Int,
+    frameHeight: Int,
+    frameData: ByteArray,
+    boundingTopLeft: Int,
+    boundingWidth: Int,
+    boundingHeight: Int
+  ): Single<String> {
     return Single.create { emitter ->
       enforcer.assertNotOnMainThread()
 
-      val metadata = FirebaseVisionImageMetadata.Builder()
-        .setWidth(width)
-        .setHeight(height)
+      val originalBitmap = frameData.toBitmap(frameWidth, frameHeight)
+      val croppedBitmap = cropBitmap(originalBitmap, boundingTopLeft, boundingWidth, boundingHeight)
+
+      val metadata = Builder()
+        .setWidth(croppedBitmap.width)
+        .setHeight(croppedBitmap.height)
         .setFormat(FirebaseVisionImageMetadata.IMAGE_FORMAT_NV21)
         .setRotation(convertToFirebaseRotation())
         .build()
 
-      val image = FirebaseVisionImage.fromByteArray(data, metadata)
+      val image = FirebaseVisionImage.fromByteArray(croppedBitmap.toBytes(), metadata)
       val recognizer = FirebaseVision.getInstance().onDeviceTextRecognizer
 
       recognizer.processImage(image)
@@ -79,9 +91,21 @@ internal class OcrScannerInteractor @Inject internal constructor(
     }
   }
 
+  @CheckResult
+  private fun cropBitmap(
+    bitmap: Bitmap,
+    boundingTopLeft: Int,
+    boundingWidth: Int,
+    boundingHeight: Int
+  ): Bitmap {
+    return bitmap
+  }
+
   // https://firebase.google.com/docs/ml-kit/android/recognize-text
   @CheckResult
   private fun convertToFirebaseRotation(): Int {
+    enforcer.assertNotOnMainThread()
+
     // Get the device's current rotation relative to its "native" orientation.
     // Then, from the ORIENTATIONS table, look up the angle the image must be
     // rotated to compensate for the device's rotation.
