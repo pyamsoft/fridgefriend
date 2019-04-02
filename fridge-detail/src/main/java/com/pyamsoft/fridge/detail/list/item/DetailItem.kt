@@ -23,4 +23,9 @@ import com.pyamsoft.fridge.db.item.FridgeItem
 
 internal abstract class DetailItem<I : DetailItem<I, VH>, VH : RecyclerView.ViewHolder> protected constructor(
   item: FridgeItem
-) : ModelAbstractItem<FridgeItem, I, VH>(item)
+) : ModelAbstractItem<FridgeItem, I, VH>(item) {
+
+  final override fun getIdentifier(): Long {
+    return model.id().hashCode().toLong()
+  }
+}

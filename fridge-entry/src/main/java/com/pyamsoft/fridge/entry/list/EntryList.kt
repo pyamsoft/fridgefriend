@@ -63,7 +63,9 @@ internal class EntryList @Inject internal constructor(
     }
 
     recyclerView.adapter =
-      FastAdapter.with<EntryItem<*, *>, ModelAdapter<FridgeEntry, *>>(usingAdapter())
+      FastAdapter.with<EntryItem<*, *>, ModelAdapter<FridgeEntry, *>>(usingAdapter()).apply {
+        setHasStableIds(true)
+      }
 
     layoutRoot.setOnRefreshListener {
       callback.onRefresh()

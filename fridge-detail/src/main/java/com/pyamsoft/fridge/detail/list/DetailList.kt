@@ -95,7 +95,9 @@ internal class DetailList @Inject internal constructor(
     decoration = decor
 
     recyclerView.adapter =
-      FastAdapter.with<DetailItem<*, *>, ModelAdapter<FridgeItem, *>>(usingAdapter())
+      FastAdapter.with<DetailItem<*, *>, ModelAdapter<FridgeItem, *>>(usingAdapter()).apply {
+        setHasStableIds(true)
+      }
 
     layoutRoot.setOnRefreshListener {
       callback.onRefresh()

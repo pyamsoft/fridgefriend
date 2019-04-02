@@ -23,4 +23,9 @@ import com.pyamsoft.fridge.db.entry.FridgeEntry
 
 internal abstract class EntryItem<I : EntryItem<I, VH>, VH : RecyclerView.ViewHolder> protected constructor(
   entry: FridgeEntry
-) : ModelAbstractItem<FridgeEntry, I, VH>(entry)
+) : ModelAbstractItem<FridgeEntry, I, VH>(entry) {
+
+  final override fun getIdentifier(): Long {
+    return model.id().hashCode().toLong()
+  }
+}
