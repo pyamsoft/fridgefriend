@@ -44,6 +44,7 @@ internal class DetailListItemStrikethrough @Inject internal constructor(
 //    } else {
 //      hide()
 //    }
+    hide()
   }
 
   override fun onTeardown() {
