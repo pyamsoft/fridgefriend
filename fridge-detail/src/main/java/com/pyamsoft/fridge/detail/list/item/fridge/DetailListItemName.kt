@@ -32,10 +32,11 @@ import javax.inject.Named
 internal class DetailListItemName @Inject internal constructor(
   private val nonPersistedEditableStateMap: MutableMap<String, Int>,
   @Named("detail_entry_id") entryId: String,
+  @Named("detail_editable") editable: Boolean,
   item: FridgeItem,
   parent: ViewGroup,
   callback: DetailListItem.Callback
-) : DetailListItem(entryId, item, parent, callback) {
+) : DetailListItem(editable, entryId, item, parent, callback) {
 
   private var nameWatcher: TextWatcher? = null
 
@@ -85,6 +86,7 @@ internal class DetailListItemName @Inject internal constructor(
   }
 
   private fun commit(name: String) {
+    if ()
     saveEditingState()
     commitModel(name = name)
   }

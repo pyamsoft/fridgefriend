@@ -24,6 +24,7 @@ import com.pyamsoft.pydroid.arch.BaseUiView
 import java.util.Date
 
 internal abstract class DetailListItem protected constructor(
+  protected val editable: Boolean,
   protected val entryId: String,
   protected val item: FridgeItem,
   parent: ViewGroup,

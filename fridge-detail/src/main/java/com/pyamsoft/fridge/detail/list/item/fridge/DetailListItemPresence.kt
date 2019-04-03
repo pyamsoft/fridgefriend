@@ -30,10 +30,11 @@ import javax.inject.Named
 
 internal class DetailListItemPresence @Inject internal constructor(
   @Named("detail_entry_id") entryId: String,
+  @Named("detail_editable") editable: Boolean,
   item: FridgeItem,
   parent: ViewGroup,
   callback: DetailListItem.Callback
-) : DetailListItem(entryId, item, parent, callback) {
+) : DetailListItem(editable, entryId, item, parent, callback) {
 
   override val layout: Int = R.layout.detail_list_item_presence
 
