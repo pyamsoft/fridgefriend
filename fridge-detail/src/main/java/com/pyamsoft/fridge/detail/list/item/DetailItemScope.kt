@@ -20,4 +20,4 @@ package com.pyamsoft.fridge.detail.list.item
 import javax.inject.Scope
 
 @Scope
-annotation class DetailItemScope
+internal annotation class DetailItemScope
