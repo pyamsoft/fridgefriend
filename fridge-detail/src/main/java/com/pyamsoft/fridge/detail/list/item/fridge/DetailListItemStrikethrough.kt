@@ -23,11 +23,14 @@ import android.view.ViewGroup
 import androidx.core.view.isInvisible
 import androidx.core.view.isVisible
 import com.pyamsoft.fridge.db.item.FridgeItem
+import com.pyamsoft.fridge.db.item.FridgeItem.Presence.HAVE
 import com.pyamsoft.fridge.detail.R
 import com.pyamsoft.pydroid.arch.UiToggleView
 import javax.inject.Inject
+import javax.inject.Named
 
 internal class DetailListItemStrikethrough @Inject internal constructor(
+  @Named("item_editable") private val editable: Boolean,
   item: FridgeItem,
   parent: ViewGroup,
   callback: DetailListItem.Callback
@@ -39,12 +42,15 @@ internal class DetailListItemStrikethrough @Inject internal constructor(
   private val strikeThrough by lazyView<View>(R.id.detail_item_strikethrough_line)
 
   override fun onInflated(view: View, savedInstanceState: Bundle?) {
-//    if (item.presence() == HAVE) {
-//      show()
-//    } else {
-//      hide()
-//    }
-    hide()
+    if (editable) {
+      hide()
+    } else {
+      if (item.presence() == HAVE) {
+        show()
+      } else {
+        hide()
+      }
+    }
   }
 
   override fun onTeardown() {

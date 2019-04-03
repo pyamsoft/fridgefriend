@@ -76,6 +76,7 @@ internal class AddNewListItemController internal constructor(
 
       builder
         .parent(parent)
+        .editable(false)
         .item(item)
         .build()
         .inject(this)

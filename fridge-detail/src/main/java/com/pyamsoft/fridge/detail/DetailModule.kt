@@ -56,8 +56,4 @@ abstract class DetailModule {
   @CheckResult
   internal abstract fun bindListCallback(impl: DetailListPresenter): DetailList.Callback
 
-  @Binds
-  @CheckResult
-  internal abstract fun bindListComponent(impl: DetailListUiComponentImpl): DetailListUiComponent
-
 }

@@ -27,9 +27,11 @@ import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.detail.R
 import timber.log.Timber
 import javax.inject.Inject
+import javax.inject.Named
 
 internal class DetailListItemName @Inject internal constructor(
   private val nonPersistedEditableStateMap: MutableMap<String, Int>,
+  @Named("item_editable") private val editable: Boolean,
   item: FridgeItem,
   parent: ViewGroup,
   callback: DetailListItem.Callback
@@ -55,23 +57,27 @@ internal class DetailListItemName @Inject internal constructor(
       nonPersistedEditableStateMap.remove(item.id())
     }
 
-    val watcher = object : TextWatcher {
+    if (editable) {
+      val watcher = object : TextWatcher {
 
-      override fun afterTextChanged(s: Editable?) {
-        if (s != null) {
-          commit(s.toString())
+        override fun afterTextChanged(s: Editable?) {
+          if (s != null) {
+            commit(s.toString())
+          }
         }
-      }
 
-      override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
-      }
+        override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+        }
 
-      override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-      }
+        override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+        }
 
+      }
+      nameView.addTextChangedListener(watcher)
+      nameWatcher = watcher
+    } else {
+      nameView.isEnabled = false
     }
-    nameView.addTextChangedListener(watcher)
-    nameWatcher = watcher
   }
 
   override fun onTeardown() {

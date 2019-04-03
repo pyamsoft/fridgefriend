@@ -38,6 +38,7 @@ import dagger.Binds
 import dagger.BindsInstance
 import dagger.Component
 import dagger.Module
+import javax.inject.Named
 
 @DetailItemScope
 @Component(modules = [DetailItemModule::class])
@@ -57,6 +58,10 @@ internal interface DetailItemComponent {
     @BindsInstance
     @CheckResult
     fun item(item: FridgeItem): Builder
+
+    @BindsInstance
+    @CheckResult
+    fun editable(@Named("item_editable") editable: Boolean): Builder
 
     @BindsInstance
     @CheckResult

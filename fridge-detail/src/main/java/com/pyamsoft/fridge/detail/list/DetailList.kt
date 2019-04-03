@@ -37,18 +37,15 @@ import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.detail.R
 import com.pyamsoft.fridge.detail.list.item.DaggerDetailItemComponent
 import com.pyamsoft.fridge.detail.list.item.DetailItem
-import com.pyamsoft.fridge.detail.list.item.add.AddNewListItemController
+import com.pyamsoft.fridge.detail.list.item.DetailItemComponent
 import com.pyamsoft.fridge.detail.list.item.fridge.DetailListItemController
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.ui.theme.Theming
 import com.pyamsoft.pydroid.ui.util.refreshing
 import timber.log.Timber
-import javax.inject.Inject
-import javax.inject.Named
 
-internal class DetailList @Inject internal constructor(
-  @Named("detail_entry_id") private val entryId: String,
+internal abstract class DetailList protected constructor(
   private val interactor: DetailListInteractor,
   private val imageLoader: ImageLoader,
   private val stateMap: MutableMap<String, Int>,
@@ -56,12 +53,11 @@ internal class DetailList @Inject internal constructor(
   parent: ViewGroup,
   callback: DetailList.Callback
 ) : BaseUiView<DetailList.Callback>(parent, callback),
-  DetailListItemController.Callback,
-  AddNewListItemController.Callback {
+  DetailListItemController.Callback {
 
-  override val layout: Int = R.layout.detail_list
+  final override val layout: Int = R.layout.detail_list
 
-  override val layoutRoot by lazyView<SwipeRefreshLayout>(R.id.detail_swipe_refresh)
+  final override val layoutRoot by lazyView<SwipeRefreshLayout>(R.id.detail_swipe_refresh)
 
   private val recyclerView by lazyView<RecyclerView>(R.id.detail_list)
 
@@ -69,28 +65,22 @@ internal class DetailList @Inject internal constructor(
   private var touchHelper: ItemTouchHelper? = null
   private var modelAdapter: ModelAdapter<FridgeItem, DetailItem<*, *>>? = null
 
-  override fun onInflated(view: View, savedInstanceState: Bundle?) {
+  @CheckResult
+  protected abstract fun createListItem(
+    item: FridgeItem,
+    builder: DetailItemComponent.Builder
+  ): DetailItem<*, *>
+
+  protected abstract fun onListEmpty()
+
+  final override fun onInflated(view: View, savedInstanceState: Bundle?) {
     val builder = DaggerDetailItemComponent.builder()
       .interactor(interactor)
       .imageLoader(imageLoader)
       .stateMap(stateMap)
       .theming(theming)
 
-    modelAdapter = ModelAdapter { item ->
-      if (item.id().isBlank()) {
-        return@ModelAdapter AddNewListItemController(
-          item,
-          builder,
-          this
-        )
-      } else {
-        return@ModelAdapter DetailListItemController(
-          item,
-          builder,
-          this
-        )
-      }
-    }
+    modelAdapter = ModelAdapter { createListItem(it, builder) }
 
     recyclerView.layoutManager = LinearLayoutManager(view.context).apply {
       isItemPrefetchEnabled = true
@@ -156,7 +146,7 @@ internal class DetailList @Inject internal constructor(
     }
   }
 
-  override fun onTeardown() {
+  final override fun onTeardown() {
     // Throws
     // recyclerView.adapter = null
     usingAdapter().clear()
@@ -194,12 +184,13 @@ internal class DetailList @Inject internal constructor(
   fun finishRefresh() {
     layoutRoot.refreshing(false)
     usingAdapter().add(FridgeItem.empty())
-    addNewItemIfEmpty()
+
+    fixListIfEmpty()
   }
 
-  private fun addNewItemIfEmpty() {
+  private fun fixListIfEmpty() {
     if (usingAdapter().adapterItemCount <= 1) {
-      onAddNewItem()
+      onListEmpty()
     }
   }
 
@@ -253,22 +244,18 @@ internal class DetailList @Inject internal constructor(
       usingAdapter().remove(index)
     }
 
-    addNewItemIfEmpty()
+    fixListIfEmpty()
   }
 
-  override fun onAddNewItem() {
-    insert(FridgeItem.create(entryId = entryId))
-  }
-
-  override fun onFakeDelete(item: FridgeItem) {
+  final override fun onFakeDelete(item: FridgeItem) {
     delete(item)
   }
 
-  override fun onCommitError(throwable: Throwable) {
+  final override fun onCommitError(throwable: Throwable) {
     showError(throwable)
   }
 
-  override fun onDeleteError(throwable: Throwable) {
+  final override fun onDeleteError(throwable: Throwable) {
     showError(throwable)
   }
 

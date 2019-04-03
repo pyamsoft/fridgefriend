@@ -23,9 +23,8 @@ import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.detail.list.DetailListUiComponent.Callback
 import com.pyamsoft.pydroid.arch.BaseUiComponent
 import com.pyamsoft.pydroid.arch.doOnDestroy
-import javax.inject.Inject
 
-internal class DetailListUiComponentImpl @Inject internal constructor(
+internal abstract class DetailListUiComponentImpl protected constructor(
   private val list: DetailList,
   private val presenter: DetailListPresenter
 ) : BaseUiComponent<DetailListUiComponent.Callback>(),

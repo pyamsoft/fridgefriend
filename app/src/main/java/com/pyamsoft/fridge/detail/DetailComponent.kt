@@ -25,7 +25,7 @@ import dagger.Subcomponent
 import javax.inject.Named
 
 @DetailScope
-@Subcomponent(modules = [DetailModule::class, DetailProvider::class])
+@Subcomponent(modules = [CreationDetailModule::class, DetailModule::class, DetailProvider::class])
 internal interface DetailComponent {
 
   fun inject(fragment: DetailFragment)

@@ -35,9 +35,10 @@ import javax.inject.Inject
 
 internal class DetailListItemController internal constructor(
   item: FridgeItem,
+  editable: Boolean,
   private val builder: DetailItemComponent.Builder,
   private val callback: DetailListItemController.Callback
-) : DetailItem<DetailListItemController, ViewHolder>(item, swipeable = true),
+) : DetailItem<DetailListItemController, ViewHolder>(item, swipeable = editable),
   DetailListItemUiComponent.Callback {
 
   override fun getType(): Int {
@@ -62,7 +63,7 @@ internal class DetailListItemController internal constructor(
 
   override fun bindView(holder: ViewHolder, payloads: MutableList<Any>) {
     super.bindView(holder, payloads)
-    holder.bind(model, this)
+    holder.bind(model, canSwipe(), this)
   }
 
   override fun unbindView(holder: ViewHolder) {
@@ -102,11 +103,12 @@ internal class DetailListItemController internal constructor(
 
     private val parent: ConstraintLayout = itemView.findViewById(R.id.listitem_constraint)
 
-    fun bind(item: FridgeItem, callback: DetailListItemUiComponent.Callback) {
+    fun bind(item: FridgeItem, editable: Boolean, callback: DetailListItemUiComponent.Callback) {
       lifecycle?.unbind()
 
       builder
         .parent(parent)
+        .editable(editable)
         .item(item)
         .build()
         .inject(this)
