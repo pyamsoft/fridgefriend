@@ -24,20 +24,18 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
 import com.pyamsoft.fridge.db.item.FridgeItem
-import com.pyamsoft.fridge.db.item.FridgeItem.Presence
 import com.pyamsoft.fridge.detail.R
 import timber.log.Timber
-import java.util.Date
 import javax.inject.Inject
 import javax.inject.Named
 
 internal class DetailListItemName @Inject internal constructor(
-  @Named("detail_entry_id") private val entryId: String,
   private val nonPersistedEditableStateMap: MutableMap<String, Int>,
+  @Named("detail_entry_id") entryId: String,
   item: FridgeItem,
   parent: ViewGroup,
-  callback: DetailListItemName.Callback
-) : DetailListItem<DetailListItemName.Callback>(item, parent, callback) {
+  callback: DetailListItem.Callback
+) : DetailListItem(entryId, item, parent, callback) {
 
   private var nameWatcher: TextWatcher? = null
 
@@ -73,7 +71,7 @@ internal class DetailListItemName @Inject internal constructor(
 
       override fun afterTextChanged(s: Editable?) {
         if (s != null) {
-          commit(name = s.toString())
+          commit(s.toString())
         }
       }
 
@@ -94,13 +92,9 @@ internal class DetailListItemName @Inject internal constructor(
     nameWatcher = null
   }
 
-  private fun commit(
-    name: String = layoutRoot.text.toString(),
-    expireTime: Date = Date(),
-    presence: Presence = Presence.NEED
-  ) {
+  private fun commit(name: String) {
     saveEditingState()
-    commitModel(name, expireTime, presence)
+    commitModel(name = name)
   }
 
   private fun saveEditingState() {
@@ -110,40 +104,5 @@ internal class DetailListItemName @Inject internal constructor(
     nonPersistedEditableStateMap[item.id()] = location
   }
 
-  private fun commitModel(
-    name: String = item.name(),
-    expireTime: Date = item.expireTime(),
-    presence: Presence = item.presence()
-  ) {
-    if (item.entryId() == entryId) {
-
-      // Commit a new model from a dif
-      val oldModel = item
-      var newModel = item
-      if (oldModel.name() != name) {
-        newModel = newModel.name(name)
-      }
-      if (oldModel.expireTime() != expireTime) {
-        newModel = newModel.expireTime(expireTime)
-      }
-      if (oldModel.presence() != presence) {
-        newModel = newModel.presence(presence)
-      }
-
-      if (newModel != oldModel) {
-        callback.onUpdateModel(newModel)
-      }
-
-      callback.onCommit(newModel)
-    }
-  }
-
-  interface Callback {
-
-    fun onCommit(item: FridgeItem)
-
-    fun onUpdateModel(item: FridgeItem)
-
-  }
 }
 

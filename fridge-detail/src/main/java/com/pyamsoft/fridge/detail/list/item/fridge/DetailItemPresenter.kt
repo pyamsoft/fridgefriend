@@ -36,7 +36,7 @@ import javax.inject.Inject
 internal class DetailItemPresenter @Inject internal constructor(
   private val interactor: DetailListInteractor
 ) : BasePresenter<Unit, Callback>(RxBus.empty()),
-  DetailListItemName.Callback {
+  DetailListItem.Callback {
 
   private var updateDisposable by singleDisposable()
   private var deleteDisposable by singleDisposable()

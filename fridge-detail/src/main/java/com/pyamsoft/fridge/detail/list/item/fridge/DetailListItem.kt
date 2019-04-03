@@ -19,11 +19,52 @@ package com.pyamsoft.fridge.detail.list.item.fridge
 
 import android.view.ViewGroup
 import com.pyamsoft.fridge.db.item.FridgeItem
+import com.pyamsoft.fridge.db.item.FridgeItem.Presence
 import com.pyamsoft.pydroid.arch.BaseUiView
+import java.util.Date
 
-internal abstract class DetailListItem<C : Any> protected constructor(
+internal abstract class DetailListItem protected constructor(
+  protected val entryId: String,
   protected val item: FridgeItem,
   parent: ViewGroup,
-  callback: C
-) : BaseUiView<C>(parent, callback)
+  callback: Callback
+) : BaseUiView<DetailListItem.Callback>(parent, callback) {
+
+  protected fun commitModel(
+    name: String = item.name(),
+    expireTime: Date = item.expireTime(),
+    presence: Presence = item.presence()
+  ) {
+    if (item.entryId() == entryId) {
+
+      // Commit a new model from a dif
+      val oldModel = item
+      var newModel = item
+      if (oldModel.name() != name) {
+        newModel = newModel.name(name)
+      }
+      if (oldModel.expireTime() != expireTime) {
+        newModel = newModel.expireTime(expireTime)
+      }
+      if (oldModel.presence() != presence) {
+        newModel = newModel.presence(presence)
+      }
+
+      if (newModel != oldModel) {
+        callback.onUpdateModel(newModel)
+      }
+
+      callback.onCommit(newModel)
+    }
+  }
+
+  interface Callback {
+
+    fun onCommit(item: FridgeItem)
+
+    fun onUpdateModel(item: FridgeItem)
+
+  }
+
+}
 
