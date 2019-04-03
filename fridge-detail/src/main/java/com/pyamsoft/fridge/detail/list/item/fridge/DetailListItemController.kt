@@ -19,6 +19,7 @@ package com.pyamsoft.fridge.detail.list.item.fridge
 
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.view.updatePadding
 import androidx.recyclerview.widget.RecyclerView
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.detail.R
@@ -26,13 +27,15 @@ import com.pyamsoft.fridge.detail.list.item.DetailItem
 import com.pyamsoft.fridge.detail.list.item.DetailItemComponent
 import com.pyamsoft.fridge.detail.list.item.ListItemLifecycle
 import com.pyamsoft.fridge.detail.list.item.fridge.DetailListItemController.ViewHolder
+import com.pyamsoft.pydroid.util.toDp
+import timber.log.Timber
 import javax.inject.Inject
 
 internal class DetailListItemController internal constructor(
   item: FridgeItem,
   private val builder: DetailItemComponent.Builder,
   private val callback: DetailListItemController.Callback
-) : DetailItem<DetailListItemController, ViewHolder>(item),
+) : DetailItem<DetailListItemController, ViewHolder>(item, swipeable = true),
   DetailListItemUiComponent.Callback {
 
   override fun getType(): Int {
@@ -40,6 +43,14 @@ internal class DetailListItemController internal constructor(
   }
 
   override fun getViewHolder(v: View): ViewHolder {
+    val horizontalPadding = 16.toDp(v.context)
+    val verticalPadding = 8.toDp(v.context)
+    v.updatePadding(
+      left = horizontalPadding,
+      right = horizontalPadding,
+      top = verticalPadding,
+      bottom = verticalPadding
+    )
     return ViewHolder(v, builder)
   }
 
@@ -67,10 +78,6 @@ internal class DetailListItemController internal constructor(
 
   override fun onDeleteItemError(throwable: Throwable) {
     callback.onDeleteError(throwable)
-  }
-
-  override fun onOpenScanner(item: FridgeItem) {
-    callback.onOpenScanner(item)
   }
 
   override fun onModelUpdate(item: FridgeItem) {
@@ -105,6 +112,12 @@ internal class DetailListItemController internal constructor(
     fun unbind() {
       lifecycle?.unbind()
       lifecycle = null
+    }
+
+    // Kind of hacky
+    fun deleteSelf(item: FridgeItem) {
+      Timber.d("Delete self: $item")
+      component.deleteSelf(item)
     }
 
   }

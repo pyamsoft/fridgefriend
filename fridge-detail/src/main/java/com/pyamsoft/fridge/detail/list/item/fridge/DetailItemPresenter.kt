@@ -36,7 +36,6 @@ import javax.inject.Inject
 internal class DetailItemPresenter @Inject internal constructor(
   private val interactor: DetailListInteractor
 ) : BasePresenter<Unit, Callback>(RxBus.empty()),
-  DetailListItemDelete.Callback,
   DetailListItemName.Callback {
 
   private var updateDisposable by singleDisposable()
@@ -64,10 +63,7 @@ internal class DetailItemPresenter @Inject internal constructor(
       })
   }
 
-  override fun onDelete(item: FridgeItem) {
-    // TODO test
-    callback.handleOpenScanner(item)
-
+  fun deleteSelf(item: FridgeItem) {
     // Stop any pending updates
     updateDisposable.tryDispose()
 
@@ -97,8 +93,6 @@ internal class DetailItemPresenter @Inject internal constructor(
   }
 
   interface Callback {
-
-    fun handleOpenScanner(item: FridgeItem)
 
     fun handleModelUpdate(item: FridgeItem)
 

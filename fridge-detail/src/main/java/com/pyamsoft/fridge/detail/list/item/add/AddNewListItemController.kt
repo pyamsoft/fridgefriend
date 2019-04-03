@@ -32,7 +32,7 @@ internal class AddNewListItemController internal constructor(
   item: FridgeItem,
   private val builder: DetailItemComponent.Builder,
   private val callback: AddNewListItemController.Callback
-) : DetailItem<AddNewListItemController, ViewHolder>(item),
+) : DetailItem<AddNewListItemController, ViewHolder>(item, swipeable = false),
   AddNewItemUiComponent.Callback {
 
   override fun getType(): Int {

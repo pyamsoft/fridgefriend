@@ -28,7 +28,6 @@ import javax.inject.Inject
 
 internal class DetailListItemUiComponentImpl @Inject internal constructor(
   private val name: DetailListItemName,
-  private val delete: DetailListItemDelete,
   private val presenter: DetailItemPresenter
 ) : BaseUiComponent<DetailListItemUiComponent.Callback>(),
   DetailListItemUiComponent,
@@ -41,18 +40,15 @@ internal class DetailListItemUiComponentImpl @Inject internal constructor(
   override fun onBind(owner: LifecycleOwner, savedInstanceState: Bundle?, callback: Callback) {
     owner.doOnDestroy {
       name.teardown()
-      delete.teardown()
       presenter.unbind()
     }
 
     name.inflate(savedInstanceState)
-    delete.inflate(savedInstanceState)
     presenter.bind(this)
   }
 
   override fun onSaveState(outState: Bundle) {
     name.saveState(outState)
-    delete.saveState(outState)
   }
 
   override fun handleNonRealItemDelete(item: FridgeItem) {
@@ -71,8 +67,8 @@ internal class DetailListItemUiComponentImpl @Inject internal constructor(
     callback.onModelUpdate(item)
   }
 
-  override fun handleOpenScanner(item: FridgeItem) {
-    callback.onOpenScanner(item)
+  override fun deleteSelf(item: FridgeItem) {
+    presenter.deleteSelf(item)
   }
 
 }

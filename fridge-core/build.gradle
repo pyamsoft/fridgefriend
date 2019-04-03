@@ -72,6 +72,7 @@ dependencies {
   // FastAdapter
   api "com.mikepenz:fastadapter:$fastAdapter@aar"
   api "com.mikepenz:fastadapter-commons:$fastAdapter@aar"
+  api "com.mikepenz:fastadapter-extensions:$fastAdapter@aar"
 
   // Dagger
   api "com.google.dagger:dagger:$dagger"

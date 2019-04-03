@@ -23,9 +23,9 @@ import com.pyamsoft.pydroid.arch.UiComponent
 
 internal interface DetailListItemUiComponent : UiComponent<Callback> {
 
-  interface Callback {
+  fun deleteSelf(item: FridgeItem)
 
-    fun onOpenScanner(item: FridgeItem)
+  interface Callback {
 
     fun onNonRealItemDelete(item: FridgeItem)
 

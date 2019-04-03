@@ -17,13 +17,20 @@
 
 package com.pyamsoft.fridge.detail.list.item
 
+import androidx.annotation.CheckResult
 import androidx.recyclerview.widget.RecyclerView
 import com.mikepenz.fastadapter.items.ModelAbstractItem
 import com.pyamsoft.fridge.db.item.FridgeItem
 
 internal abstract class DetailItem<I : DetailItem<I, VH>, VH : RecyclerView.ViewHolder> protected constructor(
-  item: FridgeItem
+  item: FridgeItem,
+  private val swipeable: Boolean
 ) : ModelAbstractItem<FridgeItem, I, VH>(item) {
+
+  @CheckResult
+  fun canSwipe(): Boolean {
+    return swipeable
+  }
 
   final override fun getIdentifier(): Long {
     return model.id().hashCode().toLong()

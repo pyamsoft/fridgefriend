@@ -17,16 +17,22 @@
 
 package com.pyamsoft.fridge.detail.list
 
+import android.graphics.Color
 import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.CheckResult
+import androidx.appcompat.content.res.AppCompatResources
 import androidx.recyclerview.widget.DividerItemDecoration
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.mikepenz.fastadapter.FastAdapter
+import com.mikepenz.fastadapter.IItem
 import com.mikepenz.fastadapter.adapters.ModelAdapter
+import com.mikepenz.fastadapter_extensions.swipe.SimpleSwipeCallback
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.detail.R
 import com.pyamsoft.fridge.detail.list.item.DaggerDetailItemComponent
@@ -37,6 +43,7 @@ import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.ui.theme.Theming
 import com.pyamsoft.pydroid.ui.util.refreshing
+import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Named
 
@@ -60,6 +67,7 @@ internal class DetailList @Inject internal constructor(
   private val recyclerView by lazyView<RecyclerView>(R.id.detail_list)
 
   private var decoration: DividerItemDecoration? = null
+  private var touchHelper: ItemTouchHelper? = null
   private var modelAdapter: ModelAdapter<FridgeItem, DetailItem<*, *>>? = null
 
   override fun onInflated(view: View, savedInstanceState: Bundle?) {
@@ -104,14 +112,66 @@ internal class DetailList @Inject internal constructor(
     layoutRoot.setOnRefreshListener {
       callback.onRefresh()
     }
+    setupSwipeCallback()
+  }
+
+  private fun setupSwipeCallback() {
+    if (!editable) {
+      Timber.w("List is not editable, we do not allow swipe to delete")
+      return
+    }
+
+    val leftBehindDrawable =
+      AppCompatResources.getDrawable(recyclerView.context, R.drawable.ic_delete_24dp)
+    val itemSwipeCallback = SimpleSwipeCallback.ItemSwipeCallback { position, direction ->
+      Timber.d("Item swiped: $position ${if (direction == ItemTouchHelper.LEFT) "LEFT" else "RIGHT"}")
+      deleteListItem(position)
+    }
+    val background = Color.RED
+    val swipeCallback = object : SimpleSwipeCallback(
+      itemSwipeCallback,
+      leftBehindDrawable,
+      ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT,
+      background
+    ) {
+
+      override fun getMovementFlags(recyclerView: RecyclerView, viewHolder: ViewHolder): Int {
+        val item = FastAdapter.getHolderAdapterItem<IItem<*, *>>(viewHolder)
+        if (item is DetailItem<*, *>) {
+          if (item.canSwipe()) {
+            return super.getMovementFlags(recyclerView, viewHolder)
+          } else {
+            return 0
+          }
+        }
+
+        return super.getMovementFlags(recyclerView, viewHolder)
+      }
+    }.apply {
+      withBackgroundSwipeRight(background)
+      withLeaveBehindSwipeRight(leftBehindDrawable)
+    }
+
+    val helper = ItemTouchHelper(swipeCallback)
+    helper.attachToRecyclerView(recyclerView)
+    touchHelper = helper
+  }
+
+  private fun deleteListItem(position: Int) {
+    val holder: RecyclerView.ViewHolder? = recyclerView.findViewHolderForLayoutPosition(position)
+    if (holder is DetailListItemController.ViewHolder) {
+      holder.deleteSelf(usingAdapter().models[holder.adapterPosition])
+    }
   }
 
   override fun onTeardown() {
-
     // Throws
     // recyclerView.adapter = null
     usingAdapter().clear()
     modelAdapter = null
+
+    touchHelper?.attachToRecyclerView(null)
+    touchHelper = null
 
     decoration?.let { recyclerView.removeItemDecoration(it) }
     decoration = null
