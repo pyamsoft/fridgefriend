@@ -45,10 +45,6 @@ internal interface DetailComponent {
     @CheckResult
     fun entryId(@Named("detail_entry_id") entryId: String): Builder
 
-    @BindsInstance
-    @CheckResult
-    fun editable(@Named("detail_editable") editable: Boolean): Builder
-
     @CheckResult
     fun build(): DetailComponent
   }

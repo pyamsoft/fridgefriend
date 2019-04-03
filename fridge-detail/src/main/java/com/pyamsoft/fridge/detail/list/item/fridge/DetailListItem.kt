@@ -24,8 +24,6 @@ import com.pyamsoft.pydroid.arch.BaseUiView
 import java.util.Date
 
 internal abstract class DetailListItem protected constructor(
-  protected val editable: Boolean,
-  protected val entryId: String,
   protected val item: FridgeItem,
   parent: ViewGroup,
   callback: Callback
@@ -36,27 +34,24 @@ internal abstract class DetailListItem protected constructor(
     expireTime: Date = item.expireTime(),
     presence: Presence = item.presence()
   ) {
-    if (item.entryId() == entryId) {
-
-      // Commit a new model from a dif
-      val oldModel = item
-      var newModel = item
-      if (oldModel.name() != name) {
-        newModel = newModel.name(name)
-      }
-      if (oldModel.expireTime() != expireTime) {
-        newModel = newModel.expireTime(expireTime)
-      }
-      if (oldModel.presence() != presence) {
-        newModel = newModel.presence(presence)
-      }
-
-      if (newModel != oldModel) {
-        callback.onUpdateModel(newModel)
-      }
-
-      callback.onCommit(newModel)
+    // Commit a new model from a dif
+    val oldModel = item
+    var newModel = item
+    if (oldModel.name() != name) {
+      newModel = newModel.name(name)
     }
+    if (oldModel.expireTime() != expireTime) {
+      newModel = newModel.expireTime(expireTime)
+    }
+    if (oldModel.presence() != presence) {
+      newModel = newModel.presence(presence)
+    }
+
+    if (newModel != oldModel) {
+      callback.onUpdateModel(newModel)
+    }
+
+    callback.onCommit(newModel)
   }
 
   interface Callback {

@@ -61,7 +61,6 @@ internal class DetailFragment : Fragment(),
       .plusDetailComponent()
       .toolbarActivity(requireToolbarActivity())
       .entryId(requireArguments().getString(ENTRY_ID, ""))
-      .editable(true)
       .parent(parent)
       .build()
       .inject(this)

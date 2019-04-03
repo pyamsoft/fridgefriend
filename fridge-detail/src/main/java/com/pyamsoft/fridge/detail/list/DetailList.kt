@@ -49,7 +49,6 @@ import javax.inject.Named
 
 internal class DetailList @Inject internal constructor(
   @Named("detail_entry_id") private val entryId: String,
-  @Named("detail_editable") private val editable: Boolean,
   private val interactor: DetailListInteractor,
   private val imageLoader: ImageLoader,
   private val stateMap: MutableMap<String, Int>,
@@ -73,8 +72,6 @@ internal class DetailList @Inject internal constructor(
   override fun onInflated(view: View, savedInstanceState: Bundle?) {
     val builder = DaggerDetailItemComponent.builder()
       .interactor(interactor)
-      .editable(editable)
-      .entryId(entryId)
       .imageLoader(imageLoader)
       .stateMap(stateMap)
       .theming(theming)
@@ -116,11 +113,6 @@ internal class DetailList @Inject internal constructor(
   }
 
   private fun setupSwipeCallback() {
-    if (!editable) {
-      Timber.w("List is not editable, we do not allow swipe to delete")
-      return
-    }
-
     val leftBehindDrawable =
       AppCompatResources.getDrawable(recyclerView.context, R.drawable.ic_delete_24dp)
     val itemSwipeCallback = SimpleSwipeCallback.ItemSwipeCallback { position, direction ->
@@ -211,16 +203,9 @@ internal class DetailList @Inject internal constructor(
     }
   }
 
-  @CheckResult
-  private fun isThisEntry(item: FridgeItem): Boolean {
-    return item.entryId() == entryId
-  }
-
   fun insert(item: FridgeItem) {
     if (!updateExistingItem(item)) {
-      if (isThisEntry(item)) {
-        addToEndBeforeAddNew(item)
-      }
+      addToEndBeforeAddNew(item)
     }
   }
 
@@ -246,7 +231,7 @@ internal class DetailList @Inject internal constructor(
 
   private fun updateExistingItem(item: FridgeItem): Boolean {
     for ((index, e) in usingAdapter().models.withIndex()) {
-      if (item.id() == e.id() && item.entryId() == e.entryId() && isThisEntry(item)) {
+      if (item.id() == e.id() && item.entryId() == e.entryId()) {
         usingAdapter().set(index, item)
         return true
       }
@@ -258,7 +243,7 @@ internal class DetailList @Inject internal constructor(
   fun delete(item: FridgeItem) {
     var index = -1
     for ((i, e) in usingAdapter().models.withIndex()) {
-      if (item.id() == e.id() && item.entryId() == e.entryId() && isThisEntry(item)) {
+      if (item.id() == e.id() && item.entryId() == e.entryId()) {
         index = i
         break
       }

@@ -26,15 +26,12 @@ import com.pyamsoft.fridge.db.item.FridgeItem.Presence.HAVE
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence.NEED
 import com.pyamsoft.fridge.detail.R
 import javax.inject.Inject
-import javax.inject.Named
 
 internal class DetailListItemPresence @Inject internal constructor(
-  @Named("detail_entry_id") entryId: String,
-  @Named("detail_editable") editable: Boolean,
   item: FridgeItem,
   parent: ViewGroup,
   callback: DetailListItem.Callback
-) : DetailListItem(editable, entryId, item, parent, callback) {
+) : DetailListItem(item, parent, callback) {
 
   override val layout: Int = R.layout.detail_list_item_presence
 
