@@ -15,7 +15,7 @@
  *
  */
 
-package com.pyamsoft.fridge.detail.scanner
+package com.pyamsoft.fridge.ocr
 
 import com.pyamsoft.pydroid.arch.BasePresenter
 import com.pyamsoft.pydroid.core.bus.RxBus
@@ -26,7 +26,7 @@ import io.reactivex.schedulers.Schedulers
 import timber.log.Timber
 import javax.inject.Inject
 
-@ScannerScope
+@OcrScope
 internal class OcrScannerPresenter @Inject internal constructor(
   private val interactor: OcrScannerInteractor
 ) : BasePresenter<Unit, OcrScannerPresenter.Callback>(RxBus.empty()),
@@ -56,7 +56,14 @@ internal class OcrScannerPresenter @Inject internal constructor(
       return
     }
 
-    frameProcessDisposable = interactor.processImage(frameWidth, frameHeight, frameData, boundingTopLeft, boundingWidth, boundingHeight)
+    frameProcessDisposable = interactor.processImage(
+      frameWidth,
+      frameHeight,
+      frameData,
+      boundingTopLeft,
+      boundingWidth,
+      boundingHeight
+    )
       .subscribeOn(Schedulers.io())
       .observeOn(AndroidSchedulers.mainThread())
       .doAfterTerminate { frameProcessDisposable.tryDispose() }

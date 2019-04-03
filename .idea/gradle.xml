@@ -15,6 +15,7 @@
             <option value="$PROJECT_DIR$/fridge-detail" />
             <option value="$PROJECT_DIR$/fridge-entry" />
             <option value="$PROJECT_DIR$/fridge-main" />
+            <option value="$PROJECT_DIR$/fridge-ocr" />
             <option value="$PROJECT_DIR$/fridge-setting" />
           </set>
         </option>

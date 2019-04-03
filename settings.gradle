@@ -1,3 +1,4 @@
 include ':app', ':fridge-entry', ':fridge-core', ':fridge-main', ':fridge-setting', ':fridge-db',
+    ':fridge-ocr',
     ':fridge-db-room',
     ':fridge-detail'

@@ -15,7 +15,7 @@
  *
  */
 
-package com.pyamsoft.fridge.scanner
+package com.pyamsoft.fridge.ocr
 
 import android.os.Bundle
 import android.view.Gravity
@@ -30,15 +30,14 @@ import com.pyamsoft.fridge.FridgeComponent
 import com.pyamsoft.fridge.Injector
 import com.pyamsoft.fridge.R
 import com.pyamsoft.fridge.db.item.FridgeItem
-import com.pyamsoft.fridge.detail.scanner.ScannerUiComponent
 import com.pyamsoft.pydroid.arch.layout
 import com.pyamsoft.pydroid.ui.app.requireArguments
 import javax.inject.Inject
 
-internal class ScannerDialog : DialogFragment(),
-  ScannerUiComponent.Callback {
+internal class OcrDialog : DialogFragment(),
+  OcrUiComponent.Callback {
 
-  @field:Inject internal lateinit var scannerComponent: ScannerUiComponent
+  @field:Inject internal lateinit var component: OcrUiComponent
 
   override fun onCreateView(
     inflater: LayoutInflater,
@@ -60,10 +59,10 @@ internal class ScannerDialog : DialogFragment(),
       .build()
       .inject(this)
 
-    scannerComponent.bind(parent, viewLifecycleOwner, savedInstanceState, this)
+    component.bind(parent, viewLifecycleOwner, savedInstanceState, this)
 
     parent.layout {
-      scannerComponent.also {
+      component.also {
         connect(it.id(), ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP)
         connect(it.id(), ConstraintSet.BOTTOM, ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM)
         connect(it.id(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
@@ -87,14 +86,14 @@ internal class ScannerDialog : DialogFragment(),
 
   companion object {
 
-    const val TAG = "ScannerDialog"
+    const val TAG = "OcrDialog"
     private const val ITEM_ID = "item_id"
     private const val ENTRY_ID = "entry_id"
 
     @JvmStatic
     @CheckResult
     fun newInstance(item: FridgeItem): DialogFragment {
-      return ScannerDialog().apply {
+      return OcrDialog().apply {
         arguments = Bundle().apply {
           putString(ITEM_ID, item.id())
           putString(ENTRY_ID, item.entryId())

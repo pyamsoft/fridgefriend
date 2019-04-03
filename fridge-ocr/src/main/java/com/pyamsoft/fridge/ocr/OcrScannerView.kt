@@ -15,12 +15,11 @@
  *
  */
 
-package com.pyamsoft.fridge.detail.scanner
+package com.pyamsoft.fridge.ocr
 
 import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
-import com.pyamsoft.fridge.detail.R
 import com.pyamsoft.pydroid.arch.BaseUiView
 import io.fotoapparat.Fotoapparat
 import io.fotoapparat.configuration.CameraConfiguration

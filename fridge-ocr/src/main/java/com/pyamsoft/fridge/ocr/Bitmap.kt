@@ -15,7 +15,7 @@
  *
  */
 
-package com.pyamsoft.fridge.detail.scanner
+package com.pyamsoft.fridge.ocr
 
 import android.graphics.Bitmap
 import android.graphics.Bitmap.CompressFormat.PNG

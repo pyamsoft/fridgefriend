@@ -15,21 +15,19 @@
  *
  */
 
-package com.pyamsoft.fridge.scanner
+package com.pyamsoft.fridge.ocr
 
 import android.view.ViewGroup
 import androidx.annotation.CheckResult
-import com.pyamsoft.fridge.detail.scanner.ScannerModule
-import com.pyamsoft.fridge.detail.scanner.ScannerScope
 import dagger.BindsInstance
 import dagger.Subcomponent
 import javax.inject.Named
 
-@ScannerScope
-@Subcomponent(modules = [ScannerModule::class])
-internal interface ScannerComponent {
+@OcrScope
+@Subcomponent(modules = [OcrModule::class])
+internal interface OcrComponent {
 
-  fun inject(dialog: ScannerDialog)
+  fun inject(dialog: OcrDialog)
 
   @Subcomponent.Builder
   interface Builder {
@@ -47,7 +45,7 @@ internal interface ScannerComponent {
     fun entryId(@Named("scanner_entry_id") entryId: String): Builder
 
     @CheckResult
-    fun build(): ScannerComponent
+    fun build(): OcrComponent
   }
 
 }

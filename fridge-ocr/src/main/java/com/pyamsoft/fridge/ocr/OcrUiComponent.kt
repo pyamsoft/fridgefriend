@@ -15,28 +15,14 @@
  *
  */
 
-package com.pyamsoft.fridge.detail.scanner
+package com.pyamsoft.fridge.ocr
 
-import android.view.ViewGroup
-import android.widget.TextView
-import com.pyamsoft.fridge.detail.R
-import com.pyamsoft.pydroid.arch.BaseUiView
-import javax.inject.Inject
+import com.pyamsoft.pydroid.arch.UiComponent
 
-internal class OcrLookingLabel @Inject internal constructor(
-  parent: ViewGroup
-) : BaseUiView<Unit>(parent, Unit) {
+interface OcrUiComponent : UiComponent<OcrUiComponent.Callback> {
 
-  override val layout: Int = R.layout.looking
+  interface Callback {
 
-  override val layoutRoot by lazyView<TextView>(R.id.looking)
-
-  override fun onTeardown() {
-    layoutRoot.text = ""
-  }
-
-  fun lookingAt(text: String) {
-    layoutRoot.text = text
   }
 
 }

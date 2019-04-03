@@ -15,9 +15,9 @@
  *
  */
 
-package com.pyamsoft.fridge.detail.scanner
+package com.pyamsoft.fridge.ocr
 
 import javax.inject.Scope
 
 @Scope
-annotation class ScannerScope
+annotation class OcrScope

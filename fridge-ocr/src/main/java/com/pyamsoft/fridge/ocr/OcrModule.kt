@@ -15,14 +15,21 @@
  *
  */
 
-package com.pyamsoft.fridge.detail.scanner
+package com.pyamsoft.fridge.ocr
 
-import com.pyamsoft.pydroid.arch.UiComponent
+import androidx.annotation.CheckResult
+import dagger.Binds
+import dagger.Module
 
-interface ScannerUiComponent : UiComponent<ScannerUiComponent.Callback> {
+@Module
+abstract class OcrModule {
 
-  interface Callback {
+  @Binds
+  @CheckResult
+  internal abstract fun bindScannerCallback(impl: OcrScannerPresenter): OcrScannerView.Callback
 
-  }
+  @Binds
+  @CheckResult
+  internal abstract fun bindScannerComponent(impl: OcrUiComponentImpl): OcrUiComponent
 
 }

@@ -56,7 +56,7 @@ buildscript {
     fotoapparat = "2.7.0"
 
     // Firebase
-    firebase = "16.0.1"
+    firebase = "16.0.8"
     mlVision = "19.0.3"
   }
 

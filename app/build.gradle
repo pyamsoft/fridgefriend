@@ -101,6 +101,7 @@ dependencies {
   api project(':fridge-detail')
   api project(':fridge-entry')
   api project(':fridge-main')
+  api project(':fridge-ocr')
   api project(':fridge-setting')
 }
 

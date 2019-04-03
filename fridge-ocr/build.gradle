@@ -68,6 +68,12 @@ dependencies {
 
   kapt "com.google.dagger:dagger-compiler:$dagger"
 
+  api "io.fotoapparat:fotoapparat:$fotoapparat"
+
+  api "com.google.firebase:firebase-core:$firebase"
+  api "com.google.firebase:firebase-ml-vision:$mlVision"
+
   api project(':fridge-core')
   api project(':fridge-db')
 }
+

@@ -15,21 +15,27 @@
  *
  */
 
-package com.pyamsoft.fridge.detail.scanner
+package com.pyamsoft.fridge.ocr
 
-import androidx.annotation.CheckResult
-import dagger.Binds
-import dagger.Module
+import android.view.ViewGroup
+import android.widget.TextView
+import com.pyamsoft.pydroid.arch.BaseUiView
+import javax.inject.Inject
 
-@Module
-abstract class ScannerModule {
+internal class OcrLookingLabel @Inject internal constructor(
+  parent: ViewGroup
+) : BaseUiView<Unit>(parent, Unit) {
 
-  @Binds
-  @CheckResult
-  internal abstract fun bindScannerCallback(impl: OcrScannerPresenter): OcrScannerView.Callback
+  override val layout: Int = R.layout.looking
 
-  @Binds
-  @CheckResult
-  internal abstract fun bindScannerComponent(impl: ScannerUiComponentImpl): ScannerUiComponent
+  override val layoutRoot by lazyView<TextView>(R.id.looking)
+
+  override fun onTeardown() {
+    layoutRoot.text = ""
+  }
+
+  fun lookingAt(text: String) {
+    layoutRoot.text = text
+  }
 
 }

@@ -15,7 +15,7 @@
  *
  */
 
-package com.pyamsoft.fridge.detail.scanner
+package com.pyamsoft.fridge.ocr
 
 import android.os.Bundle
 import androidx.constraintlayout.widget.ConstraintSet
@@ -28,12 +28,12 @@ import androidx.lifecycle.OnLifecycleEvent
 import com.pyamsoft.pydroid.arch.BaseUiComponent
 import javax.inject.Inject
 
-internal class ScannerUiComponentImpl @Inject internal constructor(
+internal class OcrUiComponentImpl @Inject internal constructor(
   private val lookingLabel: OcrLookingLabel,
   private val scanner: OcrScannerView,
   private val presenter: OcrScannerPresenter
-) : BaseUiComponent<ScannerUiComponent.Callback>(),
-  ScannerUiComponent,
+) : BaseUiComponent<OcrUiComponent.Callback>(),
+  OcrUiComponent,
   LifecycleObserver,
   OcrScannerPresenter.Callback {
 
@@ -46,7 +46,7 @@ internal class ScannerUiComponentImpl @Inject internal constructor(
   override fun onBind(
     owner: LifecycleOwner,
     savedInstanceState: Bundle?,
-    callback: ScannerUiComponent.Callback
+    callback: OcrUiComponent.Callback
   ) {
     owner.lifecycle.addObserver(this)
     lifecycleOwner = owner
