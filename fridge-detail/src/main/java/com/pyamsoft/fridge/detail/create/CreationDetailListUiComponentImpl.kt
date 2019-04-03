@@ -15,8 +15,11 @@
  *
  */
 
-package com.pyamsoft.fridge.detail.list
+package com.pyamsoft.fridge.detail.create
 
+import com.pyamsoft.fridge.detail.list.DetailList
+import com.pyamsoft.fridge.detail.list.DetailListPresenter
+import com.pyamsoft.fridge.detail.list.DetailListUiComponentImpl
 import javax.inject.Inject
 
 internal class CreationDetailListUiComponentImpl @Inject internal constructor(

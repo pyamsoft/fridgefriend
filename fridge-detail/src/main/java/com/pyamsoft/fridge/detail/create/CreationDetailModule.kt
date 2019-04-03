@@ -15,11 +15,9 @@
  *
  */
 
-package com.pyamsoft.fridge.detail
+package com.pyamsoft.fridge.detail.create
 
 import androidx.annotation.CheckResult
-import com.pyamsoft.fridge.detail.list.CreationDetailList
-import com.pyamsoft.fridge.detail.list.CreationDetailListUiComponentImpl
 import com.pyamsoft.fridge.detail.list.DetailList
 import com.pyamsoft.fridge.detail.list.DetailListUiComponent
 import dagger.Binds

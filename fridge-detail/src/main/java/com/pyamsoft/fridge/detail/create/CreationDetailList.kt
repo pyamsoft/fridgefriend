@@ -15,10 +15,12 @@
  *
  */
 
-package com.pyamsoft.fridge.detail.list
+package com.pyamsoft.fridge.detail.create
 
 import android.view.ViewGroup
 import com.pyamsoft.fridge.db.item.FridgeItem
+import com.pyamsoft.fridge.detail.list.DetailList
+import com.pyamsoft.fridge.detail.list.DetailListInteractor
 import com.pyamsoft.fridge.detail.list.item.DetailItem
 import com.pyamsoft.fridge.detail.list.item.DetailItemComponent.Builder
 import com.pyamsoft.fridge.detail.list.item.add.AddNewListItemController
@@ -35,7 +37,7 @@ internal class CreationDetailList @Inject internal constructor(
   stateMap: MutableMap<String, Int>,
   theming: Theming,
   parent: ViewGroup,
-  callback: DetailList.Callback
+  callback: Callback
 ) : DetailList(interactor, imageLoader, stateMap, theming, parent, callback),
   AddNewListItemController.Callback {
 
