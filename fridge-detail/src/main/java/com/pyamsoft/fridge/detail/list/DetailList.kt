@@ -275,7 +275,7 @@ internal class DetailList @Inject internal constructor(
     insert(FridgeItem.create(entryId = entryId))
   }
 
-  override fun onDelete(item: FridgeItem) {
+  override fun onFakeDelete(item: FridgeItem) {
     delete(item)
   }
 
@@ -287,15 +287,9 @@ internal class DetailList @Inject internal constructor(
     showError(throwable)
   }
 
-  override fun onOpenScanner(item: FridgeItem) {
-    callback.onOpenScanner(item)
-  }
-
   interface Callback {
 
     fun onRefresh()
-
-    fun onOpenScanner(item: FridgeItem)
 
   }
 }

@@ -28,15 +28,12 @@ import androidx.fragment.app.Fragment
 import com.pyamsoft.fridge.FridgeComponent
 import com.pyamsoft.fridge.Injector
 import com.pyamsoft.fridge.R
-import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.detail.list.DetailListUiComponent
 import com.pyamsoft.fridge.detail.title.DetailTitleUiComponent
 import com.pyamsoft.fridge.detail.toolbar.DetailToolbarUiComponent
-import com.pyamsoft.fridge.scanner.ScannerDialog
 import com.pyamsoft.pydroid.arch.layout
 import com.pyamsoft.pydroid.ui.app.requireArguments
 import com.pyamsoft.pydroid.ui.app.requireToolbarActivity
-import com.pyamsoft.pydroid.ui.util.show
 import javax.inject.Inject
 
 internal class DetailFragment : Fragment(),
@@ -96,6 +93,7 @@ internal class DetailFragment : Fragment(),
     super.onSaveInstanceState(outState)
     title.saveState(outState)
     toolbar.saveState(outState)
+    list.saveState(outState)
   }
 
   override fun onBack() {
@@ -103,11 +101,7 @@ internal class DetailFragment : Fragment(),
   }
 
   override fun onError(throwable: Throwable) {
-    // TODO display error to user
-  }
-
-  override fun onOpenScanner(item: FridgeItem) {
-    ScannerDialog.newInstance(item).show(requireActivity(), ScannerDialog.TAG)
+    list.showError(throwable)
   }
 
   companion object {

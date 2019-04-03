@@ -78,7 +78,7 @@ internal class DetailListUiComponentImpl @Inject internal constructor(
     list.delete(item)
   }
 
-  override fun handleOpenScanner(item: FridgeItem) {
-    callback.onOpenScanner(item)
+  override fun showError(throwable: Throwable) {
+    list.showError(throwable)
   }
 }

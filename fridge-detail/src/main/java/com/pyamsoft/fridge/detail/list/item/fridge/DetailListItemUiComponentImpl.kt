@@ -59,6 +59,10 @@ internal class DetailListItemUiComponentImpl @Inject internal constructor(
     callback.onNonRealItemDelete(item)
   }
 
+  override fun handleNonRealItemCommit(item: FridgeItem) {
+    callback.onNonRealItemCommit(item)
+  }
+
   override fun handleUpdateItemError(throwable: Throwable) {
     callback.onUpdateItemError(throwable)
   }

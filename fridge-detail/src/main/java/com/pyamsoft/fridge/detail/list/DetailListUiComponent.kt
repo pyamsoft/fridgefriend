@@ -17,14 +17,13 @@
 
 package com.pyamsoft.fridge.detail.list
 
-import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.pydroid.arch.UiComponent
 
 interface DetailListUiComponent : UiComponent<DetailListUiComponent.Callback> {
 
-  interface Callback {
+  fun showError(throwable: Throwable)
 
-    fun onOpenScanner(item: FridgeItem)
+  interface Callback {
 
   }
 

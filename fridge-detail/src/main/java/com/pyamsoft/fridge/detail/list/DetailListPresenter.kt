@@ -80,13 +80,7 @@ internal class DetailListPresenter @Inject internal constructor(
       }
   }
 
-  override fun onOpenScanner(item: FridgeItem) {
-    callback.handleOpenScanner(item)
-  }
-
   interface Callback {
-
-    fun handleOpenScanner(item: FridgeItem)
 
     fun handleListRefreshBegin()
 

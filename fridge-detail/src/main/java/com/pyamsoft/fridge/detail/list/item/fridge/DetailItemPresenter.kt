@@ -17,6 +17,7 @@
 
 package com.pyamsoft.fridge.detail.list.item.fridge
 
+import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.detail.DetailConstants
 import com.pyamsoft.fridge.detail.list.DetailListInteractor
@@ -50,6 +51,19 @@ internal class DetailItemPresenter @Inject internal constructor(
   }
 
   override fun onCommit(item: FridgeItem) {
+    // If this item is not real, its an empty placeholder
+    // Right now, isReal is decided when an item has a non blank name.
+    // Once an item is in the db, it is always real
+    // The user may commit a potential update of things like the Presence or Expire Date before name
+    // Keep it prepared but do not commit it until a name comes in
+    // Directly call the realtime commit callback as if the
+    // commit had actually happened
+    if (!item.isReal() && !isReadyToBeReal(item)) {
+      Timber.w("Commit called on a non-real item: $item, fake callback")
+      callback.handleNonRealItemCommit(item)
+      return
+    }
+
     // A delete operation will stop an update operation
     updateDisposable = Completable.complete()
       .delay(DetailConstants.COMMIT_TIMEOUT_DURATION, DetailConstants.COMMIT_TIMEOUT_UNIT)
@@ -61,6 +75,11 @@ internal class DetailItemPresenter @Inject internal constructor(
         Timber.e(it, "Error updating item: ${item.id()}")
         callback.handleUpdateItemError(it)
       })
+  }
+
+  @CheckResult
+  private fun isReadyToBeReal(item: FridgeItem): Boolean {
+    return item.name().isNotBlank()
   }
 
   fun deleteSelf(item: FridgeItem) {
@@ -94,9 +113,11 @@ internal class DetailItemPresenter @Inject internal constructor(
 
   interface Callback {
 
-    fun handleModelUpdate(item: FridgeItem)
-
     fun handleNonRealItemDelete(item: FridgeItem)
+
+    fun handleNonRealItemCommit(item: FridgeItem)
+
+    fun handleModelUpdate(item: FridgeItem)
 
     fun handleUpdateItemError(throwable: Throwable)
 

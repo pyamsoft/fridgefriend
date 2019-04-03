@@ -69,7 +69,13 @@ internal class DetailListItemController internal constructor(
   }
 
   override fun onNonRealItemDelete(item: FridgeItem) {
-    callback.onDelete(item)
+    // Act as if delete occurred
+    callback.onFakeDelete(item)
+  }
+
+  override fun onNonRealItemCommit(item: FridgeItem) {
+    // Act as if commit occurred
+    onModelUpdate(item)
   }
 
   override fun onUpdateItemError(throwable: Throwable) {
@@ -124,13 +130,11 @@ internal class DetailListItemController internal constructor(
 
   interface Callback {
 
-    fun onDelete(item: FridgeItem)
+    fun onFakeDelete(item: FridgeItem)
 
     fun onDeleteError(throwable: Throwable)
 
     fun onCommitError(throwable: Throwable)
-
-    fun onOpenScanner(item: FridgeItem)
 
   }
 
