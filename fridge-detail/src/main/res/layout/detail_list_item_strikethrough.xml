@@ -21,16 +21,19 @@
 
   <FrameLayout
       xmlns:android="http://schemas.android.com/apk/res/android"
-      android:id="@+id/detail_item_presence"
-      android:layout_width="wrap_content"
+      android:id="@+id/detail_item_strikethrough"
+      android:layout_width="match_parent"
       android:layout_height="wrap_content"
       >
 
-    <androidx.appcompat.widget.SwitchCompat
-        android:id="@+id/detail_item_presence_switch"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+    <View
+        android:id="@+id/detail_item_strikethrough_line"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
         android:layout_gravity="center"
+        android:layout_marginEnd="16dp"
+        android:layout_marginStart="16dp"
+        android:background="@color/black"
         />
 
   </FrameLayout>

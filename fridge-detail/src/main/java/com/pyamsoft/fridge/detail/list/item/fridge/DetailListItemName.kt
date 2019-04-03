@@ -42,10 +42,11 @@ internal class DetailListItemName @Inject internal constructor(
 
   override val layout: Int = R.layout.detail_list_item_name
 
-  override val layoutRoot by lazyView<EditText>(R.id.detail_item_name)
+  override val layoutRoot by lazyView<ViewGroup>(R.id.detail_item_name)
+  private val nameView by lazyView<EditText>(R.id.detail_item_name_editable)
 
   override fun onInflated(view: View, savedInstanceState: Bundle?) {
-    layoutRoot.setText(item.name())
+    nameView.setText(item.name())
 
     // Restore cursor position from the list widge storage map
     if (nonPersistedEditableStateMap.containsKey(item.id())) {
@@ -53,7 +54,7 @@ internal class DetailListItemName @Inject internal constructor(
       val restoreTo = Math.min(item.name().length, location)
       Timber.d("Restore edit text selection from storage map for: ${item.id()}: $restoreTo")
       Timber.d("Name: ${item.name()} [${item.name().length}]")
-      layoutRoot.setSelection(restoreTo)
+      nameView.setSelection(restoreTo)
       nonPersistedEditableStateMap.remove(item.id())
     }
 
@@ -72,28 +73,29 @@ internal class DetailListItemName @Inject internal constructor(
       }
 
     }
-    layoutRoot.addTextChangedListener(watcher)
+    nameView.addTextChangedListener(watcher)
     nameWatcher = watcher
   }
 
   override fun onTeardown() {
     // Unbind all listeners
-    nameWatcher?.let { layoutRoot.removeTextChangedListener(it) }
+    nameWatcher?.let { nameView.removeTextChangedListener(it) }
     nameWatcher = null
 
     // Cleaup
-    layoutRoot.text.clear()
+    nameView.text.clear()
   }
 
   private fun commit(name: String) {
-    if ()
-    saveEditingState()
-    commitModel(name = name)
+    if (editable) {
+      saveEditingState()
+      commitModel(name = name)
+    }
   }
 
   private fun saveEditingState() {
     // Commit editing location to the storage map
-    val location = layoutRoot.selectionEnd
+    val location = nameView.selectionEnd
     Timber.d("Save edit text selection from storage map for: ${item.id()}: $location")
     nonPersistedEditableStateMap[item.id()] = location
   }

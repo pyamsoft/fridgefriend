@@ -18,7 +18,8 @@
 package com.pyamsoft.fridge.detail.list.item.fridge
 
 import android.view.View
-import android.view.ViewGroup
+import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.view.updatePadding
 import androidx.recyclerview.widget.RecyclerView
 import com.pyamsoft.fridge.db.item.FridgeItem
@@ -27,6 +28,7 @@ import com.pyamsoft.fridge.detail.list.item.DetailItem
 import com.pyamsoft.fridge.detail.list.item.DetailItemComponent
 import com.pyamsoft.fridge.detail.list.item.ListItemLifecycle
 import com.pyamsoft.fridge.detail.list.item.fridge.DetailListItemController.ViewHolder
+import com.pyamsoft.pydroid.arch.layout
 import com.pyamsoft.pydroid.util.toDp
 import timber.log.Timber
 import javax.inject.Inject
@@ -55,7 +57,7 @@ internal class DetailListItemController internal constructor(
   }
 
   override fun getLayoutRes(): Int {
-    return R.layout.listitem_linear_horizontal
+    return R.layout.listitem_constraint
   }
 
   override fun bindView(holder: ViewHolder, payloads: MutableList<Any>) {
@@ -98,7 +100,7 @@ internal class DetailListItemController internal constructor(
     private var lifecycle: ListItemLifecycle? = null
     @field:Inject internal lateinit var component: DetailListItemUiComponent
 
-    private val parent: ViewGroup = itemView.findViewById(R.id.listitem_linear_h)
+    private val parent: ConstraintLayout = itemView.findViewById(R.id.listitem_constraint)
 
     fun bind(item: FridgeItem, callback: DetailListItemUiComponent.Callback) {
       lifecycle?.unbind()
@@ -111,7 +113,19 @@ internal class DetailListItemController internal constructor(
 
       val owner = ListItemLifecycle()
       lifecycle = owner
-      component.bind(owner, null, callback)
+      component.bind(parent, owner, null, callback)
+
+      parent.layout {
+        component.also {
+          connect(it.id(), ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP)
+          connect(it.id(), ConstraintSet.BOTTOM, ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM)
+          connect(it.id(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
+          connect(it.id(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
+          constrainWidth(it.id(), ConstraintSet.MATCH_CONSTRAINT)
+          constrainHeight(it.id(), ConstraintSet.MATCH_CONSTRAINT)
+        }
+      }
+
       owner.bind()
     }
 

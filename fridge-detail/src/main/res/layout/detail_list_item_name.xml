@@ -19,20 +19,27 @@
 
 <merge>
 
-  <EditText
+  <FrameLayout
       xmlns:android="http://schemas.android.com/apk/res/android"
       xmlns:tools="http://schemas.android.com/tools"
       android:id="@+id/detail_item_name"
-      android:layout_width="0dp"
+      android:layout_width="match_parent"
       android:layout_height="wrap_content"
-      android:layout_weight="1"
-      android:gravity="center_vertical|start"
-      android:hint="@string/item_name_hint"
-      android:importantForAutofill="no"
-      android:inputType="textAutoComplete"
-      android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
-      tools:targetApi="o"
-      />
+      >
+
+    <EditText
+        android:id="@+id/detail_item_name_editable"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical|start"
+        android:hint="@string/item_name_hint"
+        android:importantForAutofill="no"
+        android:inputType="textAutoComplete"
+        android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
+        tools:targetApi="o"
+        />
+
+  </FrameLayout>
 
 </merge>
 
