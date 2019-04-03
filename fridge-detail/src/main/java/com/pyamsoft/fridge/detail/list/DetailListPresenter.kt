@@ -17,47 +17,51 @@
 
 package com.pyamsoft.fridge.detail.list
 
+import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.db.item.FridgeItem
+import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent.Delete
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent.Insert
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent.Update
-import com.pyamsoft.fridge.detail.DetailScope
 import com.pyamsoft.pydroid.arch.BasePresenter
 import com.pyamsoft.pydroid.core.bus.RxBus
 import com.pyamsoft.pydroid.core.singleDisposable
 import com.pyamsoft.pydroid.core.tryDispose
+import io.reactivex.Observable
+import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import timber.log.Timber
-import javax.inject.Inject
-import javax.inject.Named
 
-@DetailScope
-internal class DetailListPresenter @Inject internal constructor(
-  private val interactor: DetailListInteractor,
-  @Named("detail_entry_id") private val entryId: String
+internal abstract class DetailListPresenter protected constructor(
 ) : BasePresenter<Unit, DetailListPresenter.Callback>(RxBus.empty()),
   DetailList.Callback {
 
   private var refreshDisposable by singleDisposable()
   private var realtimeDisposable by singleDisposable()
 
-  override fun onBind() {
+  @CheckResult
+  protected abstract fun getItems(force: Boolean): Single<List<FridgeItem>>
+
+  @CheckResult
+  protected abstract fun listenForChanges(): Observable<FridgeItemChangeEvent>
+
+  final override fun onBind() {
     refreshList(false)
   }
 
-  override fun onUnbind() {
+  final override fun onUnbind() {
     refreshDisposable.tryDispose()
     realtimeDisposable.tryDispose()
   }
 
-  override fun onRefresh() {
+  final override fun onRefresh() {
     refreshList(true)
   }
 
   private fun refreshList(force: Boolean) {
     realtimeDisposable.tryDispose()
-    refreshDisposable = interactor.getItems(entryId, force)
+    refreshDisposable = getItems(force)
       .subscribeOn(Schedulers.io())
       .observeOn(AndroidSchedulers.mainThread())
       .doAfterTerminate { callback.handleListRefreshComplete() }
@@ -70,7 +74,7 @@ internal class DetailListPresenter @Inject internal constructor(
   }
 
   private fun beginListeningForChanges() {
-    realtimeDisposable = interactor.listenForChanges(entryId)
+    realtimeDisposable = listenForChanges()
       .subscribeOn(Schedulers.io())
       .observeOn(AndroidSchedulers.mainThread())
       .subscribe {

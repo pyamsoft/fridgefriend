@@ -18,10 +18,6 @@
 package com.pyamsoft.fridge.detail
 
 import androidx.annotation.CheckResult
-import com.pyamsoft.fridge.detail.list.DetailList
-import com.pyamsoft.fridge.detail.list.DetailListPresenter
-import com.pyamsoft.fridge.detail.list.DetailListUiComponent
-import com.pyamsoft.fridge.detail.list.DetailListUiComponentImpl
 import com.pyamsoft.fridge.detail.title.DetailTitle
 import com.pyamsoft.fridge.detail.title.DetailTitlePresenter
 import com.pyamsoft.fridge.detail.title.DetailTitleUiComponent
@@ -51,9 +47,5 @@ abstract class DetailModule {
   @Binds
   @CheckResult
   internal abstract fun bindDetailComponent(impl: DetailTitleUiComponentImpl): DetailTitleUiComponent
-
-  @Binds
-  @CheckResult
-  internal abstract fun bindListCallback(impl: DetailListPresenter): DetailList.Callback
 
 }

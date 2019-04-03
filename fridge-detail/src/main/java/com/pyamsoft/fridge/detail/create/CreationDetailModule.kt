@@ -28,10 +28,10 @@ abstract class CreationDetailModule {
 
   @Binds
   @CheckResult
-  internal abstract fun bindList(impl: CreationDetailList): DetailList
+  internal abstract fun bindListComponent(impl: CreationDetailListUiComponentImpl): DetailListUiComponent
 
   @Binds
   @CheckResult
-  internal abstract fun bindListComponent(impl: CreationDetailListUiComponentImpl): DetailListUiComponent
+  internal abstract fun bindListCallback(impl: CreationDetailListPresenter): DetailList.Callback
 
 }
