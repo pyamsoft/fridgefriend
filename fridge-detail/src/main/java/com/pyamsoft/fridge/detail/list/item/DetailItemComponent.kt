@@ -66,6 +66,10 @@ internal interface DetailItemComponent {
 
     @BindsInstance
     @CheckResult
+    fun editable(@Named("detail_editable") editable: Boolean): Builder
+
+    @BindsInstance
+    @CheckResult
     fun stateMap(stateMap: MutableMap<String, Int>): Builder
 
     @BindsInstance

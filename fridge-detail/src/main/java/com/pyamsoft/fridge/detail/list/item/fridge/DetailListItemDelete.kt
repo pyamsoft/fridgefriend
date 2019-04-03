@@ -24,7 +24,6 @@ import android.widget.ImageView
 import androidx.core.view.isVisible
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.detail.R
-import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.loader.Loaded
 import com.pyamsoft.pydroid.ui.theme.Theming
@@ -33,12 +32,12 @@ import com.pyamsoft.pydroid.util.tintWith
 import javax.inject.Inject
 
 internal class DetailListItemDelete @Inject internal constructor(
-  private val item: FridgeItem,
+  item: FridgeItem,
   private val theming: Theming,
   private val imageLoader: ImageLoader,
   parent: ViewGroup,
   callback: DetailListItemDelete.Callback
-) : BaseUiView<DetailListItemDelete.Callback>(parent, callback) {
+) : DetailListItem<DetailListItemDelete.Callback>(item, parent, callback) {
 
   private var deleteIconLoaded: Loaded? = null
 

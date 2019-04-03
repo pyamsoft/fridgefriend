@@ -26,7 +26,6 @@ import android.widget.EditText
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence
 import com.pyamsoft.fridge.detail.R
-import com.pyamsoft.pydroid.arch.BaseUiView
 import timber.log.Timber
 import java.util.Date
 import javax.inject.Inject
@@ -34,11 +33,11 @@ import javax.inject.Named
 
 internal class DetailListItemName @Inject internal constructor(
   @Named("detail_entry_id") private val entryId: String,
-  private val item: FridgeItem,
   private val nonPersistedEditableStateMap: MutableMap<String, Int>,
+  item: FridgeItem,
   parent: ViewGroup,
   callback: DetailListItemName.Callback
-) : BaseUiView<DetailListItemName.Callback>(parent, callback) {
+) : DetailListItem<DetailListItemName.Callback>(item, parent, callback) {
 
   private var nameWatcher: TextWatcher? = null
 

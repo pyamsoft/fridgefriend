@@ -42,6 +42,7 @@ import javax.inject.Named
 
 internal class DetailList @Inject internal constructor(
   @Named("detail_entry_id") private val entryId: String,
+  @Named("detail_editable") private val editable: Boolean,
   private val interactor: DetailListInteractor,
   private val imageLoader: ImageLoader,
   private val stateMap: MutableMap<String, Int>,
@@ -64,6 +65,7 @@ internal class DetailList @Inject internal constructor(
   override fun onInflated(view: View, savedInstanceState: Bundle?) {
     val builder = DaggerDetailItemComponent.builder()
       .interactor(interactor)
+      .editable(editable)
       .entryId(entryId)
       .imageLoader(imageLoader)
       .stateMap(stateMap)
