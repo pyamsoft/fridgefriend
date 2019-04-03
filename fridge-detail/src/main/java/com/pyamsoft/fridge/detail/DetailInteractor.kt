@@ -33,12 +33,11 @@ import java.util.Date
 internal abstract class DetailInteractor protected constructor(
   protected val enforcer: Enforcer,
   private val queryDao: FridgeEntryQueryDao,
-  private val insertDao: FridgeEntryInsertDao,
-  protected val entryId: String
+  private val insertDao: FridgeEntryInsertDao
 ) {
 
   @CheckResult
-  protected fun getEntryForId(force: Boolean): Maybe<FridgeEntry> {
+  protected fun getEntryForId(entryId: String, force: Boolean): Maybe<FridgeEntry> {
     return queryDao.queryAll(force)
       .flatMapObservable {
         enforcer.assertNotOnMainThread()
@@ -51,10 +50,11 @@ internal abstract class DetailInteractor protected constructor(
   @CheckResult
   @JvmOverloads
   protected fun guaranteeEntryExists(
+    entryId: String,
     name: String = FridgeEntry.EMPTY_NAME,
     createdTime: Date = Date(0)
   ): Single<FridgeEntry> {
-    return getEntryForId(false)
+    return getEntryForId(entryId, false)
       .map { it.asOptional() }
       .toSingle(Optional.ofNullable(null))
       .flatMap {

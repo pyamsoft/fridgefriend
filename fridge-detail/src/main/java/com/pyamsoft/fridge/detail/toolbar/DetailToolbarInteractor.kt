@@ -42,8 +42,8 @@ internal class DetailToolbarInteractor @Inject internal constructor(
   enforcer: Enforcer,
   queryDao: FridgeEntryQueryDao,
   insertDao: FridgeEntryInsertDao,
-  @Named("detail_entry_id") entryId: String
-) : DetailInteractor(enforcer, queryDao, insertDao, entryId) {
+  @Named("detail_entry_id") private val entryId: String
+) : DetailInteractor(enforcer, queryDao, insertDao) {
 
   @CheckResult
   fun listenForDeleted(): Observable<FridgeEntry> {
@@ -60,7 +60,7 @@ internal class DetailToolbarInteractor @Inject internal constructor(
 
   @CheckResult
   private fun isEntryReal(force: Boolean): Observable<Boolean> {
-    return getEntryForId(force)
+    return getEntryForId(entryId, force)
       .map { it.isReal() }
       .toObservable()
   }
@@ -75,7 +75,7 @@ internal class DetailToolbarInteractor @Inject internal constructor(
 
   @CheckResult
   fun delete(): Completable {
-    return getEntryForId(false)
+    return getEntryForId(entryId, false)
       .map { it.asOptional() }
       .toSingle(Optional.ofNullable(null))
       .flatMapCompletable {

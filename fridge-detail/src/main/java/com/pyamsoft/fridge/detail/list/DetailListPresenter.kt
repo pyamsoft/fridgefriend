@@ -30,10 +30,12 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import timber.log.Timber
 import javax.inject.Inject
+import javax.inject.Named
 
 @DetailScope
 internal class DetailListPresenter @Inject internal constructor(
-  private val interactor: DetailListInteractor
+  private val interactor: DetailListInteractor,
+  @Named("detail_entry_id") private val entryId: String
 ) : BasePresenter<Unit, DetailListPresenter.Callback>(RxBus.empty()),
   DetailList.Callback {
 
@@ -55,7 +57,7 @@ internal class DetailListPresenter @Inject internal constructor(
 
   private fun refreshList(force: Boolean) {
     realtimeDisposable.tryDispose()
-    refreshDisposable = interactor.getItems(force)
+    refreshDisposable = interactor.getItems(entryId, force)
       .subscribeOn(Schedulers.io())
       .observeOn(AndroidSchedulers.mainThread())
       .doAfterTerminate { callback.handleListRefreshComplete() }
@@ -68,7 +70,7 @@ internal class DetailListPresenter @Inject internal constructor(
   }
 
   private fun beginListeningForChanges() {
-    realtimeDisposable = interactor.listenForChanges()
+    realtimeDisposable = interactor.listenForChanges(entryId)
       .subscribeOn(Schedulers.io())
       .observeOn(AndroidSchedulers.mainThread())
       .subscribe {

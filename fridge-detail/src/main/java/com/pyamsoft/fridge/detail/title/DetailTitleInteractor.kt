@@ -41,8 +41,8 @@ internal class DetailTitleInteractor @Inject internal constructor(
   enforcer: Enforcer,
   queryDao: FridgeEntryQueryDao,
   insertDao: FridgeEntryInsertDao,
-  @Named("detail_entry_id") entryId: String
-) : DetailInteractor(enforcer, queryDao, insertDao, entryId) {
+  @Named("detail_entry_id") private val entryId: String
+) : DetailInteractor(enforcer, queryDao, insertDao) {
 
   @CheckResult
   fun observeEntryName(force: Boolean): Observable<NameUpdate> {
@@ -52,7 +52,7 @@ internal class DetailTitleInteractor @Inject internal constructor(
 
   @CheckResult
   private fun getEntryName(force: Boolean): Observable<NameUpdate> {
-    return getEntryForId(force)
+    return getEntryForId(entryId, force)
       .map { it.name() }
       .map { NameUpdate(it, true) }
       .toObservable()
@@ -69,7 +69,7 @@ internal class DetailTitleInteractor @Inject internal constructor(
 
   @CheckResult
   fun saveName(name: String): Completable {
-    return getEntryForId(false)
+    return getEntryForId(entryId, false)
       .map { it.asOptional() }
       .toSingle(Optional.ofNullable(null))
       .flatMapCompletable {

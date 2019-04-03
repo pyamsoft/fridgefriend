@@ -37,7 +37,6 @@ import io.reactivex.Observable
 import io.reactivex.Single
 import timber.log.Timber
 import javax.inject.Inject
-import javax.inject.Named
 
 internal class DetailListInteractor @Inject internal constructor(
   private val queryDao: FridgeItemQueryDao,
@@ -47,17 +46,16 @@ internal class DetailListInteractor @Inject internal constructor(
   private val realtime: FridgeItemRealtime,
   entryQueryDao: FridgeEntryQueryDao,
   entryInsertDao: FridgeEntryInsertDao,
-  enforcer: Enforcer,
-  @Named("detail_entry_id") entryId: String
-) : DetailInteractor(enforcer, entryQueryDao, entryInsertDao, entryId) {
+  enforcer: Enforcer
+) : DetailInteractor(enforcer, entryQueryDao, entryInsertDao) {
 
   @CheckResult
-  fun getItems(force: Boolean): Single<List<FridgeItem>> {
+  fun getItems(entryId: String, force: Boolean): Single<List<FridgeItem>> {
     return queryDao.queryAll(force, entryId)
   }
 
   @CheckResult
-  fun listenForChanges(): Observable<FridgeItemChangeEvent> {
+  fun listenForChanges(entryId: String): Observable<FridgeItemChangeEvent> {
     return realtime.listenForChanges(entryId)
   }
 
@@ -67,14 +65,14 @@ internal class DetailListInteractor @Inject internal constructor(
       Timber.w("Do not commit empty name FridgeItem: $item")
       return Completable.complete()
     } else {
-      return guaranteeEntryExists()
+      return guaranteeEntryExists(item.entryId())
         .flatMapCompletable { commitItem(item) }
     }
   }
 
   @CheckResult
   private fun commitItem(item: FridgeItem): Completable {
-    return getItems(false)
+    return getItems(item.entryId(), false)
       .flatMapObservable {
         enforcer.assertNotOnMainThread()
         return@flatMapObservable Observable.fromIterable(it)
