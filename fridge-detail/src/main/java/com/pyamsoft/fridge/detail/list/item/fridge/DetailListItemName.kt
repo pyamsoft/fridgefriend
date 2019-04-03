@@ -44,17 +44,6 @@ internal class DetailListItemName @Inject internal constructor(
   override val layoutRoot by lazyView<EditText>(R.id.detail_item_name)
 
   override fun onInflated(view: View, savedInstanceState: Bundle?) {
-    setupName()
-  }
-
-  override fun onTeardown() {
-    removeListeners()
-
-    // Cleaup
-    layoutRoot.text.clear()
-  }
-
-  private fun setupName() {
     layoutRoot.setText(item.name())
 
     // Restore cursor position from the list widge storage map
@@ -86,10 +75,13 @@ internal class DetailListItemName @Inject internal constructor(
     nameWatcher = watcher
   }
 
-  private fun removeListeners() {
+  override fun onTeardown() {
     // Unbind all listeners
     nameWatcher?.let { layoutRoot.removeTextChangedListener(it) }
     nameWatcher = null
+
+    // Cleaup
+    layoutRoot.text.clear()
   }
 
   private fun commit(name: String) {

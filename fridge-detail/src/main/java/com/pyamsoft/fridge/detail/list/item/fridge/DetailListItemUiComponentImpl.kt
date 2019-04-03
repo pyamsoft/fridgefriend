@@ -28,6 +28,7 @@ import javax.inject.Inject
 
 internal class DetailListItemUiComponentImpl @Inject internal constructor(
   private val name: DetailListItemName,
+  private val presence: DetailListItemPresence,
   private val presenter: DetailItemPresenter
 ) : BaseUiComponent<DetailListItemUiComponent.Callback>(),
   DetailListItemUiComponent,
@@ -40,14 +41,17 @@ internal class DetailListItemUiComponentImpl @Inject internal constructor(
   override fun onBind(owner: LifecycleOwner, savedInstanceState: Bundle?, callback: Callback) {
     owner.doOnDestroy {
       name.teardown()
+      presence.teardown()
       presenter.unbind()
     }
 
     name.inflate(savedInstanceState)
+    presence.inflate(savedInstanceState)
     presenter.bind(this)
   }
 
   override fun onSaveState(outState: Bundle) {
+    presence.saveState(outState)
     name.saveState(outState)
   }
 
