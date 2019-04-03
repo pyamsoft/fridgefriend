@@ -21,7 +21,6 @@ import androidx.annotation.CheckResult
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
-import com.popinnow.android.repo.MultiRepo
 import com.popinnow.android.repo.Repo
 import com.pyamsoft.fridge.db.entry.JsonMappableFridgeEntry
 import com.pyamsoft.fridge.db.item.JsonMappableFridgeItem
@@ -37,12 +36,13 @@ import com.pyamsoft.fridge.db.room.dao.item.RoomFridgeItemQueryDao
 import com.pyamsoft.fridge.db.room.dao.item.RoomFridgeItemUpdateDao
 import com.pyamsoft.fridge.db.room.entity.RoomFridgeEntry
 import com.pyamsoft.fridge.db.room.entity.RoomFridgeItem
+import com.pyamsoft.pydroid.core.threads.Enforcer
 
 @Database(entities = [RoomFridgeItem::class, RoomFridgeEntry::class], version = 1)
 @TypeConverters(PresenceTypeConverter::class, DateTypeConverter::class)
 internal abstract class RoomFridgeDbImpl internal constructor() : RoomDatabase(), RoomFridgeDb {
 
-  private val itemDb by lazy { RoomFridgeItemDb(this, itemRepo) }
+  private val itemDb by lazy { RoomFridgeItemDb(this, enforcer, itemRepo) }
   private val entryDb by lazy {
     RoomFridgeEntryDb(this, entryRepo, object : ClearCache {
 
@@ -54,12 +54,14 @@ internal abstract class RoomFridgeDbImpl internal constructor() : RoomDatabase()
     })
   }
 
+  private lateinit var enforcer: Enforcer
   private lateinit var entryRepo: Repo<List<JsonMappableFridgeEntry>>
-  private lateinit var itemRepo: MultiRepo<List<JsonMappableFridgeItem>>
+  private lateinit var itemRepo: Repo<List<JsonMappableFridgeItem>>
 
-  internal fun setRepos(
+  internal fun setObjects(
+    enforcer: Enforcer,
     entryRepo: Repo<List<JsonMappableFridgeEntry>>,
-    itemRepo: MultiRepo<List<JsonMappableFridgeItem>>
+    itemRepo: Repo<List<JsonMappableFridgeItem>>
   ) {
     this.entryRepo = entryRepo
     this.itemRepo = itemRepo

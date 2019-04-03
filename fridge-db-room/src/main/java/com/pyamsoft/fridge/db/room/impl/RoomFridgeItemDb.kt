@@ -17,7 +17,7 @@
 
 package com.pyamsoft.fridge.db.room.impl
 
-import com.popinnow.android.repo.MultiRepo
+import com.popinnow.android.repo.Repo
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent.Delete
@@ -30,13 +30,15 @@ import com.pyamsoft.fridge.db.item.FridgeItemRealtime
 import com.pyamsoft.fridge.db.item.FridgeItemUpdateDao
 import com.pyamsoft.fridge.db.item.JsonMappableFridgeItem
 import com.pyamsoft.pydroid.core.bus.RxBus
+import com.pyamsoft.pydroid.core.threads.Enforcer
 import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.Single
 
 internal class RoomFridgeItemDb internal constructor(
   private val room: RoomFridgeDbImpl,
-  private val repo: MultiRepo<List<JsonMappableFridgeItem>>
+  private val enforcer: Enforcer,
+  private val repo: Repo<List<JsonMappableFridgeItem>>
 ) : FridgeItemDb {
 
   private val realtimeChangeBus = RxBus.create<FridgeItemChangeEvent>()
@@ -50,9 +52,12 @@ internal class RoomFridgeItemDb internal constructor(
   override fun realtime(): FridgeItemRealtime {
     return object : FridgeItemRealtime {
 
-      override fun listenForChanges(entryId: String): Observable<FridgeItemChangeEvent> {
+      override fun listenForChanges(): Observable<FridgeItemChangeEvent> {
         return realtimeChangeBus.listen()
-          .filter { it.entryId == entryId }
+      }
+
+      override fun listenForChanges(entryId: String): Observable<FridgeItemChangeEvent> {
+        return listenForChanges().filter { it.entryId == entryId }
       }
 
     }
@@ -61,12 +66,24 @@ internal class RoomFridgeItemDb internal constructor(
   override fun query(): FridgeItemQueryDao {
     return object : FridgeItemQueryDao {
 
-      override fun queryAll(force: Boolean, entryId: String): Single<List<FridgeItem>> {
+      override fun queryAll(force: Boolean): Single<List<FridgeItem>> {
         synchronized(lock) {
-          return repo.get(entryId, force) {
-            return@get room.roomItemQueryDao().queryAll(force, entryId)
+          return repo.get(force) {
+            return@get room.roomItemQueryDao().queryAll(force)
               .map { it.map { item -> JsonMappableFridgeItem.from(item.makeReal()) } }
           }.map { it }
+        }
+      }
+
+      override fun queryAll(force: Boolean, entryId: String): Single<List<FridgeItem>> {
+        synchronized(lock) {
+          return queryAll(force)
+            .flatMapObservable {
+              enforcer.assertNotOnMainThread()
+              return@flatMapObservable Observable.fromIterable(it)
+            }
+            .filter { it.entryId() == entryId }
+            .toList()
         }
       }
 

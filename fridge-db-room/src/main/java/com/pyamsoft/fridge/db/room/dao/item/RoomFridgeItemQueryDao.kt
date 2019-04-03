@@ -41,4 +41,15 @@ internal abstract class RoomFridgeItemQueryDao internal constructor() : FridgeIt
   @CheckResult
   internal abstract fun daoQueryAll(entryId: String): Maybe<List<RoomFridgeItem>>
 
+  override fun queryAll(force: Boolean): Single<List<FridgeItem>> {
+    Timber.i("QUERY from ROOM")
+    return daoQueryAll()
+      .toSingle(emptyList())
+      .map { it }
+  }
+
+  @Query("SELECT * FROM ${RoomFridgeItem.TABLE_NAME}")
+  @CheckResult
+  internal abstract fun daoQueryAll(): Maybe<List<RoomFridgeItem>>
+
 }

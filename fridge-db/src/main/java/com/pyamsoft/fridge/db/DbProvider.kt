@@ -19,10 +19,8 @@ package com.pyamsoft.fridge.db
 
 import android.content.Context
 import androidx.annotation.CheckResult
-import com.popinnow.android.repo.MultiRepo
 import com.popinnow.android.repo.Repo
 import com.popinnow.android.repo.moshi.MoshiPersister
-import com.popinnow.android.repo.newMultiRepo
 import com.popinnow.android.repo.newRepoBuilder
 import com.pyamsoft.fridge.db.entry.JsonMappableFridgeEntry
 import com.pyamsoft.fridge.db.item.JsonMappableFridgeItem
@@ -52,17 +50,15 @@ object DbProvider {
   internal fun provideFridgeItemListRepo(
     context: Context,
     moshi: Moshi
-  ): MultiRepo<List<JsonMappableFridgeItem>> {
+  ): Repo<List<JsonMappableFridgeItem>> {
     val type = Types.newParameterizedType(List::class.java, JsonMappableFridgeItem::class.java)
-    return newMultiRepo {
-      return@newMultiRepo newRepoBuilder<List<JsonMappableFridgeItem>>()
-        .memoryCache(5, MINUTES)
-        .persister(
-          2, HOURS, File(context.cacheDir, "fridge-item-repo"),
-          MoshiPersister.create(createDateAwareMoshi(moshi), type)
-        )
-        .build()
-    }
+    return newRepoBuilder<List<JsonMappableFridgeItem>>()
+      .memoryCache(5, MINUTES)
+      .persister(
+        2, HOURS, File(context.cacheDir, "fridge-item-repo"),
+        MoshiPersister.create(createDateAwareMoshi(moshi), type)
+      )
+      .build()
   }
 
   @Provides

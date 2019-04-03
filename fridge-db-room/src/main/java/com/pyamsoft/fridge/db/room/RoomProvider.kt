@@ -20,7 +20,6 @@ package com.pyamsoft.fridge.db.room
 import android.content.Context
 import androidx.annotation.CheckResult
 import androidx.room.Room
-import com.popinnow.android.repo.MultiRepo
 import com.popinnow.android.repo.Repo
 import com.pyamsoft.fridge.db.entry.FridgeEntryDeleteDao
 import com.pyamsoft.fridge.db.entry.FridgeEntryInsertDao
@@ -38,6 +37,7 @@ import com.pyamsoft.fridge.db.room.impl.FridgeEntryDb
 import com.pyamsoft.fridge.db.room.impl.FridgeItemDb
 import com.pyamsoft.fridge.db.room.impl.RoomFridgeDb
 import com.pyamsoft.fridge.db.room.impl.RoomFridgeDbImpl
+import com.pyamsoft.pydroid.core.threads.Enforcer
 import dagger.Module
 import dagger.Provides
 import javax.inject.Singleton
@@ -51,8 +51,9 @@ object RoomProvider {
   @CheckResult
   internal fun provideDb(
     context: Context,
+    enforcer: Enforcer,
     entryRepo: Repo<List<JsonMappableFridgeEntry>>,
-    itemRepo: MultiRepo<List<JsonMappableFridgeItem>>
+    itemRepo: Repo<List<JsonMappableFridgeItem>>
   ): RoomFridgeDb {
     return Room.databaseBuilder(
       context.applicationContext,
@@ -60,7 +61,7 @@ object RoomProvider {
       "fridge_room_db.db"
     )
       .build().apply {
-        setRepos(entryRepo, itemRepo)
+        setObjects(enforcer, entryRepo, itemRepo)
       }
   }
 

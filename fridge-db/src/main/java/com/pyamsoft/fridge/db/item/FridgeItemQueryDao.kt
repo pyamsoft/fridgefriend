@@ -23,6 +23,9 @@ import io.reactivex.Single
 interface FridgeItemQueryDao {
 
   @CheckResult
+  fun queryAll(force: Boolean): Single<List<FridgeItem>>
+
+  @CheckResult
   fun queryAll(force: Boolean, entryId: String): Single<List<FridgeItem>>
 
 }
