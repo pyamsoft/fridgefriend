@@ -63,6 +63,7 @@ internal abstract class RoomFridgeDbImpl internal constructor() : RoomDatabase()
     entryRepo: Repo<List<JsonMappableFridgeEntry>>,
     itemRepo: Repo<List<JsonMappableFridgeItem>>
   ) {
+    this.enforcer = enforcer
     this.entryRepo = entryRepo
     this.itemRepo = itemRepo
   }
