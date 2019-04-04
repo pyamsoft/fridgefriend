@@ -17,44 +17,22 @@
 
 package com.pyamsoft.fridge.detail
 
-import android.view.ViewGroup
 import androidx.annotation.CheckResult
-import com.pyamsoft.fridge.detail.DetailComponent.DetailProvider
-import dagger.BindsInstance
-import dagger.Module
-import dagger.Provides
+import com.pyamsoft.fridge.detail.shop.ShoppingModule
+import com.pyamsoft.fridge.detail.shop.ShoppingScope
 import dagger.Subcomponent
 
-@DetailScope
-@Subcomponent(modules = [DetailProvider::class])
-internal interface DetailComponent {
+@ShoppingScope
+@Subcomponent(modules = [ShoppingModule::class])
+internal interface ShoppingComponent {
 
-  @CheckResult
-  fun plusCreationComponent(): CreationComponent.Builder
-
-  @CheckResult
-  fun plusShoppingComponent(): ShoppingComponent.Builder
+  fun inject(fragment: ShoppingFragment)
 
   @Subcomponent.Builder
   interface Builder {
 
-    @BindsInstance
     @CheckResult
-    fun parent(parent: ViewGroup): Builder
-
-    @CheckResult
-    fun build(): DetailComponent
-  }
-
-  @Module
-  object DetailProvider {
-
-    @DetailScope
-    @JvmStatic
-    @Provides
-    fun provideStateMap(): MutableMap<String, Int> {
-      return LinkedHashMap()
-    }
+    fun build(): ShoppingComponent
   }
 
 }

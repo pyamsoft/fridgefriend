@@ -17,7 +17,7 @@
 
 package com.pyamsoft.fridge.detail.shop
 
-import com.pyamsoft.fridge.detail.list.DetailListUiComponentImpl
+import com.pyamsoft.fridge.detail.DetailListUiComponentImpl
 import javax.inject.Inject
 
 internal class ShoppingListUiComponentImpl @Inject internal constructor(

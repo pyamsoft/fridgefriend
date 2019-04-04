@@ -27,7 +27,8 @@ import androidx.fragment.app.Fragment
 import com.pyamsoft.fridge.FridgeComponent
 import com.pyamsoft.fridge.Injector
 import com.pyamsoft.fridge.R
-import com.pyamsoft.fridge.detail.DetailFragment
+import com.pyamsoft.fridge.detail.CreationFragment
+import com.pyamsoft.fridge.detail.ShoppingFragment
 import com.pyamsoft.fridge.entry.action.EntryActionUiComponent
 import com.pyamsoft.fridge.entry.list.EntryListUiComponent
 import com.pyamsoft.fridge.entry.toolbar.EntryToolbarUiComponent
@@ -35,7 +36,6 @@ import com.pyamsoft.fridge.extensions.fragmentContainerId
 import com.pyamsoft.fridge.setting.SettingsFragment
 import com.pyamsoft.pydroid.ui.app.requireToolbarActivity
 import com.pyamsoft.pydroid.ui.util.commit
-import timber.log.Timber
 import javax.inject.Inject
 
 internal class EntryListFragment : Fragment(),
@@ -105,15 +105,19 @@ internal class EntryListFragment : Fragment(),
   }
 
   override fun onCreateNew(id: String) {
-    pushFragment(DetailFragment.TAG, false) { DetailFragment.newInstance(id) }
+    pushCreateScreen(id)
   }
 
   override fun onEditEntry(id: String) {
-    pushFragment(DetailFragment.TAG, false) { DetailFragment.newInstance(id) }
+    pushCreateScreen(id)
+  }
+
+  private fun pushCreateScreen(id: String) {
+    pushFragment(CreationFragment.TAG, false) { CreationFragment.newInstance(id) }
   }
 
   override fun onStartShopping() {
-    Timber.d("TODO: Start shopping")
+    pushFragment(ShoppingFragment.TAG, false) { ShoppingFragment.newInstance() }
   }
 
   override fun onHiddenChanged(hidden: Boolean) {

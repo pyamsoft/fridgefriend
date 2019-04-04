@@ -15,23 +15,28 @@
  *
  */
 
-package com.pyamsoft.fridge.detail.shop
+package com.pyamsoft.fridge.detail.item
 
-import androidx.annotation.CheckResult
-import com.pyamsoft.fridge.detail.DetailList
-import com.pyamsoft.fridge.detail.DetailListUiComponent
-import dagger.Binds
-import dagger.Module
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.LifecycleRegistry
+import com.pyamsoft.pydroid.util.fakeBind
+import com.pyamsoft.pydroid.util.fakeUnbind
 
-@Module
-abstract class ShoppingModule {
+internal class ListItemLifecycle internal constructor() : LifecycleOwner {
 
-  @Binds
-  @CheckResult
-  internal abstract fun bindListComponent(impl: ShoppingListUiComponentImpl): DetailListUiComponent
+  private val registry = LifecycleRegistry(this)
 
-  @Binds
-  @CheckResult
-  internal abstract fun bindListCallback(impl: ShoppingListPresenter): DetailList.Callback
+  override fun getLifecycle(): Lifecycle {
+    return registry
+  }
+
+  fun bind() {
+    registry.fakeBind()
+  }
+
+  fun unbind() {
+    registry.fakeUnbind()
+  }
 
 }

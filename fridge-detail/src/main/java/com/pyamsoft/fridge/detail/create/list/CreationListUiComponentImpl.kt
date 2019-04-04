@@ -15,23 +15,12 @@
  *
  */
 
-package com.pyamsoft.fridge.detail.shop
+package com.pyamsoft.fridge.detail.create.list
 
-import androidx.annotation.CheckResult
-import com.pyamsoft.fridge.detail.DetailList
-import com.pyamsoft.fridge.detail.DetailListUiComponent
-import dagger.Binds
-import dagger.Module
+import com.pyamsoft.fridge.detail.DetailListUiComponentImpl
+import javax.inject.Inject
 
-@Module
-abstract class ShoppingModule {
-
-  @Binds
-  @CheckResult
-  internal abstract fun bindListComponent(impl: ShoppingListUiComponentImpl): DetailListUiComponent
-
-  @Binds
-  @CheckResult
-  internal abstract fun bindListCallback(impl: ShoppingListPresenter): DetailList.Callback
-
-}
+internal class CreationListUiComponentImpl @Inject internal constructor(
+  list: CreationList,
+  presenter: CreationListPresenter
+) : DetailListUiComponentImpl(list, presenter)

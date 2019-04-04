@@ -15,23 +15,19 @@
  *
  */
 
-package com.pyamsoft.fridge.detail.shop
+package com.pyamsoft.fridge.detail.create.toolbar
 
-import androidx.annotation.CheckResult
-import com.pyamsoft.fridge.detail.DetailList
-import com.pyamsoft.fridge.detail.DetailListUiComponent
-import dagger.Binds
-import dagger.Module
+import com.pyamsoft.fridge.detail.create.toolbar.CreationToolbarUiComponent.Callback
+import com.pyamsoft.pydroid.arch.UiComponent
 
-@Module
-abstract class ShoppingModule {
+interface CreationToolbarUiComponent : UiComponent<Callback> {
 
-  @Binds
-  @CheckResult
-  internal abstract fun bindListComponent(impl: ShoppingListUiComponentImpl): DetailListUiComponent
+  interface Callback {
 
-  @Binds
-  @CheckResult
-  internal abstract fun bindListCallback(impl: ShoppingListPresenter): DetailList.Callback
+    fun onBack()
+
+    fun onError(throwable: Throwable)
+
+  }
 
 }

@@ -15,23 +15,9 @@
  *
  */
 
-package com.pyamsoft.fridge.detail.shop
+package com.pyamsoft.fridge.detail.create
 
-import androidx.annotation.CheckResult
-import com.pyamsoft.fridge.detail.DetailList
-import com.pyamsoft.fridge.detail.DetailListUiComponent
-import dagger.Binds
-import dagger.Module
+import javax.inject.Scope
 
-@Module
-abstract class ShoppingModule {
-
-  @Binds
-  @CheckResult
-  internal abstract fun bindListComponent(impl: ShoppingListUiComponentImpl): DetailListUiComponent
-
-  @Binds
-  @CheckResult
-  internal abstract fun bindListCallback(impl: ShoppingListPresenter): DetailList.Callback
-
-}
+@Scope
+annotation class CreationScope

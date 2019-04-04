@@ -15,26 +15,33 @@
  *
  */
 
-package com.pyamsoft.fridge.detail.shop
+package com.pyamsoft.fridge.detail.item.add
 
-import com.pyamsoft.fridge.db.item.FridgeItem
-import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent
-import com.pyamsoft.fridge.detail.DetailListPresenter
-import io.reactivex.Observable
-import io.reactivex.Single
+import com.pyamsoft.fridge.detail.item.DetailItemScope
+import com.pyamsoft.fridge.detail.item.add.AddNewItemPresenter.Callback
+import com.pyamsoft.pydroid.arch.BasePresenter
+import com.pyamsoft.pydroid.core.bus.RxBus
 import javax.inject.Inject
 
-@ShoppingScope
-internal class ShoppingListPresenter @Inject internal constructor(
-  private val interactor: ShoppingListInteractor
-) : DetailListPresenter() {
+@DetailItemScope
+internal class AddNewItemPresenter @Inject internal constructor(
+) : BasePresenter<Unit, Callback>(RxBus.empty()),
+  AddNewItemView.Callback {
 
-  override fun getItems(force: Boolean): Single<List<FridgeItem>> {
-    return interactor.getItems(force)
+  override fun onBind() {
   }
 
-  override fun listenForChanges(): Observable<FridgeItemChangeEvent> {
-    return interactor.listenForChanges()
+  override fun onUnbind() {
+  }
+
+  override fun onAddNewClicked() {
+    callback.handleAddNewItem()
+  }
+
+  interface Callback {
+
+    fun handleAddNewItem()
+
   }
 
 }

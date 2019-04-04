@@ -15,38 +15,57 @@
  *
  */
 
-package com.pyamsoft.fridge.detail.shop
+package com.pyamsoft.fridge.detail.create.list
 
 import android.view.ViewGroup
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.detail.DetailList
-import com.pyamsoft.fridge.detail.create.list.CreationListInteractor
 import com.pyamsoft.fridge.detail.item.DetailItem
 import com.pyamsoft.fridge.detail.item.DetailItemComponent.Builder
+import com.pyamsoft.fridge.detail.item.add.AddNewListItemController
 import com.pyamsoft.fridge.detail.item.fridge.DetailListItemController
 import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.ui.theme.Theming
 import javax.inject.Inject
+import javax.inject.Named
 
-internal class ShoppingList @Inject internal constructor(
+internal class CreationList @Inject internal constructor(
+  @Named("detail_entry_id") private val entryId: String,
   interactor: CreationListInteractor,
   imageLoader: ImageLoader,
   stateMap: MutableMap<String, Int>,
   theming: Theming,
   parent: ViewGroup,
   callback: Callback
-) : DetailList(interactor, imageLoader, stateMap, theming, parent, callback) {
+) : DetailList(interactor, imageLoader, stateMap, theming, parent, callback),
+  AddNewListItemController.Callback {
 
   override fun createListItem(item: FridgeItem, builder: Builder): DetailItem<*, *> {
-    return DetailListItemController(
-      item,
-      false,
-      builder,
-      this
-    )
+    if (item.id().isBlank()) {
+      return AddNewListItemController(
+        item,
+        builder,
+        this
+      )
+    } else {
+      return DetailListItemController(
+        item,
+        true,
+        builder,
+        this
+      )
+    }
   }
 
   override fun onListEmpty() {
-    // TODO fun empty state?
+    addNewItem()
+  }
+
+  override fun onAddNewItem() {
+    addNewItem()
+  }
+
+  private fun addNewItem() {
+    insert(FridgeItem.create(entryId = entryId))
   }
 }

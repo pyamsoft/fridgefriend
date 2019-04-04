@@ -17,44 +17,33 @@
 
 package com.pyamsoft.fridge.detail
 
-import android.view.ViewGroup
 import androidx.annotation.CheckResult
-import com.pyamsoft.fridge.detail.DetailComponent.DetailProvider
+import com.pyamsoft.fridge.detail.create.CreationModule
+import com.pyamsoft.fridge.detail.create.CreationScope
+import com.pyamsoft.pydroid.ui.app.ToolbarActivity
 import dagger.BindsInstance
-import dagger.Module
-import dagger.Provides
 import dagger.Subcomponent
+import javax.inject.Named
 
-@DetailScope
-@Subcomponent(modules = [DetailProvider::class])
-internal interface DetailComponent {
+@CreationScope
+@Subcomponent(modules = [CreationModule::class])
+internal interface CreationComponent {
 
-  @CheckResult
-  fun plusCreationComponent(): CreationComponent.Builder
-
-  @CheckResult
-  fun plusShoppingComponent(): ShoppingComponent.Builder
+  fun inject(fragment: CreationFragment)
 
   @Subcomponent.Builder
   interface Builder {
 
     @BindsInstance
     @CheckResult
-    fun parent(parent: ViewGroup): Builder
+    fun toolbarActivity(toolbarActivity: ToolbarActivity): Builder
+
+    @BindsInstance
+    @CheckResult
+    fun entryId(@Named("detail_entry_id") entryId: String): Builder
 
     @CheckResult
-    fun build(): DetailComponent
-  }
-
-  @Module
-  object DetailProvider {
-
-    @DetailScope
-    @JvmStatic
-    @Provides
-    fun provideStateMap(): MutableMap<String, Int> {
-      return LinkedHashMap()
-    }
+    fun build(): CreationComponent
   }
 
 }

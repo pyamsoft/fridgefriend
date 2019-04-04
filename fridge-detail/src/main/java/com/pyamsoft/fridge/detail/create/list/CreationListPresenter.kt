@@ -15,26 +15,29 @@
  *
  */
 
-package com.pyamsoft.fridge.detail.shop
+package com.pyamsoft.fridge.detail.create.list
 
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent
+import com.pyamsoft.fridge.detail.create.CreationScope
 import com.pyamsoft.fridge.detail.DetailListPresenter
 import io.reactivex.Observable
 import io.reactivex.Single
 import javax.inject.Inject
+import javax.inject.Named
 
-@ShoppingScope
-internal class ShoppingListPresenter @Inject internal constructor(
-  private val interactor: ShoppingListInteractor
+@CreationScope
+internal class CreationListPresenter @Inject internal constructor(
+  private val interactor: CreationListInteractor,
+  @Named("detail_entry_id") private val entryId: String
 ) : DetailListPresenter() {
 
   override fun getItems(force: Boolean): Single<List<FridgeItem>> {
-    return interactor.getItems(force)
+    return interactor.getItems(entryId, force)
   }
 
   override fun listenForChanges(): Observable<FridgeItemChangeEvent> {
-    return interactor.listenForChanges()
+    return interactor.listenForChanges(entryId)
   }
 
 }
