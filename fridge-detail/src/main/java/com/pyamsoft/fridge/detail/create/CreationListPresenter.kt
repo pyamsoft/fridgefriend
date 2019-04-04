@@ -20,7 +20,6 @@ package com.pyamsoft.fridge.detail.create
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent
 import com.pyamsoft.fridge.detail.DetailScope
-import com.pyamsoft.fridge.detail.list.DetailListInteractor
 import com.pyamsoft.fridge.detail.list.DetailListPresenter
 import io.reactivex.Observable
 import io.reactivex.Single
@@ -28,8 +27,8 @@ import javax.inject.Inject
 import javax.inject.Named
 
 @DetailScope
-internal class CreationDetailListPresenter @Inject internal constructor(
-  private val interactor: DetailListInteractor,
+internal class CreationListPresenter @Inject internal constructor(
+  private val interactor: CreationListInteractor,
   @Named("detail_entry_id") private val entryId: String
 ) : DetailListPresenter() {
 

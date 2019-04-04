@@ -15,7 +15,7 @@
  *
  */
 
-package com.pyamsoft.fridge.detail.create
+package com.pyamsoft.fridge.detail.shop
 
 import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.detail.list.DetailList
@@ -24,14 +24,14 @@ import dagger.Binds
 import dagger.Module
 
 @Module
-abstract class CreationDetailModule {
+abstract class ShoppingModule {
 
   @Binds
   @CheckResult
-  internal abstract fun bindListComponent(impl: CreationDetailListUiComponentImpl): DetailListUiComponent
+  internal abstract fun bindListComponent(impl: ShoppingListUiComponentImpl): DetailListUiComponent
 
   @Binds
   @CheckResult
-  internal abstract fun bindListCallback(impl: CreationDetailListPresenter): DetailList.Callback
+  internal abstract fun bindListCallback(impl: ShoppingListPresenter): DetailList.Callback
 
 }

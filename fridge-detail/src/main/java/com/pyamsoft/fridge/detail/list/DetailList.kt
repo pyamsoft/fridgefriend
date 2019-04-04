@@ -35,6 +35,7 @@ import com.mikepenz.fastadapter.adapters.ModelAdapter
 import com.mikepenz.fastadapter_extensions.swipe.SimpleSwipeCallback
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.detail.R
+import com.pyamsoft.fridge.detail.create.CreationListInteractor
 import com.pyamsoft.fridge.detail.list.item.DaggerDetailItemComponent
 import com.pyamsoft.fridge.detail.list.item.DetailItem
 import com.pyamsoft.fridge.detail.list.item.DetailItemComponent
@@ -46,7 +47,7 @@ import com.pyamsoft.pydroid.ui.util.refreshing
 import timber.log.Timber
 
 internal abstract class DetailList protected constructor(
-  private val interactor: DetailListInteractor,
+  private val interactor: CreationListInteractor,
   private val imageLoader: ImageLoader,
   private val stateMap: MutableMap<String, Int>,
   private val theming: Theming,

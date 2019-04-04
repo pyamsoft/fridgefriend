@@ -20,7 +20,7 @@ package com.pyamsoft.fridge.detail.list.item
 import android.view.ViewGroup
 import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.db.item.FridgeItem
-import com.pyamsoft.fridge.detail.list.DetailListInteractor
+import com.pyamsoft.fridge.detail.create.CreationListInteractor
 import com.pyamsoft.fridge.detail.list.item.DetailItemComponent.DetailItemModule
 import com.pyamsoft.fridge.detail.list.item.add.AddNewItemPresenter
 import com.pyamsoft.fridge.detail.list.item.add.AddNewItemUiComponent
@@ -77,7 +77,7 @@ internal interface DetailItemComponent {
 
     @BindsInstance
     @CheckResult
-    fun interactor(interactor: DetailListInteractor): Builder
+    fun interactor(interactor: CreationListInteractor): Builder
 
     @CheckResult
     fun build(): DetailItemComponent

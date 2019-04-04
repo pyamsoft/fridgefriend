@@ -15,7 +15,7 @@
  *
  */
 
-package com.pyamsoft.fridge.detail.list
+package com.pyamsoft.fridge.detail.create
 
 import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.db.entry.FridgeEntryInsertDao
@@ -38,7 +38,7 @@ import io.reactivex.Single
 import timber.log.Timber
 import javax.inject.Inject
 
-internal class DetailListInteractor @Inject internal constructor(
+internal class CreationListInteractor @Inject internal constructor(
   private val queryDao: FridgeItemQueryDao,
   private val insertDao: FridgeItemInsertDao,
   private val updateDao: FridgeItemUpdateDao,

@@ -20,7 +20,7 @@ package com.pyamsoft.fridge.detail.list.item.fridge
 import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.detail.DetailConstants
-import com.pyamsoft.fridge.detail.list.DetailListInteractor
+import com.pyamsoft.fridge.detail.create.CreationListInteractor
 import com.pyamsoft.fridge.detail.list.item.DetailItemScope
 import com.pyamsoft.fridge.detail.list.item.fridge.DetailItemPresenter.Callback
 import com.pyamsoft.pydroid.arch.BasePresenter
@@ -35,7 +35,7 @@ import javax.inject.Inject
 
 @DetailItemScope
 internal class DetailItemPresenter @Inject internal constructor(
-  private val interactor: DetailListInteractor
+  private val interactor: CreationListInteractor
 ) : BasePresenter<Unit, Callback>(RxBus.empty()),
   DetailListItem.Callback {
 

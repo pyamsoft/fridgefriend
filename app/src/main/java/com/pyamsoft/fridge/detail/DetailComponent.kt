@@ -19,14 +19,14 @@ package com.pyamsoft.fridge.detail
 
 import android.view.ViewGroup
 import androidx.annotation.CheckResult
-import com.pyamsoft.fridge.detail.create.CreationDetailModule
+import com.pyamsoft.fridge.detail.create.CreationModule
 import com.pyamsoft.pydroid.ui.app.ToolbarActivity
 import dagger.BindsInstance
 import dagger.Subcomponent
 import javax.inject.Named
 
 @DetailScope
-@Subcomponent(modules = [CreationDetailModule::class, DetailModule::class, DetailProvider::class])
+@Subcomponent(modules = [CreationModule::class, DetailModule::class, DetailProvider::class])
 internal interface DetailComponent {
 
   fun inject(fragment: DetailFragment)

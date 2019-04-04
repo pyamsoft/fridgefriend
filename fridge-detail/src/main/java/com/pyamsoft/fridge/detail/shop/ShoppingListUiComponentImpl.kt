@@ -15,12 +15,12 @@
  *
  */
 
-package com.pyamsoft.fridge.detail.create
+package com.pyamsoft.fridge.detail.shop
 
 import com.pyamsoft.fridge.detail.list.DetailListUiComponentImpl
 import javax.inject.Inject
 
-internal class CreationDetailListUiComponentImpl @Inject internal constructor(
-  list: CreationDetailList,
-  presenter: CreationDetailListPresenter
+internal class ShoppingListUiComponentImpl @Inject internal constructor(
+  list: ShoppingList,
+  presenter: ShoppingListPresenter
 ) : DetailListUiComponentImpl(list, presenter)
