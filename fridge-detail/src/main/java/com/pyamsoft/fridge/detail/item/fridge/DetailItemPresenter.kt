@@ -58,7 +58,7 @@ internal class DetailItemPresenter @Inject internal constructor(
 
   @CheckResult
   private fun isReadyToBeReal(item: FridgeItem): Boolean {
-    return item.name().isNotBlank()
+    return item.name().isNotBlank() && item.expireTime().time > 0L
   }
 
   override fun commitItem(item: FridgeItem) {

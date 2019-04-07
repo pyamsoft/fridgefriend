@@ -35,7 +35,7 @@
         android:hint="@string/item_name_hint"
         android:importantForAutofill="no"
         android:inputType="textAutoComplete"
-        android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
+        android:textAppearance="?attr/textAppearanceBody1"
         tools:targetApi="o"
         />
 

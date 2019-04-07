@@ -17,7 +17,6 @@
 
 package com.pyamsoft.fridge.detail.item.fridge
 
-import android.graphics.Color
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -38,12 +37,12 @@ internal class DetailListItemName @Inject internal constructor(
   callback: Callback
 ) : DetailListItem(item, parent, callback) {
 
-  private var nameWatcher: TextWatcher? = null
-
   override val layout: Int = R.layout.detail_list_item_name
 
   override val layoutRoot by lazyView<ViewGroup>(R.id.detail_item_name)
   private val nameView by lazyView<EditText>(R.id.detail_item_name_editable)
+
+  private var nameWatcher: TextWatcher? = null
 
   override fun onInflated(view: View, savedInstanceState: Bundle?) {
     nameView.setText(item.name())
@@ -62,9 +61,7 @@ internal class DetailListItemName @Inject internal constructor(
       val watcher = object : TextWatcher {
 
         override fun afterTextChanged(s: Editable?) {
-          if (s != null) {
-            commit(s.toString())
-          }
+          commit()
         }
 
         override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
@@ -77,11 +74,7 @@ internal class DetailListItemName @Inject internal constructor(
       nameView.addTextChangedListener(watcher)
       nameWatcher = watcher
     } else {
-      nameView.isFocusableInTouchMode = false
-      nameView.isFocusable = false
-      nameView.isCursorVisible = false
-      nameView.keyListener = null
-      nameView.setBackgroundColor(Color.TRANSPARENT)
+      nameView.setNotEditable()
     }
   }
 
@@ -94,9 +87,9 @@ internal class DetailListItemName @Inject internal constructor(
     nameView.text.clear()
   }
 
-  private fun commit(name: String) {
+  private fun commit() {
     saveEditingState()
-    commitModel(name = name)
+    commitModel(name = nameView.text.toString())
   }
 
   private fun saveEditingState() {

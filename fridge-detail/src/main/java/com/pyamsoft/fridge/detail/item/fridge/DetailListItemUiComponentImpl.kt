@@ -30,6 +30,7 @@ import javax.inject.Inject
 internal class DetailListItemUiComponentImpl @Inject internal constructor(
   private val strikethrough: DetailListItemStrikethrough,
   private val name: DetailListItemName,
+  private val expireTime: DetailListItemDate,
   private val presence: DetailListItemPresence,
   private val presenter: DetailItemPresenter
 ) : BaseUiComponent<DetailListItemUiComponent.Callback>(),
@@ -44,11 +45,13 @@ internal class DetailListItemUiComponentImpl @Inject internal constructor(
     owner.doOnDestroy {
       strikethrough.teardown()
       name.teardown()
+      expireTime.teardown()
       presence.teardown()
       presenter.unbind()
     }
 
     presence.inflate(savedInstanceState)
+    expireTime.inflate(savedInstanceState)
     name.inflate(savedInstanceState)
     strikethrough.inflate(savedInstanceState)
     presenter.bind(this)
@@ -62,17 +65,25 @@ internal class DetailListItemUiComponentImpl @Inject internal constructor(
       set.constrainWidth(it.id(), ConstraintSet.WRAP_CONTENT)
     }
 
+    expireTime.also {
+      set.connect(it.id(), ConstraintSet.TOP, strikethrough.id(), ConstraintSet.TOP)
+      set.connect(it.id(), ConstraintSet.BOTTOM, strikethrough.id(), ConstraintSet.BOTTOM)
+      set.connect(it.id(), ConstraintSet.END, presence.id(), ConstraintSet.START)
+      set.constrainWidth(it.id(), ConstraintSet.WRAP_CONTENT)
+    }
+
     name.also {
       set.connect(it.id(), ConstraintSet.TOP, strikethrough.id(), ConstraintSet.TOP)
       set.connect(it.id(), ConstraintSet.BOTTOM, strikethrough.id(), ConstraintSet.BOTTOM)
       set.connect(it.id(), ConstraintSet.START, strikethrough.id(), ConstraintSet.START)
-      set.connect(it.id(), ConstraintSet.END, presence.id(), ConstraintSet.START)
+      set.connect(it.id(), ConstraintSet.END, expireTime.id(), ConstraintSet.START)
       set.constrainWidth(it.id(), ConstraintSet.MATCH_CONSTRAINT)
     }
   }
 
   override fun onSaveState(outState: Bundle) {
     strikethrough.saveState(outState)
+    expireTime.saveState(outState)
     presence.saveState(outState)
     name.saveState(outState)
   }

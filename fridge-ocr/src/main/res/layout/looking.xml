@@ -26,7 +26,7 @@
       android:background="@color/black"
       android:minWidth="100dp"
       android:text="  "
-      android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
+      android:textAppearance="?attr/textAppearanceBody1"
       android:textColor="@color/white"
       />
 
