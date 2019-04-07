@@ -19,11 +19,13 @@ package com.pyamsoft.fridge.detail.create.list
 
 import android.view.ViewGroup
 import com.pyamsoft.fridge.db.item.FridgeItem
+import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent
 import com.pyamsoft.fridge.detail.DetailList
 import com.pyamsoft.fridge.detail.item.DetailItem
 import com.pyamsoft.fridge.detail.item.DetailItemComponent.Builder
 import com.pyamsoft.fridge.detail.item.add.AddNewListItemController
 import com.pyamsoft.fridge.detail.item.fridge.DetailListItemController
+import com.pyamsoft.pydroid.core.bus.EventBus
 import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.ui.theme.Theming
 import javax.inject.Inject
@@ -35,9 +37,10 @@ internal class CreationList @Inject internal constructor(
   imageLoader: ImageLoader,
   stateMap: MutableMap<String, Int>,
   theming: Theming,
+  fakeRealtime: EventBus<FridgeItemChangeEvent>,
   parent: ViewGroup,
-  callback: Callback
-) : DetailList(interactor, imageLoader, stateMap, theming, parent, callback),
+  private val listCallback: CreationList.Callback
+) : DetailList(interactor, imageLoader, stateMap, theming, fakeRealtime, parent, listCallback),
   AddNewListItemController.Callback {
 
   override fun createListItem(item: FridgeItem, builder: Builder): DetailItem<*, *> {
@@ -51,21 +54,18 @@ internal class CreationList @Inject internal constructor(
       return DetailListItemController(
         item,
         true,
-        builder,
-        this
+        builder
       )
     }
   }
 
-  override fun onListEmpty() {
-    addNewItem()
-  }
-
   override fun onAddNewItem() {
-    addNewItem()
+    listCallback.onAddNewItem()
   }
 
-  private fun addNewItem() {
-    insert(FridgeItem.create(entryId = entryId))
+  interface Callback : DetailList.Callback {
+
+    fun onAddNewItem()
   }
+
 }

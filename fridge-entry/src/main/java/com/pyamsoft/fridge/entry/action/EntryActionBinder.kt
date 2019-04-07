@@ -18,8 +18,7 @@
 package com.pyamsoft.fridge.entry.action
 
 import com.pyamsoft.fridge.entry.EntryScope
-import com.pyamsoft.pydroid.arch.BasePresenter
-import com.pyamsoft.pydroid.core.bus.RxBus
+import com.pyamsoft.pydroid.arch.UiBinder
 import com.pyamsoft.pydroid.core.singleDisposable
 import com.pyamsoft.pydroid.core.tryDispose
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -28,9 +27,9 @@ import timber.log.Timber
 import javax.inject.Inject
 
 @EntryScope
-internal class EntryActionPresenter @Inject internal constructor(
+internal class EntryActionBinder @Inject internal constructor(
   private val interactor: EntryActionInteractor
-) : BasePresenter<Unit, EntryActionPresenter.Callback>(RxBus.empty()),
+) : UiBinder<EntryActionBinder.Callback>(),
   EntryCreate.Callback,
   EntryShop.Callback {
 
@@ -59,7 +58,7 @@ internal class EntryActionPresenter @Inject internal constructor(
     callback.handleShop()
   }
 
-  interface Callback {
+  interface Callback : UiBinder.Callback {
 
     fun handleCreateError(throwable: Throwable)
 

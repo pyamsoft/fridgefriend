@@ -19,11 +19,13 @@ package com.pyamsoft.fridge.detail.shop
 
 import android.view.ViewGroup
 import com.pyamsoft.fridge.db.item.FridgeItem
+import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent
 import com.pyamsoft.fridge.detail.DetailList
 import com.pyamsoft.fridge.detail.create.list.CreationListInteractor
 import com.pyamsoft.fridge.detail.item.DetailItem
 import com.pyamsoft.fridge.detail.item.DetailItemComponent.Builder
 import com.pyamsoft.fridge.detail.item.fridge.DetailListItemController
+import com.pyamsoft.pydroid.core.bus.EventBus
 import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.ui.theme.Theming
 import javax.inject.Inject
@@ -33,20 +35,16 @@ internal class ShoppingList @Inject internal constructor(
   imageLoader: ImageLoader,
   stateMap: MutableMap<String, Int>,
   theming: Theming,
+  fakeRealtime: EventBus<FridgeItemChangeEvent>,
   parent: ViewGroup,
   callback: Callback
-) : DetailList(interactor, imageLoader, stateMap, theming, parent, callback) {
+) : DetailList(interactor, imageLoader, stateMap, theming, fakeRealtime, parent, callback) {
 
   override fun createListItem(item: FridgeItem, builder: Builder): DetailItem<*, *> {
     return DetailListItemController(
       item,
       false,
-      builder,
-      this
+      builder
     )
-  }
-
-  override fun onListEmpty() {
-    // TODO fun empty state?
   }
 }

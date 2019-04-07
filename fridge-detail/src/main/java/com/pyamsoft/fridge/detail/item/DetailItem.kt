@@ -27,11 +27,6 @@ internal abstract class DetailItem<I : DetailItem<I, VH>, VH : RecyclerView.View
   private val swipeable: Boolean
 ) : ModelAbstractItem<FridgeItem, I, VH>(item) {
 
-  // TODO
-  // Add an editable field to this item class
-  // Break the item package out into a fridge-item module
-  // Break the scanner package out into a fridge-scanner module
-
   @CheckResult
   fun canSwipe(): Boolean {
     return swipeable

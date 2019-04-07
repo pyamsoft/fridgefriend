@@ -26,10 +26,10 @@ import javax.inject.Inject
 
 internal class SettingToolbarUiComponentImpl @Inject internal constructor(
   private val toolbar: SettingToolbar,
-  private val presenter: SettingToolbarPresenter
+  private val binder: SettingToolbarBinder
 ) : BaseUiComponent<SettingToolbarUiComponent.Callback>(),
   SettingToolbarUiComponent,
-  SettingToolbarPresenter.Callback {
+  SettingToolbarBinder.Callback {
 
   override fun id(): Int {
     throw InvalidIdException
@@ -42,11 +42,11 @@ internal class SettingToolbarUiComponentImpl @Inject internal constructor(
   ) {
     owner.doOnDestroy {
       toolbar.teardown()
-      presenter.unbind()
+      binder.unbind()
     }
 
     toolbar.inflate(savedInstanceState)
-    presenter.bind(this)
+    binder.bind(this)
   }
 
   override fun onSaveState(outState: Bundle) {

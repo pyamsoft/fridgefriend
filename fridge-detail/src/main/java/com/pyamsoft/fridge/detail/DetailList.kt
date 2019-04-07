@@ -32,8 +32,11 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.mikepenz.fastadapter.FastAdapter
 import com.mikepenz.fastadapter.IItem
 import com.mikepenz.fastadapter.adapters.ModelAdapter
+import com.mikepenz.fastadapter.commons.utils.DiffCallback
+import com.mikepenz.fastadapter.commons.utils.FastAdapterDiffUtil
 import com.mikepenz.fastadapter_extensions.swipe.SimpleSwipeCallback
 import com.pyamsoft.fridge.db.item.FridgeItem
+import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent
 import com.pyamsoft.fridge.detail.DetailList.Callback
 import com.pyamsoft.fridge.detail.create.list.CreationListInteractor
 import com.pyamsoft.fridge.detail.item.DaggerDetailItemComponent
@@ -41,6 +44,7 @@ import com.pyamsoft.fridge.detail.item.DetailItem
 import com.pyamsoft.fridge.detail.item.DetailItemComponent
 import com.pyamsoft.fridge.detail.item.fridge.DetailListItemController
 import com.pyamsoft.pydroid.arch.BaseUiView
+import com.pyamsoft.pydroid.core.bus.EventBus
 import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.ui.theme.Theming
 import com.pyamsoft.pydroid.ui.util.refreshing
@@ -51,10 +55,10 @@ internal abstract class DetailList protected constructor(
   private val imageLoader: ImageLoader,
   private val stateMap: MutableMap<String, Int>,
   private val theming: Theming,
+  private val fakeRealtime: EventBus<FridgeItemChangeEvent>,
   parent: ViewGroup,
   callback: Callback
-) : BaseUiView<Callback>(parent, callback),
-  DetailListItemController.Callback {
+) : BaseUiView<Callback>(parent, callback) {
 
   final override val layout: Int = R.layout.detail_list
 
@@ -72,10 +76,9 @@ internal abstract class DetailList protected constructor(
     builder: DetailItemComponent.Builder
   ): DetailItem<*, *>
 
-  protected abstract fun onListEmpty()
-
   final override fun onInflated(view: View, savedInstanceState: Bundle?) {
     val builder = DaggerDetailItemComponent.builder()
+      .fakeRealtime(fakeRealtime)
       .interactor(interactor)
       .imageLoader(imageLoader)
       .stateMap(stateMap)
@@ -163,101 +166,58 @@ internal abstract class DetailList protected constructor(
   }
 
   @CheckResult
-  private fun usingAdapter(): ModelAdapter<FridgeItem, *> {
+  private fun usingAdapter(): ModelAdapter<FridgeItem, DetailItem<*, *>> {
     return requireNotNull(modelAdapter)
   }
 
   fun beginRefresh() {
     layoutRoot.refreshing(true)
-    usingAdapter().clear()
   }
 
-  fun setList(items: List<FridgeItem>) {
-    usingAdapter().add(items)
+  fun setList(list: List<FridgeItem>) {
+    val items = list.map { usingAdapter().intercept(it) }
+    FastAdapterDiffUtil.set(usingAdapter(), items, object : DiffCallback<DetailItem<*, *>> {
+
+      override fun areItemsTheSame(
+        oldItem: DetailItem<*, *>,
+        newItem: DetailItem<*, *>
+      ): Boolean {
+        return oldItem.getIdentifier() == newItem.getIdentifier()
+      }
+
+      override fun areContentsTheSame(
+        oldItem: DetailItem<*, *>,
+        newItem: DetailItem<*, *>
+      ): Boolean {
+        return oldItem.getModel() == newItem.getModel()
+      }
+
+      override fun getChangePayload(
+        oldItem: DetailItem<*, *>?,
+        oldItemPosition: Int,
+        newItem: DetailItem<*, *>?,
+        newItemPosition: Int
+      ): Any? {
+        return null
+      }
+
+    })
+  }
+
+  fun clearList() {
+    usingAdapter().clear()
   }
 
   fun showError(throwable: Throwable) {
-    usingAdapter().clear()
-
     // TODO set error text
+  }
+
+  fun clearError() {
+    // TODO clear error
   }
 
   fun finishRefresh() {
     layoutRoot.refreshing(false)
-    usingAdapter().add(FridgeItem.empty())
-
-    fixListIfEmpty()
-  }
-
-  private fun fixListIfEmpty() {
-    if (usingAdapter().adapterItemCount <= 1) {
-      onListEmpty()
-    }
-  }
-
-  fun insert(item: FridgeItem) {
-    if (!updateExistingItem(item)) {
-      addToEndBeforeAddNew(item)
-    }
-  }
-
-  private fun addToEndBeforeAddNew(item: FridgeItem) {
-    var index = -1
-    for ((i, e) in usingAdapter().models.withIndex()) {
-      if (e.id().isBlank()) {
-        index = i
-        break
-      }
-    }
-
-    when {
-      index == 0 -> usingAdapter().add(0, item)
-      index > 0 -> usingAdapter().add(index, item)
-      else -> usingAdapter().add(item)
-    }
-  }
-
-  fun update(item: FridgeItem) {
-    updateExistingItem(item)
-  }
-
-  private fun updateExistingItem(item: FridgeItem): Boolean {
-    for ((index, e) in usingAdapter().models.withIndex()) {
-      if (item.id() == e.id() && item.entryId() == e.entryId()) {
-        usingAdapter().set(index, item)
-        return true
-      }
-    }
-
-    return false
-  }
-
-  fun delete(item: FridgeItem) {
-    var index = -1
-    for ((i, e) in usingAdapter().models.withIndex()) {
-      if (item.id() == e.id() && item.entryId() == e.entryId()) {
-        index = i
-        break
-      }
-    }
-
-    if (index >= 0) {
-      usingAdapter().remove(index)
-    }
-
-    fixListIfEmpty()
-  }
-
-  final override fun onFakeDelete(item: FridgeItem) {
-    delete(item)
-  }
-
-  final override fun onCommitError(throwable: Throwable) {
-    showError(throwable)
-  }
-
-  final override fun onDeleteError(throwable: Throwable) {
-    showError(throwable)
   }
 
   interface Callback {

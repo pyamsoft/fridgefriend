@@ -26,10 +26,10 @@ import javax.inject.Inject
 
 internal class AddNewItemUiComponentImpl @Inject internal constructor(
   private val itemView: AddNewItemView,
-  private val presenter: AddNewItemPresenter
+  private val binder: AddNewItemBinder
 ) : BaseUiComponent<AddNewItemUiComponent.Callback>(),
   AddNewItemUiComponent,
-  AddNewItemPresenter.Callback {
+  AddNewItemBinder.Callback {
 
   override fun id(): Int {
     return itemView.id()
@@ -38,11 +38,11 @@ internal class AddNewItemUiComponentImpl @Inject internal constructor(
   override fun onBind(owner: LifecycleOwner, savedInstanceState: Bundle?, callback: Callback) {
     owner.doOnDestroy {
       itemView.teardown()
-      presenter.unbind()
+      binder.unbind()
     }
 
     itemView.inflate(savedInstanceState)
-    presenter.bind(this)
+    binder.bind(this)
   }
 
   override fun onSaveState(outState: Bundle) {

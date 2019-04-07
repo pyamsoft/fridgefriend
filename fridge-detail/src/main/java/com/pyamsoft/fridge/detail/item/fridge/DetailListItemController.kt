@@ -37,8 +37,7 @@ import javax.inject.Inject
 internal class DetailListItemController internal constructor(
   item: FridgeItem,
   editable: Boolean,
-  private val builder: DetailItemComponent.Builder,
-  private val callback: Callback
+  private val builder: DetailItemComponent.Builder
 ) : DetailItem<DetailListItemController, ViewHolder>(item, swipeable = editable),
   Callback {
 
@@ -72,28 +71,6 @@ internal class DetailListItemController internal constructor(
     holder.unbind()
   }
 
-  override fun onNonRealItemDelete(item: FridgeItem) {
-    // Act as if delete occurred
-    callback.onFakeDelete(item)
-  }
-
-  override fun onNonRealItemCommit(item: FridgeItem) {
-    // Act as if commit occurred
-    onModelUpdate(item)
-  }
-
-  override fun onUpdateItemError(throwable: Throwable) {
-    callback.onCommitError(throwable)
-  }
-
-  override fun onDeleteItemError(throwable: Throwable) {
-    callback.onDeleteError(throwable)
-  }
-
-  override fun onModelUpdate(item: FridgeItem) {
-    withModel(item)
-  }
-
   class ViewHolder internal constructor(
     itemView: View,
     private val builder: DetailItemComponent.Builder
@@ -104,7 +81,8 @@ internal class DetailListItemController internal constructor(
 
     private val parent: ConstraintLayout = itemView.findViewById(R.id.listitem_constraint)
 
-    fun bind(item: FridgeItem, editable: Boolean, callback: com.pyamsoft.fridge.detail.item.fridge.DetailListItemUiComponent.Callback) {
+    fun bind(item: FridgeItem, editable: Boolean, callback: DetailListItemUiComponent.Callback) {
+      Timber.d("Bind item: $item")
       lifecycle?.unbind()
 
       builder
@@ -142,16 +120,6 @@ internal class DetailListItemController internal constructor(
       Timber.d("Delete self: $item")
       component.deleteSelf(item)
     }
-
-  }
-
-  interface Callback {
-
-    fun onFakeDelete(item: FridgeItem)
-
-    fun onDeleteError(throwable: Throwable)
-
-    fun onCommitError(throwable: Throwable)
 
   }
 

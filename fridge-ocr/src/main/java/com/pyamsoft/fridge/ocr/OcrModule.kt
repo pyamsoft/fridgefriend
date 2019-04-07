@@ -26,7 +26,7 @@ abstract class OcrModule {
 
   @Binds
   @CheckResult
-  internal abstract fun bindScannerCallback(impl: OcrScannerPresenter): OcrScannerView.Callback
+  internal abstract fun bindScannerCallback(impl: OcrScannerBinder): OcrScannerView.Callback
 
   @Binds
   @CheckResult

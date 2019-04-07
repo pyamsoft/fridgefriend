@@ -65,5 +65,13 @@ internal class DetailListItemStrikethrough @Inject internal constructor(
     strikeThrough.isInvisible = true
   }
 
+  fun showError(throwable: Throwable) {
+    // TODO
+  }
+
+  fun clearError() {
+    // TODO
+  }
+
 }
 

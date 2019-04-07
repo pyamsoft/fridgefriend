@@ -25,17 +25,6 @@ internal interface DetailListItemUiComponent : UiComponent<Callback> {
 
   fun deleteSelf(item: FridgeItem)
 
-  interface Callback {
-
-    fun onNonRealItemDelete(item: FridgeItem)
-
-    fun onNonRealItemCommit(item: FridgeItem)
-
-    fun onUpdateItemError(throwable: Throwable)
-
-    fun onDeleteItemError(throwable: Throwable)
-
-    fun onModelUpdate(item: FridgeItem)
-  }
+  interface Callback
 
 }

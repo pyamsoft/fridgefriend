@@ -20,6 +20,7 @@ package com.pyamsoft.fridge.entry.list
 import android.os.Bundle
 import androidx.lifecycle.LifecycleOwner
 import com.pyamsoft.fridge.db.entry.FridgeEntry
+import com.pyamsoft.fridge.entry.list.EntryListPresenter.EntryState
 import com.pyamsoft.fridge.entry.list.EntryListUiComponent.Callback
 import com.pyamsoft.pydroid.arch.BaseUiComponent
 import com.pyamsoft.pydroid.arch.doOnDestroy
@@ -51,40 +52,50 @@ internal class EntryListUiComponentImpl @Inject internal constructor(
     listView.saveState(outState)
   }
 
-  override fun handleListRefreshBegin() {
-    listView.beginRefresh()
+  override fun onRender(state: EntryState, oldState: EntryState?) {
+    renderLoading(state, oldState)
+    renderList(state, oldState)
+    renderError(state, oldState)
   }
 
-  override fun handleListRefreshed(data: List<FridgeEntry>) {
-    listView.setList(data)
+  private fun renderLoading(state: EntryState, oldState: EntryState?) {
+    state.isLoading.let { loading ->
+      if (oldState == null || loading != oldState.isLoading) {
+        if (loading) {
+          listView.beginRefresh()
+        } else {
+          listView.finishRefresh()
+        }
+      }
+    }
   }
 
-  override fun handleListRefreshError(throwable: Throwable) {
-    listView.showError(throwable)
+  private fun renderList(state: EntryState, oldState: EntryState?) {
+    state.entries.let { entries ->
+      if (oldState == null || entries != oldState.entries) {
+        if (entries.isEmpty()) {
+          listView.clearList()
+        } else {
+          listView.setList(entries)
+        }
+      }
+    }
   }
 
-  override fun handleListRefreshComplete() {
-    listView.finishRefresh()
+  private fun renderError(state: EntryState, oldState: EntryState?) {
+    state.throwable.let { throwable ->
+      if (oldState == null || throwable != oldState.throwable) {
+        if (throwable == null) {
+          listView.clearError()
+        } else {
+          listView.showError(throwable)
+        }
+      }
+    }
   }
 
   override fun handleEditEntry(entry: FridgeEntry) {
     callback.onEditEntry(entry.id())
-  }
-
-  override fun handleRealtimeInsert(entry: FridgeEntry) {
-    listView.insert(entry)
-  }
-
-  override fun handleRealtimeUpdate(entry: FridgeEntry) {
-    listView.update(entry)
-  }
-
-  override fun handleRealtimeDelete(entry: FridgeEntry) {
-    listView.delete(entry)
-  }
-
-  override fun handleRealtimeDeleteAll() {
-    listView.deleteAll()
   }
 
 }

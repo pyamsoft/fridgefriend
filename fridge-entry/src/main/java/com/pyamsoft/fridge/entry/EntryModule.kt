@@ -18,35 +18,32 @@
 package com.pyamsoft.fridge.entry
 
 import androidx.annotation.CheckResult
-import com.pyamsoft.fridge.entry.action.EntryActionPresenter
+import com.pyamsoft.fridge.entry.action.EntryActionBinder
 import com.pyamsoft.fridge.entry.action.EntryActionUiComponent
 import com.pyamsoft.fridge.entry.action.EntryActionUiComponentImpl
 import com.pyamsoft.fridge.entry.action.EntryCreate
 import com.pyamsoft.fridge.entry.action.EntryShop
 import com.pyamsoft.fridge.entry.list.EntryList
-import com.pyamsoft.fridge.entry.list.EntryListInteractor
 import com.pyamsoft.fridge.entry.list.EntryListPresenter
 import com.pyamsoft.fridge.entry.list.EntryListUiComponent
 import com.pyamsoft.fridge.entry.list.EntryListUiComponentImpl
 import com.pyamsoft.fridge.entry.toolbar.EntryToolbar
-import com.pyamsoft.fridge.entry.toolbar.EntryToolbarPresenter
+import com.pyamsoft.fridge.entry.toolbar.EntryToolbarBinder
 import com.pyamsoft.fridge.entry.toolbar.EntryToolbarUiComponent
 import com.pyamsoft.fridge.entry.toolbar.EntryToolbarUiComponentImpl
-import com.pyamsoft.pydroid.core.cache.Cache
 import dagger.Binds
 import dagger.Module
-import javax.inject.Named
 
 @Module
 abstract class EntryModule {
 
   @Binds
   @CheckResult
-  internal abstract fun bindCreateCallback(impl: EntryActionPresenter): EntryCreate.Callback
+  internal abstract fun bindCreateCallback(impl: EntryActionBinder): EntryCreate.Callback
 
   @Binds
   @CheckResult
-  internal abstract fun bindShopCallback(impl: EntryActionPresenter): EntryShop.Callback
+  internal abstract fun bindShopCallback(impl: EntryActionBinder): EntryShop.Callback
 
   @Binds
   @CheckResult
@@ -62,7 +59,7 @@ abstract class EntryModule {
 
   @Binds
   @CheckResult
-  internal abstract fun bindToolbarCallback(impl: EntryToolbarPresenter): EntryToolbar.Callback
+  internal abstract fun bindToolbarCallback(impl: EntryToolbarBinder): EntryToolbar.Callback
 
   @Binds
   @CheckResult

@@ -20,6 +20,7 @@ package com.pyamsoft.fridge.detail
 import android.os.Bundle
 import androidx.lifecycle.LifecycleOwner
 import com.pyamsoft.fridge.db.item.FridgeItem
+import com.pyamsoft.fridge.detail.DetailListPresenter.DetailState
 import com.pyamsoft.fridge.detail.DetailListUiComponent.Callback
 import com.pyamsoft.pydroid.arch.BaseUiComponent
 import com.pyamsoft.pydroid.arch.doOnDestroy
@@ -49,32 +50,46 @@ internal abstract class DetailListUiComponentImpl protected constructor(
     list.saveState(outState)
   }
 
-  override fun handleListRefreshBegin() {
-    list.beginRefresh()
+  override fun onRender(state: DetailState, oldState: DetailState?) {
+    renderLoading(state, oldState)
+    renderList(state, oldState)
+    renderError(state, oldState)
   }
 
-  override fun handleListRefreshed(items: List<FridgeItem>) {
-    list.setList(items)
+  private fun renderLoading(state: DetailState, oldState: DetailState?) {
+    state.isLoading.let { loading ->
+      if (oldState == null || loading != oldState.isLoading) {
+        if (loading) {
+          list.beginRefresh()
+        } else {
+          list.finishRefresh()
+        }
+      }
+    }
   }
 
-  override fun handleListRefreshError(throwable: Throwable) {
-    list.showError(throwable)
+  private fun renderList(state: DetailState, oldState: DetailState?) {
+    state.items.let { items ->
+      if (oldState == null || items != oldState.items) {
+        if (items.isEmpty()) {
+          list.clearList()
+        } else {
+          list.setList(items)
+        }
+      }
+    }
   }
 
-  override fun handleListRefreshComplete() {
-    list.finishRefresh()
-  }
-
-  override fun handleRealtimeInsert(item: FridgeItem) {
-    list.insert(item)
-  }
-
-  override fun handleRealtimeUpdate(item: FridgeItem) {
-    list.update(item)
-  }
-
-  override fun handleRealtimeDelete(item: FridgeItem) {
-    list.delete(item)
+  private fun renderError(state: DetailState, oldState: DetailState?) {
+    state.throwable.let { throwable ->
+      if (oldState == null || throwable != oldState.throwable) {
+        if (throwable == null) {
+          list.clearError()
+        } else {
+          list.showError(throwable)
+        }
+      }
+    }
   }
 
   override fun showError(throwable: Throwable) {

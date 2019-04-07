@@ -15,18 +15,16 @@
  *
  */
 
-package com.pyamsoft.fridge.detail.item.add
+package com.pyamsoft.fridge.entry.toolbar
 
-import com.pyamsoft.fridge.detail.item.DetailItemScope
-import com.pyamsoft.fridge.detail.item.add.AddNewItemPresenter.Callback
-import com.pyamsoft.pydroid.arch.BasePresenter
-import com.pyamsoft.pydroid.core.bus.RxBus
+import com.pyamsoft.fridge.entry.EntryScope
+import com.pyamsoft.pydroid.arch.UiBinder
 import javax.inject.Inject
 
-@DetailItemScope
-internal class AddNewItemPresenter @Inject internal constructor(
-) : BasePresenter<Unit, Callback>(RxBus.empty()),
-  AddNewItemView.Callback {
+@EntryScope
+internal class EntryToolbarBinder @Inject internal constructor(
+) : UiBinder<EntryToolbarBinder.Callback>(),
+  EntryToolbar.Callback {
 
   override fun onBind() {
   }
@@ -34,13 +32,13 @@ internal class AddNewItemPresenter @Inject internal constructor(
   override fun onUnbind() {
   }
 
-  override fun onAddNewClicked() {
-    callback.handleAddNewItem()
+  override fun onSettingsClicked() {
+    callback.handleSettingsClicked()
   }
 
-  interface Callback {
+  interface Callback : UiBinder.Callback {
 
-    fun handleAddNewItem()
+    fun handleSettingsClicked()
 
   }
 

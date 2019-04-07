@@ -27,10 +27,10 @@ import javax.inject.Inject
 internal class EntryActionUiComponentImpl @Inject internal constructor(
   private val create: EntryCreate,
   private val shop: EntryShop,
-  private val presenter: EntryActionPresenter
+  private val binder: EntryActionBinder
 ) : BaseUiComponent<EntryActionUiComponent.Callback>(),
   EntryActionUiComponent,
-  EntryActionPresenter.Callback {
+  EntryActionBinder.Callback {
 
   override fun id(): Int {
     throw InvalidIdException
@@ -44,12 +44,12 @@ internal class EntryActionUiComponentImpl @Inject internal constructor(
     owner.doOnDestroy {
       create.teardown()
       shop.teardown()
-      presenter.unbind()
+      binder.unbind()
     }
 
     shop.inflate(savedInstanceState)
     create.inflate(savedInstanceState)
-    presenter.bind(this)
+    binder.bind(this)
   }
 
   override fun onSaveState(outState: Bundle) {

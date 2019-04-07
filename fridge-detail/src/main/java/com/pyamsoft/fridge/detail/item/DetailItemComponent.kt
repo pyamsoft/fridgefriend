@@ -20,9 +20,10 @@ package com.pyamsoft.fridge.detail.item
 import android.view.ViewGroup
 import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.db.item.FridgeItem
+import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent
 import com.pyamsoft.fridge.detail.create.list.CreationListInteractor
 import com.pyamsoft.fridge.detail.item.DetailItemComponent.DetailItemModule
-import com.pyamsoft.fridge.detail.item.add.AddNewItemPresenter
+import com.pyamsoft.fridge.detail.item.add.AddNewItemBinder
 import com.pyamsoft.fridge.detail.item.add.AddNewItemUiComponent
 import com.pyamsoft.fridge.detail.item.add.AddNewItemUiComponentImpl
 import com.pyamsoft.fridge.detail.item.add.AddNewItemView
@@ -32,6 +33,7 @@ import com.pyamsoft.fridge.detail.item.fridge.DetailListItem
 import com.pyamsoft.fridge.detail.item.fridge.DetailListItemController
 import com.pyamsoft.fridge.detail.item.fridge.DetailListItemUiComponent
 import com.pyamsoft.fridge.detail.item.fridge.DetailListItemUiComponentImpl
+import com.pyamsoft.pydroid.core.bus.EventBus
 import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.ui.theme.Theming
 import dagger.Binds
@@ -79,6 +81,10 @@ internal interface DetailItemComponent {
     @CheckResult
     fun interactor(interactor: CreationListInteractor): Builder
 
+    @BindsInstance
+    @CheckResult
+    fun fakeRealtime(fakeRealtime: EventBus<FridgeItemChangeEvent>): Builder
+
     @CheckResult
     fun build(): DetailItemComponent
 
@@ -97,7 +103,7 @@ internal interface DetailItemComponent {
 
     @Binds
     @CheckResult
-    internal abstract fun bindAddNewCallback(impl: AddNewItemPresenter): AddNewItemView.Callback
+    internal abstract fun bindAddNewCallback(impl: AddNewItemBinder): AddNewItemView.Callback
 
     @Binds
     @CheckResult

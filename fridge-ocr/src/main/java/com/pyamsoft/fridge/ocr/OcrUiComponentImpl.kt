@@ -31,11 +31,11 @@ import javax.inject.Inject
 internal class OcrUiComponentImpl @Inject internal constructor(
   private val lookingLabel: OcrLookingLabel,
   private val scanner: OcrScannerView,
-  private val presenter: OcrScannerPresenter
+  private val binder: OcrScannerBinder
 ) : BaseUiComponent<OcrUiComponent.Callback>(),
   OcrUiComponent,
   LifecycleObserver,
-  OcrScannerPresenter.Callback {
+  OcrScannerBinder.Callback {
 
   private var lifecycleOwner: LifecycleOwner? = null
 
@@ -53,7 +53,7 @@ internal class OcrUiComponentImpl @Inject internal constructor(
 
     scanner.inflate(savedInstanceState)
     lookingLabel.inflate(savedInstanceState)
-    presenter.bind(this)
+    binder.bind(this)
   }
 
   override fun onSaveState(outState: Bundle) {
@@ -88,7 +88,7 @@ internal class OcrUiComponentImpl @Inject internal constructor(
 
     scanner.teardown()
     lookingLabel.teardown()
-    presenter.unbind()
+    binder.unbind()
   }
 
   override fun handleOcrResult(text: String) {

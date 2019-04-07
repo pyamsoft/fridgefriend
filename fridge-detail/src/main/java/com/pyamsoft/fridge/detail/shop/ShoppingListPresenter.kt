@@ -20,14 +20,16 @@ package com.pyamsoft.fridge.detail.shop
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent
 import com.pyamsoft.fridge.detail.DetailListPresenter
+import com.pyamsoft.pydroid.core.bus.EventBus
 import io.reactivex.Observable
 import io.reactivex.Single
 import javax.inject.Inject
 
 @ShoppingScope
 internal class ShoppingListPresenter @Inject internal constructor(
-  private val interactor: ShoppingListInteractor
-) : DetailListPresenter() {
+  private val interactor: ShoppingListInteractor,
+  fakeRealtime: EventBus<FridgeItemChangeEvent>
+) : DetailListPresenter(fakeRealtime) {
 
   override fun getItems(force: Boolean): Single<List<FridgeItem>> {
     return interactor.getItems(force)
@@ -35,6 +37,10 @@ internal class ShoppingListPresenter @Inject internal constructor(
 
   override fun listenForChanges(): Observable<FridgeItemChangeEvent> {
     return interactor.listenForChanges()
+  }
+
+  override fun getListItems(items: List<FridgeItem>): List<FridgeItem> {
+    return items
   }
 
 }

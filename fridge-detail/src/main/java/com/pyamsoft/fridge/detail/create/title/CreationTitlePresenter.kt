@@ -19,9 +19,8 @@ package com.pyamsoft.fridge.detail.create.title
 
 import com.pyamsoft.fridge.detail.DetailConstants
 import com.pyamsoft.fridge.detail.create.CreationScope
-import com.pyamsoft.fridge.detail.create.title.CreationTitlePresenter.Callback
-import com.pyamsoft.pydroid.arch.BasePresenter
-import com.pyamsoft.pydroid.core.bus.RxBus
+import com.pyamsoft.fridge.detail.create.title.CreationTitlePresenter.NameState
+import com.pyamsoft.pydroid.arch.Presenter
 import com.pyamsoft.pydroid.core.singleDisposable
 import com.pyamsoft.pydroid.core.tryDispose
 import io.reactivex.Completable
@@ -33,10 +32,14 @@ import javax.inject.Inject
 @CreationScope
 internal class CreationTitlePresenter @Inject internal constructor(
   private val interactor: CreationTitleInteractor
-) : BasePresenter<Unit, Callback>(RxBus.empty()),
+) : Presenter<NameState, CreationTitlePresenter.Callback>(),
   CreationTitle.Callback {
 
   private var updateDisposable by singleDisposable()
+
+  override fun initialState(): NameState {
+    return NameState(name = "", throwable = null)
+  }
 
   override fun onBind() {
     observeName(false)
@@ -51,10 +54,16 @@ internal class CreationTitlePresenter @Inject internal constructor(
     interactor.observeEntryName(force)
       .subscribeOn(Schedulers.io())
       .observeOn(AndroidSchedulers.mainThread())
-      .subscribe({ callback.handleNameUpdated(it.name, it.firstUpdate) }, {
+      .subscribe({ handleNameUpdated(it.name) }, {
         Timber.e(it, "Error observing entry name")
-        callback.handleNameUpdateError(it)
+        handleNameUpdateError(it)
       }).destroy()
+  }
+
+  private fun handleNameUpdated(name: String) {
+    setState {
+      copy(name = name, throwable = null)
+    }
   }
 
   override fun onUpdateName(name: String) {
@@ -69,16 +78,18 @@ internal class CreationTitlePresenter @Inject internal constructor(
       }
       .subscribe({ }, {
         Timber.e(it, "Error updating entry name")
-        callback.handleNameUpdateError(it)
+        handleNameUpdateError(it)
       })
   }
 
-  interface Callback {
-
-    fun handleNameUpdated(name: String, firstUpdate: Boolean)
-
-    fun handleNameUpdateError(throwable: Throwable)
-
+  private fun handleNameUpdateError(throwable: Throwable) {
+    setState {
+      copy(name = "", throwable = throwable)
+    }
   }
+
+  data class NameState(val name: String, val throwable: Throwable?)
+
+  interface Callback : Presenter.Callback<NameState>
 
 }

@@ -21,6 +21,7 @@ import android.os.Bundle
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.lifecycle.LifecycleOwner
 import com.pyamsoft.fridge.db.item.FridgeItem
+import com.pyamsoft.fridge.detail.item.fridge.DetailItemPresenter.DetailState
 import com.pyamsoft.fridge.detail.item.fridge.DetailListItemUiComponent.Callback
 import com.pyamsoft.pydroid.arch.BaseUiComponent
 import com.pyamsoft.pydroid.arch.doOnDestroy
@@ -76,24 +77,20 @@ internal class DetailListItemUiComponentImpl @Inject internal constructor(
     name.saveState(outState)
   }
 
-  override fun handleNonRealItemDelete(item: FridgeItem) {
-    callback.onNonRealItemDelete(item)
+  override fun onRender(state: DetailState, oldState: DetailState?) {
+    renderError(state, oldState)
   }
 
-  override fun handleNonRealItemCommit(item: FridgeItem) {
-    callback.onNonRealItemCommit(item)
-  }
-
-  override fun handleUpdateItemError(throwable: Throwable) {
-    callback.onUpdateItemError(throwable)
-  }
-
-  override fun handleDeleteItemError(throwable: Throwable) {
-    callback.onDeleteItemError(throwable)
-  }
-
-  override fun handleModelUpdate(item: FridgeItem) {
-    callback.onModelUpdate(item)
+  private fun renderError(state: DetailState, oldState: DetailState?) {
+    state.throwable.let { throwable ->
+      if (oldState == null || throwable != oldState.throwable) {
+        if (throwable == null) {
+          strikethrough.clearError()
+        } else {
+          strikethrough.showError(throwable)
+        }
+      }
+    }
   }
 
   override fun deleteSelf(item: FridgeItem) {

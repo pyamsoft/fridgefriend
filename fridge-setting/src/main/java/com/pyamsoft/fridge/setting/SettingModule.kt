@@ -19,7 +19,7 @@ package com.pyamsoft.fridge.setting
 
 import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.setting.toolbar.SettingToolbar
-import com.pyamsoft.fridge.setting.toolbar.SettingToolbarPresenter
+import com.pyamsoft.fridge.setting.toolbar.SettingToolbarBinder
 import com.pyamsoft.fridge.setting.toolbar.SettingToolbarUiComponent
 import com.pyamsoft.fridge.setting.toolbar.SettingToolbarUiComponentImpl
 import dagger.Binds
@@ -30,7 +30,7 @@ abstract class SettingModule {
 
   @Binds
   @CheckResult
-  internal abstract fun bindToolbarCallback(impl: SettingToolbarPresenter): SettingToolbar.Callback
+  internal abstract fun bindToolbarCallback(impl: SettingToolbarBinder): SettingToolbar.Callback
 
   @Binds
   @CheckResult

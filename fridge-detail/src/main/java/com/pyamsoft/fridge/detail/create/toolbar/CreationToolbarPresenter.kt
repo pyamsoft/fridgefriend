@@ -18,9 +18,8 @@
 package com.pyamsoft.fridge.detail.create.toolbar
 
 import com.pyamsoft.fridge.detail.create.CreationScope
-import com.pyamsoft.fridge.detail.create.toolbar.CreationToolbarPresenter.Callback
-import com.pyamsoft.pydroid.arch.BasePresenter
-import com.pyamsoft.pydroid.core.bus.RxBus
+import com.pyamsoft.fridge.detail.create.toolbar.CreationToolbarPresenter.ToolbarState
+import com.pyamsoft.pydroid.arch.Presenter
 import com.pyamsoft.pydroid.core.singleDisposable
 import com.pyamsoft.pydroid.core.tryDispose
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -31,10 +30,14 @@ import javax.inject.Inject
 @CreationScope
 internal class CreationToolbarPresenter @Inject internal constructor(
   private val interactor: CreationToolbarInteractor
-) : BasePresenter<Unit, Callback>(RxBus.empty()),
+) : Presenter<ToolbarState, CreationToolbarPresenter.Callback>(),
   CreationToolbar.Callback {
 
   private var deleteDisposable by singleDisposable()
+
+  override fun initialState(): ToolbarState {
+    return ToolbarState(isReal = false, throwable = null)
+  }
 
   override fun onBind() {
     observeReal(false)
@@ -49,10 +52,16 @@ internal class CreationToolbarPresenter @Inject internal constructor(
     interactor.observeEntryReal(force)
       .subscribeOn(Schedulers.io())
       .observeOn(AndroidSchedulers.mainThread())
-      .subscribe({ callback.handleRealUpdated(it) }, {
+      .subscribe({ handleRealUpdated(it) }, {
         Timber.e(it, "Error observing entry real")
-        callback.handleRealUpdateError(it)
+        handleError(it)
       }).destroy()
+  }
+
+  private fun handleRealUpdated(real: Boolean) {
+    setState {
+      copy(isReal = real)
+    }
   }
 
   private fun listenForDelete() {
@@ -74,21 +83,26 @@ internal class CreationToolbarPresenter @Inject internal constructor(
       .doAfterTerminate { deleteDisposable.tryDispose() }
       .subscribe({}, {
         Timber.e(it, "Error observing delete stream")
-        callback.handleDeleteError(it)
+        handleError(it)
       })
   }
 
-  interface Callback {
+  private fun handleError(throwable: Throwable) {
+    setState {
+      copy(throwable = throwable)
+    }
+  }
+
+  data class ToolbarState(
+    val isReal: Boolean,
+    val throwable: Throwable?
+  )
+
+  interface Callback : Presenter.Callback<ToolbarState> {
 
     fun handleBack()
 
     fun handleDeleted()
-
-    fun handleRealUpdated(real: Boolean)
-
-    fun handleRealUpdateError(throwable: Throwable)
-
-    fun handleDeleteError(throwable: Throwable)
   }
 
 }

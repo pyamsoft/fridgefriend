@@ -21,7 +21,7 @@ import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.main.container.FragmentContainerUiComponent
 import com.pyamsoft.fridge.main.container.FragmentContainerUiComponentImpl
 import com.pyamsoft.fridge.main.toolbar.MainToolbar
-import com.pyamsoft.fridge.main.toolbar.MainToolbarPresenter
+import com.pyamsoft.fridge.main.toolbar.MainToolbarBinder
 import com.pyamsoft.fridge.main.toolbar.MainToolbarUiComponent
 import com.pyamsoft.fridge.main.toolbar.MainToolbarUiComponentImpl
 import dagger.Binds
@@ -32,7 +32,7 @@ abstract class MainModule {
 
   @Binds
   @CheckResult
-  internal abstract fun bindToolbarCallback(impl: MainToolbarPresenter): MainToolbar.Callback
+  internal abstract fun bindToolbarCallback(impl: MainToolbarBinder): MainToolbar.Callback
 
   @Binds
   @CheckResult

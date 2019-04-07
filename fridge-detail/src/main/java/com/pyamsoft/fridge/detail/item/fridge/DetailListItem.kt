@@ -48,18 +48,12 @@ internal abstract class DetailListItem protected constructor(
       newModel = newModel.presence(presence)
     }
 
-    if (newModel != oldModel) {
-      callback.onUpdateModel(newModel)
-    }
-
-    callback.onCommit(newModel)
+    callback.commitItem(newModel)
   }
 
   interface Callback {
 
-    fun onCommit(item: FridgeItem)
-
-    fun onUpdateModel(item: FridgeItem)
+    fun commitItem(item: FridgeItem)
 
   }
 

@@ -84,7 +84,11 @@ internal class CreationTitle @Inject internal constructor(
     addTextWatcher()
   }
 
-  fun showTitleUpdateError(throwable: Throwable) {
+  fun showError(throwable: Throwable) {
+    // TODO
+  }
+
+  fun clearError() {
     // TODO
   }
 

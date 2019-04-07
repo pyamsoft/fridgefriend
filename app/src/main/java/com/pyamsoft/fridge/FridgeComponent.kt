@@ -22,12 +22,15 @@ import android.content.Context
 import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.FridgeComponent.FridgeProvider
 import com.pyamsoft.fridge.db.DbProvider
+import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent
 import com.pyamsoft.fridge.db.room.RoomProvider
 import com.pyamsoft.fridge.detail.DetailComponent
 import com.pyamsoft.fridge.entry.EntryComponent
 import com.pyamsoft.fridge.main.MainComponent
 import com.pyamsoft.fridge.ocr.OcrComponent
 import com.pyamsoft.fridge.setting.SettingComponent
+import com.pyamsoft.pydroid.core.bus.EventBus
+import com.pyamsoft.pydroid.core.bus.RxBus
 import com.pyamsoft.pydroid.core.threads.Enforcer
 import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.ui.theme.Theming
@@ -94,6 +97,13 @@ internal interface FridgeComponent {
 
   @Module
   object FridgeProvider {
+
+    @Provides
+    @JvmStatic
+    @Singleton
+    internal fun provideFakeItemRealtime(): EventBus<FridgeItemChangeEvent> {
+      return RxBus.create()
+    }
 
     @Provides
     @JvmStatic

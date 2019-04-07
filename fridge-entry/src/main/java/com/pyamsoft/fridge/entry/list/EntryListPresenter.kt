@@ -22,10 +22,11 @@ import com.pyamsoft.fridge.db.entry.FridgeEntryChangeEvent.Delete
 import com.pyamsoft.fridge.db.entry.FridgeEntryChangeEvent.DeleteAll
 import com.pyamsoft.fridge.db.entry.FridgeEntryChangeEvent.Insert
 import com.pyamsoft.fridge.db.entry.FridgeEntryChangeEvent.Update
+import com.pyamsoft.fridge.db.entry.FridgeEntryQueryDao
+import com.pyamsoft.fridge.db.entry.FridgeEntryRealtime
 import com.pyamsoft.fridge.entry.EntryScope
-import com.pyamsoft.fridge.entry.list.EntryListPresenter.Callback
-import com.pyamsoft.pydroid.arch.BasePresenter
-import com.pyamsoft.pydroid.core.bus.RxBus
+import com.pyamsoft.fridge.entry.list.EntryListPresenter.EntryState
+import com.pyamsoft.pydroid.arch.Presenter
 import com.pyamsoft.pydroid.core.singleDisposable
 import com.pyamsoft.pydroid.core.tryDispose
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -35,12 +36,17 @@ import javax.inject.Inject
 
 @EntryScope
 internal class EntryListPresenter @Inject internal constructor(
-  private val interactor: EntryListInteractor
-) : BasePresenter<Unit, Callback>(RxBus.empty()),
+  private val queryDao: FridgeEntryQueryDao,
+  private val realtime: FridgeEntryRealtime
+) : Presenter<EntryState, EntryListPresenter.Callback>(),
   EntryList.Callback {
 
   private var refreshDisposable by singleDisposable()
   private var realtimeChangeDisposable by singleDisposable()
+
+  override fun initialState(): EntryState {
+    return EntryState(isLoading = false, throwable = null, entries = emptyList())
+  }
 
   override fun onBind() {
     refresh(false)
@@ -57,30 +63,84 @@ internal class EntryListPresenter @Inject internal constructor(
 
   private fun refresh(force: Boolean) {
     realtimeChangeDisposable.tryDispose()
-    refreshDisposable = interactor.getEntries(force)
+    refreshDisposable = queryDao.queryAll(force)
       .subscribeOn(Schedulers.io())
       .observeOn(AndroidSchedulers.mainThread())
-      .doOnSubscribe { callback.handleListRefreshBegin() }
-      .doAfterTerminate { callback.handleListRefreshComplete() }
+      .doOnSubscribe { handleListRefreshBegin() }
+      .doAfterTerminate { handleListRefreshComplete() }
       .doAfterSuccess { beginListeningForChanges() }
-      .subscribe({ callback.handleListRefreshed(it) }, {
+      .subscribe({ handleListRefreshed(it) }, {
         Timber.e(it, "Error refreshing entry list")
-        callback.handleListRefreshError(it)
+        handleListRefreshError(it)
       })
   }
 
   private fun beginListeningForChanges() {
-    realtimeChangeDisposable = interactor.listenForChanges()
+    realtimeChangeDisposable = realtime.listenForChanges()
       .subscribeOn(Schedulers.io())
       .observeOn(AndroidSchedulers.mainThread())
       .subscribe {
         return@subscribe when (it) {
-          is Insert -> callback.handleRealtimeInsert(it.entry)
-          is Update -> callback.handleRealtimeUpdate(it.entry)
-          is Delete -> callback.handleRealtimeDelete(it.entry)
-          is DeleteAll -> callback.handleRealtimeDeleteAll()
+          is Insert -> handleRealtimeInsert(it.entry)
+          is Update -> handleRealtimeUpdate(it.entry)
+          is Delete -> handleRealtimeDelete(it.entry)
+          is DeleteAll -> handleRealtimeDeleteAll()
         }
       }
+  }
+
+  private fun handleRealtimeInsert(entry: FridgeEntry) {
+    setState {
+      copy(entries = entries.toMutableList() + entry)
+    }
+  }
+
+  private fun handleRealtimeUpdate(entry: FridgeEntry) {
+    setState {
+      copy(entries = entries.map { old ->
+        if (old.id() == entry.id()) {
+          return@map entry
+        } else {
+          return@map old
+        }
+      })
+    }
+  }
+
+  private fun handleRealtimeDelete(entry: FridgeEntry) {
+    setState {
+      copy(entries = entries.filterNot { it.id() == entry.id() })
+    }
+  }
+
+  private fun handleRealtimeDeleteAll() {
+    setState {
+      copy(entries = emptyList())
+    }
+  }
+
+  private fun handleListRefreshBegin() {
+    setState {
+      copy(isLoading = true)
+    }
+  }
+
+  private fun handleListRefreshed(entries: List<FridgeEntry>) {
+    setState {
+      copy(entries = entries, throwable = null)
+    }
+  }
+
+  private fun handleListRefreshError(throwable: Throwable) {
+    setState {
+      copy(entries = emptyList(), throwable = throwable)
+    }
+  }
+
+  private fun handleListRefreshComplete() {
+    setState {
+      copy(isLoading = false)
+    }
   }
 
   override fun onItemClicked(entry: FridgeEntry) {
@@ -88,25 +148,15 @@ internal class EntryListPresenter @Inject internal constructor(
     callback.handleEditEntry(entry)
   }
 
-  interface Callback {
+  data class EntryState(
+    val isLoading: Boolean,
+    val throwable: Throwable?,
+    val entries: List<FridgeEntry>
+  )
+
+  interface Callback : Presenter.Callback<EntryState> {
 
     fun handleEditEntry(entry: FridgeEntry)
-
-    fun handleListRefreshBegin()
-
-    fun handleListRefreshed(data: List<FridgeEntry>)
-
-    fun handleListRefreshError(throwable: Throwable)
-
-    fun handleListRefreshComplete()
-
-    fun handleRealtimeInsert(entry: FridgeEntry)
-
-    fun handleRealtimeUpdate(entry: FridgeEntry)
-
-    fun handleRealtimeDelete(entry: FridgeEntry)
-
-    fun handleRealtimeDeleteAll()
 
   }
 

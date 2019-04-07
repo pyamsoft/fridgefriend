@@ -19,6 +19,7 @@ package com.pyamsoft.fridge.detail.create.toolbar
 
 import android.os.Bundle
 import androidx.lifecycle.LifecycleOwner
+import com.pyamsoft.fridge.detail.create.toolbar.CreationToolbarPresenter.ToolbarState
 import com.pyamsoft.fridge.detail.create.toolbar.CreationToolbarUiComponent.Callback
 import com.pyamsoft.pydroid.arch.BaseUiComponent
 import com.pyamsoft.pydroid.arch.doOnDestroy
@@ -50,24 +51,16 @@ internal class CreationToolbarUiComponentImpl @Inject internal constructor(
     toolbar.saveState(outState)
   }
 
+  override fun onRender(state: ToolbarState, oldState: ToolbarState?) {
+    // TODO
+  }
+
   override fun handleBack() {
     callback.onBack()
   }
 
-  override fun handleRealUpdated(real: Boolean) {
-    toolbar.setDeleteEnabled(real)
-  }
-
   override fun handleDeleted() {
     callback.onBack()
-  }
-
-  override fun handleRealUpdateError(throwable: Throwable) {
-    callback.onError(throwable)
-  }
-
-  override fun handleDeleteError(throwable: Throwable) {
-    callback.onError(throwable)
   }
 
 }

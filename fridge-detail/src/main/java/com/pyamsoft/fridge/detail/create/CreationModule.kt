@@ -18,10 +18,10 @@
 package com.pyamsoft.fridge.detail.create
 
 import androidx.annotation.CheckResult
+import com.pyamsoft.fridge.detail.DetailListUiComponent
+import com.pyamsoft.fridge.detail.create.list.CreationList
 import com.pyamsoft.fridge.detail.create.list.CreationListPresenter
 import com.pyamsoft.fridge.detail.create.list.CreationListUiComponentImpl
-import com.pyamsoft.fridge.detail.DetailList
-import com.pyamsoft.fridge.detail.DetailListUiComponent
 import com.pyamsoft.fridge.detail.create.title.CreationTitle
 import com.pyamsoft.fridge.detail.create.title.CreationTitlePresenter
 import com.pyamsoft.fridge.detail.create.title.CreationTitleUiComponent
@@ -42,7 +42,7 @@ abstract class CreationModule {
 
   @Binds
   @CheckResult
-  internal abstract fun bindListCallback(impl: CreationListPresenter): DetailList.Callback
+  internal abstract fun bindListCallback(impl: CreationListPresenter): CreationList.Callback
 
   @Binds
   @CheckResult

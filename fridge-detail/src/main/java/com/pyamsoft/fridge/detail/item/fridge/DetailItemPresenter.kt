@@ -19,12 +19,13 @@ package com.pyamsoft.fridge.detail.item.fridge
 
 import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.db.item.FridgeItem
+import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent
 import com.pyamsoft.fridge.detail.DetailConstants
 import com.pyamsoft.fridge.detail.create.list.CreationListInteractor
 import com.pyamsoft.fridge.detail.item.DetailItemScope
-import com.pyamsoft.fridge.detail.item.fridge.DetailItemPresenter.Callback
-import com.pyamsoft.pydroid.arch.BasePresenter
-import com.pyamsoft.pydroid.core.bus.RxBus
+import com.pyamsoft.fridge.detail.item.fridge.DetailItemPresenter.DetailState
+import com.pyamsoft.pydroid.arch.Presenter
+import com.pyamsoft.pydroid.core.bus.EventBus
 import com.pyamsoft.pydroid.core.singleDisposable
 import com.pyamsoft.pydroid.core.tryDispose
 import io.reactivex.Completable
@@ -35,12 +36,17 @@ import javax.inject.Inject
 
 @DetailItemScope
 internal class DetailItemPresenter @Inject internal constructor(
-  private val interactor: CreationListInteractor
-) : BasePresenter<Unit, Callback>(RxBus.empty()),
+  private val interactor: CreationListInteractor,
+  private val fakeRealtime: EventBus<FridgeItemChangeEvent>
+) : Presenter<DetailState, DetailItemPresenter.Callback>(),
   DetailListItem.Callback {
 
   private var updateDisposable by singleDisposable()
   private var deleteDisposable by singleDisposable()
+
+  override fun initialState(): DetailState {
+    return DetailState(throwable = null)
+  }
 
   override fun onBind() {
   }
@@ -50,7 +56,12 @@ internal class DetailItemPresenter @Inject internal constructor(
     // since the final commit happens as the View is tearing down
   }
 
-  override fun onCommit(item: FridgeItem) {
+  @CheckResult
+  private fun isReadyToBeReal(item: FridgeItem): Boolean {
+    return item.name().isNotBlank()
+  }
+
+  override fun commitItem(item: FridgeItem) {
     // If this item is not real, its an empty placeholder
     // Right now, isReal is decided when an item has a non blank name.
     // Once an item is in the db, it is always real
@@ -60,7 +71,7 @@ internal class DetailItemPresenter @Inject internal constructor(
     // commit had actually happened
     if (!item.isReal() && !isReadyToBeReal(item)) {
       Timber.w("Commit called on a non-real item: $item, fake callback")
-      callback.handleNonRealItemCommit(item)
+      handleFakeCommit(item)
       return
     }
 
@@ -73,13 +84,8 @@ internal class DetailItemPresenter @Inject internal constructor(
       .doAfterTerminate { updateDisposable.tryDispose() }
       .subscribe({ }, {
         Timber.e(it, "Error updating item: ${item.id()}")
-        callback.handleUpdateItemError(it)
+        handleError(it)
       })
-  }
-
-  @CheckResult
-  private fun isReadyToBeReal(item: FridgeItem): Boolean {
-    return item.name().isNotBlank()
   }
 
   fun deleteSelf(item: FridgeItem) {
@@ -93,7 +99,7 @@ internal class DetailItemPresenter @Inject internal constructor(
     // delete had actually happened
     if (!item.isReal()) {
       Timber.w("Delete called on a non-real item: $item, fake callback")
-      callback.handleNonRealItemDelete(item)
+      handleFakeDelete(item)
       return
     }
 
@@ -103,26 +109,26 @@ internal class DetailItemPresenter @Inject internal constructor(
       .doAfterTerminate { deleteDisposable.tryDispose() }
       .subscribe({ }, {
         Timber.e(it, "Error deleting item: ${item.id()}")
-        callback.handleDeleteItemError(it)
+        handleError(it)
       })
   }
 
-  override fun onUpdateModel(item: FridgeItem) {
-    callback.handleModelUpdate(item)
+  private fun handleFakeCommit(item: FridgeItem) {
+    fakeRealtime.publish(FridgeItemChangeEvent.Insert(item))
   }
 
-  interface Callback {
-
-    fun handleNonRealItemDelete(item: FridgeItem)
-
-    fun handleNonRealItemCommit(item: FridgeItem)
-
-    fun handleModelUpdate(item: FridgeItem)
-
-    fun handleUpdateItemError(throwable: Throwable)
-
-    fun handleDeleteItemError(throwable: Throwable)
-
+  private fun handleFakeDelete(item: FridgeItem) {
+    fakeRealtime.publish(FridgeItemChangeEvent.Delete(item))
   }
+
+  private fun handleError(throwable: Throwable) {
+    setState {
+      copy(throwable = throwable)
+    }
+  }
+
+  data class DetailState(val throwable: Throwable?)
+
+  interface Callback : Presenter.Callback<DetailState>
 
 }

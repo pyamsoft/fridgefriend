@@ -17,8 +17,7 @@
 
 package com.pyamsoft.fridge.ocr
 
-import com.pyamsoft.pydroid.arch.BasePresenter
-import com.pyamsoft.pydroid.core.bus.RxBus
+import com.pyamsoft.pydroid.arch.UiBinder
 import com.pyamsoft.pydroid.core.singleDisposable
 import com.pyamsoft.pydroid.core.tryDispose
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -27,9 +26,9 @@ import timber.log.Timber
 import javax.inject.Inject
 
 @OcrScope
-internal class OcrScannerPresenter @Inject internal constructor(
+internal class OcrScannerBinder @Inject internal constructor(
   private val interactor: OcrScannerInteractor
-) : BasePresenter<Unit, OcrScannerPresenter.Callback>(RxBus.empty()),
+) : UiBinder<OcrScannerBinder.Callback>(),
   OcrScannerView.Callback {
 
   private var frameProcessDisposable by singleDisposable()
@@ -77,7 +76,7 @@ internal class OcrScannerPresenter @Inject internal constructor(
     callback.handleCameraError(throwable)
   }
 
-  interface Callback {
+  interface Callback : UiBinder.Callback {
 
     fun handleOcrResult(text: String)
 

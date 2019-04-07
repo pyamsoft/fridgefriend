@@ -17,6 +17,7 @@
 
 package com.pyamsoft.fridge.detail.item.fridge
 
+import android.graphics.Color
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -76,7 +77,11 @@ internal class DetailListItemName @Inject internal constructor(
       nameView.addTextChangedListener(watcher)
       nameWatcher = watcher
     } else {
-      nameView.isEnabled = false
+      nameView.isFocusableInTouchMode = false
+      nameView.isFocusable = false
+      nameView.isCursorVisible = false
+      nameView.keyListener = null
+      nameView.setBackgroundColor(Color.TRANSPARENT)
     }
   }
 

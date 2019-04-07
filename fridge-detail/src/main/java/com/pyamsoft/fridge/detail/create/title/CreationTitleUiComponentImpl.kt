@@ -19,6 +19,7 @@ package com.pyamsoft.fridge.detail.create.title
 
 import android.os.Bundle
 import androidx.lifecycle.LifecycleOwner
+import com.pyamsoft.fridge.detail.create.title.CreationTitlePresenter.NameState
 import com.pyamsoft.fridge.detail.create.title.CreationTitleUiComponent.Callback
 import com.pyamsoft.pydroid.arch.BaseUiComponent
 import com.pyamsoft.pydroid.arch.doOnDestroy
@@ -49,12 +50,36 @@ internal class CreationTitleUiComponentImpl @Inject internal constructor(
     title.saveState(outState)
   }
 
-  override fun handleNameUpdateError(throwable: Throwable) {
-    title.showTitleUpdateError(throwable)
+  override fun onRender(state: NameState, oldState: NameState?) {
+    renderName(state, oldState)
+    renderError(state, oldState)
   }
 
-  override fun handleNameUpdated(name: String, firstUpdate: Boolean) {
-    title.updateName(name, firstUpdate)
+  private fun renderName(
+    state: NameState,
+    oldState: NameState?
+  ) {
+    state.name.let { name ->
+      if (oldState == null || name != oldState.name) {
+        val firstUpdate = (oldState == null)
+        title.updateName(name, firstUpdate)
+      }
+    }
+  }
+
+  private fun renderError(
+    state: NameState,
+    oldState: NameState?
+  ) {
+    state.throwable.let { throwable ->
+      if (oldState == null || throwable != oldState.throwable) {
+        if (throwable == null) {
+          title.clearError()
+        } else {
+          title.showError(throwable)
+        }
+      }
+    }
   }
 
 }
