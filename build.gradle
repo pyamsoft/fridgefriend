@@ -34,7 +34,7 @@ buildscript {
     maxSdk = 28
 
     // Us
-    pydroid = "19.2.0-SNAPSHOT"
+    pydroid = "19.2.0"
 
     // AndroidX
     preference = "1.0.0"
@@ -45,7 +45,7 @@ buildscript {
     leakCanary = "1.6.3"
 
     // Dagger
-    dagger = "2.21"
+    dagger = "2.22.1"
 
     moshi = "1.8.0"
 
