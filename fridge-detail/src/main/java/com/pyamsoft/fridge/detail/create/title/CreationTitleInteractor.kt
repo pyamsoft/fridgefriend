@@ -78,7 +78,7 @@ internal class CreationTitleInteractor @Inject internal constructor(
           return@flatMapCompletable update(entry, name)
         } else {
           Timber.d("saveName called but Entry does not exist, create it")
-          return@flatMapCompletable guaranteeEntryExists(name).ignoreElement()
+          return@flatMapCompletable guaranteeEntryExists(entryId, name).ignoreElement()
         }
       }
   }
