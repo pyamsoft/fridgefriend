@@ -19,6 +19,7 @@ package com.pyamsoft.fridge.detail.item.fridge
 
 import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.db.item.FridgeItem
+import com.pyamsoft.fridge.db.item.FridgeItem.Presence
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent
 import com.pyamsoft.fridge.detail.DetailConstants
 import com.pyamsoft.fridge.detail.create.list.CreationListInteractor
@@ -32,6 +33,7 @@ import io.reactivex.Completable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import timber.log.Timber
+import java.util.Calendar
 import javax.inject.Inject
 
 @DetailItemScope
@@ -39,6 +41,10 @@ internal class DetailItemPresenter @Inject internal constructor(
   private val interactor: CreationListInteractor,
   private val fakeRealtime: EventBus<FridgeItemChangeEvent>
 ) : Presenter<DetailState, DetailItemPresenter.Callback>(),
+  DetailListItemStrikethrough.Callback,
+  DetailListItemName.Callback,
+  DetailListItemDate.Callback,
+  DetailListItemPresence.Callback,
   DetailListItem.Callback {
 
   private var updateDisposable by singleDisposable()
@@ -58,10 +64,49 @@ internal class DetailItemPresenter @Inject internal constructor(
 
   @CheckResult
   private fun isReadyToBeReal(item: FridgeItem): Boolean {
-    return item.name().isNotBlank() && item.expireTime().time > 0L
+    return isNameValid(item.name()) && isDateValid(item.expireTime())
   }
 
-  override fun commitItem(item: FridgeItem) {
+  override fun commitName(oldItem: FridgeItem, name: String) {
+    // Stop any pending updates
+    updateDisposable.tryDispose()
+
+    if (isNameValid(name)) {
+      commitItem(item = oldItem.name(name))
+    } else {
+      Timber.w("Invalid name: $name")
+      handleInvalidName(name)
+    }
+  }
+
+  override fun commitDate(oldItem: FridgeItem, year: Int, month: Int, day: Int) {
+    // Stop any pending updates
+    updateDisposable.tryDispose()
+
+    Timber.d("Attempt save time: $year/$month/$day")
+    if (isDateValid(year, month, day)) {
+      val newTime = Calendar.getInstance().apply {
+        set(Calendar.YEAR, year)
+        // Month is 1 indexed as an input
+        set(Calendar.MONTH, month - 1)
+        set(Calendar.DAY_OF_MONTH, day)
+      }.time
+      Timber.d("Save expire time: $newTime")
+      commitItem(item = oldItem.expireTime(newTime))
+    } else {
+      Timber.w("Invalid date: $year/$month/$day")
+      handleInvalidDate(year, month, day)
+    }
+  }
+
+  override fun commitPresence(oldItem: FridgeItem, presence: Presence) {
+    // Stop any pending updates
+    updateDisposable.tryDispose()
+
+    commitItem(item = oldItem.presence(presence))
+  }
+
+  private fun commitItem(item: FridgeItem) {
     // If this item is not real, its an empty placeholder
     // Right now, isReal is decided when an item has a non blank name.
     // Once an item is in the db, it is always real
@@ -82,7 +127,7 @@ internal class DetailItemPresenter @Inject internal constructor(
       .subscribeOn(Schedulers.io())
       .observeOn(AndroidSchedulers.mainThread())
       .doAfterTerminate { updateDisposable.tryDispose() }
-      .subscribe({ }, {
+      .subscribe({ handleClearFixMessage() }, {
         Timber.e(it, "Error updating item: ${item.id()}")
         handleError(it)
       })
@@ -121,14 +166,40 @@ internal class DetailItemPresenter @Inject internal constructor(
     fakeRealtime.publish(FridgeItemChangeEvent.Delete(item))
   }
 
+  private fun handleInvalidName(name: String) {
+    setFixMessage("ERROR: Name $name is invalid. Please fix.")
+  }
+
+  private fun handleInvalidDate(year: Int, month: Int, day: Int) {
+    setFixMessage("ERROR: Date $month/$day/$year is invalid. Please fix.")
+  }
+
   private fun handleError(throwable: Throwable) {
     setState {
       copy(throwable = throwable)
     }
   }
 
+  private fun handleClearFixMessage() {
+    setFixMessage("")
+  }
+
+  private fun setFixMessage(message: String) {
+    setState {
+      copy(throwable = if (message.isBlank()) null else IllegalArgumentException(message))
+    }
+  }
+
+  override fun onLastDoneClicked() {
+    callback.handleLastDoneClicked()
+  }
+
   data class DetailState(val throwable: Throwable?)
 
-  interface Callback : Presenter.Callback<DetailState>
+  interface Callback : Presenter.Callback<DetailState> {
+
+    fun handleLastDoneClicked()
+
+  }
 
 }

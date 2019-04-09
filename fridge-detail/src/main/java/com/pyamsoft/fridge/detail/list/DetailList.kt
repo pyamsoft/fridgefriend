@@ -15,7 +15,7 @@
  *
  */
 
-package com.pyamsoft.fridge.detail
+package com.pyamsoft.fridge.detail.list
 
 import android.graphics.Color
 import android.os.Bundle
@@ -37,7 +37,9 @@ import com.mikepenz.fastadapter.commons.utils.FastAdapterDiffUtil
 import com.mikepenz.fastadapter_extensions.swipe.SimpleSwipeCallback
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent
-import com.pyamsoft.fridge.detail.DetailList.Callback
+import com.pyamsoft.fridge.detail.R
+import com.pyamsoft.fridge.detail.R.drawable
+import com.pyamsoft.fridge.detail.list.DetailList.Callback
 import com.pyamsoft.fridge.detail.create.list.CreationListInteractor
 import com.pyamsoft.fridge.detail.item.DaggerDetailItemComponent
 import com.pyamsoft.fridge.detail.item.DetailItem
@@ -58,7 +60,8 @@ internal abstract class DetailList protected constructor(
   private val fakeRealtime: EventBus<FridgeItemChangeEvent>,
   parent: ViewGroup,
   callback: Callback
-) : BaseUiView<Callback>(parent, callback) {
+) : BaseUiView<Callback>(parent, callback),
+  DetailListItemController.Callback {
 
   final override val layout: Int = R.layout.detail_list
 
@@ -108,7 +111,9 @@ internal abstract class DetailList protected constructor(
 
   private fun setupSwipeCallback() {
     val leftBehindDrawable =
-      AppCompatResources.getDrawable(recyclerView.context, R.drawable.ic_delete_24dp)
+      AppCompatResources.getDrawable(recyclerView.context,
+        drawable.ic_delete_24dp
+      )
     val itemSwipeCallback = SimpleSwipeCallback.ItemSwipeCallback { position, direction ->
       Timber.d("Item swiped: $position ${if (direction == ItemTouchHelper.LEFT) "LEFT" else "RIGHT"}")
       deleteListItem(position)
@@ -143,13 +148,6 @@ internal abstract class DetailList protected constructor(
     touchHelper = helper
   }
 
-  private fun deleteListItem(position: Int) {
-    val holder: RecyclerView.ViewHolder? = recyclerView.findViewHolderForLayoutPosition(position)
-    if (holder is DetailListItemController.ViewHolder) {
-      holder.deleteSelf(usingAdapter().models[holder.adapterPosition])
-    }
-  }
-
   final override fun onTeardown() {
     // Throws
     // recyclerView.adapter = null
@@ -168,6 +166,29 @@ internal abstract class DetailList protected constructor(
   @CheckResult
   private fun usingAdapter(): ModelAdapter<FridgeItem, DetailItem<*, *>> {
     return requireNotNull(modelAdapter)
+  }
+
+  private fun deleteListItem(position: Int) {
+    withViewHolderAt(position) { it.deleteSelf(usingAdapter().models[it.adapterPosition]) }
+  }
+
+  private inline fun withViewHolderAt(
+    position: Int,
+    crossinline func: (holder: DetailListItemController.ViewHolder) -> Unit
+  ) {
+    val holder: RecyclerView.ViewHolder? = recyclerView.findViewHolderForLayoutPosition(position)
+    if (holder is DetailListItemController.ViewHolder) {
+      func(holder)
+    }
+  }
+
+  @CheckResult
+  protected fun getItemCount(): Int {
+    return usingAdapter().adapterItems.filter { it.getModel().id().isNotBlank() }.size
+  }
+
+  protected fun focusItem(position: Int) {
+    withViewHolderAt(position) { it.focus() }
   }
 
   fun beginRefresh() {

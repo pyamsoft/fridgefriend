@@ -15,11 +15,12 @@
  *
  */
 
-package com.pyamsoft.fridge.detail.shop
+package com.pyamsoft.fridge.detail.shop.list
 
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent
-import com.pyamsoft.fridge.detail.DetailListPresenter
+import com.pyamsoft.fridge.detail.list.DetailListPresenter
+import com.pyamsoft.fridge.detail.shop.ShoppingScope
 import com.pyamsoft.pydroid.core.bus.EventBus
 import io.reactivex.Observable
 import io.reactivex.Single

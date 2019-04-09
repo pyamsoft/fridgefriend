@@ -28,12 +28,17 @@ import androidx.fragment.app.Fragment
 import com.pyamsoft.fridge.FridgeComponent
 import com.pyamsoft.fridge.Injector
 import com.pyamsoft.fridge.R
+import com.pyamsoft.fridge.detail.list.DetailListUiComponent
+import com.pyamsoft.fridge.detail.shop.toolbar.ShoppingToolbarUiComponent
 import com.pyamsoft.pydroid.arch.layout
+import com.pyamsoft.pydroid.ui.app.requireToolbarActivity
 import javax.inject.Inject
 
 internal class ShoppingFragment : Fragment(),
+  ShoppingToolbarUiComponent.Callback,
   DetailListUiComponent.Callback {
 
+  @field:Inject internal lateinit var toolbar: ShoppingToolbarUiComponent
   @field:Inject internal lateinit var list: DetailListUiComponent
 
   override fun onCreateView(
@@ -51,12 +56,14 @@ internal class ShoppingFragment : Fragment(),
     Injector.obtain<FridgeComponent>(view.context.applicationContext)
       .plusDetailComponent()
       .parent(parent)
+      .toolbarActivity(requireToolbarActivity())
       .build()
       .plusShoppingComponent()
       .build()
       .inject(this)
 
     list.bind(parent, viewLifecycleOwner, savedInstanceState, this)
+    toolbar.bind(parent, viewLifecycleOwner, savedInstanceState, this)
 
     parent.layout {
       list.also {
@@ -73,6 +80,11 @@ internal class ShoppingFragment : Fragment(),
   override fun onSaveInstanceState(outState: Bundle) {
     super.onSaveInstanceState(outState)
     list.saveState(outState)
+    toolbar.saveState(outState)
+  }
+
+  override fun onBack() {
+    requireActivity().onBackPressed()
   }
 
   companion object {

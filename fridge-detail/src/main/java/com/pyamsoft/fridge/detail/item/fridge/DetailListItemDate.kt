@@ -22,9 +22,11 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.EditorInfo
 import android.widget.EditText
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.detail.R
+import timber.log.Timber
 import java.util.Calendar
 import javax.inject.Inject
 import javax.inject.Named
@@ -33,8 +35,8 @@ internal class DetailListItemDate @Inject internal constructor(
   @Named("item_editable") private val editable: Boolean,
   item: FridgeItem,
   parent: ViewGroup,
-  callback: Callback
-) : DetailListItem(item, parent, callback) {
+  callback: DetailListItemDate.Callback
+) : DetailListItem<DetailListItemDate.Callback>(item, parent, callback) {
 
   override val layout: Int = R.layout.detail_list_item_date
 
@@ -46,16 +48,21 @@ internal class DetailListItemDate @Inject internal constructor(
   private var dateWatcher: TextWatcher? = null
 
   override fun onInflated(view: View, savedInstanceState: Bundle?) {
-    val date = Calendar.getInstance().apply {
-      time = item.expireTime()
-    }
-    val month = date.get(Calendar.MONTH)
-    val day = date.get(Calendar.DAY_OF_MONTH)
-    val year = date.get(Calendar.YEAR)
+    if (item.expireTime() != FridgeItem.EMPTY_EXPIRE_TIME) {
+      val date = Calendar.getInstance().apply {
+        time = item.expireTime()
+      }
+      Timber.d("Expire time is: $date")
 
-    monthView.setTextKeepState("$month")
-    dayView.setTextKeepState("$day")
-    yearView.setTextKeepState("$year")
+      // Month is zero indexed in storage
+      val month = date.get(Calendar.MONTH) + 1
+      val day = date.get(Calendar.DAY_OF_MONTH)
+      val year = date.get(Calendar.YEAR)
+
+      monthView.setTextKeepState("$month".padStart(2, '0'))
+      dayView.setTextKeepState("$day".padStart(2, '0'))
+      yearView.setTextKeepState("$year".padStart(4, '0'))
+    }
 
     if (editable) {
       val watcher = object : TextWatcher {
@@ -69,11 +76,19 @@ internal class DetailListItemDate @Inject internal constructor(
         override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
         }
       }
-
       monthView.addTextChangedListener(watcher)
       dayView.addTextChangedListener(watcher)
       yearView.addTextChangedListener(watcher)
       dateWatcher = watcher
+
+      yearView.setOnEditorActionListener { _, actionId, _ ->
+        if (actionId == EditorInfo.IME_ACTION_DONE || actionId == EditorInfo.IME_NULL) {
+          callback.onLastDoneClicked()
+          return@setOnEditorActionListener true
+        }
+
+        return@setOnEditorActionListener false
+      }
     } else {
       monthView.setNotEditable()
       dayView.setNotEditable()
@@ -90,6 +105,8 @@ internal class DetailListItemDate @Inject internal constructor(
     }
     dateWatcher = null
 
+    yearView.setOnEditorActionListener(null)
+
     // Cleaup
     monthView.text.clear()
     dayView.text.clear()
@@ -100,14 +117,18 @@ internal class DetailListItemDate @Inject internal constructor(
     val month = monthView.text.toString()
     val day = dayView.text.toString()
     val year = yearView.text.toString()
-    if (month.isNotBlank() && day.isNotBlank() && year.isNotBlank()) {
-      val date = Calendar.getInstance().apply {
-        set(Calendar.YEAR, year.toInt())
-        set(Calendar.MONTH, month.toInt())
-        set(Calendar.DAY_OF_MONTH, day.toInt())
-      }
-      commitModel(expireTime = date.time)
-    }
+    val yearNumber = if (year.isBlank()) 0 else year.toInt()
+    val monthNumber = if (month.isBlank()) 0 else month.toInt()
+    val dayNumber = if (day.isBlank()) 0 else day.toInt()
+    callback.commitDate(item, yearNumber, monthNumber, dayNumber)
+  }
+
+  interface Callback : DetailListItem.Callback {
+
+    fun onLastDoneClicked()
+
+    fun commitDate(oldItem: FridgeItem, year: Int, month: Int, day: Int)
+
   }
 
 }

@@ -30,6 +30,7 @@ import com.pyamsoft.fridge.Injector
 import com.pyamsoft.fridge.R
 import com.pyamsoft.fridge.detail.create.title.CreationTitleUiComponent
 import com.pyamsoft.fridge.detail.create.toolbar.CreationToolbarUiComponent
+import com.pyamsoft.fridge.detail.list.DetailListUiComponent
 import com.pyamsoft.pydroid.arch.layout
 import com.pyamsoft.pydroid.ui.app.requireArguments
 import com.pyamsoft.pydroid.ui.app.requireToolbarActivity
@@ -59,9 +60,9 @@ internal class CreationFragment : Fragment(),
     Injector.obtain<FridgeComponent>(view.context.applicationContext)
       .plusDetailComponent()
       .parent(parent)
+      .toolbarActivity(requireToolbarActivity())
       .build()
       .plusCreationComponent()
-      .toolbarActivity(requireToolbarActivity())
       .entryId(requireArguments().getString(ENTRY_ID, ""))
       .build()
       .inject(this)

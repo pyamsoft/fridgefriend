@@ -22,6 +22,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.CompoundButton
 import com.pyamsoft.fridge.db.item.FridgeItem
+import com.pyamsoft.fridge.db.item.FridgeItem.Presence
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence.HAVE
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence.NEED
 import com.pyamsoft.fridge.detail.R
@@ -30,8 +31,8 @@ import javax.inject.Inject
 internal class DetailListItemPresence @Inject internal constructor(
   item: FridgeItem,
   parent: ViewGroup,
-  callback: Callback
-) : DetailListItem(item, parent, callback) {
+  callback: DetailListItemPresence.Callback
+) : DetailListItem<DetailListItemPresence.Callback>(item, parent, callback) {
 
   override val layout: Int = R.layout.detail_list_item_presence
 
@@ -53,7 +54,13 @@ internal class DetailListItemPresence @Inject internal constructor(
   }
 
   private fun commit(isChecked: Boolean) {
-    commitModel(presence = if (isChecked) HAVE else NEED)
+    callback.commitPresence(item, if (isChecked) HAVE else NEED)
+  }
+
+  interface Callback : DetailListItem.Callback {
+
+    fun commitPresence(oldItem: FridgeItem, presence: Presence)
+
   }
 
 }

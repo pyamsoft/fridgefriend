@@ -33,6 +33,7 @@
         android:layout_height="wrap_content"
         android:gravity="center_vertical|start"
         android:hint="@string/item_name_hint"
+        android:imeOptions="actionNext"
         android:importantForAutofill="no"
         android:inputType="textAutoComplete"
         android:textAppearance="?attr/textAppearanceBody1"

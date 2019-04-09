@@ -15,12 +15,17 @@
  *
  */
 
-package com.pyamsoft.fridge.detail.shop
+package com.pyamsoft.fridge.detail.list
 
-import com.pyamsoft.fridge.detail.DetailListUiComponentImpl
-import javax.inject.Inject
+import com.pyamsoft.fridge.detail.list.DetailListUiComponent.Callback
+import com.pyamsoft.pydroid.arch.UiComponent
 
-internal class ShoppingListUiComponentImpl @Inject internal constructor(
-  list: ShoppingList,
-  presenter: ShoppingListPresenter
-) : DetailListUiComponentImpl(list, presenter)
+interface DetailListUiComponent : UiComponent<Callback> {
+
+  fun showError(throwable: Throwable)
+
+  interface Callback {
+
+  }
+
+}

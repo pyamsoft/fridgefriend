@@ -20,31 +20,19 @@ package com.pyamsoft.fridge.detail.create.toolbar
 import android.os.Bundle
 import android.view.MenuItem
 import com.pyamsoft.fridge.detail.R
-import com.pyamsoft.pydroid.arch.UiView
+import com.pyamsoft.fridge.detail.toolbar.DetailToolbar
 import com.pyamsoft.pydroid.ui.app.ToolbarActivity
-import com.pyamsoft.pydroid.ui.arch.InvalidIdException
-import com.pyamsoft.pydroid.ui.util.DebouncedOnClickListener
-import com.pyamsoft.pydroid.ui.util.setUpEnabled
 import javax.inject.Inject
 
 internal class CreationToolbar @Inject internal constructor(
-  private val toolbarActivity: ToolbarActivity,
-  private val callback: Callback
-) : UiView {
+  toolbarActivity: ToolbarActivity,
+  callback: Callback
+) : DetailToolbar<CreationToolbar.Callback>(toolbarActivity, callback) {
 
   private var deleteMenuItem: MenuItem? = null
 
-  override fun id(): Int {
-    throw InvalidIdException
-  }
-
-  override fun inflate(savedInstanceState: Bundle?) {
+  override fun onInflate(savedInstanceState: Bundle?) {
     toolbarActivity.requireToolbar { toolbar ->
-      toolbar.setUpEnabled(true)
-      toolbar.setNavigationOnClickListener(DebouncedOnClickListener.create {
-        callback.onNavigationClicked()
-      })
-
       toolbar.inflateMenu(R.menu.menu_detail)
       val deleteItem = toolbar.menu.findItem(R.id.menu_item_delete)
       deleteItem.isVisible = false
@@ -56,14 +44,8 @@ internal class CreationToolbar @Inject internal constructor(
     }
   }
 
-  override fun saveState(outState: Bundle) {
-  }
-
-  override fun teardown() {
+  override fun onTeardown() {
     toolbarActivity.withToolbar { toolber ->
-      toolber.setUpEnabled(false)
-      toolber.setNavigationOnClickListener(null)
-
       deleteMenuItem?.setOnMenuItemClickListener(null)
       deleteMenuItem = null
       toolber.menu.removeItem(R.id.menu_item_delete)
@@ -74,9 +56,7 @@ internal class CreationToolbar @Inject internal constructor(
     deleteMenuItem?.isVisible = real
   }
 
-  interface Callback {
-
-    fun onNavigationClicked()
+  interface Callback : DetailToolbar.Callback {
 
     fun onDeleteClicked()
   }

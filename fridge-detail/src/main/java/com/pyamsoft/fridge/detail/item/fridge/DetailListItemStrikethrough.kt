@@ -17,9 +17,11 @@
 
 package com.pyamsoft.fridge.detail.item.fridge
 
+import android.graphics.Typeface
 import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import androidx.core.view.isInvisible
 import androidx.core.view.isVisible
 import com.pyamsoft.fridge.db.item.FridgeItem
@@ -34,12 +36,14 @@ internal class DetailListItemStrikethrough @Inject internal constructor(
   item: FridgeItem,
   parent: ViewGroup,
   callback: Callback
-) : DetailListItem(item, parent, callback), UiToggleView {
+) : DetailListItem<DetailListItemStrikethrough.Callback>(item, parent, callback),
+  UiToggleView {
 
   override val layout: Int = R.layout.detail_list_item_strikethrough
 
   override val layoutRoot by lazyView<ViewGroup>(R.id.detail_item_strikethrough)
-  private val strikeThrough by lazyView<View>(R.id.detail_item_strikethrough_line)
+  private val strikeLine by lazyView<View>(R.id.detail_item_strikethrough_line)
+  private val errorMessage by lazyView<TextView>(R.id.detail_item_strikethrough_error)
 
   override fun onInflated(view: View, savedInstanceState: Bundle?) {
     if (editable) {
@@ -58,20 +62,28 @@ internal class DetailListItemStrikethrough @Inject internal constructor(
   }
 
   override fun show() {
-    strikeThrough.isVisible = true
+    strikeLine.isVisible = true
   }
 
   override fun hide() {
-    strikeThrough.isInvisible = true
+    strikeLine.isInvisible = true
   }
 
   fun showError(throwable: Throwable) {
-    // TODO
+    val typeStyle: Int
+    if (throwable is IllegalArgumentException) {
+      typeStyle = Typeface.BOLD
+    } else {
+      typeStyle = Typeface.NORMAL
+    }
+    errorMessage.setTypeface(errorMessage.typeface, typeStyle)
+    errorMessage.text = throwable.message ?: "ERROR: Unknown error, please try again later."
   }
 
   fun clearError() {
-    // TODO
+    errorMessage.text = ""
   }
 
+  interface Callback : DetailListItem.Callback
 }
 

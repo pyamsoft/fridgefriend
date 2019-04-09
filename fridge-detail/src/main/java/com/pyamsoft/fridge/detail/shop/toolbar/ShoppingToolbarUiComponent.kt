@@ -15,30 +15,17 @@
  *
  */
 
-package com.pyamsoft.fridge.detail
+package com.pyamsoft.fridge.detail.shop.toolbar
 
-import androidx.annotation.CheckResult
-import com.pyamsoft.fridge.detail.create.CreationModule
-import com.pyamsoft.fridge.detail.create.CreationScope
-import dagger.BindsInstance
-import dagger.Subcomponent
-import javax.inject.Named
+import com.pyamsoft.fridge.detail.shop.toolbar.ShoppingToolbarUiComponent.Callback
+import com.pyamsoft.pydroid.arch.UiComponent
 
-@CreationScope
-@Subcomponent(modules = [CreationModule::class])
-internal interface CreationComponent {
+interface ShoppingToolbarUiComponent : UiComponent<Callback> {
 
-  fun inject(fragment: CreationFragment)
+  interface Callback {
 
-  @Subcomponent.Builder
-  interface Builder {
+    fun onBack()
 
-    @BindsInstance
-    @CheckResult
-    fun entryId(@Named("detail_entry_id") entryId: String): Builder
-
-    @CheckResult
-    fun build(): CreationComponent
   }
 
 }

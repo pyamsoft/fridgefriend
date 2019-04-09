@@ -20,12 +20,11 @@ package com.pyamsoft.fridge.detail.create.list
 import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent
-import com.pyamsoft.fridge.detail.DetailListPresenter
+import com.pyamsoft.fridge.detail.list.DetailListPresenter
 import com.pyamsoft.fridge.detail.create.CreationScope
 import com.pyamsoft.pydroid.core.bus.EventBus
 import io.reactivex.Observable
 import io.reactivex.Single
-import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Named
 

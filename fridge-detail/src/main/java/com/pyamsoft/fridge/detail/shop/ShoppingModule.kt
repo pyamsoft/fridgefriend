@@ -18,8 +18,14 @@
 package com.pyamsoft.fridge.detail.shop
 
 import androidx.annotation.CheckResult
-import com.pyamsoft.fridge.detail.DetailList
-import com.pyamsoft.fridge.detail.DetailListUiComponent
+import com.pyamsoft.fridge.detail.list.DetailList
+import com.pyamsoft.fridge.detail.list.DetailListUiComponent
+import com.pyamsoft.fridge.detail.shop.list.ShoppingListPresenter
+import com.pyamsoft.fridge.detail.shop.list.ShoppingListUiComponentImpl
+import com.pyamsoft.fridge.detail.shop.toolbar.ShoppingToolbar
+import com.pyamsoft.fridge.detail.shop.toolbar.ShoppingToolbarBinder
+import com.pyamsoft.fridge.detail.shop.toolbar.ShoppingToolbarUiComponent
+import com.pyamsoft.fridge.detail.shop.toolbar.ShoppingToolbarUiComponentImpl
 import dagger.Binds
 import dagger.Module
 
@@ -33,5 +39,13 @@ abstract class ShoppingModule {
   @Binds
   @CheckResult
   internal abstract fun bindListCallback(impl: ShoppingListPresenter): DetailList.Callback
+
+  @Binds
+  @CheckResult
+  internal abstract fun bindToolbarCallback(impl: ShoppingToolbarBinder): ShoppingToolbar.Callback
+
+  @Binds
+  @CheckResult
+  internal abstract fun bindToolbarComponent(impl: ShoppingToolbarUiComponentImpl): ShoppingToolbarUiComponent
 
 }

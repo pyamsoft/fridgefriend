@@ -19,8 +19,9 @@
 
 <merge>
 
-  <FrameLayout
+  <androidx.constraintlayout.widget.ConstraintLayout
       xmlns:android="http://schemas.android.com/apk/res/android"
+      xmlns:app="http://schemas.android.com/apk/res-auto"
       android:id="@+id/detail_item_strikethrough"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
@@ -28,13 +29,29 @@
 
     <View
         android:id="@+id/detail_item_strikethrough_line"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="1dp"
-        android:layout_gravity="center"
         android:background="?android:attr/colorForeground"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
         />
 
-  </FrameLayout>
+    <TextView
+        android:id="@+id/detail_item_strikethrough_error"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:textAppearance="?attr/textAppearanceBody2"
+        android:textColor="@color/red500"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/detail_item_strikethrough_line"
+        />
+
+  </androidx.constraintlayout.widget.ConstraintLayout>
 
 </merge>
 

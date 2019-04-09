@@ -15,12 +15,24 @@
  *
  */
 
-package com.pyamsoft.fridge.detail.create.list
+package com.pyamsoft.fridge.detail.shop.toolbar
 
-import com.pyamsoft.fridge.detail.list.DetailListUiComponentImpl
+import android.os.Bundle
+import com.pyamsoft.fridge.detail.toolbar.DetailToolbar
+import com.pyamsoft.pydroid.ui.app.ToolbarActivity
 import javax.inject.Inject
 
-internal class CreationListUiComponentImpl @Inject internal constructor(
-  list: CreationList,
-  presenter: CreationListPresenter
-) : DetailListUiComponentImpl(list, presenter)
+internal class ShoppingToolbar @Inject internal constructor(
+  toolbarActivity: ToolbarActivity,
+  callback: Callback
+) : DetailToolbar<ShoppingToolbar.Callback>(toolbarActivity, callback) {
+
+  override fun onInflate(savedInstanceState: Bundle?) {
+  }
+
+  override fun onTeardown() {
+  }
+
+  interface Callback : DetailToolbar.Callback
+
+}

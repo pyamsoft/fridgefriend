@@ -15,13 +15,12 @@
  *
  */
 
-package com.pyamsoft.fridge.detail
+package com.pyamsoft.fridge.detail.list
 
 import android.os.Bundle
 import androidx.lifecycle.LifecycleOwner
-import com.pyamsoft.fridge.db.item.FridgeItem
-import com.pyamsoft.fridge.detail.DetailListPresenter.DetailState
-import com.pyamsoft.fridge.detail.DetailListUiComponent.Callback
+import com.pyamsoft.fridge.detail.list.DetailListPresenter.DetailState
+import com.pyamsoft.fridge.detail.list.DetailListUiComponent.Callback
 import com.pyamsoft.pydroid.arch.BaseUiComponent
 import com.pyamsoft.pydroid.arch.doOnDestroy
 

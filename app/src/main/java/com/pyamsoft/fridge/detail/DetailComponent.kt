@@ -20,6 +20,7 @@ package com.pyamsoft.fridge.detail
 import android.view.ViewGroup
 import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.detail.DetailComponent.DetailProvider
+import com.pyamsoft.pydroid.ui.app.ToolbarActivity
 import dagger.BindsInstance
 import dagger.Module
 import dagger.Provides
@@ -37,6 +38,10 @@ internal interface DetailComponent {
 
   @Subcomponent.Builder
   interface Builder {
+
+    @BindsInstance
+    @CheckResult
+    fun toolbarActivity(toolbarActivity: ToolbarActivity): Builder
 
     @BindsInstance
     @CheckResult

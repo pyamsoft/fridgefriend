@@ -28,7 +28,6 @@ import com.pyamsoft.fridge.detail.item.DetailItem
 import com.pyamsoft.fridge.detail.item.DetailItemComponent
 import com.pyamsoft.fridge.detail.item.ListItemLifecycle
 import com.pyamsoft.fridge.detail.item.fridge.DetailListItemController.ViewHolder
-import com.pyamsoft.fridge.detail.item.fridge.DetailListItemUiComponent.Callback
 import com.pyamsoft.pydroid.arch.layout
 import com.pyamsoft.pydroid.util.toDp
 import timber.log.Timber
@@ -37,9 +36,9 @@ import javax.inject.Inject
 internal class DetailListItemController internal constructor(
   item: FridgeItem,
   editable: Boolean,
-  private val builder: DetailItemComponent.Builder
-) : DetailItem<DetailListItemController, ViewHolder>(item, swipeable = editable),
-  Callback {
+  private val builder: DetailItemComponent.Builder,
+  private val callback: DetailListItemController.Callback
+) : DetailItem<DetailListItemController, ViewHolder>(item, swipeable = editable) {
 
   override fun getType(): Int {
     return R.id.id_item_list_item
@@ -63,7 +62,7 @@ internal class DetailListItemController internal constructor(
 
   override fun bindView(holder: ViewHolder, payloads: MutableList<Any>) {
     super.bindView(holder, payloads)
-    holder.bind(model, canSwipe(), this)
+    holder.bind(model, canSwipe(), callback)
   }
 
   override fun unbindView(holder: ViewHolder) {
@@ -74,15 +73,21 @@ internal class DetailListItemController internal constructor(
   class ViewHolder internal constructor(
     itemView: View,
     private val builder: DetailItemComponent.Builder
-  ) : RecyclerView.ViewHolder(itemView) {
+  ) : RecyclerView.ViewHolder(itemView), DetailListItemUiComponent.Callback {
 
-    private var lifecycle: ListItemLifecycle? = null
     @field:Inject internal lateinit var component: DetailListItemUiComponent
 
     private val parent: ConstraintLayout = itemView.findViewById(R.id.listitem_constraint)
 
-    fun bind(item: FridgeItem, editable: Boolean, callback: DetailListItemUiComponent.Callback) {
-      Timber.d("Bind item: $item")
+    private var lifecycle: ListItemLifecycle? = null
+    private var callback: DetailListItemController.Callback? = null
+
+    override fun onLastDoneClicked() {
+      requireNotNull(callback).onLastDoneClicked(layoutPosition)
+    }
+
+    fun bind(item: FridgeItem, editable: Boolean, cb: DetailListItemController.Callback) {
+      callback = cb
       lifecycle?.unbind()
 
       builder
@@ -94,7 +99,7 @@ internal class DetailListItemController internal constructor(
 
       val owner = ListItemLifecycle()
       lifecycle = owner
-      component.bind(parent, owner, null, callback)
+      component.bind(parent, owner, null, this)
 
       parent.layout {
         component.also {
@@ -113,6 +118,7 @@ internal class DetailListItemController internal constructor(
     fun unbind() {
       lifecycle?.unbind()
       lifecycle = null
+      callback = null
     }
 
     // Kind of hacky
@@ -120,6 +126,18 @@ internal class DetailListItemController internal constructor(
       Timber.d("Delete self: $item")
       component.deleteSelf(item)
     }
+
+    // Very hacky
+    fun focus() {
+      Timber.d("Request focus onto item")
+      component.requestFocus()
+    }
+
+  }
+
+  interface Callback {
+
+    fun onLastDoneClicked(position: Int)
 
   }
 

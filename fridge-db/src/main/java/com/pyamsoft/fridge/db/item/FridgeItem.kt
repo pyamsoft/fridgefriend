@@ -61,18 +61,18 @@ interface FridgeItem {
   companion object {
 
     const val EMPTY_NAME = ""
-    val EMPTY_CREATED_TIME = Date(0)
+    val EMPTY_EXPIRE_TIME = Date(0)
     val DEFAULT_PRESENCE = Presence.NEED
 
     @CheckResult
     fun empty(): FridgeItem {
-      return create("", "", EMPTY_NAME, EMPTY_CREATED_TIME, DEFAULT_PRESENCE, false)
+      return create("", "", EMPTY_NAME, EMPTY_EXPIRE_TIME, DEFAULT_PRESENCE, false)
     }
 
     @CheckResult
     @JvmOverloads
     fun create(id: String = IdGenerator.generate(), entryId: String): FridgeItem {
-      return create(id, entryId, EMPTY_NAME, Date(), DEFAULT_PRESENCE, false)
+      return create(id, entryId, EMPTY_NAME, EMPTY_EXPIRE_TIME, DEFAULT_PRESENCE, false)
     }
 
     @CheckResult

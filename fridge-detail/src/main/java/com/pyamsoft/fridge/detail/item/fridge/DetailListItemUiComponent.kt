@@ -25,6 +25,11 @@ internal interface DetailListItemUiComponent : UiComponent<Callback> {
 
   fun deleteSelf(item: FridgeItem)
 
-  interface Callback
+  fun requestFocus()
+
+  interface Callback {
+
+    fun onLastDoneClicked()
+  }
 
 }

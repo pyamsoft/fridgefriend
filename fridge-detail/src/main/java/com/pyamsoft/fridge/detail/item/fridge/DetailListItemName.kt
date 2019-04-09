@@ -34,8 +34,8 @@ internal class DetailListItemName @Inject internal constructor(
   @Named("item_editable") private val editable: Boolean,
   item: FridgeItem,
   parent: ViewGroup,
-  callback: Callback
-) : DetailListItem(item, parent, callback) {
+  callback: DetailListItemName.Callback
+) : DetailListItem<DetailListItemName.Callback>(item, parent, callback) {
 
   override val layout: Int = R.layout.detail_list_item_name
 
@@ -89,7 +89,8 @@ internal class DetailListItemName @Inject internal constructor(
 
   private fun commit() {
     saveEditingState()
-    commitModel(name = nameView.text.toString())
+    val name = nameView.text.toString()
+    callback.commitName(item, name)
   }
 
   private fun saveEditingState() {
@@ -97,6 +98,16 @@ internal class DetailListItemName @Inject internal constructor(
     val location = nameView.selectionEnd
     Timber.d("Save edit text selection from storage map for: ${item.id()}: $location")
     nonPersistedEditableStateMap[item.id()] = location
+  }
+
+  fun focus() {
+    nameView.requestFocus()
+  }
+
+  interface Callback : DetailListItem.Callback {
+
+    fun commitName(oldItem: FridgeItem, name: String)
+
   }
 
 }

@@ -15,12 +15,12 @@
  *
  */
 
-package com.pyamsoft.fridge.detail.shop
+package com.pyamsoft.fridge.detail.shop.list
 
 import android.view.ViewGroup
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent
-import com.pyamsoft.fridge.detail.DetailList
+import com.pyamsoft.fridge.detail.list.DetailList
 import com.pyamsoft.fridge.detail.create.list.CreationListInteractor
 import com.pyamsoft.fridge.detail.item.DetailItem
 import com.pyamsoft.fridge.detail.item.DetailItemComponent.Builder
@@ -44,7 +44,11 @@ internal class ShoppingList @Inject internal constructor(
     return DetailListItemController(
       item,
       false,
-      builder
+      builder,
+      this
     )
+  }
+
+  override fun onLastDoneClicked(position: Int) {
   }
 }

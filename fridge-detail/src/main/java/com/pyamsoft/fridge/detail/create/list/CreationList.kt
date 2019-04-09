@@ -20,7 +20,7 @@ package com.pyamsoft.fridge.detail.create.list
 import android.view.ViewGroup
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent
-import com.pyamsoft.fridge.detail.DetailList
+import com.pyamsoft.fridge.detail.list.DetailList
 import com.pyamsoft.fridge.detail.item.DetailItem
 import com.pyamsoft.fridge.detail.item.DetailItemComponent.Builder
 import com.pyamsoft.fridge.detail.item.add.AddNewListItemController
@@ -54,13 +54,22 @@ internal class CreationList @Inject internal constructor(
       return DetailListItemController(
         item,
         true,
-        builder
+        builder,
+        this
       )
     }
   }
 
   override fun onAddNewItem() {
     listCallback.onAddNewItem()
+  }
+
+  override fun onLastDoneClicked(position: Int) {
+    val isEnd = position >= (getItemCount() - 1)
+    if (isEnd) {
+      listCallback.onAddNewItem()
+    }
+    focusItem(position + 1)
   }
 
   interface Callback : DetailList.Callback {

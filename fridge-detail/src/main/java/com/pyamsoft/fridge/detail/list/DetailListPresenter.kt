@@ -15,7 +15,7 @@
  *
  */
 
-package com.pyamsoft.fridge.detail
+package com.pyamsoft.fridge.detail.list
 
 import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.db.item.FridgeItem
@@ -23,7 +23,8 @@ import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent.Delete
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent.Insert
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent.Update
-import com.pyamsoft.fridge.detail.DetailListPresenter.DetailState
+import com.pyamsoft.fridge.detail.list.DetailListPresenter.Callback
+import com.pyamsoft.fridge.detail.list.DetailListPresenter.DetailState
 import com.pyamsoft.pydroid.arch.Presenter
 import com.pyamsoft.pydroid.core.bus.EventBus
 import com.pyamsoft.pydroid.core.singleDisposable
@@ -36,7 +37,7 @@ import timber.log.Timber
 
 internal abstract class DetailListPresenter protected constructor(
   protected val fakeRealtime: EventBus<FridgeItemChangeEvent>
-) : Presenter<DetailState, DetailListPresenter.Callback>(),
+) : Presenter<DetailState, Callback>(),
   DetailList.Callback {
 
   private var refreshDisposable by singleDisposable()

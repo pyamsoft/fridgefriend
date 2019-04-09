@@ -15,17 +15,30 @@
  *
  */
 
-package com.pyamsoft.fridge.detail
+package com.pyamsoft.fridge.detail.shop.toolbar
 
-import com.pyamsoft.fridge.detail.DetailListUiComponent.Callback
-import com.pyamsoft.pydroid.arch.UiComponent
+import com.pyamsoft.fridge.detail.shop.ShoppingScope
+import com.pyamsoft.pydroid.arch.UiBinder
+import javax.inject.Inject
 
-interface DetailListUiComponent : UiComponent<Callback> {
+@ShoppingScope
+internal class ShoppingToolbarBinder @Inject internal constructor(
+) : UiBinder<ShoppingToolbarBinder.Callback>(),
+  ShoppingToolbar.Callback {
 
-  fun showError(throwable: Throwable)
+  override fun onBind() {
+  }
 
-  interface Callback {
+  override fun onUnbind() {
+  }
 
+  override fun onNavigationClicked() {
+    callback.handleBack()
+  }
+
+  interface Callback : UiBinder.Callback {
+
+    fun handleBack()
   }
 
 }

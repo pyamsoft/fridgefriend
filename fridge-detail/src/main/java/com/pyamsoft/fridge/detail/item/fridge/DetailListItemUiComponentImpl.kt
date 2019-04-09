@@ -108,4 +108,12 @@ internal class DetailListItemUiComponentImpl @Inject internal constructor(
     presenter.deleteSelf(item)
   }
 
+  override fun handleLastDoneClicked() {
+    callback.onLastDoneClicked()
+  }
+
+  override fun requestFocus() {
+    name.focus()
+  }
+
 }

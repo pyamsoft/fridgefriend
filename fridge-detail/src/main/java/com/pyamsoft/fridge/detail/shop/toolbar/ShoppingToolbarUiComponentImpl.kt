@@ -15,23 +15,22 @@
  *
  */
 
-package com.pyamsoft.fridge.detail.create.toolbar
+package com.pyamsoft.fridge.detail.shop.toolbar
 
 import android.os.Bundle
 import androidx.lifecycle.LifecycleOwner
-import com.pyamsoft.fridge.detail.create.toolbar.CreationToolbarPresenter.ToolbarState
-import com.pyamsoft.fridge.detail.create.toolbar.CreationToolbarUiComponent.Callback
+import com.pyamsoft.fridge.detail.shop.toolbar.ShoppingToolbarUiComponent.Callback
 import com.pyamsoft.pydroid.arch.BaseUiComponent
 import com.pyamsoft.pydroid.arch.doOnDestroy
 import com.pyamsoft.pydroid.ui.arch.InvalidIdException
 import javax.inject.Inject
 
-internal class CreationToolbarUiComponentImpl @Inject internal constructor(
-  private val toolbar: CreationToolbar,
-  private val presenter: CreationToolbarPresenter
-) : BaseUiComponent<CreationToolbarUiComponent.Callback>(),
-  CreationToolbarUiComponent,
-  CreationToolbarPresenter.Callback {
+internal class ShoppingToolbarUiComponentImpl @Inject internal constructor(
+  private val toolbar: ShoppingToolbar,
+  private val binder: ShoppingToolbarBinder
+) : BaseUiComponent<ShoppingToolbarUiComponent.Callback>(),
+  ShoppingToolbarUiComponent,
+  ShoppingToolbarBinder.Callback {
 
   override fun id(): Int {
     throw InvalidIdException
@@ -40,49 +39,18 @@ internal class CreationToolbarUiComponentImpl @Inject internal constructor(
   override fun onBind(owner: LifecycleOwner, savedInstanceState: Bundle?, callback: Callback) {
     owner.doOnDestroy {
       toolbar.teardown()
-      presenter.unbind()
+      binder.unbind()
     }
 
     toolbar.inflate(savedInstanceState)
-    presenter.bind(this)
+    binder.bind(this)
   }
 
   override fun onSaveState(outState: Bundle) {
     toolbar.saveState(outState)
   }
 
-  override fun onRender(state: ToolbarState, oldState: ToolbarState?) {
-    renderToolbar(state, oldState)
-    renderError(state, oldState)
-  }
-
-  private fun renderToolbar(
-    state: ToolbarState,
-    oldState: ToolbarState?
-  ) {
-    state.isReal.let { real ->
-      if (oldState == null || real != oldState.isReal) {
-        toolbar.setDeleteEnabled(real)
-      }
-    }
-  }
-
-  private fun renderError(
-    state: ToolbarState,
-    oldState: ToolbarState?
-  ) {
-    state.throwable.let { throwable ->
-      if (oldState == null || throwable != oldState.throwable) {
-        // TODO handle throwable
-      }
-    }
-  }
-
   override fun handleBack() {
-    callback.onBack()
-  }
-
-  override fun handleDeleted() {
     callback.onBack()
   }
 

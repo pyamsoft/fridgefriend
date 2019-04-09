@@ -31,6 +31,10 @@ import com.pyamsoft.fridge.detail.item.add.AddNewListItemController
 import com.pyamsoft.fridge.detail.item.fridge.DetailItemPresenter
 import com.pyamsoft.fridge.detail.item.fridge.DetailListItem
 import com.pyamsoft.fridge.detail.item.fridge.DetailListItemController
+import com.pyamsoft.fridge.detail.item.fridge.DetailListItemDate
+import com.pyamsoft.fridge.detail.item.fridge.DetailListItemName
+import com.pyamsoft.fridge.detail.item.fridge.DetailListItemPresence
+import com.pyamsoft.fridge.detail.item.fridge.DetailListItemStrikethrough
 import com.pyamsoft.fridge.detail.item.fridge.DetailListItemUiComponent
 import com.pyamsoft.fridge.detail.item.fridge.DetailListItemUiComponentImpl
 import com.pyamsoft.pydroid.core.bus.EventBus
@@ -95,7 +99,23 @@ internal interface DetailItemComponent {
 
     @Binds
     @CheckResult
-    internal abstract fun bindNameCallback(impl: DetailItemPresenter): DetailListItem.Callback
+    internal abstract fun bindStrikeItemCallback(impl: DetailItemPresenter): DetailListItemStrikethrough.Callback
+
+    @Binds
+    @CheckResult
+    internal abstract fun bindNameItemCallback(impl: DetailItemPresenter): DetailListItemName.Callback
+
+    @Binds
+    @CheckResult
+    internal abstract fun bindDateItemCallback(impl: DetailItemPresenter): DetailListItemDate.Callback
+
+    @Binds
+    @CheckResult
+    internal abstract fun bindPresenceItemCallback(impl: DetailItemPresenter): DetailListItemPresence.Callback
+
+    @Binds
+    @CheckResult
+    internal abstract fun bindBaseItemCallback(impl: DetailItemPresenter): DetailListItem.Callback
 
     @Binds
     @CheckResult

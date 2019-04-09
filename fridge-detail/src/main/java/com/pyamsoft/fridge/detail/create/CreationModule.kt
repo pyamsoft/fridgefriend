@@ -18,7 +18,7 @@
 package com.pyamsoft.fridge.detail.create
 
 import androidx.annotation.CheckResult
-import com.pyamsoft.fridge.detail.DetailListUiComponent
+import com.pyamsoft.fridge.detail.list.DetailListUiComponent
 import com.pyamsoft.fridge.detail.create.list.CreationList
 import com.pyamsoft.fridge.detail.create.list.CreationListPresenter
 import com.pyamsoft.fridge.detail.create.list.CreationListUiComponentImpl
