@@ -18,14 +18,17 @@
 package com.pyamsoft.fridge.detail.shop
 
 import androidx.annotation.CheckResult
-import com.pyamsoft.fridge.detail.list.DetailList
 import com.pyamsoft.fridge.detail.list.DetailListUiComponent
-import com.pyamsoft.fridge.detail.shop.list.ShoppingListPresenter
+import com.pyamsoft.fridge.detail.shop.list.ShoppingList
+import com.pyamsoft.fridge.detail.shop.list.ShoppingListHandler
+import com.pyamsoft.fridge.detail.shop.list.ShoppingListHandler.ShoppingEvent
 import com.pyamsoft.fridge.detail.shop.list.ShoppingListUiComponentImpl
 import com.pyamsoft.fridge.detail.shop.toolbar.ShoppingToolbar
-import com.pyamsoft.fridge.detail.shop.toolbar.ShoppingToolbarBinder
+import com.pyamsoft.fridge.detail.shop.toolbar.ShoppingToolbarHandler
+import com.pyamsoft.fridge.detail.shop.toolbar.ShoppingToolbarHandler.ToolbarEvent
 import com.pyamsoft.fridge.detail.shop.toolbar.ShoppingToolbarUiComponent
 import com.pyamsoft.fridge.detail.shop.toolbar.ShoppingToolbarUiComponentImpl
+import com.pyamsoft.pydroid.arch.UiEventHandler
 import dagger.Binds
 import dagger.Module
 
@@ -38,11 +41,19 @@ abstract class ShoppingModule {
 
   @Binds
   @CheckResult
-  internal abstract fun bindListCallback(impl: ShoppingListPresenter): DetailList.Callback
+  internal abstract fun bindListCallback(impl: ShoppingListHandler): ShoppingList.Callback
 
   @Binds
   @CheckResult
-  internal abstract fun bindToolbarCallback(impl: ShoppingToolbarBinder): ShoppingToolbar.Callback
+  internal abstract fun bindListHandler(impl: ShoppingListHandler): UiEventHandler<ShoppingEvent, ShoppingList.Callback>
+
+  @Binds
+  @CheckResult
+  internal abstract fun bindToolbarCallback(impl: ShoppingToolbarHandler): ShoppingToolbar.Callback
+
+  @Binds
+  @CheckResult
+  internal abstract fun bindToolbarHandler(impl: ShoppingToolbarHandler): UiEventHandler<ToolbarEvent, ShoppingToolbar.Callback>
 
   @Binds
   @CheckResult

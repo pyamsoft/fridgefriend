@@ -20,17 +20,18 @@ package com.pyamsoft.fridge.detail.shop.toolbar
 import android.os.Bundle
 import androidx.lifecycle.LifecycleOwner
 import com.pyamsoft.fridge.detail.shop.toolbar.ShoppingToolbarUiComponent.Callback
+import com.pyamsoft.fridge.detail.shop.toolbar.ShoppingToolbarViewModel.ToolbarState
 import com.pyamsoft.pydroid.arch.BaseUiComponent
 import com.pyamsoft.pydroid.arch.doOnDestroy
+import com.pyamsoft.pydroid.arch.renderOnChange
 import com.pyamsoft.pydroid.ui.arch.InvalidIdException
 import javax.inject.Inject
 
 internal class ShoppingToolbarUiComponentImpl @Inject internal constructor(
   private val toolbar: ShoppingToolbar,
-  private val binder: ShoppingToolbarBinder
-) : BaseUiComponent<ShoppingToolbarUiComponent.Callback>(),
-  ShoppingToolbarUiComponent,
-  ShoppingToolbarBinder.Callback {
+  private val viewModel: ShoppingToolbarViewModel
+) : BaseUiComponent<Callback>(),
+  ShoppingToolbarUiComponent {
 
   override fun id(): Int {
     throw InvalidIdException
@@ -39,19 +40,28 @@ internal class ShoppingToolbarUiComponentImpl @Inject internal constructor(
   override fun onBind(owner: LifecycleOwner, savedInstanceState: Bundle?, callback: Callback) {
     owner.doOnDestroy {
       toolbar.teardown()
-      binder.unbind()
+      viewModel.unbind()
     }
 
     toolbar.inflate(savedInstanceState)
-    binder.bind(this)
+    viewModel.bind { state, oldState ->
+      renderNavigate(state, oldState)
+    }
   }
 
   override fun onSaveState(outState: Bundle) {
     toolbar.saveState(outState)
   }
 
-  override fun handleBack() {
-    callback.onBack()
+  private fun renderNavigate(
+    state: ToolbarState,
+    oldState: ToolbarState?
+  ) {
+    state.renderOnChange(oldState, value = { it.isNavigate }) { navigate ->
+      if (navigate) {
+        callback.onBack()
+      }
+    }
   }
 
 }

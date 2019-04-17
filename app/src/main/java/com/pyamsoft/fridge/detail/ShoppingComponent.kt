@@ -19,10 +19,8 @@ package com.pyamsoft.fridge.detail
 
 import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.detail.shop.ShoppingModule
-import com.pyamsoft.fridge.detail.shop.ShoppingScope
 import dagger.Subcomponent
 
-@ShoppingScope
 @Subcomponent(modules = [ShoppingModule::class])
 internal interface ShoppingComponent {
 

@@ -37,8 +37,8 @@ internal class ShoppingList @Inject internal constructor(
   theming: Theming,
   fakeRealtime: EventBus<FridgeItemChangeEvent>,
   parent: ViewGroup,
-  callback: Callback
-) : DetailList(interactor, imageLoader, stateMap, theming, fakeRealtime, parent, callback) {
+  private val listCallback: Callback
+) : DetailList(interactor, imageLoader, stateMap, theming, fakeRealtime, parent, listCallback) {
 
   override fun createListItem(
     item: FridgeItem,
@@ -54,4 +54,6 @@ internal class ShoppingList @Inject internal constructor(
 
   override fun onLastDoneClicked(position: Int) {
   }
+
+  interface Callback : DetailList.Callback
 }

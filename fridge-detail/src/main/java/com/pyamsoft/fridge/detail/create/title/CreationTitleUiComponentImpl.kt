@@ -19,18 +19,18 @@ package com.pyamsoft.fridge.detail.create.title
 
 import android.os.Bundle
 import androidx.lifecycle.LifecycleOwner
-import com.pyamsoft.fridge.detail.create.title.CreationTitlePresenter.NameState
 import com.pyamsoft.fridge.detail.create.title.CreationTitleUiComponent.Callback
+import com.pyamsoft.fridge.detail.create.title.CreationTitleViewModel.NameState
 import com.pyamsoft.pydroid.arch.BaseUiComponent
 import com.pyamsoft.pydroid.arch.doOnDestroy
+import com.pyamsoft.pydroid.arch.renderOnChange
 import javax.inject.Inject
 
 internal class CreationTitleUiComponentImpl @Inject internal constructor(
   private val title: CreationTitle,
-  private val presenter: CreationTitlePresenter
-) : BaseUiComponent<CreationTitleUiComponent.Callback>(),
-  CreationTitleUiComponent,
-  CreationTitlePresenter.Callback {
+  private val viewModel: CreationTitleViewModel
+) : BaseUiComponent<Callback>(),
+  CreationTitleUiComponent {
 
   override fun id(): Int {
     return title.id()
@@ -39,31 +39,27 @@ internal class CreationTitleUiComponentImpl @Inject internal constructor(
   override fun onBind(owner: LifecycleOwner, savedInstanceState: Bundle?, callback: Callback) {
     owner.doOnDestroy {
       title.teardown()
-      presenter.unbind()
+      viewModel.unbind()
     }
 
     title.inflate(savedInstanceState)
-    presenter.bind(this)
+    viewModel.bind { state, oldState ->
+      renderName(state, oldState)
+      renderError(state, oldState)
+    }
   }
 
   override fun onSaveState(outState: Bundle) {
     title.saveState(outState)
   }
 
-  override fun onRender(state: NameState, oldState: NameState?) {
-    renderName(state, oldState)
-    renderError(state, oldState)
-  }
-
   private fun renderName(
     state: NameState,
     oldState: NameState?
   ) {
-    state.name.let { name ->
-      if (oldState == null || name != oldState.name) {
-        val firstUpdate = (oldState == null)
-        title.updateName(name, firstUpdate)
-      }
+    state.renderOnChange(oldState, value = { it.name }) { name ->
+      val firstUpdate = (oldState == null)
+      title.updateName(name, firstUpdate)
     }
   }
 
@@ -71,13 +67,11 @@ internal class CreationTitleUiComponentImpl @Inject internal constructor(
     state: NameState,
     oldState: NameState?
   ) {
-    state.throwable.let { throwable ->
-      if (oldState == null || throwable != oldState.throwable) {
-        if (throwable == null) {
-          title.clearError()
-        } else {
-          title.showError(throwable)
-        }
+    state.renderOnChange(oldState, value = { it.throwable }) { throwable ->
+      if (throwable == null) {
+        title.clearError()
+      } else {
+        title.showError(throwable)
       }
     }
   }

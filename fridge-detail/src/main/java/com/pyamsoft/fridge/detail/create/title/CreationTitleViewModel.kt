@@ -18,9 +18,11 @@
 package com.pyamsoft.fridge.detail.create.title
 
 import com.pyamsoft.fridge.detail.DetailConstants
-import com.pyamsoft.fridge.detail.create.CreationScope
-import com.pyamsoft.fridge.detail.create.title.CreationTitlePresenter.NameState
-import com.pyamsoft.pydroid.arch.Presenter
+import com.pyamsoft.fridge.detail.create.title.CreationTitleHandler.TitleEvent
+import com.pyamsoft.fridge.detail.create.title.CreationTitleViewModel.NameState
+import com.pyamsoft.pydroid.arch.UiEventHandler
+import com.pyamsoft.pydroid.arch.UiState
+import com.pyamsoft.pydroid.arch.UiViewModel
 import com.pyamsoft.pydroid.core.singleDisposable
 import com.pyamsoft.pydroid.core.tryDispose
 import io.reactivex.Completable
@@ -29,19 +31,18 @@ import io.reactivex.schedulers.Schedulers
 import timber.log.Timber
 import javax.inject.Inject
 
-@CreationScope
-internal class CreationTitlePresenter @Inject internal constructor(
+internal class CreationTitleViewModel @Inject internal constructor(
+  private val handler: UiEventHandler<TitleEvent, CreationTitle.Callback>,
   private val interactor: CreationTitleInteractor
-) : Presenter<NameState, CreationTitlePresenter.Callback>(),
-  CreationTitle.Callback {
+) : UiViewModel<NameState>(
+  initialState = NameState(name = "", throwable = null)
+), CreationTitle.Callback {
 
   private var updateDisposable by singleDisposable()
 
-  override fun initialState(): NameState {
-    return NameState(name = "", throwable = null)
-  }
-
   override fun onBind() {
+    handler.handle(this).destroy()
+
     observeName(false)
   }
 
@@ -61,9 +62,7 @@ internal class CreationTitlePresenter @Inject internal constructor(
   }
 
   private fun handleNameUpdated(name: String) {
-    setState {
-      copy(name = name, throwable = null)
-    }
+    setState { copy(name = name, throwable = null) }
   }
 
   override fun onUpdateName(name: String) {
@@ -83,13 +82,9 @@ internal class CreationTitlePresenter @Inject internal constructor(
   }
 
   private fun handleNameUpdateError(throwable: Throwable) {
-    setState {
-      copy(name = "", throwable = throwable)
-    }
+    setState { copy(name = "", throwable = throwable) }
   }
 
-  data class NameState(val name: String, val throwable: Throwable?)
-
-  interface Callback : Presenter.Callback<NameState>
+  data class NameState(val name: String, val throwable: Throwable?) : UiState
 
 }

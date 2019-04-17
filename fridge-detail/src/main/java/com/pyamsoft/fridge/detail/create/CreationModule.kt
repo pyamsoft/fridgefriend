@@ -18,18 +18,22 @@
 package com.pyamsoft.fridge.detail.create
 
 import androidx.annotation.CheckResult
-import com.pyamsoft.fridge.detail.list.DetailListUiComponent
 import com.pyamsoft.fridge.detail.create.list.CreationList
-import com.pyamsoft.fridge.detail.create.list.CreationListPresenter
+import com.pyamsoft.fridge.detail.create.list.CreationListHandler
+import com.pyamsoft.fridge.detail.create.list.CreationListHandler.CreationEvent
 import com.pyamsoft.fridge.detail.create.list.CreationListUiComponentImpl
 import com.pyamsoft.fridge.detail.create.title.CreationTitle
-import com.pyamsoft.fridge.detail.create.title.CreationTitlePresenter
+import com.pyamsoft.fridge.detail.create.title.CreationTitleHandler
+import com.pyamsoft.fridge.detail.create.title.CreationTitleHandler.TitleEvent
 import com.pyamsoft.fridge.detail.create.title.CreationTitleUiComponent
 import com.pyamsoft.fridge.detail.create.title.CreationTitleUiComponentImpl
 import com.pyamsoft.fridge.detail.create.toolbar.CreationToolbar
-import com.pyamsoft.fridge.detail.create.toolbar.CreationToolbarPresenter
+import com.pyamsoft.fridge.detail.create.toolbar.CreationToolbarHandler
+import com.pyamsoft.fridge.detail.create.toolbar.CreationToolbarHandler.ToolbarEvent
 import com.pyamsoft.fridge.detail.create.toolbar.CreationToolbarUiComponent
 import com.pyamsoft.fridge.detail.create.toolbar.CreationToolbarUiComponentImpl
+import com.pyamsoft.fridge.detail.list.DetailListUiComponent
+import com.pyamsoft.pydroid.arch.UiEventHandler
 import dagger.Binds
 import dagger.Module
 
@@ -42,11 +46,19 @@ abstract class CreationModule {
 
   @Binds
   @CheckResult
-  internal abstract fun bindListCallback(impl: CreationListPresenter): CreationList.Callback
+  internal abstract fun bindListCallback(impl: CreationListHandler): CreationList.Callback
 
   @Binds
   @CheckResult
-  internal abstract fun bindToolbarCallback(impl: CreationToolbarPresenter): CreationToolbar.Callback
+  internal abstract fun bindListHandler(impl: CreationListHandler): UiEventHandler<CreationEvent, CreationList.Callback>
+
+  @Binds
+  @CheckResult
+  internal abstract fun bindToolbarCallback(impl: CreationToolbarHandler): CreationToolbar.Callback
+
+  @Binds
+  @CheckResult
+  internal abstract fun bindToolbarHandler(impl: CreationToolbarHandler): UiEventHandler<ToolbarEvent, CreationToolbar.Callback>
 
   @Binds
   @CheckResult
@@ -54,10 +66,14 @@ abstract class CreationModule {
 
   @Binds
   @CheckResult
-  internal abstract fun bindDetailCallback(impl: CreationTitlePresenter): CreationTitle.Callback
+  internal abstract fun bindTitleCallback(impl: CreationTitleHandler): CreationTitle.Callback
 
   @Binds
   @CheckResult
-  internal abstract fun bindDetailComponent(impl: CreationTitleUiComponentImpl): CreationTitleUiComponent
+  internal abstract fun bindTitleHandler(impl: CreationTitleHandler): UiEventHandler<TitleEvent, CreationTitle.Callback>
+
+  @Binds
+  @CheckResult
+  internal abstract fun bindTitleComponent(impl: CreationTitleUiComponentImpl): CreationTitleUiComponent
 
 }

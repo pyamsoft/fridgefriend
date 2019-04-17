@@ -17,7 +17,29 @@
 
 package com.pyamsoft.fridge.detail.shop
 
-import javax.inject.Scope
+import com.pyamsoft.fridge.detail.shop.list.ShoppingListHandler.ShoppingEvent
+import com.pyamsoft.fridge.detail.shop.toolbar.ShoppingToolbarHandler.ToolbarEvent
+import com.pyamsoft.pydroid.core.bus.EventBus
+import com.pyamsoft.pydroid.core.bus.RxBus
+import dagger.Module
+import dagger.Provides
+import javax.inject.Singleton
 
-@Scope
-annotation class ShoppingScope
+@Module
+object ShoppingSingletonModule {
+
+  @Provides
+  @JvmStatic
+  @Singleton
+  internal fun provideSettingsEventBus(): EventBus<ToolbarEvent> {
+    return RxBus.create()
+  }
+
+  @Provides
+  @JvmStatic
+  @Singleton
+  internal fun provideListEventBus(): EventBus<ShoppingEvent> {
+    return RxBus.create()
+  }
+
+}

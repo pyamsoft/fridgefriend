@@ -19,12 +19,10 @@ package com.pyamsoft.fridge.detail
 
 import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.detail.create.CreationModule
-import com.pyamsoft.fridge.detail.create.CreationScope
 import dagger.BindsInstance
 import dagger.Subcomponent
 import javax.inject.Named
 
-@CreationScope
 @Subcomponent(modules = [CreationModule::class])
 internal interface CreationComponent {
 

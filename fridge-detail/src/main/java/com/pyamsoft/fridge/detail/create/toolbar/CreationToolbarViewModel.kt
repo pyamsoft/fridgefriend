@@ -17,9 +17,11 @@
 
 package com.pyamsoft.fridge.detail.create.toolbar
 
-import com.pyamsoft.fridge.detail.create.CreationScope
-import com.pyamsoft.fridge.detail.create.toolbar.CreationToolbarPresenter.ToolbarState
-import com.pyamsoft.pydroid.arch.Presenter
+import com.pyamsoft.fridge.detail.create.toolbar.CreationToolbarHandler.ToolbarEvent
+import com.pyamsoft.fridge.detail.create.toolbar.CreationToolbarViewModel.ToolbarState
+import com.pyamsoft.pydroid.arch.UiEventHandler
+import com.pyamsoft.pydroid.arch.UiState
+import com.pyamsoft.pydroid.arch.UiViewModel
 import com.pyamsoft.pydroid.core.singleDisposable
 import com.pyamsoft.pydroid.core.tryDispose
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -27,19 +29,17 @@ import io.reactivex.schedulers.Schedulers
 import timber.log.Timber
 import javax.inject.Inject
 
-@CreationScope
-internal class CreationToolbarPresenter @Inject internal constructor(
+internal class CreationToolbarViewModel @Inject internal constructor(
+  private val handler: UiEventHandler<ToolbarEvent, CreationToolbar.Callback>,
   private val interactor: CreationToolbarInteractor
-) : Presenter<ToolbarState, CreationToolbarPresenter.Callback>(),
-  CreationToolbar.Callback {
+) : UiViewModel<ToolbarState>(
+  initialState = ToolbarState(isReal = false, throwable = null, isBack = false, isDelete = false)
+), CreationToolbar.Callback {
 
   private var deleteDisposable by singleDisposable()
 
-  override fun initialState(): ToolbarState {
-    return ToolbarState(isReal = false, throwable = null)
-  }
-
   override fun onBind() {
+    handler.handle(this).destroy()
     observeReal(false)
     listenForDelete()
   }
@@ -59,21 +59,27 @@ internal class CreationToolbarPresenter @Inject internal constructor(
   }
 
   private fun handleRealUpdated(real: Boolean) {
-    setState {
-      copy(isReal = real)
-    }
+    setState { copy(isReal = real) }
   }
 
   private fun listenForDelete() {
     interactor.listenForDeleted()
       .subscribeOn(Schedulers.io())
       .observeOn(AndroidSchedulers.mainThread())
-      .subscribe { callback.handleDeleted() }
+      .subscribe { handleDeleted() }
       .destroy()
   }
 
+  private fun handleDeleted() {
+    setState { copy(isDelete = true) }
+  }
+
   override fun onNavigationClicked() {
-    callback.handleBack()
+    handleBack()
+  }
+
+  private fun handleBack() {
+    setState { copy(isBack = true) }
   }
 
   override fun onDeleteClicked() {
@@ -88,21 +94,14 @@ internal class CreationToolbarPresenter @Inject internal constructor(
   }
 
   private fun handleError(throwable: Throwable) {
-    setState {
-      copy(throwable = throwable)
-    }
+    setState { copy(throwable = throwable) }
   }
 
   data class ToolbarState(
     val isReal: Boolean,
-    val throwable: Throwable?
-  )
-
-  interface Callback : Presenter.Callback<ToolbarState> {
-
-    fun handleBack()
-
-    fun handleDeleted()
-  }
+    val throwable: Throwable?,
+    val isBack: Boolean,
+    val isDelete: Boolean
+  ) : UiState
 
 }

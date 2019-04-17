@@ -19,18 +19,23 @@ package com.pyamsoft.fridge.detail.shop.list
 
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent
-import com.pyamsoft.fridge.detail.list.DetailListPresenter
-import com.pyamsoft.fridge.detail.shop.ShoppingScope
+import com.pyamsoft.fridge.detail.list.DetailListViewModel
+import com.pyamsoft.fridge.detail.shop.list.ShoppingListHandler.ShoppingEvent
+import com.pyamsoft.pydroid.arch.UiEventHandler
 import com.pyamsoft.pydroid.core.bus.EventBus
 import io.reactivex.Observable
 import io.reactivex.Single
 import javax.inject.Inject
 
-@ShoppingScope
-internal class ShoppingListPresenter @Inject internal constructor(
+internal class ShoppingListViewModel @Inject internal constructor(
   private val interactor: ShoppingListInteractor,
+  private val handler: UiEventHandler<ShoppingEvent, ShoppingList.Callback>,
   fakeRealtime: EventBus<FridgeItemChangeEvent>
-) : DetailListPresenter(fakeRealtime) {
+) : DetailListViewModel(fakeRealtime), ShoppingList.Callback {
+
+  override fun bindHandler() {
+    handler.handle(this).destroy()
+  }
 
   override fun getItems(force: Boolean): Single<List<FridgeItem>> {
     return interactor.getItems(force)

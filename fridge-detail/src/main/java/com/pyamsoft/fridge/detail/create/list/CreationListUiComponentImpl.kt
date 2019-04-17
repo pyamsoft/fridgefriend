@@ -22,5 +22,5 @@ import javax.inject.Inject
 
 internal class CreationListUiComponentImpl @Inject internal constructor(
   list: CreationList,
-  presenter: CreationListPresenter
+  presenter: CreationListViewModel
 ) : DetailListUiComponentImpl(list, presenter)

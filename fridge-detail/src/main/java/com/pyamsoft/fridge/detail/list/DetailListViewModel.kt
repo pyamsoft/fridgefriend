@@ -23,9 +23,10 @@ import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent.Delete
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent.Insert
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent.Update
-import com.pyamsoft.fridge.detail.list.DetailListPresenter.Callback
-import com.pyamsoft.fridge.detail.list.DetailListPresenter.DetailState
-import com.pyamsoft.pydroid.arch.Presenter
+import com.pyamsoft.fridge.detail.list.DetailListViewModel.DetailState
+import com.pyamsoft.fridge.detail.list.DetailListViewModel.DetailState.Loading
+import com.pyamsoft.pydroid.arch.UiState
+import com.pyamsoft.pydroid.arch.UiViewModel
 import com.pyamsoft.pydroid.core.bus.EventBus
 import com.pyamsoft.pydroid.core.singleDisposable
 import com.pyamsoft.pydroid.core.tryDispose
@@ -35,18 +36,15 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import timber.log.Timber
 
-internal abstract class DetailListPresenter protected constructor(
+internal abstract class DetailListViewModel protected constructor(
   protected val fakeRealtime: EventBus<FridgeItemChangeEvent>
-) : Presenter<DetailState, Callback>(),
-  DetailList.Callback {
+) : UiViewModel<DetailState>(
+  initialState = DetailState(isLoading = null, throwable = null, items = emptyList())
+), DetailList.Callback {
 
   private var refreshDisposable by singleDisposable()
   private var realtimeDisposable by singleDisposable()
   private var fakeRealtimeDisposable by singleDisposable()
-
-  final override fun initialState(): DetailState {
-    return DetailState(isLoading = false, throwable = null, items = emptyList())
-  }
 
   @CheckResult
   protected abstract fun getItems(force: Boolean): Single<List<FridgeItem>>
@@ -57,7 +55,10 @@ internal abstract class DetailListPresenter protected constructor(
   @CheckResult
   protected abstract fun getListItems(items: List<FridgeItem>): List<FridgeItem>
 
+  protected abstract fun bindHandler()
+
   final override fun onBind() {
+    bindHandler()
     refreshList(false)
   }
 
@@ -169,7 +170,7 @@ internal abstract class DetailListPresenter protected constructor(
 
   private fun handleListRefreshBegin() {
     setState {
-      copy(isLoading = true)
+      copy(isLoading = Loading(true))
     }
   }
 
@@ -187,16 +188,16 @@ internal abstract class DetailListPresenter protected constructor(
 
   private fun handleListRefreshComplete() {
     setState {
-      copy(isLoading = false)
+      copy(isLoading = Loading(false))
     }
   }
 
   data class DetailState(
-    val isLoading: Boolean,
+    val isLoading: Loading?,
     val throwable: Throwable?,
     val items: List<FridgeItem>
-  )
-
-  interface Callback : Presenter.Callback<DetailState>
+  ) : UiState {
+    data class Loading(val isLoading: Boolean)
+  }
 
 }

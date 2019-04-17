@@ -22,5 +22,5 @@ import javax.inject.Inject
 
 internal class ShoppingListUiComponentImpl @Inject internal constructor(
   list: ShoppingList,
-  presenter: ShoppingListPresenter
+  presenter: ShoppingListViewModel
 ) : DetailListUiComponentImpl(list, presenter)

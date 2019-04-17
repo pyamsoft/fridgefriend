@@ -25,6 +25,8 @@ import com.pyamsoft.fridge.db.DbProvider
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent
 import com.pyamsoft.fridge.db.room.RoomProvider
 import com.pyamsoft.fridge.detail.DetailComponent
+import com.pyamsoft.fridge.detail.create.CreateSingletonModule
+import com.pyamsoft.fridge.detail.shop.ShoppingSingletonModule
 import com.pyamsoft.fridge.entry.EntryComponent
 import com.pyamsoft.fridge.entry.EntrySingletonModule
 import com.pyamsoft.fridge.main.MainComponent
@@ -53,7 +55,9 @@ import javax.inject.Singleton
     RoomProvider::class,
     SettingSingletonModule::class,
     OcrSingletonModule::class,
-    EntrySingletonModule::class
+    EntrySingletonModule::class,
+    CreateSingletonModule::class,
+    ShoppingSingletonModule::class
   ]
 )
 internal interface FridgeComponent {
