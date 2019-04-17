@@ -29,7 +29,7 @@ import javax.inject.Inject
 internal class MainToolbarUiComponentImpl @Inject internal constructor(
   private val toolbar: MainToolbar,
   private val dropshadow: DropshadowView
-) : BaseUiComponent<MainToolbarUiComponent.Callback>(),
+) : BaseUiComponent<Callback>(),
   MainToolbarUiComponent {
 
   override fun id(): Int {

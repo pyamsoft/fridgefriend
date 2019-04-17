@@ -27,7 +27,6 @@ import dagger.Module
 import dagger.Provides
 import dagger.Subcomponent
 
-@MainScope
 @Subcomponent(modules = [MainProvider::class, MainModule::class])
 internal interface MainComponent {
 

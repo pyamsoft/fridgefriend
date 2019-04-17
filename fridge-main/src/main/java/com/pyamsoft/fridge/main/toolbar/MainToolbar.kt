@@ -23,7 +23,6 @@ import android.view.ViewGroup
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.ViewCompat
 import com.pyamsoft.fridge.main.R
-import com.pyamsoft.fridge.main.toolbar.MainToolbar.Callback
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.ui.app.ToolbarActivityProvider
 import com.pyamsoft.pydroid.ui.theme.Theming
@@ -35,9 +34,8 @@ internal class MainToolbar @Inject internal constructor(
   private val toolbarActivityProvider: ToolbarActivityProvider,
   private val theming: Theming,
   @Named("app_name") private val appNameRes: Int,
-  parent: ViewGroup,
-  callback: Callback
-) : BaseUiView<Callback>(parent, callback) {
+  parent: ViewGroup
+) : BaseUiView<Unit>(parent, Unit) {
 
   override val layout: Int = R.layout.main_toolbar
 
@@ -65,9 +63,5 @@ internal class MainToolbar @Inject internal constructor(
       ViewCompat.setElevation(this, 4f.toDp(context).toFloat())
       toolbarActivityProvider.setToolbar(this)
     }
-  }
-
-  interface Callback {
-
   }
 }
