@@ -18,6 +18,8 @@
 package com.pyamsoft.fridge.ocr
 
 import androidx.annotation.CheckResult
+import com.pyamsoft.fridge.ocr.OcrHandler.OcrEvent
+import com.pyamsoft.pydroid.arch.UiEventHandler
 import dagger.Binds
 import dagger.Module
 
@@ -26,10 +28,14 @@ abstract class OcrModule {
 
   @Binds
   @CheckResult
-  internal abstract fun bindScannerCallback(impl: OcrScannerBinder): OcrScannerView.Callback
+  internal abstract fun bindScannerCallback(impl: OcrHandler): OcrScannerView.Callback
 
   @Binds
   @CheckResult
   internal abstract fun bindScannerComponent(impl: OcrUiComponentImpl): OcrUiComponent
+
+  @Binds
+  @CheckResult
+  internal abstract fun bindToolbarHandler(impl: OcrHandler): UiEventHandler<OcrEvent, OcrScannerView.Callback>
 
 }

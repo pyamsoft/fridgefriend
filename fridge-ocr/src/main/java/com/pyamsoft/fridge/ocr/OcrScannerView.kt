@@ -20,6 +20,7 @@ package com.pyamsoft.fridge.ocr
 import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
+import com.pyamsoft.fridge.ocr.OcrScannerView.Callback
 import com.pyamsoft.pydroid.arch.BaseUiView
 import io.fotoapparat.Fotoapparat
 import io.fotoapparat.configuration.CameraConfiguration
@@ -32,8 +33,8 @@ import javax.inject.Inject
 
 internal class OcrScannerView @Inject internal constructor(
   parent: ViewGroup,
-  callback: OcrScannerView.Callback
-) : BaseUiView<OcrScannerView.Callback>(parent, callback) {
+  callback: Callback
+) : BaseUiView<Callback>(parent, callback) {
 
   override val layout: Int = R.layout.scanner
 

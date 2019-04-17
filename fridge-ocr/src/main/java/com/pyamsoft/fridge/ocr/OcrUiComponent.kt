@@ -21,8 +21,6 @@ import com.pyamsoft.pydroid.arch.UiComponent
 
 interface OcrUiComponent : UiComponent<OcrUiComponent.Callback> {
 
-  interface Callback {
-
-  }
+  interface Callback
 
 }

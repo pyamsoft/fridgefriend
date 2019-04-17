@@ -22,7 +22,6 @@ import com.pyamsoft.pydroid.ui.app.ToolbarActivity
 import dagger.BindsInstance
 import dagger.Subcomponent
 
-@SettingScope
 @Subcomponent(modules = [SettingModule::class])
 internal interface SettingComponent {
 

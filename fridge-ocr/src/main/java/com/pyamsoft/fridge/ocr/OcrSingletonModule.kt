@@ -15,9 +15,23 @@
  *
  */
 
-package com.pyamsoft.fridge.setting
+package com.pyamsoft.fridge.ocr
 
-import javax.inject.Scope
+import com.pyamsoft.fridge.ocr.OcrHandler.OcrEvent
+import com.pyamsoft.pydroid.core.bus.EventBus
+import com.pyamsoft.pydroid.core.bus.RxBus
+import dagger.Module
+import dagger.Provides
+import javax.inject.Singleton
 
-@Scope
-annotation class SettingScope
+@Module
+object OcrSingletonModule {
+
+  @Provides
+  @JvmStatic
+  @Singleton
+  internal fun provideOcrEventBus(): EventBus<OcrEvent> {
+    return RxBus.create()
+  }
+
+}

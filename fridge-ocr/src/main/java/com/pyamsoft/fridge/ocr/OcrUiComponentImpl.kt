@@ -25,17 +25,17 @@ import androidx.lifecycle.Lifecycle.Event.ON_STOP
 import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.OnLifecycleEvent
+import com.pyamsoft.fridge.ocr.OcrViewModel.OcrState
 import com.pyamsoft.pydroid.arch.BaseUiComponent
+import com.pyamsoft.pydroid.arch.renderOnChange
 import javax.inject.Inject
 
 internal class OcrUiComponentImpl @Inject internal constructor(
   private val lookingLabel: OcrLookingLabel,
   private val scanner: OcrScannerView,
-  private val binder: OcrScannerBinder
+  private val binder: OcrViewModel
 ) : BaseUiComponent<OcrUiComponent.Callback>(),
-  OcrUiComponent,
-  LifecycleObserver,
-  OcrScannerBinder.Callback {
+  OcrUiComponent, LifecycleObserver {
 
   private var lifecycleOwner: LifecycleOwner? = null
 
@@ -53,7 +53,24 @@ internal class OcrUiComponentImpl @Inject internal constructor(
 
     scanner.inflate(savedInstanceState)
     lookingLabel.inflate(savedInstanceState)
-    binder.bind(this)
+    binder.bind { state, oldState ->
+      renderOcrResult(state, oldState)
+      renderOcrError(state, oldState)
+    }
+  }
+
+  private fun renderOcrError(state: OcrState, oldState: OcrState?) {
+    state.renderOnChange(oldState, value = { it.throwable }) { throwable ->
+      if (throwable != null) {
+        // TODO
+      }
+    }
+  }
+
+  private fun renderOcrResult(state: OcrState, oldState: OcrState?) {
+    state.renderOnChange(oldState, value = { it.text }) { text ->
+      lookingLabel.lookingAt(text)
+    }
   }
 
   override fun onSaveState(outState: Bundle) {
@@ -71,16 +88,19 @@ internal class OcrUiComponentImpl @Inject internal constructor(
     }
   }
 
+  @Suppress("unused")
   @OnLifecycleEvent(ON_START)
   internal fun onStart() {
     scanner.start()
   }
 
+  @Suppress("unused")
   @OnLifecycleEvent(ON_STOP)
   internal fun onStop() {
     scanner.stop()
   }
 
+  @Suppress("unused")
   @OnLifecycleEvent(ON_DESTROY)
   internal fun onDestroy() {
     lifecycleOwner?.lifecycle?.removeObserver(this)
@@ -89,18 +109,6 @@ internal class OcrUiComponentImpl @Inject internal constructor(
     scanner.teardown()
     lookingLabel.teardown()
     binder.unbind()
-  }
-
-  override fun handleOcrResult(text: String) {
-    lookingLabel.lookingAt(text)
-  }
-
-  override fun handleCameraError(throwable: Throwable) {
-    // TODO
-  }
-
-  override fun handleOcrError(throwable: Throwable) {
-    // TODO
   }
 
 }

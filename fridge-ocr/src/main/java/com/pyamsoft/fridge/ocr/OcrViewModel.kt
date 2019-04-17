@@ -17,7 +17,9 @@
 
 package com.pyamsoft.fridge.ocr
 
-import com.pyamsoft.pydroid.arch.UiBinder
+import com.pyamsoft.fridge.ocr.OcrViewModel.OcrState
+import com.pyamsoft.pydroid.arch.UiState
+import com.pyamsoft.pydroid.arch.UiViewModel
 import com.pyamsoft.pydroid.core.singleDisposable
 import com.pyamsoft.pydroid.core.tryDispose
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -25,11 +27,11 @@ import io.reactivex.schedulers.Schedulers
 import timber.log.Timber
 import javax.inject.Inject
 
-@OcrScope
-internal class OcrScannerBinder @Inject internal constructor(
+internal class OcrViewModel @Inject internal constructor(
   private val interactor: OcrScannerInteractor
-) : UiBinder<OcrScannerBinder.Callback>(),
-  OcrScannerView.Callback {
+) : UiViewModel<OcrState>(
+  initialState = OcrState(text = "", throwable = null)
+), OcrScannerView.Callback {
 
   private var frameProcessDisposable by singleDisposable()
 
@@ -66,24 +68,26 @@ internal class OcrScannerBinder @Inject internal constructor(
       .subscribeOn(Schedulers.io())
       .observeOn(AndroidSchedulers.mainThread())
       .doAfterTerminate { frameProcessDisposable.tryDispose() }
-      .subscribe({ callback.handleOcrResult(it) }, {
+      .subscribe({ handleOcrResult(it) }, {
         Timber.e(it, "Error processing preview frame for text")
-        callback.handleOcrError(it)
+        handleError(it)
       })
   }
 
+  private fun handleOcrResult(text: String) {
+    setState { copy(text = text) }
+  }
+
   override fun onCameraError(throwable: Throwable) {
-    callback.handleCameraError(throwable)
+    handleError(throwable)
   }
 
-  interface Callback : UiBinder.Callback {
-
-    fun handleOcrResult(text: String)
-
-    fun handleOcrError(throwable: Throwable)
-
-    fun handleCameraError(throwable: Throwable)
-
+  private fun handleError(throwable: Throwable) {
+    setState { copy(throwable = throwable) }
   }
 
+  data class OcrState(
+    val text: String,
+    val throwable: Throwable?
+  ) : UiState
 }

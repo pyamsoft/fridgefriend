@@ -23,7 +23,6 @@ import dagger.BindsInstance
 import dagger.Subcomponent
 import javax.inject.Named
 
-@OcrScope
 @Subcomponent(modules = [OcrModule::class])
 internal interface OcrComponent {
 
