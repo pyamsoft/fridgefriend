@@ -28,14 +28,12 @@ import com.pyamsoft.fridge.db.item.FridgeItem.Presence
 import java.util.Date
 
 @Entity(
-  tableName = RoomFridgeItem.TABLE_NAME, foreignKeys = arrayOf(
-    ForeignKey(
-      entity = RoomFridgeEntry::class,
-      parentColumns = arrayOf(RoomFridgeEntry.COLUMN_ID),
-      childColumns = arrayOf(RoomFridgeItem.COLUMN_ENTRY_ID),
-      onDelete = ForeignKey.CASCADE
-    )
-  )
+  tableName = RoomFridgeItem.TABLE_NAME, foreignKeys = [ForeignKey(
+    entity = RoomFridgeEntry::class,
+    parentColumns = arrayOf(RoomFridgeEntry.COLUMN_ID),
+    childColumns = arrayOf(RoomFridgeItem.COLUMN_ENTRY_ID),
+    onDelete = ForeignKey.CASCADE
+  )]
 )
 internal data class RoomFridgeItem internal constructor(
   @field:[PrimaryKey ColumnInfo(name = COLUMN_ID)]
@@ -51,7 +49,10 @@ internal data class RoomFridgeItem internal constructor(
   val expireTime: Date,
 
   @field:ColumnInfo(name = COLUMN_PRESENCE)
-  val presence: Presence
+  val presence: Presence,
+
+  @field:ColumnInfo(name = COLUMN_ARCHIVED)
+  val archived: Boolean
 ) : FridgeItem {
 
   @Ignore
@@ -85,23 +86,43 @@ internal data class RoomFridgeItem internal constructor(
   }
 
   @Ignore
+  override fun isArchived(): Boolean {
+    return archived
+  }
+
+  @Ignore
   override fun name(name: String): FridgeItem {
-    return FridgeItem.create(this, name = name, isReal = isReal())
+    return FridgeItem.create(this, name = name, isReal = isReal(), isArchived = isArchived())
   }
 
   @Ignore
   override fun expireTime(expireTime: Date): FridgeItem {
-    return FridgeItem.create(this, expireTime = expireTime, isReal = isReal())
+    return FridgeItem.create(
+      this,
+      expireTime = expireTime,
+      isReal = isReal(),
+      isArchived = isArchived()
+    )
   }
 
   @Ignore
   override fun presence(presence: Presence): FridgeItem {
-    return FridgeItem.create(this, presence = presence, isReal = isReal())
+    return FridgeItem.create(
+      this,
+      presence = presence,
+      isReal = isReal(),
+      isArchived = isArchived()
+    )
   }
 
   @Ignore
   override fun makeReal(): FridgeItem {
-    return FridgeItem.create(this, isReal = isReal())
+    return FridgeItem.create(this, isReal = true, isArchived = isArchived())
+  }
+
+  @Ignore
+  override fun archive(): FridgeItem {
+    return FridgeItem.create(this, isReal = isReal(), isArchived = true)
   }
 
   companion object {
@@ -112,6 +133,7 @@ internal data class RoomFridgeItem internal constructor(
     @Ignore internal const val COLUMN_NAME = "name"
     @Ignore internal const val COLUMN_EXPIRE_TIME = "expire_time"
     @Ignore internal const val COLUMN_PRESENCE = "presence"
+    @Ignore internal const val COLUMN_ARCHIVED = "archived"
 
     @Ignore
     @JvmStatic
@@ -122,7 +144,8 @@ internal data class RoomFridgeItem internal constructor(
         item.entryId(),
         item.name(),
         item.expireTime(),
-        item.presence()
+        item.presence(),
+        item.isArchived()
       )
     }
   }

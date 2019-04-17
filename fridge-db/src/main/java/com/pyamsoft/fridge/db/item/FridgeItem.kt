@@ -42,6 +42,9 @@ interface FridgeItem {
   fun isReal(): Boolean
 
   @CheckResult
+  fun isArchived(): Boolean
+
+  @CheckResult
   fun name(name: String): FridgeItem
 
   @CheckResult
@@ -53,6 +56,9 @@ interface FridgeItem {
   @CheckResult
   fun makeReal(): FridgeItem
 
+  @CheckResult
+  fun archive(): FridgeItem
+
   enum class Presence {
     HAVE,
     NEED
@@ -62,7 +68,7 @@ interface FridgeItem {
 
     const val EMPTY_NAME = ""
     val EMPTY_EXPIRE_TIME = Date(0)
-    val DEFAULT_PRESENCE = Presence.NEED
+    private val DEFAULT_PRESENCE = Presence.NEED
 
     @CheckResult
     fun empty(): FridgeItem {
@@ -85,7 +91,15 @@ interface FridgeItem {
       presence: Presence,
       isReal: Boolean
     ): FridgeItem {
-      return JsonMappableFridgeItem(id, entryId, name, expireTime, presence, isReal)
+      return JsonMappableFridgeItem(
+        id,
+        entryId,
+        name,
+        expireTime,
+        presence,
+        isReal,
+        isArchived = false
+      )
     }
 
     @CheckResult
@@ -94,9 +108,18 @@ interface FridgeItem {
       name: String = item.name(),
       expireTime: Date = item.expireTime(),
       presence: Presence = item.presence(),
-      isReal: Boolean = false
+      isReal: Boolean,
+      isArchived: Boolean
     ): FridgeItem {
-      return JsonMappableFridgeItem(item.id(), item.entryId(), name, expireTime, presence, isReal)
+      return JsonMappableFridgeItem(
+        item.id(),
+        item.entryId(),
+        name,
+        expireTime,
+        presence,
+        isReal,
+        isArchived
+      )
     }
 
   }

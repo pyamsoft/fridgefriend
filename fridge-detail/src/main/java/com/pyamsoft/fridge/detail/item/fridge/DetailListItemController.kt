@@ -124,6 +124,12 @@ internal class DetailListItemController internal constructor(
       component.deleteSelf(item)
     }
 
+    // Kind of hacky
+    fun archiveSelf(item: FridgeItem) {
+      Timber.d("Archive self: $item")
+      component.archiveSelf(item)
+    }
+
     // Very hacky
     fun focus() {
       Timber.d("Request focus onto item")

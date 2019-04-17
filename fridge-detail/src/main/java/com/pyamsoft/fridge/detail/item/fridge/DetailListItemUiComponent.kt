@@ -25,6 +25,8 @@ internal interface DetailListItemUiComponent : UiComponent<Callback> {
 
   fun deleteSelf(item: FridgeItem)
 
+  fun archiveSelf(item: FridgeItem)
+
   fun requestFocus()
 
   interface Callback {

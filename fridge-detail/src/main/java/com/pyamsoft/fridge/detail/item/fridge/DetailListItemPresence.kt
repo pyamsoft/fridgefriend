@@ -40,7 +40,7 @@ internal class DetailListItemPresence @Inject internal constructor(
   private val presenceSwitch by lazyView<CompoundButton>(R.id.detail_item_presence_switch)
 
   override fun onInflated(view: View, savedInstanceState: Bundle?) {
-    presenceSwitch.isEnabled = item.isReal()
+    presenceSwitch.isEnabled = item.isReal() && !item.isArchived()
     presenceSwitch.isChecked = item.presence() == HAVE
     presenceSwitch.setOnCheckedChangeListener { _, isChecked ->
       commit(isChecked)
@@ -59,7 +59,7 @@ internal class DetailListItemPresence @Inject internal constructor(
 
   fun enable() {
     markReal()
-    presenceSwitch.isEnabled = item.isReal()
+    presenceSwitch.isEnabled = item.isReal() && !item.isArchived()
   }
 
   interface Callback : DetailListItem.Callback {

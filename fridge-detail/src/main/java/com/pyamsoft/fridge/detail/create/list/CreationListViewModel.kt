@@ -34,7 +34,7 @@ internal class CreationListViewModel @Inject internal constructor(
   private val handler: UiEventHandler<CreationEvent, CreationList.Callback>,
   @Named("detail_entry_id") private val entryId: String,
   fakeRealtime: EventBus<FridgeItemChangeEvent>
-) : DetailListViewModel(fakeRealtime),
+) : DetailListViewModel(fakeRealtime, filterArchived = true),
   CreationList.Callback {
 
   override fun bindHandler() {

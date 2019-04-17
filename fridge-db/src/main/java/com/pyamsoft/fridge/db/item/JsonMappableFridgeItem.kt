@@ -29,7 +29,8 @@ data class JsonMappableFridgeItem internal constructor(
   internal val name: String,
   internal val expireTime: Date,
   internal val presence: Presence,
-  internal val isReal: Boolean
+  internal val isReal: Boolean,
+  internal val isArchived: Boolean
 ) : FridgeItem {
 
   override fun id(): String {
@@ -56,6 +57,10 @@ data class JsonMappableFridgeItem internal constructor(
     return isReal
   }
 
+  override fun isArchived(): Boolean {
+    return isArchived
+  }
+
   override fun name(name: String): FridgeItem {
     return this.copy(name = name)
   }
@@ -72,6 +77,10 @@ data class JsonMappableFridgeItem internal constructor(
     return this.copy(isReal = true)
   }
 
+  override fun archive(): FridgeItem {
+    return this.copy(isArchived = true)
+  }
+
   companion object {
 
     @JvmStatic
@@ -83,7 +92,8 @@ data class JsonMappableFridgeItem internal constructor(
         item.name(),
         item.expireTime(),
         item.presence(),
-        item.isReal()
+        item.isReal(),
+        item.isArchived()
       )
     }
   }

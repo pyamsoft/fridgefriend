@@ -46,13 +46,17 @@ internal class DetailListItemStrikethrough @Inject internal constructor(
   private val errorMessage by lazyView<TextView>(R.id.detail_item_strikethrough_error)
 
   override fun onInflated(view: View, savedInstanceState: Bundle?) {
-    if (editable) {
+    if (editable && !item.isArchived()) {
       hide()
     } else {
-      if (item.presence() == HAVE) {
+      if (item.isArchived()) {
         show()
       } else {
-        hide()
+        if (item.presence() == HAVE) {
+          show()
+        } else {
+          hide()
+        }
       }
     }
   }

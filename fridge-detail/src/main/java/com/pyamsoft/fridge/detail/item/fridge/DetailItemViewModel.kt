@@ -203,6 +203,31 @@ internal class DetailItemViewModel @Inject internal constructor(
     }
   }
 
+  fun archiveSelf(item: FridgeItem) {
+    // Stop any pending updates
+    updateDisposable.tryDispose()
+
+    // If this item is not real, its an empty placeholder
+    // The user may still wish to delete it from their list
+    // in case they have too many placeholders.
+    // Directly call the realtime delete callback as if the
+    // delete had actually happened
+    if (!item.isReal()) {
+      Timber.w("Archive called on a non-real item: $item, fake callback")
+      handleFakeDelete(item)
+      return
+    }
+
+    deleteDisposable = interactor.archive(item)
+      .subscribeOn(Schedulers.io())
+      .observeOn(AndroidSchedulers.mainThread())
+      .doAfterTerminate { deleteDisposable.tryDispose() }
+      .subscribe({ }, {
+        Timber.e(it, "Error deleting item: ${item.id()}")
+        handleError(it)
+      })
+  }
+
   data class DetailState(
     val throwable: Throwable?,
     val isDone: Boolean,

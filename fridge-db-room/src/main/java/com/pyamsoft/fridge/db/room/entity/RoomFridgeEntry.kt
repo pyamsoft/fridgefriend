@@ -69,7 +69,7 @@ internal data class RoomFridgeEntry internal constructor(
 
   @Ignore
   override fun makeReal(): FridgeEntry {
-    return FridgeEntry.create(this, isReal = isReal())
+    return FridgeEntry.create(this, isReal = true)
   }
 
   companion object {

@@ -47,7 +47,7 @@ interface FridgeEntry {
   companion object {
 
     const val EMPTY_NAME = ""
-    val EMPTY_CREATED_TIME = Date(0)
+    private val EMPTY_CREATED_TIME = Date(0)
 
     @CheckResult
     fun empty(): FridgeEntry {
@@ -76,7 +76,7 @@ interface FridgeEntry {
       entry: FridgeEntry,
       name: String = entry.name(),
       createdTime: Date = entry.createdTime(),
-      isReal: Boolean = false
+      isReal: Boolean
     ): FridgeEntry {
       return JsonMappableFridgeEntry(entry.id(), name, createdTime, isReal)
     }

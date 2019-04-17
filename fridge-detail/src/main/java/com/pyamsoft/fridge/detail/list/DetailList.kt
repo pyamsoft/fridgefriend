@@ -107,28 +107,33 @@ internal abstract class DetailList protected constructor(
   }
 
   private fun setupSwipeCallback() {
+    val itemSwipeCallback = SimpleSwipeCallback.ItemSwipeCallback { position, direction ->
+      if (direction == ItemTouchHelper.LEFT || direction == ItemTouchHelper.RIGHT) {
+        if (direction == ItemTouchHelper.RIGHT) {
+          archiveListItem(position)
+        } else {
+          deleteListItem(position)
+        }
+      }
+    }
+    val directions = ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT
     val leftBehindDrawable =
       AppCompatResources.getDrawable(
         recyclerView.context,
         drawable.ic_delete_24dp
       )
-    val itemSwipeCallback = SimpleSwipeCallback.ItemSwipeCallback { position, direction ->
-      if (direction == ItemTouchHelper.LEFT || direction == ItemTouchHelper.RIGHT) {
-        deleteListItem(position)
-      }
-    }
-    val background = Color.RED
-    val directions = (
-        ItemTouchHelper.LEFT or
-            ItemTouchHelper.RIGHT or
-            ItemTouchHelper.DOWN or
-            ItemTouchHelper.UP
-        )
+    val leftBackground = Color.RED
+    val rightBehindDrawable =
+      AppCompatResources.getDrawable(
+        recyclerView.context,
+        drawable.ic_archive_24dp
+      )
+    val rightBackground = Color.GREEN
     val swipeCallback = object : SimpleSwipeCallback(
       itemSwipeCallback,
       leftBehindDrawable,
       directions,
-      background
+      leftBackground
     ) {
 
       override fun getMovementFlags(recyclerView: RecyclerView, viewHolder: ViewHolder): Int {
@@ -144,8 +149,8 @@ internal abstract class DetailList protected constructor(
         return super.getMovementFlags(recyclerView, viewHolder)
       }
     }.apply {
-      withBackgroundSwipeRight(background)
-      withLeaveBehindSwipeRight(leftBehindDrawable)
+      withBackgroundSwipeRight(rightBackground)
+      withLeaveBehindSwipeRight(rightBehindDrawable)
     }
 
     val helper = ItemTouchHelper(swipeCallback)
@@ -175,6 +180,10 @@ internal abstract class DetailList protected constructor(
 
   private fun deleteListItem(position: Int) {
     withViewHolderAt(position) { it.deleteSelf(usingAdapter().models[it.adapterPosition]) }
+  }
+
+  private fun archiveListItem(position: Int) {
+    withViewHolderAt(position) { it.archiveSelf(usingAdapter().models[it.adapterPosition]) }
   }
 
   private inline fun withViewHolderAt(

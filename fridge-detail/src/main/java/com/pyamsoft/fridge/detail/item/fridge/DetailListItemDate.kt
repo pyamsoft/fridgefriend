@@ -64,7 +64,7 @@ internal class DetailListItemDate @Inject internal constructor(
       yearView.setTextKeepState("$year".padStart(4, '0'))
     }
 
-    if (editable) {
+    if (editable && !item.isArchived()) {
       val watcher = object : TextWatcher {
         override fun afterTextChanged(s: Editable?) {
           commit()

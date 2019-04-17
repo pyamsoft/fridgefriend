@@ -101,4 +101,15 @@ internal class CreationListInteractor @Inject internal constructor(
       return deleteDao.delete(item)
     }
   }
+
+  @CheckResult
+  fun archive(item: FridgeItem): Completable {
+    if (!item.isReal()) {
+      Timber.w("Cannot archive item that is not real: [${item.id()}]: $item")
+      return Completable.complete()
+    } else {
+      Timber.d("Archiving item [${item.id()}]: $item")
+      return updateDao.update(item.archive())
+    }
+  }
 }

@@ -31,7 +31,7 @@ internal class ShoppingListViewModel @Inject internal constructor(
   private val interactor: ShoppingListInteractor,
   private val handler: UiEventHandler<ShoppingEvent, ShoppingList.Callback>,
   fakeRealtime: EventBus<FridgeItemChangeEvent>
-) : DetailListViewModel(fakeRealtime), ShoppingList.Callback {
+) : DetailListViewModel(fakeRealtime, filterArchived = false), ShoppingList.Callback {
 
   override fun bindHandler() {
     handler.handle(this).destroy()

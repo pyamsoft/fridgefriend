@@ -125,6 +125,10 @@ internal class DetailListItemUiComponentImpl @Inject internal constructor(
     viewModel.deleteSelf(item)
   }
 
+  override fun archiveSelf(item: FridgeItem) {
+    viewModel.archiveSelf(item)
+  }
+
   override fun requestFocus() {
     name.focus()
   }

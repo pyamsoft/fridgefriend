@@ -37,7 +37,8 @@ import io.reactivex.schedulers.Schedulers
 import timber.log.Timber
 
 internal abstract class DetailListViewModel protected constructor(
-  protected val fakeRealtime: EventBus<FridgeItemChangeEvent>
+  protected val fakeRealtime: EventBus<FridgeItemChangeEvent>,
+  private val filterArchived: Boolean
 ) : UiViewModel<DetailState>(
   initialState = DetailState(isLoading = null, throwable = null, items = emptyList())
 ), DetailList.Callback {
@@ -138,14 +139,26 @@ internal abstract class DetailListViewModel protected constructor(
       copy(items = items.let { list ->
         val newItems = list.toMutableList()
         insert(newItems, item)
-        return@let getListItems(newItems)
+        return@let getListItems(newItems.filterNot { filterArchived && it.isArchived() })
       })
     }
   }
 
   private fun handleRealtimeUpdate(item: FridgeItem) {
-    Timber.w("Realtime updated item: $item, but UI doesn't do anything.")
-    // Not a great user experience to constantly flicker on refresh
+    // Remove Archived items
+    if (item.isArchived()) {
+      setState {
+        copy(items = getListItems(items.map { old ->
+          if (old.id() == item.id()) {
+            return@map item
+          } else {
+            return@map old
+          }
+        }).filterNot { filterArchived && it.isArchived() })
+      }
+    } else {
+      Timber.w("Realtime updated item: $item, but UI doesn't do anything.")
+      // Not a great user experience to constantly flicker on refresh
 //    setState {
 //      copy(items = getListItems(items.map { old ->
 //        if (old.id() == item.id()) {
@@ -155,11 +168,16 @@ internal abstract class DetailListViewModel protected constructor(
 //        }
 //      }))
 //    }
+
+    }
   }
 
   private fun handleRealtimeDelete(item: FridgeItem) {
     setState {
-      copy(items = getListItems(items.filterNot { it.id() == item.id() }))
+      copy(items = getListItems(items
+        .filterNot { it.id() == item.id() }
+        .filterNot { filterArchived && it.isArchived() })
+      )
     }
   }
 
@@ -172,7 +190,10 @@ internal abstract class DetailListViewModel protected constructor(
   private fun handleListRefreshed(items: List<FridgeItem>) {
     Timber.d("Items list: $items")
     setState {
-      copy(items = getListItems(items), throwable = null)
+      copy(
+        items = getListItems(items.filterNot { filterArchived && it.isArchived() }),
+        throwable = null
+      )
     }
   }
 
