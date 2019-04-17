@@ -17,8 +17,7 @@
 
 package com.pyamsoft.fridge.entry
 
-import com.pyamsoft.fridge.entry.action.EntryActionCreateHandler.CreateEvent
-import com.pyamsoft.fridge.entry.action.EntryActionShopHandler.ShopEvent
+import com.pyamsoft.fridge.entry.action.EntryActionHandler.ActionEvent
 import com.pyamsoft.fridge.entry.list.EntryListHandler.ListEvent
 import com.pyamsoft.fridge.entry.toolbar.EntryToolbarHandler.ToolbarEvent
 import com.pyamsoft.pydroid.core.bus.EventBus
@@ -47,14 +46,7 @@ object EntrySingletonModule {
   @Provides
   @JvmStatic
   @Singleton
-  internal fun provideCreateEventBus(): EventBus<CreateEvent> {
-    return RxBus.create()
-  }
-
-  @Provides
-  @JvmStatic
-  @Singleton
-  internal fun provideShopEventBus(): EventBus<ShopEvent> {
+  internal fun provideActionEventBus(): EventBus<ActionEvent> {
     return RxBus.create()
   }
 

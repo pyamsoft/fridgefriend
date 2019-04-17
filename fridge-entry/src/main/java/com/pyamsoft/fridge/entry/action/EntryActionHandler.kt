@@ -17,9 +17,9 @@
 
 package com.pyamsoft.fridge.entry.action
 
-import com.pyamsoft.fridge.entry.action.EntryActionCreateHandler.CreateEvent
-import com.pyamsoft.fridge.entry.action.EntryActionCreateHandler.CreateEvent.Create
-import com.pyamsoft.fridge.entry.action.EntryCreate.Callback
+import com.pyamsoft.fridge.entry.action.EntryActionHandler.ActionEvent
+import com.pyamsoft.fridge.entry.action.EntryActionHandler.ActionEvent.Create
+import com.pyamsoft.fridge.entry.action.EntryActionHandler.ActionEvent.Shop
 import com.pyamsoft.pydroid.arch.UiEventHandler
 import com.pyamsoft.pydroid.core.bus.EventBus
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -27,28 +27,34 @@ import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import javax.inject.Inject
 
-internal class EntryActionCreateHandler @Inject internal constructor(
-  bus: EventBus<CreateEvent>
-) : UiEventHandler<CreateEvent, Callback>(bus),
-  Callback {
+internal class EntryActionHandler @Inject internal constructor(
+  bus: EventBus<ActionEvent>
+) : UiEventHandler<ActionEvent, EntryActionCallback>(bus),
+  EntryActionCallback {
 
   override fun onCreateClicked() {
     publish(Create)
   }
 
-  override fun handle(delegate: Callback): Disposable {
+  override fun onShopClicked() {
+    publish(Shop)
+  }
+
+  override fun handle(delegate: EntryActionCallback): Disposable {
     return listen()
       .subscribeOn(Schedulers.io())
       .observeOn(AndroidSchedulers.mainThread())
       .subscribe {
         return@subscribe when (it) {
           is Create -> delegate.onCreateClicked()
+          is Shop -> delegate.onShopClicked()
         }
       }
   }
 
-  sealed class CreateEvent {
-    object Create : CreateEvent()
+  sealed class ActionEvent {
+    object Create : ActionEvent()
+    object Shop : ActionEvent()
   }
 
 }

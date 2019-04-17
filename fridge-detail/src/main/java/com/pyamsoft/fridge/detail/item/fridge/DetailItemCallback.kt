@@ -15,12 +15,8 @@
  *
  */
 
-package com.pyamsoft.fridge.detail.shop.list
+package com.pyamsoft.fridge.detail.item.fridge
 
-import com.pyamsoft.fridge.detail.list.DetailListUiComponentImpl
-import javax.inject.Inject
-
-internal class ShoppingListUiComponentImpl @Inject internal constructor(
-  list: ShoppingList,
-  viewModel: ShoppingListViewModel
-) : DetailListUiComponentImpl(list, viewModel)
+internal interface DetailItemCallback : DetailListItemStrikethrough.Callback,
+  DetailListItemName.Callback, DetailListItemDate.Callback, DetailListItemPresence.Callback,
+  DetailListItem.Callback

@@ -17,8 +17,7 @@
 
 package com.pyamsoft.fridge.entry.action
 
-import com.pyamsoft.fridge.entry.action.EntryActionCreateHandler.CreateEvent
-import com.pyamsoft.fridge.entry.action.EntryActionShopHandler.ShopEvent
+import com.pyamsoft.fridge.entry.action.EntryActionHandler.ActionEvent
 import com.pyamsoft.fridge.entry.action.EntryActionViewModel.ActionState
 import com.pyamsoft.pydroid.arch.UiEventHandler
 import com.pyamsoft.pydroid.arch.UiState
@@ -31,18 +30,16 @@ import timber.log.Timber
 import javax.inject.Inject
 
 internal class EntryActionViewModel @Inject internal constructor(
-  private val createHandler: UiEventHandler<CreateEvent, EntryCreate.Callback>,
-  private val shopHandler: UiEventHandler<ShopEvent, EntryShop.Callback>,
+  private val handler: UiEventHandler<ActionEvent, EntryActionCallback>,
   private val interactor: EntryActionInteractor
 ) : UiViewModel<ActionState>(
   initialState = ActionState(throwable = null, isShopping = false, isCreating = "")
-), EntryCreate.Callback, EntryShop.Callback {
+), EntryActionCallback {
 
   private var createDisposable by singleDisposable()
 
   override fun onBind() {
-    createHandler.handle(this).destroy()
-    shopHandler.handle(this).destroy()
+    handler.handle(this).destroy()
   }
 
   override fun onUnbind() {

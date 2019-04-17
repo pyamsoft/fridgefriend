@@ -20,16 +20,17 @@ package com.pyamsoft.fridge.detail.item.add
 import android.os.Bundle
 import androidx.lifecycle.LifecycleOwner
 import com.pyamsoft.fridge.detail.item.add.AddNewItemUiComponent.Callback
+import com.pyamsoft.fridge.detail.item.add.AddNewItemViewModel.AddNewState
 import com.pyamsoft.pydroid.arch.BaseUiComponent
 import com.pyamsoft.pydroid.arch.doOnDestroy
+import com.pyamsoft.pydroid.arch.renderOnChange
 import javax.inject.Inject
 
 internal class AddNewItemUiComponentImpl @Inject internal constructor(
   private val itemView: AddNewItemView,
-  private val binder: AddNewItemBinder
-) : BaseUiComponent<AddNewItemUiComponent.Callback>(),
-  AddNewItemUiComponent,
-  AddNewItemBinder.Callback {
+  private val viewModel: AddNewItemViewModel
+) : BaseUiComponent<Callback>(),
+  AddNewItemUiComponent {
 
   override fun id(): Int {
     return itemView.id()
@@ -38,19 +39,28 @@ internal class AddNewItemUiComponentImpl @Inject internal constructor(
   override fun onBind(owner: LifecycleOwner, savedInstanceState: Bundle?, callback: Callback) {
     owner.doOnDestroy {
       itemView.teardown()
-      binder.unbind()
+      viewModel.unbind()
     }
 
     itemView.inflate(savedInstanceState)
-    binder.bind(this)
+    viewModel.bind { state, oldState ->
+      renderAddNew(state, oldState)
+    }
   }
 
   override fun onSaveState(outState: Bundle) {
     itemView.saveState(outState)
   }
 
-  override fun handleAddNewItem() {
-    callback.onAddNewItem()
+  private fun renderAddNew(
+    state: AddNewState,
+    oldState: AddNewState?
+  ) {
+    state.renderOnChange(oldState, value = { it.isAdding }) { adding ->
+      if (adding) {
+        callback.onAddNewItem()
+      }
+    }
   }
 
 }

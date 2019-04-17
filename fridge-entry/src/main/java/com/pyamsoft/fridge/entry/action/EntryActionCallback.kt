@@ -15,31 +15,6 @@
  *
  */
 
-package com.pyamsoft.fridge.detail.item.add
+package com.pyamsoft.fridge.entry.action
 
-import com.pyamsoft.fridge.detail.item.DetailItemScope
-import com.pyamsoft.pydroid.arch.UiBinder
-import javax.inject.Inject
-
-@DetailItemScope
-internal class AddNewItemBinder @Inject internal constructor(
-) : UiBinder<AddNewItemBinder.Callback>(),
-  AddNewItemView.Callback {
-
-  override fun onBind() {
-  }
-
-  override fun onUnbind() {
-  }
-
-  override fun onAddNewClicked() {
-    callback.handleAddNewItem()
-  }
-
-  interface Callback : UiBinder.Callback {
-
-    fun handleAddNewItem()
-
-  }
-
-}
+internal interface EntryActionCallback : EntryCreate.Callback, EntryShop.Callback

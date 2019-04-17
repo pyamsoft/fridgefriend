@@ -18,10 +18,9 @@
 package com.pyamsoft.fridge.entry
 
 import androidx.annotation.CheckResult
-import com.pyamsoft.fridge.entry.action.EntryActionCreateHandler
-import com.pyamsoft.fridge.entry.action.EntryActionCreateHandler.CreateEvent
-import com.pyamsoft.fridge.entry.action.EntryActionShopHandler
-import com.pyamsoft.fridge.entry.action.EntryActionShopHandler.ShopEvent
+import com.pyamsoft.fridge.entry.action.EntryActionCallback
+import com.pyamsoft.fridge.entry.action.EntryActionHandler
+import com.pyamsoft.fridge.entry.action.EntryActionHandler.ActionEvent
 import com.pyamsoft.fridge.entry.action.EntryActionUiComponent
 import com.pyamsoft.fridge.entry.action.EntryActionUiComponentImpl
 import com.pyamsoft.fridge.entry.action.EntryCreate
@@ -45,19 +44,19 @@ abstract class EntryModule {
 
   @Binds
   @CheckResult
-  internal abstract fun bindCreateCallback(impl: EntryActionCreateHandler): EntryCreate.Callback
+  internal abstract fun bindCreateCallback(impl: EntryActionCallback): EntryCreate.Callback
 
   @Binds
   @CheckResult
-  internal abstract fun bindCreateHandler(impl: EntryActionCreateHandler): UiEventHandler<CreateEvent, EntryCreate.Callback>
+  internal abstract fun bindShopCallback(impl: EntryActionCallback): EntryShop.Callback
 
   @Binds
   @CheckResult
-  internal abstract fun bindShopCallback(impl: EntryActionShopHandler): EntryShop.Callback
+  internal abstract fun bindActionCallback(impl: EntryActionHandler): EntryActionCallback
 
   @Binds
   @CheckResult
-  internal abstract fun bindShopHandler(impl: EntryActionShopHandler): UiEventHandler<ShopEvent, EntryShop.Callback>
+  internal abstract fun bindActionHandler(impl: EntryActionHandler): UiEventHandler<ActionEvent, EntryActionCallback>
 
   @Binds
   @CheckResult

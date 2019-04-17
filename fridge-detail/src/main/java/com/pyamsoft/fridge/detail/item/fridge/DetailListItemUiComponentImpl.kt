@@ -21,10 +21,11 @@ import android.os.Bundle
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.lifecycle.LifecycleOwner
 import com.pyamsoft.fridge.db.item.FridgeItem
-import com.pyamsoft.fridge.detail.item.fridge.DetailItemPresenter.DetailState
+import com.pyamsoft.fridge.detail.item.fridge.DetailItemViewModel.DetailState
 import com.pyamsoft.fridge.detail.item.fridge.DetailListItemUiComponent.Callback
 import com.pyamsoft.pydroid.arch.BaseUiComponent
 import com.pyamsoft.pydroid.arch.doOnDestroy
+import com.pyamsoft.pydroid.arch.renderOnChange
 import javax.inject.Inject
 
 internal class DetailListItemUiComponentImpl @Inject internal constructor(
@@ -32,10 +33,9 @@ internal class DetailListItemUiComponentImpl @Inject internal constructor(
   private val name: DetailListItemName,
   private val expireTime: DetailListItemDate,
   private val presence: DetailListItemPresence,
-  private val presenter: DetailItemPresenter
-) : BaseUiComponent<DetailListItemUiComponent.Callback>(),
-  DetailListItemUiComponent,
-  DetailItemPresenter.Callback {
+  private val viewModel: DetailItemViewModel
+) : BaseUiComponent<Callback>(),
+  DetailListItemUiComponent {
 
   override fun id(): Int {
     return strikethrough.id()
@@ -47,14 +47,17 @@ internal class DetailListItemUiComponentImpl @Inject internal constructor(
       name.teardown()
       expireTime.teardown()
       presence.teardown()
-      presenter.unbind()
+      viewModel.unbind()
     }
 
     presence.inflate(savedInstanceState)
     expireTime.inflate(savedInstanceState)
     name.inflate(savedInstanceState)
     strikethrough.inflate(savedInstanceState)
-    presenter.bind(this)
+    viewModel.bind { state, oldState ->
+      renderError(state, oldState)
+      renderLastDone(state, oldState)
+    }
   }
 
   override fun onLayout(set: ConstraintSet) {
@@ -88,28 +91,26 @@ internal class DetailListItemUiComponentImpl @Inject internal constructor(
     name.saveState(outState)
   }
 
-  override fun onRender(state: DetailState, oldState: DetailState?) {
-    renderError(state, oldState)
+  private fun renderError(state: DetailState, oldState: DetailState?) {
+    state.renderOnChange(oldState, value = { it.throwable }) { throwable ->
+      if (throwable == null) {
+        strikethrough.clearError()
+      } else {
+        strikethrough.showError(throwable)
+      }
+    }
   }
 
-  private fun renderError(state: DetailState, oldState: DetailState?) {
-    state.throwable.let { throwable ->
-      if (oldState == null || throwable != oldState.throwable) {
-        if (throwable == null) {
-          strikethrough.clearError()
-        } else {
-          strikethrough.showError(throwable)
-        }
+  private fun renderLastDone(state: DetailState, oldState: DetailState?) {
+    state.renderOnChange(oldState, value = { it.isDone }) { done ->
+      if (done) {
+        callback.onLastDoneClicked()
       }
     }
   }
 
   override fun deleteSelf(item: FridgeItem) {
-    presenter.deleteSelf(item)
-  }
-
-  override fun handleLastDoneClicked() {
-    callback.onLastDoneClicked()
+    viewModel.deleteSelf(item)
   }
 
   override fun requestFocus() {

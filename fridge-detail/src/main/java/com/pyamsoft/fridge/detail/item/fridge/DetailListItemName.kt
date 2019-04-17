@@ -52,7 +52,7 @@ internal class DetailListItemName @Inject internal constructor(
       val location = nonPersistedEditableStateMap[item.id()] ?: 0
       val restoreTo = Math.min(item.name().length, location)
       Timber.d("Restore edit text selection from storage map for: ${item.id()}: $restoreTo")
-      Timber.d("Name: ${item.name()} [${item.name().length}]")
+      Timber.d("CommitName: ${item.name()} [${item.name().length}]")
       nameView.setSelection(restoreTo)
       nonPersistedEditableStateMap.remove(item.id())
     }

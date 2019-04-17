@@ -23,12 +23,15 @@ import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent
 import com.pyamsoft.fridge.detail.create.list.CreationListInteractor
 import com.pyamsoft.fridge.detail.item.DetailItemComponent.DetailItemModule
-import com.pyamsoft.fridge.detail.item.add.AddNewItemBinder
+import com.pyamsoft.fridge.detail.item.add.AddNewItemHandler
+import com.pyamsoft.fridge.detail.item.add.AddNewItemHandler.AddNewEvent
 import com.pyamsoft.fridge.detail.item.add.AddNewItemUiComponent
 import com.pyamsoft.fridge.detail.item.add.AddNewItemUiComponentImpl
 import com.pyamsoft.fridge.detail.item.add.AddNewItemView
 import com.pyamsoft.fridge.detail.item.add.AddNewListItemController
-import com.pyamsoft.fridge.detail.item.fridge.DetailItemPresenter
+import com.pyamsoft.fridge.detail.item.fridge.DetailItemCallback
+import com.pyamsoft.fridge.detail.item.fridge.DetailItemHandler
+import com.pyamsoft.fridge.detail.item.fridge.DetailItemHandler.DetailItemEvent
 import com.pyamsoft.fridge.detail.item.fridge.DetailListItem
 import com.pyamsoft.fridge.detail.item.fridge.DetailListItemController
 import com.pyamsoft.fridge.detail.item.fridge.DetailListItemDate
@@ -37,13 +40,16 @@ import com.pyamsoft.fridge.detail.item.fridge.DetailListItemPresence
 import com.pyamsoft.fridge.detail.item.fridge.DetailListItemStrikethrough
 import com.pyamsoft.fridge.detail.item.fridge.DetailListItemUiComponent
 import com.pyamsoft.fridge.detail.item.fridge.DetailListItemUiComponentImpl
+import com.pyamsoft.pydroid.arch.UiEventHandler
 import com.pyamsoft.pydroid.core.bus.EventBus
+import com.pyamsoft.pydroid.core.bus.RxBus
 import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.ui.theme.Theming
 import dagger.Binds
 import dagger.BindsInstance
 import dagger.Component
 import dagger.Module
+import dagger.Provides
 import javax.inject.Named
 
 @DetailItemScope
@@ -76,23 +82,31 @@ internal interface DetailItemComponent {
 
     @Binds
     @CheckResult
-    internal abstract fun bindStrikeItemCallback(impl: DetailItemPresenter): DetailListItemStrikethrough.Callback
+    internal abstract fun bindStrikeItemCallback(impl: DetailItemCallback): DetailListItemStrikethrough.Callback
 
     @Binds
     @CheckResult
-    internal abstract fun bindNameItemCallback(impl: DetailItemPresenter): DetailListItemName.Callback
+    internal abstract fun bindNameItemCallback(impl: DetailItemCallback): DetailListItemName.Callback
 
     @Binds
     @CheckResult
-    internal abstract fun bindDateItemCallback(impl: DetailItemPresenter): DetailListItemDate.Callback
+    internal abstract fun bindDateItemCallback(impl: DetailItemCallback): DetailListItemDate.Callback
 
     @Binds
     @CheckResult
-    internal abstract fun bindPresenceItemCallback(impl: DetailItemPresenter): DetailListItemPresence.Callback
+    internal abstract fun bindPresenceItemCallback(impl: DetailItemCallback): DetailListItemPresence.Callback
 
     @Binds
     @CheckResult
-    internal abstract fun bindBaseItemCallback(impl: DetailItemPresenter): DetailListItem.Callback
+    internal abstract fun bindBaseItemCallback(impl: DetailItemCallback): DetailListItem.Callback
+
+    @Binds
+    @CheckResult
+    internal abstract fun bindItemCallback(impl: DetailItemHandler): DetailItemCallback
+
+    @Binds
+    @CheckResult
+    internal abstract fun bindItemHandler(impl: DetailItemHandler): UiEventHandler<DetailItemEvent, DetailItemCallback>
 
     @Binds
     @CheckResult
@@ -100,11 +114,33 @@ internal interface DetailItemComponent {
 
     @Binds
     @CheckResult
-    internal abstract fun bindAddNewCallback(impl: AddNewItemBinder): AddNewItemView.Callback
+    internal abstract fun bindAddNewCallback(impl: AddNewItemHandler): AddNewItemView.Callback
+
+    @Binds
+    @CheckResult
+    internal abstract fun bindAddNewHandler(impl: AddNewItemHandler): UiEventHandler<AddNewEvent, AddNewItemView.Callback>
 
     @Binds
     @CheckResult
     internal abstract fun bindAddNewComponent(impl: AddNewItemUiComponentImpl): AddNewItemUiComponent
+
+    @Module
+    companion object {
+
+      @Provides
+      @JvmStatic
+      @DetailItemScope
+      fun provideAddBus(): EventBus<AddNewEvent> {
+        return RxBus.create()
+      }
+
+      @Provides
+      @JvmStatic
+      @DetailItemScope
+      fun provideDetailItemBus(): EventBus<DetailItemEvent> {
+        return RxBus.create()
+      }
+    }
 
   }
 

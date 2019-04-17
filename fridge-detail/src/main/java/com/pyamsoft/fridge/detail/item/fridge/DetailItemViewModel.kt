@@ -23,9 +23,11 @@ import com.pyamsoft.fridge.db.item.FridgeItem.Presence
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent
 import com.pyamsoft.fridge.detail.DetailConstants
 import com.pyamsoft.fridge.detail.create.list.CreationListInteractor
-import com.pyamsoft.fridge.detail.item.DetailItemScope
-import com.pyamsoft.fridge.detail.item.fridge.DetailItemPresenter.DetailState
-import com.pyamsoft.pydroid.arch.Presenter
+import com.pyamsoft.fridge.detail.item.fridge.DetailItemHandler.DetailItemEvent
+import com.pyamsoft.fridge.detail.item.fridge.DetailItemViewModel.DetailState
+import com.pyamsoft.pydroid.arch.UiEventHandler
+import com.pyamsoft.pydroid.arch.UiState
+import com.pyamsoft.pydroid.arch.UiViewModel
 import com.pyamsoft.pydroid.core.bus.EventBus
 import com.pyamsoft.pydroid.core.singleDisposable
 import com.pyamsoft.pydroid.core.tryDispose
@@ -36,25 +38,19 @@ import timber.log.Timber
 import java.util.Calendar
 import javax.inject.Inject
 
-@DetailItemScope
-internal class DetailItemPresenter @Inject internal constructor(
+internal class DetailItemViewModel @Inject internal constructor(
+  private val handler: UiEventHandler<DetailItemEvent, DetailItemCallback>,
   private val interactor: CreationListInteractor,
   private val fakeRealtime: EventBus<FridgeItemChangeEvent>
-) : Presenter<DetailState, DetailItemPresenter.Callback>(),
-  DetailListItemStrikethrough.Callback,
-  DetailListItemName.Callback,
-  DetailListItemDate.Callback,
-  DetailListItemPresence.Callback,
-  DetailListItem.Callback {
+) : UiViewModel<DetailState>(
+  initialState = DetailState(throwable = null, isDone = false)
+), DetailItemCallback {
 
   private var updateDisposable by singleDisposable()
   private var deleteDisposable by singleDisposable()
 
-  override fun initialState(): DetailState {
-    return DetailState(throwable = null)
-  }
-
   override fun onBind() {
+    handler.handle(this).destroy()
   }
 
   override fun onUnbind() {
@@ -167,7 +163,7 @@ internal class DetailItemPresenter @Inject internal constructor(
   }
 
   private fun handleInvalidName(name: String) {
-    setFixMessage("ERROR: Name $name is invalid. Please fix.")
+    setFixMessage("ERROR: CommitName $name is invalid. Please fix.")
   }
 
   private fun handleInvalidDate(year: Int, month: Int, day: Int) {
@@ -191,15 +187,11 @@ internal class DetailItemPresenter @Inject internal constructor(
   }
 
   override fun onLastDoneClicked() {
-    callback.handleLastDoneClicked()
+    setUniqueState(true, old = { it.isDone }) { state, value ->
+      state.copy(isDone = value)
+    }
   }
 
-  data class DetailState(val throwable: Throwable?)
-
-  interface Callback : Presenter.Callback<DetailState> {
-
-    fun handleLastDoneClicked()
-
-  }
+  data class DetailState(val throwable: Throwable?, val isDone: Boolean) : UiState
 
 }
