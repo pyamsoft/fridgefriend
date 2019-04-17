@@ -19,6 +19,8 @@ package com.pyamsoft.fridge.entry.list
 
 import android.os.Bundle
 import androidx.lifecycle.LifecycleOwner
+import com.popinnow.android.refresh.RefreshLatch
+import com.popinnow.android.refresh.newRefreshLatch
 import com.pyamsoft.fridge.entry.list.EntryListUiComponent.Callback
 import com.pyamsoft.fridge.entry.list.EntryListViewModel.EntryState
 import com.pyamsoft.pydroid.arch.BaseUiComponent
@@ -33,6 +35,8 @@ internal class EntryListUiComponentImpl @Inject internal constructor(
 ) : BaseUiComponent<Callback>(),
   EntryListUiComponent {
 
+  private lateinit var refreshLatch: RefreshLatch
+
   override fun id(): Int {
     throw InvalidIdException
   }
@@ -41,6 +45,14 @@ internal class EntryListUiComponentImpl @Inject internal constructor(
     owner.doOnDestroy {
       listView.teardown()
       viewModel.unbind()
+    }
+
+    refreshLatch = newRefreshLatch(owner) { refreshing ->
+      if (refreshing) {
+        listView.beginRefresh()
+      } else {
+        listView.finishRefresh()
+      }
     }
 
     listView.inflate(savedInstanceState)
@@ -59,11 +71,7 @@ internal class EntryListUiComponentImpl @Inject internal constructor(
   private fun renderLoading(state: EntryState, oldState: EntryState?) {
     state.renderOnChange(oldState, value = { it.isLoading }) { loading ->
       if (loading != null) {
-        if (loading.isLoading) {
-          listView.beginRefresh()
-        } else {
-          listView.finishRefresh()
-        }
+        refreshLatch.isRefreshing = loading.isLoading
       }
     }
   }

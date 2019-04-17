@@ -19,6 +19,8 @@ package com.pyamsoft.fridge.detail.list
 
 import android.os.Bundle
 import androidx.lifecycle.LifecycleOwner
+import com.popinnow.android.refresh.RefreshLatch
+import com.popinnow.android.refresh.newRefreshLatch
 import com.pyamsoft.fridge.detail.list.DetailListUiComponent.Callback
 import com.pyamsoft.fridge.detail.list.DetailListViewModel.DetailState
 import com.pyamsoft.pydroid.arch.BaseUiComponent
@@ -31,6 +33,8 @@ internal abstract class DetailListUiComponentImpl protected constructor(
 ) : BaseUiComponent<Callback>(),
   DetailListUiComponent {
 
+  private lateinit var refreshLatch: RefreshLatch
+
   override fun id(): Int {
     return list.id()
   }
@@ -39,6 +43,14 @@ internal abstract class DetailListUiComponentImpl protected constructor(
     owner.doOnDestroy {
       list.teardown()
       viewModel.unbind()
+    }
+
+    refreshLatch = newRefreshLatch(owner) { refreshing ->
+      if (refreshing) {
+        list.beginRefresh()
+      } else {
+        list.finishRefresh()
+      }
     }
 
     list.inflate(savedInstanceState)
@@ -56,11 +68,7 @@ internal abstract class DetailListUiComponentImpl protected constructor(
   private fun renderLoading(state: DetailState, oldState: DetailState?) {
     state.renderOnChange(oldState, value = { it.isLoading }) { loading ->
       if (loading != null) {
-        if (loading.isLoading) {
-          list.beginRefresh()
-        } else {
-          list.finishRefresh()
-        }
+        refreshLatch.isRefreshing = loading.isLoading
       }
     }
   }
