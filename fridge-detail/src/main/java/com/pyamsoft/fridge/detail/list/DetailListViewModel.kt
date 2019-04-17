@@ -175,6 +175,7 @@ internal abstract class DetailListViewModel protected constructor(
   }
 
   private fun handleListRefreshed(items: List<FridgeItem>) {
+    Timber.d("Items list: $items")
     setState {
       copy(items = getListItems(items), throwable = null)
     }
