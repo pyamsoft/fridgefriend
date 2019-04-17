@@ -21,7 +21,6 @@ import com.pyamsoft.fridge.detail.list.DetailList.Callback
 import com.pyamsoft.fridge.detail.list.DetailListHandler.ListEvent
 import com.pyamsoft.pydroid.arch.UiEventHandler
 import com.pyamsoft.pydroid.core.bus.EventBus
-import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 
@@ -32,7 +31,7 @@ internal abstract class DetailListHandler<E : ListEvent, C : Callback> protected
   override fun handle(delegate: C): Disposable {
     return listen()
       .subscribeOn(Schedulers.io())
-      .observeOn(AndroidSchedulers.mainThread())
+      .observeOn(Schedulers.io())
       .subscribe { handleEvent(it, delegate) }
   }
 

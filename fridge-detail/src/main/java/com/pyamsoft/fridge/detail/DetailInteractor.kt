@@ -28,6 +28,7 @@ import com.pyamsoft.pydroid.core.threads.Enforcer
 import io.reactivex.Maybe
 import io.reactivex.Observable
 import io.reactivex.Single
+import timber.log.Timber
 import java.util.Date
 
 internal abstract class DetailInteractor protected constructor(
@@ -40,6 +41,7 @@ internal abstract class DetailInteractor protected constructor(
   protected fun getEntryForId(entryId: String, force: Boolean): Maybe<FridgeEntry> {
     return queryDao.queryAll(force)
       .flatMapObservable {
+        Timber.d("Got entries: $it")
         enforcer.assertNotOnMainThread()
         return@flatMapObservable Observable.fromIterable(it)
       }
@@ -60,8 +62,10 @@ internal abstract class DetailInteractor protected constructor(
       .flatMap {
         enforcer.assertNotOnMainThread()
         if (it is Present) {
+          Timber.d("Entry exists, ignore: ${it.value.id()}")
           return@flatMap Single.just(it.value)
         } else {
+          Timber.d("Create entry: $entryId")
           val entry = FridgeEntry.create(entryId, name, createdTime, isReal = true)
           return@flatMap insertDao.insert(entry)
             .andThen(Single.just(entry))

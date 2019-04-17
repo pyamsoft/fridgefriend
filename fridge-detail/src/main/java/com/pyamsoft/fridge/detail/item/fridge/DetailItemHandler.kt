@@ -26,7 +26,6 @@ import com.pyamsoft.fridge.detail.item.fridge.DetailItemHandler.DetailItemEvent.
 import com.pyamsoft.fridge.detail.item.fridge.DetailItemHandler.DetailItemEvent.LastDone
 import com.pyamsoft.pydroid.arch.UiEventHandler
 import com.pyamsoft.pydroid.core.bus.EventBus
-import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import javax.inject.Inject
@@ -55,7 +54,7 @@ internal class DetailItemHandler @Inject internal constructor(
   override fun handle(delegate: DetailItemCallback): Disposable {
     return listen()
       .subscribeOn(Schedulers.io())
-      .observeOn(AndroidSchedulers.mainThread())
+      .observeOn(Schedulers.io())
       .subscribe {
         return@subscribe when (it) {
           is CommitName -> delegate.commitName(it.oldItem, it.name)

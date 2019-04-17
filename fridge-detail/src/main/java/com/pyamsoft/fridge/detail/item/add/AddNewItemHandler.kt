@@ -22,7 +22,6 @@ import com.pyamsoft.fridge.detail.item.add.AddNewItemHandler.AddNewEvent.Add
 import com.pyamsoft.fridge.detail.item.add.AddNewItemView.Callback
 import com.pyamsoft.pydroid.arch.UiEventHandler
 import com.pyamsoft.pydroid.core.bus.EventBus
-import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import javax.inject.Inject
@@ -38,7 +37,7 @@ internal class AddNewItemHandler @Inject internal constructor(
   override fun handle(delegate: Callback): Disposable {
     return listen()
       .subscribeOn(Schedulers.io())
-      .observeOn(AndroidSchedulers.mainThread())
+      .observeOn(Schedulers.io())
       .subscribe {
         return@subscribe when (it) {
           is Add -> delegate.onAddNewClicked()
