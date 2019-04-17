@@ -29,7 +29,7 @@ import io.reactivex.Maybe
 import io.reactivex.Observable
 import io.reactivex.Single
 import timber.log.Timber
-import java.util.Date
+import java.util.Calendar
 
 internal abstract class DetailInteractor protected constructor(
   protected val enforcer: Enforcer,
@@ -53,8 +53,7 @@ internal abstract class DetailInteractor protected constructor(
   @JvmOverloads
   protected fun guaranteeEntryExists(
     entryId: String,
-    name: String = FridgeEntry.EMPTY_NAME,
-    createdTime: Date = Date(0)
+    name: String = FridgeEntry.EMPTY_NAME
   ): Single<FridgeEntry> {
     return getEntryForId(entryId, false)
       .map { it.asOptional() }
@@ -65,7 +64,8 @@ internal abstract class DetailInteractor protected constructor(
           Timber.d("Entry exists, ignore: ${it.value.id()}")
           return@flatMap Single.just(it.value)
         } else {
-          Timber.d("Create entry: $entryId")
+          val createdTime = Calendar.getInstance().time
+          Timber.d("Create entry: $entryId at $createdTime")
           val entry = FridgeEntry.create(entryId, name, createdTime, isReal = true)
           return@flatMap insertDao.insert(entry)
             .andThen(Single.just(entry))
