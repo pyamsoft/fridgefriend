@@ -22,10 +22,17 @@ import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.pydroid.arch.BaseUiView
 
 internal abstract class DetailListItem<C : DetailListItem.Callback> protected constructor(
-  protected val item: FridgeItem,
+  item: FridgeItem,
   parent: ViewGroup,
   callback: C
 ) : BaseUiView<C>(parent, callback) {
+
+  protected var item: FridgeItem = item
+    private set
+
+  protected fun markReal() {
+    item = item.makeReal()
+  }
 
   interface Callback
 

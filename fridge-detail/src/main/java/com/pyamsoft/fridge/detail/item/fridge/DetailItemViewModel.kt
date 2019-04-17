@@ -43,7 +43,7 @@ internal class DetailItemViewModel @Inject internal constructor(
   private val interactor: CreationListInteractor,
   private val fakeRealtime: EventBus<FridgeItemChangeEvent>
 ) : UiViewModel<DetailState>(
-  initialState = DetailState(throwable = null, isDone = false)
+  initialState = DetailState(throwable = null, isDone = false, isReal = false)
 ), DetailItemCallback {
 
   private var updateDisposable by singleDisposable()
@@ -123,10 +123,18 @@ internal class DetailItemViewModel @Inject internal constructor(
       .subscribeOn(Schedulers.io())
       .observeOn(AndroidSchedulers.mainThread())
       .doAfterTerminate { updateDisposable.tryDispose() }
-      .subscribe({ handleClearFixMessage() }, {
+      .subscribe({
+        handleMarkReal()
+        handleClearFixMessage()
+      }, {
         Timber.e(it, "Error updating item: ${item.id()}")
         handleError(it)
       })
+  }
+
+  private fun handleMarkReal() {
+    Timber.d("Item created, mark real")
+    setState { copy(isReal = true) }
   }
 
   fun deleteSelf(item: FridgeItem) {
@@ -155,7 +163,10 @@ internal class DetailItemViewModel @Inject internal constructor(
   }
 
   private fun handleFakeCommit(item: FridgeItem) {
-    buffer { fakeRealtime.publish(FridgeItemChangeEvent.Insert(item)) }
+    // Makes for a wacky user experience
+    // fakeRealtime.publish(FridgeItemChangeEvent.Insert(item))
+    Timber.w("Not ready to commit item yet: $item")
+    handleClearFixMessage()
   }
 
   private fun handleFakeDelete(item: FridgeItem) {
@@ -163,20 +174,11 @@ internal class DetailItemViewModel @Inject internal constructor(
   }
 
   private fun handleInvalidName(name: String) {
-    buffer { setFixMessage("ERROR: Name $name is invalid. Please fix.") }
+    setFixMessage("ERROR: Name $name is invalid. Please fix.")
   }
 
   private fun handleInvalidDate(year: Int, month: Int, day: Int) {
-    buffer { setFixMessage("ERROR: Date $month/$day/$year is invalid. Please fix.") }
-  }
-
-  private inline fun buffer(crossinline func: () -> Unit) {
-    updateDisposable = Completable.complete()
-      .delay(DetailConstants.COMMIT_TIMEOUT_DURATION, DetailConstants.COMMIT_TIMEOUT_UNIT)
-      .subscribeOn(Schedulers.io())
-      .observeOn(AndroidSchedulers.mainThread())
-      .doAfterTerminate { updateDisposable.tryDispose() }
-      .subscribe { func() }
+    setFixMessage("ERROR: Date $month/$day/$year is invalid. Please fix.")
   }
 
   private fun handleError(throwable: Throwable) {
@@ -201,6 +203,10 @@ internal class DetailItemViewModel @Inject internal constructor(
     }
   }
 
-  data class DetailState(val throwable: Throwable?, val isDone: Boolean) : UiState
+  data class DetailState(
+    val throwable: Throwable?,
+    val isDone: Boolean,
+    val isReal: Boolean
+  ) : UiState
 
 }

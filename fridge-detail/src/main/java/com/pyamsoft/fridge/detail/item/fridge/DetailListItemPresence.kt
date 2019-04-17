@@ -57,6 +57,11 @@ internal class DetailListItemPresence @Inject internal constructor(
     callback.commitPresence(item, if (isChecked) HAVE else NEED)
   }
 
+  fun enable() {
+    markReal()
+    presenceSwitch.isEnabled = item.isReal()
+  }
+
   interface Callback : DetailListItem.Callback {
 
     fun commitPresence(oldItem: FridgeItem, presence: Presence)

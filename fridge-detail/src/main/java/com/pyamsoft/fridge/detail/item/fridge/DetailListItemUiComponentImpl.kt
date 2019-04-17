@@ -57,6 +57,7 @@ internal class DetailListItemUiComponentImpl @Inject internal constructor(
     viewModel.bind { state, oldState ->
       renderError(state, oldState)
       renderLastDone(state, oldState)
+      renderReal(state, oldState)
     }
   }
 
@@ -105,6 +106,17 @@ internal class DetailListItemUiComponentImpl @Inject internal constructor(
     state.renderOnChange(oldState, value = { it.isDone }) { done ->
       if (done) {
         callback.onLastDoneClicked()
+      }
+    }
+  }
+
+  private fun renderReal(
+    state: DetailState,
+    oldState: DetailState?
+  ) {
+    state.renderOnChange(oldState, value = {it.isReal}) { real ->
+      if (real) {
+        presence.enable()
       }
     }
   }
