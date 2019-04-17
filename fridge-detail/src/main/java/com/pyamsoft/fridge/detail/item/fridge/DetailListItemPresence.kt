@@ -26,13 +26,14 @@ import com.pyamsoft.fridge.db.item.FridgeItem.Presence
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence.HAVE
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence.NEED
 import com.pyamsoft.fridge.detail.R
+import com.pyamsoft.fridge.detail.item.fridge.DetailListItemPresence.Callback
 import javax.inject.Inject
 
 internal class DetailListItemPresence @Inject internal constructor(
   item: FridgeItem,
   parent: ViewGroup,
-  callback: DetailListItemPresence.Callback
-) : DetailListItem<DetailListItemPresence.Callback>(item, parent, callback) {
+  callback: Callback
+) : DetailListItem<Callback>(item, parent, callback) {
 
   override val layout: Int = R.layout.detail_list_item_presence
 
@@ -40,7 +41,7 @@ internal class DetailListItemPresence @Inject internal constructor(
   private val presenceSwitch by lazyView<CompoundButton>(R.id.detail_item_presence_switch)
 
   override fun onInflated(view: View, savedInstanceState: Bundle?) {
-    presenceSwitch.isEnabled = item.isReal() && !item.isArchived()
+    setSwitchEnabled()
     presenceSwitch.isChecked = item.presence() == HAVE
     presenceSwitch.setOnCheckedChangeListener { _, isChecked ->
       commit(isChecked)
@@ -53,13 +54,16 @@ internal class DetailListItemPresence @Inject internal constructor(
     presenceSwitch.isChecked = false
   }
 
-  private fun commit(isChecked: Boolean) {
-    callback.commitPresence(item, if (isChecked) HAVE else NEED)
+  override fun onMadeReal() {
+    setSwitchEnabled()
   }
 
-  fun enable() {
-    markReal()
+  private fun setSwitchEnabled() {
     presenceSwitch.isEnabled = item.isReal() && !item.isArchived()
+  }
+
+  private fun commit(isChecked: Boolean) {
+    callback.commitPresence(item, if (isChecked) HAVE else NEED)
   }
 
   interface Callback : DetailListItem.Callback {

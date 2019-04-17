@@ -43,7 +43,7 @@ internal class DetailItemViewModel @Inject internal constructor(
   private val interactor: CreationListInteractor,
   private val fakeRealtime: EventBus<FridgeItemChangeEvent>
 ) : UiViewModel<DetailState>(
-  initialState = DetailState(throwable = null, isDone = false, isReal = false)
+  initialState = DetailState(throwable = null, isDone = false, isReal = null)
 ), DetailItemCallback {
 
   private var updateDisposable by singleDisposable()
@@ -124,7 +124,7 @@ internal class DetailItemViewModel @Inject internal constructor(
       .observeOn(AndroidSchedulers.mainThread())
       .doAfterTerminate { updateDisposable.tryDispose() }
       .subscribe({
-        handleMarkReal()
+        handleMarkReal(item)
         handleClearFixMessage()
       }, {
         Timber.e(it, "Error updating item: ${item.id()}")
@@ -132,9 +132,11 @@ internal class DetailItemViewModel @Inject internal constructor(
       })
   }
 
-  private fun handleMarkReal() {
-    Timber.d("Item created, mark real")
-    setState { copy(isReal = true) }
+  private fun handleMarkReal(item: FridgeItem) {
+    if (!item.isReal()) {
+      Timber.d("Item created, mark real")
+      setState { copy(isReal = item.makeReal()) }
+    }
   }
 
   fun deleteSelf(item: FridgeItem) {
@@ -231,7 +233,7 @@ internal class DetailItemViewModel @Inject internal constructor(
   data class DetailState(
     val throwable: Throwable?,
     val isDone: Boolean,
-    val isReal: Boolean
+    val isReal: FridgeItem?
   ) : UiState
 
 }

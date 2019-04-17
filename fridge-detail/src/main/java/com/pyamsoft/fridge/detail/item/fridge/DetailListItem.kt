@@ -30,9 +30,12 @@ internal abstract class DetailListItem<C : DetailListItem.Callback> protected co
   protected var item: FridgeItem = item
     private set
 
-  protected fun markReal() {
-    item = item.makeReal()
+  fun makeReal(real: FridgeItem) {
+    this.item = real
+    onMadeReal()
   }
+
+  protected abstract fun onMadeReal()
 
   interface Callback
 

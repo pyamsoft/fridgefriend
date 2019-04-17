@@ -87,6 +87,10 @@ internal class DetailListItemName @Inject internal constructor(
     nameView.text.clear()
   }
 
+  override fun onMadeReal() {
+
+  }
+
   private fun commit() {
     saveEditingState()
     val name = nameView.text.toString()

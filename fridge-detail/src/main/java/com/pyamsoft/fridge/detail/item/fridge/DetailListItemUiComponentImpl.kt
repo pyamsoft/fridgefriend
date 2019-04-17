@@ -114,9 +114,13 @@ internal class DetailListItemUiComponentImpl @Inject internal constructor(
     state: DetailState,
     oldState: DetailState?
   ) {
-    state.renderOnChange(oldState, value = {it.isReal}) { real ->
-      if (real) {
-        presence.enable()
+    state.renderOnChange(oldState, value = { it.isReal }) { real ->
+      if (real != null) {
+        name.makeReal(real)
+        expireTime.makeReal(real)
+        presence.makeReal(real)
+        strikethrough.makeReal(real)
+        callback.onMadeReal(real)
       }
     }
   }

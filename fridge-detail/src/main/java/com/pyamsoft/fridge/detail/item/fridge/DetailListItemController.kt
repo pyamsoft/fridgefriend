@@ -63,7 +63,18 @@ internal class DetailListItemController internal constructor(
 
   override fun bindView(holder: ViewHolder, payloads: MutableList<Any>) {
     super.bindView(holder, payloads)
-    holder.bind(model, canSwipe(), callback)
+    holder.bind(model, canSwipe(), object : ViewHolderCallback {
+
+      override fun onMadeReal(item: FridgeItem) {
+        Timber.d("We are real now, rebind!")
+        withModel(item)
+      }
+
+      override fun onLastDoneClicked(position: Int) {
+        callback.onLastDoneClicked(position)
+      }
+
+    })
   }
 
   override fun unbindView(holder: ViewHolder) {
@@ -81,13 +92,17 @@ internal class DetailListItemController internal constructor(
     private val parent: ConstraintLayout = itemView.findViewById(R.id.listitem_constraint)
 
     private var lifecycle: ListItemLifecycle? = null
-    private var callback: Callback? = null
+    private var callback: ViewHolderCallback? = null
 
     override fun onLastDoneClicked() {
       requireNotNull(callback).onLastDoneClicked(layoutPosition)
     }
 
-    fun bind(item: FridgeItem, editable: Boolean, cb: Callback) {
+    override fun onMadeReal(real: FridgeItem) {
+      requireNotNull(callback).onMadeReal(real)
+    }
+
+    fun bind(item: FridgeItem, editable: Boolean, cb: ViewHolderCallback) {
       callback = cb
       lifecycle?.unbind()
 
@@ -135,6 +150,12 @@ internal class DetailListItemController internal constructor(
       Timber.d("Request focus onto item")
       component.requestFocus()
     }
+
+  }
+
+  internal interface ViewHolderCallback : Callback {
+
+    fun onMadeReal(item: FridgeItem)
 
   }
 

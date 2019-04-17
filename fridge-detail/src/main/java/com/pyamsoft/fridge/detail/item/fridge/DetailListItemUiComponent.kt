@@ -32,6 +32,8 @@ internal interface DetailListItemUiComponent : UiComponent<Callback> {
   interface Callback {
 
     fun onLastDoneClicked()
+
+    fun onMadeReal(real: FridgeItem)
   }
 
 }

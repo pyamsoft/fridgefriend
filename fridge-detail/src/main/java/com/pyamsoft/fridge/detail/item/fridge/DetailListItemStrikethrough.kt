@@ -73,6 +73,9 @@ internal class DetailListItemStrikethrough @Inject internal constructor(
     strikeLine.isInvisible = true
   }
 
+  override fun onMadeReal() {
+  }
+
   fun showError(throwable: Throwable) {
     val typeStyle: Int
     if (throwable is IllegalArgumentException) {
