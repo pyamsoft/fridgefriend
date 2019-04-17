@@ -29,6 +29,7 @@ import com.pyamsoft.fridge.entry.EntryComponent
 import com.pyamsoft.fridge.main.MainComponent
 import com.pyamsoft.fridge.ocr.OcrComponent
 import com.pyamsoft.fridge.setting.SettingComponent
+import com.pyamsoft.fridge.setting.SettingSingletonModule
 import com.pyamsoft.pydroid.core.bus.EventBus
 import com.pyamsoft.pydroid.core.bus.RxBus
 import com.pyamsoft.pydroid.core.threads.Enforcer
@@ -47,7 +48,8 @@ import javax.inject.Singleton
   modules = [
     FridgeProvider::class,
     DbProvider::class,
-    RoomProvider::class
+    RoomProvider::class,
+    SettingSingletonModule::class
   ]
 )
 internal interface FridgeComponent {

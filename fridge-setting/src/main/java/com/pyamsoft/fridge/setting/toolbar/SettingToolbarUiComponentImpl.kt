@@ -19,17 +19,18 @@ package com.pyamsoft.fridge.setting.toolbar
 
 import android.os.Bundle
 import androidx.lifecycle.LifecycleOwner
+import com.pyamsoft.fridge.setting.toolbar.SettingToolbarViewModel.ToolbarState
 import com.pyamsoft.pydroid.arch.BaseUiComponent
 import com.pyamsoft.pydroid.arch.doOnDestroy
+import com.pyamsoft.pydroid.arch.renderOnChange
 import com.pyamsoft.pydroid.ui.arch.InvalidIdException
 import javax.inject.Inject
 
 internal class SettingToolbarUiComponentImpl @Inject internal constructor(
   private val toolbar: SettingToolbar,
-  private val binder: SettingToolbarBinder
+  private val viewModel: SettingToolbarViewModel
 ) : BaseUiComponent<SettingToolbarUiComponent.Callback>(),
-  SettingToolbarUiComponent,
-  SettingToolbarBinder.Callback {
+  SettingToolbarUiComponent {
 
   override fun id(): Int {
     throw InvalidIdException
@@ -42,19 +43,28 @@ internal class SettingToolbarUiComponentImpl @Inject internal constructor(
   ) {
     owner.doOnDestroy {
       toolbar.teardown()
-      binder.unbind()
+      viewModel.unbind()
     }
 
     toolbar.inflate(savedInstanceState)
-    binder.bind(this)
+    viewModel.bind { state, oldState ->
+      renderNavigate(state, oldState)
+    }
   }
 
   override fun onSaveState(outState: Bundle) {
     toolbar.saveState(outState)
   }
 
-  override fun handleNavigateBack() {
-    callback.onNavigateBack()
+  private fun renderNavigate(
+    state: ToolbarState,
+    oldState: ToolbarState?
+  ) {
+    state.renderOnChange(oldState, value = { it.isNavigate }) { navigate ->
+      if (navigate) {
+        callback.onNavigateBack()
+      }
+    }
   }
 
 }

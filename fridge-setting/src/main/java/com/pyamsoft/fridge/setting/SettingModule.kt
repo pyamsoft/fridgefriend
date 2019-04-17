@@ -19,9 +19,11 @@ package com.pyamsoft.fridge.setting
 
 import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.setting.toolbar.SettingToolbar
-import com.pyamsoft.fridge.setting.toolbar.SettingToolbarBinder
+import com.pyamsoft.fridge.setting.toolbar.SettingToolbarHandler
+import com.pyamsoft.fridge.setting.toolbar.SettingToolbarHandler.ToolbarEvent
 import com.pyamsoft.fridge.setting.toolbar.SettingToolbarUiComponent
 import com.pyamsoft.fridge.setting.toolbar.SettingToolbarUiComponentImpl
+import com.pyamsoft.pydroid.arch.UiEventHandler
 import dagger.Binds
 import dagger.Module
 
@@ -30,10 +32,14 @@ abstract class SettingModule {
 
   @Binds
   @CheckResult
-  internal abstract fun bindToolbarCallback(impl: SettingToolbarBinder): SettingToolbar.Callback
+  internal abstract fun bindToolbarCallback(impl: SettingToolbarHandler): SettingToolbar.Callback
 
   @Binds
   @CheckResult
   internal abstract fun bindToolbarComponent(impl: SettingToolbarUiComponentImpl): SettingToolbarUiComponent
+
+  @Binds
+  @CheckResult
+  internal abstract fun bindToolbarHandler(impl: SettingToolbarHandler): UiEventHandler<ToolbarEvent, SettingToolbar.Callback>
 
 }
