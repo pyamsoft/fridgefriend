@@ -107,7 +107,7 @@ internal abstract class DetailListViewModel protected constructor(
   }
 
   protected fun insert(items: MutableList<FridgeItem>, item: FridgeItem) {
-    if (!updateExistingItem(items, item)) {
+    if (!checkExists(items, item)) {
       addToEndBeforeAddNew(items, item)
     }
   }
@@ -129,15 +129,8 @@ internal abstract class DetailListViewModel protected constructor(
   }
 
   @CheckResult
-  private fun updateExistingItem(items: MutableList<FridgeItem>, item: FridgeItem): Boolean {
-    for ((index, e) in items.withIndex()) {
-      if (item.id() == e.id() && item.entryId() == e.entryId()) {
-        items[index] = item
-        return true
-      }
-    }
-
-    return false
+  private fun checkExists(items: MutableList<FridgeItem>, item: FridgeItem): Boolean {
+    return items.any { item.id() == it.id() && item.entryId() == it.entryId() }
   }
 
   private fun handleRealtimeInsert(item: FridgeItem) {
@@ -151,15 +144,17 @@ internal abstract class DetailListViewModel protected constructor(
   }
 
   private fun handleRealtimeUpdate(item: FridgeItem) {
-    setState {
-      copy(items = getListItems(items.map { old ->
-        if (old.id() == item.id()) {
-          return@map item
-        } else {
-          return@map old
-        }
-      }))
-    }
+    Timber.w("Realtime updated item: $item, but UI doesn't do anything.")
+    // Not a great user experience to constantly flicker on refresh
+//    setState {
+//      copy(items = getListItems(items.map { old ->
+//        if (old.id() == item.id()) {
+//          return@map item
+//        } else {
+//          return@map old
+//        }
+//      }))
+//    }
   }
 
   private fun handleRealtimeDelete(item: FridgeItem) {

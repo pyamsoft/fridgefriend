@@ -50,7 +50,6 @@ import com.pyamsoft.pydroid.core.bus.EventBus
 import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.ui.theme.Theming
 import com.pyamsoft.pydroid.ui.util.refreshing
-import timber.log.Timber
 
 internal abstract class DetailList protected constructor(
   private val interactor: CreationListInteractor,
@@ -114,14 +113,21 @@ internal abstract class DetailList protected constructor(
         drawable.ic_delete_24dp
       )
     val itemSwipeCallback = SimpleSwipeCallback.ItemSwipeCallback { position, direction ->
-      Timber.d("Item swiped: $position ${if (direction == ItemTouchHelper.LEFT) "LEFT" else "RIGHT"}")
-      deleteListItem(position)
+      if (direction == ItemTouchHelper.LEFT || direction == ItemTouchHelper.RIGHT) {
+        deleteListItem(position)
+      }
     }
     val background = Color.RED
+    val directions = (
+        ItemTouchHelper.LEFT or
+            ItemTouchHelper.RIGHT or
+            ItemTouchHelper.DOWN or
+            ItemTouchHelper.UP
+        )
     val swipeCallback = object : SimpleSwipeCallback(
       itemSwipeCallback,
       leftBehindDrawable,
-      ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT,
+      directions,
       background
     ) {
 
@@ -175,7 +181,7 @@ internal abstract class DetailList protected constructor(
     position: Int,
     crossinline func: (holder: DetailListItemController.ViewHolder) -> Unit
   ) {
-    val holder: RecyclerView.ViewHolder? = recyclerView.findViewHolderForLayoutPosition(position)
+    val holder: ViewHolder? = recyclerView.findViewHolderForLayoutPosition(position)
     if (holder is DetailListItemController.ViewHolder) {
       func(holder)
     }
