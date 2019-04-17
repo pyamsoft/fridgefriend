@@ -20,11 +20,11 @@ package com.pyamsoft.fridge.detail.create.list
 import android.view.ViewGroup
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent
-import com.pyamsoft.fridge.detail.list.DetailList
 import com.pyamsoft.fridge.detail.item.DetailItem
-import com.pyamsoft.fridge.detail.item.DetailItemComponent.Builder
+import com.pyamsoft.fridge.detail.item.DetailItemComponent
 import com.pyamsoft.fridge.detail.item.add.AddNewListItemController
 import com.pyamsoft.fridge.detail.item.fridge.DetailListItemController
+import com.pyamsoft.fridge.detail.list.DetailList
 import com.pyamsoft.pydroid.core.bus.EventBus
 import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.ui.theme.Theming
@@ -43,18 +43,21 @@ internal class CreationList @Inject internal constructor(
 ) : DetailList(interactor, imageLoader, stateMap, theming, fakeRealtime, parent, listCallback),
   AddNewListItemController.Callback {
 
-  override fun createListItem(item: FridgeItem, builder: Builder): DetailItem<*, *> {
+  override fun createListItem(
+    item: FridgeItem,
+    factory: (parent: ViewGroup, item: FridgeItem, editable: Boolean) -> DetailItemComponent
+  ): DetailItem<*, *> {
     if (item.id().isBlank()) {
       return AddNewListItemController(
         item,
-        builder,
+        factory,
         this
       )
     } else {
       return DetailListItemController(
         item,
         true,
-        builder,
+        factory,
         this
       )
     }

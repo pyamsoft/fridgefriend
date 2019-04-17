@@ -25,16 +25,16 @@ import androidx.constraintlayout.widget.ConstraintSet
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import com.pyamsoft.fridge.BuildConfig
 import com.pyamsoft.fridge.FridgeComponent
-import com.pyamsoft.fridge.Injector
 import com.pyamsoft.fridge.R
 import com.pyamsoft.fridge.entry.EntryListFragment
 import com.pyamsoft.fridge.main.container.FragmentContainerUiComponent
 import com.pyamsoft.fridge.main.toolbar.MainToolbarUiComponent
 import com.pyamsoft.pydroid.arch.layout
+import com.pyamsoft.pydroid.ui.Injector
 import com.pyamsoft.pydroid.ui.rating.ChangeLogBuilder
 import com.pyamsoft.pydroid.ui.rating.RatingActivity
 import com.pyamsoft.pydroid.ui.rating.buildChangeLog
-import com.pyamsoft.pydroid.ui.theme.ThemeInjector
+import com.pyamsoft.pydroid.ui.theme.Theming
 import com.pyamsoft.pydroid.ui.util.commit
 import javax.inject.Inject
 
@@ -71,9 +71,7 @@ internal class MainActivity : RatingActivity(),
 
     Injector.obtain<FridgeComponent>(applicationContext)
       .plusMainComponent()
-      .toolbarActivityProvider(this)
-      .parent(contentContainer)
-      .build()
+      .create(contentContainer, this)
       .inject(this)
 
     inflateComponents(contentContainer, savedInstanceState)
@@ -83,7 +81,7 @@ internal class MainActivity : RatingActivity(),
 
   private fun setDynamicTheme() {
     @StyleRes val theme: Int
-    if (ThemeInjector.obtain(applicationContext).isDarkTheme()) {
+    if (Injector.obtain<Theming>(applicationContext).isDarkTheme()) {
       theme = R.style.Theme_Fridge_Dark_Normal
     } else {
       theme = R.style.Theme_Fridge_Light_Normal

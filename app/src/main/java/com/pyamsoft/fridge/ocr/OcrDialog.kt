@@ -27,10 +27,10 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.fragment.app.DialogFragment
 import com.pyamsoft.fridge.FridgeComponent
-import com.pyamsoft.fridge.Injector
 import com.pyamsoft.fridge.R
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.pydroid.arch.layout
+import com.pyamsoft.pydroid.ui.Injector
 import com.pyamsoft.pydroid.ui.app.requireArguments
 import javax.inject.Inject
 
@@ -53,10 +53,11 @@ internal class OcrDialog : DialogFragment(),
     val parent = view.findViewById<ConstraintLayout>(R.id.layout_constraint)
     Injector.obtain<FridgeComponent>(view.context.applicationContext)
       .plusScannerComponent()
-      .itemId(requireArguments().getString(ITEM_ID, ""))
-      .entryId(requireArguments().getString(ENTRY_ID, ""))
-      .parent(parent)
-      .build()
+      .create(
+        parent,
+        requireArguments().getString(ITEM_ID, ""),
+        requireArguments().getString(ENTRY_ID, "")
+      )
       .inject(this)
 
     component.bind(parent, viewLifecycleOwner, savedInstanceState, this)

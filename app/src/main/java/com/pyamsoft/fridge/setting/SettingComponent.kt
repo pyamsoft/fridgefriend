@@ -17,10 +17,7 @@
 
 package com.pyamsoft.fridge.setting
 
-import android.view.ViewGroup
 import androidx.annotation.CheckResult
-import com.pyamsoft.fridge.setting.SettingModule
-import com.pyamsoft.fridge.setting.SettingScope
 import com.pyamsoft.pydroid.ui.app.ToolbarActivity
 import dagger.BindsInstance
 import dagger.Subcomponent
@@ -31,15 +28,13 @@ internal interface SettingComponent {
 
   fun inject(fragment: SettingsFragment)
 
-  @Subcomponent.Builder
-  interface Builder {
-
-    @BindsInstance
-    @CheckResult
-    fun toolbarActivity(activity: ToolbarActivity): Builder
+  @Subcomponent.Factory
+  interface Factory {
 
     @CheckResult
-    fun build(): SettingComponent
+    fun create(
+      @BindsInstance activity: ToolbarActivity
+    ): SettingComponent
   }
 
 }

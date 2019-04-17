@@ -31,24 +31,19 @@ import dagger.Subcomponent
 internal interface DetailComponent {
 
   @CheckResult
-  fun plusCreationComponent(): CreationComponent.Builder
+  fun plusCreationComponent(): CreationComponent.Factory
 
   @CheckResult
-  fun plusShoppingComponent(): ShoppingComponent.Builder
+  fun plusShoppingComponent(): ShoppingComponent.Factory
 
-  @Subcomponent.Builder
-  interface Builder {
-
-    @BindsInstance
-    @CheckResult
-    fun toolbarActivity(toolbarActivity: ToolbarActivity): Builder
-
-    @BindsInstance
-    @CheckResult
-    fun parent(parent: ViewGroup): Builder
+  @Subcomponent.Factory
+  interface Factory {
 
     @CheckResult
-    fun build(): DetailComponent
+    fun create(
+      @BindsInstance toolbarActivity: ToolbarActivity,
+      @BindsInstance parent: ViewGroup
+    ): DetailComponent
   }
 
   @Module

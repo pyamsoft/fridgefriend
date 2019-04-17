@@ -30,15 +30,13 @@ internal interface CreationComponent {
 
   fun inject(fragment: CreationFragment)
 
-  @Subcomponent.Builder
-  interface Builder {
-
-    @BindsInstance
-    @CheckResult
-    fun entryId(@Named("detail_entry_id") entryId: String): Builder
+  @Subcomponent.Factory
+  interface Factory {
 
     @CheckResult
-    fun build(): CreationComponent
+    fun create(
+      @BindsInstance @Named("detail_entry_id") entryId: String
+    ): CreationComponent
   }
 
 }

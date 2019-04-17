@@ -20,16 +20,14 @@ package com.pyamsoft.fridge
 import android.app.Application
 import com.pyamsoft.pydroid.bootstrap.libraries.OssLibraries
 import com.pyamsoft.pydroid.ui.PYDroid
-import com.pyamsoft.pydroid.ui.theme.ThemeInjector
 import com.pyamsoft.pydroid.ui.theme.Theming
 import com.squareup.leakcanary.LeakCanary
 import com.squareup.leakcanary.RefWatcher
+import com.squareup.moshi.Moshi
 
-class MyFridgeSmells : Application(), PYDroid.Instance {
+class MyFridgeSmells : Application() {
 
-  private var pyDroid: PYDroid? = null
   private lateinit var component: FridgeComponent
-  private lateinit var theming: Theming
   private lateinit var refWatcher: RefWatcher
 
   override fun onCreate() {
@@ -41,12 +39,15 @@ class MyFridgeSmells : Application(), PYDroid.Instance {
     Theming.IS_DEFAULT_DARK_THEME = false
     PYDroid.init(
       this,
-      this,
       getString(R.string.app_name),
       "https://github.com/pyamsoft/myfridgesmells/issues",
       BuildConfig.VERSION_CODE,
       BuildConfig.DEBUG
-    )
+    ) { provider ->
+      val moshi = Moshi.Builder().build()
+      component = DaggerFridgeComponent.factory()
+        .create(provider.theming(), moshi, provider.enforcer(), this, provider.imageLoader())
+    }
 
     installRefWatcher()
     addLibraries()
@@ -78,27 +79,16 @@ class MyFridgeSmells : Application(), PYDroid.Instance {
     )
   }
 
-  override fun getPydroid(): PYDroid? = pyDroid
-
-  override fun setPydroid(instance: PYDroid) {
-    pyDroid = instance.also {
-      theming = it.modules()
-        .theming()
-      component = DaggerFridgeComponent.builder()
-        .application(this)
-        .enforcer(it.modules().enforcer())
-        .imageLoader(it.modules().loaderModule().provideImageLoader())
-        .theming(theming)
-        .moshi(it.modules().versionCheckModule().moshi)
-        .build()
-    }
-  }
-
   override fun getSystemService(name: String): Any? {
-    when (name) {
-      Injector.name -> return component
-      ThemeInjector.name -> return theming
-      else -> return super.getSystemService(name)
+    val service = PYDroid.getSystemService(name)
+    if (service != null) {
+      return service
     }
+
+    if (FridgeComponent::class.java.name == name) {
+      return component
+    }
+
+    return super.getSystemService(name)
   }
 }

@@ -29,23 +29,15 @@ internal interface OcrComponent {
 
   fun inject(dialog: OcrDialog)
 
-  @Subcomponent.Builder
-  interface Builder {
-
-    @BindsInstance
-    @CheckResult
-    fun parent(parent: ViewGroup): Builder
-
-    @BindsInstance
-    @CheckResult
-    fun itemId(@Named("scanner_item_id") itemId: String): Builder
-
-    @BindsInstance
-    @CheckResult
-    fun entryId(@Named("scanner_entry_id") entryId: String): Builder
+  @Subcomponent.Factory
+  interface Factory {
 
     @CheckResult
-    fun build(): OcrComponent
+    fun create(
+      @BindsInstance parent: ViewGroup,
+      @BindsInstance @Named("scanner_item_id") itemId: String,
+      @BindsInstance @Named("scanner_entry_id") entryId: String
+    ): OcrComponent
   }
 
 }

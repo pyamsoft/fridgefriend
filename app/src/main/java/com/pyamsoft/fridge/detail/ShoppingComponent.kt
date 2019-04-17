@@ -28,11 +28,11 @@ internal interface ShoppingComponent {
 
   fun inject(fragment: ShoppingFragment)
 
-  @Subcomponent.Builder
-  interface Builder {
+  @Subcomponent.Factory
+  interface Factory {
 
     @CheckResult
-    fun build(): ShoppingComponent
+    fun create(): ShoppingComponent
   }
 
 }

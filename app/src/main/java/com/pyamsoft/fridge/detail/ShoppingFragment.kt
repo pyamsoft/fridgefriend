@@ -26,11 +26,11 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.fragment.app.Fragment
 import com.pyamsoft.fridge.FridgeComponent
-import com.pyamsoft.fridge.Injector
 import com.pyamsoft.fridge.R
 import com.pyamsoft.fridge.detail.list.DetailListUiComponent
 import com.pyamsoft.fridge.detail.shop.toolbar.ShoppingToolbarUiComponent
 import com.pyamsoft.pydroid.arch.layout
+import com.pyamsoft.pydroid.ui.Injector
 import com.pyamsoft.pydroid.ui.app.requireToolbarActivity
 import javax.inject.Inject
 
@@ -55,11 +55,9 @@ internal class ShoppingFragment : Fragment(),
     val parent = view.findViewById<ConstraintLayout>(R.id.layout_constraint)
     Injector.obtain<FridgeComponent>(view.context.applicationContext)
       .plusDetailComponent()
-      .parent(parent)
-      .toolbarActivity(requireToolbarActivity())
-      .build()
+      .create(requireToolbarActivity(), parent)
       .plusShoppingComponent()
-      .build()
+      .create()
       .inject(this)
 
     list.bind(parent, viewLifecycleOwner, savedInstanceState, this)

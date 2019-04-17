@@ -29,19 +29,14 @@ internal interface EntryComponent {
 
   fun inject(fragment: EntryListFragment)
 
-  @Subcomponent.Builder
-  interface Builder {
-
-    @BindsInstance
-    @CheckResult
-    fun parent(parent: ViewGroup): Builder
-
-    @BindsInstance
-    @CheckResult
-    fun toolbarActivity(activity: ToolbarActivity): Builder
+  @Subcomponent.Factory
+  interface Factory {
 
     @CheckResult
-    fun build(): EntryComponent
+    fun create(
+      @BindsInstance parent: ViewGroup,
+      @BindsInstance activity: ToolbarActivity
+    ): EntryComponent
   }
 
 }

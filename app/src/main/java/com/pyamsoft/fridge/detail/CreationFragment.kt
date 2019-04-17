@@ -26,12 +26,12 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.fragment.app.Fragment
 import com.pyamsoft.fridge.FridgeComponent
-import com.pyamsoft.fridge.Injector
 import com.pyamsoft.fridge.R
 import com.pyamsoft.fridge.detail.create.title.CreationTitleUiComponent
 import com.pyamsoft.fridge.detail.create.toolbar.CreationToolbarUiComponent
 import com.pyamsoft.fridge.detail.list.DetailListUiComponent
 import com.pyamsoft.pydroid.arch.layout
+import com.pyamsoft.pydroid.ui.Injector
 import com.pyamsoft.pydroid.ui.app.requireArguments
 import com.pyamsoft.pydroid.ui.app.requireToolbarActivity
 import javax.inject.Inject
@@ -59,12 +59,9 @@ internal class CreationFragment : Fragment(),
     val parent = view.findViewById<ConstraintLayout>(R.id.layout_constraint)
     Injector.obtain<FridgeComponent>(view.context.applicationContext)
       .plusDetailComponent()
-      .parent(parent)
-      .toolbarActivity(requireToolbarActivity())
-      .build()
+      .create(requireToolbarActivity(), parent)
       .plusCreationComponent()
-      .entryId(requireArguments().getString(ENTRY_ID, ""))
-      .build()
+      .create(requireArguments().getString(ENTRY_ID, ""))
       .inject(this)
 
     list.bind(parent, viewLifecycleOwner, savedInstanceState, this)

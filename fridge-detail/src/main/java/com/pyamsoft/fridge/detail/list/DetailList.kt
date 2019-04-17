@@ -39,12 +39,12 @@ import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent
 import com.pyamsoft.fridge.detail.R
 import com.pyamsoft.fridge.detail.R.drawable
-import com.pyamsoft.fridge.detail.list.DetailList.Callback
 import com.pyamsoft.fridge.detail.create.list.CreationListInteractor
 import com.pyamsoft.fridge.detail.item.DaggerDetailItemComponent
 import com.pyamsoft.fridge.detail.item.DetailItem
 import com.pyamsoft.fridge.detail.item.DetailItemComponent
 import com.pyamsoft.fridge.detail.item.fridge.DetailListItemController
+import com.pyamsoft.fridge.detail.list.DetailList.Callback
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.core.bus.EventBus
 import com.pyamsoft.pydroid.loader.ImageLoader
@@ -76,18 +76,16 @@ internal abstract class DetailList protected constructor(
   @CheckResult
   protected abstract fun createListItem(
     item: FridgeItem,
-    builder: DetailItemComponent.Builder
+    factory: (parent: ViewGroup, item: FridgeItem, editable: Boolean) -> DetailItemComponent
   ): DetailItem<*, *>
 
   final override fun onInflated(view: View, savedInstanceState: Bundle?) {
-    val builder = DaggerDetailItemComponent.builder()
-      .fakeRealtime(fakeRealtime)
-      .interactor(interactor)
-      .imageLoader(imageLoader)
-      .stateMap(stateMap)
-      .theming(theming)
+    val factory = { parent: ViewGroup, item: FridgeItem, editable: Boolean ->
+      DaggerDetailItemComponent.factory()
+        .create(parent, item, editable, stateMap, imageLoader, theming, interactor, fakeRealtime)
+    }
 
-    modelAdapter = ModelAdapter { createListItem(it, builder) }
+    modelAdapter = ModelAdapter { createListItem(it, factory) }
 
     recyclerView.layoutManager = LinearLayoutManager(view.context).apply {
       isItemPrefetchEnabled = true
@@ -111,7 +109,8 @@ internal abstract class DetailList protected constructor(
 
   private fun setupSwipeCallback() {
     val leftBehindDrawable =
-      AppCompatResources.getDrawable(recyclerView.context,
+      AppCompatResources.getDrawable(
+        recyclerView.context,
         drawable.ic_delete_24dp
       )
     val itemSwipeCallback = SimpleSwipeCallback.ItemSwipeCallback { position, direction ->

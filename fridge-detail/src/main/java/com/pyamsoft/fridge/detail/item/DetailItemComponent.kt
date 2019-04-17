@@ -54,43 +54,20 @@ internal interface DetailItemComponent {
 
   fun inject(holder: DetailListItemController.ViewHolder)
 
-  @Component.Builder
-  interface Builder {
+  @Component.Factory
+  interface Factory {
 
     @CheckResult
-    @BindsInstance
-    fun parent(parent: ViewGroup): Builder
-
-    @BindsInstance
-    @CheckResult
-    fun item(item: FridgeItem): Builder
-
-    @BindsInstance
-    @CheckResult
-    fun editable(@Named("item_editable") editable: Boolean): Builder
-
-    @BindsInstance
-    @CheckResult
-    fun stateMap(stateMap: MutableMap<String, Int>): Builder
-
-    @BindsInstance
-    @CheckResult
-    fun imageLoader(imageLoader: ImageLoader): Builder
-
-    @BindsInstance
-    @CheckResult
-    fun theming(theming: Theming): Builder
-
-    @BindsInstance
-    @CheckResult
-    fun interactor(interactor: CreationListInteractor): Builder
-
-    @BindsInstance
-    @CheckResult
-    fun fakeRealtime(fakeRealtime: EventBus<FridgeItemChangeEvent>): Builder
-
-    @CheckResult
-    fun build(): DetailItemComponent
+    fun create(
+      @BindsInstance parent: ViewGroup,
+      @BindsInstance item: FridgeItem,
+      @BindsInstance @Named("item_editable") editable: Boolean,
+      @BindsInstance stateMap: MutableMap<String, Int>,
+      @BindsInstance imageLoader: ImageLoader,
+      @BindsInstance theming: Theming,
+      @BindsInstance interactor: CreationListInteractor,
+      @BindsInstance fakeRealtime: EventBus<FridgeItemChangeEvent>
+    ): DetailItemComponent
 
   }
 

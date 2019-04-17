@@ -22,8 +22,8 @@ import android.view.View
 import androidx.annotation.CheckResult
 import androidx.fragment.app.Fragment
 import com.pyamsoft.fridge.FridgeComponent
-import com.pyamsoft.fridge.Injector
 import com.pyamsoft.fridge.setting.toolbar.SettingToolbarUiComponent
+import com.pyamsoft.pydroid.ui.Injector
 import com.pyamsoft.pydroid.ui.app.requireToolbarActivity
 import com.pyamsoft.pydroid.ui.settings.AppSettingsFragment
 import com.pyamsoft.pydroid.ui.settings.AppSettingsPreferenceFragment
@@ -46,8 +46,7 @@ internal class SettingsFragment : AppSettingsFragment(), SettingToolbarUiCompone
 
     Injector.obtain<FridgeComponent>(view.context.applicationContext)
       .plusSettingComponent()
-      .toolbarActivity(requireToolbarActivity())
-      .build()
+      .create(requireToolbarActivity())
       .inject(this)
 
     toolbar.bind(viewLifecycleOwner, savedInstanceState, this)

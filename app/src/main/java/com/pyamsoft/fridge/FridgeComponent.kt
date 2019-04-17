@@ -53,45 +53,31 @@ import javax.inject.Singleton
 internal interface FridgeComponent {
 
   @CheckResult
-  fun plusScannerComponent(): OcrComponent.Builder
+  fun plusScannerComponent(): OcrComponent.Factory
 
   @CheckResult
-  fun plusDetailComponent(): DetailComponent.Builder
+  fun plusDetailComponent(): DetailComponent.Factory
 
   @CheckResult
-  fun plusEntryComponent(): EntryComponent.Builder
+  fun plusEntryComponent(): EntryComponent.Factory
 
   @CheckResult
-  fun plusMainComponent(): MainComponent.Builder
+  fun plusMainComponent(): MainComponent.Factory
 
   @CheckResult
-  fun plusSettingComponent(): SettingComponent.Builder
+  fun plusSettingComponent(): SettingComponent.Factory
 
-  @Component.Builder
-  interface Builder {
-
-    @BindsInstance
-    @CheckResult
-    fun theming(theming: Theming): Builder
-
-    @BindsInstance
-    @CheckResult
-    fun moshi(moshi: Moshi): Builder
-
-    @BindsInstance
-    @CheckResult
-    fun enforcer(enforcer: Enforcer): Builder
-
-    @BindsInstance
-    @CheckResult
-    fun application(application: Application): Builder
-
-    @BindsInstance
-    @CheckResult
-    fun imageLoader(imageLoader: ImageLoader): Builder
+  @Component.Factory
+  interface Factory {
 
     @CheckResult
-    fun build(): FridgeComponent
+    fun create(
+      @BindsInstance theming: Theming,
+      @BindsInstance moshi: Moshi,
+      @BindsInstance enforcer: Enforcer,
+      @BindsInstance application: Application,
+      @BindsInstance imageLoader: ImageLoader
+    ): FridgeComponent
 
   }
 

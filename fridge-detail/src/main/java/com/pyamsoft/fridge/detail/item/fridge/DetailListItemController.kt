@@ -18,6 +18,7 @@
 package com.pyamsoft.fridge.detail.item.fridge
 
 import android.view.View
+import android.view.ViewGroup
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.view.updatePadding
@@ -36,8 +37,8 @@ import javax.inject.Inject
 internal class DetailListItemController internal constructor(
   item: FridgeItem,
   editable: Boolean,
-  private val builder: DetailItemComponent.Builder,
-  private val callback: DetailListItemController.Callback
+  private val factory: (parent: ViewGroup, item: FridgeItem, editable: Boolean) -> DetailItemComponent,
+  private val callback: Callback
 ) : DetailItem<DetailListItemController, ViewHolder>(item, swipeable = editable) {
 
   override fun getType(): Int {
@@ -53,7 +54,7 @@ internal class DetailListItemController internal constructor(
       top = verticalPadding,
       bottom = verticalPadding
     )
-    return ViewHolder(v, builder)
+    return ViewHolder(v, factory)
   }
 
   override fun getLayoutRes(): Int {
@@ -72,7 +73,7 @@ internal class DetailListItemController internal constructor(
 
   class ViewHolder internal constructor(
     itemView: View,
-    private val builder: DetailItemComponent.Builder
+    private val factory: (parent: ViewGroup, item: FridgeItem, editable: Boolean) -> DetailItemComponent
   ) : RecyclerView.ViewHolder(itemView), DetailListItemUiComponent.Callback {
 
     @field:Inject internal lateinit var component: DetailListItemUiComponent
@@ -80,21 +81,17 @@ internal class DetailListItemController internal constructor(
     private val parent: ConstraintLayout = itemView.findViewById(R.id.listitem_constraint)
 
     private var lifecycle: ListItemLifecycle? = null
-    private var callback: DetailListItemController.Callback? = null
+    private var callback: Callback? = null
 
     override fun onLastDoneClicked() {
       requireNotNull(callback).onLastDoneClicked(layoutPosition)
     }
 
-    fun bind(item: FridgeItem, editable: Boolean, cb: DetailListItemController.Callback) {
+    fun bind(item: FridgeItem, editable: Boolean, cb: Callback) {
       callback = cb
       lifecycle?.unbind()
 
-      builder
-        .parent(parent)
-        .editable(editable)
-        .item(item)
-        .build()
+      factory(parent, item, editable)
         .inject(this)
 
       val owner = ListItemLifecycle()

@@ -19,8 +19,6 @@ package com.pyamsoft.fridge.main
 
 import android.view.ViewGroup
 import androidx.annotation.CheckResult
-import com.pyamsoft.fridge.main.MainModule
-import com.pyamsoft.fridge.main.MainScope
 import com.pyamsoft.fridge.main.MainComponent.MainProvider
 import com.pyamsoft.pydroid.ui.app.ToolbarActivityProvider
 import com.pyamsoft.pydroid.ui.widget.shadow.DropshadowView
@@ -35,19 +33,14 @@ internal interface MainComponent {
 
   fun inject(activity: MainActivity)
 
-  @Subcomponent.Builder
-  interface Builder {
-
-    @BindsInstance
-    @CheckResult
-    fun parent(parent: ViewGroup): Builder
-
-    @BindsInstance
-    @CheckResult
-    fun toolbarActivityProvider(provider: ToolbarActivityProvider): Builder
+  @Subcomponent.Factory
+  interface Factory {
 
     @CheckResult
-    fun build(): MainComponent
+    fun create(
+      @BindsInstance parent: ViewGroup,
+      @BindsInstance provider: ToolbarActivityProvider
+    ): MainComponent
   }
 
   @Module

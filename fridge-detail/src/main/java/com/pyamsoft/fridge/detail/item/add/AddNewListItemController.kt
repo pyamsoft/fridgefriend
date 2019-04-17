@@ -31,7 +31,7 @@ import javax.inject.Inject
 
 internal class AddNewListItemController internal constructor(
   item: FridgeItem,
-  private val builder: DetailItemComponent.Builder,
+  private val factory: (parent: ViewGroup, item: FridgeItem, editable: Boolean) -> DetailItemComponent,
   private val callback: Callback
 ) : DetailItem<AddNewListItemController, ViewHolder>(item, swipeable = false),
   Callback {
@@ -41,7 +41,7 @@ internal class AddNewListItemController internal constructor(
   }
 
   override fun getViewHolder(v: View): ViewHolder {
-    return ViewHolder(v, builder)
+    return ViewHolder(v, factory)
   }
 
   override fun getLayoutRes(): Int {
@@ -64,7 +64,7 @@ internal class AddNewListItemController internal constructor(
 
   class ViewHolder internal constructor(
     itemView: View,
-    private val builder: DetailItemComponent.Builder
+    private val factory: (parent: ViewGroup, item: FridgeItem, editable: Boolean) -> DetailItemComponent
   ) : RecyclerView.ViewHolder(itemView) {
 
     private var lifecycle: ListItemLifecycle? = null
@@ -72,14 +72,10 @@ internal class AddNewListItemController internal constructor(
 
     private val parent: ViewGroup = itemView.findViewById(R.id.listitem_frame)
 
-    fun bind(item: FridgeItem, callback: com.pyamsoft.fridge.detail.item.add.AddNewItemUiComponent.Callback) {
+    fun bind(item: FridgeItem, callback: AddNewItemUiComponent.Callback) {
       lifecycle?.unbind()
 
-      builder
-        .parent(parent)
-        .editable(false)
-        .item(item)
-        .build()
+      factory(parent, item, false)
         .inject(this)
 
       val owner = ListItemLifecycle()
