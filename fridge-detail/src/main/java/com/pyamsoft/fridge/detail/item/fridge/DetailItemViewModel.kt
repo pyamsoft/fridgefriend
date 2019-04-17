@@ -60,7 +60,7 @@ internal class DetailItemViewModel @Inject internal constructor(
 
   @CheckResult
   private fun isReadyToBeReal(item: FridgeItem): Boolean {
-    return isNameValid(item.name()) && isDateValid(item.expireTime())
+    return isNameValid(item.name())
   }
 
   override fun commitName(oldItem: FridgeItem, name: String) {
@@ -155,7 +155,7 @@ internal class DetailItemViewModel @Inject internal constructor(
   }
 
   private fun handleFakeCommit(item: FridgeItem) {
-    fakeRealtime.publish(FridgeItemChangeEvent.Insert(item))
+    buffer { fakeRealtime.publish(FridgeItemChangeEvent.Insert(item)) }
   }
 
   private fun handleFakeDelete(item: FridgeItem) {
@@ -163,11 +163,20 @@ internal class DetailItemViewModel @Inject internal constructor(
   }
 
   private fun handleInvalidName(name: String) {
-    setFixMessage("ERROR: CommitName $name is invalid. Please fix.")
+    buffer { setFixMessage("ERROR: Name $name is invalid. Please fix.") }
   }
 
   private fun handleInvalidDate(year: Int, month: Int, day: Int) {
-    setFixMessage("ERROR: Date $month/$day/$year is invalid. Please fix.")
+    buffer { setFixMessage("ERROR: Date $month/$day/$year is invalid. Please fix.") }
+  }
+
+  private inline fun buffer(crossinline func: () -> Unit) {
+    updateDisposable = Completable.complete()
+      .delay(DetailConstants.COMMIT_TIMEOUT_DURATION, DetailConstants.COMMIT_TIMEOUT_UNIT)
+      .subscribeOn(Schedulers.io())
+      .observeOn(AndroidSchedulers.mainThread())
+      .doAfterTerminate { updateDisposable.tryDispose() }
+      .subscribe { func() }
   }
 
   private fun handleError(throwable: Throwable) {
