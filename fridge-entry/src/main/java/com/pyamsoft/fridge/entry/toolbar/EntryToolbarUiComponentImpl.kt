@@ -20,17 +20,18 @@ package com.pyamsoft.fridge.entry.toolbar
 import android.os.Bundle
 import androidx.lifecycle.LifecycleOwner
 import com.pyamsoft.fridge.entry.toolbar.EntryToolbarUiComponent.Callback
+import com.pyamsoft.fridge.entry.toolbar.EntryToolbarViewModel.ToolbarState
 import com.pyamsoft.pydroid.arch.BaseUiComponent
 import com.pyamsoft.pydroid.arch.doOnDestroy
+import com.pyamsoft.pydroid.arch.renderOnChange
 import com.pyamsoft.pydroid.ui.arch.InvalidIdException
 import javax.inject.Inject
 
 internal class EntryToolbarUiComponentImpl @Inject internal constructor(
   private val toolbar: EntryToolbar,
-  private val binder: EntryToolbarBinder
-) : BaseUiComponent<EntryToolbarUiComponent.Callback>(),
-  EntryToolbarUiComponent,
-  EntryToolbarBinder.Callback {
+  private val viewModel: EntryToolbarViewModel
+) : BaseUiComponent<Callback>(),
+  EntryToolbarUiComponent {
 
   override fun id(): Int {
     throw InvalidIdException
@@ -39,23 +40,32 @@ internal class EntryToolbarUiComponentImpl @Inject internal constructor(
   override fun onBind(owner: LifecycleOwner, savedInstanceState: Bundle?, callback: Callback) {
     owner.doOnDestroy {
       toolbar.teardown()
-      binder.unbind()
+      viewModel.unbind()
     }
 
     toolbar.inflate(savedInstanceState)
-    binder.bind(this)
+    viewModel.bind { state, oldState ->
+      renderSettings(state, oldState)
+    }
   }
 
   override fun onSaveState(outState: Bundle) {
     toolbar.saveState(outState)
   }
 
-  override fun handleSettingsClicked() {
-    callback.onNavigateToSettings()
-  }
-
   override fun showMenu(show: Boolean) {
     toolbar.showMenu(show)
+  }
+
+  private fun renderSettings(
+    state: ToolbarState,
+    oldState: ToolbarState?
+  ) {
+    state.renderOnChange(oldState, value = { it.isSettings }) { settings ->
+      if (settings) {
+        callback.onNavigateToSettings()
+      }
+    }
   }
 
 }

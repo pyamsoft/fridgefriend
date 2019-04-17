@@ -24,9 +24,12 @@ import com.pyamsoft.fridge.db.entry.FridgeEntryChangeEvent.Insert
 import com.pyamsoft.fridge.db.entry.FridgeEntryChangeEvent.Update
 import com.pyamsoft.fridge.db.entry.FridgeEntryQueryDao
 import com.pyamsoft.fridge.db.entry.FridgeEntryRealtime
-import com.pyamsoft.fridge.entry.EntryScope
-import com.pyamsoft.fridge.entry.list.EntryListPresenter.EntryState
-import com.pyamsoft.pydroid.arch.Presenter
+import com.pyamsoft.fridge.entry.list.EntryListHandler.ListEvent
+import com.pyamsoft.fridge.entry.list.EntryListViewModel.EntryState
+import com.pyamsoft.fridge.entry.list.EntryListViewModel.EntryState.Loading
+import com.pyamsoft.pydroid.arch.UiEventHandler
+import com.pyamsoft.pydroid.arch.UiState
+import com.pyamsoft.pydroid.arch.UiViewModel
 import com.pyamsoft.pydroid.core.singleDisposable
 import com.pyamsoft.pydroid.core.tryDispose
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -34,21 +37,24 @@ import io.reactivex.schedulers.Schedulers
 import timber.log.Timber
 import javax.inject.Inject
 
-@EntryScope
-internal class EntryListPresenter @Inject internal constructor(
+internal class EntryListViewModel @Inject internal constructor(
+  private val handler: UiEventHandler<ListEvent, EntryList.Callback>,
   private val queryDao: FridgeEntryQueryDao,
   private val realtime: FridgeEntryRealtime
-) : Presenter<EntryState, EntryListPresenter.Callback>(),
-  EntryList.Callback {
+) : UiViewModel<EntryState>(
+  initialState = EntryState(
+    isLoading = null,
+    throwable = null,
+    entries = emptyList(),
+    editingEntry = null
+  )
+), EntryList.Callback {
 
   private var refreshDisposable by singleDisposable()
   private var realtimeChangeDisposable by singleDisposable()
 
-  override fun initialState(): EntryState {
-    return EntryState(isLoading = false, throwable = null, entries = emptyList())
-  }
-
   override fun onBind() {
+    handler.handle(this).destroy()
     refresh(false)
   }
 
@@ -121,7 +127,7 @@ internal class EntryListPresenter @Inject internal constructor(
 
   private fun handleListRefreshBegin() {
     setState {
-      copy(isLoading = true)
+      copy(isLoading = Loading(true))
     }
   }
 
@@ -139,25 +145,24 @@ internal class EntryListPresenter @Inject internal constructor(
 
   private fun handleListRefreshComplete() {
     setState {
-      copy(isLoading = false)
+      copy(isLoading = Loading(false))
     }
   }
 
   override fun onItemClicked(entry: FridgeEntry) {
     Timber.d("Edit entry: $entry")
-    callback.handleEditEntry(entry)
+    setUniqueState(entry, old = { it.editingEntry }) { state, value ->
+      state.copy(editingEntry = value)
+    }
   }
 
   data class EntryState(
-    val isLoading: Boolean,
+    val isLoading: Loading?,
     val throwable: Throwable?,
-    val entries: List<FridgeEntry>
-  )
-
-  interface Callback : Presenter.Callback<EntryState> {
-
-    fun handleEditEntry(entry: FridgeEntry)
-
+    val entries: List<FridgeEntry>,
+    val editingEntry: FridgeEntry?
+  ) : UiState {
+    data class Loading(val isLoading: Boolean)
   }
 
 }

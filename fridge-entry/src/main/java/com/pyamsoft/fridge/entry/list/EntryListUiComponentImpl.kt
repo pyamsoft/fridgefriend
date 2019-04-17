@@ -19,20 +19,19 @@ package com.pyamsoft.fridge.entry.list
 
 import android.os.Bundle
 import androidx.lifecycle.LifecycleOwner
-import com.pyamsoft.fridge.db.entry.FridgeEntry
-import com.pyamsoft.fridge.entry.list.EntryListPresenter.EntryState
 import com.pyamsoft.fridge.entry.list.EntryListUiComponent.Callback
+import com.pyamsoft.fridge.entry.list.EntryListViewModel.EntryState
 import com.pyamsoft.pydroid.arch.BaseUiComponent
 import com.pyamsoft.pydroid.arch.doOnDestroy
+import com.pyamsoft.pydroid.arch.renderOnChange
 import com.pyamsoft.pydroid.ui.arch.InvalidIdException
 import javax.inject.Inject
 
 internal class EntryListUiComponentImpl @Inject internal constructor(
   private val listView: EntryList,
-  private val presenter: EntryListPresenter
-) : BaseUiComponent<EntryListUiComponent.Callback>(),
-  EntryListUiComponent,
-  EntryListPresenter.Callback {
+  private val viewModel: EntryListViewModel
+) : BaseUiComponent<Callback>(),
+  EntryListUiComponent {
 
   override fun id(): Int {
     throw InvalidIdException
@@ -41,27 +40,26 @@ internal class EntryListUiComponentImpl @Inject internal constructor(
   override fun onBind(owner: LifecycleOwner, savedInstanceState: Bundle?, callback: Callback) {
     owner.doOnDestroy {
       listView.teardown()
-      presenter.unbind()
+      viewModel.unbind()
     }
 
     listView.inflate(savedInstanceState)
-    presenter.bind(this)
+    viewModel.bind { state, oldState ->
+      renderLoading(state, oldState)
+      renderList(state, oldState)
+      renderError(state, oldState)
+      renderEdit(state, oldState)
+    }
   }
 
   override fun onSaveState(outState: Bundle) {
     listView.saveState(outState)
   }
 
-  override fun onRender(state: EntryState, oldState: EntryState?) {
-    renderLoading(state, oldState)
-    renderList(state, oldState)
-    renderError(state, oldState)
-  }
-
   private fun renderLoading(state: EntryState, oldState: EntryState?) {
-    state.isLoading.let { loading ->
-      if (oldState == null || loading != oldState.isLoading) {
-        if (loading) {
+    state.renderOnChange(oldState, value = { it.isLoading }) { loading ->
+      if (loading != null) {
+        if (loading.isLoading) {
           listView.beginRefresh()
         } else {
           listView.finishRefresh()
@@ -71,31 +69,31 @@ internal class EntryListUiComponentImpl @Inject internal constructor(
   }
 
   private fun renderList(state: EntryState, oldState: EntryState?) {
-    state.entries.let { entries ->
-      if (oldState == null || entries != oldState.entries) {
-        if (entries.isEmpty()) {
-          listView.clearList()
-        } else {
-          listView.setList(entries)
-        }
+    state.renderOnChange(oldState, value = { it.entries }) { entries ->
+      if (entries.isEmpty()) {
+        listView.clearList()
+      } else {
+        listView.setList(entries)
       }
     }
   }
 
   private fun renderError(state: EntryState, oldState: EntryState?) {
-    state.throwable.let { throwable ->
-      if (oldState == null || throwable != oldState.throwable) {
-        if (throwable == null) {
-          listView.clearError()
-        } else {
-          listView.showError(throwable)
-        }
+    state.renderOnChange(oldState, value = { it.throwable }) { throwable ->
+      if (throwable == null) {
+        listView.clearError()
+      } else {
+        listView.showError(throwable)
       }
     }
   }
 
-  override fun handleEditEntry(entry: FridgeEntry) {
-    callback.onEditEntry(entry.id())
+  private fun renderEdit(state: EntryState, oldState: EntryState?) {
+    state.renderOnChange(oldState, value = { it.editingEntry }) { editingEntry ->
+      if (editingEntry != null) {
+        callback.onEditEntry(editingEntry.id())
+      }
+    }
   }
 
 }

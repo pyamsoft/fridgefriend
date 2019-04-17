@@ -17,29 +17,32 @@
 
 package com.pyamsoft.fridge.entry.toolbar
 
-import com.pyamsoft.fridge.entry.EntryScope
-import com.pyamsoft.pydroid.arch.UiBinder
+import com.pyamsoft.fridge.entry.toolbar.EntryToolbarHandler.ToolbarEvent
+import com.pyamsoft.fridge.entry.toolbar.EntryToolbarViewModel.ToolbarState
+import com.pyamsoft.pydroid.arch.UiEventHandler
+import com.pyamsoft.pydroid.arch.UiState
+import com.pyamsoft.pydroid.arch.UiViewModel
 import javax.inject.Inject
 
-@EntryScope
-internal class EntryToolbarBinder @Inject internal constructor(
-) : UiBinder<EntryToolbarBinder.Callback>(),
-  EntryToolbar.Callback {
+internal class EntryToolbarViewModel @Inject internal constructor(
+  private val handler: UiEventHandler<ToolbarEvent, EntryToolbar.Callback>
+) : UiViewModel<ToolbarState>(
+  initialState = ToolbarState(isSettings = false)
+), EntryToolbar.Callback {
 
   override fun onBind() {
+    handler.handle(this).destroy()
   }
 
   override fun onUnbind() {
   }
 
   override fun onSettingsClicked() {
-    callback.handleSettingsClicked()
+    setUniqueState(true, old = { it.isSettings }) { state, value ->
+      state.copy(isSettings = value)
+    }
   }
 
-  interface Callback : UiBinder.Callback {
-
-    fun handleSettingsClicked()
-
-  }
-
+  data class ToolbarState(val isSettings: Boolean) : UiState
 }
+

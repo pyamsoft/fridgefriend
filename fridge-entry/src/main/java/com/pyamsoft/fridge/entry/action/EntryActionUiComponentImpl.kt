@@ -19,18 +19,19 @@ package com.pyamsoft.fridge.entry.action
 
 import android.os.Bundle
 import androidx.lifecycle.LifecycleOwner
+import com.pyamsoft.fridge.entry.action.EntryActionViewModel.ActionState
 import com.pyamsoft.pydroid.arch.BaseUiComponent
 import com.pyamsoft.pydroid.arch.doOnDestroy
+import com.pyamsoft.pydroid.arch.renderOnChange
 import com.pyamsoft.pydroid.ui.arch.InvalidIdException
 import javax.inject.Inject
 
 internal class EntryActionUiComponentImpl @Inject internal constructor(
   private val create: EntryCreate,
   private val shop: EntryShop,
-  private val binder: EntryActionBinder
+  private val viewModel: EntryActionViewModel
 ) : BaseUiComponent<EntryActionUiComponent.Callback>(),
-  EntryActionUiComponent,
-  EntryActionBinder.Callback {
+  EntryActionUiComponent {
 
   override fun id(): Int {
     throw InvalidIdException
@@ -44,29 +45,54 @@ internal class EntryActionUiComponentImpl @Inject internal constructor(
     owner.doOnDestroy {
       create.teardown()
       shop.teardown()
-      binder.unbind()
+      viewModel.unbind()
     }
 
     shop.inflate(savedInstanceState)
     create.inflate(savedInstanceState)
-    binder.bind(this)
+    viewModel.bind { state, oldState ->
+      renderCreate(state, oldState)
+      renderShop(state, oldState)
+      renderError(state, oldState)
+    }
+  }
+
+  private fun renderCreate(
+    state: ActionState,
+    oldState: ActionState?
+  ) {
+    state.renderOnChange(oldState, value = { it.isCreating }) { creating ->
+      if (creating.isNotBlank()) {
+        callback.onCreateNew(creating)
+      }
+    }
+  }
+
+  private fun renderShop(
+    state: ActionState,
+    oldState: ActionState?
+  ) {
+    state.renderOnChange(oldState, value = { it.isShopping }) { shopping ->
+      if (shopping) {
+        callback.onStartShopping()
+      }
+    }
+  }
+
+  private fun renderError(
+    state: ActionState,
+    oldState: ActionState?
+  ) {
+    state.renderOnChange(oldState, value = { it.throwable }) { throwable ->
+      if (throwable != null) {
+        // TODO
+      }
+    }
   }
 
   override fun onSaveState(outState: Bundle) {
     create.saveState(outState)
     shop.saveState(outState)
-  }
-
-  override fun handleCreate(id: String) {
-    callback.onCreateNew(id)
-  }
-
-  override fun handleShop() {
-    callback.onStartShopping()
-  }
-
-  override fun handleCreateError(throwable: Throwable) {
-    // TODO
   }
 
   override fun show() {

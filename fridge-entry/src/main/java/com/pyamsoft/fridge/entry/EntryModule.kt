@@ -18,19 +18,25 @@
 package com.pyamsoft.fridge.entry
 
 import androidx.annotation.CheckResult
-import com.pyamsoft.fridge.entry.action.EntryActionBinder
+import com.pyamsoft.fridge.entry.action.EntryActionCreateHandler
+import com.pyamsoft.fridge.entry.action.EntryActionCreateHandler.CreateEvent
+import com.pyamsoft.fridge.entry.action.EntryActionShopHandler
+import com.pyamsoft.fridge.entry.action.EntryActionShopHandler.ShopEvent
 import com.pyamsoft.fridge.entry.action.EntryActionUiComponent
 import com.pyamsoft.fridge.entry.action.EntryActionUiComponentImpl
 import com.pyamsoft.fridge.entry.action.EntryCreate
 import com.pyamsoft.fridge.entry.action.EntryShop
 import com.pyamsoft.fridge.entry.list.EntryList
-import com.pyamsoft.fridge.entry.list.EntryListPresenter
+import com.pyamsoft.fridge.entry.list.EntryListHandler
+import com.pyamsoft.fridge.entry.list.EntryListHandler.ListEvent
 import com.pyamsoft.fridge.entry.list.EntryListUiComponent
 import com.pyamsoft.fridge.entry.list.EntryListUiComponentImpl
 import com.pyamsoft.fridge.entry.toolbar.EntryToolbar
-import com.pyamsoft.fridge.entry.toolbar.EntryToolbarBinder
+import com.pyamsoft.fridge.entry.toolbar.EntryToolbarHandler
+import com.pyamsoft.fridge.entry.toolbar.EntryToolbarHandler.ToolbarEvent
 import com.pyamsoft.fridge.entry.toolbar.EntryToolbarUiComponent
 import com.pyamsoft.fridge.entry.toolbar.EntryToolbarUiComponentImpl
+import com.pyamsoft.pydroid.arch.UiEventHandler
 import dagger.Binds
 import dagger.Module
 
@@ -39,11 +45,19 @@ abstract class EntryModule {
 
   @Binds
   @CheckResult
-  internal abstract fun bindCreateCallback(impl: EntryActionBinder): EntryCreate.Callback
+  internal abstract fun bindCreateCallback(impl: EntryActionCreateHandler): EntryCreate.Callback
 
   @Binds
   @CheckResult
-  internal abstract fun bindShopCallback(impl: EntryActionBinder): EntryShop.Callback
+  internal abstract fun bindCreateHandler(impl: EntryActionCreateHandler): UiEventHandler<CreateEvent, EntryCreate.Callback>
+
+  @Binds
+  @CheckResult
+  internal abstract fun bindShopCallback(impl: EntryActionShopHandler): EntryShop.Callback
+
+  @Binds
+  @CheckResult
+  internal abstract fun bindShopHandler(impl: EntryActionShopHandler): UiEventHandler<ShopEvent, EntryShop.Callback>
 
   @Binds
   @CheckResult
@@ -51,7 +65,11 @@ abstract class EntryModule {
 
   @Binds
   @CheckResult
-  internal abstract fun bindListCallback(impl: EntryListPresenter): EntryList.Callback
+  internal abstract fun bindListCallback(impl: EntryListHandler): EntryList.Callback
+
+  @Binds
+  @CheckResult
+  internal abstract fun bindListHandler(impl: EntryListHandler): UiEventHandler<ListEvent, EntryList.Callback>
 
   @Binds
   @CheckResult
@@ -59,7 +77,11 @@ abstract class EntryModule {
 
   @Binds
   @CheckResult
-  internal abstract fun bindToolbarCallback(impl: EntryToolbarBinder): EntryToolbar.Callback
+  internal abstract fun bindToolbarCallback(impl: EntryToolbarHandler): EntryToolbar.Callback
+
+  @Binds
+  @CheckResult
+  internal abstract fun bindToolbarHandler(impl: EntryToolbarHandler): UiEventHandler<ToolbarEvent, EntryToolbar.Callback>
 
   @Binds
   @CheckResult

@@ -26,6 +26,7 @@ import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent
 import com.pyamsoft.fridge.db.room.RoomProvider
 import com.pyamsoft.fridge.detail.DetailComponent
 import com.pyamsoft.fridge.entry.EntryComponent
+import com.pyamsoft.fridge.entry.EntrySingletonModule
 import com.pyamsoft.fridge.main.MainComponent
 import com.pyamsoft.fridge.ocr.OcrComponent
 import com.pyamsoft.fridge.ocr.OcrSingletonModule
@@ -51,7 +52,8 @@ import javax.inject.Singleton
     DbProvider::class,
     RoomProvider::class,
     SettingSingletonModule::class,
-    OcrSingletonModule::class
+    OcrSingletonModule::class,
+    EntrySingletonModule::class
   ]
 )
 internal interface FridgeComponent {
