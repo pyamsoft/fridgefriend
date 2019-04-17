@@ -132,6 +132,7 @@ internal class EntryListViewModel @Inject internal constructor(
   }
 
   private fun handleListRefreshed(entries: List<FridgeEntry>) {
+    Timber.d("List refreshed: $entries")
     setState {
       copy(entries = entries, throwable = null)
     }
