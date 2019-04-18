@@ -68,7 +68,6 @@ internal interface DetailItemComponent {
       @BindsInstance parent: ViewGroup,
       @BindsInstance item: FridgeItem,
       @BindsInstance @Named("item_editable") editable: Boolean,
-      @BindsInstance stateMap: MutableMap<String, Int>,
       @BindsInstance imageLoader: ImageLoader,
       @BindsInstance theming: Theming,
       @BindsInstance interactor: CreationListInteractor,

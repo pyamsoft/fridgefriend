@@ -54,7 +54,6 @@ import com.pyamsoft.pydroid.ui.util.refreshing
 internal abstract class DetailList protected constructor(
   private val interactor: CreationListInteractor,
   private val imageLoader: ImageLoader,
-  private val stateMap: MutableMap<String, Int>,
   private val theming: Theming,
   private val fakeRealtime: EventBus<FridgeItemChangeEvent>,
   parent: ViewGroup,
@@ -81,7 +80,7 @@ internal abstract class DetailList protected constructor(
   final override fun onInflated(view: View, savedInstanceState: Bundle?) {
     val factory = { parent: ViewGroup, item: FridgeItem, editable: Boolean ->
       DaggerDetailItemComponent.factory()
-        .create(parent, item, editable, stateMap, imageLoader, theming, interactor, fakeRealtime)
+        .create(parent, item, editable, imageLoader, theming, interactor, fakeRealtime)
     }
 
     modelAdapter = ModelAdapter { createListItem(it, factory) }

@@ -25,17 +25,16 @@ import android.view.ViewGroup
 import android.widget.EditText
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.detail.R
-import timber.log.Timber
+import com.pyamsoft.fridge.detail.item.fridge.DetailListItemName.Callback
 import javax.inject.Inject
 import javax.inject.Named
 
 internal class DetailListItemName @Inject internal constructor(
-  private val nonPersistedEditableStateMap: MutableMap<String, Int>,
   @Named("item_editable") private val editable: Boolean,
   item: FridgeItem,
   parent: ViewGroup,
-  callback: DetailListItemName.Callback
-) : DetailListItem<DetailListItemName.Callback>(item, parent, callback) {
+  callback: Callback
+) : DetailListItem<Callback>(item, parent, callback) {
 
   override val layout: Int = R.layout.detail_list_item_name
 
@@ -46,17 +45,6 @@ internal class DetailListItemName @Inject internal constructor(
 
   override fun onInflated(view: View, savedInstanceState: Bundle?) {
     nameView.setText(item.name())
-
-    // Restore cursor position from the list widge storage map
-    if (nonPersistedEditableStateMap.containsKey(item.id())) {
-      val location = nonPersistedEditableStateMap[item.id()] ?: 0
-      val restoreTo = Math.min(item.name().length, location)
-      Timber.d("Restore edit text selection from storage map for: ${item.id()}: $restoreTo")
-      Timber.d("CommitName: ${item.name()} [${item.name().length}]")
-      nameView.setSelection(restoreTo)
-      nonPersistedEditableStateMap.remove(item.id())
-    }
-
     if (editable && !item.isArchived()) {
       val watcher = object : TextWatcher {
 
@@ -92,16 +80,8 @@ internal class DetailListItemName @Inject internal constructor(
   }
 
   private fun commit() {
-    saveEditingState()
     val name = nameView.text.toString()
     callback.commitName(item, name)
-  }
-
-  private fun saveEditingState() {
-    // Commit editing location to the storage map
-    val location = nameView.selectionEnd
-    Timber.d("Save edit text selection from storage map for: ${item.id()}: $location")
-    nonPersistedEditableStateMap[item.id()] = location
   }
 
   fun focus() {

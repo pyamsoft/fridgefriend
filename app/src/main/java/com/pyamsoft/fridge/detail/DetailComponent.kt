@@ -19,15 +19,12 @@ package com.pyamsoft.fridge.detail
 
 import android.view.ViewGroup
 import androidx.annotation.CheckResult
-import com.pyamsoft.fridge.detail.DetailComponent.DetailProvider
 import com.pyamsoft.pydroid.ui.app.ToolbarActivity
 import dagger.BindsInstance
-import dagger.Module
-import dagger.Provides
 import dagger.Subcomponent
 
 @DetailScope
-@Subcomponent(modules = [DetailProvider::class])
+@Subcomponent
 internal interface DetailComponent {
 
   @CheckResult
@@ -44,17 +41,6 @@ internal interface DetailComponent {
       @BindsInstance toolbarActivity: ToolbarActivity,
       @BindsInstance parent: ViewGroup
     ): DetailComponent
-  }
-
-  @Module
-  object DetailProvider {
-
-    @DetailScope
-    @JvmStatic
-    @Provides
-    fun provideStateMap(): MutableMap<String, Int> {
-      return LinkedHashMap()
-    }
   }
 
 }

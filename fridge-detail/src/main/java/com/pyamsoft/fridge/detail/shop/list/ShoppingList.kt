@@ -33,12 +33,11 @@ import javax.inject.Inject
 internal class ShoppingList @Inject internal constructor(
   interactor: CreationListInteractor,
   imageLoader: ImageLoader,
-  stateMap: MutableMap<String, Int>,
   theming: Theming,
   fakeRealtime: EventBus<FridgeItemChangeEvent>,
   parent: ViewGroup,
-  private val listCallback: Callback
-) : DetailList(interactor, imageLoader, stateMap, theming, fakeRealtime, parent, listCallback) {
+  listCallback: Callback
+) : DetailList(interactor, imageLoader, theming, fakeRealtime, parent, listCallback) {
 
   override fun createListItem(
     item: FridgeItem,

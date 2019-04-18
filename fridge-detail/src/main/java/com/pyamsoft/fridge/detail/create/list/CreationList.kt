@@ -29,18 +29,15 @@ import com.pyamsoft.pydroid.core.bus.EventBus
 import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.ui.theme.Theming
 import javax.inject.Inject
-import javax.inject.Named
 
 internal class CreationList @Inject internal constructor(
-  @Named("detail_entry_id") private val entryId: String,
   interactor: CreationListInteractor,
   imageLoader: ImageLoader,
-  stateMap: MutableMap<String, Int>,
   theming: Theming,
   fakeRealtime: EventBus<FridgeItemChangeEvent>,
   parent: ViewGroup,
-  private val listCallback: CreationList.Callback
-) : DetailList(interactor, imageLoader, stateMap, theming, fakeRealtime, parent, listCallback),
+  private val listCallback: Callback
+) : DetailList(interactor, imageLoader, theming, fakeRealtime, parent, listCallback),
   AddNewListItemController.Callback {
 
   override fun createListItem(
