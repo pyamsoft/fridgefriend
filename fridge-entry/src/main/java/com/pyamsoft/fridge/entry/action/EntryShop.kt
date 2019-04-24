@@ -38,7 +38,7 @@ internal class EntryShop @Inject internal constructor(
 
   override val layout: Int = R.layout.entry_shop
 
-  override val layoutRoot by lazyView<FloatingActionButton>(R.id.entry_shop)
+  override val layoutRoot by boundView<FloatingActionButton>(R.id.entry_shop)
 
   private var shopIconLoaded: Loaded? = null
 

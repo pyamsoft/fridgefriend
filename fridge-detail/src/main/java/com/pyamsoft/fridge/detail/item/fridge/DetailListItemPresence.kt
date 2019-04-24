@@ -37,8 +37,8 @@ internal class DetailListItemPresence @Inject internal constructor(
 
   override val layout: Int = R.layout.detail_list_item_presence
 
-  override val layoutRoot by lazyView<ViewGroup>(R.id.detail_item_presence)
-  private val presenceSwitch by lazyView<CompoundButton>(R.id.detail_item_presence_switch)
+  override val layoutRoot by boundView<ViewGroup>(R.id.detail_item_presence)
+  private val presenceSwitch by boundView<CompoundButton>(R.id.detail_item_presence_switch)
 
   override fun onInflated(view: View, savedInstanceState: Bundle?) {
     setSwitchEnabled()

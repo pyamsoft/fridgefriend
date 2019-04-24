@@ -50,7 +50,7 @@ internal class DetailItemViewModel @Inject internal constructor(
   private var deleteDisposable by singleDisposable()
 
   override fun onBind() {
-    handler.handle(this).destroy()
+    handler.handle(this).disposeOnDestroy()
   }
 
   override fun onUnbind() {

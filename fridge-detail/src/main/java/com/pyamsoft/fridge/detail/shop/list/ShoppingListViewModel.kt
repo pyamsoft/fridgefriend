@@ -34,7 +34,7 @@ internal class ShoppingListViewModel @Inject internal constructor(
 ) : DetailListViewModel(fakeRealtime, filterArchived = false), ShoppingList.Callback {
 
   override fun bindHandler() {
-    handler.handle(this).destroy()
+    handler.handle(this).disposeOnDestroy()
   }
 
   override fun getItems(force: Boolean): Single<List<FridgeItem>> {

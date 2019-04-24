@@ -29,5 +29,5 @@ internal class FragmentContainer @Inject internal constructor(
 
   override val layout: Int = R.layout.layout_constraint
 
-  override val layoutRoot by lazyView<ConstraintLayout>(R.id.layout_constraint)
+  override val layoutRoot by boundView<ConstraintLayout>(R.id.layout_constraint)
 }

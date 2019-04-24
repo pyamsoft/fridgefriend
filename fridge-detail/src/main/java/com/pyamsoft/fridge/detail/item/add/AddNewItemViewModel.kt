@@ -31,7 +31,7 @@ internal class AddNewItemViewModel @Inject internal constructor(
 ), AddNewItemView.Callback {
 
   override fun onBind() {
-    handler.handle(this).destroy()
+    handler.handle(this).disposeOnDestroy()
   }
 
   override fun onUnbind() {

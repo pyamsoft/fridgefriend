@@ -40,10 +40,10 @@ internal class DetailListItemDate @Inject internal constructor(
 
   override val layout: Int = R.layout.detail_list_item_date
 
-  override val layoutRoot by lazyView<ViewGroup>(R.id.detail_item_date)
-  private val monthView by lazyView<EditText>(R.id.detail_item_date_month)
-  private val dayView by lazyView<EditText>(R.id.detail_item_date_day)
-  private val yearView by lazyView<EditText>(R.id.detail_item_date_year)
+  override val layoutRoot by boundView<ViewGroup>(R.id.detail_item_date)
+  private val monthView by boundView<EditText>(R.id.detail_item_date_month)
+  private val dayView by boundView<EditText>(R.id.detail_item_date_day)
+  private val yearView by boundView<EditText>(R.id.detail_item_date_year)
 
   private var dateWatcher: TextWatcher? = null
 

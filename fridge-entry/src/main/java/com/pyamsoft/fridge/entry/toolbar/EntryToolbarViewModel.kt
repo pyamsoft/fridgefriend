@@ -31,7 +31,7 @@ internal class EntryToolbarViewModel @Inject internal constructor(
 ), EntryToolbar.Callback {
 
   override fun onBind() {
-    handler.handle(this).destroy()
+    handler.handle(this).disposeOnDestroy()
   }
 
   override fun onUnbind() {

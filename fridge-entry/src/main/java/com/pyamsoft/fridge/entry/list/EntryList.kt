@@ -42,10 +42,10 @@ internal class EntryList @Inject internal constructor(
 
   override val layout: Int = R.layout.entry_list
 
-  override val layoutRoot by lazyView<SwipeRefreshLayout>(R.id.entry_swipe_refresh)
+  override val layoutRoot by boundView<SwipeRefreshLayout>(R.id.entry_swipe_refresh)
 
-  private val recyclerView by lazyView<RecyclerView>(R.id.entry_list)
-  private val emptyState by lazyView<TextView>(R.id.entry_empty)
+  private val recyclerView by boundView<RecyclerView>(R.id.entry_list)
+  private val emptyState by boundView<TextView>(R.id.entry_empty)
 
   private var modelAdapter: ModelAdapter<FridgeEntry, EntryItem<*, *>>? = null
 

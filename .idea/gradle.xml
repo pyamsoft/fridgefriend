@@ -7,16 +7,16 @@
         <option name="externalProjectPath" value="$PROJECT_DIR$" />
         <option name="modules">
           <set>
-            <option value="$PROJECT_DIR$" />
-            <option value="$PROJECT_DIR$/app" />
-            <option value="$PROJECT_DIR$/fridge-core" />
-            <option value="$PROJECT_DIR$/fridge-db" />
-            <option value="$PROJECT_DIR$/fridge-db-room" />
-            <option value="$PROJECT_DIR$/fridge-detail" />
-            <option value="$PROJECT_DIR$/fridge-entry" />
-            <option value="$PROJECT_DIR$/fridge-main" />
-            <option value="$PROJECT_DIR$/fridge-ocr" />
-            <option value="$PROJECT_DIR$/fridge-setting" />
+            <option value="/storage/pyamsoft/devel/android/app/projects/MyFridgeSmells" />
+            <option value="/storage/pyamsoft/devel/android/app/projects/MyFridgeSmells/app" />
+            <option value="/storage/pyamsoft/devel/android/app/projects/MyFridgeSmells/fridge-core" />
+            <option value="/storage/pyamsoft/devel/android/app/projects/MyFridgeSmells/fridge-db" />
+            <option value="/storage/pyamsoft/devel/android/app/projects/MyFridgeSmells/fridge-db-room" />
+            <option value="/storage/pyamsoft/devel/android/app/projects/MyFridgeSmells/fridge-detail" />
+            <option value="/storage/pyamsoft/devel/android/app/projects/MyFridgeSmells/fridge-entry" />
+            <option value="/storage/pyamsoft/devel/android/app/projects/MyFridgeSmells/fridge-main" />
+            <option value="/storage/pyamsoft/devel/android/app/projects/MyFridgeSmells/fridge-ocr" />
+            <option value="/storage/pyamsoft/devel/android/app/projects/MyFridgeSmells/fridge-setting" />
           </set>
         </option>
         <option name="resolveModulePerSourceSet" value="false" />

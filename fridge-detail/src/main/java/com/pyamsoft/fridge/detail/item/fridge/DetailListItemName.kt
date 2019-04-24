@@ -38,8 +38,8 @@ internal class DetailListItemName @Inject internal constructor(
 
   override val layout: Int = R.layout.detail_list_item_name
 
-  override val layoutRoot by lazyView<ViewGroup>(R.id.detail_item_name)
-  private val nameView by lazyView<EditText>(R.id.detail_item_name_editable)
+  override val layoutRoot by boundView<ViewGroup>(R.id.detail_item_name)
+  private val nameView by boundView<EditText>(R.id.detail_item_name_editable)
 
   private var nameWatcher: TextWatcher? = null
 

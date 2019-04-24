@@ -39,7 +39,7 @@ internal class EntryActionViewModel @Inject internal constructor(
   private var createDisposable by singleDisposable()
 
   override fun onBind() {
-    handler.handle(this).destroy()
+    handler.handle(this).disposeOnDestroy()
   }
 
   override fun onUnbind() {

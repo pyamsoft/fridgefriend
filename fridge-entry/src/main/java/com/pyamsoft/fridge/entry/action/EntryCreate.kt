@@ -46,7 +46,7 @@ internal class EntryCreate @Inject internal constructor(
 
   override val layout: Int = R.layout.entry_create
 
-  override val layoutRoot by lazyView<FloatingActionButton>(R.id.entry_create)
+  override val layoutRoot by boundView<FloatingActionButton>(R.id.entry_create)
 
   private var createIconLoaded: Loaded? = null
 

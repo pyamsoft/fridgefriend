@@ -38,7 +38,7 @@ internal class CreationListViewModel @Inject internal constructor(
   CreationList.Callback {
 
   override fun bindHandler() {
-    handler.handle(this).destroy()
+    handler.handle(this).disposeOnDestroy()
   }
 
   override fun getItems(force: Boolean): Single<List<FridgeItem>> {

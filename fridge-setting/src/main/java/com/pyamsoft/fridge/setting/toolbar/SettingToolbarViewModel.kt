@@ -31,7 +31,7 @@ internal class SettingToolbarViewModel @Inject internal constructor(
 ), SettingToolbar.Callback {
 
   override fun onBind() {
-    handler.handle(this).destroy()
+    handler.handle(this).disposeOnDestroy()
   }
 
   override fun onUnbind() {

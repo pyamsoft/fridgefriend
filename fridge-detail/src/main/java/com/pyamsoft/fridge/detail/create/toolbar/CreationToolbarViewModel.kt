@@ -39,7 +39,7 @@ internal class CreationToolbarViewModel @Inject internal constructor(
   private var deleteDisposable by singleDisposable()
 
   override fun onBind() {
-    handler.handle(this).destroy()
+    handler.handle(this).disposeOnDestroy()
     observeReal(false)
     listenForDelete()
   }
@@ -50,12 +50,12 @@ internal class CreationToolbarViewModel @Inject internal constructor(
 
   private fun observeReal(force: Boolean) {
     interactor.observeEntryReal(force)
-      .subscribeOn(Schedulers.io())
-      .observeOn(AndroidSchedulers.mainThread())
-      .subscribe({ handleRealUpdated(it) }, {
-        Timber.e(it, "Error observing entry real")
-        handleError(it)
-      }).destroy()
+        .subscribeOn(Schedulers.io())
+        .observeOn(AndroidSchedulers.mainThread())
+        .subscribe({ handleRealUpdated(it) }, {
+          Timber.e(it, "Error observing entry real")
+          handleError(it)
+        }).disposeOnDestroy()
   }
 
   private fun handleRealUpdated(real: Boolean) {
@@ -67,7 +67,7 @@ internal class CreationToolbarViewModel @Inject internal constructor(
       .subscribeOn(Schedulers.io())
       .observeOn(AndroidSchedulers.mainThread())
       .subscribe { handleDeleted() }
-      .destroy()
+      .disposeOnDestroy()
   }
 
   private fun handleDeleted() {

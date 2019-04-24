@@ -63,9 +63,9 @@ internal abstract class DetailList protected constructor(
 
   final override val layout: Int = R.layout.detail_list
 
-  final override val layoutRoot by lazyView<SwipeRefreshLayout>(R.id.detail_swipe_refresh)
+  final override val layoutRoot by boundView<SwipeRefreshLayout>(R.id.detail_swipe_refresh)
 
-  private val recyclerView by lazyView<RecyclerView>(R.id.detail_list)
+  private val recyclerView by boundView<RecyclerView>(R.id.detail_list)
 
   private var decoration: DividerItemDecoration? = null
   private var touchHelper: ItemTouchHelper? = null

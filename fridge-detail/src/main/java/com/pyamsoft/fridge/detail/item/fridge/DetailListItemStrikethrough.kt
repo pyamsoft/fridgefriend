@@ -41,9 +41,9 @@ internal class DetailListItemStrikethrough @Inject internal constructor(
 
   override val layout: Int = R.layout.detail_list_item_strikethrough
 
-  override val layoutRoot by lazyView<ViewGroup>(R.id.detail_item_strikethrough)
-  private val strikeLine by lazyView<View>(R.id.detail_item_strikethrough_line)
-  private val errorMessage by lazyView<TextView>(R.id.detail_item_strikethrough_error)
+  override val layoutRoot by boundView<ViewGroup>(R.id.detail_item_strikethrough)
+  private val strikeLine by boundView<View>(R.id.detail_item_strikethrough_line)
+  private val errorMessage by boundView<TextView>(R.id.detail_item_strikethrough_error)
 
   override fun onInflated(view: View, savedInstanceState: Bundle?) {
     if (editable && !item.isArchived()) {

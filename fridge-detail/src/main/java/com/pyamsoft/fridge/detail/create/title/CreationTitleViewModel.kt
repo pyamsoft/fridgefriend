@@ -41,7 +41,7 @@ internal class CreationTitleViewModel @Inject internal constructor(
   private var updateDisposable by singleDisposable()
 
   override fun onBind() {
-    handler.handle(this).destroy()
+    handler.handle(this).disposeOnDestroy()
 
     observeName(false)
   }
@@ -53,12 +53,12 @@ internal class CreationTitleViewModel @Inject internal constructor(
 
   private fun observeName(force: Boolean) {
     interactor.observeEntryName(force)
-      .subscribeOn(Schedulers.io())
-      .observeOn(AndroidSchedulers.mainThread())
-      .subscribe({ handleNameUpdated(it.name) }, {
-        Timber.e(it, "Error observing entry name")
-        handleNameUpdateError(it)
-      }).destroy()
+        .subscribeOn(Schedulers.io())
+        .observeOn(AndroidSchedulers.mainThread())
+        .subscribe({ handleNameUpdated(it.name) }, {
+          Timber.e(it, "Error observing entry name")
+          handleNameUpdateError(it)
+        }).disposeOnDestroy()
   }
 
   private fun handleNameUpdated(name: String) {

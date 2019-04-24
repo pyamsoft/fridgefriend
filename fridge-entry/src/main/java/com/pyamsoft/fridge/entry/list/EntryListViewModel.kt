@@ -54,7 +54,7 @@ internal class EntryListViewModel @Inject internal constructor(
   private var realtimeChangeDisposable by singleDisposable()
 
   override fun onBind() {
-    handler.handle(this).destroy()
+    handler.handle(this).disposeOnDestroy()
     refresh(false)
   }
 

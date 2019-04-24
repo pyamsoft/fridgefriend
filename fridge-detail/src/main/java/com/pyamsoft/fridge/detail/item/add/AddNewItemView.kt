@@ -38,13 +38,13 @@ internal class AddNewItemView @Inject internal constructor(
   callback: Callback
 ) : BaseUiView<Callback>(parent, callback) {
 
-  private val addNewIcon by lazyView<ImageView>(R.id.detail_add_new_item_icon)
+  private val addNewIcon by boundView<ImageView>(R.id.detail_add_new_item_icon)
 
   private var iconLoaded: Loaded? = null
 
   override val layout: Int = R.layout.add_new_list_item
 
-  override val layoutRoot by lazyView<ViewGroup>(R.id.detail_add_new_item)
+  override val layoutRoot by boundView<ViewGroup>(R.id.detail_add_new_item)
 
   override fun onInflated(view: View, savedInstanceState: Bundle?) {
     iconLoaded = imageLoader.load(R.drawable.ic_add_24dp)

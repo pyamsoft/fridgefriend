@@ -35,7 +35,7 @@ internal class CreationTitle @Inject internal constructor(
 
   override val layout: Int = R.layout.detail_title
 
-  override val layoutRoot by lazyView<TextInputLayout>(R.id.entry_detail_title)
+  override val layoutRoot by boundView<TextInputLayout>(R.id.entry_detail_title)
   private var watcher: TextWatcher? = null
 
   override fun onInflated(view: View, savedInstanceState: Bundle?) {

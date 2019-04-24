@@ -28,7 +28,7 @@ internal class OcrLookingLabel @Inject internal constructor(
 
   override val layout: Int = R.layout.looking
 
-  override val layoutRoot by lazyView<TextView>(R.id.looking)
+  override val layoutRoot by boundView<TextView>(R.id.looking)
 
   override fun onTeardown() {
     layoutRoot.text = ""

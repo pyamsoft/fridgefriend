@@ -38,7 +38,7 @@ internal class OcrScannerView @Inject internal constructor(
 
   override val layout: Int = R.layout.scanner
 
-  override val layoutRoot by lazyView<CameraView>(R.id.camera_view)
+  override val layoutRoot by boundView<CameraView>(R.id.camera_view)
 
   // Interface with callback from the frameProcessor thread
   private val lock = Any()
