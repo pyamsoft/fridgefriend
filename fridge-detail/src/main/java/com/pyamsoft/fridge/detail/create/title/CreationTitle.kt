@@ -70,8 +70,10 @@ internal class CreationTitle @Inject internal constructor(
   }
 
   override fun onTeardown() {
-    layoutRoot.clearFocus()
     removeTextWatcher()
+    layoutRoot.clearFocus()
+    layoutRoot.editText?.text?.clear()
+    layoutRoot.editText?.clearFocus()
   }
 
   fun updateName(name: String, firstUpdate: Boolean) {

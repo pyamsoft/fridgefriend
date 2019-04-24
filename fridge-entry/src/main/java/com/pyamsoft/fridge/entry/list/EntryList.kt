@@ -29,6 +29,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.mikepenz.fastadapter.FastAdapter
 import com.mikepenz.fastadapter.adapters.ModelAdapter
 import com.mikepenz.fastadapter.commons.utils.FastAdapterDiffUtil
+import com.pyamsoft.fridge.core.DataClassDiffCallback
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.entry.R
 import com.pyamsoft.pydroid.arch.BaseUiView
@@ -105,7 +106,7 @@ internal class EntryList @Inject internal constructor(
   fun setList(entries: List<FridgeEntry>) {
     val list = arrayListOf(FridgeEntry.empty()) + entries
     val items = list.map { usingAdapter().intercept(it) }
-    FastAdapterDiffUtil.set(usingAdapter(), items, true)
+    FastAdapterDiffUtil.set(usingAdapter(), items, DataClassDiffCallback.create(), true)
   }
 
   fun clearList() {

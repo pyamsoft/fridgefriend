@@ -72,6 +72,7 @@ internal class DetailListItemName @Inject internal constructor(
     nameWatcher = null
 
     // Cleaup
+    nameView.clearFocus()
     nameView.text.clear()
   }
 

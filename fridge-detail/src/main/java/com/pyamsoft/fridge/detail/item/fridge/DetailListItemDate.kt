@@ -108,6 +108,10 @@ internal class DetailListItemDate @Inject internal constructor(
     yearView.setOnEditorActionListener(null)
 
     // Cleaup
+    monthView.clearFocus()
+    dayView.clearFocus()
+    yearView.clearFocus()
+
     monthView.text.clear()
     dayView.text.clear()
     yearView.text.clear()

@@ -32,9 +32,9 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.mikepenz.fastadapter.FastAdapter
 import com.mikepenz.fastadapter.IItem
 import com.mikepenz.fastadapter.adapters.ModelAdapter
-import com.mikepenz.fastadapter.commons.utils.DiffCallback
 import com.mikepenz.fastadapter.commons.utils.FastAdapterDiffUtil
 import com.mikepenz.fastadapter_extensions.swipe.SimpleSwipeCallback
+import com.pyamsoft.fridge.core.DataClassDiffCallback
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent
 import com.pyamsoft.fridge.detail.R
@@ -210,32 +210,7 @@ internal abstract class DetailList protected constructor(
 
   fun setList(list: List<FridgeItem>) {
     val items = list.map { usingAdapter().intercept(it) }
-    FastAdapterDiffUtil.set(usingAdapter(), items, object : DiffCallback<DetailItem<*, *>> {
-
-      override fun areItemsTheSame(
-        oldItem: DetailItem<*, *>,
-        newItem: DetailItem<*, *>
-      ): Boolean {
-        return oldItem.getIdentifier() == newItem.getIdentifier()
-      }
-
-      override fun areContentsTheSame(
-        oldItem: DetailItem<*, *>,
-        newItem: DetailItem<*, *>
-      ): Boolean {
-        return oldItem.getModel() == newItem.getModel()
-      }
-
-      override fun getChangePayload(
-        oldItem: DetailItem<*, *>?,
-        oldItemPosition: Int,
-        newItem: DetailItem<*, *>?,
-        newItemPosition: Int
-      ): Any? {
-        return null
-      }
-
-    })
+    FastAdapterDiffUtil.set(usingAdapter(), items, DataClassDiffCallback.create(), true)
   }
 
   fun clearList() {
