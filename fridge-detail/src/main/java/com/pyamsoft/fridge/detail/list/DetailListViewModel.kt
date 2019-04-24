@@ -168,17 +168,17 @@ internal abstract class DetailListViewModel protected constructor(
         )
       }
     } else {
-      Timber.w("Realtime updated item: $item, but UI doesn't do anything.")
-      // Not a great user experience to constantly flicker on refresh
-//    setState {
-//      copy(items = getListItems(items.map { old ->
-//        if (old.id() == item.id()) {
-//          return@map item
-//        } else {
-//          return@map old
-//        }
-//      }))
-//    }
+      setState {
+        copy(
+          items = getListItems(items.map { old ->
+            if (old.id() == item.id()) {
+              return@map item
+            } else {
+              return@map old
+            }
+          }).filterNot { filterArchived && it.isArchived() }
+        )
+      }
 
     }
   }

@@ -209,8 +209,9 @@ internal abstract class DetailList protected constructor(
   }
 
   fun setList(list: List<FridgeItem>) {
-    val items = list.map { usingAdapter().intercept(it) }
-    FastAdapterDiffUtil.set(usingAdapter(), items, DataClassDiffCallback.create(), true)
+    val adapter = usingAdapter()
+    val items = list.map { adapter.intercept(it) }
+    FastAdapterDiffUtil.set(adapter, items, DataClassDiffCallback.create(), true)
   }
 
   fun clearList() {
@@ -227,6 +228,21 @@ internal abstract class DetailList protected constructor(
 
   fun finishRefresh() {
     layoutRoot.refreshing(false)
+  }
+
+  final override fun onItemUpdated(item: FridgeItem) {
+    val adapter = usingAdapter()
+    val models = adapter.models
+    val copyOfModels = models.toMutableList()
+    for ((index, model) in models.withIndex()) {
+      if (model.id() == item.id()) {
+        copyOfModels[index] = item
+        break
+      }
+    }
+
+    // Set the new list but do not notify a UI update
+    adapter.set(copyOfModels, false) { _, _, _, _ -> false }
   }
 
   interface Callback {

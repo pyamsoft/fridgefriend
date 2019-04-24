@@ -63,11 +63,17 @@ internal class DetailListItemController internal constructor(
 
   override fun bindView(holder: ViewHolder, payloads: MutableList<Any>) {
     super.bindView(holder, payloads)
-    holder.bind(model, canSwipe(), object : ViewHolderCallback {
 
-      override fun onMadeReal(item: FridgeItem) {
-        Timber.d("We are real now, rebind!")
+    holder.bind(super.getModel(), canSwipe(), object : Callback {
+
+      override fun onItemUpdated(item: FridgeItem) {
+        if (!model.isReal() && item.isReal()) {
+          Timber.d("We are real now, rebind!")
+        }
+
+        Timber.d("Update backing item: $item")
         withModel(item)
+        callback.onItemUpdated(item)
       }
 
       override fun onLastDoneClicked(position: Int) {
@@ -92,17 +98,17 @@ internal class DetailListItemController internal constructor(
     private val parent: ConstraintLayout = itemView.findViewById(R.id.listitem_constraint)
 
     private var lifecycle: ListItemLifecycle? = null
-    private var callback: ViewHolderCallback? = null
+    private var callback: Callback? = null
 
     override fun onLastDoneClicked() {
       requireNotNull(callback).onLastDoneClicked(layoutPosition)
     }
 
-    override fun onMadeReal(real: FridgeItem) {
-      requireNotNull(callback).onMadeReal(real)
+    override fun onItemUpdated(item: FridgeItem) {
+      requireNotNull(callback).onItemUpdated(item)
     }
 
-    fun bind(item: FridgeItem, editable: Boolean, cb: ViewHolderCallback) {
+    fun bind(item: FridgeItem, editable: Boolean, cb: Callback) {
       callback = cb
       lifecycle?.unbind()
 
@@ -157,13 +163,9 @@ internal class DetailListItemController internal constructor(
 
   }
 
-  internal interface ViewHolderCallback : Callback {
-
-    fun onMadeReal(item: FridgeItem)
-
-  }
-
   interface Callback {
+
+    fun onItemUpdated(item: FridgeItem)
 
     fun onLastDoneClicked(position: Int)
 

@@ -57,7 +57,7 @@ internal class DetailListItemUiComponentImpl @Inject internal constructor(
     viewModel.bind { state, oldState ->
       renderError(state, oldState)
       renderLastDone(state, oldState)
-      renderReal(state, oldState)
+      renderItem(state, oldState)
     }
   }
 
@@ -110,17 +110,17 @@ internal class DetailListItemUiComponentImpl @Inject internal constructor(
     }
   }
 
-  private fun renderReal(
+  private fun renderItem(
     state: DetailState,
     oldState: DetailState?
   ) {
-    state.renderOnChange(oldState, value = { it.isReal }) { real ->
-      if (real != null) {
-        name.makeReal(real)
-        expireTime.makeReal(real)
-        presence.makeReal(real)
-        strikethrough.makeReal(real)
-        callback.onMadeReal(real)
+    state.renderOnChange(oldState, value = { it.item }) { item ->
+      if (item != null) {
+        name.makeReal(item)
+        expireTime.makeReal(item)
+        presence.makeReal(item)
+        strikethrough.makeReal(item)
+        callback.onItemUpdated(item)
       }
     }
   }
