@@ -110,6 +110,13 @@ internal abstract class DetailListViewModel protected constructor(
   protected fun insert(items: MutableList<FridgeItem>, item: FridgeItem) {
     if (!checkExists(items, item)) {
       addToEndBeforeAddNew(items, item)
+    } else {
+      for ((index, oldItem) in items.filterNot { it.id().isBlank() }.withIndex()) {
+        if (oldItem.id() == item.id()) {
+          items[index] = item
+          break
+        }
+      }
     }
   }
 
@@ -136,11 +143,13 @@ internal abstract class DetailListViewModel protected constructor(
 
   private fun handleRealtimeInsert(item: FridgeItem) {
     setState {
-      copy(items = items.let { list ->
-        val newItems = list.toMutableList()
-        insert(newItems, item)
-        return@let getListItems(newItems.filterNot { filterArchived && it.isArchived() })
-      })
+      copy(
+        items = items.let { list ->
+          val newItems = list.toMutableList()
+          insert(newItems, item)
+          return@let getListItems(newItems)
+            .filterNot { filterArchived && it.isArchived() }
+        })
     }
   }
 
@@ -148,13 +157,15 @@ internal abstract class DetailListViewModel protected constructor(
     // Remove Archived items
     if (item.isArchived()) {
       setState {
-        copy(items = getListItems(items.map { old ->
-          if (old.id() == item.id()) {
-            return@map item
-          } else {
-            return@map old
-          }
-        }).filterNot { filterArchived && it.isArchived() })
+        copy(
+          items = getListItems(items.map { old ->
+            if (old.id() == item.id()) {
+              return@map item
+            } else {
+              return@map old
+            }
+          }).filterNot { filterArchived && it.isArchived() }
+        )
       }
     } else {
       Timber.w("Realtime updated item: $item, but UI doesn't do anything.")
@@ -174,9 +185,9 @@ internal abstract class DetailListViewModel protected constructor(
 
   private fun handleRealtimeDelete(item: FridgeItem) {
     setState {
-      copy(items = getListItems(items
-        .filterNot { it.id() == item.id() }
-        .filterNot { filterArchived && it.isArchived() })
+      copy(
+        items = getListItems(items.filterNot { it.id() == item.id() })
+          .filterNot { filterArchived && it.isArchived() }
       )
     }
   }

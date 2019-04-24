@@ -119,7 +119,7 @@ internal class DetailItemViewModel @Inject internal constructor(
     // A delete operation will stop an update operation
     updateDisposable = Completable.complete()
       .delay(DetailConstants.COMMIT_TIMEOUT_DURATION, DetailConstants.COMMIT_TIMEOUT_UNIT)
-      .andThen(interactor.commit(item))
+      .andThen(interactor.commit(item.makeReal()))
       .subscribeOn(Schedulers.io())
       .observeOn(AndroidSchedulers.mainThread())
       .doAfterTerminate { updateDisposable.tryDispose() }
