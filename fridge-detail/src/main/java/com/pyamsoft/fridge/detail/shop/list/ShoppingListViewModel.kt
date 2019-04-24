@@ -46,7 +46,7 @@ internal class ShoppingListViewModel @Inject internal constructor(
   }
 
   override fun getListItems(items: List<FridgeItem>): List<FridgeItem> {
-    return items
+    return items.filter { it.isReal() }
   }
 
 }
