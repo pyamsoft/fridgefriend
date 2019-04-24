@@ -116,10 +116,10 @@ internal class DetailListItemUiComponentImpl @Inject internal constructor(
   ) {
     state.renderOnChange(oldState, value = { it.item }) { item ->
       if (item != null) {
-        name.makeReal(item)
-        expireTime.makeReal(item)
-        presence.makeReal(item)
-        strikethrough.makeReal(item)
+        name.updateItem(item)
+        expireTime.updateItem(item)
+        presence.updateItem(item)
+        strikethrough.updateItem(item)
         callback.onItemUpdated(item)
       }
     }

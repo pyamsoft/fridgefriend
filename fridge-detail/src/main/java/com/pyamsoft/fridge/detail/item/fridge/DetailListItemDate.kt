@@ -117,7 +117,7 @@ internal class DetailListItemDate @Inject internal constructor(
     yearView.text.clear()
   }
 
-  override fun onMadeReal() {
+  override fun onItemUpdated() {
 
   }
 

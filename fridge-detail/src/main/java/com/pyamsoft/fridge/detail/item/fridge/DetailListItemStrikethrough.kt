@@ -46,6 +46,10 @@ internal class DetailListItemStrikethrough @Inject internal constructor(
   private val errorMessage by boundView<TextView>(R.id.detail_item_strikethrough_error)
 
   override fun onInflated(view: View, savedInstanceState: Bundle?) {
+    decideStrikethroughState()
+  }
+
+  private fun decideStrikethroughState() {
     if (editable && !item.isArchived()) {
       hide()
     } else {
@@ -73,7 +77,8 @@ internal class DetailListItemStrikethrough @Inject internal constructor(
     strikeLine.isInvisible = true
   }
 
-  override fun onMadeReal() {
+  override fun onItemUpdated() {
+    decideStrikethroughState()
   }
 
   fun showError(throwable: Throwable) {

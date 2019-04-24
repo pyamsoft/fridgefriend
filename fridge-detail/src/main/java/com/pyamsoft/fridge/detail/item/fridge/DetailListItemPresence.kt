@@ -54,7 +54,7 @@ internal class DetailListItemPresence @Inject internal constructor(
     presenceSwitch.isChecked = false
   }
 
-  override fun onMadeReal() {
+  override fun onItemUpdated() {
     setSwitchEnabled()
   }
 

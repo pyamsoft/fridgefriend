@@ -76,7 +76,7 @@ internal class DetailListItemName @Inject internal constructor(
     nameView.text.clear()
   }
 
-  override fun onMadeReal() {
+  override fun onItemUpdated() {
 
   }
 
