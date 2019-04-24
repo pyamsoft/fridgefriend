@@ -68,7 +68,7 @@ internal class AddNewListItemController internal constructor(
   ) : RecyclerView.ViewHolder(itemView) {
 
     private var lifecycle: ListItemLifecycle? = null
-    @field:Inject internal lateinit var component: AddNewItemUiComponent
+    @JvmField @Inject internal var component: AddNewItemUiComponent? = null
 
     private val parent: ViewGroup = itemView.findViewById(R.id.listitem_frame)
 
@@ -80,13 +80,15 @@ internal class AddNewListItemController internal constructor(
 
       val owner = ListItemLifecycle()
       lifecycle = owner
-      component.bind(owner, null, callback)
+      requireNotNull(component).bind(owner, null, callback)
       owner.bind()
     }
 
     fun unbind() {
       lifecycle?.unbind()
       lifecycle = null
+
+      component = null
     }
   }
 

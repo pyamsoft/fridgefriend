@@ -31,7 +31,7 @@ import javax.inject.Inject
 
 internal class SettingsFragment : AppSettingsFragment(), SettingToolbarUiComponent.Callback {
 
-  @field:Inject internal lateinit var toolbar: SettingToolbarUiComponent
+  @JvmField @Inject internal var toolbar: SettingToolbarUiComponent? = null
 
   override fun provideSettingsFragment(): AppSettingsPreferenceFragment {
     return SettingsPreferenceFragment()
@@ -49,12 +49,17 @@ internal class SettingsFragment : AppSettingsFragment(), SettingToolbarUiCompone
       .create(requireToolbarActivity())
       .inject(this)
 
-    toolbar.bind(viewLifecycleOwner, savedInstanceState, this)
+    requireNotNull(toolbar).bind(viewLifecycleOwner, savedInstanceState, this)
   }
 
   override fun onSaveInstanceState(outState: Bundle) {
     super.onSaveInstanceState(outState)
-    toolbar.saveState(outState)
+    toolbar?.saveState(outState)
+  }
+
+  override fun onDestroyView() {
+    super.onDestroyView()
+    toolbar = null
   }
 
   override fun onNavigateBack() {
@@ -76,10 +81,6 @@ internal class SettingsFragment : AppSettingsFragment(), SettingToolbarUiCompone
   }
 
   internal class SettingsPreferenceFragment : AppSettingsPreferenceFragment() {
-
-    override fun onLicenseItemClicked() {
-      super.onLicenseItemClicked()
-    }
 
     companion object {
 

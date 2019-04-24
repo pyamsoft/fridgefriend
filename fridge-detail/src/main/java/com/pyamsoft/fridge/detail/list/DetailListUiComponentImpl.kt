@@ -33,7 +33,7 @@ internal abstract class DetailListUiComponentImpl protected constructor(
 ) : BaseUiComponent<Callback>(),
   DetailListUiComponent {
 
-  private lateinit var refreshLatch: RefreshLatch
+  private var refreshLatch: RefreshLatch? = null
 
   override fun id(): Int {
     return list.id()
@@ -43,6 +43,7 @@ internal abstract class DetailListUiComponentImpl protected constructor(
     owner.doOnDestroy {
       list.teardown()
       viewModel.unbind()
+      refreshLatch = null
     }
 
     refreshLatch = newRefreshLatch(owner) { refreshing ->
@@ -68,7 +69,7 @@ internal abstract class DetailListUiComponentImpl protected constructor(
   private fun renderLoading(state: DetailState, oldState: DetailState?) {
     state.renderOnChange(oldState, value = { it.isLoading }) { loading ->
       if (loading != null) {
-        refreshLatch.isRefreshing = loading.isLoading
+        requireNotNull(refreshLatch).isRefreshing = loading.isLoading
       }
     }
   }

@@ -41,9 +41,9 @@ internal class CreationFragment : Fragment(),
   CreationToolbarUiComponent.Callback,
   CreationTitleUiComponent.Callback {
 
-  @field:Inject internal lateinit var toolbar: CreationToolbarUiComponent
-  @field:Inject internal lateinit var title: CreationTitleUiComponent
-  @field:Inject internal lateinit var list: DetailListUiComponent
+  @JvmField @Inject internal var toolbar: CreationToolbarUiComponent? = null
+  @JvmField @Inject internal var title: CreationTitleUiComponent? = null
+  @JvmField @Inject internal var list: DetailListUiComponent? = null
 
   override fun onCreateView(
     inflater: LayoutInflater,
@@ -64,6 +64,9 @@ internal class CreationFragment : Fragment(),
       .create(requireArguments().getString(ENTRY_ID, ""))
       .inject(this)
 
+    val list = requireNotNull(list)
+    val title = requireNotNull(title)
+    val toolbar = requireNotNull(toolbar)
     list.bind(parent, viewLifecycleOwner, savedInstanceState, this)
     title.bind(parent, viewLifecycleOwner, savedInstanceState, this)
     toolbar.bind(parent, viewLifecycleOwner, savedInstanceState, this)
@@ -89,9 +92,17 @@ internal class CreationFragment : Fragment(),
 
   override fun onSaveInstanceState(outState: Bundle) {
     super.onSaveInstanceState(outState)
-    title.saveState(outState)
-    toolbar.saveState(outState)
-    list.saveState(outState)
+    title?.saveState(outState)
+    toolbar?.saveState(outState)
+    list?.saveState(outState)
+  }
+
+  override fun onDestroyView() {
+    super.onDestroyView()
+
+    list = null
+    title = null
+    toolbar = null
   }
 
   override fun onBack() {
@@ -99,7 +110,7 @@ internal class CreationFragment : Fragment(),
   }
 
   override fun onError(throwable: Throwable) {
-    list.showError(throwable)
+    requireNotNull(list).showError(throwable)
   }
 
   companion object {

@@ -38,8 +38,8 @@ internal class ShoppingFragment : Fragment(),
   ShoppingToolbarUiComponent.Callback,
   DetailListUiComponent.Callback {
 
-  @field:Inject internal lateinit var toolbar: ShoppingToolbarUiComponent
-  @field:Inject internal lateinit var list: DetailListUiComponent
+  @JvmField @Inject internal var toolbar: ShoppingToolbarUiComponent? = null
+  @JvmField @Inject internal var list: DetailListUiComponent? = null
 
   override fun onCreateView(
     inflater: LayoutInflater,
@@ -60,6 +60,8 @@ internal class ShoppingFragment : Fragment(),
       .create()
       .inject(this)
 
+    val list = requireNotNull(list)
+    val toolbar = requireNotNull(toolbar)
     list.bind(parent, viewLifecycleOwner, savedInstanceState, this)
     toolbar.bind(parent, viewLifecycleOwner, savedInstanceState, this)
 
@@ -77,8 +79,15 @@ internal class ShoppingFragment : Fragment(),
 
   override fun onSaveInstanceState(outState: Bundle) {
     super.onSaveInstanceState(outState)
-    list.saveState(outState)
-    toolbar.saveState(outState)
+    list?.saveState(outState)
+    toolbar?.saveState(outState)
+  }
+
+  override fun onDestroyView() {
+    super.onDestroyView()
+
+    list = null
+    toolbar = null
   }
 
   override fun onBack() {

@@ -87,7 +87,7 @@ internal class DetailListItemController internal constructor(
     private val factory: (parent: ViewGroup, item: FridgeItem, editable: Boolean) -> DetailItemComponent
   ) : RecyclerView.ViewHolder(itemView), DetailListItemUiComponent.Callback {
 
-    @field:Inject internal lateinit var component: DetailListItemUiComponent
+    @JvmField @Inject internal var component: DetailListItemUiComponent? = null
 
     private val parent: ConstraintLayout = itemView.findViewById(R.id.listitem_constraint)
 
@@ -111,6 +111,8 @@ internal class DetailListItemController internal constructor(
 
       val owner = ListItemLifecycle()
       lifecycle = owner
+
+      val component = requireNotNull(component)
       component.bind(parent, owner, null, this)
 
       parent.layout {
@@ -131,24 +133,26 @@ internal class DetailListItemController internal constructor(
       lifecycle?.unbind()
       lifecycle = null
       callback = null
+
+      component = null
     }
 
     // Kind of hacky
     fun deleteSelf(item: FridgeItem) {
       Timber.d("Delete self: $item")
-      component.deleteSelf(item)
+      requireNotNull(component).deleteSelf(item)
     }
 
     // Kind of hacky
     fun archiveSelf(item: FridgeItem) {
       Timber.d("Archive self: $item")
-      component.archiveSelf(item)
+      requireNotNull(component).archiveSelf(item)
     }
 
     // Very hacky
     fun focus() {
       Timber.d("Request focus onto item")
-      component.requestFocus()
+      requireNotNull(component).requestFocus()
     }
 
   }

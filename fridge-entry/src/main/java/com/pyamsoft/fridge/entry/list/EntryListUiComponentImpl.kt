@@ -35,7 +35,7 @@ internal class EntryListUiComponentImpl @Inject internal constructor(
 ) : BaseUiComponent<Callback>(),
   EntryListUiComponent {
 
-  private lateinit var refreshLatch: RefreshLatch
+  private var refreshLatch: RefreshLatch? = null
 
   override fun id(): Int {
     throw InvalidIdException
@@ -45,6 +45,7 @@ internal class EntryListUiComponentImpl @Inject internal constructor(
     owner.doOnDestroy {
       listView.teardown()
       viewModel.unbind()
+      refreshLatch = null
     }
 
     refreshLatch = newRefreshLatch(owner) { refreshing ->
@@ -71,7 +72,7 @@ internal class EntryListUiComponentImpl @Inject internal constructor(
   private fun renderLoading(state: EntryState, oldState: EntryState?) {
     state.renderOnChange(oldState, value = { it.isLoading }) { loading ->
       if (loading != null) {
-        refreshLatch.isRefreshing = loading.isLoading
+        requireNotNull(refreshLatch).isRefreshing = loading.isLoading
       }
     }
   }

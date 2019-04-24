@@ -50,7 +50,7 @@ internal class MainActivity : RatingActivity(),
   }
 
   override val fragmentContainerId: Int
-    get() = container.id()
+    get() = requireNotNull(container).id()
 
   override val snackbarRoot: View
     get() = requireNotNull(snackbarContainer)
@@ -58,8 +58,8 @@ internal class MainActivity : RatingActivity(),
   // Nullable to prevent memory leak
   private var snackbarContainer: CoordinatorLayout? = null
 
-  @field:Inject internal lateinit var toolbar: MainToolbarUiComponent
-  @field:Inject internal lateinit var container: FragmentContainerUiComponent
+  @JvmField @Inject internal var toolbar: MainToolbarUiComponent? = null
+  @JvmField @Inject internal var container: FragmentContainerUiComponent? = null
 
   override fun onCreate(savedInstanceState: Bundle?) {
     setDynamicTheme()
@@ -91,6 +91,8 @@ internal class MainActivity : RatingActivity(),
   }
 
   private fun inflateComponents(constraintLayout: ConstraintLayout, savedInstanceState: Bundle?) {
+    val container = requireNotNull(container)
+    val toolbar = requireNotNull(toolbar)
     container.bind(constraintLayout, this, savedInstanceState, Unit)
     toolbar.bind(constraintLayout, this, savedInstanceState, this)
     constraintLayout.layout {
@@ -124,13 +126,15 @@ internal class MainActivity : RatingActivity(),
 
   override fun onSaveInstanceState(outState: Bundle) {
     super.onSaveInstanceState(outState)
-    toolbar.saveState(outState)
-    container.saveState(outState)
+    toolbar?.saveState(outState)
+    container?.saveState(outState)
   }
 
   override fun onDestroy() {
     super.onDestroy()
     snackbarContainer = null
+    toolbar = null
+    container = null
   }
 
 }

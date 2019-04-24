@@ -42,21 +42,23 @@ import com.pyamsoft.pydroid.core.threads.Enforcer
 @TypeConverters(PresenceTypeConverter::class, DateTypeConverter::class)
 internal abstract class RoomFridgeDbImpl internal constructor() : RoomDatabase(), RoomFridgeDb {
 
-  private val itemDb by lazy { RoomFridgeItemDb(this, enforcer, itemRepo) }
+  private val itemDb by lazy {
+    RoomFridgeItemDb(this, requireNotNull(enforcer), requireNotNull(itemRepo))
+  }
   private val entryDb by lazy {
-    RoomFridgeEntryDb(this, entryRepo, object : ClearCache {
+    RoomFridgeEntryDb(this, requireNotNull(entryRepo), object : ClearCache {
 
       override fun clear() {
-        entryRepo.clear()
-        itemRepo.clear()
+        entryRepo?.clear()
+        itemRepo?.clear()
       }
 
     })
   }
 
-  private lateinit var enforcer: Enforcer
-  private lateinit var entryRepo: Repo<List<JsonMappableFridgeEntry>>
-  private lateinit var itemRepo: Repo<List<JsonMappableFridgeItem>>
+  private var enforcer: Enforcer? = null
+  private var entryRepo: Repo<List<JsonMappableFridgeEntry>>? = null
+  private var itemRepo: Repo<List<JsonMappableFridgeItem>>? = null
 
   internal fun setObjects(
     enforcer: Enforcer,

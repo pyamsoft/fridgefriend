@@ -43,9 +43,9 @@ internal class EntryListFragment : Fragment(),
   EntryActionUiComponent.Callback,
   EntryToolbarUiComponent.Callback {
 
-  @field:Inject internal lateinit var toolbar: EntryToolbarUiComponent
-  @field:Inject internal lateinit var list: EntryListUiComponent
-  @field:Inject internal lateinit var action: EntryActionUiComponent
+  @JvmField @Inject internal var toolbar: EntryToolbarUiComponent? = null
+  @JvmField @Inject internal var list: EntryListUiComponent? = null
+  @JvmField @Inject internal var action: EntryActionUiComponent? = null
 
   override fun onCreateView(
     inflater: LayoutInflater,
@@ -64,18 +64,26 @@ internal class EntryListFragment : Fragment(),
       .create(parent, requireToolbarActivity())
       .inject(this)
 
-    list.bind(viewLifecycleOwner, savedInstanceState, this)
-    action.bind(viewLifecycleOwner, savedInstanceState, this)
-    toolbar.bind(viewLifecycleOwner, savedInstanceState, this)
+    requireNotNull(list).bind(viewLifecycleOwner, savedInstanceState, this)
+    requireNotNull(action).bind(viewLifecycleOwner, savedInstanceState, this)
+    requireNotNull(toolbar).bind(viewLifecycleOwner, savedInstanceState, this)
 
-    action.show()
+    requireNotNull(action).show()
   }
 
   override fun onSaveInstanceState(outState: Bundle) {
     super.onSaveInstanceState(outState)
-    list.saveState(outState)
-    toolbar.saveState(outState)
-    action.saveState(outState)
+    list?.saveState(outState)
+    toolbar?.saveState(outState)
+    action?.saveState(outState)
+  }
+
+  override fun onDestroyView() {
+    super.onDestroyView()
+
+    list = null
+    toolbar = null
+    action = null
   }
 
   private inline fun pushFragment(
@@ -120,7 +128,7 @@ internal class EntryListFragment : Fragment(),
 
   override fun onHiddenChanged(hidden: Boolean) {
     super.onHiddenChanged(hidden)
-    toolbar.showMenu(!hidden)
+    requireNotNull(toolbar).showMenu(!hidden)
   }
 
   companion object {

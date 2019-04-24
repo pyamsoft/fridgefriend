@@ -27,8 +27,8 @@ import com.squareup.moshi.Moshi
 
 class MyFridgeSmells : Application() {
 
-  private lateinit var component: FridgeComponent
-  private lateinit var refWatcher: RefWatcher
+  private var component: FridgeComponent? = null
+  private var refWatcher: RefWatcher? = null
 
   override fun onCreate() {
     super.onCreate()
@@ -86,7 +86,7 @@ class MyFridgeSmells : Application() {
     }
 
     if (FridgeComponent::class.java.name == name) {
-      return component
+      return requireNotNull(component)
     }
 
     return super.getSystemService(name)

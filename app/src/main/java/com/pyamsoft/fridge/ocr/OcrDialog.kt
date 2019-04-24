@@ -34,10 +34,9 @@ import com.pyamsoft.pydroid.ui.Injector
 import com.pyamsoft.pydroid.ui.app.requireArguments
 import javax.inject.Inject
 
-internal class OcrDialog : DialogFragment(),
-  OcrUiComponent.Callback {
+internal class OcrDialog : DialogFragment(), OcrUiComponent.Callback {
 
-  @field:Inject internal lateinit var component: OcrUiComponent
+  @JvmField @Inject internal var component: OcrUiComponent? = null
 
   override fun onCreateView(
     inflater: LayoutInflater,
@@ -60,6 +59,7 @@ internal class OcrDialog : DialogFragment(),
       )
       .inject(this)
 
+    val component = requireNotNull(component)
     component.bind(parent, viewLifecycleOwner, savedInstanceState, this)
 
     parent.layout {
@@ -83,6 +83,16 @@ internal class OcrDialog : DialogFragment(),
       )
       setGravity(Gravity.CENTER)
     }
+  }
+
+  override fun onSaveInstanceState(outState: Bundle) {
+    super.onSaveInstanceState(outState)
+    component?.saveState(outState)
+  }
+
+  override fun onDestroyView() {
+    super.onDestroyView()
+    component = null
   }
 
   companion object {
