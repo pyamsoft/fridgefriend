@@ -74,7 +74,7 @@ dependencies {
   // Dagger
   kapt "com.google.dagger:dagger-compiler:$dagger"
 
-  implementation project(':fridge-core')
+  api project(':fridge-core')
 }
 
 

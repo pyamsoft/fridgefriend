@@ -18,6 +18,7 @@
 package com.pyamsoft.fridge
 
 import android.app.Application
+import com.pyamsoft.fridge.work.FridgeEntryWorkerImpl
 import com.pyamsoft.pydroid.bootstrap.libraries.OssLibraries
 import com.pyamsoft.pydroid.ui.PYDroid
 import com.pyamsoft.pydroid.ui.theme.Theming
@@ -46,7 +47,14 @@ class MyFridgeSmells : Application() {
     ) { provider ->
       val moshi = Moshi.Builder().build()
       component = DaggerFridgeComponent.factory()
-        .create(provider.theming(), moshi, provider.enforcer(), this, provider.imageLoader())
+        .create(
+          provider.theming(),
+          moshi,
+          provider.enforcer(),
+          this,
+          provider.imageLoader(),
+          FridgeEntryWorkerImpl::class.java
+        )
     }
 
     installRefWatcher()

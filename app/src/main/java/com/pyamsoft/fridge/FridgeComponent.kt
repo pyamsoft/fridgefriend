@@ -21,6 +21,7 @@ import android.app.Application
 import android.content.Context
 import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.FridgeComponent.FridgeProvider
+import com.pyamsoft.fridge.butler.workmanager.FridgeEntryWorker
 import com.pyamsoft.fridge.db.DbProvider
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent
 import com.pyamsoft.fridge.db.room.RoomProvider
@@ -30,10 +31,9 @@ import com.pyamsoft.fridge.detail.shop.ShoppingSingletonModule
 import com.pyamsoft.fridge.entry.EntryComponent
 import com.pyamsoft.fridge.entry.EntrySingletonModule
 import com.pyamsoft.fridge.main.MainComponent
-import com.pyamsoft.fridge.ocr.OcrComponent
-import com.pyamsoft.fridge.ocr.OcrSingletonModule
 import com.pyamsoft.fridge.setting.SettingComponent
 import com.pyamsoft.fridge.setting.SettingSingletonModule
+import com.pyamsoft.fridge.work.FridgeEntryWorkerImpl
 import com.pyamsoft.pydroid.core.bus.EventBus
 import com.pyamsoft.pydroid.core.bus.RxBus
 import com.pyamsoft.pydroid.core.threads.Enforcer
@@ -54,7 +54,6 @@ import javax.inject.Singleton
     DbProvider::class,
     RoomProvider::class,
     SettingSingletonModule::class,
-    OcrSingletonModule::class,
     EntrySingletonModule::class,
     CreateSingletonModule::class,
     ShoppingSingletonModule::class
@@ -62,8 +61,10 @@ import javax.inject.Singleton
 )
 internal interface FridgeComponent {
 
-  @CheckResult
-  fun plusScannerComponent(): OcrComponent.Factory
+  fun inject(fridgeEntryWorkerImpl: FridgeEntryWorkerImpl)
+
+  //  @CheckResult
+  //  fun plusScannerComponent(): OcrComponent.Factory
 
   @CheckResult
   fun plusDetailComponent(): DetailComponent.Factory
@@ -86,7 +87,8 @@ internal interface FridgeComponent {
       @BindsInstance moshi: Moshi,
       @BindsInstance enforcer: Enforcer,
       @BindsInstance application: Application,
-      @BindsInstance imageLoader: ImageLoader
+      @BindsInstance imageLoader: ImageLoader,
+      @BindsInstance @Named("entry_worker_class") entryWorkerClass: Class<out FridgeEntryWorker>
     ): FridgeComponent
 
   }

@@ -15,28 +15,10 @@
  *
  */
 
-package com.pyamsoft.fridge.ocr
+package com.pyamsoft.fridge.butler
 
-import android.view.ViewGroup
-import androidx.annotation.CheckResult
-import dagger.BindsInstance
-import dagger.Subcomponent
-import javax.inject.Named
+interface InjectableWorker {
 
-//@Subcomponent(modules = [OcrModule::class])
-//internal interface OcrComponent {
-//
-//  fun inject(dialog: OcrDialog)
-//
-//  @Subcomponent.Factory
-//  interface Factory {
-//
-//    @CheckResult
-//    fun create(
-//      @BindsInstance parent: ViewGroup,
-//      @BindsInstance @Named("scanner_item_id") itemId: String,
-//      @BindsInstance @Named("scanner_entry_id") entryId: String
-//    ): OcrComponent
-//  }
-//
-//}
+  fun inject()
+
+}
