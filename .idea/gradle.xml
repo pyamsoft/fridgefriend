@@ -9,6 +9,8 @@
           <set>
             <option value="/storage/pyamsoft/devel/android/app/projects/MyFridgeSmells" />
             <option value="/storage/pyamsoft/devel/android/app/projects/MyFridgeSmells/app" />
+            <option value="/storage/pyamsoft/devel/android/app/projects/MyFridgeSmells/fridge-butler" />
+            <option value="/storage/pyamsoft/devel/android/app/projects/MyFridgeSmells/fridge-butler-workmanager" />
             <option value="/storage/pyamsoft/devel/android/app/projects/MyFridgeSmells/fridge-core" />
             <option value="/storage/pyamsoft/devel/android/app/projects/MyFridgeSmells/fridge-db" />
             <option value="/storage/pyamsoft/devel/android/app/projects/MyFridgeSmells/fridge-db-room" />

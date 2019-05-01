@@ -58,6 +58,8 @@ buildscript {
     // Firebase
     firebase = "16.0.8"
     mlVision = "19.0.3"
+
+    workmanager = "2.0.1"
   }
 
   dependencies {

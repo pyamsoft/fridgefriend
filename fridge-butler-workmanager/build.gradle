@@ -66,17 +66,13 @@ kapt {
 
 dependencies {
 
-  // Moshi
-  implementation "com.squareup.moshi:moshi:$moshi"
-  implementation "com.squareup.moshi:moshi-adapters:$moshi"
-  kapt "com.squareup.moshi:moshi-kotlin-codegen:$moshi"
+  implementation "androidx.work:work-runtime:$workmanager"
+  implementation "androidx.work:work-rxjava2:$workmanager"
 
-  // Dagger
   kapt "com.google.dagger:dagger-compiler:$dagger"
 
-  implementation project(':fridge-core')
+  api project(':fridge-butler')
 }
-
 
 
 

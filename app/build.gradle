@@ -96,12 +96,13 @@ dependencies {
   testImplementation "com.squareup.leakcanary:leakcanary-android-no-op:$leakCanary"
   // Dagger
   kapt "com.google.dagger:dagger-compiler:$dagger"
+
   api project(':fridge-db-room')
   api project(':fridge-core')
   api project(':fridge-detail')
   api project(':fridge-entry')
   api project(':fridge-main')
-  api project(':fridge-ocr')
+//  api project(':fridge-ocr')
   api project(':fridge-setting')
 }
 
