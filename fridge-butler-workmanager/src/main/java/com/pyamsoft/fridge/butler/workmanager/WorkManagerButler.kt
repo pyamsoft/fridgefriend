@@ -24,6 +24,7 @@ import androidx.work.WorkManager
 import androidx.work.WorkRequest
 import com.pyamsoft.fridge.butler.Butler
 import com.pyamsoft.fridge.db.entry.FridgeEntry
+import timber.log.Timber
 import java.util.Calendar
 import java.util.Date
 import java.util.concurrent.TimeUnit.MILLISECONDS
@@ -55,11 +56,15 @@ internal class WorkManagerButler @Inject internal constructor() : Butler {
     require(dateInMillis > todayInMillis)
     require(timeUntilDateInMillis > 0)
 
-    return OneTimeWorkRequest.Builder(FridgeEntryWorker::class.java)
+    val request = OneTimeWorkRequest.Builder(FridgeEntryWorker::class.java)
       .addTag(entry.id())
       .setConstraints(generateConstraints())
       .setInitialDelay(timeUntilDateInMillis, MILLISECONDS)
       .build()
+
+    Timber.d("Queue work for ${entry.id()}: $request")
+    Timber.d("Work will run around: $atDate which is in $timeUntilDateInMillis milliseconds")
+    return request
   }
 
   override fun notifyFor(entry: FridgeEntry, atDate: Date) {
@@ -67,10 +72,12 @@ internal class WorkManagerButler @Inject internal constructor() : Butler {
   }
 
   override fun cancel(entry: FridgeEntry) {
+    Timber.d("Cancel pending work for entry id: ${entry.id()}")
     workManager().cancelAllWorkByTag(entry.id())
   }
 
   override fun cancelAll() {
+    Timber.d("Cancel all pending work")
     workManager().cancelAllWork()
   }
 
