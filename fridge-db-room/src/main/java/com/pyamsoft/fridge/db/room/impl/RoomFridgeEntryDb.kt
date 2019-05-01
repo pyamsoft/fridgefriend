@@ -18,6 +18,7 @@
 package com.pyamsoft.fridge.db.room.impl
 
 import com.popinnow.android.repo.Repo
+import com.pyamsoft.fridge.butler.Butler
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.entry.FridgeEntryChangeEvent
 import com.pyamsoft.fridge.db.entry.FridgeEntryChangeEvent.Delete
@@ -37,6 +38,7 @@ import io.reactivex.Single
 
 internal class RoomFridgeEntryDb internal constructor(
   private val room: RoomFridgeDbImpl,
+  private val butler: Butler,
   private val repo: Repo<List<JsonMappableFridgeEntry>>,
   private val cache: ClearCache
 ) : FridgeEntryDb {
@@ -107,6 +109,7 @@ internal class RoomFridgeEntryDb internal constructor(
       override fun delete(entry: FridgeEntry): Completable {
         synchronized(lock) {
           return room.roomEntryDeleteDao().delete(entry)
+            .doOnComplete { butler.cancel(entry) }
             .doOnComplete { publishRealtime(Delete(entry.makeReal())) }
         }
       }
@@ -114,6 +117,7 @@ internal class RoomFridgeEntryDb internal constructor(
       override fun deleteAll(): Completable {
         synchronized(lock) {
           return room.roomEntryDeleteDao().deleteAll()
+            .doOnComplete { butler.cancelAll() }
             .doOnComplete { publishRealtime(DeleteAll) }
         }
       }

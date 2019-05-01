@@ -18,6 +18,7 @@
 package com.pyamsoft.fridge.db.room.impl
 
 import com.popinnow.android.repo.Repo
+import com.pyamsoft.fridge.butler.Butler
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent.Delete
@@ -30,14 +31,12 @@ import com.pyamsoft.fridge.db.item.FridgeItemRealtime
 import com.pyamsoft.fridge.db.item.FridgeItemUpdateDao
 import com.pyamsoft.fridge.db.item.JsonMappableFridgeItem
 import com.pyamsoft.pydroid.core.bus.RxBus
-import com.pyamsoft.pydroid.core.threads.Enforcer
 import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.Single
 
 internal class RoomFridgeItemDb internal constructor(
   private val room: RoomFridgeDbImpl,
-  private val enforcer: Enforcer,
   private val repo: Repo<List<JsonMappableFridgeItem>>
 ) : FridgeItemDb {
 
@@ -78,10 +77,7 @@ internal class RoomFridgeItemDb internal constructor(
       override fun queryAll(force: Boolean, entryId: String): Single<List<FridgeItem>> {
         synchronized(lock) {
           return queryAll(force)
-            .flatMapObservable {
-              enforcer.assertNotOnMainThread()
-              return@flatMapObservable Observable.fromIterable(it)
-            }
+            .flatMapObservable { Observable.fromIterable(it) }
             .filter { it.entryId() == entryId }
             .toList()
         }

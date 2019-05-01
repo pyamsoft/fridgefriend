@@ -15,10 +15,18 @@
  *
  */
 
-package com.pyamsoft.fridge.butler
+package com.pyamsoft.fridge.butler.workmanager
 
-interface InjectableWorker {
+import androidx.annotation.CheckResult
+import com.pyamsoft.fridge.butler.Butler
+import dagger.Binds
+import dagger.Module
 
-  fun inject()
+@Module
+abstract class ButlerModule {
+
+  @Binds
+  @CheckResult
+  internal abstract fun bindButler(impl: WorkManagerButler): Butler
 
 }

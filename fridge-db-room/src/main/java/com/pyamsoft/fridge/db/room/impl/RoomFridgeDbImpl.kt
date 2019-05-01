@@ -22,6 +22,7 @@ import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import com.popinnow.android.repo.Repo
+import com.pyamsoft.fridge.butler.Butler
 import com.pyamsoft.fridge.db.entry.JsonMappableFridgeEntry
 import com.pyamsoft.fridge.db.item.JsonMappableFridgeItem
 import com.pyamsoft.fridge.db.room.converter.DateTypeConverter
@@ -36,38 +37,38 @@ import com.pyamsoft.fridge.db.room.dao.item.RoomFridgeItemQueryDao
 import com.pyamsoft.fridge.db.room.dao.item.RoomFridgeItemUpdateDao
 import com.pyamsoft.fridge.db.room.entity.RoomFridgeEntry
 import com.pyamsoft.fridge.db.room.entity.RoomFridgeItem
-import com.pyamsoft.pydroid.core.threads.Enforcer
 
 @Database(entities = [RoomFridgeItem::class, RoomFridgeEntry::class], version = 1)
 @TypeConverters(PresenceTypeConverter::class, DateTypeConverter::class)
 internal abstract class RoomFridgeDbImpl internal constructor() : RoomDatabase(), RoomFridgeDb {
 
-  private val itemDb by lazy {
-    RoomFridgeItemDb(this, requireNotNull(enforcer), requireNotNull(itemRepo))
-  }
-  private val entryDb by lazy {
-    RoomFridgeEntryDb(this, requireNotNull(entryRepo), object : ClearCache {
-
-      override fun clear() {
-        entryRepo?.clear()
-        itemRepo?.clear()
-      }
-
-    })
-  }
-
-  private var enforcer: Enforcer? = null
+  private var butler: Butler? = null
   private var entryRepo: Repo<List<JsonMappableFridgeEntry>>? = null
   private var itemRepo: Repo<List<JsonMappableFridgeItem>>? = null
 
   internal fun setObjects(
-    enforcer: Enforcer,
+    butler: Butler,
     entryRepo: Repo<List<JsonMappableFridgeEntry>>,
     itemRepo: Repo<List<JsonMappableFridgeItem>>
   ) {
-    this.enforcer = enforcer
+    this.butler = butler
     this.entryRepo = entryRepo
     this.itemRepo = itemRepo
+  }
+
+  private val itemDb by lazy {
+    RoomFridgeItemDb(this, requireNotNull(itemRepo))
+  }
+  private val entryDb by lazy {
+    RoomFridgeEntryDb(this, requireNotNull(butler), requireNotNull(entryRepo), object : ClearCache {
+
+      override fun clear() {
+        entryRepo?.clear()
+        itemRepo?.clear()
+        butler?.cancelAll()
+      }
+
+    })
   }
 
   @CheckResult

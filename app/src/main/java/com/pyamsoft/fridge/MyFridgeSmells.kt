@@ -18,7 +18,8 @@
 package com.pyamsoft.fridge
 
 import android.app.Application
-import com.pyamsoft.fridge.work.FridgeEntryWorkerImpl
+import com.pyamsoft.fridge.db.entry.FridgeEntryQueryDao
+import com.pyamsoft.fridge.db.item.FridgeItemQueryDao
 import com.pyamsoft.pydroid.bootstrap.libraries.OssLibraries
 import com.pyamsoft.pydroid.ui.PYDroid
 import com.pyamsoft.pydroid.ui.theme.Theming
@@ -52,8 +53,7 @@ class MyFridgeSmells : Application() {
           moshi,
           provider.enforcer(),
           this,
-          provider.imageLoader(),
-          FridgeEntryWorkerImpl::class.java
+          provider.imageLoader()
         )
     }
 
@@ -93,10 +93,12 @@ class MyFridgeSmells : Application() {
       return service
     }
 
-    if (FridgeComponent::class.java.name == name) {
-      return requireNotNull(component)
+    when (name) {
+      FridgeComponent::class.java.name -> return requireNotNull(component)
+      FridgeEntryQueryDao::class.java.name -> return requireNotNull(component).provideFridgeEntryQueryDao()
+      FridgeItemQueryDao::class.java.name -> return requireNotNull(component).provideFridgeItemQueryDao()
+      else -> return super.getSystemService(name)
     }
 
-    return super.getSystemService(name)
   }
 }

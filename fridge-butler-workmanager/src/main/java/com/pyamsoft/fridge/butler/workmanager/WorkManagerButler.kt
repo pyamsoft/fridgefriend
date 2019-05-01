@@ -28,11 +28,10 @@ import java.util.Calendar
 import java.util.Date
 import java.util.concurrent.TimeUnit.MILLISECONDS
 import javax.inject.Inject
-import javax.inject.Named
+import javax.inject.Singleton
 
-internal class WorkManagerButler @Inject internal constructor(
-  @Named("entry_worker_class") private val entryWorkerClass: Class<out FridgeEntryWorker>
-) : Butler {
+@Singleton
+internal class WorkManagerButler @Inject internal constructor() : Butler {
 
   @CheckResult
   private fun workManager(): WorkManager {
@@ -56,7 +55,7 @@ internal class WorkManagerButler @Inject internal constructor(
     require(dateInMillis > todayInMillis)
     require(timeUntilDateInMillis > 0)
 
-    return OneTimeWorkRequest.Builder(entryWorkerClass)
+    return OneTimeWorkRequest.Builder(FridgeEntryWorker::class.java)
       .addTag(entry.id())
       .setConstraints(generateConstraints())
       .setInitialDelay(timeUntilDateInMillis, MILLISECONDS)
@@ -69,6 +68,10 @@ internal class WorkManagerButler @Inject internal constructor(
 
   override fun cancel(entry: FridgeEntry) {
     workManager().cancelAllWorkByTag(entry.id())
+  }
+
+  override fun cancelAll() {
+    workManager().cancelAllWork()
   }
 
 }

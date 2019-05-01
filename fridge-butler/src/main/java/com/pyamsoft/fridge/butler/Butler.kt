@@ -26,4 +26,6 @@ interface Butler {
 
   fun cancel(entry: FridgeEntry)
 
+  fun cancelAll()
+
 }

@@ -21,9 +21,11 @@ import android.app.Application
 import android.content.Context
 import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.FridgeComponent.FridgeProvider
-import com.pyamsoft.fridge.butler.workmanager.FridgeEntryWorker
+import com.pyamsoft.fridge.butler.workmanager.ButlerModule
 import com.pyamsoft.fridge.db.DbProvider
+import com.pyamsoft.fridge.db.entry.FridgeEntryQueryDao
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent
+import com.pyamsoft.fridge.db.item.FridgeItemQueryDao
 import com.pyamsoft.fridge.db.room.RoomProvider
 import com.pyamsoft.fridge.detail.DetailComponent
 import com.pyamsoft.fridge.detail.create.CreateSingletonModule
@@ -33,7 +35,6 @@ import com.pyamsoft.fridge.entry.EntrySingletonModule
 import com.pyamsoft.fridge.main.MainComponent
 import com.pyamsoft.fridge.setting.SettingComponent
 import com.pyamsoft.fridge.setting.SettingSingletonModule
-import com.pyamsoft.fridge.work.FridgeEntryWorkerImpl
 import com.pyamsoft.pydroid.core.bus.EventBus
 import com.pyamsoft.pydroid.core.bus.RxBus
 import com.pyamsoft.pydroid.core.threads.Enforcer
@@ -53,6 +54,7 @@ import javax.inject.Singleton
     FridgeProvider::class,
     DbProvider::class,
     RoomProvider::class,
+    ButlerModule::class,
     SettingSingletonModule::class,
     EntrySingletonModule::class,
     CreateSingletonModule::class,
@@ -61,7 +63,11 @@ import javax.inject.Singleton
 )
 internal interface FridgeComponent {
 
-  fun inject(fridgeEntryWorkerImpl: FridgeEntryWorkerImpl)
+  @CheckResult
+  fun provideFridgeEntryQueryDao(): FridgeEntryQueryDao
+
+  @CheckResult
+  fun provideFridgeItemQueryDao(): FridgeItemQueryDao
 
   //  @CheckResult
   //  fun plusScannerComponent(): OcrComponent.Factory
@@ -87,8 +93,7 @@ internal interface FridgeComponent {
       @BindsInstance moshi: Moshi,
       @BindsInstance enforcer: Enforcer,
       @BindsInstance application: Application,
-      @BindsInstance imageLoader: ImageLoader,
-      @BindsInstance @Named("entry_worker_class") entryWorkerClass: Class<out FridgeEntryWorker>
+      @BindsInstance imageLoader: ImageLoader
     ): FridgeComponent
 
   }

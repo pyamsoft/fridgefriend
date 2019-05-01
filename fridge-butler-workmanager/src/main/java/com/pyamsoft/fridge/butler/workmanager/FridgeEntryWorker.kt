@@ -18,29 +18,41 @@
 package com.pyamsoft.fridge.butler.workmanager
 
 import android.content.Context
-import androidx.annotation.CheckResult
 import androidx.work.RxWorker
 import androidx.work.WorkerParameters
-import com.pyamsoft.fridge.butler.InjectableWorker
 import com.pyamsoft.fridge.db.entry.FridgeEntryQueryDao
 import com.pyamsoft.fridge.db.item.FridgeItemQueryDao
+import com.pyamsoft.pydroid.ui.Injector
 import io.reactivex.Single
 
-abstract class FridgeEntryWorker protected constructor(
+internal class FridgeEntryWorker internal constructor(
   context: Context,
   params: WorkerParameters
-) : RxWorker(context, params), InjectableWorker {
+) : RxWorker(context, params) {
 
-  @CheckResult
-  protected abstract fun entryQueryDao(): FridgeEntryQueryDao
+  private var fridgeEntryQueryDao: FridgeEntryQueryDao? = null
+  private var fridgeItemQueryDao: FridgeItemQueryDao? = null
 
-  @CheckResult
-  protected abstract fun itemQueryDao(): FridgeItemQueryDao
+  private fun inject() {
+    fridgeEntryQueryDao = Injector.obtain(applicationContext)
+    fridgeItemQueryDao = Injector.obtain(applicationContext)
+  }
 
-  final override fun createWork(): Single<Result> {
+  private fun teardown() {
+    fridgeEntryQueryDao = null
+    fridgeItemQueryDao = null
+  }
+
+  override fun onStopped() {
+    super.onStopped()
+    teardown()
+  }
+
+  override fun createWork(): Single<Result> {
     inject()
-
-    return Single.error { TODO() }
+    return Single.defer {
+      return@defer Single.just(Result.success())
+    }.doAfterTerminate { teardown() }
   }
 
 }
