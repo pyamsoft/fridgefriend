@@ -68,7 +68,6 @@ internal class EntryListViewModel @Inject internal constructor(
   }
 
   private fun refresh(force: Boolean) {
-    realtimeChangeDisposable.tryDispose()
     refreshDisposable = queryDao.queryAll(force)
       .subscribeOn(Schedulers.io())
       .observeOn(AndroidSchedulers.mainThread())

@@ -74,7 +74,6 @@ internal abstract class DetailListViewModel protected constructor(
   }
 
   private fun refreshList(force: Boolean) {
-    realtimeDisposable.tryDispose()
     refreshDisposable = getItems(force)
       .subscribeOn(Schedulers.io())
       .observeOn(AndroidSchedulers.mainThread())
