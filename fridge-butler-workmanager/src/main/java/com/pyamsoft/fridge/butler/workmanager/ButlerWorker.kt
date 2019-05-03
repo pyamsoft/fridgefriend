@@ -63,6 +63,7 @@ internal class ButlerWorker internal constructor(
     val needItems = arrayListOf<FridgeItem>()
     val expiringItems = arrayListOf<FridgeItem>()
     val expiredItems = arrayListOf<FridgeItem>()
+    val unknownExpirationItems = arrayListOf<FridgeItem>()
 
     for (item in items) {
       if (item.presence() == NEED) {
@@ -70,15 +71,19 @@ internal class ButlerWorker internal constructor(
         needItems.add(item)
       } else {
         val expirationDate = item.expireTime()
-        if (expirationDate.before(now)) {
-          Timber.w("${entry.id()} expired! $item")
-          expiredItems.add(item)
-        } else {
-          val oneDayInMillis = TimeUnit.DAYS.toMillis(1L)
-          if (expirationDate.after(now) && expirationDate.time < (now.time + oneDayInMillis)) {
-            Timber.w("${entry.id()} is expiring soon! $item")
-            expiringItems.add(item)
+        if (expirationDate != FridgeItem.EMPTY_EXPIRE_TIME) {
+          if (expirationDate.before(now)) {
+            Timber.w("${entry.id()} expired! $item")
+            expiredItems.add(item)
+          } else {
+            val oneDayInMillis = TimeUnit.DAYS.toMillis(1L)
+            if (expirationDate.after(now) && expirationDate.time < (now.time + oneDayInMillis)) {
+              Timber.w("${entry.id()} is expiring soon! $item")
+              expiringItems.add(item)
+            }
           }
+        } else {
+          unknownExpirationItems.add(item)
         }
       }
     }
@@ -93,6 +98,10 @@ internal class ButlerWorker internal constructor(
 
     if (expiredItems.isNotEmpty()) {
       ButlerNotifications.notifyExpired(applicationContext, entry, expiredItems)
+    }
+
+    if (unknownExpirationItems.isNotEmpty()) {
+      Timber.w("Butler cannot handle unknowns: $unknownExpirationItems")
     }
   }
 
