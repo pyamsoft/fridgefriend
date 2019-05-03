@@ -65,7 +65,7 @@ internal abstract class RoomFridgeDbImpl internal constructor() : RoomDatabase()
       override fun clear() {
         entryRepo?.clear()
         itemRepo?.clear()
-        butler?.cancel()
+        butler?.cancelAll()
       }
 
     })

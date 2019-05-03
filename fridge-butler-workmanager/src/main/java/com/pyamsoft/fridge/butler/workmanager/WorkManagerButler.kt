@@ -19,18 +19,12 @@ package com.pyamsoft.fridge.butler.workmanager
 
 import androidx.annotation.CheckResult
 import androidx.work.Constraints
-import androidx.work.Data
-import androidx.work.OneTimeWorkRequest
+import androidx.work.ExistingPeriodicWorkPolicy.KEEP
 import androidx.work.PeriodicWorkRequest
 import androidx.work.WorkManager
-import androidx.work.WorkRequest
 import com.pyamsoft.fridge.butler.Butler
-import com.pyamsoft.fridge.db.entry.FridgeEntry
 import timber.log.Timber
-import java.util.Calendar
-import java.util.Date
 import java.util.concurrent.TimeUnit.DAYS
-import java.util.concurrent.TimeUnit.MILLISECONDS
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -52,8 +46,9 @@ internal class WorkManagerButler @Inject internal constructor() : Butler {
   }
 
   @CheckResult
-  private fun generateWorkRequest(): WorkRequest {
+  private fun generateWorkRequest(): PeriodicWorkRequest {
     val request = PeriodicWorkRequest.Builder(ButlerWorker::class.java, 1, DAYS)
+      .addTag(WORK_TAG)
       .setConstraints(generateConstraints())
       .build()
 
@@ -62,12 +57,22 @@ internal class WorkManagerButler @Inject internal constructor() : Butler {
   }
 
   override fun schedule() {
-    workManager().enqueue(generateWorkRequest())
+    workManager().enqueueUniquePeriodicWork(WORK_TAG, KEEP, generateWorkRequest())
   }
 
   override fun cancel() {
+    Timber.d("Cancel pending work for tag: $WORK_TAG")
+    workManager().cancelAllWorkByTag(WORK_TAG)
+  }
+
+  override fun cancelAll() {
     Timber.d("Cancel all pending work")
     workManager().cancelAllWork()
+  }
+
+  companion object {
+
+    private const val WORK_TAG = "WorkManagerButler schedule tag v1"
   }
 
 }
