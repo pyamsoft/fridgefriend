@@ -19,7 +19,9 @@ package com.pyamsoft.fridge.butler.workmanager
 
 import androidx.annotation.CheckResult
 import androidx.work.Constraints
+import androidx.work.Data
 import androidx.work.OneTimeWorkRequest
+import androidx.work.PeriodicWorkRequest
 import androidx.work.WorkManager
 import androidx.work.WorkRequest
 import com.pyamsoft.fridge.butler.Butler
@@ -27,6 +29,7 @@ import com.pyamsoft.fridge.db.entry.FridgeEntry
 import timber.log.Timber
 import java.util.Calendar
 import java.util.Date
+import java.util.concurrent.TimeUnit.DAYS
 import java.util.concurrent.TimeUnit.MILLISECONDS
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -49,34 +52,20 @@ internal class WorkManagerButler @Inject internal constructor() : Butler {
   }
 
   @CheckResult
-  private fun generateWorkRequest(entry: FridgeEntry, atDate: Date): WorkRequest {
-    val todayInMillis = Calendar.getInstance().time.time
-    val dateInMillis = atDate.time
-    val timeUntilDateInMillis = dateInMillis - todayInMillis
-    require(dateInMillis > todayInMillis)
-    require(timeUntilDateInMillis > 0)
-
-    val request = OneTimeWorkRequest.Builder(FridgeEntryWorker::class.java)
-      .addTag(entry.id())
+  private fun generateWorkRequest(): WorkRequest {
+    val request = PeriodicWorkRequest.Builder(ButlerWorker::class.java, 1, DAYS)
       .setConstraints(generateConstraints())
-      .setInitialDelay(timeUntilDateInMillis, MILLISECONDS)
       .build()
 
-    Timber.d("Queue work for ${entry.id()}: $request")
-    Timber.d("Work will run around: $atDate which is in $timeUntilDateInMillis milliseconds")
+    Timber.d("Queue daily repeating work: $request")
     return request
   }
 
-  override fun notifyFor(entry: FridgeEntry, atDate: Date) {
-    workManager().enqueue(generateWorkRequest(entry, atDate))
+  override fun schedule() {
+    workManager().enqueue(generateWorkRequest())
   }
 
-  override fun cancel(entry: FridgeEntry) {
-    Timber.d("Cancel pending work for entry id: ${entry.id()}")
-    workManager().cancelAllWorkByTag(entry.id())
-  }
-
-  override fun cancelAll() {
+  override fun cancel() {
     Timber.d("Cancel all pending work")
     workManager().cancelAllWork()
   }

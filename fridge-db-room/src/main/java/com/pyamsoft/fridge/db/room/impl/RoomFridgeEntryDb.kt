@@ -109,7 +109,6 @@ internal class RoomFridgeEntryDb internal constructor(
       override fun delete(entry: FridgeEntry): Completable {
         synchronized(lock) {
           return room.roomEntryDeleteDao().delete(entry)
-            .doOnComplete { butler.cancel(entry) }
             .doOnComplete { publishRealtime(Delete(entry.makeReal())) }
         }
       }
@@ -117,7 +116,7 @@ internal class RoomFridgeEntryDb internal constructor(
       override fun deleteAll(): Completable {
         synchronized(lock) {
           return room.roomEntryDeleteDao().deleteAll()
-            .doOnComplete { butler.cancelAll() }
+            .doOnComplete { butler.cancel() }
             .doOnComplete { publishRealtime(DeleteAll) }
         }
       }

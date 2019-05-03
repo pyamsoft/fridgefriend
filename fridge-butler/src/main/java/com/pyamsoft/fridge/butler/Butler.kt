@@ -17,15 +17,10 @@
 
 package com.pyamsoft.fridge.butler
 
-import com.pyamsoft.fridge.db.entry.FridgeEntry
-import java.util.Date
-
 interface Butler {
 
-  fun notifyFor(entry: FridgeEntry, atDate: Date)
+  fun schedule()
 
-  fun cancel(entry: FridgeEntry)
-
-  fun cancelAll()
+  fun cancel()
 
 }
