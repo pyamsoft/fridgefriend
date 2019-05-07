@@ -26,6 +26,7 @@ import androidx.coordinatorlayout.widget.CoordinatorLayout
 import com.pyamsoft.fridge.BuildConfig
 import com.pyamsoft.fridge.FridgeComponent
 import com.pyamsoft.fridge.R
+import com.pyamsoft.fridge.butler.Butler
 import com.pyamsoft.fridge.entry.EntryListFragment
 import com.pyamsoft.fridge.main.container.FragmentContainerUiComponent
 import com.pyamsoft.fridge.main.toolbar.MainToolbarUiComponent
@@ -38,8 +39,7 @@ import com.pyamsoft.pydroid.ui.theme.Theming
 import com.pyamsoft.pydroid.ui.util.commit
 import javax.inject.Inject
 
-internal class MainActivity : RatingActivity(),
-  MainToolbarUiComponent.Callback {
+internal class MainActivity : RatingActivity(), MainToolbarUiComponent.Callback {
 
   override val applicationIcon: Int = R.mipmap.ic_launcher
 
@@ -60,6 +60,7 @@ internal class MainActivity : RatingActivity(),
 
   @JvmField @Inject internal var toolbar: MainToolbarUiComponent? = null
   @JvmField @Inject internal var container: FragmentContainerUiComponent? = null
+  @JvmField @Inject internal var butler: Butler? = null
 
   override fun onCreate(savedInstanceState: Bundle?) {
     setDynamicTheme()
@@ -77,6 +78,8 @@ internal class MainActivity : RatingActivity(),
     inflateComponents(contentContainer, savedInstanceState)
 
     pushFragment()
+
+    requireNotNull(butler).schedule()
   }
 
   private fun setDynamicTheme() {
@@ -135,6 +138,7 @@ internal class MainActivity : RatingActivity(),
     snackbarContainer = null
     toolbar = null
     container = null
+    butler = null
   }
 
 }

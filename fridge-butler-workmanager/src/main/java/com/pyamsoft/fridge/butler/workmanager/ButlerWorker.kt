@@ -88,6 +88,7 @@ internal class ButlerWorker internal constructor(
       }
     }
 
+
     if (needItems.isNotEmpty()) {
       ButlerNotifications.notifyNeeded(applicationContext, entry, needItems)
     }

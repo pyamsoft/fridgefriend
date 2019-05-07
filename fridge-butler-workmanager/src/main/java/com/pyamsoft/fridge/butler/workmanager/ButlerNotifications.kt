@@ -19,6 +19,7 @@ package com.pyamsoft.fridge.butler.workmanager
 
 import android.app.Notification
 import android.app.NotificationChannel
+import android.app.NotificationChannelGroup
 import android.app.NotificationManager
 import android.content.Context
 import android.graphics.Color
@@ -34,7 +35,9 @@ import timber.log.Timber
 internal object ButlerNotifications {
 
   private val RANDOM_ID_SET = (Int.MIN_VALUE..Int.MAX_VALUE)
-  private const val NOTIFICATION_CHANNEL_ID = "fridge_need_reminders_channel_v1"
+  private const val NEEDED_CHANNEL_ID = "fridge_need_reminders_channel_v1"
+  private const val EXPIRING_CHANNEL_ID = "fridge_expiring_reminders_channel_v1"
+  private const val EXPIRED_CHANNEL_ID = "fridge_expiration_reminders_channel_v1"
 
   private val lock = Any()
   private val knownNotifications = LinkedHashMap<String, Set<Int>>()
@@ -44,23 +47,29 @@ internal object ButlerNotifications {
     return NotificationManagerCompat.from(context)
   }
 
-  private fun createNeedNotificationChannel(context: Context) {
+  private fun guaranteeNotificationChannelExists(
+    context: Context,
+    channelId: String,
+    channelTitle: String,
+    channelDescription: String
+  ) {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-      val name = "Purchase Reminders"
-      val desc = "Periodic reminders about items you need"
-      val importance = NotificationManager.IMPORTANCE_DEFAULT
+      val notificationGroup = NotificationChannelGroup(channelId, channelTitle)
       val notificationChannel =
-        NotificationChannel(NOTIFICATION_CHANNEL_ID, name, importance).apply {
+        NotificationChannel(channelId, channelTitle, NotificationManager.IMPORTANCE_DEFAULT).apply {
+          group = notificationGroup.id
           lockscreenVisibility = Notification.VISIBILITY_PUBLIC
-          description = desc
+          description = channelDescription
           enableLights(false)
           enableVibration(false)
           setSound(null, null)
         }
 
-      Timber.d("Create notification channel with id: %s", NOTIFICATION_CHANNEL_ID)
-      requireNotNull(context.getSystemService<NotificationManager>())
-        .createNotificationChannel(notificationChannel)
+      Timber.d("Create notification channel and group with id: $channelId")
+      requireNotNull(context.getSystemService<NotificationManager>()).let { manager ->
+        manager.createNotificationChannelGroup(notificationGroup)
+        manager.createNotificationChannel(notificationChannel)
+      }
     }
   }
 
@@ -69,7 +78,7 @@ internal object ButlerNotifications {
     return when {
       items.size == 1 -> ""
       items.size == 2 -> "and ${items[1].name()}"
-      else -> "and ${items.size} other items"
+      else -> "and ${items.size - 1} other items"
     }
   }
 
@@ -96,14 +105,29 @@ internal object ButlerNotifications {
   @JvmStatic
   private fun notify(
     context: Context,
+    channelId: String,
+    channelTitle: String,
+    channelDescription: String,
     entry: FridgeEntry,
     items: List<FridgeItem>,
-    createNotification: (context: Context, channelId: String) -> Notification
+    createNotification: (builder: NotificationCompat.Builder) -> Notification
   ) {
     require(items.isNotEmpty())
-    createNeedNotificationChannel(context)
+    require(channelId.isNotBlank())
+    require(channelTitle.isNotBlank())
+    require(channelDescription.isNotBlank())
 
-    val notification = createNotification(context, NOTIFICATION_CHANNEL_ID)
+    guaranteeNotificationChannelExists(context, channelId, channelTitle, channelDescription)
+
+    val builder = NotificationCompat.Builder(context, channelId)
+      .setSmallIcon(R.drawable.ic_get_app_24dp)
+      .setAutoCancel(false)
+      .setOngoing(false)
+      .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+      .setNumber(items.size)
+      .setColor(Color.RED)
+
+    val notification = createNotification(builder)
 
     val id = generateNotificationId()
     Timber.d("Fire notification for entry: ${entry.id()} $id")
@@ -120,45 +144,52 @@ internal object ButlerNotifications {
 
   @JvmStatic
   fun notifyNeeded(context: Context, entry: FridgeEntry, items: List<FridgeItem>) {
-    notify(context, entry, items) { c, id ->
-      return@notify NotificationCompat.Builder(c, id)
-        .setAutoCancel(false)
-        .setOngoing(false)
+    notify(
+      context,
+      NEEDED_CHANNEL_ID,
+      "Purchase Reminders",
+      "Reminders for items you still need to purchase",
+      entry,
+      items
+    ) { builder ->
+      return@notify builder
         .setContentTitle("Purchase reminder for ${entry.name()}")
         .setContentText("You still need ${items.first().name()} ${getExtraItems(items)}")
-        .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-        .setNumber(items.size)
-        .setColor(Color.RED)
         .build()
     }
   }
 
   @JvmStatic
   fun notifyExpiring(context: Context, entry: FridgeEntry, items: List<FridgeItem>) {
-    notify(context, entry, items) { c, id ->
-      return@notify NotificationCompat.Builder(c, id)
-        .setAutoCancel(false)
-        .setOngoing(false)
+    notify(
+      context,
+      EXPIRING_CHANNEL_ID,
+      "Expiring Reminders",
+      "Reminders for items that are going to expire soon",
+      entry,
+      items
+    ) { builder ->
+      val extra = "${getExtraItems(items)} ${if (items.size == 1) "is" else "are"} about to expire."
+      return@notify builder
         .setContentTitle("Expiration reminder for ${entry.name()}")
-        .setContentText("${items.first().name()} ${getExtraItems(items)} ${if (items.size == 1) "is" else "are"} about to expire.")
-        .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-        .setNumber(items.size)
-        .setColor(Color.RED)
+        .setContentText("${items.first().name()} $extra")
         .build()
     }
   }
 
   @JvmStatic
   fun notifyExpired(context: Context, entry: FridgeEntry, items: List<FridgeItem>) {
-    notify(context, entry, items) { c, id ->
-      return@notify NotificationCompat.Builder(c, id)
-        .setAutoCancel(false)
-        .setOngoing(false)
+    notify(
+      context,
+      EXPIRED_CHANNEL_ID,
+      "Expired Reminders",
+      "Reminders for items that have expired",
+      entry,
+      items
+    ) { builder ->
+      return@notify builder
         .setContentTitle("Expired warning for ${entry.name()}")
         .setContentText("${items.first().name()} ${getExtraItems(items)} ${if (items.size == 1) "has" else "have"} passed expiration!")
-        .setPriority(NotificationCompat.PRIORITY_HIGH)
-        .setNumber(items.size)
-        .setColor(Color.RED)
         .build()
     }
   }
