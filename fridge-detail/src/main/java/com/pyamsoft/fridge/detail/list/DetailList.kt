@@ -54,6 +54,7 @@ import me.saket.inboxrecyclerview.InboxRecyclerView
 import me.saket.inboxrecyclerview.dimming.TintPainter
 import me.saket.inboxrecyclerview.page.ExpandablePageLayout
 import me.saket.inboxrecyclerview.page.PageStateChangeCallbacks
+import timber.log.Timber
 
 internal abstract class DetailList protected constructor(
   private val interactor: CreationListInteractor,
@@ -119,6 +120,7 @@ internal abstract class DetailList protected constructor(
       }
 
       override fun onPageCollapsed() {
+        Timber.d("Page collapsed")
         callback.onCollapseItem()
       }
 
@@ -278,8 +280,26 @@ internal abstract class DetailList protected constructor(
   }
 
   final override fun onExpandItem(item: FridgeItem) {
-    callback.onExpandItem(expandablePage.id, item)
+    val expandCallback = object : PageStateChangeCallbacks {
+      override fun onPageAboutToCollapse(collapseAnimDuration: Long) {
+      }
 
+      override fun onPageAboutToExpand(expandAnimDuration: Long) {
+      }
+
+      override fun onPageCollapsed() {
+        Timber.d("Temp callback: page collapsed")
+        expandablePage.removeStateChangeCallbacks(this)
+      }
+
+      override fun onPageExpanded() {
+        Timber.d("Temp callback: page expanded")
+        callback.onExpandItem(expandablePage.id, item)
+        expandablePage.removeStateChangeCallbacks(this)
+      }
+
+    }
+    expandablePage.addStateChangeCallbacks(expandCallback)
     recyclerView.expandItem(item.id().hashCode().toLong())
   }
 

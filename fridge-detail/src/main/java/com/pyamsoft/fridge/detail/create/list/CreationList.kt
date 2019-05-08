@@ -53,7 +53,7 @@ internal class CreationList @Inject internal constructor(
     } else {
       return DetailListItemController(
         item,
-        true,
+        false,
         factory,
         this
       )

@@ -17,22 +17,17 @@
 
 package com.pyamsoft.fridge.detail.item.fridge
 
-import com.pyamsoft.fridge.db.item.FridgeItem
-import com.pyamsoft.pydroid.arch.UiComponent
+import android.view.ViewGroup
+import com.pyamsoft.fridge.detail.R
+import com.pyamsoft.pydroid.arch.BaseUiView
+import javax.inject.Inject
 
-internal interface DetailListItemUiComponent : UiComponent<DetailListItemUiComponent.Callback> {
+internal class DetailItemFrame @Inject internal constructor(
+  parent: ViewGroup
+) : BaseUiView<Unit>(parent, Unit) {
 
-  fun deleteSelf()
+  override val layout: Int = R.layout.layout_frame
 
-  fun archiveSelf()
-
-  fun requestFocus()
-
-  interface Callback {
-
-    fun onLastDoneClicked()
-
-    fun onExpandItem(item: FridgeItem)
-  }
-
+  override val layoutRoot by boundView<ViewGroup>(R.id.layout_frame)
 }
+

@@ -26,6 +26,7 @@ import android.view.inputmethod.EditorInfo
 import android.widget.EditText
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.detail.R
+import com.pyamsoft.fridge.detail.item.fridge.DetailListItemDate.Callback
 import timber.log.Timber
 import java.util.Calendar
 import javax.inject.Inject
@@ -35,8 +36,8 @@ internal class DetailListItemDate @Inject internal constructor(
   @Named("item_editable") private val editable: Boolean,
   item: FridgeItem,
   parent: ViewGroup,
-  callback: DetailListItemDate.Callback
-) : DetailListItem<DetailListItemDate.Callback>(item, parent, callback) {
+  callback: Callback
+) : DetailListItem<Callback>(item, parent, callback) {
 
   override val layout: Int = R.layout.detail_list_item_date
 

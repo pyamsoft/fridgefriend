@@ -28,7 +28,6 @@ import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.entry.JsonMappableFridgeEntry
 import com.pyamsoft.fridge.entry.R
 import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
-import timber.log.Timber
 
 internal class EntryListAdapter internal constructor(
   private val callback: Callback
@@ -51,6 +50,12 @@ internal class EntryListAdapter internal constructor(
 
     }
 ) {
+
+  override fun getItemId(position: Int): Long {
+    return getItem(position).id()
+        .hashCode()
+        .toLong()
+  }
 
   override fun getItemViewType(position: Int): Int {
     return if (position == 0) R.id.id_entry_space_item else R.id.id_entry_list_item

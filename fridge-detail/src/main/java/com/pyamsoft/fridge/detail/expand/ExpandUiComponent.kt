@@ -15,24 +15,8 @@
  *
  */
 
-package com.pyamsoft.fridge.detail.item.fridge
+package com.pyamsoft.fridge.detail.expand
 
-import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.pydroid.arch.UiComponent
 
-internal interface DetailListItemUiComponent : UiComponent<DetailListItemUiComponent.Callback> {
-
-  fun deleteSelf()
-
-  fun archiveSelf()
-
-  fun requestFocus()
-
-  interface Callback {
-
-    fun onLastDoneClicked()
-
-    fun onExpandItem(item: FridgeItem)
-  }
-
-}
+interface ExpandUiComponent : UiComponent<Unit>

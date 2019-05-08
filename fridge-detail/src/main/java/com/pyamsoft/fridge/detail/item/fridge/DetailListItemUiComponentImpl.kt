@@ -30,6 +30,7 @@ import javax.inject.Inject
 
 internal class DetailListItemUiComponentImpl @Inject internal constructor(
   private val model: FridgeItem,
+  private val frame: DetailItemFrame,
   private val strikethrough: DetailListItemStrikethrough,
   private val name: DetailListItemName,
   private val expireTime: DetailListItemDate,
@@ -39,7 +40,7 @@ internal class DetailListItemUiComponentImpl @Inject internal constructor(
     DetailListItemUiComponent {
 
   override fun id(): Int {
-    return strikethrough.id()
+    return frame.id()
   }
 
   override fun onBind(
@@ -48,6 +49,7 @@ internal class DetailListItemUiComponentImpl @Inject internal constructor(
     callback: Callback
   ) {
     owner.doOnDestroy {
+      frame.teardown()
       strikethrough.teardown()
       name.teardown()
       expireTime.teardown()
@@ -55,6 +57,7 @@ internal class DetailListItemUiComponentImpl @Inject internal constructor(
       viewModel.unbind()
     }
 
+    frame.inflate(savedInstanceState)
     presence.inflate(savedInstanceState)
     expireTime.inflate(savedInstanceState)
     name.inflate(savedInstanceState)
@@ -68,9 +71,9 @@ internal class DetailListItemUiComponentImpl @Inject internal constructor(
 
   override fun onLayout(set: ConstraintSet) {
     presence.also {
-      set.connect(it.id(), ConstraintSet.TOP, strikethrough.id(), ConstraintSet.TOP)
-      set.connect(it.id(), ConstraintSet.BOTTOM, strikethrough.id(), ConstraintSet.BOTTOM)
-      set.connect(it.id(), ConstraintSet.START, strikethrough.id(), ConstraintSet.START)
+      set.connect(it.id(), ConstraintSet.TOP, frame.id(), ConstraintSet.TOP)
+      set.connect(it.id(), ConstraintSet.BOTTOM, frame.id(), ConstraintSet.BOTTOM)
+      set.connect(it.id(), ConstraintSet.START, frame.id(), ConstraintSet.START)
       set.constrainWidth(it.id(), ConstraintSet.WRAP_CONTENT)
     }
 
@@ -84,13 +87,23 @@ internal class DetailListItemUiComponentImpl @Inject internal constructor(
     name.also {
       set.connect(it.id(), ConstraintSet.TOP, strikethrough.id(), ConstraintSet.TOP)
       set.connect(it.id(), ConstraintSet.BOTTOM, strikethrough.id(), ConstraintSet.BOTTOM)
-      set.connect(it.id(), ConstraintSet.START, presence.id(), ConstraintSet.END)
-      set.connect(it.id(), ConstraintSet.END, expireTime.id(), ConstraintSet.START)
+      set.connect(it.id(), ConstraintSet.START, strikethrough.id(), ConstraintSet.START)
+      set.connect(it.id(), ConstraintSet.END, strikethrough.id(), ConstraintSet.END)
       set.constrainWidth(it.id(), ConstraintSet.MATCH_CONSTRAINT)
+    }
+
+    strikethrough.also {
+      set.connect(it.id(), ConstraintSet.TOP, frame.id(), ConstraintSet.TOP)
+      set.connect(it.id(), ConstraintSet.BOTTOM, frame.id(), ConstraintSet.BOTTOM)
+      set.connect(it.id(), ConstraintSet.START, presence.id(), ConstraintSet.END)
+      set.connect(it.id(), ConstraintSet.END, frame.id(), ConstraintSet.END)
+      set.constrainWidth(it.id(), ConstraintSet.MATCH_CONSTRAINT)
+      set.constrainHeight(it.id(), ConstraintSet.MATCH_CONSTRAINT)
     }
   }
 
   override fun onSaveState(outState: Bundle) {
+    frame.saveState(outState)
     strikethrough.saveState(outState)
     expireTime.saveState(outState)
     presence.saveState(outState)

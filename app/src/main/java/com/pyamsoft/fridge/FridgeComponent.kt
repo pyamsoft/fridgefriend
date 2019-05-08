@@ -28,6 +28,7 @@ import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent
 import com.pyamsoft.fridge.db.item.FridgeItemQueryDao
 import com.pyamsoft.fridge.db.room.RoomProvider
 import com.pyamsoft.fridge.detail.DetailComponent
+import com.pyamsoft.fridge.detail.ExpandComponent
 import com.pyamsoft.fridge.detail.create.CreateSingletonModule
 import com.pyamsoft.fridge.detail.shop.ShoppingSingletonModule
 import com.pyamsoft.fridge.entry.EntryComponent
@@ -50,16 +51,16 @@ import javax.inject.Singleton
 
 @Singleton
 @Component(
-  modules = [
-    FridgeProvider::class,
-    DbProvider::class,
-    RoomProvider::class,
-    ButlerModule::class,
-    SettingSingletonModule::class,
-    EntrySingletonModule::class,
-    CreateSingletonModule::class,
-    ShoppingSingletonModule::class
-  ]
+    modules = [
+      FridgeProvider::class,
+      DbProvider::class,
+      RoomProvider::class,
+      ButlerModule::class,
+      SettingSingletonModule::class,
+      EntrySingletonModule::class,
+      CreateSingletonModule::class,
+      ShoppingSingletonModule::class
+    ]
 )
 internal interface FridgeComponent {
 
@@ -71,6 +72,9 @@ internal interface FridgeComponent {
 
   //  @CheckResult
   //  fun plusScannerComponent(): OcrComponent.Factory
+
+  @CheckResult
+  fun plusExpandComponent(): ExpandComponent.Factory
 
   @CheckResult
   fun plusDetailComponent(): DetailComponent.Factory

@@ -17,11 +17,14 @@
 
 package com.pyamsoft.fridge.db.item
 
+import android.os.Parcelable
 import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence
 import com.squareup.moshi.JsonClass
+import kotlinx.android.parcel.Parcelize
 import java.util.Date
 
+@Parcelize
 @JsonClass(generateAdapter = true)
 data class JsonMappableFridgeItem internal constructor(
   internal val id: String,
@@ -31,7 +34,7 @@ data class JsonMappableFridgeItem internal constructor(
   internal val presence: Presence,
   internal val isReal: Boolean,
   internal val isArchived: Boolean
-) : FridgeItem {
+) : FridgeItem, Parcelable {
 
   override fun id(): String {
     return id
@@ -86,15 +89,19 @@ data class JsonMappableFridgeItem internal constructor(
     @JvmStatic
     @CheckResult
     fun from(item: FridgeItem): JsonMappableFridgeItem {
-      return JsonMappableFridgeItem(
-        item.id(),
-        item.entryId(),
-        item.name(),
-        item.expireTime(),
-        item.presence(),
-        item.isReal(),
-        item.isArchived()
-      )
+      if (item is JsonMappableFridgeItem) {
+        return item
+      } else {
+        return JsonMappableFridgeItem(
+            item.id(),
+            item.entryId(),
+            item.name(),
+            item.expireTime(),
+            item.presence(),
+            item.isReal(),
+            item.isArchived()
+        )
+      }
     }
   }
 }

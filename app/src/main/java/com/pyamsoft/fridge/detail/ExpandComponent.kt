@@ -15,24 +15,30 @@
  *
  */
 
-package com.pyamsoft.fridge.detail.item.fridge
+package com.pyamsoft.fridge.detail
 
+import android.view.ViewGroup
+import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.db.item.FridgeItem
-import com.pyamsoft.pydroid.arch.UiComponent
+import com.pyamsoft.fridge.detail.expand.ExpandModule
+import com.pyamsoft.fridge.detail.expand.ExpandScope
+import dagger.BindsInstance
+import dagger.Subcomponent
 
-internal interface DetailListItemUiComponent : UiComponent<DetailListItemUiComponent.Callback> {
+@ExpandScope
+@Subcomponent(modules = [ExpandModule::class])
+internal interface ExpandComponent {
 
-  fun deleteSelf()
+  fun inject(fragment: ExpandedFragment)
 
-  fun archiveSelf()
+  @Subcomponent.Factory
+  interface Factory {
 
-  fun requestFocus()
-
-  interface Callback {
-
-    fun onLastDoneClicked()
-
-    fun onExpandItem(item: FridgeItem)
+    @CheckResult
+    fun create(
+      @BindsInstance parent: ViewGroup,
+      @BindsInstance item: FridgeItem
+    ): ExpandComponent
   }
 
 }
