@@ -62,7 +62,13 @@ data class JsonMappableFridgeEntry internal constructor(
     @JvmStatic
     @CheckResult
     fun from(entry: FridgeEntry): JsonMappableFridgeEntry {
-      return JsonMappableFridgeEntry(entry.id(), entry.name(), entry.createdTime(), entry.isReal())
+      if (entry is JsonMappableFridgeEntry) {
+        return entry
+      } else {
+        return JsonMappableFridgeEntry(
+            entry.id(), entry.name(), entry.createdTime(), entry.isReal()
+        )
+      }
     }
   }
 

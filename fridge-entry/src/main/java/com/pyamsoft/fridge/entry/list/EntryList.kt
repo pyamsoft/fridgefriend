@@ -26,10 +26,6 @@ import androidx.core.view.isVisible
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-import com.mikepenz.fastadapter.FastAdapter
-import com.mikepenz.fastadapter.adapters.ModelAdapter
-import com.mikepenz.fastadapter.commons.utils.FastAdapterDiffUtil
-import com.pyamsoft.fridge.core.DataClassDiffCallback
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.entry.R
 import com.pyamsoft.pydroid.arch.BaseUiView
@@ -48,26 +44,20 @@ internal class EntryList @Inject internal constructor(
   private val recyclerView by boundView<RecyclerView>(R.id.entry_list)
   private val emptyState by boundView<TextView>(R.id.entry_empty)
 
-  private var modelAdapter: ModelAdapter<FridgeEntry, EntryItem<*, *>>? = null
+  private var modelAdapter: EntryListAdapter? = null
 
-  override fun onInflated(view: View, savedInstanceState: Bundle?) {
-    modelAdapter = ModelAdapter { entry ->
-      if (entry.id().isNotBlank()) {
-        return@ModelAdapter EntryListItem(entry, callback)
-      } else {
-        return@ModelAdapter EntrySpaceItem(entry)
-      }
-    }
+  override fun onInflated(
+    view: View,
+    savedInstanceState: Bundle?
+  ) {
+    modelAdapter = EntryListAdapter(callback).apply { setHasStableIds(true) }
 
     recyclerView.layoutManager = LinearLayoutManager(view.context).apply {
       isItemPrefetchEnabled = true
       initialPrefetchItemCount = 3
     }
 
-    recyclerView.adapter =
-      FastAdapter.with<EntryItem<*, *>, ModelAdapter<FridgeEntry, *>>(usingAdapter()).apply {
-        setHasStableIds(true)
-      }
+    recyclerView.adapter = modelAdapter
 
     layoutRoot.setOnRefreshListener {
       callback.onRefresh()
@@ -76,7 +66,7 @@ internal class EntryList @Inject internal constructor(
 
   override fun onTeardown() {
     super.onTeardown()
-    usingAdapter().clear()
+    clearList()
     recyclerView.adapter = null
     modelAdapter = null
 
@@ -84,7 +74,7 @@ internal class EntryList @Inject internal constructor(
   }
 
   @CheckResult
-  private fun usingAdapter(): ModelAdapter<FridgeEntry, EntryItem<*, *>> {
+  private fun usingAdapter(): EntryListAdapter {
     return requireNotNull(modelAdapter)
   }
 
@@ -104,13 +94,11 @@ internal class EntryList @Inject internal constructor(
   }
 
   fun setList(entries: List<FridgeEntry>) {
-    val list = arrayListOf(FridgeEntry.empty()) + entries
-    val items = list.map { usingAdapter().intercept(it) }
-    FastAdapterDiffUtil.set(usingAdapter(), items, DataClassDiffCallback.create(), true)
+    usingAdapter().submitList(listOf(FridgeEntry.empty()) + entries)
   }
 
   fun clearList() {
-    usingAdapter().clear()
+    usingAdapter().submitList(null)
   }
 
   fun showError(throwable: Throwable) {
@@ -124,14 +112,14 @@ internal class EntryList @Inject internal constructor(
   fun finishRefresh() {
     layoutRoot.refreshing(false)
 
-    if (usingAdapter().adapterItemCount <= 1) {
+    if (usingAdapter().itemCount <= 1) {
       hideList()
     } else {
       showList()
     }
   }
 
-  interface Callback : EntryListItem.Callback {
+  interface Callback : EntryListAdapter.Callback {
 
     fun onRefresh()
 
