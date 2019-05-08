@@ -43,14 +43,15 @@ internal class DetailItemViewModel @Inject internal constructor(
   private val interactor: CreationListInteractor,
   private val fakeRealtime: EventBus<FridgeItemChangeEvent>
 ) : UiViewModel<DetailState>(
-  initialState = DetailState(throwable = null, isDone = false, item = null)
+    initialState = DetailState(throwable = null, isDone = false, expandedItem = null)
 ), DetailItemCallback {
 
   private var updateDisposable by singleDisposable()
   private var deleteDisposable by singleDisposable()
 
   override fun onBind() {
-    handler.handle(this).disposeOnDestroy()
+    handler.handle(this)
+        .disposeOnDestroy()
   }
 
   override fun onUnbind() {
@@ -63,7 +64,10 @@ internal class DetailItemViewModel @Inject internal constructor(
     return isNameValid(item.name())
   }
 
-  override fun commitName(oldItem: FridgeItem, name: String) {
+  override fun commitName(
+    oldItem: FridgeItem,
+    name: String
+  ) {
     // Stop any pending updates
     updateDisposable.tryDispose()
 
@@ -75,18 +79,25 @@ internal class DetailItemViewModel @Inject internal constructor(
     }
   }
 
-  override fun commitDate(oldItem: FridgeItem, year: Int, month: Int, day: Int) {
+  override fun commitDate(
+    oldItem: FridgeItem,
+    year: Int,
+    month: Int,
+    day: Int
+  ) {
     // Stop any pending updates
     updateDisposable.tryDispose()
 
     Timber.d("Attempt save time: $year/$month/$day")
     if (isDateValid(year, month, day)) {
-      val newTime = Calendar.getInstance().apply {
-        set(Calendar.YEAR, year)
-        // Month is 1 indexed as an input
-        set(Calendar.MONTH, month - 1)
-        set(Calendar.DAY_OF_MONTH, day)
-      }.time
+      val newTime = Calendar.getInstance()
+          .apply {
+            set(Calendar.YEAR, year)
+            // Month is 1 indexed as an input
+            set(Calendar.MONTH, month - 1)
+            set(Calendar.DAY_OF_MONTH, day)
+          }
+          .time
       Timber.d("Save expire time: $newTime")
       commitItem(item = oldItem.expireTime(newTime))
     } else {
@@ -95,7 +106,10 @@ internal class DetailItemViewModel @Inject internal constructor(
     }
   }
 
-  override fun commitPresence(oldItem: FridgeItem, presence: Presence) {
+  override fun commitPresence(
+    oldItem: FridgeItem,
+    presence: Presence
+  ) {
     // Stop any pending updates
     updateDisposable.tryDispose()
 
@@ -118,25 +132,17 @@ internal class DetailItemViewModel @Inject internal constructor(
 
     // A delete operation will stop an update operation
     updateDisposable = Completable.complete()
-      .delay(DetailConstants.COMMIT_TIMEOUT_DURATION, DetailConstants.COMMIT_TIMEOUT_UNIT)
-      .observeOn(AndroidSchedulers.mainThread())
-      .doOnComplete { handleMarkReal(item) }
-      .observeOn(Schedulers.io())
-      .andThen(interactor.commit(item.makeReal()))
-      .subscribeOn(Schedulers.io())
-      .observeOn(AndroidSchedulers.mainThread())
-      .doAfterTerminate { updateDisposable.tryDispose() }
-      .subscribe({ handleClearFixMessage() }, {
-        Timber.e(it, "Error updating item: ${item.id()}")
-        handleError(it)
-      })
-  }
-
-  private fun handleMarkReal(item: FridgeItem) {
-    if (!item.isReal()) {
-      Timber.d("Item created, mark real")
-    }
-    setState { copy(item = item.makeReal()) }
+        .delay(DetailConstants.COMMIT_TIMEOUT_DURATION, DetailConstants.COMMIT_TIMEOUT_UNIT)
+        .observeOn(AndroidSchedulers.mainThread())
+        .observeOn(Schedulers.io())
+        .andThen(interactor.commit(item.makeReal()))
+        .subscribeOn(Schedulers.io())
+        .observeOn(AndroidSchedulers.mainThread())
+        .doAfterTerminate { updateDisposable.tryDispose() }
+        .subscribe({ handleClearFixMessage() }, {
+          Timber.e(it, "Error updating item: ${item.id()}")
+          handleError(it)
+        })
   }
 
   fun deleteSelf(item: FridgeItem) {
@@ -155,13 +161,13 @@ internal class DetailItemViewModel @Inject internal constructor(
     }
 
     deleteDisposable = interactor.delete(item)
-      .subscribeOn(Schedulers.io())
-      .observeOn(AndroidSchedulers.mainThread())
-      .doAfterTerminate { deleteDisposable.tryDispose() }
-      .subscribe({ }, {
-        Timber.e(it, "Error deleting item: ${item.id()}")
-        handleError(it)
-      })
+        .subscribeOn(Schedulers.io())
+        .observeOn(AndroidSchedulers.mainThread())
+        .doAfterTerminate { deleteDisposable.tryDispose() }
+        .subscribe({ }, {
+          Timber.e(it, "Error deleting item: ${item.id()}")
+          handleError(it)
+        })
   }
 
   private fun handleFakeCommit(item: FridgeItem) {
@@ -179,7 +185,11 @@ internal class DetailItemViewModel @Inject internal constructor(
     setFixMessage("ERROR: Name $name is invalid. Please fix.")
   }
 
-  private fun handleInvalidDate(year: Int, month: Int, day: Int) {
+  private fun handleInvalidDate(
+    year: Int,
+    month: Int,
+    day: Int
+  ) {
     setFixMessage("ERROR: Date $month/$day/$year is invalid. Please fix.")
   }
 
@@ -221,19 +231,25 @@ internal class DetailItemViewModel @Inject internal constructor(
     }
 
     deleteDisposable = interactor.archive(item)
-      .subscribeOn(Schedulers.io())
-      .observeOn(AndroidSchedulers.mainThread())
-      .doAfterTerminate { deleteDisposable.tryDispose() }
-      .subscribe({ }, {
-        Timber.e(it, "Error deleting item: ${item.id()}")
-        handleError(it)
-      })
+        .subscribeOn(Schedulers.io())
+        .observeOn(AndroidSchedulers.mainThread())
+        .doAfterTerminate { deleteDisposable.tryDispose() }
+        .subscribe({ }, {
+          Timber.e(it, "Error deleting item: ${item.id()}")
+          handleError(it)
+        })
+  }
+
+  override fun onExpand(item: FridgeItem) {
+    setUniqueState(item, old = { it.expandedItem }) { state, value ->
+      state.copy(expandedItem = value)
+    }
   }
 
   data class DetailState(
     val throwable: Throwable?,
     val isDone: Boolean,
-    val item: FridgeItem?
+    val expandedItem: FridgeItem?
   ) : UiState
 
 }

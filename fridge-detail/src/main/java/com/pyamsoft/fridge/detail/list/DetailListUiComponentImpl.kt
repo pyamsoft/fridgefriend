@@ -26,13 +26,12 @@ import com.pyamsoft.fridge.detail.list.DetailListViewModel.DetailState
 import com.pyamsoft.pydroid.arch.BaseUiComponent
 import com.pyamsoft.pydroid.arch.doOnDestroy
 import com.pyamsoft.pydroid.arch.renderOnChange
-import timber.log.Timber
 
 internal abstract class DetailListUiComponentImpl protected constructor(
   private val list: DetailList,
   private val viewModel: DetailListViewModel
 ) : BaseUiComponent<Callback>(),
-  DetailListUiComponent {
+    DetailListUiComponent {
 
   private var refreshLatch: RefreshLatch? = null
 
@@ -40,7 +39,11 @@ internal abstract class DetailListUiComponentImpl protected constructor(
     return list.id()
   }
 
-  override fun onBind(owner: LifecycleOwner, savedInstanceState: Bundle?, callback: Callback) {
+  override fun onBind(
+    owner: LifecycleOwner,
+    savedInstanceState: Bundle?,
+    callback: Callback
+  ) {
     owner.doOnDestroy {
       list.teardown()
       viewModel.unbind()
@@ -60,6 +63,7 @@ internal abstract class DetailListUiComponentImpl protected constructor(
       renderLoading(state, oldState)
       renderList(state, oldState)
       renderError(state, oldState)
+      renderItem(state, oldState)
     }
   }
 
@@ -67,7 +71,23 @@ internal abstract class DetailListUiComponentImpl protected constructor(
     list.saveState(outState)
   }
 
-  private fun renderLoading(state: DetailState, oldState: DetailState?) {
+  private fun renderItem(
+    state: DetailState,
+    oldState: DetailState?
+  ) {
+    state.renderOnChange(oldState, value = { it.expandedItem }) { item ->
+      if (item == null) {
+        callback.onCollapseItem()
+      } else {
+        callback.onExpandItem(item.containerId, item.item)
+      }
+    }
+  }
+
+  private fun renderLoading(
+    state: DetailState,
+    oldState: DetailState?
+  ) {
     state.renderOnChange(oldState, value = { it.isLoading }) { loading ->
       if (loading != null) {
         requireNotNull(refreshLatch).isRefreshing = loading.isLoading
@@ -75,7 +95,10 @@ internal abstract class DetailListUiComponentImpl protected constructor(
     }
   }
 
-  private fun renderList(state: DetailState, oldState: DetailState?) {
+  private fun renderList(
+    state: DetailState,
+    oldState: DetailState?
+  ) {
     state.renderOnChange(oldState, value = { it.items }) { items ->
       if (items.isEmpty()) {
         list.clearList()
@@ -85,7 +108,10 @@ internal abstract class DetailListUiComponentImpl protected constructor(
     }
   }
 
-  private fun renderError(state: DetailState, oldState: DetailState?) {
+  private fun renderError(
+    state: DetailState,
+    oldState: DetailState?
+  ) {
     state.renderOnChange(oldState, value = { it.throwable }) { throwable ->
       if (throwable == null) {
         list.clearError()

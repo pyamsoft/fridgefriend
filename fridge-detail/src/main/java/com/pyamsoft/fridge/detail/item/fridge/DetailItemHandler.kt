@@ -23,6 +23,7 @@ import com.pyamsoft.fridge.detail.item.fridge.DetailItemHandler.DetailItemEvent
 import com.pyamsoft.fridge.detail.item.fridge.DetailItemHandler.DetailItemEvent.CommitDate
 import com.pyamsoft.fridge.detail.item.fridge.DetailItemHandler.DetailItemEvent.CommitName
 import com.pyamsoft.fridge.detail.item.fridge.DetailItemHandler.DetailItemEvent.CommitPresence
+import com.pyamsoft.fridge.detail.item.fridge.DetailItemHandler.DetailItemEvent.Expand
 import com.pyamsoft.fridge.detail.item.fridge.DetailItemHandler.DetailItemEvent.LastDone
 import com.pyamsoft.pydroid.arch.UiEventHandler
 import com.pyamsoft.pydroid.core.bus.EventBus
@@ -33,9 +34,12 @@ import javax.inject.Inject
 internal class DetailItemHandler @Inject internal constructor(
   bus: EventBus<DetailItemEvent>
 ) : UiEventHandler<DetailItemEvent, DetailItemCallback>(bus),
-  DetailItemCallback {
+    DetailItemCallback {
 
-  override fun commitName(oldItem: FridgeItem, name: String) {
+  override fun commitName(
+    oldItem: FridgeItem,
+    name: String
+  ) {
     publish(CommitName(oldItem, name))
   }
 
@@ -43,35 +47,61 @@ internal class DetailItemHandler @Inject internal constructor(
     publish(LastDone)
   }
 
-  override fun commitDate(oldItem: FridgeItem, year: Int, month: Int, day: Int) {
+  override fun commitDate(
+    oldItem: FridgeItem,
+    year: Int,
+    month: Int,
+    day: Int
+  ) {
     publish(CommitDate(oldItem, year, month, day))
   }
 
-  override fun commitPresence(oldItem: FridgeItem, presence: Presence) {
+  override fun commitPresence(
+    oldItem: FridgeItem,
+    presence: Presence
+  ) {
     publish(CommitPresence(oldItem, presence))
+  }
+
+  override fun onExpand(item: FridgeItem) {
+    publish(Expand(item))
   }
 
   override fun handle(delegate: DetailItemCallback): Disposable {
     return listen()
-      .subscribeOn(Schedulers.io())
-      .observeOn(Schedulers.io())
-      .subscribe {
-        return@subscribe when (it) {
-          is CommitName -> delegate.commitName(it.oldItem, it.name)
-          is CommitDate -> delegate.commitDate(it.oldItem, it.year, it.month, it.day)
-          is CommitPresence -> delegate.commitPresence(it.oldItem, it.presence)
-          is LastDone -> delegate.onLastDoneClicked()
+        .subscribeOn(Schedulers.io())
+        .observeOn(Schedulers.io())
+        .subscribe {
+          return@subscribe when (it) {
+            is CommitName -> delegate.commitName(it.oldItem, it.name)
+            is CommitDate -> delegate.commitDate(it.oldItem, it.year, it.month, it.day)
+            is CommitPresence -> delegate.commitPresence(it.oldItem, it.presence)
+            is LastDone -> delegate.onLastDoneClicked()
+            is Expand -> delegate.onExpand(it.item)
+          }
         }
-      }
   }
 
   sealed class DetailItemEvent {
-    data class CommitName(val oldItem: FridgeItem, val name: String) : DetailItemEvent()
+    data class CommitName(
+      val oldItem: FridgeItem,
+      val name: String
+    ) : DetailItemEvent()
 
-    data class CommitDate(val oldItem: FridgeItem, val year: Int, val month: Int, val day: Int) :
-      DetailItemEvent()
+    data class CommitDate(
+      val oldItem: FridgeItem,
+      val year: Int,
+      val month: Int,
+      val day: Int
+    ) :
+        DetailItemEvent()
 
-    data class CommitPresence(val oldItem: FridgeItem, val presence: Presence) : DetailItemEvent()
+    data class CommitPresence(
+      val oldItem: FridgeItem,
+      val presence: Presence
+    ) : DetailItemEvent()
+
+    data class Expand(val item: FridgeItem) : DetailItemEvent()
 
     object LastDone : DetailItemEvent()
   }

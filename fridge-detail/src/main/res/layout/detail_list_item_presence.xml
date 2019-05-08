@@ -26,7 +26,7 @@
       android:layout_height="wrap_content"
       >
 
-    <androidx.appcompat.widget.SwitchCompat
+    <CheckBox
         android:id="@+id/detail_item_presence_switch"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

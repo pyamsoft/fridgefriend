@@ -17,9 +17,12 @@
 
 package com.pyamsoft.fridge.detail.create.list
 
+import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.detail.create.list.CreationList.Callback
 import com.pyamsoft.fridge.detail.create.list.CreationListHandler.CreationEvent
 import com.pyamsoft.fridge.detail.create.list.CreationListHandler.CreationEvent.AddNew
+import com.pyamsoft.fridge.detail.create.list.CreationListHandler.CreationEvent.Collapse
+import com.pyamsoft.fridge.detail.create.list.CreationListHandler.CreationEvent.Expand
 import com.pyamsoft.fridge.detail.create.list.CreationListHandler.CreationEvent.Refresh
 import com.pyamsoft.fridge.detail.list.DetailListHandler
 import com.pyamsoft.pydroid.core.bus.EventBus
@@ -37,15 +40,39 @@ internal class CreationListHandler @Inject internal constructor(
     publish(AddNew)
   }
 
-  override fun handleEvent(event: CreationEvent, delegate: Callback) {
+  override fun onExpandItem(
+    expandedContainerId: Int,
+    item: FridgeItem
+  ) {
+    publish(Expand(expandedContainerId, item))
+  }
+
+  override fun onCollapseItem() {
+    publish(Collapse)
+  }
+
+  override fun handleEvent(
+    event: CreationEvent,
+    delegate: Callback
+  ) {
     return when (event) {
       is Refresh -> delegate.onRefresh()
       is AddNew -> delegate.onAddNewItem()
+      is Expand -> delegate.onExpandItem(event.containerId, event.item)
+      is Collapse -> delegate.onCollapseItem()
     }
   }
 
   sealed class CreationEvent : ListEvent {
     object Refresh : CreationEvent()
+
     object AddNew : CreationEvent()
+
+    data class Expand(
+      val containerId: Int,
+      val item: FridgeItem
+    ) : CreationEvent()
+
+    object Collapse : CreationEvent()
   }
 }

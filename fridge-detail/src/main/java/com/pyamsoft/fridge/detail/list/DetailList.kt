@@ -53,6 +53,7 @@ import com.pyamsoft.pydroid.ui.util.refreshing
 import me.saket.inboxrecyclerview.InboxRecyclerView
 import me.saket.inboxrecyclerview.dimming.TintPainter
 import me.saket.inboxrecyclerview.page.ExpandablePageLayout
+import me.saket.inboxrecyclerview.page.PageStateChangeCallbacks
 
 internal abstract class DetailList protected constructor(
   private val interactor: CreationListInteractor,
@@ -73,6 +74,7 @@ internal abstract class DetailList protected constructor(
 
   private var decoration: DividerItemDecoration? = null
   private var touchHelper: ItemTouchHelper? = null
+  private var expandStateCallback: PageStateChangeCallbacks? = null
   private var modelAdapter: ModelAdapter<FridgeItem, DetailItem<*, *>>? = null
 
   @CheckResult
@@ -106,6 +108,26 @@ internal abstract class DetailList protected constructor(
         color = if (theming.isDarkTheme()) Color.BLACK else Color.WHITE,
         opacity = 0.65F
     )
+
+    expandStateCallback?.let { expandablePage.removeStateChangeCallbacks(it) }
+    val expandCallback = object : PageStateChangeCallbacks {
+
+      override fun onPageAboutToCollapse(collapseAnimDuration: Long) {
+      }
+
+      override fun onPageAboutToExpand(expandAnimDuration: Long) {
+      }
+
+      override fun onPageCollapsed() {
+        callback.onCollapseItem()
+      }
+
+      override fun onPageExpanded() {
+      }
+
+    }
+    expandablePage.addStateChangeCallbacks(expandCallback)
+    expandStateCallback = expandCallback
 
     recyclerView.adapter =
       FastAdapter.with<DetailItem<*, *>, ModelAdapter<FridgeItem, *>>(usingAdapter())
@@ -187,6 +209,9 @@ internal abstract class DetailList protected constructor(
     decoration = null
 
     layoutRoot.setOnRefreshListener(null)
+
+    expandStateCallback?.let { expandablePage.removeStateChangeCallbacks(it) }
+    expandStateCallback = null
   }
 
   @CheckResult
@@ -252,9 +277,22 @@ internal abstract class DetailList protected constructor(
     layoutRoot.refreshing(false)
   }
 
+  final override fun onExpandItem(item: FridgeItem) {
+    callback.onExpandItem(expandablePage.id, item)
+
+    recyclerView.expandItem(item.id().hashCode().toLong())
+  }
+
   interface Callback {
 
     fun onRefresh()
+
+    fun onExpandItem(
+      expandedContainerId: Int,
+      item: FridgeItem
+    )
+
+    fun onCollapseItem()
 
   }
 }

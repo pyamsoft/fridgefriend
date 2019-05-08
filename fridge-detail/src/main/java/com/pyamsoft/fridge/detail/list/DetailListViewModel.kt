@@ -24,6 +24,7 @@ import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent.Delete
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent.Insert
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent.Update
 import com.pyamsoft.fridge.detail.list.DetailListViewModel.DetailState
+import com.pyamsoft.fridge.detail.list.DetailListViewModel.DetailState.ExpandTarget
 import com.pyamsoft.fridge.detail.list.DetailListViewModel.DetailState.Loading
 import com.pyamsoft.pydroid.arch.UiState
 import com.pyamsoft.pydroid.arch.UiViewModel
@@ -40,7 +41,12 @@ internal abstract class DetailListViewModel protected constructor(
   protected val fakeRealtime: EventBus<FridgeItemChangeEvent>,
   private val filterArchived: Boolean
 ) : UiViewModel<DetailState>(
-  initialState = DetailState(isLoading = null, throwable = null, items = emptyList())
+    initialState = DetailState(
+        isLoading = null,
+        throwable = null,
+        items = emptyList(),
+        expandedItem = null
+    )
 ), DetailList.Callback {
 
   private var refreshDisposable by singleDisposable()
@@ -73,17 +79,28 @@ internal abstract class DetailListViewModel protected constructor(
     refreshList(true)
   }
 
+  final override fun onExpandItem(
+    expandedContainerId: Int,
+    item: FridgeItem
+  ) {
+    setState { copy(expandedItem = ExpandTarget(expandedContainerId, item)) }
+  }
+
+  final override fun onCollapseItem() {
+    setState { copy(expandedItem = null) }
+  }
+
   private fun refreshList(force: Boolean) {
     refreshDisposable = getItems(force)
-      .subscribeOn(Schedulers.io())
-      .observeOn(AndroidSchedulers.mainThread())
-      .doAfterTerminate { handleListRefreshComplete() }
-      .doOnSubscribe { handleListRefreshBegin() }
-      .doAfterSuccess { beginListeningForChanges() }
-      .subscribe({ handleListRefreshed(it) }, {
-        Timber.e(it, "Error refreshing item list")
-        handleListRefreshError(it)
-      })
+        .subscribeOn(Schedulers.io())
+        .observeOn(AndroidSchedulers.mainThread())
+        .doAfterTerminate { handleListRefreshComplete() }
+        .doOnSubscribe { handleListRefreshBegin() }
+        .doAfterSuccess { beginListeningForChanges() }
+        .subscribe({ handleListRefreshed(it) }, {
+          Timber.e(it, "Error refreshing item list")
+          handleListRefreshError(it)
+        })
   }
 
   private fun handleRealtime(event: FridgeItemChangeEvent) {
@@ -96,21 +113,27 @@ internal abstract class DetailListViewModel protected constructor(
 
   private fun beginListeningForChanges() {
     realtimeDisposable = listenForChanges()
-      .subscribeOn(Schedulers.io())
-      .observeOn(AndroidSchedulers.mainThread())
-      .subscribe { handleRealtime(it) }
+        .subscribeOn(Schedulers.io())
+        .observeOn(AndroidSchedulers.mainThread())
+        .subscribe { handleRealtime(it) }
 
     fakeRealtimeDisposable = fakeRealtime.listen()
-      .subscribeOn(Schedulers.io())
-      .observeOn(AndroidSchedulers.mainThread())
-      .subscribe { handleRealtime(it) }
+        .subscribeOn(Schedulers.io())
+        .observeOn(AndroidSchedulers.mainThread())
+        .subscribe { handleRealtime(it) }
   }
 
-  protected fun insert(items: MutableList<FridgeItem>, item: FridgeItem) {
+  protected fun insert(
+    items: MutableList<FridgeItem>,
+    item: FridgeItem
+  ) {
     if (!checkExists(items, item)) {
       addToEndBeforeAddNew(items, item)
     } else {
-      for ((index, oldItem) in items.filterNot { it.id().isBlank() }.withIndex()) {
+      for ((index, oldItem) in items.filterNot {
+        it.id()
+            .isBlank()
+      }.withIndex()) {
         if (oldItem.id() == item.id()) {
           items[index] = item
           break
@@ -119,7 +142,10 @@ internal abstract class DetailListViewModel protected constructor(
     }
   }
 
-  private fun addToEndBeforeAddNew(items: MutableList<FridgeItem>, item: FridgeItem) {
+  private fun addToEndBeforeAddNew(
+    items: MutableList<FridgeItem>,
+    item: FridgeItem
+  ) {
     var index = -1
     for ((i, e) in items.withIndex()) {
       if (e.id().isBlank()) {
@@ -136,19 +162,22 @@ internal abstract class DetailListViewModel protected constructor(
   }
 
   @CheckResult
-  private fun checkExists(items: MutableList<FridgeItem>, item: FridgeItem): Boolean {
+  private fun checkExists(
+    items: MutableList<FridgeItem>,
+    item: FridgeItem
+  ): Boolean {
     return items.any { item.id() == it.id() && item.entryId() == it.entryId() }
   }
 
   private fun handleRealtimeInsert(item: FridgeItem) {
     setState {
       copy(
-        items = items.let { list ->
-          val newItems = list.toMutableList()
-          insert(newItems, item)
-          return@let getListItems(newItems)
-            .filterNot { filterArchived && it.isArchived() }
-        })
+          items = items.let { list ->
+            val newItems = list.toMutableList()
+            insert(newItems, item)
+            return@let getListItems(newItems)
+                .filterNot { filterArchived && it.isArchived() }
+          })
     }
   }
 
@@ -157,25 +186,25 @@ internal abstract class DetailListViewModel protected constructor(
     if (item.isArchived()) {
       setState {
         copy(
-          items = getListItems(items.map { old ->
-            if (old.id() == item.id()) {
-              return@map item
-            } else {
-              return@map old
-            }
-          }).filterNot { filterArchived && it.isArchived() }
+            items = getListItems(items.map { old ->
+              if (old.id() == item.id()) {
+                return@map item
+              } else {
+                return@map old
+              }
+            }).filterNot { filterArchived && it.isArchived() }
         )
       }
     } else {
       setState {
         copy(
-          items = getListItems(items.map { old ->
-            if (old.id() == item.id()) {
-              return@map item
-            } else {
-              return@map old
-            }
-          }).filterNot { filterArchived && it.isArchived() }
+            items = getListItems(items.map { old ->
+              if (old.id() == item.id()) {
+                return@map item
+              } else {
+                return@map old
+              }
+            }).filterNot { filterArchived && it.isArchived() }
         )
       }
 
@@ -185,8 +214,8 @@ internal abstract class DetailListViewModel protected constructor(
   private fun handleRealtimeDelete(item: FridgeItem) {
     setState {
       copy(
-        items = getListItems(items.filterNot { it.id() == item.id() })
-          .filterNot { filterArchived && it.isArchived() }
+          items = getListItems(items.filterNot { it.id() == item.id() })
+              .filterNot { filterArchived && it.isArchived() }
       )
     }
   }
@@ -201,8 +230,8 @@ internal abstract class DetailListViewModel protected constructor(
     Timber.d("Items list: $items")
     setState {
       copy(
-        items = getListItems(items.filterNot { filterArchived && it.isArchived() }),
-        throwable = null
+          items = getListItems(items.filterNot { filterArchived && it.isArchived() }),
+          throwable = null
       )
     }
   }
@@ -222,9 +251,15 @@ internal abstract class DetailListViewModel protected constructor(
   data class DetailState(
     val isLoading: Loading?,
     val throwable: Throwable?,
-    val items: List<FridgeItem>
+    val items: List<FridgeItem>,
+    val expandedItem: ExpandTarget?
   ) : UiState {
     data class Loading(val isLoading: Boolean)
+
+    data class ExpandTarget(
+      val containerId: Int,
+      val item: FridgeItem
+    )
   }
 
 }

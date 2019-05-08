@@ -70,21 +70,21 @@ internal class DetailListItemUiComponentImpl @Inject internal constructor(
     presence.also {
       set.connect(it.id(), ConstraintSet.TOP, strikethrough.id(), ConstraintSet.TOP)
       set.connect(it.id(), ConstraintSet.BOTTOM, strikethrough.id(), ConstraintSet.BOTTOM)
-      set.connect(it.id(), ConstraintSet.END, strikethrough.id(), ConstraintSet.END)
+      set.connect(it.id(), ConstraintSet.START, strikethrough.id(), ConstraintSet.START)
       set.constrainWidth(it.id(), ConstraintSet.WRAP_CONTENT)
     }
 
     expireTime.also {
       set.connect(it.id(), ConstraintSet.TOP, strikethrough.id(), ConstraintSet.TOP)
       set.connect(it.id(), ConstraintSet.BOTTOM, strikethrough.id(), ConstraintSet.BOTTOM)
-      set.connect(it.id(), ConstraintSet.END, presence.id(), ConstraintSet.START)
+      set.connect(it.id(), ConstraintSet.END, strikethrough.id(), ConstraintSet.END)
       set.constrainWidth(it.id(), ConstraintSet.WRAP_CONTENT)
     }
 
     name.also {
       set.connect(it.id(), ConstraintSet.TOP, strikethrough.id(), ConstraintSet.TOP)
       set.connect(it.id(), ConstraintSet.BOTTOM, strikethrough.id(), ConstraintSet.BOTTOM)
-      set.connect(it.id(), ConstraintSet.START, strikethrough.id(), ConstraintSet.START)
+      set.connect(it.id(), ConstraintSet.START, presence.id(), ConstraintSet.END)
       set.connect(it.id(), ConstraintSet.END, expireTime.id(), ConstraintSet.START)
       set.constrainWidth(it.id(), ConstraintSet.MATCH_CONSTRAINT)
     }
@@ -125,12 +125,9 @@ internal class DetailListItemUiComponentImpl @Inject internal constructor(
     state: DetailState,
     oldState: DetailState?
   ) {
-    state.renderOnChange(oldState, value = { it.item }) { item ->
+    state.renderOnChange(oldState, value = { it.expandedItem }) { item ->
       if (item != null) {
-        name.updateItem(item)
-        expireTime.updateItem(item)
-        presence.updateItem(item)
-        strikethrough.updateItem(item)
+        callback.onExpandItem(item)
       }
     }
   }

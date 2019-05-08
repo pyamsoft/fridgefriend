@@ -28,6 +28,7 @@ import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence.HAVE
 import com.pyamsoft.fridge.detail.R
 import com.pyamsoft.pydroid.arch.UiToggleView
+import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
 import javax.inject.Inject
 import javax.inject.Named
 
@@ -37,7 +38,7 @@ internal class DetailListItemStrikethrough @Inject internal constructor(
   parent: ViewGroup,
   callback: Callback
 ) : DetailListItem<DetailListItemStrikethrough.Callback>(item, parent, callback),
-  UiToggleView {
+    UiToggleView {
 
   override val layout: Int = R.layout.detail_list_item_strikethrough
 
@@ -45,8 +46,14 @@ internal class DetailListItemStrikethrough @Inject internal constructor(
   private val strikeLine by boundView<View>(R.id.detail_item_strikethrough_line)
   private val errorMessage by boundView<TextView>(R.id.detail_item_strikethrough_error)
 
-  override fun onInflated(view: View, savedInstanceState: Bundle?) {
+  override fun onInflated(
+    view: View,
+    savedInstanceState: Bundle?
+  ) {
     decideStrikethroughState()
+    layoutRoot.setOnDebouncedClickListener {
+      callback.onExpand(item)
+    }
   }
 
   private fun decideStrikethroughState() {
@@ -66,7 +73,7 @@ internal class DetailListItemStrikethrough @Inject internal constructor(
   }
 
   override fun onTeardown() {
-    hide()
+    layoutRoot.setOnDebouncedClickListener(null)
   }
 
   override fun show() {
@@ -92,6 +99,10 @@ internal class DetailListItemStrikethrough @Inject internal constructor(
     errorMessage.text = ""
   }
 
-  interface Callback : DetailListItem.Callback
+  interface Callback : DetailListItem.Callback {
+
+    fun onExpand(item: FridgeItem)
+
+  }
 }
 

@@ -17,6 +17,7 @@
 
 package com.pyamsoft.fridge.detail.list
 
+import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.detail.list.DetailListUiComponent.Callback
 import com.pyamsoft.pydroid.arch.UiComponent
 
@@ -25,6 +26,13 @@ interface DetailListUiComponent : UiComponent<Callback> {
   fun showError(throwable: Throwable)
 
   interface Callback {
+
+    fun onExpandItem(
+      containerId: Int,
+      item: FridgeItem
+    )
+
+    fun onCollapseItem()
 
   }
 

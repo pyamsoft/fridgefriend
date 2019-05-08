@@ -50,8 +50,6 @@ internal class DetailListItemPresence @Inject internal constructor(
 
   override fun onTeardown() {
     presenceSwitch.setOnCheckedChangeListener(null)
-    presenceSwitch.isEnabled = false
-    presenceSwitch.isChecked = false
   }
 
   private fun setSwitchEnabled() {

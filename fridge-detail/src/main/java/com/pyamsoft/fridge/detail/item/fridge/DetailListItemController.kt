@@ -49,10 +49,10 @@ internal class DetailListItemController internal constructor(
     val horizontalPadding = 16.toDp(v.context)
     val verticalPadding = 8.toDp(v.context)
     v.updatePadding(
-      left = horizontalPadding,
-      right = horizontalPadding,
-      top = verticalPadding,
-      bottom = verticalPadding
+        left = horizontalPadding,
+        right = horizontalPadding,
+        top = verticalPadding,
+        bottom = verticalPadding
     )
     return ViewHolder(v, factory)
   }
@@ -61,13 +61,20 @@ internal class DetailListItemController internal constructor(
     return R.layout.listitem_constraint
   }
 
-  override fun bindView(holder: ViewHolder, payloads: MutableList<Any>) {
+  override fun bindView(
+    holder: ViewHolder,
+    payloads: MutableList<Any>
+  ) {
     super.bindView(holder, payloads)
 
     holder.bind(super.getModel(), canSwipe(), object : Callback {
 
       override fun onLastDoneClicked(position: Int) {
         callback.onLastDoneClicked(position)
+      }
+
+      override fun onExpandItem(item: FridgeItem) {
+        callback.onExpandItem(item)
       }
 
     })
@@ -90,16 +97,24 @@ internal class DetailListItemController internal constructor(
     private var lifecycle: ListItemLifecycle? = null
     private var callback: Callback? = null
 
+    override fun onExpandItem(item: FridgeItem) {
+      requireNotNull(callback).onExpandItem(item)
+    }
+
     override fun onLastDoneClicked() {
       requireNotNull(callback).onLastDoneClicked(layoutPosition)
     }
 
-    fun bind(item: FridgeItem, editable: Boolean, cb: Callback) {
+    fun bind(
+      item: FridgeItem,
+      editable: Boolean,
+      cb: Callback
+    ) {
       callback = cb
       lifecycle?.unbind()
 
       factory(parent, item, editable)
-        .inject(this)
+          .inject(this)
 
       val owner = ListItemLifecycle()
       lifecycle = owner
@@ -150,6 +165,8 @@ internal class DetailListItemController internal constructor(
   interface Callback {
 
     fun onLastDoneClicked(position: Int)
+
+    fun onExpandItem(item: FridgeItem)
 
   }
 

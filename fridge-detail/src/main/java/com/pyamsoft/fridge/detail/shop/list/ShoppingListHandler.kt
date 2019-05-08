@@ -17,6 +17,7 @@
 
 package com.pyamsoft.fridge.detail.shop.list
 
+import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.detail.list.DetailListHandler
 import com.pyamsoft.fridge.detail.shop.list.ShoppingList.Callback
 import com.pyamsoft.fridge.detail.shop.list.ShoppingListHandler.ShoppingEvent
@@ -32,7 +33,21 @@ internal class ShoppingListHandler @Inject internal constructor(
     publish(Refresh)
   }
 
-  override fun handleEvent(event: ShoppingEvent, delegate: Callback) {
+  override fun onExpandItem(
+    expandedContainerId: Int,
+    item: FridgeItem
+  ) {
+    // NOOP
+  }
+
+  override fun onCollapseItem() {
+    // NOOP
+  }
+
+  override fun handleEvent(
+    event: ShoppingEvent,
+    delegate: Callback
+  ) {
     return when (event) {
       is Refresh -> delegate.onRefresh()
     }

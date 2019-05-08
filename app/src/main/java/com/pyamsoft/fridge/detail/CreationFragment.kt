@@ -27,6 +27,7 @@ import androidx.constraintlayout.widget.ConstraintSet
 import androidx.fragment.app.Fragment
 import com.pyamsoft.fridge.FridgeComponent
 import com.pyamsoft.fridge.R
+import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.detail.create.title.CreationTitleUiComponent
 import com.pyamsoft.fridge.detail.create.toolbar.CreationToolbarUiComponent
 import com.pyamsoft.fridge.detail.list.DetailListUiComponent
@@ -34,12 +35,13 @@ import com.pyamsoft.pydroid.arch.layout
 import com.pyamsoft.pydroid.ui.Injector
 import com.pyamsoft.pydroid.ui.app.requireArguments
 import com.pyamsoft.pydroid.ui.app.requireToolbarActivity
+import com.pyamsoft.pydroid.ui.util.commit
 import javax.inject.Inject
 
 internal class CreationFragment : Fragment(),
-  DetailListUiComponent.Callback,
-  CreationToolbarUiComponent.Callback,
-  CreationTitleUiComponent.Callback {
+    DetailListUiComponent.Callback,
+    CreationToolbarUiComponent.Callback,
+    CreationTitleUiComponent.Callback {
 
   @JvmField @Inject internal var toolbar: CreationToolbarUiComponent? = null
   @JvmField @Inject internal var title: CreationTitleUiComponent? = null
@@ -53,16 +55,19 @@ internal class CreationFragment : Fragment(),
     return inflater.inflate(R.layout.layout_constraint, container, false)
   }
 
-  override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+  override fun onViewCreated(
+    view: View,
+    savedInstanceState: Bundle?
+  ) {
     super.onViewCreated(view, savedInstanceState)
 
     val parent = view.findViewById<ConstraintLayout>(R.id.layout_constraint)
     Injector.obtain<FridgeComponent>(view.context.applicationContext)
-      .plusDetailComponent()
-      .create(requireToolbarActivity(), parent)
-      .plusCreationComponent()
-      .create(requireArguments().getString(ENTRY_ID, ""))
-      .inject(this)
+        .plusDetailComponent()
+        .create(requireToolbarActivity(), parent)
+        .plusCreationComponent()
+        .create(requireArguments().getString(ENTRY_ID, ""))
+        .inject(this)
 
     val list = requireNotNull(list)
     val title = requireNotNull(title)
@@ -111,6 +116,32 @@ internal class CreationFragment : Fragment(),
 
   override fun onError(throwable: Throwable) {
     requireNotNull(list).showError(throwable)
+  }
+
+  override fun onExpandItem(
+    containerId: Int,
+    item: FridgeItem
+  ) {
+    val fm = requireActivity().supportFragmentManager
+    if (fm.findFragmentById(containerId) == null) {
+      fm.beginTransaction()
+          .replace(
+              containerId,
+              ExpandedFragment.newInstance(item.entryId(), item.id()),
+              ExpandedFragment.TAG
+          )
+          .commit(viewLifecycleOwner)
+    }
+  }
+
+  override fun onCollapseItem() {
+    val fm = requireActivity().supportFragmentManager
+    val oldFragment: Fragment? = fm.findFragmentByTag(ExpandedFragment.TAG)
+    if (oldFragment != null) {
+      fm.beginTransaction()
+          .remove(oldFragment)
+          .commit(viewLifecycleOwner)
+    }
   }
 
   companion object {

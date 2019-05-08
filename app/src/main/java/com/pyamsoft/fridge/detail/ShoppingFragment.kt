@@ -27,6 +27,7 @@ import androidx.constraintlayout.widget.ConstraintSet
 import androidx.fragment.app.Fragment
 import com.pyamsoft.fridge.FridgeComponent
 import com.pyamsoft.fridge.R
+import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.detail.list.DetailListUiComponent
 import com.pyamsoft.fridge.detail.shop.toolbar.ShoppingToolbarUiComponent
 import com.pyamsoft.pydroid.arch.layout
@@ -92,6 +93,17 @@ internal class ShoppingFragment : Fragment(),
 
   override fun onBack() {
     requireActivity().onBackPressed()
+  }
+
+  override fun onExpandItem(
+    containerId: Int,
+    item: FridgeItem
+  ) {
+    // NOOP
+  }
+
+  override fun onCollapseItem() {
+    // NOOP
   }
 
   companion object {

@@ -17,6 +17,7 @@
 
 package com.pyamsoft.fridge.detail.item.fridge
 
+import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.detail.item.fridge.DetailListItemUiComponent.Callback
 import com.pyamsoft.pydroid.arch.UiComponent
 
@@ -31,6 +32,8 @@ internal interface DetailListItemUiComponent : UiComponent<Callback> {
   interface Callback {
 
     fun onLastDoneClicked()
+
+    fun onExpandItem(item: FridgeItem)
   }
 
 }

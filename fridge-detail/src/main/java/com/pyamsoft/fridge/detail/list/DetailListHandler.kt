@@ -30,13 +30,16 @@ internal abstract class DetailListHandler<E : ListEvent, C : Callback> protected
 
   override fun handle(delegate: C): Disposable {
     return listen()
-      .subscribeOn(Schedulers.io())
-      .observeOn(Schedulers.io())
-      .subscribe { handleEvent(it, delegate) }
+        .subscribeOn(Schedulers.io())
+        .observeOn(Schedulers.io())
+        .subscribe { handleEvent(it, delegate) }
   }
 
   interface ListEvent
 
-  protected abstract fun handleEvent(event: E, delegate: C)
+  protected abstract fun handleEvent(
+    event: E,
+    delegate: C
+  )
 
 }

@@ -44,7 +44,7 @@ internal class DetailListItemName @Inject internal constructor(
   private var nameWatcher: TextWatcher? = null
 
   override fun onInflated(view: View, savedInstanceState: Bundle?) {
-    nameView.setText(item.name())
+    nameView.setTextKeepState(item.name())
     if (editable && !item.isArchived()) {
       val watcher = object : TextWatcher {
 
@@ -70,10 +70,6 @@ internal class DetailListItemName @Inject internal constructor(
     // Unbind all listeners
     nameWatcher?.let { nameView.removeTextChangedListener(it) }
     nameWatcher = null
-
-    // Cleaup
-    nameView.clearFocus()
-    nameView.text.clear()
   }
 
   private fun commit() {
