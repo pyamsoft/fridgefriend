@@ -117,10 +117,6 @@ internal class DetailListItemDate @Inject internal constructor(
     yearView.text.clear()
   }
 
-  override fun onItemUpdated() {
-
-  }
-
   private fun commit() {
     val month = monthView.text.toString()
     val day = dayView.text.toString()

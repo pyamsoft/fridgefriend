@@ -54,10 +54,6 @@ internal class DetailListItemPresence @Inject internal constructor(
     presenceSwitch.isChecked = false
   }
 
-  override fun onItemUpdated() {
-    setSwitchEnabled()
-  }
-
   private fun setSwitchEnabled() {
     presenceSwitch.isEnabled = item.isReal() && !item.isArchived()
   }

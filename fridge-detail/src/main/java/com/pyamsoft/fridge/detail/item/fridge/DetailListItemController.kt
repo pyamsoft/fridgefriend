@@ -66,16 +66,6 @@ internal class DetailListItemController internal constructor(
 
     holder.bind(super.getModel(), canSwipe(), object : Callback {
 
-      override fun onItemUpdated(item: FridgeItem) {
-        if (!model.isReal() && item.isReal()) {
-          Timber.d("We are real now, rebind!")
-        }
-
-        Timber.d("Update backing item: $item")
-        withModel(item)
-        callback.onItemUpdated(item)
-      }
-
       override fun onLastDoneClicked(position: Int) {
         callback.onLastDoneClicked(position)
       }
@@ -102,10 +92,6 @@ internal class DetailListItemController internal constructor(
 
     override fun onLastDoneClicked() {
       requireNotNull(callback).onLastDoneClicked(layoutPosition)
-    }
-
-    override fun onItemUpdated(item: FridgeItem) {
-      requireNotNull(callback).onItemUpdated(item)
     }
 
     fun bind(item: FridgeItem, editable: Boolean, cb: Callback) {
@@ -144,15 +130,13 @@ internal class DetailListItemController internal constructor(
     }
 
     // Kind of hacky
-    fun deleteSelf(item: FridgeItem) {
-      Timber.d("Delete self: $item")
-      requireNotNull(component).deleteSelf(item)
+    fun deleteSelf() {
+      requireNotNull(component).deleteSelf()
     }
 
     // Kind of hacky
-    fun archiveSelf(item: FridgeItem) {
-      Timber.d("Archive self: $item")
-      requireNotNull(component).archiveSelf(item)
+    fun archiveSelf() {
+      requireNotNull(component).archiveSelf()
     }
 
     // Very hacky
@@ -164,8 +148,6 @@ internal class DetailListItemController internal constructor(
   }
 
   interface Callback {
-
-    fun onItemUpdated(item: FridgeItem)
 
     fun onLastDoneClicked(position: Int)
 

@@ -17,23 +17,20 @@
 
 package com.pyamsoft.fridge.detail.item.fridge
 
-import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.detail.item.fridge.DetailListItemUiComponent.Callback
 import com.pyamsoft.pydroid.arch.UiComponent
 
 internal interface DetailListItemUiComponent : UiComponent<Callback> {
 
-  fun deleteSelf(item: FridgeItem)
+  fun deleteSelf()
 
-  fun archiveSelf(item: FridgeItem)
+  fun archiveSelf()
 
   fun requestFocus()
 
   interface Callback {
 
     fun onLastDoneClicked()
-
-    fun onItemUpdated(item: FridgeItem)
   }
 
 }

@@ -76,10 +76,6 @@ internal class DetailListItemName @Inject internal constructor(
     nameView.text.clear()
   }
 
-  override fun onItemUpdated() {
-
-  }
-
   private fun commit() {
     val name = nameView.text.toString()
     callback.commitName(item, name)

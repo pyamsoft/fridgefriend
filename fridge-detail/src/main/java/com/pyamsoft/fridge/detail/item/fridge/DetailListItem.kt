@@ -32,10 +32,9 @@ internal abstract class DetailListItem<C : DetailListItem.Callback> protected co
 
   fun updateItem(real: FridgeItem) {
     this.item = real
-    onItemUpdated()
+    onTeardown()
+    onInflated(layoutRoot, null)
   }
-
-  protected abstract fun onItemUpdated()
 
   interface Callback
 

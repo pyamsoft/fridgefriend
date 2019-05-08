@@ -195,11 +195,11 @@ internal abstract class DetailList protected constructor(
   }
 
   private fun deleteListItem(position: Int) {
-    withViewHolderAt(position) { it.deleteSelf(usingAdapter().models[it.adapterPosition]) }
+    withViewHolderAt(position) { it.deleteSelf() }
   }
 
   private fun archiveListItem(position: Int) {
-    withViewHolderAt(position) { it.archiveSelf(usingAdapter().models[it.adapterPosition]) }
+    withViewHolderAt(position) { it.archiveSelf() }
   }
 
   private inline fun withViewHolderAt(
@@ -250,21 +250,6 @@ internal abstract class DetailList protected constructor(
 
   fun finishRefresh() {
     layoutRoot.refreshing(false)
-  }
-
-  final override fun onItemUpdated(item: FridgeItem) {
-    val adapter = usingAdapter()
-    val models = adapter.models
-    val copyOfModels = models.toMutableList()
-    for ((index, model) in models.withIndex()) {
-      if (model.id() == item.id()) {
-        copyOfModels[index] = item
-        break
-      }
-    }
-
-    // Set the new list but do not notify a UI update
-    adapter.set(copyOfModels, false) { _, _, _, _ -> false }
   }
 
   interface Callback {

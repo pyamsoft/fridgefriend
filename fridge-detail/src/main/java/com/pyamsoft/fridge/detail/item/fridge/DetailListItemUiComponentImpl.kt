@@ -29,19 +29,24 @@ import com.pyamsoft.pydroid.arch.renderOnChange
 import javax.inject.Inject
 
 internal class DetailListItemUiComponentImpl @Inject internal constructor(
+  private val model: FridgeItem,
   private val strikethrough: DetailListItemStrikethrough,
   private val name: DetailListItemName,
   private val expireTime: DetailListItemDate,
   private val presence: DetailListItemPresence,
   private val viewModel: DetailItemViewModel
 ) : BaseUiComponent<Callback>(),
-  DetailListItemUiComponent {
+    DetailListItemUiComponent {
 
   override fun id(): Int {
     return strikethrough.id()
   }
 
-  override fun onBind(owner: LifecycleOwner, savedInstanceState: Bundle?, callback: Callback) {
+  override fun onBind(
+    owner: LifecycleOwner,
+    savedInstanceState: Bundle?,
+    callback: Callback
+  ) {
     owner.doOnDestroy {
       strikethrough.teardown()
       name.teardown()
@@ -92,7 +97,10 @@ internal class DetailListItemUiComponentImpl @Inject internal constructor(
     name.saveState(outState)
   }
 
-  private fun renderError(state: DetailState, oldState: DetailState?) {
+  private fun renderError(
+    state: DetailState,
+    oldState: DetailState?
+  ) {
     state.renderOnChange(oldState, value = { it.throwable }) { throwable ->
       if (throwable == null) {
         strikethrough.clearError()
@@ -102,7 +110,10 @@ internal class DetailListItemUiComponentImpl @Inject internal constructor(
     }
   }
 
-  private fun renderLastDone(state: DetailState, oldState: DetailState?) {
+  private fun renderLastDone(
+    state: DetailState,
+    oldState: DetailState?
+  ) {
     state.renderOnChange(oldState, value = { it.isDone }) { done ->
       if (done) {
         callback.onLastDoneClicked()
@@ -120,17 +131,16 @@ internal class DetailListItemUiComponentImpl @Inject internal constructor(
         expireTime.updateItem(item)
         presence.updateItem(item)
         strikethrough.updateItem(item)
-        callback.onItemUpdated(item)
       }
     }
   }
 
-  override fun deleteSelf(item: FridgeItem) {
-    viewModel.deleteSelf(item)
+  override fun deleteSelf() {
+    viewModel.deleteSelf(model)
   }
 
-  override fun archiveSelf(item: FridgeItem) {
-    viewModel.archiveSelf(item)
+  override fun archiveSelf() {
+    viewModel.archiveSelf(model)
   }
 
   override fun requestFocus() {
