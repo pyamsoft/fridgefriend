@@ -26,11 +26,26 @@
       android:layout_height="match_parent"
       >
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/detail_list"
+    <FrameLayout
+        android:id="@+id/detail_frame"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        />
+        >
+
+      <me.saket.inboxrecyclerview.InboxRecyclerView
+          android:id="@+id/detail_list"
+          android:layout_width="match_parent"
+          android:layout_height="match_parent"
+          />
+
+      <me.saket.inboxrecyclerview.page.ExpandablePageLayout
+          android:id="@+id/detail_expand"
+          android:layout_width="match_parent"
+          android:layout_height="match_parent"
+          />
+
+    </FrameLayout>
+
 
   </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 

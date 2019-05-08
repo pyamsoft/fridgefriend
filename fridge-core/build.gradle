@@ -69,10 +69,13 @@ dependencies {
   // PYDroid
   api "com.pyamsoft.pydroid:ui:$pydroid"
 
-  // FastAdapter
+  // FastAdapter (try to move to ListAdapter)
   api "com.mikepenz:fastadapter:$fastAdapter@aar"
   api "com.mikepenz:fastadapter-commons:$fastAdapter@aar"
   api "com.mikepenz:fastadapter-extensions:$fastAdapter@aar"
+
+  // Inbox recycler view
+  api "me.saket:inboxrecyclerview:$inboxRecycler"
 
   // Dagger
   api "com.google.dagger:dagger:$dagger"

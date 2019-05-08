@@ -50,6 +50,9 @@ import com.pyamsoft.pydroid.core.bus.EventBus
 import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.ui.theme.Theming
 import com.pyamsoft.pydroid.ui.util.refreshing
+import me.saket.inboxrecyclerview.InboxRecyclerView
+import me.saket.inboxrecyclerview.dimming.TintPainter
+import me.saket.inboxrecyclerview.page.ExpandablePageLayout
 
 internal abstract class DetailList protected constructor(
   private val interactor: CreationListInteractor,
@@ -59,13 +62,14 @@ internal abstract class DetailList protected constructor(
   parent: ViewGroup,
   callback: Callback
 ) : BaseUiView<Callback>(parent, callback),
-  DetailListItemController.Callback {
+    DetailListItemController.Callback {
 
   final override val layout: Int = R.layout.detail_list
 
   final override val layoutRoot by boundView<SwipeRefreshLayout>(R.id.detail_swipe_refresh)
 
-  private val recyclerView by boundView<RecyclerView>(R.id.detail_list)
+  private val recyclerView by boundView<InboxRecyclerView>(R.id.detail_list)
+  private val expandablePage by boundView<ExpandablePageLayout>(R.id.detail_expand)
 
   private var decoration: DividerItemDecoration? = null
   private var touchHelper: ItemTouchHelper? = null
@@ -77,10 +81,13 @@ internal abstract class DetailList protected constructor(
     factory: (parent: ViewGroup, item: FridgeItem, editable: Boolean) -> DetailItemComponent
   ): DetailItem<*, *>
 
-  final override fun onInflated(view: View, savedInstanceState: Bundle?) {
+  final override fun onInflated(
+    view: View,
+    savedInstanceState: Bundle?
+  ) {
     val factory = { parent: ViewGroup, item: FridgeItem, editable: Boolean ->
       DaggerDetailItemComponent.factory()
-        .create(parent, item, editable, imageLoader, theming, interactor, fakeRealtime)
+          .create(parent, item, editable, imageLoader, theming, interactor, fakeRealtime)
     }
 
     modelAdapter = ModelAdapter { createListItem(it, factory) }
@@ -94,10 +101,17 @@ internal abstract class DetailList protected constructor(
     recyclerView.addItemDecoration(decor)
     decoration = decor
 
+    recyclerView.setExpandablePage(expandablePage)
+    recyclerView.tintPainter = TintPainter.uncoveredArea(
+        color = if (theming.isDarkTheme()) Color.BLACK else Color.WHITE,
+        opacity = 0.65F
+    )
+
     recyclerView.adapter =
-      FastAdapter.with<DetailItem<*, *>, ModelAdapter<FridgeItem, *>>(usingAdapter()).apply {
-        setHasStableIds(true)
-      }
+      FastAdapter.with<DetailItem<*, *>, ModelAdapter<FridgeItem, *>>(usingAdapter())
+          .apply {
+            setHasStableIds(true)
+          }
 
     layoutRoot.setOnRefreshListener {
       callback.onRefresh()
@@ -118,24 +132,27 @@ internal abstract class DetailList protected constructor(
     val directions = ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT
     val leftBehindDrawable =
       AppCompatResources.getDrawable(
-        recyclerView.context,
-        drawable.ic_delete_24dp
+          recyclerView.context,
+          drawable.ic_delete_24dp
       )
     val leftBackground = Color.RED
     val rightBehindDrawable =
       AppCompatResources.getDrawable(
-        recyclerView.context,
-        drawable.ic_archive_24dp
+          recyclerView.context,
+          drawable.ic_archive_24dp
       )
     val rightBackground = Color.GREEN
     val swipeCallback = object : SimpleSwipeCallback(
-      itemSwipeCallback,
-      leftBehindDrawable,
-      directions,
-      leftBackground
+        itemSwipeCallback,
+        leftBehindDrawable,
+        directions,
+        leftBackground
     ) {
 
-      override fun getMovementFlags(recyclerView: RecyclerView, viewHolder: ViewHolder): Int {
+      override fun getMovementFlags(
+        recyclerView: RecyclerView,
+        viewHolder: ViewHolder
+      ): Int {
         val item = FastAdapter.getHolderAdapterItem<IItem<*, *>>(viewHolder)
         if (item is DetailItem<*, *>) {
           if (item.canSwipe()) {
@@ -197,7 +214,12 @@ internal abstract class DetailList protected constructor(
 
   @CheckResult
   protected fun getItemCount(): Int {
-    return usingAdapter().adapterItems.filter { it.getModel().id().isNotBlank() }.size
+    return usingAdapter().adapterItems.filter {
+      it.getModel()
+          .id()
+          .isNotBlank()
+    }
+        .size
   }
 
   protected fun focusItem(position: Int) {
