@@ -19,11 +19,12 @@ package com.pyamsoft.fridge.butler.workmanager
 
 import androidx.annotation.CheckResult
 import androidx.work.Constraints
-import androidx.work.OneTimeWorkRequest
+import androidx.work.ExistingPeriodicWorkPolicy.KEEP
+import androidx.work.PeriodicWorkRequest
 import androidx.work.WorkManager
 import com.pyamsoft.fridge.butler.Butler
 import timber.log.Timber
-import java.util.concurrent.TimeUnit.SECONDS
+import java.util.concurrent.TimeUnit.DAYS
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -38,29 +39,20 @@ internal class WorkManagerButler @Inject internal constructor() : Butler {
   @CheckResult
   private fun generateConstraints(): Constraints {
     return Constraints.Builder()
-      .setRequiresBatteryNotLow(true)
-      .setRequiresStorageNotLow(true)
-      .setRequiresCharging(false)
-      .build()
+        .setRequiresBatteryNotLow(true)
+        .setRequiresStorageNotLow(true)
+        .setRequiresCharging(false)
+        .build()
   }
 
   override fun schedule() {
-//    val request = PeriodicWorkRequest.Builder(ButlerWorker::class.java, 1, DAYS)
-//      .addTag(WORK_TAG)
-//      .setConstraints(generateConstraints())
-//      .build()
-//
-//    Timber.d("Queue daily repeating work: $request")
-//    workManager().enqueueUniquePeriodicWork(WORK_TAG, KEEP, request)
+    val request = PeriodicWorkRequest.Builder(ButlerWorker::class.java, 1, DAYS)
+        .addTag(WORK_TAG)
+        .setConstraints(generateConstraints())
+        .build()
 
-    val request = OneTimeWorkRequest.Builder(ButlerWorker::class.java)
-      .addTag(WORK_TAG)
-      .setInitialDelay(10, SECONDS)
-      .setConstraints(generateConstraints())
-      .build()
-
-    Timber.d("Queue debug work: $request")
-    workManager().enqueue(request)
+    Timber.d("Queue daily repeating work: $request")
+    workManager().enqueueUniquePeriodicWork(WORK_TAG, KEEP, request)
   }
 
   override fun cancel() {
