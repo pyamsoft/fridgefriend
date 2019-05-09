@@ -48,11 +48,15 @@ internal class DetailListItemDate @Inject internal constructor(
 
   private var dateWatcher: TextWatcher? = null
 
-  override fun onInflated(view: View, savedInstanceState: Bundle?) {
+  override fun onInflated(
+    view: View,
+    savedInstanceState: Bundle?
+  ) {
     if (item.expireTime() != FridgeItem.EMPTY_EXPIRE_TIME) {
-      val date = Calendar.getInstance().apply {
-        time = item.expireTime()
-      }
+      val date = Calendar.getInstance()
+          .apply {
+            time = item.expireTime()
+          }
       Timber.d("Expire time is: $date")
 
       // Month is zero indexed in storage
@@ -71,10 +75,20 @@ internal class DetailListItemDate @Inject internal constructor(
           commit()
         }
 
-        override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+        override fun beforeTextChanged(
+          s: CharSequence?,
+          start: Int,
+          count: Int,
+          after: Int
+        ) {
         }
 
-        override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+        override fun onTextChanged(
+          s: CharSequence?,
+          start: Int,
+          before: Int,
+          count: Int
+        ) {
         }
       }
       monthView.addTextChangedListener(watcher)
@@ -113,9 +127,9 @@ internal class DetailListItemDate @Inject internal constructor(
     val month = monthView.text.toString()
     val day = dayView.text.toString()
     val year = yearView.text.toString()
-    val yearNumber = if (year.isBlank()) 0 else year.toInt()
-    val monthNumber = if (month.isBlank()) 0 else month.toInt()
-    val dayNumber = if (day.isBlank()) 0 else day.toInt()
+    val yearNumber = if (year.isBlank()) 0 else year.toIntOrNull() ?: 0
+    val monthNumber = if (month.isBlank()) 0 else month.toIntOrNull() ?: 0
+    val dayNumber = if (day.isBlank()) 0 else day.toIntOrNull() ?: 0
     callback.commitDate(item, yearNumber, monthNumber, dayNumber)
   }
 
@@ -123,7 +137,12 @@ internal class DetailListItemDate @Inject internal constructor(
 
     fun onLastDoneClicked()
 
-    fun commitDate(oldItem: FridgeItem, year: Int, month: Int, day: Int)
+    fun commitDate(
+      oldItem: FridgeItem,
+      year: Int,
+      month: Int,
+      day: Int
+    )
 
   }
 

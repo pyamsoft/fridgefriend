@@ -30,7 +30,6 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.mikepenz.fastadapter.FastAdapter
-import com.mikepenz.fastadapter.IItem
 import com.mikepenz.fastadapter.adapters.ModelAdapter
 import com.mikepenz.fastadapter.commons.utils.FastAdapterDiffUtil
 import com.mikepenz.fastadapter_extensions.swipe.SimpleSwipeCallback
@@ -139,21 +138,17 @@ internal abstract class DetailList protected constructor(
         leftBackground
     ) {
 
-      override fun getMovementFlags(
+      override fun getSwipeDirs(
         recyclerView: RecyclerView,
         viewHolder: ViewHolder
       ): Int {
-        val item = FastAdapter.getHolderAdapterItem<IItem<*, *>>(viewHolder)
-        if (item is DetailItem<*, *>) {
-          if (item.canSwipe()) {
-            return super.getMovementFlags(recyclerView, viewHolder)
-          } else {
-            return 0
-          }
+        if (viewHolder.adapterPosition == usingAdapter().adapterItemCount - 1) {
+          return 0
         }
 
-        return super.getMovementFlags(recyclerView, viewHolder)
+        return super.getSwipeDirs(recyclerView, viewHolder)
       }
+
     }.apply {
       withBackgroundSwipeRight(rightBackground)
       withLeaveBehindSwipeRight(rightBehindDrawable)
