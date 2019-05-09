@@ -145,11 +145,6 @@ internal class DetailListItemController internal constructor(
     }
 
     // Kind of hacky
-    fun deleteSelf() {
-      requireNotNull(component).deleteSelf()
-    }
-
-    // Kind of hacky
     fun archiveSelf() {
       requireNotNull(component).archiveSelf()
     }

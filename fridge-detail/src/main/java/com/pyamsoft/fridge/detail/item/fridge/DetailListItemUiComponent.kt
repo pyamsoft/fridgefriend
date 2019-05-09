@@ -22,8 +22,6 @@ import com.pyamsoft.pydroid.arch.UiComponent
 
 internal interface DetailListItemUiComponent : UiComponent<DetailListItemUiComponent.Callback> {
 
-  fun deleteSelf()
-
   fun archiveSelf()
 
   fun requestFocus()

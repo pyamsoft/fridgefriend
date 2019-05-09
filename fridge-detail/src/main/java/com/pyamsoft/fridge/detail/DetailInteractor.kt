@@ -38,15 +38,18 @@ internal abstract class DetailInteractor protected constructor(
 ) {
 
   @CheckResult
-  protected fun getEntryForId(entryId: String, force: Boolean): Maybe<FridgeEntry> {
+  protected fun getEntryForId(
+    entryId: String,
+    force: Boolean
+  ): Maybe<FridgeEntry> {
     return queryDao.queryAll(force)
-      .flatMapObservable {
-        Timber.d("Got entries: $it")
-        enforcer.assertNotOnMainThread()
-        return@flatMapObservable Observable.fromIterable(it)
-      }
-      .filter { it.id() == entryId }
-      .singleElement()
+        .flatMapObservable {
+          Timber.d("Got entries: $it")
+          enforcer.assertNotOnMainThread()
+          return@flatMapObservable Observable.fromIterable(it)
+        }
+        .filter { it.id() == entryId }
+        .singleElement()
   }
 
   @CheckResult
@@ -56,20 +59,22 @@ internal abstract class DetailInteractor protected constructor(
     name: String = FridgeEntry.EMPTY_NAME
   ): Single<FridgeEntry> {
     return getEntryForId(entryId, false)
-      .map { it.asOptional() }
-      .toSingle(Optional.ofNullable(null))
-      .flatMap {
-        enforcer.assertNotOnMainThread()
-        if (it is Present) {
-          Timber.d("Entry exists, ignore: ${it.value.id()}")
-          return@flatMap Single.just(it.value)
-        } else {
-          val createdTime = Calendar.getInstance().time
-          Timber.d("Create entry: $entryId at $createdTime")
-          val entry = FridgeEntry.create(entryId, name, createdTime, isReal = true)
-          return@flatMap insertDao.insert(entry)
-            .andThen(Single.just(entry))
+        .map { it.asOptional() }
+        .toSingle(Optional.ofNullable(null))
+        .flatMap {
+          enforcer.assertNotOnMainThread()
+          if (it is Present) {
+            Timber.d("Entry exists, ignore: ${it.value.id()}")
+            return@flatMap Single.just(it.value)
+          } else {
+            val createdTime = Calendar.getInstance()
+                .time
+            Timber.d("Create entry: $entryId at $createdTime")
+            val entry =
+              FridgeEntry.create(entryId, name, createdTime, isReal = true, isArchived = false)
+            return@flatMap insertDao.insert(entry)
+                .andThen(Single.just(entry))
+          }
         }
-      }
   }
 }

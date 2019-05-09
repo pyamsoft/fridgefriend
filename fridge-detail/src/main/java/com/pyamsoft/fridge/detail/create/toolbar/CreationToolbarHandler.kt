@@ -31,7 +31,7 @@ internal class CreationToolbarHandler @Inject internal constructor(
 ) : UiEventHandler<ToolbarEvent, CreationToolbar.Callback>(bus),
   CreationToolbar.Callback {
 
-  override fun onDeleteClicked() {
+  override fun onArchiveClicked() {
     publish(Delete)
   }
 
@@ -46,7 +46,7 @@ internal class CreationToolbarHandler @Inject internal constructor(
       .subscribe {
         return@subscribe when (it) {
           is Navigate -> delegate.onNavigationClicked()
-          is Delete -> delegate.onDeleteClicked()
+          is Delete -> delegate.onArchiveClicked()
         }
       }
   }

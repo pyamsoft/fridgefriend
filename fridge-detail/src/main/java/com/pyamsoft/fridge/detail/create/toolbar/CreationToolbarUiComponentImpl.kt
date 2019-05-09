@@ -48,7 +48,7 @@ internal class CreationToolbarUiComponentImpl @Inject internal constructor(
       renderToolbar(state, oldState)
       renderError(state, oldState)
       renderBack(state, oldState)
-      renderDelete(state, oldState)
+      renderArchive(state, oldState)
     }
   }
 
@@ -87,12 +87,12 @@ internal class CreationToolbarUiComponentImpl @Inject internal constructor(
     }
   }
 
-  private fun renderDelete(
+  private fun renderArchive(
     state: ToolbarState,
     oldState: ToolbarState?
   ) {
-    state.renderOnChange(oldState, value = { it.isDelete }) { delete ->
-      if (delete) {
+    state.renderOnChange(oldState, value = { it.isArchived }) { archived ->
+      if (archived) {
         callback.onBack()
       }
     }

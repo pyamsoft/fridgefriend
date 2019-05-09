@@ -42,19 +42,20 @@ internal class EntryListViewModel @Inject internal constructor(
   private val queryDao: FridgeEntryQueryDao,
   private val realtime: FridgeEntryRealtime
 ) : UiViewModel<EntryState>(
-  initialState = EntryState(
-    isLoading = null,
-    throwable = null,
-    entries = emptyList(),
-    editingEntry = null
-  )
+    initialState = EntryState(
+        isLoading = null,
+        throwable = null,
+        entries = emptyList(),
+        editingEntry = null
+    )
 ), EntryList.Callback {
 
   private var refreshDisposable by singleDisposable()
   private var realtimeChangeDisposable by singleDisposable()
 
   override fun onBind() {
-    handler.handle(this).disposeOnDestroy()
+    handler.handle(this)
+        .disposeOnDestroy()
     refresh(false)
   }
 
@@ -69,34 +70,34 @@ internal class EntryListViewModel @Inject internal constructor(
 
   private fun refresh(force: Boolean) {
     refreshDisposable = queryDao.queryAll(force)
-      .subscribeOn(Schedulers.io())
-      .observeOn(AndroidSchedulers.mainThread())
-      .doOnSubscribe { handleListRefreshBegin() }
-      .doAfterTerminate { handleListRefreshComplete() }
-      .doAfterSuccess { beginListeningForChanges() }
-      .subscribe({ handleListRefreshed(it) }, {
-        Timber.e(it, "Error refreshing entry list")
-        handleListRefreshError(it)
-      })
+        .subscribeOn(Schedulers.io())
+        .observeOn(AndroidSchedulers.mainThread())
+        .doOnSubscribe { handleListRefreshBegin() }
+        .doAfterTerminate { handleListRefreshComplete() }
+        .doAfterSuccess { beginListeningForChanges() }
+        .subscribe({ handleListRefreshed(it) }, {
+          Timber.e(it, "Error refreshing entry list")
+          handleListRefreshError(it)
+        })
   }
 
   private fun beginListeningForChanges() {
     realtimeChangeDisposable = realtime.listenForChanges()
-      .subscribeOn(Schedulers.io())
-      .observeOn(AndroidSchedulers.mainThread())
-      .subscribe {
-        return@subscribe when (it) {
-          is Insert -> handleRealtimeInsert(it.entry)
-          is Update -> handleRealtimeUpdate(it.entry)
-          is Delete -> handleRealtimeDelete(it.entry)
-          is DeleteAll -> handleRealtimeDeleteAll()
+        .subscribeOn(Schedulers.io())
+        .observeOn(AndroidSchedulers.mainThread())
+        .subscribe {
+          return@subscribe when (it) {
+            is Insert -> handleRealtimeInsert(it.entry)
+            is Update -> handleRealtimeUpdate(it.entry)
+            is Delete -> handleRealtimeDelete(it.entry)
+            is DeleteAll -> handleRealtimeDeleteAll()
+          }
         }
-      }
   }
 
   private fun handleRealtimeInsert(entry: FridgeEntry) {
     setState {
-      copy(entries = entries.toMutableList() + entry)
+      copy(entries = (entries.toMutableList() + entry).filterNot { it.isArchived() })
     }
   }
 
@@ -108,13 +109,13 @@ internal class EntryListViewModel @Inject internal constructor(
         } else {
           return@map old
         }
-      })
+      }.filterNot { it.isArchived() })
     }
   }
 
   private fun handleRealtimeDelete(entry: FridgeEntry) {
     setState {
-      copy(entries = entries.filterNot { it.id() == entry.id() })
+      copy(entries = entries.filterNot { it.id() == entry.id() }.filterNot { it.isArchived() })
     }
   }
 
@@ -133,7 +134,7 @@ internal class EntryListViewModel @Inject internal constructor(
   private fun handleListRefreshed(entries: List<FridgeEntry>) {
     Timber.d("List refreshed: $entries")
     setState {
-      copy(entries = entries, throwable = null)
+      copy(entries = entries.filterNot { it.isArchived() }, throwable = null)
     }
   }
 

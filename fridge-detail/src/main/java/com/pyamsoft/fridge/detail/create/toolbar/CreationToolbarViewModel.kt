@@ -33,13 +33,14 @@ internal class CreationToolbarViewModel @Inject internal constructor(
   private val handler: UiEventHandler<ToolbarEvent, CreationToolbar.Callback>,
   private val interactor: CreationToolbarInteractor
 ) : UiViewModel<ToolbarState>(
-  initialState = ToolbarState(isReal = false, throwable = null, isBack = false, isDelete = false)
+    initialState = ToolbarState(isReal = false, throwable = null, isBack = false, isArchived = false)
 ), CreationToolbar.Callback {
 
   private var deleteDisposable by singleDisposable()
 
   override fun onBind() {
-    handler.handle(this).disposeOnDestroy()
+    handler.handle(this)
+        .disposeOnDestroy()
     observeReal(false)
     listenForDelete()
   }
@@ -55,7 +56,8 @@ internal class CreationToolbarViewModel @Inject internal constructor(
         .subscribe({ handleRealUpdated(it) }, {
           Timber.e(it, "Error observing entry real")
           handleError(it)
-        }).disposeOnDestroy()
+        })
+        .disposeOnDestroy()
   }
 
   private fun handleRealUpdated(real: Boolean) {
@@ -63,15 +65,15 @@ internal class CreationToolbarViewModel @Inject internal constructor(
   }
 
   private fun listenForDelete() {
-    interactor.listenForDeleted()
-      .subscribeOn(Schedulers.io())
-      .observeOn(AndroidSchedulers.mainThread())
-      .subscribe { handleDeleted() }
-      .disposeOnDestroy()
+    interactor.listenForArchived()
+        .subscribeOn(Schedulers.io())
+        .observeOn(AndroidSchedulers.mainThread())
+        .subscribe { handleArchived() }
+        .disposeOnDestroy()
   }
 
-  private fun handleDeleted() {
-    setState { copy(isDelete = true) }
+  private fun handleArchived() {
+    setState { copy(isArchived = true) }
   }
 
   override fun onNavigationClicked() {
@@ -82,15 +84,15 @@ internal class CreationToolbarViewModel @Inject internal constructor(
     setState { copy(isBack = true) }
   }
 
-  override fun onDeleteClicked() {
-    deleteDisposable = interactor.delete()
-      .subscribeOn(Schedulers.io())
-      .observeOn(AndroidSchedulers.mainThread())
-      .doAfterTerminate { deleteDisposable.tryDispose() }
-      .subscribe({}, {
-        Timber.e(it, "Error observing delete stream")
-        handleError(it)
-      })
+  override fun onArchiveClicked() {
+    deleteDisposable = interactor.archive()
+        .subscribeOn(Schedulers.io())
+        .observeOn(AndroidSchedulers.mainThread())
+        .doAfterTerminate { deleteDisposable.tryDispose() }
+        .subscribe({}, {
+          Timber.e(it, "Error observing delete stream")
+          handleError(it)
+        })
   }
 
   private fun handleError(throwable: Throwable) {
@@ -101,7 +103,7 @@ internal class CreationToolbarViewModel @Inject internal constructor(
     val isReal: Boolean,
     val throwable: Throwable?,
     val isBack: Boolean,
-    val isDelete: Boolean
+    val isArchived: Boolean
   ) : UiState
 
 }

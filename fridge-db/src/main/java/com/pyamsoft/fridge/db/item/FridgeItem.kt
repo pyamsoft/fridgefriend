@@ -33,6 +33,9 @@ interface FridgeItem {
   fun name(): String
 
   @CheckResult
+  fun count(): Int
+
+  @CheckResult
   fun expireTime(): Date
 
   @CheckResult
@@ -46,6 +49,9 @@ interface FridgeItem {
 
   @CheckResult
   fun name(name: String): FridgeItem
+
+  @CheckResult
+  fun count(count: Int): FridgeItem
 
   @CheckResult
   fun expireTime(expireTime: Date): FridgeItem
@@ -68,17 +74,23 @@ interface FridgeItem {
 
     const val EMPTY_NAME = ""
     val EMPTY_EXPIRE_TIME = Date(0)
+    private const val DEFAULT_COUNT = 1
     private val DEFAULT_PRESENCE = Presence.NEED
 
     @CheckResult
     fun empty(): FridgeItem {
-      return create("", "", EMPTY_NAME, EMPTY_EXPIRE_TIME, DEFAULT_PRESENCE, false)
+      return create("", "")
     }
 
     @CheckResult
     @JvmOverloads
-    fun create(id: String = IdGenerator.generate(), entryId: String): FridgeItem {
-      return create(id, entryId, EMPTY_NAME, EMPTY_EXPIRE_TIME, DEFAULT_PRESENCE, false)
+    fun create(
+      id: String = IdGenerator.generate(),
+      entryId: String
+    ): FridgeItem {
+      return create(
+          id, entryId, EMPTY_NAME, DEFAULT_COUNT, EMPTY_EXPIRE_TIME, DEFAULT_PRESENCE, false
+      )
     }
 
     @CheckResult
@@ -87,18 +99,20 @@ interface FridgeItem {
       id: String = IdGenerator.generate(),
       entryId: String,
       name: String,
+      count: Int,
       expireTime: Date,
       presence: Presence,
       isReal: Boolean
     ): FridgeItem {
       return JsonMappableFridgeItem(
-        id,
-        entryId,
-        name,
-        expireTime,
-        presence,
-        isReal,
-        isArchived = false
+          id,
+          entryId,
+          name,
+          count,
+          expireTime,
+          presence,
+          isReal,
+          isArchived = false
       )
     }
 
@@ -106,19 +120,21 @@ interface FridgeItem {
     fun create(
       item: FridgeItem,
       name: String = item.name(),
+      count: Int = item.count(),
       expireTime: Date = item.expireTime(),
       presence: Presence = item.presence(),
       isReal: Boolean,
       isArchived: Boolean
     ): FridgeItem {
       return JsonMappableFridgeItem(
-        item.id(),
-        item.entryId(),
-        name,
-        expireTime,
-        presence,
-        isReal,
-        isArchived
+          item.id(),
+          item.entryId(),
+          name,
+          count,
+          expireTime,
+          presence,
+          isReal,
+          isArchived
       )
     }
 

@@ -145,10 +145,6 @@ internal class DetailListItemUiComponentImpl @Inject internal constructor(
     }
   }
 
-  override fun deleteSelf() {
-    viewModel.deleteSelf(model)
-  }
-
   override fun archiveSelf() {
     viewModel.archiveSelf(model)
   }

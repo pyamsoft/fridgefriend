@@ -22,7 +22,6 @@ import com.pyamsoft.fridge.db.entry.FridgeEntryInsertDao
 import com.pyamsoft.fridge.db.entry.FridgeEntryQueryDao
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent
-import com.pyamsoft.fridge.db.item.FridgeItemDeleteDao
 import com.pyamsoft.fridge.db.item.FridgeItemInsertDao
 import com.pyamsoft.fridge.db.item.FridgeItemQueryDao
 import com.pyamsoft.fridge.db.item.FridgeItemRealtime
@@ -42,7 +41,6 @@ internal class CreationListInteractor @Inject internal constructor(
   private val queryDao: FridgeItemQueryDao,
   private val insertDao: FridgeItemInsertDao,
   private val updateDao: FridgeItemUpdateDao,
-  private val deleteDao: FridgeItemDeleteDao,
   private val realtime: FridgeItemRealtime,
   entryQueryDao: FridgeEntryQueryDao,
   entryInsertDao: FridgeEntryInsertDao,
@@ -50,7 +48,10 @@ internal class CreationListInteractor @Inject internal constructor(
 ) : DetailInteractor(enforcer, entryQueryDao, entryInsertDao) {
 
   @CheckResult
-  fun getItems(entryId: String, force: Boolean): Single<List<FridgeItem>> {
+  fun getItems(
+    entryId: String,
+    force: Boolean
+  ): Single<List<FridgeItem>> {
     return queryDao.queryAll(force, entryId)
   }
 
@@ -66,40 +67,30 @@ internal class CreationListInteractor @Inject internal constructor(
       return Completable.complete()
     } else {
       return guaranteeEntryExists(item.entryId())
-        .flatMapCompletable { commitItem(item) }
+          .flatMapCompletable { commitItem(item) }
     }
   }
 
   @CheckResult
   private fun commitItem(item: FridgeItem): Completable {
     return getItems(item.entryId(), false)
-      .flatMapObservable {
-        enforcer.assertNotOnMainThread()
-        return@flatMapObservable Observable.fromIterable(it)
-      }.filter { it.id() == item.id() }
-      .map { it.asOptional() }
-      .single(Optional.ofNullable(null))
-      .flatMapCompletable {
-        enforcer.assertNotOnMainThread()
-        if (it is Present) {
-          Timber.d("Update existing item [${item.id()}]: $item")
-          return@flatMapCompletable updateDao.update(item)
-        } else {
-          Timber.d("Create new item [${item.id()}]: $item")
-          return@flatMapCompletable insertDao.insert(item)
+        .flatMapObservable {
+          enforcer.assertNotOnMainThread()
+          return@flatMapObservable Observable.fromIterable(it)
         }
-      }
-  }
-
-  @CheckResult
-  fun delete(item: FridgeItem): Completable {
-    if (!item.isReal()) {
-      Timber.w("Cannot delete item that is not real: [${item.id()}]: $item")
-      return Completable.complete()
-    } else {
-      Timber.d("Deleting item [${item.id()}]: $item")
-      return deleteDao.delete(item)
-    }
+        .filter { it.id() == item.id() }
+        .map { it.asOptional() }
+        .single(Optional.ofNullable(null))
+        .flatMapCompletable {
+          enforcer.assertNotOnMainThread()
+          if (it is Present) {
+            Timber.d("Update existing item [${item.id()}]: $item")
+            return@flatMapCompletable updateDao.update(item)
+          } else {
+            Timber.d("Create new item [${item.id()}]: $item")
+            return@flatMapCompletable insertDao.insert(item)
+          }
+        }
   }
 
   @CheckResult

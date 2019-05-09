@@ -34,7 +34,10 @@ internal data class RoomFridgeEntry internal constructor(
   val name: String,
 
   @field:ColumnInfo(name = COLUMN_CREATED_TIME)
-  val createdTime: Date
+  val createdTime: Date,
+
+  @field:ColumnInfo(name = COLUMN_ARCHIVED)
+  val archived: Boolean
 ) : FridgeEntry {
 
   @Ignore
@@ -58,18 +61,30 @@ internal data class RoomFridgeEntry internal constructor(
   }
 
   @Ignore
+  override fun isArchived(): Boolean {
+    return archived
+  }
+
+  @Ignore
   override fun name(name: String): FridgeEntry {
-    return FridgeEntry.create(this, name = name, isReal = isReal())
+    return FridgeEntry.create(this, name = name, isReal = isReal(), isArchived = isArchived())
   }
 
   @Ignore
   override fun createdTime(createdTime: Date): FridgeEntry {
-    return FridgeEntry.create(this, createdTime = createdTime, isReal = isReal())
+    return FridgeEntry.create(
+        this, createdTime = createdTime, isReal = isReal(), isArchived = isArchived()
+    )
   }
 
   @Ignore
   override fun makeReal(): FridgeEntry {
-    return FridgeEntry.create(this, isReal = true)
+    return FridgeEntry.create(this, isReal = true, isArchived = isArchived())
+  }
+
+  @Ignore
+  override fun archive(): FridgeEntry {
+    return FridgeEntry.create(this, isReal = isReal(), isArchived = true)
   }
 
   companion object {
@@ -78,16 +93,22 @@ internal data class RoomFridgeEntry internal constructor(
     @Ignore internal const val COLUMN_ID = "_id"
     @Ignore internal const val COLUMN_NAME = "name"
     @Ignore internal const val COLUMN_CREATED_TIME = "created_time"
+    @Ignore internal const val COLUMN_ARCHIVED = "archived"
 
     @Ignore
     @JvmStatic
     @CheckResult
-    internal fun create(item: FridgeEntry): RoomFridgeEntry {
-      return RoomFridgeEntry(
-        item.id(),
-        item.name(),
-        item.createdTime()
-      )
+    internal fun create(entry: FridgeEntry): RoomFridgeEntry {
+      if (entry is RoomFridgeEntry) {
+        return entry
+      } else {
+        return RoomFridgeEntry(
+            entry.id(),
+            entry.name(),
+            entry.createdTime(),
+            entry.isArchived()
+        )
+      }
     }
   }
 }

@@ -37,7 +37,7 @@ internal class CreationToolbar @Inject internal constructor(
       val deleteItem = toolbar.menu.findItem(R.id.menu_item_delete)
       deleteItem.isVisible = false
       deleteItem.setOnMenuItemClickListener {
-        callback.onDeleteClicked()
+        callback.onArchiveClicked()
         return@setOnMenuItemClickListener true
       }
       deleteMenuItem = deleteItem
@@ -58,7 +58,7 @@ internal class CreationToolbar @Inject internal constructor(
 
   interface Callback : DetailToolbar.Callback {
 
-    fun onDeleteClicked()
+    fun onArchiveClicked()
   }
 
 }

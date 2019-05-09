@@ -114,7 +114,7 @@ internal abstract class DetailList protected constructor(
         if (direction == ItemTouchHelper.RIGHT) {
           archiveListItem(position)
         } else {
-          deleteListItem(position)
+          archiveListItem(position)
         }
       }
     }
@@ -125,12 +125,6 @@ internal abstract class DetailList protected constructor(
           drawable.ic_delete_24dp
       )
     val leftBackground = Color.RED
-    val rightBehindDrawable =
-      AppCompatResources.getDrawable(
-          recyclerView.context,
-          drawable.ic_archive_24dp
-      )
-    val rightBackground = Color.GREEN
     val swipeCallback = object : SimpleSwipeCallback(
         itemSwipeCallback,
         leftBehindDrawable,
@@ -150,8 +144,8 @@ internal abstract class DetailList protected constructor(
       }
 
     }.apply {
-      withBackgroundSwipeRight(rightBackground)
-      withLeaveBehindSwipeRight(rightBehindDrawable)
+      withBackgroundSwipeRight(leftBackground)
+      withLeaveBehindSwipeRight(leftBehindDrawable)
     }
 
     val helper = ItemTouchHelper(swipeCallback)
@@ -177,10 +171,6 @@ internal abstract class DetailList protected constructor(
   @CheckResult
   private fun usingAdapter(): ModelAdapter<FridgeItem, DetailItem<*, *>> {
     return requireNotNull(modelAdapter)
-  }
-
-  private fun deleteListItem(position: Int) {
-    withViewHolderAt(position) { it.deleteSelf() }
   }
 
   private fun archiveListItem(position: Int) {

@@ -28,12 +28,12 @@ import com.pyamsoft.fridge.db.item.FridgeItem.Presence
 import java.util.Date
 
 @Entity(
-  tableName = RoomFridgeItem.TABLE_NAME, foreignKeys = [ForeignKey(
+    tableName = RoomFridgeItem.TABLE_NAME, foreignKeys = [ForeignKey(
     entity = RoomFridgeEntry::class,
     parentColumns = arrayOf(RoomFridgeEntry.COLUMN_ID),
     childColumns = arrayOf(RoomFridgeItem.COLUMN_ENTRY_ID),
     onDelete = ForeignKey.CASCADE
-  )]
+)]
 )
 internal data class RoomFridgeItem internal constructor(
   @field:[PrimaryKey ColumnInfo(name = COLUMN_ID)]
@@ -44,6 +44,9 @@ internal data class RoomFridgeItem internal constructor(
 
   @field:ColumnInfo(name = COLUMN_NAME)
   val name: String,
+
+  @field:ColumnInfo(name = COLUMN_COUNT)
+  val count: Int,
 
   @field:ColumnInfo(name = COLUMN_EXPIRE_TIME)
   val expireTime: Date,
@@ -68,6 +71,11 @@ internal data class RoomFridgeItem internal constructor(
   @Ignore
   override fun name(): String {
     return name
+  }
+
+  @Ignore
+  override fun count(): Int {
+    return count
   }
 
   @Ignore
@@ -96,22 +104,27 @@ internal data class RoomFridgeItem internal constructor(
   }
 
   @Ignore
+  override fun count(count: Int): FridgeItem {
+    return FridgeItem.create(this, count = count, isReal = isReal(), isArchived = isArchived())
+  }
+
+  @Ignore
   override fun expireTime(expireTime: Date): FridgeItem {
     return FridgeItem.create(
-      this,
-      expireTime = expireTime,
-      isReal = isReal(),
-      isArchived = isArchived()
+        this,
+        expireTime = expireTime,
+        isReal = isReal(),
+        isArchived = isArchived()
     )
   }
 
   @Ignore
   override fun presence(presence: Presence): FridgeItem {
     return FridgeItem.create(
-      this,
-      presence = presence,
-      isReal = isReal(),
-      isArchived = isArchived()
+        this,
+        presence = presence,
+        isReal = isReal(),
+        isArchived = isArchived()
     )
   }
 
@@ -131,6 +144,7 @@ internal data class RoomFridgeItem internal constructor(
     @Ignore internal const val COLUMN_ID = "_id"
     @Ignore internal const val COLUMN_ENTRY_ID = "entry_id"
     @Ignore internal const val COLUMN_NAME = "name"
+    @Ignore internal const val COLUMN_COUNT = "count"
     @Ignore internal const val COLUMN_EXPIRE_TIME = "expire_time"
     @Ignore internal const val COLUMN_PRESENCE = "presence"
     @Ignore internal const val COLUMN_ARCHIVED = "archived"
@@ -139,14 +153,19 @@ internal data class RoomFridgeItem internal constructor(
     @JvmStatic
     @CheckResult
     internal fun create(item: FridgeItem): RoomFridgeItem {
-      return RoomFridgeItem(
-        item.id(),
-        item.entryId(),
-        item.name(),
-        item.expireTime(),
-        item.presence(),
-        item.isArchived()
-      )
+      if (item is RoomFridgeItem) {
+        return item
+      } else {
+        return RoomFridgeItem(
+            item.id(),
+            item.entryId(),
+            item.name(),
+            item.count(),
+            item.expireTime(),
+            item.presence(),
+            item.isArchived()
+        )
+      }
     }
   }
 }

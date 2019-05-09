@@ -19,12 +19,12 @@ package com.pyamsoft.fridge.detail.create.toolbar
 
 import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.db.entry.FridgeEntry
-import com.pyamsoft.fridge.db.entry.FridgeEntryChangeEvent.Delete
 import com.pyamsoft.fridge.db.entry.FridgeEntryChangeEvent.Insert
-import com.pyamsoft.fridge.db.entry.FridgeEntryDeleteDao
+import com.pyamsoft.fridge.db.entry.FridgeEntryChangeEvent.Update
 import com.pyamsoft.fridge.db.entry.FridgeEntryInsertDao
 import com.pyamsoft.fridge.db.entry.FridgeEntryQueryDao
 import com.pyamsoft.fridge.db.entry.FridgeEntryRealtime
+import com.pyamsoft.fridge.db.entry.FridgeEntryUpdateDao
 import com.pyamsoft.fridge.detail.DetailInteractor
 import com.pyamsoft.pydroid.core.optional.Optional
 import com.pyamsoft.pydroid.core.optional.Optional.Present
@@ -37,7 +37,7 @@ import javax.inject.Inject
 import javax.inject.Named
 
 internal class CreationToolbarInteractor @Inject internal constructor(
-  private val deleteDao: FridgeEntryDeleteDao,
+  private val updateDao: FridgeEntryUpdateDao,
   private val realtime: FridgeEntryRealtime,
   enforcer: Enforcer,
   queryDao: FridgeEntryQueryDao,
@@ -46,48 +46,51 @@ internal class CreationToolbarInteractor @Inject internal constructor(
 ) : DetailInteractor(enforcer, queryDao, insertDao) {
 
   @CheckResult
-  fun listenForDeleted(): Observable<FridgeEntry> {
-    return realtime.listenForChanges().ofType(Delete::class.java)
-      .map { it.entry }
-      .filter { it.id() == entryId }
+  fun listenForArchived(): Observable<FridgeEntry> {
+    return realtime.listenForChanges()
+        .ofType(Update::class.java)
+        .map { it.entry }
+        .filter { it.id() == entryId }
+        .filter { it.isArchived() }
   }
 
   @CheckResult
   fun observeEntryReal(force: Boolean): Observable<Boolean> {
     return listenForRealChange()
-      .startWith(isEntryReal(force))
+        .startWith(isEntryReal(force))
   }
 
   @CheckResult
   private fun isEntryReal(force: Boolean): Observable<Boolean> {
     return getEntryForId(entryId, force)
-      .map { it.isReal() }
-      .toObservable()
+        .map { it.isReal() }
+        .toObservable()
   }
 
   @CheckResult
   private fun listenForRealChange(): Observable<Boolean> {
-    return realtime.listenForChanges().ofType(Insert::class.java)
-      .map { it.entry }
-      .filter { it.id() == entryId }
-      .map { it.isReal() }
+    return realtime.listenForChanges()
+        .ofType(Insert::class.java)
+        .map { it.entry }
+        .filter { it.id() == entryId }
+        .map { it.isReal() }
   }
 
   @CheckResult
-  fun delete(): Completable {
+  fun archive(): Completable {
     return getEntryForId(entryId, false)
-      .map { it.asOptional() }
-      .toSingle(Optional.ofNullable(null))
-      .flatMapCompletable {
-        if (it is Present) {
-          val entry = it.value
-          Timber.d("Delete entry: [${entry.id()}] $entry")
-          return@flatMapCompletable deleteDao.delete(entry)
-        } else {
-          Timber.w("No entry, cannot delete")
-          return@flatMapCompletable Completable.complete()
+        .map { it.asOptional() }
+        .toSingle(Optional.ofNullable(null))
+        .flatMapCompletable {
+          if (it is Present) {
+            val entry = it.value
+            Timber.d("Archive entry: [${entry.id()}] $entry")
+            return@flatMapCompletable updateDao.update(entry.archive())
+          } else {
+            Timber.w("No entry, cannot delete")
+            return@flatMapCompletable Completable.complete()
+          }
         }
-      }
   }
 
 }
