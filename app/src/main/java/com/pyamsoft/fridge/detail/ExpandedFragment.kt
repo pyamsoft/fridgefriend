@@ -24,17 +24,21 @@ import android.view.ViewGroup
 import androidx.annotation.CheckResult
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
-import androidx.fragment.app.Fragment
+import androidx.core.view.updatePadding
+import androidx.fragment.app.DialogFragment
 import com.pyamsoft.fridge.FridgeComponent
+import com.pyamsoft.fridge.R
+import com.pyamsoft.fridge.base.FridgeBottomSheetDialogFragment
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.JsonMappableFridgeItem
 import com.pyamsoft.fridge.detail.expand.ExpandUiComponent
 import com.pyamsoft.pydroid.arch.layout
 import com.pyamsoft.pydroid.ui.Injector
 import com.pyamsoft.pydroid.ui.app.requireArguments
+import com.pyamsoft.pydroid.util.toDp
 import javax.inject.Inject
 
-class ExpandedFragment : Fragment() {
+class ExpandedFragment : FridgeBottomSheetDialogFragment() {
 
   @JvmField @Inject internal var component: ExpandUiComponent? = null
 
@@ -53,6 +57,15 @@ class ExpandedFragment : Fragment() {
     super.onViewCreated(view, savedInstanceState)
 
     val parent = view.findViewById<ConstraintLayout>(R.id.layout_constraint)
+    val horizontalPadding = 16.toDp(parent.context)
+    val verticalPadding = 8.toDp(parent.context)
+    parent.updatePadding(
+        left = horizontalPadding,
+        right = horizontalPadding,
+        top = verticalPadding,
+        bottom = verticalPadding
+    )
+
     val item = requireNotNull(requireArguments().getParcelable<JsonMappableFridgeItem>(ITEM))
     Injector.obtain<FridgeComponent>(view.context.applicationContext)
         .plusExpandComponent()
@@ -92,7 +105,7 @@ class ExpandedFragment : Fragment() {
     @CheckResult
     fun newInstance(
       item: FridgeItem
-    ): Fragment {
+    ): DialogFragment {
       return ExpandedFragment().apply {
         arguments = Bundle().apply {
           putParcelable(ITEM, JsonMappableFridgeItem.from(item))

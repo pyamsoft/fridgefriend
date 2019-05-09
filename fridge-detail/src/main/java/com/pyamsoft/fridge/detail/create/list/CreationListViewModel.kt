@@ -35,10 +35,11 @@ internal class CreationListViewModel @Inject internal constructor(
   @Named("detail_entry_id") private val entryId: String,
   fakeRealtime: EventBus<FridgeItemChangeEvent>
 ) : DetailListViewModel(fakeRealtime, filterArchived = true),
-  CreationList.Callback {
+    CreationList.Callback {
 
   override fun bindHandler() {
-    handler.handle(this).disposeOnDestroy()
+    handler.handle(this)
+        .disposeOnDestroy()
   }
 
   override fun getItems(force: Boolean): Single<List<FridgeItem>> {
@@ -51,11 +52,7 @@ internal class CreationListViewModel @Inject internal constructor(
 
   override fun getListItems(items: List<FridgeItem>): List<FridgeItem> {
     val mutableItems = items.toMutableList()
-    if (mutableItems.filterNot { it.id().isBlank() }.isEmpty()) {
-      addNewItem(mutableItems)
-    }
     insert(mutableItems, FridgeItem.empty())
-
     return mutableItems.sortedWith(Comparator { o1, o2 ->
       return@Comparator when {
         o1.id().isBlank() -> 1
@@ -66,11 +63,7 @@ internal class CreationListViewModel @Inject internal constructor(
   }
 
   override fun onAddNewItem() {
-    fakeRealtime.publish(FridgeItemChangeEvent.Insert(createNewItem()))
-  }
-
-  private fun addNewItem(items: MutableList<FridgeItem>) {
-    insert(items, createNewItem())
+    onExpandItem(createNewItem())
   }
 
   @CheckResult

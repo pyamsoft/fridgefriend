@@ -36,8 +36,8 @@ import com.pyamsoft.pydroid.ui.app.requireToolbarActivity
 import javax.inject.Inject
 
 internal class ShoppingFragment : Fragment(),
-  ShoppingToolbarUiComponent.Callback,
-  DetailListUiComponent.Callback {
+    ShoppingToolbarUiComponent.Callback,
+    DetailListUiComponent.Callback {
 
   @JvmField @Inject internal var toolbar: ShoppingToolbarUiComponent? = null
   @JvmField @Inject internal var list: DetailListUiComponent? = null
@@ -50,16 +50,19 @@ internal class ShoppingFragment : Fragment(),
     return inflater.inflate(R.layout.layout_constraint, container, false)
   }
 
-  override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+  override fun onViewCreated(
+    view: View,
+    savedInstanceState: Bundle?
+  ) {
     super.onViewCreated(view, savedInstanceState)
 
     val parent = view.findViewById<ConstraintLayout>(R.id.layout_constraint)
     Injector.obtain<FridgeComponent>(view.context.applicationContext)
-      .plusDetailComponent()
-      .create(requireToolbarActivity(), parent)
-      .plusShoppingComponent()
-      .create()
-      .inject(this)
+        .plusDetailComponent()
+        .create(requireToolbarActivity(), parent)
+        .plusShoppingComponent()
+        .create()
+        .inject(this)
 
     val list = requireNotNull(list)
     val toolbar = requireNotNull(toolbar)
@@ -95,14 +98,7 @@ internal class ShoppingFragment : Fragment(),
     requireActivity().onBackPressed()
   }
 
-  override fun onExpandItem(
-    containerId: Int,
-    item: FridgeItem
-  ) {
-    // NOOP
-  }
-
-  override fun onCollapseItem() {
+  override fun onExpandItem(item: FridgeItem) {
     // NOOP
   }
 

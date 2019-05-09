@@ -33,14 +33,7 @@ internal class ShoppingListHandler @Inject internal constructor(
     publish(Refresh)
   }
 
-  override fun onExpandItem(
-    expandedContainerId: Int,
-    item: FridgeItem
-  ) {
-    // NOOP
-  }
-
-  override fun onCollapseItem() {
+  override fun onExpandItem(item: FridgeItem) {
     // NOOP
   }
 

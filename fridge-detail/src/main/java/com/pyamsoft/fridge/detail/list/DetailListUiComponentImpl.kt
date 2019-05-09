@@ -26,7 +26,6 @@ import com.pyamsoft.fridge.detail.list.DetailListViewModel.DetailState
 import com.pyamsoft.pydroid.arch.BaseUiComponent
 import com.pyamsoft.pydroid.arch.doOnDestroy
 import com.pyamsoft.pydroid.arch.renderOnChange
-import timber.log.Timber
 
 internal abstract class DetailListUiComponentImpl protected constructor(
   private val list: DetailList,
@@ -77,10 +76,8 @@ internal abstract class DetailListUiComponentImpl protected constructor(
     oldState: DetailState?
   ) {
     state.renderOnChange(oldState, value = { it.expandedItem }) { item ->
-      if (item == null) {
-        callback.onCollapseItem()
-      } else {
-        callback.onExpandItem(item.containerId, item.item)
+      if (item != null) {
+        callback.onExpandItem(item)
       }
     }
   }

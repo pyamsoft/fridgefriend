@@ -35,8 +35,7 @@ import com.pyamsoft.pydroid.arch.layout
 import com.pyamsoft.pydroid.ui.Injector
 import com.pyamsoft.pydroid.ui.app.requireArguments
 import com.pyamsoft.pydroid.ui.app.requireToolbarActivity
-import com.pyamsoft.pydroid.ui.util.commit
-import timber.log.Timber
+import com.pyamsoft.pydroid.ui.util.show
 import javax.inject.Inject
 
 internal class CreationFragment : Fragment(),
@@ -119,32 +118,9 @@ internal class CreationFragment : Fragment(),
     requireNotNull(list).showError(throwable)
   }
 
-  override fun onExpandItem(
-    containerId: Int,
-    item: FridgeItem
-  ) {
-    val fm = childFragmentManager
-    if (fm.findFragmentById(containerId) == null) {
-      Timber.d("Add new ExpandedFragment for item: $item")
-      fm.beginTransaction()
-          .replace(
-              containerId,
-              ExpandedFragment.newInstance(item),
-              ExpandedFragment.TAG
-          )
-          .commit(viewLifecycleOwner)
-    }
-  }
-
-  override fun onCollapseItem() {
-    val fm = childFragmentManager
-    val oldFragment: Fragment? = fm.findFragmentByTag(ExpandedFragment.TAG)
-    if (oldFragment != null) {
-      Timber.d("Remove ExpandedFragment")
-      fm.beginTransaction()
-          .remove(oldFragment)
-          .commit(viewLifecycleOwner)
-    }
+  override fun onExpandItem(item: FridgeItem) {
+    ExpandedFragment.newInstance(item)
+        .show(requireActivity(), ExpandedFragment.TAG)
   }
 
   companion object {

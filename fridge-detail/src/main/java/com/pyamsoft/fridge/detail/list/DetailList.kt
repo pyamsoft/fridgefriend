@@ -50,11 +50,6 @@ import com.pyamsoft.pydroid.core.bus.EventBus
 import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.ui.theme.Theming
 import com.pyamsoft.pydroid.ui.util.refreshing
-import me.saket.inboxrecyclerview.InboxRecyclerView
-import me.saket.inboxrecyclerview.dimming.TintPainter
-import me.saket.inboxrecyclerview.page.ExpandablePageLayout
-import me.saket.inboxrecyclerview.page.PageStateChangeCallbacks
-import timber.log.Timber
 
 internal abstract class DetailList protected constructor(
   private val interactor: CreationListInteractor,
@@ -70,12 +65,10 @@ internal abstract class DetailList protected constructor(
 
   final override val layoutRoot by boundView<SwipeRefreshLayout>(R.id.detail_swipe_refresh)
 
-  private val recyclerView by boundView<InboxRecyclerView>(R.id.detail_list)
-  private val expandablePage by boundView<ExpandablePageLayout>(R.id.detail_expand)
+  private val recyclerView by boundView<RecyclerView>(R.id.detail_list)
 
   private var decoration: DividerItemDecoration? = null
   private var touchHelper: ItemTouchHelper? = null
-  private var expandStateCallback: PageStateChangeCallbacks? = null
   private var modelAdapter: ModelAdapter<FridgeItem, DetailItem<*, *>>? = null
 
   @CheckResult
@@ -103,33 +96,6 @@ internal abstract class DetailList protected constructor(
     val decor = DividerItemDecoration(view.context, DividerItemDecoration.VERTICAL)
     recyclerView.addItemDecoration(decor)
     decoration = decor
-
-    recyclerView.setExpandablePage(expandablePage)
-    recyclerView.tintPainter = TintPainter.uncoveredArea(
-        color = if (theming.isDarkTheme()) Color.BLACK else Color.WHITE,
-        opacity = 0.65F
-    )
-
-    expandStateCallback?.let { expandablePage.removeStateChangeCallbacks(it) }
-    val expandCallback = object : PageStateChangeCallbacks {
-
-      override fun onPageAboutToCollapse(collapseAnimDuration: Long) {
-      }
-
-      override fun onPageAboutToExpand(expandAnimDuration: Long) {
-      }
-
-      override fun onPageCollapsed() {
-        Timber.d("Page collapsed")
-        callback.onCollapseItem()
-      }
-
-      override fun onPageExpanded() {
-      }
-
-    }
-    expandablePage.addStateChangeCallbacks(expandCallback)
-    expandStateCallback = expandCallback
 
     recyclerView.adapter =
       FastAdapter.with<DetailItem<*, *>, ModelAdapter<FridgeItem, *>>(usingAdapter())
@@ -211,9 +177,6 @@ internal abstract class DetailList protected constructor(
     decoration = null
 
     layoutRoot.setOnRefreshListener(null)
-
-    expandStateCallback?.let { expandablePage.removeStateChangeCallbacks(it) }
-    expandStateCallback = null
   }
 
   @CheckResult
@@ -280,39 +243,14 @@ internal abstract class DetailList protected constructor(
   }
 
   final override fun onExpandItem(item: FridgeItem) {
-    val expandCallback = object : PageStateChangeCallbacks {
-      override fun onPageAboutToCollapse(collapseAnimDuration: Long) {
-      }
-
-      override fun onPageAboutToExpand(expandAnimDuration: Long) {
-      }
-
-      override fun onPageCollapsed() {
-        Timber.d("Temp callback: page collapsed")
-        expandablePage.removeStateChangeCallbacks(this)
-      }
-
-      override fun onPageExpanded() {
-        Timber.d("Temp callback: page expanded")
-        callback.onExpandItem(expandablePage.id, item)
-        expandablePage.removeStateChangeCallbacks(this)
-      }
-
-    }
-    expandablePage.addStateChangeCallbacks(expandCallback)
-    recyclerView.expandItem(item.id().hashCode().toLong())
+    callback.onExpandItem(item)
   }
 
   interface Callback {
 
     fun onRefresh()
 
-    fun onExpandItem(
-      expandedContainerId: Int,
-      item: FridgeItem
-    )
-
-    fun onCollapseItem()
+    fun onExpandItem(item: FridgeItem)
 
   }
 }

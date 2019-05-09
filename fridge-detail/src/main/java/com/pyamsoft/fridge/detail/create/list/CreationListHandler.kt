@@ -21,7 +21,6 @@ import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.detail.create.list.CreationList.Callback
 import com.pyamsoft.fridge.detail.create.list.CreationListHandler.CreationEvent
 import com.pyamsoft.fridge.detail.create.list.CreationListHandler.CreationEvent.AddNew
-import com.pyamsoft.fridge.detail.create.list.CreationListHandler.CreationEvent.Collapse
 import com.pyamsoft.fridge.detail.create.list.CreationListHandler.CreationEvent.Expand
 import com.pyamsoft.fridge.detail.create.list.CreationListHandler.CreationEvent.Refresh
 import com.pyamsoft.fridge.detail.list.DetailListHandler
@@ -40,15 +39,8 @@ internal class CreationListHandler @Inject internal constructor(
     publish(AddNew)
   }
 
-  override fun onExpandItem(
-    expandedContainerId: Int,
-    item: FridgeItem
-  ) {
-    publish(Expand(expandedContainerId, item))
-  }
-
-  override fun onCollapseItem() {
-    publish(Collapse)
+  override fun onExpandItem(item: FridgeItem) {
+    publish(Expand(item))
   }
 
   override fun handleEvent(
@@ -58,8 +50,7 @@ internal class CreationListHandler @Inject internal constructor(
     return when (event) {
       is Refresh -> delegate.onRefresh()
       is AddNew -> delegate.onAddNewItem()
-      is Expand -> delegate.onExpandItem(event.containerId, event.item)
-      is Collapse -> delegate.onCollapseItem()
+      is Expand -> delegate.onExpandItem(event.item)
     }
   }
 
@@ -68,11 +59,6 @@ internal class CreationListHandler @Inject internal constructor(
 
     object AddNew : CreationEvent()
 
-    data class Expand(
-      val containerId: Int,
-      val item: FridgeItem
-    ) : CreationEvent()
-
-    object Collapse : CreationEvent()
+    data class Expand(val item: FridgeItem) : CreationEvent()
   }
 }

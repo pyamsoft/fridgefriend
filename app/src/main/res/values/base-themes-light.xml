@@ -23,12 +23,17 @@
     <item name="colorPrimaryDark">@color/red700</item>
     <item name="colorAccent">@color/red500</item>
     <item name="android:navigationBarColor">@color/red700</item>
-    <item name="dialogTheme">@style/Theme.Fridge.Light.Dialog</item>
-    <item name="alertDialogTheme">@style/Theme.Fridge.Light.Dialog</item>
   </style>
 
   <!-- Dialogs -->
-  <style name="Theme.Fridge.Light.Dialog" parent="@style/Theme.MaterialComponents.Light.Dialog.Alert">
+  <style name="Base.Theme.Fridge.Light.Dialog" parent="@style/Theme.MaterialComponents.Light.Dialog.Alert">
+    <item name="colorPrimary">@color/red500</item>
+    <item name="colorPrimaryDark">@color/red700</item>
+    <item name="colorAccent">@color/red500</item>
+    <item name="android:navigationBarColor">@color/red700</item>
+  </style>
+
+  <style name="Base.Theme.Fridge.Light.BottomSheetDialog" parent="@style/Theme.MaterialComponents.Light.BottomSheetDialog">
     <item name="colorPrimary">@color/red500</item>
     <item name="colorPrimaryDark">@color/red700</item>
     <item name="colorAccent">@color/red500</item>

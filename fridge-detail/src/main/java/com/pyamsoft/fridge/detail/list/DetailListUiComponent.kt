@@ -27,12 +27,7 @@ interface DetailListUiComponent : UiComponent<Callback> {
 
   interface Callback {
 
-    fun onExpandItem(
-      containerId: Int,
-      item: FridgeItem
-    )
-
-    fun onCollapseItem()
+    fun onExpandItem(item: FridgeItem)
 
   }
 

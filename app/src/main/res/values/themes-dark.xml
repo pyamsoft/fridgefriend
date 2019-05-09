@@ -18,6 +18,13 @@
 
 <resources>
 
-  <style name="Theme.Fridge.Dark.Normal" parent="@style/Base.Theme.Fridge.Dark.Normal"/>
+  <style name="Theme.Fridge.Dark.Normal" parent="@style/Base.Theme.Fridge.Dark.Normal">
+    <item name="dialogTheme">@style/Theme.Fridge.Dark.Dialog</item>
+    <item name="alertDialogTheme">@style/Theme.Fridge.Dark.Dialog</item>
+  </style>
+
+  <style name="Theme.Fridge.Dark.Dialog" parent="@style/Base.Theme.Fridge.Dark.Dialog"/>
+
+  <style name="Theme.Fridge.Dark.BottomSheetDialog" parent="@style/Base.Theme.Fridge.Dark.BottomSheetDialog"/>
 
 </resources>

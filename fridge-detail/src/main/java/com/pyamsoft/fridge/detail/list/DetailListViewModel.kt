@@ -24,7 +24,6 @@ import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent.Delete
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent.Insert
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent.Update
 import com.pyamsoft.fridge.detail.list.DetailListViewModel.DetailState
-import com.pyamsoft.fridge.detail.list.DetailListViewModel.DetailState.ExpandTarget
 import com.pyamsoft.fridge.detail.list.DetailListViewModel.DetailState.Loading
 import com.pyamsoft.pydroid.arch.UiState
 import com.pyamsoft.pydroid.arch.UiViewModel
@@ -79,15 +78,10 @@ internal abstract class DetailListViewModel protected constructor(
     refreshList(true)
   }
 
-  final override fun onExpandItem(
-    expandedContainerId: Int,
-    item: FridgeItem
-  ) {
-    setState { copy(expandedItem = ExpandTarget(expandedContainerId, item)) }
-  }
-
-  final override fun onCollapseItem() {
-    setState { copy(expandedItem = null) }
+  final override fun onExpandItem(item: FridgeItem) {
+    setUniqueState(item, old = { it.expandedItem }) { state, value ->
+      state.copy(expandedItem = value)
+    }
   }
 
   private fun refreshList(force: Boolean) {
@@ -252,14 +246,11 @@ internal abstract class DetailListViewModel protected constructor(
     val isLoading: Loading?,
     val throwable: Throwable?,
     val items: List<FridgeItem>,
-    val expandedItem: ExpandTarget?
+    val expandedItem: FridgeItem?
   ) : UiState {
+
     data class Loading(val isLoading: Boolean)
 
-    data class ExpandTarget(
-      val containerId: Int,
-      val item: FridgeItem
-    )
   }
 
 }
