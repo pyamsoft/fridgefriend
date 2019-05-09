@@ -17,10 +17,10 @@
 
 package com.pyamsoft.fridge.detail.create.list
 
-import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent
 import com.pyamsoft.fridge.detail.create.list.CreationListHandler.CreationEvent
+import com.pyamsoft.fridge.detail.list.DetailList
 import com.pyamsoft.fridge.detail.list.DetailListViewModel
 import com.pyamsoft.pydroid.arch.UiEventHandler
 import com.pyamsoft.pydroid.core.bus.EventBus
@@ -31,11 +31,11 @@ import javax.inject.Named
 
 internal class CreationListViewModel @Inject internal constructor(
   private val interactor: CreationListInteractor,
-  private val handler: UiEventHandler<CreationEvent, CreationList.Callback>,
+  private val handler: UiEventHandler<CreationEvent, DetailList.Callback>,
   @Named("detail_entry_id") private val entryId: String,
   fakeRealtime: EventBus<FridgeItemChangeEvent>
 ) : DetailListViewModel(fakeRealtime, filterArchived = true),
-    CreationList.Callback {
+    DetailList.Callback {
 
   override fun bindHandler() {
     handler.handle(this)
@@ -60,15 +60,6 @@ internal class CreationListViewModel @Inject internal constructor(
         else -> 0
       }
     })
-  }
-
-  override fun onAddNewItem() {
-    onExpandItem(createNewItem())
-  }
-
-  @CheckResult
-  private fun createNewItem(): FridgeItem {
-    return FridgeItem.create(entryId = entryId)
   }
 
 }

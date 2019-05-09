@@ -28,12 +28,10 @@ import com.pyamsoft.fridge.detail.item.add.AddNewItemHandler.AddNewEvent
 import com.pyamsoft.fridge.detail.item.add.AddNewItemUiComponent
 import com.pyamsoft.fridge.detail.item.add.AddNewItemUiComponentImpl
 import com.pyamsoft.fridge.detail.item.add.AddNewItemView
-import com.pyamsoft.fridge.detail.item.add.AddNewListItemController
 import com.pyamsoft.fridge.detail.item.fridge.DetailItemCallback
 import com.pyamsoft.fridge.detail.item.fridge.DetailItemHandler
 import com.pyamsoft.fridge.detail.item.fridge.DetailItemHandler.DetailItemEvent
 import com.pyamsoft.fridge.detail.item.fridge.DetailListItem
-import com.pyamsoft.fridge.detail.item.fridge.DetailListItemController
 import com.pyamsoft.fridge.detail.item.fridge.DetailListItemDate
 import com.pyamsoft.fridge.detail.item.fridge.DetailListItemName
 import com.pyamsoft.fridge.detail.item.fridge.DetailListItemPresence
@@ -56,9 +54,9 @@ import javax.inject.Named
 @Component(modules = [DetailItemModule::class])
 internal interface DetailItemComponent {
 
-  fun inject(holder: AddNewListItemController.ViewHolder)
+  fun inject(holder: DetailListAdapter.AddNewItemViewHolder)
 
-  fun inject(holder: DetailListItemController.ViewHolder)
+  fun inject(holder: DetailListAdapter.DetailItemViewHolder)
 
   @Component.Factory
   interface Factory {

@@ -18,12 +18,7 @@
 package com.pyamsoft.fridge.detail.create.list
 
 import android.view.ViewGroup
-import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent
-import com.pyamsoft.fridge.detail.item.DetailItem
-import com.pyamsoft.fridge.detail.item.DetailItemComponent
-import com.pyamsoft.fridge.detail.item.add.AddNewListItemController
-import com.pyamsoft.fridge.detail.item.fridge.DetailListItemController
 import com.pyamsoft.fridge.detail.list.DetailList
 import com.pyamsoft.pydroid.core.bus.EventBus
 import com.pyamsoft.pydroid.loader.ImageLoader
@@ -36,45 +31,5 @@ internal class CreationList @Inject internal constructor(
   theming: Theming,
   fakeRealtime: EventBus<FridgeItemChangeEvent>,
   parent: ViewGroup,
-  private val listCallback: Callback
-) : DetailList(interactor, imageLoader, theming, fakeRealtime, parent, listCallback),
-  AddNewListItemController.Callback {
-
-  override fun createListItem(
-    item: FridgeItem,
-    factory: (parent: ViewGroup, item: FridgeItem, editable: Boolean) -> DetailItemComponent
-  ): DetailItem<*, *> {
-    if (item.id().isBlank()) {
-      return AddNewListItemController(
-        item,
-        factory,
-        this
-      )
-    } else {
-      return DetailListItemController(
-        item,
-        false,
-        factory,
-        this
-      )
-    }
-  }
-
-  override fun onAddNewItem() {
-    listCallback.onAddNewItem()
-  }
-
-  override fun onLastDoneClicked(position: Int) {
-    val isEnd = position >= (getItemCount() - 1)
-    if (isEnd) {
-      listCallback.onAddNewItem()
-    }
-    focusItem(position + 1)
-  }
-
-  interface Callback : DetailList.Callback {
-
-    fun onAddNewItem()
-  }
-
-}
+  callback: Callback
+) : DetailList(parent, callback, interactor, imageLoader, theming, fakeRealtime, editable = true)

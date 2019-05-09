@@ -32,6 +32,7 @@ import com.pyamsoft.fridge.detail.create.toolbar.CreationToolbarHandler
 import com.pyamsoft.fridge.detail.create.toolbar.CreationToolbarHandler.ToolbarEvent
 import com.pyamsoft.fridge.detail.create.toolbar.CreationToolbarUiComponent
 import com.pyamsoft.fridge.detail.create.toolbar.CreationToolbarUiComponentImpl
+import com.pyamsoft.fridge.detail.list.DetailList
 import com.pyamsoft.fridge.detail.list.DetailListUiComponent
 import com.pyamsoft.pydroid.arch.UiEventHandler
 import dagger.Binds
@@ -46,11 +47,11 @@ abstract class CreationModule {
 
   @Binds
   @CheckResult
-  internal abstract fun bindListCallback(impl: CreationListHandler): CreationList.Callback
+  internal abstract fun bindListCallback(impl: CreationListHandler): DetailList.Callback
 
   @Binds
   @CheckResult
-  internal abstract fun bindListHandler(impl: CreationListHandler): UiEventHandler<CreationEvent, CreationList.Callback>
+  internal abstract fun bindListHandler(impl: CreationListHandler): UiEventHandler<CreationEvent, DetailList.Callback>
 
   @Binds
   @CheckResult

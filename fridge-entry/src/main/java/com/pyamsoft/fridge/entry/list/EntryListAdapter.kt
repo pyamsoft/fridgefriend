@@ -58,7 +58,11 @@ internal class EntryListAdapter internal constructor(
   }
 
   override fun getItemViewType(position: Int): Int {
-    return if (position == 0) R.id.id_entry_space_item else R.id.id_entry_list_item
+    if (getItem(position).id().isBlank()) {
+      return R.id.id_entry_space_item
+    } else {
+      return R.id.id_entry_list_item
+    }
   }
 
   override fun onCreateViewHolder(

@@ -18,8 +18,8 @@
 package com.pyamsoft.fridge.detail.shop
 
 import androidx.annotation.CheckResult
+import com.pyamsoft.fridge.detail.list.DetailList
 import com.pyamsoft.fridge.detail.list.DetailListUiComponent
-import com.pyamsoft.fridge.detail.shop.list.ShoppingList
 import com.pyamsoft.fridge.detail.shop.list.ShoppingListHandler
 import com.pyamsoft.fridge.detail.shop.list.ShoppingListHandler.ShoppingEvent
 import com.pyamsoft.fridge.detail.shop.list.ShoppingListUiComponentImpl
@@ -41,11 +41,11 @@ abstract class ShoppingModule {
 
   @Binds
   @CheckResult
-  internal abstract fun bindListCallback(impl: ShoppingListHandler): ShoppingList.Callback
+  internal abstract fun bindListCallback(impl: ShoppingListHandler): DetailList.Callback
 
   @Binds
   @CheckResult
-  internal abstract fun bindListHandler(impl: ShoppingListHandler): UiEventHandler<ShoppingEvent, ShoppingList.Callback>
+  internal abstract fun bindListHandler(impl: ShoppingListHandler): UiEventHandler<ShoppingEvent, DetailList.Callback>
 
   @Binds
   @CheckResult

@@ -18,12 +18,8 @@
 package com.pyamsoft.fridge.detail.shop.list
 
 import android.view.ViewGroup
-import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent
 import com.pyamsoft.fridge.detail.create.list.CreationListInteractor
-import com.pyamsoft.fridge.detail.item.DetailItem
-import com.pyamsoft.fridge.detail.item.DetailItemComponent
-import com.pyamsoft.fridge.detail.item.fridge.DetailListItemController
 import com.pyamsoft.fridge.detail.list.DetailList
 import com.pyamsoft.pydroid.core.bus.EventBus
 import com.pyamsoft.pydroid.loader.ImageLoader
@@ -36,23 +32,5 @@ internal class ShoppingList @Inject internal constructor(
   theming: Theming,
   fakeRealtime: EventBus<FridgeItemChangeEvent>,
   parent: ViewGroup,
-  listCallback: Callback
-) : DetailList(interactor, imageLoader, theming, fakeRealtime, parent, listCallback) {
-
-  override fun createListItem(
-    item: FridgeItem,
-    factory: (parent: ViewGroup, item: FridgeItem, editable: Boolean) -> DetailItemComponent
-  ): DetailItem<*, *> {
-    return DetailListItemController(
-      item,
-      false,
-      factory,
-      this
-    )
-  }
-
-  override fun onLastDoneClicked(position: Int) {
-  }
-
-  interface Callback : DetailList.Callback
-}
+  callback: Callback
+) : DetailList(parent, callback, interactor, imageLoader, theming, fakeRealtime, editable = false)

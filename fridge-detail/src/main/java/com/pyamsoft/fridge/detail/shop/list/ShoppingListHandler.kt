@@ -18,8 +18,8 @@
 package com.pyamsoft.fridge.detail.shop.list
 
 import com.pyamsoft.fridge.db.item.FridgeItem
+import com.pyamsoft.fridge.detail.list.DetailList
 import com.pyamsoft.fridge.detail.list.DetailListHandler
-import com.pyamsoft.fridge.detail.shop.list.ShoppingList.Callback
 import com.pyamsoft.fridge.detail.shop.list.ShoppingListHandler.ShoppingEvent
 import com.pyamsoft.fridge.detail.shop.list.ShoppingListHandler.ShoppingEvent.Refresh
 import com.pyamsoft.pydroid.core.bus.EventBus
@@ -27,7 +27,7 @@ import javax.inject.Inject
 
 internal class ShoppingListHandler @Inject internal constructor(
   bus: EventBus<ShoppingEvent>
-) : DetailListHandler<ShoppingEvent, Callback>(bus), Callback {
+) : DetailListHandler<ShoppingEvent, DetailList.Callback>(bus), DetailList.Callback {
 
   override fun onRefresh() {
     publish(Refresh)
@@ -39,7 +39,7 @@ internal class ShoppingListHandler @Inject internal constructor(
 
   override fun handleEvent(
     event: ShoppingEvent,
-    delegate: Callback
+    delegate: DetailList.Callback
   ) {
     return when (event) {
       is Refresh -> delegate.onRefresh()

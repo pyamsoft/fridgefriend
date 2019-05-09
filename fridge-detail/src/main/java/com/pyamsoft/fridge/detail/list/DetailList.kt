@@ -29,20 +29,14 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-import com.mikepenz.fastadapter.FastAdapter
-import com.mikepenz.fastadapter.adapters.ModelAdapter
-import com.mikepenz.fastadapter.commons.utils.FastAdapterDiffUtil
 import com.mikepenz.fastadapter_extensions.swipe.SimpleSwipeCallback
-import com.pyamsoft.fridge.core.DataClassDiffCallback
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent
 import com.pyamsoft.fridge.detail.R
 import com.pyamsoft.fridge.detail.R.drawable
 import com.pyamsoft.fridge.detail.create.list.CreationListInteractor
 import com.pyamsoft.fridge.detail.item.DaggerDetailItemComponent
-import com.pyamsoft.fridge.detail.item.DetailItem
-import com.pyamsoft.fridge.detail.item.DetailItemComponent
-import com.pyamsoft.fridge.detail.item.fridge.DetailListItemController
+import com.pyamsoft.fridge.detail.item.DetailListAdapter
 import com.pyamsoft.fridge.detail.list.DetailList.Callback
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.core.bus.EventBus
@@ -51,14 +45,15 @@ import com.pyamsoft.pydroid.ui.theme.Theming
 import com.pyamsoft.pydroid.ui.util.refreshing
 
 internal abstract class DetailList protected constructor(
+  parent: ViewGroup,
+  callback: Callback,
   private val interactor: CreationListInteractor,
   private val imageLoader: ImageLoader,
   private val theming: Theming,
   private val fakeRealtime: EventBus<FridgeItemChangeEvent>,
-  parent: ViewGroup,
-  callback: Callback
+  private val editable: Boolean
 ) : BaseUiView<Callback>(parent, callback),
-    DetailListItemController.Callback {
+    DetailListAdapter.Callback {
 
   final override val layout: Int = R.layout.detail_list
 
@@ -68,13 +63,7 @@ internal abstract class DetailList protected constructor(
 
   private var decoration: DividerItemDecoration? = null
   private var touchHelper: ItemTouchHelper? = null
-  private var modelAdapter: ModelAdapter<FridgeItem, DetailItem<*, *>>? = null
-
-  @CheckResult
-  protected abstract fun createListItem(
-    item: FridgeItem,
-    factory: (parent: ViewGroup, item: FridgeItem, editable: Boolean) -> DetailItemComponent
-  ): DetailItem<*, *>
+  private var modelAdapter: DetailListAdapter? = null
 
   final override fun onInflated(
     view: View,
@@ -85,7 +74,7 @@ internal abstract class DetailList protected constructor(
           .create(parent, item, editable, imageLoader, theming, interactor, fakeRealtime)
     }
 
-    modelAdapter = ModelAdapter { createListItem(it, factory) }
+    modelAdapter = DetailListAdapter(editable, factory, callback = this)
 
     recyclerView.layoutManager = LinearLayoutManager(view.context).apply {
       isItemPrefetchEnabled = true
@@ -96,11 +85,7 @@ internal abstract class DetailList protected constructor(
     recyclerView.addItemDecoration(decor)
     decoration = decor
 
-    recyclerView.adapter =
-      FastAdapter.with<DetailItem<*, *>, ModelAdapter<FridgeItem, *>>(usingAdapter())
-          .apply {
-            setHasStableIds(true)
-          }
+    recyclerView.adapter = usingAdapter().apply { setHasStableIds(true) }
 
     layoutRoot.setOnRefreshListener {
       callback.onRefresh()
@@ -136,11 +121,11 @@ internal abstract class DetailList protected constructor(
         recyclerView: RecyclerView,
         viewHolder: ViewHolder
       ): Int {
-        if (viewHolder.adapterPosition == usingAdapter().adapterItemCount - 1) {
+        if (!editable || viewHolder is DetailListAdapter.AddNewItemViewHolder) {
           return 0
+        } else {
+          return super.getSwipeDirs(recyclerView, viewHolder)
         }
-
-        return super.getSwipeDirs(recyclerView, viewHolder)
       }
 
     }.apply {
@@ -156,7 +141,7 @@ internal abstract class DetailList protected constructor(
   final override fun onTeardown() {
     // Throws
     // recyclerView.adapter = null
-    usingAdapter().clear()
+    clearList()
     modelAdapter = null
 
     touchHelper?.attachToRecyclerView(null)
@@ -169,7 +154,7 @@ internal abstract class DetailList protected constructor(
   }
 
   @CheckResult
-  private fun usingAdapter(): ModelAdapter<FridgeItem, DetailItem<*, *>> {
+  private fun usingAdapter(): DetailListAdapter {
     return requireNotNull(modelAdapter)
   }
 
@@ -177,28 +162,18 @@ internal abstract class DetailList protected constructor(
     withViewHolderAt(position) { it.archiveSelf() }
   }
 
-  private inline fun withViewHolderAt(
-    position: Int,
-    crossinline func: (holder: DetailListItemController.ViewHolder) -> Unit
-  ) {
-    val holder: ViewHolder? = recyclerView.findViewHolderForLayoutPosition(position)
-    if (holder is DetailListItemController.ViewHolder) {
-      func(holder)
-    }
-  }
-
-  @CheckResult
-  protected fun getItemCount(): Int {
-    return usingAdapter().adapterItems.filter {
-      it.getModel()
-          .id()
-          .isNotBlank()
-    }
-        .size
-  }
-
   protected fun focusItem(position: Int) {
     withViewHolderAt(position) { it.focus() }
+  }
+
+  private inline fun withViewHolderAt(
+    position: Int,
+    crossinline func: (holder: DetailListAdapter.DetailItemViewHolder) -> Unit
+  ) {
+    val holder: ViewHolder? = recyclerView.findViewHolderForLayoutPosition(position)
+    if (holder is DetailListAdapter.DetailItemViewHolder) {
+      func(holder)
+    }
   }
 
   fun beginRefresh() {
@@ -206,13 +181,11 @@ internal abstract class DetailList protected constructor(
   }
 
   fun setList(list: List<FridgeItem>) {
-    val adapter = usingAdapter()
-    val items = list.map { adapter.intercept(it) }
-    FastAdapterDiffUtil.set(adapter, items, DataClassDiffCallback.create(), true)
+    usingAdapter().submitList(list)
   }
 
   fun clearList() {
-    usingAdapter().clear()
+    usingAdapter().submitList(null)
   }
 
   fun showError(throwable: Throwable) {
@@ -227,7 +200,7 @@ internal abstract class DetailList protected constructor(
     layoutRoot.refreshing(false)
   }
 
-  final override fun onExpandItem(item: FridgeItem) {
+  final override fun onItemExpanded(item: FridgeItem) {
     callback.onExpandItem(item)
   }
 
