@@ -112,7 +112,7 @@ internal class EntryList @Inject internal constructor(
   fun finishRefresh() {
     layoutRoot.refreshing(false)
 
-    if (usingAdapter().itemCount <= 1) {
+    if (usingAdapter().itemCount == 0) {
       hideList()
     } else {
       showList()
