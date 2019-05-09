@@ -38,6 +38,7 @@ import com.pyamsoft.fridge.detail.item.fridge.DetailListItemPresence
 import com.pyamsoft.fridge.detail.item.fridge.DetailListItemStrikethrough
 import com.pyamsoft.fridge.detail.item.fridge.DetailListItemUiComponent
 import com.pyamsoft.fridge.detail.item.fridge.DetailListItemUiComponentImpl
+import com.pyamsoft.fridge.detail.list.DetailListAdapter
 import com.pyamsoft.pydroid.arch.UiEventHandler
 import com.pyamsoft.pydroid.core.bus.EventBus
 import com.pyamsoft.pydroid.core.bus.RxBus

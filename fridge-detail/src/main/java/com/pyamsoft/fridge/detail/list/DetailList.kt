@@ -36,7 +36,6 @@ import com.pyamsoft.fridge.detail.R
 import com.pyamsoft.fridge.detail.R.drawable
 import com.pyamsoft.fridge.detail.create.list.CreationListInteractor
 import com.pyamsoft.fridge.detail.item.DaggerDetailItemComponent
-import com.pyamsoft.fridge.detail.item.DetailListAdapter
 import com.pyamsoft.fridge.detail.list.DetailList.Callback
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.core.bus.EventBus
@@ -74,7 +73,8 @@ internal abstract class DetailList protected constructor(
           .create(parent, item, editable, imageLoader, theming, interactor, fakeRealtime)
     }
 
-    modelAdapter = DetailListAdapter(editable, factory, callback = this)
+    modelAdapter =
+      DetailListAdapter(editable, factory, callback = this)
 
     recyclerView.layoutManager = LinearLayoutManager(view.context).apply {
       isItemPrefetchEnabled = true
@@ -124,7 +124,8 @@ internal abstract class DetailList protected constructor(
         if (!editable || viewHolder is DetailListAdapter.AddNewItemViewHolder) {
           return 0
         } else {
-          return super.getSwipeDirs(recyclerView, viewHolder)
+          // Don't call super here or we crash from a Reflection error
+          return directions
         }
       }
 

@@ -15,7 +15,7 @@
  *
  */
 
-package com.pyamsoft.fridge.detail.item
+package com.pyamsoft.fridge.detail.list
 
 import android.view.LayoutInflater
 import android.view.View
@@ -30,9 +30,11 @@ import androidx.recyclerview.widget.RecyclerView
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.JsonMappableFridgeItem
 import com.pyamsoft.fridge.detail.R
-import com.pyamsoft.fridge.detail.item.DetailListAdapter.DetailViewHolder
+import com.pyamsoft.fridge.detail.item.DetailItemComponent
+import com.pyamsoft.fridge.detail.item.ListItemLifecycle
 import com.pyamsoft.fridge.detail.item.add.AddNewItemUiComponent
 import com.pyamsoft.fridge.detail.item.fridge.DetailListItemUiComponent
+import com.pyamsoft.fridge.detail.list.DetailListAdapter.DetailViewHolder
 import com.pyamsoft.pydroid.arch.layout
 import com.pyamsoft.pydroid.util.toDp
 import timber.log.Timber
@@ -93,8 +95,7 @@ internal class DetailListAdapter constructor(
   ): DetailViewHolder {
     val inflater = LayoutInflater.from(parent.context)
     if (viewType == R.id.id_item_add_new_item) {
-      val v = inflater.inflate(R.layout.add_new_list_item, parent, false)
-          .fixPadding()
+      val v = inflater.inflate(R.layout.listitem_frame, parent, false)
       return AddNewItemViewHolder(v, factory)
     } else {
       val v = inflater.inflate(R.layout.listitem_constraint, parent, false)

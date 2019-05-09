@@ -78,8 +78,8 @@ interface FridgeItem {
     private val DEFAULT_PRESENCE = Presence.NEED
 
     @CheckResult
-    fun empty(): FridgeItem {
-      return create("", "")
+    fun empty(entryId: String): FridgeItem {
+      return create("", entryId)
     }
 
     @CheckResult

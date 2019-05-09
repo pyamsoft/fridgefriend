@@ -52,7 +52,7 @@ internal class CreationListViewModel @Inject internal constructor(
 
   override fun getListItems(items: List<FridgeItem>): List<FridgeItem> {
     val mutableItems = items.toMutableList()
-    insert(mutableItems, FridgeItem.empty())
+    insert(mutableItems, FridgeItem.empty(entryId))
     return mutableItems.sortedWith(Comparator { o1, o2 ->
       return@Comparator when {
         o1.id().isBlank() -> 1
