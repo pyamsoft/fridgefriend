@@ -34,7 +34,7 @@ buildscript {
     maxSdk = 28
 
     // Us
-    pydroid = "20.0.0"
+    pydroid = "20.0.1-SNAPSHOT"
 
     // AndroidX
     preference = "1.0.0"
@@ -56,8 +56,8 @@ buildscript {
     fotoapparat = "2.7.0"
 
     // Firebase
-    firebase = "16.0.8"
-    mlVision = "19.0.3"
+    firebase = "16.0.9"
+    mlVision = "20.0.0"
 
     workmanager = "2.0.1"
   }
