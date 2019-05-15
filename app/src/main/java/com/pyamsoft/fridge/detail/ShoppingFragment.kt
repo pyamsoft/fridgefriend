@@ -21,33 +21,38 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.FrameLayout
 import androidx.annotation.CheckResult
-import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.constraintlayout.widget.ConstraintSet
 import androidx.fragment.app.Fragment
 import com.pyamsoft.fridge.FridgeComponent
 import com.pyamsoft.fridge.R
 import com.pyamsoft.fridge.db.item.FridgeItem
-import com.pyamsoft.fridge.detail.list.DetailListUiComponent
-import com.pyamsoft.fridge.detail.shop.toolbar.ShoppingToolbarUiComponent
-import com.pyamsoft.pydroid.arch.layout
+import com.pyamsoft.fridge.detail.list.DetailListControllerEvent.ExpandForEditing
+import com.pyamsoft.fridge.detail.shop.list.ShoppingList
+import com.pyamsoft.fridge.detail.shop.list.ShoppingListViewModel
+import com.pyamsoft.fridge.detail.shop.toolbar.ShoppingToolbar
+import com.pyamsoft.fridge.detail.shop.toolbar.ShoppingToolbarControllerEvent.NavigateUp
+import com.pyamsoft.fridge.detail.shop.toolbar.ShoppingToolbarViewModel
+import com.pyamsoft.pydroid.arch.impl.createComponent
 import com.pyamsoft.pydroid.ui.Injector
 import com.pyamsoft.pydroid.ui.app.requireToolbarActivity
+import timber.log.Timber
 import javax.inject.Inject
 
-internal class ShoppingFragment : Fragment(),
-    ShoppingToolbarUiComponent.Callback,
-    DetailListUiComponent.Callback {
+internal class ShoppingFragment : Fragment() {
 
-  @JvmField @Inject internal var toolbar: ShoppingToolbarUiComponent? = null
-  @JvmField @Inject internal var list: DetailListUiComponent? = null
+  @JvmField @Inject internal var toolbarViewModel: ShoppingToolbarViewModel? = null
+  @JvmField @Inject internal var toolbar: ShoppingToolbar? = null
+
+  @JvmField @Inject internal var listViewModel: ShoppingListViewModel? = null
+  @JvmField @Inject internal var list: ShoppingList? = null
 
   override fun onCreateView(
     inflater: LayoutInflater,
     container: ViewGroup?,
     savedInstanceState: Bundle?
   ): View? {
-    return inflater.inflate(R.layout.layout_constraint, container, false)
+    return inflater.inflate(R.layout.layout_frame, container, false)
   }
 
   override fun onViewCreated(
@@ -56,27 +61,32 @@ internal class ShoppingFragment : Fragment(),
   ) {
     super.onViewCreated(view, savedInstanceState)
 
-    val parent = view.findViewById<ConstraintLayout>(R.id.layout_constraint)
+    val parent = view.findViewById<FrameLayout>(R.id.layout_frame)
     Injector.obtain<FridgeComponent>(view.context.applicationContext)
         .plusDetailComponent()
         .create(requireToolbarActivity(), parent)
         .plusShoppingComponent()
-        .create()
+        .create(viewLifecycleOwner)
         .inject(this)
 
     val list = requireNotNull(list)
     val toolbar = requireNotNull(toolbar)
-    list.bind(parent, viewLifecycleOwner, savedInstanceState, this)
-    toolbar.bind(parent, viewLifecycleOwner, savedInstanceState, this)
 
-    parent.layout {
-      list.also {
-        connect(it.id(), ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP)
-        connect(it.id(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
-        connect(it.id(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
-        connect(it.id(), ConstraintSet.BOTTOM, ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM)
-        constrainWidth(it.id(), ConstraintSet.MATCH_CONSTRAINT)
-        constrainHeight(it.id(), ConstraintSet.MATCH_CONSTRAINT)
+    createComponent(
+        savedInstanceState, viewLifecycleOwner,
+        requireNotNull(listViewModel), list
+    ) {
+      return@createComponent when (it) {
+        is ExpandForEditing -> expandItem(it.item)
+      }
+    }
+
+    createComponent(
+        savedInstanceState, viewLifecycleOwner,
+        requireNotNull(toolbarViewModel), toolbar
+    ) {
+      return@createComponent when (it) {
+        is NavigateUp -> close()
       }
     }
   }
@@ -94,12 +104,12 @@ internal class ShoppingFragment : Fragment(),
     toolbar = null
   }
 
-  override fun onBack() {
+  private fun close() {
     requireActivity().onBackPressed()
   }
 
-  override fun onExpandItem(item: FridgeItem) {
-    // NOOP
+  private fun expandItem(item: FridgeItem) {
+    Timber.d("NOOP for shopping expand: $item")
   }
 
   companion object {

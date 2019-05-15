@@ -17,33 +17,21 @@
 
 package com.pyamsoft.fridge.detail.shop.toolbar
 
-import com.pyamsoft.fridge.detail.shop.toolbar.ShoppingToolbar.Callback
-import com.pyamsoft.fridge.detail.shop.toolbar.ShoppingToolbarHandler.ToolbarEvent
-import com.pyamsoft.fridge.detail.shop.toolbar.ShoppingToolbarViewModel.ToolbarState
-import com.pyamsoft.pydroid.arch.UiEventHandler
-import com.pyamsoft.pydroid.arch.UiState
-import com.pyamsoft.pydroid.arch.UiViewModel
+import com.pyamsoft.fridge.detail.shop.toolbar.ShoppingToolbarControllerEvent.NavigateUp
+import com.pyamsoft.fridge.detail.shop.toolbar.ShoppingToolbarViewEvent.Close
+import com.pyamsoft.pydroid.arch.impl.BaseUiViewModel
+import com.pyamsoft.pydroid.arch.impl.UnitViewState
 import javax.inject.Inject
 
-internal class ShoppingToolbarViewModel @Inject internal constructor(
-  private val handler: UiEventHandler<ToolbarEvent, Callback>
-) : UiViewModel<ToolbarState>(
-  initialState = ToolbarState(isNavigate = false)
-), Callback {
+class ShoppingToolbarViewModel @Inject internal constructor(
+) : BaseUiViewModel<UnitViewState, ShoppingToolbarViewEvent, ShoppingToolbarControllerEvent>(
+    initialState = UnitViewState
+) {
 
-  override fun onBind() {
-    handler.handle(this).disposeOnDestroy()
-  }
-
-  override fun onUnbind() {
-  }
-
-  override fun onNavigationClicked() {
-    setUniqueState(true, old = { it.isNavigate }) { state, value ->
-      state.copy(isNavigate = value)
+  override fun handleViewEvent(event: ShoppingToolbarViewEvent) {
+    return when (event) {
+      is Close -> publish(NavigateUp)
     }
   }
-
-  data class ToolbarState(val isNavigate: Boolean) : UiState
 }
 

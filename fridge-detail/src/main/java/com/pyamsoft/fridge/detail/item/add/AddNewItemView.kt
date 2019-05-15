@@ -22,8 +22,9 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import com.pyamsoft.fridge.detail.R
-import com.pyamsoft.fridge.detail.item.add.AddNewItemView.Callback
-import com.pyamsoft.pydroid.arch.BaseUiView
+import com.pyamsoft.fridge.detail.item.add.AddNewViewEvent.AddNewItemEvent
+import com.pyamsoft.pydroid.arch.impl.BaseUiView
+import com.pyamsoft.pydroid.arch.impl.UnitViewState
 import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.loader.Loaded
 import com.pyamsoft.pydroid.ui.theme.Theming
@@ -31,12 +32,11 @@ import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
 import com.pyamsoft.pydroid.util.tintWith
 import javax.inject.Inject
 
-internal class AddNewItemView @Inject internal constructor(
+class AddNewItemView @Inject internal constructor(
   private val theming: Theming,
   private val imageLoader: ImageLoader,
-  parent: ViewGroup,
-  callback: Callback
-) : BaseUiView<Callback>(parent, callback) {
+  parent: ViewGroup
+) : BaseUiView<UnitViewState, AddNewViewEvent>(parent) {
 
   private val addNewIcon by boundView<ImageView>(R.id.detail_add_new_item_icon)
 
@@ -46,19 +46,29 @@ internal class AddNewItemView @Inject internal constructor(
 
   override val layoutRoot by boundView<ViewGroup>(R.id.detail_add_new_item)
 
-  override fun onInflated(view: View, savedInstanceState: Bundle?) {
+  override fun onInflated(
+    view: View,
+    savedInstanceState: Bundle?
+  ) {
     iconLoaded = imageLoader.load(R.drawable.ic_add_24dp)
-      .mutate { drawable ->
-        val color: Int
-        if (theming.isDarkTheme()) {
-          color = R.color.white
-        } else {
-          color = R.color.black
+        .mutate { drawable ->
+          val color: Int
+          if (theming.isDarkTheme()) {
+            color = R.color.white
+          } else {
+            color = R.color.black
+          }
+          return@mutate drawable.tintWith(layoutRoot.context, color)
         }
-        return@mutate drawable.tintWith(layoutRoot.context, color)
-      }.into(addNewIcon)
+        .into(addNewIcon)
 
-    layoutRoot.setOnDebouncedClickListener { callback.onAddNewClicked() }
+    layoutRoot.setOnDebouncedClickListener { publish(AddNewItemEvent) }
+  }
+
+  override fun onRender(
+    state: UnitViewState,
+    oldState: UnitViewState?
+  ) {
   }
 
   override fun onTeardown() {
@@ -70,11 +80,6 @@ internal class AddNewItemView @Inject internal constructor(
   private fun disposeIcon() {
     iconLoaded?.dispose()
     iconLoaded = null
-  }
-
-  interface Callback {
-
-    fun onAddNewClicked()
   }
 }
 

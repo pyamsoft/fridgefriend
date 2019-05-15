@@ -24,12 +24,11 @@ import com.pyamsoft.fridge.db.entry.FridgeEntryChangeEvent.Insert
 import com.pyamsoft.fridge.db.entry.FridgeEntryChangeEvent.Update
 import com.pyamsoft.fridge.db.entry.FridgeEntryQueryDao
 import com.pyamsoft.fridge.db.entry.FridgeEntryRealtime
-import com.pyamsoft.fridge.entry.list.EntryListHandler.ListEvent
-import com.pyamsoft.fridge.entry.list.EntryListViewModel.EntryState
-import com.pyamsoft.fridge.entry.list.EntryListViewModel.EntryState.Loading
-import com.pyamsoft.pydroid.arch.UiEventHandler
-import com.pyamsoft.pydroid.arch.UiState
-import com.pyamsoft.pydroid.arch.UiViewModel
+import com.pyamsoft.fridge.entry.list.EntryListControllerEvent.OpenForEditing
+import com.pyamsoft.fridge.entry.list.EntryListViewEvent.ForceRefresh
+import com.pyamsoft.fridge.entry.list.EntryListViewEvent.OpenEntry
+import com.pyamsoft.fridge.entry.list.EntryListViewState.Loading
+import com.pyamsoft.pydroid.arch.impl.BaseUiViewModel
 import com.pyamsoft.pydroid.core.singleDisposable
 import com.pyamsoft.pydroid.core.tryDispose
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -37,35 +36,33 @@ import io.reactivex.schedulers.Schedulers
 import timber.log.Timber
 import javax.inject.Inject
 
-internal class EntryListViewModel @Inject internal constructor(
-  private val handler: UiEventHandler<ListEvent, EntryList.Callback>,
+class EntryListViewModel @Inject internal constructor(
   private val queryDao: FridgeEntryQueryDao,
   private val realtime: FridgeEntryRealtime
-) : UiViewModel<EntryState>(
-    initialState = EntryState(
+) : BaseUiViewModel<EntryListViewState, EntryListViewEvent, EntryListControllerEvent>(
+    initialState = EntryListViewState(
         isLoading = null,
         throwable = null,
-        entries = emptyList(),
-        editingEntry = null
+        entries = emptyList()
     )
-), EntryList.Callback {
+) {
 
   private var refreshDisposable by singleDisposable()
   private var realtimeChangeDisposable by singleDisposable()
 
   override fun onBind() {
-    handler.handle(this)
-        .disposeOnDestroy()
     refresh(false)
   }
 
-  override fun onUnbind() {
-    refreshDisposable.tryDispose()
-    realtimeChangeDisposable.tryDispose()
+  override fun handleViewEvent(event: EntryListViewEvent) {
+    return when (event) {
+      is ForceRefresh -> refresh(true)
+      is OpenEntry -> openEntry(event.entry)
+    }
   }
 
-  override fun onRefresh() {
-    refresh(true)
+  override fun onUnbind() {
+    realtimeChangeDisposable.tryDispose()
   }
 
   private fun refresh(force: Boolean) {
@@ -73,6 +70,7 @@ internal class EntryListViewModel @Inject internal constructor(
         .subscribeOn(Schedulers.io())
         .observeOn(AndroidSchedulers.mainThread())
         .doOnSubscribe { handleListRefreshBegin() }
+        .doAfterTerminate { refreshDisposable.tryDispose() }
         .doAfterTerminate { handleListRefreshComplete() }
         .doAfterSuccess { beginListeningForChanges() }
         .subscribe({ handleListRefreshed(it) }, {
@@ -150,20 +148,9 @@ internal class EntryListViewModel @Inject internal constructor(
     }
   }
 
-  override fun onItemClicked(entry: FridgeEntry) {
+  private fun openEntry(entry: FridgeEntry) {
     Timber.d("Edit entry: $entry")
-    setUniqueState(entry, old = { it.editingEntry }) { state, value ->
-      state.copy(editingEntry = value)
-    }
-  }
-
-  data class EntryState(
-    val isLoading: Loading?,
-    val throwable: Throwable?,
-    val entries: List<FridgeEntry>,
-    val editingEntry: FridgeEntry?
-  ) : UiState {
-    data class Loading(val isLoading: Boolean)
+    publish(OpenForEditing(entry))
   }
 
 }

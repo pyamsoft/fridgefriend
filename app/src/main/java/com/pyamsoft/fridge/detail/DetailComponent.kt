@@ -23,7 +23,6 @@ import com.pyamsoft.pydroid.ui.app.ToolbarActivity
 import dagger.BindsInstance
 import dagger.Subcomponent
 
-@DetailScope
 @Subcomponent
 internal interface DetailComponent {
 

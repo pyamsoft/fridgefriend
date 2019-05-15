@@ -17,27 +17,22 @@
 
 package com.pyamsoft.fridge.detail.item.fridge
 
-import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
-import android.view.View
 import android.view.ViewGroup
-import android.view.inputmethod.EditorInfo
 import android.widget.EditText
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.detail.R
-import com.pyamsoft.fridge.detail.item.fridge.DetailListItemDate.Callback
+import com.pyamsoft.fridge.detail.item.fridge.DetailItemViewEvent.CommitDate
+import com.pyamsoft.pydroid.arch.impl.BaseUiView
+import com.pyamsoft.pydroid.arch.impl.onChange
 import timber.log.Timber
 import java.util.Calendar
 import javax.inject.Inject
-import javax.inject.Named
 
-internal class DetailListItemDate @Inject internal constructor(
-  @Named("item_editable") private val editable: Boolean,
-  item: FridgeItem,
-  parent: ViewGroup,
-  callback: Callback
-) : DetailListItem<Callback>(item, parent, callback) {
+class DetailListItemDate @Inject internal constructor(
+  parent: ViewGroup
+) : BaseUiView<DetailItemViewState, DetailItemViewEvent>(parent) {
 
   override val layout: Int = R.layout.detail_list_item_date
 
@@ -48,102 +43,86 @@ internal class DetailListItemDate @Inject internal constructor(
 
   private var dateWatcher: TextWatcher? = null
 
-  override fun onInflated(
-    view: View,
-    savedInstanceState: Bundle?
+  override fun onRender(
+    state: DetailItemViewState,
+    oldState: DetailItemViewState?
   ) {
-    if (item.expireTime() != FridgeItem.EMPTY_EXPIRE_TIME) {
-      val date = Calendar.getInstance()
-          .apply {
-            time = item.expireTime()
+    state.onChange(oldState, field = { it.item }) { item ->
+      removeListeners()
+      val isEditable = state.isEditable
+
+      if (item.expireTime() != FridgeItem.EMPTY_EXPIRE_TIME) {
+        val date = Calendar.getInstance()
+            .apply {
+              time = item.expireTime()
+            }
+        Timber.d("Expire time is: $date")
+
+        // Month is zero indexed in storage
+        val month = date.get(Calendar.MONTH) + 1
+        val day = date.get(Calendar.DAY_OF_MONTH)
+        val year = date.get(Calendar.YEAR)
+
+        monthView.setTextKeepState("$month".padStart(2, '0'))
+        dayView.setTextKeepState("$day".padStart(2, '0'))
+        yearView.setTextKeepState("$year".padStart(4, '0'))
+      }
+
+      if (isEditable && !item.isArchived()) {
+        val watcher = object : TextWatcher {
+          override fun afterTextChanged(s: Editable?) {
+            commit(item)
           }
-      Timber.d("Expire time is: $date")
 
-      // Month is zero indexed in storage
-      val month = date.get(Calendar.MONTH) + 1
-      val day = date.get(Calendar.DAY_OF_MONTH)
-      val year = date.get(Calendar.YEAR)
+          override fun beforeTextChanged(
+            s: CharSequence?,
+            start: Int,
+            count: Int,
+            after: Int
+          ) {
+          }
 
-      monthView.setTextKeepState("$month".padStart(2, '0'))
-      dayView.setTextKeepState("$day".padStart(2, '0'))
-      yearView.setTextKeepState("$year".padStart(4, '0'))
-    }
-
-    if (editable && !item.isArchived()) {
-      val watcher = object : TextWatcher {
-        override fun afterTextChanged(s: Editable?) {
-          commit()
+          override fun onTextChanged(
+            s: CharSequence?,
+            start: Int,
+            before: Int,
+            count: Int
+          ) {
+          }
         }
-
-        override fun beforeTextChanged(
-          s: CharSequence?,
-          start: Int,
-          count: Int,
-          after: Int
-        ) {
-        }
-
-        override fun onTextChanged(
-          s: CharSequence?,
-          start: Int,
-          before: Int,
-          count: Int
-        ) {
-        }
+        monthView.addTextChangedListener(watcher)
+        dayView.addTextChangedListener(watcher)
+        yearView.addTextChangedListener(watcher)
+        dateWatcher = watcher
+      } else {
+        monthView.setNotEditable()
+        dayView.setNotEditable()
+        yearView.setNotEditable()
       }
-      monthView.addTextChangedListener(watcher)
-      dayView.addTextChangedListener(watcher)
-      yearView.addTextChangedListener(watcher)
-      dateWatcher = watcher
-
-      yearView.setOnEditorActionListener { _, actionId, _ ->
-        if (actionId == EditorInfo.IME_ACTION_DONE || actionId == EditorInfo.IME_NULL) {
-          callback.onLastDoneClicked()
-          return@setOnEditorActionListener true
-        }
-
-        return@setOnEditorActionListener false
-      }
-    } else {
-      monthView.setNotEditable()
-      dayView.setNotEditable()
-      yearView.setNotEditable()
     }
   }
 
   override fun onTeardown() {
-    // Unbind all listeners
+    removeListeners()
+  }
+
+  private fun removeListeners() {
     dateWatcher?.let { watcher ->
       monthView.removeTextChangedListener(watcher)
       dayView.removeTextChangedListener(watcher)
       yearView.removeTextChangedListener(watcher)
     }
     dateWatcher = null
-
-    yearView.setOnEditorActionListener(null)
   }
 
-  private fun commit() {
+  private fun commit(item: FridgeItem) {
     val month = monthView.text.toString()
     val day = dayView.text.toString()
     val year = yearView.text.toString()
     val yearNumber = if (year.isBlank()) 0 else year.toIntOrNull() ?: 0
     val monthNumber = if (month.isBlank()) 0 else month.toIntOrNull() ?: 0
     val dayNumber = if (day.isBlank()) 0 else day.toIntOrNull() ?: 0
-    callback.commitDate(item, yearNumber, monthNumber, dayNumber)
-  }
-
-  interface Callback : DetailListItem.Callback {
-
-    fun onLastDoneClicked()
-
-    fun commitDate(
-      oldItem: FridgeItem,
-      year: Int,
-      month: Int,
-      day: Int
-    )
-
+    publish(CommitDate(item, yearNumber, monthNumber, dayNumber))
   }
 
 }

@@ -17,75 +17,82 @@
 
 package com.pyamsoft.fridge.detail.item.fridge
 
-import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
-import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.detail.R
-import com.pyamsoft.fridge.detail.item.fridge.DetailListItemName.Callback
+import com.pyamsoft.fridge.detail.item.fridge.DetailItemViewEvent.CommitName
+import com.pyamsoft.pydroid.arch.impl.BaseUiView
+import com.pyamsoft.pydroid.arch.impl.onChange
 import javax.inject.Inject
-import javax.inject.Named
 
-internal class DetailListItemName @Inject internal constructor(
-  @Named("item_editable") private val editable: Boolean,
-  item: FridgeItem,
-  parent: ViewGroup,
-  callback: Callback
-) : DetailListItem<Callback>(item, parent, callback) {
+class DetailListItemName @Inject internal constructor(
+  parent: ViewGroup
+) : BaseUiView<DetailItemViewState, DetailItemViewEvent>(parent) {
 
   override val layout: Int = R.layout.detail_list_item_name
 
   override val layoutRoot by boundView<ViewGroup>(R.id.detail_item_name)
+
   private val nameView by boundView<EditText>(R.id.detail_item_name_editable)
 
   private var nameWatcher: TextWatcher? = null
 
-  override fun onInflated(view: View, savedInstanceState: Bundle?) {
-    nameView.setTextKeepState(item.name())
-    if (editable && !item.isArchived()) {
-      val watcher = object : TextWatcher {
+  override fun onRender(
+    state: DetailItemViewState,
+    oldState: DetailItemViewState?
+  ) {
+    state.onChange(oldState, field = { it.item }) { item ->
+      removeListeners()
+      val isEditable = state.isEditable
 
-        override fun afterTextChanged(s: Editable?) {
-          commit()
+      nameView.setTextKeepState(item.name())
+      if (isEditable && !item.isArchived()) {
+        val watcher = object : TextWatcher {
+
+          override fun afterTextChanged(s: Editable?) {
+            commit(item)
+          }
+
+          override fun beforeTextChanged(
+            s: CharSequence?,
+            start: Int,
+            count: Int,
+            after: Int
+          ) {
+          }
+
+          override fun onTextChanged(
+            s: CharSequence?,
+            start: Int,
+            before: Int,
+            count: Int
+          ) {
+          }
+
         }
-
-        override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
-        }
-
-        override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-        }
-
+        nameView.addTextChangedListener(watcher)
+        nameWatcher = watcher
+      } else {
+        nameView.setNotEditable()
       }
-      nameView.addTextChangedListener(watcher)
-      nameWatcher = watcher
-    } else {
-      nameView.setNotEditable()
     }
   }
 
   override fun onTeardown() {
-    // Unbind all listeners
+    removeListeners()
+  }
+
+  private fun removeListeners() {
     nameWatcher?.let { nameView.removeTextChangedListener(it) }
     nameWatcher = null
   }
 
-  private fun commit() {
+  private fun commit(item: FridgeItem) {
     val name = nameView.text.toString()
-    callback.commitName(item, name)
+    publish(CommitName(item, name))
   }
-
-  fun focus() {
-    nameView.requestFocus()
-  }
-
-  interface Callback : DetailListItem.Callback {
-
-    fun commitName(oldItem: FridgeItem, name: String)
-
-  }
-
 }
 

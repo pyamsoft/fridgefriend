@@ -18,10 +18,11 @@
 package com.pyamsoft.fridge.detail
 
 import androidx.annotation.CheckResult
-import com.pyamsoft.fridge.detail.shop.ShoppingModule
+import androidx.lifecycle.LifecycleOwner
+import dagger.BindsInstance
 import dagger.Subcomponent
 
-@Subcomponent(modules = [ShoppingModule::class])
+@Subcomponent
 internal interface ShoppingComponent {
 
   fun inject(fragment: ShoppingFragment)
@@ -30,7 +31,9 @@ internal interface ShoppingComponent {
   interface Factory {
 
     @CheckResult
-    fun create(): ShoppingComponent
+    fun create(
+      @BindsInstance owner: LifecycleOwner
+    ): ShoppingComponent
   }
 
 }

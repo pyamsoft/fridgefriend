@@ -18,7 +18,7 @@
 package com.pyamsoft.fridge.main
 
 import android.os.Bundle
-import android.view.View
+import android.view.ViewGroup
 import androidx.annotation.StyleRes
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
@@ -28,18 +28,18 @@ import com.pyamsoft.fridge.FridgeComponent
 import com.pyamsoft.fridge.R
 import com.pyamsoft.fridge.butler.Butler
 import com.pyamsoft.fridge.entry.EntryListFragment
-import com.pyamsoft.fridge.main.container.FragmentContainerUiComponent
-import com.pyamsoft.fridge.main.toolbar.MainToolbarUiComponent
-import com.pyamsoft.pydroid.arch.layout
+import com.pyamsoft.pydroid.arch.impl.doOnDestroy
 import com.pyamsoft.pydroid.ui.Injector
 import com.pyamsoft.pydroid.ui.rating.ChangeLogBuilder
 import com.pyamsoft.pydroid.ui.rating.RatingActivity
 import com.pyamsoft.pydroid.ui.rating.buildChangeLog
 import com.pyamsoft.pydroid.ui.theme.Theming
 import com.pyamsoft.pydroid.ui.util.commit
+import com.pyamsoft.pydroid.ui.util.layout
+import com.pyamsoft.pydroid.ui.widget.shadow.DropshadowView
 import javax.inject.Inject
 
-internal class MainActivity : RatingActivity(), MainToolbarUiComponent.Callback {
+internal class MainActivity : RatingActivity() {
 
   override val applicationIcon: Int = R.mipmap.ic_launcher
 
@@ -52,14 +52,15 @@ internal class MainActivity : RatingActivity(), MainToolbarUiComponent.Callback 
   override val fragmentContainerId: Int
     get() = requireNotNull(container).id()
 
-  override val snackbarRoot: View
+  override val snackbarRoot: ViewGroup
     get() = requireNotNull(snackbarContainer)
 
   // Nullable to prevent memory leak
   private var snackbarContainer: CoordinatorLayout? = null
 
-  @JvmField @Inject internal var toolbar: MainToolbarUiComponent? = null
-  @JvmField @Inject internal var container: FragmentContainerUiComponent? = null
+  @JvmField @Inject internal var toolbar: MainToolbar? = null
+  @JvmField @Inject internal var dropshadowView: DropshadowView? = null
+  @JvmField @Inject internal var container: FragmentContainer? = null
   @JvmField @Inject internal var butler: Butler? = null
 
   override fun onCreate(savedInstanceState: Bundle?) {
@@ -71,9 +72,9 @@ internal class MainActivity : RatingActivity(), MainToolbarUiComponent.Callback 
     val contentContainer = findViewById<ConstraintLayout>(R.id.content_container)
 
     Injector.obtain<FridgeComponent>(applicationContext)
-      .plusMainComponent()
-      .create(contentContainer, this)
-      .inject(this)
+        .plusMainComponent()
+        .create(contentContainer, this)
+        .inject(this)
 
     inflateComponents(contentContainer, savedInstanceState)
 
@@ -93,15 +94,34 @@ internal class MainActivity : RatingActivity(), MainToolbarUiComponent.Callback 
     setTheme(theme)
   }
 
-  private fun inflateComponents(constraintLayout: ConstraintLayout, savedInstanceState: Bundle?) {
+  private fun inflateComponents(
+    constraintLayout: ConstraintLayout,
+    savedInstanceState: Bundle?
+  ) {
     val container = requireNotNull(container)
     val toolbar = requireNotNull(toolbar)
-    container.bind(constraintLayout, this, savedInstanceState, Unit)
-    toolbar.bind(constraintLayout, this, savedInstanceState, this)
+    val dropshadow = requireNotNull(dropshadowView)
+    container.inflate(savedInstanceState)
+    toolbar.inflate(savedInstanceState)
+    dropshadow.inflate(savedInstanceState)
+
+    this.doOnDestroy {
+      container.teardown()
+      toolbar.teardown()
+      dropshadow.teardown()
+    }
+
     constraintLayout.layout {
 
       toolbar.also {
         connect(it.id(), ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP)
+        connect(it.id(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
+        connect(it.id(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
+        constrainWidth(it.id(), ConstraintSet.MATCH_CONSTRAINT)
+      }
+
+      dropshadow.also {
+        connect(it.id(), ConstraintSet.TOP, toolbar.id(), ConstraintSet.BOTTOM)
         connect(it.id(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
         connect(it.id(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
         constrainWidth(it.id(), ConstraintSet.MATCH_CONSTRAINT)
@@ -122,8 +142,8 @@ internal class MainActivity : RatingActivity(), MainToolbarUiComponent.Callback 
     val fm = supportFragmentManager
     if (fm.findFragmentById(fragmentContainerId) == null) {
       fm.beginTransaction()
-        .add(fragmentContainerId, EntryListFragment.newInstance(), EntryListFragment.TAG)
-        .commit(this)
+          .add(fragmentContainerId, EntryListFragment.newInstance(), EntryListFragment.TAG)
+          .commit(this)
     }
   }
 
@@ -131,11 +151,13 @@ internal class MainActivity : RatingActivity(), MainToolbarUiComponent.Callback 
     super.onSaveInstanceState(outState)
     toolbar?.saveState(outState)
     container?.saveState(outState)
+    dropshadowView?.saveState(outState)
   }
 
   override fun onDestroy() {
     super.onDestroy()
     snackbarContainer = null
+    dropshadowView = null
     toolbar = null
     container = null
     butler = null

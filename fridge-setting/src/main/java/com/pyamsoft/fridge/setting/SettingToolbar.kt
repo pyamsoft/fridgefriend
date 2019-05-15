@@ -15,51 +15,49 @@
  *
  */
 
-package com.pyamsoft.fridge.detail.toolbar
+package com.pyamsoft.fridge.setting
 
 import android.os.Bundle
-import com.pyamsoft.pydroid.arch.UiViewEvent
-import com.pyamsoft.pydroid.arch.UiViewState
+import com.pyamsoft.fridge.setting.SettingToolbarViewEvent.ToolbarNavigate
 import com.pyamsoft.pydroid.arch.impl.AbstractUiView
+import com.pyamsoft.pydroid.arch.impl.UnitViewState
 import com.pyamsoft.pydroid.ui.app.ToolbarActivity
 import com.pyamsoft.pydroid.ui.arch.InvalidIdException
 import com.pyamsoft.pydroid.ui.util.DebouncedOnClickListener
 import com.pyamsoft.pydroid.ui.util.setUpEnabled
+import javax.inject.Inject
 
-abstract class DetailToolbar<S : UiViewState, V : UiViewEvent> protected constructor(
-  protected val toolbarActivity: ToolbarActivity,
-  private val provideNavigationEvent: () -> V
-) : AbstractUiView<S, V>() {
+class SettingToolbar @Inject internal constructor(
+  private val toolbarActivity: ToolbarActivity
+) : AbstractUiView<UnitViewState, SettingToolbarViewEvent>() {
 
-  protected abstract fun onInflate(savedInstanceState: Bundle?)
-
-  protected abstract fun onTeardown()
-
-  final override fun id(): Int {
+  override fun id(): Int {
     throw InvalidIdException
   }
 
-  final override fun inflate(savedInstanceState: Bundle?) {
+  override fun inflate(savedInstanceState: Bundle?) {
     toolbarActivity.requireToolbar { toolbar ->
+      toolbar.title = "Settings"
       toolbar.setUpEnabled(true)
       toolbar.setNavigationOnClickListener(DebouncedOnClickListener.create {
-        publish(provideNavigationEvent())
+        publish(ToolbarNavigate)
       })
     }
-
-    onInflate(savedInstanceState)
   }
 
-  final override fun saveState(outState: Bundle) {
+  override fun render(
+    state: UnitViewState,
+    oldState: UnitViewState?
+  ) {
   }
 
-  final override fun teardown() {
-    toolbarActivity.withToolbar { toolber ->
-      toolber.setUpEnabled(false)
-      toolber.setNavigationOnClickListener(null)
+  override fun saveState(outState: Bundle) {
+  }
+
+  override fun teardown() {
+    toolbarActivity.withToolbar { toolbar ->
+      toolbar.setUpEnabled(false)
+      toolbar.setNavigationOnClickListener(null)
     }
-
-    onTeardown()
   }
-
 }

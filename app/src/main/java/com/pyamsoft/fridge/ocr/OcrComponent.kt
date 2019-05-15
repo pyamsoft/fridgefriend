@@ -17,13 +17,7 @@
 
 package com.pyamsoft.fridge.ocr
 
-import android.view.ViewGroup
-import androidx.annotation.CheckResult
-import dagger.BindsInstance
-import dagger.Subcomponent
-import javax.inject.Named
-
-//@Subcomponent(modules = [OcrModule::class])
+//@Subcomponent
 //internal interface OcrComponent {
 //
 //  fun inject(dialog: OcrDialog)

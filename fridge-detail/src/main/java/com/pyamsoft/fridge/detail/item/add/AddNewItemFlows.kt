@@ -15,25 +15,19 @@
  *
  */
 
-package com.pyamsoft.fridge.setting
+package com.pyamsoft.fridge.detail.item.add
 
-import androidx.annotation.CheckResult
-import com.pyamsoft.pydroid.ui.app.ToolbarActivity
-import dagger.BindsInstance
-import dagger.Subcomponent
+import com.pyamsoft.pydroid.arch.UiControllerEvent
+import com.pyamsoft.pydroid.arch.UiViewEvent
 
-@Subcomponent
-internal interface SettingComponent {
+sealed class AddNewViewEvent : UiViewEvent {
 
-  fun inject(fragment: SettingsFragment)
+  object AddNewItemEvent : AddNewViewEvent()
 
-  @Subcomponent.Factory
-  interface Factory {
+}
 
-    @CheckResult
-    fun create(
-      @BindsInstance activity: ToolbarActivity
-    ): SettingComponent
-  }
+sealed class AddNewControllerEvent : UiControllerEvent {
+
+  data class AddNew internal constructor(val entryId: String) : AddNewControllerEvent()
 
 }

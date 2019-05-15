@@ -27,22 +27,19 @@ import androidx.core.view.isVisible
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence.HAVE
 import com.pyamsoft.fridge.detail.R
-import com.pyamsoft.pydroid.arch.UiToggleView
+import com.pyamsoft.pydroid.arch.impl.BaseUiView
+import com.pyamsoft.pydroid.arch.impl.onChange
 import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
 import javax.inject.Inject
-import javax.inject.Named
 
-internal class DetailListItemStrikethrough @Inject internal constructor(
-  @Named("item_editable") private val editable: Boolean,
-  item: FridgeItem,
-  parent: ViewGroup,
-  callback: Callback
-) : DetailListItem<DetailListItemStrikethrough.Callback>(item, parent, callback),
-    UiToggleView {
+class DetailListItemStrikethrough @Inject internal constructor(
+  parent: ViewGroup
+) : BaseUiView<DetailItemViewState, DetailItemViewEvent>(parent) {
 
   override val layout: Int = R.layout.detail_list_item_strikethrough
 
   override val layoutRoot by boundView<ViewGroup>(R.id.detail_item_strikethrough)
+
   private val strikeLine by boundView<View>(R.id.detail_item_strikethrough_line)
   private val errorMessage by boundView<TextView>(R.id.detail_item_strikethrough_error)
 
@@ -50,14 +47,33 @@ internal class DetailListItemStrikethrough @Inject internal constructor(
     view: View,
     savedInstanceState: Bundle?
   ) {
-    decideStrikethroughState()
-    layoutRoot.setOnDebouncedClickListener {
-      callback.onExpand(item)
+  }
+
+  override fun onRender(
+    state: DetailItemViewState,
+    oldState: DetailItemViewState?
+  ) {
+    state.onChange(oldState, field = { it.item }) { item ->
+      removeListeners()
+      val isEditable = state.isEditable
+      decideStrikethroughState(item, isEditable)
+      layoutRoot.setOnDebouncedClickListener { }
+    }
+
+    state.onChange(oldState, field = { it.throwable }) { throwable ->
+      if (throwable == null) {
+        clearError()
+      } else {
+        showError(throwable)
+      }
     }
   }
 
-  private fun decideStrikethroughState() {
-    if (editable && !item.isArchived()) {
+  private fun decideStrikethroughState(
+    item: FridgeItem,
+    isEditable: Boolean
+  ) {
+    if (isEditable && !item.isArchived()) {
       hide()
     } else {
       if (item.isArchived()) {
@@ -73,18 +89,23 @@ internal class DetailListItemStrikethrough @Inject internal constructor(
   }
 
   override fun onTeardown() {
+    removeListeners()
+    clearError()
+  }
+
+  private fun removeListeners() {
     layoutRoot.setOnDebouncedClickListener(null)
   }
 
-  override fun show() {
+  private fun show() {
     strikeLine.isVisible = true
   }
 
-  override fun hide() {
+  private fun hide() {
     strikeLine.isInvisible = true
   }
 
-  fun showError(throwable: Throwable) {
+  private fun showError(throwable: Throwable) {
     val typeStyle: Int
     if (throwable is IllegalArgumentException) {
       typeStyle = Typeface.BOLD
@@ -95,14 +116,8 @@ internal class DetailListItemStrikethrough @Inject internal constructor(
     errorMessage.text = throwable.message ?: "ERROR: Unknown error, please try again later."
   }
 
-  fun clearError() {
+  private fun clearError() {
     errorMessage.text = ""
-  }
-
-  interface Callback : DetailListItem.Callback {
-
-    fun onExpand(item: FridgeItem)
-
   }
 }
 

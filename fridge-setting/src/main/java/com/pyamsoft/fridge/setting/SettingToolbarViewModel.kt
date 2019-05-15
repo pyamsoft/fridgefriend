@@ -17,23 +17,20 @@
 
 package com.pyamsoft.fridge.setting
 
-import androidx.annotation.CheckResult
-import com.pyamsoft.pydroid.ui.app.ToolbarActivity
-import dagger.BindsInstance
-import dagger.Subcomponent
+import com.pyamsoft.fridge.setting.SettingToolbarControllerEvent.NavigateUp
+import com.pyamsoft.fridge.setting.SettingToolbarViewEvent.ToolbarNavigate
+import com.pyamsoft.pydroid.arch.impl.BaseUiViewModel
+import com.pyamsoft.pydroid.arch.impl.UnitViewState
+import javax.inject.Inject
 
-@Subcomponent
-internal interface SettingComponent {
+class SettingToolbarViewModel @Inject internal constructor(
+) : BaseUiViewModel<UnitViewState, SettingToolbarViewEvent, SettingToolbarControllerEvent>(
+    initialState = UnitViewState
+) {
 
-  fun inject(fragment: SettingsFragment)
-
-  @Subcomponent.Factory
-  interface Factory {
-
-    @CheckResult
-    fun create(
-      @BindsInstance activity: ToolbarActivity
-    ): SettingComponent
+  override fun handleViewEvent(event: SettingToolbarViewEvent) {
+    return when (event) {
+      is ToolbarNavigate -> publish(NavigateUp)
+    }
   }
-
 }

@@ -32,12 +32,19 @@ import com.pyamsoft.fridge.db.item.JsonMappableFridgeItem
 import com.pyamsoft.fridge.detail.R
 import com.pyamsoft.fridge.detail.item.DetailItemComponent
 import com.pyamsoft.fridge.detail.item.ListItemLifecycle
-import com.pyamsoft.fridge.detail.item.add.AddNewItemUiComponent
-import com.pyamsoft.fridge.detail.item.fridge.DetailListItemUiComponent
+import com.pyamsoft.fridge.detail.item.add.AddNewControllerEvent.AddNew
+import com.pyamsoft.fridge.detail.item.add.AddNewItemView
+import com.pyamsoft.fridge.detail.item.add.AddNewItemViewModel
+import com.pyamsoft.fridge.detail.item.fridge.DetailItemControllerEvent.ExpandDetails
+import com.pyamsoft.fridge.detail.item.fridge.DetailItemViewModel
+import com.pyamsoft.fridge.detail.item.fridge.DetailListItemDate
+import com.pyamsoft.fridge.detail.item.fridge.DetailListItemName
+import com.pyamsoft.fridge.detail.item.fridge.DetailListItemPresence
+import com.pyamsoft.fridge.detail.item.fridge.DetailListItemStrikethrough
 import com.pyamsoft.fridge.detail.list.DetailListAdapter.DetailViewHolder
-import com.pyamsoft.pydroid.arch.layout
+import com.pyamsoft.pydroid.arch.impl.createComponent
+import com.pyamsoft.pydroid.ui.util.layout
 import com.pyamsoft.pydroid.util.toDp
-import timber.log.Timber
 import javax.inject.Inject
 
 internal class DetailListAdapter constructor(
@@ -134,7 +141,11 @@ internal class DetailListAdapter constructor(
     private val factory: (parent: ViewGroup, item: FridgeItem, editable: Boolean) -> DetailItemComponent
   ) : DetailViewHolder(itemView) {
 
-    @JvmField @Inject internal var component: DetailListItemUiComponent? = null
+    @JvmField @Inject internal var viewModel: DetailItemViewModel? = null
+    @JvmField @Inject internal var name: DetailListItemName? = null
+    @JvmField @Inject internal var date: DetailListItemDate? = null
+    @JvmField @Inject internal var presence: DetailListItemPresence? = null
+    @JvmField @Inject internal var strikethrough: DetailListItemStrikethrough? = null
 
     private val parent: ConstraintLayout = itemView.findViewById(R.id.listitem_constraint)
 
@@ -153,27 +164,55 @@ internal class DetailListAdapter constructor(
       val owner = ListItemLifecycle()
       lifecycle = owner
 
-      val component = requireNotNull(component)
-      component.bind(parent, owner, null, object : DetailListItemUiComponent.Callback {
-
-        override fun onLastDoneClicked() {
+      val name = requireNotNull(name)
+      val date = requireNotNull(date)
+      val presence = requireNotNull(presence)
+      val strikethrough = requireNotNull(strikethrough)
+      createComponent(
+          null, owner,
+          requireNotNull(viewModel),
+          name,
+          date,
+          presence,
+          strikethrough
+      ) {
+        return@createComponent when (it) {
+          is ExpandDetails -> callback.onItemExpanded(it.item)
         }
-
-        override fun onExpandItem(item: FridgeItem) {
-          callback.onItemExpanded(item)
-        }
-
-      })
+      }
 
       parent.layout {
-        component.also {
+        presence.also {
+          connect(it.id(), ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP)
+          connect(it.id(), ConstraintSet.BOTTOM, ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM)
+          connect(it.id(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
+          constrainWidth(it.id(), ConstraintSet.WRAP_CONTENT)
+        }
+
+        date.also {
+          connect(it.id(), ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP)
+          connect(it.id(), ConstraintSet.BOTTOM, ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM)
+          connect(it.id(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
+          constrainWidth(it.id(), ConstraintSet.WRAP_CONTENT)
+        }
+
+        name.also {
           connect(it.id(), ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP)
           connect(it.id(), ConstraintSet.BOTTOM, ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM)
           connect(it.id(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
           connect(it.id(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
           constrainWidth(it.id(), ConstraintSet.MATCH_CONSTRAINT)
+        }
+
+        strikethrough.also {
+          connect(it.id(), ConstraintSet.START, presence.id(), ConstraintSet.END)
+          connect(it.id(), ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP)
+          connect(it.id(), ConstraintSet.BOTTOM, ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM)
+          connect(it.id(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
+          constrainWidth(it.id(), ConstraintSet.MATCH_CONSTRAINT)
           constrainHeight(it.id(), ConstraintSet.MATCH_CONSTRAINT)
         }
+
       }
 
       owner.bind()
@@ -182,18 +221,11 @@ internal class DetailListAdapter constructor(
     override fun unbind() {
       lifecycle?.unbind()
       lifecycle = null
-      component = null
     }
 
     // Kind of hacky
     fun archiveSelf() {
-      requireNotNull(component).archiveSelf()
-    }
-
-    // Very hacky
-    fun focus() {
-      Timber.d("Request focus onto item")
-      requireNotNull(component).requestFocus()
+      requireNotNull(viewModel).archiveSelf()
     }
 
   }
@@ -203,18 +235,17 @@ internal class DetailListAdapter constructor(
     private val factory: (parent: ViewGroup, item: FridgeItem, editable: Boolean) -> DetailItemComponent
   ) : DetailViewHolder(view) {
 
-    @JvmField @Inject internal var component: AddNewItemUiComponent? = null
+    @JvmField @Inject internal var view: AddNewItemView? = null
+    @JvmField @Inject internal var viewModel: AddNewItemViewModel? = null
 
     private val parent: ViewGroup = itemView.findViewById(R.id.listitem_frame)
 
     private var lifecycle: ListItemLifecycle? = null
-    private var callback: Callback? = null
 
     fun bind(
       item: FridgeItem,
-      cb: Callback
+      callback: Callback
     ) {
-      callback = cb
       lifecycle?.unbind()
 
       factory(parent, item, false)
@@ -222,21 +253,32 @@ internal class DetailListAdapter constructor(
 
       val owner = ListItemLifecycle()
       lifecycle = owner
-      requireNotNull(component).bind(owner, null, object : AddNewItemUiComponent.Callback {
 
-        override fun onAddNewItem() {
-          requireNotNull(callback).onItemExpanded(FridgeItem.create(entryId = item.entryId()))
+      createComponent(
+          null, owner,
+          requireNotNull(viewModel),
+          requireNotNull(view)
+      ) {
+        return@createComponent when (it) {
+          is AddNew -> addNewItem(it.entryId, callback)
         }
-
-      })
+      }
       owner.bind()
+    }
+
+    private fun addNewItem(
+      entryId: String,
+      callback: Callback
+    ) {
+      callback.onItemExpanded(FridgeItem.create(entryId = entryId))
     }
 
     override fun unbind() {
       lifecycle?.unbind()
       lifecycle = null
-      callback = null
-      component = null
+
+      view = null
+      viewModel = null
     }
   }
 

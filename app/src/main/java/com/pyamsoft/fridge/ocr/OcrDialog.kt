@@ -17,23 +17,6 @@
 
 package com.pyamsoft.fridge.ocr
 
-import android.os.Bundle
-import android.view.Gravity
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
-import androidx.annotation.CheckResult
-import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.constraintlayout.widget.ConstraintSet
-import androidx.fragment.app.DialogFragment
-import com.pyamsoft.fridge.FridgeComponent
-import com.pyamsoft.fridge.R
-import com.pyamsoft.fridge.db.item.FridgeItem
-import com.pyamsoft.pydroid.arch.layout
-import com.pyamsoft.pydroid.ui.Injector
-import com.pyamsoft.pydroid.ui.app.requireArguments
-import javax.inject.Inject
-
 //internal class OcrDialog : DialogFragment(), OcrUiComponent.Callback {
 //
 //  @JvmField @Inject internal var component: OcrUiComponent? = null

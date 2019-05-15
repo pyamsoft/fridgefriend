@@ -17,54 +17,59 @@
 
 package com.pyamsoft.fridge.detail.item.fridge
 
-import android.os.Bundle
-import android.view.View
 import android.view.ViewGroup
 import android.widget.CompoundButton
 import com.pyamsoft.fridge.db.item.FridgeItem
-import com.pyamsoft.fridge.db.item.FridgeItem.Presence
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence.HAVE
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence.NEED
 import com.pyamsoft.fridge.detail.R
-import com.pyamsoft.fridge.detail.item.fridge.DetailListItemPresence.Callback
+import com.pyamsoft.fridge.detail.item.fridge.DetailItemViewEvent.CommitPresence
+import com.pyamsoft.pydroid.arch.impl.BaseUiView
+import com.pyamsoft.pydroid.arch.impl.onChange
 import javax.inject.Inject
 
-internal class DetailListItemPresence @Inject internal constructor(
-  item: FridgeItem,
-  parent: ViewGroup,
-  callback: Callback
-) : DetailListItem<Callback>(item, parent, callback) {
+class DetailListItemPresence @Inject internal constructor(
+  parent: ViewGroup
+) : BaseUiView<DetailItemViewState, DetailItemViewEvent>(parent) {
 
   override val layout: Int = R.layout.detail_list_item_presence
 
   override val layoutRoot by boundView<ViewGroup>(R.id.detail_item_presence)
+
   private val presenceSwitch by boundView<CompoundButton>(R.id.detail_item_presence_switch)
 
-  override fun onInflated(view: View, savedInstanceState: Bundle?) {
-    setSwitchEnabled()
-    presenceSwitch.isChecked = item.presence() == HAVE
-    presenceSwitch.setOnCheckedChangeListener { _, isChecked ->
-      commit(isChecked)
+  override fun onRender(
+    state: DetailItemViewState,
+    oldState: DetailItemViewState?
+  ) {
+    state.onChange(oldState, field = { it.item }) { item ->
+      removeListeners()
+
+      setSwitchEnabled(item)
+      presenceSwitch.isChecked = item.presence() == HAVE
+      presenceSwitch.setOnCheckedChangeListener { _, isChecked ->
+        commit(item, isChecked)
+      }
     }
   }
 
   override fun onTeardown() {
+    removeListeners()
+  }
+
+  private fun removeListeners() {
     presenceSwitch.setOnCheckedChangeListener(null)
   }
 
-  private fun setSwitchEnabled() {
+  private fun setSwitchEnabled(item: FridgeItem) {
     presenceSwitch.isEnabled = item.isReal() && !item.isArchived()
   }
 
-  private fun commit(isChecked: Boolean) {
-    callback.commitPresence(item, if (isChecked) HAVE else NEED)
-  }
-
-  interface Callback : DetailListItem.Callback {
-
-    fun commitPresence(oldItem: FridgeItem, presence: Presence)
-
+  private fun commit(
+    item: FridgeItem,
+    isChecked: Boolean
+  ) {
+    publish(CommitPresence(item, if (isChecked) HAVE else NEED))
   }
 
 }
-

@@ -21,11 +21,9 @@ import android.view.ViewGroup
 import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.detail.expand.ExpandModule
-import com.pyamsoft.fridge.detail.expand.ExpandScope
 import dagger.BindsInstance
 import dagger.Subcomponent
 
-@ExpandScope
 @Subcomponent(modules = [ExpandModule::class])
 internal interface ExpandComponent {
 

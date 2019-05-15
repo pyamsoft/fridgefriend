@@ -18,21 +18,25 @@
 package com.pyamsoft.fridge.detail.shop.toolbar
 
 import android.os.Bundle
+import com.pyamsoft.fridge.detail.shop.toolbar.ShoppingToolbarViewEvent.Close
 import com.pyamsoft.fridge.detail.toolbar.DetailToolbar
+import com.pyamsoft.pydroid.arch.impl.UnitViewState
 import com.pyamsoft.pydroid.ui.app.ToolbarActivity
 import javax.inject.Inject
 
-internal class ShoppingToolbar @Inject internal constructor(
-  toolbarActivity: ToolbarActivity,
-  callback: Callback
-) : DetailToolbar<ShoppingToolbar.Callback>(toolbarActivity, callback) {
+class ShoppingToolbar @Inject internal constructor(
+  toolbarActivity: ToolbarActivity
+) : DetailToolbar<UnitViewState, ShoppingToolbarViewEvent>(toolbarActivity, { Close }) {
 
   override fun onInflate(savedInstanceState: Bundle?) {
   }
 
-  override fun onTeardown() {
+  override fun render(
+    state: UnitViewState,
+    oldState: UnitViewState?
+  ) {
   }
 
-  interface Callback : DetailToolbar.Callback
-
+  override fun onTeardown() {
+  }
 }

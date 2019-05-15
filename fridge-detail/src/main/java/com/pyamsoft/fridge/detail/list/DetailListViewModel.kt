@@ -23,10 +23,11 @@ import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent.Delete
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent.Insert
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent.Update
-import com.pyamsoft.fridge.detail.list.DetailListViewModel.DetailState
-import com.pyamsoft.fridge.detail.list.DetailListViewModel.DetailState.Loading
-import com.pyamsoft.pydroid.arch.UiState
-import com.pyamsoft.pydroid.arch.UiViewModel
+import com.pyamsoft.fridge.detail.list.DetailListControllerEvent.ExpandForEditing
+import com.pyamsoft.fridge.detail.list.DetailListViewEvent.ExpandItem
+import com.pyamsoft.fridge.detail.list.DetailListViewEvent.ForceRefresh
+import com.pyamsoft.fridge.detail.list.DetailListViewState.Loading
+import com.pyamsoft.pydroid.arch.impl.BaseUiViewModel
 import com.pyamsoft.pydroid.core.bus.EventBus
 import com.pyamsoft.pydroid.core.singleDisposable
 import com.pyamsoft.pydroid.core.tryDispose
@@ -36,17 +37,16 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import timber.log.Timber
 
-internal abstract class DetailListViewModel protected constructor(
+abstract class DetailListViewModel protected constructor(
   protected val fakeRealtime: EventBus<FridgeItemChangeEvent>,
   private val filterArchived: Boolean
-) : UiViewModel<DetailState>(
-    initialState = DetailState(
+) : BaseUiViewModel<DetailListViewState, DetailListViewEvent, DetailListControllerEvent>(
+    initialState = DetailListViewState(
         isLoading = null,
         throwable = null,
-        items = emptyList(),
-        expandedItem = null
+        items = emptyList()
     )
-), DetailList.Callback {
+) {
 
   private var refreshDisposable by singleDisposable()
   private var realtimeDisposable by singleDisposable()
@@ -61,33 +61,27 @@ internal abstract class DetailListViewModel protected constructor(
   @CheckResult
   protected abstract fun getListItems(items: List<FridgeItem>): List<FridgeItem>
 
-  protected abstract fun bindHandler()
-
   final override fun onBind() {
-    bindHandler()
     refreshList(false)
+  }
+
+  final override fun handleViewEvent(event: DetailListViewEvent) {
+    return when (event) {
+      is ForceRefresh -> refreshList(true)
+      is ExpandItem -> publish(ExpandForEditing(event.item))
+    }
   }
 
   final override fun onUnbind() {
     refreshDisposable.tryDispose()
-    realtimeDisposable.tryDispose()
     fakeRealtimeDisposable.tryDispose()
-  }
-
-  final override fun onRefresh() {
-    refreshList(true)
-  }
-
-  final override fun onExpandItem(item: FridgeItem) {
-    setUniqueState(item, old = { it.expandedItem }) { state, value ->
-      state.copy(expandedItem = value)
-    }
   }
 
   private fun refreshList(force: Boolean) {
     refreshDisposable = getItems(force)
         .subscribeOn(Schedulers.io())
         .observeOn(AndroidSchedulers.mainThread())
+        .doAfterTerminate { refreshDisposable.tryDispose() }
         .doAfterTerminate { handleListRefreshComplete() }
         .doOnSubscribe { handleListRefreshBegin() }
         .doAfterSuccess { beginListeningForChanges() }
@@ -240,17 +234,6 @@ internal abstract class DetailListViewModel protected constructor(
     setState {
       copy(isLoading = Loading(false))
     }
-  }
-
-  data class DetailState(
-    val isLoading: Loading?,
-    val throwable: Throwable?,
-    val items: List<FridgeItem>,
-    val expandedItem: FridgeItem?
-  ) : UiState {
-
-    data class Loading(val isLoading: Boolean)
-
   }
 
 }

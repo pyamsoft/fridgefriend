@@ -23,19 +23,26 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.annotation.CheckResult
 import androidx.core.view.isVisible
+import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+import com.popinnow.android.refresh.RefreshLatch
+import com.popinnow.android.refresh.newRefreshLatch
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.entry.R
-import com.pyamsoft.pydroid.arch.BaseUiView
+import com.pyamsoft.fridge.entry.list.EntryListViewEvent.ForceRefresh
+import com.pyamsoft.fridge.entry.list.EntryListViewEvent.OpenEntry
+import com.pyamsoft.pydroid.arch.impl.BaseUiView
+import com.pyamsoft.pydroid.arch.impl.onChange
+import com.pyamsoft.pydroid.ui.util.Snackbreak
 import com.pyamsoft.pydroid.ui.util.refreshing
 import javax.inject.Inject
 
-internal class EntryList @Inject internal constructor(
-  parent: ViewGroup,
-  callback: Callback
-) : BaseUiView<EntryList.Callback>(parent, callback) {
+class EntryList @Inject internal constructor(
+  private val owner: LifecycleOwner,
+  parent: ViewGroup
+) : BaseUiView<EntryListViewState, EntryListViewEvent>(parent) {
 
   override val layout: Int = R.layout.entry_list
 
@@ -45,12 +52,17 @@ internal class EntryList @Inject internal constructor(
   private val emptyState by boundView<TextView>(R.id.entry_empty)
 
   private var modelAdapter: EntryListAdapter? = null
+  private var refreshLatch: RefreshLatch? = null
 
   override fun onInflated(
     view: View,
     savedInstanceState: Bundle?
   ) {
-    modelAdapter = EntryListAdapter(callback).apply { setHasStableIds(true) }
+    modelAdapter = EntryListAdapter(object : EntryListAdapter.Callback {
+      override fun onItemClicked(entry: FridgeEntry) {
+        publish(OpenEntry(entry))
+      }
+    })
 
     recyclerView.layoutManager = LinearLayoutManager(view.context).apply {
       isItemPrefetchEnabled = true
@@ -60,17 +72,33 @@ internal class EntryList @Inject internal constructor(
     recyclerView.adapter = modelAdapter
 
     layoutRoot.setOnRefreshListener {
-      callback.onRefresh()
+      publish(ForceRefresh)
+    }
+
+    refreshLatch = newRefreshLatch(owner) { isRefreshing ->
+      layoutRoot.refreshing(isRefreshing)
+      if (isRefreshing) {
+        showList()
+      } else {
+        if (usingAdapter().itemCount == 0) {
+          hideList()
+        } else {
+          showList()
+        }
+      }
     }
   }
 
   override fun onTeardown() {
     super.onTeardown()
     clearList()
-    recyclerView.adapter = null
-    modelAdapter = null
+    clearError()
 
+    recyclerView.adapter = null
     layoutRoot.setOnRefreshListener(null)
+
+    modelAdapter = null
+    refreshLatch = null
   }
 
   @CheckResult
@@ -88,40 +116,49 @@ internal class EntryList @Inject internal constructor(
     emptyState.isVisible = true
   }
 
-  fun beginRefresh() {
-    layoutRoot.refreshing(true)
-    showList()
-  }
-
-  fun setList(entries: List<FridgeEntry>) {
+  private fun setList(entries: List<FridgeEntry>) {
     usingAdapter().submitList(listOf(FridgeEntry.empty()) + entries)
   }
 
-  fun clearList() {
+  private fun clearList() {
     usingAdapter().submitList(null)
   }
 
-  fun showError(throwable: Throwable) {
-    // TODO set error text
+  private fun showError(throwable: Throwable) {
+    Snackbreak.bindTo(owner)
+        .short(layoutRoot, throwable.message ?: "Error refreshing list, please try again")
+        .show()
   }
 
-  fun clearError() {
-    // TODO clear error
+  private fun clearError() {
+    Snackbreak.bindTo(owner)
+        .dismiss()
   }
 
-  fun finishRefresh() {
-    layoutRoot.refreshing(false)
-
-    if (usingAdapter().itemCount == 0) {
-      hideList()
-    } else {
-      showList()
+  override fun onRender(
+    state: EntryListViewState,
+    oldState: EntryListViewState?
+  ) {
+    state.onChange(oldState, field = { it.isLoading }) { loading ->
+      if (loading != null) {
+        requireNotNull(refreshLatch).isRefreshing = loading.isLoading
+      }
     }
-  }
 
-  interface Callback : EntryListAdapter.Callback {
+    state.onChange(oldState, field = { it.entries }) { entries ->
+      if (entries.isEmpty()) {
+        clearList()
+      } else {
+        setList(entries)
+      }
+    }
 
-    fun onRefresh()
-
+    state.onChange(oldState, field = { it.throwable }) { throwable ->
+      if (throwable == null) {
+        clearError()
+      } else {
+        showError(throwable)
+      }
+    }
   }
 }

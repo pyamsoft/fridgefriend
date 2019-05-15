@@ -18,18 +18,33 @@
 package com.pyamsoft.fridge.detail.create.list
 
 import android.view.ViewGroup
+import androidx.lifecycle.LifecycleOwner
+import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent
+import com.pyamsoft.fridge.detail.item.DaggerDetailItemComponent
+import com.pyamsoft.fridge.detail.item.DetailItemComponent
 import com.pyamsoft.fridge.detail.list.DetailList
 import com.pyamsoft.pydroid.core.bus.EventBus
 import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.ui.theme.Theming
 import javax.inject.Inject
 
-internal class CreationList @Inject internal constructor(
-  interactor: CreationListInteractor,
-  imageLoader: ImageLoader,
-  theming: Theming,
-  fakeRealtime: EventBus<FridgeItemChangeEvent>,
+class CreationList @Inject internal constructor(
   parent: ViewGroup,
-  callback: Callback
-) : DetailList(parent, callback, interactor, imageLoader, theming, fakeRealtime, editable = true)
+  owner: LifecycleOwner,
+  private val interactor: CreationListInteractor,
+  private val imageLoader: ImageLoader,
+  private val theming: Theming,
+  private val fakeRealtime: EventBus<FridgeItemChangeEvent>
+) : DetailList(parent, owner, editable = true) {
+
+  override fun createDaggerComponent(
+    parent: ViewGroup,
+    item: FridgeItem,
+    editable: Boolean
+  ): DetailItemComponent {
+    return DaggerDetailItemComponent.factory()
+        .create(parent, item, editable, imageLoader, theming, interactor, fakeRealtime)
+  }
+
+}

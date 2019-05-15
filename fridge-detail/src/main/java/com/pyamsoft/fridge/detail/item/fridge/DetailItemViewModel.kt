@@ -23,11 +23,12 @@ import com.pyamsoft.fridge.db.item.FridgeItem.Presence
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent
 import com.pyamsoft.fridge.detail.DetailConstants
 import com.pyamsoft.fridge.detail.create.list.CreationListInteractor
-import com.pyamsoft.fridge.detail.item.fridge.DetailItemHandler.DetailItemEvent
-import com.pyamsoft.fridge.detail.item.fridge.DetailItemViewModel.DetailState
-import com.pyamsoft.pydroid.arch.UiEventHandler
-import com.pyamsoft.pydroid.arch.UiState
-import com.pyamsoft.pydroid.arch.UiViewModel
+import com.pyamsoft.fridge.detail.item.fridge.DetailItemControllerEvent.ExpandDetails
+import com.pyamsoft.fridge.detail.item.fridge.DetailItemViewEvent.CommitDate
+import com.pyamsoft.fridge.detail.item.fridge.DetailItemViewEvent.CommitName
+import com.pyamsoft.fridge.detail.item.fridge.DetailItemViewEvent.CommitPresence
+import com.pyamsoft.fridge.detail.item.fridge.DetailItemViewEvent.ExpandItem
+import com.pyamsoft.pydroid.arch.impl.BaseUiViewModel
 import com.pyamsoft.pydroid.core.bus.EventBus
 import com.pyamsoft.pydroid.core.singleDisposable
 import com.pyamsoft.pydroid.core.tryDispose
@@ -37,26 +38,27 @@ import io.reactivex.schedulers.Schedulers
 import timber.log.Timber
 import java.util.Calendar
 import javax.inject.Inject
+import javax.inject.Named
 
-internal class DetailItemViewModel @Inject internal constructor(
-  private val handler: UiEventHandler<DetailItemEvent, DetailItemCallback>,
+class DetailItemViewModel @Inject internal constructor(
+  private val item: FridgeItem,
+  @Named("item_editable") isEditable: Boolean,
   private val interactor: CreationListInteractor,
   private val fakeRealtime: EventBus<FridgeItemChangeEvent>
-) : UiViewModel<DetailState>(
-    initialState = DetailState(throwable = null, isDone = false, expandedItem = null)
-), DetailItemCallback {
+) : BaseUiViewModel<DetailItemViewState, DetailItemViewEvent, DetailItemControllerEvent>(
+    initialState = DetailItemViewState(throwable = null, item = item, isEditable = isEditable)
+) {
 
   private var updateDisposable by singleDisposable()
   private var deleteDisposable by singleDisposable()
 
-  override fun onBind() {
-    handler.handle(this)
-        .disposeOnDestroy()
-  }
-
-  override fun onUnbind() {
-    // Don't clear Disposables here as it may need to outlive the View
-    // since the final commit happens as the View is tearing down
+  override fun handleViewEvent(event: DetailItemViewEvent) {
+    return when (event) {
+      is CommitName -> commitName(event.oldItem, event.name)
+      is CommitDate -> commitDate(event.oldItem, event.year, event.month, event.day)
+      is CommitPresence -> commitPresence(event.oldItem, event.presence)
+      is ExpandItem -> expandItem(event.item)
+    }
   }
 
   @CheckResult
@@ -64,7 +66,7 @@ internal class DetailItemViewModel @Inject internal constructor(
     return isNameValid(item.name())
   }
 
-  override fun commitName(
+  private fun commitName(
     oldItem: FridgeItem,
     name: String
   ) {
@@ -79,7 +81,7 @@ internal class DetailItemViewModel @Inject internal constructor(
     }
   }
 
-  override fun commitDate(
+  private fun commitDate(
     oldItem: FridgeItem,
     year: Int,
     month: Int,
@@ -106,7 +108,7 @@ internal class DetailItemViewModel @Inject internal constructor(
     }
   }
 
-  override fun commitPresence(
+  private fun commitPresence(
     oldItem: FridgeItem,
     presence: Presence
   ) {
@@ -184,13 +186,7 @@ internal class DetailItemViewModel @Inject internal constructor(
     }
   }
 
-  override fun onLastDoneClicked() {
-    setUniqueState(true, old = { it.isDone }) { state, value ->
-      state.copy(isDone = value)
-    }
-  }
-
-  fun archiveSelf(item: FridgeItem) {
+  fun archiveSelf() {
     // Stop any pending updates
     updateDisposable.tryDispose()
 
@@ -215,16 +211,8 @@ internal class DetailItemViewModel @Inject internal constructor(
         })
   }
 
-  override fun onExpand(item: FridgeItem) {
-    setUniqueState(item, old = { it.expandedItem }) { state, value ->
-      state.copy(expandedItem = value)
-    }
+  private fun expandItem(item: FridgeItem) {
+    publish(ExpandDetails(item))
   }
-
-  data class DetailState(
-    val throwable: Throwable?,
-    val isDone: Boolean,
-    val expandedItem: FridgeItem?
-  ) : UiState
 
 }

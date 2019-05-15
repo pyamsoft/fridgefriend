@@ -15,33 +15,27 @@
  *
  */
 
-package com.pyamsoft.fridge.ocr
+package com.pyamsoft.fridge.main
 
 import android.view.ViewGroup
-import android.widget.TextView
+import androidx.constraintlayout.widget.ConstraintLayout
+import com.pyamsoft.fridge.main.R
 import com.pyamsoft.pydroid.arch.impl.BaseUiView
-import com.pyamsoft.pydroid.arch.impl.onChange
+import com.pyamsoft.pydroid.arch.impl.UnitViewEvent
+import com.pyamsoft.pydroid.arch.impl.UnitViewState
 import javax.inject.Inject
 
-class OcrLookingLabel @Inject internal constructor(
+class FragmentContainer @Inject internal constructor(
   parent: ViewGroup
-) : BaseUiView<OcrViewState, OcrViewEvent>(parent) {
+) : BaseUiView<UnitViewState, UnitViewEvent>(parent) {
 
-  override val layout: Int = R.layout.looking
+  override val layout: Int = R.layout.layout_constraint
 
-  override val layoutRoot by boundView<TextView>(R.id.looking)
+  override val layoutRoot by boundView<ConstraintLayout>(R.id.layout_constraint)
 
   override fun onRender(
-    state: OcrViewState,
-    oldState: OcrViewState?
+    state: UnitViewState,
+    oldState: UnitViewState?
   ) {
-    state.onChange(oldState, field = { it.text }) { text ->
-      layoutRoot.text = text
-    }
   }
-
-  override fun onTeardown() {
-    layoutRoot.text = ""
-  }
-
 }

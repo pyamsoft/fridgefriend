@@ -15,25 +15,18 @@
  *
  */
 
-package com.pyamsoft.fridge.setting
+package com.pyamsoft.fridge.detail.create.title
 
-import androidx.annotation.CheckResult
-import com.pyamsoft.pydroid.ui.app.ToolbarActivity
-import dagger.BindsInstance
-import dagger.Subcomponent
+import com.pyamsoft.pydroid.arch.UiViewEvent
+import com.pyamsoft.pydroid.arch.UiViewState
 
-@Subcomponent
-internal interface SettingComponent {
+data class CreationTitleViewState internal constructor(
+  val name: String,
+  val throwable: Throwable?
+) : UiViewState
 
-  fun inject(fragment: SettingsFragment)
+sealed class CreationTitleViewEvent : UiViewEvent {
 
-  @Subcomponent.Factory
-  interface Factory {
-
-    @CheckResult
-    fun create(
-      @BindsInstance activity: ToolbarActivity
-    ): SettingComponent
-  }
+  data class NameUpdate internal constructor(val name: String) : CreationTitleViewEvent()
 
 }

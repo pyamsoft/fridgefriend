@@ -26,9 +26,6 @@ import com.pyamsoft.fridge.db.entry.FridgeEntryQueryDao
 import com.pyamsoft.fridge.db.entry.FridgeEntryRealtime
 import com.pyamsoft.fridge.db.entry.FridgeEntryUpdateDao
 import com.pyamsoft.fridge.detail.DetailInteractor
-import com.pyamsoft.pydroid.core.optional.Optional
-import com.pyamsoft.pydroid.core.optional.Optional.Present
-import com.pyamsoft.pydroid.core.optional.asOptional
 import com.pyamsoft.pydroid.core.threads.Enforcer
 import io.reactivex.Completable
 import io.reactivex.Observable
@@ -78,14 +75,12 @@ internal class CreationToolbarInteractor @Inject internal constructor(
 
   @CheckResult
   fun archive(): Completable {
-    return getEntryForId(entryId, false)
-        .map { it.asOptional() }
-        .toSingle(Optional.ofNullable(null))
+    return getValidEntry(entryId, false)
         .flatMapCompletable {
-          if (it is Present) {
-            val entry = it.value
-            Timber.d("Archive entry: [${entry.id()}] $entry")
-            return@flatMapCompletable updateDao.update(entry.archive())
+          val valid = it.entry
+          if (valid != null) {
+            Timber.d("Archive entry: [${valid.id()}] $valid")
+            return@flatMapCompletable updateDao.update(valid.archive())
           } else {
             Timber.w("No entry, cannot delete")
             return@flatMapCompletable Completable.complete()

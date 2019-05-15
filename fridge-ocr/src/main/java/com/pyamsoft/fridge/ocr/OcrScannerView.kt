@@ -20,8 +20,17 @@ package com.pyamsoft.fridge.ocr
 import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
-import com.pyamsoft.fridge.ocr.OcrScannerView.Callback
-import com.pyamsoft.pydroid.arch.BaseUiView
+import androidx.lifecycle.Lifecycle.Event.ON_DESTROY
+import androidx.lifecycle.Lifecycle.Event.ON_START
+import androidx.lifecycle.Lifecycle.Event.ON_STOP
+import androidx.lifecycle.LifecycleObserver
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.OnLifecycleEvent
+import com.pyamsoft.fridge.ocr.OcrViewEvent.CameraError
+import com.pyamsoft.fridge.ocr.OcrViewEvent.PreviewFrame
+import com.pyamsoft.pydroid.arch.impl.BaseUiView
+import com.pyamsoft.pydroid.arch.impl.onChange
+import com.pyamsoft.pydroid.ui.util.Snackbreak
 import io.fotoapparat.Fotoapparat
 import io.fotoapparat.configuration.CameraConfiguration
 import io.fotoapparat.log.Logger
@@ -31,10 +40,10 @@ import io.fotoapparat.view.CameraView
 import timber.log.Timber
 import javax.inject.Inject
 
-internal class OcrScannerView @Inject internal constructor(
-  parent: ViewGroup,
-  callback: Callback
-) : BaseUiView<Callback>(parent, callback) {
+class OcrScannerView @Inject internal constructor(
+  private val owner: LifecycleOwner,
+  parent: ViewGroup
+) : BaseUiView<OcrViewState, OcrViewEvent>(parent) {
 
   override val layout: Int = R.layout.scanner
 
@@ -45,77 +54,99 @@ internal class OcrScannerView @Inject internal constructor(
 
   @Volatile private var fotoapparat: Fotoapparat? = null
 
-  override fun onInflated(view: View, savedInstanceState: Bundle?) {
-    fotoapparat = Fotoapparat(
-      context = view.context.applicationContext,
-      view = layoutRoot,
-      focusView = null,
-      lensPosition = back(),
-      cameraErrorCallback = {
-        Timber.e(it, "Critical camera error!")
-        callback.onCameraError(it)
-      },
-      logger = object : Logger {
-        override fun log(message: String) {
-          Timber.d(message)
-        }
-      },
-      cameraConfiguration = CameraConfiguration(
-        sensorSensitivity = lowestSensorSensitivity(),
-        frameProcessor = { frame ->
-          synchronized(lock) {
-            val width = frame.size.width
-            val height = frame.size.height
-            val data = frame.image
+  override fun onInflated(
+    view: View,
+    savedInstanceState: Bundle?
+  ) {
+    createFotoApparat(view)
+    owner.lifecycle.addObserver(object : LifecycleObserver {
 
-            // This frame can fire while we are tearing down
-            if (fotoapparat != null) {
-              callback.onPreviewFrameReceived(
-                width,
-                height,
-                data,
-                0 to 0,
-                0,
-                0
-              )
-            }
-          }
+      @Suppress("unused")
+      @OnLifecycleEvent(ON_START)
+      fun start() {
+        synchronized(lock) {
+          requireNotNull(fotoapparat).start()
         }
-      )
+      }
+
+      @Suppress("unused")
+      @OnLifecycleEvent(ON_STOP)
+      fun stop() {
+        synchronized(lock) {
+          requireNotNull(fotoapparat).stop()
+        }
+      }
+
+      @Suppress("unused")
+      @OnLifecycleEvent(ON_DESTROY)
+      fun destroy() {
+        owner.lifecycle.removeObserver(this)
+      }
+
+    })
+  }
+
+  private fun createFotoApparat(view: View) {
+    fotoapparat = Fotoapparat(
+        context = view.context.applicationContext,
+        view = layoutRoot,
+        focusView = null,
+        lensPosition = back(),
+        cameraErrorCallback = {
+          Timber.e(it, "Critical camera error!")
+          publish(CameraError(it))
+        },
+        logger = object : Logger {
+          override fun log(message: String) {
+            Timber.d(message)
+          }
+        },
+        cameraConfiguration = CameraConfiguration(
+            sensorSensitivity = lowestSensorSensitivity(),
+            frameProcessor = { frame ->
+              synchronized(lock) {
+                val width = frame.size.width
+                val height = frame.size.height
+                val data = frame.image
+
+                // This frame can fire while we are tearing down
+                if (fotoapparat != null) {
+                  publish(PreviewFrame(width, height, data.toList(), 0 to 0, 0, 0))
+                }
+              }
+            }
+        )
     )
   }
 
-  fun start() {
-    synchronized(lock) {
-      requireNotNull(fotoapparat).start()
+  override fun onRender(
+    state: OcrViewState,
+    oldState: OcrViewState?
+  ) {
+    state.onChange(oldState, field = { it.throwable }) { throwable ->
+      if (throwable == null) {
+        clearError()
+      } else {
+        showError(throwable)
+      }
     }
   }
 
-  fun stop() {
-    synchronized(lock) {
-      requireNotNull(fotoapparat).stop()
-    }
+  private fun clearError() {
+    Snackbreak.bindTo(owner)
+        .dismiss()
+  }
+
+  private fun showError(throwable: Throwable) {
+    Snackbreak.bindTo(owner)
+        .short(layoutRoot, throwable.message ?: "Unexpected error occurred")
+        .show()
   }
 
   override fun onTeardown() {
     synchronized(lock) {
       fotoapparat = null
     }
-  }
-
-  interface Callback {
-
-    fun onPreviewFrameReceived(
-      frameWidth: Int,
-      frameHeight: Int,
-      frameData: ByteArray,
-      boundingTopLeft: Pair<Int, Int>,
-      boundingWidth: Int,
-      boundingHeight: Int
-    )
-
-    fun onCameraError(throwable: Throwable)
-
   }
 
 }

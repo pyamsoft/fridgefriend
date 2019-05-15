@@ -17,9 +17,9 @@
 
 package com.pyamsoft.fridge.ocr
 
-import com.pyamsoft.fridge.ocr.OcrViewModel.OcrState
-import com.pyamsoft.pydroid.arch.UiState
-import com.pyamsoft.pydroid.arch.UiViewModel
+import com.pyamsoft.fridge.ocr.OcrViewEvent.CameraError
+import com.pyamsoft.fridge.ocr.OcrViewEvent.PreviewFrame
+import com.pyamsoft.pydroid.arch.impl.BaseUiViewModel
 import com.pyamsoft.pydroid.core.singleDisposable
 import com.pyamsoft.pydroid.core.tryDispose
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -27,67 +27,48 @@ import io.reactivex.schedulers.Schedulers
 import timber.log.Timber
 import javax.inject.Inject
 
-internal class OcrViewModel @Inject internal constructor(
+class OcrViewModel @Inject internal constructor(
   private val interactor: OcrScannerInteractor
-) : UiViewModel<OcrState>(
-  initialState = OcrState(text = "", throwable = null)
-), OcrScannerView.Callback {
+) : BaseUiViewModel<OcrViewState, OcrViewEvent, OcrControllerEvent>(
+    initialState = OcrViewState(text = "", throwable = null)
+) {
 
   private var frameProcessDisposable by singleDisposable()
 
-  override fun onBind() {
+  override fun handleViewEvent(event: OcrViewEvent) {
+    return when (event) {
+      is PreviewFrame -> handlePreviewFrame(event)
+      is CameraError -> handleError(event.cameraException)
+    }
   }
 
-  override fun onUnbind() {
-    frameProcessDisposable.tryDispose()
-  }
-
-  override fun onPreviewFrameReceived(
-    frameWidth: Int,
-    frameHeight: Int,
-    frameData: ByteArray,
-    boundingTopLeft: Pair<Int, Int>,
-    boundingWidth: Int,
-    boundingHeight: Int
-  ) {
+  private fun handlePreviewFrame(frame: PreviewFrame) {
     if (!frameProcessDisposable.isDisposed) {
-      // These logs are noisy
-//      Timber.w("Preview frame received but another process action is still in place.")
-//      Timber.w("Dropping the received preview frame")
       return
     }
 
     frameProcessDisposable = interactor.processImage(
-      frameWidth,
-      frameHeight,
-      frameData,
-      boundingTopLeft,
-      boundingWidth,
-      boundingHeight
+        frame.frameWidth,
+        frame.frameHeight,
+        frame.frameData.toByteArray(),
+        frame.boundingTopLeft,
+        frame.boundingWidth,
+        frame.boundingHeight
     )
-      .subscribeOn(Schedulers.io())
-      .observeOn(AndroidSchedulers.mainThread())
-      .doAfterTerminate { frameProcessDisposable.tryDispose() }
-      .subscribe({ handleOcrResult(it) }, {
-        Timber.e(it, "Error processing preview frame for text")
-        handleError(it)
-      })
+        .subscribeOn(Schedulers.io())
+        .observeOn(AndroidSchedulers.mainThread())
+        .doAfterTerminate { frameProcessDisposable.tryDispose() }
+        .subscribe({ handleOcrResult(it) }, {
+          Timber.e(it, "Error processing preview frame for text")
+          handleError(it)
+        })
   }
 
   private fun handleOcrResult(text: String) {
     setState { copy(text = text) }
   }
 
-  override fun onCameraError(throwable: Throwable) {
-    handleError(throwable)
-  }
-
   private fun handleError(throwable: Throwable) {
     setState { copy(throwable = throwable) }
   }
-
-  data class OcrState(
-    val text: String,
-    val throwable: Throwable?
-  ) : UiState
 }

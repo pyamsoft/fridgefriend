@@ -15,25 +15,19 @@
  *
  */
 
-package com.pyamsoft.fridge.setting
+package com.pyamsoft.fridge.detail.shop.toolbar
 
-import androidx.annotation.CheckResult
-import com.pyamsoft.pydroid.ui.app.ToolbarActivity
-import dagger.BindsInstance
-import dagger.Subcomponent
+import com.pyamsoft.pydroid.arch.UiControllerEvent
+import com.pyamsoft.pydroid.arch.UiViewEvent
 
-@Subcomponent
-internal interface SettingComponent {
+sealed class ShoppingToolbarViewEvent : UiViewEvent {
 
-  fun inject(fragment: SettingsFragment)
+  object Close : ShoppingToolbarViewEvent()
 
-  @Subcomponent.Factory
-  interface Factory {
+}
 
-    @CheckResult
-    fun create(
-      @BindsInstance activity: ToolbarActivity
-    ): SettingComponent
-  }
+sealed class ShoppingToolbarControllerEvent : UiControllerEvent {
+
+  object NavigateUp : ShoppingToolbarControllerEvent()
 
 }

@@ -17,32 +17,23 @@
 
 package com.pyamsoft.fridge.detail.item.add
 
-import com.pyamsoft.fridge.detail.item.add.AddNewItemHandler.AddNewEvent
-import com.pyamsoft.fridge.detail.item.add.AddNewItemViewModel.AddNewState
-import com.pyamsoft.pydroid.arch.UiEventHandler
-import com.pyamsoft.pydroid.arch.UiState
-import com.pyamsoft.pydroid.arch.UiViewModel
+import com.pyamsoft.fridge.db.item.FridgeItem
+import com.pyamsoft.fridge.detail.item.add.AddNewControllerEvent.AddNew
+import com.pyamsoft.fridge.detail.item.add.AddNewViewEvent.AddNewItemEvent
+import com.pyamsoft.pydroid.arch.impl.BaseUiViewModel
+import com.pyamsoft.pydroid.arch.impl.UnitViewState
 import javax.inject.Inject
 
-internal class AddNewItemViewModel @Inject internal constructor(
-  private val handler: UiEventHandler<AddNewEvent, AddNewItemView.Callback>
-) : UiViewModel<AddNewState>(
-  initialState = AddNewState(isAdding = false)
-), AddNewItemView.Callback {
+class AddNewItemViewModel @Inject internal constructor(
+  private val item: FridgeItem
+) : BaseUiViewModel<UnitViewState, AddNewViewEvent, AddNewControllerEvent>(
+    initialState = UnitViewState
+) {
 
-  override fun onBind() {
-    handler.handle(this).disposeOnDestroy()
-  }
-
-  override fun onUnbind() {
-  }
-
-  override fun onAddNewClicked() {
-    setUniqueState(true, old = { it.isAdding }) { state, value ->
-      state.copy(isAdding = value)
+  override fun handleViewEvent(event: AddNewViewEvent) {
+    return when (event) {
+      is AddNewItemEvent -> publish(AddNew(item.entryId()))
     }
   }
-
-  data class AddNewState(val isAdding: Boolean) : UiState
 
 }

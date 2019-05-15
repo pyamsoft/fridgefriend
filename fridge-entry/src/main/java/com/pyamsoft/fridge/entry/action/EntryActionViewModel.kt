@@ -17,11 +17,15 @@
 
 package com.pyamsoft.fridge.entry.action
 
-import com.pyamsoft.fridge.entry.action.EntryActionHandler.ActionEvent
-import com.pyamsoft.fridge.entry.action.EntryActionViewModel.ActionState
-import com.pyamsoft.pydroid.arch.UiEventHandler
-import com.pyamsoft.pydroid.arch.UiState
-import com.pyamsoft.pydroid.arch.UiViewModel
+import com.pyamsoft.fridge.db.entry.FridgeEntry
+import com.pyamsoft.fridge.entry.action.EntryActionControllerEvent.OpenCreate
+import com.pyamsoft.fridge.entry.action.EntryActionControllerEvent.OpenShopping
+import com.pyamsoft.fridge.entry.action.EntryActionViewEvent.CreateClicked
+import com.pyamsoft.fridge.entry.action.EntryActionViewEvent.FirstAnimationDone
+import com.pyamsoft.fridge.entry.action.EntryActionViewEvent.ShopClicked
+import com.pyamsoft.fridge.entry.action.EntryActionViewEvent.SpacingCalculated
+import com.pyamsoft.fridge.entry.action.EntryActionViewState.Spacing
+import com.pyamsoft.pydroid.arch.impl.BaseUiViewModel
 import com.pyamsoft.pydroid.core.singleDisposable
 import com.pyamsoft.pydroid.core.tryDispose
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -29,57 +33,66 @@ import io.reactivex.schedulers.Schedulers
 import timber.log.Timber
 import javax.inject.Inject
 
-internal class EntryActionViewModel @Inject internal constructor(
-  private val handler: UiEventHandler<ActionEvent, EntryActionCallback>,
+class EntryActionViewModel @Inject internal constructor(
   private val interactor: EntryActionInteractor
-) : UiViewModel<ActionState>(
-  initialState = ActionState(throwable = null, isShopping = false, isCreating = "")
-), EntryActionCallback {
+) : BaseUiViewModel<EntryActionViewState, EntryActionViewEvent, EntryActionControllerEvent>(
+    initialState = EntryActionViewState(
+        throwable = null,
+        spacing = Spacing(isLaidOut = false, isFirstAnimationDone = false, gap = 0, margin = 0)
+    )
+) {
 
   private var createDisposable by singleDisposable()
 
-  override fun onBind() {
-    handler.handle(this).disposeOnDestroy()
+  override fun handleViewEvent(event: EntryActionViewEvent) {
+    return when (event) {
+      is CreateClicked -> handleCreateClicked()
+      is ShopClicked -> publish(OpenShopping)
+      is SpacingCalculated -> showWithSpacing(event.gap, event.margin)
+      FirstAnimationDone -> showAfterFirstAnimationDone()
+    }
   }
 
-  override fun onUnbind() {
-    createDisposable.tryDispose()
-  }
-
-  override fun onCreateClicked() {
+  private fun handleCreateClicked() {
     createDisposable = interactor.create()
-      .subscribeOn(Schedulers.io())
-      .observeOn(AndroidSchedulers.mainThread())
-      .subscribe({
-        handleCreate(it.id())
-      }, {
-        Timber.e(it, "Error creating new entry")
-        handleCreateError(it)
-      })
+        .subscribeOn(Schedulers.io())
+        .observeOn(AndroidSchedulers.mainThread())
+        .doAfterTerminate { createDisposable.tryDispose() }
+        .subscribe({
+          handleCreate(it)
+        }, {
+          Timber.e(it, "Error creating new entry")
+          handleCreateError(it)
+        })
   }
 
-  private fun handleCreate(id: String) {
-    setState { copy(isCreating = id) }
+  private fun handleCreate(entry: FridgeEntry) {
+    publish(OpenCreate(entry))
   }
 
   private fun handleCreateError(throwable: Throwable) {
     setState { copy(throwable = throwable) }
   }
 
-  override fun onShopClicked() {
-    handleShop()
-  }
-
-  private fun handleShop() {
-    setUniqueState(true, old = { it.isShopping }) { state, value ->
-      state.copy(isShopping = value)
+  private fun showWithSpacing(
+    gap: Int,
+    margin: Int
+  ) {
+    setState {
+      copy(
+          spacing = spacing.copy(
+              isLaidOut = true,
+              gap = gap,
+              margin = margin
+          )
+      )
     }
   }
 
-  data class ActionState(
-    val throwable: Throwable?,
-    val isShopping: Boolean,
-    val isCreating: String
-  ) : UiState
+  private fun showAfterFirstAnimationDone() {
+    setState {
+      copy(spacing = spacing.copy(isFirstAnimationDone = true))
+    }
+  }
 
 }

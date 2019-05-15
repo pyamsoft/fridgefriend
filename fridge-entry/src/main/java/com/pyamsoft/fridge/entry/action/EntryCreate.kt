@@ -28,7 +28,10 @@ import androidx.core.view.isVisible
 import androidx.core.view.updateLayoutParams
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.pyamsoft.fridge.entry.R
-import com.pyamsoft.pydroid.arch.BaseUiView
+import com.pyamsoft.fridge.entry.action.EntryActionViewEvent.CreateClicked
+import com.pyamsoft.fridge.entry.action.EntryActionViewEvent.FirstAnimationDone
+import com.pyamsoft.pydroid.arch.impl.BaseUiView
+import com.pyamsoft.pydroid.arch.impl.onChange
 import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.loader.Loaded
 import com.pyamsoft.pydroid.ui.theme.Theming
@@ -37,12 +40,11 @@ import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
 import com.pyamsoft.pydroid.util.tintWith
 import javax.inject.Inject
 
-internal class EntryCreate @Inject internal constructor(
+class EntryCreate @Inject internal constructor(
   private val theming: Theming,
   private val imageLoader: ImageLoader,
-  parent: ViewGroup,
-  callback: EntryCreate.Callback
-) : BaseUiView<EntryCreate.Callback>(parent, callback) {
+  parent: ViewGroup
+) : BaseUiView<EntryActionViewState, EntryActionViewEvent>(parent) {
 
   override val layout: Int = R.layout.entry_create
 
@@ -50,9 +52,12 @@ internal class EntryCreate @Inject internal constructor(
 
   private var createIconLoaded: Loaded? = null
 
-  override fun onInflated(view: View, savedInstanceState: Bundle?) {
+  override fun onInflated(
+    view: View,
+    savedInstanceState: Bundle?
+  ) {
     layoutRoot.setOnDebouncedClickListener {
-      it.wiggle { callback.onCreateClicked() }
+      it.wiggle { publish(CreateClicked) }
     }
 
     val createBackground: Int
@@ -70,8 +75,8 @@ internal class EntryCreate @Inject internal constructor(
 
     createIconLoaded?.dispose()
     createIconLoaded = imageLoader.load(R.drawable.ic_add_24dp)
-      .mutate { it.tintWith(view.context, iconTint) }
-      .into(layoutRoot)
+        .mutate { it.tintWith(view.context, iconTint) }
+        .into(layoutRoot)
   }
 
   override fun onTeardown() {
@@ -80,7 +85,24 @@ internal class EntryCreate @Inject internal constructor(
     createIconLoaded = null
   }
 
-  internal inline fun show(gap: Int, margin: Int, crossinline onShown: () -> Unit) {
+  override fun onRender(
+    state: EntryActionViewState,
+    oldState: EntryActionViewState?
+  ) {
+    state.onChange(oldState, field = { it.spacing }) { spacing ->
+      if (spacing.isLaidOut) {
+        show(spacing.gap, spacing.margin) {
+          publish(FirstAnimationDone)
+        }
+      }
+    }
+  }
+
+  private inline fun show(
+    gap: Int,
+    margin: Int,
+    crossinline onShown: () -> Unit
+  ) {
     layoutRoot.popShow(listener = object : ViewPropertyAnimatorListenerAdapter() {
       override fun onAnimationStart(view: View?) {
         super.onAnimationStart(view)
@@ -98,15 +120,6 @@ internal class EntryCreate @Inject internal constructor(
         onShown()
       }
     })
-  }
-
-  interface Callback {
-
-    fun onCreateClicked()
-
-  }
-
-  companion object {
   }
 
 }

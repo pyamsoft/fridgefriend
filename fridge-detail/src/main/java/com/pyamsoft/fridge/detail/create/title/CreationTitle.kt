@@ -22,23 +22,29 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.view.View
 import android.view.ViewGroup
+import androidx.lifecycle.LifecycleOwner
 import com.google.android.material.textfield.TextInputLayout
 import com.pyamsoft.fridge.detail.R
-import com.pyamsoft.fridge.detail.create.title.CreationTitle.Callback
-import com.pyamsoft.pydroid.arch.BaseUiView
+import com.pyamsoft.fridge.detail.create.title.CreationTitleViewEvent.NameUpdate
+import com.pyamsoft.pydroid.arch.impl.BaseUiView
+import com.pyamsoft.pydroid.arch.impl.onChange
+import com.pyamsoft.pydroid.ui.util.Snackbreak
 import javax.inject.Inject
 
-internal class CreationTitle @Inject internal constructor(
-  parent: ViewGroup,
-  callback: Callback
-) : BaseUiView<Callback>(parent, callback) {
+class CreationTitle @Inject internal constructor(
+  private val owner: LifecycleOwner,
+  parent: ViewGroup
+) : BaseUiView<CreationTitleViewState, CreationTitleViewEvent>(parent) {
 
   override val layout: Int = R.layout.detail_title
 
   override val layoutRoot by boundView<TextInputLayout>(R.id.entry_detail_title)
   private var watcher: TextWatcher? = null
 
-  override fun onInflated(view: View, savedInstanceState: Bundle?) {
+  override fun onInflated(
+    view: View,
+    savedInstanceState: Bundle?
+  ) {
     layoutRoot.requestFocus()
     addTextWatcher()
   }
@@ -47,15 +53,25 @@ internal class CreationTitle @Inject internal constructor(
     requireNotNull(layoutRoot.editText).let {
       watcher = object : TextWatcher {
 
-        override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+        override fun onTextChanged(
+          s: CharSequence?,
+          start: Int,
+          before: Int,
+          count: Int
+        ) {
         }
 
-        override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+        override fun beforeTextChanged(
+          s: CharSequence?,
+          start: Int,
+          count: Int,
+          after: Int
+        ) {
         }
 
         override fun afterTextChanged(s: Editable?) {
           if (s != null) {
-            callback.onUpdateName(s.toString())
+            publish(NameUpdate(s.toString()))
           }
         }
 
@@ -71,32 +87,44 @@ internal class CreationTitle @Inject internal constructor(
 
   override fun onTeardown() {
     removeTextWatcher()
+    clearError()
     layoutRoot.clearFocus()
     layoutRoot.editText?.text?.clear()
     layoutRoot.editText?.clearFocus()
   }
 
-  fun updateName(name: String, firstUpdate: Boolean) {
+  private fun updateName(name: String) {
     removeTextWatcher()
     val editText = requireNotNull(layoutRoot.editText)
     editText.setTextKeepState(name)
-    if (firstUpdate && name.isNotBlank()) {
-      editText.setSelection(name.length)
-    }
     addTextWatcher()
   }
 
-  fun showError(throwable: Throwable) {
-    // TODO
+  private fun showError(throwable: Throwable) {
+    Snackbreak.bindTo(owner)
+        .short(layoutRoot, throwable.message ?: "An unexpected error occurred")
+        .show()
   }
 
-  fun clearError() {
-    // TODO
+  private fun clearError() {
+    Snackbreak.bindTo(owner)
+        .dismiss()
   }
 
-  interface Callback {
+  override fun onRender(
+    state: CreationTitleViewState,
+    oldState: CreationTitleViewState?
+  ) {
+    state.onChange(oldState, field = { it.name }) { name ->
+      updateName(name)
+    }
 
-    fun onUpdateName(name: String)
-
+    state.onChange(oldState, field = { it.throwable }) { throwable ->
+      if (throwable == null) {
+        clearError()
+      } else {
+        showError(throwable)
+      }
+    }
   }
 }

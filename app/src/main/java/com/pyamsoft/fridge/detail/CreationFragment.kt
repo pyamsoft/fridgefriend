@@ -28,24 +28,33 @@ import androidx.fragment.app.Fragment
 import com.pyamsoft.fridge.FridgeComponent
 import com.pyamsoft.fridge.R
 import com.pyamsoft.fridge.db.item.FridgeItem
-import com.pyamsoft.fridge.detail.create.title.CreationTitleUiComponent
-import com.pyamsoft.fridge.detail.create.toolbar.CreationToolbarUiComponent
-import com.pyamsoft.fridge.detail.list.DetailListUiComponent
-import com.pyamsoft.pydroid.arch.layout
+import com.pyamsoft.fridge.detail.create.list.CreationList
+import com.pyamsoft.fridge.detail.create.list.CreationListViewModel
+import com.pyamsoft.fridge.detail.create.title.CreationTitle
+import com.pyamsoft.fridge.detail.create.title.CreationTitleViewModel
+import com.pyamsoft.fridge.detail.create.toolbar.CreationToolbar
+import com.pyamsoft.fridge.detail.create.toolbar.CreationToolbarControllerEvent.EntryArchived
+import com.pyamsoft.fridge.detail.create.toolbar.CreationToolbarControllerEvent.NavigateUp
+import com.pyamsoft.fridge.detail.create.toolbar.CreationToolbarViewModel
+import com.pyamsoft.fridge.detail.list.DetailListControllerEvent.ExpandForEditing
+import com.pyamsoft.pydroid.arch.impl.createComponent
 import com.pyamsoft.pydroid.ui.Injector
 import com.pyamsoft.pydroid.ui.app.requireArguments
 import com.pyamsoft.pydroid.ui.app.requireToolbarActivity
+import com.pyamsoft.pydroid.ui.util.layout
 import com.pyamsoft.pydroid.ui.util.show
 import javax.inject.Inject
 
-internal class CreationFragment : Fragment(),
-    DetailListUiComponent.Callback,
-    CreationToolbarUiComponent.Callback,
-    CreationTitleUiComponent.Callback {
+internal class CreationFragment : Fragment() {
 
-  @JvmField @Inject internal var toolbar: CreationToolbarUiComponent? = null
-  @JvmField @Inject internal var title: CreationTitleUiComponent? = null
-  @JvmField @Inject internal var list: DetailListUiComponent? = null
+  @JvmField @Inject internal var toolbar: CreationToolbar? = null
+  @JvmField @Inject internal var toolbarViewModel: CreationToolbarViewModel? = null
+
+  @JvmField @Inject internal var title: CreationTitle? = null
+  @JvmField @Inject internal var titleViewModel: CreationTitleViewModel? = null
+
+  @JvmField @Inject internal var list: CreationList? = null
+  @JvmField @Inject internal var listViewModel: CreationListViewModel? = null
 
   override fun onCreateView(
     inflater: LayoutInflater,
@@ -66,15 +75,36 @@ internal class CreationFragment : Fragment(),
         .plusDetailComponent()
         .create(requireToolbarActivity(), parent)
         .plusCreationComponent()
-        .create(requireArguments().getString(ENTRY_ID, ""))
+        .create(viewLifecycleOwner, requireArguments().getString(ENTRY_ID, ""))
         .inject(this)
 
     val list = requireNotNull(list)
     val title = requireNotNull(title)
     val toolbar = requireNotNull(toolbar)
-    list.bind(parent, viewLifecycleOwner, savedInstanceState, this)
-    title.bind(parent, viewLifecycleOwner, savedInstanceState, this)
-    toolbar.bind(parent, viewLifecycleOwner, savedInstanceState, this)
+
+    createComponent(
+        savedInstanceState, viewLifecycleOwner,
+        requireNotNull(titleViewModel), title
+    ) {}
+
+    createComponent(
+        savedInstanceState, viewLifecycleOwner,
+        requireNotNull(listViewModel), list
+    ) {
+      return@createComponent when (it) {
+        is ExpandForEditing -> expandItem(it.item)
+      }
+    }
+
+    createComponent(
+        savedInstanceState, viewLifecycleOwner,
+        requireNotNull(toolbarViewModel), toolbar
+    ) {
+      return@createComponent when (it) {
+        is EntryArchived -> close()
+        is NavigateUp -> close()
+      }
+    }
 
     parent.layout {
       title.also {
@@ -105,20 +135,21 @@ internal class CreationFragment : Fragment(),
   override fun onDestroyView() {
     super.onDestroyView()
 
+    listViewModel = null
     list = null
+
+    titleViewModel = null
     title = null
+
+    toolbarViewModel = null
     toolbar = null
   }
 
-  override fun onBack() {
+  private fun close() {
     requireActivity().onBackPressed()
   }
 
-  override fun onError(throwable: Throwable) {
-    requireNotNull(list).showError(throwable)
-  }
-
-  override fun onExpandItem(item: FridgeItem) {
+  private fun expandItem(item: FridgeItem) {
     ExpandedFragment.newInstance(item)
         .show(requireActivity(), ExpandedFragment.TAG)
   }

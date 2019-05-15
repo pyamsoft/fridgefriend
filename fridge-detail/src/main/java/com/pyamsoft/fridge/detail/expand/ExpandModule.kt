@@ -17,20 +17,6 @@
 
 package com.pyamsoft.fridge.detail.expand
 
-import androidx.annotation.CheckResult
-import com.pyamsoft.fridge.detail.item.fridge.DetailItemCallback
-import com.pyamsoft.fridge.detail.item.fridge.DetailItemHandler
-import com.pyamsoft.fridge.detail.item.fridge.DetailItemHandler.DetailItemEvent
-import com.pyamsoft.fridge.detail.item.fridge.DetailListItem
-import com.pyamsoft.fridge.detail.item.fridge.DetailListItemDate
-import com.pyamsoft.fridge.detail.item.fridge.DetailListItemName
-import com.pyamsoft.fridge.detail.item.fridge.DetailListItemPresence
-import com.pyamsoft.fridge.detail.item.fridge.DetailListItemUiComponent
-import com.pyamsoft.fridge.detail.item.fridge.DetailListItemUiComponentImpl
-import com.pyamsoft.pydroid.arch.UiEventHandler
-import com.pyamsoft.pydroid.core.bus.EventBus
-import com.pyamsoft.pydroid.core.bus.RxBus
-import dagger.Binds
 import dagger.Module
 import dagger.Provides
 import javax.inject.Named
@@ -38,51 +24,11 @@ import javax.inject.Named
 @Module
 abstract class ExpandModule {
 
-  @Binds
-  @CheckResult
-  internal abstract fun bindUiComponent(impl: ExpandUiComponentImpl): ExpandUiComponent
-
-  @Binds
-  @CheckResult
-  internal abstract fun bindNameItemCallback(impl: DetailItemCallback): DetailListItemName.Callback
-
-  @Binds
-  @CheckResult
-  internal abstract fun bindDateItemCallback(impl: DetailItemCallback): DetailListItemDate.Callback
-
-  @Binds
-  @CheckResult
-  internal abstract fun bindPresenceItemCallback(impl: DetailItemCallback): DetailListItemPresence.Callback
-
-  @Binds
-  @CheckResult
-  internal abstract fun bindBaseItemCallback(impl: DetailItemCallback): DetailListItem.Callback
-
-  @Binds
-  @CheckResult
-  internal abstract fun bindItemCallback(impl: DetailItemHandler): DetailItemCallback
-
-  @Binds
-  @CheckResult
-  internal abstract fun bindItemHandler(impl: DetailItemHandler): UiEventHandler<DetailItemEvent, DetailItemCallback>
-
-  @Binds
-  @CheckResult
-  internal abstract fun bindDetailComponent(impl: DetailListItemUiComponentImpl): DetailListItemUiComponent
-
   @Module
   companion object {
 
     @Provides
     @JvmStatic
-    @ExpandScope
-    internal fun provideDetailItemBus(): EventBus<DetailItemEvent> {
-      return RxBus.create()
-    }
-
-    @Provides
-    @JvmStatic
-    @ExpandScope
     @Named("item_editable")
     fun provideEditable(): Boolean {
       return true

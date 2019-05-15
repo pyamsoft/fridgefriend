@@ -23,18 +23,20 @@ import android.view.ViewGroup
 import androidx.core.view.marginEnd
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.pyamsoft.fridge.entry.R
-import com.pyamsoft.pydroid.arch.BaseUiView
+import com.pyamsoft.fridge.entry.action.EntryActionViewEvent.ShopClicked
+import com.pyamsoft.fridge.entry.action.EntryActionViewEvent.SpacingCalculated
+import com.pyamsoft.pydroid.arch.impl.BaseUiView
+import com.pyamsoft.pydroid.arch.impl.onChange
 import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.loader.Loaded
 import com.pyamsoft.pydroid.ui.util.popShow
 import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
 import javax.inject.Inject
 
-internal class EntryShop @Inject internal constructor(
+class EntryShop @Inject internal constructor(
   private val imageLoader: ImageLoader,
-  parent: ViewGroup,
-  callback: EntryShop.Callback
-) : BaseUiView<EntryShop.Callback>(parent, callback) {
+  parent: ViewGroup
+) : BaseUiView<EntryActionViewState, EntryActionViewEvent>(parent) {
 
   override val layout: Int = R.layout.entry_shop
 
@@ -42,14 +44,17 @@ internal class EntryShop @Inject internal constructor(
 
   private var shopIconLoaded: Loaded? = null
 
-  override fun onInflated(view: View, savedInstanceState: Bundle?) {
+  override fun onInflated(
+    view: View,
+    savedInstanceState: Bundle?
+  ) {
     layoutRoot.setOnDebouncedClickListener {
-      it.wiggle { callback.onShopClicked() }
+      it.wiggle { publish(ShopClicked) }
     }
 
     shopIconLoaded?.dispose()
     shopIconLoaded = imageLoader.load(R.drawable.ic_shopping_cart_24dp)
-      .into(layoutRoot)
+        .into(layoutRoot)
   }
 
   override fun onTeardown() {
@@ -58,7 +63,20 @@ internal class EntryShop @Inject internal constructor(
     shopIconLoaded = null
   }
 
-  internal inline fun onLaidOut(crossinline onLaidOut: (gap: Int, margin: Int) -> Unit) {
+  override fun onRender(
+    state: EntryActionViewState,
+    oldState: EntryActionViewState?
+  ) {
+    state.onChange(oldState, field = { it.spacing }) { spacing ->
+      if (!spacing.isLaidOut) {
+        onLaidOut { gap, margin -> publish(SpacingCalculated(gap, margin)) }
+      } else if (spacing.isFirstAnimationDone) {
+        show()
+      }
+    }
+  }
+
+  private inline fun onLaidOut(crossinline onLaidOut: (gap: Int, margin: Int) -> Unit) {
     layoutRoot.post {
       val width = layoutRoot.width
       val margin = layoutRoot.marginEnd
@@ -66,14 +84,8 @@ internal class EntryShop @Inject internal constructor(
     }
   }
 
-  internal fun show() {
+  private fun show() {
     layoutRoot.popShow()
-  }
-
-  interface Callback {
-
-    fun onShopClicked()
-
   }
 
 }

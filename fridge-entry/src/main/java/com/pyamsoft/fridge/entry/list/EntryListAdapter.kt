@@ -51,6 +51,10 @@ internal class EntryListAdapter internal constructor(
     }
 ) {
 
+  init {
+    setHasStableIds(true)
+  }
+
   override fun getItemId(position: Int): Long {
     return getItem(position).id()
         .hashCode()

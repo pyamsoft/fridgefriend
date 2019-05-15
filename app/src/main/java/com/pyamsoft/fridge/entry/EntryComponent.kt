@@ -19,11 +19,12 @@ package com.pyamsoft.fridge.entry
 
 import android.view.ViewGroup
 import androidx.annotation.CheckResult
+import androidx.lifecycle.LifecycleOwner
 import com.pyamsoft.pydroid.ui.app.ToolbarActivity
 import dagger.BindsInstance
 import dagger.Subcomponent
 
-@Subcomponent(modules = [EntryModule::class])
+@Subcomponent
 internal interface EntryComponent {
 
   fun inject(fragment: EntryListFragment)
@@ -33,6 +34,7 @@ internal interface EntryComponent {
 
     @CheckResult
     fun create(
+      @BindsInstance owner: LifecycleOwner,
       @BindsInstance parent: ViewGroup,
       @BindsInstance activity: ToolbarActivity
     ): EntryComponent

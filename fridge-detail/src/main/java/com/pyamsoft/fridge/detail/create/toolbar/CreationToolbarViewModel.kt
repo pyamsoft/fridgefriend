@@ -17,11 +17,11 @@
 
 package com.pyamsoft.fridge.detail.create.toolbar
 
-import com.pyamsoft.fridge.detail.create.toolbar.CreationToolbarHandler.ToolbarEvent
-import com.pyamsoft.fridge.detail.create.toolbar.CreationToolbarViewModel.ToolbarState
-import com.pyamsoft.pydroid.arch.UiEventHandler
-import com.pyamsoft.pydroid.arch.UiState
-import com.pyamsoft.pydroid.arch.UiViewModel
+import com.pyamsoft.fridge.detail.create.toolbar.CreationToolbarControllerEvent.EntryArchived
+import com.pyamsoft.fridge.detail.create.toolbar.CreationToolbarControllerEvent.NavigateUp
+import com.pyamsoft.fridge.detail.create.toolbar.CreationToolbarViewEvent.Archive
+import com.pyamsoft.fridge.detail.create.toolbar.CreationToolbarViewEvent.Close
+import com.pyamsoft.pydroid.arch.impl.BaseUiViewModel
 import com.pyamsoft.pydroid.core.singleDisposable
 import com.pyamsoft.pydroid.core.tryDispose
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -29,35 +29,42 @@ import io.reactivex.schedulers.Schedulers
 import timber.log.Timber
 import javax.inject.Inject
 
-internal class CreationToolbarViewModel @Inject internal constructor(
-  private val handler: UiEventHandler<ToolbarEvent, CreationToolbar.Callback>,
+class CreationToolbarViewModel @Inject internal constructor(
   private val interactor: CreationToolbarInteractor
-) : UiViewModel<ToolbarState>(
-    initialState = ToolbarState(isReal = false, throwable = null, isBack = false, isArchived = false)
-), CreationToolbar.Callback {
+) : BaseUiViewModel<CreationToolbarViewState, CreationToolbarViewEvent, CreationToolbarControllerEvent>(
+    initialState = CreationToolbarViewState(isReal = false, throwable = null)
+) {
 
+  private var observeRealDisposable by singleDisposable()
+  private var observeDeleteDisposable by singleDisposable()
   private var deleteDisposable by singleDisposable()
 
   override fun onBind() {
-    handler.handle(this)
-        .disposeOnDestroy()
     observeReal(false)
     listenForDelete()
   }
 
+  override fun handleViewEvent(event: CreationToolbarViewEvent) {
+    return when (event) {
+      is Archive -> handleArchived()
+      is Close -> publish(NavigateUp)
+    }
+  }
+
   override fun onUnbind() {
     // Do not dispose delete disposable here, we want it to finish
+    observeRealDisposable.tryDispose()
+    observeDeleteDisposable.tryDispose()
   }
 
   private fun observeReal(force: Boolean) {
-    interactor.observeEntryReal(force)
+    observeRealDisposable = interactor.observeEntryReal(force)
         .subscribeOn(Schedulers.io())
         .observeOn(AndroidSchedulers.mainThread())
         .subscribe({ handleRealUpdated(it) }, {
           Timber.e(it, "Error observing entry real")
           handleError(it)
         })
-        .disposeOnDestroy()
   }
 
   private fun handleRealUpdated(real: Boolean) {
@@ -65,26 +72,13 @@ internal class CreationToolbarViewModel @Inject internal constructor(
   }
 
   private fun listenForDelete() {
-    interactor.listenForArchived()
+    observeDeleteDisposable = interactor.listenForArchived()
         .subscribeOn(Schedulers.io())
         .observeOn(AndroidSchedulers.mainThread())
-        .subscribe { handleArchived() }
-        .disposeOnDestroy()
+        .subscribe { publish(EntryArchived) }
   }
 
   private fun handleArchived() {
-    setState { copy(isArchived = true) }
-  }
-
-  override fun onNavigationClicked() {
-    handleBack()
-  }
-
-  private fun handleBack() {
-    setState { copy(isBack = true) }
-  }
-
-  override fun onArchiveClicked() {
     deleteDisposable = interactor.archive()
         .subscribeOn(Schedulers.io())
         .observeOn(AndroidSchedulers.mainThread())
@@ -98,12 +92,5 @@ internal class CreationToolbarViewModel @Inject internal constructor(
   private fun handleError(throwable: Throwable) {
     setState { copy(throwable = throwable) }
   }
-
-  data class ToolbarState(
-    val isReal: Boolean,
-    val throwable: Throwable?,
-    val isBack: Boolean,
-    val isArchived: Boolean
-  ) : UiState
 
 }

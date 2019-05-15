@@ -31,16 +31,25 @@ import com.pyamsoft.fridge.R
 import com.pyamsoft.fridge.base.FridgeBottomSheetDialogFragment
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.JsonMappableFridgeItem
-import com.pyamsoft.fridge.detail.expand.ExpandUiComponent
-import com.pyamsoft.pydroid.arch.layout
+import com.pyamsoft.fridge.detail.item.fridge.DetailItemControllerEvent.ExpandDetails
+import com.pyamsoft.fridge.detail.item.fridge.DetailItemViewModel
+import com.pyamsoft.fridge.detail.item.fridge.DetailListItemDate
+import com.pyamsoft.fridge.detail.item.fridge.DetailListItemName
+import com.pyamsoft.fridge.detail.item.fridge.DetailListItemPresence
+import com.pyamsoft.pydroid.arch.impl.createComponent
 import com.pyamsoft.pydroid.ui.Injector
 import com.pyamsoft.pydroid.ui.app.requireArguments
+import com.pyamsoft.pydroid.ui.util.layout
 import com.pyamsoft.pydroid.util.toDp
+import timber.log.Timber
 import javax.inject.Inject
 
 class ExpandedFragment : FridgeBottomSheetDialogFragment() {
 
-  @JvmField @Inject internal var component: ExpandUiComponent? = null
+  @JvmField @Inject internal var viewModel: DetailItemViewModel? = null
+  @JvmField @Inject internal var name: DetailListItemName? = null
+  @JvmField @Inject internal var date: DetailListItemDate? = null
+  @JvmField @Inject internal var presence: DetailListItemPresence? = null
 
   override fun onCreateView(
     inflater: LayoutInflater,
@@ -72,28 +81,65 @@ class ExpandedFragment : FridgeBottomSheetDialogFragment() {
         .create(parent, item)
         .inject(this)
 
-    val component = requireNotNull(component)
-    component.bind(parent, viewLifecycleOwner, savedInstanceState, Unit)
+    val name = requireNotNull(name)
+    val date = requireNotNull(date)
+    val presence = requireNotNull(presence)
+    createComponent(
+        null, viewLifecycleOwner,
+        requireNotNull(viewModel),
+        name,
+        date,
+        presence
+    ) {
+      return@createComponent when (it) {
+        is ExpandDetails -> expandItem(it.item)
+      }
+    }
 
     parent.layout {
-      component.also {
+      presence.also {
         connect(it.id(), ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP)
-        connect(it.id(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
+        connect(it.id(), ConstraintSet.BOTTOM, ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM)
         connect(it.id(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
+        constrainWidth(it.id(), ConstraintSet.WRAP_CONTENT)
+      }
+
+      date.also {
+        connect(it.id(), ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP)
+        connect(it.id(), ConstraintSet.BOTTOM, ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM)
+        connect(it.id(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
+        constrainWidth(it.id(), ConstraintSet.WRAP_CONTENT)
+      }
+
+      name.also {
+        connect(it.id(), ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP)
+        connect(it.id(), ConstraintSet.BOTTOM, ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM)
+        connect(it.id(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
+        connect(it.id(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
         constrainWidth(it.id(), ConstraintSet.MATCH_CONSTRAINT)
       }
 
     }
   }
 
+  private fun expandItem(item: FridgeItem) {
+    Timber.d("Noop in expanded fragment: $item")
+  }
+
   override fun onSaveInstanceState(outState: Bundle) {
     super.onSaveInstanceState(outState)
-    component?.saveState(outState)
+    name?.saveState(outState)
+    date?.saveState(outState)
+    presence?.saveState(outState)
   }
 
   override fun onDestroyView() {
     super.onDestroyView()
-    component = null
+
+    viewModel = null
+    name = null
+    date = null
+    presence = null
   }
 
   companion object {

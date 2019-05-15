@@ -27,9 +27,6 @@ import com.pyamsoft.fridge.db.item.FridgeItemQueryDao
 import com.pyamsoft.fridge.db.item.FridgeItemRealtime
 import com.pyamsoft.fridge.db.item.FridgeItemUpdateDao
 import com.pyamsoft.fridge.detail.DetailInteractor
-import com.pyamsoft.pydroid.core.optional.Optional
-import com.pyamsoft.pydroid.core.optional.Optional.Present
-import com.pyamsoft.pydroid.core.optional.asOptional
 import com.pyamsoft.pydroid.core.threads.Enforcer
 import io.reactivex.Completable
 import io.reactivex.Observable
@@ -79,11 +76,12 @@ internal class CreationListInteractor @Inject internal constructor(
           return@flatMapObservable Observable.fromIterable(it)
         }
         .filter { it.id() == item.id() }
-        .map { it.asOptional() }
-        .single(Optional.ofNullable(null))
+        .map { ValidItem(it) }
+        .single(ValidItem(null))
         .flatMapCompletable {
           enforcer.assertNotOnMainThread()
-          if (it is Present) {
+          val valid = it.item
+          if (valid != null) {
             Timber.d("Update existing item [${item.id()}]: $item")
             return@flatMapCompletable updateDao.update(item)
           } else {
@@ -103,4 +101,6 @@ internal class CreationListInteractor @Inject internal constructor(
       return updateDao.update(item.archive())
     }
   }
+
+  private data class ValidItem(val item: FridgeItem?)
 }

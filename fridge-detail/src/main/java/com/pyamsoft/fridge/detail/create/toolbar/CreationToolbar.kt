@@ -20,14 +20,16 @@ package com.pyamsoft.fridge.detail.create.toolbar
 import android.os.Bundle
 import android.view.MenuItem
 import com.pyamsoft.fridge.detail.R
+import com.pyamsoft.fridge.detail.create.toolbar.CreationToolbarViewEvent.Archive
+import com.pyamsoft.fridge.detail.create.toolbar.CreationToolbarViewEvent.Close
 import com.pyamsoft.fridge.detail.toolbar.DetailToolbar
+import com.pyamsoft.pydroid.arch.impl.onChange
 import com.pyamsoft.pydroid.ui.app.ToolbarActivity
 import javax.inject.Inject
 
-internal class CreationToolbar @Inject internal constructor(
-  toolbarActivity: ToolbarActivity,
-  callback: Callback
-) : DetailToolbar<CreationToolbar.Callback>(toolbarActivity, callback) {
+class CreationToolbar @Inject internal constructor(
+  toolbarActivity: ToolbarActivity
+) : DetailToolbar<CreationToolbarViewState, CreationToolbarViewEvent>(toolbarActivity, { Close }) {
 
   private var deleteMenuItem: MenuItem? = null
 
@@ -37,7 +39,7 @@ internal class CreationToolbar @Inject internal constructor(
       val deleteItem = toolbar.menu.findItem(R.id.menu_item_delete)
       deleteItem.isVisible = false
       deleteItem.setOnMenuItemClickListener {
-        callback.onArchiveClicked()
+        publish(Archive)
         return@setOnMenuItemClickListener true
       }
       deleteMenuItem = deleteItem
@@ -52,13 +54,17 @@ internal class CreationToolbar @Inject internal constructor(
     }
   }
 
-  fun setDeleteEnabled(real: Boolean) {
+  private fun setDeleteEnabled(real: Boolean) {
     deleteMenuItem?.isVisible = real
   }
 
-  interface Callback : DetailToolbar.Callback {
-
-    fun onArchiveClicked()
+  override fun render(
+    state: CreationToolbarViewState,
+    oldState: CreationToolbarViewState?
+  ) {
+    state.onChange(oldState, field = { it.isReal }) { real ->
+      setDeleteEnabled(real)
+    }
   }
 
 }

@@ -21,9 +21,6 @@ import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.entry.FridgeEntryInsertDao
 import com.pyamsoft.fridge.db.entry.FridgeEntryQueryDao
-import com.pyamsoft.pydroid.core.optional.Optional
-import com.pyamsoft.pydroid.core.optional.Optional.Present
-import com.pyamsoft.pydroid.core.optional.asOptional
 import com.pyamsoft.pydroid.core.threads.Enforcer
 import io.reactivex.Maybe
 import io.reactivex.Observable
@@ -53,19 +50,28 @@ internal abstract class DetailInteractor protected constructor(
   }
 
   @CheckResult
+  protected fun getValidEntry(
+    entryId: String,
+    force: Boolean
+  ): Single<ValidEntry> {
+    return getEntryForId(entryId, force)
+        .map { ValidEntry(it) }
+        .toSingle(ValidEntry(null))
+  }
+
+  @CheckResult
   @JvmOverloads
   protected fun guaranteeEntryExists(
     entryId: String,
     name: String = FridgeEntry.EMPTY_NAME
   ): Single<FridgeEntry> {
-    return getEntryForId(entryId, false)
-        .map { it.asOptional() }
-        .toSingle(Optional.ofNullable(null))
+    return getValidEntry(entryId, false)
         .flatMap {
           enforcer.assertNotOnMainThread()
-          if (it is Present) {
-            Timber.d("Entry exists, ignore: ${it.value.id()}")
-            return@flatMap Single.just(it.value)
+          val valid = it.entry
+          if (valid != null) {
+            Timber.d("Entry exists, ignore: ${valid.id()}")
+            return@flatMap Single.just(valid)
           } else {
             val createdTime = Calendar.getInstance()
                 .time
@@ -77,4 +83,6 @@ internal abstract class DetailInteractor protected constructor(
           }
         }
   }
+
+  protected data class ValidEntry(val entry: FridgeEntry?)
 }

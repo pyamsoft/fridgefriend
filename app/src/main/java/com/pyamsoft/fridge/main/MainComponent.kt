@@ -27,7 +27,7 @@ import dagger.Module
 import dagger.Provides
 import dagger.Subcomponent
 
-@Subcomponent(modules = [MainProvider::class, MainModule::class])
+@Subcomponent(modules = [MainProvider::class])
 internal interface MainComponent {
 
   fun inject(activity: MainActivity)

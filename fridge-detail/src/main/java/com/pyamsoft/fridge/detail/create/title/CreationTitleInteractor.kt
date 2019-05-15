@@ -25,9 +25,6 @@ import com.pyamsoft.fridge.db.entry.FridgeEntryQueryDao
 import com.pyamsoft.fridge.db.entry.FridgeEntryRealtime
 import com.pyamsoft.fridge.db.entry.FridgeEntryUpdateDao
 import com.pyamsoft.fridge.detail.DetailInteractor
-import com.pyamsoft.pydroid.core.optional.Optional
-import com.pyamsoft.pydroid.core.optional.Optional.Present
-import com.pyamsoft.pydroid.core.optional.asOptional
 import com.pyamsoft.pydroid.core.threads.Enforcer
 import io.reactivex.Completable
 import io.reactivex.Observable
@@ -47,48 +44,53 @@ internal class CreationTitleInteractor @Inject internal constructor(
   @CheckResult
   fun observeEntryName(force: Boolean): Observable<NameUpdate> {
     return listenForNameChanges()
-      .startWith(getEntryName(force))
+        .startWith(getEntryName(force))
   }
 
   @CheckResult
   private fun getEntryName(force: Boolean): Observable<NameUpdate> {
     return getEntryForId(entryId, force)
-      .map { it.name() }
-      .map { NameUpdate(it, true) }
-      .toObservable()
+        .map { it.name() }
+        .map { NameUpdate(it, true) }
+        .toObservable()
   }
 
   @CheckResult
   private fun listenForNameChanges(): Observable<NameUpdate> {
-    return realtime.listenForChanges().ofType(Update::class.java)
-      .map { it.entry }
-      .filter { it.id() == entryId }
-      .map { it.name() }
-      .map { NameUpdate(it, false) }
+    return realtime.listenForChanges()
+        .ofType(Update::class.java)
+        .map { it.entry }
+        .filter { it.id() == entryId }
+        .map { it.name() }
+        .map { NameUpdate(it, false) }
   }
 
   @CheckResult
   fun saveName(name: String): Completable {
-    return getEntryForId(entryId, false)
-      .map { it.asOptional() }
-      .toSingle(Optional.ofNullable(null))
-      .flatMapCompletable {
-        if (it is Present) {
-          val entry = it.value
-          return@flatMapCompletable update(entry, name)
-        } else {
-          Timber.d("saveName called but Entry does not exist, create it")
-          return@flatMapCompletable guaranteeEntryExists(entryId, name).ignoreElement()
+    return getValidEntry(entryId, false)
+        .flatMapCompletable {
+          val valid = it.entry
+          if (valid != null) {
+            return@flatMapCompletable update(valid, name)
+          } else {
+            Timber.d("saveName called but Entry does not exist, create it")
+            return@flatMapCompletable guaranteeEntryExists(entryId, name).ignoreElement()
+          }
         }
-      }
   }
 
   @CheckResult
-  private fun update(entry: FridgeEntry, name: String): Completable {
+  private fun update(
+    entry: FridgeEntry,
+    name: String
+  ): Completable {
     Timber.d("Updating entry name [${entry.id()}]: $name")
     enforcer.assertNotOnMainThread()
     return updateDao.update(entry.name(name))
   }
 
-  internal data class NameUpdate(val name: String, val firstUpdate: Boolean)
+  internal data class NameUpdate(
+    val name: String,
+    val firstUpdate: Boolean
+  )
 }

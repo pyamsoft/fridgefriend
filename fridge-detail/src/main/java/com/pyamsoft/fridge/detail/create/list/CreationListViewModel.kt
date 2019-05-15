@@ -19,28 +19,18 @@ package com.pyamsoft.fridge.detail.create.list
 
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent
-import com.pyamsoft.fridge.detail.create.list.CreationListHandler.CreationEvent
-import com.pyamsoft.fridge.detail.list.DetailList
 import com.pyamsoft.fridge.detail.list.DetailListViewModel
-import com.pyamsoft.pydroid.arch.UiEventHandler
 import com.pyamsoft.pydroid.core.bus.EventBus
 import io.reactivex.Observable
 import io.reactivex.Single
 import javax.inject.Inject
 import javax.inject.Named
 
-internal class CreationListViewModel @Inject internal constructor(
+class CreationListViewModel @Inject internal constructor(
   private val interactor: CreationListInteractor,
-  private val handler: UiEventHandler<CreationEvent, DetailList.Callback>,
   @Named("detail_entry_id") private val entryId: String,
   fakeRealtime: EventBus<FridgeItemChangeEvent>
-) : DetailListViewModel(fakeRealtime, filterArchived = true),
-    DetailList.Callback {
-
-  override fun bindHandler() {
-    handler.handle(this)
-        .disposeOnDestroy()
-  }
+) : DetailListViewModel(fakeRealtime, filterArchived = true) {
 
   override fun getItems(force: Boolean): Single<List<FridgeItem>> {
     return interactor.getItems(entryId, force)

@@ -17,32 +17,24 @@
 
 package com.pyamsoft.fridge.entry.toolbar
 
-import com.pyamsoft.fridge.entry.toolbar.EntryToolbarHandler.ToolbarEvent
-import com.pyamsoft.fridge.entry.toolbar.EntryToolbarViewModel.ToolbarState
-import com.pyamsoft.pydroid.arch.UiEventHandler
-import com.pyamsoft.pydroid.arch.UiState
-import com.pyamsoft.pydroid.arch.UiViewModel
+import com.pyamsoft.fridge.entry.toolbar.EntryToolbarControllerEvent.NavigateToSettings
+import com.pyamsoft.fridge.entry.toolbar.EntryToolbarViewEvent.SettingsNavigate
+import com.pyamsoft.pydroid.arch.impl.BaseUiViewModel
 import javax.inject.Inject
 
-internal class EntryToolbarViewModel @Inject internal constructor(
-  private val handler: UiEventHandler<ToolbarEvent, EntryToolbar.Callback>
-) : UiViewModel<ToolbarState>(
-  initialState = ToolbarState(isSettings = false)
-), EntryToolbar.Callback {
+class EntryToolbarViewModel @Inject internal constructor(
+) : BaseUiViewModel<EntryToolbarViewState, EntryToolbarViewEvent, EntryToolbarControllerEvent>(
+    initialState = EntryToolbarViewState(isMenuVisible = true)
+) {
 
-  override fun onBind() {
-    handler.handle(this).disposeOnDestroy()
-  }
-
-  override fun onUnbind() {
-  }
-
-  override fun onSettingsClicked() {
-    setUniqueState(true, old = { it.isSettings }) { state, value ->
-      state.copy(isSettings = value)
+  override fun handleViewEvent(event: EntryToolbarViewEvent) {
+    return when (event) {
+      is SettingsNavigate -> publish(NavigateToSettings)
     }
   }
 
-  data class ToolbarState(val isSettings: Boolean) : UiState
+  fun showMenu(visible: Boolean) {
+    setState { copy(isMenuVisible = visible) }
+  }
 }
 

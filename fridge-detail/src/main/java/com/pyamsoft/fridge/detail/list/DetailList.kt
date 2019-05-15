@@ -23,6 +23,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.CheckResult
 import androidx.appcompat.content.res.AppCompatResources
+import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -30,29 +31,24 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.mikepenz.fastadapter_extensions.swipe.SimpleSwipeCallback
+import com.popinnow.android.refresh.RefreshLatch
+import com.popinnow.android.refresh.newRefreshLatch
 import com.pyamsoft.fridge.db.item.FridgeItem
-import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent
 import com.pyamsoft.fridge.detail.R
 import com.pyamsoft.fridge.detail.R.drawable
-import com.pyamsoft.fridge.detail.create.list.CreationListInteractor
-import com.pyamsoft.fridge.detail.item.DaggerDetailItemComponent
-import com.pyamsoft.fridge.detail.list.DetailList.Callback
-import com.pyamsoft.pydroid.arch.BaseUiView
-import com.pyamsoft.pydroid.core.bus.EventBus
-import com.pyamsoft.pydroid.loader.ImageLoader
-import com.pyamsoft.pydroid.ui.theme.Theming
+import com.pyamsoft.fridge.detail.item.DetailItemComponent
+import com.pyamsoft.fridge.detail.list.DetailListViewEvent.ExpandItem
+import com.pyamsoft.fridge.detail.list.DetailListViewEvent.ForceRefresh
+import com.pyamsoft.pydroid.arch.impl.BaseUiView
+import com.pyamsoft.pydroid.arch.impl.onChange
+import com.pyamsoft.pydroid.ui.util.Snackbreak
 import com.pyamsoft.pydroid.ui.util.refreshing
 
-internal abstract class DetailList protected constructor(
+abstract class DetailList protected constructor(
   parent: ViewGroup,
-  callback: Callback,
-  private val interactor: CreationListInteractor,
-  private val imageLoader: ImageLoader,
-  private val theming: Theming,
-  private val fakeRealtime: EventBus<FridgeItemChangeEvent>,
+  private val owner: LifecycleOwner,
   private val editable: Boolean
-) : BaseUiView<Callback>(parent, callback),
-    DetailListAdapter.Callback {
+) : BaseUiView<DetailListViewState, DetailListViewEvent>(parent) {
 
   final override val layout: Int = R.layout.detail_list
 
@@ -63,18 +59,31 @@ internal abstract class DetailList protected constructor(
   private var decoration: DividerItemDecoration? = null
   private var touchHelper: ItemTouchHelper? = null
   private var modelAdapter: DetailListAdapter? = null
+  private var refreshLatch: RefreshLatch? = null
+
+  @CheckResult
+  internal abstract fun createDaggerComponent(
+    parent: ViewGroup,
+    item: FridgeItem,
+    editable: Boolean
+  ): DetailItemComponent
 
   final override fun onInflated(
     view: View,
     savedInstanceState: Bundle?
   ) {
     val factory = { parent: ViewGroup, item: FridgeItem, editable: Boolean ->
-      DaggerDetailItemComponent.factory()
-          .create(parent, item, editable, imageLoader, theming, interactor, fakeRealtime)
+      createDaggerComponent(parent, item, editable)
     }
 
     modelAdapter =
-      DetailListAdapter(editable, factory, callback = this)
+      DetailListAdapter(editable, factory, callback = object : DetailListAdapter.Callback {
+
+        override fun onItemExpanded(item: FridgeItem) {
+          publish(ExpandItem(item))
+        }
+
+      })
 
     recyclerView.layoutManager = LinearLayoutManager(view.context).apply {
       isItemPrefetchEnabled = true
@@ -87,8 +96,12 @@ internal abstract class DetailList protected constructor(
 
     recyclerView.adapter = usingAdapter().apply { setHasStableIds(true) }
 
+    refreshLatch = newRefreshLatch(owner) { isRefreshing ->
+      layoutRoot.refreshing(isRefreshing)
+    }
+
     layoutRoot.setOnRefreshListener {
-      callback.onRefresh()
+      publish(ForceRefresh)
     }
     setupSwipeCallback()
   }
@@ -143,15 +156,16 @@ internal abstract class DetailList protected constructor(
     // Throws
     // recyclerView.adapter = null
     clearList()
-    modelAdapter = null
+    clearError()
 
     touchHelper?.attachToRecyclerView(null)
-    touchHelper = null
-
     decoration?.let { recyclerView.removeItemDecoration(it) }
-    decoration = null
-
     layoutRoot.setOnRefreshListener(null)
+
+    modelAdapter = null
+    touchHelper = null
+    decoration = null
+    refreshLatch = null
   }
 
   @CheckResult
@@ -161,10 +175,6 @@ internal abstract class DetailList protected constructor(
 
   private fun archiveListItem(position: Int) {
     withViewHolderAt(position) { it.archiveSelf() }
-  }
-
-  protected fun focusItem(position: Int) {
-    withViewHolderAt(position) { it.focus() }
   }
 
   private inline fun withViewHolderAt(
@@ -177,39 +187,50 @@ internal abstract class DetailList protected constructor(
     }
   }
 
-  fun beginRefresh() {
-    layoutRoot.refreshing(true)
-  }
-
-  fun setList(list: List<FridgeItem>) {
+  private fun setList(list: List<FridgeItem>) {
     usingAdapter().submitList(list)
   }
 
-  fun clearList() {
+  private fun clearList() {
     usingAdapter().submitList(null)
   }
 
-  fun showError(throwable: Throwable) {
-    // TODO set error text
+  private fun showError(throwable: Throwable) {
+    Snackbreak.bindTo(owner)
+        .short(layoutRoot, throwable.message ?: "Error refreshing list, please try again")
+        .show()
   }
 
-  fun clearError() {
-    // TODO clear error
+  private fun clearError() {
+    Snackbreak.bindTo(owner)
+        .dismiss()
   }
 
-  fun finishRefresh() {
-    layoutRoot.refreshing(false)
+  final override fun onRender(
+    state: DetailListViewState,
+    oldState: DetailListViewState?
+  ) {
+    state.onChange(oldState, field = { it.isLoading }) { loading ->
+      if (loading != null) {
+        requireNotNull(refreshLatch).isRefreshing = loading.isLoading
+      }
+    }
+
+    state.onChange(oldState, field = { it.items }) { items ->
+      if (items.isEmpty()) {
+        clearList()
+      } else {
+        setList(items)
+      }
+    }
+
+    state.onChange(oldState, field = { it.throwable }) { throwable ->
+      if (throwable == null) {
+        clearError()
+      } else {
+        showError(throwable)
+      }
+    }
   }
 
-  final override fun onItemExpanded(item: FridgeItem) {
-    callback.onExpandItem(item)
-  }
-
-  interface Callback {
-
-    fun onRefresh()
-
-    fun onExpandItem(item: FridgeItem)
-
-  }
 }

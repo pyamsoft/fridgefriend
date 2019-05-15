@@ -22,16 +22,18 @@ import android.view.View
 import androidx.annotation.CheckResult
 import androidx.fragment.app.Fragment
 import com.pyamsoft.fridge.FridgeComponent
-import com.pyamsoft.fridge.setting.toolbar.SettingToolbarUiComponent
+import com.pyamsoft.fridge.setting.SettingToolbarControllerEvent.NavigateUp
+import com.pyamsoft.pydroid.arch.impl.createComponent
 import com.pyamsoft.pydroid.ui.Injector
 import com.pyamsoft.pydroid.ui.app.requireToolbarActivity
 import com.pyamsoft.pydroid.ui.settings.AppSettingsFragment
 import com.pyamsoft.pydroid.ui.settings.AppSettingsPreferenceFragment
 import javax.inject.Inject
 
-internal class SettingsFragment : AppSettingsFragment(), SettingToolbarUiComponent.Callback {
+internal class SettingsFragment : AppSettingsFragment() {
 
-  @JvmField @Inject internal var toolbar: SettingToolbarUiComponent? = null
+  @JvmField @Inject internal var toolbar: SettingToolbar? = null
+  @JvmField @Inject internal var viewModel: SettingToolbarViewModel? = null
 
   override fun provideSettingsFragment(): AppSettingsPreferenceFragment {
     return SettingsPreferenceFragment()
@@ -41,15 +43,26 @@ internal class SettingsFragment : AppSettingsFragment(), SettingToolbarUiCompone
     return SettingsPreferenceFragment.TAG
   }
 
-  override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+  override fun onViewCreated(
+    view: View,
+    savedInstanceState: Bundle?
+  ) {
     super.onViewCreated(view, savedInstanceState)
 
     Injector.obtain<FridgeComponent>(view.context.applicationContext)
-      .plusSettingComponent()
-      .create(requireToolbarActivity())
-      .inject(this)
+        .plusSettingComponent()
+        .create(requireToolbarActivity())
+        .inject(this)
 
-    requireNotNull(toolbar).bind(viewLifecycleOwner, savedInstanceState, this)
+    createComponent(
+        savedInstanceState, viewLifecycleOwner,
+        requireNotNull(viewModel),
+        requireNotNull(toolbar)
+    ) {
+      return@createComponent when (it) {
+        is NavigateUp -> requireActivity().onBackPressed()
+      }
+    }
   }
 
   override fun onSaveInstanceState(outState: Bundle) {
@@ -60,10 +73,6 @@ internal class SettingsFragment : AppSettingsFragment(), SettingToolbarUiCompone
   override fun onDestroyView() {
     super.onDestroyView()
     toolbar = null
-  }
-
-  override fun onNavigateBack() {
-    requireActivity().onBackPressed()
   }
 
   companion object {

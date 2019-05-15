@@ -18,12 +18,12 @@
 package com.pyamsoft.fridge.detail
 
 import androidx.annotation.CheckResult
-import com.pyamsoft.fridge.detail.create.CreationModule
+import androidx.lifecycle.LifecycleOwner
 import dagger.BindsInstance
 import dagger.Subcomponent
 import javax.inject.Named
 
-@Subcomponent(modules = [CreationModule::class])
+@Subcomponent
 internal interface CreationComponent {
 
   fun inject(fragment: CreationFragment)
@@ -33,6 +33,7 @@ internal interface CreationComponent {
 
     @CheckResult
     fun create(
+      @BindsInstance owner: LifecycleOwner,
       @BindsInstance @Named("detail_entry_id") entryId: String
     ): CreationComponent
   }

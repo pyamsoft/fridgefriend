@@ -28,15 +28,6 @@ internal fun isNameValid(name: String): Boolean {
 }
 
 @CheckResult
-internal fun isDateValid(date: Date): Boolean {
-  val calendar = Calendar.getInstance().apply { time = date }
-  val year = calendar.get(Calendar.YEAR)
-  val month = calendar.get(Calendar.MONTH)
-  val day = calendar.get(Calendar.DAY_OF_MONTH)
-  return isDateValid(year, month, day)
-}
-
-@CheckResult
 internal fun isDateValid(year: Int, month: Int, day: Int): Boolean {
   val today = Calendar.getInstance()
   val maxMonthsInYear = today.getActualMaximum(Calendar.MONTH)
