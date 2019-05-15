@@ -27,6 +27,7 @@ import androidx.core.view.isVisible
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence.HAVE
 import com.pyamsoft.fridge.detail.R
+import com.pyamsoft.fridge.detail.item.fridge.DetailItemViewEvent.ExpandItem
 import com.pyamsoft.pydroid.arch.impl.BaseUiView
 import com.pyamsoft.pydroid.arch.impl.onChange
 import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
@@ -57,7 +58,11 @@ class DetailListItemStrikethrough @Inject internal constructor(
       removeListeners()
       val isEditable = state.isEditable
       decideStrikethroughState(item, isEditable)
-      layoutRoot.setOnDebouncedClickListener { }
+      layoutRoot.setOnDebouncedClickListener {
+        if (isEditable) {
+          publish(ExpandItem(item))
+        }
+      }
     }
 
     state.onChange(oldState, field = { it.throwable }) { throwable ->

@@ -114,8 +114,8 @@ class ExpandedFragment : FridgeBottomSheetDialogFragment() {
       name.also {
         connect(it.id(), ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP)
         connect(it.id(), ConstraintSet.BOTTOM, ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM)
-        connect(it.id(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
-        connect(it.id(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
+        connect(it.id(), ConstraintSet.START, presence.id(), ConstraintSet.END)
+        connect(it.id(), ConstraintSet.END, date.id(), ConstraintSet.START)
         constrainWidth(it.id(), ConstraintSet.MATCH_CONSTRAINT)
       }
 
