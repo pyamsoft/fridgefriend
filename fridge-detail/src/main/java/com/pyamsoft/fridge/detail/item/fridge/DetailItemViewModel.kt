@@ -21,6 +21,9 @@ import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent
+import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent.Insert
+import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent.Update
+import com.pyamsoft.fridge.db.item.FridgeItemRealtime
 import com.pyamsoft.fridge.detail.DetailConstants
 import com.pyamsoft.fridge.detail.create.list.CreationListInteractor
 import com.pyamsoft.fridge.detail.item.fridge.DetailItemControllerEvent.DatePick
@@ -34,6 +37,7 @@ import com.pyamsoft.pydroid.core.bus.EventBus
 import com.pyamsoft.pydroid.core.singleDisposable
 import com.pyamsoft.pydroid.core.tryDispose
 import io.reactivex.Completable
+import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import timber.log.Timber
@@ -42,30 +46,57 @@ import javax.inject.Inject
 import javax.inject.Named
 
 class DetailItemViewModel @Inject internal constructor(
-  private val item: FridgeItem,
+  item: FridgeItem,
   @Named("item_editable") isEditable: Boolean,
   private val interactor: CreationListInteractor,
   private val fakeRealtime: EventBus<FridgeItemChangeEvent>,
-  private val dateSelectBus: EventBus<DateSelectPayload>
+  private val dateSelectBus: EventBus<DateSelectPayload>,
+  private val realtime: FridgeItemRealtime
 ) : BaseUiViewModel<DetailItemViewState, DetailItemViewEvent, DetailItemControllerEvent>(
     initialState = DetailItemViewState(throwable = null, item = item, isEditable = isEditable)
 ) {
 
+  private val itemEntryId = item.entryId()
+  private val itemId = item.id()
+
   private var updateDisposable by singleDisposable()
   private var deleteDisposable by singleDisposable()
+
   private var dateDisposable by singleDisposable()
+  private var realtimeDisposable by singleDisposable()
 
   override fun onBind() {
     dateDisposable = dateSelectBus.listen()
-        .filter { it.oldItem.entryId() == item.entryId() }
-        .filter { it.oldItem.id() == item.id() }
+        .filter { it.oldItem.entryId() == itemEntryId }
+        .filter { it.oldItem.id() == itemId }
         .subscribeOn(Schedulers.io())
         .observeOn(AndroidSchedulers.mainThread())
         .subscribe { commitDate(it.oldItem, it.year, it.month, it.day) }
+
+    realtimeDisposable =
+      Observable.merge(realtime.listenForChanges(itemEntryId), fakeRealtime.listen())
+          .subscribeOn(Schedulers.io())
+          .observeOn(AndroidSchedulers.mainThread())
+          .subscribe { handleRealtimeEvent(it) }
+  }
+
+  private fun handleRealtimeEvent(event: FridgeItemChangeEvent) {
+    return when (event) {
+      is Update -> handleModelUpdate(event.item)
+      is Insert -> handleModelUpdate(event.item)
+      else -> Unit
+    }
+  }
+
+  private fun handleModelUpdate(newItem: FridgeItem) {
+    if (itemId == newItem.id()) {
+      setState { copy(item = newItem) }
+    }
   }
 
   override fun onUnbind() {
     dateDisposable.tryDispose()
+    realtimeDisposable.tryDispose()
   }
 
   override fun handleViewEvent(event: DetailItemViewEvent) {
@@ -168,8 +199,7 @@ class DetailItemViewModel @Inject internal constructor(
   }
 
   private fun handleFakeCommit(item: FridgeItem) {
-    // Makes for a wacky user experience
-    // fakeRealtime.publish(FridgeItemChangeEvent.Insert(item))
+    fakeRealtime.publish(Insert(item))
     Timber.w("Not ready to commit item yet: $item")
     handleClearFixMessage()
   }
@@ -180,14 +210,6 @@ class DetailItemViewModel @Inject internal constructor(
 
   private fun handleInvalidName(name: String) {
     setFixMessage("ERROR: Name $name is invalid. Please fix.")
-  }
-
-  private fun handleInvalidDate(
-    year: Int,
-    month: Int,
-    day: Int
-  ) {
-    setFixMessage("ERROR: Date $month/$day/$year is invalid. Please fix.")
   }
 
   private fun handleError(throwable: Throwable) {
@@ -206,7 +228,7 @@ class DetailItemViewModel @Inject internal constructor(
     }
   }
 
-  fun archiveSelf() {
+  fun archiveSelf(item: FridgeItem) {
     // Stop any pending updates
     updateDisposable.tryDispose()
 

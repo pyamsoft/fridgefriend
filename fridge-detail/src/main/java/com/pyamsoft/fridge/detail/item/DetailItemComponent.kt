@@ -21,6 +21,9 @@ import android.view.ViewGroup
 import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent
+import com.pyamsoft.fridge.db.item.FridgeItemQueryDao
+import com.pyamsoft.fridge.db.item.FridgeItemRealtime
+import com.pyamsoft.fridge.db.item.FridgeItemUpdateDao
 import com.pyamsoft.fridge.detail.create.list.CreationListInteractor
 import com.pyamsoft.fridge.detail.item.fridge.DateSelectPayload
 import com.pyamsoft.fridge.detail.list.DetailListAdapter
@@ -50,6 +53,7 @@ internal interface DetailItemComponent {
       @BindsInstance imageLoader: ImageLoader,
       @BindsInstance theming: Theming,
       @BindsInstance interactor: CreationListInteractor,
+      @BindsInstance itemUpdateDao: FridgeItemRealtime,
       @BindsInstance fakeRealtime: EventBus<FridgeItemChangeEvent>,
       @BindsInstance dateSelectBus: EventBus<DateSelectPayload>
     ): DetailItemComponent

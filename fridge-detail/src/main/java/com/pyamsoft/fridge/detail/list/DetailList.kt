@@ -183,8 +183,15 @@ abstract class DetailList protected constructor(
     return requireNotNull(modelAdapter)
   }
 
-  private fun archiveListItem(position: Int) {
-    withViewHolderAt(position) { it.archiveSelf() }
+  private fun archiveListItem(
+    position: Int
+  ) {
+    withViewHolderAt(position) { holder ->
+      val item = holder.item
+      if (item != null) {
+        holder.archiveSelf(item)
+      }
+    }
   }
 
   private inline fun withViewHolderAt(
