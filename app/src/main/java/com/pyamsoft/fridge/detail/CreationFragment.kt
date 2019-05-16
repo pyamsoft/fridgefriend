@@ -44,6 +44,7 @@ import com.pyamsoft.pydroid.ui.app.requireArguments
 import com.pyamsoft.pydroid.ui.app.requireToolbarActivity
 import com.pyamsoft.pydroid.ui.util.layout
 import com.pyamsoft.pydroid.ui.util.show
+import timber.log.Timber
 import javax.inject.Inject
 
 internal class CreationFragment : Fragment() {

@@ -37,6 +37,7 @@ class CreationToolbarViewModel @Inject internal constructor(
 
   private var observeRealDisposable by singleDisposable()
   private var observeDeleteDisposable by singleDisposable()
+
   private var deleteDisposable by singleDisposable()
 
   override fun onBind() {

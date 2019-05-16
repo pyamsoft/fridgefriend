@@ -137,27 +137,19 @@ internal class EntryListFragment : Fragment() {
 
   private inline fun pushFragment(
     tag: String,
-    replace: Boolean,
     crossinline createFragment: () -> Fragment
   ) {
     val fm = requireActivity().supportFragmentManager
     if (fm.findFragmentByTag(tag) == null) {
       fm.beginTransaction()
-          .let {
-            if (replace) {
-              return@let it.replace(fragmentContainerId, createFragment(), tag)
-            } else {
-              return@let it.hide(this)
-                  .add(fragmentContainerId, createFragment(), tag)
-            }
-          }
+          .replace(fragmentContainerId, createFragment(), tag)
           .addToBackStack(null)
           .commit(viewLifecycleOwner)
     }
   }
 
   private fun navigateToSettings() {
-    pushFragment(SettingsFragment.TAG, true) { SettingsFragment.newInstance() }
+    pushFragment(SettingsFragment.TAG) { SettingsFragment.newInstance() }
   }
 
   private fun navigateToCreate(entry: FridgeEntry) {
@@ -169,11 +161,11 @@ internal class EntryListFragment : Fragment() {
   }
 
   private fun pushEntryScreen(entry: FridgeEntry) {
-    pushFragment(CreationFragment.TAG, false) { CreationFragment.newInstance(entry.id()) }
+    pushFragment(CreationFragment.TAG) { CreationFragment.newInstance(entry.id()) }
   }
 
   private fun navigateToShopping() {
-    pushFragment(ShoppingFragment.TAG, false) { ShoppingFragment.newInstance() }
+    pushFragment(ShoppingFragment.TAG) { ShoppingFragment.newInstance() }
   }
 
   override fun onHiddenChanged(hidden: Boolean) {
