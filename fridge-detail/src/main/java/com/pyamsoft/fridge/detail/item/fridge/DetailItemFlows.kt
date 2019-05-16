@@ -43,7 +43,7 @@ sealed class DetailItemViewEvent : UiViewEvent {
     val presence: Presence
   ) : DetailItemViewEvent()
 
-  data class CommitDate internal constructor(
+  data class PickDate internal constructor(
     val oldItem: FridgeItem,
     val year: Int,
     val month: Int,
@@ -55,5 +55,12 @@ sealed class DetailItemViewEvent : UiViewEvent {
 sealed class DetailItemControllerEvent : UiControllerEvent {
 
   data class ExpandDetails internal constructor(val item: FridgeItem) : DetailItemControllerEvent()
+
+  data class DatePick internal constructor(
+    val oldItem: FridgeItem,
+    val year: Int,
+    val month: Int,
+    val day: Int
+  ) : DetailItemControllerEvent()
 
 }

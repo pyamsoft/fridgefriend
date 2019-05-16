@@ -23,11 +23,12 @@ import com.pyamsoft.fridge.db.item.FridgeItem.Presence
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent
 import com.pyamsoft.fridge.detail.DetailConstants
 import com.pyamsoft.fridge.detail.create.list.CreationListInteractor
+import com.pyamsoft.fridge.detail.item.fridge.DetailItemControllerEvent.DatePick
 import com.pyamsoft.fridge.detail.item.fridge.DetailItemControllerEvent.ExpandDetails
-import com.pyamsoft.fridge.detail.item.fridge.DetailItemViewEvent.CommitDate
 import com.pyamsoft.fridge.detail.item.fridge.DetailItemViewEvent.CommitName
 import com.pyamsoft.fridge.detail.item.fridge.DetailItemViewEvent.CommitPresence
 import com.pyamsoft.fridge.detail.item.fridge.DetailItemViewEvent.ExpandItem
+import com.pyamsoft.fridge.detail.item.fridge.DetailItemViewEvent.PickDate
 import com.pyamsoft.pydroid.arch.impl.BaseUiViewModel
 import com.pyamsoft.pydroid.core.bus.EventBus
 import com.pyamsoft.pydroid.core.singleDisposable
@@ -44,21 +45,46 @@ class DetailItemViewModel @Inject internal constructor(
   private val item: FridgeItem,
   @Named("item_editable") isEditable: Boolean,
   private val interactor: CreationListInteractor,
-  private val fakeRealtime: EventBus<FridgeItemChangeEvent>
+  private val fakeRealtime: EventBus<FridgeItemChangeEvent>,
+  private val dateSelectBus: EventBus<DateSelectPayload>
 ) : BaseUiViewModel<DetailItemViewState, DetailItemViewEvent, DetailItemControllerEvent>(
     initialState = DetailItemViewState(throwable = null, item = item, isEditable = isEditable)
 ) {
 
   private var updateDisposable by singleDisposable()
   private var deleteDisposable by singleDisposable()
+  private var dateDisposable by singleDisposable()
+
+  override fun onBind() {
+    dateDisposable = dateSelectBus.listen()
+        .filter { it.oldItem.entryId() == item.entryId() }
+        .filter { it.oldItem.id() == item.id() }
+        .subscribeOn(Schedulers.io())
+        .observeOn(AndroidSchedulers.mainThread())
+        .subscribe { commitDate(it.oldItem, it.year, it.month, it.day) }
+  }
+
+  override fun onUnbind() {
+    dateDisposable.tryDispose()
+  }
 
   override fun handleViewEvent(event: DetailItemViewEvent) {
     return when (event) {
       is CommitName -> commitName(event.oldItem, event.name)
-      is CommitDate -> commitDate(event.oldItem, event.year, event.month, event.day)
       is CommitPresence -> commitPresence(event.oldItem, event.presence)
       is ExpandItem -> expandItem(event.item)
+      is PickDate -> pickDate(event.oldItem, event.year, event.month, event.day)
     }
+  }
+
+  private fun pickDate(
+    oldItem: FridgeItem,
+    year: Int,
+    month: Int,
+    day: Int
+  ) {
+    Timber.d("Launch date picker from date: $year ${month + 1} $day")
+    publish(DatePick(oldItem, year, month, day))
   }
 
   @CheckResult
@@ -90,22 +116,16 @@ class DetailItemViewModel @Inject internal constructor(
     // Stop any pending updates
     updateDisposable.tryDispose()
 
-    Timber.d("Attempt save time: $year/$month/$day")
-    if (isDateValid(year, month, day)) {
-      val newTime = Calendar.getInstance()
-          .apply {
-            set(Calendar.YEAR, year)
-            // Month is 1 indexed as an input
-            set(Calendar.MONTH, month - 1)
-            set(Calendar.DAY_OF_MONTH, day)
-          }
-          .time
-      Timber.d("Save expire time: $newTime")
-      commitItem(item = oldItem.expireTime(newTime))
-    } else {
-      Timber.w("Invalid date: $year/$month/$day")
-      handleInvalidDate(year, month, day)
-    }
+    Timber.d("Attempt save time: $year/${month + 1}/$day")
+    val newTime = Calendar.getInstance()
+        .apply {
+          set(Calendar.YEAR, year)
+          set(Calendar.MONTH, month)
+          set(Calendar.DAY_OF_MONTH, day)
+        }
+        .time
+    Timber.d("Save expire time: $newTime")
+    commitItem(item = oldItem.expireTime(newTime))
   }
 
   private fun commitPresence(

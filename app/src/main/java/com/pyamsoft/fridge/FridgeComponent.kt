@@ -27,8 +27,10 @@ import com.pyamsoft.fridge.db.entry.FridgeEntryQueryDao
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent
 import com.pyamsoft.fridge.db.item.FridgeItemQueryDao
 import com.pyamsoft.fridge.db.room.RoomProvider
+import com.pyamsoft.fridge.detail.DatePickerDialogFragment
 import com.pyamsoft.fridge.detail.DetailComponent
 import com.pyamsoft.fridge.detail.ExpandComponent
+import com.pyamsoft.fridge.detail.item.fridge.DateSelectPayload
 import com.pyamsoft.fridge.entry.EntryComponent
 import com.pyamsoft.fridge.main.MainComponent
 import com.pyamsoft.fridge.setting.SettingComponent
@@ -80,6 +82,8 @@ internal interface FridgeComponent {
   @CheckResult
   fun plusSettingComponent(): SettingComponent.Factory
 
+  fun inject(dialog: DatePickerDialogFragment)
+
   @Component.Factory
   interface Factory {
 
@@ -101,6 +105,13 @@ internal interface FridgeComponent {
     @JvmStatic
     @Singleton
     internal fun provideFakeItemRealtime(): EventBus<FridgeItemChangeEvent> {
+      return RxBus.create()
+    }
+
+    @Provides
+    @JvmStatic
+    @Singleton
+    internal fun provideDateSelectBus(): EventBus<DateSelectPayload> {
       return RxBus.create()
     }
 

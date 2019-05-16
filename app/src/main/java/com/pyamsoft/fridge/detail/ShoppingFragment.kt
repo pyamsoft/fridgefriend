@@ -27,6 +27,7 @@ import androidx.fragment.app.Fragment
 import com.pyamsoft.fridge.FridgeComponent
 import com.pyamsoft.fridge.R
 import com.pyamsoft.fridge.db.item.FridgeItem
+import com.pyamsoft.fridge.detail.list.DetailListControllerEvent.DatePick
 import com.pyamsoft.fridge.detail.list.DetailListControllerEvent.ExpandForEditing
 import com.pyamsoft.fridge.detail.shop.list.ShoppingList
 import com.pyamsoft.fridge.detail.shop.list.ShoppingListViewModel
@@ -78,6 +79,7 @@ internal class ShoppingFragment : Fragment() {
     ) {
       return@createComponent when (it) {
         is ExpandForEditing -> expandItem(it.item)
+        is DatePick -> pickDate(it.oldItem, it.year, it.month, it.day)
       }
     }
 
@@ -110,6 +112,15 @@ internal class ShoppingFragment : Fragment() {
 
   private fun expandItem(item: FridgeItem) {
     Timber.d("NOOP for shopping expand: $item")
+  }
+
+  private fun pickDate(
+    oldItem: FridgeItem,
+    year: Int,
+    month: Int,
+    day: Int
+  ) {
+    Timber.d("NOOP for shopping date pick: $oldItem, $year $month $day")
   }
 
   companion object {

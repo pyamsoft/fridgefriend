@@ -31,6 +31,7 @@ import com.pyamsoft.fridge.R
 import com.pyamsoft.fridge.base.FridgeBottomSheetDialogFragment
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.JsonMappableFridgeItem
+import com.pyamsoft.fridge.detail.item.fridge.DetailItemControllerEvent.DatePick
 import com.pyamsoft.fridge.detail.item.fridge.DetailItemControllerEvent.ExpandDetails
 import com.pyamsoft.fridge.detail.item.fridge.DetailItemViewModel
 import com.pyamsoft.fridge.detail.item.fridge.DetailListItemDate
@@ -40,6 +41,7 @@ import com.pyamsoft.pydroid.arch.impl.createComponent
 import com.pyamsoft.pydroid.ui.Injector
 import com.pyamsoft.pydroid.ui.app.requireArguments
 import com.pyamsoft.pydroid.ui.util.layout
+import com.pyamsoft.pydroid.ui.util.show
 import com.pyamsoft.pydroid.util.toDp
 import timber.log.Timber
 import javax.inject.Inject
@@ -75,7 +77,8 @@ class ExpandedFragment : FridgeBottomSheetDialogFragment() {
         bottom = verticalPadding
     )
 
-    val item = requireNotNull(requireArguments().getParcelable<JsonMappableFridgeItem>(ITEM))
+    val item: FridgeItem =
+      requireNotNull(requireArguments().getParcelable<JsonMappableFridgeItem>(ITEM))
     Injector.obtain<FridgeComponent>(view.context.applicationContext)
         .plusExpandComponent()
         .create(parent, item)
@@ -93,6 +96,7 @@ class ExpandedFragment : FridgeBottomSheetDialogFragment() {
     ) {
       return@createComponent when (it) {
         is ExpandDetails -> expandItem(it.item)
+        is DatePick -> pickDate(it.oldItem, it.year, it.month, it.day)
       }
     }
 
@@ -124,6 +128,16 @@ class ExpandedFragment : FridgeBottomSheetDialogFragment() {
 
   private fun expandItem(item: FridgeItem) {
     Timber.d("Noop in expanded fragment: $item")
+  }
+
+  private fun pickDate(
+    oldItem: FridgeItem,
+    year: Int,
+    month: Int,
+    day: Int
+  ) {
+    DatePickerDialogFragment.newInstance(oldItem, year, month, day)
+        .show(requireActivity(), DatePickerDialogFragment.TAG)
   }
 
   override fun onSaveInstanceState(outState: Bundle) {

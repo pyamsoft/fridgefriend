@@ -36,6 +36,7 @@ import com.pyamsoft.fridge.detail.create.toolbar.CreationToolbar
 import com.pyamsoft.fridge.detail.create.toolbar.CreationToolbarControllerEvent.EntryArchived
 import com.pyamsoft.fridge.detail.create.toolbar.CreationToolbarControllerEvent.NavigateUp
 import com.pyamsoft.fridge.detail.create.toolbar.CreationToolbarViewModel
+import com.pyamsoft.fridge.detail.list.DetailListControllerEvent.DatePick
 import com.pyamsoft.fridge.detail.list.DetailListControllerEvent.ExpandForEditing
 import com.pyamsoft.pydroid.arch.impl.createComponent
 import com.pyamsoft.pydroid.ui.Injector
@@ -93,6 +94,7 @@ internal class CreationFragment : Fragment() {
     ) {
       return@createComponent when (it) {
         is ExpandForEditing -> expandItem(it.item)
+        is DatePick -> pickDate(it.oldItem, it.year, it.month, it.day)
       }
     }
 
@@ -123,6 +125,16 @@ internal class CreationFragment : Fragment() {
         constrainHeight(it.id(), ConstraintSet.MATCH_CONSTRAINT)
       }
     }
+  }
+
+  private fun pickDate(
+    oldItem: FridgeItem,
+    year: Int,
+    month: Int,
+    day: Int
+  ) {
+    DatePickerDialogFragment.newInstance(oldItem, year, month, day)
+        .show(requireActivity(), DatePickerDialogFragment.TAG)
   }
 
   override fun onSaveInstanceState(outState: Bundle) {

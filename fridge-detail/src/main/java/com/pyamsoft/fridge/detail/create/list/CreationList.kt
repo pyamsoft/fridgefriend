@@ -23,6 +23,7 @@ import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent
 import com.pyamsoft.fridge.detail.item.DaggerDetailItemComponent
 import com.pyamsoft.fridge.detail.item.DetailItemComponent
+import com.pyamsoft.fridge.detail.item.fridge.DateSelectPayload
 import com.pyamsoft.fridge.detail.list.DetailList
 import com.pyamsoft.pydroid.core.bus.EventBus
 import com.pyamsoft.pydroid.loader.ImageLoader
@@ -35,7 +36,8 @@ class CreationList @Inject internal constructor(
   private val interactor: CreationListInteractor,
   private val imageLoader: ImageLoader,
   private val theming: Theming,
-  private val fakeRealtime: EventBus<FridgeItemChangeEvent>
+  private val fakeRealtime: EventBus<FridgeItemChangeEvent>,
+  private val dateSelectBus: EventBus<DateSelectPayload>
 ) : DetailList(parent, owner, editable = true) {
 
   override fun createDaggerComponent(
@@ -44,7 +46,11 @@ class CreationList @Inject internal constructor(
     editable: Boolean
   ): DetailItemComponent {
     return DaggerDetailItemComponent.factory()
-        .create(parent, item, editable, imageLoader, theming, interactor, fakeRealtime)
+        .create(
+            parent, item, editable,
+            imageLoader, theming, interactor,
+            fakeRealtime, dateSelectBus
+        )
   }
 
 }

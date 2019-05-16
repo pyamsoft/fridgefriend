@@ -35,6 +35,7 @@ import com.pyamsoft.fridge.detail.item.ListItemLifecycle
 import com.pyamsoft.fridge.detail.item.add.AddNewControllerEvent.AddNew
 import com.pyamsoft.fridge.detail.item.add.AddNewItemView
 import com.pyamsoft.fridge.detail.item.add.AddNewItemViewModel
+import com.pyamsoft.fridge.detail.item.fridge.DetailItemControllerEvent.DatePick
 import com.pyamsoft.fridge.detail.item.fridge.DetailItemControllerEvent.ExpandDetails
 import com.pyamsoft.fridge.detail.item.fridge.DetailItemViewModel
 import com.pyamsoft.fridge.detail.item.fridge.DetailListItemDate
@@ -178,6 +179,7 @@ internal class DetailListAdapter constructor(
       ) {
         return@createComponent when (it) {
           is ExpandDetails -> callback.onItemExpanded(it.item)
+          is DatePick -> callback.onPickDate(it.oldItem, it.year, it.month, it.day)
         }
       }
 
@@ -285,6 +287,13 @@ internal class DetailListAdapter constructor(
   interface Callback {
 
     fun onItemExpanded(item: FridgeItem)
+
+    fun onPickDate(
+      oldItem: FridgeItem,
+      year: Int,
+      month: Int,
+      day: Int
+    )
 
   }
 

@@ -38,12 +38,26 @@ sealed class DetailListViewEvent : UiViewEvent {
 
   data class ExpandItem internal constructor(val item: FridgeItem) : DetailListViewEvent()
 
+  data class PickDate internal constructor(
+    val oldItem: FridgeItem,
+    val year: Int,
+    val month: Int,
+    val day: Int
+  ) : DetailListViewEvent()
+
 }
 
 sealed class DetailListControllerEvent : UiControllerEvent {
 
   data class ExpandForEditing internal constructor(
     val item: FridgeItem
+  ) : DetailListControllerEvent()
+
+  data class DatePick internal constructor(
+    val oldItem: FridgeItem,
+    val year: Int,
+    val month: Int,
+    val day: Int
   ) : DetailListControllerEvent()
 
 }

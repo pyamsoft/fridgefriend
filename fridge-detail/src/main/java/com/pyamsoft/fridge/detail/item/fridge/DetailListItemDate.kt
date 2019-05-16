@@ -17,15 +17,14 @@
 
 package com.pyamsoft.fridge.detail.item.fridge
 
-import android.text.Editable
-import android.text.TextWatcher
 import android.view.ViewGroup
-import android.widget.EditText
+import android.widget.TextView
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.detail.R
-import com.pyamsoft.fridge.detail.item.fridge.DetailItemViewEvent.CommitDate
+import com.pyamsoft.fridge.detail.item.fridge.DetailItemViewEvent.PickDate
 import com.pyamsoft.pydroid.arch.impl.BaseUiView
 import com.pyamsoft.pydroid.arch.impl.onChange
+import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
 import timber.log.Timber
 import java.util.Calendar
 import javax.inject.Inject
@@ -36,12 +35,7 @@ class DetailListItemDate @Inject internal constructor(
 
   override val layout: Int = R.layout.detail_list_item_date
 
-  override val layoutRoot by boundView<ViewGroup>(R.id.detail_item_date)
-  private val monthView by boundView<EditText>(R.id.detail_item_date_month)
-  private val dayView by boundView<EditText>(R.id.detail_item_date_day)
-  private val yearView by boundView<EditText>(R.id.detail_item_date_year)
-
-  private var dateWatcher: TextWatcher? = null
+  override val layoutRoot by boundView<TextView>(R.id.detail_item_date)
 
   override fun onRender(
     state: DetailItemViewState,
@@ -51,6 +45,9 @@ class DetailListItemDate @Inject internal constructor(
       removeListeners()
       val isEditable = state.isEditable
 
+      val month: Int
+      val day: Int
+      val year: Int
       if (item.expireTime() != FridgeItem.EMPTY_EXPIRE_TIME) {
         val date = Calendar.getInstance()
             .apply {
@@ -59,45 +56,28 @@ class DetailListItemDate @Inject internal constructor(
         Timber.d("Expire time is: $date")
 
         // Month is zero indexed in storage
-        val month = date.get(Calendar.MONTH) + 1
-        val day = date.get(Calendar.DAY_OF_MONTH)
-        val year = date.get(Calendar.YEAR)
+        month = date.get(Calendar.MONTH)
+        day = date.get(Calendar.DAY_OF_MONTH)
+        year = date.get(Calendar.YEAR)
 
-        monthView.setTextKeepState("$month".padStart(2, '0'))
-        dayView.setTextKeepState("$day".padStart(2, '0'))
-        yearView.setTextKeepState("$year".padStart(4, '0'))
+        val dateString =
+          "${"${month + 1}".padStart(2, '0')}/${
+          "$day".padStart(2, '0')}/${
+          "$year".padStart(4, '0')}"
+        layoutRoot.text = dateString
+      } else {
+        month = 0
+        day = 0
+        year = 0
+        layoutRoot.text = "__/__/____"
       }
 
       if (isEditable && !item.isArchived()) {
-        val watcher = object : TextWatcher {
-          override fun afterTextChanged(s: Editable?) {
-            commit(item)
-          }
-
-          override fun beforeTextChanged(
-            s: CharSequence?,
-            start: Int,
-            count: Int,
-            after: Int
-          ) {
-          }
-
-          override fun onTextChanged(
-            s: CharSequence?,
-            start: Int,
-            before: Int,
-            count: Int
-          ) {
-          }
+        layoutRoot.setOnDebouncedClickListener {
+          publish(PickDate(item, year, month, day))
         }
-        monthView.addTextChangedListener(watcher)
-        dayView.addTextChangedListener(watcher)
-        yearView.addTextChangedListener(watcher)
-        dateWatcher = watcher
       } else {
-        monthView.setNotEditable()
-        dayView.setNotEditable()
-        yearView.setNotEditable()
+        removeListeners()
       }
     }
   }
@@ -107,22 +87,7 @@ class DetailListItemDate @Inject internal constructor(
   }
 
   private fun removeListeners() {
-    dateWatcher?.let { watcher ->
-      monthView.removeTextChangedListener(watcher)
-      dayView.removeTextChangedListener(watcher)
-      yearView.removeTextChangedListener(watcher)
-    }
-    dateWatcher = null
-  }
-
-  private fun commit(item: FridgeItem) {
-    val month = monthView.text.toString()
-    val day = dayView.text.toString()
-    val year = yearView.text.toString()
-    val yearNumber = if (year.isBlank()) 0 else year.toIntOrNull() ?: 0
-    val monthNumber = if (month.isBlank()) 0 else month.toIntOrNull() ?: 0
-    val dayNumber = if (day.isBlank()) 0 else day.toIntOrNull() ?: 0
-    publish(CommitDate(item, yearNumber, monthNumber, dayNumber))
+    layoutRoot.setOnDebouncedClickListener(null)
   }
 
 }

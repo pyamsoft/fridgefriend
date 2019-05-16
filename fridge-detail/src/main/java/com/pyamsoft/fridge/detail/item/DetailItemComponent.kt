@@ -22,6 +22,7 @@ import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent
 import com.pyamsoft.fridge.detail.create.list.CreationListInteractor
+import com.pyamsoft.fridge.detail.item.fridge.DateSelectPayload
 import com.pyamsoft.fridge.detail.list.DetailListAdapter
 import com.pyamsoft.pydroid.core.bus.EventBus
 import com.pyamsoft.pydroid.loader.ImageLoader
@@ -49,7 +50,8 @@ internal interface DetailItemComponent {
       @BindsInstance imageLoader: ImageLoader,
       @BindsInstance theming: Theming,
       @BindsInstance interactor: CreationListInteractor,
-      @BindsInstance fakeRealtime: EventBus<FridgeItemChangeEvent>
+      @BindsInstance fakeRealtime: EventBus<FridgeItemChangeEvent>,
+      @BindsInstance dateSelectBus: EventBus<DateSelectPayload>
     ): DetailItemComponent
 
   }

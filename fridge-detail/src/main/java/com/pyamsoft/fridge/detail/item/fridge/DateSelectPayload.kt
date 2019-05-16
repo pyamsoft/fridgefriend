@@ -17,13 +17,11 @@
 
 package com.pyamsoft.fridge.detail.item.fridge
 
-import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.db.item.FridgeItem
-import java.util.Calendar
-import java.util.Date
 
-@CheckResult
-internal fun isNameValid(name: String): Boolean {
-  return name.isNotBlank() && name != FridgeItem.EMPTY_NAME
-}
-
+data class DateSelectPayload(
+  val oldItem: FridgeItem,
+  val year: Int,
+  val month: Int,
+  val day: Int
+)

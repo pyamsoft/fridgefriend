@@ -39,6 +39,7 @@ import com.pyamsoft.fridge.detail.R.drawable
 import com.pyamsoft.fridge.detail.item.DetailItemComponent
 import com.pyamsoft.fridge.detail.list.DetailListViewEvent.ExpandItem
 import com.pyamsoft.fridge.detail.list.DetailListViewEvent.ForceRefresh
+import com.pyamsoft.fridge.detail.list.DetailListViewEvent.PickDate
 import com.pyamsoft.pydroid.arch.impl.BaseUiView
 import com.pyamsoft.pydroid.arch.impl.onChange
 import com.pyamsoft.pydroid.ui.util.Snackbreak
@@ -81,6 +82,15 @@ abstract class DetailList protected constructor(
 
         override fun onItemExpanded(item: FridgeItem) {
           publish(ExpandItem(item))
+        }
+
+        override fun onPickDate(
+          oldItem: FridgeItem,
+          year: Int,
+          month: Int,
+          day: Int
+        ) {
+          publish(PickDate(oldItem, year, month, day))
         }
 
       })

@@ -23,9 +23,11 @@ import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent.Delete
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent.Insert
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent.Update
+import com.pyamsoft.fridge.detail.list.DetailListControllerEvent.DatePick
 import com.pyamsoft.fridge.detail.list.DetailListControllerEvent.ExpandForEditing
 import com.pyamsoft.fridge.detail.list.DetailListViewEvent.ExpandItem
 import com.pyamsoft.fridge.detail.list.DetailListViewEvent.ForceRefresh
+import com.pyamsoft.fridge.detail.list.DetailListViewEvent.PickDate
 import com.pyamsoft.fridge.detail.list.DetailListViewState.Loading
 import com.pyamsoft.pydroid.arch.impl.BaseUiViewModel
 import com.pyamsoft.pydroid.core.bus.EventBus
@@ -69,6 +71,7 @@ abstract class DetailListViewModel protected constructor(
     return when (event) {
       is ForceRefresh -> refreshList(true)
       is ExpandItem -> publish(ExpandForEditing(event.item))
+      is PickDate -> publish(DatePick(event.oldItem, event.year, event.month, event.day))
     }
   }
 
