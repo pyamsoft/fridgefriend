@@ -20,13 +20,13 @@ package com.pyamsoft.fridge.detail.item.add
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.detail.item.add.AddNewControllerEvent.AddNew
 import com.pyamsoft.fridge.detail.item.add.AddNewViewEvent.AddNewItemEvent
-import com.pyamsoft.pydroid.arch.impl.BaseUiViewModel
-import com.pyamsoft.pydroid.arch.impl.UnitViewState
+import com.pyamsoft.pydroid.arch.UiViewModel
+import com.pyamsoft.pydroid.arch.UnitViewState
 import javax.inject.Inject
 
 class AddNewItemViewModel @Inject internal constructor(
   private val item: FridgeItem
-) : BaseUiViewModel<UnitViewState, AddNewViewEvent, AddNewControllerEvent>(
+) : UiViewModel<UnitViewState, AddNewViewEvent, AddNewControllerEvent>(
     initialState = UnitViewState
 ) {
 

@@ -29,7 +29,7 @@ import com.pyamsoft.fridge.detail.list.DetailListViewEvent.ExpandItem
 import com.pyamsoft.fridge.detail.list.DetailListViewEvent.ForceRefresh
 import com.pyamsoft.fridge.detail.list.DetailListViewEvent.PickDate
 import com.pyamsoft.fridge.detail.list.DetailListViewState.Loading
-import com.pyamsoft.pydroid.arch.impl.BaseUiViewModel
+import com.pyamsoft.pydroid.arch.UiViewModel
 import com.pyamsoft.pydroid.core.bus.EventBus
 import com.pyamsoft.pydroid.core.singleDisposable
 import com.pyamsoft.pydroid.core.tryDispose
@@ -42,7 +42,7 @@ import timber.log.Timber
 abstract class DetailListViewModel protected constructor(
   protected val fakeRealtime: EventBus<FridgeItemChangeEvent>,
   private val filterArchived: Boolean
-) : BaseUiViewModel<DetailListViewState, DetailListViewEvent, DetailListControllerEvent>(
+) : UiViewModel<DetailListViewState, DetailListViewEvent, DetailListControllerEvent>(
     initialState = DetailListViewState(
         isLoading = null,
         throwable = null,
@@ -51,6 +51,7 @@ abstract class DetailListViewModel protected constructor(
 ) {
 
   private var refreshDisposable by singleDisposable()
+
   private var realtimeDisposable by singleDisposable()
   private var fakeRealtimeDisposable by singleDisposable()
 
@@ -63,10 +64,6 @@ abstract class DetailListViewModel protected constructor(
   @CheckResult
   protected abstract fun getListItems(items: List<FridgeItem>): List<FridgeItem>
 
-  final override fun onBind() {
-    refreshList(false)
-  }
-
   final override fun handleViewEvent(event: DetailListViewEvent) {
     return when (event) {
       is ForceRefresh -> refreshList(true)
@@ -75,9 +72,13 @@ abstract class DetailListViewModel protected constructor(
     }
   }
 
-  final override fun onUnbind() {
-    refreshDisposable.tryDispose()
+  final override fun onCleared() {
+    realtimeDisposable.tryDispose()
     fakeRealtimeDisposable.tryDispose()
+  }
+
+  fun fetchItems() {
+    refreshList(false)
   }
 
   private fun refreshList(force: Boolean) {

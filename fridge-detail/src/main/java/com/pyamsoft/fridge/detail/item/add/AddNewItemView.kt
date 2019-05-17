@@ -23,8 +23,8 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import com.pyamsoft.fridge.detail.R
 import com.pyamsoft.fridge.detail.item.add.AddNewViewEvent.AddNewItemEvent
-import com.pyamsoft.pydroid.arch.impl.BaseUiView
-import com.pyamsoft.pydroid.arch.impl.UnitViewState
+import com.pyamsoft.pydroid.arch.BaseUiView
+import com.pyamsoft.pydroid.arch.UnitViewState
 import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.loader.Loaded
 import com.pyamsoft.pydroid.ui.theme.Theming

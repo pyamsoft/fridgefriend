@@ -37,7 +37,7 @@ import com.pyamsoft.fridge.detail.item.fridge.DetailItemViewModel
 import com.pyamsoft.fridge.detail.item.fridge.DetailListItemDate
 import com.pyamsoft.fridge.detail.item.fridge.DetailListItemName
 import com.pyamsoft.fridge.detail.item.fridge.DetailListItemPresence
-import com.pyamsoft.pydroid.arch.impl.createComponent
+import com.pyamsoft.pydroid.arch.createComponent
 import com.pyamsoft.pydroid.ui.Injector
 import com.pyamsoft.pydroid.ui.app.requireArguments
 import com.pyamsoft.pydroid.ui.util.layout
@@ -122,8 +122,9 @@ class ExpandedFragment : FridgeBottomSheetDialogFragment() {
         connect(it.id(), ConstraintSet.END, date.id(), ConstraintSet.START)
         constrainWidth(it.id(), ConstraintSet.MATCH_CONSTRAINT)
       }
-
     }
+
+    requireNotNull(viewModel).beginObservingItem()
   }
 
   private fun expandItem(item: FridgeItem) {

@@ -19,12 +19,12 @@ package com.pyamsoft.fridge.detail.shop.toolbar
 
 import com.pyamsoft.fridge.detail.shop.toolbar.ShoppingToolbarControllerEvent.NavigateUp
 import com.pyamsoft.fridge.detail.shop.toolbar.ShoppingToolbarViewEvent.Close
-import com.pyamsoft.pydroid.arch.impl.BaseUiViewModel
-import com.pyamsoft.pydroid.arch.impl.UnitViewState
+import com.pyamsoft.pydroid.arch.UiViewModel
+import com.pyamsoft.pydroid.arch.UnitViewState
 import javax.inject.Inject
 
 class ShoppingToolbarViewModel @Inject internal constructor(
-) : BaseUiViewModel<UnitViewState, ShoppingToolbarViewEvent, ShoppingToolbarControllerEvent>(
+) : UiViewModel<UnitViewState, ShoppingToolbarViewEvent, ShoppingToolbarControllerEvent>(
     initialState = UnitViewState
 ) {
 

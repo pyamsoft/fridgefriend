@@ -28,8 +28,7 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.OnLifecycleEvent
 import com.pyamsoft.fridge.ocr.OcrViewEvent.CameraError
 import com.pyamsoft.fridge.ocr.OcrViewEvent.PreviewFrame
-import com.pyamsoft.pydroid.arch.impl.BaseUiView
-import com.pyamsoft.pydroid.arch.impl.onChange
+import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.ui.util.Snackbreak
 import io.fotoapparat.Fotoapparat
 import io.fotoapparat.configuration.CameraConfiguration
@@ -123,7 +122,7 @@ class OcrScannerView @Inject internal constructor(
     state: OcrViewState,
     oldState: OcrViewState?
   ) {
-    state.onChange(oldState, field = { it.throwable }) { throwable ->
+    state.throwable.let { throwable ->
       if (throwable == null) {
         clearError()
       } else {

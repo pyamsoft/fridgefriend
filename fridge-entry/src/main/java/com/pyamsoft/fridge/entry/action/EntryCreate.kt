@@ -22,6 +22,7 @@ import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewGroup.MarginLayoutParams
+import android.view.animation.Animation
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewPropertyAnimatorListenerAdapter
 import androidx.core.view.isVisible
@@ -30,8 +31,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.pyamsoft.fridge.entry.R
 import com.pyamsoft.fridge.entry.action.EntryActionViewEvent.CreateClicked
 import com.pyamsoft.fridge.entry.action.EntryActionViewEvent.FirstAnimationDone
-import com.pyamsoft.pydroid.arch.impl.BaseUiView
-import com.pyamsoft.pydroid.arch.impl.onChange
+import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.loader.Loaded
 import com.pyamsoft.pydroid.ui.theme.Theming
@@ -50,14 +50,17 @@ class EntryCreate @Inject internal constructor(
 
   override val layoutRoot by boundView<FloatingActionButton>(R.id.entry_create)
 
+  private var isPopping: Unit? = null
   private var createIconLoaded: Loaded? = null
+  private var animation: Animation? = null
 
   override fun onInflated(
     view: View,
     savedInstanceState: Bundle?
   ) {
     layoutRoot.setOnDebouncedClickListener {
-      it.wiggle { publish(CreateClicked) }
+      animation?.cancel()
+      animation = it.wiggle { publish(CreateClicked) }
     }
 
     val createBackground: Int
@@ -82,14 +85,17 @@ class EntryCreate @Inject internal constructor(
   override fun onTeardown() {
     layoutRoot.setOnClickListener(null)
     createIconLoaded?.dispose()
+    animation?.cancel()
+
     createIconLoaded = null
+    animation = null
   }
 
   override fun onRender(
     state: EntryActionViewState,
     oldState: EntryActionViewState?
   ) {
-    state.onChange(oldState, field = { it.spacing }) { spacing ->
+    state.spacing.let { spacing ->
       if (spacing.isLaidOut) {
         show(spacing.gap, spacing.margin) {
           publish(FirstAnimationDone)
@@ -103,23 +109,29 @@ class EntryCreate @Inject internal constructor(
     margin: Int,
     crossinline onShown: () -> Unit
   ) {
-    layoutRoot.popShow(listener = object : ViewPropertyAnimatorListenerAdapter() {
-      override fun onAnimationStart(view: View?) {
-        super.onAnimationStart(view)
-        view?.isVisible = true
+    if (isPopping == null) {
+      isPopping = layoutRoot.popShow(listener = object : ViewPropertyAnimatorListenerAdapter() {
+        override fun onAnimationStart(view: View?) {
+          super.onAnimationStart(view)
+          if (view != null) {
+            view.isVisible = true
 
-        // Causes visibility to update?
-        layoutRoot.updateLayoutParams<MarginLayoutParams> {
-          marginEnd = gap + margin
-          bottomMargin = (margin * 1.5).toInt()
+            // Causes visibility to update?
+            view.updateLayoutParams<MarginLayoutParams> {
+              marginEnd = gap + margin
+              bottomMargin = (margin * 1.5).toInt()
+            }
+          }
         }
-      }
 
-      override fun onAnimationEnd(view: View?) {
-        super.onAnimationEnd(view)
-        onShown()
-      }
-    })
+        override fun onAnimationEnd(view: View?) {
+          super.onAnimationEnd(view)
+          if (view != null) {
+            onShown()
+          }
+        }
+      })
+    }
   }
 
 }

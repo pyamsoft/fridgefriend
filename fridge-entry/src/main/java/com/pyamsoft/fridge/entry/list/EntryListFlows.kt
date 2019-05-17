@@ -34,7 +34,7 @@ data class EntryListViewState(
 
 sealed class EntryListViewEvent : UiViewEvent {
 
-  object ForceRefresh : EntryListViewEvent()
+  data class RunRefresh(val force: Boolean) : EntryListViewEvent()
 
   data class OpenEntry internal constructor(val entry: FridgeEntry) : EntryListViewEvent()
 

@@ -29,7 +29,6 @@ import com.pyamsoft.fridge.detail.item.fridge.DateSelectPayload
 import com.pyamsoft.pydroid.core.bus.EventBus
 import com.pyamsoft.pydroid.ui.Injector
 import com.pyamsoft.pydroid.ui.app.requireArguments
-import com.pyamsoft.pydroid.ui.theme.Theming
 import java.util.Calendar
 import javax.inject.Inject
 

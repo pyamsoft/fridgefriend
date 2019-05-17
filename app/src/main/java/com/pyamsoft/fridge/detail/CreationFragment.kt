@@ -38,13 +38,12 @@ import com.pyamsoft.fridge.detail.create.toolbar.CreationToolbarControllerEvent.
 import com.pyamsoft.fridge.detail.create.toolbar.CreationToolbarViewModel
 import com.pyamsoft.fridge.detail.list.DetailListControllerEvent.DatePick
 import com.pyamsoft.fridge.detail.list.DetailListControllerEvent.ExpandForEditing
-import com.pyamsoft.pydroid.arch.impl.createComponent
+import com.pyamsoft.pydroid.arch.createComponent
 import com.pyamsoft.pydroid.ui.Injector
 import com.pyamsoft.pydroid.ui.app.requireArguments
 import com.pyamsoft.pydroid.ui.app.requireToolbarActivity
 import com.pyamsoft.pydroid.ui.util.layout
 import com.pyamsoft.pydroid.ui.util.show
-import timber.log.Timber
 import javax.inject.Inject
 
 internal class CreationFragment : Fragment() {
@@ -126,6 +125,10 @@ internal class CreationFragment : Fragment() {
         constrainHeight(it.id(), ConstraintSet.MATCH_CONSTRAINT)
       }
     }
+
+    requireNotNull(toolbarViewModel).beginMonitoringEntry()
+    requireNotNull(titleViewModel).beginObservingName()
+    requireNotNull(listViewModel).fetchItems()
   }
 
   private fun pickDate(

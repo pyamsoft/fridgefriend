@@ -19,8 +19,7 @@ package com.pyamsoft.fridge.ocr
 
 import android.view.ViewGroup
 import android.widget.TextView
-import com.pyamsoft.pydroid.arch.impl.BaseUiView
-import com.pyamsoft.pydroid.arch.impl.onChange
+import com.pyamsoft.pydroid.arch.BaseUiView
 import javax.inject.Inject
 
 class OcrLookingLabel @Inject internal constructor(
@@ -35,7 +34,7 @@ class OcrLookingLabel @Inject internal constructor(
     state: OcrViewState,
     oldState: OcrViewState?
   ) {
-    state.onChange(oldState, field = { it.text }) { text ->
+    state.text.let { text ->
       layoutRoot.text = text
     }
   }

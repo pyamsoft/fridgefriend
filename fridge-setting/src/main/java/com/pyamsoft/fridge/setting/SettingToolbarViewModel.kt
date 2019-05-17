@@ -19,12 +19,12 @@ package com.pyamsoft.fridge.setting
 
 import com.pyamsoft.fridge.setting.SettingToolbarControllerEvent.NavigateUp
 import com.pyamsoft.fridge.setting.SettingToolbarViewEvent.ToolbarNavigate
-import com.pyamsoft.pydroid.arch.impl.BaseUiViewModel
-import com.pyamsoft.pydroid.arch.impl.UnitViewState
+import com.pyamsoft.pydroid.arch.UiViewModel
+import com.pyamsoft.pydroid.arch.UnitViewState
 import javax.inject.Inject
 
 class SettingToolbarViewModel @Inject internal constructor(
-) : BaseUiViewModel<UnitViewState, SettingToolbarViewEvent, SettingToolbarControllerEvent>(
+) : UiViewModel<UnitViewState, SettingToolbarViewEvent, SettingToolbarControllerEvent>(
     initialState = UnitViewState
 ) {
 

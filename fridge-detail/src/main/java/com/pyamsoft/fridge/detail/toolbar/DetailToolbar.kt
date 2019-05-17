@@ -18,9 +18,9 @@
 package com.pyamsoft.fridge.detail.toolbar
 
 import android.os.Bundle
+import com.pyamsoft.pydroid.arch.UiView
 import com.pyamsoft.pydroid.arch.UiViewEvent
 import com.pyamsoft.pydroid.arch.UiViewState
-import com.pyamsoft.pydroid.arch.impl.AbstractUiView
 import com.pyamsoft.pydroid.ui.app.ToolbarActivity
 import com.pyamsoft.pydroid.ui.arch.InvalidIdException
 import com.pyamsoft.pydroid.ui.util.DebouncedOnClickListener
@@ -29,7 +29,7 @@ import com.pyamsoft.pydroid.ui.util.setUpEnabled
 abstract class DetailToolbar<S : UiViewState, V : UiViewEvent> protected constructor(
   protected val toolbarActivity: ToolbarActivity,
   private val provideNavigationEvent: () -> V
-) : AbstractUiView<S, V>() {
+) : UiView<S, V>() {
 
   protected abstract fun onInflate(savedInstanceState: Bundle?)
 
@@ -54,9 +54,9 @@ abstract class DetailToolbar<S : UiViewState, V : UiViewEvent> protected constru
   }
 
   final override fun teardown() {
-    toolbarActivity.withToolbar { toolber ->
-      toolber.setUpEnabled(false)
-      toolber.setNavigationOnClickListener(null)
+    toolbarActivity.withToolbar { toolbar ->
+      toolbar.setUpEnabled(false)
+      toolbar.setNavigationOnClickListener(null)
     }
 
     onTeardown()

@@ -32,7 +32,7 @@ import com.pyamsoft.fridge.detail.item.fridge.DetailItemViewEvent.CommitName
 import com.pyamsoft.fridge.detail.item.fridge.DetailItemViewEvent.CommitPresence
 import com.pyamsoft.fridge.detail.item.fridge.DetailItemViewEvent.ExpandItem
 import com.pyamsoft.fridge.detail.item.fridge.DetailItemViewEvent.PickDate
-import com.pyamsoft.pydroid.arch.impl.BaseUiViewModel
+import com.pyamsoft.pydroid.arch.UiViewModel
 import com.pyamsoft.pydroid.core.bus.EventBus
 import com.pyamsoft.pydroid.core.singleDisposable
 import com.pyamsoft.pydroid.core.tryDispose
@@ -52,7 +52,7 @@ class DetailItemViewModel @Inject internal constructor(
   private val fakeRealtime: EventBus<FridgeItemChangeEvent>,
   private val dateSelectBus: EventBus<DateSelectPayload>,
   private val realtime: FridgeItemRealtime
-) : BaseUiViewModel<DetailItemViewState, DetailItemViewEvent, DetailItemControllerEvent>(
+) : UiViewModel<DetailItemViewState, DetailItemViewEvent, DetailItemControllerEvent>(
     initialState = DetailItemViewState(throwable = null, item = item, isEditable = isEditable)
 ) {
 
@@ -65,7 +65,21 @@ class DetailItemViewModel @Inject internal constructor(
   private var dateDisposable by singleDisposable()
   private var realtimeDisposable by singleDisposable()
 
-  override fun onBind() {
+  override fun handleViewEvent(event: DetailItemViewEvent) {
+    return when (event) {
+      is CommitName -> commitName(event.oldItem, event.name)
+      is CommitPresence -> commitPresence(event.oldItem, event.presence)
+      is ExpandItem -> expandItem(event.item)
+      is PickDate -> pickDate(event.oldItem, event.year, event.month, event.day)
+    }
+  }
+
+  override fun onCleared() {
+    dateDisposable.tryDispose()
+    realtimeDisposable.tryDispose()
+  }
+
+  fun beginObservingItem() {
     dateDisposable = dateSelectBus.listen()
         .filter { it.oldItem.entryId() == itemEntryId }
         .filter { it.oldItem.id() == itemId }
@@ -91,20 +105,6 @@ class DetailItemViewModel @Inject internal constructor(
   private fun handleModelUpdate(newItem: FridgeItem) {
     if (itemId == newItem.id()) {
       setState { copy(item = newItem) }
-    }
-  }
-
-  override fun onUnbind() {
-    dateDisposable.tryDispose()
-    realtimeDisposable.tryDispose()
-  }
-
-  override fun handleViewEvent(event: DetailItemViewEvent) {
-    return when (event) {
-      is CommitName -> commitName(event.oldItem, event.name)
-      is CommitPresence -> commitPresence(event.oldItem, event.presence)
-      is ExpandItem -> expandItem(event.item)
-      is PickDate -> pickDate(event.oldItem, event.year, event.month, event.day)
     }
   }
 

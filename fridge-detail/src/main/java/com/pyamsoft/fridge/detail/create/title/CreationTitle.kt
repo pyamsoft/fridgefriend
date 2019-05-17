@@ -26,8 +26,7 @@ import androidx.lifecycle.LifecycleOwner
 import com.google.android.material.textfield.TextInputLayout
 import com.pyamsoft.fridge.detail.R
 import com.pyamsoft.fridge.detail.create.title.CreationTitleViewEvent.NameUpdate
-import com.pyamsoft.pydroid.arch.impl.BaseUiView
-import com.pyamsoft.pydroid.arch.impl.onChange
+import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.ui.util.Snackbreak
 import javax.inject.Inject
 
@@ -115,11 +114,8 @@ class CreationTitle @Inject internal constructor(
     state: CreationTitleViewState,
     oldState: CreationTitleViewState?
   ) {
-    state.onChange(oldState, field = { it.name }) { name ->
-      updateName(name)
-    }
-
-    state.onChange(oldState, field = { it.throwable }) { throwable ->
+    updateName(state.name)
+    state.throwable.let { throwable ->
       if (throwable == null) {
         clearError()
       } else {

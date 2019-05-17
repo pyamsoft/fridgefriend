@@ -21,8 +21,7 @@ import android.os.Bundle
 import android.view.MenuItem
 import com.pyamsoft.fridge.entry.R
 import com.pyamsoft.fridge.entry.toolbar.EntryToolbarViewEvent.SettingsNavigate
-import com.pyamsoft.pydroid.arch.impl.AbstractUiView
-import com.pyamsoft.pydroid.arch.impl.onChange
+import com.pyamsoft.pydroid.arch.UiView
 import com.pyamsoft.pydroid.ui.app.ToolbarActivity
 import com.pyamsoft.pydroid.ui.arch.InvalidIdException
 import com.pyamsoft.pydroid.ui.util.setUpEnabled
@@ -32,7 +31,7 @@ import javax.inject.Named
 class EntryToolbar @Inject internal constructor(
   private val toolbarActivity: ToolbarActivity,
   @Named("app_name") private val appNameRes: Int
-) : AbstractUiView<EntryToolbarViewState, EntryToolbarViewEvent>() {
+) : UiView<EntryToolbarViewState, EntryToolbarViewEvent>() {
 
   override fun id(): Int {
     throw InvalidIdException
@@ -87,9 +86,7 @@ class EntryToolbar @Inject internal constructor(
     state: EntryToolbarViewState,
     oldState: EntryToolbarViewState?
   ) {
-    state.onChange(oldState, field = { it.isMenuVisible }) { show ->
-      showMenu(show)
-    }
+    showMenu(state.isMenuVisible)
   }
 
 }

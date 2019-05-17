@@ -19,7 +19,7 @@ package com.pyamsoft.fridge.ocr
 
 import com.pyamsoft.fridge.ocr.OcrViewEvent.CameraError
 import com.pyamsoft.fridge.ocr.OcrViewEvent.PreviewFrame
-import com.pyamsoft.pydroid.arch.impl.BaseUiViewModel
+import com.pyamsoft.pydroid.arch.UiViewModel
 import com.pyamsoft.pydroid.core.singleDisposable
 import com.pyamsoft.pydroid.core.tryDispose
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -29,7 +29,7 @@ import javax.inject.Inject
 
 class OcrViewModel @Inject internal constructor(
   private val interactor: OcrScannerInteractor
-) : BaseUiViewModel<OcrViewState, OcrViewEvent, OcrControllerEvent>(
+) : UiViewModel<OcrViewState, OcrViewEvent, OcrControllerEvent>(
     initialState = OcrViewState(text = "", throwable = null)
 ) {
 

@@ -20,7 +20,7 @@ package com.pyamsoft.fridge.detail.shop.toolbar
 import android.os.Bundle
 import com.pyamsoft.fridge.detail.shop.toolbar.ShoppingToolbarViewEvent.Close
 import com.pyamsoft.fridge.detail.toolbar.DetailToolbar
-import com.pyamsoft.pydroid.arch.impl.UnitViewState
+import com.pyamsoft.pydroid.arch.UnitViewState
 import com.pyamsoft.pydroid.ui.app.ToolbarActivity
 import javax.inject.Inject
 

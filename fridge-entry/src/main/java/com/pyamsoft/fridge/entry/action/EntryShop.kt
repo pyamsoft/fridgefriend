@@ -20,13 +20,13 @@ package com.pyamsoft.fridge.entry.action
 import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.Animation
 import androidx.core.view.marginEnd
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.pyamsoft.fridge.entry.R
 import com.pyamsoft.fridge.entry.action.EntryActionViewEvent.ShopClicked
 import com.pyamsoft.fridge.entry.action.EntryActionViewEvent.SpacingCalculated
-import com.pyamsoft.pydroid.arch.impl.BaseUiView
-import com.pyamsoft.pydroid.arch.impl.onChange
+import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.loader.Loaded
 import com.pyamsoft.pydroid.ui.util.popShow
@@ -42,14 +42,17 @@ class EntryShop @Inject internal constructor(
 
   override val layoutRoot by boundView<FloatingActionButton>(R.id.entry_shop)
 
+  private var isPopping: Unit? = null
   private var shopIconLoaded: Loaded? = null
+  private var animation: Animation? = null
 
   override fun onInflated(
     view: View,
     savedInstanceState: Bundle?
   ) {
     layoutRoot.setOnDebouncedClickListener {
-      it.wiggle { publish(ShopClicked) }
+      animation?.cancel()
+      animation = it.wiggle { publish(ShopClicked) }
     }
 
     shopIconLoaded?.dispose()
@@ -60,14 +63,17 @@ class EntryShop @Inject internal constructor(
   override fun onTeardown() {
     layoutRoot.setOnClickListener(null)
     shopIconLoaded?.dispose()
+    animation?.cancel()
+
     shopIconLoaded = null
+    animation = null
   }
 
   override fun onRender(
     state: EntryActionViewState,
     oldState: EntryActionViewState?
   ) {
-    state.onChange(oldState, field = { it.spacing }) { spacing ->
+    state.spacing.let { spacing ->
       if (!spacing.isLaidOut) {
         onLaidOut { gap, margin -> publish(SpacingCalculated(gap, margin)) }
       } else if (spacing.isFirstAnimationDone) {
@@ -85,7 +91,9 @@ class EntryShop @Inject internal constructor(
   }
 
   private fun show() {
-    layoutRoot.popShow()
+    if (isPopping == null) {
+      isPopping = layoutRoot.popShow()
+    }
   }
 
 }

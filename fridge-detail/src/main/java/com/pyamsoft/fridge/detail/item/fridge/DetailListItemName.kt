@@ -24,8 +24,7 @@ import android.widget.EditText
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.detail.R
 import com.pyamsoft.fridge.detail.item.fridge.DetailItemViewEvent.CommitName
-import com.pyamsoft.pydroid.arch.impl.BaseUiView
-import com.pyamsoft.pydroid.arch.impl.onChange
+import com.pyamsoft.pydroid.arch.BaseUiView
 import javax.inject.Inject
 
 class DetailListItemName @Inject internal constructor(
@@ -44,7 +43,7 @@ class DetailListItemName @Inject internal constructor(
     state: DetailItemViewState,
     oldState: DetailItemViewState?
   ) {
-    state.onChange(oldState, field = { it.item }) { item ->
+    state.item.let { item ->
       removeListeners()
       val isEditable = state.isEditable
 

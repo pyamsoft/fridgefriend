@@ -42,7 +42,7 @@ import com.pyamsoft.fridge.entry.toolbar.EntryToolbarControllerEvent.NavigateToS
 import com.pyamsoft.fridge.entry.toolbar.EntryToolbarViewModel
 import com.pyamsoft.fridge.extensions.fragmentContainerId
 import com.pyamsoft.fridge.setting.SettingsFragment
-import com.pyamsoft.pydroid.arch.impl.createComponent
+import com.pyamsoft.pydroid.arch.createComponent
 import com.pyamsoft.pydroid.ui.Injector
 import com.pyamsoft.pydroid.ui.app.requireToolbarActivity
 import com.pyamsoft.pydroid.ui.util.commit
@@ -111,6 +111,8 @@ internal class EntryListFragment : Fragment() {
         is NavigateToSettings -> navigateToSettings()
       }
     }
+
+    requireNotNull(listViewModel).fetchEntries()
   }
 
   override fun onSaveInstanceState(outState: Bundle) {

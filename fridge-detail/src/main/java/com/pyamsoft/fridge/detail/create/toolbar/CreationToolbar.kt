@@ -23,7 +23,6 @@ import com.pyamsoft.fridge.detail.R
 import com.pyamsoft.fridge.detail.create.toolbar.CreationToolbarViewEvent.Archive
 import com.pyamsoft.fridge.detail.create.toolbar.CreationToolbarViewEvent.Close
 import com.pyamsoft.fridge.detail.toolbar.DetailToolbar
-import com.pyamsoft.pydroid.arch.impl.onChange
 import com.pyamsoft.pydroid.ui.app.ToolbarActivity
 import javax.inject.Inject
 
@@ -62,9 +61,7 @@ class CreationToolbar @Inject internal constructor(
     state: CreationToolbarViewState,
     oldState: CreationToolbarViewState?
   ) {
-    state.onChange(oldState, field = { it.isReal }) { real ->
-      setDeleteEnabled(real)
-    }
+    setDeleteEnabled(state.isReal)
   }
 
 }

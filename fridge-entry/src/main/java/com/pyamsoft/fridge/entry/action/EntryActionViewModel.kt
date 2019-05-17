@@ -25,7 +25,7 @@ import com.pyamsoft.fridge.entry.action.EntryActionViewEvent.FirstAnimationDone
 import com.pyamsoft.fridge.entry.action.EntryActionViewEvent.ShopClicked
 import com.pyamsoft.fridge.entry.action.EntryActionViewEvent.SpacingCalculated
 import com.pyamsoft.fridge.entry.action.EntryActionViewState.Spacing
-import com.pyamsoft.pydroid.arch.impl.BaseUiViewModel
+import com.pyamsoft.pydroid.arch.UiViewModel
 import com.pyamsoft.pydroid.core.singleDisposable
 import com.pyamsoft.pydroid.core.tryDispose
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -35,7 +35,7 @@ import javax.inject.Inject
 
 class EntryActionViewModel @Inject internal constructor(
   private val interactor: EntryActionInteractor
-) : BaseUiViewModel<EntryActionViewState, EntryActionViewEvent, EntryActionControllerEvent>(
+) : UiViewModel<EntryActionViewState, EntryActionViewEvent, EntryActionControllerEvent>(
     initialState = EntryActionViewState(
         throwable = null,
         spacing = Spacing(isLaidOut = false, isFirstAnimationDone = false, gap = 0, margin = 0)

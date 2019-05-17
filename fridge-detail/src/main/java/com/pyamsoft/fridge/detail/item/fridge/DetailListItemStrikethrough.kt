@@ -28,8 +28,7 @@ import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence.HAVE
 import com.pyamsoft.fridge.detail.R
 import com.pyamsoft.fridge.detail.item.fridge.DetailItemViewEvent.ExpandItem
-import com.pyamsoft.pydroid.arch.impl.BaseUiView
-import com.pyamsoft.pydroid.arch.impl.onChange
+import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
 import javax.inject.Inject
 
@@ -54,7 +53,7 @@ class DetailListItemStrikethrough @Inject internal constructor(
     state: DetailItemViewState,
     oldState: DetailItemViewState?
   ) {
-    state.onChange(oldState, field = { it.item }) { item ->
+    state.item.let { item ->
       removeListeners()
       val isEditable = state.isEditable
       decideStrikethroughState(item, isEditable)
@@ -65,7 +64,7 @@ class DetailListItemStrikethrough @Inject internal constructor(
       }
     }
 
-    state.onChange(oldState, field = { it.throwable }) { throwable ->
+    state.throwable.let { throwable ->
       if (throwable == null) {
         clearError()
       } else {

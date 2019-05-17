@@ -19,8 +19,8 @@ package com.pyamsoft.fridge.detail.create.title
 
 import com.pyamsoft.fridge.detail.DetailConstants
 import com.pyamsoft.fridge.detail.create.title.CreationTitleViewEvent.NameUpdate
-import com.pyamsoft.pydroid.arch.impl.BaseUiViewModel
-import com.pyamsoft.pydroid.arch.impl.UnitControllerEvent
+import com.pyamsoft.pydroid.arch.UiViewModel
+import com.pyamsoft.pydroid.arch.UnitControllerEvent
 import com.pyamsoft.pydroid.core.singleDisposable
 import com.pyamsoft.pydroid.core.tryDispose
 import io.reactivex.Completable
@@ -31,20 +31,14 @@ import javax.inject.Inject
 
 class CreationTitleViewModel @Inject internal constructor(
   private val interactor: CreationTitleInteractor
-) : BaseUiViewModel<CreationTitleViewState, CreationTitleViewEvent, UnitControllerEvent>(
+) : UiViewModel<CreationTitleViewState, CreationTitleViewEvent, UnitControllerEvent>(
     initialState = CreationTitleViewState(name = "", throwable = null)
 ) {
 
   private var observeNameDisposable by singleDisposable()
   private var updateDisposable by singleDisposable()
 
-  override fun onBind() {
-    observeName(false)
-  }
-
-  override fun onUnbind() {
-    // Don't dispose updateDisposable here as it may need to outlive the View
-    // since the final commit happens as the View is tearing down
+  override fun onCleared() {
     observeNameDisposable.tryDispose()
   }
 
@@ -52,6 +46,10 @@ class CreationTitleViewModel @Inject internal constructor(
     return when (event) {
       is NameUpdate -> updateName(event.name)
     }
+  }
+
+  fun beginObservingName() {
+    observeName(false)
   }
 
   private fun observeName(force: Boolean) {

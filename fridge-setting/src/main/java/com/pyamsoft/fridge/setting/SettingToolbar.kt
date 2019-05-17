@@ -19,8 +19,8 @@ package com.pyamsoft.fridge.setting
 
 import android.os.Bundle
 import com.pyamsoft.fridge.setting.SettingToolbarViewEvent.ToolbarNavigate
-import com.pyamsoft.pydroid.arch.impl.AbstractUiView
-import com.pyamsoft.pydroid.arch.impl.UnitViewState
+import com.pyamsoft.pydroid.arch.UiView
+import com.pyamsoft.pydroid.arch.UnitViewState
 import com.pyamsoft.pydroid.ui.app.ToolbarActivity
 import com.pyamsoft.pydroid.ui.arch.InvalidIdException
 import com.pyamsoft.pydroid.ui.util.DebouncedOnClickListener
@@ -29,7 +29,7 @@ import javax.inject.Inject
 
 class SettingToolbar @Inject internal constructor(
   private val toolbarActivity: ToolbarActivity
-) : AbstractUiView<UnitViewState, SettingToolbarViewEvent>() {
+) : UiView<UnitViewState, SettingToolbarViewEvent>() {
 
   override fun id(): Int {
     throw InvalidIdException
@@ -49,9 +49,6 @@ class SettingToolbar @Inject internal constructor(
     state: UnitViewState,
     oldState: UnitViewState?
   ) {
-  }
-
-  override fun saveState(outState: Bundle) {
   }
 
   override fun teardown() {

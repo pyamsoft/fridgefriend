@@ -21,25 +21,29 @@ import android.view.View
 import android.view.animation.Animation
 import android.view.animation.Animation.AnimationListener
 import android.view.animation.AnimationUtils
+import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.entry.R
 
-internal inline fun View.wiggle(crossinline onAnimationComplete: () -> Unit) {
-  val animation = AnimationUtils.loadAnimation(context, R.anim.wiggle).apply {
-    setAnimationListener(object : AnimationListener {
+@CheckResult
+internal inline fun View.wiggle(crossinline onAnimationComplete: () -> Unit): Animation {
+  val animation = AnimationUtils.loadAnimation(context, R.anim.wiggle)
+      .apply {
+        setAnimationListener(object : AnimationListener {
 
-      override fun onAnimationRepeat(animation: Animation?) {
+          override fun onAnimationRepeat(animation: Animation?) {
+          }
+
+          override fun onAnimationEnd(animation: Animation?) {
+            onAnimationComplete()
+            setAnimationListener(null)
+          }
+
+          override fun onAnimationStart(animation: Animation?) {
+          }
+
+        })
       }
-
-      override fun onAnimationEnd(animation: Animation?) {
-        onAnimationComplete()
-        setAnimationListener(null)
-      }
-
-      override fun onAnimationStart(animation: Animation?) {
-      }
-
-    })
-  }
   startAnimation(animation)
+  return animation
 }
 

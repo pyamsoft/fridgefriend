@@ -25,10 +25,10 @@ import com.pyamsoft.fridge.db.entry.FridgeEntryChangeEvent.Update
 import com.pyamsoft.fridge.db.entry.FridgeEntryQueryDao
 import com.pyamsoft.fridge.db.entry.FridgeEntryRealtime
 import com.pyamsoft.fridge.entry.list.EntryListControllerEvent.OpenForEditing
-import com.pyamsoft.fridge.entry.list.EntryListViewEvent.ForceRefresh
 import com.pyamsoft.fridge.entry.list.EntryListViewEvent.OpenEntry
+import com.pyamsoft.fridge.entry.list.EntryListViewEvent.RunRefresh
 import com.pyamsoft.fridge.entry.list.EntryListViewState.Loading
-import com.pyamsoft.pydroid.arch.impl.BaseUiViewModel
+import com.pyamsoft.pydroid.arch.UiViewModel
 import com.pyamsoft.pydroid.core.singleDisposable
 import com.pyamsoft.pydroid.core.tryDispose
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -39,7 +39,7 @@ import javax.inject.Inject
 class EntryListViewModel @Inject internal constructor(
   private val queryDao: FridgeEntryQueryDao,
   private val realtime: FridgeEntryRealtime
-) : BaseUiViewModel<EntryListViewState, EntryListViewEvent, EntryListControllerEvent>(
+) : UiViewModel<EntryListViewState, EntryListViewEvent, EntryListControllerEvent>(
     initialState = EntryListViewState(
         isLoading = null,
         throwable = null,
@@ -50,19 +50,19 @@ class EntryListViewModel @Inject internal constructor(
   private var refreshDisposable by singleDisposable()
   private var realtimeChangeDisposable by singleDisposable()
 
-  override fun onBind() {
-    refresh(false)
-  }
-
   override fun handleViewEvent(event: EntryListViewEvent) {
     return when (event) {
-      is ForceRefresh -> refresh(true)
+      is RunRefresh -> refresh(true)
       is OpenEntry -> openEntry(event.entry)
     }
   }
 
-  override fun onUnbind() {
+  override fun onCleared() {
     realtimeChangeDisposable.tryDispose()
+  }
+
+  fun fetchEntries() {
+    refresh(false)
   }
 
   private fun refresh(force: Boolean) {

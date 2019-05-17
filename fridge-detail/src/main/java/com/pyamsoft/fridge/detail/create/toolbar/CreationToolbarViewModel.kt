@@ -21,7 +21,7 @@ import com.pyamsoft.fridge.detail.create.toolbar.CreationToolbarControllerEvent.
 import com.pyamsoft.fridge.detail.create.toolbar.CreationToolbarControllerEvent.NavigateUp
 import com.pyamsoft.fridge.detail.create.toolbar.CreationToolbarViewEvent.Archive
 import com.pyamsoft.fridge.detail.create.toolbar.CreationToolbarViewEvent.Close
-import com.pyamsoft.pydroid.arch.impl.BaseUiViewModel
+import com.pyamsoft.pydroid.arch.UiViewModel
 import com.pyamsoft.pydroid.core.singleDisposable
 import com.pyamsoft.pydroid.core.tryDispose
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -31,7 +31,7 @@ import javax.inject.Inject
 
 class CreationToolbarViewModel @Inject internal constructor(
   private val interactor: CreationToolbarInteractor
-) : BaseUiViewModel<CreationToolbarViewState, CreationToolbarViewEvent, CreationToolbarControllerEvent>(
+) : UiViewModel<CreationToolbarViewState, CreationToolbarViewEvent, CreationToolbarControllerEvent>(
     initialState = CreationToolbarViewState(isReal = false, throwable = null)
 ) {
 
@@ -40,11 +40,6 @@ class CreationToolbarViewModel @Inject internal constructor(
 
   private var deleteDisposable by singleDisposable()
 
-  override fun onBind() {
-    observeReal(false)
-    listenForDelete()
-  }
-
   override fun handleViewEvent(event: CreationToolbarViewEvent) {
     return when (event) {
       is Archive -> handleArchived()
@@ -52,10 +47,14 @@ class CreationToolbarViewModel @Inject internal constructor(
     }
   }
 
-  override fun onUnbind() {
-    // Do not dispose delete disposable here, we want it to finish
+  override fun onCleared() {
     observeRealDisposable.tryDispose()
     observeDeleteDisposable.tryDispose()
+  }
+
+  fun beginMonitoringEntry() {
+    observeReal(false)
+    listenForDelete()
   }
 
   private fun observeReal(force: Boolean) {

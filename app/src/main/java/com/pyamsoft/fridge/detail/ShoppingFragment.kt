@@ -34,7 +34,7 @@ import com.pyamsoft.fridge.detail.shop.list.ShoppingListViewModel
 import com.pyamsoft.fridge.detail.shop.toolbar.ShoppingToolbar
 import com.pyamsoft.fridge.detail.shop.toolbar.ShoppingToolbarControllerEvent.NavigateUp
 import com.pyamsoft.fridge.detail.shop.toolbar.ShoppingToolbarViewModel
-import com.pyamsoft.pydroid.arch.impl.createComponent
+import com.pyamsoft.pydroid.arch.createComponent
 import com.pyamsoft.pydroid.ui.Injector
 import com.pyamsoft.pydroid.ui.app.requireToolbarActivity
 import timber.log.Timber
@@ -91,6 +91,8 @@ internal class ShoppingFragment : Fragment() {
         is NavigateUp -> close()
       }
     }
+
+    requireNotNull(listViewModel).fetchItems()
   }
 
   override fun onSaveInstanceState(outState: Bundle) {

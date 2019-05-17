@@ -19,11 +19,11 @@ package com.pyamsoft.fridge.entry.toolbar
 
 import com.pyamsoft.fridge.entry.toolbar.EntryToolbarControllerEvent.NavigateToSettings
 import com.pyamsoft.fridge.entry.toolbar.EntryToolbarViewEvent.SettingsNavigate
-import com.pyamsoft.pydroid.arch.impl.BaseUiViewModel
+import com.pyamsoft.pydroid.arch.UiViewModel
 import javax.inject.Inject
 
 class EntryToolbarViewModel @Inject internal constructor(
-) : BaseUiViewModel<EntryToolbarViewState, EntryToolbarViewEvent, EntryToolbarControllerEvent>(
+) : UiViewModel<EntryToolbarViewState, EntryToolbarViewEvent, EntryToolbarControllerEvent>(
     initialState = EntryToolbarViewState(isMenuVisible = true)
 ) {
 

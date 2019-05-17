@@ -40,8 +40,7 @@ import com.pyamsoft.fridge.detail.item.DetailItemComponent
 import com.pyamsoft.fridge.detail.list.DetailListViewEvent.ExpandItem
 import com.pyamsoft.fridge.detail.list.DetailListViewEvent.ForceRefresh
 import com.pyamsoft.fridge.detail.list.DetailListViewEvent.PickDate
-import com.pyamsoft.pydroid.arch.impl.BaseUiView
-import com.pyamsoft.pydroid.arch.impl.onChange
+import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.ui.util.Snackbreak
 import com.pyamsoft.pydroid.ui.util.refreshing
 
@@ -227,13 +226,13 @@ abstract class DetailList protected constructor(
     state: DetailListViewState,
     oldState: DetailListViewState?
   ) {
-    state.onChange(oldState, field = { it.isLoading }) { loading ->
+    state.isLoading.let { loading ->
       if (loading != null) {
         requireNotNull(refreshLatch).isRefreshing = loading.isLoading
       }
     }
 
-    state.onChange(oldState, field = { it.items }) { items ->
+    state.items.let { items ->
       if (items.isEmpty()) {
         clearList()
       } else {
@@ -241,7 +240,7 @@ abstract class DetailList protected constructor(
       }
     }
 
-    state.onChange(oldState, field = { it.throwable }) { throwable ->
+    state.throwable.let { throwable ->
       if (throwable == null) {
         clearError()
       } else {

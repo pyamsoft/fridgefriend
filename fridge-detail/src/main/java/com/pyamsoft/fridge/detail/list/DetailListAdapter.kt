@@ -43,7 +43,7 @@ import com.pyamsoft.fridge.detail.item.fridge.DetailListItemName
 import com.pyamsoft.fridge.detail.item.fridge.DetailListItemPresence
 import com.pyamsoft.fridge.detail.item.fridge.DetailListItemStrikethrough
 import com.pyamsoft.fridge.detail.list.DetailListAdapter.DetailViewHolder
-import com.pyamsoft.pydroid.arch.impl.createComponent
+import com.pyamsoft.pydroid.arch.createComponent
 import com.pyamsoft.pydroid.ui.util.layout
 import com.pyamsoft.pydroid.util.toDp
 import javax.inject.Inject

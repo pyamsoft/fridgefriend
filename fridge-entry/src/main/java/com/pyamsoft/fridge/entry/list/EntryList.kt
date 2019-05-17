@@ -31,10 +31,9 @@ import com.popinnow.android.refresh.RefreshLatch
 import com.popinnow.android.refresh.newRefreshLatch
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.entry.R
-import com.pyamsoft.fridge.entry.list.EntryListViewEvent.ForceRefresh
+import com.pyamsoft.fridge.entry.list.EntryListViewEvent.RunRefresh
 import com.pyamsoft.fridge.entry.list.EntryListViewEvent.OpenEntry
-import com.pyamsoft.pydroid.arch.impl.BaseUiView
-import com.pyamsoft.pydroid.arch.impl.onChange
+import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.ui.util.Snackbreak
 import com.pyamsoft.pydroid.ui.util.refreshing
 import javax.inject.Inject
@@ -72,7 +71,7 @@ class EntryList @Inject internal constructor(
     recyclerView.adapter = modelAdapter
 
     layoutRoot.setOnRefreshListener {
-      publish(ForceRefresh)
+      publish(RunRefresh(true))
     }
 
     refreshLatch = newRefreshLatch(owner) { isRefreshing ->
@@ -87,10 +86,10 @@ class EntryList @Inject internal constructor(
         }
       }
     }
+
   }
 
   override fun onTeardown() {
-    super.onTeardown()
     clearList()
     clearError()
 
@@ -139,13 +138,13 @@ class EntryList @Inject internal constructor(
     state: EntryListViewState,
     oldState: EntryListViewState?
   ) {
-    state.onChange(oldState, field = { it.isLoading }) { loading ->
+    state.isLoading.let { loading ->
       if (loading != null) {
         requireNotNull(refreshLatch).isRefreshing = loading.isLoading
       }
     }
 
-    state.onChange(oldState, field = { it.entries }) { entries ->
+    state.entries.let { entries ->
       if (entries.isEmpty()) {
         clearList()
       } else {
@@ -153,7 +152,7 @@ class EntryList @Inject internal constructor(
       }
     }
 
-    state.onChange(oldState, field = { it.throwable }) { throwable ->
+    state.throwable.let { throwable ->
       if (throwable == null) {
         clearError()
       } else {
