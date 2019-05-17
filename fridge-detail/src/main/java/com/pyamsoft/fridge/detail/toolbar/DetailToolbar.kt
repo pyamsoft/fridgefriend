@@ -18,48 +18,65 @@
 package com.pyamsoft.fridge.detail.toolbar
 
 import android.os.Bundle
+import android.view.MenuItem
+import com.pyamsoft.fridge.detail.R
+import com.pyamsoft.fridge.detail.toolbar.DetailToolbarViewEvent.Archive
+import com.pyamsoft.fridge.detail.toolbar.DetailToolbarViewEvent.Close
 import com.pyamsoft.pydroid.arch.UiView
-import com.pyamsoft.pydroid.arch.UiViewEvent
-import com.pyamsoft.pydroid.arch.UiViewState
 import com.pyamsoft.pydroid.ui.app.ToolbarActivity
 import com.pyamsoft.pydroid.ui.arch.InvalidIdException
 import com.pyamsoft.pydroid.ui.util.DebouncedOnClickListener
 import com.pyamsoft.pydroid.ui.util.setUpEnabled
+import javax.inject.Inject
 
-abstract class DetailToolbar<S : UiViewState, V : UiViewEvent> protected constructor(
-  protected val toolbarActivity: ToolbarActivity,
-  private val provideNavigationEvent: () -> V
-) : UiView<S, V>() {
+class DetailToolbar @Inject internal constructor(
+  private val toolbarActivity: ToolbarActivity
+) : UiView<DetailToolbarViewState, DetailToolbarViewEvent>() {
 
-  protected abstract fun onInflate(savedInstanceState: Bundle?)
+  private var deleteMenuItem: MenuItem? = null
 
-  protected abstract fun onTeardown()
-
-  final override fun id(): Int {
+  override fun id(): Int {
     throw InvalidIdException
   }
 
-  final override fun inflate(savedInstanceState: Bundle?) {
+  override fun inflate(savedInstanceState: Bundle?) {
     toolbarActivity.requireToolbar { toolbar ->
       toolbar.setUpEnabled(true)
       toolbar.setNavigationOnClickListener(DebouncedOnClickListener.create {
-        publish(provideNavigationEvent())
+        publish(Close)
       })
+
+      toolbar.inflateMenu(R.menu.menu_detail)
+      val deleteItem = toolbar.menu.findItem(R.id.menu_item_delete)
+      deleteItem.isVisible = false
+      deleteItem.setOnMenuItemClickListener {
+        publish(Archive)
+        return@setOnMenuItemClickListener true
+      }
+      deleteMenuItem = deleteItem
     }
-
-    onInflate(savedInstanceState)
   }
 
-  final override fun saveState(outState: Bundle) {
-  }
-
-  final override fun teardown() {
+  override fun teardown() {
     toolbarActivity.withToolbar { toolbar ->
       toolbar.setUpEnabled(false)
       toolbar.setNavigationOnClickListener(null)
-    }
 
-    onTeardown()
+      deleteMenuItem?.setOnMenuItemClickListener(null)
+      deleteMenuItem = null
+      toolbar.menu.removeItem(R.id.menu_item_delete)
+    }
+  }
+
+  private fun setDeleteEnabled(real: Boolean) {
+    deleteMenuItem?.isVisible = real
+  }
+
+  override fun render(
+    state: DetailToolbarViewState,
+    oldState: DetailToolbarViewState?
+  ) {
+    setDeleteEnabled(state.isReal)
   }
 
 }

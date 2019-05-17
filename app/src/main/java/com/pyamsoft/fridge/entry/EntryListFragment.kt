@@ -27,13 +27,10 @@ import androidx.fragment.app.Fragment
 import com.pyamsoft.fridge.FridgeComponent
 import com.pyamsoft.fridge.R
 import com.pyamsoft.fridge.db.entry.FridgeEntry
-import com.pyamsoft.fridge.detail.CreationFragment
-import com.pyamsoft.fridge.detail.ShoppingFragment
-import com.pyamsoft.fridge.entry.action.EntryActionControllerEvent.OpenCreate
-import com.pyamsoft.fridge.entry.action.EntryActionControllerEvent.OpenShopping
+import com.pyamsoft.fridge.detail.DetailFragment
+import com.pyamsoft.fridge.entry.action.EntryActionControllerEvent.OpenDetails
 import com.pyamsoft.fridge.entry.action.EntryActionViewModel
 import com.pyamsoft.fridge.entry.action.EntryCreate
-import com.pyamsoft.fridge.entry.action.EntryShop
 import com.pyamsoft.fridge.entry.list.EntryList
 import com.pyamsoft.fridge.entry.list.EntryListControllerEvent.OpenForEditing
 import com.pyamsoft.fridge.entry.list.EntryListViewModel
@@ -54,7 +51,6 @@ internal class EntryListFragment : Fragment() {
   @JvmField @Inject internal var toolbarViewModel: EntryToolbarViewModel? = null
 
   @JvmField @Inject internal var createButton: EntryCreate? = null
-  @JvmField @Inject internal var shopButton: EntryShop? = null
   @JvmField @Inject internal var actionViewModel: EntryActionViewModel? = null
 
   @JvmField @Inject internal var list: EntryList? = null
@@ -86,19 +82,17 @@ internal class EntryListFragment : Fragment() {
         requireNotNull(list)
     ) {
       return@createComponent when (it) {
-        is OpenForEditing -> navigateToEdit(it.entry)
+        is OpenForEditing -> navigateToDetails(it.entry)
       }
     }
 
     createComponent(
         savedInstanceState, viewLifecycleOwner,
         requireNotNull(actionViewModel),
-        requireNotNull(createButton),
-        requireNotNull(shopButton)
+        requireNotNull(createButton)
     ) {
       return@createComponent when (it) {
-        is OpenCreate -> navigateToCreate(it.entry)
-        is OpenShopping -> navigateToShopping()
+        is OpenDetails -> navigateToDetails(it.entry)
       }
     }
 
@@ -120,7 +114,6 @@ internal class EntryListFragment : Fragment() {
     list?.saveState(outState)
     toolbar?.saveState(outState)
     createButton?.saveState(outState)
-    shopButton?.saveState(outState)
   }
 
   override fun onDestroyView() {
@@ -131,7 +124,6 @@ internal class EntryListFragment : Fragment() {
 
     actionViewModel = null
     createButton = null
-    shopButton = null
 
     listViewModel = null
     list = null
@@ -154,20 +146,12 @@ internal class EntryListFragment : Fragment() {
     pushFragment(SettingsFragment.TAG) { SettingsFragment.newInstance() }
   }
 
-  private fun navigateToCreate(entry: FridgeEntry) {
-    pushEntryScreen(entry)
-  }
-
-  private fun navigateToEdit(entry: FridgeEntry) {
+  private fun navigateToDetails(entry: FridgeEntry) {
     pushEntryScreen(entry)
   }
 
   private fun pushEntryScreen(entry: FridgeEntry) {
-    pushFragment(CreationFragment.TAG) { CreationFragment.newInstance(entry.id()) }
-  }
-
-  private fun navigateToShopping() {
-    pushFragment(ShoppingFragment.TAG) { ShoppingFragment.newInstance() }
+    pushFragment(DetailFragment.TAG) { DetailFragment.newInstance(entry.id()) }
   }
 
   override fun onHiddenChanged(hidden: Boolean) {

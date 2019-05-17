@@ -15,11 +15,10 @@
  *
  */
 
-package com.pyamsoft.fridge.detail.create.toolbar
+package com.pyamsoft.fridge.detail.title
 
 import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.db.entry.FridgeEntry
-import com.pyamsoft.fridge.db.entry.FridgeEntryChangeEvent.Insert
 import com.pyamsoft.fridge.db.entry.FridgeEntryChangeEvent.Update
 import com.pyamsoft.fridge.db.entry.FridgeEntryInsertDao
 import com.pyamsoft.fridge.db.entry.FridgeEntryQueryDao
@@ -33,7 +32,7 @@ import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Named
 
-internal class CreationToolbarInteractor @Inject internal constructor(
+internal class DetailTitleInteractor @Inject internal constructor(
   private val updateDao: FridgeEntryUpdateDao,
   private val realtime: FridgeEntryRealtime,
   enforcer: Enforcer,
@@ -43,49 +42,55 @@ internal class CreationToolbarInteractor @Inject internal constructor(
 ) : DetailInteractor(enforcer, queryDao, insertDao) {
 
   @CheckResult
-  fun listenForArchived(): Observable<FridgeEntry> {
-    return realtime.listenForChanges()
-        .ofType(Update::class.java)
-        .map { it.entry }
-        .filter { it.id() == entryId }
-        .filter { it.isArchived() }
+  fun observeEntryName(force: Boolean): Observable<NameUpdate> {
+    return listenForNameChanges()
+        .startWith(getEntryName(force))
   }
 
   @CheckResult
-  fun observeEntryReal(force: Boolean): Observable<Boolean> {
-    return listenForRealChange()
-        .startWith(isEntryReal(force))
-  }
-
-  @CheckResult
-  private fun isEntryReal(force: Boolean): Observable<Boolean> {
+  private fun getEntryName(force: Boolean): Observable<NameUpdate> {
     return getEntryForId(entryId, force)
-        .map { it.isReal() }
+        .map { it.name() }
+        .map { NameUpdate(it, true) }
         .toObservable()
   }
 
   @CheckResult
-  private fun listenForRealChange(): Observable<Boolean> {
+  private fun listenForNameChanges(): Observable<NameUpdate> {
     return realtime.listenForChanges()
-        .ofType(Insert::class.java)
+        .ofType(Update::class.java)
         .map { it.entry }
         .filter { it.id() == entryId }
-        .map { it.isReal() }
+        .map { it.name() }
+        .map { NameUpdate(it, false) }
   }
 
   @CheckResult
-  fun archive(): Completable {
+  fun saveName(name: String): Completable {
     return getValidEntry(entryId, false)
         .flatMapCompletable {
           val valid = it.entry
           if (valid != null) {
-            Timber.d("Archive entry: [${valid.id()}] $valid")
-            return@flatMapCompletable updateDao.update(valid.archive())
+            return@flatMapCompletable update(valid, name)
           } else {
-            Timber.w("No entry, cannot delete")
-            return@flatMapCompletable Completable.complete()
+            Timber.d("saveName called but Entry does not exist, create it")
+            return@flatMapCompletable guaranteeEntryExists(entryId, name).ignoreElement()
           }
         }
   }
 
+  @CheckResult
+  private fun update(
+    entry: FridgeEntry,
+    name: String
+  ): Completable {
+    Timber.d("Updating entry name [${entry.id()}]: $name")
+    enforcer.assertNotOnMainThread()
+    return updateDao.update(entry.name(name))
+  }
+
+  internal data class NameUpdate(
+    val name: String,
+    val firstUpdate: Boolean
+  )
 }

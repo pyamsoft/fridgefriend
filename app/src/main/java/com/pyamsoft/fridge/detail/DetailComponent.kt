@@ -19,26 +19,26 @@ package com.pyamsoft.fridge.detail
 
 import android.view.ViewGroup
 import androidx.annotation.CheckResult
+import androidx.lifecycle.LifecycleOwner
 import com.pyamsoft.pydroid.ui.app.ToolbarActivity
 import dagger.BindsInstance
 import dagger.Subcomponent
+import javax.inject.Named
 
 @Subcomponent
 internal interface DetailComponent {
 
-  @CheckResult
-  fun plusCreationComponent(): CreationComponent.Factory
-
-  @CheckResult
-  fun plusShoppingComponent(): ShoppingComponent.Factory
+  fun inject(fragment: DetailFragment)
 
   @Subcomponent.Factory
   interface Factory {
 
     @CheckResult
     fun create(
+      @BindsInstance parent: ViewGroup,
       @BindsInstance toolbarActivity: ToolbarActivity,
-      @BindsInstance parent: ViewGroup
+      @BindsInstance owner: LifecycleOwner,
+      @BindsInstance @Named("detail_entry_id") entryId: String
     ): DetailComponent
   }
 

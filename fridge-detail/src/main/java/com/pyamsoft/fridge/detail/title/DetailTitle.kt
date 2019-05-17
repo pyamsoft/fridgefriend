@@ -15,7 +15,7 @@
  *
  */
 
-package com.pyamsoft.fridge.detail.create.title
+package com.pyamsoft.fridge.detail.title
 
 import android.os.Bundle
 import android.text.Editable
@@ -25,15 +25,15 @@ import android.view.ViewGroup
 import androidx.lifecycle.LifecycleOwner
 import com.google.android.material.textfield.TextInputLayout
 import com.pyamsoft.fridge.detail.R
-import com.pyamsoft.fridge.detail.create.title.CreationTitleViewEvent.NameUpdate
+import com.pyamsoft.fridge.detail.title.DetailTitleViewEvent.NameUpdate
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.ui.util.Snackbreak
 import javax.inject.Inject
 
-class CreationTitle @Inject internal constructor(
+class DetailTitle @Inject internal constructor(
   private val owner: LifecycleOwner,
   parent: ViewGroup
-) : BaseUiView<CreationTitleViewState, CreationTitleViewEvent>(parent) {
+) : BaseUiView<DetailTitleViewState, DetailTitleViewEvent>(parent) {
 
   override val layout: Int = R.layout.detail_title
 
@@ -111,8 +111,8 @@ class CreationTitle @Inject internal constructor(
   }
 
   override fun onRender(
-    state: CreationTitleViewState,
-    oldState: CreationTitleViewState?
+    state: DetailTitleViewState,
+    oldState: DetailTitleViewState?
   ) {
     updateName(state.name)
     state.throwable.let { throwable ->

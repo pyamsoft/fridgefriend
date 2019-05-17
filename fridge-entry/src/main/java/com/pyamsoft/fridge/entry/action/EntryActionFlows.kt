@@ -23,37 +23,19 @@ import com.pyamsoft.pydroid.arch.UiViewEvent
 import com.pyamsoft.pydroid.arch.UiViewState
 
 data class EntryActionViewState internal constructor(
-  val spacing: Spacing,
-  val throwable: Throwable?
-) : UiViewState {
-
-  data class Spacing(
-    val isLaidOut: Boolean,
-    val isFirstAnimationDone: Boolean,
-    val gap: Int,
-    val margin: Int
-  )
-}
+  val isShown: Boolean
+) : UiViewState
 
 sealed class EntryActionViewEvent : UiViewEvent {
 
-  data class SpacingCalculated internal constructor(
-    val gap: Int,
-    val margin: Int
-  ) : EntryActionViewEvent()
-
-  object FirstAnimationDone : EntryActionViewEvent()
+  object ShowCreate : EntryActionViewEvent()
 
   object CreateClicked : EntryActionViewEvent()
-
-  object ShopClicked : EntryActionViewEvent()
 
 }
 
 sealed class EntryActionControllerEvent : UiControllerEvent {
 
-  data class OpenCreate(val entry: FridgeEntry) : EntryActionControllerEvent()
-
-  object OpenShopping : EntryActionControllerEvent()
+  data class OpenDetails(val entry: FridgeEntry) : EntryActionControllerEvent()
 
 }

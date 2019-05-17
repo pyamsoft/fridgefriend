@@ -15,19 +15,18 @@
  *
  */
 
-package com.pyamsoft.fridge.detail.shop.toolbar
+package com.pyamsoft.fridge.detail.title
 
-import com.pyamsoft.pydroid.arch.UiControllerEvent
 import com.pyamsoft.pydroid.arch.UiViewEvent
+import com.pyamsoft.pydroid.arch.UiViewState
 
-sealed class ShoppingToolbarViewEvent : UiViewEvent {
+data class DetailTitleViewState internal constructor(
+  val name: String,
+  val throwable: Throwable?
+) : UiViewState
 
-  object Close : ShoppingToolbarViewEvent()
+sealed class DetailTitleViewEvent : UiViewEvent {
 
-}
-
-sealed class ShoppingToolbarControllerEvent : UiControllerEvent {
-
-  object NavigateUp : ShoppingToolbarControllerEvent()
+  data class NameUpdate internal constructor(val name: String) : DetailTitleViewEvent()
 
 }

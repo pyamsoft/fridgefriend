@@ -15,29 +15,29 @@
  *
  */
 
-package com.pyamsoft.fridge.detail.create.toolbar
+package com.pyamsoft.fridge.detail.toolbar
 
 import com.pyamsoft.pydroid.arch.UiControllerEvent
 import com.pyamsoft.pydroid.arch.UiViewEvent
 import com.pyamsoft.pydroid.arch.UiViewState
 
-data class CreationToolbarViewState internal constructor(
+data class DetailToolbarViewState internal constructor(
   val isReal: Boolean,
   val throwable: Throwable?
 ) : UiViewState
 
-sealed class CreationToolbarViewEvent : UiViewEvent {
+sealed class DetailToolbarViewEvent : UiViewEvent {
 
-  object Archive : CreationToolbarViewEvent()
+  object Archive : DetailToolbarViewEvent()
 
-  object Close : CreationToolbarViewEvent()
+  object Close : DetailToolbarViewEvent()
 
 }
 
-sealed class CreationToolbarControllerEvent : UiControllerEvent {
+sealed class DetailToolbarControllerEvent : UiControllerEvent {
 
-  object EntryArchived : CreationToolbarControllerEvent()
+  object EntryArchived : DetailToolbarControllerEvent()
 
-  object NavigateUp : CreationToolbarControllerEvent()
+  object NavigateUp : DetailToolbarControllerEvent()
 
 }

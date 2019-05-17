@@ -25,7 +25,8 @@ import com.pyamsoft.pydroid.arch.UiViewState
 data class DetailListViewState(
   val isLoading: Loading?,
   val throwable: Throwable?,
-  val items: List<FridgeItem>
+  val items: List<FridgeItem>,
+  val filterArchived: Boolean
 ) : UiViewState {
 
   data class Loading(val isLoading: Boolean)

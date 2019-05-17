@@ -25,7 +25,7 @@ import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent.Insert
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent.Update
 import com.pyamsoft.fridge.db.item.FridgeItemRealtime
 import com.pyamsoft.fridge.detail.DetailConstants
-import com.pyamsoft.fridge.detail.create.list.CreationListInteractor
+import com.pyamsoft.fridge.detail.list.DetailListInteractor
 import com.pyamsoft.fridge.detail.item.fridge.DetailItemControllerEvent.DatePick
 import com.pyamsoft.fridge.detail.item.fridge.DetailItemControllerEvent.ExpandDetails
 import com.pyamsoft.fridge.detail.item.fridge.DetailItemViewEvent.CommitName
@@ -48,7 +48,7 @@ import javax.inject.Named
 class DetailItemViewModel @Inject internal constructor(
   item: FridgeItem,
   @Named("item_editable") isEditable: Boolean,
-  private val interactor: CreationListInteractor,
+  private val interactor: DetailListInteractor,
   private val fakeRealtime: EventBus<FridgeItemChangeEvent>,
   private val dateSelectBus: EventBus<DateSelectPayload>,
   private val realtime: FridgeItemRealtime

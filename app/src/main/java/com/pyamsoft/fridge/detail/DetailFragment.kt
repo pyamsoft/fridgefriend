@@ -28,16 +28,16 @@ import androidx.fragment.app.Fragment
 import com.pyamsoft.fridge.FridgeComponent
 import com.pyamsoft.fridge.R
 import com.pyamsoft.fridge.db.item.FridgeItem
-import com.pyamsoft.fridge.detail.create.list.CreationList
-import com.pyamsoft.fridge.detail.create.list.CreationListViewModel
-import com.pyamsoft.fridge.detail.create.title.CreationTitle
-import com.pyamsoft.fridge.detail.create.title.CreationTitleViewModel
-import com.pyamsoft.fridge.detail.create.toolbar.CreationToolbar
-import com.pyamsoft.fridge.detail.create.toolbar.CreationToolbarControllerEvent.EntryArchived
-import com.pyamsoft.fridge.detail.create.toolbar.CreationToolbarControllerEvent.NavigateUp
-import com.pyamsoft.fridge.detail.create.toolbar.CreationToolbarViewModel
+import com.pyamsoft.fridge.detail.list.DetailList
 import com.pyamsoft.fridge.detail.list.DetailListControllerEvent.DatePick
 import com.pyamsoft.fridge.detail.list.DetailListControllerEvent.ExpandForEditing
+import com.pyamsoft.fridge.detail.list.DetailListViewModel
+import com.pyamsoft.fridge.detail.title.DetailTitle
+import com.pyamsoft.fridge.detail.title.DetailTitleViewModel
+import com.pyamsoft.fridge.detail.toolbar.DetailToolbar
+import com.pyamsoft.fridge.detail.toolbar.DetailToolbarControllerEvent.EntryArchived
+import com.pyamsoft.fridge.detail.toolbar.DetailToolbarControllerEvent.NavigateUp
+import com.pyamsoft.fridge.detail.toolbar.DetailToolbarViewModel
 import com.pyamsoft.pydroid.arch.createComponent
 import com.pyamsoft.pydroid.ui.Injector
 import com.pyamsoft.pydroid.ui.app.requireArguments
@@ -46,16 +46,16 @@ import com.pyamsoft.pydroid.ui.util.layout
 import com.pyamsoft.pydroid.ui.util.show
 import javax.inject.Inject
 
-internal class CreationFragment : Fragment() {
+internal class DetailFragment : Fragment() {
 
-  @JvmField @Inject internal var toolbar: CreationToolbar? = null
-  @JvmField @Inject internal var toolbarViewModel: CreationToolbarViewModel? = null
+  @JvmField @Inject internal var toolbar: DetailToolbar? = null
+  @JvmField @Inject internal var toolbarViewModel: DetailToolbarViewModel? = null
 
-  @JvmField @Inject internal var title: CreationTitle? = null
-  @JvmField @Inject internal var titleViewModel: CreationTitleViewModel? = null
+  @JvmField @Inject internal var title: DetailTitle? = null
+  @JvmField @Inject internal var titleViewModel: DetailTitleViewModel? = null
 
-  @JvmField @Inject internal var list: CreationList? = null
-  @JvmField @Inject internal var listViewModel: CreationListViewModel? = null
+  @JvmField @Inject internal var list: DetailList? = null
+  @JvmField @Inject internal var listViewModel: DetailListViewModel? = null
 
   override fun onCreateView(
     inflater: LayoutInflater,
@@ -74,9 +74,10 @@ internal class CreationFragment : Fragment() {
     val parent = view.findViewById<ConstraintLayout>(R.id.layout_constraint)
     Injector.obtain<FridgeComponent>(view.context.applicationContext)
         .plusDetailComponent()
-        .create(requireToolbarActivity(), parent)
-        .plusCreationComponent()
-        .create(viewLifecycleOwner, requireArguments().getString(ENTRY_ID, ""))
+        .create(
+            parent, requireToolbarActivity(), viewLifecycleOwner,
+            requireArguments().getString(ENTRY_ID, "")
+        )
         .inject(this)
 
     val list = requireNotNull(list)
@@ -172,13 +173,13 @@ internal class CreationFragment : Fragment() {
 
   companion object {
 
-    const val TAG = "CreationFragment"
+    const val TAG = "DetailFragment"
     private const val ENTRY_ID = "entry_id"
 
     @JvmStatic
     @CheckResult
     fun newInstance(id: String): Fragment {
-      return CreationFragment().apply {
+      return DetailFragment().apply {
         arguments = Bundle().apply {
           putString(ENTRY_ID, id)
         }

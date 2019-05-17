@@ -21,10 +21,8 @@ import android.view.ViewGroup
 import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent
-import com.pyamsoft.fridge.db.item.FridgeItemQueryDao
 import com.pyamsoft.fridge.db.item.FridgeItemRealtime
-import com.pyamsoft.fridge.db.item.FridgeItemUpdateDao
-import com.pyamsoft.fridge.detail.create.list.CreationListInteractor
+import com.pyamsoft.fridge.detail.list.DetailListInteractor
 import com.pyamsoft.fridge.detail.item.fridge.DateSelectPayload
 import com.pyamsoft.fridge.detail.list.DetailListAdapter
 import com.pyamsoft.pydroid.core.bus.EventBus
@@ -52,7 +50,7 @@ internal interface DetailItemComponent {
       @BindsInstance @Named("item_editable") editable: Boolean,
       @BindsInstance imageLoader: ImageLoader,
       @BindsInstance theming: Theming,
-      @BindsInstance interactor: CreationListInteractor,
+      @BindsInstance interactor: DetailListInteractor,
       @BindsInstance itemUpdateDao: FridgeItemRealtime,
       @BindsInstance fakeRealtime: EventBus<FridgeItemChangeEvent>,
       @BindsInstance dateSelectBus: EventBus<DateSelectPayload>

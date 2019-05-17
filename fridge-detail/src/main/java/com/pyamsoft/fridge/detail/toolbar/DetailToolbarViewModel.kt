@@ -15,12 +15,12 @@
  *
  */
 
-package com.pyamsoft.fridge.detail.create.toolbar
+package com.pyamsoft.fridge.detail.toolbar
 
-import com.pyamsoft.fridge.detail.create.toolbar.CreationToolbarControllerEvent.EntryArchived
-import com.pyamsoft.fridge.detail.create.toolbar.CreationToolbarControllerEvent.NavigateUp
-import com.pyamsoft.fridge.detail.create.toolbar.CreationToolbarViewEvent.Archive
-import com.pyamsoft.fridge.detail.create.toolbar.CreationToolbarViewEvent.Close
+import com.pyamsoft.fridge.detail.toolbar.DetailToolbarControllerEvent.EntryArchived
+import com.pyamsoft.fridge.detail.toolbar.DetailToolbarControllerEvent.NavigateUp
+import com.pyamsoft.fridge.detail.toolbar.DetailToolbarViewEvent.Archive
+import com.pyamsoft.fridge.detail.toolbar.DetailToolbarViewEvent.Close
 import com.pyamsoft.pydroid.arch.UiViewModel
 import com.pyamsoft.pydroid.core.singleDisposable
 import com.pyamsoft.pydroid.core.tryDispose
@@ -29,10 +29,12 @@ import io.reactivex.schedulers.Schedulers
 import timber.log.Timber
 import javax.inject.Inject
 
-class CreationToolbarViewModel @Inject internal constructor(
-  private val interactor: CreationToolbarInteractor
-) : UiViewModel<CreationToolbarViewState, CreationToolbarViewEvent, CreationToolbarControllerEvent>(
-    initialState = CreationToolbarViewState(isReal = false, throwable = null)
+class DetailToolbarViewModel @Inject internal constructor(
+  private val interactor: DetailToolbarInteractor
+) : UiViewModel<DetailToolbarViewState, DetailToolbarViewEvent, DetailToolbarControllerEvent>(
+    initialState = DetailToolbarViewState(
+        isReal = false, throwable = null
+    )
 ) {
 
   private var observeRealDisposable by singleDisposable()
@@ -40,7 +42,7 @@ class CreationToolbarViewModel @Inject internal constructor(
 
   private var deleteDisposable by singleDisposable()
 
-  override fun handleViewEvent(event: CreationToolbarViewEvent) {
+  override fun handleViewEvent(event: DetailToolbarViewEvent) {
     return when (event) {
       is Archive -> handleArchived()
       is Close -> publish(NavigateUp)

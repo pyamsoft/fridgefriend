@@ -17,20 +17,16 @@
 
 package com.pyamsoft.fridge.entry.action
 
-import android.content.res.ColorStateList
 import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
-import android.view.ViewGroup.MarginLayoutParams
 import android.view.animation.Animation
-import androidx.core.content.ContextCompat
 import androidx.core.view.ViewPropertyAnimatorListenerAdapter
 import androidx.core.view.isVisible
-import androidx.core.view.updateLayoutParams
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.pyamsoft.fridge.entry.R
 import com.pyamsoft.fridge.entry.action.EntryActionViewEvent.CreateClicked
-import com.pyamsoft.fridge.entry.action.EntryActionViewEvent.FirstAnimationDone
+import com.pyamsoft.fridge.entry.action.EntryActionViewEvent.ShowCreate
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.loader.Loaded
@@ -50,7 +46,6 @@ class EntryCreate @Inject internal constructor(
 
   override val layoutRoot by boundView<FloatingActionButton>(R.id.entry_create)
 
-  private var isPopping: Unit? = null
   private var createIconLoaded: Loaded? = null
   private var animation: Animation? = null
 
@@ -63,22 +58,9 @@ class EntryCreate @Inject internal constructor(
       animation = it.wiggle { publish(CreateClicked) }
     }
 
-    val createBackground: Int
-    val iconTint: Int
-    if (theming.isDarkTheme()) {
-      createBackground = R.color.black
-      iconTint = R.color.white
-    } else {
-      createBackground = R.color.white
-      iconTint = R.color.black
-    }
-
-    val background = ColorStateList.valueOf(ContextCompat.getColor(view.context, createBackground))
-    layoutRoot.supportBackgroundTintList = background
-
     createIconLoaded?.dispose()
     createIconLoaded = imageLoader.load(R.drawable.ic_add_24dp)
-        .mutate { it.tintWith(view.context, iconTint) }
+        .mutate { it.tintWith(view.context, R.color.white) }
         .into(layoutRoot)
   }
 
@@ -95,43 +77,23 @@ class EntryCreate @Inject internal constructor(
     state: EntryActionViewState,
     oldState: EntryActionViewState?
   ) {
-    state.spacing.let { spacing ->
-      if (spacing.isLaidOut) {
-        show(spacing.gap, spacing.margin) {
-          publish(FirstAnimationDone)
-        }
+    state.isShown.let { shown ->
+      if (!shown) {
+        show()
+        publish(ShowCreate)
       }
     }
   }
 
-  private inline fun show(
-    gap: Int,
-    margin: Int,
-    crossinline onShown: () -> Unit
-  ) {
-    if (isPopping == null) {
-      isPopping = layoutRoot.popShow(listener = object : ViewPropertyAnimatorListenerAdapter() {
-        override fun onAnimationStart(view: View?) {
-          super.onAnimationStart(view)
-          if (view != null) {
-            view.isVisible = true
-
-            // Causes visibility to update?
-            view.updateLayoutParams<MarginLayoutParams> {
-              marginEnd = gap + margin
-              bottomMargin = (margin * 1.5).toInt()
-            }
-          }
+  private fun show() {
+    layoutRoot.popShow(listener = object : ViewPropertyAnimatorListenerAdapter() {
+      override fun onAnimationStart(view: View?) {
+        super.onAnimationStart(view)
+        if (view != null) {
+          view.isVisible = true
         }
-
-        override fun onAnimationEnd(view: View?) {
-          super.onAnimationEnd(view)
-          if (view != null) {
-            onShown()
-          }
-        }
-      })
-    }
+      }
+    })
   }
 
 }

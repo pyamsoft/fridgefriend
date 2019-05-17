@@ -18,28 +18,21 @@
 package com.pyamsoft.fridge.entry.action
 
 import com.pyamsoft.fridge.db.entry.FridgeEntry
-import com.pyamsoft.fridge.entry.action.EntryActionControllerEvent.OpenCreate
-import com.pyamsoft.fridge.entry.action.EntryActionControllerEvent.OpenShopping
+import com.pyamsoft.fridge.entry.action.EntryActionControllerEvent.OpenDetails
 import com.pyamsoft.fridge.entry.action.EntryActionViewEvent.CreateClicked
-import com.pyamsoft.fridge.entry.action.EntryActionViewEvent.FirstAnimationDone
-import com.pyamsoft.fridge.entry.action.EntryActionViewEvent.ShopClicked
-import com.pyamsoft.fridge.entry.action.EntryActionViewEvent.SpacingCalculated
-import com.pyamsoft.fridge.entry.action.EntryActionViewState.Spacing
+import com.pyamsoft.fridge.entry.action.EntryActionViewEvent.ShowCreate
 import com.pyamsoft.pydroid.arch.UiViewModel
 import com.pyamsoft.pydroid.core.singleDisposable
 import com.pyamsoft.pydroid.core.tryDispose
 import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.functions.Consumer
 import io.reactivex.schedulers.Schedulers
-import timber.log.Timber
 import javax.inject.Inject
 
 class EntryActionViewModel @Inject internal constructor(
   private val interactor: EntryActionInteractor
 ) : UiViewModel<EntryActionViewState, EntryActionViewEvent, EntryActionControllerEvent>(
-    initialState = EntryActionViewState(
-        throwable = null,
-        spacing = Spacing(isLaidOut = false, isFirstAnimationDone = false, gap = 0, margin = 0)
-    )
+    initialState = EntryActionViewState(isShown = false)
 ) {
 
   private var createDisposable by singleDisposable()
@@ -47,9 +40,7 @@ class EntryActionViewModel @Inject internal constructor(
   override fun handleViewEvent(event: EntryActionViewEvent) {
     return when (event) {
       is CreateClicked -> handleCreateClicked()
-      is ShopClicked -> publish(OpenShopping)
-      is SpacingCalculated -> showWithSpacing(event.gap, event.margin)
-      FirstAnimationDone -> showAfterFirstAnimationDone()
+      is ShowCreate -> setState { copy(isShown = true) }
     }
   }
 
@@ -58,41 +49,11 @@ class EntryActionViewModel @Inject internal constructor(
         .subscribeOn(Schedulers.io())
         .observeOn(AndroidSchedulers.mainThread())
         .doAfterTerminate { createDisposable.tryDispose() }
-        .subscribe({
-          handleCreate(it)
-        }, {
-          Timber.e(it, "Error creating new entry")
-          handleCreateError(it)
-        })
+        .subscribe(Consumer { handleCreate(it) })
   }
 
   private fun handleCreate(entry: FridgeEntry) {
-    publish(OpenCreate(entry))
-  }
-
-  private fun handleCreateError(throwable: Throwable) {
-    setState { copy(throwable = throwable) }
-  }
-
-  private fun showWithSpacing(
-    gap: Int,
-    margin: Int
-  ) {
-    setState {
-      copy(
-          spacing = spacing.copy(
-              isLaidOut = true,
-              gap = gap,
-              margin = margin
-          )
-      )
-    }
-  }
-
-  private fun showAfterFirstAnimationDone() {
-    setState {
-      copy(spacing = spacing.copy(isFirstAnimationDone = true))
-    }
+    publish(OpenDetails(entry))
   }
 
 }

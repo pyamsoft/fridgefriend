@@ -30,8 +30,9 @@
       android:layout_marginStart="16dp"
       android:layout_marginTop="16dp"
       android:visibility="invisible"
+      app:backgroundTint="@color/red500"
       app:elevation="6dp"
-      app:fabSize="mini"
+      app:fabSize="normal"
       app:pressedTranslationZ="12dp"
       />
 

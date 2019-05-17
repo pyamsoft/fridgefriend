@@ -34,25 +34,37 @@ import com.mikepenz.fastadapter_extensions.swipe.SimpleSwipeCallback
 import com.popinnow.android.refresh.RefreshLatch
 import com.popinnow.android.refresh.newRefreshLatch
 import com.pyamsoft.fridge.db.item.FridgeItem
+import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent
+import com.pyamsoft.fridge.db.item.FridgeItemRealtime
 import com.pyamsoft.fridge.detail.R
 import com.pyamsoft.fridge.detail.R.drawable
-import com.pyamsoft.fridge.detail.item.DetailItemComponent
+import com.pyamsoft.fridge.detail.item.DaggerDetailItemComponent
+import com.pyamsoft.fridge.detail.item.fridge.DateSelectPayload
 import com.pyamsoft.fridge.detail.list.DetailListViewEvent.ExpandItem
 import com.pyamsoft.fridge.detail.list.DetailListViewEvent.ForceRefresh
 import com.pyamsoft.fridge.detail.list.DetailListViewEvent.PickDate
 import com.pyamsoft.pydroid.arch.BaseUiView
+import com.pyamsoft.pydroid.core.bus.EventBus
+import com.pyamsoft.pydroid.loader.ImageLoader
+import com.pyamsoft.pydroid.ui.theme.Theming
 import com.pyamsoft.pydroid.ui.util.Snackbreak
 import com.pyamsoft.pydroid.ui.util.refreshing
+import javax.inject.Inject
 
-abstract class DetailList protected constructor(
+class DetailList @Inject internal constructor(
   parent: ViewGroup,
-  private val owner: LifecycleOwner,
-  private val editable: Boolean
+  private val interactor: DetailListInteractor,
+  private val imageLoader: ImageLoader,
+  private val theming: Theming,
+  private val realtime: FridgeItemRealtime,
+  private val fakeRealtime: EventBus<FridgeItemChangeEvent>,
+  private val dateSelectBus: EventBus<DateSelectPayload>,
+  private val owner: LifecycleOwner
 ) : BaseUiView<DetailListViewState, DetailListViewEvent>(parent) {
 
-  final override val layout: Int = R.layout.detail_list
+  override val layout: Int = R.layout.detail_list
 
-  final override val layoutRoot by boundView<SwipeRefreshLayout>(R.id.detail_swipe_refresh)
+  override val layoutRoot by boundView<SwipeRefreshLayout>(R.id.detail_swipe_refresh)
 
   private val recyclerView by boundView<RecyclerView>(R.id.detail_list)
 
@@ -61,38 +73,39 @@ abstract class DetailList protected constructor(
   private var modelAdapter: DetailListAdapter? = null
   private var refreshLatch: RefreshLatch? = null
 
-  @CheckResult
-  internal abstract fun createDaggerComponent(
-    parent: ViewGroup,
-    item: FridgeItem,
-    editable: Boolean
-  ): DetailItemComponent
-
-  final override fun onInflated(
+  override fun onInflated(
     view: View,
     savedInstanceState: Bundle?
   ) {
     val factory = { parent: ViewGroup, item: FridgeItem, editable: Boolean ->
-      createDaggerComponent(parent, item, editable)
+      DaggerDetailItemComponent.factory()
+          .create(
+              parent, item, editable,
+              imageLoader, theming, interactor,
+              realtime, fakeRealtime, dateSelectBus
+          )
     }
 
     modelAdapter =
-      DetailListAdapter(editable, factory, callback = object : DetailListAdapter.Callback {
+      DetailListAdapter(
+          editable = true,
+          factory = factory,
+          callback = object : DetailListAdapter.Callback {
 
-        override fun onItemExpanded(item: FridgeItem) {
-          publish(ExpandItem(item))
-        }
+            override fun onItemExpanded(item: FridgeItem) {
+              publish(ExpandItem(item))
+            }
 
-        override fun onPickDate(
-          oldItem: FridgeItem,
-          year: Int,
-          month: Int,
-          day: Int
-        ) {
-          publish(PickDate(oldItem, year, month, day))
-        }
+            override fun onPickDate(
+              oldItem: FridgeItem,
+              year: Int,
+              month: Int,
+              day: Int
+            ) {
+              publish(PickDate(oldItem, year, month, day))
+            }
 
-      })
+          })
 
     recyclerView.layoutManager = LinearLayoutManager(view.context).apply {
       isItemPrefetchEnabled = true
@@ -143,7 +156,7 @@ abstract class DetailList protected constructor(
         recyclerView: RecyclerView,
         viewHolder: ViewHolder
       ): Int {
-        if (!editable || viewHolder is DetailListAdapter.AddNewItemViewHolder) {
+        if (viewHolder is DetailListAdapter.AddNewItemViewHolder) {
           return 0
         } else {
           // Don't call super here or we crash from a Reflection error
@@ -161,7 +174,7 @@ abstract class DetailList protected constructor(
     touchHelper = helper
   }
 
-  final override fun onTeardown() {
+  override fun onTeardown() {
     // Throws
     // recyclerView.adapter = null
     clearList()
@@ -222,7 +235,7 @@ abstract class DetailList protected constructor(
         .dismiss()
   }
 
-  final override fun onRender(
+  override fun onRender(
     state: DetailListViewState,
     oldState: DetailListViewState?
   ) {

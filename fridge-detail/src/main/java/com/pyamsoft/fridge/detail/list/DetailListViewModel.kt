@@ -38,15 +38,19 @@ import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import timber.log.Timber
+import javax.inject.Inject
+import javax.inject.Named
 
-abstract class DetailListViewModel protected constructor(
-  protected val fakeRealtime: EventBus<FridgeItemChangeEvent>,
-  private val filterArchived: Boolean
+class DetailListViewModel @Inject internal constructor(
+  @Named("detail_entry_id") private val entryId: String,
+  private val interactor: DetailListInteractor,
+  private val fakeRealtime: EventBus<FridgeItemChangeEvent>
 ) : UiViewModel<DetailListViewState, DetailListViewEvent, DetailListControllerEvent>(
     initialState = DetailListViewState(
         isLoading = null,
         throwable = null,
-        items = emptyList()
+        items = emptyList(),
+        filterArchived = true
     )
 ) {
 
@@ -55,16 +59,7 @@ abstract class DetailListViewModel protected constructor(
   private var realtimeDisposable by singleDisposable()
   private var fakeRealtimeDisposable by singleDisposable()
 
-  @CheckResult
-  protected abstract fun getItems(force: Boolean): Single<List<FridgeItem>>
-
-  @CheckResult
-  protected abstract fun listenForChanges(): Observable<FridgeItemChangeEvent>
-
-  @CheckResult
-  protected abstract fun getListItems(items: List<FridgeItem>): List<FridgeItem>
-
-  final override fun handleViewEvent(event: DetailListViewEvent) {
+  override fun handleViewEvent(event: DetailListViewEvent) {
     return when (event) {
       is ForceRefresh -> refreshList(true)
       is ExpandItem -> publish(ExpandForEditing(event.item))
@@ -72,13 +67,36 @@ abstract class DetailListViewModel protected constructor(
     }
   }
 
-  final override fun onCleared() {
+  override fun onCleared() {
     realtimeDisposable.tryDispose()
     fakeRealtimeDisposable.tryDispose()
   }
 
   fun fetchItems() {
     refreshList(false)
+  }
+
+  @CheckResult
+  private fun getItems(force: Boolean): Single<List<FridgeItem>> {
+    return interactor.getItems(entryId, force)
+  }
+
+  @CheckResult
+  private fun listenForChanges(): Observable<FridgeItemChangeEvent> {
+    return interactor.listenForChanges(entryId)
+  }
+
+  @CheckResult
+  private fun getListItems(items: List<FridgeItem>): List<FridgeItem> {
+    val mutableItems = items.toMutableList()
+    insert(mutableItems, FridgeItem.empty(entryId))
+    return mutableItems.sortedWith(Comparator { o1, o2 ->
+      return@Comparator when {
+        o1.id().isBlank() -> 1
+        o2.id().isBlank() -> -1
+        else -> 0
+      }
+    })
   }
 
   private fun refreshList(force: Boolean) {
@@ -115,7 +133,7 @@ abstract class DetailListViewModel protected constructor(
         .subscribe { handleRealtime(it) }
   }
 
-  protected fun insert(
+  private fun insert(
     items: MutableList<FridgeItem>,
     item: FridgeItem
   ) {

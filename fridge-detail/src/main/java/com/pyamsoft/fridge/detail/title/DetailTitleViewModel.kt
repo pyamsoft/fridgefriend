@@ -15,10 +15,10 @@
  *
  */
 
-package com.pyamsoft.fridge.detail.create.title
+package com.pyamsoft.fridge.detail.title
 
 import com.pyamsoft.fridge.detail.DetailConstants
-import com.pyamsoft.fridge.detail.create.title.CreationTitleViewEvent.NameUpdate
+import com.pyamsoft.fridge.detail.title.DetailTitleViewEvent.NameUpdate
 import com.pyamsoft.pydroid.arch.UiViewModel
 import com.pyamsoft.pydroid.arch.UnitControllerEvent
 import com.pyamsoft.pydroid.core.singleDisposable
@@ -29,10 +29,12 @@ import io.reactivex.schedulers.Schedulers
 import timber.log.Timber
 import javax.inject.Inject
 
-class CreationTitleViewModel @Inject internal constructor(
-  private val interactor: CreationTitleInteractor
-) : UiViewModel<CreationTitleViewState, CreationTitleViewEvent, UnitControllerEvent>(
-    initialState = CreationTitleViewState(name = "", throwable = null)
+class DetailTitleViewModel @Inject internal constructor(
+  private val interactor: DetailTitleInteractor
+) : UiViewModel<DetailTitleViewState, DetailTitleViewEvent, UnitControllerEvent>(
+    initialState = DetailTitleViewState(
+        name = "", throwable = null
+    )
 ) {
 
   private var observeNameDisposable by singleDisposable()
@@ -42,7 +44,7 @@ class CreationTitleViewModel @Inject internal constructor(
     observeNameDisposable.tryDispose()
   }
 
-  override fun handleViewEvent(event: CreationTitleViewEvent) {
+  override fun handleViewEvent(event: DetailTitleViewEvent) {
     return when (event) {
       is NameUpdate -> updateName(event.name)
     }
