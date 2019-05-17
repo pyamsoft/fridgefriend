@@ -235,8 +235,13 @@ internal class DetailListAdapter constructor(
     }
 
     // Kind of hacky
-    fun archiveSelf(item: FridgeItem) {
-      requireNotNull(viewModel).archiveSelf(item)
+    fun archive(item: FridgeItem) {
+      requireNotNull(viewModel).archive(item)
+    }
+
+    // Kind of hacky
+    fun delete(item: FridgeItem) {
+      requireNotNull(viewModel).delete(item)
     }
 
   }

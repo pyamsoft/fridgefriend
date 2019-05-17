@@ -27,6 +27,7 @@ import com.pyamsoft.fridge.db.entry.FridgeEntryRealtime
 import com.pyamsoft.fridge.db.entry.FridgeEntryUpdateDao
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent
+import com.pyamsoft.fridge.db.item.FridgeItemDeleteDao
 import com.pyamsoft.fridge.db.item.FridgeItemInsertDao
 import com.pyamsoft.fridge.db.item.FridgeItemQueryDao
 import com.pyamsoft.fridge.db.item.FridgeItemRealtime
@@ -45,6 +46,7 @@ internal class DetailListInteractor @Inject internal constructor(
   private val itemQueryDao: FridgeItemQueryDao,
   private val itemInsertDao: FridgeItemInsertDao,
   private val itemUpdateDao: FridgeItemUpdateDao,
+  private val itemDeleteDao: FridgeItemDeleteDao,
   private val itemRealtime: FridgeItemRealtime,
   private val entryUpdateDao: FridgeEntryUpdateDao,
   private val entryRealtime: FridgeEntryRealtime,
@@ -54,7 +56,7 @@ internal class DetailListInteractor @Inject internal constructor(
 ) : DetailInteractor(enforcer, entryQueryDao, entryInsertDao) {
 
   @CheckResult
-  fun listenForArchived(): Observable<FridgeEntry> {
+  fun listenForEntryArchived(): Observable<FridgeEntry> {
     return entryRealtime.listenForChanges()
         .ofType(Update::class.java)
         .map { it.entry }
@@ -64,7 +66,7 @@ internal class DetailListInteractor @Inject internal constructor(
 
   @CheckResult
   fun observeEntryReal(force: Boolean): Observable<Boolean> {
-    return listenForRealChange()
+    return listenForEntryRealChange()
         .startWith(isEntryReal(force))
   }
 
@@ -76,7 +78,7 @@ internal class DetailListInteractor @Inject internal constructor(
   }
 
   @CheckResult
-  private fun listenForRealChange(): Observable<Boolean> {
+  private fun listenForEntryRealChange(): Observable<Boolean> {
     return entryRealtime.listenForChanges()
         .ofType(Insert::class.java)
         .map { it.entry }
@@ -85,7 +87,7 @@ internal class DetailListInteractor @Inject internal constructor(
   }
 
   @CheckResult
-  fun archive(): Completable {
+  fun archiveEntry(): Completable {
     return getValidEntry(entryId, false)
         .flatMapCompletable {
           val valid = it.entry
@@ -154,6 +156,17 @@ internal class DetailListInteractor @Inject internal constructor(
     } else {
       Timber.d("Archiving item [${item.id()}]: $item")
       return itemUpdateDao.update(item.archive())
+    }
+  }
+
+  @CheckResult
+  fun delete(item: FridgeItem): Completable {
+    if (!item.isReal()) {
+      Timber.w("Cannot delete item that is not real: [${item.id()}]: $item")
+      return Completable.complete()
+    } else {
+      Timber.d("Deleting item [${item.id()}]: $item")
+      return itemDeleteDao.delete(item)
     }
   }
 

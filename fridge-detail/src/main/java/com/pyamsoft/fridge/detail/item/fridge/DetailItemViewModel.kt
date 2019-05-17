@@ -25,13 +25,13 @@ import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent.Insert
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent.Update
 import com.pyamsoft.fridge.db.item.FridgeItemRealtime
 import com.pyamsoft.fridge.detail.DetailConstants
-import com.pyamsoft.fridge.detail.list.DetailListInteractor
 import com.pyamsoft.fridge.detail.item.fridge.DetailItemControllerEvent.DatePick
 import com.pyamsoft.fridge.detail.item.fridge.DetailItemControllerEvent.ExpandDetails
 import com.pyamsoft.fridge.detail.item.fridge.DetailItemViewEvent.CommitName
 import com.pyamsoft.fridge.detail.item.fridge.DetailItemViewEvent.CommitPresence
 import com.pyamsoft.fridge.detail.item.fridge.DetailItemViewEvent.ExpandItem
 import com.pyamsoft.fridge.detail.item.fridge.DetailItemViewEvent.PickDate
+import com.pyamsoft.fridge.detail.list.DetailListInteractor
 import com.pyamsoft.pydroid.arch.UiViewModel
 import com.pyamsoft.pydroid.core.bus.EventBus
 import com.pyamsoft.pydroid.core.singleDisposable
@@ -228,7 +228,18 @@ class DetailItemViewModel @Inject internal constructor(
     }
   }
 
-  fun archiveSelf(item: FridgeItem) {
+  fun archive(item: FridgeItem) {
+    remove(item) { interactor.archive(it) }
+  }
+
+  fun delete(item: FridgeItem) {
+    remove(item) { interactor.delete(it) }
+  }
+
+  private fun remove(
+    item: FridgeItem,
+    func: (item: FridgeItem) -> Completable
+  ) {
     // Stop any pending updates
     updateDisposable.tryDispose()
 
@@ -238,17 +249,17 @@ class DetailItemViewModel @Inject internal constructor(
     // Directly call the realtime delete callback as if the
     // delete had actually happened
     if (!item.isReal()) {
-      Timber.w("Archive called on a non-real item: $item, fake callback")
+      Timber.w("Remove called on a non-real item: $item, fake callback")
       handleFakeDelete(item)
       return
     }
 
-    deleteDisposable = interactor.archive(item)
+    deleteDisposable = func(item)
         .subscribeOn(Schedulers.io())
         .observeOn(AndroidSchedulers.mainThread())
         .doAfterTerminate { deleteDisposable.tryDispose() }
         .subscribe({ }, {
-          Timber.e(it, "Error archiving item: ${item.id()}")
+          Timber.e(it, "Error removing item: ${item.id()}")
           handleError(it)
         })
   }

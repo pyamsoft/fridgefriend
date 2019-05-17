@@ -285,14 +285,14 @@ class DetailListViewModel @Inject internal constructor(
   }
 
   private fun listenForDelete() {
-    observeDeleteDisposable = interactor.listenForArchived()
+    observeDeleteDisposable = interactor.listenForEntryArchived()
         .subscribeOn(Schedulers.io())
         .observeOn(AndroidSchedulers.mainThread())
         .subscribe { publish(EntryArchived) }
   }
 
   private fun handleArchived() {
-    deleteDisposable = interactor.archive()
+    deleteDisposable = interactor.archiveEntry()
         .subscribeOn(Schedulers.io())
         .observeOn(AndroidSchedulers.mainThread())
         .doAfterTerminate { deleteDisposable.tryDispose() }

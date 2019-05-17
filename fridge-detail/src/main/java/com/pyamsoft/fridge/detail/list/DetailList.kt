@@ -134,7 +134,7 @@ class DetailList @Inject internal constructor(
         if (direction == ItemTouchHelper.RIGHT) {
           archiveListItem(position)
         } else {
-          archiveListItem(position)
+          deleteListItem(position)
         }
       }
     }
@@ -165,8 +165,14 @@ class DetailList @Inject internal constructor(
       }
 
     }.apply {
-      withBackgroundSwipeRight(leftBackground)
-      withLeaveBehindSwipeRight(leftBehindDrawable)
+      val rightBehindDrawable =
+        AppCompatResources.getDrawable(
+            recyclerView.context,
+            drawable.ic_archive_24dp
+        )
+      val rightBackground = Color.GREEN
+      withBackgroundSwipeRight(rightBackground)
+      withLeaveBehindSwipeRight(rightBehindDrawable)
     }
 
     val helper = ItemTouchHelper(swipeCallback)
@@ -195,13 +201,20 @@ class DetailList @Inject internal constructor(
     return requireNotNull(modelAdapter)
   }
 
-  private fun archiveListItem(
-    position: Int
-  ) {
+  private fun archiveListItem(position: Int) {
     withViewHolderAt(position) { holder ->
       val item = holder.item
       if (item != null) {
-        holder.archiveSelf(item)
+        holder.archive(item)
+      }
+    }
+  }
+
+  private fun deleteListItem(position: Int) {
+    withViewHolderAt(position) { holder ->
+      val item = holder.item
+      if (item != null) {
+        holder.delete(item)
       }
     }
   }
