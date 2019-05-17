@@ -18,8 +18,13 @@
 package com.pyamsoft.fridge.detail.list
 
 import androidx.annotation.CheckResult
+import com.pyamsoft.fridge.db.entry.FridgeEntry
+import com.pyamsoft.fridge.db.entry.FridgeEntryChangeEvent.Insert
+import com.pyamsoft.fridge.db.entry.FridgeEntryChangeEvent.Update
 import com.pyamsoft.fridge.db.entry.FridgeEntryInsertDao
 import com.pyamsoft.fridge.db.entry.FridgeEntryQueryDao
+import com.pyamsoft.fridge.db.entry.FridgeEntryRealtime
+import com.pyamsoft.fridge.db.entry.FridgeEntryUpdateDao
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent
 import com.pyamsoft.fridge.db.item.FridgeItemInsertDao
@@ -33,28 +38,78 @@ import io.reactivex.Observable
 import io.reactivex.Single
 import timber.log.Timber
 import javax.inject.Inject
+import javax.inject.Named
 
 internal class DetailListInteractor @Inject internal constructor(
-  private val queryDao: FridgeItemQueryDao,
-  private val insertDao: FridgeItemInsertDao,
-  private val updateDao: FridgeItemUpdateDao,
-  private val realtime: FridgeItemRealtime,
+  @Named("detail_entry_id") private val entryId: String,
+  private val itemQueryDao: FridgeItemQueryDao,
+  private val itemInsertDao: FridgeItemInsertDao,
+  private val itemUpdateDao: FridgeItemUpdateDao,
+  private val itemRealtime: FridgeItemRealtime,
+  private val entryUpdateDao: FridgeEntryUpdateDao,
+  private val entryRealtime: FridgeEntryRealtime,
   entryQueryDao: FridgeEntryQueryDao,
   entryInsertDao: FridgeEntryInsertDao,
   enforcer: Enforcer
 ) : DetailInteractor(enforcer, entryQueryDao, entryInsertDao) {
 
   @CheckResult
+  fun listenForArchived(): Observable<FridgeEntry> {
+    return entryRealtime.listenForChanges()
+        .ofType(Update::class.java)
+        .map { it.entry }
+        .filter { it.id() == entryId }
+        .filter { it.isArchived() }
+  }
+
+  @CheckResult
+  fun observeEntryReal(force: Boolean): Observable<Boolean> {
+    return listenForRealChange()
+        .startWith(isEntryReal(force))
+  }
+
+  @CheckResult
+  private fun isEntryReal(force: Boolean): Observable<Boolean> {
+    return getEntryForId(entryId, force)
+        .map { it.isReal() }
+        .toObservable()
+  }
+
+  @CheckResult
+  private fun listenForRealChange(): Observable<Boolean> {
+    return entryRealtime.listenForChanges()
+        .ofType(Insert::class.java)
+        .map { it.entry }
+        .filter { it.id() == entryId }
+        .map { it.isReal() }
+  }
+
+  @CheckResult
+  fun archive(): Completable {
+    return getValidEntry(entryId, false)
+        .flatMapCompletable {
+          val valid = it.entry
+          if (valid != null) {
+            Timber.d("Archive entry: [${valid.id()}] $valid")
+            return@flatMapCompletable entryUpdateDao.update(valid.archive())
+          } else {
+            Timber.w("No entry, cannot delete")
+            return@flatMapCompletable Completable.complete()
+          }
+        }
+  }
+
+  @CheckResult
   fun getItems(
     entryId: String,
     force: Boolean
   ): Single<List<FridgeItem>> {
-    return queryDao.queryAll(force, entryId)
+    return itemQueryDao.queryAll(force, entryId)
   }
 
   @CheckResult
   fun listenForChanges(entryId: String): Observable<FridgeItemChangeEvent> {
-    return realtime.listenForChanges(entryId)
+    return itemRealtime.listenForChanges(entryId)
   }
 
   @CheckResult
@@ -83,10 +138,10 @@ internal class DetailListInteractor @Inject internal constructor(
           val valid = it.item
           if (valid != null) {
             Timber.d("Update existing item [${item.id()}]: $item")
-            return@flatMapCompletable updateDao.update(item)
+            return@flatMapCompletable itemUpdateDao.update(item)
           } else {
             Timber.d("Create new item [${item.id()}]: $item")
-            return@flatMapCompletable insertDao.insert(item)
+            return@flatMapCompletable itemInsertDao.insert(item)
           }
         }
   }
@@ -98,7 +153,7 @@ internal class DetailListInteractor @Inject internal constructor(
       return Completable.complete()
     } else {
       Timber.d("Archiving item [${item.id()}]: $item")
-      return updateDao.update(item.archive())
+      return itemUpdateDao.update(item.archive())
     }
   }
 

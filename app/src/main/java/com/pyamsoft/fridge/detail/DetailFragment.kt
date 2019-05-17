@@ -30,14 +30,13 @@ import com.pyamsoft.fridge.R
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.detail.list.DetailList
 import com.pyamsoft.fridge.detail.list.DetailListControllerEvent.DatePick
+import com.pyamsoft.fridge.detail.list.DetailListControllerEvent.EntryArchived
 import com.pyamsoft.fridge.detail.list.DetailListControllerEvent.ExpandForEditing
+import com.pyamsoft.fridge.detail.list.DetailListControllerEvent.NavigateUp
 import com.pyamsoft.fridge.detail.list.DetailListViewModel
 import com.pyamsoft.fridge.detail.title.DetailTitle
 import com.pyamsoft.fridge.detail.title.DetailTitleViewModel
 import com.pyamsoft.fridge.detail.toolbar.DetailToolbar
-import com.pyamsoft.fridge.detail.toolbar.DetailToolbarControllerEvent.EntryArchived
-import com.pyamsoft.fridge.detail.toolbar.DetailToolbarControllerEvent.NavigateUp
-import com.pyamsoft.fridge.detail.toolbar.DetailToolbarViewModel
 import com.pyamsoft.pydroid.arch.createComponent
 import com.pyamsoft.pydroid.ui.Injector
 import com.pyamsoft.pydroid.ui.app.requireArguments
@@ -48,13 +47,11 @@ import javax.inject.Inject
 
 internal class DetailFragment : Fragment() {
 
-  @JvmField @Inject internal var toolbar: DetailToolbar? = null
-  @JvmField @Inject internal var toolbarViewModel: DetailToolbarViewModel? = null
-
   @JvmField @Inject internal var title: DetailTitle? = null
   @JvmField @Inject internal var titleViewModel: DetailTitleViewModel? = null
 
   @JvmField @Inject internal var list: DetailList? = null
+  @JvmField @Inject internal var toolbar: DetailToolbar? = null
   @JvmField @Inject internal var listViewModel: DetailListViewModel? = null
 
   override fun onCreateView(
@@ -91,19 +88,13 @@ internal class DetailFragment : Fragment() {
 
     createComponent(
         savedInstanceState, viewLifecycleOwner,
-        requireNotNull(listViewModel), list
+        requireNotNull(listViewModel),
+        list,
+        toolbar
     ) {
       return@createComponent when (it) {
         is ExpandForEditing -> expandItem(it.item)
         is DatePick -> pickDate(it.oldItem, it.year, it.month, it.day)
-      }
-    }
-
-    createComponent(
-        savedInstanceState, viewLifecycleOwner,
-        requireNotNull(toolbarViewModel), toolbar
-    ) {
-      return@createComponent when (it) {
         is EntryArchived -> close()
         is NavigateUp -> close()
       }
@@ -127,7 +118,6 @@ internal class DetailFragment : Fragment() {
       }
     }
 
-    requireNotNull(toolbarViewModel).beginMonitoringEntry()
     requireNotNull(titleViewModel).beginObservingName()
     requireNotNull(listViewModel).fetchItems()
   }
@@ -154,12 +144,10 @@ internal class DetailFragment : Fragment() {
 
     listViewModel = null
     list = null
+    toolbar = null
 
     titleViewModel = null
     title = null
-
-    toolbarViewModel = null
-    toolbar = null
   }
 
   private fun close() {

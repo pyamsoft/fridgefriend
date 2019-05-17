@@ -20,8 +20,10 @@ package com.pyamsoft.fridge.detail.toolbar
 import android.os.Bundle
 import android.view.MenuItem
 import com.pyamsoft.fridge.detail.R
-import com.pyamsoft.fridge.detail.toolbar.DetailToolbarViewEvent.Archive
-import com.pyamsoft.fridge.detail.toolbar.DetailToolbarViewEvent.Close
+import com.pyamsoft.fridge.detail.list.DetailListViewEvent
+import com.pyamsoft.fridge.detail.list.DetailListViewEvent.ArchiveEntry
+import com.pyamsoft.fridge.detail.list.DetailListViewEvent.CloseEntry
+import com.pyamsoft.fridge.detail.list.DetailListViewState
 import com.pyamsoft.pydroid.arch.UiView
 import com.pyamsoft.pydroid.ui.app.ToolbarActivity
 import com.pyamsoft.pydroid.ui.arch.InvalidIdException
@@ -31,7 +33,7 @@ import javax.inject.Inject
 
 class DetailToolbar @Inject internal constructor(
   private val toolbarActivity: ToolbarActivity
-) : UiView<DetailToolbarViewState, DetailToolbarViewEvent>() {
+) : UiView<DetailListViewState, DetailListViewEvent>() {
 
   private var deleteMenuItem: MenuItem? = null
 
@@ -43,14 +45,14 @@ class DetailToolbar @Inject internal constructor(
     toolbarActivity.requireToolbar { toolbar ->
       toolbar.setUpEnabled(true)
       toolbar.setNavigationOnClickListener(DebouncedOnClickListener.create {
-        publish(Close)
+        publish(CloseEntry)
       })
 
       toolbar.inflateMenu(R.menu.menu_detail)
       val deleteItem = toolbar.menu.findItem(R.id.menu_item_delete)
       deleteItem.isVisible = false
       deleteItem.setOnMenuItemClickListener {
-        publish(Archive)
+        publish(ArchiveEntry)
         return@setOnMenuItemClickListener true
       }
       deleteMenuItem = deleteItem
@@ -73,8 +75,8 @@ class DetailToolbar @Inject internal constructor(
   }
 
   override fun render(
-    state: DetailToolbarViewState,
-    oldState: DetailToolbarViewState?
+    state: DetailListViewState,
+    oldState: DetailListViewState?
   ) {
     setDeleteEnabled(state.isReal)
   }

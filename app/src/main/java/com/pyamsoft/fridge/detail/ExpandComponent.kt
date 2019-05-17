@@ -23,6 +23,7 @@ import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.detail.expand.ExpandModule
 import dagger.BindsInstance
 import dagger.Subcomponent
+import javax.inject.Named
 
 @Subcomponent(modules = [ExpandModule::class])
 internal interface ExpandComponent {
@@ -35,7 +36,8 @@ internal interface ExpandComponent {
     @CheckResult
     fun create(
       @BindsInstance parent: ViewGroup,
-      @BindsInstance item: FridgeItem
+      @BindsInstance item: FridgeItem,
+      @BindsInstance @Named("detail_entry_id") entryId: String
     ): ExpandComponent
   }
 

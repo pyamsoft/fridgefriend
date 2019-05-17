@@ -81,7 +81,7 @@ class ExpandedFragment : FridgeBottomSheetDialogFragment() {
       requireNotNull(requireArguments().getParcelable<JsonMappableFridgeItem>(ITEM))
     Injector.obtain<FridgeComponent>(view.context.applicationContext)
         .plusExpandComponent()
-        .create(parent, item)
+        .create(parent, item, item.entryId())
         .inject(this)
 
     val name = requireNotNull(name)

@@ -24,7 +24,11 @@ import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent.Delete
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent.Insert
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent.Update
 import com.pyamsoft.fridge.detail.list.DetailListControllerEvent.DatePick
+import com.pyamsoft.fridge.detail.list.DetailListControllerEvent.EntryArchived
 import com.pyamsoft.fridge.detail.list.DetailListControllerEvent.ExpandForEditing
+import com.pyamsoft.fridge.detail.list.DetailListControllerEvent.NavigateUp
+import com.pyamsoft.fridge.detail.list.DetailListViewEvent.ArchiveEntry
+import com.pyamsoft.fridge.detail.list.DetailListViewEvent.CloseEntry
 import com.pyamsoft.fridge.detail.list.DetailListViewEvent.ExpandItem
 import com.pyamsoft.fridge.detail.list.DetailListViewEvent.ForceRefresh
 import com.pyamsoft.fridge.detail.list.DetailListViewEvent.PickDate
@@ -50,12 +54,16 @@ class DetailListViewModel @Inject internal constructor(
         isLoading = null,
         throwable = null,
         items = emptyList(),
-        filterArchived = true
+        filterArchived = true,
+        isReal = false
     )
 ) {
 
+  private var deleteDisposable by singleDisposable()
   private var refreshDisposable by singleDisposable()
 
+  private var observeRealDisposable by singleDisposable()
+  private var observeDeleteDisposable by singleDisposable()
   private var realtimeDisposable by singleDisposable()
   private var fakeRealtimeDisposable by singleDisposable()
 
@@ -64,6 +72,8 @@ class DetailListViewModel @Inject internal constructor(
       is ForceRefresh -> refreshList(true)
       is ExpandItem -> publish(ExpandForEditing(event.item))
       is PickDate -> publish(DatePick(event.oldItem, event.year, event.month, event.day))
+      is ArchiveEntry -> handleArchived()
+      is CloseEntry -> publish(NavigateUp)
     }
   }
 
@@ -74,6 +84,8 @@ class DetailListViewModel @Inject internal constructor(
 
   fun fetchItems() {
     refreshList(false)
+    observeReal(false)
+    listenForDelete()
   }
 
   @CheckResult
@@ -256,6 +268,38 @@ class DetailListViewModel @Inject internal constructor(
     setState {
       copy(isLoading = Loading(false))
     }
+  }
+
+  private fun observeReal(force: Boolean) {
+    observeRealDisposable = interactor.observeEntryReal(force)
+        .subscribeOn(Schedulers.io())
+        .observeOn(AndroidSchedulers.mainThread())
+        .subscribe({ handleRealUpdated(it) }, {
+          Timber.e(it, "Error observing entry real")
+          setState { copy(throwable = it) }
+        })
+  }
+
+  private fun handleRealUpdated(real: Boolean) {
+    setState { copy(isReal = real) }
+  }
+
+  private fun listenForDelete() {
+    observeDeleteDisposable = interactor.listenForArchived()
+        .subscribeOn(Schedulers.io())
+        .observeOn(AndroidSchedulers.mainThread())
+        .subscribe { publish(EntryArchived) }
+  }
+
+  private fun handleArchived() {
+    deleteDisposable = interactor.archive()
+        .subscribeOn(Schedulers.io())
+        .observeOn(AndroidSchedulers.mainThread())
+        .doAfterTerminate { deleteDisposable.tryDispose() }
+        .subscribe({}, {
+          Timber.e(it, "Error observing delete stream")
+          setState { copy(throwable = it) }
+        })
   }
 
 }

@@ -23,6 +23,7 @@ import com.pyamsoft.pydroid.arch.UiViewEvent
 import com.pyamsoft.pydroid.arch.UiViewState
 
 data class DetailListViewState(
+  val isReal: Boolean,
   val isLoading: Loading?,
   val throwable: Throwable?,
   val items: List<FridgeItem>,
@@ -46,6 +47,10 @@ sealed class DetailListViewEvent : UiViewEvent {
     val day: Int
   ) : DetailListViewEvent()
 
+  object ArchiveEntry : DetailListViewEvent()
+
+  object CloseEntry : DetailListViewEvent()
+
 }
 
 sealed class DetailListControllerEvent : UiControllerEvent {
@@ -60,5 +65,9 @@ sealed class DetailListControllerEvent : UiControllerEvent {
     val month: Int,
     val day: Int
   ) : DetailListControllerEvent()
+
+  object EntryArchived : DetailListControllerEvent()
+
+  object NavigateUp : DetailListControllerEvent()
 
 }
