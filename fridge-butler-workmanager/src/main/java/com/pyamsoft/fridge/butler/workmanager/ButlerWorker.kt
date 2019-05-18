@@ -59,13 +59,17 @@ internal class ButlerWorker internal constructor(
     teardown()
   }
 
-  private fun notifyForEntry(now: Date, entry: FridgeEntry, items: List<FridgeItem>) {
+  private fun notifyForEntry(
+    now: Date,
+    entry: FridgeEntry,
+    items: List<FridgeItem>
+  ) {
     val needItems = arrayListOf<FridgeItem>()
     val expiringItems = arrayListOf<FridgeItem>()
     val expiredItems = arrayListOf<FridgeItem>()
     val unknownExpirationItems = arrayListOf<FridgeItem>()
 
-    for (item in items) {
+    for (item in items.filterNot { it.isArchived() }) {
       if (item.presence() == NEED) {
         Timber.d("${entry.id()} needs item: $item")
         needItems.add(item)
@@ -110,18 +114,20 @@ internal class ButlerWorker internal constructor(
     inject()
 
     return Single.defer {
-      val now = Calendar.getInstance().time
+      val now = Calendar.getInstance()
+          .time
       return@defer requireNotNull(fridgeEntryQueryDao).queryAll(false)
-        .flatMapObservable { Observable.fromIterable(it) }
-        .flatMapSingle { entry ->
-          return@flatMapSingle requireNotNull(fridgeItemQueryDao).queryAll(false, entry.id())
-            .doOnSuccess { items -> notifyForEntry(now, entry, items) }
-            .map { entry }
-        }
-        .toList()
-        .map { success(it) }
-        .onErrorReturn { fail(it) }
-    }.doAfterTerminate { teardown() }
+          .flatMapObservable { Observable.fromIterable(it) }
+          .flatMapSingle { entry ->
+            return@flatMapSingle requireNotNull(fridgeItemQueryDao).queryAll(false, entry.id())
+                .doOnSuccess { items -> notifyForEntry(now, entry, items) }
+                .map { entry }
+          }
+          .toList()
+          .map { success(it) }
+          .onErrorReturn { fail(it) }
+    }
+        .doAfterTerminate { teardown() }
   }
 
   @CheckResult
