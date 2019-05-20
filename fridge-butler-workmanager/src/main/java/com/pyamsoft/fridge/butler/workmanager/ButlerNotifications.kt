@@ -77,7 +77,7 @@ internal object ButlerNotifications {
   private fun getExtraItems(items: List<FridgeItem>): String {
     return when {
       items.size == 1 -> ""
-      items.size == 2 -> "and ${items[1].name()}"
+      items.size == 2 -> "and '${items[1].name()}'"
       else -> "and ${items.size - 1} other items"
     }
   }
@@ -153,8 +153,8 @@ internal object ButlerNotifications {
       items
     ) { builder ->
       return@notify builder
-        .setContentTitle("Purchase reminder for ${entry.name()}")
-        .setContentText("You still need ${items.first().name()} ${getExtraItems(items)}")
+        .setContentTitle("Purchase reminder for '${entry.name()}'")
+        .setContentText("You still need '${items.first().name()}' ${getExtraItems(items)}")
         .build()
     }
   }
@@ -171,8 +171,8 @@ internal object ButlerNotifications {
     ) { builder ->
       val extra = "${getExtraItems(items)} ${if (items.size == 1) "is" else "are"} about to expire."
       return@notify builder
-        .setContentTitle("Expiration reminder for ${entry.name()}")
-        .setContentText("${items.first().name()} $extra")
+        .setContentTitle("Expiration reminder for '${entry.name()}'")
+        .setContentText("'${items.first().name()}' $extra")
         .build()
     }
   }
@@ -188,8 +188,8 @@ internal object ButlerNotifications {
       items
     ) { builder ->
       return@notify builder
-        .setContentTitle("Expired warning for ${entry.name()}")
-        .setContentText("${items.first().name()} ${getExtraItems(items)} ${if (items.size == 1) "has" else "have"} passed expiration!")
+        .setContentTitle("Expired warning for '${entry.name()}'")
+        .setContentText("'${items.first().name()}' ${getExtraItems(items)} ${if (items.size == 1) "has" else "have"} passed expiration!")
         .build()
     }
   }

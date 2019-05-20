@@ -31,8 +31,6 @@ import io.reactivex.Observable
 import io.reactivex.Single
 import timber.log.Timber
 import java.util.Calendar
-import java.util.Date
-import java.util.concurrent.TimeUnit
 
 internal class ButlerWorker internal constructor(
   context: Context,
@@ -60,7 +58,8 @@ internal class ButlerWorker internal constructor(
   }
 
   private fun notifyForEntry(
-    now: Date,
+    today: Calendar,
+    tomorrow: Calendar,
     entry: FridgeEntry,
     items: List<FridgeItem>
   ) {
@@ -74,14 +73,26 @@ internal class ButlerWorker internal constructor(
         Timber.d("${entry.id()} needs item: $item")
         needItems.add(item)
       } else {
-        val expirationDate = item.expireTime()
-        if (expirationDate != FridgeItem.EMPTY_EXPIRE_TIME) {
-          if (expirationDate.before(now)) {
+        val expirationTime = item.expireTime()
+        if (expirationTime != FridgeItem.EMPTY_EXPIRE_TIME) {
+
+          // Clean Y/M/D only
+          val expiration = Calendar.getInstance()
+              .apply {
+                time = expirationTime
+                set(Calendar.HOUR, 0)
+                set(Calendar.MINUTE, 0)
+                set(Calendar.SECOND, 0)
+                set(Calendar.MILLISECOND, 0)
+              }
+
+          Timber.d("Today: ${today.time}, ${item.name()} expires on ${expiration.time}")
+          if (expiration.before(today)) {
             Timber.w("${entry.id()} expired! $item")
             expiredItems.add(item)
           } else {
-            val oneDayInMillis = TimeUnit.DAYS.toMillis(1L)
-            if (expirationDate.after(now) && expirationDate.time < (now.time + oneDayInMillis)) {
+            Timber.d("Tomorrow: ${tomorrow.time}, ${item.name()} expires on ${expiration.time}")
+            if (expiration.before(tomorrow) || expiration == tomorrow || expiration == today) {
               Timber.w("${entry.id()} is expiring soon! $item")
               expiringItems.add(item)
             }
@@ -114,13 +125,31 @@ internal class ButlerWorker internal constructor(
     inject()
 
     return Single.defer {
-      val now = Calendar.getInstance()
-          .time
+
+      // Clean Y/M/D only
+      val today = Calendar.getInstance()
+          .apply {
+            set(Calendar.HOUR, 0)
+            set(Calendar.MINUTE, 0)
+            set(Calendar.SECOND, 0)
+            set(Calendar.MILLISECOND, 0)
+          }
+
+      // Clean Y/M/D only
+      val tomorrow = Calendar.getInstance()
+          .apply {
+            add(Calendar.DAY_OF_MONTH, 1)
+            set(Calendar.HOUR, 0)
+            set(Calendar.MINUTE, 0)
+            set(Calendar.SECOND, 0)
+            set(Calendar.MILLISECOND, 0)
+          }
+
       return@defer requireNotNull(fridgeEntryQueryDao).queryAll(false)
           .flatMapObservable { Observable.fromIterable(it) }
           .flatMapSingle { entry ->
             return@flatMapSingle requireNotNull(fridgeItemQueryDao).queryAll(false, entry.id())
-                .doOnSuccess { items -> notifyForEntry(now, entry, items) }
+                .doOnSuccess { items -> notifyForEntry(today, tomorrow, entry, items) }
                 .map { entry }
           }
           .toList()
