@@ -78,7 +78,7 @@ class DetailToolbar @Inject internal constructor(
     state: DetailListViewState,
     oldState: DetailListViewState?
   ) {
-    setDeleteEnabled(state.isReal)
+    setDeleteEnabled(state.entry.isReal())
   }
 
 }

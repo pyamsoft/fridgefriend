@@ -151,7 +151,7 @@ internal class EntryListFragment : Fragment() {
   }
 
   private fun pushEntryScreen(entry: FridgeEntry) {
-    pushFragment(DetailFragment.TAG) { DetailFragment.newInstance(entry.id()) }
+    pushFragment(DetailFragment.TAG) { DetailFragment.newInstance(entry) }
   }
 
   override fun onHiddenChanged(hidden: Boolean) {

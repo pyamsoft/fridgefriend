@@ -22,34 +22,43 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import androidx.lifecycle.LifecycleOwner
 import com.google.android.material.textfield.TextInputLayout
 import com.pyamsoft.fridge.detail.R
-import com.pyamsoft.fridge.detail.title.DetailTitleViewEvent.NameUpdate
+import com.pyamsoft.fridge.detail.list.DetailListViewEvent
+import com.pyamsoft.fridge.detail.list.DetailListViewEvent.NameUpdate
+import com.pyamsoft.fridge.detail.list.DetailListViewState
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.ui.util.Snackbreak
+import java.text.SimpleDateFormat
 import javax.inject.Inject
 
 class DetailTitle @Inject internal constructor(
   private val owner: LifecycleOwner,
   parent: ViewGroup
-) : BaseUiView<DetailTitleViewState, DetailTitleViewEvent>(parent) {
+) : BaseUiView<DetailListViewState, DetailListViewEvent>(parent) {
 
   override val layout: Int = R.layout.detail_title
 
-  override val layoutRoot by boundView<TextInputLayout>(R.id.entry_detail_title)
+  override val layoutRoot by boundView<ViewGroup>(R.id.entry_detail_title)
+
+  private val name by boundView<TextInputLayout>(R.id.entry_detail_title_name)
+  private val date by boundView<TextView>(R.id.entry_detail_title_date)
+  private val count by boundView<TextView>(R.id.entry_detail_title_count)
+
   private var watcher: TextWatcher? = null
 
   override fun onInflated(
     view: View,
     savedInstanceState: Bundle?
   ) {
-    layoutRoot.requestFocus()
+    name.requestFocus()
     addTextWatcher()
   }
 
   private fun addTextWatcher() {
-    requireNotNull(layoutRoot.editText).let {
+    requireNotNull(name.editText).let {
       watcher = object : TextWatcher {
 
         override fun onTextChanged(
@@ -80,22 +89,22 @@ class DetailTitle @Inject internal constructor(
   }
 
   private fun removeTextWatcher() {
-    watcher?.let { layoutRoot.editText?.removeTextChangedListener(it) }
+    watcher?.let { name.editText?.removeTextChangedListener(it) }
     watcher = null
   }
 
   override fun onTeardown() {
     removeTextWatcher()
     clearError()
-    layoutRoot.clearFocus()
-    layoutRoot.editText?.text?.clear()
-    layoutRoot.editText?.clearFocus()
+    name.clearFocus()
+    name.editText?.text?.clear()
+    name.editText?.clearFocus()
   }
 
-  private fun updateName(name: String) {
+  private fun updateName(newName: String) {
     removeTextWatcher()
-    val editText = requireNotNull(layoutRoot.editText)
-    editText.setTextKeepState(name)
+    val editText = requireNotNull(name.editText)
+    editText.setTextKeepState(newName)
     addTextWatcher()
   }
 
@@ -111,16 +120,31 @@ class DetailTitle @Inject internal constructor(
   }
 
   override fun onRender(
-    state: DetailTitleViewState,
-    oldState: DetailTitleViewState?
+    state: DetailListViewState,
+    oldState: DetailListViewState?
   ) {
-    updateName(state.name)
     state.throwable.let { throwable ->
       if (throwable == null) {
         clearError()
       } else {
         showError(throwable)
       }
+    }
+
+    state.entry.let { entry ->
+      updateName(entry.name())
+      date.text = SimpleDateFormat.getDateInstance()
+          .format(entry.createdTime())
+    }
+
+    state.items.let { items ->
+      val realItemCount = items
+          .asSequence()
+          .filter { it.isReal() }
+          .filterNot { it.isArchived() }
+          .count()
+
+      count.text = "$realItemCount ${if (realItemCount == 1) "Item" else "Items"}"
     }
   }
 }

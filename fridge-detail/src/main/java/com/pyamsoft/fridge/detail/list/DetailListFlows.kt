@@ -17,13 +17,14 @@
 
 package com.pyamsoft.fridge.detail.list
 
+import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.pydroid.arch.UiControllerEvent
 import com.pyamsoft.pydroid.arch.UiViewEvent
 import com.pyamsoft.pydroid.arch.UiViewState
 
 data class DetailListViewState(
-  val isReal: Boolean,
+  val entry: FridgeEntry,
   val isLoading: Loading?,
   val throwable: Throwable?,
   val items: List<FridgeItem>,
@@ -50,6 +51,8 @@ sealed class DetailListViewEvent : UiViewEvent {
   object ArchiveEntry : DetailListViewEvent()
 
   object CloseEntry : DetailListViewEvent()
+
+  data class NameUpdate internal constructor(val name: String) : DetailListViewEvent()
 
 }
 

@@ -18,6 +18,7 @@
 package com.pyamsoft.fridge.detail.list
 
 import androidx.annotation.CheckResult
+import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent.Delete
@@ -31,36 +32,40 @@ import com.pyamsoft.fridge.detail.list.DetailListViewEvent.ArchiveEntry
 import com.pyamsoft.fridge.detail.list.DetailListViewEvent.CloseEntry
 import com.pyamsoft.fridge.detail.list.DetailListViewEvent.ExpandItem
 import com.pyamsoft.fridge.detail.list.DetailListViewEvent.ForceRefresh
+import com.pyamsoft.fridge.detail.list.DetailListViewEvent.NameUpdate
 import com.pyamsoft.fridge.detail.list.DetailListViewEvent.PickDate
 import com.pyamsoft.fridge.detail.list.DetailListViewState.Loading
 import com.pyamsoft.pydroid.arch.UiViewModel
 import com.pyamsoft.pydroid.core.bus.EventBus
 import com.pyamsoft.pydroid.core.singleDisposable
 import com.pyamsoft.pydroid.core.tryDispose
+import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import timber.log.Timber
 import javax.inject.Inject
-import javax.inject.Named
 
 class DetailListViewModel @Inject internal constructor(
-  @Named("detail_entry_id") private val entryId: String,
   private val interactor: DetailListInteractor,
-  private val fakeRealtime: EventBus<FridgeItemChangeEvent>
+  private val fakeRealtime: EventBus<FridgeItemChangeEvent>,
+  entry: FridgeEntry
 ) : UiViewModel<DetailListViewState, DetailListViewEvent, DetailListControllerEvent>(
     initialState = DetailListViewState(
+        entry = entry,
         isLoading = null,
         throwable = null,
         items = emptyList(),
-        filterArchived = true,
-        isReal = false
+        filterArchived = true
     )
 ) {
 
+  private val entryId = entry.id()
+
   private var deleteDisposable by singleDisposable()
   private var refreshDisposable by singleDisposable()
+  private var nameDisposable by singleDisposable()
 
   private var observeRealDisposable by singleDisposable()
   private var observeDeleteDisposable by singleDisposable()
@@ -74,6 +79,7 @@ class DetailListViewModel @Inject internal constructor(
       is PickDate -> publish(DatePick(event.oldItem, event.year, event.month, event.day))
       is ArchiveEntry -> handleArchived()
       is CloseEntry -> publish(NavigateUp)
+      is NameUpdate -> updateName(event.name)
     }
   }
 
@@ -86,6 +92,22 @@ class DetailListViewModel @Inject internal constructor(
     refreshList(false)
     observeReal(false)
     listenForDelete()
+  }
+
+  private fun updateName(name: String) {
+    nameDisposable = Completable.complete()
+        .andThen(interactor.saveName(name.trim()))
+        .subscribeOn(Schedulers.io())
+        .observeOn(AndroidSchedulers.mainThread())
+        .doAfterTerminate { nameDisposable.tryDispose() }
+        .subscribe({ }, {
+          Timber.e(it, "Error updating entry name")
+          handleNameUpdateError(it)
+        })
+  }
+
+  private fun handleNameUpdateError(throwable: Throwable) {
+    setState { copy(throwable = throwable) }
   }
 
   @CheckResult
@@ -271,17 +293,17 @@ class DetailListViewModel @Inject internal constructor(
   }
 
   private fun observeReal(force: Boolean) {
-    observeRealDisposable = interactor.observeEntryReal(force)
+    observeRealDisposable = interactor.observeEntry(force)
         .subscribeOn(Schedulers.io())
         .observeOn(AndroidSchedulers.mainThread())
-        .subscribe({ handleRealUpdated(it) }, {
+        .subscribe({ handleEntryUpdated(it) }, {
           Timber.e(it, "Error observing entry real")
           setState { copy(throwable = it) }
         })
   }
 
-  private fun handleRealUpdated(real: Boolean) {
-    setState { copy(isReal = real) }
+  private fun handleEntryUpdated(entry: FridgeEntry) {
+    setState { copy(entry = entry) }
   }
 
   private fun listenForDelete() {

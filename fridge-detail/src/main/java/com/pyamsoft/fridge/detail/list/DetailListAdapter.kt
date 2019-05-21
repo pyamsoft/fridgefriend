@@ -17,6 +17,7 @@
 
 package com.pyamsoft.fridge.detail.list
 
+import android.animation.LayoutTransition
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -40,6 +41,7 @@ import com.pyamsoft.fridge.detail.item.fridge.DetailItemControllerEvent.DatePick
 import com.pyamsoft.fridge.detail.item.fridge.DetailItemControllerEvent.ExpandDetails
 import com.pyamsoft.fridge.detail.item.fridge.DetailItemViewModel
 import com.pyamsoft.fridge.detail.item.fridge.DetailListItemDate
+import com.pyamsoft.fridge.detail.item.fridge.DetailListItemGlances
 import com.pyamsoft.fridge.detail.item.fridge.DetailListItemName
 import com.pyamsoft.fridge.detail.item.fridge.DetailListItemPresence
 import com.pyamsoft.fridge.detail.list.DetailListAdapter.DetailViewHolder
@@ -86,7 +88,7 @@ internal class DetailListAdapter constructor(
   }
 
   @CheckResult
-  private fun View.fixPadding(): View {
+  private fun View.prepareAsItem(): View {
     val horizontalPadding = 16.toDp(this.context)
     val verticalPadding = 8.toDp(this.context)
     this.updatePadding(
@@ -95,6 +97,11 @@ internal class DetailListAdapter constructor(
         top = verticalPadding,
         bottom = verticalPadding
     )
+
+    if (this is ViewGroup) {
+      this.layoutTransition = LayoutTransition()
+    }
+
     return this
   }
 
@@ -108,7 +115,7 @@ internal class DetailListAdapter constructor(
       return AddNewItemViewHolder(v, factory)
     } else {
       val v = inflater.inflate(R.layout.listitem_constraint, parent, false)
-          .fixPadding()
+          .prepareAsItem()
       return DetailItemViewHolder(v, factory)
     }
   }
@@ -147,6 +154,7 @@ internal class DetailListAdapter constructor(
     @JvmField @Inject internal var name: DetailListItemName? = null
     @JvmField @Inject internal var date: DetailListItemDate? = null
     @JvmField @Inject internal var presence: DetailListItemPresence? = null
+    @JvmField @Inject internal var glances: DetailListItemGlances? = null
 
     private val parent: ConstraintLayout = itemView.findViewById(R.id.listitem_constraint)
 
@@ -168,12 +176,15 @@ internal class DetailListAdapter constructor(
       val name = requireNotNull(name)
       val date = requireNotNull(date)
       val presence = requireNotNull(presence)
+      val glances = requireNotNull(glances)
+
       createComponent(
           null, owner,
           requireNotNull(viewModel),
           name,
           date,
-          presence
+          presence,
+          glances
       ) {
         return@createComponent when (it) {
           is ExpandDetails -> callback.onItemExpanded(it.item)
@@ -192,9 +203,9 @@ internal class DetailListAdapter constructor(
 
         date.also {
           connect(it.id(), ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP)
-          connect(it.id(), ConstraintSet.BOTTOM, ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM)
           connect(it.id(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
           constrainWidth(it.id(), ConstraintSet.WRAP_CONTENT)
+          constrainHeight(it.id(), ConstraintSet.WRAP_CONTENT)
         }
 
         name.also {
@@ -203,6 +214,15 @@ internal class DetailListAdapter constructor(
           connect(it.id(), ConstraintSet.START, presence.id(), ConstraintSet.END)
           connect(it.id(), ConstraintSet.END, date.id(), ConstraintSet.START)
           constrainWidth(it.id(), ConstraintSet.MATCH_CONSTRAINT)
+          constrainHeight(it.id(), ConstraintSet.WRAP_CONTENT)
+        }
+
+        glances.also {
+          connect(it.id(), ConstraintSet.TOP, date.id(), ConstraintSet.BOTTOM)
+          connect(it.id(), ConstraintSet.BOTTOM, ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM)
+          connect(it.id(), ConstraintSet.START, date.id(), ConstraintSet.START)
+          connect(it.id(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
+          constrainWidth(it.id(), ConstraintSet.WRAP_CONTENT)
         }
 
       }

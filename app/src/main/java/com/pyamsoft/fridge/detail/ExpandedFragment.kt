@@ -30,6 +30,8 @@ import androidx.core.view.setPadding
 import androidx.fragment.app.DialogFragment
 import com.pyamsoft.fridge.FridgeComponent
 import com.pyamsoft.fridge.R
+import com.pyamsoft.fridge.db.entry.FridgeEntry
+import com.pyamsoft.fridge.db.entry.JsonMappableFridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.JsonMappableFridgeItem
 import com.pyamsoft.fridge.detail.expand.ExpandItemError
@@ -74,11 +76,12 @@ class ExpandedFragment : DialogFragment() {
     val parent = view.findViewById<ConstraintLayout>(R.id.layout_constraint)
     parent.setPadding(16.toDp(parent.context))
 
-    val item: FridgeItem =
-      requireNotNull(requireArguments().getParcelable<JsonMappableFridgeItem>(ITEM))
+    val item = requireNotNull(requireArguments().getParcelable<JsonMappableFridgeItem>(ITEM))
+    val entry = requireNotNull(requireArguments().getParcelable<JsonMappableFridgeEntry>(ENTRY))
+
     Injector.obtain<FridgeComponent>(view.context.applicationContext)
         .plusExpandComponent()
-        .create(parent, item, item.entryId())
+        .create(parent, item, entry)
         .inject(this)
 
     val name = requireNotNull(name)
@@ -180,14 +183,17 @@ class ExpandedFragment : DialogFragment() {
 
     const val TAG = "ExpandedFragment"
     private const val ITEM = "item"
+    private const val ENTRY = "entry"
 
     @JvmStatic
     @CheckResult
     fun newInstance(
+      entry: FridgeEntry,
       item: FridgeItem
     ): DialogFragment {
       return ExpandedFragment().apply {
         arguments = Bundle().apply {
+          putParcelable(ENTRY, JsonMappableFridgeEntry.from(entry))
           putParcelable(ITEM, JsonMappableFridgeItem.from(item))
         }
       }

@@ -20,10 +20,10 @@ package com.pyamsoft.fridge.detail
 import android.view.ViewGroup
 import androidx.annotation.CheckResult
 import androidx.lifecycle.LifecycleOwner
+import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.pydroid.ui.app.ToolbarActivity
 import dagger.BindsInstance
 import dagger.Subcomponent
-import javax.inject.Named
 
 @Subcomponent
 internal interface DetailComponent {
@@ -38,7 +38,7 @@ internal interface DetailComponent {
       @BindsInstance parent: ViewGroup,
       @BindsInstance toolbarActivity: ToolbarActivity,
       @BindsInstance owner: LifecycleOwner,
-      @BindsInstance @Named("detail_entry_id") entryId: String
+      @BindsInstance entry: FridgeEntry
     ): DetailComponent
   }
 

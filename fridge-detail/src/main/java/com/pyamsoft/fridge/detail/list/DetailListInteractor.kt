@@ -39,10 +39,8 @@ import io.reactivex.Observable
 import io.reactivex.Single
 import timber.log.Timber
 import javax.inject.Inject
-import javax.inject.Named
 
 internal class DetailListInteractor @Inject internal constructor(
-  @Named("detail_entry_id") private val entryId: String,
   private val itemQueryDao: FridgeItemQueryDao,
   private val itemInsertDao: FridgeItemInsertDao,
   private val itemUpdateDao: FridgeItemUpdateDao,
@@ -50,10 +48,13 @@ internal class DetailListInteractor @Inject internal constructor(
   private val itemRealtime: FridgeItemRealtime,
   private val entryUpdateDao: FridgeEntryUpdateDao,
   private val entryRealtime: FridgeEntryRealtime,
+  entry: FridgeEntry,
   entryQueryDao: FridgeEntryQueryDao,
   entryInsertDao: FridgeEntryInsertDao,
   enforcer: Enforcer
 ) : DetailInteractor(enforcer, entryQueryDao, entryInsertDao) {
+
+  private val entryId = entry.id()
 
   @CheckResult
   fun listenForEntryArchived(): Observable<FridgeEntry> {
@@ -65,25 +66,17 @@ internal class DetailListInteractor @Inject internal constructor(
   }
 
   @CheckResult
-  fun observeEntryReal(force: Boolean): Observable<Boolean> {
-    return listenForEntryRealChange()
-        .startWith(isEntryReal(force))
+  fun observeEntry(force: Boolean): Observable<FridgeEntry> {
+    return listenForEntryCreated()
+        .startWith(getEntryForId(entryId, force).toObservable())
   }
 
   @CheckResult
-  private fun isEntryReal(force: Boolean): Observable<Boolean> {
-    return getEntryForId(entryId, force)
-        .map { it.isReal() }
-        .toObservable()
-  }
-
-  @CheckResult
-  private fun listenForEntryRealChange(): Observable<Boolean> {
+  private fun listenForEntryCreated(): Observable<FridgeEntry> {
     return entryRealtime.listenForChanges()
         .ofType(Insert::class.java)
         .map { it.entry }
         .filter { it.id() == entryId }
-        .map { it.isReal() }
   }
 
   @CheckResult
@@ -168,6 +161,30 @@ internal class DetailListInteractor @Inject internal constructor(
       Timber.d("Deleting item [${item.id()}]: $item")
       return itemDeleteDao.delete(item)
     }
+  }
+
+  @CheckResult
+  fun saveName(name: String): Completable {
+    return getValidEntry(entryId, false)
+        .flatMapCompletable {
+          val valid = it.entry
+          if (valid != null) {
+            return@flatMapCompletable update(valid, name)
+          } else {
+            Timber.d("saveName called but Entry does not exist, create it")
+            return@flatMapCompletable guaranteeEntryExists(entryId, name).ignoreElement()
+          }
+        }
+  }
+
+  @CheckResult
+  private fun update(
+    entry: FridgeEntry,
+    name: String
+  ): Completable {
+    Timber.d("Updating entry name [${entry.id()}]: $name")
+    enforcer.assertNotOnMainThread()
+    return entryUpdateDao.update(entry.name(name))
   }
 
   private data class ValidItem(val item: FridgeItem?)

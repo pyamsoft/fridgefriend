@@ -19,11 +19,11 @@ package com.pyamsoft.fridge.detail
 
 import android.view.ViewGroup
 import androidx.annotation.CheckResult
+import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.detail.expand.ExpandModule
 import dagger.BindsInstance
 import dagger.Subcomponent
-import javax.inject.Named
 
 @Subcomponent(modules = [ExpandModule::class])
 internal interface ExpandComponent {
@@ -37,7 +37,7 @@ internal interface ExpandComponent {
     fun create(
       @BindsInstance parent: ViewGroup,
       @BindsInstance item: FridgeItem,
-      @BindsInstance @Named("detail_entry_id") entryId: String
+      @BindsInstance entry: FridgeEntry
     ): ExpandComponent
   }
 

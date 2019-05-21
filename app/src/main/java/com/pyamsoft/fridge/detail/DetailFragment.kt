@@ -27,6 +27,8 @@ import androidx.constraintlayout.widget.ConstraintSet
 import androidx.fragment.app.Fragment
 import com.pyamsoft.fridge.FridgeComponent
 import com.pyamsoft.fridge.R
+import com.pyamsoft.fridge.db.entry.FridgeEntry
+import com.pyamsoft.fridge.db.entry.JsonMappableFridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.detail.list.DetailList
 import com.pyamsoft.fridge.detail.list.DetailListControllerEvent.DatePick
@@ -35,7 +37,6 @@ import com.pyamsoft.fridge.detail.list.DetailListControllerEvent.ExpandForEditin
 import com.pyamsoft.fridge.detail.list.DetailListControllerEvent.NavigateUp
 import com.pyamsoft.fridge.detail.list.DetailListViewModel
 import com.pyamsoft.fridge.detail.title.DetailTitle
-import com.pyamsoft.fridge.detail.title.DetailTitleViewModel
 import com.pyamsoft.fridge.detail.toolbar.DetailToolbar
 import com.pyamsoft.pydroid.arch.createComponent
 import com.pyamsoft.pydroid.ui.Injector
@@ -47,11 +48,9 @@ import javax.inject.Inject
 
 internal class DetailFragment : Fragment() {
 
-  @JvmField @Inject internal var title: DetailTitle? = null
-  @JvmField @Inject internal var titleViewModel: DetailTitleViewModel? = null
-
   @JvmField @Inject internal var list: DetailList? = null
   @JvmField @Inject internal var toolbar: DetailToolbar? = null
+  @JvmField @Inject internal var title: DetailTitle? = null
   @JvmField @Inject internal var listViewModel: DetailListViewModel? = null
 
   override fun onCreateView(
@@ -60,6 +59,11 @@ internal class DetailFragment : Fragment() {
     savedInstanceState: Bundle?
   ): View? {
     return inflater.inflate(R.layout.layout_constraint, container, false)
+  }
+
+  @CheckResult
+  private fun getEntryArgument(): FridgeEntry {
+    return requireNotNull(requireArguments().getParcelable<JsonMappableFridgeEntry>(ENTRY))
   }
 
   override fun onViewCreated(
@@ -71,10 +75,7 @@ internal class DetailFragment : Fragment() {
     val parent = view.findViewById<ConstraintLayout>(R.id.layout_constraint)
     Injector.obtain<FridgeComponent>(view.context.applicationContext)
         .plusDetailComponent()
-        .create(
-            parent, requireToolbarActivity(), viewLifecycleOwner,
-            requireArguments().getString(ENTRY_ID, "")
-        )
+        .create(parent, requireToolbarActivity(), viewLifecycleOwner, getEntryArgument())
         .inject(this)
 
     val list = requireNotNull(list)
@@ -83,13 +84,9 @@ internal class DetailFragment : Fragment() {
 
     createComponent(
         savedInstanceState, viewLifecycleOwner,
-        requireNotNull(titleViewModel), title
-    ) {}
-
-    createComponent(
-        savedInstanceState, viewLifecycleOwner,
         requireNotNull(listViewModel),
         list,
+        title,
         toolbar
     ) {
       return@createComponent when (it) {
@@ -118,7 +115,6 @@ internal class DetailFragment : Fragment() {
       }
     }
 
-    requireNotNull(titleViewModel).fetchName()
     requireNotNull(listViewModel).fetchItems()
   }
 
@@ -145,8 +141,6 @@ internal class DetailFragment : Fragment() {
     listViewModel = null
     list = null
     toolbar = null
-
-    titleViewModel = null
     title = null
   }
 
@@ -155,21 +149,21 @@ internal class DetailFragment : Fragment() {
   }
 
   private fun expandItem(item: FridgeItem) {
-    ExpandedFragment.newInstance(item)
+    ExpandedFragment.newInstance(getEntryArgument(), item)
         .show(requireActivity(), ExpandedFragment.TAG)
   }
 
   companion object {
 
     const val TAG = "DetailFragment"
-    private const val ENTRY_ID = "entry_id"
+    private const val ENTRY = "entry"
 
     @JvmStatic
     @CheckResult
-    fun newInstance(id: String): Fragment {
+    fun newInstance(entry: FridgeEntry): Fragment {
       return DetailFragment().apply {
         arguments = Bundle().apply {
-          putString(ENTRY_ID, id)
+          putParcelable(ENTRY, JsonMappableFridgeEntry.from(entry))
         }
       }
     }
