@@ -15,7 +15,7 @@
  *
  */
 
-package com.pyamsoft.fridge.detail.list
+package com.pyamsoft.fridge.detail
 
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItem
@@ -23,7 +23,7 @@ import com.pyamsoft.pydroid.arch.UiControllerEvent
 import com.pyamsoft.pydroid.arch.UiViewEvent
 import com.pyamsoft.pydroid.arch.UiViewState
 
-data class DetailListViewState(
+data class DetailViewState(
   val entry: FridgeEntry,
   val isLoading: Loading?,
   val throwable: Throwable?,
@@ -35,44 +35,44 @@ data class DetailListViewState(
 
 }
 
-sealed class DetailListViewEvent : UiViewEvent {
+sealed class DetailViewEvent : UiViewEvent {
 
-  object ForceRefresh : DetailListViewEvent()
+  object ForceRefresh : DetailViewEvent()
 
-  data class ExpandItem internal constructor(val item: FridgeItem) : DetailListViewEvent()
+  data class ExpandItem internal constructor(val item: FridgeItem) : DetailViewEvent()
 
   data class PickDate internal constructor(
     val oldItem: FridgeItem,
     val year: Int,
     val month: Int,
     val day: Int
-  ) : DetailListViewEvent()
+  ) : DetailViewEvent()
 
-  object ArchiveEntry : DetailListViewEvent()
+  object ArchiveEntry : DetailViewEvent()
 
-  data class ToggleArchiveVisibility internal constructor(val show: Boolean) : DetailListViewEvent()
+  data class ToggleArchiveVisibility internal constructor(val show: Boolean) : DetailViewEvent()
 
-  object CloseEntry : DetailListViewEvent()
+  object CloseEntry : DetailViewEvent()
 
-  data class NameUpdate internal constructor(val name: String) : DetailListViewEvent()
+  data class NameUpdate internal constructor(val name: String) : DetailViewEvent()
 
 }
 
-sealed class DetailListControllerEvent : UiControllerEvent {
+sealed class DetailControllerEvent : UiControllerEvent {
 
   data class ExpandForEditing internal constructor(
     val item: FridgeItem
-  ) : DetailListControllerEvent()
+  ) : DetailControllerEvent()
 
   data class DatePick internal constructor(
     val oldItem: FridgeItem,
     val year: Int,
     val month: Int,
     val day: Int
-  ) : DetailListControllerEvent()
+  ) : DetailControllerEvent()
 
-  object EntryArchived : DetailListControllerEvent()
+  object EntryArchived : DetailControllerEvent()
 
-  object NavigateUp : DetailListControllerEvent()
+  object NavigateUp : DetailControllerEvent()
 
 }

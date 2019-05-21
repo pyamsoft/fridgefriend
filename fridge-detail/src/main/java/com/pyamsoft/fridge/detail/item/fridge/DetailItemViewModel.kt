@@ -23,7 +23,7 @@ import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent
 import com.pyamsoft.fridge.detail.item.fridge.DetailItemControllerEvent.ExpandDetails
 import com.pyamsoft.fridge.detail.item.fridge.DetailItemViewEvent.CommitPresence
 import com.pyamsoft.fridge.detail.item.fridge.DetailItemViewEvent.ExpandItem
-import com.pyamsoft.fridge.detail.list.DetailListInteractor
+import com.pyamsoft.fridge.detail.DetailInteractor
 import com.pyamsoft.pydroid.arch.UiViewModel
 import com.pyamsoft.pydroid.core.bus.EventBus
 import com.pyamsoft.pydroid.core.singleDisposable
@@ -37,7 +37,7 @@ import javax.inject.Named
 
 class DetailItemViewModel @Inject internal constructor(
   @Named("item_editable") isEditable: Boolean,
-  private val interactor: DetailListInteractor,
+  private val interactor: DetailInteractor,
   private val fakeRealtime: EventBus<FridgeItemChangeEvent>,
   private val item: FridgeItem
 ) : UiViewModel<DetailItemViewState, DetailItemViewEvent, DetailItemControllerEvent>(

@@ -15,19 +15,16 @@
  *
  */
 
-package com.pyamsoft.fridge.detail.toolbar
+package com.pyamsoft.fridge.detail
 
 import android.os.Bundle
 import android.view.MenuItem
 import androidx.annotation.CheckResult
 import androidx.annotation.IdRes
 import androidx.appcompat.widget.Toolbar
-import com.pyamsoft.fridge.detail.R
-import com.pyamsoft.fridge.detail.list.DetailListViewEvent
-import com.pyamsoft.fridge.detail.list.DetailListViewEvent.ArchiveEntry
-import com.pyamsoft.fridge.detail.list.DetailListViewEvent.CloseEntry
-import com.pyamsoft.fridge.detail.list.DetailListViewEvent.ToggleArchiveVisibility
-import com.pyamsoft.fridge.detail.list.DetailListViewState
+import com.pyamsoft.fridge.detail.DetailViewEvent.ArchiveEntry
+import com.pyamsoft.fridge.detail.DetailViewEvent.CloseEntry
+import com.pyamsoft.fridge.detail.DetailViewEvent.ToggleArchiveVisibility
 import com.pyamsoft.pydroid.arch.UiView
 import com.pyamsoft.pydroid.ui.app.ToolbarActivity
 import com.pyamsoft.pydroid.ui.arch.InvalidIdException
@@ -37,7 +34,7 @@ import javax.inject.Inject
 
 class DetailToolbar @Inject internal constructor(
   private val toolbarActivity: ToolbarActivity
-) : UiView<DetailListViewState, DetailListViewEvent>() {
+) : UiView<DetailViewState, DetailViewEvent>() {
 
   private var deleteMenuItem: MenuItem? = null
   private var showArcivedMenuItem: MenuItem? = null
@@ -114,8 +111,8 @@ class DetailToolbar @Inject internal constructor(
   }
 
   override fun render(
-    state: DetailListViewState,
-    oldState: DetailListViewState?
+    state: DetailViewState,
+    oldState: DetailViewState?
   ) {
     setDeleteEnabled(state.entry.isReal())
 

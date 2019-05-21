@@ -15,7 +15,7 @@
  *
  */
 
-package com.pyamsoft.fridge.detail.list
+package com.pyamsoft.fridge.detail
 
 import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.db.entry.FridgeEntry
@@ -24,18 +24,18 @@ import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent.Delete
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent.Insert
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent.Update
-import com.pyamsoft.fridge.detail.list.DetailListControllerEvent.DatePick
-import com.pyamsoft.fridge.detail.list.DetailListControllerEvent.EntryArchived
-import com.pyamsoft.fridge.detail.list.DetailListControllerEvent.ExpandForEditing
-import com.pyamsoft.fridge.detail.list.DetailListControllerEvent.NavigateUp
-import com.pyamsoft.fridge.detail.list.DetailListViewEvent.ArchiveEntry
-import com.pyamsoft.fridge.detail.list.DetailListViewEvent.CloseEntry
-import com.pyamsoft.fridge.detail.list.DetailListViewEvent.ExpandItem
-import com.pyamsoft.fridge.detail.list.DetailListViewEvent.ForceRefresh
-import com.pyamsoft.fridge.detail.list.DetailListViewEvent.NameUpdate
-import com.pyamsoft.fridge.detail.list.DetailListViewEvent.PickDate
-import com.pyamsoft.fridge.detail.list.DetailListViewEvent.ToggleArchiveVisibility
-import com.pyamsoft.fridge.detail.list.DetailListViewState.Loading
+import com.pyamsoft.fridge.detail.DetailControllerEvent.DatePick
+import com.pyamsoft.fridge.detail.DetailControllerEvent.EntryArchived
+import com.pyamsoft.fridge.detail.DetailControllerEvent.ExpandForEditing
+import com.pyamsoft.fridge.detail.DetailControllerEvent.NavigateUp
+import com.pyamsoft.fridge.detail.DetailViewEvent.ArchiveEntry
+import com.pyamsoft.fridge.detail.DetailViewEvent.CloseEntry
+import com.pyamsoft.fridge.detail.DetailViewEvent.ExpandItem
+import com.pyamsoft.fridge.detail.DetailViewEvent.ForceRefresh
+import com.pyamsoft.fridge.detail.DetailViewEvent.NameUpdate
+import com.pyamsoft.fridge.detail.DetailViewEvent.PickDate
+import com.pyamsoft.fridge.detail.DetailViewEvent.ToggleArchiveVisibility
+import com.pyamsoft.fridge.detail.DetailViewState.Loading
 import com.pyamsoft.pydroid.arch.UiViewModel
 import com.pyamsoft.pydroid.core.bus.EventBus
 import com.pyamsoft.pydroid.core.singleDisposable
@@ -48,12 +48,12 @@ import io.reactivex.schedulers.Schedulers
 import timber.log.Timber
 import javax.inject.Inject
 
-class DetailListViewModel @Inject internal constructor(
-  private val interactor: DetailListInteractor,
+class DetailViewModel @Inject internal constructor(
+  private val interactor: DetailInteractor,
   private val fakeRealtime: EventBus<FridgeItemChangeEvent>,
   entry: FridgeEntry
-) : UiViewModel<DetailListViewState, DetailListViewEvent, DetailListControllerEvent>(
-    initialState = DetailListViewState(
+) : UiViewModel<DetailViewState, DetailViewEvent, DetailControllerEvent>(
+    initialState = DetailViewState(
         entry = entry,
         isLoading = null,
         throwable = null,
@@ -73,7 +73,7 @@ class DetailListViewModel @Inject internal constructor(
   private var realtimeDisposable by singleDisposable()
   private var fakeRealtimeDisposable by singleDisposable()
 
-  override fun handleViewEvent(event: DetailListViewEvent) {
+  override fun handleViewEvent(event: DetailViewEvent) {
     return when (event) {
       is ForceRefresh -> refreshList(true)
       is ExpandItem -> publish(ExpandForEditing(event.item))

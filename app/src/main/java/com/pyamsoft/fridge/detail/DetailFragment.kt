@@ -30,14 +30,10 @@ import com.pyamsoft.fridge.R
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.entry.JsonMappableFridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItem
-import com.pyamsoft.fridge.detail.list.DetailList
-import com.pyamsoft.fridge.detail.list.DetailListControllerEvent.DatePick
-import com.pyamsoft.fridge.detail.list.DetailListControllerEvent.EntryArchived
-import com.pyamsoft.fridge.detail.list.DetailListControllerEvent.ExpandForEditing
-import com.pyamsoft.fridge.detail.list.DetailListControllerEvent.NavigateUp
-import com.pyamsoft.fridge.detail.list.DetailListViewModel
-import com.pyamsoft.fridge.detail.title.DetailTitle
-import com.pyamsoft.fridge.detail.toolbar.DetailToolbar
+import com.pyamsoft.fridge.detail.DetailControllerEvent.DatePick
+import com.pyamsoft.fridge.detail.DetailControllerEvent.EntryArchived
+import com.pyamsoft.fridge.detail.DetailControllerEvent.ExpandForEditing
+import com.pyamsoft.fridge.detail.DetailControllerEvent.NavigateUp
 import com.pyamsoft.pydroid.arch.createComponent
 import com.pyamsoft.pydroid.ui.Injector
 import com.pyamsoft.pydroid.ui.app.requireArguments
@@ -51,7 +47,7 @@ internal class DetailFragment : Fragment() {
   @JvmField @Inject internal var list: DetailList? = null
   @JvmField @Inject internal var toolbar: DetailToolbar? = null
   @JvmField @Inject internal var title: DetailTitle? = null
-  @JvmField @Inject internal var listViewModel: DetailListViewModel? = null
+  @JvmField @Inject internal var viewModel: DetailViewModel? = null
 
   override fun onCreateView(
     inflater: LayoutInflater,
@@ -84,7 +80,7 @@ internal class DetailFragment : Fragment() {
 
     createComponent(
         savedInstanceState, viewLifecycleOwner,
-        requireNotNull(listViewModel),
+        requireNotNull(viewModel),
         list,
         title,
         toolbar
@@ -115,7 +111,7 @@ internal class DetailFragment : Fragment() {
       }
     }
 
-    requireNotNull(listViewModel).fetchItems()
+    requireNotNull(viewModel).fetchItems()
   }
 
   private fun pickDate(
@@ -138,7 +134,7 @@ internal class DetailFragment : Fragment() {
   override fun onDestroyView() {
     super.onDestroyView()
 
-    listViewModel = null
+    viewModel = null
     list = null
     toolbar = null
     title = null

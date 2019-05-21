@@ -15,9 +15,8 @@
  *
  */
 
-package com.pyamsoft.fridge.detail.list
+package com.pyamsoft.fridge.detail
 
-import android.animation.LayoutTransition
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -30,7 +29,6 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.JsonMappableFridgeItem
-import com.pyamsoft.fridge.detail.R
 import com.pyamsoft.fridge.detail.item.DetailItemComponent
 import com.pyamsoft.fridge.detail.item.ListItemLifecycle
 import com.pyamsoft.fridge.detail.item.add.AddNewControllerEvent.AddNew
@@ -44,7 +42,7 @@ import com.pyamsoft.fridge.detail.item.fridge.DetailListItemDate
 import com.pyamsoft.fridge.detail.item.fridge.DetailListItemGlances
 import com.pyamsoft.fridge.detail.item.fridge.DetailListItemName
 import com.pyamsoft.fridge.detail.item.fridge.DetailListItemPresence
-import com.pyamsoft.fridge.detail.list.DetailListAdapter.DetailViewHolder
+import com.pyamsoft.fridge.detail.DetailListAdapter.DetailViewHolder
 import com.pyamsoft.pydroid.arch.createComponent
 import com.pyamsoft.pydroid.ui.util.layout
 import com.pyamsoft.pydroid.util.toDp

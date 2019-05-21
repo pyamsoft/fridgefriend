@@ -15,7 +15,7 @@
  *
  */
 
-package com.pyamsoft.fridge.detail.list
+package com.pyamsoft.fridge.detail
 
 import android.graphics.Color
 import android.os.Bundle
@@ -36,13 +36,15 @@ import com.popinnow.android.refresh.newRefreshLatch
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent
 import com.pyamsoft.fridge.db.item.FridgeItemRealtime
-import com.pyamsoft.fridge.detail.R
+import com.pyamsoft.fridge.detail.DetailListAdapter.AddNewItemViewHolder
+import com.pyamsoft.fridge.detail.DetailListAdapter.Callback
+import com.pyamsoft.fridge.detail.DetailListAdapter.DetailItemViewHolder
 import com.pyamsoft.fridge.detail.R.drawable
 import com.pyamsoft.fridge.detail.item.DaggerDetailItemComponent
 import com.pyamsoft.fridge.detail.item.fridge.DateSelectPayload
-import com.pyamsoft.fridge.detail.list.DetailListViewEvent.ExpandItem
-import com.pyamsoft.fridge.detail.list.DetailListViewEvent.ForceRefresh
-import com.pyamsoft.fridge.detail.list.DetailListViewEvent.PickDate
+import com.pyamsoft.fridge.detail.DetailViewEvent.ExpandItem
+import com.pyamsoft.fridge.detail.DetailViewEvent.ForceRefresh
+import com.pyamsoft.fridge.detail.DetailViewEvent.PickDate
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.core.bus.EventBus
 import com.pyamsoft.pydroid.loader.ImageLoader
@@ -53,14 +55,14 @@ import javax.inject.Inject
 
 class DetailList @Inject internal constructor(
   parent: ViewGroup,
-  private val interactor: DetailListInteractor,
+  private val interactor: DetailInteractor,
   private val imageLoader: ImageLoader,
   private val theming: Theming,
   private val realtime: FridgeItemRealtime,
   private val fakeRealtime: EventBus<FridgeItemChangeEvent>,
   private val dateSelectBus: EventBus<DateSelectPayload>,
   private val owner: LifecycleOwner
-) : BaseUiView<DetailListViewState, DetailListViewEvent>(parent) {
+) : BaseUiView<DetailViewState, DetailViewEvent>(parent) {
 
   override val layout: Int = R.layout.detail_list
 
@@ -90,7 +92,7 @@ class DetailList @Inject internal constructor(
       DetailListAdapter(
           editable = true,
           factory = factory,
-          callback = object : DetailListAdapter.Callback {
+          callback = object : Callback {
 
             override fun onItemExpanded(item: FridgeItem) {
               publish(ExpandItem(item))
@@ -156,7 +158,7 @@ class DetailList @Inject internal constructor(
         recyclerView: RecyclerView,
         viewHolder: ViewHolder
       ): Int {
-        if (viewHolder is DetailListAdapter.AddNewItemViewHolder) {
+        if (viewHolder is AddNewItemViewHolder) {
           return 0
         } else {
           // Don't call super here or we crash from a Reflection error
@@ -211,10 +213,10 @@ class DetailList @Inject internal constructor(
 
   private inline fun withViewHolderAt(
     position: Int,
-    crossinline func: (holder: DetailListAdapter.DetailItemViewHolder) -> Unit
+    crossinline func: (holder: DetailItemViewHolder) -> Unit
   ) {
     val holder: ViewHolder? = recyclerView.findViewHolderForLayoutPosition(position)
-    if (holder is DetailListAdapter.DetailItemViewHolder) {
+    if (holder is DetailItemViewHolder) {
       func(holder)
     }
   }
@@ -239,8 +241,8 @@ class DetailList @Inject internal constructor(
   }
 
   override fun onRender(
-    state: DetailListViewState,
-    oldState: DetailListViewState?
+    state: DetailViewState,
+    oldState: DetailViewState?
   ) {
     state.isLoading.let { loading ->
       if (loading != null) {

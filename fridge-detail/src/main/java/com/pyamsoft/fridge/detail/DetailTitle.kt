@@ -15,7 +15,7 @@
  *
  */
 
-package com.pyamsoft.fridge.detail.title
+package com.pyamsoft.fridge.detail
 
 import android.os.Bundle
 import android.text.Editable
@@ -25,10 +25,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.lifecycle.LifecycleOwner
 import com.google.android.material.textfield.TextInputLayout
-import com.pyamsoft.fridge.detail.R
-import com.pyamsoft.fridge.detail.list.DetailListViewEvent
-import com.pyamsoft.fridge.detail.list.DetailListViewEvent.NameUpdate
-import com.pyamsoft.fridge.detail.list.DetailListViewState
+import com.pyamsoft.fridge.detail.DetailViewEvent.NameUpdate
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.ui.util.Snackbreak
 import java.text.SimpleDateFormat
@@ -37,7 +34,7 @@ import javax.inject.Inject
 class DetailTitle @Inject internal constructor(
   private val owner: LifecycleOwner,
   parent: ViewGroup
-) : BaseUiView<DetailListViewState, DetailListViewEvent>(parent) {
+) : BaseUiView<DetailViewState, DetailViewEvent>(parent) {
 
   override val layout: Int = R.layout.detail_title
 
@@ -120,8 +117,8 @@ class DetailTitle @Inject internal constructor(
   }
 
   override fun onRender(
-    state: DetailListViewState,
-    oldState: DetailListViewState?
+    state: DetailViewState,
+    oldState: DetailViewState?
   ) {
     state.throwable.let { throwable ->
       if (throwable == null) {
