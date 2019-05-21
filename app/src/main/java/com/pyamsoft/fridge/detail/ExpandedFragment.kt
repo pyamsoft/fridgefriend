@@ -31,6 +31,7 @@ import com.pyamsoft.fridge.R
 import com.pyamsoft.fridge.base.FridgeBottomSheetDialogFragment
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.JsonMappableFridgeItem
+import com.pyamsoft.fridge.detail.expand.ExpandItemViewModel
 import com.pyamsoft.fridge.detail.item.fridge.DetailItemControllerEvent.DatePick
 import com.pyamsoft.fridge.detail.item.fridge.DetailItemControllerEvent.ExpandDetails
 import com.pyamsoft.fridge.detail.item.fridge.DetailItemViewModel
@@ -48,7 +49,7 @@ import javax.inject.Inject
 
 class ExpandedFragment : FridgeBottomSheetDialogFragment() {
 
-  @JvmField @Inject internal var viewModel: DetailItemViewModel? = null
+  @JvmField @Inject internal var viewModel: ExpandItemViewModel? = null
   @JvmField @Inject internal var name: DetailListItemName? = null
   @JvmField @Inject internal var date: DetailListItemDate? = null
   @JvmField @Inject internal var presence: DetailListItemPresence? = null

@@ -151,14 +151,12 @@ internal class DetailListAdapter constructor(
     private val parent: ConstraintLayout = itemView.findViewById(R.id.listitem_constraint)
 
     private var lifecycle: ListItemLifecycle? = null
-    internal var item: FridgeItem? = null
 
     fun bind(
       item: FridgeItem,
       editable: Boolean,
       callback: Callback
     ) {
-      this.item = item
       lifecycle?.unbind()
 
       factory(parent, item, editable)
@@ -226,7 +224,6 @@ internal class DetailListAdapter constructor(
       lifecycle?.unbind()
       lifecycle = null
 
-      item = null
       viewModel = null
       name = null
       date = null
@@ -235,13 +232,13 @@ internal class DetailListAdapter constructor(
     }
 
     // Kind of hacky
-    fun archive(item: FridgeItem) {
-      requireNotNull(viewModel).archive(item)
+    fun archive() {
+      requireNotNull(viewModel).archive()
     }
 
     // Kind of hacky
-    fun delete(item: FridgeItem) {
-      requireNotNull(viewModel).delete(item)
+    fun delete() {
+      requireNotNull(viewModel).delete()
     }
 
   }

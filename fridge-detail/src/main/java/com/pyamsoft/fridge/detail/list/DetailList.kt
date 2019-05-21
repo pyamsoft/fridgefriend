@@ -202,21 +202,11 @@ class DetailList @Inject internal constructor(
   }
 
   private fun archiveListItem(position: Int) {
-    withViewHolderAt(position) { holder ->
-      val item = holder.item
-      if (item != null) {
-        holder.archive(item)
-      }
-    }
+    withViewHolderAt(position) { it.archive() }
   }
 
   private fun deleteListItem(position: Int) {
-    withViewHolderAt(position) { holder ->
-      val item = holder.item
-      if (item != null) {
-        holder.delete(item)
-      }
-    }
+    withViewHolderAt(position) { it.delete() }
   }
 
   private inline fun withViewHolderAt(
