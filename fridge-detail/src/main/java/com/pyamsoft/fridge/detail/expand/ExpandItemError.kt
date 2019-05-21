@@ -15,42 +15,53 @@
  *
  */
 
-package com.pyamsoft.fridge.detail.item.fridge
+package com.pyamsoft.fridge.detail.expand
 
+import android.os.Bundle
+import android.view.View
 import android.view.ViewGroup
-import android.widget.EditText
+import android.widget.TextView
+import androidx.core.view.isVisible
 import com.pyamsoft.fridge.detail.R
-import com.pyamsoft.fridge.detail.item.fridge.DetailItemViewEvent.ExpandItem
+import com.pyamsoft.fridge.detail.item.fridge.DetailItemViewEvent
+import com.pyamsoft.fridge.detail.item.fridge.DetailItemViewState
 import com.pyamsoft.pydroid.arch.BaseUiView
-import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
 import javax.inject.Inject
 
-class DetailListItemName @Inject internal constructor(
+class ExpandItemError @Inject internal constructor(
   parent: ViewGroup
 ) : BaseUiView<DetailItemViewState, DetailItemViewEvent>(parent) {
 
-  override val layout: Int = R.layout.detail_list_item_name
+  override val layout: Int = R.layout.expand_error
 
-  override val layoutRoot by boundView<ViewGroup>(R.id.detail_item_name)
+  override val layoutRoot by boundView<ViewGroup>(R.id.expand_item_error_root)
+  private val message by boundView<TextView>(R.id.expand_item_error_msg)
 
-  private val nameView by boundView<EditText>(R.id.detail_item_name_editable)
+  override fun onInflated(
+    view: View,
+    savedInstanceState: Bundle?
+  ) {
+    message.isVisible = false
+  }
 
   override fun onRender(
     state: DetailItemViewState,
     oldState: DetailItemViewState?
   ) {
-    state.item.let { item ->
-      nameView.setTextKeepState(item.name())
-      nameView.setNotEditable()
-      nameView.setOnDebouncedClickListener {
-        publish(ExpandItem(item))
+    state.throwable.let { throwable ->
+      if (throwable == null) {
+        message.isVisible = false
+        message.text = ""
+      } else {
+        message.isVisible = true
+        message.text = throwable.message ?: "An unknown error occurred"
       }
     }
   }
 
   override fun onTeardown() {
-    nameView.text.clear()
-    nameView.setOnDebouncedClickListener(null)
+    message.isVisible = false
+    message.text = ""
   }
 }
 

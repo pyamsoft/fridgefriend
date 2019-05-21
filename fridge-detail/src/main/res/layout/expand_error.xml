@@ -19,39 +19,25 @@
 
 <merge>
 
-  <androidx.constraintlayout.widget.ConstraintLayout
+  <FrameLayout
       xmlns:android="http://schemas.android.com/apk/res/android"
-      xmlns:app="http://schemas.android.com/apk/res-auto"
-      android:id="@+id/detail_item_strikethrough"
+      android:id="@+id/expand_item_error_root"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
+      android:gravity="center"
       >
 
-    <View
-        android:id="@+id/detail_item_strikethrough_line"
-        android:layout_width="0dp"
-        android:layout_height="1dp"
-        android:background="?android:attr/colorForeground"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        />
-
     <TextView
-        android:id="@+id/detail_item_strikethrough_error"
-        android:layout_width="0dp"
+        android:id="@+id/expand_item_error_msg"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
         android:textAppearance="?attr/textAppearanceBody2"
         android:textColor="@color/red500"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/detail_item_strikethrough_line"
         />
 
-  </androidx.constraintlayout.widget.ConstraintLayout>
+  </FrameLayout>
+
 
 </merge>
 

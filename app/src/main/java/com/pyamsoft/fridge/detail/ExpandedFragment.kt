@@ -17,6 +17,7 @@
 
 package com.pyamsoft.fridge.detail
 
+import android.animation.LayoutTransition
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -31,12 +32,13 @@ import com.pyamsoft.fridge.R
 import com.pyamsoft.fridge.base.FridgeBottomSheetDialogFragment
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.JsonMappableFridgeItem
+import com.pyamsoft.fridge.detail.expand.ExpandItemError
+import com.pyamsoft.fridge.detail.expand.ExpandItemName
 import com.pyamsoft.fridge.detail.expand.ExpandItemViewModel
 import com.pyamsoft.fridge.detail.item.fridge.DetailItemControllerEvent.CloseExpand
 import com.pyamsoft.fridge.detail.item.fridge.DetailItemControllerEvent.DatePick
 import com.pyamsoft.fridge.detail.item.fridge.DetailItemControllerEvent.ExpandDetails
 import com.pyamsoft.fridge.detail.item.fridge.DetailListItemDate
-import com.pyamsoft.fridge.detail.item.fridge.DetailListItemName
 import com.pyamsoft.fridge.detail.item.fridge.DetailListItemPresence
 import com.pyamsoft.pydroid.arch.createComponent
 import com.pyamsoft.pydroid.ui.Injector
@@ -50,9 +52,10 @@ import javax.inject.Inject
 class ExpandedFragment : FridgeBottomSheetDialogFragment() {
 
   @JvmField @Inject internal var viewModel: ExpandItemViewModel? = null
-  @JvmField @Inject internal var name: DetailListItemName? = null
+  @JvmField @Inject internal var name: ExpandItemName? = null
   @JvmField @Inject internal var date: DetailListItemDate? = null
   @JvmField @Inject internal var presence: DetailListItemPresence? = null
+  @JvmField @Inject internal var errorDisplay: ExpandItemError? = null
 
   override fun onCreateView(
     inflater: LayoutInflater,
@@ -88,12 +91,14 @@ class ExpandedFragment : FridgeBottomSheetDialogFragment() {
     val name = requireNotNull(name)
     val date = requireNotNull(date)
     val presence = requireNotNull(presence)
+    val errorDisplay = requireNotNull(errorDisplay)
     createComponent(
         null, viewLifecycleOwner,
         requireNotNull(viewModel),
         name,
         date,
-        presence
+        presence,
+        errorDisplay
     ) {
       return@createComponent when (it) {
         is ExpandDetails -> expandItem(it.item)
@@ -103,27 +108,36 @@ class ExpandedFragment : FridgeBottomSheetDialogFragment() {
     }
 
     parent.layout {
-      presence.also {
+      errorDisplay.also {
         connect(it.id(), ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP)
+        connect(it.id(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
+        connect(it.id(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
+        constrainWidth(it.id(), ConstraintSet.MATCH_CONSTRAINT)
+        constrainHeight(it.id(), ConstraintSet.WRAP_CONTENT)
+      }
+
+      presence.also {
+        connect(it.id(), ConstraintSet.TOP, errorDisplay.id(), ConstraintSet.BOTTOM)
         connect(it.id(), ConstraintSet.BOTTOM, ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM)
         connect(it.id(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
         constrainWidth(it.id(), ConstraintSet.WRAP_CONTENT)
       }
 
       date.also {
-        connect(it.id(), ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP)
+        connect(it.id(), ConstraintSet.TOP, errorDisplay.id(), ConstraintSet.BOTTOM)
         connect(it.id(), ConstraintSet.BOTTOM, ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM)
         connect(it.id(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
         constrainWidth(it.id(), ConstraintSet.WRAP_CONTENT)
       }
 
       name.also {
-        connect(it.id(), ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP)
+        connect(it.id(), ConstraintSet.TOP, errorDisplay.id(), ConstraintSet.BOTTOM)
         connect(it.id(), ConstraintSet.BOTTOM, ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM)
         connect(it.id(), ConstraintSet.START, presence.id(), ConstraintSet.END)
         connect(it.id(), ConstraintSet.END, date.id(), ConstraintSet.START)
         constrainWidth(it.id(), ConstraintSet.MATCH_CONSTRAINT)
       }
+
     }
 
     requireNotNull(viewModel).beginObservingItem()
@@ -148,6 +162,7 @@ class ExpandedFragment : FridgeBottomSheetDialogFragment() {
     name?.saveState(outState)
     date?.saveState(outState)
     presence?.saveState(outState)
+    errorDisplay?.saveState(outState)
   }
 
   override fun onDestroyView() {
@@ -157,6 +172,7 @@ class ExpandedFragment : FridgeBottomSheetDialogFragment() {
     name = null
     date = null
     presence = null
+    errorDisplay = null
   }
 
   companion object {

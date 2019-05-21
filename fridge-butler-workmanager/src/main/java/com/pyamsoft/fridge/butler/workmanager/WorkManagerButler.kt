@@ -25,6 +25,7 @@ import androidx.work.WorkManager
 import com.pyamsoft.fridge.butler.Butler
 import timber.log.Timber
 import java.util.concurrent.TimeUnit.DAYS
+import java.util.concurrent.TimeUnit.MINUTES
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -40,13 +41,12 @@ internal class WorkManagerButler @Inject internal constructor() : Butler {
   private fun generateConstraints(): Constraints {
     return Constraints.Builder()
         .setRequiresBatteryNotLow(true)
-        .setRequiresStorageNotLow(true)
         .setRequiresCharging(false)
         .build()
   }
 
   override fun schedule() {
-    val request = PeriodicWorkRequest.Builder(ButlerWorker::class.java, 1, DAYS)
+    val request = PeriodicWorkRequest.Builder(ButlerWorker::class.java, 20, MINUTES)
         .addTag(WORK_TAG)
         .setConstraints(generateConstraints())
         .build()

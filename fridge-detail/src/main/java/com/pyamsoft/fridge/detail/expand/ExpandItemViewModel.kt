@@ -142,6 +142,7 @@ class ExpandItemViewModel @Inject internal constructor(
     updateDisposable.tryDispose()
 
     if (isNameValid(name)) {
+      setFixMessage("")
       commitItem(item = oldItem.name(name))
     } else {
       Timber.w("Invalid name: $name")
@@ -192,7 +193,7 @@ class ExpandItemViewModel @Inject internal constructor(
         .subscribeOn(Schedulers.io())
         .observeOn(AndroidSchedulers.mainThread())
         .doAfterTerminate { updateDisposable.tryDispose() }
-        .subscribe({ handleClearFixMessage() }, {
+        .subscribe({ }, {
           Timber.e(it, "Error updating item: ${item.id()}")
           handleError(it)
         })
@@ -201,7 +202,6 @@ class ExpandItemViewModel @Inject internal constructor(
   private fun handleFakeCommit(item: FridgeItem) {
     fakeRealtime.publish(Insert(item))
     Timber.w("Not ready to commit item yet: $item")
-    handleClearFixMessage()
   }
 
   private fun handleInvalidName(name: String) {
@@ -209,13 +209,7 @@ class ExpandItemViewModel @Inject internal constructor(
   }
 
   private fun handleError(throwable: Throwable) {
-    setState {
-      copy(throwable = throwable)
-    }
-  }
-
-  private fun handleClearFixMessage() {
-    setFixMessage("")
+    setState { copy(throwable = throwable) }
   }
 
   private fun setFixMessage(message: String) {

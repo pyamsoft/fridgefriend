@@ -21,6 +21,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.detail.R
+import com.pyamsoft.fridge.detail.item.fridge.DetailItemViewEvent.ExpandItem
 import com.pyamsoft.fridge.detail.item.fridge.DetailItemViewEvent.PickDate
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
@@ -41,7 +42,6 @@ class DetailListItemDate @Inject internal constructor(
     oldState: DetailItemViewState?
   ) {
     state.item.let { item ->
-      removeListeners()
       val isEditable = state.isEditable
 
       val month: Int
@@ -76,16 +76,14 @@ class DetailListItemDate @Inject internal constructor(
           publish(PickDate(item, year, month, day))
         }
       } else {
-        removeListeners()
+        layoutRoot.setOnDebouncedClickListener {
+          publish(ExpandItem(item))
+        }
       }
     }
   }
 
   override fun onTeardown() {
-    removeListeners()
-  }
-
-  private fun removeListeners() {
     layoutRoot.setOnDebouncedClickListener(null)
   }
 

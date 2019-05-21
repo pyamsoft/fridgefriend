@@ -42,7 +42,6 @@ import com.pyamsoft.fridge.detail.item.fridge.DetailItemViewModel
 import com.pyamsoft.fridge.detail.item.fridge.DetailListItemDate
 import com.pyamsoft.fridge.detail.item.fridge.DetailListItemName
 import com.pyamsoft.fridge.detail.item.fridge.DetailListItemPresence
-import com.pyamsoft.fridge.detail.item.fridge.DetailListItemStrikethrough
 import com.pyamsoft.fridge.detail.list.DetailListAdapter.DetailViewHolder
 import com.pyamsoft.pydroid.arch.createComponent
 import com.pyamsoft.pydroid.ui.util.layout
@@ -148,7 +147,6 @@ internal class DetailListAdapter constructor(
     @JvmField @Inject internal var name: DetailListItemName? = null
     @JvmField @Inject internal var date: DetailListItemDate? = null
     @JvmField @Inject internal var presence: DetailListItemPresence? = null
-    @JvmField @Inject internal var strikethrough: DetailListItemStrikethrough? = null
 
     private val parent: ConstraintLayout = itemView.findViewById(R.id.listitem_constraint)
 
@@ -170,14 +168,12 @@ internal class DetailListAdapter constructor(
       val name = requireNotNull(name)
       val date = requireNotNull(date)
       val presence = requireNotNull(presence)
-      val strikethrough = requireNotNull(strikethrough)
       createComponent(
           null, owner,
           requireNotNull(viewModel),
           name,
           date,
-          presence,
-          strikethrough
+          presence
       ) {
         return@createComponent when (it) {
           is ExpandDetails -> callback.onItemExpanded(it.item)
@@ -209,15 +205,6 @@ internal class DetailListAdapter constructor(
           constrainWidth(it.id(), ConstraintSet.MATCH_CONSTRAINT)
         }
 
-        strikethrough.also {
-          connect(it.id(), ConstraintSet.START, presence.id(), ConstraintSet.END)
-          connect(it.id(), ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP)
-          connect(it.id(), ConstraintSet.BOTTOM, ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM)
-          connect(it.id(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
-          constrainWidth(it.id(), ConstraintSet.MATCH_CONSTRAINT)
-          constrainHeight(it.id(), ConstraintSet.MATCH_CONSTRAINT)
-        }
-
       }
 
       owner.bind()
@@ -231,7 +218,6 @@ internal class DetailListAdapter constructor(
       name = null
       date = null
       presence = null
-      strikethrough = null
     }
 
     // Kind of hacky
