@@ -85,7 +85,7 @@ class ExpandedFragment : DialogFragment() {
 
     Injector.obtain<FridgeComponent>(view.context.applicationContext)
         .plusExpandComponent()
-        .create(parent, itemArgument, entryArgument, presenceArgument)
+        .create(parent, itemArgument, entryArgument, presenceArgument, itemArgument.isReal())
         .inject(this)
 
     val name = requireNotNull(name)

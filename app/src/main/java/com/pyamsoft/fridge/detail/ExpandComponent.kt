@@ -22,15 +22,12 @@ import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence
-import com.pyamsoft.fridge.detail.ExpandComponent.ExpandProvider
 import com.pyamsoft.fridge.detail.expand.ExpandModule
 import dagger.BindsInstance
-import dagger.Module
-import dagger.Provides
 import dagger.Subcomponent
 import javax.inject.Named
 
-@Subcomponent(modules = [ExpandModule::class, ExpandProvider::class])
+@Subcomponent(modules = [ExpandModule::class])
 internal interface ExpandComponent {
 
   fun inject(fragment: ExpandedFragment)
@@ -43,19 +40,9 @@ internal interface ExpandComponent {
       @BindsInstance parent: ViewGroup,
       @BindsInstance item: FridgeItem,
       @BindsInstance entry: FridgeEntry,
-      @BindsInstance defaultPresence: Presence
+      @BindsInstance defaultPresence: Presence,
+      @BindsInstance @Named("item_presence_editable") isPresenceEditable: Boolean
     ): ExpandComponent
-  }
-
-  @Module
-  object ExpandProvider {
-
-    @Provides
-    @JvmStatic
-    @Named("item_presence_editable")
-    internal fun isPresenceEditable(): Boolean {
-      return false
-    }
   }
 
 }

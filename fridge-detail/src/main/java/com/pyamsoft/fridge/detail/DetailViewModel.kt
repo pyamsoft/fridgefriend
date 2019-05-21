@@ -259,25 +259,25 @@ class DetailViewModel @Inject internal constructor(
     if (item.isArchived()) {
       setState {
         copy(
-            items = getListItems(filterArchived, items.map { old ->
-              if (old.id() == item.id()) {
-                return@map item
-              } else {
-                return@map old
-              }
-            })
+            items = getListItems(filterArchived, items.filterNot { it.id() == item.id() })
         )
       }
     } else {
       setState {
         copy(
-            items = getListItems(filterArchived, items.map { old ->
-              if (old.id() == item.id()) {
-                return@map item
-              } else {
-                return@map old
-              }
-            })
+            items = getListItems(filterArchived,
+                if (items.map { it.id() }.contains(item.id())) {
+                  items.map { old ->
+                    if (old.id() == item.id()) {
+                      return@map item
+                    } else {
+                      return@map old
+                    }
+                  }
+                } else {
+                  items + item
+                }
+            )
         )
       }
 
