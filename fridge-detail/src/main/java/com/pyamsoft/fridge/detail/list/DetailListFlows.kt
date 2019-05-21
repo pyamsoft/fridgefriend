@@ -50,6 +50,8 @@ sealed class DetailListViewEvent : UiViewEvent {
 
   object ArchiveEntry : DetailListViewEvent()
 
+  data class ToggleArchiveVisibility internal constructor(val show: Boolean) : DetailListViewEvent()
+
   object CloseEntry : DetailListViewEvent()
 
   data class NameUpdate internal constructor(val name: String) : DetailListViewEvent()

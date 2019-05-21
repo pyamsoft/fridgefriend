@@ -45,7 +45,8 @@ class DetailListItemGlances @Inject internal constructor(
     oldState: DetailItemViewState?
   ) {
     state.item.let { item ->
-      layoutRoot.isVisible = item.isReal() && !item.isArchived() && item.presence() == HAVE
+      val isVisible = item.isReal() && !item.isArchived() && item.presence() == HAVE
+      layoutRoot.isVisible = isVisible
 
       layoutRoot.setOnDebouncedClickListener {
         publish(ExpandItem(item))

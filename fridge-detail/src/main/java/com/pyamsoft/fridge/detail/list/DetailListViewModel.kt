@@ -34,6 +34,7 @@ import com.pyamsoft.fridge.detail.list.DetailListViewEvent.ExpandItem
 import com.pyamsoft.fridge.detail.list.DetailListViewEvent.ForceRefresh
 import com.pyamsoft.fridge.detail.list.DetailListViewEvent.NameUpdate
 import com.pyamsoft.fridge.detail.list.DetailListViewEvent.PickDate
+import com.pyamsoft.fridge.detail.list.DetailListViewEvent.ToggleArchiveVisibility
 import com.pyamsoft.fridge.detail.list.DetailListViewState.Loading
 import com.pyamsoft.pydroid.arch.UiViewModel
 import com.pyamsoft.pydroid.core.bus.EventBus
@@ -80,7 +81,13 @@ class DetailListViewModel @Inject internal constructor(
       is ArchiveEntry -> handleArchived()
       is CloseEntry -> publish(NavigateUp)
       is NameUpdate -> updateName(event.name)
+      is ToggleArchiveVisibility -> toggleArchived(event.show)
     }
+  }
+
+  private fun toggleArchived(show: Boolean) {
+    setState { copy(filterArchived = !show) }
+    refreshList(false)
   }
 
   override fun onCleared() {

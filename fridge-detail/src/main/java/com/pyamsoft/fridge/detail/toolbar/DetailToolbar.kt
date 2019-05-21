@@ -19,10 +19,14 @@ package com.pyamsoft.fridge.detail.toolbar
 
 import android.os.Bundle
 import android.view.MenuItem
+import androidx.annotation.CheckResult
+import androidx.annotation.IdRes
+import androidx.appcompat.widget.Toolbar
 import com.pyamsoft.fridge.detail.R
 import com.pyamsoft.fridge.detail.list.DetailListViewEvent
 import com.pyamsoft.fridge.detail.list.DetailListViewEvent.ArchiveEntry
 import com.pyamsoft.fridge.detail.list.DetailListViewEvent.CloseEntry
+import com.pyamsoft.fridge.detail.list.DetailListViewEvent.ToggleArchiveVisibility
 import com.pyamsoft.fridge.detail.list.DetailListViewState
 import com.pyamsoft.pydroid.arch.UiView
 import com.pyamsoft.pydroid.ui.app.ToolbarActivity
@@ -36,6 +40,8 @@ class DetailToolbar @Inject internal constructor(
 ) : UiView<DetailListViewState, DetailListViewEvent>() {
 
   private var deleteMenuItem: MenuItem? = null
+  private var showArcivedMenuItem: MenuItem? = null
+  private var hideArchivedMenuItem: MenuItem? = null
 
   override fun id(): Int {
     throw InvalidIdException
@@ -49,14 +55,39 @@ class DetailToolbar @Inject internal constructor(
       })
 
       toolbar.inflateMenu(R.menu.menu_detail)
-      val deleteItem = toolbar.menu.findItem(R.id.menu_item_delete)
-      deleteItem.isVisible = false
-      deleteItem.setOnMenuItemClickListener {
-        publish(ArchiveEntry)
-        return@setOnMenuItemClickListener true
+
+      deleteMenuItem = toolbar.findMenuItem(R.id.menu_item_delete) { item ->
+        item.setOnMenuItemClickListener {
+          publish(ArchiveEntry)
+          return@setOnMenuItemClickListener true
+        }
       }
-      deleteMenuItem = deleteItem
+
+      showArcivedMenuItem = toolbar.findMenuItem(R.id.menu_item_show_archived) { item ->
+        item.setOnMenuItemClickListener {
+          publish(ToggleArchiveVisibility(true))
+          return@setOnMenuItemClickListener true
+        }
+      }
+
+      hideArchivedMenuItem = toolbar.findMenuItem(R.id.menu_item_hide_archived) { item ->
+        item.setOnMenuItemClickListener {
+          publish(ToggleArchiveVisibility(false))
+          return@setOnMenuItemClickListener true
+        }
+      }
     }
+  }
+
+  @CheckResult
+  private inline fun Toolbar.findMenuItem(
+    @IdRes menuItemId: Int,
+    onFound: (item: MenuItem) -> Unit
+  ): MenuItem {
+    val item = this.menu.findItem(menuItemId)
+    item.isVisible = false
+    onFound(item)
+    return item
   }
 
   override fun teardown() {
@@ -65,7 +96,15 @@ class DetailToolbar @Inject internal constructor(
       toolbar.setNavigationOnClickListener(null)
 
       deleteMenuItem?.setOnMenuItemClickListener(null)
+      showArcivedMenuItem?.setOnMenuItemClickListener(null)
+      hideArchivedMenuItem?.setOnMenuItemClickListener(null)
+
       deleteMenuItem = null
+      showArcivedMenuItem = null
+      hideArchivedMenuItem = null
+
+      toolbar.menu.removeItem(R.id.menu_item_hide_archived)
+      toolbar.menu.removeItem(R.id.menu_item_show_archived)
       toolbar.menu.removeItem(R.id.menu_item_delete)
     }
   }
@@ -79,6 +118,11 @@ class DetailToolbar @Inject internal constructor(
     oldState: DetailListViewState?
   ) {
     setDeleteEnabled(state.entry.isReal())
+
+    state.filterArchived.let { hideArchived ->
+      showArcivedMenuItem?.isVisible = hideArchived
+      hideArchivedMenuItem?.isVisible = !hideArchived
+    }
   }
 
 }
