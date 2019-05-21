@@ -32,9 +32,9 @@ import com.pyamsoft.fridge.base.FridgeBottomSheetDialogFragment
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.JsonMappableFridgeItem
 import com.pyamsoft.fridge.detail.expand.ExpandItemViewModel
+import com.pyamsoft.fridge.detail.item.fridge.DetailItemControllerEvent.CloseExpand
 import com.pyamsoft.fridge.detail.item.fridge.DetailItemControllerEvent.DatePick
 import com.pyamsoft.fridge.detail.item.fridge.DetailItemControllerEvent.ExpandDetails
-import com.pyamsoft.fridge.detail.item.fridge.DetailItemViewModel
 import com.pyamsoft.fridge.detail.item.fridge.DetailListItemDate
 import com.pyamsoft.fridge.detail.item.fridge.DetailListItemName
 import com.pyamsoft.fridge.detail.item.fridge.DetailListItemPresence
@@ -98,6 +98,7 @@ class ExpandedFragment : FridgeBottomSheetDialogFragment() {
       return@createComponent when (it) {
         is ExpandDetails -> expandItem(it.item)
         is DatePick -> pickDate(it.oldItem, it.year, it.month, it.day)
+        is CloseExpand -> dismiss()
       }
     }
 

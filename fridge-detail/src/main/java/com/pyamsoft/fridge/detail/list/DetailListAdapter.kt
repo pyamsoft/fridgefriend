@@ -35,6 +35,7 @@ import com.pyamsoft.fridge.detail.item.ListItemLifecycle
 import com.pyamsoft.fridge.detail.item.add.AddNewControllerEvent.AddNew
 import com.pyamsoft.fridge.detail.item.add.AddNewItemView
 import com.pyamsoft.fridge.detail.item.add.AddNewItemViewModel
+import com.pyamsoft.fridge.detail.item.fridge.DetailItemControllerEvent.CloseExpand
 import com.pyamsoft.fridge.detail.item.fridge.DetailItemControllerEvent.DatePick
 import com.pyamsoft.fridge.detail.item.fridge.DetailItemControllerEvent.ExpandDetails
 import com.pyamsoft.fridge.detail.item.fridge.DetailItemViewModel
@@ -46,6 +47,7 @@ import com.pyamsoft.fridge.detail.list.DetailListAdapter.DetailViewHolder
 import com.pyamsoft.pydroid.arch.createComponent
 import com.pyamsoft.pydroid.ui.util.layout
 import com.pyamsoft.pydroid.util.toDp
+import timber.log.Timber
 import javax.inject.Inject
 
 internal class DetailListAdapter constructor(
@@ -180,6 +182,7 @@ internal class DetailListAdapter constructor(
         return@createComponent when (it) {
           is ExpandDetails -> callback.onItemExpanded(it.item)
           is DatePick -> callback.onPickDate(it.oldItem, it.year, it.month, it.day)
+          is CloseExpand -> Timber.d("Deleted item")
         }
       }
 

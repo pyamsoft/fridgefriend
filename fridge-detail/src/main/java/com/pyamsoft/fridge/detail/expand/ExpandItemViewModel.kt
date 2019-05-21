@@ -21,12 +21,13 @@ import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent
+import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent.Delete
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent.Insert
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent.Update
 import com.pyamsoft.fridge.db.item.FridgeItemRealtime
-import com.pyamsoft.fridge.detail.DetailConstants
 import com.pyamsoft.fridge.detail.item.fridge.DateSelectPayload
 import com.pyamsoft.fridge.detail.item.fridge.DetailItemControllerEvent
+import com.pyamsoft.fridge.detail.item.fridge.DetailItemControllerEvent.CloseExpand
 import com.pyamsoft.fridge.detail.item.fridge.DetailItemControllerEvent.DatePick
 import com.pyamsoft.fridge.detail.item.fridge.DetailItemControllerEvent.ExpandDetails
 import com.pyamsoft.fridge.detail.item.fridge.DetailItemViewEvent
@@ -102,12 +103,18 @@ class ExpandItemViewModel @Inject internal constructor(
     return when (event) {
       is Update -> handleModelUpdate(event.item)
       is Insert -> handleModelUpdate(event.item)
-      else -> Unit
+      is Delete -> closeSelf(event.item)
+    }
+  }
+
+  private fun closeSelf(newItem: FridgeItem) {
+    if (itemId == newItem.id() && itemEntryId == newItem.entryId()) {
+      publish(CloseExpand)
     }
   }
 
   private fun handleModelUpdate(newItem: FridgeItem) {
-    if (itemId == newItem.id()) {
+    if (itemId == newItem.id() && itemEntryId == newItem.entryId()) {
       setState { copy(item = newItem) }
     }
   }
@@ -174,24 +181,13 @@ class ExpandItemViewModel @Inject internal constructor(
   }
 
   private fun commitItem(item: FridgeItem) {
-    // If this item is not real, its an empty placeholder
-    // Right now, isReal is decided when an item has a non blank name.
-    // Once an item is in the db, it is always real
-    // The user may commit a potential update of things like the Presence or Expire Date before name
-    // Keep it prepared but do not commit it until a name comes in
-    // Directly call the realtime commit callback as if the
-    // commit had actually happened
     if (!item.isReal() && !isReadyToBeReal(item)) {
       Timber.w("Commit called on a non-real item: $item, fake callback")
       handleFakeCommit(item)
       return
     }
 
-    // A delete operation will stop an update operation
     updateDisposable = Completable.complete()
-        .delay(DetailConstants.COMMIT_TIMEOUT_DURATION, DetailConstants.COMMIT_TIMEOUT_UNIT)
-        .observeOn(AndroidSchedulers.mainThread())
-        .observeOn(Schedulers.io())
         .andThen(interactor.commit(item.makeReal()))
         .subscribeOn(Schedulers.io())
         .observeOn(AndroidSchedulers.mainThread())
