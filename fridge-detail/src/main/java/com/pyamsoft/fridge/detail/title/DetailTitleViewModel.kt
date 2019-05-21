@@ -17,7 +17,6 @@
 
 package com.pyamsoft.fridge.detail.title
 
-import com.pyamsoft.fridge.detail.DetailConstants
 import com.pyamsoft.fridge.detail.title.DetailTitleViewEvent.NameUpdate
 import com.pyamsoft.pydroid.arch.UiViewModel
 import com.pyamsoft.pydroid.arch.UnitControllerEvent
@@ -70,7 +69,6 @@ class DetailTitleViewModel @Inject internal constructor(
 
   private fun updateName(name: String) {
     updateDisposable = Completable.complete()
-        .delay(DetailConstants.COMMIT_TIMEOUT_DURATION, DetailConstants.COMMIT_TIMEOUT_UNIT)
         .andThen(interactor.saveName(name.trim()))
         .subscribeOn(Schedulers.io())
         .observeOn(AndroidSchedulers.mainThread())

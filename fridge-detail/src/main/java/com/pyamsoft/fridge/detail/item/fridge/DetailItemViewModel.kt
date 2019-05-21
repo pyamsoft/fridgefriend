@@ -20,7 +20,6 @@ package com.pyamsoft.fridge.detail.item.fridge
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent
-import com.pyamsoft.fridge.detail.DetailConstants
 import com.pyamsoft.fridge.detail.item.fridge.DetailItemControllerEvent.ExpandDetails
 import com.pyamsoft.fridge.detail.item.fridge.DetailItemViewEvent.CommitPresence
 import com.pyamsoft.fridge.detail.item.fridge.DetailItemViewEvent.ExpandItem
@@ -72,7 +71,6 @@ class DetailItemViewModel @Inject internal constructor(
 
     // A delete operation will stop an update operation
     updateDisposable = Completable.complete()
-        .delay(DetailConstants.COMMIT_TIMEOUT_DURATION, DetailConstants.COMMIT_TIMEOUT_UNIT)
         .observeOn(AndroidSchedulers.mainThread())
         .observeOn(Schedulers.io())
         .andThen(interactor.commit(item.makeReal()))

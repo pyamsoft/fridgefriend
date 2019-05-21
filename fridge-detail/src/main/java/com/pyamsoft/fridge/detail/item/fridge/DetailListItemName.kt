@@ -45,9 +45,9 @@ class DetailListItemName @Inject internal constructor(
   ) {
     state.item.let { item ->
       removeListeners()
-      val isEditable = state.isEditable
-
       nameView.setTextKeepState(item.name())
+
+      val isEditable = state.isEditable
       if (isEditable && !item.isArchived()) {
         val watcher = object : TextWatcher {
 
@@ -82,6 +82,7 @@ class DetailListItemName @Inject internal constructor(
 
   override fun onTeardown() {
     removeListeners()
+    nameView.text.clear()
   }
 
   private fun removeListeners() {
