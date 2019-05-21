@@ -19,22 +19,19 @@ package com.pyamsoft.fridge.detail.title
 
 import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.db.entry.FridgeEntry
-import com.pyamsoft.fridge.db.entry.FridgeEntryChangeEvent.Update
 import com.pyamsoft.fridge.db.entry.FridgeEntryInsertDao
 import com.pyamsoft.fridge.db.entry.FridgeEntryQueryDao
-import com.pyamsoft.fridge.db.entry.FridgeEntryRealtime
 import com.pyamsoft.fridge.db.entry.FridgeEntryUpdateDao
 import com.pyamsoft.fridge.detail.DetailInteractor
 import com.pyamsoft.pydroid.core.threads.Enforcer
 import io.reactivex.Completable
-import io.reactivex.Observable
+import io.reactivex.Single
 import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Named
 
 internal class DetailTitleInteractor @Inject internal constructor(
   private val updateDao: FridgeEntryUpdateDao,
-  private val realtime: FridgeEntryRealtime,
   enforcer: Enforcer,
   queryDao: FridgeEntryQueryDao,
   insertDao: FridgeEntryInsertDao,
@@ -42,27 +39,9 @@ internal class DetailTitleInteractor @Inject internal constructor(
 ) : DetailInteractor(enforcer, queryDao, insertDao) {
 
   @CheckResult
-  fun observeEntryName(force: Boolean): Observable<NameUpdate> {
-    return listenForNameChanges()
-        .startWith(getEntryName(force))
-  }
-
-  @CheckResult
-  private fun getEntryName(force: Boolean): Observable<NameUpdate> {
-    return getEntryForId(entryId, force)
-        .map { it.name() }
-        .map { NameUpdate(it, true) }
-        .toObservable()
-  }
-
-  @CheckResult
-  private fun listenForNameChanges(): Observable<NameUpdate> {
-    return realtime.listenForChanges()
-        .ofType(Update::class.java)
-        .map { it.entry }
-        .filter { it.id() == entryId }
-        .map { it.name() }
-        .map { NameUpdate(it, false) }
+  fun getEntryName(force: Boolean): Single<String> {
+    return getEntryForId(entryId, force).map { it.name() }
+        .toSingle("")
   }
 
   @CheckResult
@@ -88,9 +67,4 @@ internal class DetailTitleInteractor @Inject internal constructor(
     enforcer.assertNotOnMainThread()
     return updateDao.update(entry.name(name))
   }
-
-  internal data class NameUpdate(
-    val name: String,
-    val firstUpdate: Boolean
-  )
 }

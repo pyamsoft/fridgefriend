@@ -36,12 +36,8 @@ class DetailTitleViewModel @Inject internal constructor(
     )
 ) {
 
-  private var observeNameDisposable by singleDisposable()
+  private var nameDisposable by singleDisposable()
   private var updateDisposable by singleDisposable()
-
-  override fun onCleared() {
-    observeNameDisposable.tryDispose()
-  }
 
   override fun handleViewEvent(event: DetailTitleViewEvent) {
     return when (event) {
@@ -49,22 +45,23 @@ class DetailTitleViewModel @Inject internal constructor(
     }
   }
 
-  fun beginObservingName() {
-    observeName(false)
+  fun fetchName() {
+    getName(false)
   }
 
-  private fun observeName(force: Boolean) {
-    observeNameDisposable = interactor.observeEntryName(force)
+  private fun getName(force: Boolean) {
+    nameDisposable = interactor.getEntryName(force)
         .subscribeOn(Schedulers.io())
         .observeOn(AndroidSchedulers.mainThread())
-        .subscribe({ handleNameUpdated(it.name) }, {
+        .doAfterTerminate { nameDisposable.tryDispose() }
+        .subscribe({ handleNameUpdated(it) }, {
           Timber.e(it, "Error observing entry name")
           handleNameUpdateError(it)
         })
   }
 
   private fun handleNameUpdated(name: String) {
-    setState { copy(name = name, throwable = null) }
+    setState { copy(name = name) }
   }
 
   private fun updateName(name: String) {
@@ -72,10 +69,7 @@ class DetailTitleViewModel @Inject internal constructor(
         .andThen(interactor.saveName(name.trim()))
         .subscribeOn(Schedulers.io())
         .observeOn(AndroidSchedulers.mainThread())
-        .doAfterTerminate {
-          // Dispose ourselves here after we are done
-          updateDisposable.tryDispose()
-        }
+        .doAfterTerminate { updateDisposable.tryDispose() }
         .subscribe({ }, {
           Timber.e(it, "Error updating entry name")
           handleNameUpdateError(it)
@@ -83,7 +77,7 @@ class DetailTitleViewModel @Inject internal constructor(
   }
 
   private fun handleNameUpdateError(throwable: Throwable) {
-    setState { copy(name = "", throwable = throwable) }
+    setState { copy(throwable = throwable) }
   }
 
 }

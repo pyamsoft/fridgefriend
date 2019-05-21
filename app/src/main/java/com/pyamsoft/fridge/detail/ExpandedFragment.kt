@@ -17,19 +17,19 @@
 
 package com.pyamsoft.fridge.detail
 
-import android.animation.LayoutTransition
 import android.os.Bundle
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.WindowManager
 import androidx.annotation.CheckResult
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
-import androidx.core.view.updatePadding
+import androidx.core.view.setPadding
 import androidx.fragment.app.DialogFragment
 import com.pyamsoft.fridge.FridgeComponent
 import com.pyamsoft.fridge.R
-import com.pyamsoft.fridge.base.FridgeBottomSheetDialogFragment
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.JsonMappableFridgeItem
 import com.pyamsoft.fridge.detail.expand.ExpandItemError
@@ -49,7 +49,7 @@ import com.pyamsoft.pydroid.util.toDp
 import timber.log.Timber
 import javax.inject.Inject
 
-class ExpandedFragment : FridgeBottomSheetDialogFragment() {
+class ExpandedFragment : DialogFragment() {
 
   @JvmField @Inject internal var viewModel: ExpandItemViewModel? = null
   @JvmField @Inject internal var name: ExpandItemName? = null
@@ -72,14 +72,7 @@ class ExpandedFragment : FridgeBottomSheetDialogFragment() {
     super.onViewCreated(view, savedInstanceState)
 
     val parent = view.findViewById<ConstraintLayout>(R.id.layout_constraint)
-    val horizontalPadding = 16.toDp(parent.context)
-    val verticalPadding = 8.toDp(parent.context)
-    parent.updatePadding(
-        left = horizontalPadding,
-        right = horizontalPadding,
-        top = verticalPadding,
-        bottom = verticalPadding
-    )
+    parent.setPadding(16.toDp(parent.context))
 
     val item: FridgeItem =
       requireNotNull(requireArguments().getParcelable<JsonMappableFridgeItem>(ITEM))
@@ -173,6 +166,14 @@ class ExpandedFragment : FridgeBottomSheetDialogFragment() {
     date = null
     presence = null
     errorDisplay = null
+  }
+
+  override fun onResume() {
+    super.onResume()
+    dialog?.window?.apply {
+      setLayout(WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.WRAP_CONTENT)
+      setGravity(Gravity.CENTER)
+    }
   }
 
   companion object {

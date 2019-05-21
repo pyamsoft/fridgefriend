@@ -118,7 +118,7 @@ internal class DetailFragment : Fragment() {
       }
     }
 
-    requireNotNull(titleViewModel).beginObservingName()
+    requireNotNull(titleViewModel).fetchName()
     requireNotNull(listViewModel).fetchItems()
   }
 
