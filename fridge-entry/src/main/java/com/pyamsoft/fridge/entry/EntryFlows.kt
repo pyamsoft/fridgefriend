@@ -15,35 +15,39 @@
  *
  */
 
-package com.pyamsoft.fridge.entry.list
+package com.pyamsoft.fridge.entry
 
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.pydroid.arch.UiControllerEvent
 import com.pyamsoft.pydroid.arch.UiViewEvent
 import com.pyamsoft.pydroid.arch.UiViewState
 
-data class EntryListViewState(
-  val isLoading: Loading?,
-  val throwable: Throwable?,
-  val entries: List<FridgeEntry>
-) : UiViewState {
+data class EntryViewState(
+  val haveEntry: FridgeEntry?,
+  val needEntry: FridgeEntry?,
+  val isSettingsItemVisible: Boolean
+) : UiViewState
 
-  data class Loading(val isLoading: Boolean)
+sealed class EntryViewEvent : UiViewEvent {
 
-}
+  data class OpenHave internal constructor(val entry: FridgeEntry) : EntryViewEvent()
 
-sealed class EntryListViewEvent : UiViewEvent {
+  data class OpenNeed internal constructor(val entry: FridgeEntry) : EntryViewEvent()
 
-  data class RunRefresh(val force: Boolean) : EntryListViewEvent()
-
-  data class OpenEntry internal constructor(val entry: FridgeEntry) : EntryListViewEvent()
+  object SettingsNavigate : EntryViewEvent()
 
 }
 
-sealed class EntryListControllerEvent : UiControllerEvent {
+sealed class EntryControllerEvent : UiControllerEvent {
 
-  data class OpenForEditing internal constructor(
+  data class PushHave internal constructor(
     val entry: FridgeEntry
-  ) : EntryListControllerEvent()
+  ) : EntryControllerEvent()
+
+  data class PushNeed internal constructor(
+    val entry: FridgeEntry
+  ) : EntryControllerEvent()
+
+  object NavigateToSettings : EntryControllerEvent()
 
 }

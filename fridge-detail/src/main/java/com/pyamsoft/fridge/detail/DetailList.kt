@@ -36,15 +36,14 @@ import com.popinnow.android.refresh.newRefreshLatch
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent
 import com.pyamsoft.fridge.db.item.FridgeItemRealtime
-import com.pyamsoft.fridge.detail.DetailListAdapter.AddNewItemViewHolder
 import com.pyamsoft.fridge.detail.DetailListAdapter.Callback
 import com.pyamsoft.fridge.detail.DetailListAdapter.DetailItemViewHolder
-import com.pyamsoft.fridge.detail.R.drawable
-import com.pyamsoft.fridge.detail.item.DaggerDetailItemComponent
-import com.pyamsoft.fridge.detail.item.fridge.DateSelectPayload
 import com.pyamsoft.fridge.detail.DetailViewEvent.ExpandItem
 import com.pyamsoft.fridge.detail.DetailViewEvent.ForceRefresh
 import com.pyamsoft.fridge.detail.DetailViewEvent.PickDate
+import com.pyamsoft.fridge.detail.R.drawable
+import com.pyamsoft.fridge.detail.item.DaggerDetailItemComponent
+import com.pyamsoft.fridge.detail.item.fridge.DateSelectPayload
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.core.bus.EventBus
 import com.pyamsoft.pydroid.loader.ImageLoader
@@ -131,22 +130,25 @@ class DetailList @Inject internal constructor(
   }
 
   private fun setupSwipeCallback() {
+    val archiveSwipeDirection = ItemTouchHelper.RIGHT
+    val deleteSwipeDirection = ItemTouchHelper.LEFT
     val itemSwipeCallback = SimpleSwipeCallback.ItemSwipeCallback { position, direction ->
-      if (direction == ItemTouchHelper.LEFT || direction == ItemTouchHelper.RIGHT) {
-        if (direction == ItemTouchHelper.RIGHT) {
+      if (direction == archiveSwipeDirection || direction == deleteSwipeDirection) {
+        if (direction == archiveSwipeDirection) {
           archiveListItem(position)
         } else {
           deleteListItem(position)
         }
       }
     }
-    val directions = ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT
     val leftBehindDrawable =
       AppCompatResources.getDrawable(
           recyclerView.context,
           drawable.ic_delete_24dp
       )
     val leftBackground = Color.RED
+
+    val directions = archiveSwipeDirection or deleteSwipeDirection
     val swipeCallback = object : SimpleSwipeCallback(
         itemSwipeCallback,
         leftBehindDrawable,
@@ -158,11 +160,17 @@ class DetailList @Inject internal constructor(
         recyclerView: RecyclerView,
         viewHolder: ViewHolder
       ): Int {
-        if (viewHolder is AddNewItemViewHolder) {
-          return 0
-        } else {
+        if (viewHolder is DetailItemViewHolder) {
           // Don't call super here or we crash from a Reflection error
-          return directions
+          if (viewHolder.canArchive()) {
+            return directions
+          } else {
+            // If we cannot archive, only allow delete swipes
+            return deleteSwipeDirection
+          }
+        } else {
+          // Can't swipe non item view holders
+          return 0
         }
       }
 

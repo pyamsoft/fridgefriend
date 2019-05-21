@@ -45,8 +45,6 @@ import javax.inject.Inject
 internal class DetailFragment : Fragment() {
 
   @JvmField @Inject internal var list: DetailList? = null
-  @JvmField @Inject internal var toolbar: DetailToolbar? = null
-  @JvmField @Inject internal var title: DetailTitle? = null
   @JvmField @Inject internal var viewModel: DetailViewModel? = null
 
   override fun onCreateView(
@@ -75,15 +73,11 @@ internal class DetailFragment : Fragment() {
         .inject(this)
 
     val list = requireNotNull(list)
-    val title = requireNotNull(title)
-    val toolbar = requireNotNull(toolbar)
 
     createComponent(
         savedInstanceState, viewLifecycleOwner,
         requireNotNull(viewModel),
-        list,
-        title,
-        toolbar
+        list
     ) {
       return@createComponent when (it) {
         is ExpandForEditing -> expandItem(it.item)
@@ -94,15 +88,9 @@ internal class DetailFragment : Fragment() {
     }
 
     parent.layout {
-      title.also {
-        connect(it.id(), ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP)
-        connect(it.id(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
-        connect(it.id(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
-        constrainWidth(it.id(), ConstraintSet.MATCH_CONSTRAINT)
-      }
 
       list.also {
-        connect(it.id(), ConstraintSet.TOP, title.id(), ConstraintSet.BOTTOM)
+        connect(it.id(), ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP)
         connect(it.id(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
         connect(it.id(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
         connect(it.id(), ConstraintSet.BOTTOM, ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM)
@@ -126,8 +114,6 @@ internal class DetailFragment : Fragment() {
 
   override fun onSaveInstanceState(outState: Bundle) {
     super.onSaveInstanceState(outState)
-    title?.saveState(outState)
-    toolbar?.saveState(outState)
     list?.saveState(outState)
   }
 
@@ -136,8 +122,6 @@ internal class DetailFragment : Fragment() {
 
     viewModel = null
     list = null
-    toolbar = null
-    title = null
   }
 
   private fun close() {

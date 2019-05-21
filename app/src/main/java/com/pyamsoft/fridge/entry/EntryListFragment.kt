@@ -22,46 +22,38 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.CheckResult
-import androidx.coordinatorlayout.widget.CoordinatorLayout
+import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.constraintlayout.widget.ConstraintSet
 import androidx.fragment.app.Fragment
 import com.pyamsoft.fridge.FridgeComponent
 import com.pyamsoft.fridge.R
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.detail.DetailFragment
-import com.pyamsoft.fridge.entry.action.EntryActionControllerEvent.OpenDetails
-import com.pyamsoft.fridge.entry.action.EntryActionViewModel
-import com.pyamsoft.fridge.entry.action.EntryCreate
-import com.pyamsoft.fridge.entry.list.EntryList
-import com.pyamsoft.fridge.entry.list.EntryListControllerEvent.OpenForEditing
-import com.pyamsoft.fridge.entry.list.EntryListViewModel
-import com.pyamsoft.fridge.entry.toolbar.EntryToolbar
-import com.pyamsoft.fridge.entry.toolbar.EntryToolbarControllerEvent.NavigateToSettings
-import com.pyamsoft.fridge.entry.toolbar.EntryToolbarViewModel
+import com.pyamsoft.fridge.entry.EntryControllerEvent.NavigateToSettings
+import com.pyamsoft.fridge.entry.EntryControllerEvent.PushHave
+import com.pyamsoft.fridge.entry.EntryControllerEvent.PushNeed
 import com.pyamsoft.fridge.extensions.fragmentContainerId
 import com.pyamsoft.fridge.setting.SettingsFragment
 import com.pyamsoft.pydroid.arch.createComponent
 import com.pyamsoft.pydroid.ui.Injector
 import com.pyamsoft.pydroid.ui.app.requireToolbarActivity
 import com.pyamsoft.pydroid.ui.util.commit
+import com.pyamsoft.pydroid.ui.util.layout
 import javax.inject.Inject
 
 internal class EntryListFragment : Fragment() {
 
   @JvmField @Inject internal var toolbar: EntryToolbar? = null
-  @JvmField @Inject internal var toolbarViewModel: EntryToolbarViewModel? = null
-
-  @JvmField @Inject internal var createButton: EntryCreate? = null
-  @JvmField @Inject internal var actionViewModel: EntryActionViewModel? = null
-
-  @JvmField @Inject internal var list: EntryList? = null
-  @JvmField @Inject internal var listViewModel: EntryListViewModel? = null
+  @JvmField @Inject internal var frame: EntryFrame? = null
+  @JvmField @Inject internal var navigation: EntryNavigation? = null
+  @JvmField @Inject internal var viewModel: EntryViewModel? = null
 
   override fun onCreateView(
     inflater: LayoutInflater,
     container: ViewGroup?,
     savedInstanceState: Bundle?
   ): View? {
-    return inflater.inflate(R.layout.layout_coordinator, container, false)
+    return inflater.inflate(R.layout.layout_constraint, container, false)
   }
 
   override fun onViewCreated(
@@ -70,93 +62,101 @@ internal class EntryListFragment : Fragment() {
   ) {
     super.onViewCreated(view, savedInstanceState)
 
-    val parent = view.findViewById<CoordinatorLayout>(R.id.layout_coordinator)
+    val parent = view.findViewById<ConstraintLayout>(R.id.layout_constraint)
     Injector.obtain<FridgeComponent>(view.context.applicationContext)
         .plusEntryComponent()
         .create(viewLifecycleOwner, parent, requireToolbarActivity())
         .inject(this)
 
-    createComponent(
-        savedInstanceState, viewLifecycleOwner,
-        requireNotNull(listViewModel),
-        requireNotNull(list)
-    ) {
-      return@createComponent when (it) {
-        is OpenForEditing -> navigateToDetails(it.entry)
-      }
-    }
+    val toolbar = requireNotNull(toolbar)
+    val frame = requireNotNull(frame)
+    val navigation = requireNotNull(navigation)
 
     createComponent(
         savedInstanceState, viewLifecycleOwner,
-        requireNotNull(actionViewModel),
-        requireNotNull(createButton)
+        requireNotNull(viewModel),
+        frame,
+        toolbar,
+        navigation
     ) {
       return@createComponent when (it) {
-        is OpenDetails -> navigateToDetails(it.entry)
-      }
-    }
-
-    createComponent(
-        savedInstanceState, viewLifecycleOwner,
-        requireNotNull(toolbarViewModel),
-        requireNotNull(toolbar)
-    ) {
-      return@createComponent when (it) {
+        is PushHave -> pushHave(it.entry)
+        is PushNeed -> pushNeed(it.entry)
         is NavigateToSettings -> navigateToSettings()
       }
     }
 
-    requireNotNull(listViewModel).fetchEntries()
+    parent.layout {
+      navigation.also {
+        connect(it.id(), ConstraintSet.BOTTOM, ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM)
+        connect(it.id(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
+        connect(it.id(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
+        constrainWidth(it.id(), ConstraintSet.MATCH_CONSTRAINT)
+        constrainHeight(it.id(), ConstraintSet.WRAP_CONTENT)
+      }
+
+      frame.also {
+        connect(it.id(), ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP)
+        connect(it.id(), ConstraintSet.BOTTOM, navigation.id(), ConstraintSet.TOP)
+        connect(it.id(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
+        connect(it.id(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
+        constrainWidth(it.id(), ConstraintSet.MATCH_CONSTRAINT)
+        constrainHeight(it.id(), ConstraintSet.MATCH_CONSTRAINT)
+      }
+    }
+
+    requireNotNull(viewModel).fetchEntries()
   }
 
   override fun onSaveInstanceState(outState: Bundle) {
     super.onSaveInstanceState(outState)
-    list?.saveState(outState)
+    frame?.saveState(outState)
     toolbar?.saveState(outState)
-    createButton?.saveState(outState)
+    navigation?.saveState(outState)
   }
 
   override fun onDestroyView() {
     super.onDestroyView()
 
-    toolbarViewModel = null
+    viewModel = null
     toolbar = null
-
-    actionViewModel = null
-    createButton = null
-
-    listViewModel = null
-    list = null
+    frame = null
+    navigation = null
   }
 
-  private inline fun pushFragment(
-    tag: String,
-    crossinline createFragment: () -> Fragment
-  ) {
+  private fun navigateToSettings() {
     val fm = requireActivity().supportFragmentManager
-    if (fm.findFragmentByTag(tag) == null) {
+    if (fm.findFragmentByTag(SettingsFragment.TAG) == null) {
       fm.beginTransaction()
-          .replace(fragmentContainerId, createFragment(), tag)
+          .replace(fragmentContainerId, SettingsFragment.newInstance(), SettingsFragment.TAG)
           .addToBackStack(null)
           .commit(viewLifecycleOwner)
     }
   }
 
-  private fun navigateToSettings() {
-    pushFragment(SettingsFragment.TAG) { SettingsFragment.newInstance() }
+  private fun pushHave(entry: FridgeEntry) {
+    pushPage(entry, "have")
   }
 
-  private fun navigateToDetails(entry: FridgeEntry) {
-    pushEntryScreen(entry)
+  private fun pushNeed(entry: FridgeEntry) {
+    pushPage(entry, "need")
   }
 
-  private fun pushEntryScreen(entry: FridgeEntry) {
-    pushFragment(DetailFragment.TAG) { DetailFragment.newInstance(entry) }
+  private fun pushPage(
+    entry: FridgeEntry,
+    tag: String
+  ) {
+    val fm = childFragmentManager
+    if (fm.findFragmentByTag(tag) == null) {
+      fm.beginTransaction()
+          .replace(requireNotNull(frame).id(), DetailFragment.newInstance(entry), tag)
+          .commit(viewLifecycleOwner)
+    }
   }
 
   override fun onHiddenChanged(hidden: Boolean) {
     super.onHiddenChanged(hidden)
-    toolbarViewModel?.showMenu(!hidden)
+    viewModel?.showMenu(!hidden)
   }
 
   companion object {

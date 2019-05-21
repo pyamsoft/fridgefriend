@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-
 <!--
   ~ Copyright 2019 Peter Kenji Yamanaka
   ~
@@ -17,9 +16,30 @@
   ~
   -->
 
-<View
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="8dp"
-    />
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    >
 
+  <item
+      android:id="@+id/menu_item_nav_have"
+      android:icon="@drawable/ic_settings_24dp"
+      android:title="Have"
+      app:showAsAction="ifRoom"
+      />
+
+  <item
+      android:id="@+id/menu_item_nav_need"
+      android:icon="@drawable/ic_settings_24dp"
+      android:title="Need"
+      app:showAsAction="ifRoom"
+      />
+
+  <item
+      android:id="@+id/menu_item_nav_nearby"
+      android:icon="@drawable/ic_settings_24dp"
+      android:title="Nearby"
+      app:showAsAction="ifRoom"
+      />
+
+
+</menu>

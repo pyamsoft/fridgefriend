@@ -22,6 +22,7 @@ import androidx.annotation.CheckResult
 import androidx.room.Room
 import com.popinnow.android.repo.Repo
 import com.pyamsoft.fridge.butler.Butler
+import com.pyamsoft.fridge.db.PersistentEntries
 import com.pyamsoft.fridge.db.entry.FridgeEntryDeleteDao
 import com.pyamsoft.fridge.db.entry.FridgeEntryInsertDao
 import com.pyamsoft.fridge.db.entry.FridgeEntryQueryDao
@@ -56,13 +57,21 @@ object RoomProvider {
     itemRepo: Repo<List<JsonMappableFridgeItem>>
   ): RoomFridgeDb {
     return Room.databaseBuilder(
-      context.applicationContext,
-      RoomFridgeDbImpl::class.java,
-      "fridge_room_db.db"
+        context.applicationContext,
+        RoomFridgeDbImpl::class.java,
+        "fridge_room_db.db"
     )
-      .build().apply {
-        setObjects(butler, entryRepo, itemRepo)
-      }
+        .build()
+        .apply {
+          setObjects(butler, entryRepo, itemRepo)
+        }
+  }
+
+  @JvmStatic
+  @Provides
+  @CheckResult
+  internal fun providePersistentEntries(impl: RoomPersistentEntries): PersistentEntries {
+    return impl
   }
 
   @JvmStatic

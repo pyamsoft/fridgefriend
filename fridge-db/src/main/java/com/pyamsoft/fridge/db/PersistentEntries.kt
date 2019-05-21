@@ -15,17 +15,17 @@
  *
  */
 
-package com.pyamsoft.fridge.entry.action
+package com.pyamsoft.fridge.db
 
 import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import io.reactivex.Single
-import javax.inject.Inject
 
-internal class EntryActionInteractor @Inject internal constructor() {
+interface PersistentEntries {
 
   @CheckResult
-  fun create(): Single<FridgeEntry> {
-    return Single.just(FridgeEntry.create())
-  }
+  fun getHaveEntry(): Single<FridgeEntry>
+
+  @CheckResult
+  fun getNeedEntry(): Single<FridgeEntry>
 }

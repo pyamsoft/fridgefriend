@@ -29,6 +29,7 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.JsonMappableFridgeItem
+import com.pyamsoft.fridge.detail.DetailListAdapter.DetailViewHolder
 import com.pyamsoft.fridge.detail.item.DetailItemComponent
 import com.pyamsoft.fridge.detail.item.ListItemLifecycle
 import com.pyamsoft.fridge.detail.item.add.AddNewControllerEvent.AddNew
@@ -42,7 +43,6 @@ import com.pyamsoft.fridge.detail.item.fridge.DetailListItemDate
 import com.pyamsoft.fridge.detail.item.fridge.DetailListItemGlances
 import com.pyamsoft.fridge.detail.item.fridge.DetailListItemName
 import com.pyamsoft.fridge.detail.item.fridge.DetailListItemPresence
-import com.pyamsoft.fridge.detail.DetailListAdapter.DetailViewHolder
 import com.pyamsoft.pydroid.arch.createComponent
 import com.pyamsoft.pydroid.ui.util.layout
 import com.pyamsoft.pydroid.util.toDp
@@ -152,12 +152,25 @@ internal class DetailListAdapter constructor(
     private val parent: ConstraintLayout = itemView.findViewById(R.id.listitem_constraint)
 
     private var lifecycle: ListItemLifecycle? = null
+    private var boundItem: FridgeItem? = null
+
+    @CheckResult
+    internal fun canArchive(): Boolean {
+      return boundItem.let { item ->
+        if (item == null) {
+          return@let false
+        } else {
+          return@let !item.isArchived()
+        }
+      }
+    }
 
     fun bind(
       item: FridgeItem,
       editable: Boolean,
       callback: Callback
     ) {
+      boundItem = item
       lifecycle?.unbind()
 
       factory(parent, item, editable)
@@ -225,8 +238,9 @@ internal class DetailListAdapter constructor(
 
     override fun unbind() {
       lifecycle?.unbind()
-      lifecycle = null
 
+      boundItem = null
+      lifecycle = null
       viewModel = null
       name = null
       date = null

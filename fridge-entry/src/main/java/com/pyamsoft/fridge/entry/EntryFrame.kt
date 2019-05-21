@@ -15,27 +15,25 @@
  *
  */
 
-package com.pyamsoft.fridge.entry.action
+package com.pyamsoft.fridge.entry
 
-import com.pyamsoft.fridge.db.entry.FridgeEntry
-import com.pyamsoft.pydroid.arch.UiControllerEvent
-import com.pyamsoft.pydroid.arch.UiViewEvent
-import com.pyamsoft.pydroid.arch.UiViewState
+import android.view.ViewGroup
+import com.pyamsoft.pydroid.arch.BaseUiView
+import javax.inject.Inject
 
-data class EntryActionViewState internal constructor(
-  val isShown: Boolean
-) : UiViewState
+class EntryFrame @Inject internal constructor(
+  parent: ViewGroup
+) : BaseUiView<EntryViewState, EntryViewEvent>(parent) {
 
-sealed class EntryActionViewEvent : UiViewEvent {
+  override val layout: Int = R.layout.entry_frame
 
-  object ShowCreate : EntryActionViewEvent()
+  override val layoutRoot by boundView<ViewGroup>(R.id.entry_frame)
 
-  object CreateClicked : EntryActionViewEvent()
-
-}
-
-sealed class EntryActionControllerEvent : UiControllerEvent {
-
-  data class OpenDetails(val entry: FridgeEntry) : EntryActionControllerEvent()
+  override fun onRender(
+    state: EntryViewState,
+    oldState: EntryViewState?
+  ) {
+  }
 
 }
+
