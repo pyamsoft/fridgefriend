@@ -49,12 +49,12 @@ class EntryNavigation @Inject internal constructor(
     state: EntryViewState,
     oldState: EntryViewState?
   ) {
-    bottomNav.isVisible = state.haveEntry != null && state.needEntry != null
+    bottomNav.isVisible = state.entry != null
 
     bottomNav.setOnNavigationItemSelectedListener { item ->
       return@setOnNavigationItemSelectedListener when (item.itemId) {
-        R.id.menu_item_nav_have -> handleClick(state.haveEntry) { OpenHave(it) }
-        R.id.menu_item_nav_need -> handleClick(state.needEntry) { OpenNeed(it) }
+        R.id.menu_item_nav_have -> handleClick(state.entry) { OpenHave(it) }
+        R.id.menu_item_nav_need -> handleClick(state.entry) { OpenNeed(it) }
         else -> false
       }
     }

@@ -34,11 +34,10 @@ import javax.inject.Inject
 class EntryViewModel @Inject internal constructor(
   private val persistentEntries: PersistentEntries
 ) : UiViewModel<EntryViewState, EntryViewEvent, EntryControllerEvent>(
-    initialState = EntryViewState(haveEntry = null, needEntry = null, isSettingsItemVisible = true)
+    initialState = EntryViewState(entry = null, isSettingsItemVisible = true)
 ) {
 
-  private var haveDisposable by singleDisposable()
-  private var needDisposable by singleDisposable()
+  private var entryDisposable by singleDisposable()
 
   override fun handleViewEvent(event: EntryViewEvent) {
     return when (event) {
@@ -53,27 +52,20 @@ class EntryViewModel @Inject internal constructor(
   }
 
   override fun onCleared() {
-    haveDisposable.tryDispose()
-    needDisposable.tryDispose()
+    entryDisposable.tryDispose()
   }
 
   fun fetchEntries() {
-    haveDisposable = persistentEntries.getHaveEntry()
+    entryDisposable = persistentEntries.getPersistentEntry()
         .subscribeOn(Schedulers.io())
         .observeOn(Schedulers.io())
-        .doAfterTerminate { haveDisposable.tryDispose() }
+        .doAfterTerminate { entryDisposable.tryDispose() }
         .subscribe(Consumer {
           setState {
             publish(PushHave(it))
-            copy(haveEntry = it)
+            copy(entry = it)
           }
         })
-
-    needDisposable = persistentEntries.getNeedEntry()
-        .subscribeOn(Schedulers.io())
-        .observeOn(Schedulers.io())
-        .doAfterTerminate { needDisposable.tryDispose() }
-        .subscribe(Consumer { setState { copy(needEntry = it) } })
   }
 
 }

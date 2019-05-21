@@ -24,8 +24,5 @@ import io.reactivex.Single
 interface PersistentEntries {
 
   @CheckResult
-  fun getHaveEntry(): Single<FridgeEntry>
-
-  @CheckResult
-  fun getNeedEntry(): Single<FridgeEntry>
+  fun getPersistentEntry(): Single<FridgeEntry>
 }

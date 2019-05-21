@@ -19,6 +19,7 @@ package com.pyamsoft.fridge.db.room
 
 import android.content.Context
 import androidx.annotation.CheckResult
+import androidx.core.content.edit
 import androidx.preference.PreferenceManager
 import com.pyamsoft.fridge.db.PersistentEntries
 import com.pyamsoft.fridge.db.entry.FridgeEntry
@@ -68,26 +69,30 @@ internal class RoomPersistentEntries @Inject internal constructor(
 
   @CheckResult
   private fun guaranteeEntryExists(
-    entryId: String,
+    key: String,
     name: String
   ): Single<FridgeEntry> {
-    return getValidEntry(entryId, false)
-        .flatMap {
-          enforcer.assertNotOnMainThread()
-          val valid = it.entry
-          if (valid != null) {
-            Timber.d("Entry exists, ignore: ${valid.id()}")
-            return@flatMap Single.just(valid)
-          } else {
-            val createdTime = Calendar.getInstance()
-                .time
-            Timber.d("Create entry: $entryId at $createdTime")
-            val entry =
-              FridgeEntry.create(entryId, name, createdTime, isReal = true, isArchived = false)
-            return@flatMap insertDao.insert(entry)
-                .andThen(Single.just(entry))
+    return Single.defer {
+      val entryId = getEntryId(key)
+      return@defer getValidEntry(entryId, false)
+          .flatMap {
+            enforcer.assertNotOnMainThread()
+            val valid = it.entry
+            if (valid != null) {
+              Timber.d("Entry exists, ignore: ${valid.id()}")
+              return@flatMap Single.just(valid)
+            } else {
+              val createdTime = Calendar.getInstance()
+                  .time
+              Timber.d("Create entry: $entryId at $createdTime")
+              val entry =
+                FridgeEntry.create(entryId, name, createdTime, isReal = true, isArchived = false)
+              return@flatMap insertDao.insert(entry)
+                  .andThen(Single.just(entry))
+                  .doOnSuccess { sharedPreferences.edit { putString(key, entryId) } }
+            }
           }
-        }
+    }
   }
 
   @CheckResult
@@ -95,20 +100,15 @@ internal class RoomPersistentEntries @Inject internal constructor(
     return requireNotNull(sharedPreferences.getString(key, FridgeEntry.create().id()))
   }
 
-  override fun getHaveEntry(): Single<FridgeEntry> {
-    return guaranteeEntryExists(getEntryId(HAVE_ENTRY_KEY), "Items I Have")
-  }
-
-  override fun getNeedEntry(): Single<FridgeEntry> {
-    return guaranteeEntryExists(getEntryId(NEED_ENTRY_KEY), "Items I Need")
+  override fun getPersistentEntry(): Single<FridgeEntry> {
+    return guaranteeEntryExists(PERSIST_ENTRY_KEY, "Items")
   }
 
   private data class ValidEntry(val entry: FridgeEntry?)
 
   companion object {
 
-    private const val HAVE_ENTRY_KEY = "have_entry"
-    private const val NEED_ENTRY_KEY = "need_entry"
+    private const val PERSIST_ENTRY_KEY = "persistent_entry"
 
   }
 }

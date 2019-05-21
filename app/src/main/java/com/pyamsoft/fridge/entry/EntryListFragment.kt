@@ -28,6 +28,9 @@ import androidx.fragment.app.Fragment
 import com.pyamsoft.fridge.FridgeComponent
 import com.pyamsoft.fridge.R
 import com.pyamsoft.fridge.db.entry.FridgeEntry
+import com.pyamsoft.fridge.db.item.FridgeItem.Presence
+import com.pyamsoft.fridge.db.item.FridgeItem.Presence.HAVE
+import com.pyamsoft.fridge.db.item.FridgeItem.Presence.NEED
 import com.pyamsoft.fridge.detail.DetailFragment
 import com.pyamsoft.fridge.entry.EntryControllerEvent.NavigateToSettings
 import com.pyamsoft.fridge.entry.EntryControllerEvent.PushHave
@@ -135,21 +138,25 @@ internal class EntryListFragment : Fragment() {
   }
 
   private fun pushHave(entry: FridgeEntry) {
-    pushPage(entry, "have")
+    pushPage(entry, HAVE)
   }
 
   private fun pushNeed(entry: FridgeEntry) {
-    pushPage(entry, "need")
+    pushPage(entry, NEED)
   }
 
   private fun pushPage(
     entry: FridgeEntry,
-    tag: String
+    filterPresence: Presence
   ) {
     val fm = childFragmentManager
-    if (fm.findFragmentByTag(tag) == null) {
+    if (fm.findFragmentByTag(filterPresence.name) == null) {
       fm.beginTransaction()
-          .replace(requireNotNull(frame).id(), DetailFragment.newInstance(entry), tag)
+          .replace(
+              requireNotNull(frame).id(),
+              DetailFragment.newInstance(entry, filterPresence),
+              filterPresence.name
+          )
           .commit(viewLifecycleOwner)
     }
   }

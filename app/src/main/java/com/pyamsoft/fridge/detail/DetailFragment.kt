@@ -30,6 +30,7 @@ import com.pyamsoft.fridge.R
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.entry.JsonMappableFridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItem
+import com.pyamsoft.fridge.db.item.FridgeItem.Presence
 import com.pyamsoft.fridge.detail.DetailControllerEvent.DatePick
 import com.pyamsoft.fridge.detail.DetailControllerEvent.EntryArchived
 import com.pyamsoft.fridge.detail.DetailControllerEvent.ExpandForEditing
@@ -67,9 +68,10 @@ internal class DetailFragment : Fragment() {
     super.onViewCreated(view, savedInstanceState)
 
     val parent = view.findViewById<ConstraintLayout>(R.id.layout_constraint)
+    val presence = Presence.valueOf(requireNotNull(requireArguments().getString(PRESENCE)))
     Injector.obtain<FridgeComponent>(view.context.applicationContext)
         .plusDetailComponent()
-        .create(parent, requireToolbarActivity(), viewLifecycleOwner, getEntryArgument())
+        .create(parent, requireToolbarActivity(), viewLifecycleOwner, getEntryArgument(), presence)
         .inject(this)
 
     val list = requireNotNull(list)
@@ -135,15 +137,19 @@ internal class DetailFragment : Fragment() {
 
   companion object {
 
-    const val TAG = "DetailFragment"
     private const val ENTRY = "entry"
+    private const val PRESENCE = "presence"
 
     @JvmStatic
     @CheckResult
-    fun newInstance(entry: FridgeEntry): Fragment {
+    fun newInstance(
+      entry: FridgeEntry,
+      filterPresence: Presence
+    ): Fragment {
       return DetailFragment().apply {
         arguments = Bundle().apply {
           putParcelable(ENTRY, JsonMappableFridgeEntry.from(entry))
+          putString(PRESENCE, filterPresence.name)
         }
       }
     }

@@ -21,6 +21,7 @@ import android.view.ViewGroup
 import androidx.annotation.CheckResult
 import androidx.lifecycle.LifecycleOwner
 import com.pyamsoft.fridge.db.entry.FridgeEntry
+import com.pyamsoft.fridge.db.item.FridgeItem.Presence
 import com.pyamsoft.pydroid.ui.app.ToolbarActivity
 import dagger.BindsInstance
 import dagger.Subcomponent
@@ -38,7 +39,8 @@ internal interface DetailComponent {
       @BindsInstance parent: ViewGroup,
       @BindsInstance toolbarActivity: ToolbarActivity,
       @BindsInstance owner: LifecycleOwner,
-      @BindsInstance entry: FridgeEntry
+      @BindsInstance entry: FridgeEntry,
+      @BindsInstance filterPresence: Presence
     ): DetailComponent
   }
 

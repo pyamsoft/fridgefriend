@@ -51,6 +51,7 @@ import javax.inject.Inject
 class DetailViewModel @Inject internal constructor(
   private val interactor: DetailInteractor,
   private val fakeRealtime: EventBus<FridgeItemChangeEvent>,
+  private val listItemPresence: FridgeItem.Presence,
   entry: FridgeEntry
 ) : UiViewModel<DetailViewState, DetailViewEvent, DetailControllerEvent>(
     initialState = DetailViewState(
@@ -128,23 +129,38 @@ class DetailViewModel @Inject internal constructor(
   }
 
   @CheckResult
-  private fun getListItems(items: List<FridgeItem>): List<FridgeItem> {
+  private fun getListItems(
+    filterArchived: Boolean,
+    items: List<FridgeItem>
+  ): List<FridgeItem> {
     val mutableItems = items.toMutableList()
     insert(mutableItems, FridgeItem.empty(entryId))
-    return mutableItems.sortedWith(Comparator { o1, o2 ->
-      return@Comparator when {
-        o1.id().isBlank() -> 1
-        o2.id().isBlank() -> -1
-        else -> {
-          when {
-            o1.isArchived() && o2.isArchived() -> 0
-            o1.isArchived() -> 1
-            o2.isArchived() -> -1
-            else -> 0
+    return mutableItems
+        .asSequence()
+        .sortedWith(Comparator { o1, o2 ->
+          return@Comparator when {
+            o1.id().isBlank() -> 1
+            o2.id().isBlank() -> -1
+            else -> {
+              when {
+                o1.isArchived() && o2.isArchived() -> 0
+                o1.isArchived() -> 1
+                o2.isArchived() -> -1
+                else -> 0
+              }
+            }
+          }
+        })
+        .filterNot { filterArchived && it.isArchived() }
+        .filter {
+          if (it.id().isBlank()) {
+            // Add item
+            return@filter true
+          } else {
+            return@filter it.presence() == listItemPresence
           }
         }
-      }
-    })
+        .toList()
   }
 
   private fun refreshList(force: Boolean) {
@@ -233,8 +249,7 @@ class DetailViewModel @Inject internal constructor(
           items = items.let { list ->
             val newItems = list.toMutableList()
             insert(newItems, item)
-            return@let getListItems(newItems)
-                .filterNot { filterArchived && it.isArchived() }
+            return@let getListItems(filterArchived, newItems)
           })
     }
   }
@@ -244,25 +259,25 @@ class DetailViewModel @Inject internal constructor(
     if (item.isArchived()) {
       setState {
         copy(
-            items = getListItems(items.map { old ->
+            items = getListItems(filterArchived, items.map { old ->
               if (old.id() == item.id()) {
                 return@map item
               } else {
                 return@map old
               }
-            }).filterNot { filterArchived && it.isArchived() }
+            })
         )
       }
     } else {
       setState {
         copy(
-            items = getListItems(items.map { old ->
+            items = getListItems(filterArchived, items.map { old ->
               if (old.id() == item.id()) {
                 return@map item
               } else {
                 return@map old
               }
-            }).filterNot { filterArchived && it.isArchived() }
+            })
         )
       }
 
@@ -271,10 +286,7 @@ class DetailViewModel @Inject internal constructor(
 
   private fun handleRealtimeDelete(item: FridgeItem) {
     setState {
-      copy(
-          items = getListItems(items.filterNot { it.id() == item.id() })
-              .filterNot { filterArchived && it.isArchived() }
-      )
+      copy(items = getListItems(filterArchived, items.filterNot { it.id() == item.id() }))
     }
   }
 
@@ -287,10 +299,7 @@ class DetailViewModel @Inject internal constructor(
   private fun handleListRefreshed(items: List<FridgeItem>) {
     Timber.d("Items list: $items")
     setState {
-      copy(
-          items = getListItems(items.filterNot { filterArchived && it.isArchived() }),
-          throwable = null
-      )
+      copy(items = getListItems(filterArchived, items))
     }
   }
 

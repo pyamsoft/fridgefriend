@@ -23,8 +23,7 @@ import com.pyamsoft.pydroid.arch.UiViewEvent
 import com.pyamsoft.pydroid.arch.UiViewState
 
 data class EntryViewState(
-  val haveEntry: FridgeEntry?,
-  val needEntry: FridgeEntry?,
+  val entry: FridgeEntry?,
   val isSettingsItemVisible: Boolean
 ) : UiViewState
 
