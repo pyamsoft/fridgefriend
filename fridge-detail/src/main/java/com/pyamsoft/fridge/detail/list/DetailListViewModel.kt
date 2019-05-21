@@ -135,7 +135,14 @@ class DetailListViewModel @Inject internal constructor(
       return@Comparator when {
         o1.id().isBlank() -> 1
         o2.id().isBlank() -> -1
-        else -> 0
+        else -> {
+          when {
+            o1.isArchived() && o2.isArchived() -> 0
+            o1.isArchived() -> 1
+            o2.isArchived() -> -1
+            else -> 0
+          }
+        }
       }
     })
   }

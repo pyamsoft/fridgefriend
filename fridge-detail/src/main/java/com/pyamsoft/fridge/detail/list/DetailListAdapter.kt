@@ -97,11 +97,6 @@ internal class DetailListAdapter constructor(
         top = verticalPadding,
         bottom = verticalPadding
     )
-
-    if (this is ViewGroup) {
-      this.layoutTransition = LayoutTransition()
-    }
-
     return this
   }
 
