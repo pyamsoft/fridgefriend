@@ -60,6 +60,7 @@ class DetailList @Inject internal constructor(
   private val realtime: FridgeItemRealtime,
   private val fakeRealtime: EventBus<FridgeItemChangeEvent>,
   private val dateSelectBus: EventBus<DateSelectPayload>,
+  private val listItemPresence: FridgeItem.Presence,
   private val owner: LifecycleOwner
 ) : BaseUiView<DetailViewState, DetailViewEvent>(parent) {
 
@@ -83,7 +84,7 @@ class DetailList @Inject internal constructor(
           .create(
               parent, item, editable,
               imageLoader, theming, interactor,
-              realtime, fakeRealtime, dateSelectBus
+              realtime, fakeRealtime, dateSelectBus, listItemPresence
           )
     }
 

@@ -61,6 +61,11 @@ internal class DetailFragment : Fragment() {
     return requireNotNull(requireArguments().getParcelable<JsonMappableFridgeEntry>(ENTRY))
   }
 
+  @CheckResult
+  private fun getPresenceArgument(): Presence {
+    return Presence.valueOf(requireNotNull(requireArguments().getString(PRESENCE)))
+  }
+
   override fun onViewCreated(
     view: View,
     savedInstanceState: Bundle?
@@ -68,10 +73,12 @@ internal class DetailFragment : Fragment() {
     super.onViewCreated(view, savedInstanceState)
 
     val parent = view.findViewById<ConstraintLayout>(R.id.layout_constraint)
-    val presence = Presence.valueOf(requireNotNull(requireArguments().getString(PRESENCE)))
     Injector.obtain<FridgeComponent>(view.context.applicationContext)
         .plusDetailComponent()
-        .create(parent, requireToolbarActivity(), viewLifecycleOwner, getEntryArgument(), presence)
+        .create(
+            parent, requireToolbarActivity(), viewLifecycleOwner,
+            getEntryArgument(), getPresenceArgument()
+        )
         .inject(this)
 
     val list = requireNotNull(list)
@@ -131,7 +138,7 @@ internal class DetailFragment : Fragment() {
   }
 
   private fun expandItem(item: FridgeItem) {
-    ExpandedFragment.newInstance(getEntryArgument(), item)
+    ExpandedFragment.newInstance(getEntryArgument(), item, getPresenceArgument())
         .show(requireActivity(), ExpandedFragment.TAG)
   }
 

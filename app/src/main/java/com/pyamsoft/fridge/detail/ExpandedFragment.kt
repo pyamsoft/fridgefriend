@@ -33,6 +33,7 @@ import com.pyamsoft.fridge.R
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.entry.JsonMappableFridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItem
+import com.pyamsoft.fridge.db.item.FridgeItem.Presence
 import com.pyamsoft.fridge.db.item.JsonMappableFridgeItem
 import com.pyamsoft.fridge.detail.expand.ExpandItemError
 import com.pyamsoft.fridge.detail.expand.ExpandItemName
@@ -76,12 +77,15 @@ class ExpandedFragment : DialogFragment() {
     val parent = view.findViewById<ConstraintLayout>(R.id.layout_constraint)
     parent.setPadding(16.toDp(parent.context))
 
-    val item = requireNotNull(requireArguments().getParcelable<JsonMappableFridgeItem>(ITEM))
-    val entry = requireNotNull(requireArguments().getParcelable<JsonMappableFridgeEntry>(ENTRY))
+    val itemArgument =
+      requireNotNull(requireArguments().getParcelable<JsonMappableFridgeItem>(ITEM))
+    val entryArgument =
+      requireNotNull(requireArguments().getParcelable<JsonMappableFridgeEntry>(ENTRY))
+    val presenceArgument = Presence.valueOf(requireNotNull(requireArguments().getString(PRESENCE)))
 
     Injector.obtain<FridgeComponent>(view.context.applicationContext)
         .plusExpandComponent()
-        .create(parent, item, entry)
+        .create(parent, itemArgument, entryArgument, presenceArgument)
         .inject(this)
 
     val name = requireNotNull(name)
@@ -182,19 +186,23 @@ class ExpandedFragment : DialogFragment() {
   companion object {
 
     const val TAG = "ExpandedFragment"
+
     private const val ITEM = "item"
     private const val ENTRY = "entry"
+    private const val PRESENCE = "presence"
 
     @JvmStatic
     @CheckResult
     fun newInstance(
       entry: FridgeEntry,
-      item: FridgeItem
+      item: FridgeItem,
+      presence: Presence
     ): DialogFragment {
       return ExpandedFragment().apply {
         arguments = Bundle().apply {
           putParcelable(ENTRY, JsonMappableFridgeEntry.from(entry))
           putParcelable(ITEM, JsonMappableFridgeItem.from(item))
+          putString(PRESENCE, presence.name)
         }
       }
     }

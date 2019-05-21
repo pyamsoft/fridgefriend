@@ -20,14 +20,18 @@ package com.pyamsoft.fridge.detail.item.fridge
 import android.view.ViewGroup
 import android.widget.CompoundButton
 import com.pyamsoft.fridge.db.item.FridgeItem
+import com.pyamsoft.fridge.db.item.FridgeItem.Presence
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence.HAVE
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence.NEED
 import com.pyamsoft.fridge.detail.R
 import com.pyamsoft.fridge.detail.item.fridge.DetailItemViewEvent.CommitPresence
 import com.pyamsoft.pydroid.arch.BaseUiView
 import javax.inject.Inject
+import javax.inject.Named
 
 class DetailListItemPresence @Inject internal constructor(
+  @Named("item_presence_editable") private val presenceIsEditable: Boolean,
+  private val defaultPresence: Presence,
   parent: ViewGroup
 ) : BaseUiView<DetailItemViewState, DetailItemViewEvent>(parent) {
 
@@ -41,13 +45,21 @@ class DetailListItemPresence @Inject internal constructor(
     state: DetailItemViewState,
     oldState: DetailItemViewState?
   ) {
+
     state.item.let { item ->
       removeListeners()
 
-      setSwitchEnabled(item)
-      presenceSwitch.isChecked = item.presence() == HAVE
-      presenceSwitch.setOnCheckedChangeListener { _, isChecked ->
-        commit(item, isChecked)
+      presenceSwitch.isClickable = presenceIsEditable
+      if (presenceIsEditable) {
+        setSwitchEnabled(item)
+        presenceSwitch.isChecked = item.presence() == HAVE
+        presenceSwitch.setOnCheckedChangeListener { _, isChecked ->
+          commit(item, isChecked)
+        }
+      } else {
+        presenceSwitch.isEnabled = true
+        presenceSwitch.isChecked = defaultPresence == HAVE
+        presenceSwitch.setOnCheckedChangeListener(null)
       }
     }
   }

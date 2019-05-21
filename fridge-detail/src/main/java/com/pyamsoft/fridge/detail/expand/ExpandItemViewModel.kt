@@ -25,6 +25,7 @@ import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent.Delete
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent.Insert
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent.Update
 import com.pyamsoft.fridge.db.item.FridgeItemRealtime
+import com.pyamsoft.fridge.detail.DetailInteractor
 import com.pyamsoft.fridge.detail.item.fridge.DateSelectPayload
 import com.pyamsoft.fridge.detail.item.fridge.DetailItemControllerEvent
 import com.pyamsoft.fridge.detail.item.fridge.DetailItemControllerEvent.CloseExpand
@@ -37,7 +38,6 @@ import com.pyamsoft.fridge.detail.item.fridge.DetailItemViewEvent.ExpandItem
 import com.pyamsoft.fridge.detail.item.fridge.DetailItemViewEvent.PickDate
 import com.pyamsoft.fridge.detail.item.fridge.DetailItemViewState
 import com.pyamsoft.fridge.detail.item.fridge.isNameValid
-import com.pyamsoft.fridge.detail.DetailInteractor
 import com.pyamsoft.pydroid.arch.UiViewModel
 import com.pyamsoft.pydroid.core.bus.EventBus
 import com.pyamsoft.pydroid.core.singleDisposable
@@ -54,12 +54,17 @@ import javax.inject.Named
 class ExpandItemViewModel @Inject internal constructor(
   item: FridgeItem,
   @Named("item_editable") isEditable: Boolean,
+  defaultPresence: Presence,
   private val interactor: DetailInteractor,
   private val fakeRealtime: EventBus<FridgeItemChangeEvent>,
   private val dateSelectBus: EventBus<DateSelectPayload>,
   private val realtime: FridgeItemRealtime
 ) : UiViewModel<DetailItemViewState, DetailItemViewEvent, DetailItemControllerEvent>(
-    initialState = DetailItemViewState(throwable = null, item = item, isEditable = isEditable)
+    initialState = DetailItemViewState(
+        throwable = null,
+        item = item.presence(defaultPresence),
+        isEditable = isEditable
+    )
 ) {
 
   private val itemEntryId = item.entryId()
