@@ -37,10 +37,7 @@ class DetailListItemDate @Inject internal constructor(
 
   override val layoutRoot by boundView<TextView>(R.id.detail_item_date)
 
-  override fun onRender(
-    state: DetailItemViewState,
-    oldState: DetailItemViewState?
-  ) {
+  override fun onRender(state: DetailItemViewState) {
     state.item.let { item ->
       val isEditable = state.isEditable
 

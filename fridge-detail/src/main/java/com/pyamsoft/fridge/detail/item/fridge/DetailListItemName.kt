@@ -35,10 +35,7 @@ class DetailListItemName @Inject internal constructor(
 
   private val nameView by boundView<EditText>(R.id.detail_item_name_editable)
 
-  override fun onRender(
-    state: DetailItemViewState,
-    oldState: DetailItemViewState?
-  ) {
+  override fun onRender(state: DetailItemViewState) {
     state.item.let { item ->
       nameView.setTextKeepState(item.name())
       nameView.setNotEditable()

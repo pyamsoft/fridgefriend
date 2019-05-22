@@ -30,10 +30,7 @@ class OcrLookingLabel @Inject internal constructor(
 
   override val layoutRoot by boundView<TextView>(R.id.looking)
 
-  override fun onRender(
-    state: OcrViewState,
-    oldState: OcrViewState?
-  ) {
+  override fun onRender(state: OcrViewState) {
     state.text.let { text ->
       layoutRoot.text = text
     }

@@ -41,11 +41,7 @@ class DetailListItemPresence @Inject internal constructor(
 
   private val presenceSwitch by boundView<CompoundButton>(R.id.detail_item_presence_switch)
 
-  override fun onRender(
-    state: DetailItemViewState,
-    oldState: DetailItemViewState?
-  ) {
-
+  override fun onRender(state: DetailItemViewState) {
     state.item.let { item ->
       removeListeners()
 

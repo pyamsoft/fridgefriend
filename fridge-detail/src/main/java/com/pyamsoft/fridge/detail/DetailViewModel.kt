@@ -297,7 +297,6 @@ class DetailViewModel @Inject internal constructor(
   }
 
   private fun handleListRefreshed(items: List<FridgeItem>) {
-    Timber.d("Items list: $items")
     setState {
       copy(items = getListItems(filterArchived, items))
     }

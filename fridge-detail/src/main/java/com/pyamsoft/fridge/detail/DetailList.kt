@@ -50,6 +50,7 @@ import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.ui.theme.Theming
 import com.pyamsoft.pydroid.ui.util.Snackbreak
 import com.pyamsoft.pydroid.ui.util.refreshing
+import timber.log.Timber
 import javax.inject.Inject
 
 class DetailList @Inject internal constructor(
@@ -249,10 +250,7 @@ class DetailList @Inject internal constructor(
         .dismiss()
   }
 
-  override fun onRender(
-    state: DetailViewState,
-    oldState: DetailViewState?
-  ) {
+  override fun onRender(state: DetailViewState) {
     state.isLoading.let { loading ->
       if (loading != null) {
         requireNotNull(refreshLatch).isRefreshing = loading.isLoading

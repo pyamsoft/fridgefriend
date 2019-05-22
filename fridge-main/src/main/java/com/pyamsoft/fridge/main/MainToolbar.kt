@@ -49,10 +49,7 @@ class MainToolbar @Inject internal constructor(
     inflateToolbar()
   }
 
-  override fun onRender(
-    state: UnitViewState,
-    oldState: UnitViewState?
-  ) {
+  override fun onRender(state: UnitViewState) {
   }
 
   override fun onTeardown() {

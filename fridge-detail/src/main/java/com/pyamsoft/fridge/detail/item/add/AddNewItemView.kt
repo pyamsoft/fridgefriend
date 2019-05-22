@@ -65,10 +65,7 @@ class AddNewItemView @Inject internal constructor(
     layoutRoot.setOnDebouncedClickListener { publish(AddNewItemEvent) }
   }
 
-  override fun onRender(
-    state: UnitViewState,
-    oldState: UnitViewState?
-  ) {
+  override fun onRender(state: UnitViewState) {
   }
 
   override fun onTeardown() {

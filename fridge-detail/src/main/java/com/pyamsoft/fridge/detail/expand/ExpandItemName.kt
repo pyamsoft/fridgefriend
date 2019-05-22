@@ -53,10 +53,7 @@ class ExpandItemName @Inject internal constructor(
     nameView.setTextKeepState(initialItem.name())
   }
 
-  override fun onRender(
-    state: DetailItemViewState,
-    oldState: DetailItemViewState?
-  ) {
+  override fun onRender(state: DetailItemViewState) {
     state.item.let { item ->
       removeListeners()
       addWatcher(item)

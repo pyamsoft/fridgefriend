@@ -157,7 +157,7 @@ internal class EntryListFragment : Fragment() {
               DetailFragment.newInstance(entry, filterPresence),
               filterPresence.name
           )
-          .commit(viewLifecycleOwner)
+          .commitNow()
     }
   }
 

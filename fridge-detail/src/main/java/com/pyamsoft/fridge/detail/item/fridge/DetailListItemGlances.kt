@@ -40,10 +40,7 @@ class DetailListItemGlances @Inject internal constructor(
   private val validExpirationDate by boundView<CompoundButton>(R.id.detail_item_glances_date)
   private val itemExpired by boundView<CompoundButton>(R.id.detail_item_glances_expired)
 
-  override fun onRender(
-    state: DetailItemViewState,
-    oldState: DetailItemViewState?
-  ) {
+  override fun onRender(state: DetailItemViewState) {
     state.item.let { item ->
       val isVisible = item.isReal() && !item.isArchived() && item.presence() == HAVE
       layoutRoot.isVisible = isVisible

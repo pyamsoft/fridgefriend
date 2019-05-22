@@ -32,9 +32,6 @@ class FragmentContainer @Inject internal constructor(
 
   override val layoutRoot by boundView<ConstraintLayout>(R.id.layout_constraint)
 
-  override fun onRender(
-    state: UnitViewState,
-    oldState: UnitViewState?
-  ) {
+  override fun onRender(state: UnitViewState) {
   }
 }

@@ -45,10 +45,7 @@ class EntryNavigation @Inject internal constructor(
     bottomNav.isVisible = false
   }
 
-  override fun onRender(
-    state: EntryViewState,
-    oldState: EntryViewState?
-  ) {
+  override fun onRender(state: EntryViewState) {
     bottomNav.isVisible = state.entry != null
 
     bottomNav.setOnNavigationItemSelectedListener { item ->

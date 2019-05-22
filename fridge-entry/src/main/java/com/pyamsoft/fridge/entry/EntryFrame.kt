@@ -29,10 +29,7 @@ class EntryFrame @Inject internal constructor(
 
   override val layoutRoot by boundView<ViewGroup>(R.id.entry_frame)
 
-  override fun onRender(
-    state: EntryViewState,
-    oldState: EntryViewState?
-  ) {
+  override fun onRender(state: EntryViewState) {
   }
 
 }

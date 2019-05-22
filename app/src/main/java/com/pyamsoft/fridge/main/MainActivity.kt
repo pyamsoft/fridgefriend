@@ -49,6 +49,8 @@ internal class MainActivity : RatingActivity() {
 
   }
 
+  override val applyFluidResizer: Boolean = false
+
   override val fragmentContainerId: Int
     get() = requireNotNull(container).id()
 

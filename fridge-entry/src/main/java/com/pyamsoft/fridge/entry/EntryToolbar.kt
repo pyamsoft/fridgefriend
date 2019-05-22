@@ -81,10 +81,7 @@ class EntryToolbar @Inject internal constructor(
     }
   }
 
-  override fun render(
-    state: EntryViewState,
-    oldState: EntryViewState?
-  ) {
+  override fun render(state: EntryViewState) {
     showMenu(state.isSettingsItemVisible)
   }
 
