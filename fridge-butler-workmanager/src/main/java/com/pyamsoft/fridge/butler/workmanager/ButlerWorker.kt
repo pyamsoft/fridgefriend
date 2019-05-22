@@ -21,11 +21,15 @@ import android.content.Context
 import androidx.annotation.CheckResult
 import androidx.work.RxWorker
 import androidx.work.WorkerParameters
+import com.pyamsoft.fridge.db.atMidnight
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.entry.FridgeEntryQueryDao
+import com.pyamsoft.fridge.db.isExpired
+import com.pyamsoft.fridge.db.isExpiringSoon
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence.NEED
 import com.pyamsoft.fridge.db.item.FridgeItemQueryDao
+import com.pyamsoft.fridge.db.tomorrowMidnight
 import com.pyamsoft.pydroid.ui.Injector
 import io.reactivex.Observable
 import io.reactivex.Single
@@ -76,23 +80,11 @@ internal class ButlerWorker internal constructor(
         val expirationTime = item.expireTime()
         if (expirationTime != FridgeItem.EMPTY_EXPIRE_TIME) {
 
-          // Clean Y/M/D only
-          val expiration = Calendar.getInstance()
-              .apply {
-                time = expirationTime
-                set(Calendar.HOUR, 0)
-                set(Calendar.MINUTE, 0)
-                set(Calendar.SECOND, 0)
-                set(Calendar.MILLISECOND, 0)
-              }
-
-          Timber.d("Today: ${today.time}, ${item.name()} expires on ${expiration.time}")
-          if (expiration.before(today)) {
+          if (item.isExpired(today)) {
             Timber.w("${entry.id()} expired! $item")
             expiredItems.add(item)
           } else {
-            Timber.d("Tomorrow: ${tomorrow.time}, ${item.name()} expires on ${expiration.time}")
-            if (expiration.before(tomorrow) || expiration == tomorrow || expiration == today) {
+            if (item.isExpiringSoon(today, tomorrow)) {
               Timber.w("${entry.id()} is expiring soon! $item")
               expiringItems.add(item)
             }
@@ -126,24 +118,10 @@ internal class ButlerWorker internal constructor(
 
     return Single.defer {
 
-      // Clean Y/M/D only
       val today = Calendar.getInstance()
-          .apply {
-            set(Calendar.HOUR, 0)
-            set(Calendar.MINUTE, 0)
-            set(Calendar.SECOND, 0)
-            set(Calendar.MILLISECOND, 0)
-          }
-
-      // Clean Y/M/D only
+          .atMidnight()
       val tomorrow = Calendar.getInstance()
-          .apply {
-            add(Calendar.DAY_OF_MONTH, 1)
-            set(Calendar.HOUR, 0)
-            set(Calendar.MINUTE, 0)
-            set(Calendar.SECOND, 0)
-            set(Calendar.MILLISECOND, 0)
-          }
+          .tomorrowMidnight()
 
       return@defer requireNotNull(fridgeEntryQueryDao).queryAll(false)
           .flatMapObservable { Observable.fromIterable(it) }
