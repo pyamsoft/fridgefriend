@@ -21,14 +21,17 @@ import android.app.DatePickerDialog
 import android.app.Dialog
 import android.os.Bundle
 import androidx.annotation.CheckResult
+import androidx.appcompat.view.ContextThemeWrapper
 import androidx.fragment.app.DialogFragment
 import com.pyamsoft.fridge.FridgeComponent
+import com.pyamsoft.fridge.R
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.JsonMappableFridgeItem
 import com.pyamsoft.fridge.detail.item.fridge.DateSelectPayload
 import com.pyamsoft.pydroid.core.bus.EventBus
 import com.pyamsoft.pydroid.ui.Injector
 import com.pyamsoft.pydroid.ui.app.requireArguments
+import com.pyamsoft.pydroid.ui.theme.Theming
 import java.util.Calendar
 import javax.inject.Inject
 
@@ -57,8 +60,15 @@ internal class DatePickerDialogFragment : DialogFragment() {
       initialDay = today.get(Calendar.DAY_OF_MONTH)
     }
 
+    val theme: Int
+    if (Injector.obtain<Theming>(requireActivity().applicationContext).isDarkTheme()) {
+      theme = R.style.Theme_Fridge_Dark_Dialog
+    } else {
+      theme = R.style.Theme_Fridge_Light_Dialog
+    }
+
     return DatePickerDialog(
-        requireActivity(),
+        ContextThemeWrapper(requireActivity(), theme),
         DatePickerDialog.OnDateSetListener { _, year, month, dayOfMonth ->
           requireNotNull(dateSelectBus).publish(DateSelectPayload(item, year, month, dayOfMonth))
           dismiss()
