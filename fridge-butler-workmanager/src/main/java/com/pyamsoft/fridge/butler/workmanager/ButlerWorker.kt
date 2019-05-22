@@ -123,10 +123,10 @@ internal class ButlerWorker internal constructor(
       val tomorrow = Calendar.getInstance()
           .tomorrowMidnight()
 
-      return@defer requireNotNull(fridgeEntryQueryDao).queryAll(false)
+      return@defer requireNotNull(fridgeEntryQueryDao).queryAll(true)
           .flatMapObservable { Observable.fromIterable(it) }
           .flatMapSingle { entry ->
-            return@flatMapSingle requireNotNull(fridgeItemQueryDao).queryAll(false, entry.id())
+            return@flatMapSingle requireNotNull(fridgeItemQueryDao).queryAll(true, entry.id())
                 .doOnSuccess { items -> notifyForEntry(today, tomorrow, entry, items) }
                 .map { entry }
           }
