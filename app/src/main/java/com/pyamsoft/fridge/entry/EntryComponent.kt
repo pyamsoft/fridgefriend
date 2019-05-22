@@ -27,7 +27,7 @@ import dagger.Subcomponent
 @Subcomponent
 internal interface EntryComponent {
 
-  fun inject(fragment: EntryListFragment)
+  fun inject(fragment: EntryFragment)
 
   @Subcomponent.Factory
   interface Factory {

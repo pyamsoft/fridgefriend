@@ -41,10 +41,11 @@ import com.pyamsoft.pydroid.arch.createComponent
 import com.pyamsoft.pydroid.ui.Injector
 import com.pyamsoft.pydroid.ui.app.requireToolbarActivity
 import com.pyamsoft.pydroid.ui.util.commit
+import com.pyamsoft.pydroid.ui.util.commitNow
 import com.pyamsoft.pydroid.ui.util.layout
 import javax.inject.Inject
 
-internal class EntryListFragment : Fragment() {
+internal class EntryFragment : Fragment() {
 
   @JvmField @Inject internal var toolbar: EntryToolbar? = null
   @JvmField @Inject internal var frame: EntryFrame? = null
@@ -157,7 +158,7 @@ internal class EntryListFragment : Fragment() {
               DetailFragment.newInstance(entry, filterPresence),
               filterPresence.name
           )
-          .commitNow()
+          .commitNow(viewLifecycleOwner)
     }
   }
 
@@ -168,12 +169,12 @@ internal class EntryListFragment : Fragment() {
 
   companion object {
 
-    const val TAG = "EntryListFragment"
+    const val TAG = "EntryFragment"
 
     @JvmStatic
     @CheckResult
     fun newInstance(): Fragment {
-      return EntryListFragment().apply {
+      return EntryFragment().apply {
         arguments = Bundle().apply {
         }
       }

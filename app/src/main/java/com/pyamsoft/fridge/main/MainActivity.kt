@@ -27,7 +27,7 @@ import com.pyamsoft.fridge.BuildConfig
 import com.pyamsoft.fridge.FridgeComponent
 import com.pyamsoft.fridge.R
 import com.pyamsoft.fridge.butler.Butler
-import com.pyamsoft.fridge.entry.EntryListFragment
+import com.pyamsoft.fridge.entry.EntryFragment
 import com.pyamsoft.pydroid.arch.doOnDestroy
 import com.pyamsoft.pydroid.ui.Injector
 import com.pyamsoft.pydroid.ui.rating.ChangeLogBuilder
@@ -145,7 +145,7 @@ internal class MainActivity : RatingActivity() {
     val fm = supportFragmentManager
     if (fm.findFragmentById(fragmentContainerId) == null) {
       fm.beginTransaction()
-          .add(fragmentContainerId, EntryListFragment.newInstance(), EntryListFragment.TAG)
+          .add(fragmentContainerId, EntryFragment.newInstance(), EntryFragment.TAG)
           .commit(this)
     }
   }
