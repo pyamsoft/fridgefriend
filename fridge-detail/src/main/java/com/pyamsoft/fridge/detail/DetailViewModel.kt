@@ -133,33 +133,18 @@ class DetailViewModel @Inject internal constructor(
     filterArchived: Boolean,
     items: List<FridgeItem>
   ): List<FridgeItem> {
-    val mutableItems = items.toMutableList()
-    insert(mutableItems, FridgeItem.empty(entryId))
-    return mutableItems
+    return items
         .asSequence()
         .sortedWith(Comparator { o1, o2 ->
           return@Comparator when {
-            o1.id().isBlank() -> 1
-            o2.id().isBlank() -> -1
-            else -> {
-              when {
-                o1.isArchived() && o2.isArchived() -> 0
-                o1.isArchived() -> 1
-                o2.isArchived() -> -1
-                else -> 0
-              }
-            }
+            o1.isArchived() && o2.isArchived() -> 0
+            o1.isArchived() -> 1
+            o2.isArchived() -> -1
+            else -> 0
           }
         })
         .filterNot { filterArchived && it.isArchived() }
-        .filter {
-          if (it.id().isBlank()) {
-            // Add item
-            return@filter true
-          } else {
-            return@filter it.presence() == listItemPresence
-          }
-        }
+        .filter { it.presence() == listItemPresence }
         .toList()
   }
 
@@ -202,36 +187,14 @@ class DetailViewModel @Inject internal constructor(
     item: FridgeItem
   ) {
     if (!checkExists(items, item)) {
-      addToEndBeforeAddNew(items, item)
+      items.add(item)
     } else {
-      for ((index, oldItem) in items.filterNot {
-        it.id()
-            .isBlank()
-      }.withIndex()) {
+      for ((index, oldItem) in items.withIndex()) {
         if (oldItem.id() == item.id()) {
           items[index] = item
           break
         }
       }
-    }
-  }
-
-  private fun addToEndBeforeAddNew(
-    items: MutableList<FridgeItem>,
-    item: FridgeItem
-  ) {
-    var index = -1
-    for ((i, e) in items.withIndex()) {
-      if (e.id().isBlank()) {
-        index = i
-        break
-      }
-    }
-
-    when {
-      index == 0 -> items.add(0, item)
-      index > 0 -> items.add(index, item)
-      else -> items.add(item)
     }
   }
 

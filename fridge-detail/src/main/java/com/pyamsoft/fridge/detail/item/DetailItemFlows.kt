@@ -15,7 +15,7 @@
  *
  */
 
-package com.pyamsoft.fridge.detail.item.fridge
+package com.pyamsoft.fridge.detail.item
 
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence

@@ -15,12 +15,10 @@
  *
  */
 
-package com.pyamsoft.fridge.detail.item.fridge
+package com.pyamsoft.fridge.detail.item
 
 import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.db.item.FridgeItem
-import java.util.Calendar
-import java.util.Date
 
 @CheckResult
 internal fun isNameValid(name: String): Boolean {

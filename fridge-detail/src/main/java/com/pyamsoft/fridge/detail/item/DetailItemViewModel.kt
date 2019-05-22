@@ -15,14 +15,14 @@
  *
  */
 
-package com.pyamsoft.fridge.detail.item.fridge
+package com.pyamsoft.fridge.detail.item
 
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent
-import com.pyamsoft.fridge.detail.item.fridge.DetailItemControllerEvent.ExpandDetails
-import com.pyamsoft.fridge.detail.item.fridge.DetailItemViewEvent.CommitPresence
-import com.pyamsoft.fridge.detail.item.fridge.DetailItemViewEvent.ExpandItem
+import com.pyamsoft.fridge.detail.item.DetailItemControllerEvent.ExpandDetails
+import com.pyamsoft.fridge.detail.item.DetailItemViewEvent.CommitPresence
+import com.pyamsoft.fridge.detail.item.DetailItemViewEvent.ExpandItem
 import com.pyamsoft.fridge.detail.DetailInteractor
 import com.pyamsoft.pydroid.arch.UiViewModel
 import com.pyamsoft.pydroid.core.bus.EventBus
@@ -41,7 +41,9 @@ class DetailItemViewModel @Inject internal constructor(
   private val fakeRealtime: EventBus<FridgeItemChangeEvent>,
   private val item: FridgeItem
 ) : UiViewModel<DetailItemViewState, DetailItemViewEvent, DetailItemControllerEvent>(
-    initialState = DetailItemViewState(throwable = null, item = item, isEditable = isEditable)
+    initialState = DetailItemViewState(
+        throwable = null, item = item, isEditable = isEditable
+    )
 ) {
 
   private var deleteDisposable by singleDisposable()

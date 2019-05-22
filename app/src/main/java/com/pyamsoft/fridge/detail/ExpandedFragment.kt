@@ -38,11 +38,11 @@ import com.pyamsoft.fridge.db.item.JsonMappableFridgeItem
 import com.pyamsoft.fridge.detail.expand.ExpandItemError
 import com.pyamsoft.fridge.detail.expand.ExpandItemName
 import com.pyamsoft.fridge.detail.expand.ExpandItemViewModel
-import com.pyamsoft.fridge.detail.item.fridge.DetailItemControllerEvent.CloseExpand
-import com.pyamsoft.fridge.detail.item.fridge.DetailItemControllerEvent.DatePick
-import com.pyamsoft.fridge.detail.item.fridge.DetailItemControllerEvent.ExpandDetails
-import com.pyamsoft.fridge.detail.item.fridge.DetailListItemDate
-import com.pyamsoft.fridge.detail.item.fridge.DetailListItemPresence
+import com.pyamsoft.fridge.detail.item.DetailItemControllerEvent.CloseExpand
+import com.pyamsoft.fridge.detail.item.DetailItemControllerEvent.DatePick
+import com.pyamsoft.fridge.detail.item.DetailItemControllerEvent.ExpandDetails
+import com.pyamsoft.fridge.detail.item.DetailListItemDate
+import com.pyamsoft.fridge.detail.item.DetailListItemPresence
 import com.pyamsoft.pydroid.arch.createComponent
 import com.pyamsoft.pydroid.ui.Injector
 import com.pyamsoft.pydroid.ui.app.requireArguments

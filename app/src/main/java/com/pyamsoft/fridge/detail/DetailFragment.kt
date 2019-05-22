@@ -35,6 +35,9 @@ import com.pyamsoft.fridge.detail.DetailControllerEvent.DatePick
 import com.pyamsoft.fridge.detail.DetailControllerEvent.EntryArchived
 import com.pyamsoft.fridge.detail.DetailControllerEvent.ExpandForEditing
 import com.pyamsoft.fridge.detail.DetailControllerEvent.NavigateUp
+import com.pyamsoft.fridge.detail.add.AddNewControllerEvent.AddNew
+import com.pyamsoft.fridge.detail.add.AddNewItemView
+import com.pyamsoft.fridge.detail.add.AddNewItemViewModel
 import com.pyamsoft.pydroid.arch.createComponent
 import com.pyamsoft.pydroid.ui.Injector
 import com.pyamsoft.pydroid.ui.app.requireArguments
@@ -47,6 +50,9 @@ internal class DetailFragment : Fragment() {
 
   @JvmField @Inject internal var list: DetailList? = null
   @JvmField @Inject internal var viewModel: DetailViewModel? = null
+
+  @JvmField @Inject internal var addNew: AddNewItemView? = null
+  @JvmField @Inject internal var addNewViewModel: AddNewItemViewModel? = null
 
   override fun onCreateView(
     inflater: LayoutInflater,
@@ -82,6 +88,7 @@ internal class DetailFragment : Fragment() {
         .inject(this)
 
     val list = requireNotNull(list)
+    val addNew = requireNotNull(addNew)
 
     createComponent(
         savedInstanceState, viewLifecycleOwner,
@@ -96,6 +103,16 @@ internal class DetailFragment : Fragment() {
       }
     }
 
+    createComponent(
+        savedInstanceState, viewLifecycleOwner,
+        requireNotNull(addNewViewModel),
+        addNew
+    ) {
+      return@createComponent when (it) {
+        is AddNew -> expandItem(FridgeItem.create(entryId = it.entryId))
+      }
+    }
+
     parent.layout {
 
       list.also {
@@ -105,6 +122,14 @@ internal class DetailFragment : Fragment() {
         connect(it.id(), ConstraintSet.BOTTOM, ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM)
         constrainWidth(it.id(), ConstraintSet.MATCH_CONSTRAINT)
         constrainHeight(it.id(), ConstraintSet.MATCH_CONSTRAINT)
+      }
+
+      addNew.also {
+        connect(it.id(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
+        connect(it.id(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
+        connect(it.id(), ConstraintSet.BOTTOM, ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM)
+        constrainWidth(it.id(), ConstraintSet.MATCH_CONSTRAINT)
+        constrainHeight(it.id(), ConstraintSet.WRAP_CONTENT)
       }
     }
 

@@ -15,24 +15,26 @@
  *
  */
 
-package com.pyamsoft.fridge.detail.item.add
+package com.pyamsoft.fridge.detail.add
 
-import com.pyamsoft.fridge.db.item.FridgeItem
-import com.pyamsoft.fridge.detail.item.add.AddNewControllerEvent.AddNew
-import com.pyamsoft.fridge.detail.item.add.AddNewViewEvent.AddNewItemEvent
+import com.pyamsoft.fridge.db.entry.FridgeEntry
+import com.pyamsoft.fridge.detail.add.AddNewControllerEvent.AddNew
+import com.pyamsoft.fridge.detail.add.AddNewViewEvent.AddNewItemEvent
 import com.pyamsoft.pydroid.arch.UiViewModel
 import com.pyamsoft.pydroid.arch.UnitViewState
 import javax.inject.Inject
 
 class AddNewItemViewModel @Inject internal constructor(
-  private val item: FridgeItem
+  entry: FridgeEntry
 ) : UiViewModel<UnitViewState, AddNewViewEvent, AddNewControllerEvent>(
     initialState = UnitViewState
 ) {
 
+  private val entryId = entry.id()
+
   override fun handleViewEvent(event: AddNewViewEvent) {
     return when (event) {
-      is AddNewItemEvent -> publish(AddNew(item.entryId()))
+      is AddNewItemEvent -> publish(AddNew(entryId))
     }
   }
 

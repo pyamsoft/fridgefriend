@@ -15,19 +15,20 @@
  *
  */
 
-package com.pyamsoft.fridge.detail.item.add
+package com.pyamsoft.fridge.detail.add
 
 import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.pyamsoft.fridge.detail.R
-import com.pyamsoft.fridge.detail.item.add.AddNewViewEvent.AddNewItemEvent
+import com.pyamsoft.fridge.detail.add.AddNewViewEvent.AddNewItemEvent
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.arch.UnitViewState
 import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.loader.Loaded
 import com.pyamsoft.pydroid.ui.theme.Theming
+import com.pyamsoft.pydroid.ui.util.popShow
 import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
 import com.pyamsoft.pydroid.util.tintWith
 import javax.inject.Inject
@@ -38,13 +39,13 @@ class AddNewItemView @Inject internal constructor(
   parent: ViewGroup
 ) : BaseUiView<UnitViewState, AddNewViewEvent>(parent) {
 
-  private val addNewIcon by boundView<ImageView>(R.id.detail_add_new_item_icon)
+  override val layout: Int = R.layout.add_new
+
+  override val layoutRoot by boundView<ViewGroup>(R.id.detail_add_new)
+
+  private val addNewIcon by boundView<FloatingActionButton>(R.id.detail_add_new_item)
 
   private var iconLoaded: Loaded? = null
-
-  override val layout: Int = R.layout.add_new_list_item
-
-  override val layoutRoot by boundView<ViewGroup>(R.id.detail_add_new_item)
 
   override fun onInflated(
     view: View,
@@ -62,7 +63,8 @@ class AddNewItemView @Inject internal constructor(
         }
         .into(addNewIcon)
 
-    layoutRoot.setOnDebouncedClickListener { publish(AddNewItemEvent) }
+    addNewIcon.setOnDebouncedClickListener { publish(AddNewItemEvent) }
+    addNewIcon.popShow()
   }
 
   override fun onRender(state: UnitViewState) {
@@ -71,7 +73,7 @@ class AddNewItemView @Inject internal constructor(
   override fun onTeardown() {
     disposeIcon()
     addNewIcon.setImageDrawable(null)
-    layoutRoot.setOnClickListener(null)
+    addNewIcon.setOnClickListener(null)
   }
 
   private fun disposeIcon() {

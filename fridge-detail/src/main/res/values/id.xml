@@ -18,5 +18,4 @@
 
 <resources>
   <item name="id_item_list_item" type="id"/>
-  <item name="id_item_add_new_item" type="id"/>
 </resources>

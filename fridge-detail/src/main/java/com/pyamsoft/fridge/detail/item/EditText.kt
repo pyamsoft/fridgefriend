@@ -15,13 +15,15 @@
  *
  */
 
-package com.pyamsoft.fridge.detail.item.fridge
+package com.pyamsoft.fridge.detail.item
 
-import com.pyamsoft.fridge.db.item.FridgeItem
+import android.graphics.Color
+import android.widget.EditText
 
-data class DateSelectPayload(
-  val oldItem: FridgeItem,
-  val year: Int,
-  val month: Int,
-  val day: Int
-)
+internal fun EditText.setNotEditable() {
+  isFocusableInTouchMode = false
+  isFocusable = false
+  isCursorVisible = false
+  keyListener = null
+  setBackgroundColor(Color.TRANSPARENT)
+}

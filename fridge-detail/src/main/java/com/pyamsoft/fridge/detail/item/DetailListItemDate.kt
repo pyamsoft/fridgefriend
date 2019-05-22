@@ -15,14 +15,14 @@
  *
  */
 
-package com.pyamsoft.fridge.detail.item.fridge
+package com.pyamsoft.fridge.detail.item
 
 import android.view.ViewGroup
 import android.widget.TextView
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.detail.R
-import com.pyamsoft.fridge.detail.item.fridge.DetailItemViewEvent.ExpandItem
-import com.pyamsoft.fridge.detail.item.fridge.DetailItemViewEvent.PickDate
+import com.pyamsoft.fridge.detail.item.DetailItemViewEvent.ExpandItem
+import com.pyamsoft.fridge.detail.item.DetailItemViewEvent.PickDate
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
 import timber.log.Timber

@@ -15,7 +15,7 @@
  *
  */
 
-package com.pyamsoft.fridge.detail.item.fridge
+package com.pyamsoft.fridge.detail.item
 
 import android.view.ViewGroup
 import android.widget.CompoundButton
@@ -24,7 +24,7 @@ import com.pyamsoft.fridge.db.item.FridgeItem.Presence
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence.HAVE
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence.NEED
 import com.pyamsoft.fridge.detail.R
-import com.pyamsoft.fridge.detail.item.fridge.DetailItemViewEvent.CommitPresence
+import com.pyamsoft.fridge.detail.item.DetailItemViewEvent.CommitPresence
 import com.pyamsoft.pydroid.arch.BaseUiView
 import javax.inject.Inject
 import javax.inject.Named

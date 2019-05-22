@@ -31,18 +31,15 @@ import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.JsonMappableFridgeItem
 import com.pyamsoft.fridge.detail.DetailListAdapter.DetailViewHolder
 import com.pyamsoft.fridge.detail.item.DetailItemComponent
+import com.pyamsoft.fridge.detail.item.DetailItemControllerEvent.CloseExpand
+import com.pyamsoft.fridge.detail.item.DetailItemControllerEvent.DatePick
+import com.pyamsoft.fridge.detail.item.DetailItemControllerEvent.ExpandDetails
+import com.pyamsoft.fridge.detail.item.DetailItemViewModel
+import com.pyamsoft.fridge.detail.item.DetailListItemDate
+import com.pyamsoft.fridge.detail.item.DetailListItemGlances
+import com.pyamsoft.fridge.detail.item.DetailListItemName
+import com.pyamsoft.fridge.detail.item.DetailListItemPresence
 import com.pyamsoft.fridge.detail.item.ListItemLifecycle
-import com.pyamsoft.fridge.detail.item.add.AddNewControllerEvent.AddNew
-import com.pyamsoft.fridge.detail.item.add.AddNewItemView
-import com.pyamsoft.fridge.detail.item.add.AddNewItemViewModel
-import com.pyamsoft.fridge.detail.item.fridge.DetailItemControllerEvent.CloseExpand
-import com.pyamsoft.fridge.detail.item.fridge.DetailItemControllerEvent.DatePick
-import com.pyamsoft.fridge.detail.item.fridge.DetailItemControllerEvent.ExpandDetails
-import com.pyamsoft.fridge.detail.item.fridge.DetailItemViewModel
-import com.pyamsoft.fridge.detail.item.fridge.DetailListItemDate
-import com.pyamsoft.fridge.detail.item.fridge.DetailListItemGlances
-import com.pyamsoft.fridge.detail.item.fridge.DetailListItemName
-import com.pyamsoft.fridge.detail.item.fridge.DetailListItemPresence
 import com.pyamsoft.pydroid.arch.createComponent
 import com.pyamsoft.pydroid.ui.util.layout
 import com.pyamsoft.pydroid.util.toDp
@@ -72,11 +69,7 @@ internal class DetailListAdapter constructor(
 }) {
 
   override fun getItemViewType(position: Int): Int {
-    if (getItem(position).id().isBlank()) {
-      return R.id.id_item_add_new_item
-    } else {
-      return R.id.id_item_list_item
-    }
+    return R.id.id_item_list_item
   }
 
   override fun getItemId(position: Int): Long {
@@ -103,14 +96,9 @@ internal class DetailListAdapter constructor(
     viewType: Int
   ): DetailViewHolder {
     val inflater = LayoutInflater.from(parent.context)
-    if (viewType == R.id.id_item_add_new_item) {
-      val v = inflater.inflate(R.layout.listitem_frame, parent, false)
-      return AddNewItemViewHolder(v, factory)
-    } else {
-      val v = inflater.inflate(R.layout.listitem_constraint, parent, false)
-          .prepareAsItem()
-      return DetailItemViewHolder(v, factory)
-    }
+    val v = inflater.inflate(R.layout.listitem_constraint, parent, false)
+        .prepareAsItem()
+    return DetailItemViewHolder(v, factory)
   }
 
   override fun onBindViewHolder(
@@ -118,11 +106,7 @@ internal class DetailListAdapter constructor(
     position: Int
   ) {
     val item = getItem(position)
-    if (item.id().isBlank()) {
-      (holder as AddNewItemViewHolder).bind(item, callback)
-    } else {
-      (holder as DetailItemViewHolder).bind(item, editable, callback)
-    }
+    (holder as DetailItemViewHolder).bind(item, editable, callback)
   }
 
   override fun onViewRecycled(holder: DetailViewHolder) {
@@ -257,58 +241,6 @@ internal class DetailListAdapter constructor(
       requireNotNull(viewModel).delete()
     }
 
-  }
-
-  internal class AddNewItemViewHolder internal constructor(
-    view: View,
-    private val factory: (parent: ViewGroup, item: FridgeItem, editable: Boolean) -> DetailItemComponent
-  ) : DetailViewHolder(view) {
-
-    @JvmField @Inject internal var view: AddNewItemView? = null
-    @JvmField @Inject internal var viewModel: AddNewItemViewModel? = null
-
-    private val parent: ViewGroup = itemView.findViewById(R.id.listitem_frame)
-
-    private var lifecycle: ListItemLifecycle? = null
-
-    fun bind(
-      item: FridgeItem,
-      callback: Callback
-    ) {
-      lifecycle?.unbind()
-
-      factory(parent, item, false)
-          .inject(this)
-
-      val owner = ListItemLifecycle()
-      lifecycle = owner
-
-      createComponent(
-          null, owner,
-          requireNotNull(viewModel),
-          requireNotNull(view)
-      ) {
-        return@createComponent when (it) {
-          is AddNew -> addNewItem(it.entryId, callback)
-        }
-      }
-      owner.bind()
-    }
-
-    private fun addNewItem(
-      entryId: String,
-      callback: Callback
-    ) {
-      callback.onItemExpanded(FridgeItem.create(entryId = entryId))
-    }
-
-    override fun unbind() {
-      lifecycle?.unbind()
-      lifecycle = null
-
-      view = null
-      viewModel = null
-    }
   }
 
   interface Callback {

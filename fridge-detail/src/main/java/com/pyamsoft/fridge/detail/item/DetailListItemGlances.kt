@@ -15,7 +15,7 @@
  *
  */
 
-package com.pyamsoft.fridge.detail.item.fridge
+package com.pyamsoft.fridge.detail.item
 
 import android.view.ViewGroup
 import android.widget.CompoundButton
@@ -25,7 +25,7 @@ import com.pyamsoft.fridge.db.isExpired
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence.HAVE
 import com.pyamsoft.fridge.detail.R
-import com.pyamsoft.fridge.detail.item.fridge.DetailItemViewEvent.ExpandItem
+import com.pyamsoft.fridge.detail.item.DetailItemViewEvent.ExpandItem
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
 import java.util.Calendar

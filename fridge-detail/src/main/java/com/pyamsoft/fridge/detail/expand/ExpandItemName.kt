@@ -25,9 +25,9 @@ import android.view.ViewGroup
 import android.widget.EditText
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.detail.R
-import com.pyamsoft.fridge.detail.item.fridge.DetailItemViewEvent
-import com.pyamsoft.fridge.detail.item.fridge.DetailItemViewEvent.CommitName
-import com.pyamsoft.fridge.detail.item.fridge.DetailItemViewState
+import com.pyamsoft.fridge.detail.item.DetailItemViewEvent
+import com.pyamsoft.fridge.detail.item.DetailItemViewEvent.CommitName
+import com.pyamsoft.fridge.detail.item.DetailItemViewState
 import com.pyamsoft.pydroid.arch.BaseUiView
 import javax.inject.Inject
 

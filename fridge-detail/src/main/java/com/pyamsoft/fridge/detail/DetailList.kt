@@ -43,14 +43,13 @@ import com.pyamsoft.fridge.detail.DetailViewEvent.ForceRefresh
 import com.pyamsoft.fridge.detail.DetailViewEvent.PickDate
 import com.pyamsoft.fridge.detail.R.drawable
 import com.pyamsoft.fridge.detail.item.DaggerDetailItemComponent
-import com.pyamsoft.fridge.detail.item.fridge.DateSelectPayload
+import com.pyamsoft.fridge.detail.item.DateSelectPayload
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.core.bus.EventBus
 import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.ui.theme.Theming
 import com.pyamsoft.pydroid.ui.util.Snackbreak
 import com.pyamsoft.pydroid.ui.util.refreshing
-import timber.log.Timber
 import javax.inject.Inject
 
 class DetailList @Inject internal constructor(

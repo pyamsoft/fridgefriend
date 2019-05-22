@@ -27,7 +27,7 @@ import com.pyamsoft.fridge.FridgeComponent
 import com.pyamsoft.fridge.R
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.JsonMappableFridgeItem
-import com.pyamsoft.fridge.detail.item.fridge.DateSelectPayload
+import com.pyamsoft.fridge.detail.item.DateSelectPayload
 import com.pyamsoft.pydroid.core.bus.EventBus
 import com.pyamsoft.pydroid.ui.Injector
 import com.pyamsoft.pydroid.ui.app.requireArguments
@@ -70,7 +70,9 @@ internal class DatePickerDialogFragment : DialogFragment() {
     return DatePickerDialog(
         ContextThemeWrapper(requireActivity(), theme),
         DatePickerDialog.OnDateSetListener { _, year, month, dayOfMonth ->
-          requireNotNull(dateSelectBus).publish(DateSelectPayload(item, year, month, dayOfMonth))
+          requireNotNull(dateSelectBus).publish(
+              DateSelectPayload(item, year, month, dayOfMonth)
+          )
           dismiss()
         },
         initialYear, initialMonth, initialDay

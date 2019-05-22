@@ -15,7 +15,7 @@
  *
  */
 
-package com.pyamsoft.fridge.detail.item.add
+package com.pyamsoft.fridge.detail.add
 
 import com.pyamsoft.pydroid.arch.UiControllerEvent
 import com.pyamsoft.pydroid.arch.UiViewEvent

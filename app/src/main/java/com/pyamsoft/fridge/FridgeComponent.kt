@@ -30,7 +30,7 @@ import com.pyamsoft.fridge.db.room.RoomProvider
 import com.pyamsoft.fridge.detail.DatePickerDialogFragment
 import com.pyamsoft.fridge.detail.DetailComponent
 import com.pyamsoft.fridge.detail.ExpandComponent
-import com.pyamsoft.fridge.detail.item.fridge.DateSelectPayload
+import com.pyamsoft.fridge.detail.item.DateSelectPayload
 import com.pyamsoft.fridge.entry.EntryComponent
 import com.pyamsoft.fridge.main.MainComponent
 import com.pyamsoft.fridge.setting.SettingComponent
