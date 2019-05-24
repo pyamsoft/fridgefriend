@@ -82,7 +82,6 @@ internal class MainActivity : RatingActivity() {
 
     pushFragment()
 
-    requireNotNull(butler).cancelAll()
     requireNotNull(butler).schedule()
   }
 
