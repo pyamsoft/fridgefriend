@@ -22,8 +22,10 @@ import android.widget.CompoundButton
 import androidx.core.view.isVisible
 import com.pyamsoft.fridge.db.atMidnight
 import com.pyamsoft.fridge.db.isExpired
+import com.pyamsoft.fridge.db.isExpiringSoon
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence.HAVE
+import com.pyamsoft.fridge.db.tomorrowMidnight
 import com.pyamsoft.fridge.detail.R
 import com.pyamsoft.fridge.detail.item.DetailItemViewEvent.ExpandItem
 import com.pyamsoft.pydroid.arch.BaseUiView
@@ -40,6 +42,7 @@ class DetailListItemGlances @Inject internal constructor(
   override val layoutRoot by boundView<ViewGroup>(R.id.detail_item_glances)
 
   private val validExpirationDate by boundView<CompoundButton>(R.id.detail_item_glances_date)
+  private val itemExpiringSoon by boundView<CompoundButton>(R.id.detail_item_glances_expiring)
   private val itemExpired by boundView<CompoundButton>(R.id.detail_item_glances_expired)
 
   override fun onRender(state: DetailItemViewState) {
@@ -53,9 +56,13 @@ class DetailListItemGlances @Inject internal constructor(
 
       val today = Calendar.getInstance()
           .atMidnight()
+      val tomorrow = Calendar.getInstance()
+          .tomorrowMidnight()
       val hasExpirationDate = item.expireTime() != FridgeItem.EMPTY_EXPIRE_TIME
       validExpirationDate.isChecked = hasExpirationDate
       itemExpired.isChecked = if (hasExpirationDate) item.isExpired(today) else false
+      itemExpiringSoon.isChecked =
+        if (hasExpirationDate) item.isExpiringSoon(today, tomorrow) else false
     }
   }
 
