@@ -22,7 +22,7 @@ import com.pyamsoft.fridge.db.item.FridgeItem
 import java.util.Calendar
 
 @CheckResult
-fun Calendar.atMidnight(): Calendar {
+fun Calendar.cleanMidnight(): Calendar {
   return this.apply {
     set(Calendar.HOUR, 0)
     set(Calendar.MINUTE, 0)
@@ -32,40 +32,42 @@ fun Calendar.atMidnight(): Calendar {
 }
 
 @CheckResult
-fun Calendar.tomorrowMidnight(): Calendar {
+fun Calendar.daysLaterMidnight(later: Int): Calendar {
   return this.apply {
-    add(Calendar.DAY_OF_MONTH, 1)
+    add(Calendar.DAY_OF_MONTH, later)
   }
-      .atMidnight()
+      .cleanMidnight()
 }
 
 @CheckResult
-fun FridgeItem.isExpired(today: Calendar): Boolean {
+@JvmOverloads
+fun FridgeItem.isExpired(today: Calendar = Calendar.getInstance().cleanMidnight()): Boolean {
   // Clean Y/M/D only
   val expiration = Calendar.getInstance()
       .also {
         it.time = this.expireTime()
       }
-      .atMidnight()
+      .cleanMidnight()
 
-  val midnightToday = today.atMidnight()
+  val midnightToday = today.cleanMidnight()
   return expiration.before(midnightToday)
 }
 
 @CheckResult
+@JvmOverloads
 fun FridgeItem.isExpiringSoon(
-  today: Calendar,
-  tomorrow: Calendar
+  today: Calendar = Calendar.getInstance().cleanMidnight(),
+  tomorrow: Calendar = Calendar.getInstance().daysLaterMidnight(2)
 ): Boolean {
   // Clean Y/M/D only
   val expiration = Calendar.getInstance()
       .also {
         it.time = this.expireTime()
       }
-      .atMidnight()
+      .cleanMidnight()
 
-  val midnightToday = today.atMidnight()
-  val midnightTomorrow = tomorrow.atMidnight()
+  val midnightToday = today.cleanMidnight()
+  val midnightTomorrow = tomorrow.cleanMidnight()
   return (expiration.before(midnightTomorrow) && !this.isExpired(today))
       || expiration == midnightTomorrow || expiration == midnightToday
 }

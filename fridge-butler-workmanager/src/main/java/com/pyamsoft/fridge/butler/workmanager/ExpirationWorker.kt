@@ -21,7 +21,7 @@ import android.content.Context
 import androidx.annotation.CheckResult
 import androidx.work.RxWorker
 import androidx.work.WorkerParameters
-import com.pyamsoft.fridge.db.atMidnight
+import com.pyamsoft.fridge.db.cleanMidnight
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.entry.FridgeEntryQueryDao
 import com.pyamsoft.fridge.db.isExpired
@@ -29,7 +29,7 @@ import com.pyamsoft.fridge.db.isExpiringSoon
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence.NEED
 import com.pyamsoft.fridge.db.item.FridgeItemQueryDao
-import com.pyamsoft.fridge.db.tomorrowMidnight
+import com.pyamsoft.fridge.db.daysLaterMidnight
 import com.pyamsoft.pydroid.ui.Injector
 import io.reactivex.Observable
 import io.reactivex.Single
@@ -63,7 +63,7 @@ internal class ExpirationWorker internal constructor(
 
   private fun notifyForEntry(
     today: Calendar,
-    tomorrow: Calendar,
+    later: Calendar,
     entry: FridgeEntry,
     items: List<FridgeItem>
   ) {
@@ -84,7 +84,7 @@ internal class ExpirationWorker internal constructor(
             Timber.w("${entry.id()} expired! $item")
             expiredItems.add(item)
           } else {
-            if (item.isExpiringSoon(today, tomorrow)) {
+            if (item.isExpiringSoon(today, later)) {
               Timber.w("${entry.id()} is expiring soon! $item")
               expiringItems.add(item)
             }
@@ -119,15 +119,15 @@ internal class ExpirationWorker internal constructor(
     return Single.defer {
 
       val today = Calendar.getInstance()
-          .atMidnight()
-      val tomorrow = Calendar.getInstance()
-          .tomorrowMidnight()
+          .cleanMidnight()
+      val later = Calendar.getInstance()
+          .daysLaterMidnight(2)
 
       return@defer requireNotNull(fridgeEntryQueryDao).queryAll(true)
           .flatMapObservable { Observable.fromIterable(it) }
           .flatMapSingle { entry ->
             return@flatMapSingle requireNotNull(fridgeItemQueryDao).queryAll(true, entry.id())
-                .doOnSuccess { items -> notifyForEntry(today, tomorrow, entry, items) }
+                .doOnSuccess { items -> notifyForEntry(today, later, entry, items) }
                 .map { entry }
           }
           .toList()
