@@ -82,7 +82,10 @@ internal class MainActivity : RatingActivity() {
 
     pushFragment()
 
-    requireNotNull(butler).schedule()
+    requireNotNull(butler).apply {
+      cancel()
+      schedule()
+    }
   }
 
   private fun setDynamicTheme() {

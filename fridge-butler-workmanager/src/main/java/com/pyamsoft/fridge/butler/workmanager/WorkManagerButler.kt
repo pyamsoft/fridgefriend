@@ -19,7 +19,6 @@ package com.pyamsoft.fridge.butler.workmanager
 
 import androidx.annotation.CheckResult
 import androidx.work.Constraints
-import androidx.work.ExistingPeriodicWorkPolicy.REPLACE
 import androidx.work.ListenableWorker
 import androidx.work.PeriodicWorkRequest
 import androidx.work.WorkManager
@@ -38,9 +37,9 @@ internal class WorkManagerButler @Inject internal constructor() : Butler {
   }
 
   @CheckResult
-  private fun generateConstraints(runInIdle: Boolean): Constraints {
+  private fun generateConstraints(): Constraints {
     return Constraints.Builder()
-        .setRequiresDeviceIdle(runInIdle)
+        .setRequiresDeviceIdle(false)
         .setRequiresBatteryNotLow(true)
         .setRequiresCharging(false)
         .build()
@@ -49,22 +48,20 @@ internal class WorkManagerButler @Inject internal constructor() : Butler {
   private fun <T : ListenableWorker> schedule(
     worker: Class<T>,
     time: Long,
-    tag: String,
-    runInIdle: Boolean
+    tag: String
   ) {
     val request = PeriodicWorkRequest.Builder(worker, time, HOURS)
         .addTag(tag)
-        .setConstraints(generateConstraints(runInIdle))
+        .setConstraints(generateConstraints())
         .build()
 
     Timber.d("Queue repeating work: $tag")
-    workManager().enqueueUniquePeriodicWork(tag, REPLACE, request)
+    workManager().enqueue(request)
   }
 
   override fun schedule() {
     // Schedule the same work twice but one requires idle and one does not
-    schedule(ExpirationWorker::class.java, 1, EXPIRATION_TAG, false)
-    schedule(ExpirationWorker::class.java, 1, "${EXPIRATION_TAG}_$RUN_IN_DOZE", true)
+    schedule(ExpirationWorker::class.java, 1, EXPIRATION_TAG)
   }
 
   override fun cancel() {
@@ -74,7 +71,6 @@ internal class WorkManagerButler @Inject internal constructor() : Butler {
 
   companion object {
 
-    private const val RUN_IN_DOZE = "run_in_idle"
     private const val EXPIRATION_TAG = "WorkManagerButler: Expiration Reminder"
   }
 
