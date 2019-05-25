@@ -66,9 +66,8 @@ fun FridgeItem.isExpiringSoon(
 
   val midnightToday = today.atMidnight()
   val midnightTomorrow = tomorrow.atMidnight()
-  return expiration.before(
-      midnightTomorrow
-  ) || expiration == midnightTomorrow || expiration == midnightToday
+  return (expiration.before(midnightTomorrow) && !this.isExpired(today))
+      || expiration == midnightTomorrow || expiration == midnightToday
 }
 
 

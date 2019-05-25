@@ -20,6 +20,7 @@ package com.pyamsoft.fridge.butler.workmanager
 import androidx.annotation.CheckResult
 import androidx.work.Constraints
 import androidx.work.ExistingPeriodicWorkPolicy.REPLACE
+import androidx.work.ListenableWorker
 import androidx.work.PeriodicWorkRequest
 import androidx.work.WorkManager
 import com.pyamsoft.fridge.butler.Butler
@@ -37,36 +38,44 @@ internal class WorkManagerButler @Inject internal constructor() : Butler {
   }
 
   @CheckResult
-  private fun generateConstraints(): Constraints {
+  private fun generateConstraints(runInIdle: Boolean): Constraints {
     return Constraints.Builder()
+        .setRequiresDeviceIdle(runInIdle)
         .setRequiresBatteryNotLow(true)
         .setRequiresCharging(false)
         .build()
   }
 
-  override fun schedule() {
-    val request = PeriodicWorkRequest.Builder(ButlerWorker::class.java, 2, HOURS)
-        .addTag(WORK_TAG)
-        .setConstraints(generateConstraints())
+  private fun <T : ListenableWorker> schedule(
+    worker: Class<T>,
+    time: Long,
+    tag: String,
+    runInIdle: Boolean
+  ) {
+    val request = PeriodicWorkRequest.Builder(worker, time, HOURS)
+        .addTag(tag)
+        .setConstraints(generateConstraints(runInIdle))
         .build()
 
-    Timber.d("Queue repeating work: $WORK_TAG")
-    workManager().enqueueUniquePeriodicWork(WORK_TAG, REPLACE, request)
+    Timber.d("Queue repeating work: $tag")
+    workManager().enqueueUniquePeriodicWork(tag, REPLACE, request)
+  }
+
+  override fun schedule() {
+    // Schedule the same work twice but one requires idle and one does not
+    schedule(ExpirationWorker::class.java, 1, EXPIRATION_TAG, false)
+    schedule(ExpirationWorker::class.java, 1, "${EXPIRATION_TAG}_$RUN_IN_DOZE", true)
   }
 
   override fun cancel() {
-    Timber.d("Cancel pending work for tag: $WORK_TAG")
-    workManager().cancelAllWorkByTag(WORK_TAG)
-  }
-
-  override fun cancelAll() {
     Timber.d("Cancel all pending work")
     workManager().cancelAllWork()
   }
 
   companion object {
 
-    private const val WORK_TAG = "WorkManagerButler schedule tag v1"
+    private const val RUN_IN_DOZE = "run_in_idle"
+    private const val EXPIRATION_TAG = "WorkManagerButler: Expiration Reminder"
   }
 
 }

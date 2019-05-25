@@ -23,6 +23,4 @@ interface Butler {
 
   fun cancel()
 
-  fun cancelAll()
-
 }

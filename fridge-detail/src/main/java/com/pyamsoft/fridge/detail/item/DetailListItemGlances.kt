@@ -58,11 +58,10 @@ class DetailListItemGlances @Inject internal constructor(
           .atMidnight()
       val tomorrow = Calendar.getInstance()
           .tomorrowMidnight()
-      val hasExpirationDate = item.expireTime() != FridgeItem.EMPTY_EXPIRE_TIME
-      validExpirationDate.isChecked = hasExpirationDate
-      itemExpired.isChecked = if (hasExpirationDate) item.isExpired(today) else false
-      itemExpiringSoon.isChecked =
-        if (hasExpirationDate) item.isExpiringSoon(today, tomorrow) else false
+      val isReal = item.expireTime() != FridgeItem.EMPTY_EXPIRE_TIME
+      validExpirationDate.isChecked = isReal
+      itemExpired.isChecked = if (isReal) item.isExpired(today) else false
+      itemExpiringSoon.isChecked = if (isReal) item.isExpiringSoon(today, tomorrow) else false
     }
   }
 

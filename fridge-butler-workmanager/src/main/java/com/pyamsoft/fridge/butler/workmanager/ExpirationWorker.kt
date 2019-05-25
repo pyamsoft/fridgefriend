@@ -36,7 +36,7 @@ import io.reactivex.Single
 import timber.log.Timber
 import java.util.Calendar
 
-internal class ButlerWorker internal constructor(
+internal class ExpirationWorker internal constructor(
   context: Context,
   params: WorkerParameters
 ) : RxWorker(context, params) {
@@ -57,7 +57,7 @@ internal class ButlerWorker internal constructor(
   override fun onStopped() {
     super.onStopped()
 
-    Timber.w("ButlerWorker stopped")
+    Timber.w("ExpirationWorker stopped")
     teardown()
   }
 
@@ -97,15 +97,15 @@ internal class ButlerWorker internal constructor(
 
 
     if (needItems.isNotEmpty()) {
-      ButlerNotifications.notifyNeeded(applicationContext, entry, needItems)
+      ExpirationNotifications.notifyNeeded(applicationContext, entry, needItems)
     }
 
     if (expiringItems.isNotEmpty()) {
-      ButlerNotifications.notifyExpiring(applicationContext, entry, expiringItems)
+      ExpirationNotifications.notifyExpiring(applicationContext, entry, expiringItems)
     }
 
     if (expiredItems.isNotEmpty()) {
-      ButlerNotifications.notifyExpired(applicationContext, entry, expiredItems)
+      ExpirationNotifications.notifyExpired(applicationContext, entry, expiredItems)
     }
 
     if (unknownExpirationItems.isNotEmpty()) {
