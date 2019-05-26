@@ -27,6 +27,7 @@ import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.entry.EntryViewEvent.OpenHave
 import com.pyamsoft.fridge.entry.EntryViewEvent.OpenNeed
 import com.pyamsoft.pydroid.arch.BaseUiView
+import timber.log.Timber
 import javax.inject.Inject
 
 class EntryNavigation @Inject internal constructor(
@@ -45,15 +46,27 @@ class EntryNavigation @Inject internal constructor(
     bottomNav.isVisible = false
   }
 
-  override fun onRender(state: EntryViewState) {
+  override fun onRender(
+    state: EntryViewState,
+    savedInstanceState: Bundle?
+  ) {
     bottomNav.isVisible = state.entry != null
 
     bottomNav.setOnNavigationItemSelectedListener { item ->
       return@setOnNavigationItemSelectedListener when (item.itemId) {
-        R.id.menu_item_nav_have -> handleClick(state.entry) { OpenHave(it) }
         R.id.menu_item_nav_need -> handleClick(state.entry) { OpenNeed(it) }
+        R.id.menu_item_nav_have -> handleClick(state.entry) { OpenHave(it) }
         else -> false
       }
+    }
+
+    selectDefault(savedInstanceState)
+  }
+
+  private fun selectDefault(savedInstanceState: Bundle?) {
+    if (savedInstanceState != null) {
+      Timber.d("Consuming selected item")
+      bottomNav.selectedItemId = savedInstanceState.getInt(LAST_PAGE, R.id.menu_item_nav_need)
     }
   }
 
@@ -70,9 +83,18 @@ class EntryNavigation @Inject internal constructor(
     }
   }
 
+  override fun onSaveState(outState: Bundle) {
+    outState.putInt(LAST_PAGE, bottomNav.selectedItemId)
+  }
+
   override fun onTeardown() {
     bottomNav.isVisible = false
     bottomNav.setOnNavigationItemSelectedListener(null)
+  }
+
+  companion object {
+
+    private const val LAST_PAGE = "last_page"
   }
 
 }

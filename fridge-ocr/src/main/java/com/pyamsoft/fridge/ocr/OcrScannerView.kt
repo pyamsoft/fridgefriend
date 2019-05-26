@@ -118,7 +118,10 @@ class OcrScannerView @Inject internal constructor(
     )
   }
 
-  override fun onRender(state: OcrViewState) {
+  override fun onRender(
+    state: OcrViewState,
+    savedInstanceState: Bundle?
+  ) {
     state.throwable.let { throwable ->
       if (throwable == null) {
         clearError()

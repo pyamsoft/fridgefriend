@@ -17,6 +17,7 @@
 
 package com.pyamsoft.fridge.main
 
+import android.os.Bundle
 import android.view.ViewGroup
 import androidx.constraintlayout.widget.ConstraintLayout
 import com.pyamsoft.pydroid.arch.BaseUiView
@@ -32,6 +33,9 @@ class FragmentContainer @Inject internal constructor(
 
   override val layoutRoot by boundView<ConstraintLayout>(R.id.layout_constraint)
 
-  override fun onRender(state: UnitViewState) {
+  override fun onRender(
+    state: UnitViewState,
+    savedInstanceState: Bundle?
+  ) {
   }
 }

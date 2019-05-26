@@ -44,7 +44,10 @@ class ExpandItemError @Inject internal constructor(
     message.isVisible = false
   }
 
-  override fun onRender(state: DetailItemViewState) {
+  override fun onRender(
+    state: DetailItemViewState,
+    savedInstanceState: Bundle?
+  ) {
     state.throwable.let { throwable ->
       if (throwable == null) {
         message.isVisible = false

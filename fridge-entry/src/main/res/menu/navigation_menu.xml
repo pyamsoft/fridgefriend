@@ -21,16 +21,16 @@
     >
 
   <item
-      android:id="@+id/menu_item_nav_have"
+      android:id="@+id/menu_item_nav_need"
       android:icon="@drawable/ic_settings_24dp"
-      android:title="Have"
+      android:title="Need"
       app:showAsAction="ifRoom"
       />
 
   <item
-      android:id="@+id/menu_item_nav_need"
+      android:id="@+id/menu_item_nav_have"
       android:icon="@drawable/ic_settings_24dp"
-      android:title="Need"
+      android:title="Have"
       app:showAsAction="ifRoom"
       />
 

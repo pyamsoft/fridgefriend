@@ -17,6 +17,7 @@
 
 package com.pyamsoft.fridge.detail.item
 
+import android.os.Bundle
 import android.view.ViewGroup
 import android.widget.EditText
 import com.pyamsoft.fridge.detail.R
@@ -35,7 +36,10 @@ class DetailListItemName @Inject internal constructor(
 
   private val nameView by boundView<EditText>(R.id.detail_item_name_editable)
 
-  override fun onRender(state: DetailItemViewState) {
+  override fun onRender(
+    state: DetailItemViewState,
+    savedInstanceState: Bundle?
+  ) {
     state.item.let { item ->
       nameView.setTextKeepState(item.name())
       nameView.setNotEditable()

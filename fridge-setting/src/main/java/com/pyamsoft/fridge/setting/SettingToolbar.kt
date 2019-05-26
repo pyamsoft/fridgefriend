@@ -45,7 +45,10 @@ class SettingToolbar @Inject internal constructor(
     }
   }
 
-  override fun render(state: UnitViewState) {
+  override fun render(
+    state: UnitViewState,
+    savedInstanceState: Bundle?
+  ) {
   }
 
   override fun teardown() {

@@ -17,6 +17,7 @@
 
 package com.pyamsoft.fridge.detail.item
 
+import android.os.Bundle
 import android.view.ViewGroup
 import android.widget.CompoundButton
 import com.pyamsoft.fridge.db.item.FridgeItem
@@ -41,7 +42,10 @@ class DetailListItemPresence @Inject internal constructor(
 
   private val presenceSwitch by boundView<CompoundButton>(R.id.detail_item_presence_switch)
 
-  override fun onRender(state: DetailItemViewState) {
+  override fun onRender(
+    state: DetailItemViewState,
+    savedInstanceState: Bundle?
+  ) {
     state.item.let { item ->
       removeListeners()
 

@@ -17,6 +17,7 @@
 
 package com.pyamsoft.fridge.entry
 
+import android.os.Bundle
 import android.view.ViewGroup
 import com.pyamsoft.pydroid.arch.BaseUiView
 import javax.inject.Inject
@@ -29,7 +30,10 @@ class EntryFrame @Inject internal constructor(
 
   override val layoutRoot by boundView<ViewGroup>(R.id.entry_frame)
 
-  override fun onRender(state: EntryViewState) {
+  override fun onRender(
+    state: EntryViewState,
+    savedInstanceState: Bundle?
+  ) {
   }
 
 }

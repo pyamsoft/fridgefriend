@@ -17,6 +17,7 @@
 
 package com.pyamsoft.fridge.detail.item
 
+import android.os.Bundle
 import android.view.ViewGroup
 import android.widget.CompoundButton
 import androidx.core.view.isVisible
@@ -44,7 +45,10 @@ class DetailListItemGlances @Inject internal constructor(
   private val itemExpiringSoon by boundView<CompoundButton>(R.id.detail_item_glances_expiring)
   private val itemExpired by boundView<CompoundButton>(R.id.detail_item_glances_expired)
 
-  override fun onRender(state: DetailItemViewState) {
+  override fun onRender(
+    state: DetailItemViewState,
+    savedInstanceState: Bundle?
+  ) {
     state.item.let { item ->
       val isVisible = item.isReal() && !item.isArchived() && item.presence() == HAVE
       layoutRoot.isVisible = isVisible

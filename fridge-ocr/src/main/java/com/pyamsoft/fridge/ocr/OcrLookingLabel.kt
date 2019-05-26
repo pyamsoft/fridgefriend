@@ -17,6 +17,7 @@
 
 package com.pyamsoft.fridge.ocr
 
+import android.os.Bundle
 import android.view.ViewGroup
 import android.widget.TextView
 import com.pyamsoft.pydroid.arch.BaseUiView
@@ -30,7 +31,10 @@ class OcrLookingLabel @Inject internal constructor(
 
   override val layoutRoot by boundView<TextView>(R.id.looking)
 
-  override fun onRender(state: OcrViewState) {
+  override fun onRender(
+    state: OcrViewState,
+    savedInstanceState: Bundle?
+  ) {
     state.text.let { text ->
       layoutRoot.text = text
     }

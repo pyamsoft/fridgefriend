@@ -61,10 +61,7 @@ class EntryViewModel @Inject internal constructor(
         .observeOn(Schedulers.io())
         .doAfterTerminate { entryDisposable.tryDispose() }
         .subscribe(Consumer {
-          setState {
-            publish(PushHave(it))
-            copy(entry = it)
-          }
+          setState { copy(entry = it) }
         })
   }
 

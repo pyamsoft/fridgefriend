@@ -249,7 +249,10 @@ class DetailList @Inject internal constructor(
         .dismiss()
   }
 
-  override fun onRender(state: DetailViewState) {
+  override fun onRender(
+    state: DetailViewState,
+    savedInstanceState: Bundle?
+  ) {
     state.isLoading.let { loading ->
       if (loading != null) {
         requireNotNull(refreshLatch).isRefreshing = loading.isLoading

@@ -67,7 +67,10 @@ class AddNewItemView @Inject internal constructor(
     addNewIcon.popShow()
   }
 
-  override fun onRender(state: UnitViewState) {
+  override fun onRender(
+    state: UnitViewState,
+    savedInstanceState: Bundle?
+  ) {
   }
 
   override fun onTeardown() {

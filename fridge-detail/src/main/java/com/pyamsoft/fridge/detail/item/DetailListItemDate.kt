@@ -17,6 +17,7 @@
 
 package com.pyamsoft.fridge.detail.item
 
+import android.os.Bundle
 import android.view.ViewGroup
 import android.widget.TextView
 import com.pyamsoft.fridge.db.item.FridgeItem
@@ -37,7 +38,10 @@ class DetailListItemDate @Inject internal constructor(
 
   override val layoutRoot by boundView<TextView>(R.id.detail_item_date)
 
-  override fun onRender(state: DetailItemViewState) {
+  override fun onRender(
+    state: DetailItemViewState,
+    savedInstanceState: Bundle?
+  ) {
     state.item.let { item ->
       val isEditable = state.isEditable
 
