@@ -21,6 +21,7 @@ import android.app.Application
 import android.content.Context
 import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.FridgeComponent.FridgeProvider
+import com.pyamsoft.fridge.butler.Butler
 import com.pyamsoft.fridge.butler.workmanager.ButlerModule
 import com.pyamsoft.fridge.db.DbProvider
 import com.pyamsoft.fridge.db.entry.FridgeEntryQueryDao
@@ -57,6 +58,9 @@ import javax.inject.Singleton
     ]
 )
 internal interface FridgeComponent {
+
+  @CheckResult
+  fun provideButler(): Butler
 
   @CheckResult
   fun provideFridgeEntryQueryDao(): FridgeEntryQueryDao

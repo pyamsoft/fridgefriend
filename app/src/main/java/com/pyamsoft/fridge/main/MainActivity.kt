@@ -84,7 +84,7 @@ internal class MainActivity : RatingActivity() {
 
     requireNotNull(butler).apply {
       cancel()
-      schedule()
+      work()
     }
   }
 

@@ -21,7 +21,9 @@ import android.content.Context
 import androidx.annotation.CheckResult
 import androidx.work.RxWorker
 import androidx.work.WorkerParameters
+import com.pyamsoft.fridge.butler.Butler
 import com.pyamsoft.fridge.db.cleanMidnight
+import com.pyamsoft.fridge.db.daysLaterMidnight
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.entry.FridgeEntryQueryDao
 import com.pyamsoft.fridge.db.isExpired
@@ -29,7 +31,6 @@ import com.pyamsoft.fridge.db.isExpiringSoon
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence.NEED
 import com.pyamsoft.fridge.db.item.FridgeItemQueryDao
-import com.pyamsoft.fridge.db.daysLaterMidnight
 import com.pyamsoft.pydroid.ui.Injector
 import io.reactivex.Observable
 import io.reactivex.Single
@@ -43,21 +44,33 @@ internal class ExpirationWorker internal constructor(
 
   private var fridgeEntryQueryDao: FridgeEntryQueryDao? = null
   private var fridgeItemQueryDao: FridgeItemQueryDao? = null
+  private var butler: Butler? = null
 
   private fun inject() {
     fridgeEntryQueryDao = Injector.obtain(applicationContext)
     fridgeItemQueryDao = Injector.obtain(applicationContext)
+    butler = Injector.obtain(applicationContext)
   }
 
   private fun teardown() {
     fridgeEntryQueryDao = null
     fridgeItemQueryDao = null
+    butler = null
+  }
+
+  private fun reschedule(required: Boolean) {
+    if (required) {
+      requireNotNull(butler).schedule()
+    } else {
+      butler?.schedule()
+    }
   }
 
   override fun onStopped() {
     super.onStopped()
 
-    Timber.w("ExpirationWorker stopped")
+    Timber.i("ExpirationWorker stopped")
+    reschedule(required = false)
     teardown()
   }
 
@@ -140,12 +153,14 @@ internal class ExpirationWorker internal constructor(
   @CheckResult
   private fun success(entries: List<FridgeEntry>): Result {
     Timber.d("Butler notified for entries: $entries")
+    reschedule(required = true)
     return Result.success()
   }
 
   @CheckResult
   private fun fail(throwable: Throwable): Result {
     Timber.e(throwable, "Butler failed to notify")
+    reschedule(required = true)
     return Result.failure()
   }
 }

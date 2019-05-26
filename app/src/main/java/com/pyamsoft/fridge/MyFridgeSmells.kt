@@ -18,6 +18,7 @@
 package com.pyamsoft.fridge
 
 import android.app.Application
+import com.pyamsoft.fridge.butler.Butler
 import com.pyamsoft.fridge.db.entry.FridgeEntryQueryDao
 import com.pyamsoft.fridge.db.item.FridgeItemQueryDao
 import com.pyamsoft.pydroid.bootstrap.libraries.OssLibraries
@@ -40,21 +41,22 @@ class MyFridgeSmells : Application() {
 
     Theming.IS_DEFAULT_DARK_THEME = false
     PYDroid.init(
-      this,
-      getString(R.string.app_name),
-      "https://github.com/pyamsoft/myfridgesmells/issues",
-      BuildConfig.VERSION_CODE,
-      BuildConfig.DEBUG
+        this,
+        getString(R.string.app_name),
+        "https://github.com/pyamsoft/myfridgesmells/issues",
+        BuildConfig.VERSION_CODE,
+        BuildConfig.DEBUG
     ) { provider ->
-      val moshi = Moshi.Builder().build()
+      val moshi = Moshi.Builder()
+          .build()
       component = DaggerFridgeComponent.factory()
-        .create(
-          provider.theming(),
-          moshi,
-          provider.enforcer(),
-          this,
-          provider.imageLoader()
-        )
+          .create(
+              provider.theming(),
+              moshi,
+              provider.enforcer(),
+              this,
+              provider.imageLoader()
+          )
     }
 
     installRefWatcher()
@@ -71,19 +73,19 @@ class MyFridgeSmells : Application() {
 
   private fun addLibraries() {
     OssLibraries.add(
-      "Room",
-      "https://android.googlesource.com/platform/frameworks/support/+/androidx-master-dev/room/",
-      "The AndroidX Jetpack Room library. Fluent SQLite database access."
+        "Room",
+        "https://android.googlesource.com/platform/frameworks/support/+/androidx-master-dev/room/",
+        "The AndroidX Jetpack Room library. Fluent SQLite database access."
     )
     OssLibraries.add(
-      "Dagger",
-      "https://github.com/google/dagger",
-      "A fast dependency injector for Android and Java."
+        "Dagger",
+        "https://github.com/google/dagger",
+        "A fast dependency injector for Android and Java."
     )
     OssLibraries.add(
-      "FastAdapter",
-      "https://github.com/mikepenz/fastadapter",
-      "The bullet proof, fast and easy to use adapter library, which minimizes developing time to a fraction..."
+        "FastAdapter",
+        "https://github.com/mikepenz/fastadapter",
+        "The bullet proof, fast and easy to use adapter library, which minimizes developing time to a fraction..."
     )
   }
 
@@ -93,11 +95,12 @@ class MyFridgeSmells : Application() {
       return service
     }
 
-    when (name) {
-      FridgeComponent::class.java.name -> return requireNotNull(component)
-      FridgeEntryQueryDao::class.java.name -> return requireNotNull(component).provideFridgeEntryQueryDao()
-      FridgeItemQueryDao::class.java.name -> return requireNotNull(component).provideFridgeItemQueryDao()
-      else -> return super.getSystemService(name)
+    return when (name) {
+      FridgeComponent::class.java.name -> requireNotNull(component)
+      FridgeEntryQueryDao::class.java.name -> requireNotNull(component).provideFridgeEntryQueryDao()
+      FridgeItemQueryDao::class.java.name -> requireNotNull(component).provideFridgeItemQueryDao()
+      Butler::class.java.name -> requireNotNull(component).provideButler()
+      else -> super.getSystemService(name)
     }
 
   }

@@ -20,11 +20,11 @@ package com.pyamsoft.fridge.butler.workmanager
 import androidx.annotation.CheckResult
 import androidx.work.Constraints
 import androidx.work.ListenableWorker
-import androidx.work.PeriodicWorkRequest
+import androidx.work.OneTimeWorkRequest
 import androidx.work.WorkManager
 import com.pyamsoft.fridge.butler.Butler
 import timber.log.Timber
-import java.util.concurrent.TimeUnit.HOURS
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -37,9 +37,9 @@ internal class WorkManagerButler @Inject internal constructor() : Butler {
   }
 
   @CheckResult
-  private fun generateConstraints(): Constraints {
+  private fun generateConstraints(runInIdle: Boolean): Constraints {
     return Constraints.Builder()
-        .setRequiresDeviceIdle(false)
+        .setRequiresDeviceIdle(runInIdle)
         .setRequiresBatteryNotLow(true)
         .setRequiresCharging(false)
         .build()
@@ -47,21 +47,37 @@ internal class WorkManagerButler @Inject internal constructor() : Butler {
 
   private fun <T : ListenableWorker> schedule(
     worker: Class<T>,
+    tag: String,
     time: Long,
-    tag: String
+    unit: TimeUnit,
+    runInIdle: Boolean
   ) {
-    val request = PeriodicWorkRequest.Builder(worker, time, HOURS)
+    val request = OneTimeWorkRequest.Builder(worker)
+        .setInitialDelay(time, unit)
         .addTag(tag)
-        .setConstraints(generateConstraints())
+        .setConstraints(generateConstraints(runInIdle))
         .build()
 
-    Timber.d("Queue repeating work: $tag")
+    Timber.d("Queue work: $tag")
     workManager().enqueue(request)
+  }
+
+  private fun scheduleExpirationWork(
+    time: Long,
+    unit: TimeUnit
+  ) {
+    schedule(ExpirationWorker::class.java, EXPIRATION_TAG, time, unit, false)
+    schedule(ExpirationWorker::class.java, EXPIRATION_TAG, time, unit, true)
+  }
+
+  override fun work() {
+    // Schedule the same work twice but one requires idle and one does not
+    scheduleExpirationWork(1, TimeUnit.SECONDS)
   }
 
   override fun schedule() {
     // Schedule the same work twice but one requires idle and one does not
-    schedule(ExpirationWorker::class.java, 1, EXPIRATION_TAG)
+    scheduleExpirationWork(1, TimeUnit.HOURS)
   }
 
   override fun cancel() {

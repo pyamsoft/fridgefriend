@@ -19,6 +19,8 @@ package com.pyamsoft.fridge.butler
 
 interface Butler {
 
+  fun work()
+
   fun schedule()
 
   fun cancel()
