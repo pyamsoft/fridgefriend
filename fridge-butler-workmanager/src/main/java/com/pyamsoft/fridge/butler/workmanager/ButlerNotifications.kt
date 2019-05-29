@@ -39,6 +39,14 @@ internal object ButlerNotifications {
     return NotificationManagerCompat.from(context)
   }
 
+  @CheckResult
+  private fun notificationId(
+    entry: FridgeEntry,
+    channelId: String
+  ): Int {
+    return "${entry.id()}_$channelId".hashCode()
+  }
+
   private fun guaranteeNotificationChannelExists(
     context: Context,
     channelId: String,
@@ -91,24 +99,21 @@ internal object ButlerNotifications {
 
     val notification = createNotification(builder)
 
-    val notificationId = entry.id()
-        .hashCode()
     Timber.d("Fire notification for entry: ${entry.id()}")
     notificationManager(context).apply {
-      cancel(this, entry)
-      notify(entry.id(), notificationId, notification)
+      cancel(this, entry, channelId)
+      notify(entry.id(), notificationId(entry, channelId), notification)
     }
   }
 
   @JvmStatic
   private fun cancel(
     manager: NotificationManagerCompat,
-    entry: FridgeEntry
+    entry: FridgeEntry,
+    channelId: String
   ) {
-    val notificationId = entry.id()
-        .hashCode()
     Timber.w("Cancel notification for entry: ${entry.id()}")
-    manager.cancel(entry.id(), notificationId)
+    manager.cancel(entry.id(), notificationId(entry, channelId))
   }
 
 }
