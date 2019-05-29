@@ -21,6 +21,8 @@ import android.os.Bundle
 import android.view.View
 import androidx.annotation.CheckResult
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelProviders
 import com.pyamsoft.fridge.FridgeComponent
 import com.pyamsoft.fridge.setting.SettingToolbarControllerEvent.NavigateUp
 import com.pyamsoft.pydroid.arch.createComponent
@@ -32,8 +34,9 @@ import javax.inject.Inject
 
 internal class SettingsFragment : AppSettingsFragment() {
 
+  @JvmField @Inject internal var factory: ViewModelProvider.Factory? = null
   @JvmField @Inject internal var toolbar: SettingToolbar? = null
-  @JvmField @Inject internal var viewModel: SettingToolbarViewModel? = null
+  private var viewModel: SettingToolbarViewModel? = null
 
   override fun provideSettingsFragment(): AppSettingsPreferenceFragment {
     return SettingsPreferenceFragment()
@@ -54,6 +57,11 @@ internal class SettingsFragment : AppSettingsFragment() {
         .create(requireToolbarActivity())
         .inject(this)
 
+    ViewModelProviders.of(this, factory)
+        .let { factory ->
+          viewModel = factory.get(SettingToolbarViewModel::class.java)
+        }
+
     createComponent(
         savedInstanceState, viewLifecycleOwner,
         requireNotNull(viewModel),
@@ -73,6 +81,8 @@ internal class SettingsFragment : AppSettingsFragment() {
   override fun onDestroyView() {
     super.onDestroyView()
     toolbar = null
+    viewModel = null
+    factory = null
   }
 
   companion object {

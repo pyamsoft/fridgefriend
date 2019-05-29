@@ -28,6 +28,7 @@ import com.pyamsoft.fridge.entry.EntryViewEvent.OpenHave
 import com.pyamsoft.fridge.entry.EntryViewEvent.OpenNeed
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.arch.UiSavedState
+import timber.log.Timber
 import javax.inject.Inject
 
 class EntryNavigation @Inject internal constructor(

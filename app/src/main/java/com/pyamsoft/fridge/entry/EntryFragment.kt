@@ -25,6 +25,8 @@ import androidx.annotation.CheckResult
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelProviders
 import com.pyamsoft.fridge.FridgeComponent
 import com.pyamsoft.fridge.R
 import com.pyamsoft.fridge.db.entry.FridgeEntry
@@ -43,14 +45,16 @@ import com.pyamsoft.pydroid.ui.app.requireToolbarActivity
 import com.pyamsoft.pydroid.ui.util.commit
 import com.pyamsoft.pydroid.ui.util.commitNow
 import com.pyamsoft.pydroid.ui.util.layout
+import timber.log.Timber
 import javax.inject.Inject
 
 internal class EntryFragment : Fragment() {
 
+  @JvmField @Inject internal var factory: ViewModelProvider.Factory? = null
   @JvmField @Inject internal var toolbar: EntryToolbar? = null
   @JvmField @Inject internal var frame: EntryFrame? = null
   @JvmField @Inject internal var navigation: EntryNavigation? = null
-  @JvmField @Inject internal var viewModel: EntryViewModel? = null
+  private var viewModel: EntryViewModel? = null
 
   override fun onCreateView(
     inflater: LayoutInflater,
@@ -75,6 +79,11 @@ internal class EntryFragment : Fragment() {
     val toolbar = requireNotNull(toolbar)
     val frame = requireNotNull(frame)
     val navigation = requireNotNull(navigation)
+
+    ViewModelProviders.of(this, factory)
+        .let { factory ->
+          viewModel = factory.get(EntryViewModel::class.java)
+        }
 
     createComponent(
         savedInstanceState, viewLifecycleOwner,
@@ -108,8 +117,6 @@ internal class EntryFragment : Fragment() {
         constrainHeight(it.id(), ConstraintSet.MATCH_CONSTRAINT)
       }
     }
-
-    requireNotNull(viewModel).fetchEntries()
   }
 
   override fun onSaveInstanceState(outState: Bundle) {
@@ -126,6 +133,7 @@ internal class EntryFragment : Fragment() {
     toolbar = null
     frame = null
     navigation = null
+    factory = null
   }
 
   private fun navigateToSettings() {
@@ -150,6 +158,7 @@ internal class EntryFragment : Fragment() {
     entry: FridgeEntry,
     filterPresence: Presence
   ) {
+    Timber.d("Push page: $entry")
     val fm = childFragmentManager
     if (fm.findFragmentByTag(filterPresence.name) == null) {
       fm.beginTransaction()

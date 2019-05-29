@@ -75,21 +75,7 @@ class ExpandItemViewModel @Inject internal constructor(
   private var dateDisposable by singleDisposable()
   private var realtimeDisposable by singleDisposable()
 
-  override fun handleViewEvent(event: DetailItemViewEvent) {
-    return when (event) {
-      is CommitName -> commitName(event.oldItem, event.name)
-      is CommitPresence -> commitPresence(event.oldItem, event.presence)
-      is ExpandItem -> expandItem(event.item)
-      is PickDate -> pickDate(event.oldItem, event.year, event.month, event.day)
-    }
-  }
-
-  override fun onCleared() {
-    dateDisposable.tryDispose()
-    realtimeDisposable.tryDispose()
-  }
-
-  fun beginObservingItem() {
+  init {
     dateDisposable = dateSelectBus.listen()
         .filter { it.oldItem.entryId() == itemEntryId }
         .filter { it.oldItem.id() == itemId }
@@ -102,6 +88,20 @@ class ExpandItemViewModel @Inject internal constructor(
           .subscribeOn(Schedulers.io())
           .observeOn(AndroidSchedulers.mainThread())
           .subscribe { handleRealtimeEvent(it) }
+  }
+
+  override fun handleViewEvent(event: DetailItemViewEvent) {
+    return when (event) {
+      is CommitName -> commitName(event.oldItem, event.name)
+      is CommitPresence -> commitPresence(event.oldItem, event.presence)
+      is ExpandItem -> expandItem(event.item)
+      is PickDate -> pickDate(event.oldItem, event.year, event.month, event.day)
+    }
+  }
+
+  override fun onTeardown() {
+    dateDisposable.tryDispose()
+    realtimeDisposable.tryDispose()
   }
 
   private fun handleRealtimeEvent(event: FridgeItemChangeEvent) {

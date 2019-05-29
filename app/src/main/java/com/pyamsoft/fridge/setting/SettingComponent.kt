@@ -18,11 +18,19 @@
 package com.pyamsoft.fridge.setting
 
 import androidx.annotation.CheckResult
+import androidx.lifecycle.ViewModelProvider
+import com.pyamsoft.fridge.FridgeViewModelFactory
+import com.pyamsoft.fridge.ViewModelKey
+import com.pyamsoft.fridge.setting.SettingComponent.ViewModelModule
+import com.pyamsoft.pydroid.arch.UiViewModel
 import com.pyamsoft.pydroid.ui.app.ToolbarActivity
+import dagger.Binds
 import dagger.BindsInstance
+import dagger.Module
 import dagger.Subcomponent
+import dagger.multibindings.IntoMap
 
-@Subcomponent
+@Subcomponent(modules = [ViewModelModule::class])
 internal interface SettingComponent {
 
   fun inject(fragment: SettingsFragment)
@@ -34,6 +42,19 @@ internal interface SettingComponent {
     fun create(
       @BindsInstance activity: ToolbarActivity
     ): SettingComponent
+  }
+
+
+  @Module
+  abstract class ViewModelModule {
+
+    @Binds
+    internal abstract fun bindViewModelFactory(factory: FridgeViewModelFactory): ViewModelProvider.Factory
+
+    @Binds
+    @IntoMap
+    @ViewModelKey(SettingToolbarViewModel::class)
+    internal abstract fun settingToolbarViewModel(viewModel: SettingToolbarViewModel): UiViewModel<*, *, *>
   }
 
 }

@@ -25,6 +25,8 @@ import androidx.annotation.CheckResult
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelProviders
 import com.pyamsoft.fridge.FridgeComponent
 import com.pyamsoft.fridge.R
 import com.pyamsoft.fridge.db.entry.FridgeEntry
@@ -48,11 +50,13 @@ import javax.inject.Inject
 
 internal class DetailFragment : Fragment() {
 
+  @JvmField @Inject internal var factory: ViewModelProvider.Factory? = null
+
   @JvmField @Inject internal var list: DetailList? = null
-  @JvmField @Inject internal var viewModel: DetailViewModel? = null
+  private var viewModel: DetailViewModel? = null
 
   @JvmField @Inject internal var addNew: AddNewItemView? = null
-  @JvmField @Inject internal var addNewViewModel: AddNewItemViewModel? = null
+  private var addNewViewModel: AddNewItemViewModel? = null
 
   override fun onCreateView(
     inflater: LayoutInflater,
@@ -86,6 +90,12 @@ internal class DetailFragment : Fragment() {
             getEntryArgument(), getPresenceArgument()
         )
         .inject(this)
+
+    ViewModelProviders.of(this, factory)
+        .let { factory ->
+          viewModel = factory.get(DetailViewModel::class.java)
+          addNewViewModel = factory.get(AddNewItemViewModel::class.java)
+        }
 
     val list = requireNotNull(list)
     val addNew = requireNotNull(addNew)
@@ -132,8 +142,6 @@ internal class DetailFragment : Fragment() {
         constrainHeight(it.id(), ConstraintSet.WRAP_CONTENT)
       }
     }
-
-    requireNotNull(viewModel).fetchItems()
   }
 
   private fun pickDate(
@@ -149,13 +157,17 @@ internal class DetailFragment : Fragment() {
   override fun onSaveInstanceState(outState: Bundle) {
     super.onSaveInstanceState(outState)
     list?.saveState(outState)
+    addNew?.saveState(outState)
   }
 
   override fun onDestroyView() {
     super.onDestroyView()
 
     viewModel = null
+    addNewViewModel = null
     list = null
+    addNew = null
+    factory = null
   }
 
   private fun close() {

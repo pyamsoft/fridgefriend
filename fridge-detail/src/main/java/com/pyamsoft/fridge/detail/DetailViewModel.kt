@@ -55,7 +55,6 @@ class DetailViewModel @Inject internal constructor(
   entry: FridgeEntry
 ) : UiViewModel<DetailViewState, DetailViewEvent, DetailControllerEvent>(
     initialState = DetailViewState(
-        entry = entry,
         isLoading = null,
         throwable = null,
         items = emptyList(),
@@ -69,10 +68,14 @@ class DetailViewModel @Inject internal constructor(
   private var refreshDisposable by singleDisposable()
   private var nameDisposable by singleDisposable()
 
-  private var observeRealDisposable by singleDisposable()
   private var observeDeleteDisposable by singleDisposable()
   private var realtimeDisposable by singleDisposable()
   private var fakeRealtimeDisposable by singleDisposable()
+
+  init {
+    refreshList(false)
+    listenForDelete()
+  }
 
   override fun handleViewEvent(event: DetailViewEvent) {
     return when (event) {
@@ -91,15 +94,9 @@ class DetailViewModel @Inject internal constructor(
     refreshList(false)
   }
 
-  override fun onCleared() {
+  override fun onTeardown() {
     realtimeDisposable.tryDispose()
     fakeRealtimeDisposable.tryDispose()
-  }
-
-  fun fetchItems() {
-    refreshList(false)
-    observeReal(false)
-    listenForDelete()
   }
 
   private fun updateName(name: String) {
@@ -275,20 +272,6 @@ class DetailViewModel @Inject internal constructor(
     setState {
       copy(isLoading = Loading(false))
     }
-  }
-
-  private fun observeReal(force: Boolean) {
-    observeRealDisposable = interactor.observeEntry(force)
-        .subscribeOn(Schedulers.io())
-        .observeOn(AndroidSchedulers.mainThread())
-        .subscribe({ handleEntryUpdated(it) }, {
-          Timber.e(it, "Error observing entry real")
-          setState { copy(throwable = it) }
-        })
-  }
-
-  private fun handleEntryUpdated(entry: FridgeEntry) {
-    setState { copy(entry = entry) }
   }
 
   private fun listenForDelete() {

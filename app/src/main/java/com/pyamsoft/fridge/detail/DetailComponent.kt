@@ -20,13 +20,22 @@ package com.pyamsoft.fridge.detail
 import android.view.ViewGroup
 import androidx.annotation.CheckResult
 import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.ViewModelProvider
+import com.pyamsoft.fridge.FridgeViewModelFactory
+import com.pyamsoft.fridge.ViewModelKey
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence
+import com.pyamsoft.fridge.detail.DetailComponent.ViewModelModule
+import com.pyamsoft.fridge.detail.add.AddNewItemViewModel
+import com.pyamsoft.pydroid.arch.UiViewModel
 import com.pyamsoft.pydroid.ui.app.ToolbarActivity
+import dagger.Binds
 import dagger.BindsInstance
+import dagger.Module
 import dagger.Subcomponent
+import dagger.multibindings.IntoMap
 
-@Subcomponent
+@Subcomponent(modules = [ViewModelModule::class])
 internal interface DetailComponent {
 
   fun inject(fragment: DetailFragment)
@@ -44,4 +53,20 @@ internal interface DetailComponent {
     ): DetailComponent
   }
 
+  @Module
+  abstract class ViewModelModule {
+
+    @Binds
+    internal abstract fun bindViewModelFactory(factory: FridgeViewModelFactory): ViewModelProvider.Factory
+
+    @Binds
+    @IntoMap
+    @ViewModelKey(DetailViewModel::class)
+    internal abstract fun detailViewModel(viewModel: DetailViewModel): UiViewModel<*, *, *>
+
+    @Binds
+    @IntoMap
+    @ViewModelKey(AddNewItemViewModel::class)
+    internal abstract fun addNewViewModel(viewModel: AddNewItemViewModel): UiViewModel<*, *, *>
+  }
 }

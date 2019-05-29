@@ -28,6 +28,8 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.view.setPadding
 import androidx.fragment.app.DialogFragment
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelProviders
 import com.pyamsoft.fridge.FridgeComponent
 import com.pyamsoft.fridge.R
 import com.pyamsoft.fridge.db.entry.FridgeEntry
@@ -54,11 +56,12 @@ import javax.inject.Inject
 
 class ExpandedFragment : DialogFragment() {
 
-  @JvmField @Inject internal var viewModel: ExpandItemViewModel? = null
+  @JvmField @Inject internal var factory: ViewModelProvider.Factory? = null
   @JvmField @Inject internal var name: ExpandItemName? = null
   @JvmField @Inject internal var date: DetailListItemDate? = null
   @JvmField @Inject internal var presence: DetailListItemPresence? = null
   @JvmField @Inject internal var errorDisplay: ExpandItemError? = null
+  private var viewModel: ExpandItemViewModel? = null
 
   override fun onCreateView(
     inflater: LayoutInflater,
@@ -87,6 +90,10 @@ class ExpandedFragment : DialogFragment() {
         .plusExpandComponent()
         .create(parent, itemArgument, entryArgument, presenceArgument, itemArgument.isReal())
         .inject(this)
+
+    ViewModelProviders.of(this, factory).let { factory ->
+      viewModel = factory.get(ExpandItemViewModel::class.java)
+    }
 
     val name = requireNotNull(name)
     val date = requireNotNull(date)
@@ -139,8 +146,6 @@ class ExpandedFragment : DialogFragment() {
       }
 
     }
-
-    requireNotNull(viewModel).beginObservingItem()
   }
 
   private fun expandItem(item: FridgeItem) {
@@ -173,6 +178,7 @@ class ExpandedFragment : DialogFragment() {
     date = null
     presence = null
     errorDisplay = null
+    factory = null
   }
 
   override fun onResume() {

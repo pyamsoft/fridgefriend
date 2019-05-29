@@ -32,12 +32,22 @@ import io.reactivex.schedulers.Schedulers
 import javax.inject.Inject
 
 class EntryViewModel @Inject internal constructor(
-  private val persistentEntries: PersistentEntries
+  persistentEntries: PersistentEntries
 ) : UiViewModel<EntryViewState, EntryViewEvent, EntryControllerEvent>(
     initialState = EntryViewState(entry = null, isSettingsItemVisible = true)
 ) {
 
   private var entryDisposable by singleDisposable()
+
+  init {
+    entryDisposable = persistentEntries.getPersistentEntry()
+        .subscribeOn(Schedulers.io())
+        .observeOn(Schedulers.io())
+        .doAfterTerminate { entryDisposable.tryDispose() }
+        .subscribe(Consumer {
+          setState { copy(entry = it) }
+        })
+  }
 
   override fun handleViewEvent(event: EntryViewEvent) {
     return when (event) {
@@ -51,18 +61,8 @@ class EntryViewModel @Inject internal constructor(
     setState { copy(isSettingsItemVisible = visible) }
   }
 
-  override fun onCleared() {
+  override fun onTeardown() {
     entryDisposable.tryDispose()
-  }
-
-  fun fetchEntries() {
-    entryDisposable = persistentEntries.getPersistentEntry()
-        .subscribeOn(Schedulers.io())
-        .observeOn(Schedulers.io())
-        .doAfterTerminate { entryDisposable.tryDispose() }
-        .subscribe(Consumer {
-          setState { copy(entry = it) }
-        })
   }
 
 }

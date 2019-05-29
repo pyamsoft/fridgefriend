@@ -19,15 +19,24 @@ package com.pyamsoft.fridge.detail
 
 import android.view.ViewGroup
 import androidx.annotation.CheckResult
+import androidx.lifecycle.ViewModelProvider
+import com.pyamsoft.fridge.FridgeViewModelFactory
+import com.pyamsoft.fridge.ViewModelKey
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence
+import com.pyamsoft.fridge.detail.ExpandComponent.ViewModelModule
+import com.pyamsoft.fridge.detail.expand.ExpandItemViewModel
 import com.pyamsoft.fridge.detail.expand.ExpandModule
+import com.pyamsoft.pydroid.arch.UiViewModel
+import dagger.Binds
 import dagger.BindsInstance
+import dagger.Module
 import dagger.Subcomponent
+import dagger.multibindings.IntoMap
 import javax.inject.Named
 
-@Subcomponent(modules = [ExpandModule::class])
+@Subcomponent(modules = [ExpandModule::class, ViewModelModule::class])
 internal interface ExpandComponent {
 
   fun inject(fragment: ExpandedFragment)
@@ -43,6 +52,18 @@ internal interface ExpandComponent {
       @BindsInstance defaultPresence: Presence,
       @BindsInstance @Named("item_presence_editable") isPresenceEditable: Boolean
     ): ExpandComponent
+  }
+
+  @Module
+  abstract class ViewModelModule {
+
+    @Binds
+    internal abstract fun bindViewModelFactory(factory: FridgeViewModelFactory): ViewModelProvider.Factory
+
+    @Binds
+    @IntoMap
+    @ViewModelKey(ExpandItemViewModel::class)
+    internal abstract fun expandViewModel(viewModel: ExpandItemViewModel): UiViewModel<*, *, *>
   }
 
 }

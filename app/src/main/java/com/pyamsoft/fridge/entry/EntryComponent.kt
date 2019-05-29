@@ -20,11 +20,19 @@ package com.pyamsoft.fridge.entry
 import android.view.ViewGroup
 import androidx.annotation.CheckResult
 import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.ViewModelProvider
+import com.pyamsoft.fridge.FridgeViewModelFactory
+import com.pyamsoft.fridge.ViewModelKey
+import com.pyamsoft.fridge.entry.EntryComponent.ViewModelModule
+import com.pyamsoft.pydroid.arch.UiViewModel
 import com.pyamsoft.pydroid.ui.app.ToolbarActivity
+import dagger.Binds
 import dagger.BindsInstance
+import dagger.Module
 import dagger.Subcomponent
+import dagger.multibindings.IntoMap
 
-@Subcomponent
+@Subcomponent(modules = [ViewModelModule::class])
 internal interface EntryComponent {
 
   fun inject(fragment: EntryFragment)
@@ -38,6 +46,18 @@ internal interface EntryComponent {
       @BindsInstance parent: ViewGroup,
       @BindsInstance activity: ToolbarActivity
     ): EntryComponent
+  }
+
+  @Module
+  abstract class ViewModelModule {
+
+    @Binds
+    internal abstract fun bindViewModelFactory(factory: FridgeViewModelFactory): ViewModelProvider.Factory
+
+    @Binds
+    @IntoMap
+    @ViewModelKey(EntryViewModel::class)
+    internal abstract fun entryViewModel(viewModel: EntryViewModel): UiViewModel<*, *, *>
   }
 
 }

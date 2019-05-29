@@ -17,14 +17,12 @@
 
 package com.pyamsoft.fridge.detail
 
-import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.pydroid.arch.UiControllerEvent
 import com.pyamsoft.pydroid.arch.UiViewEvent
 import com.pyamsoft.pydroid.arch.UiViewState
 
 data class DetailViewState(
-  val entry: FridgeEntry,
   val isLoading: Loading?,
   val throwable: Throwable?,
   val items: List<FridgeItem>,
