@@ -17,7 +17,6 @@
 
 package com.pyamsoft.fridge.detail.item
 
-import android.os.Bundle
 import android.view.ViewGroup
 import android.widget.CompoundButton
 import com.pyamsoft.fridge.db.item.FridgeItem
@@ -27,6 +26,7 @@ import com.pyamsoft.fridge.db.item.FridgeItem.Presence.NEED
 import com.pyamsoft.fridge.detail.R
 import com.pyamsoft.fridge.detail.item.DetailItemViewEvent.CommitPresence
 import com.pyamsoft.pydroid.arch.BaseUiView
+import com.pyamsoft.pydroid.arch.UiSavedState
 import javax.inject.Inject
 import javax.inject.Named
 
@@ -44,7 +44,7 @@ class DetailListItemPresence @Inject internal constructor(
 
   override fun onRender(
     state: DetailItemViewState,
-    savedInstanceState: Bundle?
+    savedState: UiSavedState
   ) {
     state.item.let { item ->
       removeListeners()

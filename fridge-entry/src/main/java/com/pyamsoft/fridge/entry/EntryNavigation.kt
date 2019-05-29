@@ -27,7 +27,7 @@ import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.entry.EntryViewEvent.OpenHave
 import com.pyamsoft.fridge.entry.EntryViewEvent.OpenNeed
 import com.pyamsoft.pydroid.arch.BaseUiView
-import timber.log.Timber
+import com.pyamsoft.pydroid.arch.UiSavedState
 import javax.inject.Inject
 
 class EntryNavigation @Inject internal constructor(
@@ -48,7 +48,7 @@ class EntryNavigation @Inject internal constructor(
 
   override fun onRender(
     state: EntryViewState,
-    savedInstanceState: Bundle?
+    savedState: UiSavedState
   ) {
     bottomNav.isVisible = state.entry != null
 
@@ -60,13 +60,22 @@ class EntryNavigation @Inject internal constructor(
       }
     }
 
-    selectDefault(savedInstanceState)
+    selectDefault(state.entry, savedState)
   }
 
-  private fun selectDefault(savedInstanceState: Bundle?) {
-    if (savedInstanceState != null) {
-      Timber.d("Consuming selected item")
-      bottomNav.selectedItemId = savedInstanceState.getInt(LAST_PAGE, R.id.menu_item_nav_need)
+  private fun selectDefault(
+    entry: FridgeEntry?,
+    savedState: UiSavedState
+  ) {
+    if (entry != null) {
+      savedState.consume(LAST_PAGE, bottomNav.selectedItemId) { itemId ->
+        bottomNav.selectedItemId = if (itemId == 0) {
+          bottomNav.menu.getItem(0)
+              .itemId
+        } else {
+          itemId
+        }
+      }
     }
   }
 

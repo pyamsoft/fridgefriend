@@ -45,6 +45,7 @@ import com.pyamsoft.fridge.detail.R.drawable
 import com.pyamsoft.fridge.detail.item.DaggerDetailItemComponent
 import com.pyamsoft.fridge.detail.item.DateSelectPayload
 import com.pyamsoft.pydroid.arch.BaseUiView
+import com.pyamsoft.pydroid.arch.UiSavedState
 import com.pyamsoft.pydroid.core.bus.EventBus
 import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.ui.theme.Theming
@@ -251,7 +252,7 @@ class DetailList @Inject internal constructor(
 
   override fun onRender(
     state: DetailViewState,
-    savedInstanceState: Bundle?
+    savedState: UiSavedState
   ) {
     state.isLoading.let { loading ->
       if (loading != null) {

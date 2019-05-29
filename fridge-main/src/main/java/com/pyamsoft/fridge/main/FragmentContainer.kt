@@ -17,10 +17,10 @@
 
 package com.pyamsoft.fridge.main
 
-import android.os.Bundle
 import android.view.ViewGroup
 import androidx.constraintlayout.widget.ConstraintLayout
 import com.pyamsoft.pydroid.arch.BaseUiView
+import com.pyamsoft.pydroid.arch.UiSavedState
 import com.pyamsoft.pydroid.arch.UnitViewEvent
 import com.pyamsoft.pydroid.arch.UnitViewState
 import javax.inject.Inject
@@ -35,7 +35,7 @@ class FragmentContainer @Inject internal constructor(
 
   override fun onRender(
     state: UnitViewState,
-    savedInstanceState: Bundle?
+    savedState: UiSavedState
   ) {
   }
 }

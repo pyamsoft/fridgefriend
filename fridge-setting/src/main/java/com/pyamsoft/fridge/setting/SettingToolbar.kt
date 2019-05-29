@@ -19,6 +19,7 @@ package com.pyamsoft.fridge.setting
 
 import android.os.Bundle
 import com.pyamsoft.fridge.setting.SettingToolbarViewEvent.ToolbarNavigate
+import com.pyamsoft.pydroid.arch.UiSavedState
 import com.pyamsoft.pydroid.arch.UiView
 import com.pyamsoft.pydroid.arch.UnitViewState
 import com.pyamsoft.pydroid.ui.app.ToolbarActivity
@@ -47,7 +48,7 @@ class SettingToolbar @Inject internal constructor(
 
   override fun render(
     state: UnitViewState,
-    savedInstanceState: Bundle?
+    savedState: UiSavedState
   ) {
   }
 

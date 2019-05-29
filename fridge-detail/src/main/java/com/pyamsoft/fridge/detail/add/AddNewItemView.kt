@@ -24,6 +24,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.pyamsoft.fridge.detail.R
 import com.pyamsoft.fridge.detail.add.AddNewViewEvent.AddNewItemEvent
 import com.pyamsoft.pydroid.arch.BaseUiView
+import com.pyamsoft.pydroid.arch.UiSavedState
 import com.pyamsoft.pydroid.arch.UnitViewState
 import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.loader.Loaded
@@ -69,7 +70,7 @@ class AddNewItemView @Inject internal constructor(
 
   override fun onRender(
     state: UnitViewState,
-    savedInstanceState: Bundle?
+    savedState: UiSavedState
   ) {
   }
 

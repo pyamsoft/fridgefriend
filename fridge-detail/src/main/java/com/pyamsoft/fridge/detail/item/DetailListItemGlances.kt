@@ -17,7 +17,6 @@
 
 package com.pyamsoft.fridge.detail.item
 
-import android.os.Bundle
 import android.view.ViewGroup
 import android.widget.CompoundButton
 import androidx.core.view.isVisible
@@ -29,6 +28,7 @@ import com.pyamsoft.fridge.db.item.FridgeItem.Presence.HAVE
 import com.pyamsoft.fridge.detail.R
 import com.pyamsoft.fridge.detail.item.DetailItemViewEvent.ExpandItem
 import com.pyamsoft.pydroid.arch.BaseUiView
+import com.pyamsoft.pydroid.arch.UiSavedState
 import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
 import java.util.Calendar
 import javax.inject.Inject
@@ -47,7 +47,7 @@ class DetailListItemGlances @Inject internal constructor(
 
   override fun onRender(
     state: DetailItemViewState,
-    savedInstanceState: Bundle?
+    savedState: UiSavedState
   ) {
     state.item.let { item ->
       val isVisible = item.isReal() && !item.isArchived() && item.presence() == HAVE

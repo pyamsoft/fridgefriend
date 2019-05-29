@@ -17,9 +17,9 @@
 
 package com.pyamsoft.fridge.entry
 
-import android.os.Bundle
 import android.view.ViewGroup
 import com.pyamsoft.pydroid.arch.BaseUiView
+import com.pyamsoft.pydroid.arch.UiSavedState
 import javax.inject.Inject
 
 class EntryFrame @Inject internal constructor(
@@ -32,9 +32,8 @@ class EntryFrame @Inject internal constructor(
 
   override fun onRender(
     state: EntryViewState,
-    savedInstanceState: Bundle?
+    savedState: UiSavedState
   ) {
   }
-
 }
 

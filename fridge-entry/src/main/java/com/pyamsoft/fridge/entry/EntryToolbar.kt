@@ -20,6 +20,7 @@ package com.pyamsoft.fridge.entry
 import android.os.Bundle
 import android.view.MenuItem
 import com.pyamsoft.fridge.entry.EntryViewEvent.SettingsNavigate
+import com.pyamsoft.pydroid.arch.UiSavedState
 import com.pyamsoft.pydroid.arch.UiView
 import com.pyamsoft.pydroid.ui.app.ToolbarActivity
 import com.pyamsoft.pydroid.ui.arch.InvalidIdException
@@ -83,7 +84,7 @@ class EntryToolbar @Inject internal constructor(
 
   override fun render(
     state: EntryViewState,
-    savedInstanceState: Bundle?
+    savedState: UiSavedState
   ) {
     showMenu(state.isSettingsItemVisible)
   }

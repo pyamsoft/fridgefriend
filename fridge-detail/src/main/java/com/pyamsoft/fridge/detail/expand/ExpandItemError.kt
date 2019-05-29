@@ -26,6 +26,7 @@ import com.pyamsoft.fridge.detail.R
 import com.pyamsoft.fridge.detail.item.DetailItemViewEvent
 import com.pyamsoft.fridge.detail.item.DetailItemViewState
 import com.pyamsoft.pydroid.arch.BaseUiView
+import com.pyamsoft.pydroid.arch.UiSavedState
 import javax.inject.Inject
 
 class ExpandItemError @Inject internal constructor(
@@ -46,7 +47,7 @@ class ExpandItemError @Inject internal constructor(
 
   override fun onRender(
     state: DetailItemViewState,
-    savedInstanceState: Bundle?
+    savedState: UiSavedState
   ) {
     state.throwable.let { throwable ->
       if (throwable == null) {

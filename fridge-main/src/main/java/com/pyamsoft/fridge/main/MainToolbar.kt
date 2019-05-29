@@ -23,6 +23,7 @@ import android.view.ViewGroup
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.ViewCompat
 import com.pyamsoft.pydroid.arch.BaseUiView
+import com.pyamsoft.pydroid.arch.UiSavedState
 import com.pyamsoft.pydroid.arch.UnitViewEvent
 import com.pyamsoft.pydroid.arch.UnitViewState
 import com.pyamsoft.pydroid.ui.app.ToolbarActivityProvider
@@ -51,7 +52,7 @@ class MainToolbar @Inject internal constructor(
 
   override fun onRender(
     state: UnitViewState,
-    savedInstanceState: Bundle?
+    savedState: UiSavedState
   ) {
   }
 

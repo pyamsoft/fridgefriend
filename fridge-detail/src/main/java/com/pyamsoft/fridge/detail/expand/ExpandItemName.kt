@@ -29,6 +29,7 @@ import com.pyamsoft.fridge.detail.item.DetailItemViewEvent
 import com.pyamsoft.fridge.detail.item.DetailItemViewEvent.CommitName
 import com.pyamsoft.fridge.detail.item.DetailItemViewState
 import com.pyamsoft.pydroid.arch.BaseUiView
+import com.pyamsoft.pydroid.arch.UiSavedState
 import javax.inject.Inject
 
 class ExpandItemName @Inject internal constructor(
@@ -55,7 +56,7 @@ class ExpandItemName @Inject internal constructor(
 
   override fun onRender(
     state: DetailItemViewState,
-    savedInstanceState: Bundle?
+    savedState: UiSavedState
   ) {
     state.item.let { item ->
       removeListeners()
