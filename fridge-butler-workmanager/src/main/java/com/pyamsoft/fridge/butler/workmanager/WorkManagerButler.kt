@@ -77,7 +77,7 @@ internal class WorkManagerButler @Inject internal constructor() : Butler {
 
   override fun schedule() {
     // Schedule the same work twice but one requires idle and one does not
-    scheduleExpirationWork(1, TimeUnit.HOURS)
+    scheduleExpirationWork(2, TimeUnit.HOURS)
   }
 
   override fun cancel() {
