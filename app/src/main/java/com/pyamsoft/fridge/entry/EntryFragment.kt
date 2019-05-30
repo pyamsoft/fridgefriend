@@ -139,10 +139,10 @@ internal class EntryFragment : Fragment() {
   private fun navigateToSettings() {
     val fm = requireActivity().supportFragmentManager
     if (fm.findFragmentByTag(SettingsFragment.TAG) == null) {
-      fm.beginTransaction()
-          .replace(fragmentContainerId, SettingsFragment.newInstance(), SettingsFragment.TAG)
-          .addToBackStack(null)
-          .commit(viewLifecycleOwner)
+      fm.commit(viewLifecycleOwner) {
+        replace(fragmentContainerId, SettingsFragment.newInstance(), SettingsFragment.TAG)
+        addToBackStack(null)
+      }
     }
   }
 
@@ -161,13 +161,13 @@ internal class EntryFragment : Fragment() {
     Timber.d("Push page: $entry")
     val fm = childFragmentManager
     if (fm.findFragmentByTag(filterPresence.name) == null) {
-      fm.beginTransaction()
-          .replace(
-              requireNotNull(frame).id(),
-              DetailFragment.newInstance(entry, filterPresence),
-              filterPresence.name
-          )
-          .commitNow(viewLifecycleOwner)
+      fm.commitNow(viewLifecycleOwner) {
+        replace(
+            requireNotNull(frame).id(),
+            DetailFragment.newInstance(entry, filterPresence),
+            filterPresence.name
+        )
+      }
     }
   }
 

@@ -28,9 +28,9 @@ internal class FridgeViewModelFactory @Inject internal constructor(
   private val viewModels: MutableMap<Class<out UiViewModel<*, *, *>>, Provider<UiViewModel<*, *, *>>>
 ) : UiViewModelFactory() {
 
-  override fun <T : UiViewModel<*, *, *>> viewModel(modelClass: Class<T>): UiViewModel<*, *, *> {
+  override fun <T : UiViewModel<*, *, *>> viewModel(modelClass: KClass<T>): UiViewModel<*, *, *> {
     @Suppress("UNCHECKED_CAST")
-    return requireNotNull(viewModels[modelClass]).get() as T
+    return requireNotNull(viewModels[modelClass.java]).get() as T
   }
 
 }

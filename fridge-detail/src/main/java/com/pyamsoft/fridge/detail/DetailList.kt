@@ -242,7 +242,6 @@ class DetailList @Inject internal constructor(
   private fun showError(throwable: Throwable) {
     Snackbreak.bindTo(owner)
         .short(layoutRoot, throwable.message ?: "Error refreshing list, please try again")
-        .show()
   }
 
   private fun clearError() {

@@ -146,9 +146,9 @@ internal class MainActivity : RatingActivity() {
   private fun pushFragment() {
     val fm = supportFragmentManager
     if (fm.findFragmentById(fragmentContainerId) == null) {
-      fm.beginTransaction()
-          .add(fragmentContainerId, EntryFragment.newInstance(), EntryFragment.TAG)
-          .commit(this)
+      fm.commit(this) {
+        add(fragmentContainerId, EntryFragment.newInstance(), EntryFragment.TAG)
+      }
     }
   }
 
