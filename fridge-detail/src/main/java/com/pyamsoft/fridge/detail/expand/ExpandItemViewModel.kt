@@ -27,18 +27,18 @@ import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent.Update
 import com.pyamsoft.fridge.db.item.FridgeItemRealtime
 import com.pyamsoft.fridge.detail.DetailInteractor
 import com.pyamsoft.fridge.detail.item.DateSelectPayload
-import com.pyamsoft.fridge.detail.item.DetailItemControllerEvent
 import com.pyamsoft.fridge.detail.item.DetailItemControllerEvent.CloseExpand
 import com.pyamsoft.fridge.detail.item.DetailItemControllerEvent.DatePick
 import com.pyamsoft.fridge.detail.item.DetailItemControllerEvent.ExpandDetails
 import com.pyamsoft.fridge.detail.item.DetailItemViewEvent
+import com.pyamsoft.fridge.detail.item.DetailItemViewEvent.CloseItem
 import com.pyamsoft.fridge.detail.item.DetailItemViewEvent.CommitName
 import com.pyamsoft.fridge.detail.item.DetailItemViewEvent.CommitPresence
+import com.pyamsoft.fridge.detail.item.DetailItemViewEvent.DeleteItem
 import com.pyamsoft.fridge.detail.item.DetailItemViewEvent.ExpandItem
 import com.pyamsoft.fridge.detail.item.DetailItemViewEvent.PickDate
-import com.pyamsoft.fridge.detail.item.DetailItemViewState
+import com.pyamsoft.fridge.detail.item.DetailItemViewModel
 import com.pyamsoft.fridge.detail.item.isNameValid
-import com.pyamsoft.pydroid.arch.UiViewModel
 import com.pyamsoft.pydroid.core.bus.EventBus
 import com.pyamsoft.pydroid.core.singleDisposable
 import com.pyamsoft.pydroid.core.tryDispose
@@ -52,25 +52,17 @@ import javax.inject.Inject
 import javax.inject.Named
 
 class ExpandItemViewModel @Inject internal constructor(
-  item: FridgeItem,
   @Named("item_editable") isEditable: Boolean,
+  item: FridgeItem,
   defaultPresence: Presence,
-  private val interactor: DetailInteractor,
-  private val fakeRealtime: EventBus<FridgeItemChangeEvent>,
-  private val dateSelectBus: EventBus<DateSelectPayload>,
-  private val realtime: FridgeItemRealtime
-) : UiViewModel<DetailItemViewState, DetailItemViewEvent, DetailItemControllerEvent>(
-    initialState = DetailItemViewState(
-        throwable = null,
-        item = item.presence(defaultPresence),
-        isEditable = isEditable
-    )
-) {
+  dateSelectBus: EventBus<DateSelectPayload>,
+  realtime: FridgeItemRealtime,
+  fakeRealtime: EventBus<FridgeItemChangeEvent>,
+  private val interactor: DetailInteractor
+) : DetailItemViewModel(isEditable, item.presence(defaultPresence), fakeRealtime) {
 
   private val itemEntryId = item.entryId()
   private val itemId = item.id()
-
-  private var updateDisposable by singleDisposable()
 
   private var dateDisposable by singleDisposable()
   private var realtimeDisposable by singleDisposable()
@@ -96,7 +88,13 @@ class ExpandItemViewModel @Inject internal constructor(
       is CommitPresence -> commitPresence(event.oldItem, event.presence)
       is ExpandItem -> expandItem(event.item)
       is PickDate -> pickDate(event.oldItem, event.year, event.month, event.day)
+      is CloseItem -> closeSelf(event.item)
+      is DeleteItem -> deleteSelf(event.item)
     }
+  }
+
+  private fun deleteSelf(item: FridgeItem) {
+    remove(item, source = { interactor.archive(it) }) { closeSelf(it) }
   }
 
   override fun onTeardown() {

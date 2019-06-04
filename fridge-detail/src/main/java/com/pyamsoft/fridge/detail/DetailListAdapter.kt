@@ -34,7 +34,7 @@ import com.pyamsoft.fridge.detail.item.DetailItemComponent
 import com.pyamsoft.fridge.detail.item.DetailItemControllerEvent.CloseExpand
 import com.pyamsoft.fridge.detail.item.DetailItemControllerEvent.DatePick
 import com.pyamsoft.fridge.detail.item.DetailItemControllerEvent.ExpandDetails
-import com.pyamsoft.fridge.detail.item.DetailItemViewModel
+import com.pyamsoft.fridge.detail.item.DetailListItemViewModel
 import com.pyamsoft.fridge.detail.item.DetailListItemDate
 import com.pyamsoft.fridge.detail.item.DetailListItemGlances
 import com.pyamsoft.fridge.detail.item.DetailListItemName
@@ -127,7 +127,7 @@ internal class DetailListAdapter constructor(
     private val factory: (parent: ViewGroup, item: FridgeItem, editable: Boolean) -> DetailItemComponent
   ) : DetailViewHolder(itemView) {
 
-    @JvmField @Inject internal var viewModel: DetailItemViewModel? = null
+    @JvmField @Inject internal var viewModel: DetailListItemViewModel? = null
     @JvmField @Inject internal var name: DetailListItemName? = null
     @JvmField @Inject internal var date: DetailListItemDate? = null
     @JvmField @Inject internal var presence: DetailListItemPresence? = null

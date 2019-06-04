@@ -50,6 +50,10 @@ sealed class DetailItemViewEvent : UiViewEvent {
     val day: Int
   ) : DetailItemViewEvent()
 
+  data class CloseItem internal constructor(val item: FridgeItem) : DetailItemViewEvent()
+
+  data class DeleteItem internal constructor(val item: FridgeItem) : DetailItemViewEvent()
+
 }
 
 sealed class DetailItemControllerEvent : UiControllerEvent {

@@ -40,6 +40,7 @@ import com.pyamsoft.fridge.db.item.JsonMappableFridgeItem
 import com.pyamsoft.fridge.detail.expand.ExpandItemError
 import com.pyamsoft.fridge.detail.expand.ExpandItemName
 import com.pyamsoft.fridge.detail.expand.ExpandItemViewModel
+import com.pyamsoft.fridge.detail.expand.ExpandedToolbar
 import com.pyamsoft.fridge.detail.item.DetailItemControllerEvent.CloseExpand
 import com.pyamsoft.fridge.detail.item.DetailItemControllerEvent.DatePick
 import com.pyamsoft.fridge.detail.item.DetailItemControllerEvent.ExpandDetails
@@ -61,6 +62,7 @@ class ExpandedFragment : DialogFragment() {
   @JvmField @Inject internal var date: DetailListItemDate? = null
   @JvmField @Inject internal var presence: DetailListItemPresence? = null
   @JvmField @Inject internal var errorDisplay: ExpandItemError? = null
+  @JvmField @Inject internal var toolbar: ExpandedToolbar? = null
   private var viewModel: ExpandItemViewModel? = null
 
   override fun onCreateView(
@@ -78,8 +80,6 @@ class ExpandedFragment : DialogFragment() {
     super.onViewCreated(view, savedInstanceState)
 
     val parent = view.findViewById<ConstraintLayout>(R.id.layout_constraint)
-    parent.setPadding(16.toDp(parent.context))
-
     val itemArgument =
       requireNotNull(requireArguments().getParcelable<JsonMappableFridgeItem>(ITEM))
     val entryArgument =
@@ -91,21 +91,24 @@ class ExpandedFragment : DialogFragment() {
         .create(parent, itemArgument, entryArgument, presenceArgument, itemArgument.isReal())
         .inject(this)
 
-    ViewModelProviders.of(this, factory).let { factory ->
-      viewModel = factory.get(ExpandItemViewModel::class.java)
-    }
+    ViewModelProviders.of(this, factory)
+        .let { factory ->
+          viewModel = factory.get(ExpandItemViewModel::class.java)
+        }
 
     val name = requireNotNull(name)
     val date = requireNotNull(date)
     val presence = requireNotNull(presence)
     val errorDisplay = requireNotNull(errorDisplay)
+    val toolbar = requireNotNull(toolbar)
     createComponent(
         null, viewLifecycleOwner,
         requireNotNull(viewModel),
         name,
         date,
         presence,
-        errorDisplay
+        errorDisplay,
+        toolbar
     ) {
       return@createComponent when (it) {
         is ExpandDetails -> expandItem(it.item)
@@ -115,8 +118,16 @@ class ExpandedFragment : DialogFragment() {
     }
 
     parent.layout {
-      errorDisplay.also {
+      toolbar.also {
         connect(it.id(), ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP)
+        connect(it.id(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
+        connect(it.id(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
+        constrainWidth(it.id(), ConstraintSet.MATCH_CONSTRAINT)
+        constrainHeight(it.id(), ConstraintSet.WRAP_CONTENT)
+      }
+
+      errorDisplay.also {
+        connect(it.id(), ConstraintSet.TOP, toolbar.id(), ConstraintSet.BOTTOM)
         connect(it.id(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
         connect(it.id(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
         constrainWidth(it.id(), ConstraintSet.MATCH_CONSTRAINT)
@@ -168,6 +179,7 @@ class ExpandedFragment : DialogFragment() {
     date?.saveState(outState)
     presence?.saveState(outState)
     errorDisplay?.saveState(outState)
+    toolbar?.saveState(outState)
   }
 
   override fun onDestroyView() {
@@ -177,6 +189,7 @@ class ExpandedFragment : DialogFragment() {
     name = null
     date = null
     presence = null
+    toolbar = null
     errorDisplay = null
     factory = null
   }
