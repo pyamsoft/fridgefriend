@@ -23,7 +23,6 @@ import android.view.ViewGroup
 import androidx.annotation.CheckResult
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
-import androidx.core.view.updatePadding
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -34,15 +33,14 @@ import com.pyamsoft.fridge.detail.item.DetailItemComponent
 import com.pyamsoft.fridge.detail.item.DetailItemControllerEvent.CloseExpand
 import com.pyamsoft.fridge.detail.item.DetailItemControllerEvent.DatePick
 import com.pyamsoft.fridge.detail.item.DetailItemControllerEvent.ExpandDetails
-import com.pyamsoft.fridge.detail.item.DetailListItemViewModel
 import com.pyamsoft.fridge.detail.item.DetailListItemDate
 import com.pyamsoft.fridge.detail.item.DetailListItemGlances
 import com.pyamsoft.fridge.detail.item.DetailListItemName
 import com.pyamsoft.fridge.detail.item.DetailListItemPresence
+import com.pyamsoft.fridge.detail.item.DetailListItemViewModel
 import com.pyamsoft.fridge.detail.item.ListItemLifecycle
 import com.pyamsoft.pydroid.arch.createComponent
 import com.pyamsoft.pydroid.ui.util.layout
-import com.pyamsoft.pydroid.util.toDp
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -78,26 +76,12 @@ internal class DetailListAdapter constructor(
         .toLong()
   }
 
-  @CheckResult
-  private fun View.prepareAsItem(): View {
-    val horizontalPadding = 16.toDp(this.context)
-    val verticalPadding = 8.toDp(this.context)
-    this.updatePadding(
-        left = horizontalPadding,
-        right = horizontalPadding,
-        top = verticalPadding,
-        bottom = verticalPadding
-    )
-    return this
-  }
-
   override fun onCreateViewHolder(
     parent: ViewGroup,
     viewType: Int
   ): DetailViewHolder {
     val inflater = LayoutInflater.from(parent.context)
     val v = inflater.inflate(R.layout.listitem_constraint, parent, false)
-        .prepareAsItem()
     return DetailItemViewHolder(v, factory)
   }
 
