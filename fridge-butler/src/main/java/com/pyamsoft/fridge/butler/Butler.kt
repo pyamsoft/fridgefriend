@@ -17,11 +17,14 @@
 
 package com.pyamsoft.fridge.butler
 
+import java.util.concurrent.TimeUnit
+
 interface Butler {
 
-  fun work()
-
-  fun schedule()
+  fun remindExpiration(
+    time: Long,
+    unit: TimeUnit
+  )
 
   fun cancel()
 

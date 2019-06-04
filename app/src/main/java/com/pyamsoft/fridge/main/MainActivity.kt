@@ -37,6 +37,7 @@ import com.pyamsoft.pydroid.ui.theme.Theming
 import com.pyamsoft.pydroid.ui.util.commit
 import com.pyamsoft.pydroid.ui.util.layout
 import com.pyamsoft.pydroid.ui.widget.shadow.DropshadowView
+import java.util.concurrent.TimeUnit.SECONDS
 import javax.inject.Inject
 
 internal class MainActivity : RatingActivity() {
@@ -81,10 +82,13 @@ internal class MainActivity : RatingActivity() {
     inflateComponents(contentContainer, savedInstanceState)
 
     pushFragment()
+  }
 
+  override fun onStart() {
+    super.onStart()
     requireNotNull(butler).apply {
       cancel()
-      work()
+      remindExpiration(1, SECONDS)
     }
   }
 

@@ -70,14 +70,12 @@ internal class WorkManagerButler @Inject internal constructor() : Butler {
     schedule(ExpirationWorker::class.java, EXPIRATION_TAG, time, unit, true)
   }
 
-  override fun work() {
+  override fun remindExpiration(
+    time: Long,
+    unit: TimeUnit
+  ) {
     // Schedule the same work twice but one requires idle and one does not
-    scheduleExpirationWork(1, TimeUnit.SECONDS)
-  }
-
-  override fun schedule() {
-    // Schedule the same work twice but one requires idle and one does not
-    scheduleExpirationWork(2, TimeUnit.HOURS)
+    scheduleExpirationWork(time, unit)
   }
 
   override fun cancel() {

@@ -36,6 +36,7 @@ import io.reactivex.Observable
 import io.reactivex.Single
 import timber.log.Timber
 import java.util.Calendar
+import java.util.concurrent.TimeUnit
 
 internal class ExpirationWorker internal constructor(
   context: Context,
@@ -59,10 +60,12 @@ internal class ExpirationWorker internal constructor(
   }
 
   private fun reschedule(required: Boolean) {
+    val time = 3L
+    val unit = TimeUnit.HOURS
     if (required) {
-      requireNotNull(butler).schedule()
+      requireNotNull(butler).remindExpiration(time, unit)
     } else {
-      butler?.schedule()
+      butler?.remindExpiration(time, unit)
     }
   }
 
