@@ -26,7 +26,6 @@ import android.view.WindowManager
 import androidx.annotation.CheckResult
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
-import androidx.core.view.setPadding
 import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
@@ -44,14 +43,17 @@ import com.pyamsoft.fridge.detail.expand.ExpandedToolbar
 import com.pyamsoft.fridge.detail.item.DetailItemControllerEvent.CloseExpand
 import com.pyamsoft.fridge.detail.item.DetailItemControllerEvent.DatePick
 import com.pyamsoft.fridge.detail.item.DetailItemControllerEvent.ExpandDetails
+import com.pyamsoft.fridge.detail.item.DetailItemViewEvent
+import com.pyamsoft.fridge.detail.item.DetailItemViewState
 import com.pyamsoft.fridge.detail.item.DetailListItemDate
 import com.pyamsoft.fridge.detail.item.DetailListItemPresence
+import com.pyamsoft.fridge.extensions.ShimDropshadowView
 import com.pyamsoft.pydroid.arch.createComponent
 import com.pyamsoft.pydroid.ui.Injector
 import com.pyamsoft.pydroid.ui.app.requireArguments
 import com.pyamsoft.pydroid.ui.util.layout
 import com.pyamsoft.pydroid.ui.util.show
-import com.pyamsoft.pydroid.util.toDp
+import com.pyamsoft.pydroid.ui.widget.shadow.DropshadowView
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -63,6 +65,7 @@ class ExpandedFragment : DialogFragment() {
   @JvmField @Inject internal var presence: DetailListItemPresence? = null
   @JvmField @Inject internal var errorDisplay: ExpandItemError? = null
   @JvmField @Inject internal var toolbar: ExpandedToolbar? = null
+  @JvmField @Inject internal var shadow: ShimDropshadowView<DetailItemViewState, DetailItemViewEvent>? = null
   private var viewModel: ExpandItemViewModel? = null
 
   override fun onCreateView(
@@ -101,6 +104,7 @@ class ExpandedFragment : DialogFragment() {
     val presence = requireNotNull(presence)
     val errorDisplay = requireNotNull(errorDisplay)
     val toolbar = requireNotNull(toolbar)
+    val shadow = requireNotNull(shadow)
     createComponent(
         null, viewLifecycleOwner,
         requireNotNull(viewModel),
@@ -108,7 +112,8 @@ class ExpandedFragment : DialogFragment() {
         date,
         presence,
         errorDisplay,
-        toolbar
+        toolbar,
+        shadow
     ) {
       return@createComponent when (it) {
         is ExpandDetails -> expandItem(it.item)
@@ -124,6 +129,13 @@ class ExpandedFragment : DialogFragment() {
         connect(it.id(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
         constrainWidth(it.id(), ConstraintSet.MATCH_CONSTRAINT)
         constrainHeight(it.id(), ConstraintSet.WRAP_CONTENT)
+      }
+
+      shadow.also {
+        connect(it.id(), ConstraintSet.TOP, toolbar.id(), ConstraintSet.BOTTOM)
+        connect(it.id(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
+        connect(it.id(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
+        constrainWidth(it.id(), ConstraintSet.MATCH_CONSTRAINT)
       }
 
       errorDisplay.also {
@@ -180,6 +192,7 @@ class ExpandedFragment : DialogFragment() {
     presence?.saveState(outState)
     errorDisplay?.saveState(outState)
     toolbar?.saveState(outState)
+    shadow?.saveState(outState)
   }
 
   override fun onDestroyView() {
@@ -191,6 +204,7 @@ class ExpandedFragment : DialogFragment() {
     presence = null
     toolbar = null
     errorDisplay = null
+    shadow = null
     factory = null
   }
 

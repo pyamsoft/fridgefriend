@@ -28,10 +28,14 @@ import com.pyamsoft.fridge.db.item.FridgeItem.Presence
 import com.pyamsoft.fridge.detail.ExpandComponent.ViewModelModule
 import com.pyamsoft.fridge.detail.expand.ExpandItemViewModel
 import com.pyamsoft.fridge.detail.expand.ExpandModule
+import com.pyamsoft.fridge.detail.item.DetailItemViewEvent
+import com.pyamsoft.fridge.detail.item.DetailItemViewState
+import com.pyamsoft.fridge.extensions.ShimDropshadowView
 import com.pyamsoft.pydroid.arch.UiViewModel
 import dagger.Binds
 import dagger.BindsInstance
 import dagger.Module
+import dagger.Provides
 import dagger.Subcomponent
 import dagger.multibindings.IntoMap
 import javax.inject.Named
@@ -64,6 +68,16 @@ internal interface ExpandComponent {
     @IntoMap
     @ViewModelKey(ExpandItemViewModel::class)
     internal abstract fun expandViewModel(viewModel: ExpandItemViewModel): UiViewModel<*, *, *>
+
+    @Module
+    companion object {
+
+      @Provides
+      @JvmStatic
+      fun provideDropshadow(parent: ViewGroup): ShimDropshadowView<DetailItemViewState, DetailItemViewEvent> {
+        return ShimDropshadowView.createTyped(parent)
+      }
+    }
   }
 
 }
