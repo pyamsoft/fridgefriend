@@ -47,12 +47,12 @@ import com.pyamsoft.fridge.detail.item.DetailItemViewEvent
 import com.pyamsoft.fridge.detail.item.DetailItemViewState
 import com.pyamsoft.fridge.detail.item.DetailListItemDate
 import com.pyamsoft.fridge.detail.item.DetailListItemPresence
-import com.pyamsoft.fridge.extensions.ShimDropshadowView
 import com.pyamsoft.pydroid.arch.createComponent
 import com.pyamsoft.pydroid.ui.Injector
 import com.pyamsoft.pydroid.ui.app.requireArguments
 import com.pyamsoft.pydroid.ui.util.layout
 import com.pyamsoft.pydroid.ui.util.show
+import com.pyamsoft.pydroid.ui.widget.shadow.DropshadowView
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -102,7 +102,7 @@ class ExpandedFragment : DialogFragment() {
     val presence = requireNotNull(presence)
     val errorDisplay = requireNotNull(errorDisplay)
     val toolbar = requireNotNull(toolbar)
-    val shadow = ShimDropshadowView.createTyped<DetailItemViewState, DetailItemViewEvent>(parent)
+    val shadow = DropshadowView.createTyped<DetailItemViewState, DetailItemViewEvent>(parent)
     createComponent(
         null, viewLifecycleOwner,
         requireNotNull(viewModel),

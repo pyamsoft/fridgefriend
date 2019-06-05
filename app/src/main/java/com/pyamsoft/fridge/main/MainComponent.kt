@@ -19,15 +19,11 @@ package com.pyamsoft.fridge.main
 
 import android.view.ViewGroup
 import androidx.annotation.CheckResult
-import com.pyamsoft.fridge.main.MainComponent.MainProvider
 import com.pyamsoft.pydroid.ui.app.ToolbarActivityProvider
-import com.pyamsoft.pydroid.ui.widget.shadow.DropshadowView
 import dagger.BindsInstance
-import dagger.Module
-import dagger.Provides
 import dagger.Subcomponent
 
-@Subcomponent(modules = [MainProvider::class])
+@Subcomponent
 internal interface MainComponent {
 
   fun inject(activity: MainActivity)
@@ -40,17 +36,6 @@ internal interface MainComponent {
       @BindsInstance parent: ViewGroup,
       @BindsInstance provider: ToolbarActivityProvider
     ): MainComponent
-  }
-
-  @Module
-  object MainProvider {
-
-    @Provides
-    @JvmStatic
-    fun provideDropshadow(parent: ViewGroup): DropshadowView {
-      return DropshadowView(parent)
-    }
-
   }
 
 }

@@ -62,7 +62,6 @@ internal class MainActivity : RatingActivity() {
   private var snackbarContainer: CoordinatorLayout? = null
 
   @JvmField @Inject internal var toolbar: MainToolbar? = null
-  @JvmField @Inject internal var dropshadowView: DropshadowView? = null
   @JvmField @Inject internal var container: FragmentContainer? = null
   @JvmField @Inject internal var butler: Butler? = null
 
@@ -109,7 +108,8 @@ internal class MainActivity : RatingActivity() {
   ) {
     val container = requireNotNull(container)
     val toolbar = requireNotNull(toolbar)
-    val dropshadow = requireNotNull(dropshadowView)
+    val dropshadow = DropshadowView.create(constraintLayout)
+
     container.inflate(savedInstanceState)
     toolbar.inflate(savedInstanceState)
     dropshadow.inflate(savedInstanceState)
@@ -160,13 +160,11 @@ internal class MainActivity : RatingActivity() {
     super.onSaveInstanceState(outState)
     toolbar?.saveState(outState)
     container?.saveState(outState)
-    dropshadowView?.saveState(outState)
   }
 
   override fun onDestroy() {
     super.onDestroy()
     snackbarContainer = null
-    dropshadowView = null
     toolbar = null
     container = null
     butler = null
