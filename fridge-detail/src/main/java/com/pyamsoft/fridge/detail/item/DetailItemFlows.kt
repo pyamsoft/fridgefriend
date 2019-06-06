@@ -54,6 +54,8 @@ sealed class DetailItemViewEvent : UiViewEvent {
 
   data class DeleteItem internal constructor(val item: FridgeItem) : DetailItemViewEvent()
 
+  data class ArchiveItem internal constructor(val item: FridgeItem) : DetailItemViewEvent()
+
 }
 
 sealed class DetailItemControllerEvent : UiControllerEvent {

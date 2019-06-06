@@ -31,6 +31,7 @@ import com.pyamsoft.fridge.detail.item.DetailItemControllerEvent.CloseExpand
 import com.pyamsoft.fridge.detail.item.DetailItemControllerEvent.DatePick
 import com.pyamsoft.fridge.detail.item.DetailItemControllerEvent.ExpandDetails
 import com.pyamsoft.fridge.detail.item.DetailItemViewEvent
+import com.pyamsoft.fridge.detail.item.DetailItemViewEvent.ArchiveItem
 import com.pyamsoft.fridge.detail.item.DetailItemViewEvent.CloseItem
 import com.pyamsoft.fridge.detail.item.DetailItemViewEvent.CommitName
 import com.pyamsoft.fridge.detail.item.DetailItemViewEvent.CommitPresence
@@ -90,11 +91,16 @@ class ExpandItemViewModel @Inject internal constructor(
       is PickDate -> pickDate(event.oldItem, event.year, event.month, event.day)
       is CloseItem -> closeSelf(event.item)
       is DeleteItem -> deleteSelf(event.item)
+      is ArchiveItem -> archiveSelf(event.item)
     }
   }
 
-  private fun deleteSelf(item: FridgeItem) {
+  private fun archiveSelf(item: FridgeItem) {
     remove(item, source = { interactor.archive(it) }) { closeSelf(it) }
+  }
+
+  private fun deleteSelf(item: FridgeItem) {
+    remove(item, source = { interactor.delete(it) }) { closeSelf(it) }
   }
 
   override fun onTeardown() {
