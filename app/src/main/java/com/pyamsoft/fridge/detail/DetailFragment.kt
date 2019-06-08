@@ -86,8 +86,8 @@ internal class DetailFragment : Fragment() {
     Injector.obtain<FridgeComponent>(view.context.applicationContext)
         .plusDetailComponent()
         .create(
-            parent, requireToolbarActivity(), viewLifecycleOwner,
-            getEntryArgument(), getPresenceArgument()
+            requireActivity(), parent, requireToolbarActivity(),
+            viewLifecycleOwner, getEntryArgument(), getPresenceArgument()
         )
         .inject(this)
 

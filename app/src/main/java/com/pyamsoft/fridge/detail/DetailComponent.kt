@@ -17,6 +17,7 @@
 
 package com.pyamsoft.fridge.detail
 
+import android.app.Activity
 import android.view.ViewGroup
 import androidx.annotation.CheckResult
 import androidx.lifecycle.LifecycleOwner
@@ -45,6 +46,7 @@ internal interface DetailComponent {
 
     @CheckResult
     fun create(
+      @BindsInstance activity: Activity,
       @BindsInstance parent: ViewGroup,
       @BindsInstance toolbarActivity: ToolbarActivity,
       @BindsInstance owner: LifecycleOwner,

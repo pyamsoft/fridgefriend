@@ -17,6 +17,7 @@
 
 package com.pyamsoft.fridge.detail.add
 
+import android.app.Activity
 import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
@@ -35,6 +36,7 @@ import com.pyamsoft.pydroid.util.tintWith
 import javax.inject.Inject
 
 class AddNewItemView @Inject internal constructor(
+  private val activity: Activity,
   private val theming: Theming,
   private val imageLoader: ImageLoader,
   parent: ViewGroup
@@ -55,7 +57,7 @@ class AddNewItemView @Inject internal constructor(
     iconLoaded = imageLoader.load(R.drawable.ic_add_24dp)
         .mutate { drawable ->
           val color: Int
-          if (theming.isDarkTheme()) {
+          if (theming.isDarkTheme(activity)) {
             color = R.color.white
           } else {
             color = R.color.black

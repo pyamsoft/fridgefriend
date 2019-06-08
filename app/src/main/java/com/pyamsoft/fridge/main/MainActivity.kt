@@ -19,7 +19,6 @@ package com.pyamsoft.fridge.main
 
 import android.os.Bundle
 import android.view.ViewGroup
-import androidx.annotation.StyleRes
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.coordinatorlayout.widget.CoordinatorLayout
@@ -33,7 +32,6 @@ import com.pyamsoft.pydroid.ui.Injector
 import com.pyamsoft.pydroid.ui.rating.ChangeLogBuilder
 import com.pyamsoft.pydroid.ui.rating.RatingActivity
 import com.pyamsoft.pydroid.ui.rating.buildChangeLog
-import com.pyamsoft.pydroid.ui.theme.Theming
 import com.pyamsoft.pydroid.ui.util.commit
 import com.pyamsoft.pydroid.ui.util.layout
 import com.pyamsoft.pydroid.ui.widget.shadow.DropshadowView
@@ -66,7 +64,7 @@ internal class MainActivity : RatingActivity() {
   @JvmField @Inject internal var butler: Butler? = null
 
   override fun onCreate(savedInstanceState: Bundle?) {
-    setDynamicTheme()
+    setTheme(R.style.Theme_Fridge_Normal)
     super.onCreate(savedInstanceState)
     setContentView(R.layout.snackbar_screen)
 
@@ -75,7 +73,7 @@ internal class MainActivity : RatingActivity() {
 
     Injector.obtain<FridgeComponent>(applicationContext)
         .plusMainComponent()
-        .create(contentContainer, this)
+        .create(this, contentContainer, this)
         .inject(this)
 
     inflateComponents(contentContainer, savedInstanceState)
@@ -89,17 +87,6 @@ internal class MainActivity : RatingActivity() {
       cancel()
       remindExpiration(1, SECONDS)
     }
-  }
-
-  private fun setDynamicTheme() {
-    @StyleRes val theme: Int
-    if (Injector.obtain<Theming>(applicationContext).isDarkTheme()) {
-      theme = R.style.Theme_Fridge_Dark_Normal
-    } else {
-      theme = R.style.Theme_Fridge_Light_Normal
-    }
-
-    setTheme(theme)
   }
 
   private fun inflateComponents(

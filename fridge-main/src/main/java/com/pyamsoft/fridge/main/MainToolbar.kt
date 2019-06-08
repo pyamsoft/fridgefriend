@@ -17,6 +17,7 @@
 
 package com.pyamsoft.fridge.main
 
+import android.app.Activity
 import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
@@ -33,6 +34,7 @@ import javax.inject.Inject
 import javax.inject.Named
 
 class MainToolbar @Inject internal constructor(
+  private val activity: Activity,
   private val toolbarActivityProvider: ToolbarActivityProvider,
   private val theming: Theming,
   @Named("app_name") private val appNameRes: Int,
@@ -62,7 +64,7 @@ class MainToolbar @Inject internal constructor(
 
   private fun inflateToolbar() {
     val theme: Int
-    if (theming.isDarkTheme()) {
+    if (theming.isDarkTheme(activity)) {
       theme = R.style.ThemeOverlay_MaterialComponents
     } else {
       theme = R.style.ThemeOverlay_MaterialComponents_Light

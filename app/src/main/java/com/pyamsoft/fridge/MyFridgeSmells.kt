@@ -39,7 +39,6 @@ class MyFridgeSmells : Application() {
       return
     }
 
-    Theming.IS_DEFAULT_DARK_THEME = false
     PYDroid.init(
         this,
         getString(R.string.app_name),
