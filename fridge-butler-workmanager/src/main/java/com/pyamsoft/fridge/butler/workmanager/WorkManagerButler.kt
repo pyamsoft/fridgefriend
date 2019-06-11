@@ -78,6 +78,11 @@ internal class WorkManagerButler @Inject internal constructor() : Butler {
     scheduleExpirationWork(time, unit)
   }
 
+  override fun cancelExpirationReminder() {
+    Timber.d("Cancel all pending expiration reminders")
+    workManager().cancelAllWorkByTag(EXPIRATION_TAG)
+  }
+
   override fun cancel() {
     Timber.d("Cancel all pending work")
     workManager().cancelAllWork()

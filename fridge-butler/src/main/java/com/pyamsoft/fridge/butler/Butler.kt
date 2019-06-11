@@ -26,6 +26,8 @@ interface Butler {
     unit: TimeUnit
   )
 
+  fun cancelExpirationReminder()
+
   fun cancel()
 
 }

@@ -18,7 +18,6 @@
 package com.pyamsoft.fridge.db.room.impl
 
 import com.popinnow.android.repo.Repo
-import com.pyamsoft.fridge.butler.Butler
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.entry.FridgeEntryChangeEvent
 import com.pyamsoft.fridge.db.entry.FridgeEntryChangeEvent.Delete
@@ -38,7 +37,6 @@ import io.reactivex.Single
 
 internal class RoomFridgeEntryDb internal constructor(
   private val room: RoomFridgeDbImpl,
-  private val butler: Butler,
   private val repo: Repo<List<JsonMappableFridgeEntry>>,
   private val cache: ClearCache
 ) : FridgeEntryDb {
@@ -68,9 +66,11 @@ internal class RoomFridgeEntryDb internal constructor(
       override fun queryAll(force: Boolean): Single<List<FridgeEntry>> {
         synchronized(lock) {
           return repo.get(force) {
-            return@get room.roomEntryQueryDao().queryAll(force)
-              .map { it.map { entry -> JsonMappableFridgeEntry.from(entry.makeReal()) } }
-          }.map { it }
+            return@get room.roomEntryQueryDao()
+                .queryAll(force)
+                .map { it.map { entry -> JsonMappableFridgeEntry.from(entry.makeReal()) } }
+          }
+              .map { it }
         }
       }
 
@@ -82,8 +82,9 @@ internal class RoomFridgeEntryDb internal constructor(
 
       override fun insert(entry: FridgeEntry): Completable {
         synchronized(lock) {
-          return room.roomEntryInsertDao().insert(entry)
-            .doOnComplete { publishRealtime(Insert(entry.makeReal())) }
+          return room.roomEntryInsertDao()
+              .insert(entry)
+              .doOnComplete { publishRealtime(Insert(entry.makeReal())) }
         }
       }
 
@@ -95,8 +96,9 @@ internal class RoomFridgeEntryDb internal constructor(
 
       override fun update(entry: FridgeEntry): Completable {
         synchronized(lock) {
-          return room.roomEntryUpdateDao().update(entry)
-            .doOnComplete { publishRealtime(Update(entry.makeReal())) }
+          return room.roomEntryUpdateDao()
+              .update(entry)
+              .doOnComplete { publishRealtime(Update(entry.makeReal())) }
         }
       }
 
@@ -108,16 +110,17 @@ internal class RoomFridgeEntryDb internal constructor(
 
       override fun delete(entry: FridgeEntry): Completable {
         synchronized(lock) {
-          return room.roomEntryDeleteDao().delete(entry)
-            .doOnComplete { publishRealtime(Delete(entry.makeReal())) }
+          return room.roomEntryDeleteDao()
+              .delete(entry)
+              .doOnComplete { publishRealtime(Delete(entry.makeReal())) }
         }
       }
 
       override fun deleteAll(): Completable {
         synchronized(lock) {
-          return room.roomEntryDeleteDao().deleteAll()
-            .doOnComplete { butler.cancel() }
-            .doOnComplete { publishRealtime(DeleteAll) }
+          return room.roomEntryDeleteDao()
+              .deleteAll()
+              .doOnComplete { publishRealtime(DeleteAll) }
         }
       }
 

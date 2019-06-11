@@ -94,8 +94,12 @@ dependencies {
   debugImplementation "com.squareup.leakcanary:leakcanary-android:$leakCanary"
   releaseImplementation "com.squareup.leakcanary:leakcanary-android-no-op:$leakCanary"
   testImplementation "com.squareup.leakcanary:leakcanary-android-no-op:$leakCanary"
+
   // Dagger
   kapt "com.google.dagger:dagger-compiler:$dagger"
+
+  // OsmDroid
+  implementation "org.osmdroid:osmdroid-android:$osmdroid"
 
   api project(':fridge-butler-workmanager')
   api project(':fridge-db-room')
@@ -103,7 +107,7 @@ dependencies {
   api project(':fridge-detail')
   api project(':fridge-entry')
   api project(':fridge-main')
-//  api project(':fridge-ocr')
+  //  api project(':fridge-ocr')
   api project(':fridge-setting')
 }
 

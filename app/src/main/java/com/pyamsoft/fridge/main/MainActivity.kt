@@ -84,7 +84,7 @@ internal class MainActivity : RatingActivity() {
   override fun onStart() {
     super.onStart()
     requireNotNull(butler).apply {
-      cancel()
+      cancelExpirationReminder()
       remindExpiration(1, SECONDS)
     }
   }

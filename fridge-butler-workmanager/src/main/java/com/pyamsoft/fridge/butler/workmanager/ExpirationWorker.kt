@@ -18,8 +18,6 @@
 package com.pyamsoft.fridge.butler.workmanager
 
 import android.content.Context
-import androidx.annotation.CheckResult
-import androidx.work.RxWorker
 import androidx.work.WorkerParameters
 import com.pyamsoft.fridge.butler.Butler
 import com.pyamsoft.fridge.db.cleanMidnight
@@ -36,45 +34,29 @@ import io.reactivex.Observable
 import io.reactivex.Single
 import timber.log.Timber
 import java.util.Calendar
-import java.util.concurrent.TimeUnit
+import java.util.concurrent.TimeUnit.HOURS
 
 internal class ExpirationWorker internal constructor(
   context: Context,
   params: WorkerParameters
-) : RxWorker(context, params) {
+) : BaseWorker(context, params) {
 
   private var fridgeEntryQueryDao: FridgeEntryQueryDao? = null
   private var fridgeItemQueryDao: FridgeItemQueryDao? = null
-  private var butler: Butler? = null
 
-  private fun inject() {
+  override fun onInject() {
     fridgeEntryQueryDao = Injector.obtain(applicationContext)
     fridgeItemQueryDao = Injector.obtain(applicationContext)
-    butler = Injector.obtain(applicationContext)
   }
 
-  private fun teardown() {
+  override fun onTeardown() {
     fridgeEntryQueryDao = null
     fridgeItemQueryDao = null
-    butler = null
   }
 
-  private fun reschedule(required: Boolean) {
-    val time = 3L
-    val unit = TimeUnit.HOURS
-    if (required) {
-      requireNotNull(butler).remindExpiration(time, unit)
-    } else {
-      butler?.remindExpiration(time, unit)
-    }
-  }
-
-  override fun onStopped() {
-    super.onStopped()
-
-    Timber.i("ExpirationWorker stopped")
-    reschedule(required = false)
-    teardown()
+  override fun reschedule(butler: Butler) {
+    butler.cancelExpirationReminder()
+    butler.remindExpiration(3L, HOURS)
   }
 
   private fun notifyForEntry(
@@ -129,41 +111,19 @@ internal class ExpirationWorker internal constructor(
     }
   }
 
-  override fun createWork(): Single<Result> {
-    inject()
+  override fun doWork(): Single<*> {
+    val today = Calendar.getInstance()
+        .cleanMidnight()
+    val later = Calendar.getInstance()
+        .daysLaterMidnight(2)
 
-    return Single.defer {
-
-      val today = Calendar.getInstance()
-          .cleanMidnight()
-      val later = Calendar.getInstance()
-          .daysLaterMidnight(2)
-
-      return@defer requireNotNull(fridgeEntryQueryDao).queryAll(true)
-          .flatMapObservable { Observable.fromIterable(it) }
-          .flatMapSingle { entry ->
-            return@flatMapSingle requireNotNull(fridgeItemQueryDao).queryAll(true, entry.id())
-                .doOnSuccess { items -> notifyForEntry(today, later, entry, items) }
-                .map { entry }
-          }
-          .toList()
-          .map { success(it) }
-          .onErrorReturn { fail(it) }
-    }
-        .doAfterTerminate { teardown() }
-  }
-
-  @CheckResult
-  private fun success(entries: List<FridgeEntry>): Result {
-    Timber.d("Butler notified for entries: $entries")
-    reschedule(required = true)
-    return Result.success()
-  }
-
-  @CheckResult
-  private fun fail(throwable: Throwable): Result {
-    Timber.e(throwable, "Butler failed to notify")
-    reschedule(required = true)
-    return Result.failure()
+    return requireNotNull(fridgeEntryQueryDao).queryAll(true)
+        .flatMapObservable { Observable.fromIterable(it) }
+        .flatMapSingle { entry ->
+          return@flatMapSingle requireNotNull(fridgeItemQueryDao).queryAll(true, entry.id())
+              .doOnSuccess { items -> notifyForEntry(today, later, entry, items) }
+              .map { entry }
+        }
+        .toList()
   }
 }

@@ -21,7 +21,6 @@ import android.content.Context
 import androidx.annotation.CheckResult
 import androidx.room.Room
 import com.popinnow.android.repo.Repo
-import com.pyamsoft.fridge.butler.Butler
 import com.pyamsoft.fridge.db.PersistentEntries
 import com.pyamsoft.fridge.db.entry.FridgeEntryDeleteDao
 import com.pyamsoft.fridge.db.entry.FridgeEntryInsertDao
@@ -52,7 +51,6 @@ object RoomProvider {
   @CheckResult
   internal fun provideDb(
     context: Context,
-    butler: Butler,
     entryRepo: Repo<List<JsonMappableFridgeEntry>>,
     itemRepo: Repo<List<JsonMappableFridgeItem>>
   ): RoomFridgeDb {
@@ -63,7 +61,7 @@ object RoomProvider {
     )
         .build()
         .apply {
-          setObjects(butler, entryRepo, itemRepo)
+          setObjects(entryRepo, itemRepo)
         }
   }
 

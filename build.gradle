@@ -60,6 +60,8 @@ buildscript {
     mlVision = "20.0.0"
 
     workmanager = "2.0.1"
+
+    osmdroid = "6.1.0"
   }
 
   dependencies {
