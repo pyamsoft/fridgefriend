@@ -15,10 +15,11 @@
  *
  */
 
-package com.pyamsoft.fridge.butler.workmanager
+package com.pyamsoft.fridge.butler.workmanager.expiration
 
 import android.content.Context
 import androidx.annotation.CheckResult
+import com.pyamsoft.fridge.butler.workmanager.ButlerNotifications
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItem
 
@@ -44,16 +45,20 @@ internal object ExpirationNotifications {
     items: List<FridgeItem>
   ) {
     ButlerNotifications.notify(
+        entry.id(),
         context,
         NEEDED_CHANNEL_ID,
         "Purchase Reminders",
         "Reminders for items you still need to purchase",
-        entry,
         items
     ) { builder ->
       return@notify builder
           .setContentTitle("Purchase reminder for '${entry.name()}'")
-          .setContentText("You still need '${items.first().name()}' ${getExtraItems(items)}")
+          .setContentText(
+              "You still need '${items.first().name()}' ${getExtraItems(
+                  items
+              )}"
+          )
           .build()
     }
   }
@@ -65,14 +70,17 @@ internal object ExpirationNotifications {
     items: List<FridgeItem>
   ) {
     ButlerNotifications.notify(
+        entry.id(),
         context,
         EXPIRING_CHANNEL_ID,
         "Expiring Reminders",
         "Reminders for items that are going to expire soon",
-        entry,
         items
     ) { builder ->
-      val extra = "${getExtraItems(items)} ${if (items.size == 1) "is" else "are"} about to expire."
+      val extra =
+        "${getExtraItems(
+            items
+        )} ${if (items.size == 1) "is" else "are"} about to expire."
       return@notify builder
           .setContentTitle("Expiration reminder for '${entry.name()}'")
           .setContentText("'${items.first().name()}' $extra")
@@ -87,11 +95,11 @@ internal object ExpirationNotifications {
     items: List<FridgeItem>
   ) {
     ButlerNotifications.notify(
+        entry.id(),
         context,
         EXPIRED_CHANNEL_ID,
         "Expired Reminders",
         "Reminders for items that have expired",
-        entry,
         items
     ) { builder ->
       return@notify builder

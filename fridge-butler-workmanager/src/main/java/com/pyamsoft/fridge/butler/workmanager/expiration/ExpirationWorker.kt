@@ -15,11 +15,12 @@
  *
  */
 
-package com.pyamsoft.fridge.butler.workmanager
+package com.pyamsoft.fridge.butler.workmanager.expiration
 
 import android.content.Context
 import androidx.work.WorkerParameters
 import com.pyamsoft.fridge.butler.Butler
+import com.pyamsoft.fridge.butler.workmanager.BaseWorker
 import com.pyamsoft.fridge.db.cleanMidnight
 import com.pyamsoft.fridge.db.daysLaterMidnight
 import com.pyamsoft.fridge.db.entry.FridgeEntry
@@ -30,8 +31,8 @@ import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence.NEED
 import com.pyamsoft.fridge.db.item.FridgeItemQueryDao
 import com.pyamsoft.pydroid.ui.Injector
+import io.reactivex.Completable
 import io.reactivex.Observable
-import io.reactivex.Single
 import timber.log.Timber
 import java.util.Calendar
 import java.util.concurrent.TimeUnit.HOURS
@@ -95,15 +96,21 @@ internal class ExpirationWorker internal constructor(
 
 
     if (needItems.isNotEmpty()) {
-      ExpirationNotifications.notifyNeeded(applicationContext, entry, needItems)
+      ExpirationNotifications.notifyNeeded(
+          applicationContext, entry, needItems
+      )
     }
 
     if (expiringItems.isNotEmpty()) {
-      ExpirationNotifications.notifyExpiring(applicationContext, entry, expiringItems)
+      ExpirationNotifications.notifyExpiring(
+          applicationContext, entry, expiringItems
+      )
     }
 
     if (expiredItems.isNotEmpty()) {
-      ExpirationNotifications.notifyExpired(applicationContext, entry, expiredItems)
+      ExpirationNotifications.notifyExpired(
+          applicationContext, entry, expiredItems
+      )
     }
 
     if (unknownExpirationItems.isNotEmpty()) {
@@ -111,7 +118,7 @@ internal class ExpirationWorker internal constructor(
     }
   }
 
-  override fun doWork(): Single<*> {
+  override fun doWork(): Completable {
     val today = Calendar.getInstance()
         .cleanMidnight()
     val later = Calendar.getInstance()
@@ -125,5 +132,6 @@ internal class ExpirationWorker internal constructor(
               .map { entry }
         }
         .toList()
+        .ignoreElement()
   }
 }

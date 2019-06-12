@@ -23,6 +23,7 @@ import androidx.work.RxWorker
 import androidx.work.WorkerParameters
 import com.pyamsoft.fridge.butler.Butler
 import com.pyamsoft.pydroid.ui.Injector
+import io.reactivex.Completable
 import io.reactivex.Single
 import timber.log.Timber
 
@@ -62,14 +63,15 @@ internal abstract class BaseWorker protected constructor(
 
     return Single.defer {
       return@defer doWork()
-          .map { success() }
+          .andThen(Single.just(success()))
           .onErrorReturn { fail(it) }
+
     }
         .doAfterTerminate { teardown() }
   }
 
   @CheckResult
-  protected abstract fun doWork(): Single<*>
+  protected abstract fun doWork(): Completable
 
   @CheckResult
   private fun success(): Result {

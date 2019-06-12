@@ -66,8 +66,12 @@ kapt {
 
 dependencies {
 
-  api "androidx.work:work-runtime:$workmanager"
-  api "androidx.work:work-rxjava2:$workmanager"
+  // Worker
+  implementation "androidx.work:work-runtime:$workmanager"
+  implementation "androidx.work:work-rxjava2:$workmanager"
+
+  // Location manager
+  implementation "com.google.android.gms:play-services-location:$gmsLocation"
 
   kapt "com.google.dagger:dagger-compiler:$dagger"
 

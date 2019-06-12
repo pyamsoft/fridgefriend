@@ -19,6 +19,8 @@ package com.pyamsoft.fridge.butler.workmanager
 
 import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.butler.Butler
+import com.pyamsoft.fridge.butler.Locator
+import com.pyamsoft.fridge.butler.workmanager.location.LocatorButler
 import dagger.Binds
 import dagger.Module
 
@@ -28,5 +30,9 @@ abstract class ButlerModule {
   @Binds
   @CheckResult
   internal abstract fun bindButler(impl: WorkManagerButler): Butler
+
+  @Binds
+  @CheckResult
+  internal abstract fun bindLocator(impl: LocatorButler): Locator
 
 }

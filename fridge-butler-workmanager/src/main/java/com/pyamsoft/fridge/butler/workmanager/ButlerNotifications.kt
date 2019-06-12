@@ -28,7 +28,7 @@ import androidx.annotation.CheckResult
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.getSystemService
-import com.pyamsoft.fridge.db.entry.FridgeEntry
+import com.pyamsoft.fridge.butler.workmanager.R.drawable
 import com.pyamsoft.fridge.db.item.FridgeItem
 import timber.log.Timber
 
@@ -41,10 +41,10 @@ internal object ButlerNotifications {
 
   @CheckResult
   private fun notificationId(
-    entry: FridgeEntry,
+    id: String,
     channelId: String
   ): Int {
-    return "${entry.id()}_$channelId".hashCode()
+    return "${id}_$channelId".hashCode()
   }
 
   private fun guaranteeNotificationChannelExists(
@@ -74,11 +74,11 @@ internal object ButlerNotifications {
 
   @JvmStatic
   internal inline fun notify(
+    id: String,
     context: Context,
     channelId: String,
     channelTitle: String,
     channelDescription: String,
-    entry: FridgeEntry,
     items: List<FridgeItem>,
     createNotification: (builder: NotificationCompat.Builder) -> Notification
   ) {
@@ -87,10 +87,12 @@ internal object ButlerNotifications {
     require(channelTitle.isNotBlank())
     require(channelDescription.isNotBlank())
 
-    guaranteeNotificationChannelExists(context, channelId, channelTitle, channelDescription)
+    guaranteeNotificationChannelExists(
+        context, channelId, channelTitle, channelDescription
+    )
 
     val builder = NotificationCompat.Builder(context, channelId)
-        .setSmallIcon(R.drawable.ic_get_app_24dp)
+        .setSmallIcon(drawable.ic_get_app_24dp)
         .setAutoCancel(false)
         .setOngoing(false)
         .setPriority(NotificationCompat.PRIORITY_DEFAULT)
@@ -99,21 +101,33 @@ internal object ButlerNotifications {
 
     val notification = createNotification(builder)
 
-    Timber.d("Fire notification for entry: ${entry.id()}")
-    notificationManager(context).apply {
-      cancel(this, entry, channelId)
-      notify(entry.id(), notificationId(entry, channelId), notification)
+    Timber.d("Fire notification for entry: $id")
+    notificationManager(
+        context
+    )
+        .apply {
+      cancel(
+          id, this, channelId
+      )
+      notify(id,
+          notificationId(
+              id, channelId
+          ), notification)
     }
   }
 
   @JvmStatic
   private fun cancel(
+    id: String,
     manager: NotificationManagerCompat,
-    entry: FridgeEntry,
     channelId: String
   ) {
-    Timber.w("Cancel notification for entry: ${entry.id()}")
-    manager.cancel(entry.id(), notificationId(entry, channelId))
+    Timber.w("Cancel notification for entry: $id")
+    manager.cancel(id,
+        notificationId(
+            id, channelId
+        )
+    )
   }
 
 }

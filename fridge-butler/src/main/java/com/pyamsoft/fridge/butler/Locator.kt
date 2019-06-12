@@ -17,24 +17,28 @@
 
 package com.pyamsoft.fridge.butler
 
-import java.util.concurrent.TimeUnit
+import android.location.Location
+import androidx.annotation.CheckResult
+import io.reactivex.Single
 
-interface Butler {
+interface Locator {
 
-  fun remindExpiration(
-    time: Long,
-    unit: TimeUnit
-  )
+  @CheckResult
+  fun hasPermission(): Boolean
 
-  fun remindLocation(
-    time: Long,
-    unit: TimeUnit
-  )
+  @CheckResult
+  fun lastKnownLocation(): Single<LastKnownLocation>
 
-  fun cancelExpirationReminder()
+  data class LastKnownLocation(val location: Location?) {
 
-  fun cancelLocationReminder()
+    companion object {
 
-  fun cancel()
+      @JvmField
+      val UNKNOWN = LastKnownLocation(location = null)
+    }
+
+  }
+
+  object MissingLocationPermissionException : SecurityException("Missing Location permission")
 
 }
