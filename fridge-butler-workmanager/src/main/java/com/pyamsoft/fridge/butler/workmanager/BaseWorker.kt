@@ -22,8 +22,8 @@ import androidx.annotation.CheckResult
 import androidx.work.RxWorker
 import androidx.work.WorkerParameters
 import com.pyamsoft.fridge.butler.Butler
+import com.pyamsoft.pydroid.core.threads.Enforcer
 import com.pyamsoft.pydroid.ui.Injector
-import io.reactivex.Completable
 import io.reactivex.Single
 import timber.log.Timber
 
@@ -33,9 +33,13 @@ internal abstract class BaseWorker protected constructor(
 ) : RxWorker(context, params) {
 
   private var butler: Butler? = null
+  private var _enforcer: Enforcer? = null
+  protected val enforcer: Enforcer
+    get() = requireNotNull(_enforcer)
 
   private fun inject() {
     butler = Injector.obtain(applicationContext)
+    _enforcer = Injector.obtain(applicationContext)
     onInject()
   }
 
@@ -43,6 +47,7 @@ internal abstract class BaseWorker protected constructor(
 
   private fun teardown() {
     butler = null
+    _enforcer = null
     onTeardown()
   }
 
@@ -52,9 +57,7 @@ internal abstract class BaseWorker protected constructor(
 
   final override fun onStopped() {
     super.onStopped()
-
-    Timber.i("Worker stopped")
-    butler?.let { reschedule(it) }
+    Timber.w("Worker stopped")
     teardown()
   }
 
@@ -62,16 +65,22 @@ internal abstract class BaseWorker protected constructor(
     inject()
 
     return Single.defer {
+      enforcer.assertNotOnMainThread()
+
       return@defer doWork()
-          .andThen(Single.just(success()))
+          .map { success() }
           .onErrorReturn { fail(it) }
+          .subscribeOn(backgroundScheduler)
+          .observeOn(backgroundScheduler)
 
     }
+        .subscribeOn(backgroundScheduler)
+        .observeOn(backgroundScheduler)
         .doAfterTerminate { teardown() }
   }
 
   @CheckResult
-  protected abstract fun doWork(): Completable
+  protected abstract fun doWork(): Single<*>
 
   @CheckResult
   private fun success(): Result {

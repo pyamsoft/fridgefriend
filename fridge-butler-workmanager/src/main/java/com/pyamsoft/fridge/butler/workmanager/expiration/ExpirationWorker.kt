@@ -31,8 +31,8 @@ import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence.NEED
 import com.pyamsoft.fridge.db.item.FridgeItemQueryDao
 import com.pyamsoft.pydroid.ui.Injector
-import io.reactivex.Completable
 import io.reactivex.Observable
+import io.reactivex.Single
 import timber.log.Timber
 import java.util.Calendar
 import java.util.concurrent.TimeUnit.HOURS
@@ -66,6 +66,8 @@ internal class ExpirationWorker internal constructor(
     entry: FridgeEntry,
     items: List<FridgeItem>
   ) {
+    enforcer.assertNotOnMainThread()
+
     val needItems = arrayListOf<FridgeItem>()
     val expiringItems = arrayListOf<FridgeItem>()
     val expiredItems = arrayListOf<FridgeItem>()
@@ -118,20 +120,28 @@ internal class ExpirationWorker internal constructor(
     }
   }
 
-  override fun doWork(): Completable {
+  override fun doWork(): Single<*> {
+    enforcer.assertNotOnMainThread()
     val today = Calendar.getInstance()
         .cleanMidnight()
     val later = Calendar.getInstance()
         .daysLaterMidnight(2)
 
     return requireNotNull(fridgeEntryQueryDao).queryAll(true)
-        .flatMapObservable { Observable.fromIterable(it) }
+        .flatMapObservable {
+          enforcer.assertNotOnMainThread()
+          return@flatMapObservable Observable.fromIterable(it)
+              .subscribeOn(backgroundScheduler)
+              .observeOn(backgroundScheduler)
+        }
         .flatMapSingle { entry ->
+          enforcer.assertNotOnMainThread()
           return@flatMapSingle requireNotNull(fridgeItemQueryDao).queryAll(true, entry.id())
+              .subscribeOn(backgroundScheduler)
+              .observeOn(backgroundScheduler)
               .doOnSuccess { items -> notifyForEntry(today, later, entry, items) }
               .map { entry }
         }
         .toList()
-        .ignoreElement()
   }
 }

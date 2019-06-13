@@ -25,16 +25,14 @@ import com.pyamsoft.fridge.db.entry.FridgeEntryQueryDao
 import com.pyamsoft.fridge.db.room.entity.RoomFridgeEntry
 import io.reactivex.Maybe
 import io.reactivex.Single
-import timber.log.Timber
 
 @Dao
 internal abstract class RoomFridgeEntryQueryDao internal constructor() : FridgeEntryQueryDao {
 
   override fun queryAll(force: Boolean): Single<List<FridgeEntry>> {
-    Timber.i("QUERY from ROOM")
     return daoQueryAll()
-      .toSingle(emptyList())
-      .map { it }
+        .toSingle(emptyList())
+        .map { it }
   }
 
   @Query("SELECT * FROM ${RoomFridgeEntry.TABLE_NAME}")

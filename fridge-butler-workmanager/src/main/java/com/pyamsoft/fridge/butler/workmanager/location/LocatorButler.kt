@@ -47,7 +47,7 @@ internal class LocatorButler @Inject internal constructor(
   }
 
   override fun lastKnownLocation(): Single<LastKnownLocation> {
-    return Single.create { emitter ->
+    return Single.create<LastKnownLocation> { emitter ->
       enforcer.assertNotOnMainThread()
 
       if (!hasPermission()) {
@@ -55,6 +55,7 @@ internal class LocatorButler @Inject internal constructor(
       } else {
         getLastKnownLocation(emitter)
       }
+
     }
   }
 
@@ -62,20 +63,23 @@ internal class LocatorButler @Inject internal constructor(
   private fun getLastKnownLocation(emitter: SingleEmitter<LastKnownLocation>) {
     locationProvider.lastLocation
         .addOnSuccessListener { location ->
-          enforcer.assertNotOnMainThread()
+          // Android system runs this on main thread.
 
-          if (!emitter.isDisposed) {
-            if (location == null) {
-              Timber.w("Last known location is unknown")
-              emitter.onSuccess(LastKnownLocation.UNKNOWN)
-            } else {
-              Timber.d("Last known location: $location")
-              emitter.onSuccess(LastKnownLocation(location))
-            }
+          if (emitter.isDisposed) {
+            Timber.w("Emitter is already disposed")
+            return@addOnSuccessListener
+          }
+
+          if (location == null) {
+            Timber.w("Last known location is unknown")
+            emitter.onSuccess(LastKnownLocation.UNKNOWN)
+          } else {
+            Timber.d("Last known location: $location")
+            emitter.onSuccess(LastKnownLocation(location))
           }
         }
         .addOnFailureListener {
-          enforcer.assertNotOnMainThread()
+          // Android system runs this on main thread.
 
           Timber.e(it, "Failed to get last known location")
           emitter.tryOnError(it)

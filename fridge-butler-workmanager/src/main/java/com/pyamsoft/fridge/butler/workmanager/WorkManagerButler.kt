@@ -23,6 +23,7 @@ import androidx.work.ListenableWorker
 import androidx.work.OneTimeWorkRequest
 import androidx.work.WorkManager
 import com.pyamsoft.fridge.butler.Butler
+import com.pyamsoft.fridge.butler.Locator
 import com.pyamsoft.fridge.butler.workmanager.expiration.ExpirationWorker
 import com.pyamsoft.fridge.butler.workmanager.location.LocationWorker
 import timber.log.Timber
@@ -31,7 +32,9 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-internal class WorkManagerButler @Inject internal constructor() : Butler {
+internal class WorkManagerButler @Inject internal constructor(
+  private val locator: Locator
+) : Butler {
 
   @CheckResult
   private fun workManager(): WorkManager {
@@ -97,7 +100,11 @@ internal class WorkManagerButler @Inject internal constructor() : Butler {
     time: Long,
     unit: TimeUnit
   ) {
-    scheduleLocationWork(time, unit)
+    if (locator.hasPermission()) {
+      scheduleLocationWork(time, unit)
+    } else {
+      Timber.w("Cannot schedule location reminder: missing permission")
+    }
   }
 
   override fun cancelLocationReminder() {

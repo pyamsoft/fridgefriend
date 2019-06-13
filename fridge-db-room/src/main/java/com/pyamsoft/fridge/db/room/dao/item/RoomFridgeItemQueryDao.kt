@@ -31,7 +31,6 @@ import timber.log.Timber
 internal abstract class RoomFridgeItemQueryDao internal constructor() : FridgeItemQueryDao {
 
   override fun queryAll(force: Boolean, entryId: String): Single<List<FridgeItem>> {
-    Timber.i("QUERY from ROOM")
     return daoQueryAll(entryId)
       .toSingle(emptyList())
       .map { it }
@@ -42,7 +41,6 @@ internal abstract class RoomFridgeItemQueryDao internal constructor() : FridgeIt
   internal abstract fun daoQueryAll(entryId: String): Maybe<List<RoomFridgeItem>>
 
   override fun queryAll(force: Boolean): Single<List<FridgeItem>> {
-    Timber.i("QUERY from ROOM")
     return daoQueryAll()
       .toSingle(emptyList())
       .map { it }
