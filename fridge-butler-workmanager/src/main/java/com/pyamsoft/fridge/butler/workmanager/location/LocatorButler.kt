@@ -18,24 +18,25 @@
 package com.pyamsoft.fridge.butler.workmanager.location
 
 import android.annotation.SuppressLint
+import android.app.PendingIntent
+import android.content.BroadcastReceiver
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
+import androidx.annotation.CheckResult
 import androidx.core.content.ContextCompat
+import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationServices
 import com.pyamsoft.fridge.butler.Locator
-import com.pyamsoft.fridge.butler.Locator.LastKnownLocation
-import com.pyamsoft.fridge.butler.Locator.MissingLocationPermissionException
-import com.pyamsoft.pydroid.core.threads.Enforcer
-import io.reactivex.Single
-import io.reactivex.SingleEmitter
+import com.pyamsoft.fridge.butler.Locator.LocationUpdateListener
 import timber.log.Timber
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
 internal class LocatorButler @Inject internal constructor(
-  private val context: Context,
-  private val enforcer: Enforcer
+  private val context: Context
 ) : Locator {
 
   private val locationProvider = LocationServices.getFusedLocationProviderClient(context)
@@ -46,44 +47,49 @@ internal class LocatorButler @Inject internal constructor(
     ) == PackageManager.PERMISSION_GRANTED
   }
 
-  override fun lastKnownLocation(): Single<LastKnownLocation> {
-    return Single.create<LastKnownLocation> { emitter ->
-      enforcer.assertNotOnMainThread()
+  override fun listenForUpdates(receiver: Class<out BroadcastReceiver>): LocationUpdateListener {
+    if (!hasPermission()) {
+      Timber.w("Missing permission, return empty listener")
+      return object : LocationUpdateListener {
+        override fun stopListening() {
+        }
+      }
+    }
 
-      if (!hasPermission()) {
-        emitter.tryOnError(MissingLocationPermissionException)
-      } else {
-        getLastKnownLocation(emitter)
+    return requestLocationUpdates(receiver)
+  }
+
+  @CheckResult
+  @SuppressLint("MissingPermission")
+  private fun requestLocationUpdates(receiver: Class<out BroadcastReceiver>): LocationUpdateListener {
+    val pendingIntent =
+      PendingIntent.getBroadcast(
+          context, REQUEST_CODE,
+          Intent(context, receiver).setAction(Locator.UPDATE_LISTENER_ACTION),
+          PendingIntent.FLAG_UPDATE_CURRENT
+      )
+
+    val request = LocationRequest.create()
+        .setInterval(INTERVAL)
+        .setInterval(INTERVAL / 2)
+        .setMaxWaitTime(INTERVAL * 3)
+        .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
+
+    locationProvider.requestLocationUpdates(request, pendingIntent)
+    return object : LocationUpdateListener {
+
+      override fun stopListening() {
+        locationProvider.removeLocationUpdates(pendingIntent)
       }
 
     }
   }
 
-  @SuppressLint("MissingPermission")
-  private fun getLastKnownLocation(emitter: SingleEmitter<LastKnownLocation>) {
-    locationProvider.lastLocation
-        .addOnSuccessListener { location ->
-          // Android system runs this on main thread.
+  companion object {
 
-          if (emitter.isDisposed) {
-            Timber.w("Emitter is already disposed")
-            return@addOnSuccessListener
-          }
+    private const val REQUEST_CODE = 1234
+    private val INTERVAL = TimeUnit.SECONDS.toMillis(30)
 
-          if (location == null) {
-            Timber.w("Last known location is unknown")
-            emitter.onSuccess(LastKnownLocation.UNKNOWN)
-          } else {
-            Timber.d("Last known location: $location")
-            emitter.onSuccess(LastKnownLocation(location))
-          }
-        }
-        .addOnFailureListener {
-          // Android system runs this on main thread.
-
-          Timber.e(it, "Failed to get last known location")
-          emitter.tryOnError(it)
-        }
   }
 
 }

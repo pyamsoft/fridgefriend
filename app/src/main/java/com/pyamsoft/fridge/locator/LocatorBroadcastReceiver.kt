@@ -15,28 +15,30 @@
  *
  */
 
-package com.pyamsoft.fridge.butler
+package com.pyamsoft.fridge.locator
 
 import android.content.BroadcastReceiver
-import androidx.annotation.CheckResult
+import android.content.Context
+import android.content.Intent
+import com.pyamsoft.fridge.butler.Locator
+import timber.log.Timber
 
-interface Locator {
+internal class LocatorBroadcastReceiver internal constructor() : BroadcastReceiver() {
 
-  @CheckResult
-  fun hasPermission(): Boolean
+  override fun onReceive(
+    context: Context?,
+    intent: Intent?
+  ) {
+    if (context == null || intent == null) {
+      Timber.e("Context or Intent is null. Stopping.")
+      return
+    }
 
-  @CheckResult
-  fun listenForUpdates(receiver: Class<out BroadcastReceiver>): LocationUpdateListener
-
-  interface LocationUpdateListener {
-
-    fun stopListening()
-
-  }
-
-  companion object {
-
-    const val UPDATE_LISTENER_ACTION = "ACTION: Locator-listenForUpdates()"
+    if (intent.action != Locator.UPDATE_LISTENER_ACTION) {
+      Timber.e("Intent action: ${intent.action}")
+      Timber.e("No match expected: ${Locator.UPDATE_LISTENER_ACTION}. Stopping")
+      return
+    }
   }
 
 }

@@ -26,14 +26,7 @@ interface Butler {
     unit: TimeUnit
   )
 
-  fun remindLocation(
-    time: Long,
-    unit: TimeUnit
-  )
-
   fun cancelExpirationReminder()
-
-  fun cancelLocationReminder()
 
   fun cancel()
 

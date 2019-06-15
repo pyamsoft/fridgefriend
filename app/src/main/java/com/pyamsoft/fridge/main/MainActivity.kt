@@ -85,9 +85,7 @@ internal class MainActivity : RatingActivity() {
     super.onStart()
     requireNotNull(butler).apply {
       cancel()
-
       remindExpiration(1, SECONDS)
-      remindLocation(1, SECONDS)
     }
   }
 

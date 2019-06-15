@@ -22,7 +22,6 @@ import android.content.Context
 import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.FridgeComponent.FridgeProvider
 import com.pyamsoft.fridge.butler.Butler
-import com.pyamsoft.fridge.butler.Locator
 import com.pyamsoft.fridge.butler.workmanager.ButlerModule
 import com.pyamsoft.fridge.db.DbProvider
 import com.pyamsoft.fridge.db.entry.FridgeEntryQueryDao
@@ -62,10 +61,6 @@ internal interface FridgeComponent {
 
   // For BaseWorker Work classes
   @CheckResult
-  fun provideLocator(): Locator
-
-  // For BaseWorker Work classes
-  @CheckResult
   fun provideButler(): Butler
 
   // For BaseWorker Work classes
@@ -95,6 +90,8 @@ internal interface FridgeComponent {
   fun plusSettingComponent(): SettingComponent.Factory
 
   fun inject(dialog: DatePickerDialogFragment)
+
+  fun inject(application: MyFridgeSmells)
 
   @Component.Factory
   interface Factory {

@@ -20,16 +20,22 @@ package com.pyamsoft.fridge
 import android.app.Application
 import com.pyamsoft.fridge.butler.Butler
 import com.pyamsoft.fridge.butler.Locator
+import com.pyamsoft.fridge.butler.Locator.LocationUpdateListener
 import com.pyamsoft.fridge.db.entry.FridgeEntryQueryDao
 import com.pyamsoft.fridge.db.item.FridgeItemQueryDao
+import com.pyamsoft.fridge.locator.LocatorBroadcastReceiver
 import com.pyamsoft.pydroid.bootstrap.libraries.OssLibraries
 import com.pyamsoft.pydroid.ui.PYDroid
 import com.squareup.leakcanary.LeakCanary
 import com.squareup.leakcanary.RefWatcher
 import com.squareup.moshi.Moshi
+import javax.inject.Inject
 
 class MyFridgeSmells : Application() {
 
+  @JvmField @Inject internal var locator: Locator? = null
+
+  private var locationListener: LocationUpdateListener? = null
   private var component: FridgeComponent? = null
   private var refWatcher: RefWatcher? = null
 
@@ -56,10 +62,31 @@ class MyFridgeSmells : Application() {
               this,
               provider.imageLoader()
           )
+          .also { onInitialized(it) }
     }
+  }
 
+  private fun onInitialized(component: FridgeComponent) {
     installRefWatcher()
     addLibraries()
+
+    component.inject(this)
+    listenForLocationUpdates()
+  }
+
+  private fun listenForLocationUpdates() {
+    locationListener?.stopListening()
+    locationListener =
+      requireNotNull(locator).listenForUpdates(LocatorBroadcastReceiver::class.java)
+  }
+
+  // May only happen on emulators
+  override fun onTerminate() {
+    super.onTerminate()
+    locationListener?.stopListening()
+
+    locator = null
+    locationListener = null
   }
 
   private fun installRefWatcher() {
@@ -99,7 +126,6 @@ class MyFridgeSmells : Application() {
       FridgeEntryQueryDao::class.java.name -> requireNotNull(component).provideFridgeEntryQueryDao()
       FridgeItemQueryDao::class.java.name -> requireNotNull(component).provideFridgeItemQueryDao()
       Butler::class.java.name -> requireNotNull(component).provideButler()
-      Locator::class.java.name -> requireNotNull(component).provideLocator()
       else -> super.getSystemService(name)
     }
 
