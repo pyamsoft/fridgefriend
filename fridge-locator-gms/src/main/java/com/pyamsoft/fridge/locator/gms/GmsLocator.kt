@@ -15,11 +15,10 @@
  *
  */
 
-package com.pyamsoft.fridge.butler.workmanager.location
+package com.pyamsoft.fridge.locator.gms
 
 import android.annotation.SuppressLint
 import android.app.PendingIntent
-import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -27,15 +26,16 @@ import androidx.annotation.CheckResult
 import androidx.core.content.ContextCompat
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationServices
-import com.pyamsoft.fridge.butler.Locator
-import com.pyamsoft.fridge.butler.Locator.LocationUpdateListener
+import com.pyamsoft.fridge.locator.Locator
+import com.pyamsoft.fridge.locator.Locator.LocationUpdateListener
+import com.pyamsoft.fridge.locator.LocatorBroadcastReceiver
 import timber.log.Timber
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-internal class LocatorButler @Inject internal constructor(
+internal class GmsLocator @Inject internal constructor(
   private val context: Context
 ) : Locator {
 
@@ -47,7 +47,7 @@ internal class LocatorButler @Inject internal constructor(
     ) == PackageManager.PERMISSION_GRANTED
   }
 
-  override fun listenForUpdates(receiver: Class<out BroadcastReceiver>): LocationUpdateListener {
+  override fun listenForUpdates(receiver: Class<out LocatorBroadcastReceiver>): LocationUpdateListener {
     if (!hasPermission()) {
       Timber.w("Missing permission, return empty listener")
       return object : LocationUpdateListener {
@@ -61,11 +61,11 @@ internal class LocatorButler @Inject internal constructor(
 
   @CheckResult
   @SuppressLint("MissingPermission")
-  private fun requestLocationUpdates(receiver: Class<out BroadcastReceiver>): LocationUpdateListener {
+  private fun requestLocationUpdates(receiver: Class<out LocatorBroadcastReceiver>): LocationUpdateListener {
     val pendingIntent =
       PendingIntent.getBroadcast(
           context, REQUEST_CODE,
-          Intent(context, receiver).setAction(Locator.UPDATE_LISTENER_ACTION),
+          Intent(context, receiver).setAction(LocatorBroadcastReceiver.UPDATE_LISTENER_ACTION),
           PendingIntent.FLAG_UPDATE_CURRENT
       )
 

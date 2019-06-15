@@ -19,11 +19,11 @@ package com.pyamsoft.fridge
 
 import android.app.Application
 import com.pyamsoft.fridge.butler.Butler
-import com.pyamsoft.fridge.butler.Locator
-import com.pyamsoft.fridge.butler.Locator.LocationUpdateListener
+import com.pyamsoft.fridge.locator.Locator
+import com.pyamsoft.fridge.locator.Locator.LocationUpdateListener
 import com.pyamsoft.fridge.db.entry.FridgeEntryQueryDao
 import com.pyamsoft.fridge.db.item.FridgeItemQueryDao
-import com.pyamsoft.fridge.locator.LocatorBroadcastReceiver
+import com.pyamsoft.fridge.locator.LocationUpdateReceiver
 import com.pyamsoft.pydroid.bootstrap.libraries.OssLibraries
 import com.pyamsoft.pydroid.ui.PYDroid
 import com.squareup.leakcanary.LeakCanary
@@ -77,7 +77,7 @@ class MyFridgeSmells : Application() {
   private fun listenForLocationUpdates() {
     locationListener?.stopListening()
     locationListener =
-      requireNotNull(locator).listenForUpdates(LocatorBroadcastReceiver::class.java)
+      requireNotNull(locator).listenForUpdates(LocationUpdateReceiver::class.java)
   }
 
   // May only happen on emulators

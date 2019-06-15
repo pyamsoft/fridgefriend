@@ -66,13 +66,12 @@ kapt {
 
 dependencies {
 
-  implementation "androidx.work:work-runtime:$workmanager"
-  implementation "androidx.work:work-rxjava2:$workmanager"
-
   kapt "com.google.dagger:dagger-compiler:$dagger"
 
-  api project(':fridge-butler')
+  api project(':fridge-db')
 }
+
+
 
 
 

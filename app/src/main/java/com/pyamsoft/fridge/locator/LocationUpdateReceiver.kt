@@ -15,28 +15,16 @@
  *
  */
 
-package com.pyamsoft.fridge.butler
+package com.pyamsoft.fridge.locator
 
-import android.content.BroadcastReceiver
-import androidx.annotation.CheckResult
+import android.content.Context
+import com.pyamsoft.fridge.locator.gms.GmsLocatorBroadcastReceiver
 
-interface Locator {
+internal class LocationUpdateReceiver internal constructor() : GmsLocatorBroadcastReceiver() {
 
-  @CheckResult
-  fun hasPermission(): Boolean
-
-  @CheckResult
-  fun listenForUpdates(receiver: Class<out BroadcastReceiver>): LocationUpdateListener
-
-  interface LocationUpdateListener {
-
-    fun stopListening()
-
+  override fun onInject(context: Context) {
   }
 
-  companion object {
-
-    const val UPDATE_LISTENER_ACTION = "ACTION: Locator-listenForUpdates()"
+  override fun onTeardown() {
   }
-
 }

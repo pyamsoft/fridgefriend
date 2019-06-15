@@ -15,18 +15,22 @@
  *
  */
 
-package com.pyamsoft.fridge.butler.workmanager
+package com.pyamsoft.fridge.locator
 
 import androidx.annotation.CheckResult
-import com.pyamsoft.fridge.butler.Butler
-import dagger.Binds
-import dagger.Module
 
-@Module
-abstract class ButlerModule {
+interface Locator {
 
-  @Binds
   @CheckResult
-  internal abstract fun bindButler(impl: WorkManagerButler): Butler
+  fun hasPermission(): Boolean
+
+  @CheckResult
+  fun listenForUpdates(receiver: Class<out LocatorBroadcastReceiver>): LocationUpdateListener
+
+  interface LocationUpdateListener {
+
+    fun stopListening()
+
+  }
 
 }

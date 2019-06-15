@@ -1,4 +1,6 @@
 include ':app', ':fridge-entry', ':fridge-core', ':fridge-main', ':fridge-setting', ':fridge-db',
+    ':fridge-locator-gms',
+    ':fridge-locator',
     ':fridge-butler-workmanager',
     ':fridge-butler',
     ':fridge-db-room',

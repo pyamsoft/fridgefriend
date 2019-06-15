@@ -65,6 +65,7 @@ buildscript {
 
     // FusedLocationProvider
     gmsLocation = "16.0.0"
+    gmsMaps = "16.1.0"
   }
 
   dependencies {

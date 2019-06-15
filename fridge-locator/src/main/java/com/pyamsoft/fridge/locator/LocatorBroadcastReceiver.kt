@@ -20,12 +20,11 @@ package com.pyamsoft.fridge.locator
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import com.pyamsoft.fridge.butler.Locator
 import timber.log.Timber
 
-internal class LocatorBroadcastReceiver internal constructor() : BroadcastReceiver() {
+abstract class LocatorBroadcastReceiver protected constructor() : BroadcastReceiver() {
 
-  override fun onReceive(
+  final override fun onReceive(
     context: Context?,
     intent: Intent?
   ) {
@@ -34,11 +33,23 @@ internal class LocatorBroadcastReceiver internal constructor() : BroadcastReceiv
       return
     }
 
-    if (intent.action != Locator.UPDATE_LISTENER_ACTION) {
+    if (intent.action != UPDATE_LISTENER_ACTION) {
       Timber.e("Intent action: ${intent.action}")
-      Timber.e("No match expected: ${Locator.UPDATE_LISTENER_ACTION}. Stopping")
+      Timber.e("No match expected: $UPDATE_LISTENER_ACTION. Stopping")
       return
     }
+
+    onLocationUpdate(context, intent)
+  }
+
+  protected abstract fun onLocationUpdate(
+    context: Context,
+    intent: Intent
+  )
+
+  companion object {
+
+    const val UPDATE_LISTENER_ACTION = "ACTION: Locator-listenForUpdates()"
   }
 
 }

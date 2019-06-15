@@ -15,18 +15,18 @@
  *
  */
 
-package com.pyamsoft.fridge.butler.workmanager
+package com.pyamsoft.fridge.locator.gms
 
 import androidx.annotation.CheckResult
-import com.pyamsoft.fridge.butler.Butler
+import com.pyamsoft.fridge.locator.Locator
 import dagger.Binds
 import dagger.Module
 
 @Module
-abstract class ButlerModule {
+abstract class LocatorModule {
 
   @Binds
   @CheckResult
-  internal abstract fun bindButler(impl: WorkManagerButler): Butler
+  internal abstract fun bindLocator(impl: GmsLocator): Locator
 
 }
