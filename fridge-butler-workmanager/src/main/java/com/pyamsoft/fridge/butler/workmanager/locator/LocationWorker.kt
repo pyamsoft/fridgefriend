@@ -52,5 +52,7 @@ internal class LocationWorker internal constructor(
       Timber.d("LocationWorker listening for updates")
       requireNotNull(locator).listenForUpdates()
     }
+        .subscribeOn(backgroundScheduler)
+        .observeOn(backgroundScheduler)
   }
 }

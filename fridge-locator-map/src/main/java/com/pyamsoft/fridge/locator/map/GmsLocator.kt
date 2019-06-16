@@ -38,8 +38,10 @@ internal class GmsLocator @Inject internal constructor(
   private val context: Context
 ) : Locator {
 
+  private val lock = Any()
+
   private val locationProvider = LocationServices.getFusedLocationProviderClient(context)
-  private var updatePendingIntent: PendingIntent? = null
+  @Volatile private var updatePendingIntent: PendingIntent? = null
 
   override fun hasPermission(): Boolean {
     return ContextCompat.checkSelfPermission(
@@ -72,12 +74,13 @@ internal class GmsLocator @Inject internal constructor(
         .setMaxWaitTime(INTERVAL * 3)
         .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
 
-    removeLocationUpdates()
+    synchronized(lock) {
+      removeLocationUpdates()
 
-    Timber.d("Start listening for location updates")
-
-    locationProvider.requestLocationUpdates(request, pendingIntent)
-    updatePendingIntent = pendingIntent
+      Timber.d("Start listening for location updates")
+      locationProvider.requestLocationUpdates(request, pendingIntent)
+      updatePendingIntent = pendingIntent
+    }
   }
 
   private fun removeLocationUpdates() {
@@ -87,7 +90,9 @@ internal class GmsLocator @Inject internal constructor(
 
   override fun stopListeningForUpdates() {
     Timber.d("Stop listening for location updates")
-    removeLocationUpdates()
+    synchronized(lock) {
+      removeLocationUpdates()
+    }
   }
 
   companion object {
