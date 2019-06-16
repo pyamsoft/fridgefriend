@@ -56,7 +56,6 @@ internal class ExpirationWorker internal constructor(
   }
 
   override fun reschedule(butler: Butler) {
-    butler.cancelExpirationReminder()
     butler.remindExpiration(3L, HOURS)
   }
 

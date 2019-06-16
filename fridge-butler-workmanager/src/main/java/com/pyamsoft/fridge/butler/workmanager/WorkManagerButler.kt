@@ -38,9 +38,9 @@ internal class WorkManagerButler @Inject internal constructor() : Butler {
   }
 
   @CheckResult
-  private fun generateConstraints(runInIdle: Boolean): Constraints {
+  private fun generateConstraints(): Constraints {
     return Constraints.Builder()
-        .setRequiresDeviceIdle(runInIdle)
+        .setRequiresDeviceIdle(false)
         .setRequiresBatteryNotLow(true)
         .setRequiresCharging(false)
         .build()
@@ -50,25 +50,23 @@ internal class WorkManagerButler @Inject internal constructor() : Butler {
     worker: Class<T>,
     tag: String,
     time: Long,
-    unit: TimeUnit,
-    runInIdle: Boolean
+    unit: TimeUnit
   ) {
     val request = OneTimeWorkRequest.Builder(worker)
         .setInitialDelay(time, unit)
         .addTag(tag)
-        .setConstraints(generateConstraints(runInIdle))
+        .setConstraints(generateConstraints())
         .build()
 
-    Timber.d("Queue work: $tag")
     workManager().enqueue(request)
+    Timber.d("Queue work [$tag]: ${request.id}")
   }
 
   private fun scheduleExpirationWork(
     time: Long,
     unit: TimeUnit
   ) {
-    schedule(ExpirationWorker::class.java, EXPIRATION_TAG, time, unit, false)
-    schedule(ExpirationWorker::class.java, EXPIRATION_TAG, time, unit, true)
+    schedule(ExpirationWorker::class.java, EXPIRATION_TAG, time, unit)
   }
 
   override fun remindExpiration(
