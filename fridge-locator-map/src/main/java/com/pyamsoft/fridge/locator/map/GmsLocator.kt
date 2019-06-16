@@ -21,6 +21,7 @@ import android.annotation.SuppressLint
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.content.pm.PackageManager
 import androidx.core.content.ContextCompat
 import com.google.android.gms.location.LocationRequest
@@ -39,6 +40,7 @@ internal class GmsLocator @Inject internal constructor(
 
   private val locationProvider = LocationServices.getFusedLocationProviderClient(context)
   private var updatePendingIntent: PendingIntent? = null
+  private var locationReceiver: LocatorBroadcastReceiver? = null
 
   override fun hasPermission(): Boolean {
     return ContextCompat.checkSelfPermission(
@@ -73,6 +75,10 @@ internal class GmsLocator @Inject internal constructor(
     removeLocationUpdates()
 
     Timber.d("Start listening for location updates")
+    val broadcastReceiver = receiver.newInstance()
+    context.registerReceiver(broadcastReceiver, RECEIVER_FILTER)
+    locationReceiver = broadcastReceiver
+
     locationProvider.requestLocationUpdates(request, pendingIntent)
     updatePendingIntent = pendingIntent
   }
@@ -80,6 +86,9 @@ internal class GmsLocator @Inject internal constructor(
   private fun removeLocationUpdates() {
     updatePendingIntent?.let { locationProvider.removeLocationUpdates(it) }
     updatePendingIntent = null
+
+    locationReceiver?.let { context.unregisterReceiver(it) }
+    locationReceiver = null
   }
 
   override fun stopListeningForUpdates() {
@@ -89,6 +98,7 @@ internal class GmsLocator @Inject internal constructor(
 
   companion object {
 
+    private val RECEIVER_FILTER = IntentFilter(LocatorBroadcastReceiver.UPDATE_LISTENER_ACTION)
     private const val REQUEST_CODE = 1234
     private val INTERVAL = TimeUnit.SECONDS.toMillis(30)
 
