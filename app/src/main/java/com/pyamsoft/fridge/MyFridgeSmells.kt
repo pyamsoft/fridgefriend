@@ -19,12 +19,12 @@ package com.pyamsoft.fridge
 
 import android.app.Application
 import com.pyamsoft.fridge.butler.Butler
-import com.pyamsoft.fridge.locator.Locator
-import com.pyamsoft.fridge.locator.Locator.LocationUpdateListener
 import com.pyamsoft.fridge.db.entry.FridgeEntryQueryDao
 import com.pyamsoft.fridge.db.item.FridgeItemQueryDao
 import com.pyamsoft.fridge.locator.LocationUpdateReceiver
+import com.pyamsoft.fridge.locator.Locator
 import com.pyamsoft.pydroid.bootstrap.libraries.OssLibraries
+import com.pyamsoft.pydroid.bootstrap.libraries.OssLicenses.APACHE2
 import com.pyamsoft.pydroid.ui.PYDroid
 import com.squareup.leakcanary.LeakCanary
 import com.squareup.leakcanary.RefWatcher
@@ -35,7 +35,6 @@ class MyFridgeSmells : Application() {
 
   @JvmField @Inject internal var locator: Locator? = null
 
-  private var locationListener: LocationUpdateListener? = null
   private var component: FridgeComponent? = null
   private var refWatcher: RefWatcher? = null
 
@@ -75,18 +74,7 @@ class MyFridgeSmells : Application() {
   }
 
   private fun listenForLocationUpdates() {
-    locationListener?.stopListening()
-    locationListener =
-      requireNotNull(locator).listenForUpdates(LocationUpdateReceiver::class.java)
-  }
-
-  // May only happen on emulators
-  override fun onTerminate() {
-    super.onTerminate()
-    locationListener?.stopListening()
-
-    locator = null
-    locationListener = null
+    requireNotNull(locator).listenForUpdates(LocationUpdateReceiver::class.java)
   }
 
   private fun installRefWatcher() {
@@ -102,6 +90,17 @@ class MyFridgeSmells : Application() {
         "Room",
         "https://android.googlesource.com/platform/frameworks/support/+/androidx-master-dev/room/",
         "The AndroidX Jetpack Room library. Fluent SQLite database access."
+    )
+    OssLibraries.add(
+        "WorkManager",
+        "https://android.googlesource.com/platform/frameworks/support/+/androidx-master-dev/work/",
+        "The AndroidX Jetpack WorkManager library. Schedule periodic work in a device friendly way."
+    )
+    OssLibraries.add(
+        "Google Play Services: Location",
+        "https://developers.google.com/android/guides/releases",
+        "Google Play Services Location library. This is a closed source implementation",
+        APACHE2
     )
     OssLibraries.add(
         "Dagger",

@@ -15,7 +15,7 @@
  *
  */
 
-package com.pyamsoft.fridge.locator.gms
+package com.pyamsoft.fridge.locator.map
 
 import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.locator.Locator

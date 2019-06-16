@@ -106,7 +106,7 @@ dependencies {
   api project(':fridge-core')
   api project(':fridge-detail')
   api project(':fridge-entry')
-  api project(':fridge-locator-gms')
+  api project(':fridge-locator-map')
   api project(':fridge-main')
   //  api project(':fridge-ocr')
   api project(':fridge-setting')

@@ -15,19 +15,17 @@
  *
  */
 
-package com.pyamsoft.fridge.locator.gms
+package com.pyamsoft.fridge.locator.map
 
 import android.annotation.SuppressLint
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
-import androidx.annotation.CheckResult
 import androidx.core.content.ContextCompat
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationServices
 import com.pyamsoft.fridge.locator.Locator
-import com.pyamsoft.fridge.locator.Locator.LocationUpdateListener
 import com.pyamsoft.fridge.locator.LocatorBroadcastReceiver
 import timber.log.Timber
 import java.util.concurrent.TimeUnit
@@ -40,6 +38,7 @@ internal class GmsLocator @Inject internal constructor(
 ) : Locator {
 
   private val locationProvider = LocationServices.getFusedLocationProviderClient(context)
+  private var updatePendingIntent: PendingIntent? = null
 
   override fun hasPermission(): Boolean {
     return ContextCompat.checkSelfPermission(
@@ -47,21 +46,17 @@ internal class GmsLocator @Inject internal constructor(
     ) == PackageManager.PERMISSION_GRANTED
   }
 
-  override fun listenForUpdates(receiver: Class<out LocatorBroadcastReceiver>): LocationUpdateListener {
+  override fun listenForUpdates(receiver: Class<out LocatorBroadcastReceiver>) {
     if (!hasPermission()) {
       Timber.w("Missing permission, return empty listener")
-      return object : LocationUpdateListener {
-        override fun stopListening() {
-        }
-      }
+      return
     }
 
-    return requestLocationUpdates(receiver)
+    requestLocationUpdates(receiver)
   }
 
-  @CheckResult
   @SuppressLint("MissingPermission")
-  private fun requestLocationUpdates(receiver: Class<out LocatorBroadcastReceiver>): LocationUpdateListener {
+  private fun requestLocationUpdates(receiver: Class<out LocatorBroadcastReceiver>) {
     val pendingIntent =
       PendingIntent.getBroadcast(
           context, REQUEST_CODE,
@@ -75,14 +70,21 @@ internal class GmsLocator @Inject internal constructor(
         .setMaxWaitTime(INTERVAL * 3)
         .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
 
+    removeLocationUpdates()
+
+    Timber.d("Start listening for location updates")
     locationProvider.requestLocationUpdates(request, pendingIntent)
-    return object : LocationUpdateListener {
+    updatePendingIntent = pendingIntent
+  }
 
-      override fun stopListening() {
-        locationProvider.removeLocationUpdates(pendingIntent)
-      }
+  private fun removeLocationUpdates() {
+    updatePendingIntent?.let { locationProvider.removeLocationUpdates(it) }
+    updatePendingIntent = null
+  }
 
-    }
+  override fun stopListeningForUpdates() {
+    Timber.d("Stop listening for location updates")
+    removeLocationUpdates()
   }
 
   companion object {

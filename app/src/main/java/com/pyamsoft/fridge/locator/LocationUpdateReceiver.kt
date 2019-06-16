@@ -18,7 +18,7 @@
 package com.pyamsoft.fridge.locator
 
 import android.content.Context
-import com.pyamsoft.fridge.locator.gms.GmsLocatorBroadcastReceiver
+import com.pyamsoft.fridge.locator.map.GmsLocatorBroadcastReceiver
 
 internal class LocationUpdateReceiver internal constructor() : GmsLocatorBroadcastReceiver() {
 

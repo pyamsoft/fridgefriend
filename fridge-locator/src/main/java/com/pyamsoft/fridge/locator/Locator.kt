@@ -24,13 +24,8 @@ interface Locator {
   @CheckResult
   fun hasPermission(): Boolean
 
-  @CheckResult
-  fun listenForUpdates(receiver: Class<out LocatorBroadcastReceiver>): LocationUpdateListener
+  fun listenForUpdates(receiver: Class<out LocatorBroadcastReceiver>)
 
-  interface LocationUpdateListener {
-
-    fun stopListening()
-
-  }
+  fun stopListeningForUpdates()
 
 }

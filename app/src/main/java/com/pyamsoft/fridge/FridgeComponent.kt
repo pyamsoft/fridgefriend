@@ -33,7 +33,7 @@ import com.pyamsoft.fridge.detail.DetailComponent
 import com.pyamsoft.fridge.detail.ExpandComponent
 import com.pyamsoft.fridge.detail.item.DateSelectPayload
 import com.pyamsoft.fridge.entry.EntryComponent
-import com.pyamsoft.fridge.locator.gms.LocatorModule
+import com.pyamsoft.fridge.locator.map.LocatorModule
 import com.pyamsoft.fridge.main.MainComponent
 import com.pyamsoft.fridge.setting.SettingComponent
 import com.pyamsoft.pydroid.core.bus.EventBus
