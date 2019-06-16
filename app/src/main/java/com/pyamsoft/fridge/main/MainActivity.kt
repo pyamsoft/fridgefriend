@@ -17,6 +17,7 @@
 
 package com.pyamsoft.fridge.main
 
+import android.content.ComponentCallbacks2
 import android.os.Bundle
 import android.view.ViewGroup
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -27,6 +28,7 @@ import com.pyamsoft.fridge.FridgeComponent
 import com.pyamsoft.fridge.R
 import com.pyamsoft.fridge.butler.Butler
 import com.pyamsoft.fridge.entry.EntryFragment
+import com.pyamsoft.fridge.locator.ForegroundState
 import com.pyamsoft.pydroid.arch.doOnDestroy
 import com.pyamsoft.pydroid.ui.Injector
 import com.pyamsoft.pydroid.ui.rating.ChangeLogBuilder
@@ -35,6 +37,7 @@ import com.pyamsoft.pydroid.ui.rating.buildChangeLog
 import com.pyamsoft.pydroid.ui.util.commit
 import com.pyamsoft.pydroid.ui.util.layout
 import com.pyamsoft.pydroid.ui.widget.shadow.DropshadowView
+import timber.log.Timber
 import java.util.concurrent.TimeUnit.SECONDS
 import javax.inject.Inject
 
@@ -59,6 +62,7 @@ internal class MainActivity : RatingActivity() {
   // Nullable to prevent memory leak
   private var snackbarContainer: CoordinatorLayout? = null
 
+  @JvmField @Inject internal var foregroundState: ForegroundState? = null
   @JvmField @Inject internal var toolbar: MainToolbar? = null
   @JvmField @Inject internal var container: FragmentContainer? = null
   @JvmField @Inject internal var butler: Butler? = null
@@ -83,12 +87,30 @@ internal class MainActivity : RatingActivity() {
 
   override fun onStart() {
     super.onStart()
+    Timber.d("App enters foreground onStart")
+    requireNotNull(foregroundState).isForeground = true
+
     requireNotNull(butler).apply {
       cancelExpirationReminder()
       remindExpiration(1, SECONDS)
 
       cancelLocationReminder()
       remindLocation(1, SECONDS)
+    }
+  }
+
+  override fun onStop() {
+    super.onStop()
+
+    Timber.d("App enters background onStop")
+    requireNotNull(foregroundState).isForeground = false
+  }
+
+  override fun onTrimMemory(level: Int) {
+    super.onTrimMemory(level)
+    if (level == ComponentCallbacks2.TRIM_MEMORY_UI_HIDDEN) {
+      Timber.d("App enters background UI_HIDDEN")
+      requireNotNull(foregroundState).isForeground = false
     }
   }
 
@@ -158,6 +180,7 @@ internal class MainActivity : RatingActivity() {
     toolbar = null
     container = null
     butler = null
+    foregroundState = null
   }
 
 }

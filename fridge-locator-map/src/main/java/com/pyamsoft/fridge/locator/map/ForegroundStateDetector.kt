@@ -17,21 +17,13 @@
 
 package com.pyamsoft.fridge.locator.map
 
-import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.locator.ForegroundState
-import com.pyamsoft.fridge.locator.Locator
-import dagger.Binds
-import dagger.Module
+import javax.inject.Inject
+import javax.inject.Singleton
 
-@Module
-abstract class LocatorModule {
+@Singleton
+internal class ForegroundStateDetector @Inject internal constructor() : ForegroundState {
 
-  @Binds
-  @CheckResult
-  internal abstract fun bindLocator(impl: GmsLocator): Locator
-
-  @Binds
-  @CheckResult
-  internal abstract fun bindForegroundState(impl: ForegroundStateDetector): ForegroundState
+  override var isForeground: Boolean = false
 
 }

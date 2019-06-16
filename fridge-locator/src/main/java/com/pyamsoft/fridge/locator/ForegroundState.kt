@@ -15,23 +15,10 @@
  *
  */
 
-package com.pyamsoft.fridge.locator.map
+package com.pyamsoft.fridge.locator
 
-import androidx.annotation.CheckResult
-import com.pyamsoft.fridge.locator.ForegroundState
-import com.pyamsoft.fridge.locator.Locator
-import dagger.Binds
-import dagger.Module
+interface ForegroundState {
 
-@Module
-abstract class LocatorModule {
-
-  @Binds
-  @CheckResult
-  internal abstract fun bindLocator(impl: GmsLocator): Locator
-
-  @Binds
-  @CheckResult
-  internal abstract fun bindForegroundState(impl: ForegroundStateDetector): ForegroundState
+  var isForeground: Boolean
 
 }
