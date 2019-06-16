@@ -50,6 +50,13 @@
 
     </activity>
 
+    <receiver
+        android:name=".locator.LocationUpdateReceiver"
+        android:exported="false">
+      <intent-filter>
+        <action android:name="@string/locator_broadcast_receiver_action"/>
+      </intent-filter>
+    </receiver>
 
   </application>
 </manifest>

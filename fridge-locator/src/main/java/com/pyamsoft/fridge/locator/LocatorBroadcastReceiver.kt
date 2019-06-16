@@ -33,9 +33,10 @@ abstract class LocatorBroadcastReceiver protected constructor() : BroadcastRecei
       return
     }
 
-    if (intent.action != UPDATE_LISTENER_ACTION) {
+    val expectedAction = context.getString(R.string.locator_broadcast_receiver_action)
+    if (intent.action != expectedAction) {
       Timber.e("Intent action: ${intent.action}")
-      Timber.e("No match expected: $UPDATE_LISTENER_ACTION. Stopping")
+      Timber.e("No match expected: $expectedAction. Stopping")
       return
     }
 
@@ -46,10 +47,5 @@ abstract class LocatorBroadcastReceiver protected constructor() : BroadcastRecei
     context: Context,
     intent: Intent
   )
-
-  companion object {
-
-    const val UPDATE_LISTENER_ACTION = "ACTION: Locator-listenForUpdates()"
-  }
 
 }
