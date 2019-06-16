@@ -25,7 +25,6 @@ import com.pyamsoft.fridge.db.item.FridgeItem
 
 internal object ExpirationNotifications {
 
-  private const val NEEDED_CHANNEL_ID = "fridge_need_reminders_channel_v1"
   private const val EXPIRING_CHANNEL_ID = "fridge_expiring_reminders_channel_v1"
   private const val EXPIRED_CHANNEL_ID = "fridge_expiration_reminders_channel_v1"
 
@@ -35,31 +34,6 @@ internal object ExpirationNotifications {
       items.size == 1 -> ""
       items.size == 2 -> "and '${items[1].name()}'"
       else -> "and ${items.size - 1} other items"
-    }
-  }
-
-  @JvmStatic
-  fun notifyNeeded(
-    context: Context,
-    entry: FridgeEntry,
-    items: List<FridgeItem>
-  ) {
-    ButlerNotifications.notify(
-        entry.id(),
-        context,
-        NEEDED_CHANNEL_ID,
-        "Purchase Reminders",
-        "Reminders for items you still need to purchase",
-        items
-    ) { builder ->
-      return@notify builder
-          .setContentTitle("Purchase reminder for '${entry.name()}'")
-          .setContentText(
-              "You still need '${items.first().name()}' ${getExtraItems(
-                  items
-              )}"
-          )
-          .build()
     }
   }
 

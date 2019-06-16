@@ -19,8 +19,13 @@ package com.pyamsoft.fridge.locator
 
 import android.content.Context
 import com.pyamsoft.fridge.locator.map.GmsLocatorBroadcastReceiver
+import timber.log.Timber
 
 internal class LocationUpdateReceiver internal constructor() : GmsLocatorBroadcastReceiver() {
+
+  init {
+    Timber.d("Created new instance")
+  }
 
   override fun onInject(context: Context) {
   }

@@ -28,7 +28,7 @@ import com.pyamsoft.fridge.db.entry.FridgeEntryQueryDao
 import com.pyamsoft.fridge.db.isExpired
 import com.pyamsoft.fridge.db.isExpiringSoon
 import com.pyamsoft.fridge.db.item.FridgeItem
-import com.pyamsoft.fridge.db.item.FridgeItem.Presence.NEED
+import com.pyamsoft.fridge.db.item.FridgeItem.Presence.HAVE
 import com.pyamsoft.fridge.db.item.FridgeItemQueryDao
 import com.pyamsoft.pydroid.ui.Injector
 import io.reactivex.Observable
@@ -68,16 +68,12 @@ internal class ExpirationWorker internal constructor(
   ) {
     enforcer.assertNotOnMainThread()
 
-    val needItems = arrayListOf<FridgeItem>()
     val expiringItems = arrayListOf<FridgeItem>()
     val expiredItems = arrayListOf<FridgeItem>()
     val unknownExpirationItems = arrayListOf<FridgeItem>()
 
     for (item in items.filterNot { it.isArchived() }) {
-      if (item.presence() == NEED) {
-        Timber.d("${entry.id()} needs item: $item")
-        needItems.add(item)
-      } else {
+      if (item.presence() == HAVE) {
         val expirationTime = item.expireTime()
         if (expirationTime != FridgeItem.EMPTY_EXPIRE_TIME) {
 
@@ -94,13 +90,6 @@ internal class ExpirationWorker internal constructor(
           unknownExpirationItems.add(item)
         }
       }
-    }
-
-
-    if (needItems.isNotEmpty()) {
-      ExpirationNotifications.notifyNeeded(
-          applicationContext, entry, needItems
-      )
     }
 
     if (expiringItems.isNotEmpty()) {
