@@ -18,6 +18,7 @@
 package com.pyamsoft.fridge
 
 import android.app.Application
+import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.butler.Butler
 import com.pyamsoft.fridge.db.entry.FridgeEntryQueryDao
 import com.pyamsoft.fridge.db.item.FridgeItemQueryDao
@@ -58,7 +59,8 @@ class MyFridgeSmells : Application() {
               moshi,
               provider.enforcer(),
               this,
-              provider.imageLoader()
+              provider.imageLoader(),
+              LocationUpdateReceiver::class.java
           )
           .also { onInitialized(it) }
     }
@@ -73,7 +75,7 @@ class MyFridgeSmells : Application() {
   }
 
   private fun listenForLocationUpdates() {
-    requireNotNull(locator).listenForUpdates(LocationUpdateReceiver::class.java)
+    requireNotNull(locator).listenForUpdates()
   }
 
   private fun installRefWatcher() {
@@ -113,13 +115,26 @@ class MyFridgeSmells : Application() {
       return service
     }
 
+    if (name == FridgeComponent::class.java.name) {
+      return requireNotNull(component)
+    } else {
+      val serviceFromComponent = getServiceFromComponent(name)
+      if (serviceFromComponent != null) {
+        return serviceFromComponent
+      } else {
+        return super.getSystemService(name)
+      }
+    }
+  }
+
+  @CheckResult
+  private fun getServiceFromComponent(name: String): Any? {
     return when (name) {
-      FridgeComponent::class.java.name -> requireNotNull(component)
       FridgeEntryQueryDao::class.java.name -> requireNotNull(component).provideFridgeEntryQueryDao()
       FridgeItemQueryDao::class.java.name -> requireNotNull(component).provideFridgeItemQueryDao()
       Butler::class.java.name -> requireNotNull(component).provideButler()
-      else -> super.getSystemService(name)
+      Locator::class.java.name -> requireNotNull(component).provideLocator()
+      else -> null
     }
-
   }
 }

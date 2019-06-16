@@ -33,6 +33,8 @@ import com.pyamsoft.fridge.detail.DetailComponent
 import com.pyamsoft.fridge.detail.ExpandComponent
 import com.pyamsoft.fridge.detail.item.DateSelectPayload
 import com.pyamsoft.fridge.entry.EntryComponent
+import com.pyamsoft.fridge.locator.Locator
+import com.pyamsoft.fridge.locator.LocatorBroadcastReceiver
 import com.pyamsoft.fridge.locator.map.LocatorModule
 import com.pyamsoft.fridge.main.MainComponent
 import com.pyamsoft.fridge.setting.SettingComponent
@@ -65,11 +67,15 @@ internal interface FridgeComponent {
   @CheckResult
   fun provideButler(): Butler
 
-  // For BaseWorker Work classes
+  // For LocationWorker Work classes
+  @CheckResult
+  fun provideLocator(): Locator
+
+  // For ExpirationWorker Work classes
   @CheckResult
   fun provideFridgeEntryQueryDao(): FridgeEntryQueryDao
 
-  // For BaseWorker Work classes
+  // For ExpirationWorker Work classes
   @CheckResult
   fun provideFridgeItemQueryDao(): FridgeItemQueryDao
 
@@ -104,7 +110,8 @@ internal interface FridgeComponent {
       @BindsInstance moshi: Moshi,
       @BindsInstance enforcer: Enforcer,
       @BindsInstance application: Application,
-      @BindsInstance imageLoader: ImageLoader
+      @BindsInstance imageLoader: ImageLoader,
+      @BindsInstance receiverClass: Class<out LocatorBroadcastReceiver>
     ): FridgeComponent
 
   }

@@ -34,6 +34,7 @@ import javax.inject.Singleton
 
 @Singleton
 internal class GmsLocator @Inject internal constructor(
+  private val receiverClass: Class<out LocatorBroadcastReceiver>,
   private val context: Context
 ) : Locator {
 
@@ -46,22 +47,22 @@ internal class GmsLocator @Inject internal constructor(
     ) == PackageManager.PERMISSION_GRANTED
   }
 
-  override fun listenForUpdates(receiver: Class<out LocatorBroadcastReceiver>) {
+  override fun listenForUpdates() {
     if (!hasPermission()) {
       Timber.w("Missing permission, return empty listener")
       return
     }
 
-    requestLocationUpdates(receiver)
+    requestLocationUpdates()
   }
 
   @SuppressLint("MissingPermission")
-  private fun requestLocationUpdates(receiver: Class<out LocatorBroadcastReceiver>) {
+  private fun requestLocationUpdates() {
     val action = context.getString(R.string.locator_broadcast_receiver_action)
     val pendingIntent =
       PendingIntent.getBroadcast(
           context, REQUEST_CODE,
-          Intent(context, receiver).setAction(action),
+          Intent(context, receiverClass).setAction(action),
           PendingIntent.FLAG_UPDATE_CURRENT
       )
 

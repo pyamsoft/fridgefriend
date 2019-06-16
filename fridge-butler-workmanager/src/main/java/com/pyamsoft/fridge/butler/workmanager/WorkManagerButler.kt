@@ -24,6 +24,7 @@ import androidx.work.OneTimeWorkRequest
 import androidx.work.WorkManager
 import com.pyamsoft.fridge.butler.Butler
 import com.pyamsoft.fridge.butler.workmanager.expiration.ExpirationWorker
+import com.pyamsoft.fridge.butler.workmanager.locator.LocationWorker
 import timber.log.Timber
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
@@ -82,6 +83,18 @@ internal class WorkManagerButler @Inject internal constructor() : Butler {
     workManager().cancelAllWorkByTag(EXPIRATION_TAG)
   }
 
+  override fun remindLocation(
+    time: Long,
+    unit: TimeUnit
+  ) {
+    schedule(LocationWorker::class.java, LOCATION_TAG, time, unit)
+  }
+
+  override fun cancelLocationReminder() {
+    Timber.d("Cancel all pending location reminders")
+    workManager().cancelAllWorkByTag(LOCATION_TAG)
+  }
+
   override fun cancel() {
     Timber.d("Cancel all pending work")
     workManager().cancelAllWork()
@@ -90,6 +103,7 @@ internal class WorkManagerButler @Inject internal constructor() : Butler {
   companion object {
 
     private const val EXPIRATION_TAG = "WorkManagerButler: Expiration Reminder"
+    private const val LOCATION_TAG = "WorkManagerButler: Location Reminder"
   }
 
 }
