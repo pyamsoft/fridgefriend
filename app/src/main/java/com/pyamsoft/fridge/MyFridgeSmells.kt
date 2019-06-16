@@ -24,7 +24,6 @@ import com.pyamsoft.fridge.db.item.FridgeItemQueryDao
 import com.pyamsoft.fridge.locator.LocationUpdateReceiver
 import com.pyamsoft.fridge.locator.Locator
 import com.pyamsoft.pydroid.bootstrap.libraries.OssLibraries
-import com.pyamsoft.pydroid.bootstrap.libraries.OssLicenses.APACHE2
 import com.pyamsoft.pydroid.ui.PYDroid
 import com.squareup.leakcanary.LeakCanary
 import com.squareup.leakcanary.RefWatcher
@@ -95,12 +94,6 @@ class MyFridgeSmells : Application() {
         "WorkManager",
         "https://android.googlesource.com/platform/frameworks/support/+/androidx-master-dev/work/",
         "The AndroidX Jetpack WorkManager library. Schedule periodic work in a device friendly way."
-    )
-    OssLibraries.add(
-        "Google Play Services: Location",
-        "https://developers.google.com/android/guides/releases",
-        "Google Play Services Location library. This is a closed source implementation",
-        APACHE2
     )
     OssLibraries.add(
         "Dagger",
