@@ -98,9 +98,6 @@ dependencies {
   // Dagger
   kapt "com.google.dagger:dagger-compiler:$dagger"
 
-  // OsmDroid
-  implementation "org.osmdroid:osmdroid-android:$osmdroid"
-
   api project(':fridge-butler-workmanager')
   api project(':fridge-db-room')
   api project(':fridge-core')
