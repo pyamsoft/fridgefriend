@@ -127,11 +127,10 @@ internal class GmsLocator @Inject internal constructor(
 
       if (location == null) {
         Timber.w("Last known location is unknown")
-        emitter.onSuccess(LastKnownLocation(null))
       } else {
         Timber.d("Last known location is $location")
-        emitter.onSuccess(LastKnownLocation(location))
       }
+      emitter.onSuccess(LastKnownLocation(location))
     }
         .addOnFailureListener {
           // Android runs this callback OMT
