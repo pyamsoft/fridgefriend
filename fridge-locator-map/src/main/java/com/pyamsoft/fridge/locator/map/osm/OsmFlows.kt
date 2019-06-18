@@ -15,16 +15,21 @@
  *
  */
 
-package com.pyamsoft.fridge.locator
+package com.pyamsoft.fridge.locator.map.osm
 
-import android.content.Context
-import com.pyamsoft.fridge.locator.map.gms.GmsLocatorBroadcastReceiver
+import android.location.Location
+import com.pyamsoft.pydroid.arch.UiControllerEvent
+import com.pyamsoft.pydroid.arch.UiViewEvent
+import com.pyamsoft.pydroid.arch.UiViewState
 
-internal class LocationUpdateReceiver internal constructor() : GmsLocatorBroadcastReceiver() {
+data class OsmViewState internal constructor(
+  val currentLocation: Location?
+) : UiViewState
 
-  override fun onInject(context: Context) {
-  }
+sealed class OsmViewEvent : UiViewEvent {
 
-  override fun onTeardown() {
-  }
+}
+
+sealed class OsmControllerEvent : UiControllerEvent {
+
 }

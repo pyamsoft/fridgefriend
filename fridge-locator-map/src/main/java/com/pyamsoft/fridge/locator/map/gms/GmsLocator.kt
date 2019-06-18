@@ -15,7 +15,7 @@
  *
  */
 
-package com.pyamsoft.fridge.locator.map
+package com.pyamsoft.fridge.locator.map.gms
 
 import android.annotation.SuppressLint
 import android.app.PendingIntent
@@ -27,6 +27,7 @@ import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationServices
 import com.pyamsoft.fridge.locator.Locator
 import com.pyamsoft.fridge.locator.LocatorBroadcastReceiver
+import com.pyamsoft.fridge.locator.map.R.string
 import timber.log.Timber
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
@@ -60,7 +61,9 @@ internal class GmsLocator @Inject internal constructor(
 
   @SuppressLint("MissingPermission")
   private fun requestLocationUpdates() {
-    val action = context.getString(R.string.locator_broadcast_receiver_action)
+    val action = context.getString(
+        string.locator_broadcast_receiver_action
+    )
     val pendingIntent =
       PendingIntent.getBroadcast(
           context, REQUEST_CODE,

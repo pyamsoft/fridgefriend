@@ -19,6 +19,7 @@ package com.pyamsoft.fridge.locator.map
 
 import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.locator.Locator
+import com.pyamsoft.fridge.locator.map.gms.GmsLocator
 import dagger.Binds
 import dagger.Module
 

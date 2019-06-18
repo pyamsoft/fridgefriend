@@ -15,7 +15,7 @@
  *
  */
 
-package com.pyamsoft.fridge.locator.map
+package com.pyamsoft.fridge.locator.map.gms
 
 import android.content.Context
 import android.content.Intent
