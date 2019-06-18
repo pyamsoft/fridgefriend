@@ -18,27 +18,15 @@
 package com.pyamsoft.fridge.butler
 
 import android.app.Notification
-import android.app.NotificationChannel
-import android.app.NotificationChannelGroup
-import android.app.NotificationManager
 import android.content.Context
-import android.graphics.Color
-import android.os.Build
 import androidx.annotation.CheckResult
 import androidx.core.app.NotificationCompat
-import androidx.core.app.NotificationManagerCompat
-import androidx.core.content.getSystemService
-import com.pyamsoft.fridge.butler.R.drawable
-import com.pyamsoft.fridge.db.item.FridgeItem
+import com.pyamsoft.fridge.core.Notifications
+import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.pydroid.ui.Injector
 import timber.log.Timber
 
 object ButlerNotifications {
-
-  @CheckResult
-  private fun notificationManager(context: Context): NotificationManagerCompat {
-    return NotificationManagerCompat.from(context)
-  }
 
   @CheckResult
   private fun notificationId(
@@ -48,80 +36,29 @@ object ButlerNotifications {
     return "${id}_$channelId".hashCode()
   }
 
-  private fun guaranteeNotificationChannelExists(
-    context: Context,
-    channelId: String,
-    channelTitle: String,
-    channelDescription: String
-  ) {
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-      val notificationGroup = NotificationChannelGroup(channelId, channelTitle)
-      val notificationChannel =
-        NotificationChannel(channelId, channelTitle, NotificationManager.IMPORTANCE_DEFAULT).apply {
-          group = notificationGroup.id
-          lockscreenVisibility = Notification.VISIBILITY_PUBLIC
-          description = channelDescription
-          enableLights(false)
-          enableVibration(true)
-        }
-
-      Timber.d("Create notification channel and group with id: $channelId")
-      requireNotNull(context.getSystemService<NotificationManager>()).let { manager ->
-        manager.createNotificationChannelGroup(notificationGroup)
-        manager.createNotificationChannel(notificationChannel)
-      }
-    }
-  }
-
   @JvmStatic
   fun notify(
-    id: String,
+    entry: FridgeEntry,
     context: Context,
     channelId: String,
     channelTitle: String,
     channelDescription: String,
-    items: List<FridgeItem>,
     createNotification: (builder: NotificationCompat.Builder) -> Notification
   ) {
-    require(items.isNotEmpty())
-    require(channelId.isNotBlank())
-    require(channelTitle.isNotBlank())
-    require(channelDescription.isNotBlank())
-
     if (Injector.obtain<ForegroundState>(context.applicationContext).isForeground) {
-      Timber.w("Do not send notification while in foreground: $id")
+      Timber.w("Do not send notification while in foreground: ${entry.id()}")
       return
     }
 
-    guaranteeNotificationChannelExists(
-        context, channelId, channelTitle, channelDescription
+    Notifications.notify(
+        context,
+        notificationId(entry.id(), channelId),
+        entry.id(),
+        R.drawable.ic_get_app_24dp,
+        channelId,
+        channelTitle,
+        channelDescription,
+        createNotification
     )
-
-    val builder = NotificationCompat.Builder(context, channelId)
-        .setSmallIcon(drawable.ic_get_app_24dp)
-        .setAutoCancel(false)
-        .setOngoing(false)
-        .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-        .setNumber(items.size)
-        .setColor(Color.RED)
-
-    val notification = createNotification(builder)
-
-    Timber.d("Fire notification for entry: $id")
-    notificationManager(context).apply {
-      cancel(id, this, channelId)
-      notify(id, notificationId(id, channelId), notification)
-    }
   }
-
-  @JvmStatic
-  private fun cancel(
-    id: String,
-    manager: NotificationManagerCompat,
-    channelId: String
-  ) {
-    Timber.w("Cancel notification for entry: $id")
-    manager.cancel(id, notificationId(id, channelId))
-  }
-
 }

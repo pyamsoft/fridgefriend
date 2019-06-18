@@ -44,12 +44,11 @@ internal object ExpirationNotifications {
     items: List<FridgeItem>
   ) {
     ButlerNotifications.notify(
-        entry.id(),
+        entry,
         context,
         EXPIRING_CHANNEL_ID,
         "Expiring Reminders",
-        "Reminders for items that are going to expire soon",
-        items
+        "Reminders for items that are going to expire soon"
     ) { builder ->
       val extra =
         "${getExtraItems(
@@ -69,12 +68,11 @@ internal object ExpirationNotifications {
     items: List<FridgeItem>
   ) {
     ButlerNotifications.notify(
-        entry.id(),
+        entry,
         context,
         EXPIRED_CHANNEL_ID,
         "Expired Reminders",
-        "Reminders for items that have expired",
-        items
+        "Reminders for items that have expired"
     ) { builder ->
       return@notify builder
           .setContentTitle("Expired warning for '${entry.name()}'")
