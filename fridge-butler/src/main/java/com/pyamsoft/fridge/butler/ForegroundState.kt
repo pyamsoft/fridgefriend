@@ -15,7 +15,7 @@
  *
  */
 
-package com.pyamsoft.fridge.locator
+package com.pyamsoft.fridge.butler
 
 interface ForegroundState {
 

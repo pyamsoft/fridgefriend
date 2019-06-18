@@ -15,7 +15,7 @@
  *
  */
 
-package com.pyamsoft.fridge.butler.workmanager
+package com.pyamsoft.fridge.butler
 
 import android.app.Notification
 import android.app.NotificationChannel
@@ -28,11 +28,12 @@ import androidx.annotation.CheckResult
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.getSystemService
-import com.pyamsoft.fridge.butler.workmanager.R.drawable
+import com.pyamsoft.fridge.butler.R.drawable
 import com.pyamsoft.fridge.db.item.FridgeItem
+import com.pyamsoft.pydroid.ui.Injector
 import timber.log.Timber
 
-internal object ButlerNotifications {
+object ButlerNotifications {
 
   @CheckResult
   private fun notificationManager(context: Context): NotificationManagerCompat {
@@ -73,7 +74,7 @@ internal object ButlerNotifications {
   }
 
   @JvmStatic
-  internal inline fun notify(
+  fun notify(
     id: String,
     context: Context,
     channelId: String,
@@ -86,6 +87,11 @@ internal object ButlerNotifications {
     require(channelId.isNotBlank())
     require(channelTitle.isNotBlank())
     require(channelDescription.isNotBlank())
+
+    if (Injector.obtain<ForegroundState>(context.applicationContext).isForeground) {
+      Timber.w("Do not send notification while in foreground: $id")
+      return
+    }
 
     guaranteeNotificationChannelExists(
         context, channelId, channelTitle, channelDescription
@@ -102,17 +108,9 @@ internal object ButlerNotifications {
     val notification = createNotification(builder)
 
     Timber.d("Fire notification for entry: $id")
-    notificationManager(
-        context
-    )
-        .apply {
-      cancel(
-          id, this, channelId
-      )
-      notify(id,
-          notificationId(
-              id, channelId
-          ), notification)
+    notificationManager(context).apply {
+      cancel(id, this, channelId)
+      notify(id, notificationId(id, channelId), notification)
     }
   }
 
@@ -123,11 +121,7 @@ internal object ButlerNotifications {
     channelId: String
   ) {
     Timber.w("Cancel notification for entry: $id")
-    manager.cancel(id,
-        notificationId(
-            id, channelId
-        )
-    )
+    manager.cancel(id, notificationId(id, channelId))
   }
 
 }

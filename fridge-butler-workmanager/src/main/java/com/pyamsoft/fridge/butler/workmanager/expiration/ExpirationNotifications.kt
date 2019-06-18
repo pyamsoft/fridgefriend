@@ -19,7 +19,7 @@ package com.pyamsoft.fridge.butler.workmanager.expiration
 
 import android.content.Context
 import androidx.annotation.CheckResult
-import com.pyamsoft.fridge.butler.workmanager.ButlerNotifications
+import com.pyamsoft.fridge.butler.ButlerNotifications
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItem
 

@@ -33,6 +33,7 @@ import com.pyamsoft.fridge.detail.DetailComponent
 import com.pyamsoft.fridge.detail.ExpandComponent
 import com.pyamsoft.fridge.detail.item.DateSelectPayload
 import com.pyamsoft.fridge.entry.EntryComponent
+import com.pyamsoft.fridge.butler.ForegroundState
 import com.pyamsoft.fridge.locator.Locator
 import com.pyamsoft.fridge.locator.LocatorBroadcastReceiver
 import com.pyamsoft.fridge.locator.map.LocatorModule
@@ -62,6 +63,10 @@ import javax.inject.Singleton
     ]
 )
 internal interface FridgeComponent {
+
+  // For ButlerNotifications classes
+  @CheckResult
+  fun provideForegroundState(): ForegroundState
 
   // For BaseWorker Work classes
   @CheckResult

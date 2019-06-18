@@ -20,6 +20,7 @@ package com.pyamsoft.fridge
 import android.app.Application
 import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.butler.Butler
+import com.pyamsoft.fridge.butler.ForegroundState
 import com.pyamsoft.fridge.db.entry.FridgeEntryQueryDao
 import com.pyamsoft.fridge.db.item.FridgeItemQueryDao
 import com.pyamsoft.fridge.locator.LocationUpdateReceiver
@@ -134,6 +135,7 @@ class MyFridgeSmells : Application() {
       FridgeItemQueryDao::class.java.name -> requireNotNull(component).provideFridgeItemQueryDao()
       Butler::class.java.name -> requireNotNull(component).provideButler()
       Locator::class.java.name -> requireNotNull(component).provideLocator()
+      ForegroundState::class.java.name -> requireNotNull(component).provideForegroundState()
       else -> null
     }
   }
