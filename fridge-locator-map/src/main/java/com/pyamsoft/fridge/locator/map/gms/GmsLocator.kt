@@ -25,9 +25,14 @@ import android.content.pm.PackageManager
 import androidx.core.content.ContextCompat
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationServices
+import com.pyamsoft.fridge.locator.LastKnownLocation
 import com.pyamsoft.fridge.locator.Locator
 import com.pyamsoft.fridge.locator.LocatorBroadcastReceiver
+import com.pyamsoft.fridge.locator.MissingLocationPermissionException
 import com.pyamsoft.fridge.locator.map.R.string
+import com.pyamsoft.pydroid.core.threads.Enforcer
+import io.reactivex.Single
+import io.reactivex.SingleEmitter
 import timber.log.Timber
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
@@ -36,6 +41,7 @@ import javax.inject.Singleton
 @Singleton
 internal class GmsLocator @Inject internal constructor(
   private val receiverClass: Class<out LocatorBroadcastReceiver>,
+  private val enforcer: Enforcer,
   private val context: Context
 ) : Locator {
 
@@ -96,6 +102,42 @@ internal class GmsLocator @Inject internal constructor(
     synchronized(lock) {
       removeLocationUpdates()
     }
+  }
+
+  override fun getLastKnownLocation(): Single<LastKnownLocation> {
+    return Single.create { emitter ->
+      enforcer.assertNotOnMainThread()
+
+      if (!hasPermission()) {
+        emitter.tryOnError(MissingLocationPermissionException)
+      } else {
+        emitLastKnownLocation(emitter)
+      }
+    }
+  }
+
+  @SuppressLint("MissingPermission")
+  private fun emitLastKnownLocation(emitter: SingleEmitter<LastKnownLocation>) {
+    locationProvider.lastLocation.addOnSuccessListener { location ->
+      // Android runs this callback OMT
+      if (emitter.isDisposed) {
+        Timber.w("Emitter is already disposed")
+        return@addOnSuccessListener
+      }
+
+      if (location == null) {
+        Timber.w("Last known location is unknown")
+        emitter.onSuccess(LastKnownLocation(null))
+      } else {
+        Timber.d("Last known location is $location")
+        emitter.onSuccess(LastKnownLocation(location))
+      }
+    }
+        .addOnFailureListener {
+          // Android runs this callback OMT
+          Timber.e(it, "Failed to get last known location")
+          emitter.tryOnError(it)
+        }
   }
 
   companion object {

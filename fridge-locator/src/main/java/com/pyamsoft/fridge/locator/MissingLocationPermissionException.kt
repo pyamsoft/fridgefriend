@@ -17,19 +17,4 @@
 
 package com.pyamsoft.fridge.locator
 
-import android.location.Location
-import androidx.annotation.CheckResult
-import io.reactivex.Single
-
-interface Locator {
-
-  @CheckResult
-  fun hasPermission(): Boolean
-
-  fun listenForUpdates()
-
-  fun stopListeningForUpdates()
-
-  @CheckResult
-  fun getLastKnownLocation(): Single<LastKnownLocation>
-}
+object MissingLocationPermissionException : SecurityException("Missing FINE_LOCATION permission")
