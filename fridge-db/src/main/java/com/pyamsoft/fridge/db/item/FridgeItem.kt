@@ -18,19 +18,14 @@
 package com.pyamsoft.fridge.db.item
 
 import androidx.annotation.CheckResult
+import com.pyamsoft.fridge.db.BaseModel
 import com.pyamsoft.fridge.db.IdGenerator
 import java.util.Date
 
-interface FridgeItem {
-
-  @CheckResult
-  fun id(): String
+interface FridgeItem : BaseModel<FridgeItem> {
 
   @CheckResult
   fun entryId(): String
-
-  @CheckResult
-  fun name(): String
 
   @CheckResult
   fun count(): Int
@@ -45,12 +40,6 @@ interface FridgeItem {
   fun isReal(): Boolean
 
   @CheckResult
-  fun isArchived(): Boolean
-
-  @CheckResult
-  fun name(name: String): FridgeItem
-
-  @CheckResult
   fun count(count: Int): FridgeItem
 
   @CheckResult
@@ -61,9 +50,6 @@ interface FridgeItem {
 
   @CheckResult
   fun makeReal(): FridgeItem
-
-  @CheckResult
-  fun archive(): FridgeItem
 
   enum class Presence {
     HAVE,
@@ -89,7 +75,7 @@ interface FridgeItem {
       entryId: String
     ): FridgeItem {
       return create(
-          id, entryId, EMPTY_NAME, DEFAULT_COUNT, EMPTY_EXPIRE_TIME, DEFAULT_PRESENCE, false
+          id, entryId, EMPTY_NAME, DEFAULT_COUNT, Date(), EMPTY_EXPIRE_TIME, DEFAULT_PRESENCE, false
       )
     }
 
@@ -100,6 +86,7 @@ interface FridgeItem {
       entryId: String,
       name: String,
       count: Int,
+      createdTime: Date,
       expireTime: Date,
       presence: Presence,
       isReal: Boolean
@@ -109,6 +96,7 @@ interface FridgeItem {
           entryId,
           name,
           count,
+          createdTime,
           expireTime,
           presence,
           isReal,
@@ -121,6 +109,7 @@ interface FridgeItem {
       item: FridgeItem,
       name: String = item.name(),
       count: Int = item.count(),
+      createdTime: Date = item.createdTime(),
       expireTime: Date = item.expireTime(),
       presence: Presence = item.presence(),
       isReal: Boolean,
@@ -131,6 +120,7 @@ interface FridgeItem {
           item.entryId(),
           name,
           count,
+          createdTime,
           expireTime,
           presence,
           isReal,

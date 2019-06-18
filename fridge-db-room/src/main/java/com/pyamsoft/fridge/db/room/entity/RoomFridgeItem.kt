@@ -48,6 +48,9 @@ internal data class RoomFridgeItem internal constructor(
   @field:ColumnInfo(name = COLUMN_COUNT)
   val count: Int,
 
+  @field:ColumnInfo(name = COLUMN_CREATED_TIME)
+  val createdTime: Date,
+
   @field:ColumnInfo(name = COLUMN_EXPIRE_TIME)
   val expireTime: Date,
 
@@ -76,6 +79,11 @@ internal data class RoomFridgeItem internal constructor(
   @Ignore
   override fun count(): Int {
     return count
+  }
+
+  @Ignore
+  override fun createdTime(): Date {
+    return createdTime
   }
 
   @Ignore
@@ -145,6 +153,7 @@ internal data class RoomFridgeItem internal constructor(
     @Ignore internal const val COLUMN_ENTRY_ID = "entry_id"
     @Ignore internal const val COLUMN_NAME = "name"
     @Ignore internal const val COLUMN_COUNT = "count"
+    @Ignore internal const val COLUMN_CREATED_TIME = "created_time"
     @Ignore internal const val COLUMN_EXPIRE_TIME = "expire_time"
     @Ignore internal const val COLUMN_PRESENCE = "presence"
     @Ignore internal const val COLUMN_ARCHIVED = "archived"
@@ -161,6 +170,7 @@ internal data class RoomFridgeItem internal constructor(
             item.entryId(),
             item.name(),
             item.count(),
+            item.createdTime(),
             item.expireTime(),
             item.presence(),
             item.isArchived()

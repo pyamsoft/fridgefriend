@@ -15,7 +15,7 @@
  *
  */
 
-package com.pyamsoft.fridge.db.entry
+package com.pyamsoft.fridge.db.store
 
 import android.os.Parcelable
 import androidx.annotation.CheckResult
@@ -25,16 +25,25 @@ import java.util.Date
 
 @Parcelize
 @JsonClass(generateAdapter = true)
-data class JsonMappableFridgeEntry internal constructor(
+data class JsonMappableNearbyStore internal constructor(
   internal val id: String,
   internal val name: String,
   internal val createdTime: Date,
-  internal val isReal: Boolean,
+  internal val latitude: Double,
+  internal val longitude: Double,
   internal val isArchived: Boolean
-) : FridgeEntry, Parcelable {
+) : NearbyStore, Parcelable {
 
   override fun id(): String {
     return id
+  }
+
+  override fun latitude(): Double {
+    return latitude
+  }
+
+  override fun longitude(): Double {
+    return longitude
   }
 
   override fun name(): String {
@@ -45,23 +54,15 @@ data class JsonMappableFridgeEntry internal constructor(
     return createdTime
   }
 
-  override fun isReal(): Boolean {
-    return isReal
-  }
-
   override fun isArchived(): Boolean {
     return isArchived
   }
 
-  override fun name(name: String): FridgeEntry {
+  override fun name(name: String): NearbyStore {
     return this.copy(name = name)
   }
 
-  override fun makeReal(): FridgeEntry {
-    return this.copy(isReal = true)
-  }
-
-  override fun archive(): FridgeEntry {
+  override fun archive(): NearbyStore {
     return this.copy(isArchived = true)
   }
 
@@ -69,19 +70,19 @@ data class JsonMappableFridgeEntry internal constructor(
 
     @JvmStatic
     @CheckResult
-    fun from(entry: FridgeEntry): JsonMappableFridgeEntry {
-      if (entry is JsonMappableFridgeEntry) {
-        return entry
+    fun from(item: NearbyStore): JsonMappableNearbyStore {
+      if (item is JsonMappableNearbyStore) {
+        return item
       } else {
-        return JsonMappableFridgeEntry(
-            entry.id(),
-            entry.name(),
-            entry.createdTime(),
-            entry.isReal(),
-            entry.isArchived()
+        return JsonMappableNearbyStore(
+            item.id(),
+            item.name(),
+            item.createdTime(),
+            item.latitude(),
+            item.longitude(),
+            item.isArchived()
         )
       }
     }
   }
-
 }

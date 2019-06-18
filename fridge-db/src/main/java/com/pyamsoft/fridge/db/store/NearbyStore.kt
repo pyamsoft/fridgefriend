@@ -15,20 +15,20 @@
  *
  */
 
-package com.pyamsoft.fridge.db.entry
+package com.pyamsoft.fridge.db.store
 
 import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.db.BaseModel
 import com.pyamsoft.fridge.db.IdGenerator
 import java.util.Date
 
-interface FridgeEntry : BaseModel<FridgeEntry> {
+interface NearbyStore : BaseModel<NearbyStore> {
 
   @CheckResult
-  fun isReal(): Boolean
+  fun latitude(): Double
 
   @CheckResult
-  fun makeReal(): FridgeEntry
+  fun longitude(): Double
 
   companion object {
 
@@ -36,20 +36,15 @@ interface FridgeEntry : BaseModel<FridgeEntry> {
     private val EMPTY_CREATED_TIME = Date(0)
 
     @CheckResult
-    fun empty(): FridgeEntry {
-      return JsonMappableFridgeEntry(
+    fun empty(): NearbyStore {
+      return JsonMappableNearbyStore(
           "",
           EMPTY_NAME,
           EMPTY_CREATED_TIME,
-          isReal = false,
+          latitude = 0.0,
+          longitude = 0.0,
           isArchived = false
       )
-    }
-
-    @CheckResult
-    @JvmOverloads
-    fun create(id: String = IdGenerator.generate()): FridgeEntry {
-      return create(id, EMPTY_NAME, Date(), isReal = false, isArchived = false)
     }
 
     @CheckResult
@@ -57,22 +52,10 @@ interface FridgeEntry : BaseModel<FridgeEntry> {
     fun create(
       id: String = IdGenerator.generate(),
       name: String,
-      createdTime: Date,
-      isReal: Boolean,
-      isArchived: Boolean
-    ): FridgeEntry {
-      return JsonMappableFridgeEntry(id, name, createdTime, isReal, isArchived)
-    }
-
-    @CheckResult
-    fun create(
-      entry: FridgeEntry,
-      name: String = entry.name(),
-      createdTime: Date = entry.createdTime(),
-      isReal: Boolean,
-      isArchived: Boolean
-    ): FridgeEntry {
-      return JsonMappableFridgeEntry(entry.id(), name, createdTime, isReal, isArchived)
+      latitude: Double,
+      longitude: Double
+    ): NearbyStore {
+      return JsonMappableNearbyStore(id, name, Date(), latitude, longitude, isArchived = false)
     }
 
   }

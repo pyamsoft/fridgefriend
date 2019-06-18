@@ -31,6 +31,7 @@ data class JsonMappableFridgeItem internal constructor(
   internal val entryId: String,
   internal val name: String,
   internal val count: Int,
+  internal val createdTime: Date,
   internal val expireTime: Date,
   internal val presence: Presence,
   internal val isReal: Boolean,
@@ -51,6 +52,10 @@ data class JsonMappableFridgeItem internal constructor(
 
   override fun count(): Int {
     return count
+  }
+
+  override fun createdTime(): Date {
+    return createdTime
   }
 
   override fun expireTime(): Date {
@@ -74,7 +79,7 @@ data class JsonMappableFridgeItem internal constructor(
   }
 
   override fun count(count: Int): FridgeItem {
-    return this.copy(count =  count)
+    return this.copy(count = count)
   }
 
   override fun expireTime(expireTime: Date): FridgeItem {
@@ -106,6 +111,7 @@ data class JsonMappableFridgeItem internal constructor(
             item.entryId(),
             item.name(),
             item.count(),
+            item.createdTime(),
             item.expireTime(),
             item.presence(),
             item.isReal(),

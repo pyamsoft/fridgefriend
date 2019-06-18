@@ -71,13 +71,6 @@ internal data class RoomFridgeEntry internal constructor(
   }
 
   @Ignore
-  override fun createdTime(createdTime: Date): FridgeEntry {
-    return FridgeEntry.create(
-        this, createdTime = createdTime, isReal = isReal(), isArchived = isArchived()
-    )
-  }
-
-  @Ignore
   override fun makeReal(): FridgeEntry {
     return FridgeEntry.create(this, isReal = true, isArchived = isArchived())
   }
