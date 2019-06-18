@@ -17,11 +17,12 @@
 
 package com.pyamsoft.fridge.butler.workmanager
 
+import com.pyamsoft.fridge.butler.ForegroundState
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-internal class ForegroundStateDetector @Inject internal constructor() : com.pyamsoft.fridge.butler.ForegroundState {
+internal class ForegroundStateDetector @Inject internal constructor() : ForegroundState {
 
   override var isForeground: Boolean = false
 
