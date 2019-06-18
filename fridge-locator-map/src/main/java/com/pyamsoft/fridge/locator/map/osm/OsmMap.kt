@@ -45,7 +45,6 @@ class OsmMap @Inject internal constructor(
     savedInstanceState: Bundle?
   ) {
     owner.lifecycle.addObserver(this)
-    super.onInflated(view, savedInstanceState)
   }
 
   override fun onTeardown() {
