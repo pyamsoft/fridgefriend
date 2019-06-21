@@ -26,6 +26,7 @@ import androidx.lifecycle.Lifecycle.Event.ON_RESUME
 import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.OnLifecycleEvent
+import androidx.preference.PreferenceManager
 import com.pyamsoft.fridge.locator.map.R
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.arch.UiSavedState
@@ -33,7 +34,6 @@ import org.osmdroid.config.Configuration
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
 import org.osmdroid.views.CustomZoomButtonsController
 import org.osmdroid.views.MapView
-import org.osmdroid.views.overlay.Overlay
 import org.osmdroid.views.overlay.compass.CompassOverlay
 import org.osmdroid.views.overlay.compass.InternalCompassOrientationProvider
 import org.osmdroid.views.overlay.mylocation.GpsMyLocationProvider
@@ -42,8 +42,18 @@ import javax.inject.Inject
 
 class OsmMap @Inject internal constructor(
   private val owner: LifecycleOwner,
+  context: Context,
   parent: ViewGroup
 ) : BaseUiView<OsmViewState, OsmViewEvent>(parent), LifecycleObserver {
+
+  init {
+    setupMapConfiguration(context)
+  }
+
+  private fun setupMapConfiguration(context: Context) {
+    Configuration.getInstance()
+        .load(context, PreferenceManager.getDefaultSharedPreferences(context))
+  }
 
   override val layout: Int = R.layout.osm_map
 
@@ -81,29 +91,39 @@ class OsmMap @Inject internal constructor(
   }
 
   private fun initMap(context: Context) {
-    Configuration.getInstance()
-        .userAgentValue = "com.pyamsoft.fridge.OSM_MAP"
     layoutRoot.apply {
       setMultiTouchControls(true)
       isTilesScaledToDpi = true
       setTileSource(TileSourceFactory.MAPNIK)
-      addMapOverlays(context, overlays)
+      addMapOverlays(context)
       zoomController.setVisibility(CustomZoomButtonsController.Visibility.SHOW_AND_FADEOUT)
     }
   }
 
-  private fun addMapOverlays(
-    context: Context,
-    overlays: MutableList<Overlay>
-  ) {
+  private fun addMapOverlays(context: Context) {
+    val mapView = layoutRoot
     val locationOverlay = MyLocationNewOverlay(GpsMyLocationProvider(context), layoutRoot)
+    locationOverlay.runOnFirstFix {
+      val currentLocation = locationOverlay.myLocation
+      mapView.post {
+        mapView.controller.setZoom(DEFAULT_ZOOM)
+        if (currentLocation != null) {
+          mapView.controller.animateTo(currentLocation)
+        }
+      }
+    }
     locationOverlay.enableMyLocation()
 
     val compassOverlay =
       CompassOverlay(context, InternalCompassOrientationProvider(context), layoutRoot)
     compassOverlay.enableCompass()
 
-    overlays.add(compassOverlay)
-    overlays.add(locationOverlay)
+    mapView.overlays.add(compassOverlay)
+    mapView.overlays.add(locationOverlay)
+  }
+
+  companion object {
+
+    private const val DEFAULT_ZOOM = 14.5
   }
 }
