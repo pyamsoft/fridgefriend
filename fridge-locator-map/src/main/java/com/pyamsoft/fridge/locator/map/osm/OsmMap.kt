@@ -17,6 +17,7 @@
 
 package com.pyamsoft.fridge.locator.map.osm
 
+import android.content.Context
 import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
@@ -28,7 +29,14 @@ import androidx.lifecycle.OnLifecycleEvent
 import com.pyamsoft.fridge.locator.map.R
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.arch.UiSavedState
+import org.osmdroid.views.CustomZoomButtonsController
 import org.osmdroid.views.MapView
+import org.osmdroid.views.overlay.Overlay
+import org.osmdroid.views.overlay.compass.CompassOverlay
+import org.osmdroid.views.overlay.compass.InternalCompassOrientationProvider
+import org.osmdroid.views.overlay.gridlines.LatLonGridlineOverlay2
+import org.osmdroid.views.overlay.mylocation.GpsMyLocationProvider
+import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay
 import javax.inject.Inject
 
 class OsmMap @Inject internal constructor(
@@ -45,11 +53,12 @@ class OsmMap @Inject internal constructor(
     savedInstanceState: Bundle?
   ) {
     owner.lifecycle.addObserver(this)
+    initMap(view.context.applicationContext)
   }
 
   override fun onTeardown() {
-    layoutRoot.onDetach()
     owner.lifecycle.removeObserver(this)
+    layoutRoot.onDetach()
   }
 
   override fun onRender(
@@ -68,5 +77,29 @@ class OsmMap @Inject internal constructor(
   @OnLifecycleEvent(ON_PAUSE)
   internal fun onPause() {
     layoutRoot.onPause()
+  }
+
+  private fun initMap(context: Context) {
+    layoutRoot.apply {
+      addMapOverlays(context, overlays)
+      zoomController.setVisibility(CustomZoomButtonsController.Visibility.SHOW_AND_FADEOUT)
+      setMultiTouchControls(true)
+    }
+  }
+
+  private fun addMapOverlays(
+    context: Context,
+    overlays: MutableList<Overlay>
+  ) {
+    val locationOverlay = MyLocationNewOverlay(GpsMyLocationProvider(context), layoutRoot)
+    locationOverlay.enableMyLocation()
+
+    val compassOverlay =
+      CompassOverlay(context, InternalCompassOrientationProvider(context), layoutRoot)
+    compassOverlay.enableCompass()
+
+    overlays.add(locationOverlay)
+    overlays.add(compassOverlay)
+    overlays.add(LatLonGridlineOverlay2())
   }
 }
