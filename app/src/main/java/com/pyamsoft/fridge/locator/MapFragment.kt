@@ -59,7 +59,7 @@ internal class MapFragment : Fragment() {
     val parent = view.findViewById<ConstraintLayout>(R.id.layout_constraint)
     Injector.obtain<FridgeComponent>(view.context.applicationContext)
         .plusMapComponent()
-        .create(parent, viewLifecycleOwner)
+        .create(requireActivity(), parent, viewLifecycleOwner)
         .inject(this)
 
     ViewModelProviders.of(this, factory)

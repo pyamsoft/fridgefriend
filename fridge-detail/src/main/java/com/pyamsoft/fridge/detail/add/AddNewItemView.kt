@@ -36,9 +36,9 @@ import com.pyamsoft.pydroid.util.tintWith
 import javax.inject.Inject
 
 class AddNewItemView @Inject internal constructor(
-  private val activity: Activity,
   private val theming: Theming,
   private val imageLoader: ImageLoader,
+  activity: Activity,
   parent: ViewGroup
 ) : BaseUiView<UnitViewState, AddNewViewEvent>(parent) {
 
@@ -48,6 +48,7 @@ class AddNewItemView @Inject internal constructor(
 
   private val addNewIcon by boundView<FloatingActionButton>(R.id.detail_add_new_item)
 
+  private var activity: Activity? = activity
   private var iconLoaded: Loaded? = null
 
   override fun onInflated(
@@ -57,17 +58,19 @@ class AddNewItemView @Inject internal constructor(
     iconLoaded = imageLoader.load(R.drawable.ic_add_24dp)
         .mutate { drawable ->
           val color: Int
-          if (theming.isDarkTheme(activity)) {
+          if (theming.isDarkTheme(requireNotNull(activity))) {
             color = R.color.white
           } else {
             color = R.color.black
           }
+          activity = null
           return@mutate drawable.tintWith(layoutRoot.context, color)
         }
         .into(addNewIcon)
 
     addNewIcon.setOnDebouncedClickListener { publish(AddNewItemEvent) }
     addNewIcon.popShow()
+
   }
 
   override fun onRender(

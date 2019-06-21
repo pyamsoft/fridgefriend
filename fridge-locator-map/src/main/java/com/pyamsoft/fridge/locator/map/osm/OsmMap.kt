@@ -17,6 +17,7 @@
 
 package com.pyamsoft.fridge.locator.map.osm
 
+import android.app.Activity
 import android.content.Context
 import android.os.Bundle
 import android.view.View
@@ -30,10 +31,12 @@ import androidx.preference.PreferenceManager
 import com.pyamsoft.fridge.locator.map.R
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.arch.UiSavedState
+import com.pyamsoft.pydroid.ui.theme.Theming
 import org.osmdroid.config.Configuration
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
 import org.osmdroid.views.CustomZoomButtonsController
 import org.osmdroid.views.MapView
+import org.osmdroid.views.overlay.TilesOverlay
 import org.osmdroid.views.overlay.compass.CompassOverlay
 import org.osmdroid.views.overlay.compass.InternalCompassOrientationProvider
 import org.osmdroid.views.overlay.mylocation.GpsMyLocationProvider
@@ -42,9 +45,13 @@ import javax.inject.Inject
 
 class OsmMap @Inject internal constructor(
   private val owner: LifecycleOwner,
+  private val theming: Theming,
+  activity: Activity,
   context: Context,
   parent: ViewGroup
 ) : BaseUiView<OsmViewState, OsmViewEvent>(parent), LifecycleObserver {
+
+  private var activity: Activity? = activity
 
   init {
     setupMapConfiguration(context)
@@ -97,6 +104,11 @@ class OsmMap @Inject internal constructor(
       setTileSource(TileSourceFactory.MAPNIK)
       addMapOverlays(context)
       zoomController.setVisibility(CustomZoomButtonsController.Visibility.SHOW_AND_FADEOUT)
+
+      if (theming.isDarkTheme(requireNotNull(activity))) {
+        mapOverlay.setColorFilter(TilesOverlay.INVERT_COLORS)
+      }
+      activity = null
     }
   }
 

@@ -17,6 +17,7 @@
 
 package com.pyamsoft.fridge.locator
 
+import android.app.Activity
 import android.view.ViewGroup
 import androidx.annotation.CheckResult
 import androidx.lifecycle.LifecycleOwner
@@ -42,6 +43,7 @@ internal interface MapComponent {
 
     @CheckResult
     fun create(
+      @BindsInstance activity: Activity,
       @BindsInstance parent: ViewGroup,
       @BindsInstance owner: LifecycleOwner
     ): MapComponent
