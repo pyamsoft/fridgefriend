@@ -145,15 +145,7 @@ class OsmMap @Inject internal constructor(
 
     // Overpass query to find all supermarkets in the bounding box
     /*
-          [out:json][timeout:25];
-          (
-            node["shop"="supermarket"]({{bbox}});
-            way["shop"="supermarket"]({{bbox}});
-            relation["shop"="supermarket"]({{bbox}});
-          );
-          out meta;
-          >;
-          out meta qt;
+    [out:json][timeout:25];(node["shop"="supermarket"]({{bbox}});way["shop"="supermarket"]({{bbox}});relation["shop"="supermarket"]({{bbox}}););out body;>;out body qt;
      */
 
     // We get an elements []
