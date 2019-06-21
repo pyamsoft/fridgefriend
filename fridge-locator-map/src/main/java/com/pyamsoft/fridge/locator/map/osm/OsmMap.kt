@@ -29,12 +29,13 @@ import androidx.lifecycle.OnLifecycleEvent
 import com.pyamsoft.fridge.locator.map.R
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.arch.UiSavedState
+import org.osmdroid.config.Configuration
+import org.osmdroid.tileprovider.tilesource.TileSourceFactory
 import org.osmdroid.views.CustomZoomButtonsController
 import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.Overlay
 import org.osmdroid.views.overlay.compass.CompassOverlay
 import org.osmdroid.views.overlay.compass.InternalCompassOrientationProvider
-import org.osmdroid.views.overlay.gridlines.LatLonGridlineOverlay2
 import org.osmdroid.views.overlay.mylocation.GpsMyLocationProvider
 import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay
 import javax.inject.Inject
@@ -80,10 +81,14 @@ class OsmMap @Inject internal constructor(
   }
 
   private fun initMap(context: Context) {
+    Configuration.getInstance()
+        .userAgentValue = "com.pyamsoft.fridge.OSM_MAP"
     layoutRoot.apply {
+      setMultiTouchControls(true)
+      isTilesScaledToDpi = true
+      setTileSource(TileSourceFactory.MAPNIK)
       addMapOverlays(context, overlays)
       zoomController.setVisibility(CustomZoomButtonsController.Visibility.SHOW_AND_FADEOUT)
-      setMultiTouchControls(true)
     }
   }
 
@@ -99,7 +104,6 @@ class OsmMap @Inject internal constructor(
     compassOverlay.enableCompass()
 
     overlays.add(compassOverlay)
-    overlays.add(LatLonGridlineOverlay2())
     overlays.add(locationOverlay)
   }
 }

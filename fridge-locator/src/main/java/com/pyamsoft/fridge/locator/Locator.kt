@@ -17,7 +17,6 @@
 
 package com.pyamsoft.fridge.locator
 
-import android.location.Location
 import androidx.annotation.CheckResult
 import io.reactivex.Single
 
