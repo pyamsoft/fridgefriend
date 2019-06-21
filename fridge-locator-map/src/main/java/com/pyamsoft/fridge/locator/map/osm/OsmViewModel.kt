@@ -18,11 +18,12 @@
 package com.pyamsoft.fridge.locator.map.osm
 
 import com.pyamsoft.pydroid.arch.UiViewModel
+import org.osmdroid.util.BoundingBox
 import javax.inject.Inject
 
 class OsmViewModel @Inject internal constructor(
 ) : UiViewModel<OsmViewState, OsmViewEvent, OsmControllerEvent>(
-    initialState = OsmViewState(currentLocation = null)
+    initialState = OsmViewState(markers = emptyList())
 ) {
 
   override fun handleViewEvent(event: OsmViewEvent) {

@@ -23,7 +23,7 @@ import com.pyamsoft.pydroid.arch.UiViewEvent
 import com.pyamsoft.pydroid.arch.UiViewState
 
 data class OsmViewState internal constructor(
-  val currentLocation: Location?
+  val markers: List<OsmMarker>
 ) : UiViewState
 
 sealed class OsmViewEvent : UiViewEvent {
@@ -33,3 +33,9 @@ sealed class OsmViewEvent : UiViewEvent {
 sealed class OsmControllerEvent : UiControllerEvent {
 
 }
+
+data class OsmMarker internal constructor(
+  val title: String,
+  val description: String,
+  val location: Location
+)

@@ -22,6 +22,7 @@ import android.content.Context
 import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
+import androidx.annotation.CheckResult
 import androidx.lifecycle.Lifecycle.Event.ON_PAUSE
 import androidx.lifecycle.Lifecycle.Event.ON_RESUME
 import androidx.lifecycle.LifecycleObserver
@@ -34,13 +35,20 @@ import com.pyamsoft.pydroid.arch.UiSavedState
 import com.pyamsoft.pydroid.ui.theme.Theming
 import org.osmdroid.config.Configuration
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
+import org.osmdroid.util.BoundingBox
+import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.CustomZoomButtonsController
 import org.osmdroid.views.MapView
+import org.osmdroid.views.Projection
+import org.osmdroid.views.overlay.ItemizedIconOverlay
+import org.osmdroid.views.overlay.ItemizedOverlayWithFocus
+import org.osmdroid.views.overlay.OverlayItem
 import org.osmdroid.views.overlay.TilesOverlay
 import org.osmdroid.views.overlay.compass.CompassOverlay
 import org.osmdroid.views.overlay.compass.InternalCompassOrientationProvider
 import org.osmdroid.views.overlay.mylocation.GpsMyLocationProvider
 import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay
+import timber.log.Timber
 import javax.inject.Inject
 
 class OsmMap @Inject internal constructor(
@@ -51,20 +59,36 @@ class OsmMap @Inject internal constructor(
   parent: ViewGroup
 ) : BaseUiView<OsmViewState, OsmViewEvent>(parent), LifecycleObserver {
 
+  private var markerOverlay: ItemizedOverlayWithFocus<OverlayItem>? = null
   private var activity: Activity? = activity
 
-  init {
-    setupMapConfiguration(context)
-  }
+  private val itemListener = object : ItemizedIconOverlay.OnItemGestureListener<OverlayItem> {
 
-  private fun setupMapConfiguration(context: Context) {
-    Configuration.getInstance()
-        .load(context, PreferenceManager.getDefaultSharedPreferences(context))
+    override fun onItemLongPress(
+      index: Int,
+      item: OverlayItem?
+    ): Boolean {
+      // TODO do something on click
+      return true
+    }
+
+    override fun onItemSingleTapUp(
+      index: Int,
+      item: OverlayItem?
+    ): Boolean {
+      return false
+    }
+
   }
 
   override val layout: Int = R.layout.osm_map
 
   override val layoutRoot by boundView<MapView>(R.id.osm_map)
+
+  init {
+    Configuration.getInstance()
+        .load(context, PreferenceManager.getDefaultSharedPreferences(context))
+  }
 
   override fun onInflated(
     view: View,
@@ -74,8 +98,14 @@ class OsmMap @Inject internal constructor(
     initMap(view.context.applicationContext)
   }
 
+  private fun removeMarkerOverlay() {
+    markerOverlay?.let { layoutRoot.overlays.remove(it) }
+    markerOverlay = null
+  }
+
   override fun onTeardown() {
     owner.lifecycle.removeObserver(this)
+    removeMarkerOverlay()
     layoutRoot.onDetach()
   }
 
@@ -83,6 +113,59 @@ class OsmMap @Inject internal constructor(
     state: OsmViewState,
     savedState: UiSavedState
   ) {
+    removeMarkerOverlay()
+    state.markers.let { marks ->
+      // Skip work if no markers
+      if (marks.isEmpty()) {
+        return@let
+      }
+
+      markerOverlay =
+        ItemizedOverlayWithFocus<OverlayItem>(
+            marks.map { OverlayItem(it.title, it.description, GeoPoint(it.location)) },
+            itemListener, layoutRoot.context.applicationContext
+        ).apply {
+          setFocusItemsOnTap(true)
+        }
+            .also { layoutRoot.overlays.add(it) }
+    }
+  }
+
+  @CheckResult
+  private fun getBoundingBoxOfCurrentScreen(): BoundingBox {
+    val mapView = layoutRoot
+    return Projection(
+        mapView.zoomLevelDouble, mapView.getIntrinsicScreenRect(null),
+        GeoPoint(mapView.mapCenter),
+        mapView.mapScrollX, mapView.mapScrollY,
+        mapView.mapOrientation,
+        mapView.isHorizontalMapRepetitionEnabled, mapView.isVerticalMapRepetitionEnabled,
+        MapView.getTileSystem()
+    ).boundingBox
+
+    // Overpass query to find all supermarkets in the bounding box
+    /*
+          [out:json][timeout:25];
+          (
+            node["shop"="supermarket"]({{bbox}});
+            way["shop"="supermarket"]({{bbox}});
+            relation["shop"="supermarket"]({{bbox}});
+          );
+          out meta;
+          >;
+          out meta qt;
+     */
+
+    // We get an elements []
+    //   If type node
+    //     We get an id, lat, lon, timestamp, tags.name
+    //      We can build a GeoPoint using lat lng
+    //
+    //   If type way
+    //     We get an id, timestamp, tags.name, nodes (a list of ids)
+    //        We search the response body for a node which matches an id in the nodes list
+    //        the node which matches id will have a lat lng
+    //      We can build a boundingbox using the list of lat lng
   }
 
   @Suppress("unused")
@@ -114,6 +197,7 @@ class OsmMap @Inject internal constructor(
 
   private fun addMapOverlays(context: Context) {
     val mapView = layoutRoot
+
     val locationOverlay = MyLocationNewOverlay(GpsMyLocationProvider(context), layoutRoot)
     locationOverlay.runOnFirstFix {
       val currentLocation = locationOverlay.myLocation
@@ -121,6 +205,8 @@ class OsmMap @Inject internal constructor(
         mapView.controller.setZoom(DEFAULT_ZOOM)
         if (currentLocation != null) {
           mapView.controller.animateTo(currentLocation)
+          mapView.controller.setCenter(currentLocation)
+          Timber.d("Bounding box: ${getBoundingBoxOfCurrentScreen()}")
         }
       }
     }
