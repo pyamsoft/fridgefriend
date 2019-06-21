@@ -98,8 +98,8 @@ class OsmMap @Inject internal constructor(
       CompassOverlay(context, InternalCompassOrientationProvider(context), layoutRoot)
     compassOverlay.enableCompass()
 
-    overlays.add(locationOverlay)
     overlays.add(compassOverlay)
     overlays.add(LatLonGridlineOverlay2())
+    overlays.add(locationOverlay)
   }
 }

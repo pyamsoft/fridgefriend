@@ -36,8 +36,12 @@ import com.pyamsoft.fridge.db.item.FridgeItem.Presence.NEED
 import com.pyamsoft.fridge.detail.DetailFragment
 import com.pyamsoft.fridge.entry.EntryControllerEvent.NavigateToSettings
 import com.pyamsoft.fridge.entry.EntryControllerEvent.PushHave
+import com.pyamsoft.fridge.entry.EntryControllerEvent.PushNearby
 import com.pyamsoft.fridge.entry.EntryControllerEvent.PushNeed
 import com.pyamsoft.fridge.extensions.fragmentContainerId
+import com.pyamsoft.fridge.locator.Locator
+import com.pyamsoft.fridge.locator.MapFragment
+import com.pyamsoft.fridge.locator.PermissionFragment
 import com.pyamsoft.fridge.setting.SettingsFragment
 import com.pyamsoft.pydroid.arch.createComponent
 import com.pyamsoft.pydroid.ui.Injector
@@ -49,6 +53,8 @@ import timber.log.Timber
 import javax.inject.Inject
 
 internal class EntryFragment : Fragment() {
+
+  @JvmField @Inject internal var locator: Locator? = null
 
   @JvmField @Inject internal var factory: ViewModelProvider.Factory? = null
   @JvmField @Inject internal var toolbar: EntryToolbar? = null
@@ -95,6 +101,7 @@ internal class EntryFragment : Fragment() {
       return@createComponent when (it) {
         is PushHave -> pushHave(it.entry)
         is PushNeed -> pushNeed(it.entry)
+        is PushNearby -> pushNearby()
         is NavigateToSettings -> navigateToSettings()
       }
     }
@@ -134,6 +141,7 @@ internal class EntryFragment : Fragment() {
     frame = null
     navigation = null
     factory = null
+    locator = null
   }
 
   private fun navigateToSettings() {
@@ -152,6 +160,17 @@ internal class EntryFragment : Fragment() {
 
   private fun pushNeed(entry: FridgeEntry) {
     pushPage(entry, NEED)
+  }
+
+  private fun pushNearby() {
+    childFragmentManager.commitNow(viewLifecycleOwner) {
+      val container = requireNotNull(frame).id()
+      if (requireNotNull(locator).hasPermission()) {
+        replace(container, MapFragment.newInstance(), MapFragment.TAG)
+      } else {
+        replace(container, PermissionFragment.newInstance(container), PermissionFragment.TAG)
+      }
+    }
   }
 
   private fun pushPage(

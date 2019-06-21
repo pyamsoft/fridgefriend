@@ -22,6 +22,7 @@ import android.content.Context
 import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.FridgeComponent.FridgeProvider
 import com.pyamsoft.fridge.butler.Butler
+import com.pyamsoft.fridge.butler.ForegroundState
 import com.pyamsoft.fridge.butler.workmanager.ButlerModule
 import com.pyamsoft.fridge.db.DbProvider
 import com.pyamsoft.fridge.db.entry.FridgeEntryQueryDao
@@ -33,9 +34,10 @@ import com.pyamsoft.fridge.detail.DetailComponent
 import com.pyamsoft.fridge.detail.ExpandComponent
 import com.pyamsoft.fridge.detail.item.DateSelectPayload
 import com.pyamsoft.fridge.entry.EntryComponent
-import com.pyamsoft.fridge.butler.ForegroundState
 import com.pyamsoft.fridge.locator.Locator
 import com.pyamsoft.fridge.locator.LocatorBroadcastReceiver
+import com.pyamsoft.fridge.locator.MapComponent
+import com.pyamsoft.fridge.locator.PermissionComponent
 import com.pyamsoft.fridge.locator.map.LocatorModule
 import com.pyamsoft.fridge.main.MainComponent
 import com.pyamsoft.fridge.setting.SettingComponent
@@ -101,6 +103,12 @@ internal interface FridgeComponent {
 
   @CheckResult
   fun plusSettingComponent(): SettingComponent.Factory
+
+  @CheckResult
+  fun plusMapComponent(): MapComponent.Factory
+
+  @CheckResult
+  fun plusPermissionComponent(): PermissionComponent.Factory
 
   fun inject(dialog: DatePickerDialogFragment)
 

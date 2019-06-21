@@ -33,6 +33,8 @@ sealed class EntryViewEvent : UiViewEvent {
 
   data class OpenNeed internal constructor(val entry: FridgeEntry) : EntryViewEvent()
 
+  data class OpenNearby internal constructor(val entry: FridgeEntry) : EntryViewEvent()
+
   object SettingsNavigate : EntryViewEvent()
 
 }
@@ -44,6 +46,10 @@ sealed class EntryControllerEvent : UiControllerEvent {
   ) : EntryControllerEvent()
 
   data class PushNeed internal constructor(
+    val entry: FridgeEntry
+  ) : EntryControllerEvent()
+
+  data class PushNearby internal constructor(
     val entry: FridgeEntry
   ) : EntryControllerEvent()
 

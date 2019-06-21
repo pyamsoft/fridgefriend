@@ -20,8 +20,10 @@ package com.pyamsoft.fridge.entry
 import com.pyamsoft.fridge.db.PersistentEntries
 import com.pyamsoft.fridge.entry.EntryControllerEvent.NavigateToSettings
 import com.pyamsoft.fridge.entry.EntryControllerEvent.PushHave
+import com.pyamsoft.fridge.entry.EntryControllerEvent.PushNearby
 import com.pyamsoft.fridge.entry.EntryControllerEvent.PushNeed
 import com.pyamsoft.fridge.entry.EntryViewEvent.OpenHave
+import com.pyamsoft.fridge.entry.EntryViewEvent.OpenNearby
 import com.pyamsoft.fridge.entry.EntryViewEvent.OpenNeed
 import com.pyamsoft.fridge.entry.EntryViewEvent.SettingsNavigate
 import com.pyamsoft.pydroid.arch.UiViewModel
@@ -53,6 +55,7 @@ class EntryViewModel @Inject internal constructor(
     return when (event) {
       is OpenHave -> publish(PushHave(event.entry))
       is OpenNeed -> publish(PushNeed(event.entry))
+      is OpenNearby -> publish(PushNearby(event.entry))
       is SettingsNavigate -> publish(NavigateToSettings)
     }
   }

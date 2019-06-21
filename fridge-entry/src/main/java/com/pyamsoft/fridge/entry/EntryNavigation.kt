@@ -25,10 +25,10 @@ import androidx.core.view.isVisible
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.entry.EntryViewEvent.OpenHave
+import com.pyamsoft.fridge.entry.EntryViewEvent.OpenNearby
 import com.pyamsoft.fridge.entry.EntryViewEvent.OpenNeed
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.arch.UiSavedState
-import timber.log.Timber
 import javax.inject.Inject
 
 class EntryNavigation @Inject internal constructor(
@@ -57,6 +57,7 @@ class EntryNavigation @Inject internal constructor(
       return@setOnNavigationItemSelectedListener when (item.itemId) {
         R.id.menu_item_nav_need -> handleClick(state.entry) { OpenNeed(it) }
         R.id.menu_item_nav_have -> handleClick(state.entry) { OpenHave(it) }
+        R.id.menu_item_nav_nearby -> handleClick(state.entry) { OpenNearby(it) }
         else -> false
       }
     }
