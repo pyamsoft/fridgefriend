@@ -121,7 +121,7 @@ class OsmMap @Inject internal constructor(
       }
 
       markerOverlay =
-        ItemizedOverlayWithFocus<OverlayItem>(
+        ItemizedOverlayWithFocus(
             marks.map { OverlayItem(it.title, it.description, GeoPoint(it.location)) },
             itemListener, layoutRoot.context.applicationContext
         ).apply {

@@ -36,7 +36,7 @@ class SettingToolbar @Inject internal constructor(
     throw InvalidIdException
   }
 
-  override fun inflate(savedInstanceState: Bundle?) {
+  override fun doInflate(savedInstanceState: Bundle?) {
     toolbarActivity.requireToolbar { toolbar ->
       toolbar.title = "Settings"
       toolbar.setUpEnabled(true)
@@ -52,7 +52,7 @@ class SettingToolbar @Inject internal constructor(
   ) {
   }
 
-  override fun teardown() {
+  override fun doTeardown() {
     toolbarActivity.withToolbar { toolbar ->
       toolbar.setUpEnabled(false)
       toolbar.setNavigationOnClickListener(null)

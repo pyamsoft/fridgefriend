@@ -28,6 +28,9 @@ class SettingToolbarViewModel @Inject internal constructor(
     initialState = UnitViewState
 ) {
 
+  override fun onInit() {
+  }
+
   override fun handleViewEvent(event: SettingToolbarViewEvent) {
     return when (event) {
       is ToolbarNavigate -> publish(NavigateUp)

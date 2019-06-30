@@ -18,7 +18,6 @@
 package com.pyamsoft.fridge.locator
 
 import androidx.annotation.CheckResult
-import io.reactivex.Single
 
 interface Locator {
 
@@ -30,5 +29,5 @@ interface Locator {
   fun stopListeningForUpdates()
 
   @CheckResult
-  fun getLastKnownLocation(): Single<LastKnownLocation>
+  suspend fun getLastKnownLocation(): LastKnownLocation
 }

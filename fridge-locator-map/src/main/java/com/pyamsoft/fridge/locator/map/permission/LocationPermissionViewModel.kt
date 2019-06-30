@@ -28,6 +28,9 @@ class LocationPermissionViewModel @Inject internal constructor(
     initialState = UnitViewState
 ) {
 
+  override fun onInit() {
+  }
+
   override fun handleViewEvent(event: PermissionViewEvent) {
     return when (event) {
       is FireLocationPermission -> publish(LocationPermissionRequest)
