@@ -17,12 +17,8 @@
 
 package com.pyamsoft.fridge.db.entry
 
-import androidx.annotation.CheckResult
-import io.reactivex.Completable
-
 interface FridgeEntryInsertDao {
 
-  @CheckResult
-  fun insert(entry: FridgeEntry): Completable
+  suspend fun insert(entry: FridgeEntry)
 
 }

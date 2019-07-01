@@ -20,26 +20,28 @@ package com.pyamsoft.fridge.db.room
 import android.content.Context
 import androidx.annotation.CheckResult
 import androidx.room.Room
-import com.popinnow.android.repo.Repo
+import com.pyamsoft.cachify.cachify
+import com.pyamsoft.fridge.db.FridgeDb
 import com.pyamsoft.fridge.db.PersistentEntries
+import com.pyamsoft.fridge.db.entry.FridgeEntry
+import com.pyamsoft.fridge.db.entry.FridgeEntryDb
 import com.pyamsoft.fridge.db.entry.FridgeEntryDeleteDao
 import com.pyamsoft.fridge.db.entry.FridgeEntryInsertDao
 import com.pyamsoft.fridge.db.entry.FridgeEntryQueryDao
 import com.pyamsoft.fridge.db.entry.FridgeEntryRealtime
 import com.pyamsoft.fridge.db.entry.FridgeEntryUpdateDao
 import com.pyamsoft.fridge.db.entry.JsonMappableFridgeEntry
+import com.pyamsoft.fridge.db.item.FridgeItem
+import com.pyamsoft.fridge.db.item.FridgeItemDb
 import com.pyamsoft.fridge.db.item.FridgeItemDeleteDao
 import com.pyamsoft.fridge.db.item.FridgeItemInsertDao
 import com.pyamsoft.fridge.db.item.FridgeItemQueryDao
 import com.pyamsoft.fridge.db.item.FridgeItemRealtime
 import com.pyamsoft.fridge.db.item.FridgeItemUpdateDao
 import com.pyamsoft.fridge.db.item.JsonMappableFridgeItem
-import com.pyamsoft.fridge.db.room.impl.FridgeEntryDb
-import com.pyamsoft.fridge.db.room.impl.FridgeItemDb
-import com.pyamsoft.fridge.db.room.impl.RoomFridgeDb
-import com.pyamsoft.fridge.db.room.impl.RoomFridgeDbImpl
 import dagger.Module
 import dagger.Provides
+import java.util.concurrent.TimeUnit.MINUTES
 import javax.inject.Singleton
 
 @Module
@@ -49,20 +51,35 @@ object RoomProvider {
   @JvmStatic
   @Provides
   @CheckResult
-  internal fun provideDb(
-    context: Context,
-    entryRepo: Repo<List<JsonMappableFridgeEntry>>,
-    itemRepo: Repo<List<JsonMappableFridgeItem>>
-  ): RoomFridgeDb {
+  internal fun provideRoom(context: Context): RoomFridgeDbImpl {
     return Room.databaseBuilder(
         context.applicationContext,
         RoomFridgeDbImpl::class.java,
         "fridge_room_db.db"
     )
         .build()
-        .apply {
-          setObjects(entryRepo, itemRepo)
-        }
+  }
+
+  @Singleton
+  @JvmStatic
+  @Provides
+  @CheckResult
+  internal fun provideDb(room: RoomFridgeDbImpl): FridgeDb {
+    val entryCache = cachify<Sequence<FridgeEntry>, Boolean>(5, MINUTES) { force ->
+      return@cachify room.roomEntryQueryDao()
+          .queryAll(force)
+          .asSequence()
+          .map { JsonMappableFridgeEntry.from(it.makeReal()) }
+    }
+
+    val itemCache = cachify<Sequence<FridgeItem>, Boolean>(5, MINUTES) { force ->
+      return@cachify room.roomItemQueryDao()
+          .queryAll(force)
+          .asSequence()
+          .map { JsonMappableFridgeItem.from(it.makeReal()) }
+    }
+    room.setObjects(entryCache, itemCache)
+    return room
   }
 
   @JvmStatic
@@ -75,7 +92,7 @@ object RoomProvider {
   @JvmStatic
   @Provides
   @CheckResult
-  internal fun provideFridgeItemDb(room: RoomFridgeDb): FridgeItemDb {
+  internal fun provideFridgeItemDb(room: FridgeDb): FridgeItemDb {
     return room.items()
   }
 
@@ -117,7 +134,7 @@ object RoomProvider {
   @JvmStatic
   @Provides
   @CheckResult
-  internal fun provideFridgeEntryDb(room: RoomFridgeDb): FridgeEntryDb {
+  internal fun provideFridgeEntryDb(room: FridgeDb): FridgeEntryDb {
     return room.entries()
   }
 

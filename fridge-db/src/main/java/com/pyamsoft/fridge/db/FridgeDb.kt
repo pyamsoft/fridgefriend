@@ -15,11 +15,13 @@
  *
  */
 
-package com.pyamsoft.fridge.db.room.impl
+package com.pyamsoft.fridge.db
 
 import androidx.annotation.CheckResult
+import com.pyamsoft.fridge.db.entry.FridgeEntryDb
+import com.pyamsoft.fridge.db.item.FridgeItemDb
 
-internal interface RoomFridgeDb {
+interface FridgeDb {
 
   @CheckResult
   fun items(): FridgeItemDb

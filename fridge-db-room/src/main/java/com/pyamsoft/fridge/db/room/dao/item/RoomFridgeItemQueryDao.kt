@@ -23,31 +23,29 @@ import androidx.room.Query
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItemQueryDao
 import com.pyamsoft.fridge.db.room.entity.RoomFridgeItem
-import io.reactivex.Maybe
-import io.reactivex.Single
-import timber.log.Timber
 
 @Dao
 internal abstract class RoomFridgeItemQueryDao internal constructor() : FridgeItemQueryDao {
 
-  override fun queryAll(force: Boolean, entryId: String): Single<List<FridgeItem>> {
+  override suspend fun queryAll(
+    force: Boolean,
+    entryId: String
+  ): List<FridgeItem> {
     return daoQueryAll(entryId)
-      .toSingle(emptyList())
-      .map { it }
   }
 
-  @Query("SELECT * FROM ${RoomFridgeItem.TABLE_NAME} WHERE ${RoomFridgeItem.COLUMN_ENTRY_ID} = :entryId")
+  @Query(
+      "SELECT * FROM ${RoomFridgeItem.TABLE_NAME} WHERE ${RoomFridgeItem.COLUMN_ENTRY_ID} = :entryId"
+  )
   @CheckResult
-  internal abstract fun daoQueryAll(entryId: String): Maybe<List<RoomFridgeItem>>
+  internal abstract suspend fun daoQueryAll(entryId: String): List<RoomFridgeItem>
 
-  override fun queryAll(force: Boolean): Single<List<FridgeItem>> {
+  override suspend fun queryAll(force: Boolean): List<FridgeItem> {
     return daoQueryAll()
-      .toSingle(emptyList())
-      .map { it }
   }
 
   @Query("SELECT * FROM ${RoomFridgeItem.TABLE_NAME}")
   @CheckResult
-  internal abstract fun daoQueryAll(): Maybe<List<RoomFridgeItem>>
+  internal abstract suspend fun daoQueryAll(): List<RoomFridgeItem>
 
 }

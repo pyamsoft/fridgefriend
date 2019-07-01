@@ -19,10 +19,9 @@ package com.pyamsoft.fridge.db
 
 import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.db.entry.FridgeEntry
-import io.reactivex.Single
 
 interface PersistentEntries {
 
   @CheckResult
-  fun getPersistentEntry(): Single<FridgeEntry>
+  suspend fun getPersistentEntry(): FridgeEntry
 }

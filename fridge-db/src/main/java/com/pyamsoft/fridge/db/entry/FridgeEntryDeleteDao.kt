@@ -17,15 +17,10 @@
 
 package com.pyamsoft.fridge.db.entry
 
-import androidx.annotation.CheckResult
-import io.reactivex.Completable
-
 interface FridgeEntryDeleteDao {
 
-  @CheckResult
-  fun delete(entry: FridgeEntry): Completable
+  suspend fun delete(entry: FridgeEntry)
 
-  @CheckResult
-  fun deleteAll(): Completable
+  suspend fun deleteAll()
 
 }

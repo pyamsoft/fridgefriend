@@ -15,25 +15,31 @@
  *
  */
 
-package com.pyamsoft.fridge.db.room.impl
+package com.pyamsoft.fridge.db.entry
 
 import androidx.annotation.CheckResult
+import com.pyamsoft.cachify.Cached
+import com.pyamsoft.cachify.Cached1
+import com.pyamsoft.fridge.db.BaseDb
 
-internal interface FridgeDb<Realtime : Any, Query : Any, Insert : Any, Update : Any, Delete : Any> {
+interface FridgeEntryDb : BaseDb<
+    FridgeEntryChangeEvent,
+    FridgeEntryRealtime,
+    FridgeEntryQueryDao,
+    FridgeEntryInsertDao,
+    FridgeEntryUpdateDao,
+    FridgeEntryDeleteDao
+    > {
 
-  @CheckResult
-  fun realtime(): Realtime
+  companion object {
 
-  @CheckResult
-  fun query(): Query
-
-  @CheckResult
-  fun insert(): Insert
-
-  @CheckResult
-  fun update(): Update
-
-  @CheckResult
-  fun delete(): Delete
-
+    @CheckResult
+    fun wrap(
+      db: FridgeEntryDb,
+      cache: Cached1<Sequence<FridgeEntry>, Boolean>,
+      onCacheCleared: () -> Unit
+    ): FridgeEntryDb {
+      return FridgeEntryDbImpl(db, cache, onCacheCleared)
+    }
+  }
 }

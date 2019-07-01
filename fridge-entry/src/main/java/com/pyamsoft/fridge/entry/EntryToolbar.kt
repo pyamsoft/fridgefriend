@@ -39,13 +39,13 @@ class EntryToolbar @Inject internal constructor(
 
   private var settingsItem: MenuItem? = null
 
-  override fun inflate(savedInstanceState: Bundle?) {
+  override fun doInflate(savedInstanceState: Bundle?) {
   }
 
   override fun saveState(outState: Bundle) {
   }
 
-  override fun teardown() {
+  override fun doTeardown() {
     teardownMenu()
   }
 

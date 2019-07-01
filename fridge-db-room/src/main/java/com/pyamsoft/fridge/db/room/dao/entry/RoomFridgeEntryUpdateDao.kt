@@ -22,24 +22,17 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Update
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.entry.FridgeEntryUpdateDao
-import com.pyamsoft.fridge.db.room.dao.applyDbSchedulers
 import com.pyamsoft.fridge.db.room.entity.RoomFridgeEntry
-import io.reactivex.Completable
-import io.reactivex.Single
 
 @Dao
 internal abstract class RoomFridgeEntryUpdateDao internal constructor() : FridgeEntryUpdateDao {
 
-  override fun update(entry: FridgeEntry): Completable {
-    return Single.just(entry)
-      .map { RoomFridgeEntry.create(it) }
-      .flatMapCompletable {
-        return@flatMapCompletable Completable.fromAction { daoUpdate(it) }
-          .applyDbSchedulers()
-      }
+  override suspend fun update(entry: FridgeEntry) {
+    val roomEntry = RoomFridgeEntry.create(entry)
+    daoUpdate(roomEntry)
   }
 
-  @Update(onConflict = OnConflictStrategy.FAIL)
+  @Update(onConflict = OnConflictStrategy.ABORT)
   internal abstract fun daoUpdate(entry: RoomFridgeEntry)
 
 }

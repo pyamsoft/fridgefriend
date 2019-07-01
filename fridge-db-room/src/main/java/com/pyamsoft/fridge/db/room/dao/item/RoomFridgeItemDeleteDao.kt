@@ -21,21 +21,14 @@ import androidx.room.Dao
 import androidx.room.Delete
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItemDeleteDao
-import com.pyamsoft.fridge.db.room.dao.applyDbSchedulers
 import com.pyamsoft.fridge.db.room.entity.RoomFridgeItem
-import io.reactivex.Completable
-import io.reactivex.Single
 
 @Dao
 internal abstract class RoomFridgeItemDeleteDao internal constructor() : FridgeItemDeleteDao {
 
-  override fun delete(item: FridgeItem): Completable {
-    return Single.just(item)
-      .map { RoomFridgeItem.create(it) }
-      .flatMapCompletable {
-        return@flatMapCompletable Completable.fromAction { daoDelete(it) }
-          .applyDbSchedulers()
-      }
+  override suspend fun delete(item: FridgeItem) {
+    val roomItem = RoomFridgeItem.create(item)
+    daoDelete(roomItem)
   }
 
   @Delete

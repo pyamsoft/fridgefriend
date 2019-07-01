@@ -18,14 +18,14 @@
 package com.pyamsoft.fridge.db.item
 
 import androidx.annotation.CheckResult
-import io.reactivex.Observable
+import com.pyamsoft.pydroid.arch.EventConsumer
 
 interface FridgeItemRealtime {
 
   @CheckResult
-  fun listenForChanges(): Observable<FridgeItemChangeEvent>
+  fun listenForChanges(): EventConsumer<FridgeItemChangeEvent>
 
   @CheckResult
-  fun listenForChanges(entryId: String): Observable<FridgeItemChangeEvent>
+  fun listenForChanges(entryId: String): EventConsumer<FridgeItemChangeEvent>
 
 }

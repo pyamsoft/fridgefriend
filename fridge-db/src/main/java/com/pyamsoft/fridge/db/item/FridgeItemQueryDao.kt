@@ -18,14 +18,16 @@
 package com.pyamsoft.fridge.db.item
 
 import androidx.annotation.CheckResult
-import io.reactivex.Single
 
 interface FridgeItemQueryDao {
 
   @CheckResult
-  fun queryAll(force: Boolean): Single<List<FridgeItem>>
+  suspend fun queryAll(force: Boolean): List<FridgeItem>
 
   @CheckResult
-  fun queryAll(force: Boolean, entryId: String): Single<List<FridgeItem>>
+  suspend fun queryAll(
+    force: Boolean,
+    entryId: String
+  ): List<FridgeItem>
 
 }

@@ -22,28 +22,21 @@ import androidx.room.Delete
 import androidx.room.Query
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.entry.FridgeEntryDeleteDao
-import com.pyamsoft.fridge.db.room.dao.applyDbSchedulers
 import com.pyamsoft.fridge.db.room.entity.RoomFridgeEntry
-import io.reactivex.Completable
-import io.reactivex.Single
 
 @Dao
 internal abstract class RoomFridgeEntryDeleteDao internal constructor() : FridgeEntryDeleteDao {
 
-  override fun delete(entry: FridgeEntry): Completable {
-    return Single.just(entry)
-      .map { RoomFridgeEntry.create(it) }
-      .flatMapCompletable {
-        return@flatMapCompletable Completable.fromAction { daoDelete(it) }
-          .applyDbSchedulers()
-      }
+  override suspend fun delete(entry: FridgeEntry) {
+    val roomEntry = RoomFridgeEntry.create(entry)
+    daoDelete(roomEntry)
   }
 
   @Delete
   internal abstract fun daoDelete(entry: RoomFridgeEntry)
 
-  override fun deleteAll(): Completable {
-    return Completable.fromAction { daoDeleteAll() }
+  override suspend fun deleteAll() {
+    daoDeleteAll()
   }
 
   @Query("DELETE FROM ${RoomFridgeEntry.TABLE_NAME} WHERE 1 = 1")

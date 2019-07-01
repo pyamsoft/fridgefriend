@@ -15,18 +15,27 @@
  *
  */
 
-package com.pyamsoft.fridge.db.room.impl
+package com.pyamsoft.fridge.db
 
-import com.pyamsoft.fridge.db.entry.FridgeEntryDeleteDao
-import com.pyamsoft.fridge.db.entry.FridgeEntryInsertDao
-import com.pyamsoft.fridge.db.entry.FridgeEntryQueryDao
-import com.pyamsoft.fridge.db.entry.FridgeEntryRealtime
-import com.pyamsoft.fridge.db.entry.FridgeEntryUpdateDao
+import androidx.annotation.CheckResult
 
-internal interface FridgeEntryDb : FridgeDb<
-    FridgeEntryRealtime,
-    FridgeEntryQueryDao,
-    FridgeEntryInsertDao,
-    FridgeEntryUpdateDao,
-    FridgeEntryDeleteDao
-    >
+interface BaseDb<ChangeEvent : Any, Realtime : Any, Query : Any, Insert : Any, Update : Any, Delete : Any> {
+
+  fun publish(event: ChangeEvent)
+
+  @CheckResult
+  fun realtime(): Realtime
+
+  @CheckResult
+  fun query(): Query
+
+  @CheckResult
+  fun insert(): Insert
+
+  @CheckResult
+  fun update(): Update
+
+  @CheckResult
+  fun delete(): Delete
+
+}

@@ -25,10 +25,7 @@ import com.pyamsoft.fridge.db.PersistentEntries
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.entry.FridgeEntryInsertDao
 import com.pyamsoft.fridge.db.entry.FridgeEntryQueryDao
-import com.pyamsoft.pydroid.core.threads.Enforcer
-import io.reactivex.Maybe
-import io.reactivex.Observable
-import io.reactivex.Single
+import com.pyamsoft.pydroid.core.Enforcer
 import timber.log.Timber
 import java.util.Calendar
 import javax.inject.Inject
@@ -43,55 +40,43 @@ internal class RoomPersistentEntries @Inject internal constructor(
   private val sharedPreferences by lazy { PreferenceManager.getDefaultSharedPreferences(context) }
 
   @CheckResult
-  private fun getEntryForId(
+  private suspend fun getEntryForId(
     entryId: String,
     force: Boolean
-  ): Maybe<FridgeEntry> {
-    return queryDao.queryAll(force)
-        .flatMapObservable {
-          Timber.d("Got entries: $it")
-          enforcer.assertNotOnMainThread()
-          return@flatMapObservable Observable.fromIterable(it)
-        }
-        .filter { it.id() == entryId }
-        .singleElement()
+  ): FridgeEntry? {
+    val entries = queryDao.queryAll(force)
+    return entries.singleOrNull { it.id() == entryId }
   }
 
   @CheckResult
-  private fun getValidEntry(
+  private suspend fun getValidEntry(
     entryId: String,
     force: Boolean
-  ): Single<ValidEntry> {
-    return getEntryForId(entryId, force)
-        .map { ValidEntry(it) }
-        .toSingle(ValidEntry(null))
+  ): ValidEntry {
+    val entry = getEntryForId(entryId, force)
+    return ValidEntry(entry)
   }
 
   @CheckResult
-  private fun guaranteeEntryExists(
+  private suspend fun guaranteeEntryExists(
     key: String,
     name: String
-  ): Single<FridgeEntry> {
-    return Single.defer {
-      val entryId = getEntryId(key)
-      return@defer getValidEntry(entryId, false)
-          .flatMap {
-            enforcer.assertNotOnMainThread()
-            val valid = it.entry
-            if (valid != null) {
-              Timber.d("Entry exists, ignore: ${valid.id()}")
-              return@flatMap Single.just(valid)
-            } else {
-              val createdTime = Calendar.getInstance()
-                  .time
-              Timber.d("Create entry: $entryId at $createdTime")
-              val entry =
-                FridgeEntry.create(entryId, name, createdTime, isReal = true, isArchived = false)
-              return@flatMap insertDao.insert(entry)
-                  .andThen(Single.just(entry))
-                  .doOnSuccess { sharedPreferences.edit { putString(key, entryId) } }
-            }
-          }
+  ): FridgeEntry {
+    val entryId = getEntryId(key)
+    val entry = getValidEntry(entryId, false)
+    val valid = entry.entry
+    if (valid != null) {
+      Timber.d("Entry exists, ignore: ${valid.id()}")
+      return valid
+    } else {
+      val createdTime = Calendar.getInstance()
+          .time
+      Timber.d("Create entry: $entryId at $createdTime")
+      val newEntry =
+        FridgeEntry.create(entryId, name, createdTime, isReal = true, isArchived = false)
+      insertDao.insert(newEntry)
+      sharedPreferences.edit { putString(key, entryId) }
+      return newEntry
     }
   }
 
@@ -100,7 +85,8 @@ internal class RoomPersistentEntries @Inject internal constructor(
     return requireNotNull(sharedPreferences.getString(key, FridgeEntry.create().id()))
   }
 
-  override fun getPersistentEntry(): Single<FridgeEntry> {
+  override suspend fun getPersistentEntry(): FridgeEntry {
+    enforcer.assertNotOnMainThread()
     return guaranteeEntryExists(PERSIST_ENTRY_KEY, "Items")
   }
 

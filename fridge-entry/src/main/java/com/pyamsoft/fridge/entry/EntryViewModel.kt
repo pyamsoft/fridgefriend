@@ -17,6 +17,7 @@
 
 package com.pyamsoft.fridge.entry
 
+import androidx.lifecycle.viewModelScope
 import com.pyamsoft.fridge.db.PersistentEntries
 import com.pyamsoft.fridge.entry.EntryControllerEvent.NavigateToSettings
 import com.pyamsoft.fridge.entry.EntryControllerEvent.PushHave
@@ -27,28 +28,21 @@ import com.pyamsoft.fridge.entry.EntryViewEvent.OpenNearby
 import com.pyamsoft.fridge.entry.EntryViewEvent.OpenNeed
 import com.pyamsoft.fridge.entry.EntryViewEvent.SettingsNavigate
 import com.pyamsoft.pydroid.arch.UiViewModel
-import com.pyamsoft.pydroid.core.singleDisposable
-import com.pyamsoft.pydroid.core.tryDispose
-import io.reactivex.functions.Consumer
-import io.reactivex.schedulers.Schedulers
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class EntryViewModel @Inject internal constructor(
-  persistentEntries: PersistentEntries
+  private val persistentEntries: PersistentEntries
 ) : UiViewModel<EntryViewState, EntryViewEvent, EntryControllerEvent>(
     initialState = EntryViewState(entry = null, isSettingsItemVisible = true)
 ) {
 
-  private var entryDisposable by singleDisposable()
-
-  init {
-    entryDisposable = persistentEntries.getPersistentEntry()
-        .subscribeOn(Schedulers.io())
-        .observeOn(Schedulers.io())
-        .doAfterTerminate { entryDisposable.tryDispose() }
-        .subscribe(Consumer {
-          setState { copy(entry = it) }
-        })
+  override fun onInit() {
+    viewModelScope.launch(context = Dispatchers.Default) {
+      val entry = persistentEntries.getPersistentEntry()
+      setState { copy(entry = entry) }
+    }
   }
 
   override fun handleViewEvent(event: EntryViewEvent) {
@@ -62,10 +56,6 @@ class EntryViewModel @Inject internal constructor(
 
   fun showMenu(visible: Boolean) {
     setState { copy(isSettingsItemVisible = visible) }
-  }
-
-  override fun onTeardown() {
-    entryDisposable.tryDispose()
   }
 
 }

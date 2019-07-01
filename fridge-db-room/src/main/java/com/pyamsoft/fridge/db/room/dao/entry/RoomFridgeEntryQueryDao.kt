@@ -23,20 +23,16 @@ import androidx.room.Query
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.entry.FridgeEntryQueryDao
 import com.pyamsoft.fridge.db.room.entity.RoomFridgeEntry
-import io.reactivex.Maybe
-import io.reactivex.Single
 
 @Dao
 internal abstract class RoomFridgeEntryQueryDao internal constructor() : FridgeEntryQueryDao {
 
-  override fun queryAll(force: Boolean): Single<List<FridgeEntry>> {
+  override suspend fun queryAll(force: Boolean): List<FridgeEntry> {
     return daoQueryAll()
-        .toSingle(emptyList())
-        .map { it }
   }
 
   @Query("SELECT * FROM ${RoomFridgeEntry.TABLE_NAME}")
   @CheckResult
-  internal abstract fun daoQueryAll(): Maybe<List<RoomFridgeEntry>>
+  internal abstract suspend fun daoQueryAll(): List<RoomFridgeEntry>
 
 }
