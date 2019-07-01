@@ -32,6 +32,9 @@ class AddNewItemViewModel @Inject internal constructor(
 
   private val entryId = entry.id()
 
+  override fun onInit() {
+  }
+
   override fun handleViewEvent(event: AddNewViewEvent) {
     return when (event) {
       is AddNewItemEvent -> publish(AddNew(entryId))

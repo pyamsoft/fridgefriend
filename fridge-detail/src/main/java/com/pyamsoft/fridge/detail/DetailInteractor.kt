@@ -32,11 +32,8 @@ import com.pyamsoft.fridge.db.item.FridgeItemInsertDao
 import com.pyamsoft.fridge.db.item.FridgeItemQueryDao
 import com.pyamsoft.fridge.db.item.FridgeItemRealtime
 import com.pyamsoft.fridge.db.item.FridgeItemUpdateDao
-import com.pyamsoft.pydroid.core.threads.Enforcer
-import io.reactivex.Completable
-import io.reactivex.Maybe
-import io.reactivex.Observable
-import io.reactivex.Single
+import com.pyamsoft.pydroid.arch.EventConsumer
+import com.pyamsoft.pydroid.core.Enforcer
 import timber.log.Timber
 import java.util.Calendar
 import javax.inject.Inject
@@ -58,186 +55,165 @@ internal class DetailInteractor @Inject internal constructor(
   private val entryId = entry.id()
 
   @CheckResult
-  private fun getEntryForId(
+  private suspend fun getEntryForId(
     entryId: String,
     force: Boolean
-  ): Maybe<FridgeEntry> {
+  ): FridgeEntry? {
     return queryDao.queryAll(force)
-        .flatMapObservable {
-          Timber.d("Got entries: $it")
-          enforcer.assertNotOnMainThread()
-          return@flatMapObservable Observable.fromIterable(it)
-        }
-        .filter { it.id() == entryId }
-        .singleElement()
+        .singleOrNull { it.id() == entryId }
   }
 
   @CheckResult
-  private fun getValidEntry(
-    entryId: String,
-    force: Boolean
-  ): Single<ValidEntry> {
-    return getEntryForId(entryId, force)
-        .map { ValidEntry(it) }
-        .toSingle(ValidEntry(null))
-  }
-
-  @CheckResult
-  private fun guaranteeEntryExists(
+  private suspend fun guaranteeEntryExists(
     entryId: String,
     name: String
-  ): Single<FridgeEntry> {
-    return getValidEntry(entryId, false)
-        .flatMap {
-          enforcer.assertNotOnMainThread()
-          val valid = it.entry
-          if (valid != null) {
-            Timber.d("Entry exists, ignore: ${valid.id()}")
-            return@flatMap Single.just(valid)
-          } else {
-            val createdTime = Calendar.getInstance()
-                .time
-            Timber.d("Create entry: $entryId at $createdTime")
-            val entry =
-              FridgeEntry.create(entryId, name, createdTime, isReal = true, isArchived = false)
-            return@flatMap insertDao.insert(entry)
-                .andThen(Single.just(entry))
-          }
+  ): FridgeEntry {
+    val valid = getEntryForId(entryId, false)
+    if (valid != null) {
+      Timber.d("Entry exists, ignore: ${valid.id()}")
+      return valid
+    } else {
+      val createdTime = Calendar.getInstance()
+          .time
+      Timber.d("Create entry: $entryId at $createdTime")
+      val newEntry =
+        FridgeEntry.create(entryId, name, createdTime, isReal = true, isArchived = false)
+      insertDao.insert(newEntry)
+      return newEntry
+    }
+  }
+
+  @CheckResult
+  fun listenForEntryArchived(): EventConsumer<FridgeEntry> {
+    return object : EventConsumer<FridgeEntry> {
+      override suspend fun onEvent(emitter: suspend (event: FridgeEntry) -> Unit) {
+        enforcer.assertNotOnMainThread()
+        entryRealtime.listenForChanges()
+            .onEvent stop@{ event ->
+              if (event !is Update) {
+                return@stop
+              }
+
+              val entry = event.entry
+              if (entry.id() != entryId || !entry.isArchived()) {
+                return@stop
+              }
+
+              emitter(entry)
+            }
+      }
+
+    }
+  }
+
+  @CheckResult
+  fun observeEntry(force: Boolean): EventConsumer<FridgeEntry> {
+    return listenForEntryCreated { getEntryForId(entryId, force) }
+  }
+
+  @CheckResult
+  private fun listenForEntryCreated(startWith: suspend () -> FridgeEntry?): EventConsumer<FridgeEntry> {
+    return object : EventConsumer<FridgeEntry> {
+      override suspend fun onEvent(emitter: suspend (event: FridgeEntry) -> Unit) {
+        enforcer.assertNotOnMainThread()
+        val start = startWith()
+        if (start != null) {
+          emitter(start)
         }
+        entryRealtime.listenForChanges()
+            .onEvent stop@{ event ->
+              if (event !is Insert) {
+                return@stop
+              }
+
+              val entry = event.entry
+              if (entry.id() != entryId) {
+                return@stop
+              }
+
+              emitter(entry)
+            }
+      }
+
+    }
+  }
+
+  suspend fun archiveEntry() {
+    enforcer.assertNotOnMainThread()
+    val valid = getEntryForId(entryId, false)
+    if (valid != null) {
+      Timber.d("Archive entry: [${valid.id()}] $valid")
+      entryUpdateDao.update(valid.archive())
+    } else {
+      Timber.w("No entry, cannot archive")
+    }
   }
 
   @CheckResult
-  fun listenForEntryArchived(): Observable<FridgeEntry> {
-    return entryRealtime.listenForChanges()
-        .ofType(Update::class.java)
-        .map { it.entry }
-        .filter { it.id() == entryId }
-        .filter { it.isArchived() }
-  }
-
-  @CheckResult
-  fun observeEntry(force: Boolean): Observable<FridgeEntry> {
-    return listenForEntryCreated()
-        .startWith(getEntryForId(entryId, force).toObservable())
-  }
-
-  @CheckResult
-  private fun listenForEntryCreated(): Observable<FridgeEntry> {
-    return entryRealtime.listenForChanges()
-        .ofType(Insert::class.java)
-        .map { it.entry }
-        .filter { it.id() == entryId }
-  }
-
-  @CheckResult
-  fun archiveEntry(): Completable {
-    return getValidEntry(entryId, false)
-        .flatMapCompletable {
-          val valid = it.entry
-          if (valid != null) {
-            Timber.d("Archive entry: [${valid.id()}] $valid")
-            return@flatMapCompletable entryUpdateDao.update(valid.archive())
-          } else {
-            Timber.w("No entry, cannot delete")
-            return@flatMapCompletable Completable.complete()
-          }
-        }
-  }
-
-  @CheckResult
-  fun getItems(
+  suspend fun getItems(
     entryId: String,
     force: Boolean
-  ): Single<List<FridgeItem>> {
+  ): List<FridgeItem> {
+    enforcer.assertNotOnMainThread()
     return itemQueryDao.queryAll(force, entryId)
   }
 
   @CheckResult
-  fun listenForChanges(entryId: String): Observable<FridgeItemChangeEvent> {
+  fun listenForChanges(entryId: String): EventConsumer<FridgeItemChangeEvent> {
     return itemRealtime.listenForChanges(entryId)
   }
 
-  @CheckResult
-  fun commit(item: FridgeItem): Completable {
+  suspend fun commit(item: FridgeItem) {
+    enforcer.assertNotOnMainThread()
     if (item.name().isBlank()) {
       Timber.w("Do not commit empty name FridgeItem: $item")
-      return Completable.complete()
     } else {
-      return guaranteeEntryExists(item.entryId(), FridgeEntry.EMPTY_NAME)
-          .flatMapCompletable { commitItem(item) }
+      guaranteeEntryExists(item.entryId(), FridgeEntry.EMPTY_NAME)
+      commitItem(item)
     }
   }
 
-  @CheckResult
-  private fun commitItem(item: FridgeItem): Completable {
-    return getItems(item.entryId(), false)
-        .flatMapObservable {
-          enforcer.assertNotOnMainThread()
-          return@flatMapObservable Observable.fromIterable(it)
-        }
-        .filter { it.id() == item.id() }
-        .map { ValidItem(it) }
-        .single(ValidItem(null))
-        .flatMapCompletable {
-          enforcer.assertNotOnMainThread()
-          val valid = it.item
-          if (valid != null) {
-            Timber.d("Update existing item [${item.id()}]: $item")
-            return@flatMapCompletable itemUpdateDao.update(item)
-          } else {
-            Timber.d("Create new item [${item.id()}]: $item")
-            return@flatMapCompletable itemInsertDao.insert(item)
-          }
-        }
+  private suspend fun commitItem(item: FridgeItem) {
+    val valid = getItems(item.entryId(), false)
+        .singleOrNull { it.id() == item.id() }
+    if (valid != null) {
+      Timber.d("Update existing item [${item.id()}]: $item")
+      itemUpdateDao.update(item)
+    } else {
+      Timber.d("Create new item [${item.id()}]: $item")
+      itemInsertDao.insert(item)
+    }
   }
 
-  @CheckResult
-  fun archive(item: FridgeItem): Completable {
+  suspend fun archive(item: FridgeItem) {
+    enforcer.assertNotOnMainThread()
     if (!item.isReal()) {
       Timber.w("Cannot archive item that is not real: [${item.id()}]: $item")
-      return Completable.complete()
     } else {
       Timber.d("Archiving item [${item.id()}]: $item")
-      return itemUpdateDao.update(item.archive())
+      itemUpdateDao.update(item.archive())
     }
   }
 
-  @CheckResult
-  fun delete(item: FridgeItem): Completable {
+  suspend fun delete(item: FridgeItem) {
+    enforcer.assertNotOnMainThread()
     if (!item.isReal()) {
       Timber.w("Cannot delete item that is not real: [${item.id()}]: $item")
-      return Completable.complete()
     } else {
       Timber.d("Deleting item [${item.id()}]: $item")
-      return itemDeleteDao.delete(item)
+      itemDeleteDao.delete(item)
     }
   }
 
-  @CheckResult
-  fun saveName(name: String): Completable {
-    return getValidEntry(entryId, false)
-        .flatMapCompletable {
-          val valid = it.entry
-          if (valid != null) {
-            return@flatMapCompletable update(valid, name)
-          } else {
-            Timber.d("saveName called but Entry does not exist, create it")
-            return@flatMapCompletable guaranteeEntryExists(entryId, name).ignoreElement()
-          }
-        }
-  }
-
-  @CheckResult
-  private fun update(
-    entry: FridgeEntry,
-    name: String
-  ): Completable {
-    Timber.d("Updating entry name [${entry.id()}]: $name")
+  suspend fun saveName(name: String) {
     enforcer.assertNotOnMainThread()
-    return entryUpdateDao.update(entry.name(name))
+    val valid = getEntryForId(entryId, false)
+    if (valid != null) {
+      Timber.d("Updating entry name [${valid.id()}]: $name")
+      entryUpdateDao.update(valid.name(name))
+    } else {
+      Timber.d("saveName called but Entry does not exist, create it")
+      guaranteeEntryExists(entryId, name)
+    }
   }
-
-  private data class ValidItem(val item: FridgeItem?)
-
-  private data class ValidEntry(val entry: FridgeEntry?)
 }

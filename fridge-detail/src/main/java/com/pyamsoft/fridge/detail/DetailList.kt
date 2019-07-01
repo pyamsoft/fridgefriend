@@ -31,8 +31,6 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.mikepenz.fastadapter_extensions.swipe.SimpleSwipeCallback
-import com.popinnow.android.refresh.RefreshLatch
-import com.popinnow.android.refresh.newRefreshLatch
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent
 import com.pyamsoft.fridge.db.item.FridgeItemRealtime
@@ -45,8 +43,8 @@ import com.pyamsoft.fridge.detail.R.drawable
 import com.pyamsoft.fridge.detail.item.DaggerDetailItemComponent
 import com.pyamsoft.fridge.detail.item.DateSelectPayload
 import com.pyamsoft.pydroid.arch.BaseUiView
+import com.pyamsoft.pydroid.arch.EventBus
 import com.pyamsoft.pydroid.arch.UiSavedState
-import com.pyamsoft.pydroid.core.bus.EventBus
 import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.ui.theme.Theming
 import com.pyamsoft.pydroid.ui.util.Snackbreak
@@ -74,7 +72,6 @@ class DetailList @Inject internal constructor(
   private var decoration: DividerItemDecoration? = null
   private var touchHelper: ItemTouchHelper? = null
   private var modelAdapter: DetailListAdapter? = null
-  private var refreshLatch: RefreshLatch? = null
 
   override fun onInflated(
     view: View,
@@ -120,10 +117,6 @@ class DetailList @Inject internal constructor(
     decoration = decor
 
     recyclerView.adapter = usingAdapter().apply { setHasStableIds(true) }
-
-    refreshLatch = newRefreshLatch(owner) { isRefreshing ->
-      layoutRoot.refreshing(isRefreshing)
-    }
 
     layoutRoot.setOnRefreshListener {
       publish(ForceRefresh)
@@ -205,7 +198,6 @@ class DetailList @Inject internal constructor(
     modelAdapter = null
     touchHelper = null
     decoration = null
-    refreshLatch = null
   }
 
   @CheckResult
@@ -255,7 +247,7 @@ class DetailList @Inject internal constructor(
   ) {
     state.isLoading.let { loading ->
       if (loading != null) {
-        requireNotNull(refreshLatch).isRefreshing = loading.isLoading
+        layoutRoot.refreshing(loading.isLoading)
       }
     }
 

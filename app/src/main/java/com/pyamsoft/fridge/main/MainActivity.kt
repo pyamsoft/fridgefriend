@@ -27,9 +27,10 @@ import com.pyamsoft.fridge.BuildConfig
 import com.pyamsoft.fridge.FridgeComponent
 import com.pyamsoft.fridge.R
 import com.pyamsoft.fridge.butler.Butler
-import com.pyamsoft.fridge.entry.EntryFragment
 import com.pyamsoft.fridge.butler.ForegroundState
-import com.pyamsoft.pydroid.arch.doOnDestroy
+import com.pyamsoft.fridge.entry.EntryFragment
+import com.pyamsoft.pydroid.arch.UnitViewModel
+import com.pyamsoft.pydroid.arch.createComponent
 import com.pyamsoft.pydroid.ui.Injector
 import com.pyamsoft.pydroid.ui.rating.ChangeLogBuilder
 import com.pyamsoft.pydroid.ui.rating.RatingActivity
@@ -50,8 +51,6 @@ internal class MainActivity : RatingActivity() {
   override val changeLogLines: ChangeLogBuilder = buildChangeLog {
 
   }
-
-  override val applyFluidResizer: Boolean = false
 
   override val fragmentContainerId: Int
     get() = requireNotNull(container).id()
@@ -122,15 +121,10 @@ internal class MainActivity : RatingActivity() {
     val toolbar = requireNotNull(toolbar)
     val dropshadow = DropshadowView.create(constraintLayout)
 
-    container.inflate(savedInstanceState)
-    toolbar.inflate(savedInstanceState)
-    dropshadow.inflate(savedInstanceState)
-
-    this.doOnDestroy {
-      container.teardown()
-      toolbar.teardown()
-      dropshadow.teardown()
-    }
+    createComponent(
+        savedInstanceState, this, UnitViewModel.create(),
+        container, toolbar, dropshadow
+    ) {}
 
     constraintLayout.layout {
 

@@ -40,9 +40,8 @@ import com.pyamsoft.fridge.locator.PermissionComponent
 import com.pyamsoft.fridge.locator.map.LocatorModule
 import com.pyamsoft.fridge.main.MainComponent
 import com.pyamsoft.fridge.setting.SettingComponent
-import com.pyamsoft.pydroid.core.bus.EventBus
-import com.pyamsoft.pydroid.core.bus.RxBus
-import com.pyamsoft.pydroid.core.threads.Enforcer
+import com.pyamsoft.pydroid.arch.EventBus
+import com.pyamsoft.pydroid.core.Enforcer
 import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.ui.theme.Theming
 import com.squareup.moshi.Moshi
@@ -57,7 +56,6 @@ import javax.inject.Singleton
 @Component(
     modules = [
       FridgeProvider::class,
-      DbProvider::class,
       RoomProvider::class,
       ButlerModule::class,
       LocatorModule::class
@@ -135,14 +133,14 @@ internal interface FridgeComponent {
     @JvmStatic
     @Singleton
     internal fun provideFakeItemRealtime(): EventBus<FridgeItemChangeEvent> {
-      return RxBus.create()
+      return EventBus.create()
     }
 
     @Provides
     @JvmStatic
     @Singleton
     internal fun provideDateSelectBus(): EventBus<DateSelectPayload> {
-      return RxBus.create()
+      return EventBus.create()
     }
 
     @Provides

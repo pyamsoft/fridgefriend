@@ -18,6 +18,7 @@
 package com.pyamsoft.fridge.detail
 
 import androidx.annotation.CheckResult
+import androidx.lifecycle.viewModelScope
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent
@@ -36,15 +37,15 @@ import com.pyamsoft.fridge.detail.DetailViewEvent.NameUpdate
 import com.pyamsoft.fridge.detail.DetailViewEvent.PickDate
 import com.pyamsoft.fridge.detail.DetailViewEvent.ToggleArchiveVisibility
 import com.pyamsoft.fridge.detail.DetailViewState.Loading
+import com.pyamsoft.pydroid.arch.EventBus
 import com.pyamsoft.pydroid.arch.UiViewModel
-import com.pyamsoft.pydroid.core.bus.EventBus
-import com.pyamsoft.pydroid.core.singleDisposable
-import com.pyamsoft.pydroid.core.tryDispose
-import io.reactivex.Completable
-import io.reactivex.Observable
-import io.reactivex.Single
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.schedulers.Schedulers
+import com.pyamsoft.pydroid.arch.singleJob
+import com.pyamsoft.pydroid.arch.tryCancel
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -64,15 +65,17 @@ class DetailViewModel @Inject internal constructor(
 
   private val entryId = entry.id()
 
-  private var deleteDisposable by singleDisposable()
-  private var refreshDisposable by singleDisposable()
-  private var nameDisposable by singleDisposable()
-
-  private var observeDeleteDisposable by singleDisposable()
-  private var realtimeDisposable by singleDisposable()
-  private var fakeRealtimeDisposable by singleDisposable()
+  private var nameJob by singleJob()
+  private var refreshJob by singleJob()
+  private var archiveJob by singleJob()
+  private var realtimeJob by singleJob()
 
   init {
+    refreshList(false)
+    listenForDelete()
+  }
+
+  override fun onInit() {
     refreshList(false)
     listenForDelete()
   }
@@ -95,34 +98,27 @@ class DetailViewModel @Inject internal constructor(
   }
 
   override fun onTeardown() {
-    realtimeDisposable.tryDispose()
-    fakeRealtimeDisposable.tryDispose()
+    nameJob.tryCancel()
+    refreshJob.tryCancel()
+    archiveJob.tryCancel()
+    realtimeJob.tryCancel()
   }
 
   private fun updateName(name: String) {
-    nameDisposable = Completable.complete()
-        .andThen(interactor.saveName(name.trim()))
-        .subscribeOn(Schedulers.io())
-        .observeOn(AndroidSchedulers.mainThread())
-        .doAfterTerminate { nameDisposable.tryDispose() }
-        .subscribe({ }, {
-          Timber.e(it, "Error updating entry name")
-          handleNameUpdateError(it)
-        })
+    nameJob = viewModelScope.launch(context = Dispatchers.Default) {
+      try {
+        interactor.saveName(name.trim())
+      } catch (e: Throwable) {
+        if (e !is CancellationException) {
+          Timber.e(e, "Error updating entry name")
+          handleNameUpdateError(e)
+        }
+      }
+    }
   }
 
   private fun handleNameUpdateError(throwable: Throwable) {
     setState { copy(throwable = throwable) }
-  }
-
-  @CheckResult
-  private fun getItems(force: Boolean): Single<List<FridgeItem>> {
-    return interactor.getItems(entryId, force)
-  }
-
-  @CheckResult
-  private fun listenForChanges(): Observable<FridgeItemChangeEvent> {
-    return interactor.listenForChanges(entryId)
   }
 
   @CheckResult
@@ -146,17 +142,24 @@ class DetailViewModel @Inject internal constructor(
   }
 
   private fun refreshList(force: Boolean) {
-    refreshDisposable = getItems(force)
-        .subscribeOn(Schedulers.io())
-        .observeOn(AndroidSchedulers.mainThread())
-        .doAfterTerminate { refreshDisposable.tryDispose() }
-        .doAfterTerminate { handleListRefreshComplete() }
-        .doOnSubscribe { handleListRefreshBegin() }
-        .doAfterSuccess { beginListeningForChanges() }
-        .subscribe({ handleListRefreshed(it) }, {
-          Timber.e(it, "Error refreshing item list")
-          handleListRefreshError(it)
-        })
+    refreshJob = viewModelScope.launch {
+      handleListRefreshBegin()
+
+      try {
+        val items = withContext(context = Dispatchers.Default) {
+          interactor.getItems(entryId, force)
+        }
+        handleListRefreshed(items)
+        realtimeJob = beginListeningForChanges()
+      } catch (e: Throwable) {
+        if (e !is CancellationException) {
+          Timber.e(e, "Error refreshing item list")
+          handleListRefreshError(e)
+        }
+      } finally {
+        handleListRefreshComplete()
+      }
+    }
   }
 
   private fun handleRealtime(event: FridgeItemChangeEvent) {
@@ -167,16 +170,16 @@ class DetailViewModel @Inject internal constructor(
     }
   }
 
-  private fun beginListeningForChanges() {
-    realtimeDisposable = listenForChanges()
-        .subscribeOn(Schedulers.io())
-        .observeOn(AndroidSchedulers.mainThread())
-        .subscribe { handleRealtime(it) }
+  @CheckResult
+  private fun CoroutineScope.beginListeningForChanges() = launch(context = Dispatchers.Default) {
+    interactor.listenForChanges(entryId)
+        .onEvent {
+          withContext(context = Dispatchers.Main) { handleRealtime(it) }
+        }
 
-    fakeRealtimeDisposable = fakeRealtime.listen()
-        .subscribeOn(Schedulers.io())
-        .observeOn(AndroidSchedulers.mainThread())
-        .subscribe { handleRealtime(it) }
+    launch(context = Dispatchers.Default) {
+      fakeRealtime.onEvent { withContext(context = Dispatchers.Main) { handleRealtime(it) } }
+    }
   }
 
   private fun insert(
@@ -275,21 +278,23 @@ class DetailViewModel @Inject internal constructor(
   }
 
   private fun listenForDelete() {
-    observeDeleteDisposable = interactor.listenForEntryArchived()
-        .subscribeOn(Schedulers.io())
-        .observeOn(AndroidSchedulers.mainThread())
-        .subscribe { publish(EntryArchived) }
+    viewModelScope.launch(context = Dispatchers.Default) {
+      interactor.listenForEntryArchived()
+          .onEvent { publish(EntryArchived) }
+    }
   }
 
   private fun handleArchived() {
-    deleteDisposable = interactor.archiveEntry()
-        .subscribeOn(Schedulers.io())
-        .observeOn(AndroidSchedulers.mainThread())
-        .doAfterTerminate { deleteDisposable.tryDispose() }
-        .subscribe({}, {
-          Timber.e(it, "Error observing delete stream")
-          setState { copy(throwable = it) }
-        })
+    archiveJob = viewModelScope.launch(context = Dispatchers.Default) {
+      try {
+        interactor.archiveEntry()
+      } catch (e: Throwable) {
+        if (e !is CancellationException) {
+          Timber.e(e, "Error observing delete stream")
+          setState { copy(throwable = e) }
+        }
+      }
+    }
   }
 
 }

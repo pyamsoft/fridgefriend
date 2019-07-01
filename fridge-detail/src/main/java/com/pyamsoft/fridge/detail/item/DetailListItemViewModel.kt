@@ -17,6 +17,7 @@
 
 package com.pyamsoft.fridge.detail.item
 
+import androidx.lifecycle.viewModelScope
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent
@@ -29,11 +30,12 @@ import com.pyamsoft.fridge.detail.item.DetailItemViewEvent.CommitPresence
 import com.pyamsoft.fridge.detail.item.DetailItemViewEvent.DeleteItem
 import com.pyamsoft.fridge.detail.item.DetailItemViewEvent.ExpandItem
 import com.pyamsoft.fridge.detail.item.DetailItemViewEvent.PickDate
-import com.pyamsoft.pydroid.core.bus.EventBus
-import com.pyamsoft.pydroid.core.tryDispose
-import io.reactivex.Completable
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.schedulers.Schedulers
+import com.pyamsoft.pydroid.arch.EventBus
+import com.pyamsoft.pydroid.arch.tryCancel
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Named
@@ -44,6 +46,9 @@ class DetailListItemViewModel @Inject internal constructor(
   private val interactor: DetailInteractor,
   private val item: FridgeItem
 ) : DetailItemViewModel(isEditable, item, fakeRealtime) {
+
+  override fun onInit() {
+  }
 
   override fun handleViewEvent(event: DetailItemViewEvent) {
     return when (event) {
@@ -60,7 +65,7 @@ class DetailListItemViewModel @Inject internal constructor(
     presence: Presence
   ) {
     // Stop any pending updates
-    updateDisposable.tryDispose()
+    updateJob.tryCancel()
 
     if (oldItem.isReal()) {
       commitItem(item = oldItem.presence(presence))
@@ -69,24 +74,25 @@ class DetailListItemViewModel @Inject internal constructor(
 
   private fun commitItem(item: FridgeItem) {
     // A delete operation will stop an update operation
-    updateDisposable = Completable.complete()
-        .observeOn(AndroidSchedulers.mainThread())
-        .observeOn(Schedulers.io())
-        .andThen(interactor.commit(item.makeReal()))
-        .subscribeOn(Schedulers.io())
-        .observeOn(AndroidSchedulers.mainThread())
-        .doAfterTerminate { updateDisposable.tryDispose() }
-        .subscribe({ }, {
-          Timber.e(it, "Error updating item: ${item.id()}")
-        })
+    updateJob = viewModelScope.launch {
+      try {
+        withContext(context = Dispatchers.Default) { interactor.commit(item.makeReal()) }
+      } catch (e: Throwable) {
+        if (e !is CancellationException) {
+          Timber.e(e, "Error updating item: ${item.id()}")
+        }
+      } finally {
+
+      }
+    }
   }
 
   fun archive() {
-    remove(item, source = { interactor.archive(it) })
+    remove(item, doRemove = { interactor.archive(it) })
   }
 
   fun delete() {
-    remove(item, source = { interactor.delete(it) })
+    remove(item, doRemove = { interactor.delete(it) })
   }
 
   private fun expandItem(item: FridgeItem) {

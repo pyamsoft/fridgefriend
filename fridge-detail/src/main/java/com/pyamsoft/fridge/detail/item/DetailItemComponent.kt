@@ -26,7 +26,7 @@ import com.pyamsoft.fridge.db.item.FridgeItemRealtime
 import com.pyamsoft.fridge.detail.DetailInteractor
 import com.pyamsoft.fridge.detail.DetailListAdapter
 import com.pyamsoft.fridge.detail.item.DetailItemComponent.DetailProvider
-import com.pyamsoft.pydroid.core.bus.EventBus
+import com.pyamsoft.pydroid.arch.EventBus
 import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.ui.theme.Theming
 import dagger.BindsInstance

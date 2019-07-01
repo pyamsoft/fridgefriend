@@ -23,6 +23,7 @@ import androidx.room.Query
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItemQueryDao
 import com.pyamsoft.fridge.db.room.entity.RoomFridgeItem
+import timber.log.Timber
 
 @Dao
 internal abstract class RoomFridgeItemQueryDao internal constructor() : FridgeItemQueryDao {
@@ -31,6 +32,7 @@ internal abstract class RoomFridgeItemQueryDao internal constructor() : FridgeIt
     force: Boolean,
     entryId: String
   ): List<FridgeItem> {
+    Timber.d("ROOM: Item Query: $force $entryId")
     return daoQueryAll(entryId)
   }
 
@@ -41,6 +43,7 @@ internal abstract class RoomFridgeItemQueryDao internal constructor() : FridgeIt
   internal abstract suspend fun daoQueryAll(entryId: String): List<RoomFridgeItem>
 
   override suspend fun queryAll(force: Boolean): List<FridgeItem> {
+    Timber.d("ROOM: Item Query: $force")
     return daoQueryAll()
   }
 

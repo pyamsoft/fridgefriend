@@ -53,6 +53,7 @@ import com.pyamsoft.fridge.db.room.entity.RoomFridgeEntry
 import com.pyamsoft.fridge.db.room.entity.RoomFridgeItem
 import com.pyamsoft.pydroid.arch.EventBus
 import com.pyamsoft.pydroid.arch.EventConsumer
+import timber.log.Timber
 
 @Database(entities = [RoomFridgeItem::class, RoomFridgeEntry::class], version = 1)
 @TypeConverters(PresenceTypeConverter::class, DateTypeConverter::class)
@@ -101,6 +102,7 @@ internal abstract class RoomFridgeDbImpl internal constructor() : RoomDatabase()
       }
 
       override fun publish(event: FridgeItemChangeEvent) {
+        itemRealtimeChangeBus.publish(event)
       }
 
       override fun realtime(): FridgeItemRealtime {

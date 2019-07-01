@@ -23,11 +23,13 @@ import androidx.room.Query
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.entry.FridgeEntryQueryDao
 import com.pyamsoft.fridge.db.room.entity.RoomFridgeEntry
+import timber.log.Timber
 
 @Dao
 internal abstract class RoomFridgeEntryQueryDao internal constructor() : FridgeEntryQueryDao {
 
   override suspend fun queryAll(force: Boolean): List<FridgeEntry> {
+    Timber.d("ROOM: Entry Query: $force")
     return daoQueryAll()
   }
 

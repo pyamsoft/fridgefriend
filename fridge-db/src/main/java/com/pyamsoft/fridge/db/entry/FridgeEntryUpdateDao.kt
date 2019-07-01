@@ -17,11 +17,8 @@
 
 package com.pyamsoft.fridge.db.entry
 
-import androidx.annotation.CheckResult
-
 interface FridgeEntryUpdateDao {
 
-  @CheckResult
   suspend fun update(entry: FridgeEntry)
 
 }

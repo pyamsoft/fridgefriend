@@ -18,6 +18,7 @@
 package com.pyamsoft.fridge.detail.expand
 
 import androidx.annotation.CheckResult
+import androidx.lifecycle.viewModelScope
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent
@@ -40,13 +41,12 @@ import com.pyamsoft.fridge.detail.item.DetailItemViewEvent.ExpandItem
 import com.pyamsoft.fridge.detail.item.DetailItemViewEvent.PickDate
 import com.pyamsoft.fridge.detail.item.DetailItemViewModel
 import com.pyamsoft.fridge.detail.item.isNameValid
-import com.pyamsoft.pydroid.core.bus.EventBus
-import com.pyamsoft.pydroid.core.singleDisposable
-import com.pyamsoft.pydroid.core.tryDispose
-import io.reactivex.Completable
-import io.reactivex.Observable
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.schedulers.Schedulers
+import com.pyamsoft.pydroid.arch.EventBus
+import com.pyamsoft.pydroid.arch.tryCancel
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import timber.log.Timber
 import java.util.Calendar
 import javax.inject.Inject
@@ -56,31 +56,44 @@ class ExpandItemViewModel @Inject internal constructor(
   @Named("item_editable") isEditable: Boolean,
   item: FridgeItem,
   defaultPresence: Presence,
-  dateSelectBus: EventBus<DateSelectPayload>,
-  realtime: FridgeItemRealtime,
   fakeRealtime: EventBus<FridgeItemChangeEvent>,
+  private val dateSelectBus: EventBus<DateSelectPayload>,
+  private val realtime: FridgeItemRealtime,
   private val interactor: DetailInteractor
 ) : DetailItemViewModel(isEditable, item.presence(defaultPresence), fakeRealtime) {
 
   private val itemEntryId = item.entryId()
   private val itemId = item.id()
 
-  private var dateDisposable by singleDisposable()
-  private var realtimeDisposable by singleDisposable()
+  override fun onInit() {
+    viewModelScope.launch(context = Dispatchers.Default) {
+      dateSelectBus.onEvent { event ->
+        if (event.oldItem.entryId() != itemEntryId) {
+          return@onEvent
+        }
 
-  init {
-    dateDisposable = dateSelectBus.listen()
-        .filter { it.oldItem.entryId() == itemEntryId }
-        .filter { it.oldItem.id() == itemId }
-        .subscribeOn(Schedulers.io())
-        .observeOn(AndroidSchedulers.mainThread())
-        .subscribe { commitDate(it.oldItem, it.year, it.month, it.day) }
+        if (event.oldItem.id() != itemId) {
+          return@onEvent
+        }
 
-    realtimeDisposable =
-      Observable.merge(realtime.listenForChanges(itemEntryId), fakeRealtime.listen())
-          .subscribeOn(Schedulers.io())
-          .observeOn(AndroidSchedulers.mainThread())
-          .subscribe { handleRealtimeEvent(it) }
+        commitDate(event.oldItem, event.year, event.month, event.day)
+      }
+    }
+
+    viewModelScope.launch(context = Dispatchers.Default) {
+      launch(context = Dispatchers.Default) {
+        realtime.listenForChanges(itemEntryId)
+            .onEvent {
+              withContext(context = Dispatchers.Main) { handleRealtimeEvent(it) }
+            }
+      }
+
+      launch(context = Dispatchers.Default) {
+        fakeRealtime.onEvent {
+          withContext(context = Dispatchers.Main) { handleRealtimeEvent(it) }
+        }
+      }
+    }
   }
 
   override fun handleViewEvent(event: DetailItemViewEvent) {
@@ -96,16 +109,11 @@ class ExpandItemViewModel @Inject internal constructor(
   }
 
   private fun archiveSelf(item: FridgeItem) {
-    remove(item, source = { interactor.archive(it) }) { closeSelf(it) }
+    remove(item, doRemove = { interactor.archive(it) }) { closeSelf(it) }
   }
 
   private fun deleteSelf(item: FridgeItem) {
-    remove(item, source = { interactor.delete(it) }) { closeSelf(it) }
-  }
-
-  override fun onTeardown() {
-    dateDisposable.tryDispose()
-    realtimeDisposable.tryDispose()
+    remove(item, doRemove = { interactor.delete(it) }) { closeSelf(it) }
   }
 
   private fun handleRealtimeEvent(event: FridgeItemChangeEvent) {
@@ -148,7 +156,7 @@ class ExpandItemViewModel @Inject internal constructor(
     name: String
   ) {
     // Stop any pending updates
-    updateDisposable.tryDispose()
+    updateJob.tryCancel()
 
     if (isNameValid(name)) {
       setFixMessage("")
@@ -166,7 +174,7 @@ class ExpandItemViewModel @Inject internal constructor(
     day: Int
   ) {
     // Stop any pending updates
-    updateDisposable.tryDispose()
+    updateJob.tryCancel()
 
     Timber.d("Attempt save time: $year/${month + 1}/$day")
     val newTime = Calendar.getInstance()
@@ -185,7 +193,7 @@ class ExpandItemViewModel @Inject internal constructor(
     presence: Presence
   ) {
     // Stop any pending updates
-    updateDisposable.tryDispose()
+    updateJob.tryCancel()
 
     commitItem(item = oldItem.presence(presence))
   }
@@ -197,15 +205,16 @@ class ExpandItemViewModel @Inject internal constructor(
       return
     }
 
-    updateDisposable = Completable.complete()
-        .andThen(interactor.commit(item.makeReal()))
-        .subscribeOn(Schedulers.io())
-        .observeOn(AndroidSchedulers.mainThread())
-        .doAfterTerminate { updateDisposable.tryDispose() }
-        .subscribe({ }, {
-          Timber.e(it, "Error updating item: ${item.id()}")
-          handleError(it)
-        })
+    updateJob = viewModelScope.launch {
+      try {
+        withContext(context = Dispatchers.Default) { interactor.commit(item.makeReal()) }
+      } catch (e: Throwable) {
+        if (e !is CancellationException) {
+          Timber.e(e, "Error updating item: ${item.id()}")
+          handleError(e)
+        }
+      }
+    }
   }
 
   private fun handleFakeCommit(item: FridgeItem) {

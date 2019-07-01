@@ -19,27 +19,25 @@ package com.pyamsoft.fridge.butler.workmanager
 
 import android.content.Context
 import androidx.annotation.CheckResult
-import androidx.work.RxWorker
+import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.pyamsoft.fridge.butler.Butler
-import com.pyamsoft.pydroid.core.threads.Enforcer
+import com.pyamsoft.pydroid.core.Enforcer
 import com.pyamsoft.pydroid.ui.Injector
-import io.reactivex.Single
+import kotlinx.coroutines.CancellationException
 import timber.log.Timber
 
 internal abstract class BaseWorker protected constructor(
   context: Context,
   params: WorkerParameters
-) : RxWorker(context, params) {
+) : CoroutineWorker(context, params) {
 
   private var butler: Butler? = null
-  private var _enforcer: Enforcer? = null
-  protected val enforcer: Enforcer
-    get() = requireNotNull(_enforcer)
+  private var enforcer: Enforcer? = null
 
   private fun inject() {
     butler = Injector.obtain(applicationContext)
-    _enforcer = Injector.obtain(applicationContext)
+    enforcer = Injector.obtain(applicationContext)
     onInject()
   }
 
@@ -47,7 +45,7 @@ internal abstract class BaseWorker protected constructor(
 
   private fun teardown() {
     butler = null
-    _enforcer = null
+    enforcer = null
     onTeardown()
   }
 
@@ -55,32 +53,25 @@ internal abstract class BaseWorker protected constructor(
 
   protected abstract fun reschedule(butler: Butler)
 
-  final override fun onStopped() {
-    super.onStopped()
-    Timber.w("Worker stopped")
-    teardown()
-  }
-
-  final override fun createWork(): Single<Result> {
+  final override suspend fun doWork(): Result {
     inject()
+    requireNotNull(enforcer).assertNotOnMainThread()
 
-    return Single.defer {
-      enforcer.assertNotOnMainThread()
-
-      return@defer doWork()
-          .map { success() }
-          .onErrorReturn { fail(it) }
-          .subscribeOn(backgroundScheduler)
-          .observeOn(backgroundScheduler)
-
+    try {
+      performWork()
+      return success()
+    } catch (e: Throwable) {
+      if (e !is CancellationException) {
+        return fail(e)
+      } else {
+        return cancelled(e)
+      }
+    } finally {
+      teardown()
     }
-        .subscribeOn(backgroundScheduler)
-        .observeOn(backgroundScheduler)
-        .doAfterTerminate { teardown() }
   }
 
-  @CheckResult
-  protected abstract fun doWork(): Single<*>
+  protected abstract suspend fun performWork()
 
   @CheckResult
   private fun success(): Result {
@@ -93,6 +84,12 @@ internal abstract class BaseWorker protected constructor(
   private fun fail(throwable: Throwable): Result {
     Timber.e(throwable, "Worker failed to complete")
     reschedule(requireNotNull(butler))
+    return Result.failure()
+  }
+
+  @CheckResult
+  private fun cancelled(throwable: CancellationException): Result {
+    Timber.w(throwable, "Worker was cancelled")
     return Result.failure()
   }
 }

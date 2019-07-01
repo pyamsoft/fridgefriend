@@ -47,11 +47,9 @@ import javax.inject.Singleton
 @Module
 object RoomProvider {
 
-  @Singleton
   @JvmStatic
-  @Provides
   @CheckResult
-  internal fun provideRoom(context: Context): RoomFridgeDbImpl {
+  private fun provideRoom(context: Context): RoomFridgeDbImpl {
     return Room.databaseBuilder(
         context.applicationContext,
         RoomFridgeDbImpl::class.java,
@@ -64,22 +62,24 @@ object RoomProvider {
   @JvmStatic
   @Provides
   @CheckResult
-  internal fun provideDb(room: RoomFridgeDbImpl): FridgeDb {
-    val entryCache = cachify<Sequence<FridgeEntry>, Boolean>(5, MINUTES) { force ->
-      return@cachify room.roomEntryQueryDao()
-          .queryAll(force)
-          .asSequence()
-          .map { JsonMappableFridgeEntry.from(it.makeReal()) }
+  internal fun provideDb(context: Context): FridgeDb {
+    return provideRoom(context.applicationContext).apply {
+      val entryCache = cachify<Sequence<FridgeEntry>, Boolean>(5, MINUTES) { force ->
+        return@cachify roomEntryQueryDao()
+            .queryAll(force)
+            .asSequence()
+            .map { JsonMappableFridgeEntry.from(it.makeReal()) }
+      }
+
+      val itemCache = cachify<Sequence<FridgeItem>, Boolean>(5, MINUTES) { force ->
+        return@cachify roomItemQueryDao()
+            .queryAll(force)
+            .asSequence()
+            .map { JsonMappableFridgeItem.from(it.makeReal()) }
+      }
+      setObjects(entryCache, itemCache)
     }
 
-    val itemCache = cachify<Sequence<FridgeItem>, Boolean>(5, MINUTES) { force ->
-      return@cachify room.roomItemQueryDao()
-          .queryAll(force)
-          .asSequence()
-          .map { JsonMappableFridgeItem.from(it.makeReal()) }
-    }
-    room.setObjects(entryCache, itemCache)
-    return room
   }
 
   @JvmStatic

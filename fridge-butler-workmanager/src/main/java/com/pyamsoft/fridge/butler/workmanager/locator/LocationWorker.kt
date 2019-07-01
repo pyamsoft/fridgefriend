@@ -23,7 +23,6 @@ import com.pyamsoft.fridge.butler.Butler
 import com.pyamsoft.fridge.butler.workmanager.BaseWorker
 import com.pyamsoft.fridge.locator.Locator
 import com.pyamsoft.pydroid.ui.Injector
-import io.reactivex.Single
 import timber.log.Timber
 import java.util.concurrent.TimeUnit.HOURS
 
@@ -46,13 +45,12 @@ internal class LocationWorker internal constructor(
     butler.remindLocation(1L, HOURS)
   }
 
-  override fun doWork(): Single<*> {
-    enforcer.assertNotOnMainThread()
-    return Single.fromCallable {
-      Timber.d("LocationWorker listening for updates")
-      requireNotNull(locator).listenForUpdates()
-    }
-        .subscribeOn(backgroundScheduler)
-        .observeOn(backgroundScheduler)
+  override suspend fun performWork() {
+    Timber.d("LocationWorker listening for updates")
+
+    // There is no corresponding stopListening here
+    // the worker is meant to launch and begin the background location
+    // listener - not manage the lifecycle
+    requireNotNull(locator).listenForUpdates()
   }
 }

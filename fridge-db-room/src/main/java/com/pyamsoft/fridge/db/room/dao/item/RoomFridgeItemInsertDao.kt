@@ -23,11 +23,13 @@ import androidx.room.OnConflictStrategy
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItemInsertDao
 import com.pyamsoft.fridge.db.room.entity.RoomFridgeItem
+import timber.log.Timber
 
 @Dao
 internal abstract class RoomFridgeItemInsertDao internal constructor() : FridgeItemInsertDao {
 
   override suspend fun insert(item: FridgeItem) {
+    Timber.d("ROOM: Item Insert: $item")
     val roomItem = RoomFridgeItem.create(item)
     daoInsert(roomItem)
   }

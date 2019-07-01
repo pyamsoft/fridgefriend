@@ -17,15 +17,17 @@
 
 package com.pyamsoft.fridge.detail.item
 
+import androidx.lifecycle.viewModelScope
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent
+import com.pyamsoft.pydroid.arch.EventBus
 import com.pyamsoft.pydroid.arch.UiViewModel
-import com.pyamsoft.pydroid.core.bus.EventBus
-import com.pyamsoft.pydroid.core.singleDisposable
-import com.pyamsoft.pydroid.core.tryDispose
-import io.reactivex.Completable
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.schedulers.Schedulers
+import com.pyamsoft.pydroid.arch.singleJob
+import com.pyamsoft.pydroid.arch.tryCancel
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import timber.log.Timber
 import javax.inject.Named
 
@@ -39,8 +41,8 @@ abstract class DetailItemViewModel protected constructor(
     )
 ) {
 
-  private var deleteDisposable by singleDisposable()
-  protected var updateDisposable by singleDisposable()
+  private var deleteJob by singleJob()
+  protected var updateJob by singleJob()
 
   private fun handleFakeDelete(item: FridgeItem) {
     fakeRealtime.publish(FridgeItemChangeEvent.Delete(item))
@@ -49,11 +51,11 @@ abstract class DetailItemViewModel protected constructor(
   @JvmOverloads
   protected fun remove(
     item: FridgeItem,
-    source: (item: FridgeItem) -> Completable,
+    doRemove: suspend (item: FridgeItem) -> Unit,
     onRemoved: (item: FridgeItem) -> Unit = {}
   ) {
     // Stop any pending updates
-    updateDisposable.tryDispose()
+    updateJob.tryCancel()
 
     // If this item is not real, its an empty placeholder
     // The user may still wish to delete it from their list
@@ -66,16 +68,17 @@ abstract class DetailItemViewModel protected constructor(
       return
     }
 
-    deleteDisposable = source(item)
-        .subscribeOn(Schedulers.io())
-        .observeOn(AndroidSchedulers.mainThread())
-        .doAfterTerminate {
-          deleteDisposable.tryDispose()
-          onRemoved(item)
+    deleteJob = viewModelScope.launch {
+      try {
+        withContext(context = Dispatchers.Default) { doRemove(item) }
+      } catch (e: Throwable) {
+        if (e !is CancellationException) {
+          Timber.e(e, "Error removing item: ${item.id()}")
         }
-        .subscribe({ }, {
-          Timber.e(it, "Error removing item: ${item.id()}")
-        })
+      } finally {
+        onRemoved(item)
+      }
+    }
   }
 
 }
