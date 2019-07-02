@@ -94,7 +94,10 @@ internal class GmsLocator @Inject internal constructor(
   }
 
   private fun removeLocationUpdates() {
-    updatePendingIntent?.let { locationProvider.removeLocationUpdates(it) }
+    updatePendingIntent?.let {
+      Timber.d("Stop listening for location updates")
+      locationProvider.removeLocationUpdates(it)
+    }
     updatePendingIntent = null
   }
 
