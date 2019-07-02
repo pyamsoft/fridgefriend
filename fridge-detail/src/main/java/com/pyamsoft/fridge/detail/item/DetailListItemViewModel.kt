@@ -30,8 +30,8 @@ import com.pyamsoft.fridge.detail.item.DetailItemViewEvent.CommitPresence
 import com.pyamsoft.fridge.detail.item.DetailItemViewEvent.DeleteItem
 import com.pyamsoft.fridge.detail.item.DetailItemViewEvent.ExpandItem
 import com.pyamsoft.fridge.detail.item.DetailItemViewEvent.PickDate
+import com.pyamsoft.highlander.highlander
 import com.pyamsoft.pydroid.arch.EventBus
-import com.pyamsoft.pydroid.arch.tryCancel
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -46,6 +46,18 @@ class DetailListItemViewModel @Inject internal constructor(
   private val interactor: DetailInteractor,
   private val item: FridgeItem
 ) : DetailItemViewModel(isEditable, item, fakeRealtime) {
+
+  private val updateRunner = highlander<Unit, FridgeItem> { item ->
+    try {
+      withContext(context = Dispatchers.Default) { interactor.commit(item.makeReal()) }
+    } catch (e: Throwable) {
+      if (e !is CancellationException) {
+        Timber.e(e, "Error updating item: ${item.id()}")
+      }
+    } finally {
+
+    }
+  }
 
   override fun onInit() {
   }
@@ -64,9 +76,6 @@ class DetailListItemViewModel @Inject internal constructor(
     oldItem: FridgeItem,
     presence: Presence
   ) {
-    // Stop any pending updates
-    updateJob.tryCancel()
-
     if (oldItem.isReal()) {
       commitItem(item = oldItem.presence(presence))
     }
@@ -74,17 +83,7 @@ class DetailListItemViewModel @Inject internal constructor(
 
   private fun commitItem(item: FridgeItem) {
     // A delete operation will stop an update operation
-    updateJob = viewModelScope.launch {
-      try {
-        withContext(context = Dispatchers.Default) { interactor.commit(item.makeReal()) }
-      } catch (e: Throwable) {
-        if (e !is CancellationException) {
-          Timber.e(e, "Error updating item: ${item.id()}")
-        }
-      } finally {
-
-      }
-    }
+    viewModelScope.launch { updateRunner.call(item) }
   }
 
   fun archive() {

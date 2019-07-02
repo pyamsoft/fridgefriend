@@ -41,8 +41,8 @@ import com.pyamsoft.fridge.detail.item.DetailItemViewEvent.ExpandItem
 import com.pyamsoft.fridge.detail.item.DetailItemViewEvent.PickDate
 import com.pyamsoft.fridge.detail.item.DetailItemViewModel
 import com.pyamsoft.fridge.detail.item.isNameValid
+import com.pyamsoft.highlander.highlander
 import com.pyamsoft.pydroid.arch.EventBus
-import com.pyamsoft.pydroid.arch.tryCancel
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -61,6 +61,17 @@ class ExpandItemViewModel @Inject internal constructor(
   private val realtime: FridgeItemRealtime,
   private val interactor: DetailInteractor
 ) : DetailItemViewModel(isEditable, item.presence(defaultPresence), fakeRealtime) {
+
+  private val updateRunner = highlander<Unit, FridgeItem> { item ->
+    try {
+      withContext(context = Dispatchers.Default) { interactor.commit(item.makeReal()) }
+    } catch (e: Throwable) {
+      if (e !is CancellationException) {
+        Timber.e(e, "Error updating item: ${item.id()}")
+        handleError(e)
+      }
+    }
+  }
 
   private val itemEntryId = item.entryId()
   private val itemId = item.id()
@@ -155,9 +166,6 @@ class ExpandItemViewModel @Inject internal constructor(
     oldItem: FridgeItem,
     name: String
   ) {
-    // Stop any pending updates
-    updateJob.tryCancel()
-
     if (isNameValid(name)) {
       setFixMessage("")
       commitItem(item = oldItem.name(name))
@@ -173,9 +181,6 @@ class ExpandItemViewModel @Inject internal constructor(
     month: Int,
     day: Int
   ) {
-    // Stop any pending updates
-    updateJob.tryCancel()
-
     Timber.d("Attempt save time: $year/${month + 1}/$day")
     val newTime = Calendar.getInstance()
         .apply {
@@ -192,9 +197,6 @@ class ExpandItemViewModel @Inject internal constructor(
     oldItem: FridgeItem,
     presence: Presence
   ) {
-    // Stop any pending updates
-    updateJob.tryCancel()
-
     commitItem(item = oldItem.presence(presence))
   }
 
@@ -205,16 +207,7 @@ class ExpandItemViewModel @Inject internal constructor(
       return
     }
 
-    updateJob = viewModelScope.launch {
-      try {
-        withContext(context = Dispatchers.Default) { interactor.commit(item.makeReal()) }
-      } catch (e: Throwable) {
-        if (e !is CancellationException) {
-          Timber.e(e, "Error updating item: ${item.id()}")
-          handleError(e)
-        }
-      }
-    }
+    viewModelScope.launch { updateRunner.call(item) }
   }
 
   private fun handleFakeCommit(item: FridgeItem) {

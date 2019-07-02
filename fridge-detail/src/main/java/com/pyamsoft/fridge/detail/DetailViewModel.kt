@@ -37,13 +37,13 @@ import com.pyamsoft.fridge.detail.DetailViewEvent.NameUpdate
 import com.pyamsoft.fridge.detail.DetailViewEvent.PickDate
 import com.pyamsoft.fridge.detail.DetailViewEvent.ToggleArchiveVisibility
 import com.pyamsoft.fridge.detail.DetailViewState.Loading
+import com.pyamsoft.highlander.highlander
 import com.pyamsoft.pydroid.arch.EventBus
 import com.pyamsoft.pydroid.arch.UiViewModel
-import com.pyamsoft.pydroid.arch.singleJob
-import com.pyamsoft.pydroid.arch.tryCancel
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import timber.log.Timber
@@ -65,10 +65,60 @@ class DetailViewModel @Inject internal constructor(
 
   private val entryId = entry.id()
 
-  private var nameJob by singleJob()
-  private var refreshJob by singleJob()
-  private var archiveJob by singleJob()
-  private var realtimeJob by singleJob()
+  private val nameRunner = highlander<Unit, String> { name ->
+    try {
+      interactor.saveName(name.trim())
+    } catch (e: Throwable) {
+      if (e !is CancellationException) {
+        Timber.e(e, "Error updating entry name")
+        handleNameUpdateError(e)
+      }
+    }
+  }
+
+  private val refreshRunner = highlander<Unit, Boolean> { force ->
+    handleListRefreshBegin()
+
+    try {
+      val items = withContext(context = Dispatchers.Default) {
+        interactor.getItems(entryId, force)
+      }
+      handleListRefreshed(items)
+      coroutineScope {
+        beginListeningForChanges()
+      }
+    } catch (e: Throwable) {
+      if (e !is CancellationException) {
+        Timber.e(e, "Error refreshing item list")
+        handleListRefreshError(e)
+      }
+    } finally {
+      handleListRefreshComplete()
+    }
+  }
+
+  private val realtimeRunner = highlander<Unit> {
+    interactor.listenForChanges(entryId)
+        .onEvent {
+          withContext(context = Dispatchers.Main) { handleRealtime(it) }
+        }
+
+    coroutineScope {
+      launch(context = Dispatchers.Default) {
+        fakeRealtime.onEvent { withContext(context = Dispatchers.Main) { handleRealtime(it) } }
+      }
+    }
+  }
+  private var archiveRunner = highlander<Unit> {
+    try {
+      interactor.archiveEntry()
+    } catch (e: Throwable) {
+      if (e !is CancellationException) {
+        Timber.e(e, "Error observing delete stream")
+        setState { copy(throwable = e) }
+      }
+    }
+  }
 
   init {
     refreshList(false)
@@ -97,24 +147,8 @@ class DetailViewModel @Inject internal constructor(
     refreshList(false)
   }
 
-  override fun onTeardown() {
-    nameJob.tryCancel()
-    refreshJob.tryCancel()
-    archiveJob.tryCancel()
-    realtimeJob.tryCancel()
-  }
-
   private fun updateName(name: String) {
-    nameJob = viewModelScope.launch(context = Dispatchers.Default) {
-      try {
-        interactor.saveName(name.trim())
-      } catch (e: Throwable) {
-        if (e !is CancellationException) {
-          Timber.e(e, "Error updating entry name")
-          handleNameUpdateError(e)
-        }
-      }
-    }
+    viewModelScope.launch(context = Dispatchers.Default) { nameRunner.call(name) }
   }
 
   private fun handleNameUpdateError(throwable: Throwable) {
@@ -142,24 +176,7 @@ class DetailViewModel @Inject internal constructor(
   }
 
   private fun refreshList(force: Boolean) {
-    refreshJob = viewModelScope.launch {
-      handleListRefreshBegin()
-
-      try {
-        val items = withContext(context = Dispatchers.Default) {
-          interactor.getItems(entryId, force)
-        }
-        handleListRefreshed(items)
-        realtimeJob = beginListeningForChanges()
-      } catch (e: Throwable) {
-        if (e !is CancellationException) {
-          Timber.e(e, "Error refreshing item list")
-          handleListRefreshError(e)
-        }
-      } finally {
-        handleListRefreshComplete()
-      }
-    }
+    viewModelScope.launch { refreshRunner.call(force) }
   }
 
   private fun handleRealtime(event: FridgeItemChangeEvent) {
@@ -172,14 +189,7 @@ class DetailViewModel @Inject internal constructor(
 
   @CheckResult
   private fun CoroutineScope.beginListeningForChanges() = launch(context = Dispatchers.Default) {
-    interactor.listenForChanges(entryId)
-        .onEvent {
-          withContext(context = Dispatchers.Main) { handleRealtime(it) }
-        }
-
-    launch(context = Dispatchers.Default) {
-      fakeRealtime.onEvent { withContext(context = Dispatchers.Main) { handleRealtime(it) } }
-    }
+    realtimeRunner.call()
   }
 
   private fun insert(
@@ -285,16 +295,7 @@ class DetailViewModel @Inject internal constructor(
   }
 
   private fun handleArchived() {
-    archiveJob = viewModelScope.launch(context = Dispatchers.Default) {
-      try {
-        interactor.archiveEntry()
-      } catch (e: Throwable) {
-        if (e !is CancellationException) {
-          Timber.e(e, "Error observing delete stream")
-          setState { copy(throwable = e) }
-        }
-      }
-    }
+    viewModelScope.launch(context = Dispatchers.Default) { archiveRunner.call() }
   }
 
 }

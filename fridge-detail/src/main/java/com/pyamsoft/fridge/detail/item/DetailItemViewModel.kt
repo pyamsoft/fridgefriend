@@ -20,10 +20,9 @@ package com.pyamsoft.fridge.detail.item
 import androidx.lifecycle.viewModelScope
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent
+import com.pyamsoft.highlander.highlander
 import com.pyamsoft.pydroid.arch.EventBus
 import com.pyamsoft.pydroid.arch.UiViewModel
-import com.pyamsoft.pydroid.arch.singleJob
-import com.pyamsoft.pydroid.arch.tryCancel
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -41,8 +40,20 @@ abstract class DetailItemViewModel protected constructor(
     )
 ) {
 
-  private var deleteJob by singleJob()
-  protected var updateJob by singleJob()
+  private val deleteRunner = highlander<
+      Unit,
+      suspend (item: FridgeItem) -> Unit,
+      (item: FridgeItem) -> Unit> { doRemove, onRemoved ->
+    try {
+      withContext(context = Dispatchers.Default) { doRemove(item) }
+    } catch (e: Throwable) {
+      if (e !is CancellationException) {
+        Timber.e(e, "Error removing item: ${item.id()}")
+      }
+    } finally {
+      onRemoved(item)
+    }
+  }
 
   private fun handleFakeDelete(item: FridgeItem) {
     fakeRealtime.publish(FridgeItemChangeEvent.Delete(item))
@@ -54,9 +65,6 @@ abstract class DetailItemViewModel protected constructor(
     doRemove: suspend (item: FridgeItem) -> Unit,
     onRemoved: (item: FridgeItem) -> Unit = {}
   ) {
-    // Stop any pending updates
-    updateJob.tryCancel()
-
     // If this item is not real, its an empty placeholder
     // The user may still wish to delete it from their list
     // in case they have too many placeholders.
@@ -68,17 +76,7 @@ abstract class DetailItemViewModel protected constructor(
       return
     }
 
-    deleteJob = viewModelScope.launch {
-      try {
-        withContext(context = Dispatchers.Default) { doRemove(item) }
-      } catch (e: Throwable) {
-        if (e !is CancellationException) {
-          Timber.e(e, "Error removing item: ${item.id()}")
-        }
-      } finally {
-        onRemoved(item)
-      }
-    }
+    viewModelScope.launch { deleteRunner.call(doRemove, onRemoved) }
   }
 
 }
