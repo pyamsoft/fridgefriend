@@ -63,6 +63,12 @@ class ExpandItemViewModel @Inject internal constructor(
 ) : DetailItemViewModel(isEditable, item.presence(defaultPresence), fakeRealtime) {
 
   private val updateRunner = highlander<Unit, FridgeItem> { item ->
+    if (!item.isReal() && !isReadyToBeReal(item)) {
+      Timber.w("Commit called on a non-real item: $item, fake callback")
+      handleFakeCommit(item)
+      return@highlander
+    }
+
     try {
       withContext(context = Dispatchers.Default) { interactor.commit(item.makeReal()) }
     } catch (e: Throwable) {
@@ -201,12 +207,6 @@ class ExpandItemViewModel @Inject internal constructor(
   }
 
   private fun commitItem(item: FridgeItem) {
-    if (!item.isReal() && !isReadyToBeReal(item)) {
-      Timber.w("Commit called on a non-real item: $item, fake callback")
-      handleFakeCommit(item)
-      return
-    }
-
     viewModelScope.launch { updateRunner.call(item) }
   }
 

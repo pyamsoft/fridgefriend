@@ -54,8 +54,6 @@ class DetailListItemViewModel @Inject internal constructor(
       if (e !is CancellationException) {
         Timber.e(e, "Error updating item: ${item.id()}")
       }
-    } finally {
-
     }
   }
 

@@ -84,9 +84,7 @@ class DetailViewModel @Inject internal constructor(
         interactor.getItems(entryId, force)
       }
       handleListRefreshed(items)
-      coroutineScope {
-        beginListeningForChanges()
-      }
+      beginListeningForChanges()
     } catch (e: Throwable) {
       if (e !is CancellationException) {
         Timber.e(e, "Error refreshing item list")
@@ -109,7 +107,8 @@ class DetailViewModel @Inject internal constructor(
       }
     }
   }
-  private var archiveRunner = highlander<Unit> {
+
+  private val archiveRunner = highlander<Unit> {
     try {
       interactor.archiveEntry()
     } catch (e: Throwable) {
@@ -118,11 +117,6 @@ class DetailViewModel @Inject internal constructor(
         setState { copy(throwable = e) }
       }
     }
-  }
-
-  init {
-    refreshList(false)
-    listenForDelete()
   }
 
   override fun onInit() {
