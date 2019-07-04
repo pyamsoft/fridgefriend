@@ -28,10 +28,8 @@ import com.pyamsoft.fridge.detail.item.DetailItemViewEvent.CommitPresence
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.arch.UiSavedState
 import javax.inject.Inject
-import javax.inject.Named
 
 class DetailListItemPresence @Inject internal constructor(
-  @Named("item_presence_editable") private val presenceIsEditable: Boolean,
   private val defaultPresence: Presence,
   parent: ViewGroup
 ) : BaseUiView<DetailItemViewState, DetailItemViewEvent>(parent) {
@@ -49,17 +47,10 @@ class DetailListItemPresence @Inject internal constructor(
     state.item.let { item ->
       removeListeners()
 
-      presenceSwitch.isClickable = presenceIsEditable
-      if (presenceIsEditable) {
-        setSwitchEnabled(item)
-        presenceSwitch.isChecked = item.presence() == HAVE
-        presenceSwitch.setOnCheckedChangeListener { _, isChecked ->
-          commit(item, isChecked)
-        }
-      } else {
-        presenceSwitch.isEnabled = true
-        presenceSwitch.isChecked = defaultPresence == HAVE
-        presenceSwitch.setOnCheckedChangeListener(null)
+      setSwitchEnabled(item)
+      presenceSwitch.isChecked = item.presence() == HAVE
+      presenceSwitch.setOnCheckedChangeListener { _, isChecked ->
+        commit(item, isChecked)
       }
     }
   }
@@ -73,7 +64,7 @@ class DetailListItemPresence @Inject internal constructor(
   }
 
   private fun setSwitchEnabled(item: FridgeItem) {
-    presenceSwitch.isEnabled = item.isReal() && !item.isArchived()
+    presenceSwitch.isEnabled = !item.isArchived()
   }
 
   private fun commit(

@@ -25,18 +25,15 @@ import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent
 import com.pyamsoft.fridge.db.item.FridgeItemRealtime
 import com.pyamsoft.fridge.detail.DetailInteractor
 import com.pyamsoft.fridge.detail.DetailListAdapter
-import com.pyamsoft.fridge.detail.item.DetailItemComponent.DetailProvider
 import com.pyamsoft.pydroid.arch.EventBus
 import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.ui.theme.Theming
 import dagger.BindsInstance
 import dagger.Component
-import dagger.Module
-import dagger.Provides
 import javax.inject.Named
 
 @DetailItemScope
-@Component(modules = [DetailProvider::class])
+@Component
 internal interface DetailItemComponent {
 
   fun inject(holder: DetailListAdapter.DetailItemViewHolder)
@@ -57,17 +54,6 @@ internal interface DetailItemComponent {
       @BindsInstance dateSelectBus: EventBus<DateSelectPayload>,
       @BindsInstance listPresence: Presence
     ): DetailItemComponent
-  }
-
-  @Module
-  object DetailProvider {
-
-    @Provides
-    @JvmStatic
-    @Named("item_presence_editable")
-    internal fun isPresenceEditable(): Boolean {
-      return true
-    }
   }
 
 }

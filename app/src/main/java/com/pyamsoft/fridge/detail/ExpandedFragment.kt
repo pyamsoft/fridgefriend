@@ -89,7 +89,7 @@ class ExpandedFragment : DialogFragment() {
 
     Injector.obtain<FridgeComponent>(view.context.applicationContext)
         .plusExpandComponent()
-        .create(parent, itemArgument, entryArgument, presenceArgument, itemArgument.isReal())
+        .create(parent, itemArgument, entryArgument, presenceArgument)
         .inject(this)
 
     ViewModelProviders.of(this, factory)

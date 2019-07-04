@@ -34,7 +34,6 @@ import dagger.BindsInstance
 import dagger.Module
 import dagger.Subcomponent
 import dagger.multibindings.IntoMap
-import javax.inject.Named
 
 @Subcomponent(modules = [ExpandModule::class, ViewModelModule::class])
 internal interface ExpandComponent {
@@ -49,8 +48,7 @@ internal interface ExpandComponent {
       @BindsInstance parent: ViewGroup,
       @BindsInstance item: FridgeItem,
       @BindsInstance entry: FridgeEntry,
-      @BindsInstance defaultPresence: Presence,
-      @BindsInstance @Named("item_presence_editable") isPresenceEditable: Boolean
+      @BindsInstance defaultPresence: Presence
     ): ExpandComponent
   }
 
