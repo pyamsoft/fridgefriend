@@ -25,10 +25,11 @@ import androidx.annotation.CheckResult
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.get
 import com.pyamsoft.fridge.FridgeComponent
 import com.pyamsoft.fridge.R
+import com.pyamsoft.fridge.base.ViewModelFactoryFragment
+import com.pyamsoft.fridge.base.withFactory
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.entry.JsonMappableFridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItem
@@ -48,9 +49,7 @@ import com.pyamsoft.pydroid.ui.util.layout
 import com.pyamsoft.pydroid.ui.util.show
 import javax.inject.Inject
 
-internal class DetailFragment : Fragment() {
-
-  @JvmField @Inject internal var factory: ViewModelProvider.Factory? = null
+internal class DetailFragment : ViewModelFactoryFragment() {
 
   @JvmField @Inject internal var list: DetailList? = null
   private var viewModel: DetailViewModel? = null
@@ -91,11 +90,10 @@ internal class DetailFragment : Fragment() {
         )
         .inject(this)
 
-    ViewModelProviders.of(this, factory)
-        .let { factory ->
-          viewModel = factory.get(DetailViewModel::class.java)
-          addNewViewModel = factory.get(AddNewItemViewModel::class.java)
-        }
+    withFactory {
+      viewModel = get()
+      addNewViewModel = get()
+    }
 
     val list = requireNotNull(list)
     val addNew = requireNotNull(addNew)
@@ -167,7 +165,6 @@ internal class DetailFragment : Fragment() {
     addNewViewModel = null
     list = null
     addNew = null
-    factory = null
   }
 
   private fun close() {

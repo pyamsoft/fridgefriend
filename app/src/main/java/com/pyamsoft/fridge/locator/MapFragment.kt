@@ -25,9 +25,9 @@ import androidx.annotation.CheckResult
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.ViewModelProviders
 import com.pyamsoft.fridge.FridgeComponent
+import com.pyamsoft.fridge.base.ViewModelFactoryFragment
+import com.pyamsoft.fridge.base.fromFactory
 import com.pyamsoft.fridge.locator.map.osm.OsmMap
 import com.pyamsoft.fridge.locator.map.osm.OsmViewModel
 import com.pyamsoft.pydroid.arch.createComponent
@@ -35,9 +35,7 @@ import com.pyamsoft.pydroid.ui.Injector
 import com.pyamsoft.pydroid.ui.util.layout
 import javax.inject.Inject
 
-internal class MapFragment : Fragment() {
-
-  @JvmField @Inject internal var factory: ViewModelProvider.Factory? = null
+internal class MapFragment : ViewModelFactoryFragment() {
 
   @JvmField @Inject internal var map: OsmMap? = null
   private var viewModel: OsmViewModel? = null
@@ -62,10 +60,7 @@ internal class MapFragment : Fragment() {
         .create(requireActivity(), parent, viewLifecycleOwner)
         .inject(this)
 
-    ViewModelProviders.of(this, factory)
-        .let { factory ->
-          viewModel = factory.get(OsmViewModel::class.java)
-        }
+    viewModel = fromFactory()
 
     val map = requireNotNull(map)
 
@@ -100,7 +95,6 @@ internal class MapFragment : Fragment() {
 
     viewModel = null
     map = null
-    factory = null
   }
 
   companion object {

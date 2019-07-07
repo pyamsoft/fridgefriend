@@ -25,9 +25,9 @@ import androidx.annotation.CheckResult
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.ViewModelProviders
 import com.pyamsoft.fridge.FridgeComponent
+import com.pyamsoft.fridge.base.ViewModelFactoryFragment
+import com.pyamsoft.fridge.base.fromFactory
 import com.pyamsoft.fridge.locator.map.permission.LocationPermissionScreen
 import com.pyamsoft.fridge.locator.map.permission.LocationPermissionViewModel
 import com.pyamsoft.fridge.locator.map.permission.PermissionControllerEvent.LocationPermissionRequest
@@ -38,9 +38,8 @@ import com.pyamsoft.pydroid.ui.util.commitNow
 import com.pyamsoft.pydroid.ui.util.layout
 import javax.inject.Inject
 
-internal class PermissionFragment : Fragment() {
+internal class PermissionFragment : ViewModelFactoryFragment() {
 
-  @JvmField @Inject internal var factory: ViewModelProvider.Factory? = null
   @JvmField @Inject internal var locator: Locator? = null
 
   @JvmField @Inject internal var screen: LocationPermissionScreen? = null
@@ -66,10 +65,7 @@ internal class PermissionFragment : Fragment() {
         .create(parent)
         .inject(this)
 
-    ViewModelProviders.of(this, factory)
-        .let { factory ->
-          viewModel = factory.get(LocationPermissionViewModel::class.java)
-        }
+    viewModel = fromFactory()
 
     val screen = requireNotNull(screen)
 
@@ -134,7 +130,6 @@ internal class PermissionFragment : Fragment() {
 
     viewModel = null
     screen = null
-    factory = null
     locator = null
   }
 

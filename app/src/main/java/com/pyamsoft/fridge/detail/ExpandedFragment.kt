@@ -27,10 +27,10 @@ import androidx.annotation.CheckResult
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.fragment.app.DialogFragment
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.ViewModelProviders
 import com.pyamsoft.fridge.FridgeComponent
 import com.pyamsoft.fridge.R
+import com.pyamsoft.fridge.base.ViewModelFactoryDialog
+import com.pyamsoft.fridge.base.fromFactory
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.entry.JsonMappableFridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItem
@@ -56,9 +56,8 @@ import com.pyamsoft.pydroid.ui.widget.shadow.DropshadowView
 import timber.log.Timber
 import javax.inject.Inject
 
-class ExpandedFragment : DialogFragment() {
+internal class ExpandedFragment : ViewModelFactoryDialog() {
 
-  @JvmField @Inject internal var factory: ViewModelProvider.Factory? = null
   @JvmField @Inject internal var name: ExpandItemName? = null
   @JvmField @Inject internal var date: DetailListItemDate? = null
   @JvmField @Inject internal var presence: DetailListItemPresence? = null
@@ -92,10 +91,7 @@ class ExpandedFragment : DialogFragment() {
         .create(parent, itemArgument, entryArgument, presenceArgument)
         .inject(this)
 
-    ViewModelProviders.of(this, factory)
-        .let { factory ->
-          viewModel = factory.get(ExpandItemViewModel::class.java)
-        }
+    viewModel = fromFactory()
 
     val name = requireNotNull(name)
     val date = requireNotNull(date)
@@ -201,7 +197,6 @@ class ExpandedFragment : DialogFragment() {
     presence = null
     toolbar = null
     errorDisplay = null
-    factory = null
   }
 
   override fun onResume() {

@@ -22,8 +22,8 @@ import android.view.View
 import androidx.annotation.CheckResult
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.ViewModelProviders
 import com.pyamsoft.fridge.FridgeComponent
+import com.pyamsoft.fridge.base.fromFactory
 import com.pyamsoft.fridge.setting.SettingToolbarControllerEvent.NavigateUp
 import com.pyamsoft.pydroid.arch.createComponent
 import com.pyamsoft.pydroid.ui.Injector
@@ -57,10 +57,7 @@ internal class SettingsFragment : AppSettingsFragment() {
         .create(requireToolbarActivity())
         .inject(this)
 
-    ViewModelProviders.of(this, factory)
-        .let { factory ->
-          viewModel = factory.get(SettingToolbarViewModel::class.java)
-        }
+    viewModel = fromFactory(factory)
 
     createComponent(
         savedInstanceState, viewLifecycleOwner,

@@ -25,10 +25,10 @@ import androidx.annotation.CheckResult
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.ViewModelProviders
 import com.pyamsoft.fridge.FridgeComponent
 import com.pyamsoft.fridge.R
+import com.pyamsoft.fridge.base.ViewModelFactoryFragment
+import com.pyamsoft.fridge.base.fromFactory
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence.HAVE
@@ -52,11 +52,10 @@ import com.pyamsoft.pydroid.ui.util.layout
 import timber.log.Timber
 import javax.inject.Inject
 
-internal class EntryFragment : Fragment() {
+internal class EntryFragment : ViewModelFactoryFragment() {
 
   @JvmField @Inject internal var locator: Locator? = null
 
-  @JvmField @Inject internal var factory: ViewModelProvider.Factory? = null
   @JvmField @Inject internal var toolbar: EntryToolbar? = null
   @JvmField @Inject internal var frame: EntryFrame? = null
   @JvmField @Inject internal var navigation: EntryNavigation? = null
@@ -86,10 +85,7 @@ internal class EntryFragment : Fragment() {
     val frame = requireNotNull(frame)
     val navigation = requireNotNull(navigation)
 
-    ViewModelProviders.of(this, factory)
-        .let { factory ->
-          viewModel = factory.get(EntryViewModel::class.java)
-        }
+    viewModel = fromFactory()
 
     createComponent(
         savedInstanceState, viewLifecycleOwner,
@@ -140,7 +136,6 @@ internal class EntryFragment : Fragment() {
     toolbar = null
     frame = null
     navigation = null
-    factory = null
     locator = null
   }
 
