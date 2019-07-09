@@ -27,10 +27,9 @@ import androidx.annotation.CheckResult
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.fragment.app.DialogFragment
+import androidx.lifecycle.ViewModelProvider
 import com.pyamsoft.fridge.FridgeComponent
 import com.pyamsoft.fridge.R
-import com.pyamsoft.fridge.base.ViewModelFactoryDialog
-import com.pyamsoft.fridge.base.fromFactory
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.entry.JsonMappableFridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItem
@@ -50,20 +49,22 @@ import com.pyamsoft.fridge.detail.item.DetailListItemPresence
 import com.pyamsoft.pydroid.arch.createComponent
 import com.pyamsoft.pydroid.ui.Injector
 import com.pyamsoft.pydroid.ui.app.requireArguments
+import com.pyamsoft.pydroid.ui.arch.factory
 import com.pyamsoft.pydroid.ui.util.layout
 import com.pyamsoft.pydroid.ui.util.show
 import com.pyamsoft.pydroid.ui.widget.shadow.DropshadowView
 import timber.log.Timber
 import javax.inject.Inject
 
-internal class ExpandedFragment : ViewModelFactoryDialog() {
+internal class ExpandedFragment : DialogFragment() {
 
+  @JvmField @Inject internal var factory: ViewModelProvider.Factory? = null
   @JvmField @Inject internal var name: ExpandItemName? = null
   @JvmField @Inject internal var date: DetailListItemDate? = null
   @JvmField @Inject internal var presence: DetailListItemPresence? = null
   @JvmField @Inject internal var errorDisplay: ExpandItemError? = null
   @JvmField @Inject internal var toolbar: ExpandedToolbar? = null
-  private var viewModel: ExpandItemViewModel? = null
+  private val viewModel by factory<ExpandItemViewModel> { factory }
 
   override fun onCreateView(
     inflater: LayoutInflater,
@@ -91,8 +92,6 @@ internal class ExpandedFragment : ViewModelFactoryDialog() {
         .create(parent, itemArgument, entryArgument, presenceArgument)
         .inject(this)
 
-    viewModel = fromFactory()
-
     val name = requireNotNull(name)
     val date = requireNotNull(date)
     val presence = requireNotNull(presence)
@@ -101,7 +100,7 @@ internal class ExpandedFragment : ViewModelFactoryDialog() {
     val shadow = DropshadowView.createTyped<DetailItemViewState, DetailItemViewEvent>(parent)
     createComponent(
         null, viewLifecycleOwner,
-        requireNotNull(viewModel),
+        viewModel,
         name,
         date,
         presence,
@@ -191,7 +190,7 @@ internal class ExpandedFragment : ViewModelFactoryDialog() {
   override fun onDestroyView() {
     super.onDestroyView()
 
-    viewModel = null
+    factory = null
     name = null
     date = null
     presence = null

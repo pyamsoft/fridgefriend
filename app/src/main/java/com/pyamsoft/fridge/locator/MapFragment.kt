@@ -25,20 +25,21 @@ import androidx.annotation.CheckResult
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import com.pyamsoft.fridge.FridgeComponent
-import com.pyamsoft.fridge.base.ViewModelFactoryFragment
-import com.pyamsoft.fridge.base.fromFactory
 import com.pyamsoft.fridge.locator.map.osm.OsmMap
 import com.pyamsoft.fridge.locator.map.osm.OsmViewModel
 import com.pyamsoft.pydroid.arch.createComponent
 import com.pyamsoft.pydroid.ui.Injector
+import com.pyamsoft.pydroid.ui.arch.factory
 import com.pyamsoft.pydroid.ui.util.layout
 import javax.inject.Inject
 
-internal class MapFragment : ViewModelFactoryFragment() {
+internal class MapFragment : Fragment() {
 
+  @JvmField @Inject internal var factory: ViewModelProvider.Factory? = null
   @JvmField @Inject internal var map: OsmMap? = null
-  private var viewModel: OsmViewModel? = null
+  private val viewModel by factory<OsmViewModel> { factory }
 
   override fun onCreateView(
     inflater: LayoutInflater,
@@ -60,13 +61,11 @@ internal class MapFragment : ViewModelFactoryFragment() {
         .create(requireActivity(), parent, viewLifecycleOwner)
         .inject(this)
 
-    viewModel = fromFactory()
-
     val map = requireNotNull(map)
 
     createComponent(
         savedInstanceState, viewLifecycleOwner,
-        requireNotNull(viewModel),
+        viewModel,
         map
     ) {
       // TODO
@@ -93,7 +92,7 @@ internal class MapFragment : ViewModelFactoryFragment() {
   override fun onDestroyView() {
     super.onDestroyView()
 
-    viewModel = null
+    factory = null
     map = null
   }
 

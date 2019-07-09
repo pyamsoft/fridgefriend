@@ -19,7 +19,7 @@
 
 buildscript {
   ext {
-    kotlin_version = '1.3.40'
+    kotlin_version = '1.3.41'
   }
 
   repositories {
@@ -34,7 +34,7 @@ buildscript {
     maxSdk = 29
 
     // Us
-    pydroid = "20.3.0-SNAPSHOT"
+    pydroid = "20.4.0-SNAPSHOT"
 
     // AndroidX
     preference = "1.0.0"
@@ -45,7 +45,7 @@ buildscript {
     leakCanary = "1.6.3"
 
     // Dagger
-    dagger = "2.23.1"
+    dagger = "2.23.2"
 
     moshi = "1.8.0"
 

@@ -25,11 +25,9 @@ import androidx.annotation.CheckResult
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.get
+import androidx.lifecycle.ViewModelProvider
 import com.pyamsoft.fridge.FridgeComponent
 import com.pyamsoft.fridge.R
-import com.pyamsoft.fridge.base.ViewModelFactoryFragment
-import com.pyamsoft.fridge.base.withFactory
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.entry.JsonMappableFridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItem
@@ -45,17 +43,19 @@ import com.pyamsoft.pydroid.arch.createComponent
 import com.pyamsoft.pydroid.ui.Injector
 import com.pyamsoft.pydroid.ui.app.requireArguments
 import com.pyamsoft.pydroid.ui.app.requireToolbarActivity
+import com.pyamsoft.pydroid.ui.arch.factory
 import com.pyamsoft.pydroid.ui.util.layout
 import com.pyamsoft.pydroid.ui.util.show
 import javax.inject.Inject
 
-internal class DetailFragment : ViewModelFactoryFragment() {
+internal class DetailFragment : Fragment() {
 
+  @JvmField @Inject internal var factory: ViewModelProvider.Factory? = null
   @JvmField @Inject internal var list: DetailList? = null
-  private var viewModel: DetailViewModel? = null
+  private val viewModel by factory<DetailViewModel> { factory }
 
   @JvmField @Inject internal var addNew: AddNewItemView? = null
-  private var addNewViewModel: AddNewItemViewModel? = null
+  private val addNewViewModel by factory<AddNewItemViewModel> { factory }
 
   override fun onCreateView(
     inflater: LayoutInflater,
@@ -90,17 +90,12 @@ internal class DetailFragment : ViewModelFactoryFragment() {
         )
         .inject(this)
 
-    withFactory {
-      viewModel = get()
-      addNewViewModel = get()
-    }
-
     val list = requireNotNull(list)
     val addNew = requireNotNull(addNew)
 
     createComponent(
         savedInstanceState, viewLifecycleOwner,
-        requireNotNull(viewModel),
+        viewModel,
         list
     ) {
       return@createComponent when (it) {
@@ -113,7 +108,7 @@ internal class DetailFragment : ViewModelFactoryFragment() {
 
     createComponent(
         savedInstanceState, viewLifecycleOwner,
-        requireNotNull(addNewViewModel),
+        addNewViewModel,
         addNew
     ) {
       return@createComponent when (it) {
@@ -161,8 +156,7 @@ internal class DetailFragment : ViewModelFactoryFragment() {
   override fun onDestroyView() {
     super.onDestroyView()
 
-    viewModel = null
-    addNewViewModel = null
+    factory = null
     list = null
     addNew = null
   }

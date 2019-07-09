@@ -25,10 +25,9 @@ import androidx.annotation.CheckResult
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import com.pyamsoft.fridge.FridgeComponent
 import com.pyamsoft.fridge.R
-import com.pyamsoft.fridge.base.ViewModelFactoryFragment
-import com.pyamsoft.fridge.base.fromFactory
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence.HAVE
@@ -46,20 +45,22 @@ import com.pyamsoft.fridge.setting.SettingsFragment
 import com.pyamsoft.pydroid.arch.createComponent
 import com.pyamsoft.pydroid.ui.Injector
 import com.pyamsoft.pydroid.ui.app.requireToolbarActivity
+import com.pyamsoft.pydroid.ui.arch.factory
 import com.pyamsoft.pydroid.ui.util.commit
 import com.pyamsoft.pydroid.ui.util.commitNow
 import com.pyamsoft.pydroid.ui.util.layout
 import timber.log.Timber
 import javax.inject.Inject
 
-internal class EntryFragment : ViewModelFactoryFragment() {
+internal class EntryFragment : Fragment() {
 
+  @JvmField @Inject internal var factory: ViewModelProvider.Factory? = null
   @JvmField @Inject internal var locator: Locator? = null
 
   @JvmField @Inject internal var toolbar: EntryToolbar? = null
   @JvmField @Inject internal var frame: EntryFrame? = null
   @JvmField @Inject internal var navigation: EntryNavigation? = null
-  private var viewModel: EntryViewModel? = null
+  private val viewModel by factory<EntryViewModel> { factory }
 
   override fun onCreateView(
     inflater: LayoutInflater,
@@ -85,11 +86,9 @@ internal class EntryFragment : ViewModelFactoryFragment() {
     val frame = requireNotNull(frame)
     val navigation = requireNotNull(navigation)
 
-    viewModel = fromFactory()
-
     createComponent(
         savedInstanceState, viewLifecycleOwner,
-        requireNotNull(viewModel),
+        viewModel,
         frame,
         toolbar,
         navigation
@@ -132,7 +131,7 @@ internal class EntryFragment : ViewModelFactoryFragment() {
   override fun onDestroyView() {
     super.onDestroyView()
 
-    viewModel = null
+    factory = null
     toolbar = null
     frame = null
     navigation = null
@@ -187,7 +186,7 @@ internal class EntryFragment : ViewModelFactoryFragment() {
 
   override fun onHiddenChanged(hidden: Boolean) {
     super.onHiddenChanged(hidden)
-    viewModel?.showMenu(!hidden)
+    viewModel.showMenu(!hidden)
   }
 
   companion object {

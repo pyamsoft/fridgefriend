@@ -25,25 +25,26 @@ import androidx.annotation.CheckResult
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import com.pyamsoft.fridge.FridgeComponent
-import com.pyamsoft.fridge.base.ViewModelFactoryFragment
-import com.pyamsoft.fridge.base.fromFactory
 import com.pyamsoft.fridge.locator.map.permission.LocationPermissionScreen
 import com.pyamsoft.fridge.locator.map.permission.LocationPermissionViewModel
 import com.pyamsoft.fridge.locator.map.permission.PermissionControllerEvent.LocationPermissionRequest
 import com.pyamsoft.pydroid.arch.createComponent
 import com.pyamsoft.pydroid.ui.Injector
 import com.pyamsoft.pydroid.ui.app.requireArguments
+import com.pyamsoft.pydroid.ui.arch.factory
 import com.pyamsoft.pydroid.ui.util.commitNow
 import com.pyamsoft.pydroid.ui.util.layout
 import javax.inject.Inject
 
-internal class PermissionFragment : ViewModelFactoryFragment() {
+internal class PermissionFragment : Fragment() {
 
+  @JvmField @Inject internal var factory: ViewModelProvider.Factory? = null
   @JvmField @Inject internal var locator: Locator? = null
 
   @JvmField @Inject internal var screen: LocationPermissionScreen? = null
-  private var viewModel: LocationPermissionViewModel? = null
+  private val viewModel by factory<LocationPermissionViewModel> { factory }
 
   override fun onCreateView(
     inflater: LayoutInflater,
@@ -65,13 +66,11 @@ internal class PermissionFragment : ViewModelFactoryFragment() {
         .create(parent)
         .inject(this)
 
-    viewModel = fromFactory()
-
     val screen = requireNotNull(screen)
 
     createComponent(
         savedInstanceState, viewLifecycleOwner,
-        requireNotNull(viewModel),
+        viewModel,
         screen
     ) {
       return@createComponent when (it) {
@@ -128,7 +127,7 @@ internal class PermissionFragment : ViewModelFactoryFragment() {
   override fun onDestroyView() {
     super.onDestroyView()
 
-    viewModel = null
+    factory = null
     screen = null
     locator = null
   }
