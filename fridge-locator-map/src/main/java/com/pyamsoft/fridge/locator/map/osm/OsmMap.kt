@@ -35,7 +35,6 @@ import com.pyamsoft.pydroid.arch.UiSavedState
 import com.pyamsoft.pydroid.ui.theme.Theming
 import org.osmdroid.config.Configuration
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
-import org.osmdroid.util.BoundingBox
 import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.CustomZoomButtonsController
 import org.osmdroid.views.MapView
@@ -132,9 +131,9 @@ class OsmMap @Inject internal constructor(
   }
 
   @CheckResult
-  private fun getBoundingBoxOfCurrentScreen(): BoundingBox {
+  private fun getBoundingBoxOfCurrentScreen(): BBox {
     val mapView = layoutRoot
-    return Projection(
+    val bbox = Projection(
         mapView.zoomLevelDouble, mapView.getIntrinsicScreenRect(null),
         GeoPoint(mapView.mapCenter),
         mapView.mapScrollX, mapView.mapScrollY,
@@ -142,6 +141,7 @@ class OsmMap @Inject internal constructor(
         mapView.isHorizontalMapRepetitionEnabled, mapView.isVerticalMapRepetitionEnabled,
         MapView.getTileSystem()
     ).boundingBox
+    return BBox(bbox.latSouth, bbox.lonWest, bbox.latNorth, bbox.lonEast)
 
     // Overpass query to find all supermarkets in the bounding box
     /*

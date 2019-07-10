@@ -15,20 +15,11 @@
  *
  */
 
-package com.pyamsoft.fridge.locator
+package com.pyamsoft.fridge.locator.map.osm
 
-import androidx.annotation.CheckResult
-
-interface Locator {
-
-  @CheckResult
-  fun hasPermission(): Boolean
-
-  fun listenForUpdates()
-
-  fun stopListeningForUpdates()
-
-  @CheckResult
-  suspend fun getLastKnownLocation(): LastKnownLocation
-
-}
+internal data class BBox internal constructor(
+  val south: Double,
+  val west: Double,
+  val north: Double,
+  val east: Double
+)

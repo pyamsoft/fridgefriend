@@ -20,8 +20,18 @@ package com.pyamsoft.fridge.locator.map
 import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.locator.Locator
 import com.pyamsoft.fridge.locator.map.gms.GmsLocator
+import com.pyamsoft.fridge.locator.map.osm.api.NearbyLocationApi
+import com.squareup.moshi.Moshi
 import dagger.Binds
 import dagger.Module
+import dagger.Provides
+import okhttp3.OkHttpClient
+import okhttp3.logging.HttpLoggingInterceptor
+import okhttp3.logging.HttpLoggingInterceptor.Level.BODY
+import retrofit2.Retrofit
+import retrofit2.converter.moshi.MoshiConverterFactory
+import javax.inject.Named
+import javax.inject.Singleton
 
 @Module
 abstract class LocatorModule {
@@ -29,5 +39,41 @@ abstract class LocatorModule {
   @Binds
   @CheckResult
   internal abstract fun bindLocator(impl: GmsLocator): Locator
+
+  @Module
+  companion object {
+
+    @Provides
+    @JvmStatic
+    @Singleton
+    internal fun provideRetrofit(
+      @Named("debug") debug: Boolean,
+      moshi: Moshi
+    ): Retrofit {
+      val baseUrl = "https://overpass-api.de/api/interpreter"
+      val client = OkHttpClient.Builder()
+          .apply {
+            if (debug) {
+              addInterceptor(HttpLoggingInterceptor().apply {
+                level = BODY
+              })
+            }
+          }
+          .build()
+      return Retrofit.Builder()
+          .baseUrl(baseUrl)
+          .addConverterFactory(MoshiConverterFactory.create(moshi))
+          .client(client)
+          .build()
+    }
+
+    @Provides
+    @JvmStatic
+    @Singleton
+    internal fun provideNearbyLocationApi(retrofit: Retrofit): NearbyLocationApi {
+      return retrofit.create(NearbyLocationApi::class.java)
+    }
+
+  }
 
 }

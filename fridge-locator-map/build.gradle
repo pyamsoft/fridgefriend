@@ -66,6 +66,11 @@ kapt {
 
 dependencies {
 
+  // Moshi
+  implementation "com.squareup.moshi:moshi:$moshi"
+  implementation "com.squareup.moshi:moshi-adapters:$moshi"
+  kapt "com.squareup.moshi:moshi-kotlin-codegen:$moshi"
+
   implementation "org.osmdroid:osmdroid-android:$osmdroid"
 
   implementation "com.google.android.gms:play-services-location:$gmsLocation"

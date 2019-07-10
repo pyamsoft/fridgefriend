@@ -17,10 +17,17 @@
 
 package com.pyamsoft.fridge.locator.map.osm
 
+import androidx.lifecycle.viewModelScope
 import com.pyamsoft.pydroid.arch.UiViewModel
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import timber.log.Timber
 import javax.inject.Inject
 
 class OsmViewModel @Inject internal constructor(
+  private val interactor: OsmInteractor
 ) : UiViewModel<OsmViewState, OsmViewEvent, OsmControllerEvent>(
     initialState = OsmViewState(markers = emptyList())
 ) {
@@ -30,6 +37,24 @@ class OsmViewModel @Inject internal constructor(
 
   override fun handleViewEvent(event: OsmViewEvent) {
     // TODO
+  }
+
+  private fun nearbySupermarkets(box: BBox) {
+    viewModelScope.launch {
+      // TODO setState begin
+      try {
+        val response =
+          withContext(context = Dispatchers.Default) { interactor.nearbyLocations(box) }
+        // TODO setState success
+      } catch (e: Throwable) {
+        if (e !is CancellationException) {
+          Timber.e(e, "Error getting nearby supermarkets")
+          // TODO setState error
+        }
+      } finally {
+        // TODO setState complete
+      }
+    }
   }
 
 }

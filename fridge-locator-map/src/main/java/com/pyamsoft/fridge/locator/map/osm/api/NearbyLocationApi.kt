@@ -15,20 +15,15 @@
  *
  */
 
-package com.pyamsoft.fridge.locator
+package com.pyamsoft.fridge.locator.map.osm.api
 
-import androidx.annotation.CheckResult
+import retrofit2.http.Field
+import retrofit2.http.FormUrlEncoded
+import retrofit2.http.POST
 
-interface Locator {
+internal interface NearbyLocationApi {
 
-  @CheckResult
-  fun hasPermission(): Boolean
-
-  fun listenForUpdates()
-
-  fun stopListeningForUpdates()
-
-  @CheckResult
-  suspend fun getLastKnownLocation(): LastKnownLocation
-
+  @POST
+  @FormUrlEncoded
+  suspend fun queryNearby(@Field("data") data: String): OverpassResponse
 }

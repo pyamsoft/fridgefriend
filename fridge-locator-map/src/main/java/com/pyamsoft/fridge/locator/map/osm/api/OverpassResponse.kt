@@ -15,20 +15,28 @@
  *
  */
 
-package com.pyamsoft.fridge.locator
+package com.pyamsoft.fridge.locator.map.osm.api
 
 import androidx.annotation.CheckResult
+import com.squareup.moshi.JsonClass
+import java.util.Collections
 
-interface Locator {
-
-  @CheckResult
-  fun hasPermission(): Boolean
-
-  fun listenForUpdates()
-
-  fun stopListeningForUpdates()
+@JsonClass(generateAdapter = true)
+internal data class OverpassResponse internal constructor(
+  internal val elements: List<OsmNodeOrWay>?
+) {
 
   @CheckResult
-  suspend fun getLastKnownLocation(): LastKnownLocation
+  fun elements(): List<OsmNodeOrWay> {
+    return elements.let {
+      if (it == null) {
+        throw RuntimeException("OverpassResponse: elements was null")
+      } else {
+        return@let Collections.unmodifiableList(it)
+      }
+    }
+  }
 
+  // Needed to generate static adapter
+  companion object
 }

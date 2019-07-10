@@ -132,6 +132,14 @@ internal interface FridgeComponent {
     @Provides
     @JvmStatic
     @Singleton
+    @Named("debug")
+    internal fun provideDebug(): Boolean {
+      return BuildConfig.DEBUG
+    }
+
+    @Provides
+    @JvmStatic
+    @Singleton
     internal fun provideFakeItemRealtime(): EventBus<FridgeItemChangeEvent> {
       return EventBus.create()
     }
