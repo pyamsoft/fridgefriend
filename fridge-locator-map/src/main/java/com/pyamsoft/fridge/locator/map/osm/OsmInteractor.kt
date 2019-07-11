@@ -56,9 +56,16 @@ internal class OsmInteractor @Inject internal constructor(
               .filterNot { it.id == 0L }
 
           Timber.d("Way with nodes: $way     $nodes")
+          // Now with all our nodes in the way, find the center between all of the nodes and call it the marker
+          // for the way.
         }
 
-    Timber.d("Remaining nodes without Ways: $allNodes")
+    val remainingNodes = allNodes.filter {
+      it.tags.name()
+          .isNotBlank()
+    }
+    Timber.d("Remaining nodes without Ways: $remainingNodes")
+    // For each node, it becomes a marker
 
     return@coroutineScope markers
   }
