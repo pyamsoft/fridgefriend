@@ -19,6 +19,9 @@ package com.pyamsoft.fridge.locator.map.osm
 
 import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.locator.map.osm.api.NearbyLocationApi
+import com.pyamsoft.fridge.locator.map.osm.api.OsmNodeOrWay.Node
+import com.pyamsoft.fridge.locator.map.osm.api.OsmNodeOrWay.Way
+import com.pyamsoft.fridge.locator.map.osm.api.OsmTags
 import kotlinx.coroutines.coroutineScope
 import timber.log.Timber
 import javax.inject.Inject
@@ -31,8 +34,33 @@ internal class OsmInteractor @Inject internal constructor(
   suspend fun nearbyLocations(box: BBox): List<OsmMarker> = coroutineScope {
     val data = createOverpassData(box.south, box.west, box.north, box.east)
     val response = api.queryNearby(data)
-    Timber.d("Overpass Response: ${response.elements()}")
-    return@coroutineScope emptyList<OsmMarker>()
+    val elements = response.elements()
+
+    // First compile all the Way objects
+    val markers = ArrayList<OsmMarker>()
+    val allNodes = elements.filterIsInstance<Node>()
+        .toMutableList()
+    elements.filterIsInstance<Way>()
+        .forEach { way ->
+          val nodes = way.nodes.map { id ->
+            val node: Node? = allNodes.find { it.id == id }
+            if (node == null) {
+              return@map Node(0L, 0.0, 0.0, OsmTags(null))
+            } else {
+              allNodes.remove(node)
+              return@map node
+            }
+          }
+              // For some reason we need this, even though we really don't...
+              .map { requireNotNull(it) }
+              .filterNot { it.id == 0L }
+
+          Timber.d("Way with nodes: $way     $nodes")
+        }
+
+    Timber.d("Remaining nodes without Ways: $allNodes")
+
+    return@coroutineScope markers
   }
 
   companion object {

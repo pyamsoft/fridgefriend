@@ -68,7 +68,7 @@ internal sealed class OsmNodeOrWay {
     @Suppress("unused")
     fun fromJson(json: AsJson): OsmNodeOrWay {
       val nodes = json.nodes ?: emptyList()
-      val tags = json.tags ?: OsmTags("")
+      val tags = json.tags ?: OsmTags(null)
       val lat = json.lat ?: 0.0
       val lon = json.lon ?: 0.0
 
