@@ -17,7 +17,9 @@
 
 package com.pyamsoft.fridge.locator.map.osm.api
 
+import com.squareup.moshi.FromJson
 import com.squareup.moshi.JsonClass
+import com.squareup.moshi.ToJson
 
 internal sealed class OsmNodeOrWay {
 
@@ -44,6 +46,48 @@ internal sealed class OsmNodeOrWay {
     // Needed to generate static adapter
     companion object
 
+  }
+
+  @JsonClass(generateAdapter = true)
+  internal data class AsJson internal constructor(
+    internal val id: Long,
+    internal val nodes: List<Long>?,
+    internal val lat: Double?,
+    internal val lon: Double?,
+    internal val tags: OsmTags?
+  ) : OsmNodeOrWay() {
+
+    // Needed to generate static adapter
+    companion object
+
+  }
+
+  internal class Adapter {
+
+    @FromJson
+    @Suppress("unused")
+    fun fromJson(json: AsJson): OsmNodeOrWay {
+      val nodes = json.nodes ?: emptyList()
+      val tags = json.tags ?: OsmTags("")
+      val lat = json.lat ?: 0.0
+      val lon = json.lon ?: 0.0
+
+      if (nodes.isNotEmpty()) {
+        return Way(json.id, nodes, tags)
+      } else {
+        return Node(json.id, lat, lon, tags)
+      }
+    }
+
+    @ToJson
+    @Suppress("unused")
+    fun toJson(payload: OsmNodeOrWay): AsJson {
+      return when (payload) {
+        is Node -> AsJson(payload.id, null, payload.lat, payload.lon, payload.tags)
+        is Way -> AsJson(payload.id, payload.nodes, 0.0, 0.0, payload.tags)
+        else -> throw IllegalArgumentException("Can only convert Node or Way to AsJson")
+      }
+    }
   }
 
 }

@@ -22,6 +22,7 @@ import android.content.Context
 import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
+import android.widget.FrameLayout
 import androidx.annotation.CheckResult
 import androidx.lifecycle.Lifecycle.Event.ON_PAUSE
 import androidx.lifecycle.Lifecycle.Event.ON_RESUME
@@ -29,10 +30,15 @@ import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.OnLifecycleEvent
 import androidx.preference.PreferenceManager
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.pyamsoft.fridge.locator.map.R
+import com.pyamsoft.fridge.locator.map.osm.OsmViewEvent.FindNearby
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.arch.UiSavedState
+import com.pyamsoft.pydroid.loader.ImageLoader
+import com.pyamsoft.pydroid.loader.Loaded
 import com.pyamsoft.pydroid.ui.theme.Theming
+import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
 import org.osmdroid.config.Configuration
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
 import org.osmdroid.util.GeoPoint
@@ -47,19 +53,19 @@ import org.osmdroid.views.overlay.compass.CompassOverlay
 import org.osmdroid.views.overlay.compass.InternalCompassOrientationProvider
 import org.osmdroid.views.overlay.mylocation.GpsMyLocationProvider
 import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay
-import timber.log.Timber
 import javax.inject.Inject
 
 class OsmMap @Inject internal constructor(
   private val owner: LifecycleOwner,
   private val theming: Theming,
+  private val imageLoader: ImageLoader,
   activity: Activity,
-  context: Context,
   parent: ViewGroup
 ) : BaseUiView<OsmViewState, OsmViewEvent>(parent), LifecycleObserver {
 
   private var markerOverlay: ItemizedOverlayWithFocus<OverlayItem>? = null
   private var activity: Activity? = activity
+  private var boundImage: Loaded? = null
 
   private val itemListener = object : ItemizedIconOverlay.OnItemGestureListener<OverlayItem> {
 
@@ -82,11 +88,16 @@ class OsmMap @Inject internal constructor(
 
   override val layout: Int = R.layout.osm_map
 
-  override val layoutRoot by boundView<MapView>(R.id.osm_map)
+  override val layoutRoot by boundView<FrameLayout>(R.id.osm_frame)
+  private val map by boundView<MapView>(R.id.osm_map)
+  private val fab by boundView<FloatingActionButton>(R.id.osm_action)
 
   init {
     Configuration.getInstance()
-        .load(context, PreferenceManager.getDefaultSharedPreferences(context))
+        .load(
+            activity.application,
+            PreferenceManager.getDefaultSharedPreferences(activity.application)
+        )
   }
 
   override fun onInflated(
@@ -95,17 +106,25 @@ class OsmMap @Inject internal constructor(
   ) {
     owner.lifecycle.addObserver(this)
     initMap(view.context.applicationContext)
+
+    boundImage?.dispose()
+    boundImage = imageLoader.load(R.drawable.ic_add_24dp)
+        .into(fab)
+    fab.setOnDebouncedClickListener { publish(FindNearby(getBoundingBoxOfCurrentScreen())) }
   }
 
   private fun removeMarkerOverlay() {
-    markerOverlay?.let { layoutRoot.overlays.remove(it) }
+    markerOverlay?.let { map.overlays.remove(it) }
     markerOverlay = null
   }
 
   override fun onTeardown() {
     owner.lifecycle.removeObserver(this)
+    fab.setOnDebouncedClickListener(null)
     removeMarkerOverlay()
-    layoutRoot.onDetach()
+    map.onDetach()
+    boundImage?.dispose()
+    boundImage = null
   }
 
   override fun onRender(
@@ -122,17 +141,17 @@ class OsmMap @Inject internal constructor(
       markerOverlay =
         ItemizedOverlayWithFocus(
             marks.map { OverlayItem(it.title, it.description, GeoPoint(it.location)) },
-            itemListener, layoutRoot.context.applicationContext
+            itemListener, map.context.applicationContext
         ).apply {
           setFocusItemsOnTap(true)
         }
-            .also { layoutRoot.overlays.add(it) }
+            .also { map.overlays.add(it) }
     }
   }
 
   @CheckResult
   private fun getBoundingBoxOfCurrentScreen(): BBox {
-    val mapView = layoutRoot
+    val mapView = map
     val bbox = Projection(
         mapView.zoomLevelDouble, mapView.getIntrinsicScreenRect(null),
         GeoPoint(mapView.mapCenter),
@@ -163,17 +182,17 @@ class OsmMap @Inject internal constructor(
   @Suppress("unused")
   @OnLifecycleEvent(ON_RESUME)
   internal fun onResume() {
-    layoutRoot.onResume()
+    map.onResume()
   }
 
   @Suppress("unused")
   @OnLifecycleEvent(ON_PAUSE)
   internal fun onPause() {
-    layoutRoot.onPause()
+    map.onPause()
   }
 
   private fun initMap(context: Context) {
-    layoutRoot.apply {
+    map.apply {
       setMultiTouchControls(true)
       isTilesScaledToDpi = true
       setTileSource(TileSourceFactory.MAPNIK)
@@ -188,9 +207,9 @@ class OsmMap @Inject internal constructor(
   }
 
   private fun addMapOverlays(context: Context) {
-    val mapView = layoutRoot
+    val mapView = map
 
-    val locationOverlay = MyLocationNewOverlay(GpsMyLocationProvider(context), layoutRoot)
+    val locationOverlay = MyLocationNewOverlay(GpsMyLocationProvider(context), mapView)
     locationOverlay.runOnFirstFix {
       val currentLocation = locationOverlay.myLocation
       mapView.post {
@@ -198,14 +217,13 @@ class OsmMap @Inject internal constructor(
         if (currentLocation != null) {
           mapView.controller.animateTo(currentLocation)
           mapView.controller.setCenter(currentLocation)
-          Timber.d("Bounding box: ${getBoundingBoxOfCurrentScreen()}")
         }
       }
     }
     locationOverlay.enableMyLocation()
 
     val compassOverlay =
-      CompassOverlay(context, InternalCompassOrientationProvider(context), layoutRoot)
+      CompassOverlay(context, InternalCompassOrientationProvider(context), mapView)
     compassOverlay.enableCompass()
 
     mapView.overlays.add(compassOverlay)

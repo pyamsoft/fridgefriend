@@ -18,6 +18,8 @@
 package com.pyamsoft.fridge.locator.map.osm
 
 import androidx.lifecycle.viewModelScope
+import com.pyamsoft.fridge.locator.map.osm.OsmViewEvent.FindNearby
+import com.pyamsoft.highlander.highlander
 import com.pyamsoft.pydroid.arch.UiViewModel
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
@@ -32,29 +34,33 @@ class OsmViewModel @Inject internal constructor(
     initialState = OsmViewState(markers = emptyList())
 ) {
 
+  private val nearbyRunner = highlander<Unit, BBox> { box ->
+    // TODO setState begin
+    try {
+      val response =
+        withContext(context = Dispatchers.Default) { interactor.nearbyLocations(box) }
+      // TODO setState success
+    } catch (e: Throwable) {
+      if (e !is CancellationException) {
+        Timber.e(e, "Error getting nearby supermarkets")
+        // TODO setState error
+      }
+    } finally {
+      // TODO setState complete
+    }
+  }
+
   override fun onInit() {
   }
 
   override fun handleViewEvent(event: OsmViewEvent) {
-    // TODO
+    return when (event) {
+      is FindNearby -> nearbySupermarkets(event.box)
+    }
   }
 
   private fun nearbySupermarkets(box: BBox) {
-    viewModelScope.launch {
-      // TODO setState begin
-      try {
-        val response =
-          withContext(context = Dispatchers.Default) { interactor.nearbyLocations(box) }
-        // TODO setState success
-      } catch (e: Throwable) {
-        if (e !is CancellationException) {
-          Timber.e(e, "Error getting nearby supermarkets")
-          // TODO setState error
-        }
-      } finally {
-        // TODO setState complete
-      }
-    }
+    viewModelScope.launch { nearbyRunner.call(box) }
   }
 
 }

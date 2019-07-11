@@ -21,6 +21,7 @@ import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.locator.Locator
 import com.pyamsoft.fridge.locator.map.gms.GmsLocator
 import com.pyamsoft.fridge.locator.map.osm.api.NearbyLocationApi
+import com.pyamsoft.fridge.locator.map.osm.api.OsmNodeOrWay
 import com.squareup.moshi.Moshi
 import dagger.Binds
 import dagger.Module
@@ -50,7 +51,7 @@ abstract class LocatorModule {
       @Named("debug") debug: Boolean,
       moshi: Moshi
     ): Retrofit {
-      val baseUrl = "https://overpass-api.de/api/interpreter"
+      val baseUrl = "https://overpass-api.de/api/"
       val client = OkHttpClient.Builder()
           .apply {
             if (debug) {
@@ -60,9 +61,12 @@ abstract class LocatorModule {
             }
           }
           .build()
+      val newMoshi = moshi.newBuilder()
+          .add(OsmNodeOrWay.Adapter())
+          .build()
       return Retrofit.Builder()
           .baseUrl(baseUrl)
-          .addConverterFactory(MoshiConverterFactory.create(moshi))
+          .addConverterFactory(MoshiConverterFactory.create(newMoshi))
           .client(client)
           .build()
     }

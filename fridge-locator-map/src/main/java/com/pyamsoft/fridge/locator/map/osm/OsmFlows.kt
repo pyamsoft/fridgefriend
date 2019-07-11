@@ -28,6 +28,8 @@ data class OsmViewState internal constructor(
 
 sealed class OsmViewEvent : UiViewEvent {
 
+  data class FindNearby internal constructor(internal val box: BBox) : OsmViewEvent()
+
 }
 
 sealed class OsmControllerEvent : UiControllerEvent {

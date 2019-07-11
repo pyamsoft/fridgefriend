@@ -23,7 +23,7 @@ import retrofit2.http.POST
 
 internal interface NearbyLocationApi {
 
-  @POST
+  @POST("interpreter")
   @FormUrlEncoded
   suspend fun queryNearby(@Field("data") data: String): OverpassResponse
 }
