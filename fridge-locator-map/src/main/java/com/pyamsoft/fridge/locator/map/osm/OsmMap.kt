@@ -24,6 +24,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import androidx.annotation.CheckResult
+import androidx.core.view.isVisible
 import androidx.lifecycle.Lifecycle.Event.ON_PAUSE
 import androidx.lifecycle.Lifecycle.Event.ON_RESUME
 import androidx.lifecycle.LifecycleObserver
@@ -38,6 +39,7 @@ import com.pyamsoft.pydroid.arch.UiSavedState
 import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.loader.Loaded
 import com.pyamsoft.pydroid.ui.theme.Theming
+import com.pyamsoft.pydroid.ui.util.popShow
 import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
 import org.osmdroid.config.Configuration
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
@@ -110,6 +112,7 @@ class OsmMap @Inject internal constructor(
     boundImage?.dispose()
     boundImage = imageLoader.load(R.drawable.ic_add_24dp)
         .into(fab)
+    fab.isVisible = false
     fab.setOnDebouncedClickListener { publish(FindNearby(getBoundingBoxOfCurrentScreen())) }
   }
 
@@ -217,6 +220,7 @@ class OsmMap @Inject internal constructor(
         if (currentLocation != null) {
           mapView.controller.animateTo(currentLocation)
           mapView.controller.setCenter(currentLocation)
+          fab.popShow(startDelay = 700L)
         }
       }
     }

@@ -31,7 +31,7 @@ internal class OsmInteractor @Inject internal constructor(
   suspend fun nearbyLocations(box: BBox): List<OsmMarker> = coroutineScope {
     val data = createOverpassData(box.south, box.west, box.north, box.east)
     val response = api.queryNearby(data)
-    Timber.d("Overpass Response: $response")
+    Timber.d("Overpass Response: ${response.elements()}")
     return@coroutineScope emptyList<OsmMarker>()
   }
 
