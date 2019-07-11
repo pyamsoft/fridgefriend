@@ -21,7 +21,6 @@ import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.locator.map.osm.api.NearbyLocationApi
 import com.pyamsoft.fridge.locator.map.osm.api.OsmNodeOrWay.Node
 import com.pyamsoft.fridge.locator.map.osm.api.OsmNodeOrWay.Way
-import com.pyamsoft.fridge.locator.map.osm.api.OsmTags
 import kotlinx.coroutines.coroutineScope
 import timber.log.Timber
 import javax.inject.Inject
@@ -45,15 +44,14 @@ internal class OsmInteractor @Inject internal constructor(
           val nodes = way.nodes.map { id ->
             val node: Node? = allNodes.find { it.id == id }
             if (node == null) {
-              return@map Node(0L, 0.0, 0.0, OsmTags(null))
+              return@map null
             } else {
               allNodes.remove(node)
               return@map node
             }
           }
-              // For some reason we need this, even though we really don't...
+              .filterNot { it == null }
               .map { requireNotNull(it) }
-              .filterNot { it.id == 0L }
 
           Timber.d("Way with nodes: $way     $nodes")
           // Now with all our nodes in the way, find the center between all of the nodes and call it the marker
