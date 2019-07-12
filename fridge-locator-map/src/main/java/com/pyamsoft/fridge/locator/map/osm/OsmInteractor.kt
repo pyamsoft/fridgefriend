@@ -22,7 +22,6 @@ import com.pyamsoft.fridge.locator.map.osm.api.NearbyLocationApi
 import com.pyamsoft.fridge.locator.map.osm.api.OsmNodeOrWay.Node
 import com.pyamsoft.fridge.locator.map.osm.api.OsmNodeOrWay.Way
 import kotlinx.coroutines.coroutineScope
-import timber.log.Timber
 import javax.inject.Inject
 
 internal class OsmInteractor @Inject internal constructor(
@@ -30,13 +29,14 @@ internal class OsmInteractor @Inject internal constructor(
 ) {
 
   @CheckResult
-  suspend fun nearbyLocations(box: BBox): List<OsmMarker> = coroutineScope {
+  suspend fun nearbyLocations(box: BBox): OsmMarkers = coroutineScope {
     val data = createOverpassData(box.south, box.west, box.north, box.east)
     val response = api.queryNearby(data)
     val elements = response.elements()
 
     // First compile all the Way objects
-    val markers = ArrayList<OsmMarker>()
+    val polygons = arrayListOf<OsmPolygon>()
+
     val allNodes = elements.filterIsInstance<Node>()
         .toMutableList()
     elements.filterIsInstance<Way>()
@@ -53,19 +53,16 @@ internal class OsmInteractor @Inject internal constructor(
               .filterNot { it == null }
               .map { requireNotNull(it) }
 
-          Timber.d("Way with nodes: $way     $nodes")
-          // Now with all our nodes in the way, find the center between all of the nodes and call it the marker
-          // for the way.
+          polygons.add(OsmPolygon.create(way, nodes))
         }
 
     val remainingNodes = allNodes.filter {
       it.tags.name()
           .isNotBlank()
     }
-    Timber.d("Remaining nodes without Ways: $remainingNodes")
-    // For each node, it becomes a marker
+    val markers = remainingNodes.map { OsmGeoPoint.create(it) }
 
-    return@coroutineScope markers
+    return@coroutineScope OsmMarkers(polygons, markers)
   }
 
   companion object {

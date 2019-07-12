@@ -31,22 +31,22 @@ import javax.inject.Inject
 class OsmViewModel @Inject internal constructor(
   private val interactor: OsmInteractor
 ) : UiViewModel<OsmViewState, OsmViewEvent, OsmControllerEvent>(
-    initialState = OsmViewState(markers = emptyList())
+    initialState = OsmViewState(loading = false, markers = OsmMarkers.empty(), throwable = null)
 ) {
 
   private val nearbyRunner = highlander<Unit, BBox> { box ->
-    // TODO setState begin
+    setState { copy(loading = true) }
     try {
-      val response =
+      val markers =
         withContext(context = Dispatchers.Default) { interactor.nearbyLocations(box) }
-      // TODO setState success
+      setState { copy(markers = markers) }
     } catch (e: Throwable) {
       if (e !is CancellationException) {
         Timber.e(e, "Error getting nearby supermarkets")
-        // TODO setState error
+        setState { copy(throwable = throwable) }
       }
     } finally {
-      // TODO setState complete
+      setState { copy(loading = false) }
     }
   }
 

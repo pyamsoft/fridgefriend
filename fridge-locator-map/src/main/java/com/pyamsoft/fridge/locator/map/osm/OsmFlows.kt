@@ -23,7 +23,9 @@ import com.pyamsoft.pydroid.arch.UiViewEvent
 import com.pyamsoft.pydroid.arch.UiViewState
 
 data class OsmViewState internal constructor(
-  val markers: List<OsmMarker>
+  val loading: Boolean,
+  val markers: OsmMarkers,
+  val throwable: Throwable?
 ) : UiViewState
 
 sealed class OsmViewEvent : UiViewEvent {

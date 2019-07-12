@@ -19,6 +19,7 @@ package com.pyamsoft.fridge.locator.map.osm
 
 import android.app.Activity
 import android.content.Context
+import android.graphics.Color
 import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
@@ -50,6 +51,7 @@ import org.osmdroid.views.Projection
 import org.osmdroid.views.overlay.ItemizedIconOverlay
 import org.osmdroid.views.overlay.ItemizedOverlayWithFocus
 import org.osmdroid.views.overlay.OverlayItem
+import org.osmdroid.views.overlay.Polygon
 import org.osmdroid.views.overlay.TilesOverlay
 import org.osmdroid.views.overlay.compass.CompassOverlay
 import org.osmdroid.views.overlay.compass.InternalCompassOrientationProvider
@@ -135,21 +137,93 @@ class OsmMap @Inject internal constructor(
     savedState: UiSavedState
   ) {
     removeMarkerOverlay()
-    state.markers.let { marks ->
-      // Skip work if no markers
-      if (marks.isEmpty()) {
-        return@let
+    state.markers.let { markers ->
+      var invalidate = false
+      if (renderMapMarkers(markers.markers)) {
+        invalidate = true
       }
 
-      markerOverlay =
-        ItemizedOverlayWithFocus(
-            marks.map { OverlayItem(it.title, it.description, GeoPoint(it.location)) },
-            itemListener, map.context.applicationContext
-        ).apply {
-          setFocusItemsOnTap(true)
-        }
-            .also { map.overlays.add(it) }
+      if (renderMapPolygons(markers.polygons)) {
+        invalidate = true
+      }
+
+      if (invalidate) {
+        map.invalidate()
+      }
     }
+  }
+
+  @CheckResult
+  private fun renderMapPolygons(polygons: List<OsmPolygon>): Boolean {
+    // Skip work if no polygons
+    if (polygons.isEmpty()) {
+      return false
+    }
+
+    val color = Color.argb(75, 255, 255, 0)
+    for (polygon in polygons) {
+      // Convert list of nodes to geo points
+      val points = ArrayList(polygon.nodes.map { GeoPoint(it.lat, it.lon) })
+      // Add the first point again to close the polygon
+      points.add(points[0])
+
+      val uid = "OsmPolygon: ${polygon.id}"
+      val zone = Polygon(map).apply {
+        setPoints(points)
+        fillColor = color
+        title = polygon.name
+        id = uid
+      }
+      zone.setOnClickListener { p, _, _ ->
+        if (p.isInfoWindowOpen) {
+          p.closeInfoWindow()
+        } else {
+          p.showInfoWindow()
+        }
+        return@setOnClickListener true
+      }
+
+      val oldPolygon = map.overlayManager.filterIsInstance<Polygon>()
+          .find { it.id == uid }
+      if (oldPolygon != null) {
+        map.overlayManager.remove(oldPolygon)
+      }
+      map.overlayManager.add(zone)
+    }
+    return true
+  }
+
+  @CheckResult
+  private fun renderMapMarkers(marks: List<OsmGeoPoint>): Boolean {
+    // Skip work if no markers
+    if (marks.isEmpty()) {
+      return false
+    }
+
+    markerOverlay?.let { overlay ->
+      // Clear old overlay if it exists
+      overlay.removeAllItems(false)
+
+      // Remove old overlay from map
+      map.overlays.remove(overlay)
+    }
+
+    markerOverlay =
+      ItemizedOverlayWithFocus(
+          marks.map { point ->
+            val name = point.name
+            val description = "Supermarket: $name"
+            val geo = GeoPoint(point.lat, point.lon)
+            val uid = "OsmGeoPoint: ${point.id}"
+            return@map OverlayItem(uid, name, description, geo)
+          },
+          itemListener, map.context.applicationContext
+      ).apply {
+        setFocusItemsOnTap(true)
+      }
+          .also { map.overlays.add(it) }
+
+    return true
   }
 
   @CheckResult
