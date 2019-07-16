@@ -17,15 +17,16 @@
 
 package com.pyamsoft.fridge.locator.map.osm
 
-import android.location.Location
+import com.pyamsoft.fridge.db.store.NearbyStore
+import com.pyamsoft.fridge.db.zone.NearbyZone
 import com.pyamsoft.pydroid.arch.UiControllerEvent
 import com.pyamsoft.pydroid.arch.UiViewEvent
 import com.pyamsoft.pydroid.arch.UiViewState
 
 data class OsmViewState internal constructor(
   val loading: Boolean,
-  val points: List<OsmGeoPoint>,
-  val zones: List<OsmPolygon>,
+  val points: List<NearbyStore>,
+  val zones: List<NearbyZone>,
   val throwable: Throwable?
 ) : UiViewState
 
@@ -35,12 +36,4 @@ sealed class OsmViewEvent : UiViewEvent {
 
 }
 
-sealed class OsmControllerEvent : UiControllerEvent {
-
-}
-
-data class OsmMarker internal constructor(
-  val title: String,
-  val description: String,
-  val location: Location
-)
+sealed class OsmControllerEvent : UiControllerEvent

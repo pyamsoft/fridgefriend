@@ -18,73 +18,51 @@
 package com.pyamsoft.fridge.locator.map.osm
 
 import androidx.annotation.CheckResult
+import com.pyamsoft.fridge.db.store.NearbyStore
+import com.pyamsoft.fridge.db.zone.NearbyZone
+import com.pyamsoft.fridge.db.zone.NearbyZone.Point
 import com.pyamsoft.fridge.locator.map.osm.api.OsmNodeOrWay.Node
 import com.pyamsoft.fridge.locator.map.osm.api.OsmNodeOrWay.Way
 
-data class OsmGeoPoint internal constructor(
-  val id: Long,
-  val lat: Double,
-  val lon: Double,
-  val name: String
-) {
-
-  companion object {
-
-    @JvmStatic
-    @CheckResult
-    internal fun create(node: Node): OsmGeoPoint {
-      return OsmGeoPoint(node.id, node.lat, node.lon, node.tags.name())
-    }
-  }
+@CheckResult
+internal fun NearbyStore.Companion.create(node: Node): NearbyStore {
+  return create(node.id, node.tags.name(), node.lat, node.lon)
 }
 
-data class OsmPoint internal constructor(
-  val id: Long,
-  val lat: Double,
-  val lon: Double
-)
-
-data class OsmPolygon internal constructor(
-  val id: Long,
-  val name: String,
-  val nodes: List<OsmPoint>
-) {
-  companion object {
-
-    @JvmStatic
-    @CheckResult
-    private fun findName(
-      way: Way,
-      nodes: List<Node>
-    ): String {
-      var name = ""
-      val wayName = way.tags.name()
-      if (wayName.isNotBlank()) {
-        name = wayName
-      } else {
-        for (node in nodes) {
-          val nodeName = node.tags.name()
-          if (nodeName.isNotBlank()) {
-            name = nodeName
-          }
-        }
+@CheckResult
+private fun findName(
+  way: Way,
+  nodes: List<Node>
+): String {
+  var name = ""
+  val wayName = way.tags.name()
+  if (wayName.isNotBlank()) {
+    name = wayName
+  } else {
+    for (node in nodes) {
+      val nodeName = node.tags.name()
+      if (nodeName.isNotBlank()) {
+        name = nodeName
       }
-
-      return name
-    }
-
-    @JvmStatic
-    @CheckResult
-    internal fun create(
-      way: Way,
-      nodes: List<Node>
-    ): OsmPolygon {
-      return OsmPolygon(way.id, findName(way, nodes), nodes.map { OsmPoint(it.id, it.lat, it.lon) })
     }
   }
+
+  return name
+}
+
+@CheckResult
+internal fun NearbyZone.Companion.create(
+  way: Way,
+  nodes: List<Node>
+): NearbyZone {
+  return create(
+      way.id,
+      findName(way, nodes),
+      nodes.map { Point(it.id, it.lat, it.lon) }
+  )
 }
 
 data class OsmMarkers internal constructor(
-  val points: List<OsmGeoPoint>,
-  val zones: List<OsmPolygon>
+  val points: List<NearbyStore>,
+  val zones: List<NearbyZone>
 )

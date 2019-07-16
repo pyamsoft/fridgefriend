@@ -15,35 +15,31 @@
  *
  */
 
-package com.pyamsoft.fridge.db.store
+package com.pyamsoft.fridge.db.zone
 
 import android.os.Parcelable
 import androidx.annotation.CheckResult
+import com.pyamsoft.fridge.db.zone.NearbyZone.Point
 import com.squareup.moshi.JsonClass
 import kotlinx.android.parcel.Parcelize
 import java.util.Date
 
 @Parcelize
 @JsonClass(generateAdapter = true)
-data class JsonMappableNearbyStore internal constructor(
+data class JsonMappableNearbyZone internal constructor(
   internal val id: Long,
   internal val name: String,
+  internal val points: List<Point>,
   internal val createdTime: Date,
-  internal val latitude: Double,
-  internal val longitude: Double,
   internal val isArchived: Boolean
-) : NearbyStore, Parcelable {
+) : NearbyZone, Parcelable {
 
   override fun id(): Long {
     return id
   }
 
-  override fun latitude(): Double {
-    return latitude
-  }
-
-  override fun longitude(): Double {
-    return longitude
+  override fun points(): List<Point> {
+    return points
   }
 
   override fun name(): String {
@@ -58,11 +54,11 @@ data class JsonMappableNearbyStore internal constructor(
     return isArchived
   }
 
-  override fun name(name: String): NearbyStore {
+  override fun name(name: String): NearbyZone {
     return this.copy(name = name)
   }
 
-  override fun archive(): NearbyStore {
+  override fun archive(): NearbyZone {
     return this.copy(isArchived = true)
   }
 
@@ -70,16 +66,15 @@ data class JsonMappableNearbyStore internal constructor(
 
     @JvmStatic
     @CheckResult
-    fun from(item: NearbyStore): JsonMappableNearbyStore {
-      if (item is JsonMappableNearbyStore) {
+    fun from(item: NearbyZone): JsonMappableNearbyZone {
+      if (item is JsonMappableNearbyZone) {
         return item
       } else {
-        return JsonMappableNearbyStore(
+        return JsonMappableNearbyZone(
             item.id(),
             item.name(),
+            item.points(),
             item.createdTime(),
-            item.latitude(),
-            item.longitude(),
             item.isArchived()
         )
       }

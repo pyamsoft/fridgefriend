@@ -55,8 +55,8 @@ class OsmViewModel @Inject internal constructor(
   private fun updateMarkers(markers: OsmMarkers) {
     setState {
       copy(
-          points = merge(points, markers.points) { it.id },
-          zones = merge(zones, markers.zones) { it.id }
+          points = merge(points, markers.points) { it.id() },
+          zones = merge(zones, markers.zones) { it.id() }
       )
     }
   }

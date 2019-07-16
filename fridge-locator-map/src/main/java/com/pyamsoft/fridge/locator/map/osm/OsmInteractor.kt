@@ -18,6 +18,8 @@
 package com.pyamsoft.fridge.locator.map.osm
 
 import androidx.annotation.CheckResult
+import com.pyamsoft.fridge.db.store.NearbyStore
+import com.pyamsoft.fridge.db.zone.NearbyZone
 import com.pyamsoft.fridge.locator.map.osm.api.NearbyLocationApi
 import com.pyamsoft.fridge.locator.map.osm.api.OsmNodeOrWay.Node
 import com.pyamsoft.fridge.locator.map.osm.api.OsmNodeOrWay.Way
@@ -35,7 +37,7 @@ internal class OsmInteractor @Inject internal constructor(
     val elements = response.elements()
 
     // First compile all the Way objects
-    val polygons = arrayListOf<OsmPolygon>()
+    val polygons = arrayListOf<NearbyZone>()
 
     val allNodes = elements.filterIsInstance<Node>()
         .toMutableList()
@@ -53,14 +55,14 @@ internal class OsmInteractor @Inject internal constructor(
               .filterNot { it == null }
               .map { requireNotNull(it) }
 
-          polygons.add(OsmPolygon.create(way, nodes))
+          polygons.add(NearbyZone.create(way, nodes))
         }
 
     val remainingNodes = allNodes.filter {
       it.tags.name()
           .isNotBlank()
     }
-    val markers = remainingNodes.map { OsmGeoPoint.create(it) }
+    val markers = remainingNodes.map { NearbyStore.create(it) }
 
     return@coroutineScope OsmMarkers(markers, polygons)
   }

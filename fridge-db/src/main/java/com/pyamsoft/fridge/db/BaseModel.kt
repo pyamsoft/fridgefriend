@@ -23,9 +23,6 @@ import java.util.Date
 interface BaseModel<T : Any> {
 
   @CheckResult
-  fun id(): String
-
-  @CheckResult
   fun name(): String
 
   @CheckResult

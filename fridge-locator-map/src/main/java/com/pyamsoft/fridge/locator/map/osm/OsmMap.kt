@@ -33,6 +33,8 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.OnLifecycleEvent
 import androidx.preference.PreferenceManager
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.pyamsoft.fridge.db.store.NearbyStore
+import com.pyamsoft.fridge.db.zone.NearbyZone
 import com.pyamsoft.fridge.locator.map.R
 import com.pyamsoft.fridge.locator.map.osm.OsmViewEvent.FindNearby
 import com.pyamsoft.pydroid.arch.BaseUiView
@@ -157,7 +159,7 @@ class OsmMap @Inject internal constructor(
   }
 
   @CheckResult
-  private fun renderMapPolygons(polygons: List<OsmPolygon>): Boolean {
+  private fun renderMapPolygons(polygons: List<NearbyZone>): Boolean {
     // Skip work if no polygons
     if (polygons.isEmpty()) {
       return false
@@ -166,15 +168,15 @@ class OsmMap @Inject internal constructor(
     val color = Color.argb(75, 255, 255, 0)
     for (polygon in polygons) {
       // Convert list of nodes to geo points
-      val points = ArrayList(polygon.nodes.map { GeoPoint(it.lat, it.lon) })
+      val points = ArrayList(polygon.points().map { GeoPoint(it.lat, it.lon) })
       // Add the first point again to close the polygon
       points.add(points[0])
 
-      val uid = "OsmPolygon: ${polygon.id}"
+      val uid = "OsmPolygon: ${polygon.id()}"
       val zone = Polygon(map).apply {
         setPoints(points)
         fillColor = color
-        title = polygon.name
+        title = polygon.name()
         id = uid
       }
       zone.setOnClickListener { p, _, _ ->
@@ -197,7 +199,7 @@ class OsmMap @Inject internal constructor(
   }
 
   @CheckResult
-  private fun renderMapMarkers(marks: List<OsmGeoPoint>): Boolean {
+  private fun renderMapMarkers(marks: List<NearbyStore>): Boolean {
     // Skip work if no markers
     if (marks.isEmpty()) {
       return false
@@ -214,10 +216,10 @@ class OsmMap @Inject internal constructor(
     markerOverlay =
       ItemizedOverlayWithFocus(
           marks.map { point ->
-            val name = point.name
+            val name = point.name()
             val description = "Supermarket: $name"
-            val geo = GeoPoint(point.lat, point.lon)
-            val uid = "OsmGeoPoint: ${point.id}"
+            val geo = GeoPoint(point.latitude(), point.longitude())
+            val uid = "OsmGeoPoint: ${point.id()}"
             return@map OverlayItem(uid, name, description, geo)
           },
           itemListener, map.context.applicationContext

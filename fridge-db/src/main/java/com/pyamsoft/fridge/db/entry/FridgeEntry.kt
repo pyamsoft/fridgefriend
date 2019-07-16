@@ -25,6 +25,9 @@ import java.util.Date
 interface FridgeEntry : BaseModel<FridgeEntry> {
 
   @CheckResult
+  fun id(): String
+
+  @CheckResult
   fun isReal(): Boolean
 
   @CheckResult

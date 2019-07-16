@@ -15,22 +15,30 @@
  *
  */
 
-package com.pyamsoft.fridge.db.store
+package com.pyamsoft.fridge.db.zone
 
+import android.os.Parcelable
 import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.db.BaseModel
+import com.squareup.moshi.JsonClass
+import kotlinx.android.parcel.Parcelize
 import java.util.Date
 
-interface NearbyStore : BaseModel<NearbyStore> {
+interface NearbyZone : BaseModel<NearbyZone> {
 
   @CheckResult
   fun id(): Long
 
   @CheckResult
-  fun latitude(): Double
+  fun points(): List<Point>
 
-  @CheckResult
-  fun longitude(): Double
+  @Parcelize
+  @JsonClass(generateAdapter = true)
+  data class Point(
+    val id: Long,
+    val lat: Double,
+    val lon: Double
+  ) : Parcelable
 
   companion object {
 
@@ -38,13 +46,12 @@ interface NearbyStore : BaseModel<NearbyStore> {
     private val EMPTY_CREATED_TIME = Date(0)
 
     @CheckResult
-    fun empty(): NearbyStore {
-      return JsonMappableNearbyStore(
+    fun empty(): NearbyZone {
+      return JsonMappableNearbyZone(
           0,
           EMPTY_NAME,
+          emptyList(),
           EMPTY_CREATED_TIME,
-          latitude = 0.0,
-          longitude = 0.0,
           isArchived = false
       )
     }
@@ -53,10 +60,9 @@ interface NearbyStore : BaseModel<NearbyStore> {
     fun create(
       id: Long,
       name: String,
-      latitude: Double,
-      longitude: Double
-    ): NearbyStore {
-      return JsonMappableNearbyStore(id, name, Date(), latitude, longitude, isArchived = false)
+      points: List<Point>
+    ): NearbyZone {
+      return JsonMappableNearbyZone(id, name, points, Date(), isArchived = false)
     }
 
   }

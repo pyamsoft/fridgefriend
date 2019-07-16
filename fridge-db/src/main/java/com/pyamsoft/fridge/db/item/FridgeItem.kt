@@ -25,6 +25,9 @@ import java.util.Date
 interface FridgeItem : BaseModel<FridgeItem> {
 
   @CheckResult
+  fun id(): String
+
+  @CheckResult
   fun entryId(): String
 
   @CheckResult
