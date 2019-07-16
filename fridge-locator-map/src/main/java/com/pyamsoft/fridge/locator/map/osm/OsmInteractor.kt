@@ -62,7 +62,7 @@ internal class OsmInteractor @Inject internal constructor(
     }
     val markers = remainingNodes.map { OsmGeoPoint.create(it) }
 
-    return@coroutineScope OsmMarkers(polygons, markers)
+    return@coroutineScope OsmMarkers(markers, polygons)
   }
 
   companion object {

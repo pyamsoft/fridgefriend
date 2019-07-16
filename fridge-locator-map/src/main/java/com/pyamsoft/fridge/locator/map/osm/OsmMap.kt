@@ -137,19 +137,22 @@ class OsmMap @Inject internal constructor(
     savedState: UiSavedState
   ) {
     removeMarkerOverlay()
-    state.markers.let { markers ->
-      var invalidate = false
-      if (renderMapMarkers(markers.markers)) {
+
+    var invalidate = false
+    state.points.let { points ->
+      if (renderMapMarkers(points)) {
         invalidate = true
       }
+    }
 
-      if (renderMapPolygons(markers.polygons)) {
+    state.zones.let { zones ->
+      if (renderMapPolygons(zones)) {
         invalidate = true
       }
+    }
 
-      if (invalidate) {
-        map.invalidate()
-      }
+    if (invalidate) {
+      map.invalidate()
     }
   }
 
@@ -238,22 +241,6 @@ class OsmMap @Inject internal constructor(
         MapView.getTileSystem()
     ).boundingBox
     return BBox(bbox.latSouth, bbox.lonWest, bbox.latNorth, bbox.lonEast)
-
-    // Overpass query to find all supermarkets in the bounding box
-    /*
-    [out:json][timeout:25];(node["shop"="supermarket"]({{bbox}});way["shop"="supermarket"]({{bbox}});relation["shop"="supermarket"]({{bbox}}););out body;>;out body qt;
-     */
-
-    // We get an elements []
-    //   If type node
-    //     We get an id, lat, lon, timestamp, tags.name
-    //      We can build a GeoPoint using lat lng
-    //
-    //   If type way
-    //     We get an id, timestamp, tags.name, nodes (a list of ids)
-    //        We search the response body for a node which matches an id in the nodes list
-    //        the node which matches id will have a lat lng
-    //      We can build a boundingbox using the list of lat lng
   }
 
   @Suppress("unused")
@@ -310,6 +297,6 @@ class OsmMap @Inject internal constructor(
 
   companion object {
 
-    private const val DEFAULT_ZOOM = 14.5
+    private const val DEFAULT_ZOOM = 14.8
   }
 }

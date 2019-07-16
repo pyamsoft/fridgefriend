@@ -24,7 +24,8 @@ import com.pyamsoft.pydroid.arch.UiViewState
 
 data class OsmViewState internal constructor(
   val loading: Boolean,
-  val markers: OsmMarkers,
+  val points: List<OsmGeoPoint>,
+  val zones: List<OsmPolygon>,
   val throwable: Throwable?
 ) : UiViewState
 

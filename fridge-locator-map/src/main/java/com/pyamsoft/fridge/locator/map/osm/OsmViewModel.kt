@@ -31,7 +31,9 @@ import javax.inject.Inject
 class OsmViewModel @Inject internal constructor(
   private val interactor: OsmInteractor
 ) : UiViewModel<OsmViewState, OsmViewEvent, OsmControllerEvent>(
-    initialState = OsmViewState(loading = false, markers = OsmMarkers.empty(), throwable = null)
+    initialState = OsmViewState(
+        loading = false, points = emptyList(), zones = emptyList(), throwable = null
+    )
 ) {
 
   private val nearbyRunner = highlander<Unit, BBox> { box ->
@@ -39,7 +41,7 @@ class OsmViewModel @Inject internal constructor(
     try {
       val markers =
         withContext(context = Dispatchers.Default) { interactor.nearbyLocations(box) }
-      setState { copy(markers = markers) }
+      updateMarkers(markers)
     } catch (e: Throwable) {
       if (e !is CancellationException) {
         Timber.e(e, "Error getting nearby supermarkets")
@@ -48,6 +50,32 @@ class OsmViewModel @Inject internal constructor(
     } finally {
       setState { copy(loading = false) }
     }
+  }
+
+  private fun updateMarkers(markers: OsmMarkers) {
+    setState {
+      copy(
+          points = merge(points, markers.points) { it.id },
+          zones = merge(zones, markers.zones) { it.id }
+      )
+    }
+  }
+
+  private inline fun <T : Any> merge(
+    oldList: List<T>,
+    newList: List<T>,
+    id: (item: T) -> Long
+  ): List<T> {
+    val result = ArrayList(newList)
+    for (oldItem in oldList) {
+      val oldId = id(oldItem)
+      // If the new list doesn't have the old id, add the old id
+      // Otherwise, the new item is newer.
+      if (result.find { id(it) == oldId } == null) {
+        result.add(oldItem)
+      }
+    }
+    return result
   }
 
   override fun onInit() {

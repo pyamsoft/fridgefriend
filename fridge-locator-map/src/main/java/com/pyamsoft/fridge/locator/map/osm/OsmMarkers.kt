@@ -85,15 +85,6 @@ data class OsmPolygon internal constructor(
 }
 
 data class OsmMarkers internal constructor(
-  val polygons: List<OsmPolygon>,
-  val markers: List<OsmGeoPoint>
-) {
-  companion object {
-
-    @JvmStatic
-    @CheckResult
-    internal fun empty(): OsmMarkers {
-      return OsmMarkers(emptyList(), emptyList())
-    }
-  }
-}
+  val points: List<OsmGeoPoint>,
+  val zones: List<OsmPolygon>
+)
