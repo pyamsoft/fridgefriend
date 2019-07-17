@@ -43,7 +43,6 @@ import com.pyamsoft.fridge.detail.item.DetailItemViewModel
 import com.pyamsoft.fridge.detail.item.isNameValid
 import com.pyamsoft.highlander.highlander
 import com.pyamsoft.pydroid.arch.EventBus
-import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -71,8 +70,8 @@ class ExpandItemViewModel @Inject internal constructor(
 
     try {
       withContext(context = Dispatchers.Default) { interactor.commit(item.makeReal()) }
-    } catch (e: Throwable) {
-      if (e !is CancellationException) {
+    } catch (error: Throwable) {
+      error.onActualError { e ->
         Timber.e(e, "Error updating item: ${item.id()}")
         handleError(e)
       }

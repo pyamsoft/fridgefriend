@@ -26,8 +26,7 @@ import com.pyamsoft.pydroid.arch.UiViewState
 data class OsmViewState internal constructor(
   val loading: Boolean,
   val points: List<NearbyStore>,
-  val zones: List<NearbyZone>,
-  val throwable: Throwable?
+  val zones: List<NearbyZone>
 ) : UiViewState
 
 sealed class OsmViewEvent : UiViewEvent {
@@ -36,4 +35,8 @@ sealed class OsmViewEvent : UiViewEvent {
 
 }
 
-sealed class OsmControllerEvent : UiControllerEvent
+sealed class OsmControllerEvent : UiControllerEvent {
+
+  data class NearbyLocationError internal constructor(val throwable: Throwable) : OsmControllerEvent()
+
+}

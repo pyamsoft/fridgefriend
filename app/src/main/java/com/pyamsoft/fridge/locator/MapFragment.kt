@@ -27,6 +27,7 @@ import androidx.constraintlayout.widget.ConstraintSet
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.pyamsoft.fridge.FridgeComponent
+import com.pyamsoft.fridge.locator.map.osm.OsmControllerEvent.NearbyLocationError
 import com.pyamsoft.fridge.locator.map.osm.OsmMap
 import com.pyamsoft.fridge.locator.map.osm.OsmViewModel
 import com.pyamsoft.pydroid.arch.createComponent
@@ -68,7 +69,9 @@ internal class MapFragment : Fragment() {
         viewModel,
         map
     ) {
-      // TODO
+      return@createComponent when (it) {
+        is NearbyLocationError -> map.showError(it.throwable)
+      }
     }
 
     parent.layout {

@@ -24,12 +24,11 @@ import com.pyamsoft.pydroid.arch.UiViewState
 
 data class DetailViewState(
   val isLoading: Loading?,
-  val throwable: Throwable?,
   val items: List<FridgeItem>,
   val filterArchived: Boolean
 ) : UiViewState {
 
-  data class Loading(val isLoading: Boolean)
+  data class Loading internal constructor(val isLoading: Boolean)
 
 }
 
@@ -72,5 +71,11 @@ sealed class DetailControllerEvent : UiControllerEvent {
   object EntryArchived : DetailControllerEvent()
 
   object NavigateUp : DetailControllerEvent()
+
+  data class ArchiveError internal constructor(val throwable: Throwable) : DetailControllerEvent()
+
+  data class NameUpdateError internal constructor(val throwable: Throwable) : DetailControllerEvent()
+
+  data class ListRefreshError internal constructor(val throwable: Throwable) : DetailControllerEvent()
 
 }

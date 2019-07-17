@@ -23,7 +23,6 @@ import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent
 import com.pyamsoft.highlander.highlander
 import com.pyamsoft.pydroid.arch.EventBus
 import com.pyamsoft.pydroid.arch.UiViewModel
-import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -35,9 +34,7 @@ abstract class DetailItemViewModel protected constructor(
   item: FridgeItem,
   protected val fakeRealtime: EventBus<FridgeItemChangeEvent>
 ) : UiViewModel<DetailItemViewState, DetailItemViewEvent, DetailItemControllerEvent>(
-    initialState = DetailItemViewState(
-        throwable = null, item = item, isEditable = isEditable
-    )
+    initialState = DetailItemViewState(throwable = null, item = item, isEditable = isEditable)
 ) {
 
   private val deleteRunner = highlander<
@@ -46,8 +43,8 @@ abstract class DetailItemViewModel protected constructor(
       (item: FridgeItem) -> Unit> { doRemove, onRemoved ->
     try {
       withContext(context = Dispatchers.Default) { doRemove(item) }
-    } catch (e: Throwable) {
-      if (e !is CancellationException) {
+    } catch (error: Throwable) {
+      error.onActualError { e ->
         Timber.e(e, "Error removing item: ${item.id()}")
       }
     } finally {

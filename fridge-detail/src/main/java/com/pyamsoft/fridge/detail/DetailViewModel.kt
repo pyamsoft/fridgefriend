@@ -25,9 +25,12 @@ import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent.Delete
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent.Insert
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent.Update
+import com.pyamsoft.fridge.detail.DetailControllerEvent.ArchiveError
 import com.pyamsoft.fridge.detail.DetailControllerEvent.DatePick
 import com.pyamsoft.fridge.detail.DetailControllerEvent.EntryArchived
 import com.pyamsoft.fridge.detail.DetailControllerEvent.ExpandForEditing
+import com.pyamsoft.fridge.detail.DetailControllerEvent.ListRefreshError
+import com.pyamsoft.fridge.detail.DetailControllerEvent.NameUpdateError
 import com.pyamsoft.fridge.detail.DetailControllerEvent.NavigateUp
 import com.pyamsoft.fridge.detail.DetailViewEvent.ArchiveEntry
 import com.pyamsoft.fridge.detail.DetailViewEvent.CloseEntry
@@ -40,7 +43,6 @@ import com.pyamsoft.fridge.detail.DetailViewState.Loading
 import com.pyamsoft.highlander.highlander
 import com.pyamsoft.pydroid.arch.EventBus
 import com.pyamsoft.pydroid.arch.UiViewModel
-import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope
@@ -57,7 +59,6 @@ class DetailViewModel @Inject internal constructor(
 ) : UiViewModel<DetailViewState, DetailViewEvent, DetailControllerEvent>(
     initialState = DetailViewState(
         isLoading = null,
-        throwable = null,
         items = emptyList(),
         filterArchived = true
     )
@@ -68,8 +69,8 @@ class DetailViewModel @Inject internal constructor(
   private val nameRunner = highlander<Unit, String> { name ->
     try {
       interactor.saveName(name.trim())
-    } catch (e: Throwable) {
-      if (e !is CancellationException) {
+    } catch (error: Throwable) {
+      error.onActualError { e ->
         Timber.e(e, "Error updating entry name")
         handleNameUpdateError(e)
       }
@@ -85,8 +86,8 @@ class DetailViewModel @Inject internal constructor(
       }
       handleListRefreshed(items)
       beginListeningForChanges()
-    } catch (e: Throwable) {
-      if (e !is CancellationException) {
+    } catch (error: Throwable) {
+      error.onActualError { e ->
         Timber.e(e, "Error refreshing item list")
         handleListRefreshError(e)
       }
@@ -111,10 +112,10 @@ class DetailViewModel @Inject internal constructor(
   private val archiveRunner = highlander<Unit> {
     try {
       interactor.archiveEntry()
-    } catch (e: Throwable) {
-      if (e !is CancellationException) {
-        Timber.e(e, "Error observing delete stream")
-        setState { copy(throwable = e) }
+    } catch (error: Throwable) {
+      error.onActualError { e ->
+        Timber.e(e, "Error archiving")
+        publish(ArchiveError(e))
       }
     }
   }
@@ -146,7 +147,7 @@ class DetailViewModel @Inject internal constructor(
   }
 
   private fun handleNameUpdateError(throwable: Throwable) {
-    setState { copy(throwable = throwable) }
+    publish(NameUpdateError(throwable))
   }
 
   @CheckResult
@@ -270,9 +271,7 @@ class DetailViewModel @Inject internal constructor(
   }
 
   private fun handleListRefreshError(throwable: Throwable) {
-    setState {
-      copy(items = emptyList(), throwable = throwable)
-    }
+    publish(ListRefreshError(throwable))
   }
 
   private fun handleListRefreshComplete() {

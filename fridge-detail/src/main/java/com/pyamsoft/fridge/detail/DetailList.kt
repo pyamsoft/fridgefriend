@@ -231,9 +231,9 @@ class DetailList @Inject internal constructor(
     usingAdapter().submitList(null)
   }
 
-  private fun showError(throwable: Throwable) {
+  fun showError(throwable: Throwable) {
     Snackbreak.bindTo(owner)
-        .short(layoutRoot, throwable.message ?: "Error refreshing list, please try again")
+        .short(layoutRoot, throwable.message ?: "An unexpected error has occurred.")
   }
 
   private fun clearError() {
@@ -256,14 +256,6 @@ class DetailList @Inject internal constructor(
         clearList()
       } else {
         setList(items)
-      }
-    }
-
-    state.throwable.let { throwable ->
-      if (throwable == null) {
-        clearError()
-      } else {
-        showError(throwable)
       }
     }
   }

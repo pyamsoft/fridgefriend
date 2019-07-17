@@ -42,6 +42,7 @@ import com.pyamsoft.pydroid.arch.UiSavedState
 import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.loader.Loaded
 import com.pyamsoft.pydroid.ui.theme.Theming
+import com.pyamsoft.pydroid.ui.util.Snackbreak
 import com.pyamsoft.pydroid.ui.util.popShow
 import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
 import org.osmdroid.config.Configuration
@@ -127,6 +128,7 @@ class OsmMap @Inject internal constructor(
 
   override fun onTeardown() {
     owner.lifecycle.removeObserver(this)
+    clearError()
     fab.setOnDebouncedClickListener(null)
     removeMarkerOverlay()
     map.onDetach()
@@ -295,6 +297,16 @@ class OsmMap @Inject internal constructor(
 
     mapView.overlays.add(compassOverlay)
     mapView.overlays.add(locationOverlay)
+  }
+
+  fun showError(throwable: Throwable) {
+    Snackbreak.bindTo(owner)
+        .short(layoutRoot, throwable.message ?: "An unexpected error occurred.")
+  }
+
+  private fun clearError() {
+    Snackbreak.bindTo(owner)
+        .dismiss()
   }
 
   companion object {
