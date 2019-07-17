@@ -61,10 +61,10 @@ internal abstract class BaseWorker protected constructor(
       performWork()
       return success()
     } catch (e: Throwable) {
-      if (e !is CancellationException) {
-        return fail(e)
-      } else {
+      if (e is CancellationException) {
         return cancelled(e)
+      } else {
+        return fail(e)
       }
     } finally {
       teardown()
