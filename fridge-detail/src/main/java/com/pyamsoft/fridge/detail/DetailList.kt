@@ -218,10 +218,6 @@ class DetailList @Inject internal constructor(
     withViewHolderAt(position) { it.spoil() }
   }
 
-  private fun deleteListItem(position: Int) {
-    withViewHolderAt(position) { it.delete() }
-  }
-
   private inline fun withViewHolderAt(
     position: Int,
     crossinline func: (holder: DetailItemViewHolder) -> Unit

@@ -213,11 +213,6 @@ internal class DetailListAdapter constructor(
       requireNotNull(viewModel).spoil()
     }
 
-    // Kind of hacky
-    fun delete() {
-      requireNotNull(viewModel).delete()
-    }
-
   }
 
   interface Callback {
