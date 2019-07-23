@@ -105,7 +105,7 @@ internal class PermissionFragment : Fragment() {
   ) {
     super.onRequestPermissionsResult(requestCode, permissions, grantResults)
     if (requestCode == LOCATION_PERMISSION_REQUEST_RC) {
-      if (requireNotNull(locator).hasPermission()) {
+      if (requireNotNull(locator).hasForegroundPermission()) {
         pushMapFragmentOncePermissionGranted()
       }
     }

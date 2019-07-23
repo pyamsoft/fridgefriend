@@ -41,7 +41,6 @@ internal class WorkManagerButler @Inject internal constructor() : Butler {
   @CheckResult
   private fun generateConstraints(): Constraints {
     return Constraints.Builder()
-        .setRequiresDeviceIdle(false)
         .setRequiresBatteryNotLow(true)
         .setRequiresCharging(false)
         .build()

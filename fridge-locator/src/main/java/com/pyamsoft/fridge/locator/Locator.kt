@@ -22,7 +22,10 @@ import androidx.annotation.CheckResult
 interface Locator {
 
   @CheckResult
-  fun hasPermission(): Boolean
+  fun hasBackgroundPermission(): Boolean
+
+  @CheckResult
+  fun hasForegroundPermission(): Boolean
 
   fun listenForUpdates()
 

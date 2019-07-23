@@ -22,19 +22,21 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.os.Build.VERSION
+import android.os.Build.VERSION_CODES
 import androidx.core.content.ContextCompat
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationServices
 import com.pyamsoft.fridge.locator.LastKnownLocation
 import com.pyamsoft.fridge.locator.Locator
 import com.pyamsoft.fridge.locator.LocatorBroadcastReceiver
-import com.pyamsoft.fridge.locator.MissingLocationPermissionException
-import com.pyamsoft.fridge.locator.map.R.string
+import com.pyamsoft.fridge.locator.map.R
 import com.pyamsoft.pydroid.core.Enforcer
 import timber.log.Timber
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlin.coroutines.Continuation
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
@@ -51,26 +53,68 @@ internal class GmsLocator @Inject internal constructor(
   private val locationProvider = LocationServices.getFusedLocationProviderClient(context)
   @Volatile private var updatePendingIntent: PendingIntent? = null
 
-  override fun hasPermission(): Boolean {
-    return ContextCompat.checkSelfPermission(
-        context, android.Manifest.permission.ACCESS_FINE_LOCATION
-    ) == PackageManager.PERMISSION_GRANTED
+  override fun hasForegroundPermission(): Boolean {
+    val permission = android.Manifest.permission.ACCESS_FINE_LOCATION
+    val permissionCheck = ContextCompat.checkSelfPermission(context, permission)
+    return permissionCheck == PackageManager.PERMISSION_GRANTED
+  }
+
+  override fun hasBackgroundPermission(): Boolean {
+    if (VERSION.SDK_INT >= VERSION_CODES.Q) {
+      val permission = android.Manifest.permission.ACCESS_BACKGROUND_LOCATION
+      val permissionCheck = ContextCompat.checkSelfPermission(context, permission)
+      return permissionCheck == PackageManager.PERMISSION_GRANTED
+    } else {
+      return true
+    }
   }
 
   override fun listenForUpdates() {
-    if (!hasPermission()) {
-      Timber.w("Missing permission, return empty listener")
+    if (!hasForegroundPermission()) {
+      val permission = android.Manifest.permission.ACCESS_FINE_LOCATION
+      Timber.w("Missing $permission permission, return empty listener")
+      return
+    }
+
+    if (!hasBackgroundPermission()) {
+      if (VERSION.SDK_INT >= VERSION_CODES.Q) {
+        val permission = android.Manifest.permission.ACCESS_BACKGROUND_LOCATION
+        Timber.w("Missing $permission permission, return empty listener")
+      }
       return
     }
 
     requestLocationUpdates()
   }
 
-  @SuppressLint("MissingPermission")
   private fun requestLocationUpdates() {
-    val action = context.getString(
-        string.locator_broadcast_receiver_action
-    )
+
+    synchronized(lock) {
+      removeLocationUpdates()
+
+      if (!hasForegroundPermission()) {
+        val permission = android.Manifest.permission.ACCESS_FINE_LOCATION
+        Timber.w("Missing $permission permission, cannot request updates")
+        return
+      }
+
+      if (!hasBackgroundPermission()) {
+        if (VERSION.SDK_INT >= VERSION_CODES.Q) {
+          val permission = android.Manifest.permission.ACCESS_BACKGROUND_LOCATION
+          Timber.w("Missing $permission permission, cannot request updates")
+        }
+        return
+      }
+
+      startLocationUpdates()
+    }
+  }
+
+  @SuppressLint("MissingPermission")
+  private fun startLocationUpdates() {
+    Timber.d("Start listening for location updates")
+
+    val action = context.getString(R.string.locator_broadcast_receiver_action)
     val pendingIntent =
       PendingIntent.getBroadcast(
           context, REQUEST_CODE,
@@ -84,13 +128,8 @@ internal class GmsLocator @Inject internal constructor(
         .setMaxWaitTime(INTERVAL * 3)
         .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
 
-    synchronized(lock) {
-      removeLocationUpdates()
-
-      Timber.d("Start listening for location updates")
-      locationProvider.requestLocationUpdates(request, pendingIntent)
-      updatePendingIntent = pendingIntent
-    }
+    locationProvider.requestLocationUpdates(request, pendingIntent)
+    updatePendingIntent = pendingIntent
   }
 
   private fun removeLocationUpdates() {
@@ -102,40 +141,54 @@ internal class GmsLocator @Inject internal constructor(
   }
 
   override fun stopListeningForUpdates() {
-    Timber.d("Stop listening for location updates")
     synchronized(lock) {
       removeLocationUpdates()
     }
   }
 
   override suspend fun getLastKnownLocation(): LastKnownLocation {
-    enforcer.assertNotOnMainThread()
-
-    if (!hasPermission()) {
-      throw MissingLocationPermissionException
-    } else {
-      return emitLastKnownLocation()
-    }
+    return listenForLastKnownLocation()
   }
 
-  @SuppressLint("MissingPermission")
-  private suspend fun emitLastKnownLocation() =
-    suspendCoroutine<LastKnownLocation> { continuation ->
-      locationProvider.lastLocation.addOnSuccessListener { location ->
-        // Android runs this callback OMT
-        if (location == null) {
-          Timber.w("Last known location is unknown")
-        } else {
-          Timber.d("Last known location is $location")
-        }
-        continuation.resume(LastKnownLocation(location))
+  private suspend fun listenForLastKnownLocation(): LastKnownLocation =
+    suspendCoroutine { continuation ->
+      enforcer.assertNotOnMainThread()
+      if (!hasForegroundPermission()) {
+        val permission = android.Manifest.permission.ACCESS_FINE_LOCATION
+        Timber.w("Missing $permission permission for last known location")
+        continuation.resume(LastKnownLocation(null))
+        return@suspendCoroutine
       }
-          .addOnFailureListener {
-            // Android runs this callback OMT
-            Timber.e(it, "Failed to get last known location")
-            continuation.resumeWithException(it)
-          }
+
+      if (!hasBackgroundPermission()) {
+        if (VERSION.SDK_INT >= VERSION_CODES.Q) {
+          val permission = android.Manifest.permission.ACCESS_BACKGROUND_LOCATION
+          Timber.w("Missing $permission permission for last known location")
+        }
+        continuation.resume(LastKnownLocation(null))
+        return@suspendCoroutine
+      }
+
+      emitLastKnownLocation(continuation)
     }
+
+  @SuppressLint("MissingPermission")
+  private fun emitLastKnownLocation(continuation: Continuation<LastKnownLocation>) {
+    locationProvider.lastLocation.addOnSuccessListener { location ->
+      // Android runs this callback OMT
+      if (location == null) {
+        Timber.w("Last known location is unknown")
+      } else {
+        Timber.d("Last known location is $location")
+      }
+      continuation.resume(LastKnownLocation(location))
+    }
+        .addOnFailureListener {
+          // Android runs this callback OMT
+          Timber.e(it, "Failed to get last known location")
+          continuation.resumeWithException(it)
+        }
+  }
 
   companion object {
 

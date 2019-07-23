@@ -159,7 +159,7 @@ internal class EntryFragment : Fragment() {
   private fun pushNearby() {
     childFragmentManager.commitNow(viewLifecycleOwner) {
       val container = requireNotNull(frame).id()
-      if (requireNotNull(locator).hasPermission()) {
+      if (requireNotNull(locator).hasForegroundPermission()) {
         replace(container, MapFragment.newInstance(), MapFragment.TAG)
       } else {
         replace(container, PermissionFragment.newInstance(container), PermissionFragment.TAG)

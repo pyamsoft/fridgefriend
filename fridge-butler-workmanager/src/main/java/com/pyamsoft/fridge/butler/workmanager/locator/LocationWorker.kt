@@ -42,6 +42,17 @@ internal class LocationWorker internal constructor(
   }
 
   override fun reschedule(butler: Butler) {
+    val loc = requireNotNull(locator)
+    if (!loc.hasForegroundPermission()) {
+      Timber.w("Missing foreground permission, cannot reschedule.")
+      return
+    }
+
+    if (!loc.hasBackgroundPermission()) {
+      Timber.w("Missing background permission, cannot reschedule.")
+      return
+    }
+
     butler.remindLocation(1L, HOURS)
   }
 
