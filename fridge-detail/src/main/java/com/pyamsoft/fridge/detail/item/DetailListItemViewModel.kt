@@ -74,14 +74,17 @@ class DetailListItemViewModel @Inject internal constructor(
     oldItem: FridgeItem,
     presence: Presence
   ) {
-    if (oldItem.isReal()) {
-      commitItem(item = oldItem.presence(presence))
-    }
+    commitItem(item = oldItem.presence(presence))
   }
 
   private fun commitItem(item: FridgeItem) {
-    // A delete operation will stop an update operation
-    viewModelScope.launch { updateRunner.call(item) }
+    viewModelScope.launch {
+      if (item.isReal()) {
+        updateRunner.call(item)
+      } else {
+        Timber.w("Cannot commit change for not-real item: $item")
+      }
+    }
   }
 
   fun consume() {

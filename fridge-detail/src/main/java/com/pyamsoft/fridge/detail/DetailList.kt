@@ -139,17 +139,11 @@ class DetailList @Inject internal constructor(
         return@ItemSwipeCallback
       }
 
-      if (holder.isReal()) {
-        if (direction == consumeSwipeDirection || direction == spoilSwipeDirection) {
-          deleteListItem(position)
-        }
-      } else {
-        if (direction == consumeSwipeDirection || direction == spoilSwipeDirection) {
-          if (direction == consumeSwipeDirection) {
-            consumeListItem(position)
-          } else {
-            spoilListItem(position)
-          }
+      if (direction == consumeSwipeDirection || direction == spoilSwipeDirection) {
+        if (direction == consumeSwipeDirection) {
+          consumeListItem(position)
+        } else {
+          spoilListItem(position)
         }
       }
     }

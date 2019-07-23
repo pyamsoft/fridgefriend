@@ -99,6 +99,8 @@ class ExpandedToolbar @Inject internal constructor(
       })
 
       requireNotNull(deleteMenuItem).isVisible = item.isReal()
+      requireNotNull(consumeMenuItem).isVisible = item.isReal()
+      requireNotNull(spoilMenuItem).isVisible = item.isReal()
 
       layoutRoot.setOnMenuItemClickListener { menuItem ->
         return@setOnMenuItemClickListener when (menuItem.itemId) {

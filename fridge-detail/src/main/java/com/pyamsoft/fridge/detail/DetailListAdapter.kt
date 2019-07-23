@@ -20,7 +20,6 @@ package com.pyamsoft.fridge.detail
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.annotation.CheckResult
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.recyclerview.widget.DiffUtil
@@ -121,17 +120,6 @@ internal class DetailListAdapter constructor(
 
     private var lifecycle: ListItemLifecycle? = null
     private var boundItem: FridgeItem? = null
-
-    @CheckResult
-    internal fun isReal(): Boolean {
-      return boundItem.let { item ->
-        if (item == null) {
-          return@let false
-        } else {
-          return@let !item.isReal()
-        }
-      }
-    }
 
     fun bind(
       item: FridgeItem,

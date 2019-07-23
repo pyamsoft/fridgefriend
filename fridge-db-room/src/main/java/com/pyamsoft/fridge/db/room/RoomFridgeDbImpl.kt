@@ -53,7 +53,6 @@ import com.pyamsoft.fridge.db.room.entity.RoomFridgeEntry
 import com.pyamsoft.fridge.db.room.entity.RoomFridgeItem
 import com.pyamsoft.pydroid.arch.EventBus
 import com.pyamsoft.pydroid.arch.EventConsumer
-import timber.log.Timber
 
 @Database(entities = [RoomFridgeItem::class, RoomFridgeEntry::class], version = 1)
 @TypeConverters(PresenceTypeConverter::class, DateTypeConverter::class)
