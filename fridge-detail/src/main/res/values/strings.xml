@@ -25,4 +25,6 @@
   <string name="year_hint">YYYY</string>
   <string name="date_separator">/</string>
   <string name="archive">Archive</string>
+  <string name="spoiled">Spoiled</string>
+  <string name="consumed">Consumed</string>
 </resources>

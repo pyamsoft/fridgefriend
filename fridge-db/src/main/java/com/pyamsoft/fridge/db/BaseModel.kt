@@ -29,12 +29,6 @@ interface BaseModel<T : Any> {
   fun createdTime(): Date
 
   @CheckResult
-  fun isArchived(): Boolean
-
-  @CheckResult
   fun name(name: String): T
-
-  @CheckResult
-  fun archive(): T
 
 }

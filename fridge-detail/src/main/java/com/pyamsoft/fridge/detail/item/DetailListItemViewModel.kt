@@ -23,13 +23,14 @@ import com.pyamsoft.fridge.db.item.FridgeItem.Presence
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent
 import com.pyamsoft.fridge.detail.DetailInteractor
 import com.pyamsoft.fridge.detail.item.DetailItemControllerEvent.ExpandDetails
-import com.pyamsoft.fridge.detail.item.DetailItemViewEvent.ArchiveItem
 import com.pyamsoft.fridge.detail.item.DetailItemViewEvent.CloseItem
 import com.pyamsoft.fridge.detail.item.DetailItemViewEvent.CommitName
 import com.pyamsoft.fridge.detail.item.DetailItemViewEvent.CommitPresence
+import com.pyamsoft.fridge.detail.item.DetailItemViewEvent.ConsumeItem
 import com.pyamsoft.fridge.detail.item.DetailItemViewEvent.DeleteItem
 import com.pyamsoft.fridge.detail.item.DetailItemViewEvent.ExpandItem
 import com.pyamsoft.fridge.detail.item.DetailItemViewEvent.PickDate
+import com.pyamsoft.fridge.detail.item.DetailItemViewEvent.SpoilItem
 import com.pyamsoft.highlander.highlander
 import com.pyamsoft.pydroid.arch.EventBus
 import kotlinx.coroutines.Dispatchers
@@ -63,7 +64,7 @@ class DetailListItemViewModel @Inject internal constructor(
     return when (event) {
       is CommitPresence -> commitPresence(event.oldItem, event.presence)
       is ExpandItem -> expandItem(event.item)
-      is CommitName, is PickDate, is CloseItem, is DeleteItem, is ArchiveItem -> {
+      is CommitName, is PickDate, is CloseItem, is DeleteItem, is ConsumeItem, is SpoilItem -> {
         Timber.d("Ignore event: $event")
       }
     }
@@ -83,8 +84,12 @@ class DetailListItemViewModel @Inject internal constructor(
     viewModelScope.launch { updateRunner.call(item) }
   }
 
-  fun archive() {
-    remove(item, doRemove = { interactor.archive(it) })
+  fun consume() {
+    remove(item, doRemove = { interactor.consume(it) })
+  }
+
+  fun spoil() {
+    remove(item, doRemove = { interactor.spoil(it) })
   }
 
   fun delete() {

@@ -72,8 +72,7 @@ internal class RoomPersistentEntries @Inject internal constructor(
       val createdTime = Calendar.getInstance()
           .time
       Timber.d("Create entry: $entryId at $createdTime")
-      val newEntry =
-        FridgeEntry.create(entryId, name, createdTime, isReal = true, isArchived = false)
+      val newEntry = FridgeEntry.create(entryId, name, createdTime, isReal = true)
       insertDao.insert(newEntry)
       sharedPreferences.edit { putString(key, entryId) }
       return newEntry

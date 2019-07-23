@@ -123,12 +123,12 @@ internal class DetailListAdapter constructor(
     private var boundItem: FridgeItem? = null
 
     @CheckResult
-    internal fun canArchive(): Boolean {
+    internal fun isReal(): Boolean {
       return boundItem.let { item ->
         if (item == null) {
           return@let false
         } else {
-          return@let !item.isArchived()
+          return@let !item.isReal()
         }
       }
     }
@@ -216,8 +216,13 @@ internal class DetailListAdapter constructor(
     }
 
     // Kind of hacky
-    fun archive() {
-      requireNotNull(viewModel).archive()
+    fun consume() {
+      requireNotNull(viewModel).consume()
+    }
+
+    // Kind of hacky
+    fun spoil() {
+      requireNotNull(viewModel).spoil()
     }
 
     // Kind of hacky

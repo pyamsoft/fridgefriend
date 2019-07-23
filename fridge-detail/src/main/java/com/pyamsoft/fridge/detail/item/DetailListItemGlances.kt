@@ -25,6 +25,7 @@ import com.pyamsoft.fridge.db.isExpired
 import com.pyamsoft.fridge.db.isExpiringSoon
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence.HAVE
+import com.pyamsoft.fridge.db.item.isArchived
 import com.pyamsoft.fridge.detail.R
 import com.pyamsoft.fridge.detail.item.DetailItemViewEvent.ExpandItem
 import com.pyamsoft.pydroid.arch.BaseUiView

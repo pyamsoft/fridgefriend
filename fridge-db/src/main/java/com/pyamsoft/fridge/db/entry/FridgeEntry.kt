@@ -36,23 +36,11 @@ interface FridgeEntry : BaseModel<FridgeEntry> {
   companion object {
 
     const val EMPTY_NAME = ""
-    private val EMPTY_CREATED_TIME = Date(0)
-
-    @CheckResult
-    fun empty(): FridgeEntry {
-      return JsonMappableFridgeEntry(
-          "",
-          EMPTY_NAME,
-          EMPTY_CREATED_TIME,
-          isReal = false,
-          isArchived = false
-      )
-    }
 
     @CheckResult
     @JvmOverloads
     fun create(id: String = IdGenerator.generate()): FridgeEntry {
-      return create(id, EMPTY_NAME, Date(), isReal = false, isArchived = false)
+      return create(id, EMPTY_NAME, Date(), isReal = false)
     }
 
     @CheckResult
@@ -61,10 +49,9 @@ interface FridgeEntry : BaseModel<FridgeEntry> {
       id: String = IdGenerator.generate(),
       name: String,
       createdTime: Date,
-      isReal: Boolean,
-      isArchived: Boolean
+      isReal: Boolean
     ): FridgeEntry {
-      return JsonMappableFridgeEntry(id, name, createdTime, isReal, isArchived)
+      return JsonMappableFridgeEntry(id, name, createdTime, isReal)
     }
 
     @CheckResult
@@ -72,10 +59,9 @@ interface FridgeEntry : BaseModel<FridgeEntry> {
       entry: FridgeEntry,
       name: String = entry.name(),
       createdTime: Date = entry.createdTime(),
-      isReal: Boolean,
-      isArchived: Boolean
+      isReal: Boolean
     ): FridgeEntry {
-      return JsonMappableFridgeEntry(entry.id(), name, createdTime, isReal, isArchived)
+      return JsonMappableFridgeEntry(entry.id(), name, createdTime, isReal)
     }
 
   }

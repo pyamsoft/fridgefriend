@@ -42,27 +42,13 @@ interface NearbyZone : BaseModel<NearbyZone> {
 
   companion object {
 
-    const val EMPTY_NAME = ""
-    private val EMPTY_CREATED_TIME = Date(0)
-
-    @CheckResult
-    fun empty(): NearbyZone {
-      return JsonMappableNearbyZone(
-          0,
-          EMPTY_NAME,
-          emptyList(),
-          EMPTY_CREATED_TIME,
-          isArchived = false
-      )
-    }
-
     @CheckResult
     fun create(
       id: Long,
       name: String,
       points: List<Point>
     ): NearbyZone {
-      return JsonMappableNearbyZone(id, name, points, Date(), isArchived = false)
+      return JsonMappableNearbyZone(id, name, points, Date())
     }
 
   }

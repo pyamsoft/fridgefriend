@@ -19,6 +19,7 @@ package com.pyamsoft.fridge.detail.item
 
 import android.view.ViewGroup
 import android.widget.TextView
+import com.pyamsoft.fridge.db.item.isArchived
 import com.pyamsoft.fridge.detail.R
 import com.pyamsoft.fridge.detail.item.DetailItemViewEvent.ExpandItem
 import com.pyamsoft.fridge.detail.item.DetailItemViewEvent.PickDate

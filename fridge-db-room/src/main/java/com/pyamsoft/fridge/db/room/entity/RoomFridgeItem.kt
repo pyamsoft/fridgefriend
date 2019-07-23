@@ -60,8 +60,11 @@ internal data class RoomFridgeItem internal constructor(
   @field:ColumnInfo(name = COLUMN_PRESENCE)
   val presence: Presence,
 
-  @field:ColumnInfo(name = COLUMN_ARCHIVED)
-  val archived: Boolean
+  @field:ColumnInfo(name = COLUMN_CONSUMED)
+  val consumedTime: Date?,
+
+  @field:ColumnInfo(name = COLUMN_SPOILED)
+  val spoiledTime: Date?
 ) : FridgeItem {
 
   @Ignore
@@ -110,79 +113,71 @@ internal data class RoomFridgeItem internal constructor(
   }
 
   @Ignore
-  override fun isArchived(): Boolean {
-    return archived
+  override fun consumptionDate(): Date? {
+    return consumedTime
+  }
+
+  @Ignore
+  override fun isConsumed(): Boolean {
+    return consumedTime != null
+  }
+
+  @Ignore
+  override fun spoiledDate(): Date? {
+    return spoiledTime
+  }
+
+  override fun isSpoiled(): Boolean {
+    return spoiledTime != null
   }
 
   @Ignore
   override fun name(name: String): FridgeItem {
-    return FridgeItem.create(this, name = name, isReal = isReal(), isArchived = isArchived())
+    return FridgeItem.create(this, name = name, isReal = isReal())
   }
 
   @Ignore
   override fun count(count: Int): FridgeItem {
-    return FridgeItem.create(this, count = count, isReal = isReal(), isArchived = isArchived())
+    return FridgeItem.create(this, count = count, isReal = isReal())
   }
 
   @Ignore
   override fun expireTime(expireTime: Date): FridgeItem {
-    return FridgeItem.create(
-        this,
-        expireTime = expireTime,
-        isReal = isReal(),
-        isArchived = isArchived()
-    )
+    return FridgeItem.create(this, expireTime = expireTime, isReal = isReal())
   }
 
   @Ignore
   override fun invalidateExpiration(): FridgeItem {
-    return FridgeItem.create(
-        this,
-        expireTime = null,
-        isReal = isReal(),
-        isArchived = isArchived()
-    )
+    return FridgeItem.create(this, expireTime = null, isReal = isReal())
   }
-
 
   @Ignore
   override fun purchaseTime(purchaseTime: Date): FridgeItem {
-    return FridgeItem.create(
-        this,
-        purchaseTime = purchaseTime,
-        isReal = isReal(),
-        isArchived = isArchived()
-    )
+    return FridgeItem.create(this, purchaseTime = purchaseTime, isReal = isReal())
   }
 
   @Ignore
   override fun invalidatePurchase(): FridgeItem {
-    return FridgeItem.create(
-        this,
-        purchaseTime = null,
-        isReal = isReal(),
-        isArchived = isArchived()
-    )
+    return FridgeItem.create(this, purchaseTime = null, isReal = isReal())
   }
 
   @Ignore
   override fun presence(presence: Presence): FridgeItem {
-    return FridgeItem.create(
-        this,
-        presence = presence,
-        isReal = isReal(),
-        isArchived = isArchived()
-    )
+    return FridgeItem.create(this, presence = presence, isReal = isReal())
   }
 
   @Ignore
   override fun makeReal(): FridgeItem {
-    return FridgeItem.create(this, isReal = true, isArchived = isArchived())
+    return FridgeItem.create(this, isReal = true)
   }
 
   @Ignore
-  override fun archive(): FridgeItem {
-    return FridgeItem.create(this, isReal = isReal(), isArchived = true)
+  override fun consume(date: Date): FridgeItem {
+    return FridgeItem.create(this, consumptionDate = date, isReal = isReal())
+  }
+
+  override fun spoil(date: Date): FridgeItem {
+    return FridgeItem.create(this, spoiledDate = date, isReal = isReal())
   }
 
   companion object {
@@ -196,7 +191,8 @@ internal data class RoomFridgeItem internal constructor(
     @Ignore internal const val COLUMN_PURCHASE_TIME = "purchase_time"
     @Ignore internal const val COLUMN_EXPIRE_TIME = "expire_time"
     @Ignore internal const val COLUMN_PRESENCE = "presence"
-    @Ignore internal const val COLUMN_ARCHIVED = "archived"
+    @Ignore internal const val COLUMN_CONSUMED = "consumed"
+    @Ignore internal const val COLUMN_SPOILED = "spoiled"
 
     @Ignore
     @JvmStatic
@@ -214,7 +210,8 @@ internal data class RoomFridgeItem internal constructor(
             item.purchaseTime(),
             item.expireTime(),
             item.presence(),
-            item.isArchived()
+            item.consumptionDate(),
+            item.spoiledDate()
         )
       }
     }

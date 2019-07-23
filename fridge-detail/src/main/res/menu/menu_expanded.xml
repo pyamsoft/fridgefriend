@@ -21,9 +21,15 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
   <item
-      android:id="@+id/menu_item_archive"
+      android:id="@+id/menu_item_consume"
       android:icon="@drawable/ic_archive_24dp"
-      android:title="@string/archive"
+      android:title="@string/consumed"
+      app:showAsAction="ifRoom"/>
+
+  <item
+      android:id="@+id/menu_item_spoil"
+      android:icon="@drawable/ic_archive_24dp"
+      android:title="@string/spoiled"
       app:showAsAction="ifRoom"/>
 
   <item

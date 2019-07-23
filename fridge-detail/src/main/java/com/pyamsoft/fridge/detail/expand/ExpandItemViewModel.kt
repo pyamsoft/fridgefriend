@@ -32,13 +32,14 @@ import com.pyamsoft.fridge.detail.item.DetailItemControllerEvent.CloseExpand
 import com.pyamsoft.fridge.detail.item.DetailItemControllerEvent.DatePick
 import com.pyamsoft.fridge.detail.item.DetailItemControllerEvent.ExpandDetails
 import com.pyamsoft.fridge.detail.item.DetailItemViewEvent
-import com.pyamsoft.fridge.detail.item.DetailItemViewEvent.ArchiveItem
 import com.pyamsoft.fridge.detail.item.DetailItemViewEvent.CloseItem
 import com.pyamsoft.fridge.detail.item.DetailItemViewEvent.CommitName
 import com.pyamsoft.fridge.detail.item.DetailItemViewEvent.CommitPresence
+import com.pyamsoft.fridge.detail.item.DetailItemViewEvent.ConsumeItem
 import com.pyamsoft.fridge.detail.item.DetailItemViewEvent.DeleteItem
 import com.pyamsoft.fridge.detail.item.DetailItemViewEvent.ExpandItem
 import com.pyamsoft.fridge.detail.item.DetailItemViewEvent.PickDate
+import com.pyamsoft.fridge.detail.item.DetailItemViewEvent.SpoilItem
 import com.pyamsoft.fridge.detail.item.DetailItemViewModel
 import com.pyamsoft.fridge.detail.item.isNameValid
 import com.pyamsoft.highlander.highlander
@@ -120,12 +121,17 @@ class ExpandItemViewModel @Inject internal constructor(
       is PickDate -> pickDate(event.oldItem, event.year, event.month, event.day)
       is CloseItem -> closeSelf(event.item)
       is DeleteItem -> deleteSelf(event.item)
-      is ArchiveItem -> archiveSelf(event.item)
+      is ConsumeItem -> consumeSelf(event.item)
+      is SpoilItem -> spoilSelf(event.item)
     }
   }
 
-  private fun archiveSelf(item: FridgeItem) {
-    remove(item, doRemove = { interactor.archive(it) }) { closeSelf(it) }
+  private fun consumeSelf(item: FridgeItem) {
+    remove(item, doRemove = { interactor.consume(it) }) { closeSelf(it) }
+  }
+
+  private fun spoilSelf(item: FridgeItem) {
+    remove(item, doRemove = { interactor.spoil(it) }) { closeSelf(it) }
   }
 
   private fun deleteSelf(item: FridgeItem) {

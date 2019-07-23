@@ -30,8 +30,7 @@ data class JsonMappableNearbyStore internal constructor(
   internal val name: String,
   internal val createdTime: Date,
   internal val latitude: Double,
-  internal val longitude: Double,
-  internal val isArchived: Boolean
+  internal val longitude: Double
 ) : NearbyStore, Parcelable {
 
   override fun id(): Long {
@@ -54,16 +53,8 @@ data class JsonMappableNearbyStore internal constructor(
     return createdTime
   }
 
-  override fun isArchived(): Boolean {
-    return isArchived
-  }
-
   override fun name(name: String): NearbyStore {
     return this.copy(name = name)
-  }
-
-  override fun archive(): NearbyStore {
-    return this.copy(isArchived = true)
   }
 
   companion object {
@@ -79,8 +70,7 @@ data class JsonMappableNearbyStore internal constructor(
             item.name(),
             item.createdTime(),
             item.latitude(),
-            item.longitude(),
-            item.isArchived()
+            item.longitude()
         )
       }
     }

@@ -29,8 +29,7 @@ data class JsonMappableFridgeEntry internal constructor(
   internal val id: String,
   internal val name: String,
   internal val createdTime: Date,
-  internal val isReal: Boolean,
-  internal val isArchived: Boolean
+  internal val isReal: Boolean
 ) : FridgeEntry, Parcelable {
 
   override fun id(): String {
@@ -49,20 +48,12 @@ data class JsonMappableFridgeEntry internal constructor(
     return isReal
   }
 
-  override fun isArchived(): Boolean {
-    return isArchived
-  }
-
   override fun name(name: String): FridgeEntry {
     return this.copy(name = name)
   }
 
   override fun makeReal(): FridgeEntry {
     return this.copy(isReal = true)
-  }
-
-  override fun archive(): FridgeEntry {
-    return this.copy(isArchived = true)
   }
 
   companion object {
@@ -77,8 +68,7 @@ data class JsonMappableFridgeEntry internal constructor(
             entry.id(),
             entry.name(),
             entry.createdTime(),
-            entry.isReal(),
-            entry.isArchived()
+            entry.isReal()
         )
       }
     }

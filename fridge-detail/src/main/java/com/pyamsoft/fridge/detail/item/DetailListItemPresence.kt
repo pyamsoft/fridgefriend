@@ -23,6 +23,7 @@ import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence.HAVE
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence.NEED
+import com.pyamsoft.fridge.db.item.isArchived
 import com.pyamsoft.fridge.detail.R
 import com.pyamsoft.fridge.detail.item.DetailItemViewEvent.CommitPresence
 import com.pyamsoft.pydroid.arch.BaseUiView

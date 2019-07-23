@@ -30,6 +30,7 @@ import com.pyamsoft.fridge.db.isExpiringSoon
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence.HAVE
 import com.pyamsoft.fridge.db.item.FridgeItemQueryDao
+import com.pyamsoft.fridge.db.item.isArchived
 import com.pyamsoft.pydroid.ui.Injector
 import timber.log.Timber
 import java.util.Calendar

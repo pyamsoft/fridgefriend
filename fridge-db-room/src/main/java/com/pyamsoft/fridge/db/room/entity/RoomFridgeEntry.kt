@@ -34,10 +34,7 @@ internal data class RoomFridgeEntry internal constructor(
   val name: String,
 
   @field:ColumnInfo(name = COLUMN_CREATED_TIME)
-  val createdTime: Date,
-
-  @field:ColumnInfo(name = COLUMN_ARCHIVED)
-  val archived: Boolean
+  val createdTime: Date
 ) : FridgeEntry {
 
   @Ignore
@@ -61,23 +58,13 @@ internal data class RoomFridgeEntry internal constructor(
   }
 
   @Ignore
-  override fun isArchived(): Boolean {
-    return archived
-  }
-
-  @Ignore
   override fun name(name: String): FridgeEntry {
-    return FridgeEntry.create(this, name = name, isReal = isReal(), isArchived = isArchived())
+    return FridgeEntry.create(this, name = name, isReal = isReal())
   }
 
   @Ignore
   override fun makeReal(): FridgeEntry {
-    return FridgeEntry.create(this, isReal = true, isArchived = isArchived())
-  }
-
-  @Ignore
-  override fun archive(): FridgeEntry {
-    return FridgeEntry.create(this, isReal = isReal(), isArchived = true)
+    return FridgeEntry.create(this, isReal = true)
   }
 
   companion object {
@@ -86,7 +73,6 @@ internal data class RoomFridgeEntry internal constructor(
     @Ignore internal const val COLUMN_ID = "_id"
     @Ignore internal const val COLUMN_NAME = "name"
     @Ignore internal const val COLUMN_CREATED_TIME = "created_time"
-    @Ignore internal const val COLUMN_ARCHIVED = "archived"
 
     @Ignore
     @JvmStatic
@@ -98,8 +84,7 @@ internal data class RoomFridgeEntry internal constructor(
         return RoomFridgeEntry(
             entry.id(),
             entry.name(),
-            entry.createdTime(),
-            entry.isArchived()
+            entry.createdTime()
         )
       }
     }

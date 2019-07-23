@@ -19,11 +19,8 @@ package com.pyamsoft.fridge.detail
 
 import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.db.entry.FridgeEntry
-import com.pyamsoft.fridge.db.entry.FridgeEntryChangeEvent.Insert
-import com.pyamsoft.fridge.db.entry.FridgeEntryChangeEvent.Update
 import com.pyamsoft.fridge.db.entry.FridgeEntryInsertDao
 import com.pyamsoft.fridge.db.entry.FridgeEntryQueryDao
-import com.pyamsoft.fridge.db.entry.FridgeEntryRealtime
 import com.pyamsoft.fridge.db.entry.FridgeEntryUpdateDao
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent
@@ -36,6 +33,7 @@ import com.pyamsoft.pydroid.arch.EventConsumer
 import com.pyamsoft.pydroid.core.Enforcer
 import timber.log.Timber
 import java.util.Calendar
+import java.util.Date
 import javax.inject.Inject
 
 internal class DetailInteractor @Inject internal constructor(
@@ -46,7 +44,6 @@ internal class DetailInteractor @Inject internal constructor(
   private val itemDeleteDao: FridgeItemDeleteDao,
   private val itemRealtime: FridgeItemRealtime,
   private val entryUpdateDao: FridgeEntryUpdateDao,
-  private val entryRealtime: FridgeEntryRealtime,
   private val enforcer: Enforcer,
   private val queryDao: FridgeEntryQueryDao,
   private val insertDao: FridgeEntryInsertDao
@@ -77,75 +74,9 @@ internal class DetailInteractor @Inject internal constructor(
           .time
       Timber.d("Create entry: $entryId at $createdTime")
       val newEntry =
-        FridgeEntry.create(entryId, name, createdTime, isReal = true, isArchived = false)
+        FridgeEntry.create(entryId, name, createdTime, isReal = true)
       insertDao.insert(newEntry)
       return newEntry
-    }
-  }
-
-  @CheckResult
-  fun listenForEntryArchived(): EventConsumer<FridgeEntry> {
-    return object : EventConsumer<FridgeEntry> {
-      override suspend fun onEvent(emitter: suspend (event: FridgeEntry) -> Unit) {
-        enforcer.assertNotOnMainThread()
-        entryRealtime.listenForChanges()
-            .onEvent stop@{ event ->
-              if (event !is Update) {
-                return@stop
-              }
-
-              val entry = event.entry
-              if (entry.id() != entryId || !entry.isArchived()) {
-                return@stop
-              }
-
-              emitter(entry)
-            }
-      }
-
-    }
-  }
-
-  @CheckResult
-  fun observeEntry(force: Boolean): EventConsumer<FridgeEntry> {
-    return listenForEntryCreated { getEntryForId(entryId, force) }
-  }
-
-  @CheckResult
-  private fun listenForEntryCreated(startWith: suspend () -> FridgeEntry?): EventConsumer<FridgeEntry> {
-    return object : EventConsumer<FridgeEntry> {
-      override suspend fun onEvent(emitter: suspend (event: FridgeEntry) -> Unit) {
-        enforcer.assertNotOnMainThread()
-        val start = startWith()
-        if (start != null) {
-          emitter(start)
-        }
-        entryRealtime.listenForChanges()
-            .onEvent stop@{ event ->
-              if (event !is Insert) {
-                return@stop
-              }
-
-              val entry = event.entry
-              if (entry.id() != entryId) {
-                return@stop
-              }
-
-              emitter(entry)
-            }
-      }
-
-    }
-  }
-
-  suspend fun archiveEntry() {
-    enforcer.assertNotOnMainThread()
-    val valid = getEntryForId(entryId, false)
-    if (valid != null) {
-      Timber.d("Archive entry: [${valid.id()}] $valid")
-      entryUpdateDao.update(valid.archive())
-    } else {
-      Timber.w("No entry, cannot archive")
     }
   }
 
@@ -185,13 +116,29 @@ internal class DetailInteractor @Inject internal constructor(
     }
   }
 
-  suspend fun archive(item: FridgeItem) {
+  @CheckResult
+  private fun now(): Date {
+    return Calendar.getInstance()
+        .time
+  }
+
+  suspend fun consume(item: FridgeItem) {
     enforcer.assertNotOnMainThread()
     if (!item.isReal()) {
-      Timber.w("Cannot archive item that is not real: [${item.id()}]: $item")
+      Timber.w("Cannot consume item that is not real: [${item.id()}]: $item")
     } else {
-      Timber.d("Archiving item [${item.id()}]: $item")
-      itemUpdateDao.update(item.archive())
+      Timber.d("Consuming item [${item.id()}]: $item")
+      itemUpdateDao.update(item.consume(now()))
+    }
+  }
+
+  suspend fun spoil(item: FridgeItem) {
+    enforcer.assertNotOnMainThread()
+    if (!item.isReal()) {
+      Timber.w("Cannot spoil item that is not real: [${item.id()}]: $item")
+    } else {
+      Timber.d("Spoiling item [${item.id()}]: $item")
+      itemUpdateDao.update(item.spoil(now()))
     }
   }
 

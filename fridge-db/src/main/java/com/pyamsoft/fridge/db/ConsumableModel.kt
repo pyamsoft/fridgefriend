@@ -15,35 +15,29 @@
  *
  */
 
-package com.pyamsoft.fridge.db.store
+package com.pyamsoft.fridge.db
 
 import androidx.annotation.CheckResult
-import com.pyamsoft.fridge.db.BaseModel
 import java.util.Date
 
-interface NearbyStore : BaseModel<NearbyStore> {
+interface ConsumableModel<T : Any> : BaseModel<T> {
 
   @CheckResult
-  fun id(): Long
+  fun isConsumed(): Boolean
 
   @CheckResult
-  fun latitude(): Double
+  fun consumptionDate(): Date?
 
   @CheckResult
-  fun longitude(): Double
+  fun consume(date: Date): T
 
-  companion object {
+  @CheckResult
+  fun isSpoiled(): Boolean
 
-    @CheckResult
-    fun create(
-      id: Long,
-      name: String,
-      latitude: Double,
-      longitude: Double
-    ): NearbyStore {
-      return JsonMappableNearbyStore(id, name, Date(), latitude, longitude)
-    }
+  @CheckResult
+  fun spoiledDate(): Date?
 
-  }
+  @CheckResult
+  fun spoil(date: Date): T
 
 }

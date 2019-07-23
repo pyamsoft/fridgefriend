@@ -49,6 +49,7 @@ import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.ui.theme.Theming
 import com.pyamsoft.pydroid.ui.util.Snackbreak
 import com.pyamsoft.pydroid.ui.util.refreshing
+import timber.log.Timber
 import javax.inject.Inject
 
 class DetailList @Inject internal constructor(
@@ -125,14 +126,30 @@ class DetailList @Inject internal constructor(
   }
 
   private fun setupSwipeCallback() {
-    val archiveSwipeDirection = ItemTouchHelper.RIGHT
-    val deleteSwipeDirection = ItemTouchHelper.LEFT
+    val consumeSwipeDirection = ItemTouchHelper.RIGHT
+    val spoilSwipeDirection = ItemTouchHelper.LEFT
     val itemSwipeCallback = SimpleSwipeCallback.ItemSwipeCallback { position, direction ->
-      if (direction == archiveSwipeDirection || direction == deleteSwipeDirection) {
-        if (direction == archiveSwipeDirection) {
-          archiveListItem(position)
-        } else {
+      val holder = recyclerView.findViewHolderForAdapterPosition(position)
+      if (holder == null) {
+        Timber.w("ViewHolder is null, cannot respond to swipe")
+        return@ItemSwipeCallback
+      }
+      if (holder !is DetailItemViewHolder) {
+        Timber.w("ViewHolder is not DetailItemViewHolder, cannot respond to swipe")
+        return@ItemSwipeCallback
+      }
+
+      if (holder.isReal()) {
+        if (direction == consumeSwipeDirection || direction == spoilSwipeDirection) {
           deleteListItem(position)
+        }
+      } else {
+        if (direction == consumeSwipeDirection || direction == spoilSwipeDirection) {
+          if (direction == consumeSwipeDirection) {
+            consumeListItem(position)
+          } else {
+            spoilListItem(position)
+          }
         }
       }
     }
@@ -143,7 +160,7 @@ class DetailList @Inject internal constructor(
       )
     val leftBackground = Color.RED
 
-    val directions = archiveSwipeDirection or deleteSwipeDirection
+    val directions = consumeSwipeDirection or spoilSwipeDirection
     val swipeCallback = object : SimpleSwipeCallback(
         itemSwipeCallback,
         leftBehindDrawable,
@@ -156,13 +173,7 @@ class DetailList @Inject internal constructor(
         viewHolder: ViewHolder
       ): Int {
         if (viewHolder is DetailItemViewHolder) {
-          // Don't call super here or we crash from a Reflection error
-          if (viewHolder.canArchive()) {
-            return directions
-          } else {
-            // If we cannot archive, only allow delete swipes
-            return deleteSwipeDirection
-          }
+          return directions
         } else {
           // Can't swipe non item view holders
           return 0
@@ -205,8 +216,12 @@ class DetailList @Inject internal constructor(
     return requireNotNull(modelAdapter)
   }
 
-  private fun archiveListItem(position: Int) {
-    withViewHolderAt(position) { it.archive() }
+  private fun consumeListItem(position: Int) {
+    withViewHolderAt(position) { it.consume() }
+  }
+
+  private fun spoilListItem(position: Int) {
+    withViewHolderAt(position) { it.spoil() }
   }
 
   private fun deleteListItem(position: Int) {

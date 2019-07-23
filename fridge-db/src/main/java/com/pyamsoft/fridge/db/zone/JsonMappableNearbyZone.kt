@@ -30,8 +30,7 @@ data class JsonMappableNearbyZone internal constructor(
   internal val id: Long,
   internal val name: String,
   internal val points: List<Point>,
-  internal val createdTime: Date,
-  internal val isArchived: Boolean
+  internal val createdTime: Date
 ) : NearbyZone, Parcelable {
 
   override fun id(): Long {
@@ -50,16 +49,8 @@ data class JsonMappableNearbyZone internal constructor(
     return createdTime
   }
 
-  override fun isArchived(): Boolean {
-    return isArchived
-  }
-
   override fun name(name: String): NearbyZone {
     return this.copy(name = name)
-  }
-
-  override fun archive(): NearbyZone {
-    return this.copy(isArchived = true)
   }
 
   companion object {
@@ -74,8 +65,7 @@ data class JsonMappableNearbyZone internal constructor(
             item.id(),
             item.name(),
             item.points(),
-            item.createdTime(),
-            item.isArchived()
+            item.createdTime()
         )
       }
     }

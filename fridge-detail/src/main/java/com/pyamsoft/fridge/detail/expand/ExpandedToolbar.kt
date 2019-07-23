@@ -25,9 +25,10 @@ import android.view.ViewGroup
 import androidx.appcompat.widget.Toolbar
 import com.pyamsoft.fridge.detail.R
 import com.pyamsoft.fridge.detail.item.DetailItemViewEvent
-import com.pyamsoft.fridge.detail.item.DetailItemViewEvent.ArchiveItem
 import com.pyamsoft.fridge.detail.item.DetailItemViewEvent.CloseItem
+import com.pyamsoft.fridge.detail.item.DetailItemViewEvent.ConsumeItem
 import com.pyamsoft.fridge.detail.item.DetailItemViewEvent.DeleteItem
+import com.pyamsoft.fridge.detail.item.DetailItemViewEvent.SpoilItem
 import com.pyamsoft.fridge.detail.item.DetailItemViewState
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.arch.UiSavedState
@@ -48,7 +49,8 @@ class ExpandedToolbar @Inject internal constructor(
   override val layoutRoot by boundView<Toolbar>(R.id.detail_toolbar)
 
   private var deleteMenuItem: MenuItem? = null
-  private var archiveMenuItem: MenuItem? = null
+  private var consumeMenuItem: MenuItem? = null
+  private var spoilMenuItem: MenuItem? = null
   private var iconLoaded: Loaded? = null
 
   override fun onInflated(
@@ -83,7 +85,8 @@ class ExpandedToolbar @Inject internal constructor(
 
     layoutRoot.inflateMenu(R.menu.menu_expanded)
     deleteMenuItem = layoutRoot.menu.findItem(R.id.menu_item_delete)
-    archiveMenuItem = layoutRoot.menu.findItem(R.id.menu_item_archive)
+    consumeMenuItem = layoutRoot.menu.findItem(R.id.menu_item_consume)
+    spoilMenuItem = layoutRoot.menu.findItem(R.id.menu_item_spoil)
   }
 
   override fun onRender(
@@ -103,8 +106,12 @@ class ExpandedToolbar @Inject internal constructor(
             publish(DeleteItem(item))
             true
           }
-          R.id.menu_item_archive -> {
-            publish(ArchiveItem(item))
+          R.id.menu_item_consume -> {
+            publish(ConsumeItem(item))
+            true
+          }
+          R.id.menu_item_spoil -> {
+            publish(SpoilItem(item))
             true
           }
           else -> false
@@ -123,7 +130,8 @@ class ExpandedToolbar @Inject internal constructor(
 
     layoutRoot.menu.clear()
     deleteMenuItem = null
-    archiveMenuItem = null
+    consumeMenuItem = null
+    spoilMenuItem = null
 
     layoutRoot.setNavigationOnClickListener(null)
     layoutRoot.setOnMenuItemClickListener(null)

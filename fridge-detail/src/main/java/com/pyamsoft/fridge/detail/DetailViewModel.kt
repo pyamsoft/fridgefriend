@@ -25,14 +25,12 @@ import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent.Delete
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent.Insert
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent.Update
-import com.pyamsoft.fridge.detail.DetailControllerEvent.ArchiveError
+import com.pyamsoft.fridge.db.item.isArchived
 import com.pyamsoft.fridge.detail.DetailControllerEvent.DatePick
-import com.pyamsoft.fridge.detail.DetailControllerEvent.EntryArchived
 import com.pyamsoft.fridge.detail.DetailControllerEvent.ExpandForEditing
 import com.pyamsoft.fridge.detail.DetailControllerEvent.ListRefreshError
 import com.pyamsoft.fridge.detail.DetailControllerEvent.NameUpdateError
 import com.pyamsoft.fridge.detail.DetailControllerEvent.NavigateUp
-import com.pyamsoft.fridge.detail.DetailViewEvent.ArchiveEntry
 import com.pyamsoft.fridge.detail.DetailViewEvent.CloseEntry
 import com.pyamsoft.fridge.detail.DetailViewEvent.ExpandItem
 import com.pyamsoft.fridge.detail.DetailViewEvent.ForceRefresh
@@ -109,20 +107,8 @@ class DetailViewModel @Inject internal constructor(
     }
   }
 
-  private val archiveRunner = highlander<Unit> {
-    try {
-      interactor.archiveEntry()
-    } catch (error: Throwable) {
-      error.onActualError { e ->
-        Timber.e(e, "Error archiving")
-        publish(ArchiveError(e))
-      }
-    }
-  }
-
   override fun onInit() {
     refreshList(false)
-    listenForDelete()
   }
 
   override fun handleViewEvent(event: DetailViewEvent) {
@@ -130,7 +116,6 @@ class DetailViewModel @Inject internal constructor(
       is ForceRefresh -> refreshList(true)
       is ExpandItem -> publish(ExpandForEditing(event.item))
       is PickDate -> publish(DatePick(event.oldItem, event.year, event.month, event.day))
-      is ArchiveEntry -> handleArchived()
       is CloseEntry -> publish(NavigateUp)
       is NameUpdate -> updateName(event.name)
       is ToggleArchiveVisibility -> toggleArchived(event.show)
@@ -279,16 +264,4 @@ class DetailViewModel @Inject internal constructor(
       copy(isLoading = Loading(false))
     }
   }
-
-  private fun listenForDelete() {
-    viewModelScope.launch(context = Dispatchers.Default) {
-      interactor.listenForEntryArchived()
-          .onEvent { publish(EntryArchived) }
-    }
-  }
-
-  private fun handleArchived() {
-    viewModelScope.launch(context = Dispatchers.Default) { archiveRunner.call() }
-  }
-
 }

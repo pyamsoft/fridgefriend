@@ -18,11 +18,11 @@
 package com.pyamsoft.fridge.db.item
 
 import androidx.annotation.CheckResult
-import com.pyamsoft.fridge.db.BaseModel
+import com.pyamsoft.fridge.db.ConsumableModel
 import com.pyamsoft.fridge.db.IdGenerator
 import java.util.Date
 
-interface FridgeItem : BaseModel<FridgeItem> {
+interface FridgeItem : ConsumableModel<FridgeItem> {
 
   @CheckResult
   fun id(): String
@@ -115,8 +115,9 @@ interface FridgeItem : BaseModel<FridgeItem> {
           purchaseTime,
           expireTime,
           presence,
-          isReal,
-          isArchived = false
+          consumptionDate = null,
+          spoiledDate = null,
+          isReal = isReal
       )
     }
 
@@ -129,8 +130,9 @@ interface FridgeItem : BaseModel<FridgeItem> {
       expireTime: Date? = item.expireTime(),
       purchaseTime: Date? = item.purchaseTime(),
       presence: Presence = item.presence(),
-      isReal: Boolean,
-      isArchived: Boolean
+      consumptionDate: Date? = item.consumptionDate(),
+      spoiledDate: Date? = item.spoiledDate(),
+      isReal: Boolean
     ): FridgeItem {
       return JsonMappableFridgeItem(
           item.id(),
@@ -141,11 +143,17 @@ interface FridgeItem : BaseModel<FridgeItem> {
           purchaseTime,
           expireTime,
           presence,
-          isReal,
-          isArchived
+          consumptionDate,
+          spoiledDate,
+          isReal
       )
     }
 
   }
 
+}
+
+@CheckResult
+fun FridgeItem.isArchived(): Boolean {
+  return this.isConsumed() || this.isSpoiled()
 }
