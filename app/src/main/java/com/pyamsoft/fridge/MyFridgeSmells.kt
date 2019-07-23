@@ -34,7 +34,7 @@ import javax.inject.Inject
 
 class MyFridgeSmells : Application() {
 
-  @JvmField @Inject internal var locator: Locator? = null
+  @JvmField @Inject internal var butler: Butler? = null
 
   private var component: FridgeComponent? = null
   private var refWatcher: RefWatcher? = null
@@ -72,11 +72,12 @@ class MyFridgeSmells : Application() {
     addLibraries()
 
     component.inject(this)
-    listenForLocationUpdates()
+
+    registerGeofences()
   }
 
-  private fun listenForLocationUpdates() {
-    // TODO: Hit db, get nearbys, register geofences
+  private fun registerGeofences() {
+    requireNotNull(butler).initOnAppStart()
   }
 
   private fun installRefWatcher() {

@@ -29,6 +29,7 @@ import com.pyamsoft.fridge.R
 import com.pyamsoft.fridge.butler.Butler
 import com.pyamsoft.fridge.butler.ForegroundState
 import com.pyamsoft.fridge.entry.EntryFragment
+import com.pyamsoft.fridge.initOnAppStart
 import com.pyamsoft.pydroid.arch.UnitViewModel
 import com.pyamsoft.pydroid.arch.createComponent
 import com.pyamsoft.pydroid.ui.Injector
@@ -39,7 +40,6 @@ import com.pyamsoft.pydroid.ui.util.commit
 import com.pyamsoft.pydroid.ui.util.layout
 import com.pyamsoft.pydroid.ui.widget.shadow.DropshadowView
 import timber.log.Timber
-import java.util.concurrent.TimeUnit.SECONDS
 import javax.inject.Inject
 
 internal class MainActivity : RatingActivity() {
@@ -88,14 +88,7 @@ internal class MainActivity : RatingActivity() {
     super.onStart()
     Timber.d("App enters foreground onStart")
     requireNotNull(foregroundState).isForeground = true
-
-    requireNotNull(butler).apply {
-      cancelExpirationReminder()
-      remindExpiration(1, SECONDS)
-
-      cancelLocationReminder()
-      remindLocation(1, SECONDS)
-    }
+    requireNotNull(butler).initOnAppStart()
   }
 
   override fun onStop() {
