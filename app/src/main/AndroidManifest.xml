@@ -27,11 +27,6 @@
         android:name="google_analytics_adid_collection_enabled"
         android:value="false"/>
 
-    <!-- Download OCR model -->
-    <meta-data
-        android:name="com.google.firebase.ml.vision.DEPENDENCIES"
-        android:value="ocr"/>
-
     <!-- Main Activity -->
     <activity
         android:name="com.pyamsoft.fridge.main.MainActivity"
@@ -51,11 +46,8 @@
     </activity>
 
     <receiver
-        android:name=".locator.LocationUpdateReceiver"
-        android:exported="false">
-      <intent-filter>
-        <action android:name="@string/locator_broadcast_receiver_action"/>
-      </intent-filter>
+        android:name=".locator.GeofenceUpdateReceiver"
+        android:enabled="true">
     </receiver>
 
   </application>

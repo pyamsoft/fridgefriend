@@ -15,53 +15,49 @@
  *
  */
 
-package com.pyamsoft.fridge.butler.workmanager.locator
+package com.pyamsoft.fridge.butler.workmanager.geofence
 
 import android.content.Context
 import androidx.work.WorkerParameters
 import com.pyamsoft.fridge.butler.Butler
 import com.pyamsoft.fridge.butler.workmanager.BaseWorker
-import com.pyamsoft.fridge.locator.Locator
+import com.pyamsoft.fridge.locator.Geofencer
 import com.pyamsoft.pydroid.ui.Injector
 import timber.log.Timber
-import java.util.concurrent.TimeUnit.HOURS
 
-internal class LocationWorker internal constructor(
+internal class GeofenceWorker internal constructor(
   context: Context,
   params: WorkerParameters
 ) : BaseWorker(context, params) {
 
-  private var locator: Locator? = null
+  private var geofencer: Geofencer? = null
 
   override fun onInject() {
-    locator = Injector.obtain(applicationContext)
+    geofencer = Injector.obtain(applicationContext)
   }
 
   override fun onTeardown() {
-    locator = null
+    geofencer = null
   }
 
   override fun reschedule(butler: Butler) {
-    val loc = requireNotNull(locator)
-    if (!loc.hasForegroundPermission()) {
-      Timber.w("Missing foreground permission, cannot reschedule.")
-      return
-    }
-
-    if (!loc.hasBackgroundPermission()) {
-      Timber.w("Missing background permission, cannot reschedule.")
-      return
-    }
-
-    butler.remindLocation(1L, HOURS)
+    Timber.w("Geofence jobs are not rescheduled.")
   }
 
   override suspend fun performWork() {
-    Timber.d("LocationWorker listening for updates")
+    val fences = inputData.getStringArray(KEY_FENCES) ?: emptyArray()
+    if (fences.isEmpty()) {
+      Timber.e("Bail: Empty fences, this should not happen!")
+      return
+    }
 
-    // There is no corresponding stopListening here
-    // the worker is meant to launch and begin the background location
-    // listener - not manage the lifecycle
-    requireNotNull(locator).listenForUpdates()
+    Timber.d("Processing geofence events for fences: $fences")
+    // TODO: Hit db, get nearbys. Using nearbys, match to geofence ids, show notification
   }
+
+  companion object {
+
+    internal const val KEY_FENCES = "key_fences"
+  }
+
 }

@@ -17,31 +17,11 @@
 
 package com.pyamsoft.fridge.locator
 
+import android.content.Intent
 import androidx.annotation.CheckResult
-import java.util.concurrent.TimeUnit
 
-interface Locator {
-
-  @CheckResult
-  fun hasBackgroundPermission(): Boolean
+interface Geofencer {
 
   @CheckResult
-  fun hasForegroundPermission(): Boolean
-
-  fun registerGeofences(fences: List<Fence>)
-
-  fun unregisterGeofences(fences: List<String>)
-
-  data class Fence(
-    val id: String,
-    val lat: Double,
-    val lon: Double
-  )
-
-  companion object {
-
-    val RESCHEDULE_TIME = TimeUnit.HOURS.toMillis(3L)
-
-  }
-
+  fun getTriggeredFenceIds(intent: Intent): List<String>
 }

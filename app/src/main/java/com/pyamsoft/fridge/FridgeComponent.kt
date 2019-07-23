@@ -33,8 +33,9 @@ import com.pyamsoft.fridge.detail.DetailComponent
 import com.pyamsoft.fridge.detail.ExpandComponent
 import com.pyamsoft.fridge.detail.item.DateSelectPayload
 import com.pyamsoft.fridge.entry.EntryComponent
+import com.pyamsoft.fridge.locator.GeofenceBroadcastReceiver
+import com.pyamsoft.fridge.locator.Geofencer
 import com.pyamsoft.fridge.locator.Locator
-import com.pyamsoft.fridge.locator.LocatorBroadcastReceiver
 import com.pyamsoft.fridge.locator.MapComponent
 import com.pyamsoft.fridge.locator.PermissionComponent
 import com.pyamsoft.fridge.locator.map.LocatorModule
@@ -71,9 +72,13 @@ internal interface FridgeComponent {
   @CheckResult
   fun provideButler(): Butler
 
-  // For LocationWorker Work classes
+  // For LocatorWorker Work classes
   @CheckResult
   fun provideLocator(): Locator
+
+  // For GeofenceWorker Work classes
+  @CheckResult
+  fun provideGeofencer(): Geofencer
 
   // For ExpirationWorker Work classes
   @CheckResult
@@ -121,7 +126,7 @@ internal interface FridgeComponent {
       @BindsInstance enforcer: Enforcer,
       @BindsInstance application: Application,
       @BindsInstance imageLoader: ImageLoader,
-      @BindsInstance receiverClass: Class<out LocatorBroadcastReceiver>
+      @BindsInstance receiverClass: Class<out GeofenceBroadcastReceiver>
     ): FridgeComponent
 
   }

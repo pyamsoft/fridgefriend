@@ -23,7 +23,7 @@ import com.pyamsoft.fridge.butler.Butler
 import com.pyamsoft.fridge.butler.ForegroundState
 import com.pyamsoft.fridge.db.entry.FridgeEntryQueryDao
 import com.pyamsoft.fridge.db.item.FridgeItemQueryDao
-import com.pyamsoft.fridge.locator.LocationUpdateReceiver
+import com.pyamsoft.fridge.locator.GeofenceUpdateReceiver
 import com.pyamsoft.fridge.locator.Locator
 import com.pyamsoft.pydroid.bootstrap.libraries.OssLibraries
 import com.pyamsoft.pydroid.ui.PYDroid
@@ -61,7 +61,7 @@ class MyFridgeSmells : Application() {
               provider.enforcer(),
               this,
               provider.imageLoader(),
-              LocationUpdateReceiver::class.java
+              GeofenceUpdateReceiver::class.java
           )
           .also { onInitialized(it) }
     }
@@ -76,7 +76,7 @@ class MyFridgeSmells : Application() {
   }
 
   private fun listenForLocationUpdates() {
-    requireNotNull(locator).listenForUpdates()
+    // TODO: Hit db, get nearbys, register geofences
   }
 
   private fun installRefWatcher() {

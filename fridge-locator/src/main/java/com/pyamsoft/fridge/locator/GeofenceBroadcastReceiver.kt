@@ -17,14 +17,28 @@
 
 package com.pyamsoft.fridge.locator
 
+import android.content.BroadcastReceiver
 import android.content.Context
-import com.pyamsoft.fridge.locator.map.gms.GmsLocatorBroadcastReceiver
+import android.content.Intent
+import timber.log.Timber
 
-internal class LocationUpdateReceiver internal constructor() : GmsLocatorBroadcastReceiver() {
+abstract class GeofenceBroadcastReceiver protected constructor() : BroadcastReceiver() {
 
-  override fun onInject(context: Context) {
+  final override fun onReceive(
+    context: Context?,
+    intent: Intent?
+  ) {
+    if (context == null || intent == null) {
+      Timber.e("Context or Intent is null. Stopping.")
+      return
+    }
+
+    onGeofenceEvent(context, intent)
   }
 
-  override fun onTeardown() {
-  }
+  protected abstract fun onGeofenceEvent(
+    context: Context,
+    intent: Intent
+  )
+
 }

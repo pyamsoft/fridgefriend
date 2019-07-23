@@ -24,34 +24,31 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build.VERSION
 import android.os.Build.VERSION_CODES
+import androidx.annotation.CheckResult
 import androidx.core.content.ContextCompat
-import com.google.android.gms.location.LocationRequest
+import com.google.android.gms.location.Geofence
+import com.google.android.gms.location.GeofencingRequest
 import com.google.android.gms.location.LocationServices
-import com.pyamsoft.fridge.locator.LastKnownLocation
+import com.pyamsoft.fridge.locator.GeofenceBroadcastReceiver
 import com.pyamsoft.fridge.locator.Locator
-import com.pyamsoft.fridge.locator.LocatorBroadcastReceiver
-import com.pyamsoft.fridge.locator.map.R
+import com.pyamsoft.fridge.locator.Locator.Fence
 import com.pyamsoft.pydroid.core.Enforcer
 import timber.log.Timber
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import javax.inject.Singleton
-import kotlin.coroutines.Continuation
-import kotlin.coroutines.resume
-import kotlin.coroutines.resumeWithException
-import kotlin.coroutines.suspendCoroutine
 
 @Singleton
 internal class GmsLocator @Inject internal constructor(
-  private val receiverClass: Class<out LocatorBroadcastReceiver>,
+  receiverClass: Class<out GeofenceBroadcastReceiver>,
   private val enforcer: Enforcer,
   private val context: Context
 ) : Locator {
 
-  private val lock = Any()
-
-  private val locationProvider = LocationServices.getFusedLocationProviderClient(context)
-  @Volatile private var updatePendingIntent: PendingIntent? = null
+  private val client = LocationServices.getGeofencingClient(context)
+  private val pendingIntent = PendingIntent.getBroadcast(
+      context, REQUEST_CODE, Intent(context, receiverClass), PendingIntent.FLAG_UPDATE_CURRENT
+  )
 
   override fun hasForegroundPermission(): Boolean {
     val permission = android.Manifest.permission.ACCESS_FINE_LOCATION
@@ -69,131 +66,76 @@ internal class GmsLocator @Inject internal constructor(
     }
   }
 
-  override fun listenForUpdates() {
+  @CheckResult
+  private fun createGeofence(fence: Fence): Geofence {
+    return Geofence.Builder()
+        .setRequestId(fence.id)
+        .setCircularRegion(fence.lat, fence.lon, RADIUS_IN_METERS)
+        .setExpirationDuration(Locator.RESCHEDULE_TIME)
+        .setNotificationResponsiveness(NOTIFICATION_DELAY_IN_MILLIS)
+        .setLoiteringDelay(LOITER_IN_MILLIS)
+        .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_DWELL)
+        .build()
+  }
+
+  override fun registerGeofences(fences: List<Fence>) {
+    enforcer.assertNotOnMainThread()
+
     if (!hasForegroundPermission()) {
       val permission = android.Manifest.permission.ACCESS_FINE_LOCATION
-      Timber.w("Missing $permission permission, return empty listener")
+      Timber.w("Cannot register Geofences, missing $permission")
       return
     }
 
     if (!hasBackgroundPermission()) {
       if (VERSION.SDK_INT >= VERSION_CODES.Q) {
         val permission = android.Manifest.permission.ACCESS_BACKGROUND_LOCATION
-        Timber.w("Missing $permission permission, return empty listener")
+        Timber.w("Cannot register Geofences, missing $permission")
       }
       return
     }
 
-    requestLocationUpdates()
-  }
-
-  private fun requestLocationUpdates() {
-
-    synchronized(lock) {
-      removeLocationUpdates()
-
-      if (!hasForegroundPermission()) {
-        val permission = android.Manifest.permission.ACCESS_FINE_LOCATION
-        Timber.w("Missing $permission permission, cannot request updates")
-        return
-      }
-
-      if (!hasBackgroundPermission()) {
-        if (VERSION.SDK_INT >= VERSION_CODES.Q) {
-          val permission = android.Manifest.permission.ACCESS_BACKGROUND_LOCATION
-          Timber.w("Missing $permission permission, cannot request updates")
-        }
-        return
-      }
-
-      startLocationUpdates()
-    }
+    addGeofences(fences.map { createGeofence(it) })
   }
 
   @SuppressLint("MissingPermission")
-  private fun startLocationUpdates() {
-    Timber.d("Start listening for location updates")
+  private fun addGeofences(fences: List<Geofence>) {
+    val request = GeofencingRequest.Builder()
+        .setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_DWELL)
+        .addGeofences(fences)
+        .build()
 
-    val action = context.getString(R.string.locator_broadcast_receiver_action)
-    val pendingIntent =
-      PendingIntent.getBroadcast(
-          context, REQUEST_CODE,
-          Intent(context, receiverClass).setAction(action),
-          PendingIntent.FLAG_UPDATE_CURRENT
-      )
-
-    val request = LocationRequest.create()
-        .setInterval(INTERVAL)
-        .setInterval(INTERVAL / 2)
-        .setMaxWaitTime(INTERVAL * 3)
-        .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
-
-    locationProvider.requestLocationUpdates(request, pendingIntent)
-    updatePendingIntent = pendingIntent
-  }
-
-  private fun removeLocationUpdates() {
-    updatePendingIntent?.let {
-      Timber.d("Stop listening for location updates")
-      locationProvider.removeLocationUpdates(it)
-    }
-    updatePendingIntent = null
-  }
-
-  override fun stopListeningForUpdates() {
-    synchronized(lock) {
-      removeLocationUpdates()
+    removeFences {
+      client.addGeofences(request, pendingIntent)
+          .addOnSuccessListener { Timber.d("Registered Geofences!") }
+          .addOnFailureListener { Timber.e(it, "Failed to register Geofences!") }
     }
   }
 
-  override suspend fun getLastKnownLocation(): LastKnownLocation {
-    return listenForLastKnownLocation()
+  override fun unregisterGeofences(fences: List<String>) {
+    enforcer.assertNotOnMainThread()
+    removeFences { Timber.d("Geofences manually unregistered") }
   }
 
-  private suspend fun listenForLastKnownLocation(): LastKnownLocation =
-    suspendCoroutine { continuation ->
-      enforcer.assertNotOnMainThread()
-      if (!hasForegroundPermission()) {
-        val permission = android.Manifest.permission.ACCESS_FINE_LOCATION
-        Timber.w("Missing $permission permission for last known location")
-        continuation.resume(LastKnownLocation(null))
-        return@suspendCoroutine
-      }
-
-      if (!hasBackgroundPermission()) {
-        if (VERSION.SDK_INT >= VERSION_CODES.Q) {
-          val permission = android.Manifest.permission.ACCESS_BACKGROUND_LOCATION
-          Timber.w("Missing $permission permission for last known location")
+  private inline fun removeFences(crossinline andThen: () -> Unit) {
+    client.removeGeofences(pendingIntent)
+        .addOnSuccessListener {
+          Timber.d("Removed Geofences!")
+          andThen()
         }
-        continuation.resume(LastKnownLocation(null))
-        return@suspendCoroutine
-      }
-
-      emitLastKnownLocation(continuation)
-    }
-
-  @SuppressLint("MissingPermission")
-  private fun emitLastKnownLocation(continuation: Continuation<LastKnownLocation>) {
-    locationProvider.lastLocation.addOnSuccessListener { location ->
-      // Android runs this callback OMT
-      if (location == null) {
-        Timber.w("Last known location is unknown")
-      } else {
-        Timber.d("Last known location is $location")
-      }
-      continuation.resume(LastKnownLocation(location))
-    }
         .addOnFailureListener {
-          // Android runs this callback OMT
-          Timber.e(it, "Failed to get last known location")
-          continuation.resumeWithException(it)
+          Timber.e(GeofenceErrorMessages.getErrorString(context, it))
         }
   }
 
   companion object {
 
     private const val REQUEST_CODE = 1234
-    private val INTERVAL = TimeUnit.SECONDS.toMillis(30)
+    private const val RADIUS_IN_METERS = 1600.0F
+    private val LOITER_IN_MILLIS = TimeUnit.MINUTES.toMillis(2L)
+        .toInt()
+    private val NOTIFICATION_DELAY_IN_MILLIS = TimeUnit.MINUTES.toMillis(2L)
+        .toInt()
 
   }
 

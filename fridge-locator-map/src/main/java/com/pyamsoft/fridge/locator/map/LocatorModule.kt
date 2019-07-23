@@ -18,7 +18,9 @@
 package com.pyamsoft.fridge.locator.map
 
 import androidx.annotation.CheckResult
+import com.pyamsoft.fridge.locator.Geofencer
 import com.pyamsoft.fridge.locator.Locator
+import com.pyamsoft.fridge.locator.map.gms.GmsGeofencer
 import com.pyamsoft.fridge.locator.map.gms.GmsLocator
 import com.pyamsoft.fridge.locator.map.osm.api.NearbyLocationApi
 import com.pyamsoft.fridge.locator.map.osm.api.OsmNodeOrWay
@@ -40,6 +42,10 @@ abstract class LocatorModule {
   @Binds
   @CheckResult
   internal abstract fun bindLocator(impl: GmsLocator): Locator
+
+  @Binds
+  @CheckResult
+  internal abstract fun bindGeofencer(impl: GmsGeofencer): Geofencer
 
   @Module
   companion object {

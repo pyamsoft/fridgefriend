@@ -19,41 +19,26 @@ package com.pyamsoft.fridge.locator.map.gms
 
 import android.content.Context
 import android.content.Intent
-import android.location.Location
-import com.google.android.gms.location.LocationResult
-import com.pyamsoft.fridge.locator.LocatorBroadcastReceiver
+import com.google.android.gms.location.Geofence
+import com.google.android.gms.location.GeofencingEvent
+import com.pyamsoft.fridge.locator.GeofenceBroadcastReceiver
 import timber.log.Timber
 
-abstract class GmsLocatorBroadcastReceiver protected constructor() : LocatorBroadcastReceiver() {
+abstract class GmsGeofenceBroadcastReceiver protected constructor() : GeofenceBroadcastReceiver() {
 
-  final override fun onLocationUpdate(
+  final override fun onGeofenceEvent(
     context: Context,
     intent: Intent
   ) {
-    val locationResult = LocationResult.extractResult(intent)
-    if (locationResult != null) {
-      onLocationUpdate(
-          context.applicationContext,
-          locationResult.lastLocation,
-          locationResult.locations
-      )
-    }
-  }
-
-  private fun onLocationUpdate(
-    context: Context,
-    lastLocation: Location?,
-    locations: List<Location>
-  ) {
     try {
       inject(context)
-
-      Timber.d("Last location: $lastLocation")
-      Timber.d("Other locations: $locations")
+      onGeofenceEvent(intent)
     } finally {
       teardown()
     }
   }
+
+  protected abstract fun onGeofenceEvent(intent: Intent)
 
   private fun inject(context: Context) {
     onInject(context)

@@ -1,6 +1,1 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.pyamsoft.fridge.butler.workmanager">
-
-  <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
-
-</manifest>
+<manifest package="com.pyamsoft.fridge.butler.workmanager"/>

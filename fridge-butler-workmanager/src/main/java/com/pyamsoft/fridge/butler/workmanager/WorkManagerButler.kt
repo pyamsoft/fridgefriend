@@ -19,12 +19,14 @@ package com.pyamsoft.fridge.butler.workmanager
 
 import androidx.annotation.CheckResult
 import androidx.work.Constraints
+import androidx.work.Data
 import androidx.work.ListenableWorker
 import androidx.work.OneTimeWorkRequest
 import androidx.work.WorkManager
 import com.pyamsoft.fridge.butler.Butler
 import com.pyamsoft.fridge.butler.workmanager.expiration.ExpirationWorker
-import com.pyamsoft.fridge.butler.workmanager.locator.LocationWorker
+import com.pyamsoft.fridge.butler.workmanager.geofence.GeofenceWorker
+import com.pyamsoft.fridge.butler.workmanager.locator.LocatorWorker
 import timber.log.Timber
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
@@ -42,7 +44,6 @@ internal class WorkManagerButler @Inject internal constructor() : Butler {
   private fun generateConstraints(): Constraints {
     return Constraints.Builder()
         .setRequiresBatteryNotLow(true)
-        .setRequiresCharging(false)
         .build()
   }
 
@@ -50,12 +51,21 @@ internal class WorkManagerButler @Inject internal constructor() : Butler {
     worker: Class<T>,
     tag: String,
     time: Long,
-    unit: TimeUnit
+    unit: TimeUnit?,
+    data: Map<String, Any?>?
   ) {
     val request = OneTimeWorkRequest.Builder(worker)
-        .setInitialDelay(time, unit)
         .addTag(tag)
         .setConstraints(generateConstraints())
+        .apply {
+          if (time > 0 && unit != null) {
+            setInitialDelay(time, unit)
+          }
+
+          if (data != null) {
+            setInputData(Data.Builder().putAll(data).build())
+          }
+        }
         .build()
 
     workManager().enqueue(request)
@@ -66,7 +76,7 @@ internal class WorkManagerButler @Inject internal constructor() : Butler {
     time: Long,
     unit: TimeUnit
   ) {
-    schedule(ExpirationWorker::class.java, EXPIRATION_TAG, time, unit)
+    schedule(ExpirationWorker::class.java, EXPIRATION_TAG, time, unit, null)
   }
 
   override fun remindExpiration(
@@ -86,12 +96,24 @@ internal class WorkManagerButler @Inject internal constructor() : Butler {
     time: Long,
     unit: TimeUnit
   ) {
-    schedule(LocationWorker::class.java, LOCATION_TAG, time, unit)
+    schedule(LocatorWorker::class.java, LOCATION_TAG, time, unit, null)
   }
 
   override fun cancelLocationReminder() {
     Timber.d("Cancel all pending location reminders")
     workManager().cancelAllWorkByTag(LOCATION_TAG)
+  }
+
+  override fun processGeofences(fences: List<String>) {
+    schedule(
+        GeofenceWorker::class.java, GEOFENCE_TAG, 0, null,
+        mapOf(GeofenceWorker.KEY_FENCES to fences.toTypedArray())
+    )
+  }
+
+  override fun cancelGeofenceProcessing() {
+    Timber.d("Cancel all pending geofence processing")
+    workManager().cancelAllWorkByTag(GEOFENCE_TAG)
   }
 
   override fun cancel() {
@@ -101,8 +123,9 @@ internal class WorkManagerButler @Inject internal constructor() : Butler {
 
   companion object {
 
-    private const val EXPIRATION_TAG = "WorkManagerButler: Expiration Reminder"
-    private const val LOCATION_TAG = "WorkManagerButler: Location Reminder"
+    private const val EXPIRATION_TAG = "WorkManagerButler: Expiration Reminder 1"
+    private const val LOCATION_TAG = "WorkManagerButler: Location Reminder 1"
+    private const val GEOFENCE_TAG = "WorkManagerButler: Geofence Reminder 1"
   }
 
 }

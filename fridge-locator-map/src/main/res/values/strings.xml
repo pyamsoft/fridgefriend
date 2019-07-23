@@ -17,5 +17,8 @@
   -->
 
 <resources>
-  <string name="locator_broadcast_receiver_action">com.pyamsoft.fridge.locator.LocatorBroadcastReceiverAction</string>
+  <string name="geofence_not_available">Sorry, the Geofence service is not available now</string>
+  <string name="geofence_too_many_geofences">Unable to register Geofence: Geofence count exceeds per-app limit of 100.</string>
+  <string name="geofence_too_many_pending_intents">Unable to register Geofence: Too many PendingIntent objects.</string>
+  <string name="geofence_unknown_error">An unknown error occurred, please try again later</string>
 </resources>
