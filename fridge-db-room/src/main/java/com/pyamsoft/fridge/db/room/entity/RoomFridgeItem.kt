@@ -51,8 +51,11 @@ internal data class RoomFridgeItem internal constructor(
   @field:ColumnInfo(name = COLUMN_CREATED_TIME)
   val createdTime: Date,
 
+  @field:ColumnInfo(name = COLUMN_PURCHASE_TIME)
+  val purchaseTime: Date?,
+
   @field:ColumnInfo(name = COLUMN_EXPIRE_TIME)
-  val expireTime: Date,
+  val expireTime: Date?,
 
   @field:ColumnInfo(name = COLUMN_PRESENCE)
   val presence: Presence,
@@ -87,7 +90,12 @@ internal data class RoomFridgeItem internal constructor(
   }
 
   @Ignore
-  override fun expireTime(): Date {
+  override fun purchaseTime(): Date? {
+    return purchaseTime
+  }
+
+  @Ignore
+  override fun expireTime(): Date? {
     return expireTime
   }
 
@@ -127,6 +135,37 @@ internal data class RoomFridgeItem internal constructor(
   }
 
   @Ignore
+  override fun invalidateExpiration(): FridgeItem {
+    return FridgeItem.create(
+        this,
+        expireTime = null,
+        isReal = isReal(),
+        isArchived = isArchived()
+    )
+  }
+
+
+  @Ignore
+  override fun purchaseTime(purchaseTime: Date): FridgeItem {
+    return FridgeItem.create(
+        this,
+        purchaseTime = purchaseTime,
+        isReal = isReal(),
+        isArchived = isArchived()
+    )
+  }
+
+  @Ignore
+  override fun invalidatePurchase(): FridgeItem {
+    return FridgeItem.create(
+        this,
+        purchaseTime = null,
+        isReal = isReal(),
+        isArchived = isArchived()
+    )
+  }
+
+  @Ignore
   override fun presence(presence: Presence): FridgeItem {
     return FridgeItem.create(
         this,
@@ -154,6 +193,7 @@ internal data class RoomFridgeItem internal constructor(
     @Ignore internal const val COLUMN_NAME = "name"
     @Ignore internal const val COLUMN_COUNT = "count"
     @Ignore internal const val COLUMN_CREATED_TIME = "created_time"
+    @Ignore internal const val COLUMN_PURCHASE_TIME = "purchase_time"
     @Ignore internal const val COLUMN_EXPIRE_TIME = "expire_time"
     @Ignore internal const val COLUMN_PRESENCE = "presence"
     @Ignore internal const val COLUMN_ARCHIVED = "archived"
@@ -171,6 +211,7 @@ internal data class RoomFridgeItem internal constructor(
             item.name(),
             item.count(),
             item.createdTime(),
+            item.purchaseTime(),
             item.expireTime(),
             item.presence(),
             item.isArchived()

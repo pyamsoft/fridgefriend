@@ -34,7 +34,10 @@ interface FridgeItem : BaseModel<FridgeItem> {
   fun count(): Int
 
   @CheckResult
-  fun expireTime(): Date
+  fun purchaseTime(): Date?
+
+  @CheckResult
+  fun expireTime(): Date?
 
   @CheckResult
   fun presence(): Presence
@@ -49,6 +52,15 @@ interface FridgeItem : BaseModel<FridgeItem> {
   fun expireTime(expireTime: Date): FridgeItem
 
   @CheckResult
+  fun invalidateExpiration(): FridgeItem
+
+  @CheckResult
+  fun purchaseTime(purchaseTime: Date): FridgeItem
+
+  @CheckResult
+  fun invalidatePurchase(): FridgeItem
+
+  @CheckResult
   fun presence(presence: Presence): FridgeItem
 
   @CheckResult
@@ -61,14 +73,13 @@ interface FridgeItem : BaseModel<FridgeItem> {
 
   companion object {
 
-    const val EMPTY_NAME = ""
-    val EMPTY_EXPIRE_TIME = Date(0)
+    private const val EMPTY_NAME = ""
     private const val DEFAULT_COUNT = 1
     private val DEFAULT_PRESENCE = Presence.NEED
 
     @CheckResult
-    fun empty(entryId: String): FridgeItem {
-      return create("", entryId)
+    fun isValidName(name: String): Boolean {
+      return name.isNotBlank() && name != EMPTY_NAME
     }
 
     @CheckResult
@@ -78,7 +89,7 @@ interface FridgeItem : BaseModel<FridgeItem> {
       entryId: String
     ): FridgeItem {
       return create(
-          id, entryId, EMPTY_NAME, DEFAULT_COUNT, Date(), EMPTY_EXPIRE_TIME, DEFAULT_PRESENCE, false
+          id, entryId, EMPTY_NAME, DEFAULT_COUNT, Date(), null, null, DEFAULT_PRESENCE, false
       )
     }
 
@@ -90,7 +101,8 @@ interface FridgeItem : BaseModel<FridgeItem> {
       name: String,
       count: Int,
       createdTime: Date,
-      expireTime: Date,
+      purchaseTime: Date?,
+      expireTime: Date?,
       presence: Presence,
       isReal: Boolean
     ): FridgeItem {
@@ -100,6 +112,7 @@ interface FridgeItem : BaseModel<FridgeItem> {
           name,
           count,
           createdTime,
+          purchaseTime,
           expireTime,
           presence,
           isReal,
@@ -113,7 +126,8 @@ interface FridgeItem : BaseModel<FridgeItem> {
       name: String = item.name(),
       count: Int = item.count(),
       createdTime: Date = item.createdTime(),
-      expireTime: Date = item.expireTime(),
+      expireTime: Date? = item.expireTime(),
+      purchaseTime: Date? = item.purchaseTime(),
       presence: Presence = item.presence(),
       isReal: Boolean,
       isArchived: Boolean
@@ -124,6 +138,7 @@ interface FridgeItem : BaseModel<FridgeItem> {
           name,
           count,
           createdTime,
+          purchaseTime,
           expireTime,
           presence,
           isReal,

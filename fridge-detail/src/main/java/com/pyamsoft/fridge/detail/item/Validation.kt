@@ -22,6 +22,6 @@ import com.pyamsoft.fridge.db.item.FridgeItem
 
 @CheckResult
 internal fun isNameValid(name: String): Boolean {
-  return name.isNotBlank() && name != FridgeItem.EMPTY_NAME
+  return FridgeItem.isValidName(name)
 }
 

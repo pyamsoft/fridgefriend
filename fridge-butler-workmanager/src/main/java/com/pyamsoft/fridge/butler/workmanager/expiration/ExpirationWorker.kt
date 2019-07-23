@@ -70,7 +70,7 @@ internal class ExpirationWorker internal constructor(
     for (item in items.filterNot { it.isArchived() }) {
       if (item.presence() == HAVE) {
         val expirationTime = item.expireTime()
-        if (expirationTime != FridgeItem.EMPTY_EXPIRE_TIME) {
+        if (expirationTime != null) {
 
           if (item.isExpired(today)) {
             Timber.w("${entry.id()} expired! $item")

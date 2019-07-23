@@ -32,7 +32,8 @@ data class JsonMappableFridgeItem internal constructor(
   internal val name: String,
   internal val count: Int,
   internal val createdTime: Date,
-  internal val expireTime: Date,
+  internal val purchasedTime: Date?,
+  internal val expireTime: Date?,
   internal val presence: Presence,
   internal val isReal: Boolean,
   internal val isArchived: Boolean
@@ -58,7 +59,11 @@ data class JsonMappableFridgeItem internal constructor(
     return createdTime
   }
 
-  override fun expireTime(): Date {
+  override fun purchaseTime(): Date? {
+    return purchasedTime
+  }
+
+  override fun expireTime(): Date? {
     return expireTime
   }
 
@@ -84,6 +89,18 @@ data class JsonMappableFridgeItem internal constructor(
 
   override fun expireTime(expireTime: Date): FridgeItem {
     return this.copy(expireTime = expireTime)
+  }
+
+  override fun invalidateExpiration(): FridgeItem {
+    return this.copy(expireTime = null)
+  }
+
+  override fun purchaseTime(purchaseTime: Date): FridgeItem {
+    return this.copy(purchasedTime = purchasedTime)
+  }
+
+  override fun invalidatePurchase(): FridgeItem {
+    return this.copy(purchasedTime = null)
   }
 
   override fun presence(presence: Presence): FridgeItem {
@@ -112,6 +129,7 @@ data class JsonMappableFridgeItem internal constructor(
             item.name(),
             item.count(),
             item.createdTime(),
+            item.purchaseTime(),
             item.expireTime(),
             item.presence(),
             item.isReal(),

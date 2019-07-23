@@ -19,7 +19,6 @@ package com.pyamsoft.fridge.detail.item
 
 import android.view.ViewGroup
 import android.widget.TextView
-import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.detail.R
 import com.pyamsoft.fridge.detail.item.DetailItemViewEvent.ExpandItem
 import com.pyamsoft.fridge.detail.item.DetailItemViewEvent.PickDate
@@ -48,11 +47,10 @@ class DetailListItemDate @Inject internal constructor(
       val month: Int
       val day: Int
       val year: Int
-      if (item.expireTime() != FridgeItem.EMPTY_EXPIRE_TIME) {
+      val expireTime = item.expireTime()
+      if (expireTime != null) {
         val date = Calendar.getInstance()
-            .apply {
-              time = item.expireTime()
-            }
+            .apply { time = expireTime }
         Timber.d("Expire time is: $date")
 
         // Month is zero indexed in storage
