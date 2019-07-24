@@ -20,6 +20,7 @@ package com.pyamsoft.fridge.detail.item
 import androidx.lifecycle.viewModelScope
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent
+import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent.Delete
 import com.pyamsoft.highlander.highlander
 import com.pyamsoft.pydroid.arch.EventBus
 import com.pyamsoft.pydroid.arch.UiViewModel
@@ -53,7 +54,7 @@ abstract class DetailItemViewModel protected constructor(
   }
 
   private fun handleFakeDelete(item: FridgeItem) {
-    fakeRealtime.publish(FridgeItemChangeEvent.Delete(item))
+    fakeRealtime.publish(Delete(item))
   }
 
   @JvmOverloads
