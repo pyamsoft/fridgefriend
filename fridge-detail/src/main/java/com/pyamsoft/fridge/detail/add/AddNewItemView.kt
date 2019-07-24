@@ -17,7 +17,6 @@
 
 package com.pyamsoft.fridge.detail.add
 
-import android.app.Activity
 import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
@@ -29,16 +28,12 @@ import com.pyamsoft.pydroid.arch.UiSavedState
 import com.pyamsoft.pydroid.arch.UnitViewState
 import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.loader.Loaded
-import com.pyamsoft.pydroid.ui.theme.Theming
 import com.pyamsoft.pydroid.ui.util.popShow
 import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
-import com.pyamsoft.pydroid.util.tintWith
 import javax.inject.Inject
 
 class AddNewItemView @Inject internal constructor(
-  private val theming: Theming,
   private val imageLoader: ImageLoader,
-  activity: Activity,
   parent: ViewGroup
 ) : BaseUiView<UnitViewState, AddNewViewEvent>(parent) {
 
@@ -48,7 +43,6 @@ class AddNewItemView @Inject internal constructor(
 
   private val addNewIcon by boundView<FloatingActionButton>(R.id.detail_add_new_item)
 
-  private var activity: Activity? = activity
   private var iconLoaded: Loaded? = null
 
   override fun onInflated(
@@ -56,16 +50,6 @@ class AddNewItemView @Inject internal constructor(
     savedInstanceState: Bundle?
   ) {
     iconLoaded = imageLoader.load(R.drawable.ic_add_24dp)
-        .mutate { drawable ->
-          val color: Int
-          if (theming.isDarkTheme(requireNotNull(activity))) {
-            color = R.color.white
-          } else {
-            color = R.color.black
-          }
-          activity = null
-          return@mutate drawable.tintWith(layoutRoot.context, color)
-        }
         .into(addNewIcon)
 
     addNewIcon.setOnDebouncedClickListener { publish(AddNewItemEvent) }
