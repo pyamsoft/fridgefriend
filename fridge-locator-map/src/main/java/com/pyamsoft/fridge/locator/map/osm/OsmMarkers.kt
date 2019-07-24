@@ -23,10 +23,11 @@ import com.pyamsoft.fridge.db.zone.NearbyZone
 import com.pyamsoft.fridge.db.zone.NearbyZone.Point
 import com.pyamsoft.fridge.locator.map.osm.api.OsmNodeOrWay.Node
 import com.pyamsoft.fridge.locator.map.osm.api.OsmNodeOrWay.Way
+import java.util.Date
 
 @CheckResult
 internal fun NearbyStore.Companion.create(node: Node): NearbyStore {
-  return create(node.id, node.tags.name(), node.lat, node.lon)
+  return create(node.id, node.tags.name(), Date(), node.lat, node.lon)
 }
 
 @CheckResult
@@ -58,6 +59,7 @@ internal fun NearbyZone.Companion.create(
   return create(
       way.id,
       findName(way, nodes),
+      Date(),
       nodes.map { Point(it.id, it.lat, it.lon) }
   )
 }

@@ -55,6 +55,7 @@ interface FridgeEntry : BaseModel<FridgeEntry> {
     }
 
     @CheckResult
+    @JvmOverloads
     fun create(
       entry: FridgeEntry,
       name: String = entry.name(),

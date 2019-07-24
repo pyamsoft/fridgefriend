@@ -122,6 +122,7 @@ interface FridgeItem : ConsumableModel<FridgeItem> {
     }
 
     @CheckResult
+    @JvmOverloads
     fun create(
       item: FridgeItem,
       name: String = item.name(),

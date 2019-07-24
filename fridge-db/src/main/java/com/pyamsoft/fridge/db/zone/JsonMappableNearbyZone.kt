@@ -29,8 +29,8 @@ import java.util.Date
 data class JsonMappableNearbyZone internal constructor(
   internal val id: Long,
   internal val name: String,
-  internal val points: List<Point>,
-  internal val createdTime: Date
+  internal val createdTime: Date,
+  internal val points: List<Point>
 ) : NearbyZone, Parcelable {
 
   override fun id(): Long {
@@ -53,6 +53,10 @@ data class JsonMappableNearbyZone internal constructor(
     return this.copy(name = name)
   }
 
+  override fun points(points: List<Point>): NearbyZone {
+    return this.copy(points = points)
+  }
+
   companion object {
 
     @JvmStatic
@@ -64,8 +68,8 @@ data class JsonMappableNearbyZone internal constructor(
         return JsonMappableNearbyZone(
             item.id(),
             item.name(),
-            item.points(),
-            item.createdTime()
+            item.createdTime(),
+            item.points()
         )
       }
     }

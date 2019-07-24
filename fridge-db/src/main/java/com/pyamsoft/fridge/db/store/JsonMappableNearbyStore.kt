@@ -57,6 +57,14 @@ data class JsonMappableNearbyStore internal constructor(
     return this.copy(name = name)
   }
 
+  override fun latitude(lat: Double): NearbyStore {
+    return this.copy(latitude = lat)
+  }
+
+  override fun longitude(lon: Double): NearbyStore {
+    return this.copy(longitude = lon)
+  }
+
   companion object {
 
     @JvmStatic

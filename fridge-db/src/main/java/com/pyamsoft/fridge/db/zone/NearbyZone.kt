@@ -32,6 +32,9 @@ interface NearbyZone : BaseModel<NearbyZone> {
   @CheckResult
   fun points(): List<Point>
 
+  @CheckResult
+  fun points(points: List<Point>): NearbyZone
+
   @Parcelize
   @JsonClass(generateAdapter = true)
   data class Point(
@@ -46,9 +49,21 @@ interface NearbyZone : BaseModel<NearbyZone> {
     fun create(
       id: Long,
       name: String,
+      createdTime: Date,
       points: List<Point>
     ): NearbyZone {
-      return JsonMappableNearbyZone(id, name, points, Date())
+      return JsonMappableNearbyZone(id, name, createdTime, points)
+    }
+
+    @CheckResult
+    @JvmOverloads
+    fun create(
+      zone: NearbyZone,
+      name: String = zone.name(),
+      createdTime: Date = zone.createdTime(),
+      points: List<Point> = zone.points()
+    ): NearbyZone {
+      return JsonMappableNearbyZone(zone.id(), name, createdTime, points)
     }
 
   }
