@@ -39,7 +39,6 @@ import com.pyamsoft.fridge.detail.DetailListAdapter.DetailItemViewHolder
 import com.pyamsoft.fridge.detail.DetailViewEvent.ExpandItem
 import com.pyamsoft.fridge.detail.DetailViewEvent.ForceRefresh
 import com.pyamsoft.fridge.detail.DetailViewEvent.PickDate
-import com.pyamsoft.fridge.detail.R.drawable
 import com.pyamsoft.fridge.detail.item.DaggerDetailItemComponent
 import com.pyamsoft.fridge.detail.item.DateSelectPayload
 import com.pyamsoft.pydroid.arch.BaseUiView
@@ -150,7 +149,7 @@ class DetailList @Inject internal constructor(
     val leftBehindDrawable =
       AppCompatResources.getDrawable(
           recyclerView.context,
-          drawable.ic_delete_24dp
+          R.drawable.ic_spoiled_24dp
       )
     val leftBackground = Color.RED
 
@@ -178,7 +177,7 @@ class DetailList @Inject internal constructor(
       val rightBehindDrawable =
         AppCompatResources.getDrawable(
             recyclerView.context,
-            drawable.ic_archive_24dp
+            R.drawable.ic_consumed_24dp
         )
       val rightBackground = Color.GREEN
       withBackgroundSwipeRight(rightBackground)
