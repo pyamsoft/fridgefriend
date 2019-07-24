@@ -40,6 +40,7 @@ import com.pyamsoft.fridge.db.item.FridgeItemQueryDao
 import com.pyamsoft.fridge.db.item.FridgeItemRealtime
 import com.pyamsoft.fridge.db.item.FridgeItemUpdateDao
 import com.pyamsoft.fridge.db.room.converter.DateTypeConverter
+import com.pyamsoft.fridge.db.room.converter.NearbyZonePointListConverter
 import com.pyamsoft.fridge.db.room.converter.PresenceTypeConverter
 import com.pyamsoft.fridge.db.room.dao.entry.RoomFridgeEntryDeleteDao
 import com.pyamsoft.fridge.db.room.dao.entry.RoomFridgeEntryInsertDao
@@ -55,7 +56,11 @@ import com.pyamsoft.pydroid.arch.EventBus
 import com.pyamsoft.pydroid.arch.EventConsumer
 
 @Database(entities = [RoomFridgeItem::class, RoomFridgeEntry::class], version = 1)
-@TypeConverters(PresenceTypeConverter::class, DateTypeConverter::class)
+@TypeConverters(
+    PresenceTypeConverter::class,
+    DateTypeConverter::class,
+    NearbyZonePointListConverter::class
+)
 internal abstract class RoomFridgeDbImpl internal constructor() : RoomDatabase(),
     FridgeDb {
 
