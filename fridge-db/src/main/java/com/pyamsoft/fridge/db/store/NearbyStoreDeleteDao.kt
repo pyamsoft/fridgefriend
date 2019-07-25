@@ -15,8 +15,8 @@
  *
  */
 
-package com.pyamsoft.fridge.db.entry
+package com.pyamsoft.fridge.db.store
 
 import com.pyamsoft.fridge.db.BaseDb
 
-interface FridgeEntryInsertDao : BaseDb.Insert<FridgeEntry>
+interface NearbyStoreDeleteDao : BaseDb.Delete<NearbyStore>

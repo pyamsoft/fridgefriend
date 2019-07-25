@@ -18,24 +18,62 @@
 package com.pyamsoft.fridge.db
 
 import androidx.annotation.CheckResult
+import com.pyamsoft.fridge.db.BaseDb.Delete
+import com.pyamsoft.fridge.db.BaseDb.Insert
+import com.pyamsoft.fridge.db.BaseDb.Query
+import com.pyamsoft.fridge.db.BaseDb.Realtime
+import com.pyamsoft.fridge.db.BaseDb.Update
+import com.pyamsoft.pydroid.arch.EventConsumer
 
-interface BaseDb<ChangeEvent : Any, Realtime : Any, Query : Any, Insert : Any, Update : Any, Delete : Any> {
+interface BaseDb<ChangeEvent : Any, R : Realtime<*>, Q : Query<*>, I : Insert<*>, U : Update<*>, D : Delete<*>> {
 
   fun publish(event: ChangeEvent)
 
   @CheckResult
-  fun realtime(): Realtime
+  fun realtime(): R
 
   @CheckResult
-  fun query(): Query
+  fun queryDao(): Q
 
   @CheckResult
-  fun insert(): Insert
+  fun insertDao(): I
 
   @CheckResult
-  fun update(): Update
+  fun updateDao(): U
 
   @CheckResult
-  fun delete(): Delete
+  fun deleteDao(): D
+
+  interface Realtime<T : Any> {
+
+    @CheckResult
+    fun listenForChanges(): EventConsumer<T>
+
+  }
+
+  interface Delete<T : Any> {
+
+    suspend fun delete(o: T)
+
+  }
+
+  interface Insert<T : Any> {
+
+    suspend fun insert(o: T)
+
+  }
+
+  interface Update<T : Any> {
+
+    suspend fun update(o: T)
+
+  }
+
+  interface Query<T : Any> {
+
+    @CheckResult
+    suspend fun query(force: Boolean): List<T>
+
+  }
 
 }

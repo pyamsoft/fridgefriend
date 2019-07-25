@@ -28,9 +28,9 @@ import timber.log.Timber
 @Dao
 internal abstract class RoomFridgeEntryUpdateDao internal constructor() : FridgeEntryUpdateDao {
 
-  override suspend fun update(entry: FridgeEntry) {
-    Timber.d("ROOM: Entry Update: $entry")
-    val roomEntry = RoomFridgeEntry.create(entry)
+  override suspend fun update(o: FridgeEntry) {
+    Timber.d("ROOM: Entry Update: $o")
+    val roomEntry = RoomFridgeEntry.create(o)
     daoUpdate(roomEntry)
   }
 

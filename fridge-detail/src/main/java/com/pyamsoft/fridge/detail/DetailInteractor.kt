@@ -56,7 +56,7 @@ internal class DetailInteractor @Inject internal constructor(
     entryId: String,
     force: Boolean
   ): FridgeEntry? {
-    return queryDao.queryAll(force)
+    return queryDao.query(force)
         .singleOrNull { it.id() == entryId }
   }
 
@@ -86,7 +86,7 @@ internal class DetailInteractor @Inject internal constructor(
     force: Boolean
   ): List<FridgeItem> {
     enforcer.assertNotOnMainThread()
-    return itemQueryDao.queryAll(force, entryId)
+    return itemQueryDao.query(force, entryId)
   }
 
   @CheckResult

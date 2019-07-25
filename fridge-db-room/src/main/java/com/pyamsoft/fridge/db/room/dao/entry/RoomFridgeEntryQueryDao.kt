@@ -28,13 +28,13 @@ import timber.log.Timber
 @Dao
 internal abstract class RoomFridgeEntryQueryDao internal constructor() : FridgeEntryQueryDao {
 
-  override suspend fun queryAll(force: Boolean): List<FridgeEntry> {
+  override suspend fun query(force: Boolean): List<FridgeEntry> {
     Timber.d("ROOM: Entry Query: $force")
-    return daoQueryAll()
+    return daoQuery()
   }
 
   @Query("SELECT * FROM ${RoomFridgeEntry.TABLE_NAME}")
   @CheckResult
-  internal abstract suspend fun daoQueryAll(): List<RoomFridgeEntry>
+  internal abstract suspend fun daoQuery(): List<RoomFridgeEntry>
 
 }

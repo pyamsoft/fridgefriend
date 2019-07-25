@@ -17,11 +17,6 @@
 
 package com.pyamsoft.fridge.db.entry
 
-import androidx.annotation.CheckResult
+import com.pyamsoft.fridge.db.BaseDb
 
-interface FridgeEntryQueryDao {
-
-  @CheckResult
-  suspend fun queryAll(force: Boolean): List<FridgeEntry>
-
-}
+interface FridgeEntryQueryDao : BaseDb.Query<FridgeEntry>

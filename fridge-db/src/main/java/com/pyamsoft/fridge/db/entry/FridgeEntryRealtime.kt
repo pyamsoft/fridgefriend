@@ -17,12 +17,6 @@
 
 package com.pyamsoft.fridge.db.entry
 
-import androidx.annotation.CheckResult
-import com.pyamsoft.pydroid.arch.EventConsumer
+import com.pyamsoft.fridge.db.BaseDb
 
-interface FridgeEntryRealtime {
-
-  @CheckResult
-  fun listenForChanges(): EventConsumer<FridgeEntryChangeEvent>
-
-}
+interface FridgeEntryRealtime : BaseDb.Realtime<FridgeEntryChangeEvent>

@@ -18,7 +18,6 @@
 package com.pyamsoft.fridge.db.entry
 
 import androidx.annotation.CheckResult
-import com.pyamsoft.cachify.Cached
 import com.pyamsoft.cachify.Cached1
 import com.pyamsoft.fridge.db.BaseDb
 
@@ -36,10 +35,9 @@ interface FridgeEntryDb : BaseDb<
     @CheckResult
     fun wrap(
       db: FridgeEntryDb,
-      cache: Cached1<Sequence<FridgeEntry>, Boolean>,
-      onCacheCleared: () -> Unit
+      cache: Cached1<Sequence<FridgeEntry>, Boolean>
     ): FridgeEntryDb {
-      return FridgeEntryDbImpl(db, cache, onCacheCleared)
+      return FridgeEntryDbImpl(db, cache)
     }
   }
 }

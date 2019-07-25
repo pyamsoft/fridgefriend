@@ -17,8 +17,6 @@
 
 package com.pyamsoft.fridge.db.item
 
-interface FridgeItemUpdateDao {
+import com.pyamsoft.fridge.db.BaseDb
 
-  suspend fun update(item: FridgeItem)
-
-}
+interface FridgeItemUpdateDao : BaseDb.Update<FridgeItem>

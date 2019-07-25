@@ -27,9 +27,9 @@ import timber.log.Timber
 @Dao
 internal abstract class RoomFridgeItemDeleteDao internal constructor() : FridgeItemDeleteDao {
 
-  override suspend fun delete(item: FridgeItem) {
-    Timber.d("ROOM: Item Delete: $item")
-    val roomItem = RoomFridgeItem.create(item)
+  override suspend fun delete(o: FridgeItem) {
+    Timber.d("ROOM: Item Delete: $o")
+    val roomItem = RoomFridgeItem.create(o)
     daoDelete(roomItem)
   }
 

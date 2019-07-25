@@ -50,12 +50,32 @@ import com.pyamsoft.fridge.db.room.dao.item.RoomFridgeItemDeleteDao
 import com.pyamsoft.fridge.db.room.dao.item.RoomFridgeItemInsertDao
 import com.pyamsoft.fridge.db.room.dao.item.RoomFridgeItemQueryDao
 import com.pyamsoft.fridge.db.room.dao.item.RoomFridgeItemUpdateDao
+import com.pyamsoft.fridge.db.room.dao.store.RoomNearbyStoreDeleteDao
+import com.pyamsoft.fridge.db.room.dao.store.RoomNearbyStoreInsertDao
+import com.pyamsoft.fridge.db.room.dao.store.RoomNearbyStoreQueryDao
+import com.pyamsoft.fridge.db.room.dao.store.RoomNearbyStoreUpdateDao
 import com.pyamsoft.fridge.db.room.entity.RoomFridgeEntry
 import com.pyamsoft.fridge.db.room.entity.RoomFridgeItem
+import com.pyamsoft.fridge.db.room.entity.RoomNearbyStore
+import com.pyamsoft.fridge.db.store.NearbyStore
+import com.pyamsoft.fridge.db.store.NearbyStoreChangeEvent
+import com.pyamsoft.fridge.db.store.NearbyStoreDb
+import com.pyamsoft.fridge.db.store.NearbyStoreDeleteDao
+import com.pyamsoft.fridge.db.store.NearbyStoreInsertDao
+import com.pyamsoft.fridge.db.store.NearbyStoreQueryDao
+import com.pyamsoft.fridge.db.store.NearbyStoreRealtime
+import com.pyamsoft.fridge.db.store.NearbyStoreUpdateDao
 import com.pyamsoft.pydroid.arch.EventBus
 import com.pyamsoft.pydroid.arch.EventConsumer
 
-@Database(entities = [RoomFridgeItem::class, RoomFridgeEntry::class], version = 1)
+@Database(
+    version = 1,
+    entities = [
+      RoomFridgeItem::class,
+      RoomFridgeEntry::class,
+      RoomNearbyStore::class
+    ]
+)
 @TypeConverters(
     PresenceTypeConverter::class,
     DateTypeConverter::class,
@@ -66,17 +86,33 @@ internal abstract class RoomFridgeDbImpl internal constructor() : RoomDatabase()
 
   private val entryRealtimeChangeBus = EventBus.create<FridgeEntryChangeEvent>()
   private val itemRealtimeChangeBus = EventBus.create<FridgeItemChangeEvent>()
+  private val storeRealtimeChangeBus = EventBus.create<NearbyStoreChangeEvent>()
 
   private var entryCache: Cached1<Sequence<FridgeEntry>, Boolean>? = null
   private var itemCache: Cached1<Sequence<FridgeItem>, Boolean>? = null
+  private var storeCache: Cached1<Sequence<NearbyStore>, Boolean>? = null
 
-  internal fun setObjects(
+  internal fun applyCaches(
     entryCache: Cached1<Sequence<FridgeEntry>, Boolean>,
-    itemCache: Cached1<Sequence<FridgeItem>, Boolean>
+    itemCache: Cached1<Sequence<FridgeItem>, Boolean>,
+    storeCache: Cached1<Sequence<NearbyStore>, Boolean>
   ) {
     this.entryCache = entryCache
     this.itemCache = itemCache
+    this.storeCache = storeCache
   }
+
+  @CheckResult
+  internal abstract fun roomItemQueryDao(): RoomFridgeItemQueryDao
+
+  @CheckResult
+  internal abstract fun roomItemInsertDao(): RoomFridgeItemInsertDao
+
+  @CheckResult
+  internal abstract fun roomItemUpdateDao(): RoomFridgeItemUpdateDao
+
+  @CheckResult
+  internal abstract fun roomItemDeleteDao(): RoomFridgeItemDeleteDao
 
   private val itemDb by lazy {
     FridgeItemDb.wrap(object : FridgeItemDb {
@@ -113,24 +149,42 @@ internal abstract class RoomFridgeDbImpl internal constructor() : RoomDatabase()
         return realtime
       }
 
-      override fun query(): FridgeItemQueryDao {
+      override fun queryDao(): FridgeItemQueryDao {
         return roomItemQueryDao()
       }
 
-      override fun insert(): FridgeItemInsertDao {
+      override fun insertDao(): FridgeItemInsertDao {
         return roomItemInsertDao()
       }
 
-      override fun update(): FridgeItemUpdateDao {
+      override fun updateDao(): FridgeItemUpdateDao {
         return roomItemUpdateDao()
       }
 
-      override fun delete(): FridgeItemDeleteDao {
+      override fun deleteDao(): FridgeItemDeleteDao {
         return roomItemDeleteDao()
       }
 
     }, requireNotNull(itemCache))
   }
+
+  @CheckResult
+  override fun items(): FridgeItemDb {
+    return itemDb
+  }
+
+  @CheckResult
+  internal abstract fun roomEntryQueryDao(): RoomFridgeEntryQueryDao
+
+  @CheckResult
+  internal abstract fun roomEntryInsertDao(): RoomFridgeEntryInsertDao
+
+  @CheckResult
+  internal abstract fun roomEntryUpdateDao(): RoomFridgeEntryUpdateDao
+
+  @CheckResult
+  internal abstract fun roomEntryDeleteDao(): RoomFridgeEntryDeleteDao
+
   private val entryDb by lazy {
     FridgeEntryDb.wrap(object : FridgeEntryDb {
 
@@ -150,60 +204,83 @@ internal abstract class RoomFridgeDbImpl internal constructor() : RoomDatabase()
         return realtime
       }
 
-      override fun query(): FridgeEntryQueryDao {
+      override fun queryDao(): FridgeEntryQueryDao {
         return roomEntryQueryDao()
       }
 
-      override fun insert(): FridgeEntryInsertDao {
+      override fun insertDao(): FridgeEntryInsertDao {
         return roomEntryInsertDao()
       }
 
-      override fun update(): FridgeEntryUpdateDao {
+      override fun updateDao(): FridgeEntryUpdateDao {
         return roomEntryUpdateDao()
       }
 
-      override fun delete(): FridgeEntryDeleteDao {
+      override fun deleteDao(): FridgeEntryDeleteDao {
         return roomEntryDeleteDao()
       }
 
-    }, requireNotNull(entryCache)) {
-      entryCache?.clear()
-      itemCache?.clear()
-    }
+    }, requireNotNull(entryCache))
   }
-
-  @CheckResult
-  internal abstract fun roomItemQueryDao(): RoomFridgeItemQueryDao
-
-  @CheckResult
-  internal abstract fun roomItemInsertDao(): RoomFridgeItemInsertDao
-
-  @CheckResult
-  internal abstract fun roomItemUpdateDao(): RoomFridgeItemUpdateDao
-
-  @CheckResult
-  internal abstract fun roomItemDeleteDao(): RoomFridgeItemDeleteDao
-
-  @CheckResult
-  override fun items(): FridgeItemDb {
-    return itemDb
-  }
-
-  @CheckResult
-  internal abstract fun roomEntryQueryDao(): RoomFridgeEntryQueryDao
-
-  @CheckResult
-  internal abstract fun roomEntryInsertDao(): RoomFridgeEntryInsertDao
-
-  @CheckResult
-  internal abstract fun roomEntryUpdateDao(): RoomFridgeEntryUpdateDao
-
-  @CheckResult
-  internal abstract fun roomEntryDeleteDao(): RoomFridgeEntryDeleteDao
 
   @CheckResult
   override fun entries(): FridgeEntryDb {
     return entryDb
+  }
+
+  @CheckResult
+  internal abstract fun roomStoreQueryDao(): RoomNearbyStoreQueryDao
+
+  @CheckResult
+  internal abstract fun roomStoreInsertDao(): RoomNearbyStoreInsertDao
+
+  @CheckResult
+  internal abstract fun roomStoreUpdateDao(): RoomNearbyStoreUpdateDao
+
+  @CheckResult
+  internal abstract fun roomStoreDeleteDao(): RoomNearbyStoreDeleteDao
+
+  private val storeDb by lazy {
+    NearbyStoreDb.wrap(object : NearbyStoreDb {
+
+      private val realtime by lazy {
+        object : NearbyStoreRealtime {
+          override fun listenForChanges(): EventConsumer<NearbyStoreChangeEvent> {
+            return storeRealtimeChangeBus
+          }
+        }
+      }
+
+      override fun publish(event: NearbyStoreChangeEvent) {
+        storeRealtimeChangeBus.publish(event)
+      }
+
+      override fun realtime(): NearbyStoreRealtime {
+        return realtime
+      }
+
+      override fun queryDao(): NearbyStoreQueryDao {
+        return roomStoreQueryDao()
+      }
+
+      override fun insertDao(): NearbyStoreInsertDao {
+        return roomStoreInsertDao()
+      }
+
+      override fun updateDao(): NearbyStoreUpdateDao {
+        return roomStoreUpdateDao()
+      }
+
+      override fun deleteDao(): NearbyStoreDeleteDao {
+        return roomStoreDeleteDao()
+      }
+
+    }, requireNotNull(storeCache))
+  }
+
+  @CheckResult
+  override fun stores(): NearbyStoreDb {
+    return storeDb
   }
 
 }

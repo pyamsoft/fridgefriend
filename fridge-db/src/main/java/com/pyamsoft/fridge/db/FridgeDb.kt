@@ -20,6 +20,7 @@ package com.pyamsoft.fridge.db
 import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.db.entry.FridgeEntryDb
 import com.pyamsoft.fridge.db.item.FridgeItemDb
+import com.pyamsoft.fridge.db.store.NearbyStoreDb
 
 interface FridgeDb {
 
@@ -28,5 +29,8 @@ interface FridgeDb {
 
   @CheckResult
   fun entries(): FridgeEntryDb
+
+  @CheckResult
+  fun stores(): NearbyStoreDb
 
 }

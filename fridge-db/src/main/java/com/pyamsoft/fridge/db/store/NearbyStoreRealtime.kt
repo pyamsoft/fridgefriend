@@ -17,12 +17,6 @@
 
 package com.pyamsoft.fridge.db.store
 
-import androidx.annotation.CheckResult
-import com.pyamsoft.pydroid.arch.EventConsumer
+import com.pyamsoft.fridge.db.BaseDb
 
-interface NearbyStoreRealtime {
-
-  @CheckResult
-  fun listenForChanges(): EventConsumer<NearbyStoreChangeEvent>
-
-}
+interface NearbyStoreRealtime : BaseDb.Realtime<NearbyStoreChangeEvent>

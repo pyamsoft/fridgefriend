@@ -15,26 +15,26 @@
  *
  */
 
-package com.pyamsoft.fridge.db.room.dao.entry
+package com.pyamsoft.fridge.db.room.dao.store
 
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
-import com.pyamsoft.fridge.db.entry.FridgeEntry
-import com.pyamsoft.fridge.db.entry.FridgeEntryInsertDao
-import com.pyamsoft.fridge.db.room.entity.RoomFridgeEntry
+import com.pyamsoft.fridge.db.room.entity.RoomNearbyStore
+import com.pyamsoft.fridge.db.store.NearbyStore
+import com.pyamsoft.fridge.db.store.NearbyStoreInsertDao
 import timber.log.Timber
 
 @Dao
-internal abstract class RoomFridgeEntryInsertDao internal constructor() : FridgeEntryInsertDao {
+internal abstract class RoomNearbyStoreInsertDao internal constructor() : NearbyStoreInsertDao {
 
-  override suspend fun insert(o: FridgeEntry) {
-    Timber.d("ROOM: Entry Insert: $o")
-    val roomEntry = RoomFridgeEntry.create(o)
-    daoInsert(roomEntry)
+  override suspend fun insert(o: NearbyStore) {
+    Timber.d("ROOM: NearbyStore Insert: $o")
+    val roomNearbyStore = RoomNearbyStore.create(o)
+    daoInsert(roomNearbyStore)
   }
 
   @Insert(onConflict = OnConflictStrategy.ABORT)
-  internal abstract fun daoInsert(entry: RoomFridgeEntry)
+  internal abstract fun daoInsert(entry: RoomNearbyStore)
 
 }

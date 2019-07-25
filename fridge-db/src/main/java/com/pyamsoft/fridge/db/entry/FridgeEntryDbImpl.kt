@@ -27,15 +27,13 @@ import kotlinx.coroutines.sync.withLock
 
 internal class FridgeEntryDbImpl internal constructor(
   private val db: FridgeEntryDb,
-  private val cache: Cached1<Sequence<FridgeEntry>, Boolean>,
-  private val onCacheCleared: () -> Unit
+  private val cache: Cached1<Sequence<FridgeEntry>, Boolean>
 ) : FridgeEntryDb {
 
   private val mutex = Mutex()
 
   private fun publishRealtime(event: FridgeEntryChangeEvent) {
     cache.clear()
-    onCacheCleared()
     publish(event)
   }
 
@@ -47,10 +45,10 @@ internal class FridgeEntryDbImpl internal constructor(
     return db.realtime()
   }
 
-  override fun query(): FridgeEntryQueryDao {
+  override fun queryDao(): FridgeEntryQueryDao {
     return object : FridgeEntryQueryDao {
 
-      override suspend fun queryAll(force: Boolean): List<FridgeEntry> {
+      override suspend fun query(force: Boolean): List<FridgeEntry> {
         mutex.withLock {
           if (force) {
             cache.clear()
@@ -64,48 +62,48 @@ internal class FridgeEntryDbImpl internal constructor(
     }
   }
 
-  override fun insert(): FridgeEntryInsertDao {
+  override fun insertDao(): FridgeEntryInsertDao {
     return object : FridgeEntryInsertDao {
 
-      override suspend fun insert(entry: FridgeEntry) {
+      override suspend fun insert(o: FridgeEntry) {
         mutex.withLock {
-          db.insert()
-              .insert(entry)
-          publishRealtime(Insert(entry.makeReal()))
+          db.insertDao()
+              .insert(o)
+          publishRealtime(Insert(o.makeReal()))
         }
       }
 
     }
   }
 
-  override fun update(): FridgeEntryUpdateDao {
+  override fun updateDao(): FridgeEntryUpdateDao {
     return object : FridgeEntryUpdateDao {
 
-      override suspend fun update(entry: FridgeEntry) {
+      override suspend fun update(o: FridgeEntry) {
         mutex.withLock {
-          db.update()
-              .update(entry)
-          publishRealtime(Update(entry.makeReal()))
+          db.updateDao()
+              .update(o)
+          publishRealtime(Update(o.makeReal()))
         }
       }
     }
 
   }
 
-  override fun delete(): FridgeEntryDeleteDao {
+  override fun deleteDao(): FridgeEntryDeleteDao {
     return object : FridgeEntryDeleteDao {
 
-      override suspend fun delete(entry: FridgeEntry) {
+      override suspend fun delete(o: FridgeEntry) {
         mutex.withLock {
-          db.delete()
-              .delete(entry)
-          publishRealtime(Delete(entry.makeReal()))
+          db.deleteDao()
+              .delete(o)
+          publishRealtime(Delete(o.makeReal()))
         }
       }
 
       override suspend fun deleteAll() {
         mutex.withLock {
-          db.delete()
+          db.deleteDao()
               .deleteAll()
           publishRealtime(DeleteAll)
         }

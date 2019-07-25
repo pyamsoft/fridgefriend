@@ -45,7 +45,7 @@ internal class FridgeItemDbImpl internal constructor(
     return db.realtime()
   }
 
-  override fun query(): FridgeItemQueryDao {
+  override fun queryDao(): FridgeItemQueryDao {
     return object : FridgeItemQueryDao {
 
       @CheckResult
@@ -57,13 +57,13 @@ internal class FridgeItemDbImpl internal constructor(
         return cache.call(force)
       }
 
-      override suspend fun queryAll(force: Boolean): List<FridgeItem> {
+      override suspend fun query(force: Boolean): List<FridgeItem> {
         mutex.withLock {
           return queryAsSequence(force).toList()
         }
       }
 
-      override suspend fun queryAll(
+      override suspend fun query(
         force: Boolean,
         entryId: String
       ): List<FridgeItem> {
@@ -77,42 +77,42 @@ internal class FridgeItemDbImpl internal constructor(
     }
   }
 
-  override fun insert(): FridgeItemInsertDao {
+  override fun insertDao(): FridgeItemInsertDao {
     return object : FridgeItemInsertDao {
 
-      override suspend fun insert(item: FridgeItem) {
+      override suspend fun insert(o: FridgeItem) {
         mutex.withLock {
-          db.insert()
-              .insert(item)
-          publishRealtime(Insert(item.makeReal()))
+          db.insertDao()
+              .insert(o)
+          publishRealtime(Insert(o.makeReal()))
         }
       }
 
     }
   }
 
-  override fun update(): FridgeItemUpdateDao {
+  override fun updateDao(): FridgeItemUpdateDao {
     return object : FridgeItemUpdateDao {
 
-      override suspend fun update(item: FridgeItem) {
+      override suspend fun update(o: FridgeItem) {
         mutex.withLock {
-          db.update()
-              .update(item)
-          publishRealtime(Update(item.makeReal()))
+          db.updateDao()
+              .update(o)
+          publishRealtime(Update(o.makeReal()))
         }
       }
 
     }
   }
 
-  override fun delete(): FridgeItemDeleteDao {
+  override fun deleteDao(): FridgeItemDeleteDao {
     return object : FridgeItemDeleteDao {
 
-      override suspend fun delete(item: FridgeItem) {
+      override suspend fun delete(o: FridgeItem) {
         mutex.withLock {
-          db.delete()
-              .delete(item)
-          publishRealtime(Delete(item.makeReal()))
+          db.deleteDao()
+              .delete(o)
+          publishRealtime(Delete(o.makeReal()))
         }
       }
 

@@ -44,7 +44,7 @@ internal class RoomPersistentEntries @Inject internal constructor(
     entryId: String,
     force: Boolean
   ): FridgeEntry? {
-    val entries = queryDao.queryAll(force)
+    val entries = queryDao.query(force)
     return entries.singleOrNull { it.id() == entryId }
   }
 

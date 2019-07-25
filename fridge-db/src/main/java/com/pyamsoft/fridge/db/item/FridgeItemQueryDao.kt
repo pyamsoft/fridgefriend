@@ -18,14 +18,12 @@
 package com.pyamsoft.fridge.db.item
 
 import androidx.annotation.CheckResult
+import com.pyamsoft.fridge.db.BaseDb
 
-interface FridgeItemQueryDao {
-
-  @CheckResult
-  suspend fun queryAll(force: Boolean): List<FridgeItem>
+interface FridgeItemQueryDao : BaseDb.Query<FridgeItem> {
 
   @CheckResult
-  suspend fun queryAll(
+  suspend fun query(
     force: Boolean,
     entryId: String
   ): List<FridgeItem>

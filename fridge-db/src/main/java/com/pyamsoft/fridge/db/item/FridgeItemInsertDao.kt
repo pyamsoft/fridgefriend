@@ -17,8 +17,6 @@
 
 package com.pyamsoft.fridge.db.item
 
-interface FridgeItemInsertDao {
+import com.pyamsoft.fridge.db.BaseDb
 
-  suspend fun insert(item: FridgeItem)
-
-}
+interface FridgeItemInsertDao : BaseDb.Insert<FridgeItem>

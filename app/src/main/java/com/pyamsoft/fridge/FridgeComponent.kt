@@ -27,7 +27,7 @@ import com.pyamsoft.fridge.butler.workmanager.ButlerModule
 import com.pyamsoft.fridge.db.entry.FridgeEntryQueryDao
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent
 import com.pyamsoft.fridge.db.item.FridgeItemQueryDao
-import com.pyamsoft.fridge.db.room.RoomProvider
+import com.pyamsoft.fridge.db.room.RoomModule
 import com.pyamsoft.fridge.detail.DatePickerDialogFragment
 import com.pyamsoft.fridge.detail.DetailComponent
 import com.pyamsoft.fridge.detail.ExpandComponent
@@ -57,7 +57,7 @@ import javax.inject.Singleton
 @Component(
     modules = [
       FridgeProvider::class,
-      RoomProvider::class,
+      RoomModule::class,
       ButlerModule::class,
       LocatorModule::class
     ]

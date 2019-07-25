@@ -15,8 +15,29 @@
  *
  */
 
-package com.pyamsoft.fridge.db.entry
+package com.pyamsoft.fridge.db.store
 
+import androidx.annotation.CheckResult
+import com.pyamsoft.cachify.Cached1
 import com.pyamsoft.fridge.db.BaseDb
 
-interface FridgeEntryInsertDao : BaseDb.Insert<FridgeEntry>
+interface NearbyStoreDb : BaseDb<
+    NearbyStoreChangeEvent,
+    NearbyStoreRealtime,
+    NearbyStoreQueryDao,
+    NearbyStoreInsertDao,
+    NearbyStoreUpdateDao,
+    NearbyStoreDeleteDao
+    > {
+
+  companion object {
+
+    @CheckResult
+    fun wrap(
+      db: NearbyStoreDb,
+      cache: Cached1<Sequence<NearbyStore>, Boolean>
+    ): NearbyStoreDb {
+      return NearbyStoreDbImpl(db, cache)
+    }
+  }
+}

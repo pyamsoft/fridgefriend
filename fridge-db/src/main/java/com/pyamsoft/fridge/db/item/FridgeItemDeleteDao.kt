@@ -17,8 +17,6 @@
 
 package com.pyamsoft.fridge.db.item
 
-interface FridgeItemDeleteDao {
+import com.pyamsoft.fridge.db.BaseDb
 
-  suspend fun delete(item: FridgeItem)
-
-}
+interface FridgeItemDeleteDao : BaseDb.Delete<FridgeItem>

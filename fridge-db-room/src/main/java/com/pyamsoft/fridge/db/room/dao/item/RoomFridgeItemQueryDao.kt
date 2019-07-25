@@ -28,27 +28,27 @@ import timber.log.Timber
 @Dao
 internal abstract class RoomFridgeItemQueryDao internal constructor() : FridgeItemQueryDao {
 
-  override suspend fun queryAll(
+  override suspend fun query(
     force: Boolean,
     entryId: String
   ): List<FridgeItem> {
     Timber.d("ROOM: Item Query: $force $entryId")
-    return daoQueryAll(entryId)
+    return daoQuery(entryId)
   }
 
   @Query(
       "SELECT * FROM ${RoomFridgeItem.TABLE_NAME} WHERE ${RoomFridgeItem.COLUMN_ENTRY_ID} = :entryId"
   )
   @CheckResult
-  internal abstract suspend fun daoQueryAll(entryId: String): List<RoomFridgeItem>
+  internal abstract suspend fun daoQuery(entryId: String): List<RoomFridgeItem>
 
-  override suspend fun queryAll(force: Boolean): List<FridgeItem> {
+  override suspend fun query(force: Boolean): List<FridgeItem> {
     Timber.d("ROOM: Item Query: $force")
-    return daoQueryAll()
+    return daoQuery()
   }
 
   @Query("SELECT * FROM ${RoomFridgeItem.TABLE_NAME}")
   @CheckResult
-  internal abstract suspend fun daoQueryAll(): List<RoomFridgeItem>
+  internal abstract suspend fun daoQuery(): List<RoomFridgeItem>
 
 }

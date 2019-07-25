@@ -111,9 +111,9 @@ internal class ExpirationWorker internal constructor(
     val later = Calendar.getInstance()
         .daysLaterMidnight(2)
 
-    requireNotNull(fridgeEntryQueryDao).queryAll(true)
+    requireNotNull(fridgeEntryQueryDao).query(true)
         .forEach { entry ->
-          val items = requireNotNull(fridgeItemQueryDao).queryAll(true, entry.id())
+          val items = requireNotNull(fridgeItemQueryDao).query(true, entry.id())
           notifyForEntry(today, later, entry, items)
         }
   }
