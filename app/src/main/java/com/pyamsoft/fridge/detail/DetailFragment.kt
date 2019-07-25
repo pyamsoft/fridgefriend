@@ -32,12 +32,9 @@ import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.entry.JsonMappableFridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence
-import com.pyamsoft.fridge.detail.DetailControllerEvent.ArchiveError
 import com.pyamsoft.fridge.detail.DetailControllerEvent.DatePick
 import com.pyamsoft.fridge.detail.DetailControllerEvent.EntryArchived
 import com.pyamsoft.fridge.detail.DetailControllerEvent.ExpandForEditing
-import com.pyamsoft.fridge.detail.DetailControllerEvent.ListRefreshError
-import com.pyamsoft.fridge.detail.DetailControllerEvent.NameUpdateError
 import com.pyamsoft.fridge.detail.DetailControllerEvent.NavigateUp
 import com.pyamsoft.fridge.detail.add.AddNewControllerEvent.AddNew
 import com.pyamsoft.fridge.detail.add.AddNewItemView
@@ -106,9 +103,6 @@ internal class DetailFragment : Fragment() {
         is DatePick -> pickDate(it.oldItem, it.year, it.month, it.day)
         is EntryArchived -> close()
         is NavigateUp -> close()
-        is ArchiveError -> handleError(it.throwable)
-        is NameUpdateError -> handleError(it.throwable)
-        is ListRefreshError -> handleError(it.throwable)
       }
     }
 
@@ -141,10 +135,6 @@ internal class DetailFragment : Fragment() {
         constrainHeight(it.id(), ConstraintSet.WRAP_CONTENT)
       }
     }
-  }
-
-  private fun handleError(throwable: Throwable) {
-    requireNotNull(list).showError(throwable)
   }
 
   private fun pickDate(

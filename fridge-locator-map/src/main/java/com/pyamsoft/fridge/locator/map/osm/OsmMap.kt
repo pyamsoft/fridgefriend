@@ -158,6 +158,14 @@ class OsmMap @Inject internal constructor(
     if (invalidate) {
       map.invalidate()
     }
+
+    state.nearbyError.let { throwable ->
+      if (throwable == null) {
+        clearError()
+      } else {
+        showError(throwable)
+      }
+    }
   }
 
   @CheckResult
@@ -299,9 +307,9 @@ class OsmMap @Inject internal constructor(
     mapView.overlays.add(locationOverlay)
   }
 
-  fun showError(throwable: Throwable) {
+  private fun showError(throwable: Throwable) {
     Snackbreak.bindTo(owner)
-        .short(layoutRoot, throwable.message ?: "An unexpected error occurred.")
+        .make(layoutRoot, throwable.message ?: "An unexpected error occurred.")
   }
 
   private fun clearError() {

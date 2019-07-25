@@ -28,8 +28,6 @@ import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent.Update
 import com.pyamsoft.fridge.db.item.isArchived
 import com.pyamsoft.fridge.detail.DetailControllerEvent.DatePick
 import com.pyamsoft.fridge.detail.DetailControllerEvent.ExpandForEditing
-import com.pyamsoft.fridge.detail.DetailControllerEvent.ListRefreshError
-import com.pyamsoft.fridge.detail.DetailControllerEvent.NameUpdateError
 import com.pyamsoft.fridge.detail.DetailControllerEvent.NavigateUp
 import com.pyamsoft.fridge.detail.DetailViewEvent.CloseEntry
 import com.pyamsoft.fridge.detail.DetailViewEvent.ExpandItem
@@ -58,7 +56,9 @@ class DetailViewModel @Inject internal constructor(
     initialState = DetailViewState(
         isLoading = null,
         items = emptyList(),
-        filterArchived = true
+        filterArchived = true,
+        nameUpdateError = null,
+        listError = null
     )
 ) {
 
@@ -67,6 +67,7 @@ class DetailViewModel @Inject internal constructor(
   private val nameRunner = highlander<Unit, String> { name ->
     try {
       interactor.saveName(name.trim())
+      handleNameUpdated()
     } catch (error: Throwable) {
       error.onActualError { e ->
         Timber.e(e, "Error updating entry name")
@@ -131,8 +132,12 @@ class DetailViewModel @Inject internal constructor(
     viewModelScope.launch(context = Dispatchers.Default) { nameRunner.call(name) }
   }
 
+  private fun handleNameUpdated() {
+    setState { copy(nameUpdateError = null) }
+  }
+
   private fun handleNameUpdateError(throwable: Throwable) {
-    publish(NameUpdateError(throwable))
+    setState { copy(nameUpdateError = throwable) }
   }
 
   @CheckResult
@@ -244,24 +249,18 @@ class DetailViewModel @Inject internal constructor(
   }
 
   private fun handleListRefreshBegin() {
-    setState {
-      copy(isLoading = Loading(true))
-    }
+    setState { copy(isLoading = Loading(true)) }
   }
 
   private fun handleListRefreshed(items: List<FridgeItem>) {
-    setState {
-      copy(items = getListItems(filterArchived, items))
-    }
+    setState { copy(items = getListItems(filterArchived, items), listError = null) }
   }
 
   private fun handleListRefreshError(throwable: Throwable) {
-    publish(ListRefreshError(throwable))
+    setState { copy(items = emptyList(), listError = throwable) }
   }
 
   private fun handleListRefreshComplete() {
-    setState {
-      copy(isLoading = Loading(false))
-    }
+    setState { copy(isLoading = Loading(false)) }
   }
 }

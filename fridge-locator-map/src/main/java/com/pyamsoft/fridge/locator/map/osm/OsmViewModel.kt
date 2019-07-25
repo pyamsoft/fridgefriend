@@ -18,7 +18,6 @@
 package com.pyamsoft.fridge.locator.map.osm
 
 import androidx.lifecycle.viewModelScope
-import com.pyamsoft.fridge.locator.map.osm.OsmControllerEvent.NearbyLocationError
 import com.pyamsoft.fridge.locator.map.osm.OsmViewEvent.FindNearby
 import com.pyamsoft.highlander.highlander
 import com.pyamsoft.pydroid.arch.UiViewModel
@@ -31,7 +30,9 @@ import javax.inject.Inject
 class OsmViewModel @Inject internal constructor(
   private val interactor: OsmInteractor
 ) : UiViewModel<OsmViewState, OsmViewEvent, OsmControllerEvent>(
-    initialState = OsmViewState(loading = false, points = emptyList(), zones = emptyList())
+    initialState = OsmViewState(
+        loading = false, points = emptyList(), zones = emptyList(), nearbyError = null
+    )
 ) {
 
   private val nearbyRunner = highlander<Unit, BBox> { box ->
@@ -43,18 +44,23 @@ class OsmViewModel @Inject internal constructor(
     } catch (error: Throwable) {
       error.onActualError { e ->
         Timber.e(e, "Error getting nearby supermarkets")
-        publish(NearbyLocationError(e))
+        nearbyError(e)
       }
     } finally {
       setState { copy(loading = false) }
     }
   }
 
+  private fun nearbyError(throwable: Throwable) {
+    setState { copy(nearbyError = throwable) }
+  }
+
   private fun updateMarkers(markers: OsmMarkers) {
     setState {
       copy(
           points = merge(points, markers.points) { it.id() },
-          zones = merge(zones, markers.zones) { it.id() }
+          zones = merge(zones, markers.zones) { it.id() },
+          nearbyError = null
       )
     }
   }
