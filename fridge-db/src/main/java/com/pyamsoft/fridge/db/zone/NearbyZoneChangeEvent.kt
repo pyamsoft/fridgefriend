@@ -15,26 +15,14 @@
  *
  */
 
-package com.pyamsoft.fridge.db
+package com.pyamsoft.fridge.db.zone
 
-import androidx.annotation.CheckResult
-import com.pyamsoft.fridge.db.entry.FridgeEntryDb
-import com.pyamsoft.fridge.db.item.FridgeItemDb
-import com.pyamsoft.fridge.db.store.NearbyStoreDb
-import com.pyamsoft.fridge.db.zone.NearbyZoneDb
+sealed class NearbyZoneChangeEvent {
 
-interface FridgeDb {
+  data class Insert(val store: NearbyZone) : NearbyZoneChangeEvent()
 
-  @CheckResult
-  fun items(): FridgeItemDb
+  data class Update(val store: NearbyZone) : NearbyZoneChangeEvent()
 
-  @CheckResult
-  fun entries(): FridgeEntryDb
-
-  @CheckResult
-  fun stores(): NearbyStoreDb
-
-  @CheckResult
-  fun zones(): NearbyZoneDb
+  data class Delete(val store: NearbyZone) : NearbyZoneChangeEvent()
 
 }

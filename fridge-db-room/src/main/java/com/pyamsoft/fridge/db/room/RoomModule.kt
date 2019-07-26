@@ -47,6 +47,8 @@ import com.pyamsoft.fridge.db.store.NearbyStoreInsertDao
 import com.pyamsoft.fridge.db.store.NearbyStoreQueryDao
 import com.pyamsoft.fridge.db.store.NearbyStoreRealtime
 import com.pyamsoft.fridge.db.store.NearbyStoreUpdateDao
+import com.pyamsoft.fridge.db.zone.JsonMappableNearbyZone
+import com.pyamsoft.fridge.db.zone.NearbyZone
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
@@ -101,7 +103,14 @@ abstract class RoomModule {
               .map { JsonMappableNearbyStore.from(it) }
         }
 
-        applyCaches(entryCache, itemCache, storeCache)
+        val zoneCache = cachify<Sequence<NearbyZone>, Boolean>(5, MINUTES) { force ->
+          return@cachify roomZoneQueryDao()
+              .query(force)
+              .asSequence()
+              .map { JsonMappableNearbyZone.from(it) }
+        }
+
+        applyCaches(entryCache, itemCache, storeCache, zoneCache)
       }
     }
 

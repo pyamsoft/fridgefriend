@@ -17,7 +17,6 @@
 
 package com.pyamsoft.fridge.db.store
 
-// TODO Need to build out the DAO for nearby store and zones
 sealed class NearbyStoreChangeEvent {
 
   data class Insert(val store: NearbyStore) : NearbyStoreChangeEvent()

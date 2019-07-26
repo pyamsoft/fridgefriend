@@ -15,26 +15,29 @@
  *
  */
 
-package com.pyamsoft.fridge.db
+package com.pyamsoft.fridge.db.zone
 
 import androidx.annotation.CheckResult
-import com.pyamsoft.fridge.db.entry.FridgeEntryDb
-import com.pyamsoft.fridge.db.item.FridgeItemDb
-import com.pyamsoft.fridge.db.store.NearbyStoreDb
-import com.pyamsoft.fridge.db.zone.NearbyZoneDb
+import com.pyamsoft.cachify.Cached1
+import com.pyamsoft.fridge.db.BaseDb
 
-interface FridgeDb {
+interface NearbyZoneDb : BaseDb<
+    NearbyZoneChangeEvent,
+    NearbyZoneRealtime,
+    NearbyZoneQueryDao,
+    NearbyZoneInsertDao,
+    NearbyZoneUpdateDao,
+    NearbyZoneDeleteDao
+    > {
 
-  @CheckResult
-  fun items(): FridgeItemDb
+  companion object {
 
-  @CheckResult
-  fun entries(): FridgeEntryDb
-
-  @CheckResult
-  fun stores(): NearbyStoreDb
-
-  @CheckResult
-  fun zones(): NearbyZoneDb
-
+    @CheckResult
+    fun wrap(
+      db: NearbyZoneDb,
+      cache: Cached1<Sequence<NearbyZone>, Boolean>
+    ): NearbyZoneDb {
+      return NearbyZoneDbImpl(db, cache)
+    }
+  }
 }

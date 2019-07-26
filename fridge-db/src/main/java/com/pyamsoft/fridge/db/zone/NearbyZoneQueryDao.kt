@@ -15,26 +15,8 @@
  *
  */
 
-package com.pyamsoft.fridge.db
+package com.pyamsoft.fridge.db.zone
 
-import androidx.annotation.CheckResult
-import com.pyamsoft.fridge.db.entry.FridgeEntryDb
-import com.pyamsoft.fridge.db.item.FridgeItemDb
-import com.pyamsoft.fridge.db.store.NearbyStoreDb
-import com.pyamsoft.fridge.db.zone.NearbyZoneDb
+import com.pyamsoft.fridge.db.BaseDb
 
-interface FridgeDb {
-
-  @CheckResult
-  fun items(): FridgeItemDb
-
-  @CheckResult
-  fun entries(): FridgeEntryDb
-
-  @CheckResult
-  fun stores(): NearbyStoreDb
-
-  @CheckResult
-  fun zones(): NearbyZoneDb
-
-}
+interface NearbyZoneQueryDao : BaseDb.Query<NearbyZone>

@@ -54,9 +54,14 @@ import com.pyamsoft.fridge.db.room.dao.store.RoomNearbyStoreDeleteDao
 import com.pyamsoft.fridge.db.room.dao.store.RoomNearbyStoreInsertDao
 import com.pyamsoft.fridge.db.room.dao.store.RoomNearbyStoreQueryDao
 import com.pyamsoft.fridge.db.room.dao.store.RoomNearbyStoreUpdateDao
+import com.pyamsoft.fridge.db.room.dao.zone.RoomNearbyZoneDeleteDao
+import com.pyamsoft.fridge.db.room.dao.zone.RoomNearbyZoneInsertDao
+import com.pyamsoft.fridge.db.room.dao.zone.RoomNearbyZoneQueryDao
+import com.pyamsoft.fridge.db.room.dao.zone.RoomNearbyZoneUpdateDao
 import com.pyamsoft.fridge.db.room.entity.RoomFridgeEntry
 import com.pyamsoft.fridge.db.room.entity.RoomFridgeItem
 import com.pyamsoft.fridge.db.room.entity.RoomNearbyStore
+import com.pyamsoft.fridge.db.room.entity.RoomNearbyZone
 import com.pyamsoft.fridge.db.store.NearbyStore
 import com.pyamsoft.fridge.db.store.NearbyStoreChangeEvent
 import com.pyamsoft.fridge.db.store.NearbyStoreDb
@@ -65,6 +70,14 @@ import com.pyamsoft.fridge.db.store.NearbyStoreInsertDao
 import com.pyamsoft.fridge.db.store.NearbyStoreQueryDao
 import com.pyamsoft.fridge.db.store.NearbyStoreRealtime
 import com.pyamsoft.fridge.db.store.NearbyStoreUpdateDao
+import com.pyamsoft.fridge.db.zone.NearbyZone
+import com.pyamsoft.fridge.db.zone.NearbyZoneChangeEvent
+import com.pyamsoft.fridge.db.zone.NearbyZoneDb
+import com.pyamsoft.fridge.db.zone.NearbyZoneDeleteDao
+import com.pyamsoft.fridge.db.zone.NearbyZoneInsertDao
+import com.pyamsoft.fridge.db.zone.NearbyZoneQueryDao
+import com.pyamsoft.fridge.db.zone.NearbyZoneRealtime
+import com.pyamsoft.fridge.db.zone.NearbyZoneUpdateDao
 import com.pyamsoft.pydroid.arch.EventBus
 import com.pyamsoft.pydroid.arch.EventConsumer
 
@@ -73,7 +86,8 @@ import com.pyamsoft.pydroid.arch.EventConsumer
     entities = [
       RoomFridgeItem::class,
       RoomFridgeEntry::class,
-      RoomNearbyStore::class
+      RoomNearbyStore::class,
+      RoomNearbyZone::class
     ]
 )
 @TypeConverters(
@@ -87,19 +101,23 @@ internal abstract class RoomFridgeDbImpl internal constructor() : RoomDatabase()
   private val entryRealtimeChangeBus = EventBus.create<FridgeEntryChangeEvent>()
   private val itemRealtimeChangeBus = EventBus.create<FridgeItemChangeEvent>()
   private val storeRealtimeChangeBus = EventBus.create<NearbyStoreChangeEvent>()
+  private val zoneRealtimeChangeBus = EventBus.create<NearbyZoneChangeEvent>()
 
   private var entryCache: Cached1<Sequence<FridgeEntry>, Boolean>? = null
   private var itemCache: Cached1<Sequence<FridgeItem>, Boolean>? = null
   private var storeCache: Cached1<Sequence<NearbyStore>, Boolean>? = null
+  private var zoneCache: Cached1<Sequence<NearbyZone>, Boolean>? = null
 
   internal fun applyCaches(
     entryCache: Cached1<Sequence<FridgeEntry>, Boolean>,
     itemCache: Cached1<Sequence<FridgeItem>, Boolean>,
-    storeCache: Cached1<Sequence<NearbyStore>, Boolean>
+    storeCache: Cached1<Sequence<NearbyStore>, Boolean>,
+    zoneCache: Cached1<Sequence<NearbyZone>, Boolean>
   ) {
     this.entryCache = entryCache
     this.itemCache = itemCache
     this.storeCache = storeCache
+    this.zoneCache = zoneCache
   }
 
   @CheckResult
@@ -281,6 +299,61 @@ internal abstract class RoomFridgeDbImpl internal constructor() : RoomDatabase()
   @CheckResult
   override fun stores(): NearbyStoreDb {
     return storeDb
+  }
+
+  @CheckResult
+  internal abstract fun roomZoneQueryDao(): RoomNearbyZoneQueryDao
+
+  @CheckResult
+  internal abstract fun roomZoneInsertDao(): RoomNearbyZoneInsertDao
+
+  @CheckResult
+  internal abstract fun roomZoneUpdateDao(): RoomNearbyZoneUpdateDao
+
+  @CheckResult
+  internal abstract fun roomZoneDeleteDao(): RoomNearbyZoneDeleteDao
+
+  private val zoneDb by lazy {
+    NearbyZoneDb.wrap(object : NearbyZoneDb {
+
+      private val realtime by lazy {
+        object : NearbyZoneRealtime {
+          override fun listenForChanges(): EventConsumer<NearbyZoneChangeEvent> {
+            return zoneRealtimeChangeBus
+          }
+        }
+      }
+
+      override fun publish(event: NearbyZoneChangeEvent) {
+        zoneRealtimeChangeBus.publish(event)
+      }
+
+      override fun realtime(): NearbyZoneRealtime {
+        return realtime
+      }
+
+      override fun queryDao(): NearbyZoneQueryDao {
+        return roomZoneQueryDao()
+      }
+
+      override fun insertDao(): NearbyZoneInsertDao {
+        return roomZoneInsertDao()
+      }
+
+      override fun updateDao(): NearbyZoneUpdateDao {
+        return roomZoneUpdateDao()
+      }
+
+      override fun deleteDao(): NearbyZoneDeleteDao {
+        return roomZoneDeleteDao()
+      }
+
+    }, requireNotNull(zoneCache))
+  }
+
+  @CheckResult
+  override fun zones(): NearbyZoneDb {
+    return zoneDb
   }
 
 }
