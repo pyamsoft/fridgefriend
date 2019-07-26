@@ -16,7 +16,7 @@
   ~
   -->
 
-<FrameLayout
+<androidx.coordinatorlayout.widget.CoordinatorLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/osm_frame"
     android:layout_width="match_parent"
@@ -41,7 +41,7 @@
       app:pressedTranslationZ="12dp"
       />
 
-</FrameLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
 
 
 

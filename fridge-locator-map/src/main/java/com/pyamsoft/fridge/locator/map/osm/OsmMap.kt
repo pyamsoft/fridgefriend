@@ -23,7 +23,6 @@ import android.graphics.Color
 import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
-import android.widget.FrameLayout
 import androidx.annotation.CheckResult
 import androidx.core.view.isVisible
 import androidx.lifecycle.Lifecycle.Event.ON_PAUSE
@@ -70,6 +69,10 @@ class OsmMap @Inject internal constructor(
   parent: ViewGroup
 ) : BaseUiView<OsmViewState, OsmViewEvent>(parent), LifecycleObserver {
 
+  override val layout: Int = R.layout.osm_map
+
+  override val layoutRoot by boundView<ViewGroup>(R.id.osm_frame)
+
   private var markerOverlay: ItemizedOverlayWithFocus<OverlayItem>? = null
   private var activity: Activity? = activity
   private var boundImage: Loaded? = null
@@ -93,9 +96,6 @@ class OsmMap @Inject internal constructor(
 
   }
 
-  override val layout: Int = R.layout.osm_map
-
-  override val layoutRoot by boundView<FrameLayout>(R.id.osm_frame)
   private val map by boundView<MapView>(R.id.osm_map)
   private val fab by boundView<FloatingActionButton>(R.id.osm_action)
 
