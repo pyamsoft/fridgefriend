@@ -111,6 +111,11 @@ class MyFridgeSmells : Application() {
         "https://github.com/mikepenz/fastadapter",
         "The bullet proof, fast and easy to use adapter library, which minimizes developing time to a fraction..."
     )
+    OssLibraries.add(
+        "OsmDroid",
+        "https://github.com/osmdroid/osmdroid",
+        "OpenStreetMap-Tools for Android"
+    )
   }
 
   override fun getSystemService(name: String): Any? {
