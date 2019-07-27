@@ -193,8 +193,6 @@ class DetailList @Inject internal constructor(
     // Throws
     // recyclerView.adapter = null
     clearList()
-    clearListError()
-    clearNameUpdateError()
 
     touchHelper?.attachToRecyclerView(null)
     decoration?.let { recyclerView.removeItemDecoration(it) }
@@ -237,23 +235,27 @@ class DetailList @Inject internal constructor(
   }
 
   private fun showNameUpdateError(throwable: Throwable) {
-    Snackbreak.bindTo(owner, "name")
-        .make(layoutRoot, throwable.message ?: "An unexpected error has occurred.")
+    Snackbreak.bindTo(owner, "name") {
+      make(layoutRoot, throwable.message ?: "An unexpected error has occurred.")
+    }
   }
 
   private fun clearNameUpdateError() {
-    Snackbreak.bindTo(owner, "name")
-        .dismiss()
+    Snackbreak.bindTo(owner, "name") {
+      dismiss()
+    }
   }
 
   private fun showListError(throwable: Throwable) {
-    Snackbreak.bindTo(owner, "list")
-        .make(layoutRoot, throwable.message ?: "An unexpected error has occurred.")
+    Snackbreak.bindTo(owner, "list") {
+      make(layoutRoot, throwable.message ?: "An unexpected error has occurred.")
+    }
   }
 
   private fun clearListError() {
-    Snackbreak.bindTo(owner, "list")
-        .dismiss()
+    Snackbreak.bindTo(owner, "list") {
+      dismiss()
+    }
   }
 
   override fun onRender(

@@ -128,7 +128,6 @@ class OsmMap @Inject internal constructor(
 
   override fun onTeardown() {
     owner.lifecycle.removeObserver(this)
-    clearError()
     fab.setOnDebouncedClickListener(null)
     removeMarkerOverlay()
     map.onDetach()
@@ -308,13 +307,15 @@ class OsmMap @Inject internal constructor(
   }
 
   private fun showError(throwable: Throwable) {
-    Snackbreak.bindTo(owner)
-        .make(layoutRoot, throwable.message ?: "An unexpected error occurred.")
+    Snackbreak.bindTo(owner) {
+      make(layoutRoot, throwable.message ?: "An unexpected error occurred.")
+    }
   }
 
   private fun clearError() {
-    Snackbreak.bindTo(owner)
-        .dismiss()
+    Snackbreak.bindTo(owner) {
+      dismiss()
+    }
   }
 
   companion object {
