@@ -18,11 +18,19 @@
 package com.pyamsoft.fridge.butler.workmanager.geofence
 
 import android.content.Context
+import androidx.annotation.CheckResult
 import androidx.work.WorkerParameters
 import com.pyamsoft.fridge.butler.Butler
 import com.pyamsoft.fridge.butler.workmanager.BaseWorker
+import com.pyamsoft.fridge.db.store.NearbyStore
+import com.pyamsoft.fridge.db.store.NearbyStoreQueryDao
+import com.pyamsoft.fridge.db.zone.NearbyZone
+import com.pyamsoft.fridge.db.zone.NearbyZoneQueryDao
 import com.pyamsoft.fridge.locator.Geofencer
+import com.pyamsoft.fridge.locator.Locator.Fence
 import com.pyamsoft.pydroid.ui.Injector
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import timber.log.Timber
 
 internal class GeofenceWorker internal constructor(
@@ -31,13 +39,19 @@ internal class GeofenceWorker internal constructor(
 ) : BaseWorker(context, params) {
 
   private var geofencer: Geofencer? = null
+  private var storeDb: NearbyStoreQueryDao? = null
+  private var zoneDb: NearbyZoneQueryDao? = null
 
   override fun onInject() {
     geofencer = Injector.obtain(applicationContext)
+    storeDb = Injector.obtain(applicationContext)
+    zoneDb = Injector.obtain(applicationContext)
   }
 
   override fun onTeardown() {
     geofencer = null
+    storeDb = null
+    zoneDb = null
   }
 
   override fun reschedule(butler: Butler) {
@@ -45,15 +59,77 @@ internal class GeofenceWorker internal constructor(
   }
 
   override suspend fun performWork() {
-    val fences = inputData.getStringArray(KEY_FENCES) ?: emptyArray()
-    if (fences.isEmpty()) {
-      Timber.e("Bail: Empty fences, this should not happen!")
-      return
+    return coroutineScope {
+      val fenceIds = inputData.getStringArray(KEY_FENCES) ?: emptyArray()
+      if (fenceIds.isEmpty()) {
+        Timber.e("Bail: Empty fences, this should not happen!")
+        return@coroutineScope
+      }
+
+      Timber.d("Processing geofence events for fences: $fenceIds")
+      val storeJob = async { requireNotNull(storeDb).query(true) }
+      val zoneJob = async { requireNotNull(zoneDb).query(true) }
+
+      val nearbyStores = storeJob.await()
+      val nearbyZones = zoneJob.await()
+      val properFenceIds = fenceIds.filterNotNull()
+
+      val storeNotifications = mutableSetOf<NearbyStore>()
+      val zoneNotifications = mutableSetOf<NearbyZone>()
+      for (fenceId in properFenceIds) {
+        val (store, zone) = findNearbyForGeofence(fenceId, nearbyStores, nearbyZones)
+        if (store != null) {
+          storeNotifications.add(store)
+        }
+
+        if (zone != null) {
+          zoneNotifications.add(zone)
+        }
+      }
+
+      fireNotifications(storeNotifications, zoneNotifications)
+    }
+  }
+
+  private fun fireNotifications(
+    storeNotifications: Set<NearbyStore>,
+    zoneNotifications: Set<NearbyZone>
+  ) {
+    storeNotifications.forEach { Timber.d("Fire geofence notification for store: $it") }
+    zoneNotifications.forEach { Timber.d("Fire geofence notification for zone: $it") }
+    // TODO: Notifications
+  }
+
+  @CheckResult
+  private fun findNearbyForGeofence(
+    fenceId: String,
+    nearbyStores: Collection<NearbyStore>,
+    nearbyZones: Collection<NearbyZone>
+  ): Nearbys {
+    for (store in nearbyStores) {
+      if (fenceId == Fence.getId(store)) {
+        Timber.d("Geofence event $fenceId fired for store: $store")
+        return Nearbys(store, null)
+      }
     }
 
-    Timber.d("Processing geofence events for fences: $fences")
-    // TODO: Hit db, get nearbys. Using nearbys, match to geofence ids, show notification
+    for (zone in nearbyZones) {
+      for (point in zone.points()) {
+        if (fenceId == Fence.getId(zone, point)) {
+          Timber.d("Geofence event $fenceId fired for zone point: ($point) $zone")
+          return Nearbys(null, zone)
+        }
+      }
+    }
+
+    Timber.w("Geofence event $fenceId fired but no matches")
+    return Nearbys(null, null)
   }
+
+  private data class Nearbys internal constructor(
+    val store: NearbyStore?,
+    val zone: NearbyZone?
+  )
 
   companion object {
 

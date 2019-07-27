@@ -44,28 +44,43 @@ interface Locator {
     companion object {
 
       private const val STORE_ID_PREFIX = "NearbyStore v1: "
-      private const val ZONE_ID_PREFIX = "NearbyStore v1: "
+      private const val ZONE_ID_PREFIX = "NearbyZone v1: "
 
       @JvmStatic
       @CheckResult
       fun fromStore(store: NearbyStore): Fence {
-        return Fence("$STORE_ID_PREFIX${store.id()}", store.latitude(), store.longitude())
+        return Fence(getId(store), store.latitude(), store.longitude())
+      }
+
+      @JvmStatic
+      @CheckResult
+      fun getId(store: NearbyStore): String {
+        return "$STORE_ID_PREFIX${store.id()}"
       }
 
       @JvmStatic
       @CheckResult
       fun fromZone(zone: NearbyZone): List<Fence> {
         return zone.points()
-            .map { fromZonePoint(zone.id(), it) }
+            .map { fromZonePoint(zone, it) }
       }
 
       @JvmStatic
       @CheckResult
       private fun fromZonePoint(
-        zoneId: Long,
+        zone: NearbyZone,
         point: NearbyZone.Point
       ): Fence {
-        return Fence("$ZONE_ID_PREFIX$zoneId|${point.id}", point.lat, point.lon)
+        return Fence(getId(zone, point), point.lat, point.lon)
+      }
+
+      @JvmStatic
+      @CheckResult
+      fun getId(
+        zone: NearbyZone,
+        point: NearbyZone.Point
+      ): String {
+        return "$ZONE_ID_PREFIX${zone.id()}|${point.id}"
       }
     }
   }

@@ -60,7 +60,6 @@ internal class LocatorWorker internal constructor(
     return coroutineScope {
       Timber.d("LocatorWorker registering fences")
 
-      // TODO: Hit db, get nearbys, register geofences
       val storeJob = async { requireNotNull(storeDb).query(true) }
       val zoneJob = async { requireNotNull(zoneDb).query(true) }
 
