@@ -28,6 +28,8 @@ import com.pyamsoft.fridge.db.entry.FridgeEntryQueryDao
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent
 import com.pyamsoft.fridge.db.item.FridgeItemQueryDao
 import com.pyamsoft.fridge.db.room.RoomModule
+import com.pyamsoft.fridge.db.store.NearbyStoreQueryDao
+import com.pyamsoft.fridge.db.zone.NearbyZoneQueryDao
 import com.pyamsoft.fridge.detail.DatePickerDialogFragment
 import com.pyamsoft.fridge.detail.DetailComponent
 import com.pyamsoft.fridge.detail.ExpandComponent
@@ -87,6 +89,14 @@ internal interface FridgeComponent {
   // For ExpirationWorker Work classes
   @CheckResult
   fun provideFridgeItemQueryDao(): FridgeItemQueryDao
+
+  // For LocatorWorker Work classes
+  @CheckResult
+  fun provideNearbyStoreQueryDao(): NearbyStoreQueryDao
+
+  // For LocatorWorker Work classes
+  @CheckResult
+  fun provideNearbyZoneQueryDao(): NearbyZoneQueryDao
 
   //  @CheckResult
   //  fun plusScannerComponent(): OcrComponent.Factory

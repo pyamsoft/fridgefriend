@@ -49,6 +49,12 @@ import com.pyamsoft.fridge.db.store.NearbyStoreRealtime
 import com.pyamsoft.fridge.db.store.NearbyStoreUpdateDao
 import com.pyamsoft.fridge.db.zone.JsonMappableNearbyZone
 import com.pyamsoft.fridge.db.zone.NearbyZone
+import com.pyamsoft.fridge.db.zone.NearbyZoneDb
+import com.pyamsoft.fridge.db.zone.NearbyZoneDeleteDao
+import com.pyamsoft.fridge.db.zone.NearbyZoneInsertDao
+import com.pyamsoft.fridge.db.zone.NearbyZoneQueryDao
+import com.pyamsoft.fridge.db.zone.NearbyZoneRealtime
+import com.pyamsoft.fridge.db.zone.NearbyZoneUpdateDao
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
@@ -237,6 +243,48 @@ abstract class RoomModule {
     @Provides
     @CheckResult
     internal fun provideNearbyStoreDeleteDao(db: NearbyStoreDb): NearbyStoreDeleteDao {
+      return db.deleteDao()
+    }
+
+    @JvmStatic
+    @Provides
+    @CheckResult
+    internal fun provideNearbyZoneDb(room: FridgeDb): NearbyZoneDb {
+      return room.zones()
+    }
+
+    @JvmStatic
+    @Provides
+    @CheckResult
+    internal fun provideNearbyZoneRealtimeDao(db: NearbyZoneDb): NearbyZoneRealtime {
+      return db.realtime()
+    }
+
+    @JvmStatic
+    @Provides
+    @CheckResult
+    internal fun provideNearbyZoneQueryDao(db: NearbyZoneDb): NearbyZoneQueryDao {
+      return db.queryDao()
+    }
+
+    @JvmStatic
+    @Provides
+    @CheckResult
+    internal fun provideNearbyZoneInsertDao(db: NearbyZoneDb): NearbyZoneInsertDao {
+      return db.insertDao()
+    }
+
+    @JvmStatic
+    @Provides
+    @CheckResult
+    internal fun provideNearbyZoneUpdateDao(db: NearbyZoneDb): NearbyZoneUpdateDao {
+      return db.updateDao()
+    }
+
+    @JvmStatic
+    @Provides
+    @CheckResult
+    internal fun provideNearbyZoneDeleteDao(db: NearbyZoneDb): NearbyZoneDeleteDao {
       return db.deleteDao()
     }
 

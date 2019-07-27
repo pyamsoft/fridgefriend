@@ -23,6 +23,8 @@ import com.pyamsoft.fridge.butler.Butler
 import com.pyamsoft.fridge.butler.ForegroundState
 import com.pyamsoft.fridge.db.entry.FridgeEntryQueryDao
 import com.pyamsoft.fridge.db.item.FridgeItemQueryDao
+import com.pyamsoft.fridge.db.store.NearbyStoreQueryDao
+import com.pyamsoft.fridge.db.zone.NearbyZoneQueryDao
 import com.pyamsoft.fridge.locator.GeofenceUpdateReceiver
 import com.pyamsoft.fridge.locator.Locator
 import com.pyamsoft.pydroid.bootstrap.libraries.OssLibraries
@@ -73,10 +75,10 @@ class MyFridgeSmells : Application() {
 
     component.inject(this)
 
-    registerGeofences()
+    beginWork()
   }
 
-  private fun registerGeofences() {
+  private fun beginWork() {
     requireNotNull(butler).initOnAppStart()
   }
 
@@ -131,12 +133,24 @@ class MyFridgeSmells : Application() {
 
   @CheckResult
   private fun getServiceFromComponent(name: String): Any? {
+    val dependency = provideWorkerDependencies(name)
+    if (dependency != null) {
+      return dependency
+    }
+
+    return null
+  }
+
+  @CheckResult
+  private fun provideWorkerDependencies(name: String): Any? {
     return when (name) {
-      FridgeEntryQueryDao::class.java.name -> requireNotNull(component).provideFridgeEntryQueryDao()
-      FridgeItemQueryDao::class.java.name -> requireNotNull(component).provideFridgeItemQueryDao()
       Butler::class.java.name -> requireNotNull(component).provideButler()
       Locator::class.java.name -> requireNotNull(component).provideLocator()
       ForegroundState::class.java.name -> requireNotNull(component).provideForegroundState()
+      FridgeItemQueryDao::class.java.name -> requireNotNull(component).provideFridgeItemQueryDao()
+      FridgeEntryQueryDao::class.java.name -> requireNotNull(component).provideFridgeEntryQueryDao()
+      NearbyStoreQueryDao::class.java.name -> requireNotNull(component).provideNearbyStoreQueryDao()
+      NearbyZoneQueryDao::class.java.name -> requireNotNull(component).provideNearbyZoneQueryDao()
       else -> null
     }
   }

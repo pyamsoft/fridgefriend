@@ -100,6 +100,7 @@ internal class GmsLocator @Inject internal constructor(
 
   @SuppressLint("MissingPermission")
   private fun addGeofences(fences: List<Geofence>) {
+    // If fences is empty this will throw
     val request = GeofencingRequest.Builder()
         .setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_DWELL)
         .addGeofences(fences)
@@ -112,7 +113,7 @@ internal class GmsLocator @Inject internal constructor(
     }
   }
 
-  override fun unregisterGeofences(fences: List<String>) {
+  override fun unregisterGeofences() {
     enforcer.assertNotOnMainThread()
     removeFences { Timber.d("Geofences manually unregistered") }
   }

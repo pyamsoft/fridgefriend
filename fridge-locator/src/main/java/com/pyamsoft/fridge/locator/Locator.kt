@@ -18,6 +18,8 @@
 package com.pyamsoft.fridge.locator
 
 import androidx.annotation.CheckResult
+import com.pyamsoft.fridge.db.store.NearbyStore
+import com.pyamsoft.fridge.db.zone.NearbyZone
 import java.util.concurrent.TimeUnit
 
 interface Locator {
@@ -28,15 +30,45 @@ interface Locator {
   @CheckResult
   fun hasForegroundPermission(): Boolean
 
+  // If fences is empty this will throw
   fun registerGeofences(fences: List<Fence>)
 
-  fun unregisterGeofences(fences: List<String>)
+  fun unregisterGeofences()
 
   data class Fence(
     val id: String,
     val lat: Double,
     val lon: Double
-  )
+  ) {
+
+    companion object {
+
+      private const val STORE_ID_PREFIX = "NearbyStore v1: "
+      private const val ZONE_ID_PREFIX = "NearbyStore v1: "
+
+      @JvmStatic
+      @CheckResult
+      fun fromStore(store: NearbyStore): Fence {
+        return Fence("$STORE_ID_PREFIX${store.id()}", store.latitude(), store.longitude())
+      }
+
+      @JvmStatic
+      @CheckResult
+      fun fromZone(zone: NearbyZone): List<Fence> {
+        return zone.points()
+            .map { fromZonePoint(zone.id(), it) }
+      }
+
+      @JvmStatic
+      @CheckResult
+      private fun fromZonePoint(
+        zoneId: Long,
+        point: NearbyZone.Point
+      ): Fence {
+        return Fence("$ZONE_ID_PREFIX$zoneId|${point.id}", point.lat, point.lon)
+      }
+    }
+  }
 
   companion object {
 
