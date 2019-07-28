@@ -109,7 +109,7 @@ data class JsonMappableFridgeItem internal constructor(
   }
 
   override fun purchaseTime(purchaseTime: Date): FridgeItem {
-    return this.copy(purchasedTime = purchasedTime)
+    return this.copy(purchasedTime = purchaseTime)
   }
 
   override fun invalidatePurchase(): FridgeItem {
