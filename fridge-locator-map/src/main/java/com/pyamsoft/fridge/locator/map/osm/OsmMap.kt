@@ -165,6 +165,14 @@ class OsmMap @Inject internal constructor(
         showError(throwable)
       }
     }
+
+    state.cachedFetchError.let { throwable ->
+      if (throwable == null) {
+        clearCacheError()
+      } else {
+        showCacheError(throwable)
+      }
+    }
   }
 
   @CheckResult
@@ -307,13 +315,25 @@ class OsmMap @Inject internal constructor(
   }
 
   private fun showError(throwable: Throwable) {
-    Snackbreak.bindTo(owner) {
+    Snackbreak.bindTo(owner, "nearby") {
       make(layoutRoot, throwable.message ?: "An unexpected error occurred.")
     }
   }
 
   private fun clearError() {
-    Snackbreak.bindTo(owner) {
+    Snackbreak.bindTo(owner, "nearby") {
+      dismiss()
+    }
+  }
+
+  private fun showCacheError(throwable: Throwable) {
+    Snackbreak.bindTo(owner, "cache") {
+      make(layoutRoot, throwable.message ?: "An error occurred fetching cached stores.")
+    }
+  }
+
+  private fun clearCacheError() {
+    Snackbreak.bindTo(owner, "cache") {
       dismiss()
     }
   }

@@ -19,19 +19,31 @@ package com.pyamsoft.fridge.locator.map.osm
 
 import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.db.store.NearbyStore
+import com.pyamsoft.fridge.db.store.NearbyStoreQueryDao
 import com.pyamsoft.fridge.db.zone.NearbyZone
+import com.pyamsoft.fridge.db.zone.NearbyZoneQueryDao
 import com.pyamsoft.fridge.locator.map.osm.api.NearbyLocationApi
 import com.pyamsoft.fridge.locator.map.osm.api.OsmNodeOrWay.Node
 import com.pyamsoft.fridge.locator.map.osm.api.OsmNodeOrWay.Way
+import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import javax.inject.Inject
 
 internal class OsmInteractor @Inject internal constructor(
+  private val nearbyStores: NearbyStoreQueryDao,
+  private val nearbyZones: NearbyZoneQueryDao,
   private val api: NearbyLocationApi
 ) {
 
   @CheckResult
-  suspend fun nearbyLocations(box: BBox): OsmMarkers = coroutineScope {
+  suspend fun fromCache(): OsmMarkers = coroutineScope {
+    val storeJob = async { nearbyStores.query(false) }
+    val zoneJob = async { nearbyZones.query(false) }
+    return@coroutineScope OsmMarkers(storeJob.await(), zoneJob.await())
+  }
+
+  @CheckResult
+  suspend fun nearbyLocations(box: BBox): OsmMarkers {
     val data = createOverpassData(box.south, box.west, box.north, box.east)
     val response = api.queryNearby(data)
     val elements = response.elements()
@@ -64,7 +76,7 @@ internal class OsmInteractor @Inject internal constructor(
     }
     val markers = remainingNodes.map { NearbyStore.create(it) }
 
-    return@coroutineScope OsmMarkers(markers, polygons)
+    return OsmMarkers(markers, polygons)
   }
 
   companion object {

@@ -27,7 +27,8 @@ data class OsmViewState internal constructor(
   val loading: Boolean,
   val points: List<NearbyStore>,
   val zones: List<NearbyZone>,
-  val nearbyError: Throwable?
+  val nearbyError: Throwable?,
+  val cachedFetchError: Throwable?
 ) : UiViewState
 
 sealed class OsmViewEvent : UiViewEvent {

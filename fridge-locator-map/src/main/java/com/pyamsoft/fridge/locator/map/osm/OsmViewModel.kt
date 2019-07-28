@@ -31,7 +31,8 @@ class OsmViewModel @Inject internal constructor(
   private val interactor: OsmInteractor
 ) : UiViewModel<OsmViewState, OsmViewEvent, OsmControllerEvent>(
     initialState = OsmViewState(
-        loading = false, points = emptyList(), zones = emptyList(), nearbyError = null
+        loading = false, points = emptyList(), zones = emptyList(), nearbyError = null,
+        cachedFetchError = null
     )
 ) {
 
@@ -40,7 +41,7 @@ class OsmViewModel @Inject internal constructor(
     try {
       val markers =
         withContext(context = Dispatchers.Default) { interactor.nearbyLocations(box) }
-      updateMarkers(markers)
+      updateMarkers(markers, fromCached = false)
     } catch (error: Throwable) {
       error.onActualError { e ->
         Timber.e(e, "Error getting nearby supermarkets")
@@ -55,13 +56,24 @@ class OsmViewModel @Inject internal constructor(
     setState { copy(nearbyError = throwable) }
   }
 
-  private fun updateMarkers(markers: OsmMarkers) {
+  private fun updateMarkers(
+    markers: OsmMarkers,
+    fromCached: Boolean
+  ) {
     setState {
-      copy(
-          points = merge(points, markers.points) { it.id() },
-          zones = merge(zones, markers.zones) { it.id() },
-          nearbyError = null
-      )
+      if (fromCached) {
+        copy(
+            points = merge(points, markers.points) { it.id() },
+            zones = merge(zones, markers.zones) { it.id() },
+            cachedFetchError = null
+        )
+      } else {
+        copy(
+            points = merge(points, markers.points) { it.id() },
+            zones = merge(zones, markers.zones) { it.id() },
+            nearbyError = null
+        )
+      }
     }
   }
 
@@ -83,6 +95,28 @@ class OsmViewModel @Inject internal constructor(
   }
 
   override fun onInit() {
+    initialFetchFromCache()
+  }
+
+  private fun initialFetchFromCache() {
+    viewModelScope.launch {
+      setState { copy(loading = true) }
+      try {
+        val markers = withContext(context = Dispatchers.Default) { interactor.fromCache() }
+        updateMarkers(markers, fromCached = true)
+      } catch (error: Throwable) {
+        error.onActualError { e ->
+          Timber.e(e, "Error getting cached locations")
+          cachedFetchError(e)
+        }
+      } finally {
+        setState { copy(loading = false) }
+      }
+    }
+  }
+
+  private fun cachedFetchError(throwable: Throwable) {
+    setState { copy(cachedFetchError = throwable) }
   }
 
   override fun handleViewEvent(event: OsmViewEvent) {
