@@ -82,20 +82,22 @@ class DetailListItemViewModel @Inject internal constructor(
   private fun commitItem(item: FridgeItem) {
     viewModelScope.launch {
       if (item.isReal()) {
-        updateRunner.call(item.apply {
+        updateRunner.call(item.run {
           val dateOfPurchase = purchaseTime()
           if (presence() == HAVE) {
             if (dateOfPurchase == null) {
               val now = Date()
               Timber.d("${item.name()} purchased! $now")
-              purchaseTime(now)
+              return@run purchaseTime(now)
             }
           } else {
             if (dateOfPurchase != null) {
               Timber.d("${item.name()} purchase date cleared")
-              invalidatePurchase()
+              return@run invalidatePurchase()
             }
           }
+
+          return@run this
         })
       } else {
         Timber.w("Cannot commit change for not-real item: $item")
