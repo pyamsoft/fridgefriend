@@ -21,6 +21,7 @@ import androidx.annotation.CheckResult
 import androidx.lifecycle.viewModelScope
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence
+import com.pyamsoft.fridge.db.item.FridgeItem.Presence.HAVE
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent.Delete
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent.Insert
@@ -49,6 +50,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import timber.log.Timber
 import java.util.Calendar
+import java.util.Date
 import javax.inject.Inject
 import javax.inject.Named
 
@@ -63,12 +65,6 @@ class ExpandItemViewModel @Inject internal constructor(
 ) : DetailItemViewModel(isEditable, item.presence(defaultPresence), fakeRealtime) {
 
   private val updateRunner = highlander<Unit, FridgeItem> { item ->
-    if (!item.isReal() && !isReadyToBeReal(item)) {
-      Timber.w("Commit called on a non-real item: $item, fake callback")
-      handleFakeCommit(item)
-      return@highlander
-    }
-
     try {
       withContext(context = Dispatchers.Default) { interactor.commit(item.makeReal()) }
     } catch (error: Throwable) {
@@ -212,7 +208,28 @@ class ExpandItemViewModel @Inject internal constructor(
   }
 
   private fun commitItem(item: FridgeItem) {
-    viewModelScope.launch { updateRunner.call(item) }
+    viewModelScope.launch {
+      if (item.isReal() || isReadyToBeReal(item)) {
+        updateRunner.call(item.apply {
+          val dateOfPurchase = purchaseTime()
+          if (presence() == HAVE) {
+            if (dateOfPurchase == null) {
+              val now = Date()
+              Timber.d("${item.name()} purchased! $now")
+              purchaseTime(now)
+            }
+          } else {
+            if (dateOfPurchase != null) {
+              Timber.d("${item.name()} purchase date cleared")
+              invalidatePurchase()
+            }
+          }
+        })
+      } else {
+        Timber.w("Commit called on a non-real item: $item, fake callback")
+        handleFakeCommit(item)
+      }
+    }
   }
 
   private fun handleFakeCommit(item: FridgeItem) {

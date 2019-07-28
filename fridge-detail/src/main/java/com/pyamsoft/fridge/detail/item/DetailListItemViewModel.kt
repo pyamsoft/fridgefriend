@@ -20,6 +20,7 @@ package com.pyamsoft.fridge.detail.item
 import androidx.lifecycle.viewModelScope
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence
+import com.pyamsoft.fridge.db.item.FridgeItem.Presence.HAVE
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent
 import com.pyamsoft.fridge.detail.DetailInteractor
 import com.pyamsoft.fridge.detail.item.DetailItemControllerEvent.ExpandDetails
@@ -37,6 +38,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import timber.log.Timber
+import java.util.Date
 import javax.inject.Inject
 import javax.inject.Named
 
@@ -80,7 +82,21 @@ class DetailListItemViewModel @Inject internal constructor(
   private fun commitItem(item: FridgeItem) {
     viewModelScope.launch {
       if (item.isReal()) {
-        updateRunner.call(item)
+        updateRunner.call(item.apply {
+          val dateOfPurchase = purchaseTime()
+          if (presence() == HAVE) {
+            if (dateOfPurchase == null) {
+              val now = Date()
+              Timber.d("${item.name()} purchased! $now")
+              purchaseTime(now)
+            }
+          } else {
+            if (dateOfPurchase != null) {
+              Timber.d("${item.name()} purchase date cleared")
+              invalidatePurchase()
+            }
+          }
+        })
       } else {
         Timber.w("Cannot commit change for not-real item: $item")
       }

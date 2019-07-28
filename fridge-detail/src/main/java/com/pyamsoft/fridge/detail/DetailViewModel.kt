@@ -41,7 +41,6 @@ import com.pyamsoft.pydroid.arch.EventBus
 import com.pyamsoft.pydroid.arch.UiViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import timber.log.Timber
@@ -101,10 +100,8 @@ class DetailViewModel @Inject internal constructor(
           withContext(context = Dispatchers.Main) { handleRealtime(it) }
         }
 
-    coroutineScope {
-      launch(context = Dispatchers.Default) {
-        fakeRealtime.onEvent { withContext(context = Dispatchers.Main) { handleRealtime(it) } }
-      }
+    launch(context = Dispatchers.Default) {
+      fakeRealtime.onEvent { withContext(context = Dispatchers.Main) { handleRealtime(it) } }
     }
   }
 
