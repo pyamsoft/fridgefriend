@@ -37,6 +37,7 @@ import com.pyamsoft.fridge.db.zone.NearbyZone
 import com.pyamsoft.fridge.locator.MapPermission
 import com.pyamsoft.fridge.locator.map.R
 import com.pyamsoft.fridge.locator.map.osm.OsmViewEvent.FindNearby
+import com.pyamsoft.fridge.locator.map.osm.OsmViewEvent.RequestBackgroundPermission
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.arch.UiSavedState
 import com.pyamsoft.pydroid.loader.ImageLoader
@@ -103,6 +104,7 @@ class OsmMap @Inject internal constructor(
   private val requestPermission by boundView<FloatingActionButton>(R.id.osm_permission)
 
   init {
+    // Must happen before inflate
     Configuration.getInstance()
         .load(
             activity.application,
@@ -125,6 +127,17 @@ class OsmMap @Inject internal constructor(
     requestPermission.isVisible = false
 
     findNearby.setOnDebouncedClickListener { publish(FindNearby(getBoundingBoxOfCurrentScreen())) }
+    requestPermission.setOnDebouncedClickListener { publish(RequestBackgroundPermission) }
+  }
+
+  override fun onTeardown() {
+    owner.lifecycle.removeObserver(this)
+    findNearby.setOnDebouncedClickListener(null)
+    requestPermission.setOnDebouncedClickListener(null)
+    removeMarkerOverlay()
+    map.onDetach()
+    boundImage?.dispose()
+    boundImage = null
   }
 
   private fun removeMarkerOverlay() {
@@ -132,21 +145,10 @@ class OsmMap @Inject internal constructor(
     markerOverlay = null
   }
 
-  override fun onTeardown() {
-    owner.lifecycle.removeObserver(this)
-    findNearby.setOnDebouncedClickListener(null)
-    removeMarkerOverlay()
-    map.onDetach()
-    boundImage?.dispose()
-    boundImage = null
-  }
-
   override fun onRender(
     state: OsmViewState,
     savedState: UiSavedState
   ) {
-    removeMarkerOverlay()
-
     var invalidate = false
     state.points.let { points ->
       if (renderMapMarkers(points)) {
