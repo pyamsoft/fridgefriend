@@ -41,7 +41,7 @@ import javax.inject.Inject
 internal class PermissionFragment : Fragment() {
 
   @JvmField @Inject internal var factory: ViewModelProvider.Factory? = null
-  @JvmField @Inject internal var locationPermission: LocationPermission? = null
+  @JvmField @Inject internal var mapPermission: MapPermission? = null
 
   @JvmField @Inject internal var screen: LocationPermissionScreen? = null
   private val viewModel by factory<LocationPermissionViewModel> { factory }
@@ -92,10 +92,7 @@ internal class PermissionFragment : Fragment() {
   }
 
   private fun requestLocationPermission() {
-    requestPermissions(
-        arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION),
-        LOCATION_PERMISSION_REQUEST_RC
-    )
+    requireNotNull(mapPermission).requestForegroundPermission(this)
   }
 
   override fun onRequestPermissionsResult(
@@ -104,10 +101,8 @@ internal class PermissionFragment : Fragment() {
     grantResults: IntArray
   ) {
     super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-    if (requestCode == LOCATION_PERMISSION_REQUEST_RC) {
-      if (requireNotNull(locationPermission).hasForegroundPermission()) {
-        pushMapFragmentOncePermissionGranted()
-      }
+    requireNotNull(mapPermission).onForegroundResult(requestCode, permissions, grantResults) {
+      pushMapFragmentOncePermissionGranted()
     }
   }
 
@@ -129,12 +124,11 @@ internal class PermissionFragment : Fragment() {
 
     factory = null
     screen = null
-    locationPermission = null
+    mapPermission = null
   }
 
   companion object {
 
-    private const val LOCATION_PERMISSION_REQUEST_RC = 1234
     private const val CONTAINER_ID = "parent_container_id"
     const val TAG = "PermissionFragment"
 

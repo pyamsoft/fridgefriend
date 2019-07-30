@@ -34,6 +34,7 @@ import androidx.preference.PreferenceManager
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.pyamsoft.fridge.db.store.NearbyStore
 import com.pyamsoft.fridge.db.zone.NearbyZone
+import com.pyamsoft.fridge.locator.MapPermission
 import com.pyamsoft.fridge.locator.map.R
 import com.pyamsoft.fridge.locator.map.osm.OsmViewEvent.FindNearby
 import com.pyamsoft.pydroid.arch.BaseUiView
@@ -65,6 +66,7 @@ class OsmMap @Inject internal constructor(
   private val owner: LifecycleOwner,
   private val theming: Theming,
   private val imageLoader: ImageLoader,
+  private val mapPermission: MapPermission,
   activity: Activity,
   parent: ViewGroup
 ) : BaseUiView<OsmViewState, OsmViewEvent>(parent), LifecycleObserver {
@@ -118,7 +120,10 @@ class OsmMap @Inject internal constructor(
     boundImage?.dispose()
     boundImage = imageLoader.load(R.drawable.ic_location_search_24dp)
         .into(findNearby)
+
     findNearby.isVisible = false
+    requestPermission.isVisible = false
+
     findNearby.setOnDebouncedClickListener { publish(FindNearby(getBoundingBoxOfCurrentScreen())) }
   }
 
@@ -302,6 +307,10 @@ class OsmMap @Inject internal constructor(
           mapView.controller.animateTo(currentLocation)
           mapView.controller.setCenter(currentLocation)
           findNearby.popShow(startDelay = 700L)
+
+          if (!mapPermission.hasBackgroundPermission()) {
+            requestPermission.popShow(startDelay = 1000L)
+          }
         }
       }
     }

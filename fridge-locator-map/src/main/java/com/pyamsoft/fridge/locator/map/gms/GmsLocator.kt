@@ -26,13 +26,14 @@ import android.os.Build.VERSION
 import android.os.Build.VERSION_CODES
 import androidx.annotation.CheckResult
 import androidx.core.content.ContextCompat
+import androidx.fragment.app.Fragment
 import com.google.android.gms.location.Geofence
 import com.google.android.gms.location.GeofencingRequest
 import com.google.android.gms.location.LocationServices
 import com.pyamsoft.fridge.locator.GeofenceBroadcastReceiver
-import com.pyamsoft.fridge.locator.LocationPermission
 import com.pyamsoft.fridge.locator.Locator
 import com.pyamsoft.fridge.locator.Locator.Fence
+import com.pyamsoft.fridge.locator.MapPermission
 import com.pyamsoft.pydroid.core.Enforcer
 import timber.log.Timber
 import java.util.concurrent.TimeUnit
@@ -44,26 +45,141 @@ internal class GmsLocator @Inject internal constructor(
   receiverClass: Class<out GeofenceBroadcastReceiver>,
   private val enforcer: Enforcer,
   private val context: Context
-) : Locator, LocationPermission {
+) : Locator, MapPermission {
 
   private val client = LocationServices.getGeofencingClient(context)
   private val pendingIntent = PendingIntent.getBroadcast(
       context, REQUEST_CODE, Intent(context, receiverClass), PendingIntent.FLAG_UPDATE_CURRENT
   )
 
+  @CheckResult
+  private fun checkPermission(permission: String): Boolean {
+    return checkPermission(permission)
+  }
+
+  @CheckResult
+  private fun checkPermission(vararg permissions: String): Boolean {
+    return permissions.all { permission ->
+      val permissionCheck = ContextCompat.checkSelfPermission(context, permission)
+      return permissionCheck == PackageManager.PERMISSION_GRANTED
+    }
+  }
+
+  private fun requestPermission(
+    fragment: Fragment,
+    requestCode: Int,
+    permission: String
+  ) {
+    requestPermission(fragment, requestCode, permission)
+  }
+
+  private fun requestPermission(
+    fragment: Fragment,
+    requestCode: Int,
+    vararg permissions: String
+  ) {
+    fragment.requestPermissions(permissions, requestCode)
+  }
+
+  private inline fun onPermissionResult(
+    requestCode: Int,
+    expectedCode: Int,
+    hasPermission: () -> Boolean,
+    onPermissionGranted: () -> Unit
+  ) {
+    if (requestCode == expectedCode) {
+      if (hasPermission()) {
+        onPermissionGranted()
+      }
+    }
+  }
+
   override fun hasForegroundPermission(): Boolean {
-    val permission = android.Manifest.permission.ACCESS_FINE_LOCATION
-    val permissionCheck = ContextCompat.checkSelfPermission(context, permission)
-    return permissionCheck == PackageManager.PERMISSION_GRANTED
+    return checkPermission(
+        android.Manifest.permission.ACCESS_FINE_LOCATION,
+        android.Manifest.permission.ACCESS_COARSE_LOCATION
+    )
+  }
+
+  override fun requestForegroundPermission(fragment: Fragment) {
+    requestPermission(
+        fragment,
+        FOREGROUND_LOCATION_PERMISSION_REQUEST_RC,
+        android.Manifest.permission.ACCESS_COARSE_LOCATION,
+        android.Manifest.permission.ACCESS_FINE_LOCATION
+    )
+  }
+
+  override fun onForegroundResult(
+    requestCode: Int,
+    permissions: Array<out String>,
+    grantResults: IntArray,
+    onForegroundPermissionGranted: () -> Unit
+  ) {
+    onPermissionResult(
+        requestCode, FOREGROUND_LOCATION_PERMISSION_REQUEST_RC,
+        hasPermission = { hasForegroundPermission() }) {
+      onForegroundPermissionGranted()
+    }
   }
 
   override fun hasBackgroundPermission(): Boolean {
     if (VERSION.SDK_INT >= VERSION_CODES.Q) {
-      val permission = android.Manifest.permission.ACCESS_BACKGROUND_LOCATION
-      val permissionCheck = ContextCompat.checkSelfPermission(context, permission)
-      return permissionCheck == PackageManager.PERMISSION_GRANTED
+      return checkPermission(android.Manifest.permission.ACCESS_BACKGROUND_LOCATION)
     } else {
       return true
+    }
+  }
+
+  override fun requestBackgroundPermission(fragment: Fragment) {
+    if (VERSION.SDK_INT >= VERSION_CODES.Q) {
+      requestPermission(
+          fragment,
+          BACKGROUND_LOCATION_PERMISSION_REQUEST_RC,
+          android.Manifest.permission.ACCESS_BACKGROUND_LOCATION
+      )
+    }
+  }
+
+  override fun onBackgroundResult(
+    requestCode: Int,
+    permissions: Array<out String>,
+    grantResults: IntArray,
+    onBackgroundPermissionGranted: () -> Unit
+  ) {
+    onPermissionResult(
+        requestCode, BACKGROUND_LOCATION_PERMISSION_REQUEST_RC,
+        hasPermission = { hasBackgroundPermission() }) {
+      onBackgroundPermissionGranted()
+    }
+  }
+
+  override fun hasStoragePermission(): Boolean {
+    return checkPermission(
+        android.Manifest.permission.WRITE_EXTERNAL_STORAGE,
+        android.Manifest.permission.READ_EXTERNAL_STORAGE
+    )
+  }
+
+  override fun requestStoragePermission(fragment: Fragment) {
+    requestPermission(
+        fragment,
+        BACKGROUND_LOCATION_PERMISSION_REQUEST_RC,
+        android.Manifest.permission.WRITE_EXTERNAL_STORAGE,
+        android.Manifest.permission.READ_EXTERNAL_STORAGE
+    )
+  }
+
+  override fun onStorageResult(
+    requestCode: Int,
+    permissions: Array<out String>,
+    grantResults: IntArray,
+    onStoragePermissionGranted: () -> Unit
+  ) {
+    onPermissionResult(
+        requestCode, STORAGE_PERMISSION_REQUEST_RC,
+        hasPermission = { hasStoragePermission() }) {
+      onStoragePermissionGranted()
     }
   }
 
@@ -138,6 +254,10 @@ internal class GmsLocator @Inject internal constructor(
         .toInt()
     private val NOTIFICATION_DELAY_IN_MILLIS = TimeUnit.MINUTES.toMillis(2L)
         .toInt()
+
+    private const val BACKGROUND_LOCATION_PERMISSION_REQUEST_RC = 1234
+    private const val FOREGROUND_LOCATION_PERMISSION_REQUEST_RC = 4321
+    private const val STORAGE_PERMISSION_REQUEST_RC = 1324
 
   }
 

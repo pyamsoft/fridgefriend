@@ -27,6 +27,7 @@ import androidx.constraintlayout.widget.ConstraintSet
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.pyamsoft.fridge.FridgeComponent
+import com.pyamsoft.fridge.locator.map.osm.OsmControllerEvent.BackgroundPermissionRequest
 import com.pyamsoft.fridge.locator.map.osm.OsmMap
 import com.pyamsoft.fridge.locator.map.osm.OsmViewModel
 import com.pyamsoft.pydroid.arch.createComponent
@@ -68,6 +69,9 @@ internal class MapFragment : Fragment() {
         viewModel,
         map
     ) {
+      return@createComponent when(it) {
+        is BackgroundPermissionRequest -> requestBackgroundLocationPermission()
+      }
     }
 
     parent.layout {
@@ -81,6 +85,9 @@ internal class MapFragment : Fragment() {
         constrainHeight(it.id(), ConstraintSet.MATCH_CONSTRAINT)
       }
     }
+  }
+
+  private fun requestBackgroundLocationPermission() {
   }
 
   override fun onSaveInstanceState(outState: Bundle) {

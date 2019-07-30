@@ -38,7 +38,7 @@ import com.pyamsoft.fridge.entry.EntryControllerEvent.PushHave
 import com.pyamsoft.fridge.entry.EntryControllerEvent.PushNearby
 import com.pyamsoft.fridge.entry.EntryControllerEvent.PushNeed
 import com.pyamsoft.fridge.extensions.fragmentContainerId
-import com.pyamsoft.fridge.locator.LocationPermission
+import com.pyamsoft.fridge.locator.MapPermission
 import com.pyamsoft.fridge.locator.MapFragment
 import com.pyamsoft.fridge.locator.PermissionFragment
 import com.pyamsoft.fridge.setting.SettingsFragment
@@ -55,7 +55,7 @@ import javax.inject.Inject
 internal class EntryFragment : Fragment() {
 
   @JvmField @Inject internal var factory: ViewModelProvider.Factory? = null
-  @JvmField @Inject internal var locationPermission: LocationPermission? = null
+  @JvmField @Inject internal var mapPermission: MapPermission? = null
 
   @JvmField @Inject internal var toolbar: EntryToolbar? = null
   @JvmField @Inject internal var frame: EntryFrame? = null
@@ -135,7 +135,7 @@ internal class EntryFragment : Fragment() {
     toolbar = null
     frame = null
     navigation = null
-    locationPermission = null
+    mapPermission = null
   }
 
   private fun navigateToSettings() {
@@ -159,7 +159,7 @@ internal class EntryFragment : Fragment() {
   private fun pushNearby() {
     childFragmentManager.commitNow(viewLifecycleOwner) {
       val container = requireNotNull(frame).id()
-      if (requireNotNull(locationPermission).hasForegroundPermission()) {
+      if (requireNotNull(mapPermission).hasForegroundPermission()) {
         replace(container, MapFragment.newInstance(), MapFragment.TAG)
       } else {
         replace(container, PermissionFragment.newInstance(container), PermissionFragment.TAG)

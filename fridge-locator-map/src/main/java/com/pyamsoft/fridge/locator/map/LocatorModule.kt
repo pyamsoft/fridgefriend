@@ -19,7 +19,7 @@ package com.pyamsoft.fridge.locator.map
 
 import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.locator.Geofencer
-import com.pyamsoft.fridge.locator.LocationPermission
+import com.pyamsoft.fridge.locator.MapPermission
 import com.pyamsoft.fridge.locator.Locator
 import com.pyamsoft.fridge.locator.map.gms.GmsGeofencer
 import com.pyamsoft.fridge.locator.map.gms.GmsLocator
@@ -46,7 +46,7 @@ abstract class LocatorModule {
 
   @Binds
   @CheckResult
-  internal abstract fun bindLocationPermissions(impl: GmsLocator): LocationPermission
+  internal abstract fun bindLocationPermissions(impl: GmsLocator): MapPermission
 
   @Binds
   @CheckResult
