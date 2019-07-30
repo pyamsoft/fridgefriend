@@ -38,6 +38,7 @@ import com.pyamsoft.fridge.locator.MapPermission
 import com.pyamsoft.fridge.locator.map.R
 import com.pyamsoft.fridge.locator.map.osm.OsmViewEvent.FindNearby
 import com.pyamsoft.fridge.locator.map.osm.OsmViewEvent.RequestBackgroundPermission
+import com.pyamsoft.fridge.locator.map.osm.OsmViewEvent.RequestStoragePermission
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.arch.UiSavedState
 import com.pyamsoft.pydroid.loader.ImageLoader
@@ -78,7 +79,9 @@ class OsmMap @Inject internal constructor(
 
   private var markerOverlay: ItemizedOverlayWithFocus<OverlayItem>? = null
   private var activity: Activity? = activity
-  private var boundImage: Loaded? = null
+  private var boundNearbyImage: Loaded? = null
+  private var boundStorageImage: Loaded? = null
+  private var boundBackgroundImage: Loaded? = null
 
   private val itemListener = object : ItemizedIconOverlay.OnItemGestureListener<OverlayItem> {
 
@@ -101,7 +104,10 @@ class OsmMap @Inject internal constructor(
 
   private val map by boundView<MapView>(R.id.osm_map)
   private val findNearby by boundView<FloatingActionButton>(R.id.osm_action)
-  private val requestPermission by boundView<FloatingActionButton>(R.id.osm_permission)
+  private val backgroundPermission by boundView<FloatingActionButton>(
+      R.id.osm_background_location_permission
+  )
+  private val storagePermission by boundView<FloatingActionButton>(R.id.osm_storage_permission)
 
   init {
     // Must happen before inflate
@@ -119,25 +125,41 @@ class OsmMap @Inject internal constructor(
     owner.lifecycle.addObserver(this)
     initMap(view.context.applicationContext)
 
-    boundImage?.dispose()
-    boundImage = imageLoader.load(R.drawable.ic_location_search_24dp)
+    boundNearbyImage?.dispose()
+    boundNearbyImage = imageLoader.load(R.drawable.ic_location_search_24dp)
         .into(findNearby)
 
+    boundStorageImage?.dispose()
+    boundStorageImage = imageLoader.load(R.drawable.ic_storage_24dp)
+        .into(storagePermission)
+
+    boundBackgroundImage?.dispose()
+    boundBackgroundImage = imageLoader.load(R.drawable.ic_location_24dp)
+        .into(backgroundPermission)
+
     findNearby.isVisible = false
-    requestPermission.isVisible = false
+    storagePermission.isVisible = false
+    backgroundPermission.isVisible = false
 
     findNearby.setOnDebouncedClickListener { publish(FindNearby(getBoundingBoxOfCurrentScreen())) }
-    requestPermission.setOnDebouncedClickListener { publish(RequestBackgroundPermission) }
+    backgroundPermission.setOnDebouncedClickListener { publish(RequestBackgroundPermission) }
+    storagePermission.setOnDebouncedClickListener { publish(RequestStoragePermission) }
   }
 
   override fun onTeardown() {
     owner.lifecycle.removeObserver(this)
     findNearby.setOnDebouncedClickListener(null)
-    requestPermission.setOnDebouncedClickListener(null)
+    backgroundPermission.setOnDebouncedClickListener(null)
+    storagePermission.setOnDebouncedClickListener(null)
     removeMarkerOverlay()
     map.onDetach()
-    boundImage?.dispose()
-    boundImage = null
+
+    boundNearbyImage?.dispose()
+    boundStorageImage?.dispose()
+    boundBackgroundImage?.dispose()
+    boundNearbyImage = null
+    boundStorageImage = null
+    boundBackgroundImage = null
   }
 
   private fun removeMarkerOverlay() {
@@ -308,11 +330,18 @@ class OsmMap @Inject internal constructor(
         if (currentLocation != null) {
           mapView.controller.animateTo(currentLocation)
           mapView.controller.setCenter(currentLocation)
-          findNearby.popShow(startDelay = 700L)
 
-          if (!mapPermission.hasBackgroundPermission()) {
-            requestPermission.popShow(startDelay = 1000L)
-          }
+          var delay = 700L
+          findNearby.popShow(startDelay = delay)
+          delay += 300L
+
+          storagePermission.popShow(startDelay = delay)
+          delay += 300L
+
+//          if (!mapPermission.hasBackgroundPermission()) {
+            backgroundPermission.popShow(startDelay = delay)
+            delay += 300L
+//          }
         }
       }
     }
