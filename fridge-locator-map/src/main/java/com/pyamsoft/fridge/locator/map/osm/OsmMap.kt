@@ -97,7 +97,8 @@ class OsmMap @Inject internal constructor(
   }
 
   private val map by boundView<MapView>(R.id.osm_map)
-  private val fab by boundView<FloatingActionButton>(R.id.osm_action)
+  private val findNearby by boundView<FloatingActionButton>(R.id.osm_action)
+  private val requestPermission by boundView<FloatingActionButton>(R.id.osm_permission)
 
   init {
     Configuration.getInstance()
@@ -116,9 +117,9 @@ class OsmMap @Inject internal constructor(
 
     boundImage?.dispose()
     boundImage = imageLoader.load(R.drawable.ic_location_search_24dp)
-        .into(fab)
-    fab.isVisible = false
-    fab.setOnDebouncedClickListener { publish(FindNearby(getBoundingBoxOfCurrentScreen())) }
+        .into(findNearby)
+    findNearby.isVisible = false
+    findNearby.setOnDebouncedClickListener { publish(FindNearby(getBoundingBoxOfCurrentScreen())) }
   }
 
   private fun removeMarkerOverlay() {
@@ -128,7 +129,7 @@ class OsmMap @Inject internal constructor(
 
   override fun onTeardown() {
     owner.lifecycle.removeObserver(this)
-    fab.setOnDebouncedClickListener(null)
+    findNearby.setOnDebouncedClickListener(null)
     removeMarkerOverlay()
     map.onDetach()
     boundImage?.dispose()
@@ -300,7 +301,7 @@ class OsmMap @Inject internal constructor(
         if (currentLocation != null) {
           mapView.controller.animateTo(currentLocation)
           mapView.controller.setCenter(currentLocation)
-          fab.popShow(startDelay = 700L)
+          findNearby.popShow(startDelay = 700L)
         }
       }
     }

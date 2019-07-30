@@ -30,6 +30,7 @@ import com.google.android.gms.location.Geofence
 import com.google.android.gms.location.GeofencingRequest
 import com.google.android.gms.location.LocationServices
 import com.pyamsoft.fridge.locator.GeofenceBroadcastReceiver
+import com.pyamsoft.fridge.locator.LocationPermission
 import com.pyamsoft.fridge.locator.Locator
 import com.pyamsoft.fridge.locator.Locator.Fence
 import com.pyamsoft.pydroid.core.Enforcer
@@ -43,7 +44,7 @@ internal class GmsLocator @Inject internal constructor(
   receiverClass: Class<out GeofenceBroadcastReceiver>,
   private val enforcer: Enforcer,
   private val context: Context
-) : Locator {
+) : Locator, LocationPermission {
 
   private val client = LocationServices.getGeofencingClient(context)
   private val pendingIntent = PendingIntent.getBroadcast(

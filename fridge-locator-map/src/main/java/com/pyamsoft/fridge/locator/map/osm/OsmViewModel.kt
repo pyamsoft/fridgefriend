@@ -18,7 +18,9 @@
 package com.pyamsoft.fridge.locator.map.osm
 
 import androidx.lifecycle.viewModelScope
+import com.pyamsoft.fridge.locator.map.osm.OsmControllerEvent.BackgroundPermissionRequest
 import com.pyamsoft.fridge.locator.map.osm.OsmViewEvent.FindNearby
+import com.pyamsoft.fridge.locator.map.osm.OsmViewEvent.RequestBackgroundPermission
 import com.pyamsoft.highlander.highlander
 import com.pyamsoft.pydroid.arch.UiViewModel
 import kotlinx.coroutines.Dispatchers
@@ -122,6 +124,7 @@ class OsmViewModel @Inject internal constructor(
   override fun handleViewEvent(event: OsmViewEvent) {
     return when (event) {
       is FindNearby -> nearbySupermarkets(event.box)
+      is RequestBackgroundPermission -> publish(BackgroundPermissionRequest)
     }
   }
 

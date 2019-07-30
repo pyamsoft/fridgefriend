@@ -35,8 +35,12 @@ sealed class OsmViewEvent : UiViewEvent {
 
   data class FindNearby internal constructor(internal val box: BBox) : OsmViewEvent()
 
+  object RequestBackgroundPermission : OsmViewEvent()
+
 }
 
 sealed class OsmControllerEvent : UiControllerEvent {
+
+  object BackgroundPermissionRequest : OsmControllerEvent()
 
 }

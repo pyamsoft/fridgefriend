@@ -41,7 +41,7 @@ import javax.inject.Inject
 internal class PermissionFragment : Fragment() {
 
   @JvmField @Inject internal var factory: ViewModelProvider.Factory? = null
-  @JvmField @Inject internal var locator: Locator? = null
+  @JvmField @Inject internal var locationPermission: LocationPermission? = null
 
   @JvmField @Inject internal var screen: LocationPermissionScreen? = null
   private val viewModel by factory<LocationPermissionViewModel> { factory }
@@ -105,7 +105,7 @@ internal class PermissionFragment : Fragment() {
   ) {
     super.onRequestPermissionsResult(requestCode, permissions, grantResults)
     if (requestCode == LOCATION_PERMISSION_REQUEST_RC) {
-      if (requireNotNull(locator).hasForegroundPermission()) {
+      if (requireNotNull(locationPermission).hasForegroundPermission()) {
         pushMapFragmentOncePermissionGranted()
       }
     }
@@ -129,7 +129,7 @@ internal class PermissionFragment : Fragment() {
 
     factory = null
     screen = null
-    locator = null
+    locationPermission = null
   }
 
   companion object {

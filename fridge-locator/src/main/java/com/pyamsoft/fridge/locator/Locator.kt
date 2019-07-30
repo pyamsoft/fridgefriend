@@ -24,12 +24,6 @@ import java.util.concurrent.TimeUnit
 
 interface Locator {
 
-  @CheckResult
-  fun hasBackgroundPermission(): Boolean
-
-  @CheckResult
-  fun hasForegroundPermission(): Boolean
-
   // If fences is empty this will throw
   fun registerGeofences(fences: List<Fence>)
 
