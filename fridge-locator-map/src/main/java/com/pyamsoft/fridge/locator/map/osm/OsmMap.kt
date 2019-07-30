@@ -338,10 +338,10 @@ class OsmMap @Inject internal constructor(
           storagePermission.popShow(startDelay = delay)
           delay += 300L
 
-//          if (!mapPermission.hasBackgroundPermission()) {
+          if (!mapPermission.hasBackgroundPermission()) {
             backgroundPermission.popShow(startDelay = delay)
             delay += 300L
-//          }
+          }
         }
       }
     }
