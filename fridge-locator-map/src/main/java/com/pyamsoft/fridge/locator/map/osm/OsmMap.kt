@@ -115,7 +115,7 @@ class OsmMap @Inject internal constructor(
     initMap(view.context.applicationContext)
 
     boundImage?.dispose()
-    boundImage = imageLoader.load(R.drawable.ic_add_24dp)
+    boundImage = imageLoader.load(R.drawable.ic_location_search_24dp)
         .into(fab)
     fab.isVisible = false
     fab.setOnDebouncedClickListener { publish(FindNearby(getBoundingBoxOfCurrentScreen())) }
