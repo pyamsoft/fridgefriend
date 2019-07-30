@@ -37,10 +37,14 @@ sealed class OsmViewEvent : UiViewEvent {
 
   object RequestBackgroundPermission : OsmViewEvent()
 
+  object RequestStoragePermission : OsmViewEvent()
+
 }
 
 sealed class OsmControllerEvent : UiControllerEvent {
 
   object BackgroundPermissionRequest : OsmControllerEvent()
+
+  object StoragePermissionRequest : OsmControllerEvent()
 
 }

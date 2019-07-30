@@ -19,8 +19,10 @@ package com.pyamsoft.fridge.locator.map.osm
 
 import androidx.lifecycle.viewModelScope
 import com.pyamsoft.fridge.locator.map.osm.OsmControllerEvent.BackgroundPermissionRequest
+import com.pyamsoft.fridge.locator.map.osm.OsmControllerEvent.StoragePermissionRequest
 import com.pyamsoft.fridge.locator.map.osm.OsmViewEvent.FindNearby
 import com.pyamsoft.fridge.locator.map.osm.OsmViewEvent.RequestBackgroundPermission
+import com.pyamsoft.fridge.locator.map.osm.OsmViewEvent.RequestStoragePermission
 import com.pyamsoft.highlander.highlander
 import com.pyamsoft.pydroid.arch.UiViewModel
 import kotlinx.coroutines.Dispatchers
@@ -125,11 +127,43 @@ class OsmViewModel @Inject internal constructor(
     return when (event) {
       is FindNearby -> nearbySupermarkets(event.box)
       is RequestBackgroundPermission -> publish(BackgroundPermissionRequest)
+      is RequestStoragePermission -> handleStorageRequestEvent(manual = true)
     }
   }
 
   private fun nearbySupermarkets(box: BBox) {
     viewModelScope.launch { nearbyRunner.call(box) }
+  }
+
+  fun requestStoragePermission() {
+    handleStorageRequestEvent(manual = false)
+  }
+
+  private fun handleStorageRequestEvent(manual: Boolean) {
+    if (manual) {
+      // Manual requests are always honored
+      Timber.d("STORAGE permission manually requested")
+      publish(StoragePermissionRequest)
+      return
+    }
+
+    viewModelScope.launch {
+      val alreadyRequested = withContext(context = Dispatchers.Default) {
+        // TODO Check preferences to see if STORAGE was already requested
+        return@withContext false
+      }
+
+      if (!alreadyRequested) {
+        // Do not launch this in a Scope because we want it to finish before continuing.
+        // If we do not wait, potentially a double click event could fire the request twice.
+        withContext(context = Dispatchers.Default) {
+          // TODO Write preferences marking STORAGE as already requested
+        }
+
+        Timber.d("Request STORAGE permission on behalf of first-time user")
+        publish(StoragePermissionRequest)
+      }
+    }
   }
 
 }

@@ -28,18 +28,21 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.pyamsoft.fridge.FridgeComponent
 import com.pyamsoft.fridge.locator.map.osm.OsmControllerEvent.BackgroundPermissionRequest
+import com.pyamsoft.fridge.locator.map.osm.OsmControllerEvent.StoragePermissionRequest
 import com.pyamsoft.fridge.locator.map.osm.OsmMap
 import com.pyamsoft.fridge.locator.map.osm.OsmViewModel
 import com.pyamsoft.pydroid.arch.createComponent
 import com.pyamsoft.pydroid.ui.Injector
 import com.pyamsoft.pydroid.ui.arch.factory
 import com.pyamsoft.pydroid.ui.util.layout
+import timber.log.Timber
 import javax.inject.Inject
 
 internal class MapFragment : Fragment() {
 
   @JvmField @Inject internal var factory: ViewModelProvider.Factory? = null
   @JvmField @Inject internal var map: OsmMap? = null
+  @JvmField @Inject internal var mapPermission: MapPermission? = null
   private val viewModel by factory<OsmViewModel> { factory }
 
   override fun onCreateView(
@@ -69,8 +72,9 @@ internal class MapFragment : Fragment() {
         viewModel,
         map
     ) {
-      return@createComponent when(it) {
+      return@createComponent when (it) {
         is BackgroundPermissionRequest -> requestBackgroundLocationPermission()
+        is StoragePermissionRequest -> requestStoragePermission()
       }
     }
 
@@ -85,9 +89,37 @@ internal class MapFragment : Fragment() {
         constrainHeight(it.id(), ConstraintSet.MATCH_CONSTRAINT)
       }
     }
+
+    if (!requireNotNull(mapPermission).hasStoragePermission()) {
+      viewModel.requestStoragePermission()
+    }
+  }
+
+  private fun requestStoragePermission() {
+    requireNotNull(mapPermission).requestStoragePermission(this)
   }
 
   private fun requestBackgroundLocationPermission() {
+    requireNotNull(mapPermission).requestBackgroundPermission(this)
+  }
+
+  override fun onRequestPermissionsResult(
+    requestCode: Int,
+    permissions: Array<out String>,
+    grantResults: IntArray
+  ) {
+    super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+    requireNotNull(mapPermission).let { mp ->
+      mp.onBackgroundResult(requestCode, permissions, grantResults) {
+        Timber.d("BACKGROUND permission granted!")
+        // TODO Handle background permission granted state
+      }
+
+      mp.onStorageResult(requestCode, permissions, grantResults) {
+        Timber.d("STORAGE permission granted!")
+        // TODO Handle storage permission granted state
+      }
+    }
   }
 
   override fun onSaveInstanceState(outState: Bundle) {
@@ -100,6 +132,7 @@ internal class MapFragment : Fragment() {
 
     factory = null
     map = null
+    mapPermission = null
   }
 
   companion object {

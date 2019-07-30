@@ -61,7 +61,13 @@ internal class GmsLocator @Inject internal constructor(
   private fun checkPermission(vararg permissions: String): Boolean {
     return permissions.all { permission ->
       val permissionCheck = ContextCompat.checkSelfPermission(context, permission)
-      return permissionCheck == PackageManager.PERMISSION_GRANTED
+      val haveIt = permissionCheck == PackageManager.PERMISSION_GRANTED
+      if (haveIt) {
+        Timber.d("Permission: $permission is GRANTED")
+      } else {
+        Timber.w("Permission: $permission is DECLINED")
+      }
+      return@all haveIt
     }
   }
 
@@ -164,7 +170,7 @@ internal class GmsLocator @Inject internal constructor(
   override fun requestStoragePermission(fragment: Fragment) {
     requestPermission(
         fragment,
-        BACKGROUND_LOCATION_PERMISSION_REQUEST_RC,
+        STORAGE_PERMISSION_REQUEST_RC,
         android.Manifest.permission.WRITE_EXTERNAL_STORAGE,
         android.Manifest.permission.READ_EXTERNAL_STORAGE
     )
