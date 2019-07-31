@@ -27,7 +27,7 @@
       android:top="8dp"/>
 
   <stroke
-      android:color="@color/black"
+      android:color="?android:attr/colorForeground"
       android:width="2dp"/>
 
   <solid android:color="@color/yellow100"/>
