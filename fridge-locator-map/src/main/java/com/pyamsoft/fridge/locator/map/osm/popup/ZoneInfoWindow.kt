@@ -17,7 +17,6 @@
 
 package com.pyamsoft.fridge.locator.map.osm.popup
 
-import android.view.MotionEvent
 import android.view.View
 import androidx.annotation.CheckResult
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -51,13 +50,6 @@ internal class ZoneInfoWindow private constructor(
             nearbyZoneInsertDao, nearbyZoneDeleteDao
         )
         .inject(this)
-
-    view?.setOnTouchListener { _, motionEvent ->
-      if (motionEvent.action == MotionEvent.ACTION_UP) {
-        close()
-      }
-      return@setOnTouchListener true
-    }
   }
 
   private inline fun allViews(
