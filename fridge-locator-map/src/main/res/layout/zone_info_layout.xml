@@ -22,7 +22,7 @@
     android:id="@+id/zone_info_root"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:background="@drawable/bonuspack_bubble"
+    android:background="@drawable/zone_background"
     android:padding="8dp"
     >
 
@@ -32,6 +32,7 @@
       android:layout_height="wrap_content"
       android:gravity="center"
       android:textAppearance="?attr/textAppearanceBody1"
+      android:textColor="@color/black"
       app:layout_constrainedHeight="true"
       app:layout_constrainedWidth="true"
       app:layout_constraintEnd_toEndOf="parent"
