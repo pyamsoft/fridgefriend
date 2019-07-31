@@ -28,7 +28,7 @@
 
   <stroke
       android:color="@color/black"
-      android:width="4dp"/>
+      android:width="2dp"/>
 
   <solid android:color="@color/yellow100"/>
 
