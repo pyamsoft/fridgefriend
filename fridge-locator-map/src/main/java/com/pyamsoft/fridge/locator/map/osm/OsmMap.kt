@@ -33,12 +33,17 @@ import androidx.lifecycle.OnLifecycleEvent
 import androidx.preference.PreferenceManager
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.pyamsoft.fridge.db.store.NearbyStore
+import com.pyamsoft.fridge.db.store.NearbyStoreDeleteDao
+import com.pyamsoft.fridge.db.store.NearbyStoreInsertDao
 import com.pyamsoft.fridge.db.zone.NearbyZone
+import com.pyamsoft.fridge.db.zone.NearbyZoneDeleteDao
+import com.pyamsoft.fridge.db.zone.NearbyZoneInsertDao
 import com.pyamsoft.fridge.locator.MapPermission
 import com.pyamsoft.fridge.locator.map.R
 import com.pyamsoft.fridge.locator.map.osm.OsmViewEvent.FindNearby
 import com.pyamsoft.fridge.locator.map.osm.OsmViewEvent.RequestBackgroundPermission
 import com.pyamsoft.fridge.locator.map.osm.OsmViewEvent.RequestStoragePermission
+import com.pyamsoft.fridge.locator.map.osm.popup.ZoneInfoWindow
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.arch.UiSavedState
 import com.pyamsoft.pydroid.loader.ImageLoader
@@ -69,6 +74,10 @@ class OsmMap @Inject internal constructor(
   private val theming: Theming,
   private val imageLoader: ImageLoader,
   private val mapPermission: MapPermission,
+  private val nearbyStoreInsertDao: NearbyStoreInsertDao,
+  private val nearbyStoreDeleteDao: NearbyStoreDeleteDao,
+  private val nearbyZoneInsertDao: NearbyZoneInsertDao,
+  private val nearbyZoneDeleteDao: NearbyZoneDeleteDao,
   activity: Activity,
   parent: ViewGroup
 ) : BaseUiView<OsmViewState, OsmViewEvent>(parent), LifecycleObserver {
@@ -206,27 +215,34 @@ class OsmMap @Inject internal constructor(
   }
 
   @CheckResult
-  private fun renderMapPolygons(polygons: List<NearbyZone>): Boolean {
+  private fun renderMapPolygons(zones: List<NearbyZone>): Boolean {
     // Skip work if no polygons
-    if (polygons.isEmpty()) {
+    if (zones.isEmpty()) {
       return false
     }
 
     val color = Color.argb(75, 255, 255, 0)
-    for (polygon in polygons) {
+    for (zone in zones) {
       // Convert list of nodes to geo points
-      val points = ArrayList(polygon.points().map { GeoPoint(it.lat, it.lon) })
+      val points = ArrayList(zone.points().map { GeoPoint(it.lat, it.lon) })
       // Add the first point again to close the polygon
       points.add(points[0])
 
-      val uid = "OsmPolygon: ${polygon.id()}"
-      val zone = Polygon(map).apply {
+      val uid = "OsmPolygon: ${zone.id()}"
+      val polygon = Polygon(map).apply {
+        infoWindow = ZoneInfoWindow.fromMap(
+            map,
+            nearbyStoreInsertDao, nearbyStoreDeleteDao,
+            nearbyZoneInsertDao, nearbyZoneDeleteDao
+        )
         setPoints(points)
         fillColor = color
-        title = polygon.name()
+        title = zone.name()
         id = uid
       }
-      zone.setOnClickListener { p, _, _ ->
+
+
+      polygon.setOnClickListener { p, _, _ ->
         if (p.isInfoWindowOpen) {
           p.closeInfoWindow()
         } else {
@@ -240,7 +256,7 @@ class OsmMap @Inject internal constructor(
       if (oldPolygon != null) {
         map.overlayManager.remove(oldPolygon)
       }
-      map.overlayManager.add(zone)
+      map.overlayManager.add(polygon)
     }
     return true
   }

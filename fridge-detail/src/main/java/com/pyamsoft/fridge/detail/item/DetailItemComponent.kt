@@ -32,8 +32,8 @@ import dagger.BindsInstance
 import dagger.Component
 import javax.inject.Named
 
-@DetailItemScope
 @Component
+@DetailItemScope
 internal interface DetailItemComponent {
 
   fun inject(holder: DetailListAdapter.DetailItemViewHolder)
