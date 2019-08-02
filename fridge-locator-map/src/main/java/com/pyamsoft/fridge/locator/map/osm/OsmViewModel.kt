@@ -26,6 +26,7 @@ import com.pyamsoft.fridge.locator.map.osm.OsmViewEvent.RequestStoragePermission
 import com.pyamsoft.highlander.highlander
 import com.pyamsoft.pydroid.arch.UiViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import timber.log.Timber
@@ -43,13 +44,28 @@ class OsmViewModel @Inject internal constructor(
   private val nearbyRunner = highlander<Unit, BBox> { box ->
     setState { copy(loading = true) }
     try {
-      val markers =
-        withContext(context = Dispatchers.Default) { interactor.nearbyLocations(box) }
-      updateMarkers(markers, fromCached = false)
-    } catch (error: Throwable) {
-      error.onActualError { e ->
-        Timber.e(e, "Error getting nearby supermarkets")
-        nearbyError(e)
+      // Start both jobs in parallel
+      val dbJob = async(context = Dispatchers.Default) { interactor.fromCache() }
+      val networkJob = async(context = Dispatchers.Default) { interactor.nearbyLocations(box) }
+
+      // Expect db to finish first since it should be faster than network
+      try {
+        updateMarkers(dbJob.await(), fromCached = true)
+      } catch (error: Throwable) {
+        error.onActualError { e ->
+          Timber.e(e, "Error getting cached supermarkets")
+          cachedFetchError(e)
+        }
+      }
+
+      // Expect network to finish second
+      try {
+        updateMarkers(networkJob.await(), fromCached = false)
+      } catch (error: Throwable) {
+        error.onActualError { e ->
+          Timber.e(e, "Error fetching nearby supermarkets")
+          nearbyError(e)
+        }
       }
     } finally {
       setState { copy(loading = false) }
