@@ -22,17 +22,24 @@ import androidx.annotation.CheckResult
 import androidx.constraintlayout.widget.ConstraintLayout
 import com.pyamsoft.fridge.db.store.NearbyStoreDeleteDao
 import com.pyamsoft.fridge.db.store.NearbyStoreInsertDao
+import com.pyamsoft.fridge.db.zone.NearbyZone
 import com.pyamsoft.fridge.db.zone.NearbyZoneDeleteDao
 import com.pyamsoft.fridge.db.zone.NearbyZoneInsertDao
 import com.pyamsoft.fridge.locator.map.R
 import com.pyamsoft.fridge.locator.map.osm.DaggerMapViewComponent
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 import org.osmdroid.views.MapView
-import org.osmdroid.views.overlay.OverlayWithIW
 import org.osmdroid.views.overlay.infowindow.InfoWindow
 import timber.log.Timber
+import java.io.Closeable
 import javax.inject.Inject
+import kotlin.coroutines.CoroutineContext
 
 internal class ZoneInfoWindow private constructor(
+  private val zone: NearbyZone,
   map: MapView,
   nearbyStoreInsertDao: NearbyStoreInsertDao,
   nearbyStoreDeleteDao: NearbyStoreDeleteDao,
@@ -41,6 +48,9 @@ internal class ZoneInfoWindow private constructor(
 ) : InfoWindow(R.layout.zone_info_layout, map) {
 
   @JvmField @Inject internal var infoView: ZoneInfoView? = null
+
+  private val containerScope: CoroutineScope
+    get() = CloseableCoroutineScope(SupervisorJob() + Dispatchers.Main)
 
   init {
     Timber.d("Dagger inject into ZoneInfoWindow")
@@ -54,9 +64,9 @@ internal class ZoneInfoWindow private constructor(
 
   private inline fun allViews(
     required: Boolean,
-    withView: (view: ZoneInfoContainer) -> Unit
+    withView: (view: ZoneInfoContainer<*>) -> Unit
   ) {
-    val views = listOf<ZoneInfoContainer?>(infoView)
+    val views = listOf<ZoneInfoContainer<*>?>(infoView)
     views.forEach { v ->
       if (required) {
         withView(requireNotNull(v))
@@ -67,12 +77,6 @@ internal class ZoneInfoWindow private constructor(
   }
 
   override fun onOpen(item: Any?) {
-    val overlay: OverlayWithIW? = item as? OverlayWithIW
-    if (overlay == null) {
-      Timber.w("Unable to cast item to OverlayWithIW: $item")
-      return
-    }
-
     val v: View? = view
     if (v == null) {
       Timber.e("ZoneInfoWindow.open, mView is null! Bail")
@@ -80,19 +84,39 @@ internal class ZoneInfoWindow private constructor(
     }
 
     val layoutRoot = v.findViewById<ConstraintLayout>(R.id.zone_info_root)
-    allViews(required = true) { it.inflate(layoutRoot) }
-    allViews(required = true) { it.open(overlay) }
+    allViews(required = true) { container ->
+      container.inflate(layoutRoot)
+      container.open(zone)
+    }
   }
 
   override fun onClose() {
-    allViews(required = false) { it.close() }
+    allViews(required = true) { it.close() }
   }
 
   override fun onDetach() {
     allViews(required = false) { it.teardown() }
+    closeCoroutine()
     infoView = null
+  }
 
-    view?.setOnTouchListener(null)
+  private fun closeCoroutine() {
+    val scope = containerScope
+    if (scope is Closeable) {
+      try {
+        scope.close()
+      } catch (e: Throwable) {
+        Timber.e(e, "Failed to close ZoneInfoWindow scope")
+      }
+    }
+  }
+
+  private class CloseableCoroutineScope(context: CoroutineContext) : Closeable, CoroutineScope {
+    override val coroutineContext: CoroutineContext = context
+
+    override fun close() {
+      coroutineContext.cancel()
+    }
   }
 
   companion object {
@@ -100,6 +124,7 @@ internal class ZoneInfoWindow private constructor(
     @JvmStatic
     @CheckResult
     fun fromMap(
+      zone: NearbyZone,
       map: MapView,
       nearbyStoreInsertDao: NearbyStoreInsertDao,
       nearbyStoreDeleteDao: NearbyStoreDeleteDao,
@@ -107,7 +132,9 @@ internal class ZoneInfoWindow private constructor(
       nearbyZoneDeleteDao: NearbyZoneDeleteDao
     ): InfoWindow {
       return ZoneInfoWindow(
-          map, nearbyStoreInsertDao, nearbyStoreDeleteDao, nearbyZoneInsertDao, nearbyZoneDeleteDao
+          zone, map,
+          nearbyStoreInsertDao, nearbyStoreDeleteDao,
+          nearbyZoneInsertDao, nearbyZoneDeleteDao
       )
     }
   }

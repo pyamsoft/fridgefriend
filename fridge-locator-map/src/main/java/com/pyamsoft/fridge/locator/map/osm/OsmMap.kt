@@ -231,6 +231,7 @@ class OsmMap @Inject internal constructor(
       val uid = "OsmPolygon: ${zone.id()}"
       val polygon = Polygon(map).apply {
         infoWindow = ZoneInfoWindow.fromMap(
+            zone,
             map,
             nearbyStoreInsertDao, nearbyStoreDeleteDao,
             nearbyZoneInsertDao, nearbyZoneDeleteDao

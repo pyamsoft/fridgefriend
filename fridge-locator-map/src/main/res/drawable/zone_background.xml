@@ -30,6 +30,6 @@
       android:color="?android:attr/colorForeground"
       android:width="2dp"/>
 
-  <solid android:color="@color/yellow100"/>
+  <solid android:color="@color/amber100"/>
 
 </shape>

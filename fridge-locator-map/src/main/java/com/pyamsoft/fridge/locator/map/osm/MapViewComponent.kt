@@ -26,8 +26,8 @@ import com.pyamsoft.fridge.locator.map.osm.popup.ZoneInfoWindow
 import dagger.BindsInstance
 import dagger.Component
 
-@Component
 @MapViewScope
+@Component
 internal interface MapViewComponent {
 
   fun inject(infoWindow: ZoneInfoWindow)

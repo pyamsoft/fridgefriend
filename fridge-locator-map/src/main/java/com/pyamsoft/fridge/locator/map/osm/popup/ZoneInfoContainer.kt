@@ -18,22 +18,20 @@
 package com.pyamsoft.fridge.locator.map.osm.popup
 
 import android.view.ViewGroup
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.cancel
-import org.osmdroid.views.overlay.OverlayWithIW
-import timber.log.Timber
-import java.io.Closeable
+import com.pyamsoft.fridge.db.zone.NearbyZone
+import com.pyamsoft.fridge.locator.map.osm.popup.ZoneInfoContainer.ZoneInfoEvent
+import com.pyamsoft.pydroid.arch.EventBus
 import java.util.concurrent.atomic.AtomicBoolean
-import kotlin.coroutines.CoroutineContext
 
-internal abstract class ZoneInfoContainer {
-
-  val containerScope: CoroutineScope
-    get() = CloseableCoroutineScope(SupervisorJob() + Dispatchers.Main)
+internal abstract class ZoneInfoContainer<T : ZoneInfoEvent> protected constructor(
+  private val eventBus: EventBus<T>
+) {
 
   private val inflated = AtomicBoolean(false)
+
+  protected fun publish(event: T) {
+    eventBus.publish(event)
+  }
 
   fun inflate(parent: ViewGroup) {
     if (inflated.compareAndSet(false, true)) {
@@ -43,11 +41,11 @@ internal abstract class ZoneInfoContainer {
 
   protected abstract fun onInflate(parent: ViewGroup)
 
-  fun open(overlay: OverlayWithIW) {
-    onOpen(overlay)
+  fun open(zone: NearbyZone) {
+    onOpen(zone)
   }
 
-  protected abstract fun onOpen(overlay: OverlayWithIW)
+  protected abstract fun onOpen(zone: NearbyZone)
 
   fun close() {
     onClose()
@@ -56,30 +54,14 @@ internal abstract class ZoneInfoContainer {
   protected abstract fun onClose()
 
   fun teardown() {
-    closeCoroutine()
     if (inflated.compareAndSet(true, false)) {
       onTeardown()
     }
   }
 
-  private fun closeCoroutine() {
-    val scope = containerScope
-    if (scope is Closeable) {
-      try {
-        scope.close()
-      } catch (e: Throwable) {
-        Timber.e(e, "Failed to close ZoneInfoContainer scope")
-      }
-    }
-  }
-
   protected abstract fun onTeardown()
 
-  private class CloseableCoroutineScope(context: CoroutineContext) : Closeable, CoroutineScope {
-    override val coroutineContext: CoroutineContext = context
+  internal sealed class ZoneInfoEvent {
 
-    override fun close() {
-      coroutineContext.cancel()
-    }
   }
 }

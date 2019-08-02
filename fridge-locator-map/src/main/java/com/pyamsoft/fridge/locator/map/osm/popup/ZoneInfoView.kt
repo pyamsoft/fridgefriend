@@ -19,32 +19,29 @@ package com.pyamsoft.fridge.locator.map.osm.popup
 
 import android.view.ViewGroup
 import android.widget.TextView
+import com.pyamsoft.fridge.db.zone.NearbyZone
 import com.pyamsoft.fridge.locator.map.R
-import org.osmdroid.views.overlay.OverlayWithIW
-import timber.log.Timber
+import com.pyamsoft.pydroid.arch.EventBus
 import javax.inject.Inject
 
-internal class ZoneInfoView @Inject internal constructor() : ZoneInfoContainer() {
+internal class ZoneInfoView @Inject internal constructor(
+) : ZoneInfoContainer<Nothing>(EventBus.create()) {
 
   private var title: TextView? = null
 
   override fun onInflate(parent: ViewGroup) {
-    Timber.d("onInflate")
     title = parent.findViewById(R.id.zone_info_title)
   }
 
-  override fun onOpen(overlay: OverlayWithIW) {
-    Timber.d("onOpen: $overlay")
-    requireNotNull(title).text = requireNotNull(overlay.title)
+  override fun onOpen(zone: NearbyZone) {
+    requireNotNull(title).text = requireNotNull(zone.name())
   }
 
   override fun onClose() {
-    Timber.d("onClose")
     requireNotNull(title).text = ""
   }
 
   override fun onTeardown() {
-    Timber.d("onTeardown")
     title = null
   }
 
