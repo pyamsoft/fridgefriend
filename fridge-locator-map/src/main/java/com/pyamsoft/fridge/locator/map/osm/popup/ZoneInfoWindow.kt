@@ -32,6 +32,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import org.osmdroid.views.MapView
+import org.osmdroid.views.overlay.OverlayWithIW
+import org.osmdroid.views.overlay.Polygon
 import org.osmdroid.views.overlay.infowindow.InfoWindow
 import timber.log.Timber
 import java.io.Closeable
@@ -47,13 +49,13 @@ internal class ZoneInfoWindow private constructor(
   nearbyZoneDeleteDao: NearbyZoneDeleteDao
 ) : InfoWindow(R.layout.zone_info_layout, map) {
 
-  @JvmField @Inject internal var infoView: ZoneInfoView? = null
+  @JvmField @Inject internal var infoTitle: ZoneInfoTitle? = null
+  @JvmField @Inject internal var infoLocation: ZoneInfoLocation? = null
 
   private val containerScope: CoroutineScope
     get() = CloseableCoroutineScope(SupervisorJob() + Dispatchers.Main)
 
   init {
-    Timber.d("Dagger inject into ZoneInfoWindow")
     DaggerMapViewComponent.factory()
         .create(
             nearbyStoreInsertDao, nearbyStoreDeleteDao,
@@ -66,7 +68,7 @@ internal class ZoneInfoWindow private constructor(
     required: Boolean,
     withView: (view: ZoneInfoContainer<*>) -> Unit
   ) {
-    val views = listOf<ZoneInfoContainer<*>?>(infoView)
+    val views = listOf<ZoneInfoContainer<*>?>(infoTitle, infoLocation)
     views.forEach { v ->
       if (required) {
         withView(requireNotNull(v))
@@ -83,10 +85,15 @@ internal class ZoneInfoWindow private constructor(
       return
     }
 
+    if (item == null || item !is Polygon) {
+      Timber.e("ZoneInfoWindow.open, item is not OverlayWithIW! Bail")
+      return
+    }
+
     val layoutRoot = v.findViewById<ConstraintLayout>(R.id.zone_info_root)
     allViews(required = true) { container ->
       container.inflate(layoutRoot)
-      container.open(zone)
+      container.open(zone, item)
     }
   }
 
@@ -97,7 +104,8 @@ internal class ZoneInfoWindow private constructor(
   override fun onDetach() {
     allViews(required = false) { it.teardown() }
     closeCoroutine()
-    infoView = null
+    infoTitle = null
+    infoLocation = null
   }
 
   private fun closeCoroutine() {

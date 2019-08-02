@@ -21,6 +21,7 @@ import android.view.ViewGroup
 import com.pyamsoft.fridge.db.zone.NearbyZone
 import com.pyamsoft.fridge.locator.map.osm.popup.ZoneInfoContainer.ZoneInfoEvent
 import com.pyamsoft.pydroid.arch.EventBus
+import org.osmdroid.views.overlay.Polygon
 import java.util.concurrent.atomic.AtomicBoolean
 
 internal abstract class ZoneInfoContainer<T : ZoneInfoEvent> protected constructor(
@@ -41,11 +42,17 @@ internal abstract class ZoneInfoContainer<T : ZoneInfoEvent> protected construct
 
   protected abstract fun onInflate(parent: ViewGroup)
 
-  fun open(zone: NearbyZone) {
-    onOpen(zone)
+  fun open(
+    zone: NearbyZone,
+    polygon: Polygon
+  ) {
+    onOpen(zone, polygon)
   }
 
-  protected abstract fun onOpen(zone: NearbyZone)
+  protected abstract fun onOpen(
+    zone: NearbyZone,
+    polygon: Polygon
+  )
 
   fun close() {
     onClose()

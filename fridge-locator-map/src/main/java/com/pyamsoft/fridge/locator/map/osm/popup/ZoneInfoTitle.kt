@@ -22,9 +22,11 @@ import android.widget.TextView
 import com.pyamsoft.fridge.db.zone.NearbyZone
 import com.pyamsoft.fridge.locator.map.R
 import com.pyamsoft.pydroid.arch.EventBus
+import org.osmdroid.views.overlay.OverlayWithIW
+import org.osmdroid.views.overlay.Polygon
 import javax.inject.Inject
 
-internal class ZoneInfoView @Inject internal constructor(
+internal class ZoneInfoTitle @Inject internal constructor(
 ) : ZoneInfoContainer<Nothing>(EventBus.create()) {
 
   private var title: TextView? = null
@@ -33,8 +35,11 @@ internal class ZoneInfoView @Inject internal constructor(
     title = parent.findViewById(R.id.zone_info_title)
   }
 
-  override fun onOpen(zone: NearbyZone) {
-    requireNotNull(title).text = requireNotNull(zone.name())
+  override fun onOpen(
+    zone: NearbyZone,
+      polygon: Polygon
+  ) {
+    requireNotNull(title).text = zone.name()
   }
 
   override fun onClose() {

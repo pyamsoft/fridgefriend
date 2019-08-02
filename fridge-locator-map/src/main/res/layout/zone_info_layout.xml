@@ -40,4 +40,18 @@
       app:layout_constraintTop_toTopOf="parent"
       />
 
+  <TextView
+      android:id="@+id/zone_info_coords"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:gravity="center_vertical|start"
+      android:textAppearance="?attr/textAppearanceBody2"
+      android:textColor="?android:attr/textColorSecondaryInverse"
+      app:layout_constrainedHeight="true"
+      app:layout_constrainedWidth="true"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintTop_toBottomOf="@+id/zone_info_title"
+      />
+
 </androidx.constraintlayout.widget.ConstraintLayout>
