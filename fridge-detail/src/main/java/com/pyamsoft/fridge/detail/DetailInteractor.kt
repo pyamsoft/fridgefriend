@@ -31,6 +31,8 @@ import com.pyamsoft.fridge.db.item.FridgeItemRealtime
 import com.pyamsoft.fridge.db.item.FridgeItemUpdateDao
 import com.pyamsoft.pydroid.arch.EventConsumer
 import com.pyamsoft.pydroid.core.Enforcer
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import timber.log.Timber
 import java.util.Calendar
 import java.util.Date
@@ -84,9 +86,9 @@ internal class DetailInteractor @Inject internal constructor(
   suspend fun getItems(
     entryId: String,
     force: Boolean
-  ): List<FridgeItem> {
+  ): List<FridgeItem> = withContext(context = Dispatchers.Default) {
     enforcer.assertNotOnMainThread()
-    return itemQueryDao.query(force, entryId)
+    return@withContext itemQueryDao.query(force, entryId)
   }
 
   @CheckResult
@@ -94,7 +96,7 @@ internal class DetailInteractor @Inject internal constructor(
     return itemRealtime.listenForChanges(entryId)
   }
 
-  suspend fun commit(item: FridgeItem) {
+  suspend fun commit(item: FridgeItem) = withContext(context = Dispatchers.Default) {
     enforcer.assertNotOnMainThread()
     if (item.name().isBlank()) {
       Timber.w("Do not commit empty name FridgeItem: $item")
@@ -122,7 +124,7 @@ internal class DetailInteractor @Inject internal constructor(
         .time
   }
 
-  suspend fun consume(item: FridgeItem) {
+  suspend fun consume(item: FridgeItem) = withContext(context = Dispatchers.Default) {
     enforcer.assertNotOnMainThread()
     if (!item.isReal()) {
       Timber.w("Cannot consume item that is not real: [${item.id()}]: $item")
@@ -132,7 +134,7 @@ internal class DetailInteractor @Inject internal constructor(
     }
   }
 
-  suspend fun spoil(item: FridgeItem) {
+  suspend fun spoil(item: FridgeItem) = withContext(context = Dispatchers.Default) {
     enforcer.assertNotOnMainThread()
     if (!item.isReal()) {
       Timber.w("Cannot spoil item that is not real: [${item.id()}]: $item")
@@ -142,7 +144,7 @@ internal class DetailInteractor @Inject internal constructor(
     }
   }
 
-  suspend fun delete(item: FridgeItem) {
+  suspend fun delete(item: FridgeItem) = withContext(context = Dispatchers.Default) {
     enforcer.assertNotOnMainThread()
     if (!item.isReal()) {
       Timber.w("Cannot delete item that is not real: [${item.id()}]: $item")
@@ -152,7 +154,7 @@ internal class DetailInteractor @Inject internal constructor(
     }
   }
 
-  suspend fun saveName(name: String) {
+  suspend fun saveName(name: String) = withContext(context = Dispatchers.Default) {
     enforcer.assertNotOnMainThread()
     val valid = getEntryForId(entryId, false)
     if (valid != null) {

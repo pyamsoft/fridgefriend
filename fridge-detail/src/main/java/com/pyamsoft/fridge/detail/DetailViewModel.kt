@@ -79,9 +79,7 @@ class DetailViewModel @Inject internal constructor(
     handleListRefreshBegin()
 
     try {
-      val items = withContext(context = Dispatchers.Default) {
-        interactor.getItems(entryId, force)
-      }
+      val items = interactor.getItems(entryId, force)
       handleListRefreshed(items)
       beginListeningForChanges()
     } catch (error: Throwable) {
@@ -95,13 +93,15 @@ class DetailViewModel @Inject internal constructor(
   }
 
   private val realtimeRunner = highlander<Unit> {
-    interactor.listenForChanges(entryId)
-        .onEvent {
-          withContext(context = Dispatchers.Main) { handleRealtime(it) }
-        }
+    withContext(context = Dispatchers.Default) {
+      launch {
+        interactor.listenForChanges(entryId)
+            .onEvent { handleRealtime(it) }
+      }
 
-    launch(context = Dispatchers.Default) {
-      fakeRealtime.onEvent { withContext(context = Dispatchers.Main) { handleRealtime(it) } }
+      launch {
+        fakeRealtime.onEvent { handleRealtime(it) }
+      }
     }
   }
 

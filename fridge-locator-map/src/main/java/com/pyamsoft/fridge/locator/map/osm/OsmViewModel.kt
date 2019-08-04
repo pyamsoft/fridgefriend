@@ -25,10 +25,9 @@ import com.pyamsoft.fridge.locator.map.osm.OsmViewEvent.RequestBackgroundPermiss
 import com.pyamsoft.fridge.locator.map.osm.OsmViewEvent.RequestStoragePermission
 import com.pyamsoft.highlander.highlander
 import com.pyamsoft.pydroid.arch.UiViewModel
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -45,26 +44,30 @@ class OsmViewModel @Inject internal constructor(
     setState { copy(loading = true) }
     try {
       // Start both jobs in parallel
-      val dbJob = async(context = Dispatchers.Default) { interactor.fromCache() }
-      val networkJob = async(context = Dispatchers.Default) { interactor.nearbyLocations(box) }
+      val dbJob = async { interactor.fromCache() }
+      val networkJob = async { interactor.nearbyLocations(box) }
 
       // Expect db to finish first since it should be faster than network
-      try {
-        updateMarkers(dbJob.await(), fromCached = true)
-      } catch (error: Throwable) {
-        error.onActualError { e ->
-          Timber.e(e, "Error getting cached supermarkets")
-          cachedFetchError(e)
+      coroutineScope {
+        try {
+          updateMarkers(dbJob.await(), fromCached = true)
+        } catch (error: Throwable) {
+          error.onActualError { e ->
+            Timber.e(e, "Error getting cached supermarkets")
+            cachedFetchError(e)
+          }
         }
       }
 
       // Expect network to finish second
-      try {
-        updateMarkers(networkJob.await(), fromCached = false)
-      } catch (error: Throwable) {
-        error.onActualError { e ->
-          Timber.e(e, "Error fetching nearby supermarkets")
-          nearbyError(e)
+      coroutineScope {
+        try {
+          updateMarkers(networkJob.await(), fromCached = false)
+        } catch (error: Throwable) {
+          error.onActualError { e ->
+            Timber.e(e, "Error fetching nearby supermarkets")
+            nearbyError(e)
+          }
         }
       }
     } finally {
@@ -122,8 +125,7 @@ class OsmViewModel @Inject internal constructor(
     viewModelScope.launch {
       setState { copy(loading = true) }
       try {
-        val markers = withContext(context = Dispatchers.Default) { interactor.fromCache() }
-        updateMarkers(markers, fromCached = true)
+        updateMarkers(interactor.fromCache(), fromCached = true)
       } catch (error: Throwable) {
         error.onActualError { e ->
           Timber.e(e, "Error getting cached locations")
@@ -164,17 +166,13 @@ class OsmViewModel @Inject internal constructor(
     }
 
     viewModelScope.launch {
-      val alreadyRequested = withContext(context = Dispatchers.Default) {
-        // TODO Check preferences to see if STORAGE was already requested
-        return@withContext false
-      }
+      // TODO Check preferences to see if STORAGE was already requested
+      val alreadyRequested = false
 
       if (!alreadyRequested) {
         // Do not launch this in a Scope because we want it to finish before continuing.
         // If we do not wait, potentially a double click event could fire the request twice.
-        withContext(context = Dispatchers.Default) {
-          // TODO Write preferences marking STORAGE as already requested
-        }
+        // TODO Write preferences marking STORAGE as already requested
 
         Timber.d("Request STORAGE permission on behalf of first-time user")
         publish(StoragePermissionRequest)

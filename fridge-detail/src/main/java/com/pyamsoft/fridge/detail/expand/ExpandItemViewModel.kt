@@ -47,7 +47,6 @@ import com.pyamsoft.highlander.highlander
 import com.pyamsoft.pydroid.arch.EventBus
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import timber.log.Timber
 import java.util.Calendar
 import java.util.Date
@@ -66,7 +65,7 @@ class ExpandItemViewModel @Inject internal constructor(
 
   private val updateRunner = highlander<Unit, FridgeItem> { item ->
     try {
-      withContext(context = Dispatchers.Default) { interactor.commit(item.makeReal()) }
+      interactor.commit(item.makeReal())
     } catch (error: Throwable) {
       error.onActualError { e ->
         Timber.e(e, "Error updating item: ${item.id()}")
@@ -80,31 +79,27 @@ class ExpandItemViewModel @Inject internal constructor(
 
   override fun onInit() {
     viewModelScope.launch(context = Dispatchers.Default) {
-      dateSelectBus.onEvent { event ->
-        if (event.oldItem.entryId() != itemEntryId) {
-          return@onEvent
-        }
+      launch {
+        dateSelectBus.onEvent { event ->
+          if (event.oldItem.entryId() != itemEntryId) {
+            return@onEvent
+          }
 
-        if (event.oldItem.id() != itemId) {
-          return@onEvent
-        }
+          if (event.oldItem.id() != itemId) {
+            return@onEvent
+          }
 
-        commitDate(event.oldItem, event.year, event.month, event.day)
+          commitDate(event.oldItem, event.year, event.month, event.day)
+        }
       }
-    }
 
-    viewModelScope.launch(context = Dispatchers.Default) {
-      launch(context = Dispatchers.Default) {
+      launch {
         realtime.listenForChanges(itemEntryId)
-            .onEvent {
-              withContext(context = Dispatchers.Main) { handleRealtimeEvent(it) }
-            }
+            .onEvent { handleRealtimeEvent(it) }
       }
 
-      launch(context = Dispatchers.Default) {
-        fakeRealtime.onEvent {
-          withContext(context = Dispatchers.Main) { handleRealtimeEvent(it) }
-        }
+      launch {
+        fakeRealtime.onEvent { handleRealtimeEvent(it) }
       }
     }
   }

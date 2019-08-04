@@ -24,9 +24,7 @@ import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent.Delete
 import com.pyamsoft.highlander.highlander
 import com.pyamsoft.pydroid.arch.EventBus
 import com.pyamsoft.pydroid.arch.UiViewModel
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import timber.log.Timber
 import javax.inject.Named
 
@@ -43,7 +41,7 @@ abstract class DetailItemViewModel protected constructor(
       suspend (item: FridgeItem) -> Unit,
       (item: FridgeItem) -> Unit> { doRemove, onRemoved ->
     try {
-      withContext(context = Dispatchers.Default) { doRemove(item) }
+      doRemove(item)
     } catch (error: Throwable) {
       error.onActualError { e ->
         Timber.e(e, "Error removing item: ${item.id()}")
