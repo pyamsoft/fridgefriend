@@ -15,7 +15,7 @@
  *
  */
 
-package com.pyamsoft.fridge
+package com.pyamsoft.fridge.locator.map.osm.popup
 
 import com.pyamsoft.pydroid.arch.UiViewModel
 import com.pyamsoft.pydroid.arch.UiViewModelFactory
@@ -24,7 +24,7 @@ import javax.inject.Inject
 import javax.inject.Provider
 import kotlin.reflect.KClass
 
-internal class FridgeViewModelFactory @Inject internal constructor(
+internal class PopupViewModelFactory @Inject internal constructor(
   private val viewModels: MutableMap<Class<out UiViewModel<*, *, *>>, Provider<UiViewModel<*, *, *>>>
 ) : UiViewModelFactory() {
 

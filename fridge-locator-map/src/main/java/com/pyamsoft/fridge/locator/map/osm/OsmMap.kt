@@ -30,20 +30,23 @@ import androidx.lifecycle.Lifecycle.Event.ON_RESUME
 import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.OnLifecycleEvent
+import androidx.lifecycle.ViewModelProvider
 import androidx.preference.PreferenceManager
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.pyamsoft.fridge.db.store.NearbyStore
 import com.pyamsoft.fridge.db.store.NearbyStoreDeleteDao
 import com.pyamsoft.fridge.db.store.NearbyStoreInsertDao
+import com.pyamsoft.fridge.db.store.NearbyStoreQueryDao
 import com.pyamsoft.fridge.db.zone.NearbyZone
 import com.pyamsoft.fridge.db.zone.NearbyZoneDeleteDao
 import com.pyamsoft.fridge.db.zone.NearbyZoneInsertDao
+import com.pyamsoft.fridge.db.zone.NearbyZoneQueryDao
 import com.pyamsoft.fridge.locator.MapPermission
 import com.pyamsoft.fridge.locator.map.R
 import com.pyamsoft.fridge.locator.map.osm.OsmViewEvent.FindNearby
 import com.pyamsoft.fridge.locator.map.osm.OsmViewEvent.RequestBackgroundPermission
 import com.pyamsoft.fridge.locator.map.osm.OsmViewEvent.RequestStoragePermission
-import com.pyamsoft.fridge.locator.map.osm.popup.ZoneInfoWindow
+import com.pyamsoft.fridge.locator.map.osm.popup.zone.ZoneInfoWindow
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.arch.UiSavedState
 import com.pyamsoft.pydroid.loader.ImageLoader
@@ -74,8 +77,12 @@ class OsmMap @Inject internal constructor(
   private val theming: Theming,
   private val imageLoader: ImageLoader,
   private val mapPermission: MapPermission,
+
+  private val nearbyStoreQueryDao: NearbyStoreQueryDao,
   private val nearbyStoreInsertDao: NearbyStoreInsertDao,
   private val nearbyStoreDeleteDao: NearbyStoreDeleteDao,
+
+  private val nearbyZoneQueryDao: NearbyZoneQueryDao,
   private val nearbyZoneInsertDao: NearbyZoneInsertDao,
   private val nearbyZoneDeleteDao: NearbyZoneDeleteDao,
   activity: Activity,
@@ -228,13 +235,12 @@ class OsmMap @Inject internal constructor(
       // Add the first point again to close the polygon
       points.add(points[0])
 
-      val uid = "OsmPolygon: ${zone.id()}"
+      val uid = zone.getPolygonUid()
       val polygon = Polygon(map).apply {
         infoWindow = ZoneInfoWindow.fromMap(
             zone,
             map,
-            nearbyStoreInsertDao, nearbyStoreDeleteDao,
-            nearbyZoneInsertDao, nearbyZoneDeleteDao
+            nearbyZoneQueryDao, nearbyZoneInsertDao, nearbyZoneDeleteDao
         )
         setPoints(points)
         fillColor = color
@@ -283,8 +289,7 @@ class OsmMap @Inject internal constructor(
             val name = point.name()
             val description = "Supermarket: $name"
             val geo = GeoPoint(point.latitude(), point.longitude())
-            val uid = "OsmGeoPoint: ${point.id()}"
-            return@map OverlayItem(uid, name, description, geo)
+            return@map OverlayItem(point.getMarkerUid(), name, description, geo)
           },
           itemListener, map.context.applicationContext
       ).apply {

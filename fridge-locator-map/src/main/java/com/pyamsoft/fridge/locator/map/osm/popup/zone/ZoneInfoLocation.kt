@@ -15,42 +15,41 @@
  *
  */
 
-package com.pyamsoft.fridge.locator.map.osm.popup
+package com.pyamsoft.fridge.locator.map.osm.popup.zone
 
 import android.view.ViewGroup
 import android.widget.TextView
-import com.pyamsoft.fridge.db.zone.NearbyZone
 import com.pyamsoft.fridge.locator.map.R
-import com.pyamsoft.pydroid.arch.EventBus
-import org.osmdroid.views.overlay.Polygon
+import com.pyamsoft.pydroid.arch.BaseUiView
+import com.pyamsoft.pydroid.arch.UiSavedState
 import javax.inject.Inject
 
 internal class ZoneInfoLocation @Inject internal constructor(
-) : ZoneInfoContainer<Nothing>(EventBus.create()) {
+  parent: ViewGroup
+) : BaseUiView<ZoneInfoViewState, ZoneInfoViewEvent>(parent) {
 
-  private var coordinates: TextView? = null
+  override val layout: Int = R.layout.zone_info_location
+  override val layoutRoot by boundView<TextView>(R.id.zone_info_coords)
 
-  override fun onInflate(parent: ViewGroup) {
-    coordinates = parent.findViewById(R.id.zone_info_coords)
-  }
-
-  override fun onOpen(
-    zone: NearbyZone,
-    polygon: Polygon
+  override fun onRender(
+    state: ZoneInfoViewState,
+    savedState: UiSavedState
   ) {
-    val centerPoint = requireNotNull(polygon.infoWindowLocation)
-    val lat = "%.5f".format(centerPoint.latitude)
-    val lon = "%.5f".format(centerPoint.longitude)
-    val coords = "($lat, $lon)"
-    requireNotNull(coordinates).text = "Located at: $coords"
-  }
-
-  override fun onClose() {
-    requireNotNull(coordinates).text = ""
+    state.polygon.let { polygon ->
+      if (polygon == null) {
+        layoutRoot.text = ""
+      } else {
+        val centerPoint = requireNotNull(polygon.infoWindowLocation)
+        val lat = "%.5f".format(centerPoint.latitude)
+        val lon = "%.5f".format(centerPoint.longitude)
+        val coords = "($lat, $lon)"
+        layoutRoot.text = "Located at: $coords"
+      }
+    }
   }
 
   override fun onTeardown() {
-    coordinates = null
+    layoutRoot.text = ""
   }
 
 }

@@ -31,6 +31,22 @@ internal fun NearbyStore.Companion.create(node: Node): NearbyStore {
 }
 
 @CheckResult
+internal fun NearbyStore.Companion.getMarkerUidPrefix(): String {
+  return "OsmMarker: "
+}
+
+@CheckResult
+internal fun NearbyStore.getMarkerUid(): String {
+  return "${NearbyStore.getMarkerUidPrefix()}${id()}"
+}
+
+@CheckResult
+internal fun NearbyStore.Companion.getIdFromUid(uid: String): Long {
+  return uid.replace(NearbyStore.getMarkerUidPrefix(), "")
+      .toLong()
+}
+
+@CheckResult
 private fun findName(
   way: Way,
   nodes: List<Node>
@@ -62,6 +78,22 @@ internal fun NearbyZone.Companion.create(
       Date(),
       nodes.map { Point(it.id, it.lat, it.lon) }
   )
+}
+
+@CheckResult
+internal fun NearbyZone.Companion.getPolygonUidPrefix(): String {
+  return "OsmPolygon: "
+}
+
+@CheckResult
+internal fun NearbyZone.getPolygonUid(): String {
+  return "${NearbyZone.getPolygonUidPrefix()}${id()}"
+}
+
+@CheckResult
+internal fun NearbyZone.Companion.getIdFromUid(uid: String): Long {
+  return uid.replace(NearbyZone.getPolygonUidPrefix(), "")
+      .toLong()
 }
 
 data class OsmMarkers internal constructor(

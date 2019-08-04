@@ -15,40 +15,29 @@
  *
  */
 
-package com.pyamsoft.fridge.locator.map.osm.popup
+package com.pyamsoft.fridge.locator.map.osm.popup.zone
 
-import android.view.ViewGroup
-import android.widget.TextView
 import com.pyamsoft.fridge.db.zone.NearbyZone
-import com.pyamsoft.fridge.locator.map.R
-import com.pyamsoft.pydroid.arch.EventBus
-import org.osmdroid.views.overlay.OverlayWithIW
+import com.pyamsoft.pydroid.arch.UiViewModel
 import org.osmdroid.views.overlay.Polygon
 import javax.inject.Inject
 
-internal class ZoneInfoTitle @Inject internal constructor(
-) : ZoneInfoContainer<Nothing>(EventBus.create()) {
+internal class ZoneInfoViewModel @Inject internal constructor(
+  zone: NearbyZone
+) : UiViewModel<ZoneInfoViewState, ZoneInfoViewEvent, ZoneInfoControllerEvent>(
+    initialState = ZoneInfoViewState(
+        zone = zone, polygon = null
+    )
+) {
 
-  private var title: TextView? = null
-
-  override fun onInflate(parent: ViewGroup) {
-    title = parent.findViewById(R.id.zone_info_title)
+  override fun onInit() {
   }
 
-  override fun onOpen(
-    zone: NearbyZone,
-      polygon: Polygon
-  ) {
-    requireNotNull(title).text = zone.name()
+  override fun handleViewEvent(event: ZoneInfoViewEvent) {
   }
 
-  override fun onClose() {
-    requireNotNull(title).text = ""
-  }
-
-  override fun onTeardown() {
-    title = null
+  fun updatePolygon(polygon: Polygon) {
+    setState { copy(polygon = polygon) }
   }
 
 }
-

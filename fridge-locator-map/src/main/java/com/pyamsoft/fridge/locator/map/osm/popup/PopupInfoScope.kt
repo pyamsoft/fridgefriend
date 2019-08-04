@@ -17,19 +17,7 @@
 
 package com.pyamsoft.fridge.locator.map.osm.popup
 
-import com.pyamsoft.pydroid.arch.UiControllerEvent
-import com.pyamsoft.pydroid.arch.UiViewEvent
-import com.pyamsoft.pydroid.arch.UiViewState
-import org.osmdroid.views.overlay.OverlayWithIW
+import javax.inject.Scope
 
-data class ZoneInfoViewState internal constructor(
-  val overlay: OverlayWithIW
-) : UiViewState
-
-sealed class ZoneInfoViewEvent : UiViewEvent {
-
-}
-
-sealed class ZoneInfoControllerEvent : UiControllerEvent {
-
-}
+@Scope
+internal annotation class PopupInfoScope

@@ -15,9 +15,23 @@
  *
  */
 
-package com.pyamsoft.fridge.locator.map.osm
+package com.pyamsoft.fridge.locator.map.osm.popup.zone
 
-import javax.inject.Scope
+import com.pyamsoft.fridge.db.zone.NearbyZone
+import com.pyamsoft.pydroid.arch.UiControllerEvent
+import com.pyamsoft.pydroid.arch.UiViewEvent
+import com.pyamsoft.pydroid.arch.UiViewState
+import org.osmdroid.views.overlay.Polygon
 
-@Scope
-internal annotation class MapViewScope
+data class ZoneInfoViewState internal constructor(
+  val zone: NearbyZone,
+  val polygon: Polygon?
+) : UiViewState
+
+sealed class ZoneInfoViewEvent : UiViewEvent {
+
+}
+
+sealed class ZoneInfoControllerEvent : UiControllerEvent {
+
+}

@@ -15,11 +15,11 @@
  *
  */
 
-package com.pyamsoft.fridge.locator.map.osm.popup
+package com.pyamsoft.fridge.locator.map.osm.popup.zone
 
 import android.view.ViewGroup
 import com.pyamsoft.fridge.db.zone.NearbyZone
-import com.pyamsoft.fridge.locator.map.osm.popup.ZoneInfoContainer.ZoneInfoEvent
+import com.pyamsoft.fridge.locator.map.osm.popup.zone.ZoneInfoContainer.ZoneInfoEvent
 import com.pyamsoft.pydroid.arch.EventBus
 import org.osmdroid.views.overlay.Polygon
 import java.util.concurrent.atomic.AtomicBoolean
