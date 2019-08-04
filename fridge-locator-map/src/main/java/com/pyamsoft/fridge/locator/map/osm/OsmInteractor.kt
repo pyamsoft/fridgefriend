@@ -25,6 +25,7 @@ import com.pyamsoft.fridge.db.zone.NearbyZoneQueryDao
 import com.pyamsoft.fridge.locator.map.osm.api.NearbyLocationApi
 import com.pyamsoft.fridge.locator.map.osm.api.OsmNodeOrWay.Node
 import com.pyamsoft.fridge.locator.map.osm.api.OsmNodeOrWay.Way
+import com.pyamsoft.pydroid.core.Enforcer
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
@@ -34,55 +35,58 @@ import javax.inject.Inject
 internal class OsmInteractor @Inject internal constructor(
   private val nearbyStores: NearbyStoreQueryDao,
   private val nearbyZones: NearbyZoneQueryDao,
+  private val enforcer: Enforcer,
   private val api: NearbyLocationApi
 ) {
 
   @CheckResult
-  suspend fun fromCache(): OsmMarkers = coroutineScope {
-    withContext(context = Dispatchers.IO) {
+  suspend fun fromCache(): OsmMarkers = withContext(context = Dispatchers.IO) {
+    enforcer.assertNotOnMainThread()
+
+    coroutineScope {
       val storeJob = async { nearbyStores.query(false) }
       val zoneJob = async { nearbyZones.query(false) }
-      return@withContext OsmMarkers(storeJob.await(), zoneJob.await())
+      return@coroutineScope OsmMarkers(storeJob.await(), zoneJob.await())
     }
   }
 
   @CheckResult
-  suspend fun nearbyLocations(box: BBox): OsmMarkers = coroutineScope {
-    withContext(context = Dispatchers.IO) {
-      val data = createOverpassData(box.south, box.west, box.north, box.east)
-      val response = api.queryNearby(data)
-      val elements = response.elements()
+  suspend fun nearbyLocations(box: BBox): OsmMarkers = withContext(context = Dispatchers.IO) {
+    enforcer.assertNotOnMainThread()
 
-      // First compile all the Way objects
-      val polygons = arrayListOf<NearbyZone>()
+    val data = createOverpassData(box.south, box.west, box.north, box.east)
+    val response = api.queryNearby(data)
+    val elements = response.elements()
 
-      val allNodes = elements.filterIsInstance<Node>()
-          .toMutableList()
-      elements.filterIsInstance<Way>()
-          .forEach { way ->
-            val nodes = way.nodes.map { id ->
-              val node: Node? = allNodes.find { it.id == id }
-              if (node == null) {
-                return@map null
-              } else {
-                allNodes.remove(node)
-                return@map node
-              }
+    // First compile all the Way objects
+    val polygons = arrayListOf<NearbyZone>()
+
+    val allNodes = elements.filterIsInstance<Node>()
+        .toMutableList()
+    elements.filterIsInstance<Way>()
+        .forEach { way ->
+          val nodes = way.nodes.map { id ->
+            val node: Node? = allNodes.find { it.id == id }
+            if (node == null) {
+              return@map null
+            } else {
+              allNodes.remove(node)
+              return@map node
             }
-                .filterNot { it == null }
-                .map { requireNotNull(it) }
-
-            polygons.add(NearbyZone.create(way, nodes))
           }
+              .filterNot { it == null }
+              .map { requireNotNull(it) }
 
-      val remainingNodes = allNodes.filter {
-        it.tags.name()
-            .isNotBlank()
-      }
-      val markers = remainingNodes.map { NearbyStore.create(it) }
+          polygons.add(NearbyZone.create(way, nodes))
+        }
 
-      return@withContext OsmMarkers(markers, polygons)
+    val remainingNodes = allNodes.filter {
+      it.tags.name()
+          .isNotBlank()
     }
+    val markers = remainingNodes.map { NearbyStore.create(it) }
+
+    return@withContext OsmMarkers(markers, polygons)
   }
 
   companion object {

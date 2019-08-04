@@ -25,9 +25,9 @@ import com.pyamsoft.fridge.locator.map.osm.OsmViewEvent.RequestBackgroundPermiss
 import com.pyamsoft.fridge.locator.map.osm.OsmViewEvent.RequestStoragePermission
 import com.pyamsoft.highlander.highlander
 import com.pyamsoft.pydroid.arch.UiViewModel
-import kotlinx.coroutines.async
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -40,17 +40,16 @@ class OsmViewModel @Inject internal constructor(
     )
 ) {
 
+  private val mutex = Mutex()
+
   private val nearbyRunner = highlander<Unit, BBox> { box ->
     setState { copy(loading = true) }
-    try {
-      // Start both jobs in parallel
-      val dbJob = async { interactor.fromCache() }
-      val networkJob = async { interactor.nearbyLocations(box) }
 
-      // Expect db to finish first since it should be faster than network
-      coroutineScope {
+    // Run jobs in parallel
+    try {
+      launch {
         try {
-          updateMarkers(dbJob.await(), fromCached = true)
+          updateMarkers(interactor.fromCache(), fromCached = true)
         } catch (error: Throwable) {
           error.onActualError { e ->
             Timber.e(e, "Error getting cached supermarkets")
@@ -59,10 +58,9 @@ class OsmViewModel @Inject internal constructor(
         }
       }
 
-      // Expect network to finish second
-      coroutineScope {
+      launch {
         try {
-          updateMarkers(networkJob.await(), fromCached = false)
+          updateMarkers(interactor.nearbyLocations(box), fromCached = false)
         } catch (error: Throwable) {
           error.onActualError { e ->
             Timber.e(e, "Error fetching nearby supermarkets")
@@ -79,23 +77,25 @@ class OsmViewModel @Inject internal constructor(
     setState { copy(nearbyError = throwable) }
   }
 
-  private fun updateMarkers(
+  private suspend fun updateMarkers(
     markers: OsmMarkers,
     fromCached: Boolean
   ) {
-    setState {
-      if (fromCached) {
-        copy(
-            points = merge(points, markers.points) { it.id() },
-            zones = merge(zones, markers.zones) { it.id() },
-            cachedFetchError = null
-        )
-      } else {
-        copy(
-            points = merge(points, markers.points) { it.id() },
-            zones = merge(zones, markers.zones) { it.id() },
-            nearbyError = null
-        )
+    mutex.withLock {
+      setState {
+        if (fromCached) {
+          copy(
+              points = merge(points, markers.points) { it.id() },
+              zones = merge(zones, markers.zones) { it.id() },
+              cachedFetchError = null
+          )
+        } else {
+          copy(
+              points = merge(points, markers.points) { it.id() },
+              zones = merge(zones, markers.zones) { it.id() },
+              nearbyError = null
+          )
+        }
       }
     }
   }
