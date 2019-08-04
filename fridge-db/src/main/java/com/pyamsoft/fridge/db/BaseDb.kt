@@ -27,7 +27,7 @@ import com.pyamsoft.pydroid.arch.EventConsumer
 
 interface BaseDb<ChangeEvent : Any, R : Realtime<*>, Q : Query<*>, I : Insert<*>, U : Update<*>, D : Delete<*>> {
 
-  fun publish(event: ChangeEvent)
+  suspend fun publish(event: ChangeEvent)
 
   @CheckResult
   fun realtime(): R

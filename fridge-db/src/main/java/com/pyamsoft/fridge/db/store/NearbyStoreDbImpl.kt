@@ -31,12 +31,12 @@ internal class NearbyStoreDbImpl internal constructor(
 
   private val mutex = Mutex()
 
-  private fun publishRealtime(event: NearbyStoreChangeEvent) {
+  private suspend fun publishRealtime(event: NearbyStoreChangeEvent) {
     cache.clear()
     publish(event)
   }
 
-  override fun publish(event: NearbyStoreChangeEvent) {
+  override suspend fun publish(event: NearbyStoreChangeEvent) {
     db.publish(event)
   }
 

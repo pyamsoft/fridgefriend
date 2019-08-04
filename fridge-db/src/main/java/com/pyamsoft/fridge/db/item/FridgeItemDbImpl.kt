@@ -32,12 +32,12 @@ internal class FridgeItemDbImpl internal constructor(
 
   private val mutex = Mutex()
 
-  private fun publishRealtime(event: FridgeItemChangeEvent) {
+  private suspend fun publishRealtime(event: FridgeItemChangeEvent) {
     cache.clear()
     publish(event)
   }
 
-  override fun publish(event: FridgeItemChangeEvent) {
+  override suspend fun publish(event: FridgeItemChangeEvent) {
     db.publish(event)
   }
 

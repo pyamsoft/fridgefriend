@@ -229,8 +229,8 @@ class ExpandItemViewModel @Inject internal constructor(
     }
   }
 
-  private fun handleFakeCommit(item: FridgeItem) {
-    fakeRealtime.publish(Insert(item))
+  private suspend fun handleFakeCommit(item: FridgeItem) {
+    fakeRealtime.send(Insert(item))
     Timber.w("Not ready to commit item yet: $item")
   }
 

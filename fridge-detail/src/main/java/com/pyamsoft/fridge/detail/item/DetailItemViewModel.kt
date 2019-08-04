@@ -51,8 +51,8 @@ abstract class DetailItemViewModel protected constructor(
     }
   }
 
-  private fun handleFakeDelete(item: FridgeItem) {
-    fakeRealtime.publish(Delete(item))
+  private suspend fun handleFakeDelete(item: FridgeItem) {
+    fakeRealtime.send(Delete(item))
   }
 
   @JvmOverloads
@@ -60,7 +60,7 @@ abstract class DetailItemViewModel protected constructor(
     item: FridgeItem,
     doRemove: suspend (item: FridgeItem) -> Unit,
     onRemoved: (item: FridgeItem) -> Unit = {}
-  ) {
+  ) = viewModelScope.launch {
     // If this item is not real, its an empty placeholder
     // The user may still wish to delete it from their list
     // in case they have too many placeholders.
@@ -69,10 +69,10 @@ abstract class DetailItemViewModel protected constructor(
     if (!item.isReal()) {
       Timber.w("Remove called on a non-real item: $item, fake callback")
       handleFakeDelete(item)
-      return
+      return@launch
     }
 
-    viewModelScope.launch { deleteRunner.call(doRemove, onRemoved) }
+    deleteRunner.call(doRemove, onRemoved)
   }
 
 }

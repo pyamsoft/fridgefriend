@@ -159,8 +159,8 @@ internal abstract class RoomFridgeDbImpl internal constructor() : RoomDatabase()
         }
       }
 
-      override fun publish(event: FridgeItemChangeEvent) {
-        itemRealtimeChangeBus.publish(event)
+      override suspend fun publish(event: FridgeItemChangeEvent) {
+        itemRealtimeChangeBus.send(event)
       }
 
       override fun realtime(): FridgeItemRealtime {
@@ -214,8 +214,8 @@ internal abstract class RoomFridgeDbImpl internal constructor() : RoomDatabase()
         }
       }
 
-      override fun publish(event: FridgeEntryChangeEvent) {
-        entryRealtimeChangeBus.publish(event)
+      override suspend fun publish(event: FridgeEntryChangeEvent) {
+        entryRealtimeChangeBus.send(event)
       }
 
       override fun realtime(): FridgeEntryRealtime {
@@ -269,8 +269,8 @@ internal abstract class RoomFridgeDbImpl internal constructor() : RoomDatabase()
         }
       }
 
-      override fun publish(event: NearbyStoreChangeEvent) {
-        storeRealtimeChangeBus.publish(event)
+      override suspend fun publish(event: NearbyStoreChangeEvent) {
+        storeRealtimeChangeBus.send(event)
       }
 
       override fun realtime(): NearbyStoreRealtime {
@@ -324,8 +324,8 @@ internal abstract class RoomFridgeDbImpl internal constructor() : RoomDatabase()
         }
       }
 
-      override fun publish(event: NearbyZoneChangeEvent) {
-        zoneRealtimeChangeBus.publish(event)
+      override suspend fun publish(event: NearbyZoneChangeEvent) {
+        zoneRealtimeChangeBus.send(event)
       }
 
       override fun realtime(): NearbyZoneRealtime {
