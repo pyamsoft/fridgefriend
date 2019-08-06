@@ -19,21 +19,27 @@ package com.pyamsoft.fridge.detail.item
 
 import android.view.ViewGroup
 import androidx.annotation.CheckResult
+import androidx.lifecycle.ViewModelProvider
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent
 import com.pyamsoft.fridge.db.item.FridgeItemRealtime
 import com.pyamsoft.fridge.detail.DetailInteractor
 import com.pyamsoft.fridge.detail.DetailListAdapter
+import com.pyamsoft.fridge.detail.item.DetailItemComponent.ViewModelModule
 import com.pyamsoft.pydroid.arch.EventBus
+import com.pyamsoft.pydroid.arch.UiViewModel
 import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.ui.theme.Theming
+import dagger.Binds
 import dagger.BindsInstance
 import dagger.Component
+import dagger.Module
+import dagger.multibindings.IntoMap
 import javax.inject.Named
 
-@Component
 @DetailItemScope
+@Component(modules = [ViewModelModule::class])
 internal interface DetailItemComponent {
 
   fun inject(holder: DetailListAdapter.DetailItemViewHolder)
@@ -56,4 +62,15 @@ internal interface DetailItemComponent {
     ): DetailItemComponent
   }
 
+  @Module
+  abstract class ViewModelModule {
+
+    @Binds
+    internal abstract fun bindViewModelFactory(factory: DetailItemViewModelFactory): ViewModelProvider.Factory
+
+    @Binds
+    @IntoMap
+    @ViewModelKey(DetailListItemViewModel::class)
+    internal abstract fun detailListItemViewModel(viewModel: DetailListItemViewModel): UiViewModel<*, *, *>
+  }
 }

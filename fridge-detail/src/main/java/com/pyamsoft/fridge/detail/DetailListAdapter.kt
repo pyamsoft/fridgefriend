@@ -22,6 +22,9 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelStore
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -37,15 +40,16 @@ import com.pyamsoft.fridge.detail.item.DetailListItemGlances
 import com.pyamsoft.fridge.detail.item.DetailListItemName
 import com.pyamsoft.fridge.detail.item.DetailListItemPresence
 import com.pyamsoft.fridge.detail.item.DetailListItemViewModel
-import com.pyamsoft.fridge.detail.item.ListItemLifecycle
 import com.pyamsoft.pydroid.arch.createComponent
+import com.pyamsoft.pydroid.ui.app.ListItemLifecycle
+import com.pyamsoft.pydroid.ui.arch.factory
 import com.pyamsoft.pydroid.ui.util.layout
 import timber.log.Timber
 import javax.inject.Inject
 
 internal class DetailListAdapter constructor(
   private val editable: Boolean,
-  private val factory: (parent: ViewGroup, item: FridgeItem, editable: Boolean) -> DetailItemComponent,
+  private val injectComponent: (parent: ViewGroup, item: FridgeItem, editable: Boolean) -> DetailItemComponent,
   private val callback: Callback
 ) : ListAdapter<FridgeItem, DetailViewHolder>(object : DiffUtil.ItemCallback<FridgeItem>() {
 
@@ -81,7 +85,7 @@ internal class DetailListAdapter constructor(
   ): DetailViewHolder {
     val inflater = LayoutInflater.from(parent.context)
     val v = inflater.inflate(R.layout.listitem_constraint, parent, false)
-    return DetailItemViewHolder(v, factory)
+    return DetailItemViewHolder(v, injectComponent)
   }
 
   override fun onBindViewHolder(
@@ -107,19 +111,25 @@ internal class DetailListAdapter constructor(
 
   internal class DetailItemViewHolder internal constructor(
     itemView: View,
-    private val factory: (parent: ViewGroup, item: FridgeItem, editable: Boolean) -> DetailItemComponent
+    private val injectComponent: (parent: ViewGroup, item: FridgeItem, editable: Boolean) -> DetailItemComponent
   ) : DetailViewHolder(itemView) {
 
-    @JvmField @Inject internal var viewModel: DetailListItemViewModel? = null
+    @JvmField @Inject internal var viewModelFactory: ViewModelProvider.Factory? = null
     @JvmField @Inject internal var name: DetailListItemName? = null
     @JvmField @Inject internal var date: DetailListItemDate? = null
     @JvmField @Inject internal var presence: DetailListItemPresence? = null
     @JvmField @Inject internal var glances: DetailListItemGlances? = null
+    private var viewModel: DetailListItemViewModel? = null
 
     private val parent: ConstraintLayout = itemView.findViewById(R.id.listitem_constraint)
 
     private var lifecycle: ListItemLifecycle? = null
     private var boundItem: FridgeItem? = null
+
+    private fun injectViewModel(lifecycle: Lifecycle) {
+      viewModel = lifecycle.factory<DetailListItemViewModel>(ViewModelStore()) { viewModelFactory }
+          .get()
+    }
 
     fun bind(
       item: FridgeItem,
@@ -127,13 +137,13 @@ internal class DetailListAdapter constructor(
       callback: Callback
     ) {
       boundItem = item
-      lifecycle?.unbind()
-
-      factory(parent, item, editable)
+      injectComponent(parent, item, editable)
           .inject(this)
 
       val owner = ListItemLifecycle()
+      lifecycle?.unbind()
       lifecycle = owner
+      injectViewModel(owner.lifecycle)
 
       val name = requireNotNull(name)
       val date = requireNotNull(date)
@@ -194,10 +204,10 @@ internal class DetailListAdapter constructor(
 
     override fun unbind() {
       lifecycle?.unbind()
-
-      boundItem = null
       lifecycle = null
+
       viewModel = null
+      boundItem = null
       name = null
       date = null
       presence = null

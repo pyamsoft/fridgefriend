@@ -77,7 +77,7 @@ class DetailList @Inject internal constructor(
     view: View,
     savedInstanceState: Bundle?
   ) {
-    val factory = { parent: ViewGroup, item: FridgeItem, editable: Boolean ->
+    val injectComponent = { parent: ViewGroup, item: FridgeItem, editable: Boolean ->
       DaggerDetailItemComponent.factory()
           .create(
               parent, item, editable,
@@ -89,7 +89,7 @@ class DetailList @Inject internal constructor(
     modelAdapter =
       DetailListAdapter(
           editable = true,
-          factory = factory,
+          injectComponent = injectComponent,
           callback = object : Callback {
 
             override fun onItemExpanded(item: FridgeItem) {
