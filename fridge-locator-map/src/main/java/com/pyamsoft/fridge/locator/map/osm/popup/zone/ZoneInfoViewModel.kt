@@ -17,20 +17,49 @@
 
 package com.pyamsoft.fridge.locator.map.osm.popup.zone
 
+import androidx.lifecycle.viewModelScope
 import com.pyamsoft.fridge.db.zone.NearbyZone
+import com.pyamsoft.fridge.locator.map.osm.popup.zone.ZoneInfoViewState.ZoneCached
 import com.pyamsoft.pydroid.arch.UiViewModel
+import kotlinx.coroutines.launch
 import org.osmdroid.views.overlay.Polygon
 import javax.inject.Inject
 
 internal class ZoneInfoViewModel @Inject internal constructor(
+  private val interactor: ZoneInfoInteractor,
   zone: NearbyZone
 ) : UiViewModel<ZoneInfoViewState, ZoneInfoViewEvent, ZoneInfoControllerEvent>(
     initialState = ZoneInfoViewState(
-        zone = zone, polygon = null
+        zone = zone,
+        polygon = null,
+        cached = null
     )
 ) {
 
+  private val zoneId = zone.id()
+
   override fun onInit() {
+    findCachedZoneIfExists()
+    listenForRealtime()
+  }
+
+  private fun listenForRealtime() {
+    viewModelScope.launch {
+      interactor.listenForNearbyCacheChanges(zoneId,
+          onInsert = { zone ->
+            setState { copy(zone = zone, cached = ZoneCached(true)) }
+          },
+          onDelete = { zone ->
+            setState { copy(zone = zone, cached = ZoneCached(false)) }
+          })
+    }
+  }
+
+  private fun findCachedZoneIfExists() {
+    viewModelScope.launch {
+      val isCached = interactor.isNearbyZoneCached(zoneId)
+      setState { copy(cached = ZoneCached(isCached)) }
+    }
   }
 
   override fun handleViewEvent(event: ZoneInfoViewEvent) {

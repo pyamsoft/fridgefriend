@@ -30,7 +30,6 @@ import androidx.lifecycle.Lifecycle.Event.ON_RESUME
 import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.OnLifecycleEvent
-import androidx.lifecycle.ViewModelProvider
 import androidx.preference.PreferenceManager
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.pyamsoft.fridge.db.store.NearbyStore
@@ -41,6 +40,7 @@ import com.pyamsoft.fridge.db.zone.NearbyZone
 import com.pyamsoft.fridge.db.zone.NearbyZoneDeleteDao
 import com.pyamsoft.fridge.db.zone.NearbyZoneInsertDao
 import com.pyamsoft.fridge.db.zone.NearbyZoneQueryDao
+import com.pyamsoft.fridge.db.zone.NearbyZoneRealtime
 import com.pyamsoft.fridge.locator.MapPermission
 import com.pyamsoft.fridge.locator.map.R
 import com.pyamsoft.fridge.locator.map.osm.OsmViewEvent.FindNearby
@@ -82,6 +82,7 @@ class OsmMap @Inject internal constructor(
   private val nearbyStoreInsertDao: NearbyStoreInsertDao,
   private val nearbyStoreDeleteDao: NearbyStoreDeleteDao,
 
+  private val nearbyZoneRealtime: NearbyZoneRealtime,
   private val nearbyZoneQueryDao: NearbyZoneQueryDao,
   private val nearbyZoneInsertDao: NearbyZoneInsertDao,
   private val nearbyZoneDeleteDao: NearbyZoneDeleteDao,
@@ -240,7 +241,10 @@ class OsmMap @Inject internal constructor(
         infoWindow = ZoneInfoWindow.fromMap(
             zone,
             map,
-            nearbyZoneQueryDao, nearbyZoneInsertDao, nearbyZoneDeleteDao
+            nearbyZoneRealtime,
+            nearbyZoneQueryDao,
+            nearbyZoneInsertDao,
+            nearbyZoneDeleteDao
         )
         setPoints(points)
         fillColor = color

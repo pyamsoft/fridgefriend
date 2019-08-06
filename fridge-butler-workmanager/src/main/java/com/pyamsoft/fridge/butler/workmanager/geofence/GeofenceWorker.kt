@@ -95,7 +95,7 @@ internal class GeofenceWorker internal constructor(
     storeNotifications: Set<NearbyStore>,
     zoneNotifications: Set<NearbyZone>
   ) {
-    storeNotifications.forEach { Timber.d("Fire geofence notification for store: $it") }
+    storeNotifications.forEach { Timber.d("Fire geofence notification for zone: $it") }
     zoneNotifications.forEach { Timber.d("Fire geofence notification for zone: $it") }
     // TODO: Notifications
   }
@@ -108,7 +108,7 @@ internal class GeofenceWorker internal constructor(
   ): Nearbys {
     for (store in nearbyStores) {
       if (fenceId == Fence.getId(store)) {
-        Timber.d("Geofence event $fenceId fired for store: $store")
+        Timber.d("Geofence event $fenceId fired for zone: $store")
         return Nearbys(store, null)
       }
     }

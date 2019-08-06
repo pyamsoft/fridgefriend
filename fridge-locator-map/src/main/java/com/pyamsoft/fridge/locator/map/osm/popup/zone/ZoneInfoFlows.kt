@@ -25,8 +25,12 @@ import org.osmdroid.views.overlay.Polygon
 
 data class ZoneInfoViewState internal constructor(
   val zone: NearbyZone,
-  val polygon: Polygon?
-) : UiViewState
+  val polygon: Polygon?,
+  val cached: ZoneCached?
+) : UiViewState {
+
+  data class ZoneCached internal constructor(val cached: Boolean)
+}
 
 sealed class ZoneInfoViewEvent : UiViewEvent {
 

@@ -30,7 +30,7 @@ internal class PopupViewModelFactory @Inject internal constructor(
 
   override fun <T : UiViewModel<*, *, *>> viewModel(modelClass: KClass<T>): UiViewModel<*, *, *> {
     @Suppress("UNCHECKED_CAST")
-    return requireNotNull(viewModels[modelClass.java]).get() as T
+    return viewModels[modelClass.java]?.get() as? T ?: fail()
   }
 
 }

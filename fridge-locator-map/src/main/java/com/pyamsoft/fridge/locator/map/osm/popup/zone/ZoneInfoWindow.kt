@@ -30,6 +30,7 @@ import com.pyamsoft.fridge.db.zone.NearbyZone
 import com.pyamsoft.fridge.db.zone.NearbyZoneDeleteDao
 import com.pyamsoft.fridge.db.zone.NearbyZoneInsertDao
 import com.pyamsoft.fridge.db.zone.NearbyZoneQueryDao
+import com.pyamsoft.fridge.db.zone.NearbyZoneRealtime
 import com.pyamsoft.fridge.locator.map.R
 import com.pyamsoft.pydroid.arch.createComponent
 import com.pyamsoft.pydroid.ui.arch.factory
@@ -45,6 +46,7 @@ import javax.inject.Inject
 internal class ZoneInfoWindow private constructor(
   zone: NearbyZone,
   map: MapView,
+  nearbyZoneRealtime: NearbyZoneRealtime,
   nearbyZoneQueryDao: NearbyZoneQueryDao,
   nearbyZoneInsertDao: NearbyZoneInsertDao,
   nearbyZoneDeleteDao: NearbyZoneDeleteDao
@@ -68,7 +70,10 @@ internal class ZoneInfoWindow private constructor(
         .create(
             parent,
             zone,
-            nearbyZoneQueryDao, nearbyZoneInsertDao, nearbyZoneDeleteDao
+            nearbyZoneRealtime,
+            nearbyZoneQueryDao,
+            nearbyZoneInsertDao,
+            nearbyZoneDeleteDao
         )
         .inject(this)
 
@@ -136,13 +141,17 @@ internal class ZoneInfoWindow private constructor(
     fun fromMap(
       zone: NearbyZone,
       map: MapView,
+      nearbyZoneRealtime: NearbyZoneRealtime,
       nearbyZoneQueryDao: NearbyZoneQueryDao,
       nearbyZoneInsertDao: NearbyZoneInsertDao,
       nearbyZoneDeleteDao: NearbyZoneDeleteDao
     ): InfoWindow {
       return ZoneInfoWindow(
           zone, map,
-          nearbyZoneQueryDao, nearbyZoneInsertDao, nearbyZoneDeleteDao
+          nearbyZoneRealtime,
+          nearbyZoneQueryDao,
+          nearbyZoneInsertDao,
+          nearbyZoneDeleteDao
       )
     }
   }

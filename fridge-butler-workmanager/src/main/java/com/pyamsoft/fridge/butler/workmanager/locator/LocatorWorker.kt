@@ -65,7 +65,7 @@ internal class LocatorWorker internal constructor(
 
       val nearbyStores = storeJob.await()
           .map { store ->
-            Timber.d("Geofencing nearby store: $store")
+            Timber.d("Geofencing nearby zone: $store")
             return@map Fence.fromStore(store)
           }
       val nearbyZones = zoneJob.await()

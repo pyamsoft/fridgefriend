@@ -24,6 +24,7 @@ import com.pyamsoft.fridge.db.zone.NearbyZone
 import com.pyamsoft.fridge.db.zone.NearbyZoneDeleteDao
 import com.pyamsoft.fridge.db.zone.NearbyZoneInsertDao
 import com.pyamsoft.fridge.db.zone.NearbyZoneQueryDao
+import com.pyamsoft.fridge.db.zone.NearbyZoneRealtime
 import com.pyamsoft.fridge.locator.map.osm.popup.PopupInfoScope
 import com.pyamsoft.fridge.locator.map.osm.popup.PopupViewModelFactory
 import com.pyamsoft.fridge.locator.map.osm.popup.ViewModelKey
@@ -48,6 +49,7 @@ internal interface ZoneInfoComponent {
     fun create(
       @BindsInstance parent: ViewGroup,
       @BindsInstance zone: NearbyZone,
+      @BindsInstance nearbyZoneRealtime: NearbyZoneRealtime,
       @BindsInstance nearbyZoneQueryDao: NearbyZoneQueryDao,
       @BindsInstance nearbyZoneInsertDao: NearbyZoneInsertDao,
       @BindsInstance nearbyZoneDeleteDao: NearbyZoneDeleteDao

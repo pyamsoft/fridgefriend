@@ -112,6 +112,13 @@ allprojects {
     options.compilerArgs << '-Xlint:unchecked' << '-Xlint:deprecation'
     options.deprecation = true
   }
+
+  afterEvaluate {
+    extensions.findByName('kapt')?.arguments {
+      arg("dagger.formatGeneratedSource", "disabled")
+      arg("dagger.gradle.incremental", "enabled")
+    }
+  }
 }
 
 task clean(type: Delete) {
