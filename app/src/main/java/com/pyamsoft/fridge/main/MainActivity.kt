@@ -29,7 +29,6 @@ import com.pyamsoft.fridge.R
 import com.pyamsoft.fridge.butler.Butler
 import com.pyamsoft.fridge.butler.ForegroundState
 import com.pyamsoft.fridge.entry.EntryFragment
-import com.pyamsoft.fridge.initOnAppStart
 import com.pyamsoft.pydroid.arch.UnitViewModel
 import com.pyamsoft.pydroid.arch.createComponent
 import com.pyamsoft.pydroid.ui.Injector
@@ -88,7 +87,6 @@ internal class MainActivity : RatingActivity() {
     super.onStart()
     Timber.d("App enters foreground onStart")
     requireNotNull(foregroundState).isForeground = true
-    requireNotNull(butler).initOnAppStart()
   }
 
   override fun onStop() {
