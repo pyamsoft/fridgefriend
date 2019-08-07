@@ -38,10 +38,8 @@ internal class GmsGeofencer @Inject internal constructor(private val context: Co
     }
 
     val transition = event.geofenceTransition
-    if (transition != Geofence.GEOFENCE_TRANSITION_DWELL) {
-      val isEnterTransition = transition == Geofence.GEOFENCE_TRANSITION_ENTER
-      val transitionName = "GEOFENCE_TRANSITION_${if (isEnterTransition) "ENTER" else "EXIT"}"
-      Timber.w("Ignoring Geofence, unhandled transition: $transitionName")
+    if (transition == Geofence.GEOFENCE_TRANSITION_EXIT) {
+      Timber.w("Ignoring Geofence, transition: GEOFENCE_TRANSITION_EXIT")
       return emptyList()
     }
 

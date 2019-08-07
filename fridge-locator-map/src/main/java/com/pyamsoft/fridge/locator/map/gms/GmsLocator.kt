@@ -191,13 +191,14 @@ internal class GmsLocator @Inject internal constructor(
 
   @CheckResult
   private fun createGeofence(fence: Fence): Geofence {
+    val triggers = Geofence.GEOFENCE_TRANSITION_DWELL or Geofence.GEOFENCE_TRANSITION_ENTER
     return Geofence.Builder()
         .setRequestId(fence.id)
         .setCircularRegion(fence.lat, fence.lon, RADIUS_IN_METERS)
         .setExpirationDuration(Locator.RESCHEDULE_TIME)
         .setNotificationResponsiveness(NOTIFICATION_DELAY_IN_MILLIS)
         .setLoiteringDelay(LOITER_IN_MILLIS)
-        .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_DWELL)
+        .setTransitionTypes(triggers)
         .build()
   }
 
@@ -224,8 +225,10 @@ internal class GmsLocator @Inject internal constructor(
   @SuppressLint("MissingPermission")
   private fun addGeofences(fences: List<Geofence>) {
     // If fences is empty this will throw
+    val triggers =
+      GeofencingRequest.INITIAL_TRIGGER_DWELL or GeofencingRequest.INITIAL_TRIGGER_ENTER
     val request = GeofencingRequest.Builder()
-        .setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_DWELL)
+        .setInitialTrigger(triggers)
         .addGeofences(fences)
         .build()
 

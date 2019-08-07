@@ -26,6 +26,7 @@ import com.pyamsoft.fridge.db.item.FridgeItemQueryDao
 import com.pyamsoft.fridge.db.store.NearbyStoreQueryDao
 import com.pyamsoft.fridge.db.zone.NearbyZoneQueryDao
 import com.pyamsoft.fridge.locator.GeofenceUpdateReceiver
+import com.pyamsoft.fridge.locator.Geofencer
 import com.pyamsoft.fridge.locator.Locator
 import com.pyamsoft.pydroid.bootstrap.libraries.OssLibraries
 import com.pyamsoft.pydroid.ui.PYDroid
@@ -151,6 +152,7 @@ class MyFridgeSmells : Application() {
     return when (name) {
       Butler::class.java.name -> requireNotNull(component).provideButler()
       Locator::class.java.name -> requireNotNull(component).provideLocator()
+      Geofencer::class.java.name -> requireNotNull(component).provideGeofencer()
       ForegroundState::class.java.name -> requireNotNull(component).provideForegroundState()
       FridgeItemQueryDao::class.java.name -> requireNotNull(component).provideFridgeItemQueryDao()
       FridgeEntryQueryDao::class.java.name -> requireNotNull(component).provideFridgeEntryQueryDao()
