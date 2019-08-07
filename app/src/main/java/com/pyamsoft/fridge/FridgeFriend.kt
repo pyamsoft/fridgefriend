@@ -35,7 +35,7 @@ import com.squareup.leakcanary.RefWatcher
 import com.squareup.moshi.Moshi
 import javax.inject.Inject
 
-class MyFridgeSmells : Application() {
+class FridgeFriend : Application() {
 
   @JvmField @Inject internal var butler: Butler? = null
 
@@ -51,7 +51,7 @@ class MyFridgeSmells : Application() {
     PYDroid.init(
         this,
         getString(R.string.app_name),
-        "https://github.com/pyamsoft/myfridgesmells/issues",
+        "https://github.com/pyamsoft/fridge/issues",
         BuildConfig.VERSION_CODE,
         BuildConfig.DEBUG
     ) { provider ->

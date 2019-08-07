@@ -124,7 +124,7 @@ internal interface FridgeComponent {
 
   fun inject(dialog: DatePickerDialogFragment)
 
-  fun inject(application: MyFridgeSmells)
+  fun inject(application: FridgeFriend)
 
   @Component.Factory
   interface Factory {
