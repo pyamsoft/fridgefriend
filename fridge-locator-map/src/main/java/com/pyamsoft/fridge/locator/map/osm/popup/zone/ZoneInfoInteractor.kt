@@ -22,6 +22,8 @@ import com.pyamsoft.fridge.db.zone.NearbyZone
 import com.pyamsoft.fridge.db.zone.NearbyZoneChangeEvent.Delete
 import com.pyamsoft.fridge.db.zone.NearbyZoneChangeEvent.Insert
 import com.pyamsoft.fridge.db.zone.NearbyZoneChangeEvent.Update
+import com.pyamsoft.fridge.db.zone.NearbyZoneDeleteDao
+import com.pyamsoft.fridge.db.zone.NearbyZoneInsertDao
 import com.pyamsoft.fridge.db.zone.NearbyZoneQueryDao
 import com.pyamsoft.fridge.db.zone.NearbyZoneRealtime
 import kotlinx.coroutines.Dispatchers
@@ -30,7 +32,9 @@ import javax.inject.Inject
 
 internal class ZoneInfoInteractor @Inject internal constructor(
   private val realtime: NearbyZoneRealtime,
-  private val queryDao: NearbyZoneQueryDao
+  private val queryDao: NearbyZoneQueryDao,
+  private val insertDao: NearbyZoneInsertDao,
+  private val deleteDao: NearbyZoneDeleteDao
 ) {
 
   @CheckResult
@@ -67,5 +71,13 @@ internal class ZoneInfoInteractor @Inject internal constructor(
             }
           }
         }
+  }
+
+  suspend fun deleteZoneFromDb(zone: NearbyZone) = withContext(context = Dispatchers.Default) {
+    deleteDao.delete(zone)
+  }
+
+  suspend fun insertZoneIntoDb(zone: NearbyZone) = withContext(context = Dispatchers.Default) {
+    insertDao.insert(zone)
   }
 }

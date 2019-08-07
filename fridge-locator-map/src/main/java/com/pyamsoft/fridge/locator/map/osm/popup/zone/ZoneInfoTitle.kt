@@ -17,17 +17,23 @@
 
 package com.pyamsoft.fridge.locator.map.osm.popup.zone
 
+import android.os.Bundle
+import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import com.pyamsoft.fridge.db.zone.NearbyZone
 import com.pyamsoft.fridge.locator.map.R
+import com.pyamsoft.fridge.locator.map.osm.popup.zone.ZoneInfoViewEvent.ZoneFavoriteAction
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.arch.UiSavedState
 import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.loader.Loaded
+import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
 import javax.inject.Inject
 
 internal class ZoneInfoTitle @Inject internal constructor(
+  private val zone: NearbyZone,
   private val imageLoader: ImageLoader,
   parent: ViewGroup
 ) : BaseUiView<ZoneInfoViewState, ZoneInfoViewEvent>(parent) {
@@ -44,26 +50,35 @@ internal class ZoneInfoTitle @Inject internal constructor(
     favoriteBinder = null
   }
 
+  override fun onInflated(
+    view: View,
+    savedInstanceState: Bundle?
+  ) {
+    title.text = zone.name()
+  }
+
   override fun onRender(
     state: ZoneInfoViewState,
     savedState: UiSavedState
   ) {
-    state.zone.let { zone ->
-      title.text = zone.name()
-    }
-
     state.cached.let { cached ->
-      if (cached != null) {
+      if (cached == null) {
+        favorite.setOnDebouncedClickListener(null)
+      } else {
         val icon = if (cached.cached) R.drawable.ic_star_24dp else R.drawable.ic_star_empty_24dp
         clearFavoriteIcon()
         favoriteBinder = imageLoader.load(icon)
             .into(favorite)
+        favorite.setOnDebouncedClickListener {
+          publish(ZoneFavoriteAction(zone, !cached.cached))
+        }
       }
     }
   }
 
   override fun onTeardown() {
     title.text = ""
+    favorite.setOnDebouncedClickListener(null)
     clearFavoriteIcon()
   }
 

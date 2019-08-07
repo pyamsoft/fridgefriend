@@ -19,6 +19,7 @@ package com.pyamsoft.fridge.locator.map.osm.popup.zone
 
 import androidx.lifecycle.viewModelScope
 import com.pyamsoft.fridge.db.zone.NearbyZone
+import com.pyamsoft.fridge.locator.map.osm.popup.zone.ZoneInfoViewEvent.ZoneFavoriteAction
 import com.pyamsoft.fridge.locator.map.osm.popup.zone.ZoneInfoViewState.ZoneCached
 import com.pyamsoft.pydroid.arch.UiViewModel
 import kotlinx.coroutines.launch
@@ -30,7 +31,6 @@ internal class ZoneInfoViewModel @Inject internal constructor(
   zone: NearbyZone
 ) : UiViewModel<ZoneInfoViewState, ZoneInfoViewEvent, ZoneInfoControllerEvent>(
     initialState = ZoneInfoViewState(
-        zone = zone,
         polygon = null,
         cached = null
     )
@@ -46,11 +46,11 @@ internal class ZoneInfoViewModel @Inject internal constructor(
   private fun listenForRealtime() {
     viewModelScope.launch {
       interactor.listenForNearbyCacheChanges(zoneId,
-          onInsert = { zone ->
-            setState { copy(zone = zone, cached = ZoneCached(true)) }
+          onInsert = {
+            setState { copy(cached = ZoneCached(true)) }
           },
-          onDelete = { zone ->
-            setState { copy(zone = zone, cached = ZoneCached(false)) }
+          onDelete = {
+            setState { copy(cached = ZoneCached(false)) }
           })
     }
   }
@@ -63,6 +63,22 @@ internal class ZoneInfoViewModel @Inject internal constructor(
   }
 
   override fun handleViewEvent(event: ZoneInfoViewEvent) {
+    return when (event) {
+      is ZoneFavoriteAction -> handleZoneFavoriteAction(event.zone, event.add)
+    }
+  }
+
+  private fun handleZoneFavoriteAction(
+    zone: NearbyZone,
+    add: Boolean
+  ) {
+    viewModelScope.launch {
+      if (add) {
+        interactor.insertZoneIntoDb(zone)
+      } else {
+        interactor.deleteZoneFromDb(zone)
+      }
+    }
   }
 
   fun updatePolygon(polygon: Polygon) {
