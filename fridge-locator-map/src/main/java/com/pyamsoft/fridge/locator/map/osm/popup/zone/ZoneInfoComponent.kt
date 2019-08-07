@@ -20,6 +20,7 @@ package com.pyamsoft.fridge.locator.map.osm.popup.zone
 import android.view.ViewGroup
 import androidx.annotation.CheckResult
 import androidx.lifecycle.ViewModelProvider
+import com.pyamsoft.fridge.butler.Butler
 import com.pyamsoft.fridge.db.zone.NearbyZone
 import com.pyamsoft.fridge.db.zone.NearbyZoneDeleteDao
 import com.pyamsoft.fridge.db.zone.NearbyZoneInsertDao
@@ -51,6 +52,7 @@ internal interface ZoneInfoComponent {
       @BindsInstance parent: ViewGroup,
       @BindsInstance imageLoader: ImageLoader,
       @BindsInstance zone: NearbyZone,
+      @BindsInstance butler: Butler,
       @BindsInstance nearbyZoneRealtime: NearbyZoneRealtime,
       @BindsInstance nearbyZoneQueryDao: NearbyZoneQueryDao,
       @BindsInstance nearbyZoneInsertDao: NearbyZoneInsertDao,

@@ -26,6 +26,7 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleRegistry
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStore
+import com.pyamsoft.fridge.butler.Butler
 import com.pyamsoft.fridge.db.zone.NearbyZone
 import com.pyamsoft.fridge.db.zone.NearbyZoneDeleteDao
 import com.pyamsoft.fridge.db.zone.NearbyZoneInsertDao
@@ -47,6 +48,7 @@ import javax.inject.Inject
 internal class ZoneInfoWindow private constructor(
   zone: NearbyZone,
   map: MapView,
+  butler: Butler,
   imageLoader: ImageLoader,
   nearbyZoneRealtime: NearbyZoneRealtime,
   nearbyZoneQueryDao: NearbyZoneQueryDao,
@@ -73,6 +75,7 @@ internal class ZoneInfoWindow private constructor(
             parent,
             imageLoader,
             zone,
+            butler,
             nearbyZoneRealtime,
             nearbyZoneQueryDao,
             nearbyZoneInsertDao,
@@ -144,6 +147,7 @@ internal class ZoneInfoWindow private constructor(
     fun fromMap(
       zone: NearbyZone,
       map: MapView,
+      butler: Butler,
       imageLoader: ImageLoader,
       nearbyZoneRealtime: NearbyZoneRealtime,
       nearbyZoneQueryDao: NearbyZoneQueryDao,
@@ -151,7 +155,7 @@ internal class ZoneInfoWindow private constructor(
       nearbyZoneDeleteDao: NearbyZoneDeleteDao
     ): InfoWindow {
       return ZoneInfoWindow(
-          zone, map, imageLoader,
+          zone, map, butler, imageLoader,
           nearbyZoneRealtime,
           nearbyZoneQueryDao,
           nearbyZoneInsertDao,

@@ -18,6 +18,7 @@
 package com.pyamsoft.fridge.locator.map.osm.popup.zone
 
 import androidx.annotation.CheckResult
+import com.pyamsoft.fridge.butler.Butler
 import com.pyamsoft.fridge.db.zone.NearbyZone
 import com.pyamsoft.fridge.db.zone.NearbyZoneChangeEvent.Delete
 import com.pyamsoft.fridge.db.zone.NearbyZoneChangeEvent.Insert
@@ -28,9 +29,11 @@ import com.pyamsoft.fridge.db.zone.NearbyZoneQueryDao
 import com.pyamsoft.fridge.db.zone.NearbyZoneRealtime
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import java.util.concurrent.TimeUnit.SECONDS
 import javax.inject.Inject
 
 internal class ZoneInfoInteractor @Inject internal constructor(
+  private val butler: Butler,
   private val realtime: NearbyZoneRealtime,
   private val queryDao: NearbyZoneQueryDao,
   private val insertDao: NearbyZoneInsertDao,
@@ -75,9 +78,16 @@ internal class ZoneInfoInteractor @Inject internal constructor(
 
   suspend fun deleteZoneFromDb(zone: NearbyZone) = withContext(context = Dispatchers.Default) {
     deleteDao.delete(zone)
+    restartLocationWorker()
   }
 
   suspend fun insertZoneIntoDb(zone: NearbyZone) = withContext(context = Dispatchers.Default) {
     insertDao.insert(zone)
+    restartLocationWorker()
+  }
+
+  private fun restartLocationWorker() {
+    butler.cancelLocationReminder()
+    butler.remindLocation(1, SECONDS)
   }
 }

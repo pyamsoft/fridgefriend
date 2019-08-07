@@ -32,6 +32,7 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.OnLifecycleEvent
 import androidx.preference.PreferenceManager
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.pyamsoft.fridge.butler.Butler
 import com.pyamsoft.fridge.db.store.NearbyStore
 import com.pyamsoft.fridge.db.store.NearbyStoreDeleteDao
 import com.pyamsoft.fridge.db.store.NearbyStoreInsertDao
@@ -76,6 +77,7 @@ class OsmMap @Inject internal constructor(
   private val owner: LifecycleOwner,
   private val theming: Theming,
   private val imageLoader: ImageLoader,
+  private val butler: Butler,
   private val mapPermission: MapPermission,
 
   private val nearbyStoreQueryDao: NearbyStoreQueryDao,
@@ -241,6 +243,7 @@ class OsmMap @Inject internal constructor(
         infoWindow = ZoneInfoWindow.fromMap(
             zone,
             map,
+            butler,
             imageLoader,
             nearbyZoneRealtime,
             nearbyZoneQueryDao,

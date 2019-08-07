@@ -77,6 +77,7 @@ dependencies {
 
   kapt "com.google.dagger:dagger-compiler:$dagger"
 
+  implementation project(':fridge-butler')
   api project(':fridge-locator')
 }
 
