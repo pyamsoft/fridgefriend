@@ -33,6 +33,7 @@ import com.pyamsoft.fridge.db.zone.NearbyZoneQueryDao
 import com.pyamsoft.fridge.db.zone.NearbyZoneRealtime
 import com.pyamsoft.fridge.locator.map.R
 import com.pyamsoft.pydroid.arch.createComponent
+import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.ui.arch.factory
 import com.pyamsoft.pydroid.ui.util.layout
 import com.pyamsoft.pydroid.util.fakeBind
@@ -46,6 +47,7 @@ import javax.inject.Inject
 internal class ZoneInfoWindow private constructor(
   zone: NearbyZone,
   map: MapView,
+  imageLoader: ImageLoader,
   nearbyZoneRealtime: NearbyZoneRealtime,
   nearbyZoneQueryDao: NearbyZoneQueryDao,
   nearbyZoneInsertDao: NearbyZoneInsertDao,
@@ -69,6 +71,7 @@ internal class ZoneInfoWindow private constructor(
     DaggerZoneInfoComponent.factory()
         .create(
             parent,
+            imageLoader,
             zone,
             nearbyZoneRealtime,
             nearbyZoneQueryDao,
@@ -94,7 +97,7 @@ internal class ZoneInfoWindow private constructor(
         connect(it.id(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
         connect(it.id(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
         constrainHeight(it.id(), ConstraintSet.WRAP_CONTENT)
-        constrainWidth(it.id(), ConstraintSet.WRAP_CONTENT)
+        constrainWidth(it.id(), ConstraintSet.MATCH_CONSTRAINT)
       }
 
       location.also {
@@ -141,13 +144,14 @@ internal class ZoneInfoWindow private constructor(
     fun fromMap(
       zone: NearbyZone,
       map: MapView,
+      imageLoader: ImageLoader,
       nearbyZoneRealtime: NearbyZoneRealtime,
       nearbyZoneQueryDao: NearbyZoneQueryDao,
       nearbyZoneInsertDao: NearbyZoneInsertDao,
       nearbyZoneDeleteDao: NearbyZoneDeleteDao
     ): InfoWindow {
       return ZoneInfoWindow(
-          zone, map,
+          zone, map, imageLoader,
           nearbyZoneRealtime,
           nearbyZoneQueryDao,
           nearbyZoneInsertDao,

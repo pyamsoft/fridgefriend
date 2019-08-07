@@ -18,30 +18,53 @@
 package com.pyamsoft.fridge.locator.map.osm.popup.zone
 
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.TextView
 import com.pyamsoft.fridge.locator.map.R
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.arch.UiSavedState
+import com.pyamsoft.pydroid.loader.ImageLoader
+import com.pyamsoft.pydroid.loader.Loaded
 import javax.inject.Inject
 
 internal class ZoneInfoTitle @Inject internal constructor(
+  private val imageLoader: ImageLoader,
   parent: ViewGroup
 ) : BaseUiView<ZoneInfoViewState, ZoneInfoViewEvent>(parent) {
 
   override val layout: Int = R.layout.zone_info_title
-  override val layoutRoot by boundView<TextView>(R.id.zone_info_title)
+  override val layoutRoot by boundView<ViewGroup>(R.id.zone_info_title_root)
+  private val title by boundView<TextView>(R.id.zone_info_title)
+  private val favorite by boundView<ImageView>(R.id.zone_info_favorite)
+
+  private var favoriteBinder: Loaded? = null
+
+  private fun clearFavoriteIcon() {
+    favoriteBinder?.dispose()
+    favoriteBinder = null
+  }
 
   override fun onRender(
     state: ZoneInfoViewState,
     savedState: UiSavedState
   ) {
     state.zone.let { zone ->
-      layoutRoot.text = zone.name()
+      title.text = zone.name()
+    }
+
+    state.cached.let { cached ->
+      if (cached != null) {
+        val icon = if (cached.cached) R.drawable.ic_star_24dp else R.drawable.ic_star_empty_24dp
+        clearFavoriteIcon()
+        favoriteBinder = imageLoader.load(icon)
+            .into(favorite)
+      }
     }
   }
 
   override fun onTeardown() {
-    layoutRoot.text = ""
+    title.text = ""
+    clearFavoriteIcon()
   }
 
 }

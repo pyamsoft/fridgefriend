@@ -241,6 +241,7 @@ class OsmMap @Inject internal constructor(
         infoWindow = ZoneInfoWindow.fromMap(
             zone,
             map,
+            imageLoader,
             nearbyZoneRealtime,
             nearbyZoneQueryDao,
             nearbyZoneInsertDao,

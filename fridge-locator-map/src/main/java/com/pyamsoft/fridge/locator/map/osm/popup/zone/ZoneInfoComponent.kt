@@ -30,6 +30,7 @@ import com.pyamsoft.fridge.locator.map.osm.popup.PopupViewModelFactory
 import com.pyamsoft.fridge.locator.map.osm.popup.ViewModelKey
 import com.pyamsoft.fridge.locator.map.osm.popup.zone.ZoneInfoComponent.ViewModelModule
 import com.pyamsoft.pydroid.arch.UiViewModel
+import com.pyamsoft.pydroid.loader.ImageLoader
 import dagger.Binds
 import dagger.BindsInstance
 import dagger.Component
@@ -48,6 +49,7 @@ internal interface ZoneInfoComponent {
     @CheckResult
     fun create(
       @BindsInstance parent: ViewGroup,
+      @BindsInstance imageLoader: ImageLoader,
       @BindsInstance zone: NearbyZone,
       @BindsInstance nearbyZoneRealtime: NearbyZoneRealtime,
       @BindsInstance nearbyZoneQueryDao: NearbyZoneQueryDao,

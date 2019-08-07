@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="utf-8"?>
 <!--
   ~ Copyright 2019 Peter Kenji Yamanaka
   ~
@@ -16,20 +15,12 @@
   ~
   -->
 
-<shape xmlns:android="http://schemas.android.com/apk/res/android"
-    android:shape="rectangle">
-
-  <corners android:radius="4dp"/>
-  <padding
-      android:bottom="8dp"
-      android:left="8dp"
-      android:right="8dp"
-      android:top="8dp"/>
-
-  <stroke
-      android:color="?android:attr/colorForeground"
-      android:width="2dp"/>
-
-  <solid android:color="@color/amber50"/>
-
-</shape>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:height="24dp"
+    android:viewportHeight="24.0"
+    android:viewportWidth="24.0"
+    android:width="24dp">
+  <path
+      android:fillColor="@color/yellow700"
+      android:pathData="M12,17.27L18.18,21l-1.64,-7.03L22,9.24l-7.19,-0.61L12,2 9.19,8.63 2,9.24l5.46,4.73L5.82,21z"/>
+</vector>
