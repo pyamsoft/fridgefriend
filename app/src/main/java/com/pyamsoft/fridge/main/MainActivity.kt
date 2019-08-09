@@ -37,7 +37,6 @@ import com.pyamsoft.pydroid.ui.rating.RatingActivity
 import com.pyamsoft.pydroid.ui.rating.buildChangeLog
 import com.pyamsoft.pydroid.ui.util.commit
 import com.pyamsoft.pydroid.ui.util.layout
-import com.pyamsoft.pydroid.ui.widget.shadow.DropshadowView
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -110,24 +109,16 @@ internal class MainActivity : RatingActivity() {
   ) {
     val container = requireNotNull(container)
     val toolbar = requireNotNull(toolbar)
-    val dropshadow = DropshadowView.create(constraintLayout)
 
     createComponent(
         savedInstanceState, this, UnitViewModel.create(),
-        container, toolbar, dropshadow
+        container, toolbar
     ) {}
 
     constraintLayout.layout {
 
       toolbar.also {
         connect(it.id(), ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP)
-        connect(it.id(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
-        connect(it.id(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
-        constrainWidth(it.id(), ConstraintSet.MATCH_CONSTRAINT)
-      }
-
-      dropshadow.also {
-        connect(it.id(), ConstraintSet.TOP, toolbar.id(), ConstraintSet.BOTTOM)
         connect(it.id(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
         connect(it.id(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
         constrainWidth(it.id(), ConstraintSet.MATCH_CONSTRAINT)
