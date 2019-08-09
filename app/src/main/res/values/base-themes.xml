@@ -22,7 +22,7 @@
     <item name="colorPrimary">@color/red500</item>
     <item name="colorPrimaryDark">@color/red700</item>
     <item name="colorAccent">@color/red500</item>
-    <item name="android:navigationBarColor">@color/red700</item>
+    <item name="android:navigationBarColor">@color/navigationBarColor</item>
     <item name="android:statusBarColor">@color/transparent</item>
   </style>
 
@@ -31,7 +31,7 @@
     <item name="colorPrimary">@color/red500</item>
     <item name="colorPrimaryDark">@color/red700</item>
     <item name="colorAccent">@color/red500</item>
-    <item name="android:navigationBarColor">@color/red700</item>
+    <item name="android:navigationBarColor">@color/navigationBarColor</item>
     <item name="android:statusBarColor">@color/transparent</item>
   </style>
 
@@ -39,7 +39,7 @@
     <item name="colorPrimary">@color/red500</item>
     <item name="colorPrimaryDark">@color/red700</item>
     <item name="colorAccent">@color/red500</item>
-    <item name="android:navigationBarColor">@color/red700</item>
+    <item name="android:navigationBarColor">@color/navigationBarColor</item>
     <item name="android:statusBarColor">@color/transparent</item>
   </style>
 

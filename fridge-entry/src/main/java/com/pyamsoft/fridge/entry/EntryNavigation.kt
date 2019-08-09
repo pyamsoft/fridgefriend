@@ -22,7 +22,9 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.CheckResult
 import androidx.core.view.isVisible
+import androidx.core.view.updatePadding
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.pyamsoft.fridge.core.doOnApplyWindowInsets
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.entry.EntryViewEvent.OpenHave
 import com.pyamsoft.fridge.entry.EntryViewEvent.OpenNearby
@@ -45,6 +47,10 @@ class EntryNavigation @Inject internal constructor(
     savedInstanceState: Bundle?
   ) {
     bottomNav.isVisible = false
+
+    layoutRoot.doOnApplyWindowInsets { v, insets, padding ->
+      v.updatePadding(bottom = padding.bottom + insets.systemWindowInsetBottom)
+    }
   }
 
   override fun onRender(

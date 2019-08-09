@@ -21,8 +21,11 @@ import android.app.Activity
 import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
+import android.view.ViewGroup.MarginLayoutParams
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.ViewCompat
+import androidx.core.view.updateLayoutParams
+import com.pyamsoft.fridge.core.doOnApplyWindowInsets
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.arch.UiSavedState
 import com.pyamsoft.pydroid.arch.UnitViewEvent
@@ -52,6 +55,12 @@ class MainToolbar @Inject internal constructor(
     savedInstanceState: Bundle?
   ) {
     inflateToolbar()
+
+    layoutRoot.doOnApplyWindowInsets { v, insets, padding ->
+      v.updateLayoutParams<MarginLayoutParams> {
+        topMargin = padding.top + insets.systemWindowInsetTop
+      }
+    }
   }
 
   override fun onRender(
@@ -79,6 +88,6 @@ class MainToolbar @Inject internal constructor(
       toolbarActivityProvider.setToolbar(this)
     }
 
-    activity =null
+    activity = null
   }
 }

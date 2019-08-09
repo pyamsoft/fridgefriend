@@ -137,12 +137,12 @@ internal class DetailListAdapter constructor(
       callback: Callback
     ) {
       boundItem = item
-      injectComponent(parent, item, editable)
-          .inject(this)
-
       val owner = ListItemLifecycle()
       lifecycle?.unbind()
       lifecycle = owner
+
+      injectComponent(parent, item, editable)
+          .inject(this)
       injectViewModel(owner.lifecycle)
 
       val name = requireNotNull(name)

@@ -19,6 +19,7 @@ package com.pyamsoft.fridge.main
 
 import android.content.ComponentCallbacks2
 import android.os.Bundle
+import android.view.View
 import android.view.ViewGroup
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
@@ -69,7 +70,8 @@ internal class MainActivity : RatingActivity() {
     super.onCreate(savedInstanceState)
     setContentView(R.layout.snackbar_screen)
 
-    snackbarContainer = findViewById(R.id.snackbar_container)
+    val rootView = findViewById<CoordinatorLayout>(R.id.snackbar_container)
+    snackbarContainer = rootView
     val contentContainer = findViewById<ConstraintLayout>(R.id.content_container)
 
     Injector.obtain<FridgeComponent>(applicationContext)
@@ -77,9 +79,15 @@ internal class MainActivity : RatingActivity() {
         .create(this, contentContainer, this)
         .inject(this)
 
+    setWindowUiVisibility(rootView)
     inflateComponents(contentContainer, savedInstanceState)
 
     pushFragment()
+  }
+
+  private fun setWindowUiVisibility(rootView: CoordinatorLayout) {
+    rootView.systemUiVisibility =
+      View.SYSTEM_UI_FLAG_LAYOUT_STABLE or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
   }
 
   override fun onStart() {
@@ -125,7 +133,7 @@ internal class MainActivity : RatingActivity() {
       }
 
       container.also {
-        connect(it.id(), ConstraintSet.TOP, toolbar.id(), ConstraintSet.BOTTOM)
+        connect(it.id(), ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP)
         connect(it.id(), ConstraintSet.BOTTOM, ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM)
         connect(it.id(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
         connect(it.id(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
