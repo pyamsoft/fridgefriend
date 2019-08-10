@@ -17,6 +17,7 @@
 
 package com.pyamsoft.fridge.setting
 
+import android.app.Dialog
 import android.os.Bundle
 import android.view.Gravity
 import android.view.LayoutInflater
@@ -41,6 +42,7 @@ import com.pyamsoft.pydroid.ui.util.commit
 import com.pyamsoft.pydroid.ui.util.layout
 import com.pyamsoft.pydroid.ui.widget.shadow.DropshadowView
 import com.pyamsoft.pydroid.util.toDp
+import timber.log.Timber
 import javax.inject.Inject
 
 internal class SettingsDialog : DialogFragment() {
@@ -73,6 +75,28 @@ internal class SettingsDialog : DialogFragment() {
     return view
   }
 
+  private inline fun handleBackPressed(onNotHandled: () -> Unit) {
+    Timber.d("Handle back pressed")
+    val settingsFragment = childFragmentManager.findFragmentByTag(SettingsFragment.TAG)
+    if (settingsFragment != null) {
+      val fm = settingsFragment.childFragmentManager
+      if (AboutFragment.isPresent(fm)) {
+        fm.popBackStack()
+        return
+      }
+    }
+
+    onNotHandled()
+  }
+
+  override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+    return object : Dialog(requireContext(), theme) {
+      override fun onBackPressed() {
+        handleBackPressed { super.onBackPressed() }
+      }
+    }
+  }
+
   override fun onViewCreated(
     view: View,
     savedInstanceState: Bundle?
@@ -83,16 +107,7 @@ internal class SettingsDialog : DialogFragment() {
         viewLifecycleOwner, object : OnBackPressedCallback(true) {
 
       override fun handleOnBackPressed() {
-        val settingsFragment = childFragmentManager.findFragmentByTag(SettingsFragment.TAG)
-        if (settingsFragment != null) {
-          val fm = settingsFragment.childFragmentManager
-          if (AboutFragment.isPresent(fm)) {
-            fm.popBackStack()
-            return
-          }
-        }
-
-        dismiss()
+        handleBackPressed { dismiss() }
       }
 
     })

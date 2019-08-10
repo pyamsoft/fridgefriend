@@ -91,6 +91,11 @@ internal class MainActivity : RatingActivity() {
       View.SYSTEM_UI_FLAG_LAYOUT_STABLE or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
   }
 
+  override fun onBackPressed() {
+    super.onBackPressed()
+    Timber.d("ON BACK PRESSED")
+  }
+
   override fun onStart() {
     super.onStart()
     Timber.d("App enters foreground onStart")
