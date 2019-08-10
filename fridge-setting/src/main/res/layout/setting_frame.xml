@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
+
 <!--
   ~ Copyright 2019 Peter Kenji Yamanaka
   ~
@@ -16,7 +17,14 @@
   ~
   -->
 
-<resources>
-  <color name="statusBarColor">@color/transparent</color>
-  <color name="navigationBarColor">#80D32F2F</color>
-</resources>
+<merge>
+
+  <FrameLayout
+      xmlns:android="http://schemas.android.com/apk/res/android"
+      android:id="@+id/setting_frame"
+      android:layout_width="match_parent"
+      android:layout_height="match_parent"
+      />
+
+</merge>
+

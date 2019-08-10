@@ -37,18 +37,17 @@ import com.pyamsoft.fridge.entry.EntryControllerEvent.NavigateToSettings
 import com.pyamsoft.fridge.entry.EntryControllerEvent.PushHave
 import com.pyamsoft.fridge.entry.EntryControllerEvent.PushNearby
 import com.pyamsoft.fridge.entry.EntryControllerEvent.PushNeed
-import com.pyamsoft.fridge.extensions.fragmentContainerId
-import com.pyamsoft.fridge.locator.MapPermission
 import com.pyamsoft.fridge.locator.MapFragment
+import com.pyamsoft.fridge.locator.MapPermission
 import com.pyamsoft.fridge.locator.PermissionFragment
-import com.pyamsoft.fridge.setting.SettingsFragment
+import com.pyamsoft.fridge.setting.SettingsDialog
 import com.pyamsoft.pydroid.arch.createComponent
 import com.pyamsoft.pydroid.ui.Injector
 import com.pyamsoft.pydroid.ui.app.requireToolbarActivity
 import com.pyamsoft.pydroid.ui.arch.factory
-import com.pyamsoft.pydroid.ui.util.commit
 import com.pyamsoft.pydroid.ui.util.commitNow
 import com.pyamsoft.pydroid.ui.util.layout
+import com.pyamsoft.pydroid.ui.util.show
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -97,7 +96,7 @@ internal class EntryFragment : Fragment() {
         is PushHave -> pushHave(it.entry)
         is PushNeed -> pushNeed(it.entry)
         is PushNearby -> pushNearby()
-        is NavigateToSettings -> navigateToSettings()
+        is NavigateToSettings -> showSettingsDialog()
       }
     }
 
@@ -138,14 +137,8 @@ internal class EntryFragment : Fragment() {
     mapPermission = null
   }
 
-  private fun navigateToSettings() {
-    val fm = requireActivity().supportFragmentManager
-    if (fm.findFragmentByTag(SettingsFragment.TAG) == null) {
-      fm.commit(viewLifecycleOwner) {
-        replace(fragmentContainerId, SettingsFragment.newInstance(), SettingsFragment.TAG)
-        addToBackStack(null)
-      }
-    }
+  private fun showSettingsDialog() {
+    SettingsDialog().show(requireActivity(), SettingsDialog.TAG)
   }
 
   private fun pushHave(entry: FridgeEntry) {

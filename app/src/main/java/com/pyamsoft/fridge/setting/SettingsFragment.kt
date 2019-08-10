@@ -18,25 +18,12 @@
 package com.pyamsoft.fridge.setting
 
 import android.os.Bundle
-import android.view.View
 import androidx.annotation.CheckResult
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
-import com.pyamsoft.fridge.FridgeComponent
-import com.pyamsoft.fridge.setting.SettingToolbarControllerEvent.NavigateUp
-import com.pyamsoft.pydroid.arch.createComponent
-import com.pyamsoft.pydroid.ui.Injector
-import com.pyamsoft.pydroid.ui.app.requireToolbarActivity
-import com.pyamsoft.pydroid.ui.arch.factory
 import com.pyamsoft.pydroid.ui.settings.AppSettingsFragment
 import com.pyamsoft.pydroid.ui.settings.AppSettingsPreferenceFragment
-import javax.inject.Inject
 
 internal class SettingsFragment : AppSettingsFragment() {
-
-  @JvmField @Inject internal var factory: ViewModelProvider.Factory? = null
-  @JvmField @Inject internal var toolbar: SettingToolbar? = null
-  private val viewModel by factory<SettingToolbarViewModel> { factory }
 
   override fun provideSettingsFragment(): AppSettingsPreferenceFragment {
     return SettingsPreferenceFragment()
@@ -44,39 +31,6 @@ internal class SettingsFragment : AppSettingsFragment() {
 
   override fun provideSettingsTag(): String {
     return SettingsPreferenceFragment.TAG
-  }
-
-  override fun onViewCreated(
-    view: View,
-    savedInstanceState: Bundle?
-  ) {
-    super.onViewCreated(view, savedInstanceState)
-
-    Injector.obtain<FridgeComponent>(view.context.applicationContext)
-        .plusSettingComponent()
-        .create(requireToolbarActivity())
-        .inject(this)
-
-    createComponent(
-        savedInstanceState, viewLifecycleOwner,
-        viewModel,
-        requireNotNull(toolbar)
-    ) {
-      return@createComponent when (it) {
-        is NavigateUp -> requireActivity().onBackPressed()
-      }
-    }
-  }
-
-  override fun onSaveInstanceState(outState: Bundle) {
-    super.onSaveInstanceState(outState)
-    toolbar?.saveState(outState)
-  }
-
-  override fun onDestroyView() {
-    super.onDestroyView()
-    toolbar = null
-    factory = null
   }
 
   companion object {

@@ -17,17 +17,24 @@
 
 package com.pyamsoft.fridge.setting
 
-import com.pyamsoft.pydroid.arch.UiControllerEvent
-import com.pyamsoft.pydroid.arch.UiViewEvent
+import android.view.ViewGroup
+import com.pyamsoft.pydroid.arch.BaseUiView
+import com.pyamsoft.pydroid.arch.UiSavedState
+import com.pyamsoft.pydroid.arch.UnitViewState
+import javax.inject.Inject
 
-sealed class SettingToolbarViewEvent : UiViewEvent {
+class SettingFrame @Inject internal constructor(
+  parent: ViewGroup
+) : BaseUiView<UnitViewState, SettingViewEvent>(parent) {
 
-  object ToolbarNavigate : SettingToolbarViewEvent()
+  override val layout: Int = R.layout.setting_frame
 
+  override val layoutRoot by boundView<ViewGroup>(R.id.setting_frame)
+
+  override fun onRender(
+    state: UnitViewState,
+    savedState: UiSavedState
+  ) {
+  }
 }
 
-sealed class SettingToolbarControllerEvent : UiControllerEvent {
-
-  object NavigateUp : SettingToolbarControllerEvent()
-
-}

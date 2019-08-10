@@ -23,7 +23,7 @@
     <item name="colorPrimaryDark">@color/red700</item>
     <item name="colorAccent">@color/red500</item>
     <item name="android:navigationBarColor">@color/navigationBarColor</item>
-    <item name="android:statusBarColor">@color/transparent</item>
+    <item name="android:statusBarColor">@color/statusBarColor</item>
   </style>
 
   <!-- Dialogs -->
@@ -32,7 +32,7 @@
     <item name="colorPrimaryDark">@color/red700</item>
     <item name="colorAccent">@color/red500</item>
     <item name="android:navigationBarColor">@color/navigationBarColor</item>
-    <item name="android:statusBarColor">@color/transparent</item>
+    <item name="android:statusBarColor">@color/statusBarColor</item>
   </style>
 
   <style name="Base.Theme.Fridge.BottomSheetDialog" parent="@style/Theme.MaterialComponents.Light.BottomSheetDialog">
@@ -40,7 +40,7 @@
     <item name="colorPrimaryDark">@color/red700</item>
     <item name="colorAccent">@color/red500</item>
     <item name="android:navigationBarColor">@color/navigationBarColor</item>
-    <item name="android:statusBarColor">@color/transparent</item>
+    <item name="android:statusBarColor">@color/statusBarColor</item>
   </style>
 
   <!-- Normal App Theme -->

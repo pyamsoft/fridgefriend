@@ -16,7 +16,16 @@
   ~
   -->
 
-<resources>
-  <color name="statusBarColor">@color/transparent</color>
-  <color name="navigationBarColor">#80D32F2F</color>
-</resources>
+<merge>
+
+  <androidx.appcompat.widget.Toolbar
+      xmlns:android="http://schemas.android.com/apk/res/android"
+      android:id="@+id/setting_toolbar"
+      android:layout_width="match_parent"
+      android:layout_height="?attr/actionBarSize"
+      android:background="?attr/colorPrimary"
+      android:theme="@style/ThemeOverlay.MaterialComponents.Dark.ActionBar"
+      />
+
+</merge>
+

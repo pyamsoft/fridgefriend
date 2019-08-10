@@ -17,13 +17,13 @@
 
 package com.pyamsoft.fridge.setting
 
+import android.view.ViewGroup
 import androidx.annotation.CheckResult
 import androidx.lifecycle.ViewModelProvider
 import com.pyamsoft.fridge.FridgeViewModelFactory
 import com.pyamsoft.fridge.ViewModelKey
 import com.pyamsoft.fridge.setting.SettingComponent.ViewModelModule
 import com.pyamsoft.pydroid.arch.UiViewModel
-import com.pyamsoft.pydroid.ui.app.ToolbarActivity
 import dagger.Binds
 import dagger.BindsInstance
 import dagger.Module
@@ -33,17 +33,14 @@ import dagger.multibindings.IntoMap
 @Subcomponent(modules = [ViewModelModule::class])
 internal interface SettingComponent {
 
-  fun inject(fragment: SettingsFragment)
+  fun inject(dialog: SettingsDialog)
 
   @Subcomponent.Factory
   interface Factory {
 
     @CheckResult
-    fun create(
-      @BindsInstance activity: ToolbarActivity
-    ): SettingComponent
+    fun create(@BindsInstance parent: ViewGroup): SettingComponent
   }
-
 
   @Module
   abstract class ViewModelModule {
