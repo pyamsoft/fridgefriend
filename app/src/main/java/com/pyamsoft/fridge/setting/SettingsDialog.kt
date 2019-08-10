@@ -23,7 +23,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewGroup.MarginLayoutParams
-import android.view.WindowManager
+import androidx.activity.OnBackPressedCallback
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.view.updateLayoutParams
@@ -35,6 +35,7 @@ import com.pyamsoft.pydroid.arch.UiView
 import com.pyamsoft.pydroid.arch.UnitViewState
 import com.pyamsoft.pydroid.arch.createComponent
 import com.pyamsoft.pydroid.ui.Injector
+import com.pyamsoft.pydroid.ui.about.AboutFragment
 import com.pyamsoft.pydroid.ui.arch.factory
 import com.pyamsoft.pydroid.ui.util.commit
 import com.pyamsoft.pydroid.ui.util.layout
@@ -78,6 +79,24 @@ internal class SettingsDialog : DialogFragment() {
   ) {
     super.onViewCreated(view, savedInstanceState)
 
+    requireActivity().onBackPressedDispatcher.addCallback(
+        viewLifecycleOwner, object : OnBackPressedCallback(true) {
+
+      override fun handleOnBackPressed() {
+        val settingsFragment = childFragmentManager.findFragmentByTag(SettingsFragment.TAG)
+        if (settingsFragment != null) {
+          val fm = settingsFragment.childFragmentManager
+          if (AboutFragment.isPresent(fm)) {
+            fm.popBackStack()
+            return
+          }
+        }
+
+        dismiss()
+      }
+
+    })
+
     val parent = view.findViewById<ConstraintLayout>(R.id.layout_constraint)
     Injector.obtain<FridgeComponent>(view.context.applicationContext)
         .plusSettingComponent()
@@ -95,7 +114,7 @@ internal class SettingsDialog : DialogFragment() {
         dropshadow
     ) {
       return@createComponent when (it) {
-        is NavigateUp -> dismiss()
+        is NavigateUp -> requireActivity().onBackPressed()
       }
     }
 
@@ -129,8 +148,8 @@ internal class SettingsDialog : DialogFragment() {
 
   override fun onResume() {
     super.onResume()
-    dialog.window?.apply {
-      setLayout(WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.MATCH_PARENT)
+    dialog?.window?.apply {
+      setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
       setGravity(Gravity.CENTER)
     }
   }

@@ -30,6 +30,7 @@ import com.pyamsoft.fridge.R
 import com.pyamsoft.fridge.butler.Butler
 import com.pyamsoft.fridge.butler.ForegroundState
 import com.pyamsoft.fridge.entry.EntryFragment
+import com.pyamsoft.fridge.setting.SettingsDialog
 import com.pyamsoft.pydroid.arch.UnitViewModel
 import com.pyamsoft.pydroid.arch.createComponent
 import com.pyamsoft.pydroid.ui.Injector
