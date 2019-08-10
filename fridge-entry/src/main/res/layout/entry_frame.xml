@@ -19,7 +19,7 @@
 
 <merge>
 
-  <FrameLayout
+  <androidx.coordinatorlayout.widget.CoordinatorLayout
       xmlns:android="http://schemas.android.com/apk/res/android"
       android:id="@+id/entry_frame"
       android:layout_width="match_parent"

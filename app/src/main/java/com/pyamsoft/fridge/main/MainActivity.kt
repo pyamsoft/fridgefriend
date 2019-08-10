@@ -23,21 +23,19 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
-import androidx.coordinatorlayout.widget.CoordinatorLayout
 import com.pyamsoft.fridge.BuildConfig
 import com.pyamsoft.fridge.FridgeComponent
 import com.pyamsoft.fridge.R
 import com.pyamsoft.fridge.butler.Butler
 import com.pyamsoft.fridge.butler.ForegroundState
 import com.pyamsoft.fridge.entry.EntryFragment
-import com.pyamsoft.fridge.setting.SettingsDialog
 import com.pyamsoft.pydroid.arch.UnitViewModel
 import com.pyamsoft.pydroid.arch.createComponent
 import com.pyamsoft.pydroid.ui.Injector
 import com.pyamsoft.pydroid.ui.rating.ChangeLogBuilder
 import com.pyamsoft.pydroid.ui.rating.RatingActivity
 import com.pyamsoft.pydroid.ui.rating.buildChangeLog
-import com.pyamsoft.pydroid.ui.util.commit
+import com.pyamsoft.pydroid.ui.util.commitNow
 import com.pyamsoft.pydroid.ui.util.layout
 import timber.log.Timber
 import javax.inject.Inject
@@ -56,11 +54,21 @@ internal class MainActivity : RatingActivity() {
     get() = requireNotNull(container).id()
 
   override val snackbarRoot: ViewGroup
-    get() = requireNotNull(snackbarContainer)
+    get() {
+      val entryFragment = supportFragmentManager.findFragmentByTag(EntryFragment.TAG)
+      if (entryFragment is SnackbarContainer) {
+        val snackbarContainer = entryFragment.getSnackbarContainer()
+        if (snackbarContainer != null) {
+          Timber.d("SnackbarContainer provided by ${EntryFragment.TAG}")
+          return snackbarContainer
+        }
+      }
 
-  // Nullable to prevent memory leak
-  private var snackbarContainer: CoordinatorLayout? = null
+      Timber.d("Fallback SnackbarContainer")
+      return requireNotNull(rootView)
+    }
 
+  private var rootView: ConstraintLayout? = null
   @JvmField @Inject internal var foregroundState: ForegroundState? = null
   @JvmField @Inject internal var toolbar: MainToolbar? = null
   @JvmField @Inject internal var container: FragmentContainer? = null
@@ -69,24 +77,23 @@ internal class MainActivity : RatingActivity() {
   override fun onCreate(savedInstanceState: Bundle?) {
     setTheme(R.style.Theme_Fridge_Normal)
     super.onCreate(savedInstanceState)
-    setContentView(R.layout.snackbar_screen)
+    setContentView(R.layout.layout_constraint)
 
-    val rootView = findViewById<CoordinatorLayout>(R.id.snackbar_container)
-    snackbarContainer = rootView
-    val contentContainer = findViewById<ConstraintLayout>(R.id.content_container)
+    val view = findViewById<ConstraintLayout>(R.id.layout_constraint)
+    rootView = view
 
     Injector.obtain<FridgeComponent>(applicationContext)
         .plusMainComponent()
-        .create(this, contentContainer, this)
+        .create(this, view, this)
         .inject(this)
 
-    setWindowUiVisibility(rootView)
-    inflateComponents(contentContainer, savedInstanceState)
+    setWindowUiVisibility(view)
+    inflateComponents(view, savedInstanceState)
 
     pushFragment()
   }
 
-  private fun setWindowUiVisibility(rootView: CoordinatorLayout) {
+  private fun setWindowUiVisibility(rootView: ViewGroup) {
     rootView.systemUiVisibility =
       View.SYSTEM_UI_FLAG_LAYOUT_STABLE or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
   }
@@ -152,7 +159,7 @@ internal class MainActivity : RatingActivity() {
   private fun pushFragment() {
     val fm = supportFragmentManager
     if (fm.findFragmentById(fragmentContainerId) == null) {
-      fm.commit(this) {
+      fm.commitNow(this) {
         add(fragmentContainerId, EntryFragment.newInstance(), EntryFragment.TAG)
       }
     }
@@ -166,7 +173,7 @@ internal class MainActivity : RatingActivity() {
 
   override fun onDestroy() {
     super.onDestroy()
-    snackbarContainer = null
+    rootView = null
     toolbar = null
     container = null
     butler = null

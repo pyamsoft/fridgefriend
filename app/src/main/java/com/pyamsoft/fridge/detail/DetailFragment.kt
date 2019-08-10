@@ -22,12 +22,12 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.CheckResult
-import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.constraintlayout.widget.ConstraintSet
+import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.pyamsoft.fridge.FridgeComponent
 import com.pyamsoft.fridge.R
+import com.pyamsoft.fridge.main.SnackbarContainer
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.entry.JsonMappableFridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItem
@@ -41,14 +41,12 @@ import com.pyamsoft.fridge.detail.add.AddNewItemView
 import com.pyamsoft.fridge.detail.add.AddNewItemViewModel
 import com.pyamsoft.pydroid.arch.createComponent
 import com.pyamsoft.pydroid.ui.Injector
-import com.pyamsoft.pydroid.ui.app.requireArguments
 import com.pyamsoft.pydroid.ui.app.requireToolbarActivity
 import com.pyamsoft.pydroid.ui.arch.factory
-import com.pyamsoft.pydroid.ui.util.layout
 import com.pyamsoft.pydroid.ui.util.show
 import javax.inject.Inject
 
-internal class DetailFragment : Fragment() {
+internal class DetailFragment : Fragment(), SnackbarContainer {
 
   @JvmField @Inject internal var factory: ViewModelProvider.Factory? = null
   @JvmField @Inject internal var list: DetailList? = null
@@ -57,12 +55,18 @@ internal class DetailFragment : Fragment() {
   @JvmField @Inject internal var addNew: AddNewItemView? = null
   private val addNewViewModel by factory<AddNewItemViewModel> { factory }
 
+  private var rootView: ViewGroup? = null
+
+  override fun getSnackbarContainer(): ViewGroup? {
+    return rootView
+  }
+
   override fun onCreateView(
     inflater: LayoutInflater,
     container: ViewGroup?,
     savedInstanceState: Bundle?
   ): View? {
-    return inflater.inflate(R.layout.layout_constraint, container, false)
+    return inflater.inflate(R.layout.layout_coordinator, container, false)
   }
 
   @CheckResult
@@ -81,7 +85,8 @@ internal class DetailFragment : Fragment() {
   ) {
     super.onViewCreated(view, savedInstanceState)
 
-    val parent = view.findViewById<ConstraintLayout>(R.id.layout_constraint)
+    val parent = view.findViewById<CoordinatorLayout>(R.id.layout_coordinator)
+    rootView = parent
     Injector.obtain<FridgeComponent>(view.context.applicationContext)
         .plusDetailComponent()
         .create(
@@ -115,26 +120,6 @@ internal class DetailFragment : Fragment() {
         is AddNew -> expandItem(FridgeItem.create(entryId = it.entryId))
       }
     }
-
-    parent.layout {
-
-      list.also {
-        connect(it.id(), ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP)
-        connect(it.id(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
-        connect(it.id(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
-        connect(it.id(), ConstraintSet.BOTTOM, ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM)
-        constrainWidth(it.id(), ConstraintSet.MATCH_CONSTRAINT)
-        constrainHeight(it.id(), ConstraintSet.MATCH_CONSTRAINT)
-      }
-
-      addNew.also {
-        connect(it.id(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
-        connect(it.id(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
-        connect(it.id(), ConstraintSet.BOTTOM, ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM)
-        constrainWidth(it.id(), ConstraintSet.MATCH_CONSTRAINT)
-        constrainHeight(it.id(), ConstraintSet.WRAP_CONTENT)
-      }
-    }
   }
 
   private fun pickDate(
@@ -156,6 +141,7 @@ internal class DetailFragment : Fragment() {
   override fun onDestroyView() {
     super.onDestroyView()
 
+    rootView = null
     factory = null
     list = null
     addNew = null

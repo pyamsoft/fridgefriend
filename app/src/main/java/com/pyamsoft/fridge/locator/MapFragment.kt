@@ -22,8 +22,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.CheckResult
-import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.constraintlayout.widget.ConstraintSet
+import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.pyamsoft.fridge.FridgeComponent
@@ -31,26 +30,32 @@ import com.pyamsoft.fridge.locator.map.osm.OsmControllerEvent.BackgroundPermissi
 import com.pyamsoft.fridge.locator.map.osm.OsmControllerEvent.StoragePermissionRequest
 import com.pyamsoft.fridge.locator.map.osm.OsmMap
 import com.pyamsoft.fridge.locator.map.osm.OsmViewModel
+import com.pyamsoft.fridge.main.SnackbarContainer
 import com.pyamsoft.pydroid.arch.createComponent
 import com.pyamsoft.pydroid.ui.Injector
 import com.pyamsoft.pydroid.ui.arch.factory
-import com.pyamsoft.pydroid.ui.util.layout
 import timber.log.Timber
 import javax.inject.Inject
 
-internal class MapFragment : Fragment() {
+internal class MapFragment : Fragment(), SnackbarContainer {
 
   @JvmField @Inject internal var factory: ViewModelProvider.Factory? = null
   @JvmField @Inject internal var map: OsmMap? = null
   @JvmField @Inject internal var mapPermission: MapPermission? = null
   private val viewModel by factory<OsmViewModel> { factory }
 
+  private var rootView: ViewGroup? = null
+
+  override fun getSnackbarContainer(): ViewGroup? {
+    return rootView
+  }
+
   override fun onCreateView(
     inflater: LayoutInflater,
     container: ViewGroup?,
     savedInstanceState: Bundle?
   ): View? {
-    return inflater.inflate(R.layout.layout_constraint, container, false)
+    return inflater.inflate(R.layout.layout_coordinator, container, false)
   }
 
   override fun onViewCreated(
@@ -59,7 +64,8 @@ internal class MapFragment : Fragment() {
   ) {
     super.onViewCreated(view, savedInstanceState)
 
-    val parent = view.findViewById<ConstraintLayout>(R.id.layout_constraint)
+    val parent = view.findViewById<CoordinatorLayout>(R.id.layout_coordinator)
+    rootView = parent
     Injector.obtain<FridgeComponent>(view.context.applicationContext)
         .plusMapComponent()
         .create(requireActivity(), parent, viewLifecycleOwner)
@@ -75,18 +81,6 @@ internal class MapFragment : Fragment() {
       return@createComponent when (it) {
         is BackgroundPermissionRequest -> requestBackgroundLocationPermission()
         is StoragePermissionRequest -> requestStoragePermission()
-      }
-    }
-
-    parent.layout {
-
-      map.also {
-        connect(it.id(), ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP)
-        connect(it.id(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
-        connect(it.id(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
-        connect(it.id(), ConstraintSet.BOTTOM, ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM)
-        constrainWidth(it.id(), ConstraintSet.MATCH_CONSTRAINT)
-        constrainHeight(it.id(), ConstraintSet.MATCH_CONSTRAINT)
       }
     }
 
@@ -130,6 +124,7 @@ internal class MapFragment : Fragment() {
   override fun onDestroyView() {
     super.onDestroyView()
 
+    rootView = null
     factory = null
     map = null
     mapPermission = null

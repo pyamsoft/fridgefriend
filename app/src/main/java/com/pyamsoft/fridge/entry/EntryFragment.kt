@@ -40,6 +40,7 @@ import com.pyamsoft.fridge.entry.EntryControllerEvent.PushNeed
 import com.pyamsoft.fridge.locator.MapFragment
 import com.pyamsoft.fridge.locator.MapPermission
 import com.pyamsoft.fridge.locator.PermissionFragment
+import com.pyamsoft.fridge.main.SnackbarContainer
 import com.pyamsoft.fridge.setting.SettingsDialog
 import com.pyamsoft.pydroid.arch.createComponent
 import com.pyamsoft.pydroid.ui.Injector
@@ -51,7 +52,7 @@ import com.pyamsoft.pydroid.ui.util.show
 import timber.log.Timber
 import javax.inject.Inject
 
-internal class EntryFragment : Fragment() {
+internal class EntryFragment : Fragment(), SnackbarContainer {
 
   @JvmField @Inject internal var factory: ViewModelProvider.Factory? = null
   @JvmField @Inject internal var mapPermission: MapPermission? = null
@@ -60,6 +61,18 @@ internal class EntryFragment : Fragment() {
   @JvmField @Inject internal var frame: EntryFrame? = null
   @JvmField @Inject internal var navigation: EntryNavigation? = null
   private val viewModel by factory<EntryViewModel> { factory }
+
+  override fun getSnackbarContainer(): ViewGroup? {
+    val frame = frame ?: return null
+    val fragment = childFragmentManager.findFragmentById(frame.id()) ?: return null
+    if (fragment is SnackbarContainer) {
+      Timber.d("Child fragment provides snackbar container")
+      return fragment.getSnackbarContainer()
+    }
+
+    Timber.w("Child fragment is not snackbar container")
+    return null
+  }
 
   override fun onCreateView(
     inflater: LayoutInflater,

@@ -15,10 +15,13 @@
  *
  */
 
-package com.pyamsoft.fridge.extensions
+package com.pyamsoft.fridge.main
 
-import androidx.fragment.app.Fragment
-import com.pyamsoft.fridge.main.MainActivity
+import android.view.ViewGroup
+import androidx.annotation.CheckResult
 
-val Fragment.fragmentContainerId: Int
-  get() = (requireActivity() as MainActivity).fragmentContainerId
+interface SnackbarContainer {
+
+  @CheckResult
+  fun getSnackbarContainer(): ViewGroup?
+}

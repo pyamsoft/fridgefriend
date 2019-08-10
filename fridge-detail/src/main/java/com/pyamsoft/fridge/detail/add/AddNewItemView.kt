@@ -39,9 +39,7 @@ class AddNewItemView @Inject internal constructor(
 
   override val layout: Int = R.layout.add_new
 
-  override val layoutRoot by boundView<ViewGroup>(R.id.detail_add_new)
-
-  private val addNewIcon by boundView<FloatingActionButton>(R.id.detail_add_new_item)
+  override val layoutRoot by boundView<FloatingActionButton>(R.id.detail_add_new_item)
 
   private var iconLoaded: Loaded? = null
 
@@ -50,10 +48,10 @@ class AddNewItemView @Inject internal constructor(
     savedInstanceState: Bundle?
   ) {
     iconLoaded = imageLoader.load(R.drawable.ic_add_24dp)
-        .into(addNewIcon)
+        .into(layoutRoot)
 
-    addNewIcon.setOnDebouncedClickListener { publish(AddNewItemEvent) }
-    addNewIcon.popShow()
+    layoutRoot.setOnDebouncedClickListener { publish(AddNewItemEvent) }
+    layoutRoot.popShow()
 
   }
 
@@ -65,8 +63,7 @@ class AddNewItemView @Inject internal constructor(
 
   override fun onTeardown() {
     disposeIcon()
-    addNewIcon.setImageDrawable(null)
-    addNewIcon.setOnClickListener(null)
+    layoutRoot.setOnClickListener(null)
   }
 
   private fun disposeIcon() {
