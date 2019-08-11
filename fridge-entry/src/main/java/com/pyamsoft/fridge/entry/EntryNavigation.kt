@@ -24,13 +24,13 @@ import androidx.annotation.CheckResult
 import androidx.core.view.isVisible
 import androidx.core.view.updatePadding
 import com.google.android.material.bottomnavigation.BottomNavigationView
-import com.pyamsoft.fridge.core.doOnApplyWindowInsets
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.entry.EntryViewEvent.OpenHave
 import com.pyamsoft.fridge.entry.EntryViewEvent.OpenNearby
 import com.pyamsoft.fridge.entry.EntryViewEvent.OpenNeed
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.arch.UiSavedState
+import com.pyamsoft.pydroid.util.doOnApplyWindowInsets
 import javax.inject.Inject
 
 class EntryNavigation @Inject internal constructor(

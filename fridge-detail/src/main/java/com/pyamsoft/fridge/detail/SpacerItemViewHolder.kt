@@ -21,10 +21,10 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.withStyledAttributes
 import androidx.core.view.updatePadding
-import com.pyamsoft.fridge.core.doOnApplyWindowInsets
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.detail.DetailListAdapter.Callback
 import com.pyamsoft.fridge.detail.DetailListAdapter.DetailViewHolder
+import com.pyamsoft.pydroid.util.doOnApplyWindowInsets
 import com.pyamsoft.pydroid.util.toDp
 
 internal class SpacerItemViewHolder internal constructor(

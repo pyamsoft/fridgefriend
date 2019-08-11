@@ -19,7 +19,6 @@ package com.pyamsoft.fridge.main
 
 import android.content.ComponentCallbacks2
 import android.os.Bundle
-import android.view.View
 import android.view.ViewGroup
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
@@ -37,6 +36,7 @@ import com.pyamsoft.pydroid.ui.rating.RatingActivity
 import com.pyamsoft.pydroid.ui.rating.buildChangeLog
 import com.pyamsoft.pydroid.ui.util.commitNow
 import com.pyamsoft.pydroid.ui.util.layout
+import com.pyamsoft.pydroid.util.makeWindowSexy
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -89,15 +89,10 @@ internal class MainActivity : RatingActivity() {
         .create(this, view, this)
         .inject(this)
 
-    setWindowUiVisibility(view)
+    view.makeWindowSexy()
     inflateComponents(view, savedInstanceState)
 
     pushFragment()
-  }
-
-  private fun setWindowUiVisibility(rootView: ViewGroup) {
-    rootView.systemUiVisibility =
-      View.SYSTEM_UI_FLAG_LAYOUT_STABLE or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
   }
 
   override fun onBackPressed() {
