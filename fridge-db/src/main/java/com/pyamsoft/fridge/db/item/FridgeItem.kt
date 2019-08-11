@@ -83,6 +83,11 @@ interface FridgeItem : ConsumableModel<FridgeItem> {
     }
 
     @CheckResult
+    fun empty(entryId: String): FridgeItem {
+      return create("", entryId)
+    }
+
+    @CheckResult
     @JvmOverloads
     fun create(
       id: String = IdGenerator.generate(),

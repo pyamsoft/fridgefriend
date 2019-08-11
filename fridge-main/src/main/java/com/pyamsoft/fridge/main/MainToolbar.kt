@@ -58,7 +58,7 @@ class MainToolbar @Inject internal constructor(
 
     layoutRoot.doOnApplyWindowInsets { v, insets, padding ->
       v.updateLayoutParams<MarginLayoutParams> {
-        topMargin = padding.top + insets.systemWindowInsetTop
+        topMargin = padding.top + insets.systemWindowInsetTop + 8.toDp(v.context)
       }
     }
   }

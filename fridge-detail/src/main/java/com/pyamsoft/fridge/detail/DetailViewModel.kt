@@ -142,7 +142,7 @@ class DetailViewModel @Inject internal constructor(
     filterArchived: Boolean,
     items: List<FridgeItem>
   ): List<FridgeItem> {
-    return items
+    return listOf(FridgeItem.empty(entryId)) + items
         .asSequence()
         .sortedWith(Comparator { o1, o2 ->
           return@Comparator when {

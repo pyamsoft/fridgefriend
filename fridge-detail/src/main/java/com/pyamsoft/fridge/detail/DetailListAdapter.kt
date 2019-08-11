@@ -20,11 +20,7 @@ package com.pyamsoft.fridge.detail
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.constraintlayout.widget.ConstraintSet
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.ViewModelStore
+import androidx.annotation.CheckResult
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -32,20 +28,6 @@ import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.JsonMappableFridgeItem
 import com.pyamsoft.fridge.detail.DetailListAdapter.DetailViewHolder
 import com.pyamsoft.fridge.detail.item.DetailItemComponent
-import com.pyamsoft.fridge.detail.item.DetailItemControllerEvent.CloseExpand
-import com.pyamsoft.fridge.detail.item.DetailItemControllerEvent.DatePick
-import com.pyamsoft.fridge.detail.item.DetailItemControllerEvent.ExpandDetails
-import com.pyamsoft.fridge.detail.item.DetailListItemDate
-import com.pyamsoft.fridge.detail.item.DetailListItemGlances
-import com.pyamsoft.fridge.detail.item.DetailListItemName
-import com.pyamsoft.fridge.detail.item.DetailListItemPresence
-import com.pyamsoft.fridge.detail.item.DetailListItemViewModel
-import com.pyamsoft.pydroid.arch.createComponent
-import com.pyamsoft.pydroid.ui.app.ListItemLifecycle
-import com.pyamsoft.pydroid.ui.arch.factory
-import com.pyamsoft.pydroid.ui.util.layout
-import timber.log.Timber
-import javax.inject.Inject
 
 internal class DetailListAdapter constructor(
   private val editable: Boolean,
@@ -69,14 +51,27 @@ internal class DetailListAdapter constructor(
 
 }) {
 
+  @CheckResult
+  private fun isEmptyItem(position: Int): Boolean {
+    return position == 0
+  }
+
   override fun getItemViewType(position: Int): Int {
-    return R.id.id_item_list_item
+    if (isEmptyItem(position)) {
+      return R.id.id_item_empty_item
+    } else {
+      return R.id.id_item_list_item
+    }
   }
 
   override fun getItemId(position: Int): Long {
-    return getItem(position).id()
-        .hashCode()
-        .toLong()
+    if (isEmptyItem(position)) {
+      return 0
+    } else {
+      return getItem(position).id()
+          .hashCode()
+          .toLong()
+    }
   }
 
   override fun onCreateViewHolder(
@@ -84,8 +79,13 @@ internal class DetailListAdapter constructor(
     viewType: Int
   ): DetailViewHolder {
     val inflater = LayoutInflater.from(parent.context)
-    val v = inflater.inflate(R.layout.listitem_constraint, parent, false)
-    return DetailItemViewHolder(v, injectComponent)
+    if (viewType == R.id.id_item_empty_item) {
+      val v = inflater.inflate(R.layout.listitem_frame, parent, false)
+      return SpacerItemViewHolder(v)
+    } else {
+      val v = inflater.inflate(R.layout.listitem_constraint, parent, false)
+      return DetailItemViewHolder(v, injectComponent)
+    }
   }
 
   override fun onBindViewHolder(
@@ -93,7 +93,7 @@ internal class DetailListAdapter constructor(
     position: Int
   ) {
     val item = getItem(position)
-    (holder as DetailItemViewHolder).bind(item, editable, callback)
+    holder.bind(item, editable, callback)
   }
 
   override fun onViewRecycled(holder: DetailViewHolder) {
@@ -105,123 +105,13 @@ internal class DetailListAdapter constructor(
     view: View
   ) : RecyclerView.ViewHolder(view) {
 
-    abstract fun unbind()
-
-  }
-
-  internal class DetailItemViewHolder internal constructor(
-    itemView: View,
-    private val injectComponent: (parent: ViewGroup, item: FridgeItem, editable: Boolean) -> DetailItemComponent
-  ) : DetailViewHolder(itemView) {
-
-    @JvmField @Inject internal var viewModelFactory: ViewModelProvider.Factory? = null
-    @JvmField @Inject internal var name: DetailListItemName? = null
-    @JvmField @Inject internal var date: DetailListItemDate? = null
-    @JvmField @Inject internal var presence: DetailListItemPresence? = null
-    @JvmField @Inject internal var glances: DetailListItemGlances? = null
-    private var viewModel: DetailListItemViewModel? = null
-
-    private val parent: ConstraintLayout = itemView.findViewById(R.id.listitem_constraint)
-
-    private var lifecycle: ListItemLifecycle? = null
-    private var boundItem: FridgeItem? = null
-
-    private fun injectViewModel(lifecycle: Lifecycle) {
-      viewModel = lifecycle.factory<DetailListItemViewModel>(ViewModelStore()) { viewModelFactory }
-          .get()
-    }
-
-    fun bind(
+    abstract fun bind(
       item: FridgeItem,
       editable: Boolean,
       callback: Callback
-    ) {
-      boundItem = item
-      val owner = ListItemLifecycle()
-      lifecycle?.unbind()
-      lifecycle = owner
+    )
 
-      injectComponent(parent, item, editable)
-          .inject(this)
-      injectViewModel(owner.lifecycle)
-
-      val name = requireNotNull(name)
-      val date = requireNotNull(date)
-      val presence = requireNotNull(presence)
-      val glances = requireNotNull(glances)
-
-      createComponent(
-          null, owner,
-          requireNotNull(viewModel),
-          name,
-          date,
-          presence,
-          glances
-      ) {
-        return@createComponent when (it) {
-          is ExpandDetails -> callback.onItemExpanded(it.item)
-          is DatePick -> callback.onPickDate(it.oldItem, it.year, it.month, it.day)
-          is CloseExpand -> Timber.d("Deleted item")
-        }
-      }
-
-      parent.layout {
-        presence.also {
-          connect(it.id(), ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP)
-          connect(it.id(), ConstraintSet.BOTTOM, ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM)
-          connect(it.id(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
-          constrainWidth(it.id(), ConstraintSet.WRAP_CONTENT)
-        }
-
-        date.also {
-          connect(it.id(), ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP)
-          connect(it.id(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
-          constrainWidth(it.id(), ConstraintSet.WRAP_CONTENT)
-          constrainHeight(it.id(), ConstraintSet.WRAP_CONTENT)
-        }
-
-        name.also {
-          connect(it.id(), ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP)
-          connect(it.id(), ConstraintSet.BOTTOM, ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM)
-          connect(it.id(), ConstraintSet.START, presence.id(), ConstraintSet.END)
-          connect(it.id(), ConstraintSet.END, date.id(), ConstraintSet.START)
-          constrainWidth(it.id(), ConstraintSet.MATCH_CONSTRAINT)
-          constrainHeight(it.id(), ConstraintSet.WRAP_CONTENT)
-        }
-
-        glances.also {
-          connect(it.id(), ConstraintSet.TOP, date.id(), ConstraintSet.BOTTOM)
-          connect(it.id(), ConstraintSet.BOTTOM, ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM)
-          connect(it.id(), ConstraintSet.START, date.id(), ConstraintSet.START)
-          connect(it.id(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
-          constrainWidth(it.id(), ConstraintSet.WRAP_CONTENT)
-        }
-
-      }
-
-      owner.bind()
-    }
-
-    override fun unbind() {
-      lifecycle?.unbind()
-      lifecycle = null
-
-      viewModel = null
-      boundItem = null
-      name = null
-      date = null
-      presence = null
-    }
-
-    // Kind of hacky
-    fun consume() {
-      requireNotNull(viewModel).consume()
-    }
-
-    // Kind of hacky
-    fun spoil() {
-      requireNotNull(viewModel).spoil()
-    }
+    abstract fun unbind()
 
   }
 

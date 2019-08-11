@@ -25,7 +25,7 @@ import com.pyamsoft.fridge.db.item.FridgeItem.Presence
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent
 import com.pyamsoft.fridge.db.item.FridgeItemRealtime
 import com.pyamsoft.fridge.detail.DetailInteractor
-import com.pyamsoft.fridge.detail.DetailListAdapter
+import com.pyamsoft.fridge.detail.DetailItemViewHolder
 import com.pyamsoft.fridge.detail.item.DetailItemComponent.ViewModelModule
 import com.pyamsoft.pydroid.arch.EventBus
 import com.pyamsoft.pydroid.arch.UiViewModel
@@ -42,7 +42,7 @@ import javax.inject.Named
 @Component(modules = [ViewModelModule::class])
 internal interface DetailItemComponent {
 
-  fun inject(holder: DetailListAdapter.DetailItemViewHolder)
+  fun inject(holder: DetailItemViewHolder)
 
   @Component.Factory
   interface Factory {
