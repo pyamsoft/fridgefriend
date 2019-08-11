@@ -33,7 +33,7 @@
         android:layout_weight="1"
         android:gravity="center_vertical|start"
         android:textAppearance="?attr/textAppearanceBody1"
-        android:textColor="?android:attr/textColorPrimaryInverse"
+        android:textColor="@color/titleColor"
         />
 
     <ImageView

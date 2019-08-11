@@ -25,7 +25,7 @@
       android:layout_height="wrap_content"
       android:gravity="center_vertical|start"
       android:textAppearance="?attr/textAppearanceBody2"
-      android:textColor="?android:attr/textColorSecondaryInverse"
+      android:textColor="@color/descriptionColor"
       />
 
 </merge>

@@ -182,6 +182,8 @@ class OsmMap @Inject internal constructor(
     boundNearbyImage = null
     boundStorageImage = null
     boundBackgroundImage = null
+
+    activity = null
   }
 
   private fun removeMarkerOverlay() {
@@ -253,10 +255,13 @@ class OsmMap @Inject internal constructor(
             nearbyZoneInsertDao,
             nearbyZoneDeleteDao
         )
+        id = uid
+        title = zone.name()
         setPoints(points)
         fillColor = color
-        title = zone.name()
-        id = uid
+
+        val isDarkTheme = theming.isDarkTheme(requireNotNull(activity))
+        strokeColor = if (isDarkTheme) Color.WHITE else Color.BLACK
       }
 
 
@@ -348,7 +353,6 @@ class OsmMap @Inject internal constructor(
       if (theming.isDarkTheme(requireNotNull(activity))) {
         mapOverlay.setColorFilter(TilesOverlay.INVERT_COLORS)
       }
-      activity = null
     }
   }
 
