@@ -42,6 +42,8 @@ import javax.inject.Inject
 
 internal class MainActivity : RatingActivity() {
 
+  override val checkForUpdates: Boolean = false
+
   override val applicationIcon: Int = R.mipmap.ic_launcher
 
   override val versionName: String = BuildConfig.VERSION_NAME

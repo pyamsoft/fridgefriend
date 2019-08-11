@@ -33,6 +33,7 @@ import com.pyamsoft.fridge.db.item.FridgeItem.Presence
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence.HAVE
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence.NEED
 import com.pyamsoft.fridge.detail.DetailFragment
+import com.pyamsoft.fridge.entry.EntryControllerEvent.AppInitialized
 import com.pyamsoft.fridge.entry.EntryControllerEvent.NavigateToSettings
 import com.pyamsoft.fridge.entry.EntryControllerEvent.PushHave
 import com.pyamsoft.fridge.entry.EntryControllerEvent.PushNearby
@@ -49,6 +50,7 @@ import com.pyamsoft.pydroid.ui.arch.factory
 import com.pyamsoft.pydroid.ui.util.commitNow
 import com.pyamsoft.pydroid.ui.util.layout
 import com.pyamsoft.pydroid.ui.util.show
+import com.pyamsoft.pydroid.ui.version.VersionCheckActivity
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -63,8 +65,14 @@ internal class EntryFragment : Fragment(), SnackbarContainer {
   private val viewModel by factory<EntryViewModel> { factory }
 
   override fun getSnackbarContainer(): ViewGroup? {
-    val frame = frame ?: return null
-    val fragment = childFragmentManager.findFragmentById(frame.id()) ?: return null
+    val frame = frame
+    if (frame == null) {
+      Timber.d("No frame, cannot provide container")
+      return null
+    }
+
+    val fragment = childFragmentManager.findFragmentById(frame.id())
+    Timber.d("Child: $fragment")
     if (fragment is SnackbarContainer) {
       Timber.d("Child fragment provides snackbar container")
       return fragment.getSnackbarContainer()
@@ -110,6 +118,7 @@ internal class EntryFragment : Fragment(), SnackbarContainer {
         is PushNeed -> pushNeed(it.entry)
         is PushNearby -> pushNearby()
         is NavigateToSettings -> showSettingsDialog()
+        is AppInitialized -> onAppInitialized()
       }
     }
 
@@ -130,6 +139,13 @@ internal class EntryFragment : Fragment(), SnackbarContainer {
         constrainWidth(it.id(), ConstraintSet.MATCH_CONSTRAINT)
         constrainHeight(it.id(), ConstraintSet.MATCH_CONSTRAINT)
       }
+    }
+  }
+
+  private fun onAppInitialized() {
+    val activity = requireActivity()
+    if (activity is VersionCheckActivity) {
+      activity.checkForUpdate()
     }
   }
 

@@ -55,4 +55,6 @@ sealed class EntryControllerEvent : UiControllerEvent {
 
   object NavigateToSettings : EntryControllerEvent()
 
+  object AppInitialized : EntryControllerEvent()
+
 }
