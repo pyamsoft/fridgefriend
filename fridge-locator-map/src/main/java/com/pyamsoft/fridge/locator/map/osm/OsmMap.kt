@@ -67,8 +67,6 @@ import org.osmdroid.views.overlay.ItemizedOverlayWithFocus
 import org.osmdroid.views.overlay.OverlayItem
 import org.osmdroid.views.overlay.Polygon
 import org.osmdroid.views.overlay.TilesOverlay
-import org.osmdroid.views.overlay.compass.CompassOverlay
-import org.osmdroid.views.overlay.compass.InternalCompassOrientationProvider
 import org.osmdroid.views.overlay.mylocation.GpsMyLocationProvider
 import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay
 import javax.inject.Inject
@@ -101,6 +99,8 @@ class OsmMap @Inject internal constructor(
   private var boundNearbyImage: Loaded? = null
   private var boundStorageImage: Loaded? = null
   private var boundBackgroundImage: Loaded? = null
+
+  private var locationOverlay: MyLocationNewOverlay? = null
 
   private val itemListener = object : ItemizedIconOverlay.OnItemGestureListener<OverlayItem> {
 
@@ -167,10 +167,13 @@ class OsmMap @Inject internal constructor(
 
   override fun onTeardown() {
     owner.lifecycle.removeObserver(this)
+
     findNearby.setOnDebouncedClickListener(null)
     backgroundPermission.setOnDebouncedClickListener(null)
     storagePermission.setOnDebouncedClickListener(null)
+
     removeMarkerOverlay()
+    locationOverlay = null
     map.onDetach()
 
     boundNearbyImage?.dispose()
@@ -352,9 +355,9 @@ class OsmMap @Inject internal constructor(
   private fun addMapOverlays(context: Context) {
     val mapView = map
 
-    val locationOverlay = MyLocationNewOverlay(GpsMyLocationProvider(context), mapView)
-    locationOverlay.runOnFirstFix {
-      val currentLocation = locationOverlay.myLocation
+    val overlay = MyLocationNewOverlay(GpsMyLocationProvider(context), mapView)
+    overlay.runOnFirstFix {
+      val currentLocation = overlay.myLocation
       mapView.post {
         mapView.controller.setZoom(DEFAULT_ZOOM)
         if (currentLocation != null) {
@@ -375,14 +378,9 @@ class OsmMap @Inject internal constructor(
         }
       }
     }
-    locationOverlay.enableMyLocation()
-
-    val compassOverlay =
-      CompassOverlay(context, InternalCompassOrientationProvider(context), mapView)
-    compassOverlay.enableCompass()
-
-    mapView.overlays.add(compassOverlay)
-    mapView.overlays.add(locationOverlay)
+    overlay.enableMyLocation()
+    mapView.overlays.add(overlay)
+    locationOverlay = overlay
   }
 
   private fun showError(throwable: Throwable) {
