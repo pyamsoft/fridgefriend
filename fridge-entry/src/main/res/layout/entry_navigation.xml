@@ -19,25 +19,14 @@
 
 <merge>
 
-  <FrameLayout
+  <com.google.android.material.bottomnavigation.BottomNavigationView
       xmlns:android="http://schemas.android.com/apk/res/android"
       xmlns:app="http://schemas.android.com/apk/res-auto"
-      android:id="@+id/entry_bottom_navigation"
+      android:id="@+id/entry_bottom_navigation_menu"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
-      >
-
-    <com.google.android.material.bottomnavigation.BottomNavigationView
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
-        android:id="@+id/entry_bottom_navigation_menu"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:menu="@menu/navigation_menu"
-        />
-
-  </FrameLayout>
-
+      app:menu="@menu/navigation_menu"
+      />
 
 </merge>
 

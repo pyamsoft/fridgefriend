@@ -39,14 +39,13 @@ class EntryNavigation @Inject internal constructor(
 
   override val layout: Int = R.layout.entry_navigation
 
-  override val layoutRoot by boundView<ViewGroup>(R.id.entry_bottom_navigation)
-  private val bottomNav by boundView<BottomNavigationView>(R.id.entry_bottom_navigation_menu)
+  override val layoutRoot by boundView<BottomNavigationView>(R.id.entry_bottom_navigation_menu)
 
   override fun onInflated(
     view: View,
     savedInstanceState: Bundle?
   ) {
-    bottomNav.isVisible = false
+    layoutRoot.isVisible = false
 
     layoutRoot.doOnApplyWindowInsets { v, insets, padding ->
       v.updatePadding(bottom = padding.bottom + insets.systemWindowInsetBottom)
@@ -57,9 +56,9 @@ class EntryNavigation @Inject internal constructor(
     state: EntryViewState,
     savedState: UiSavedState
   ) {
-    bottomNav.isVisible = state.entry != null
+    layoutRoot.isVisible = state.entry != null
 
-    bottomNav.setOnNavigationItemSelectedListener { item ->
+    layoutRoot.setOnNavigationItemSelectedListener { item ->
       return@setOnNavigationItemSelectedListener when (item.itemId) {
         R.id.menu_item_nav_need -> handleClick(state.entry) { OpenNeed(it) }
         R.id.menu_item_nav_have -> handleClick(state.entry) { OpenHave(it) }
@@ -76,9 +75,9 @@ class EntryNavigation @Inject internal constructor(
     savedState: UiSavedState
   ) {
     if (entry != null) {
-      savedState.consume(LAST_PAGE, bottomNav.selectedItemId) { itemId ->
-        bottomNav.selectedItemId = if (itemId == 0) {
-          bottomNav.menu.getItem(0)
+      savedState.consume(LAST_PAGE, layoutRoot.selectedItemId) { itemId ->
+        layoutRoot.selectedItemId = if (itemId == 0) {
+          layoutRoot.menu.getItem(0)
               .itemId
         } else {
           itemId
@@ -101,12 +100,12 @@ class EntryNavigation @Inject internal constructor(
   }
 
   override fun onSaveState(outState: Bundle) {
-    outState.putInt(LAST_PAGE, bottomNav.selectedItemId)
+    outState.putInt(LAST_PAGE, layoutRoot.selectedItemId)
   }
 
   override fun onTeardown() {
-    bottomNav.isVisible = false
-    bottomNav.setOnNavigationItemSelectedListener(null)
+    layoutRoot.isVisible = false
+    layoutRoot.setOnNavigationItemSelectedListener(null)
   }
 
   companion object {

@@ -33,7 +33,6 @@ import com.pyamsoft.fridge.db.item.FridgeItem.Presence
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence.HAVE
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence.NEED
 import com.pyamsoft.fridge.detail.DetailFragment
-import com.pyamsoft.fridge.entry.EntryControllerEvent.AppUiInitialized
 import com.pyamsoft.fridge.entry.EntryControllerEvent.NavigateToSettings
 import com.pyamsoft.fridge.entry.EntryControllerEvent.PushHave
 import com.pyamsoft.fridge.entry.EntryControllerEvent.PushNearby
@@ -51,6 +50,7 @@ import com.pyamsoft.pydroid.ui.util.commitNow
 import com.pyamsoft.pydroid.ui.util.layout
 import com.pyamsoft.pydroid.ui.util.show
 import com.pyamsoft.pydroid.ui.version.VersionCheckActivity
+import com.pyamsoft.pydroid.ui.widget.shadow.TopshadowView
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -63,6 +63,8 @@ internal class EntryFragment : Fragment(), SnackbarContainer {
   @JvmField @Inject internal var frame: EntryFrame? = null
   @JvmField @Inject internal var navigation: EntryNavigation? = null
   private val viewModel by factory<EntryViewModel> { factory }
+
+  private var initialized = false
 
   override fun getSnackbarContainer(): ViewGroup? {
     val frame = frame
@@ -80,6 +82,11 @@ internal class EntryFragment : Fragment(), SnackbarContainer {
 
     Timber.w("Child fragment is not snackbar container")
     return null
+  }
+
+  override fun onCreate(savedInstanceState: Bundle?) {
+    super.onCreate(savedInstanceState)
+    initialized = savedInstanceState?.getBoolean(INITIALIZED, false) ?: false
   }
 
   override fun onCreateView(
@@ -105,20 +112,21 @@ internal class EntryFragment : Fragment(), SnackbarContainer {
     val toolbar = requireNotNull(toolbar)
     val frame = requireNotNull(frame)
     val navigation = requireNotNull(navigation)
+    val topshadow = TopshadowView.createTyped<EntryViewState, EntryViewEvent>(parent)
 
     createComponent(
         savedInstanceState, viewLifecycleOwner,
         viewModel,
         frame,
+        navigation,
         toolbar,
-        navigation
+        topshadow
     ) {
       return@createComponent when (it) {
         is PushHave -> pushHave(it.entry)
         is PushNeed -> pushNeed(it.entry)
         is PushNearby -> pushNearby()
         is NavigateToSettings -> showSettingsDialog()
-        is AppUiInitialized -> onAppInitialized()
       }
     }
 
@@ -132,26 +140,37 @@ internal class EntryFragment : Fragment(), SnackbarContainer {
       }
 
       frame.also {
-        connect(it.id(), ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP)
         connect(it.id(), ConstraintSet.BOTTOM, navigation.id(), ConstraintSet.TOP)
+        connect(it.id(), ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP)
         connect(it.id(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
         connect(it.id(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
         constrainWidth(it.id(), ConstraintSet.MATCH_CONSTRAINT)
         constrainHeight(it.id(), ConstraintSet.MATCH_CONSTRAINT)
       }
+
+      topshadow.also {
+        connect(it.id(), ConstraintSet.BOTTOM, navigation.id(), ConstraintSet.TOP)
+        connect(it.id(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
+        connect(it.id(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
+        constrainWidth(it.id(), ConstraintSet.MATCH_CONSTRAINT)
+      }
     }
   }
 
   private fun onAppInitialized() {
-    val activity = requireActivity()
-    if (activity is VersionCheckActivity) {
-      Timber.d("Trigger update check")
-      activity.checkForUpdate()
+    if (!initialized) {
+      initialized = true
+      val activity = requireActivity()
+      if (activity is VersionCheckActivity) {
+        Timber.d("Trigger update check")
+        activity.checkForUpdate()
+      }
     }
   }
 
   override fun onSaveInstanceState(outState: Bundle) {
     super.onSaveInstanceState(outState)
+    outState.putBoolean(INITIALIZED, initialized)
     frame?.saveState(outState)
     toolbar?.saveState(outState)
     navigation?.saveState(outState)
@@ -180,21 +199,28 @@ internal class EntryFragment : Fragment(), SnackbarContainer {
   }
 
   private fun pushNearby() {
-    childFragmentManager.commitNow(viewLifecycleOwner) {
-      val container = requireNotNull(frame).id()
-      if (requireNotNull(mapPermission).hasForegroundPermission()) {
-        replace(container, MapFragment.newInstance(), MapFragment.TAG)
-      } else {
-        replace(container, PermissionFragment.newInstance(container), PermissionFragment.TAG)
+    val fm = childFragmentManager
+    if (
+        fm.findFragmentByTag(MapFragment.TAG) == null &&
+        fm.findFragmentByTag(PermissionFragment.TAG) == null
+    ) {
+      fm.commitNow(viewLifecycleOwner) {
+        val container = requireNotNull(frame).id()
+        if (requireNotNull(mapPermission).hasForegroundPermission()) {
+          replace(container, MapFragment.newInstance(), MapFragment.TAG)
+        } else {
+          replace(container, PermissionFragment.newInstance(container), PermissionFragment.TAG)
+        }
       }
     }
+
+    onAppInitialized()
   }
 
   private fun pushPage(
     entry: FridgeEntry,
     filterPresence: Presence
   ) {
-    Timber.d("Push page: $entry")
     val fm = childFragmentManager
     if (fm.findFragmentByTag(filterPresence.name) == null) {
       fm.commitNow(viewLifecycleOwner) {
@@ -205,6 +231,9 @@ internal class EntryFragment : Fragment(), SnackbarContainer {
         )
       }
     }
+
+    onAppInitialized()
+
   }
 
   override fun onHiddenChanged(hidden: Boolean) {
@@ -214,6 +243,7 @@ internal class EntryFragment : Fragment(), SnackbarContainer {
 
   companion object {
 
+    private const val INITIALIZED = "initialized"
     const val TAG = "EntryFragment"
 
     @JvmStatic

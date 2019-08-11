@@ -17,10 +17,7 @@
 
 package com.pyamsoft.fridge.entry
 
-import android.os.Bundle
-import android.view.View
 import android.view.ViewGroup
-import com.pyamsoft.fridge.entry.EntryViewEvent.InitializeAppUi
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.arch.UiSavedState
 import javax.inject.Inject
@@ -32,13 +29,6 @@ class EntryFrame @Inject internal constructor(
   override val layout: Int = R.layout.entry_frame
 
   override val layoutRoot by boundView<ViewGroup>(R.id.entry_frame)
-
-  override fun onInflated(
-    view: View,
-    savedInstanceState: Bundle?
-  ) {
-    publish(InitializeAppUi)
-  }
 
   override fun onRender(
     state: EntryViewState,
