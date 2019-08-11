@@ -33,7 +33,7 @@ import com.pyamsoft.fridge.db.item.FridgeItem.Presence
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence.HAVE
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence.NEED
 import com.pyamsoft.fridge.detail.DetailFragment
-import com.pyamsoft.fridge.entry.EntryControllerEvent.AppInitialized
+import com.pyamsoft.fridge.entry.EntryControllerEvent.AppUiInitialized
 import com.pyamsoft.fridge.entry.EntryControllerEvent.NavigateToSettings
 import com.pyamsoft.fridge.entry.EntryControllerEvent.PushHave
 import com.pyamsoft.fridge.entry.EntryControllerEvent.PushNearby
@@ -118,7 +118,7 @@ internal class EntryFragment : Fragment(), SnackbarContainer {
         is PushNeed -> pushNeed(it.entry)
         is PushNearby -> pushNearby()
         is NavigateToSettings -> showSettingsDialog()
-        is AppInitialized -> onAppInitialized()
+        is AppUiInitialized -> onAppInitialized()
       }
     }
 
@@ -145,6 +145,7 @@ internal class EntryFragment : Fragment(), SnackbarContainer {
   private fun onAppInitialized() {
     val activity = requireActivity()
     if (activity is VersionCheckActivity) {
+      Timber.d("Trigger update check")
       activity.checkForUpdate()
     }
   }

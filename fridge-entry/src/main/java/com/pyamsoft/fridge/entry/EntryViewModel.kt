@@ -19,11 +19,12 @@ package com.pyamsoft.fridge.entry
 
 import androidx.lifecycle.viewModelScope
 import com.pyamsoft.fridge.db.PersistentEntries
-import com.pyamsoft.fridge.entry.EntryControllerEvent.AppInitialized
+import com.pyamsoft.fridge.entry.EntryControllerEvent.AppUiInitialized
 import com.pyamsoft.fridge.entry.EntryControllerEvent.NavigateToSettings
 import com.pyamsoft.fridge.entry.EntryControllerEvent.PushHave
 import com.pyamsoft.fridge.entry.EntryControllerEvent.PushNearby
 import com.pyamsoft.fridge.entry.EntryControllerEvent.PushNeed
+import com.pyamsoft.fridge.entry.EntryViewEvent.InitializeAppUi
 import com.pyamsoft.fridge.entry.EntryViewEvent.OpenHave
 import com.pyamsoft.fridge.entry.EntryViewEvent.OpenNearby
 import com.pyamsoft.fridge.entry.EntryViewEvent.OpenNeed
@@ -39,18 +40,10 @@ class EntryViewModel @Inject internal constructor(
     initialState = EntryViewState(entry = null, isSettingsItemVisible = true)
 ) {
 
-  private inline fun onNextRender(crossinline func: (state: EntryViewState) -> Unit) {
-    setState {
-      func(this)
-      return@setState this
-    }
-  }
-
   override fun onInit() {
     viewModelScope.launch(context = Dispatchers.Default) {
       val entry = persistentEntries.getPersistentEntry()
       setState { copy(entry = entry) }
-      onNextRender { publish(AppInitialized) }
     }
   }
 
@@ -60,6 +53,7 @@ class EntryViewModel @Inject internal constructor(
       is OpenNeed -> publish(PushNeed(event.entry))
       is OpenNearby -> publish(PushNearby(event.entry))
       is SettingsNavigate -> publish(NavigateToSettings)
+      is InitializeAppUi -> publish(AppUiInitialized)
     }
   }
 

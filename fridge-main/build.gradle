@@ -60,7 +60,6 @@ kapt {
     option("-Xlint:deprecation")
     option("-Xmaxerrs", 10000)
     option("-Adagger.formatGeneratedSource=disabled")
-    option("-Adagger.gradle.incremental")
   }
 }
 

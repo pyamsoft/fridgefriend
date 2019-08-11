@@ -37,6 +37,8 @@ sealed class EntryViewEvent : UiViewEvent {
 
   object SettingsNavigate : EntryViewEvent()
 
+  object InitializeAppUi : EntryViewEvent()
+
 }
 
 sealed class EntryControllerEvent : UiControllerEvent {
@@ -55,6 +57,6 @@ sealed class EntryControllerEvent : UiControllerEvent {
 
   object NavigateToSettings : EntryControllerEvent()
 
-  object AppInitialized : EntryControllerEvent()
+  object AppUiInitialized : EntryControllerEvent()
 
 }
