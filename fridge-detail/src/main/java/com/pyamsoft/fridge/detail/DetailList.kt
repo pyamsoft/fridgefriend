@@ -47,6 +47,8 @@ import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.ui.theme.Theming
 import com.pyamsoft.pydroid.ui.util.Snackbreak
 import com.pyamsoft.pydroid.ui.util.refreshing
+import com.pyamsoft.pydroid.util.doOnApplyWindowInsets
+import com.pyamsoft.pydroid.util.toDp
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -117,9 +119,16 @@ class DetailList @Inject internal constructor(
 
     recyclerView.adapter = usingAdapter().apply { setHasStableIds(true) }
 
-    layoutRoot.setOnRefreshListener {
-      publish(ForceRefresh)
+    layoutRoot.doOnApplyWindowInsets { v, insets, padding ->
+      val offset = 8.toDp(v.context)
+      val toolbarTopMargin = padding.top + insets.systemWindowInsetTop + offset
+      layoutRoot.setProgressViewOffset(
+          false,
+          toolbarTopMargin,
+          toolbarTopMargin
+      )
     }
+    layoutRoot.setOnRefreshListener { publish(ForceRefresh) }
     setupSwipeCallback()
   }
 
