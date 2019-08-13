@@ -18,19 +18,30 @@
 package com.pyamsoft.fridge.locator.map.gms
 
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.location.LocationManager
 import android.os.Build.VERSION
 import android.os.Build.VERSION_CODES
 import androidx.annotation.CheckResult
 import androidx.core.content.ContextCompat
+import androidx.core.content.getSystemService
 import androidx.fragment.app.Fragment
+import com.google.android.gms.common.api.ApiException
+import com.google.android.gms.common.api.ResolvableApiException
 import com.google.android.gms.location.Geofence
+import com.google.android.gms.location.GeofencingEvent
 import com.google.android.gms.location.GeofencingRequest
+import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.LocationSettingsRequest
+import com.google.android.gms.location.LocationSettingsStatusCodes
+import com.pyamsoft.fridge.locator.DeviceGps
 import com.pyamsoft.fridge.locator.GeofenceBroadcastReceiver
+import com.pyamsoft.fridge.locator.Geofencer
 import com.pyamsoft.fridge.locator.Locator
 import com.pyamsoft.fridge.locator.Locator.Fence
 import com.pyamsoft.fridge.locator.MapPermission
@@ -45,12 +56,82 @@ internal class GmsLocator @Inject internal constructor(
   receiverClass: Class<out GeofenceBroadcastReceiver>,
   private val enforcer: Enforcer,
   private val context: Context
-) : Locator, MapPermission {
+) : Locator, MapPermission, DeviceGps, Geofencer {
 
-  private val client = LocationServices.getGeofencingClient(context)
+  private val locationManager = requireNotNull(context.getSystemService<LocationManager>())
+  private val settingsClient = LocationServices.getSettingsClient(context)
+  private val geofencingClient = LocationServices.getGeofencingClient(context)
   private val pendingIntent = PendingIntent.getBroadcast(
-      context, REQUEST_CODE, Intent(context, receiverClass), PendingIntent.FLAG_UPDATE_CURRENT
+      context, GEOFENCE_REQUEST_CODE, Intent(context, receiverClass),
+      PendingIntent.FLAG_UPDATE_CURRENT
   )
+
+  override fun isGpsEnabled(): Boolean {
+    if (VERSION.SDK_INT >= VERSION_CODES.P) {
+      return locationManager.isLocationEnabled
+    }
+
+    for (providerName in locationManager.getProviders(true)) {
+      if (providerName == LocationManager.GPS_PROVIDER) {
+        return locationManager.isProviderEnabled(providerName)
+      }
+    }
+
+    return false
+  }
+
+  override fun enableGps(
+    activity: Activity,
+    onEnabled: () -> Unit,
+    onUnhandledError: (throwable: Throwable) -> Unit
+  ) {
+    val request = LocationRequest.create()
+        .setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY)
+
+    val settingsRequest = LocationSettingsRequest.Builder()
+        .addLocationRequest(request)
+        .build()
+
+    settingsClient.checkLocationSettings(settingsRequest)
+        .addOnSuccessListener { onEnabled() }
+        .addOnFailureListener { error ->
+          if (error !is ApiException) {
+            onUnhandledError(error)
+          } else {
+            return@addOnFailureListener when (error.statusCode) {
+              LocationSettingsStatusCodes.RESOLUTION_REQUIRED -> {
+                if (error !is ResolvableApiException) {
+                  onUnhandledError(error)
+                } else {
+                  try {
+                    error.startResolutionForResult(activity, ENABLE_GPS_REQUEST_CODE)
+                  } catch (e: Exception) {
+                    onUnhandledError(e)
+                  }
+                }
+              }
+              else -> onUnhandledError(error)
+            }
+          }
+        }
+  }
+
+  override fun getTriggeredFenceIds(intent: Intent): List<String> {
+    val event = GeofencingEvent.fromIntent(intent)
+    if (event.hasError()) {
+      val errorMessage = GeofenceErrorMessages.getErrorString(context, event.errorCode)
+      Timber.e(errorMessage)
+      return emptyList()
+    }
+
+    val transition = event.geofenceTransition
+    if (transition == Geofence.GEOFENCE_TRANSITION_EXIT) {
+      Timber.w("Ignoring Geofence, transition: GEOFENCE_TRANSITION_EXIT")
+      return emptyList()
+    }
+
+    return event.triggeringGeofences.map { it.requestId }
+  }
 
   @CheckResult
   private fun checkPermission(permission: String): Boolean {
@@ -233,7 +314,7 @@ internal class GmsLocator @Inject internal constructor(
         .build()
 
     removeFences {
-      client.addGeofences(request, pendingIntent)
+      geofencingClient.addGeofences(request, pendingIntent)
           .addOnSuccessListener { Timber.d("Registered Geofences!") }
           .addOnFailureListener { Timber.e(it, "Failed to register Geofences!") }
     }
@@ -245,7 +326,7 @@ internal class GmsLocator @Inject internal constructor(
   }
 
   private inline fun removeFences(crossinline andThen: () -> Unit) {
-    client.removeGeofences(pendingIntent)
+    geofencingClient.removeGeofences(pendingIntent)
         .addOnSuccessListener {
           Timber.d("Removed Geofences!")
           andThen()
@@ -257,7 +338,9 @@ internal class GmsLocator @Inject internal constructor(
 
   companion object {
 
-    private const val REQUEST_CODE = 1234
+    private const val ENABLE_GPS_REQUEST_CODE = 4321
+    private const val GEOFENCE_REQUEST_CODE = 1234
+
     private const val RADIUS_IN_METERS = 1600.0F
     private val LOITER_IN_MILLIS = TimeUnit.MINUTES.toMillis(2L)
         .toInt()

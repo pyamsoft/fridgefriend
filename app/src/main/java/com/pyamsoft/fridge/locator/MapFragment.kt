@@ -42,6 +42,7 @@ internal class MapFragment : Fragment(), SnackbarContainer {
   @JvmField @Inject internal var factory: ViewModelProvider.Factory? = null
   @JvmField @Inject internal var map: OsmMap? = null
   @JvmField @Inject internal var mapPermission: MapPermission? = null
+  @JvmField @Inject internal var deviceGps: DeviceGps? = null
   private val viewModel by factory<OsmViewModel> { factory }
 
   private var rootView: ViewGroup? = null
@@ -87,6 +88,12 @@ internal class MapFragment : Fragment(), SnackbarContainer {
     if (!requireNotNull(mapPermission).hasStoragePermission()) {
       viewModel.requestStoragePermission()
     }
+
+    requireNotNull(deviceGps).enableGps(requireActivity(), onEnabled = {
+      Timber.d("GPS enabled: ${requireNotNull(deviceGps).isGpsEnabled()}")
+    }, onUnhandledError = { error ->
+      Timber.e(error, "On unhandled error")
+    })
   }
 
   private fun requestStoragePermission() {
