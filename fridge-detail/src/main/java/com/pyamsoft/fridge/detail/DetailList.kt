@@ -125,7 +125,7 @@ class DetailList @Inject internal constructor(
       layoutRoot.setProgressViewOffset(
           false,
           toolbarTopMargin,
-          toolbarTopMargin
+          toolbarTopMargin * 2
       )
     }
     layoutRoot.setOnRefreshListener { publish(ForceRefresh) }
