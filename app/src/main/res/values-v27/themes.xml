@@ -30,11 +30,6 @@
     <item name="android:windowLightStatusBar">true</item>
   </style>
 
-  <style name="Theme.Fridge.BottomSheetDialog" parent="@style/Base.Theme.Fridge.BottomSheetDialog">
-    <item name="android:windowLightNavigationBar">true</item>
-    <item name="android:windowLightStatusBar">true</item>
-  </style>
-
   <!-- Splash screen -->
   <style name="Theme.Fridge.Splash" parent="@style/Base.Theme.Fridge.Splash">
     <item name="android:windowLightNavigationBar">true</item>

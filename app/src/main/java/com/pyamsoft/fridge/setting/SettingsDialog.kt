@@ -25,12 +25,14 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.ViewGroup.MarginLayoutParams
 import androidx.activity.OnBackPressedCallback
+import androidx.appcompat.view.ContextThemeWrapper
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.view.updateLayoutParams
 import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.ViewModelProvider
 import com.pyamsoft.fridge.FridgeComponent
+import com.pyamsoft.fridge.R
 import com.pyamsoft.fridge.setting.SettingControllerEvent.NavigateUp
 import com.pyamsoft.pydroid.arch.UiView
 import com.pyamsoft.pydroid.arch.UnitViewState
@@ -89,8 +91,13 @@ internal class SettingsDialog : DialogFragment() {
     onNotHandled()
   }
 
+  override fun getTheme(): Int {
+    return R.style.Theme_Fridge_Dialog
+  }
+
   override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-    return object : Dialog(requireContext(), theme) {
+    return object : Dialog(ContextThemeWrapper(requireActivity(), R.style.Theme_Fridge_Dialog)) {
+
       override fun onBackPressed() {
         handleBackPressed { super.onBackPressed() }
       }
