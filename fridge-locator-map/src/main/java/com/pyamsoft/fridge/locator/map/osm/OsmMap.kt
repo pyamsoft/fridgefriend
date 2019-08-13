@@ -69,6 +69,7 @@ import org.osmdroid.views.overlay.Polygon
 import org.osmdroid.views.overlay.TilesOverlay
 import org.osmdroid.views.overlay.mylocation.GpsMyLocationProvider
 import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay
+import timber.log.Timber
 import javax.inject.Inject
 
 class OsmMap @Inject internal constructor(
@@ -96,6 +97,8 @@ class OsmMap @Inject internal constructor(
 
   private var markerOverlay: ItemizedOverlayWithFocus<OverlayItem>? = null
   private var activity: Activity? = activity
+
+  private var boundFindMeImage: Loaded? = null
   private var boundNearbyImage: Loaded? = null
   private var boundStorageImage: Loaded? = null
   private var boundBackgroundImage: Loaded? = null
@@ -123,6 +126,7 @@ class OsmMap @Inject internal constructor(
 
   private val map by boundView<MapView>(R.id.osm_map)
   private val findNearby by boundView<FloatingActionButton>(R.id.osm_action)
+  private val findMe by boundView<FloatingActionButton>(R.id.osm_find_me)
   private val backgroundPermission by boundView<FloatingActionButton>(
       R.id.osm_background_location_permission
   )
@@ -145,8 +149,12 @@ class OsmMap @Inject internal constructor(
     initMap(view.context.applicationContext)
 
     boundNearbyImage?.dispose()
-    boundNearbyImage = imageLoader.load(R.drawable.ic_location_search_24dp)
+    boundNearbyImage = imageLoader.load(R.drawable.ic_shopping_cart_24dp)
         .into(findNearby)
+
+    boundFindMeImage?.dispose()
+    boundFindMeImage = imageLoader.load(R.drawable.ic_location_search_24dp)
+        .into(findMe)
 
     boundStorageImage?.dispose()
     boundStorageImage = imageLoader.load(R.drawable.ic_storage_24dp)
@@ -157,17 +165,31 @@ class OsmMap @Inject internal constructor(
         .into(backgroundPermission)
 
     findNearby.isVisible = false
+    findMe.isVisible = false
     storagePermission.isVisible = false
     backgroundPermission.isVisible = false
 
     findNearby.setOnDebouncedClickListener { publish(FindNearby(getBoundingBoxOfCurrentScreen())) }
+    findMe.setOnDebouncedClickListener { locateMe() }
     backgroundPermission.setOnDebouncedClickListener { publish(RequestBackgroundPermission) }
     storagePermission.setOnDebouncedClickListener { publish(RequestStoragePermission) }
+  }
+
+  private fun locateMe() {
+    locationOverlay?.let { overlay ->
+      val location = overlay.myLocation
+      if (location != null) {
+        centerOnLocation(locationProvider = { location }) {
+          Timber.d("Centered onto current user location")
+        }
+      }
+    }
   }
 
   override fun onTeardown() {
     owner.lifecycle.removeObserver(this)
 
+    findMe.setOnDebouncedClickListener(null)
     findNearby.setOnDebouncedClickListener(null)
     backgroundPermission.setOnDebouncedClickListener(null)
     storagePermission.setOnDebouncedClickListener(null)
@@ -176,9 +198,11 @@ class OsmMap @Inject internal constructor(
     locationOverlay = null
     map.onDetach()
 
+    boundFindMeImage?.dispose()
     boundNearbyImage?.dispose()
     boundStorageImage?.dispose()
     boundBackgroundImage?.dispose()
+    boundFindMeImage = null
     boundNearbyImage = null
     boundStorageImage = null
     boundBackgroundImage = null
@@ -356,20 +380,35 @@ class OsmMap @Inject internal constructor(
     }
   }
 
+  private inline fun centerOnLocation(
+      // Can't just use location: GeoPoint here because of a kapt missing symbol build-error, fails to compile...
+      // what.
+    locationProvider: () -> GeoPoint,
+    crossinline onCentered: (location: GeoPoint) -> Unit
+  ) {
+    val location = locationProvider()
+    val mapView = map
+    mapView.post {
+      mapView.controller.setZoom(DEFAULT_ZOOM)
+      mapView.controller.animateTo(location)
+      mapView.controller.setCenter(location)
+      onCentered(location)
+    }
+  }
+
   private fun addMapOverlays(context: Context) {
     val mapView = map
 
     val overlay = MyLocationNewOverlay(GpsMyLocationProvider(context), mapView)
     overlay.runOnFirstFix {
       val currentLocation = overlay.myLocation
-      mapView.post {
-        mapView.controller.setZoom(DEFAULT_ZOOM)
-        if (currentLocation != null) {
-          mapView.controller.animateTo(currentLocation)
-          mapView.controller.setCenter(currentLocation)
-
+      if (currentLocation != null) {
+        centerOnLocation(locationProvider = { currentLocation }) {
           var delay = 700L
           findNearby.popShow(startDelay = delay)
+          delay += 300L
+
+          findMe.popShow(startDelay = delay)
           delay += 300L
 
           storagePermission.popShow(startDelay = delay)

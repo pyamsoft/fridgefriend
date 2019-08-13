@@ -43,7 +43,7 @@
       />
 
   <com.google.android.material.floatingactionbutton.FloatingActionButton
-      android:id="@+id/osm_storage_permission"
+      android:id="@+id/osm_find_me"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
       android:layout_gravity="bottom|end"
@@ -56,11 +56,24 @@
       />
 
   <com.google.android.material.floatingactionbutton.FloatingActionButton
-      android:id="@+id/osm_background_location_permission"
+      android:id="@+id/osm_storage_permission"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
       android:layout_gravity="bottom|end"
       android:layout_marginBottom="128dp"
+      android:layout_marginEnd="24dp"
+      app:backgroundTint="@color/grey500"
+      app:elevation="6dp"
+      app:fabSize="mini"
+      app:pressedTranslationZ="12dp"
+      />
+
+  <com.google.android.material.floatingactionbutton.FloatingActionButton
+      android:id="@+id/osm_background_location_permission"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_gravity="bottom|end"
+      android:layout_marginBottom="176dp"
       android:layout_marginEnd="24dp"
       app:backgroundTint="@color/grey500"
       app:elevation="6dp"
