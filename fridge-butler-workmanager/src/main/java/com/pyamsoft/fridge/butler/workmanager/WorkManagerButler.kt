@@ -93,7 +93,6 @@ internal class WorkManagerButler @Inject internal constructor(
   }
 
   override fun cancelExpirationReminder() {
-    Timber.d("Cancel all pending expiration reminders")
     workManager().cancelAllWorkByTag(EXPIRATION_TAG)
   }
 
@@ -105,7 +104,6 @@ internal class WorkManagerButler @Inject internal constructor(
   }
 
   override fun unregisterGeofences() {
-    Timber.d("Cancel all pending location reminders")
     workManager().cancelAllWorkByTag(GEOFENCE_REGISTRATION_TAG)
   }
 
@@ -127,27 +125,23 @@ internal class WorkManagerButler @Inject internal constructor(
   }
 
   override fun cancelGeofenceProcessing() {
-    Timber.d("Cancel all pending geofence processing")
     workManager().cancelAllWorkByTag(GEOFENCE_NOTIFY_TAG)
   }
 
   override fun cancelLocationProcessing() {
-    Timber.d("Cancel all pending location processing")
     workManager().cancelAllWorkByTag(LOCATION_TAG)
   }
 
   override fun cancel() {
-    Timber.d("Cancel all pending work")
     workManager().cancelAllWork()
   }
 
   companion object {
 
-    private const val EXPIRATION_TAG = "WorkManagerButler: Expiration Reminder 1"
-    private const val GEOFENCE_REGISTRATION_TAG =
-      "WorkManagerButler: Geofence Registration Reminder 1"
-    private const val GEOFENCE_NOTIFY_TAG = "WorkManagerButler: Geofence Notifier Reminder 1"
-    private const val LOCATION_TAG = "WorkManagerButler: Location Reminder 1"
+    private const val EXPIRATION_TAG = "Expiration Reminder 1"
+    private const val GEOFENCE_REGISTRATION_TAG = "Geofence Registration Reminder 1"
+    private const val GEOFENCE_NOTIFY_TAG = "Geofence Notifier Reminder 1"
+    private const val LOCATION_TAG = "Location Reminder 1"
   }
 
 }
