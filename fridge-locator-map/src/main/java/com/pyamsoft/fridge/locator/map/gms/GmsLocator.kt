@@ -300,6 +300,11 @@ internal class GmsLocator @Inject internal constructor(
       return
     }
 
+    if (!isGpsEnabled()) {
+      Timber.w("Cannot register Geofences, GPS is not enabled")
+      return
+    }
+
     addGeofences(fences.map { createGeofence(it) })
   }
 
