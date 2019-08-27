@@ -184,6 +184,7 @@ internal class DetailItemViewHolder internal constructor(
             ConstraintSet.END
         )
         constrainWidth(it.id(), ConstraintSet.WRAP_CONTENT)
+        constrainHeight(it.id(), ConstraintSet.WRAP_CONTENT)
       }
 
     }

@@ -142,7 +142,7 @@ class DetailViewModel @Inject internal constructor(
     filterArchived: Boolean,
     items: List<FridgeItem>
   ): List<FridgeItem> {
-    return items
+    val listItems = items
         .asSequence()
         .sortedWith(Comparator { o1, o2 ->
           return@Comparator when {
@@ -155,6 +155,12 @@ class DetailViewModel @Inject internal constructor(
         .filterNot { filterArchived && it.isArchived() }
         .filter { it.presence() == listItemPresence }
         .toList()
+
+    return when {
+      listItems.isEmpty() -> listItems
+      listItems.first().id().isNotBlank() -> listOf(FridgeItem.empty(entryId)) + listItems
+      else -> listItems
+    }
   }
 
   private fun refreshList(force: Boolean) {
@@ -250,14 +256,7 @@ class DetailViewModel @Inject internal constructor(
   }
 
   private fun handleListRefreshed(items: List<FridgeItem>) {
-    setState {
-      var listItems = getListItems(filterArchived, items)
-      if (listItems.isNotEmpty()) {
-        listItems = listOf(FridgeItem.empty(entryId)) + listItems
-      }
-
-      return@setState copy(items = listItems, listError = null)
-    }
+    setState { copy(items = getListItems(filterArchived, items), listError = null) }
   }
 
   private fun handleListRefreshError(throwable: Throwable) {
