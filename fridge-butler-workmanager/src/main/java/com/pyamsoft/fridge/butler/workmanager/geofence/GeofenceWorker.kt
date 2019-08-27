@@ -67,8 +67,8 @@ internal class GeofenceWorker internal constructor(
       }
 
       Timber.d("Processing geofence events for fences: $fenceIds")
-      val storeJob = async { requireNotNull(storeDb).query(true) }
-      val zoneJob = async { requireNotNull(zoneDb).query(true) }
+      val storeJob = async { requireNotNull(storeDb).query(false) }
+      val zoneJob = async { requireNotNull(zoneDb).query(false) }
 
       val nearbyStores = storeJob.await()
       val nearbyZones = zoneJob.await()

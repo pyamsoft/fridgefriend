@@ -33,6 +33,7 @@ abstract class GeofenceBroadcastReceiver protected constructor() : BroadcastRece
       return
     }
 
+    Timber.d("Geofence event received!")
     onGeofenceEvent(context, intent)
   }
 

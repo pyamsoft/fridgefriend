@@ -305,15 +305,20 @@ internal class GmsLocator @Inject internal constructor(
 
   @SuppressLint("MissingPermission")
   private fun addGeofences(fences: List<Geofence>) {
-    // If fences is empty this will throw
-    val triggers =
-      GeofencingRequest.INITIAL_TRIGGER_DWELL or GeofencingRequest.INITIAL_TRIGGER_ENTER
-    val request = GeofencingRequest.Builder()
-        .setInitialTrigger(triggers)
-        .addGeofences(fences)
-        .build()
-
     removeFences {
+      if (fences.isEmpty()) {
+        Timber.w("Cannot register empty list of geofences")
+        return@removeFences
+      }
+
+      // If fences is empty this will throw
+      val triggers =
+        GeofencingRequest.INITIAL_TRIGGER_DWELL or GeofencingRequest.INITIAL_TRIGGER_ENTER
+      val request = GeofencingRequest.Builder()
+          .setInitialTrigger(triggers)
+          .addGeofences(fences)
+          .build()
+
       geofencingClient.addGeofences(request, pendingIntent)
           .addOnSuccessListener { Timber.d("Registered Geofences!") }
           .addOnFailureListener { Timber.e(it, "Failed to register Geofences!") }

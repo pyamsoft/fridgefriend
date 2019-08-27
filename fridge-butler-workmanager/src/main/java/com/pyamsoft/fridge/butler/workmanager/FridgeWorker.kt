@@ -52,9 +52,9 @@ internal abstract class FridgeWorker protected constructor(
   }
 
   protected suspend fun withFridgeData(func: (entry: FridgeEntry, items: List<FridgeItem>) -> Unit) {
-    requireNotNull(fridgeEntryQueryDao).query(true)
+    requireNotNull(fridgeEntryQueryDao).query(false)
         .forEach { entry ->
-          val items = requireNotNull(fridgeItemQueryDao).query(true, entry.id())
+          val items = requireNotNull(fridgeItemQueryDao).query(false, entry.id())
           func(entry, items)
         }
   }

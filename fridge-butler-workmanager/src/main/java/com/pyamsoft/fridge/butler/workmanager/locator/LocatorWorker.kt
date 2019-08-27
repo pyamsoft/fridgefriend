@@ -60,8 +60,8 @@ internal class LocatorWorker internal constructor(
     return coroutineScope {
       Timber.d("LocatorWorker registering fences")
 
-      val storeJob = async { requireNotNull(storeDb).query(true) }
-      val zoneJob = async { requireNotNull(zoneDb).query(true) }
+      val storeJob = async { requireNotNull(storeDb).query(false) }
+      val zoneJob = async { requireNotNull(zoneDb).query(false) }
 
       val nearbyStores = storeJob.await()
           .map { store ->
@@ -76,11 +76,6 @@ internal class LocatorWorker internal constructor(
           .flatten()
 
       val fences = nearbyStores + nearbyZones
-      if (fences.isEmpty()) {
-        Timber.w("List of fences is empty - ignore this request")
-        return@coroutineScope
-      }
-
       Timber.d("Attempting to register fences: $fences")
       requireNotNull(locator).registerGeofences(fences)
     }
