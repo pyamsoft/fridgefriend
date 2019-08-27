@@ -20,18 +20,16 @@ package com.pyamsoft.fridge.butler.workmanager.expiration
 import android.content.Context
 import androidx.work.WorkerParameters
 import com.pyamsoft.fridge.butler.Butler
-import com.pyamsoft.fridge.butler.workmanager.BaseWorker
+import com.pyamsoft.fridge.butler.workmanager.FridgeWorker
 import com.pyamsoft.fridge.db.cleanMidnight
 import com.pyamsoft.fridge.db.daysLaterMidnight
 import com.pyamsoft.fridge.db.entry.FridgeEntry
-import com.pyamsoft.fridge.db.entry.FridgeEntryQueryDao
 import com.pyamsoft.fridge.db.isExpired
 import com.pyamsoft.fridge.db.isExpiringSoon
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence.HAVE
-import com.pyamsoft.fridge.db.item.FridgeItemQueryDao
 import com.pyamsoft.fridge.db.item.isArchived
-import com.pyamsoft.pydroid.ui.Injector
+import kotlinx.coroutines.coroutineScope
 import timber.log.Timber
 import java.util.Calendar
 import java.util.concurrent.TimeUnit.HOURS
@@ -39,20 +37,7 @@ import java.util.concurrent.TimeUnit.HOURS
 internal class ExpirationWorker internal constructor(
   context: Context,
   params: WorkerParameters
-) : BaseWorker(context, params) {
-
-  private var fridgeEntryQueryDao: FridgeEntryQueryDao? = null
-  private var fridgeItemQueryDao: FridgeItemQueryDao? = null
-
-  override fun onInject() {
-    fridgeEntryQueryDao = Injector.obtain(applicationContext)
-    fridgeItemQueryDao = Injector.obtain(applicationContext)
-  }
-
-  override fun onTeardown() {
-    fridgeEntryQueryDao = null
-    fridgeItemQueryDao = null
-  }
+) : FridgeWorker(context, params) {
 
   override fun reschedule(butler: Butler) {
     butler.remindExpiration(3L, HOURS)
@@ -106,15 +91,14 @@ internal class ExpirationWorker internal constructor(
   }
 
   override suspend fun performWork() {
-    val today = Calendar.getInstance()
-        .cleanMidnight()
-    val later = Calendar.getInstance()
-        .daysLaterMidnight(2)
-
-    requireNotNull(fridgeEntryQueryDao).query(true)
-        .forEach { entry ->
-          val items = requireNotNull(fridgeItemQueryDao).query(true, entry.id())
-          notifyForEntry(today, later, entry, items)
-        }
+    return coroutineScope {
+      val today = Calendar.getInstance()
+          .cleanMidnight()
+      val later = Calendar.getInstance()
+          .daysLaterMidnight(2)
+      withFridgeData { entry, items ->
+        notifyForEntry(today, later, entry, items)
+      }
+    }
   }
 }

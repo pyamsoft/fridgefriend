@@ -18,7 +18,6 @@
 package com.pyamsoft.fridge.butler.workmanager.expiration
 
 import android.content.Context
-import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.butler.ButlerNotifications
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItem
@@ -27,15 +26,6 @@ internal object ExpirationNotifications {
 
   private const val EXPIRING_CHANNEL_ID = "fridge_expiring_reminders_channel_v1"
   private const val EXPIRED_CHANNEL_ID = "fridge_expiration_reminders_channel_v1"
-
-  @CheckResult
-  private fun getExtraItems(items: List<FridgeItem>): String {
-    return when {
-      items.size == 1 -> ""
-      items.size == 2 -> "and '${items[1].name()}'"
-      else -> "and ${items.size - 1} other items"
-    }
-  }
 
   @JvmStatic
   fun notifyExpiring(
@@ -51,7 +41,7 @@ internal object ExpirationNotifications {
         "Reminders for items that are going to expire soon"
     ) { builder ->
       val extra =
-        "${getExtraItems(
+        "${ButlerNotifications.getExtraItems(
             items
         )} ${if (items.size == 1) "is" else "are"} about to expire."
       return@notify builder
@@ -77,7 +67,7 @@ internal object ExpirationNotifications {
       return@notify builder
           .setContentTitle("Expired warning for '${entry.name()}'")
           .setContentText(
-              "'${items.first().name()}' ${getExtraItems(
+              "'${items.first().name()}' ${ButlerNotifications.getExtraItems(
                   items
               )} ${if (items.size == 1) "has" else "have"} passed expiration!"
           )

@@ -23,10 +23,21 @@ import androidx.annotation.CheckResult
 import androidx.core.app.NotificationCompat
 import com.pyamsoft.fridge.core.Notifications
 import com.pyamsoft.fridge.db.entry.FridgeEntry
+import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.pydroid.ui.Injector
 import timber.log.Timber
 
 object ButlerNotifications {
+
+  @JvmStatic
+  @CheckResult
+  fun getExtraItems(items: List<FridgeItem>): String {
+    return when {
+      items.size == 1 -> ""
+      items.size == 2 -> "and '${items[1].name()}'"
+      else -> "and ${items.size - 1} other items"
+    }
+  }
 
   @CheckResult
   private fun notificationId(

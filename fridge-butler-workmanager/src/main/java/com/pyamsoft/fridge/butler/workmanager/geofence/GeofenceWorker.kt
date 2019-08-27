@@ -21,7 +21,7 @@ import android.content.Context
 import androidx.annotation.CheckResult
 import androidx.work.WorkerParameters
 import com.pyamsoft.fridge.butler.Butler
-import com.pyamsoft.fridge.butler.workmanager.BaseWorker
+import com.pyamsoft.fridge.butler.workmanager.FridgeWorker
 import com.pyamsoft.fridge.db.store.NearbyStore
 import com.pyamsoft.fridge.db.store.NearbyStoreQueryDao
 import com.pyamsoft.fridge.db.zone.NearbyZone
@@ -36,19 +36,19 @@ import timber.log.Timber
 internal class GeofenceWorker internal constructor(
   context: Context,
   params: WorkerParameters
-) : BaseWorker(context, params) {
+) : FridgeWorker(context, params) {
 
   private var geofencer: Geofencer? = null
   private var storeDb: NearbyStoreQueryDao? = null
   private var zoneDb: NearbyZoneQueryDao? = null
 
-  override fun onInject() {
+  override fun afterInject() {
     geofencer = Injector.obtain(applicationContext)
     storeDb = Injector.obtain(applicationContext)
     zoneDb = Injector.obtain(applicationContext)
   }
 
-  override fun onTeardown() {
+  override fun afterTeardown() {
     geofencer = null
     storeDb = null
     zoneDb = null
@@ -87,17 +87,22 @@ internal class GeofenceWorker internal constructor(
         }
       }
 
-      fireNotifications(storeNotifications, zoneNotifications)
+      return@coroutineScope fireNotifications(storeNotifications, zoneNotifications)
     }
   }
 
-  private fun fireNotifications(
+  private suspend fun fireNotifications(
     storeNotifications: Set<NearbyStore>,
     zoneNotifications: Set<NearbyZone>
-  ) {
-    storeNotifications.forEach { Timber.d("Fire geofence notification for zone: $it") }
-    zoneNotifications.forEach { Timber.d("Fire geofence notification for zone: $it") }
-    // TODO: Notifications
+  ) = coroutineScope {
+    withFridgeData { entry, items ->
+      storeNotifications.forEach { store ->
+        GeofenceNotifications.notifyNeeded(applicationContext, entry, store, items)
+      }
+      zoneNotifications.forEach { zone ->
+        GeofenceNotifications.notifyNeeded(applicationContext, entry, zone, items)
+      }
+    }
   }
 
   @CheckResult
