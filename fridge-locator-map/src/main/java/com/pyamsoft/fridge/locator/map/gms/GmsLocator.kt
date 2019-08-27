@@ -406,7 +406,7 @@ internal class GmsLocator @Inject internal constructor(
     private const val FOREGROUND_LOCATION_PERMISSION_REQUEST_RC = 4321
     private const val STORAGE_PERMISSION_REQUEST_RC = 1324
 
-    private val LOCATION_INTERVAL = TimeUnit.HOURS.toMillis(2L)
+    private val LOCATION_INTERVAL = TimeUnit.HOURS.toMillis(1L)
     private val FASTEST_LOCATION_INTERVAL = TimeUnit.MINUTES.toMillis(30L)
 
   }
