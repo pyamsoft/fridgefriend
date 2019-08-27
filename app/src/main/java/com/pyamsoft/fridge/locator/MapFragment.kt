@@ -90,7 +90,7 @@ internal class MapFragment : Fragment(), SnackbarContainer {
     }
 
     requireNotNull(deviceGps).enableGps(requireActivity(), onEnabled = {
-      Timber.d("GPS enabled: ${requireNotNull(deviceGps).isGpsEnabled()}")
+      requireNotNull(deviceGps).isGpsEnabled { Timber.d("GPS enabled: $it") }
     }, onUnhandledError = { error ->
       Timber.e(error, "On unhandled error")
     })

@@ -35,7 +35,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import timber.log.Timber
 
-internal class GeofenceWorker internal constructor(
+internal class GeofenceNotifierWorker internal constructor(
   context: Context,
   params: WorkerParameters
 ) : FridgeWorker(context, params) {

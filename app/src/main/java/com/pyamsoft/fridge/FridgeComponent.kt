@@ -39,6 +39,7 @@ import com.pyamsoft.fridge.detail.item.DateSelectPayload
 import com.pyamsoft.fridge.entry.EntryComponent
 import com.pyamsoft.fridge.locator.GeofenceBroadcastReceiver
 import com.pyamsoft.fridge.locator.Geofencer
+import com.pyamsoft.fridge.locator.LocationProviderChangeReceiver
 import com.pyamsoft.fridge.locator.Locator
 import com.pyamsoft.fridge.locator.MapComponent
 import com.pyamsoft.fridge.locator.PermissionComponent
@@ -80,11 +81,11 @@ internal interface FridgeComponent {
   @CheckResult
   fun provideNotificationHandler(): NotificationHandler
 
-  // For LocatorWorker Work classes
+  // For GeofenceRegistrationWorker Work classes
   @CheckResult
   fun provideLocator(): Locator
 
-  // For GeofenceWorker Work classes
+  // For GeofenceNotifierWorker Work classes
   @CheckResult
   fun provideGeofencer(): Geofencer
 
@@ -96,11 +97,11 @@ internal interface FridgeComponent {
   @CheckResult
   fun provideFridgeItemQueryDao(): FridgeItemQueryDao
 
-  // For LocatorWorker Work classes
+  // For GeofenceRegistrationWorker Work classes
   @CheckResult
   fun provideNearbyStoreQueryDao(): NearbyStoreQueryDao
 
-  // For LocatorWorker Work classes
+  // For GeofenceRegistrationWorker Work classes
   @CheckResult
   fun provideNearbyZoneQueryDao(): NearbyZoneQueryDao
 
@@ -129,6 +130,8 @@ internal interface FridgeComponent {
   fun plusPermissionComponent(): PermissionComponent.Factory
 
   fun inject(dialog: DatePickerDialogFragment)
+
+  fun inject(receiver: LocationProviderChangeReceiver)
 
   fun inject(application: FridgeFriend)
 

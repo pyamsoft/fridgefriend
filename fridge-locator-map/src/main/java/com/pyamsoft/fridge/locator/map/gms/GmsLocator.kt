@@ -23,12 +23,10 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.location.LocationManager
 import android.os.Build.VERSION
 import android.os.Build.VERSION_CODES
 import androidx.annotation.CheckResult
 import androidx.core.content.ContextCompat
-import androidx.core.content.getSystemService
 import androidx.fragment.app.Fragment
 import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.common.api.ResolvableApiException
@@ -45,7 +43,6 @@ import com.pyamsoft.fridge.locator.Geofencer
 import com.pyamsoft.fridge.locator.Locator
 import com.pyamsoft.fridge.locator.Locator.Fence
 import com.pyamsoft.fridge.locator.MapPermission
-import com.pyamsoft.pydroid.core.Enforcer
 import timber.log.Timber
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
@@ -54,11 +51,9 @@ import javax.inject.Singleton
 @Singleton
 internal class GmsLocator @Inject internal constructor(
   receiverClass: Class<out GeofenceBroadcastReceiver>,
-  private val enforcer: Enforcer,
   private val context: Context
 ) : Locator, MapPermission, DeviceGps, Geofencer {
 
-  private val locationManager = requireNotNull(context.getSystemService<LocationManager>())
   private val settingsClient = LocationServices.getSettingsClient(context)
   private val geofencingClient = LocationServices.getGeofencingClient(context)
   private val pendingIntent = PendingIntent.getBroadcast(
@@ -66,24 +61,40 @@ internal class GmsLocator @Inject internal constructor(
       PendingIntent.FLAG_UPDATE_CURRENT
   )
 
-  override fun isGpsEnabled(): Boolean {
-    if (VERSION.SDK_INT >= VERSION_CODES.P) {
-      return locationManager.isLocationEnabled
-    }
-
-    for (providerName in locationManager.getProviders(true)) {
-      if (providerName == LocationManager.GPS_PROVIDER) {
-        return locationManager.isProviderEnabled(providerName)
-      }
-    }
-
-    return false
+  override fun isGpsEnabled(func: (enabled: Boolean) -> Unit) {
+    checkGpsSettings(onEnabled = { func(true) }, onDisabled = { func(false) })
   }
 
   override fun enableGps(
     activity: Activity,
     onEnabled: () -> Unit,
     onUnhandledError: (throwable: Throwable) -> Unit
+  ) {
+    checkGpsSettings(onEnabled = onEnabled, onDisabled = { throwable ->
+      if (throwable !is ApiException) {
+        onUnhandledError(throwable)
+      } else {
+        return@checkGpsSettings when (throwable.statusCode) {
+          LocationSettingsStatusCodes.RESOLUTION_REQUIRED -> {
+            if (throwable !is ResolvableApiException) {
+              onUnhandledError(throwable)
+            } else {
+              try {
+                throwable.startResolutionForResult(activity, ENABLE_GPS_REQUEST_CODE)
+              } catch (e: Exception) {
+                onUnhandledError(e)
+              }
+            }
+          }
+          else -> onUnhandledError(throwable)
+        }
+      }
+    })
+  }
+
+  private inline fun checkGpsSettings(
+    crossinline onEnabled: () -> Unit,
+    crossinline onDisabled: (throwable: Throwable) -> Unit
   ) {
     val request = LocationRequest.create()
         .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
@@ -94,26 +105,7 @@ internal class GmsLocator @Inject internal constructor(
 
     settingsClient.checkLocationSettings(settingsRequest)
         .addOnSuccessListener { onEnabled() }
-        .addOnFailureListener { error ->
-          if (error !is ApiException) {
-            onUnhandledError(error)
-          } else {
-            return@addOnFailureListener when (error.statusCode) {
-              LocationSettingsStatusCodes.RESOLUTION_REQUIRED -> {
-                if (error !is ResolvableApiException) {
-                  onUnhandledError(error)
-                } else {
-                  try {
-                    error.startResolutionForResult(activity, ENABLE_GPS_REQUEST_CODE)
-                  } catch (e: Exception) {
-                    onUnhandledError(e)
-                  }
-                }
-              }
-              else -> onUnhandledError(error)
-            }
-          }
-        }
+        .addOnFailureListener { onDisabled(it) }
   }
 
   override fun getTriggeredFenceIds(intent: Intent): List<String> {
@@ -284,8 +276,6 @@ internal class GmsLocator @Inject internal constructor(
   }
 
   override fun registerGeofences(fences: List<Fence>) {
-    enforcer.assertNotOnMainThread()
-
     if (!hasForegroundPermission()) {
       val permission = android.Manifest.permission.ACCESS_FINE_LOCATION
       Timber.w("Cannot register Geofences, missing $permission")
@@ -300,11 +290,6 @@ internal class GmsLocator @Inject internal constructor(
       return
     }
 
-    if (!isGpsEnabled()) {
-      Timber.w("Cannot register Geofences, GPS is not enabled")
-      return
-    }
-
     addGeofences(fences.map { createGeofence(it) })
   }
 
@@ -316,29 +301,37 @@ internal class GmsLocator @Inject internal constructor(
         return@removeFences
       }
 
-      // If fences is empty this will throw
-      val request = GeofencingRequest.Builder()
-          .setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_DWELL)
-          .addGeofences(fences)
-          .build()
+      isGpsEnabled { enabled ->
+        if (!enabled) {
+          Timber.w("Cannot register Geofences, GPS is not enabled")
+          return@isGpsEnabled
+        }
 
-      geofencingClient.addGeofences(request, pendingIntent)
-          .addOnSuccessListener { Timber.d("Registered Geofences!") }
-          .addOnFailureListener { Timber.e(it, "Failed to register Geofences!") }
+        if (fences.size > Locator.MAX_GEOFENCE_ALLOWED_COUNT) {
+          Timber.w("Cannot register Geofences, too many: ${fences.size}")
+          return@isGpsEnabled
+        }
+
+        // If fences is empty this will throw
+        val request = GeofencingRequest.Builder()
+            .setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_DWELL)
+            .addGeofences(fences)
+            .build()
+
+        geofencingClient.addGeofences(request, pendingIntent)
+            .addOnSuccessListener { Timber.d("Registered Geofences!") }
+            .addOnFailureListener { Timber.e(it, "Failed to register Geofences!") }
+      }
     }
   }
 
   override fun unregisterGeofences() {
-    enforcer.assertNotOnMainThread()
     removeFences { Timber.d("Geofences manually unregistered") }
   }
 
   private inline fun removeFences(crossinline andThen: () -> Unit) {
     geofencingClient.removeGeofences(pendingIntent)
-        .addOnSuccessListener {
-          Timber.d("Removed Geofences!")
-          andThen()
-        }
+        .addOnSuccessListener { andThen() }
         .addOnFailureListener {
           Timber.e(GeofenceErrorMessages.getErrorString(context, it))
         }

@@ -18,12 +18,10 @@
 package com.pyamsoft.fridge.locator
 
 import android.app.Activity
-import androidx.annotation.CheckResult
 
 interface DeviceGps {
 
-  @CheckResult
-  fun isGpsEnabled(): Boolean
+  fun isGpsEnabled(func: (enabled: Boolean) -> Unit)
 
   fun enableGps(
     activity: Activity,

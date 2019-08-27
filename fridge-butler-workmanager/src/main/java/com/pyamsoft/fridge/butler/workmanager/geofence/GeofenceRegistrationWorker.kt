@@ -15,7 +15,7 @@
  *
  */
 
-package com.pyamsoft.fridge.butler.workmanager.locator
+package com.pyamsoft.fridge.butler.workmanager.geofence
 
 import android.content.Context
 import androidx.work.WorkerParameters
@@ -31,7 +31,7 @@ import kotlinx.coroutines.coroutineScope
 import timber.log.Timber
 import java.util.concurrent.TimeUnit.HOURS
 
-internal class LocatorWorker internal constructor(
+internal class GeofenceRegistrationWorker internal constructor(
   context: Context,
   params: WorkerParameters
 ) : BaseWorker(context, params) {
@@ -53,12 +53,12 @@ internal class LocatorWorker internal constructor(
   }
 
   override fun reschedule(butler: Butler) {
-    butler.remindLocation(Locator.RESCHEDULE_TIME, HOURS)
+    butler.registerGeofences(Locator.RESCHEDULE_TIME, HOURS)
   }
 
   override suspend fun performWork() {
     return coroutineScope {
-      Timber.d("LocatorWorker registering fences")
+      Timber.d("GeofenceRegistrationWorker registering fences")
 
       val storeJob = async { requireNotNull(storeDb).query(false) }
       val zoneJob = async { requireNotNull(zoneDb).query(false) }

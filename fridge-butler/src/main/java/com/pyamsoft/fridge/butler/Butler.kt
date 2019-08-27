@@ -26,7 +26,7 @@ interface Butler {
     unit: TimeUnit
   )
 
-  fun remindLocation(
+  fun registerGeofences(
     time: Long,
     unit: TimeUnit
   )
@@ -37,7 +37,7 @@ interface Butler {
 
   fun cancelExpirationReminder()
 
-  fun cancelLocationReminder()
+  fun unregisterGeofences()
 
   fun cancel()
 

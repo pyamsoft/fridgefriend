@@ -26,8 +26,8 @@ import androidx.work.OneTimeWorkRequest
 import androidx.work.WorkManager
 import com.pyamsoft.fridge.butler.Butler
 import com.pyamsoft.fridge.butler.workmanager.expiration.ExpirationWorker
-import com.pyamsoft.fridge.butler.workmanager.geofence.GeofenceWorker
-import com.pyamsoft.fridge.butler.workmanager.locator.LocatorWorker
+import com.pyamsoft.fridge.butler.workmanager.geofence.GeofenceNotifierWorker
+import com.pyamsoft.fridge.butler.workmanager.geofence.GeofenceRegistrationWorker
 import timber.log.Timber
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
@@ -95,28 +95,28 @@ internal class WorkManagerButler @Inject internal constructor(
     workManager().cancelAllWorkByTag(EXPIRATION_TAG)
   }
 
-  override fun remindLocation(
+  override fun registerGeofences(
     time: Long,
     unit: TimeUnit
   ) {
-    schedule(LocatorWorker::class.java, LOCATION_TAG, time, unit, null)
+    schedule(GeofenceRegistrationWorker::class.java, GEOFENCE_REGISTRATION_TAG, time, unit, null)
   }
 
-  override fun cancelLocationReminder() {
+  override fun unregisterGeofences() {
     Timber.d("Cancel all pending location reminders")
-    workManager().cancelAllWorkByTag(LOCATION_TAG)
+    workManager().cancelAllWorkByTag(GEOFENCE_REGISTRATION_TAG)
   }
 
   override fun processGeofences(fences: List<String>) {
     schedule(
-        GeofenceWorker::class.java, GEOFENCE_TAG, 0, null,
-        mapOf(GeofenceWorker.KEY_FENCES to fences.toTypedArray())
+        GeofenceNotifierWorker::class.java, GEOFENCE_NOTIFY_TAG, 0, null,
+        mapOf(GeofenceNotifierWorker.KEY_FENCES to fences.toTypedArray())
     )
   }
 
   override fun cancelGeofenceProcessing() {
     Timber.d("Cancel all pending geofence processing")
-    workManager().cancelAllWorkByTag(GEOFENCE_TAG)
+    workManager().cancelAllWorkByTag(GEOFENCE_NOTIFY_TAG)
   }
 
   override fun cancel() {
@@ -127,8 +127,8 @@ internal class WorkManagerButler @Inject internal constructor(
   companion object {
 
     private const val EXPIRATION_TAG = "WorkManagerButler: Expiration Reminder 1"
-    private const val LOCATION_TAG = "WorkManagerButler: Location Reminder 1"
-    private const val GEOFENCE_TAG = "WorkManagerButler: Geofence Reminder 1"
+    private const val GEOFENCE_REGISTRATION_TAG = "WorkManagerButler: Geofence Registration Reminder 1"
+    private const val GEOFENCE_NOTIFY_TAG = "WorkManagerButler: Geofence Notifier Reminder 1"
   }
 
 }
