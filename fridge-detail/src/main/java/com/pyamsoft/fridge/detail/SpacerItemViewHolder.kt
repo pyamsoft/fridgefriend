@@ -33,11 +33,7 @@ internal class SpacerItemViewHolder internal constructor(
 
   private val frame = itemView.findViewById<ViewGroup>(R.id.listitem_frame)
 
-  override fun bind(
-    item: FridgeItem,
-    editable: Boolean,
-    callback: Callback
-  ) {
+  init {
     frame.doOnApplyWindowInsets { v, insets, padding ->
       val offset = 8.toDp(v.context)
       val toolbarTopMargin = padding.top + insets.systemWindowInsetTop + offset
@@ -51,8 +47,14 @@ internal class SpacerItemViewHolder internal constructor(
     }
   }
 
+  override fun bind(
+    item: FridgeItem,
+    editable: Boolean,
+    callback: Callback
+  ) {
+  }
+
   override fun unbind() {
-    frame.updatePadding(top = 0)
   }
 
 }
