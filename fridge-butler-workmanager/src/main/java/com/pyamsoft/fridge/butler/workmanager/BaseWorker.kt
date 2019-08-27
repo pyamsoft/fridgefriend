@@ -22,6 +22,8 @@ import androidx.annotation.CheckResult
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.pyamsoft.fridge.butler.Butler
+import com.pyamsoft.fridge.butler.ForegroundState
+import com.pyamsoft.fridge.butler.NotificationHandler
 import com.pyamsoft.pydroid.core.Enforcer
 import com.pyamsoft.pydroid.ui.Injector
 import kotlinx.coroutines.CancellationException
@@ -32,10 +34,14 @@ internal abstract class BaseWorker protected constructor(
   params: WorkerParameters
 ) : CoroutineWorker(context, params) {
 
+  private var handler: NotificationHandler? = null
+  private var foregroundState: ForegroundState? = null
   private var butler: Butler? = null
   private var enforcer: Enforcer? = null
 
   private fun inject() {
+    handler = Injector.obtain(applicationContext)
+    foregroundState = Injector.obtain(applicationContext)
     butler = Injector.obtain(applicationContext)
     enforcer = Injector.obtain(applicationContext)
     onInject()
@@ -44,9 +50,15 @@ internal abstract class BaseWorker protected constructor(
   protected abstract fun onInject()
 
   private fun teardown() {
+    handler = null
+    foregroundState = null
     butler = null
     enforcer = null
     onTeardown()
+  }
+
+  protected inline fun notification(func: (handler: NotificationHandler, foregroundState: ForegroundState) -> Unit) {
+    func(requireNotNull(handler), requireNotNull(foregroundState))
   }
 
   protected abstract fun onTeardown()

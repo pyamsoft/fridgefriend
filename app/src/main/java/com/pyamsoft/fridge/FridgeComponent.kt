@@ -17,12 +17,14 @@
 
 package com.pyamsoft.fridge
 
+import android.app.Activity
 import android.app.Application
 import android.content.Context
 import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.FridgeComponent.FridgeProvider
 import com.pyamsoft.fridge.butler.Butler
 import com.pyamsoft.fridge.butler.ForegroundState
+import com.pyamsoft.fridge.butler.NotificationHandler
 import com.pyamsoft.fridge.butler.workmanager.ButlerModule
 import com.pyamsoft.fridge.db.entry.FridgeEntryQueryDao
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent
@@ -73,6 +75,10 @@ internal interface FridgeComponent {
   // For BaseWorker Work classes
   @CheckResult
   fun provideButler(): Butler
+
+  // For BaseWorker Work classes
+  @CheckResult
+  fun provideNotificationHandler(): NotificationHandler
 
   // For LocatorWorker Work classes
   @CheckResult
@@ -136,6 +142,7 @@ internal interface FridgeComponent {
       @BindsInstance enforcer: Enforcer,
       @BindsInstance application: Application,
       @BindsInstance imageLoader: ImageLoader,
+      @BindsInstance activityClass: Class<out Activity>,
       @BindsInstance receiverClass: Class<out GeofenceBroadcastReceiver>
     ): FridgeComponent
 

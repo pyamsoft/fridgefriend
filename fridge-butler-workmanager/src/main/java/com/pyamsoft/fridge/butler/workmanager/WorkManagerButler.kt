@@ -17,6 +17,7 @@
 
 package com.pyamsoft.fridge.butler.workmanager
 
+import android.content.Context
 import androidx.annotation.CheckResult
 import androidx.work.Constraints
 import androidx.work.Data
@@ -33,11 +34,13 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-internal class WorkManagerButler @Inject internal constructor() : Butler {
+internal class WorkManagerButler @Inject internal constructor(
+  private val context: Context
+) : Butler {
 
   @CheckResult
   private fun workManager(): WorkManager {
-    return WorkManager.getInstance()
+    return WorkManager.getInstance(context)
   }
 
   @CheckResult

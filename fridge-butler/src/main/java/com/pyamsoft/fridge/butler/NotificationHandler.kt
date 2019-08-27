@@ -15,27 +15,14 @@
  *
  */
 
-package com.pyamsoft.fridge.butler.workmanager
+package com.pyamsoft.fridge.butler
 
+import android.app.PendingIntent
 import androidx.annotation.CheckResult
-import com.pyamsoft.fridge.butler.Butler
-import com.pyamsoft.fridge.butler.ForegroundState
-import com.pyamsoft.fridge.butler.NotificationHandler
-import dagger.Binds
-import dagger.Module
 
-@Module
-abstract class ButlerModule {
+interface NotificationHandler {
 
-  @Binds
   @CheckResult
-  internal abstract fun bindButler(impl: WorkManagerButler): Butler
+  fun contentIntent(): PendingIntent
 
-  @Binds
-  @CheckResult
-  internal abstract fun bindForegroundState(impl: ForegroundStateDetector): ForegroundState
-
-  @Binds
-  @CheckResult
-  internal abstract fun bindNotificationHandler(impl: NotificationHandlerImpl): NotificationHandler
 }

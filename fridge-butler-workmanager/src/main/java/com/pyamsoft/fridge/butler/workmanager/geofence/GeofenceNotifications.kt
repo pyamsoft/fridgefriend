@@ -19,6 +19,8 @@ package com.pyamsoft.fridge.butler.workmanager.geofence
 
 import android.content.Context
 import com.pyamsoft.fridge.butler.ButlerNotifications
+import com.pyamsoft.fridge.butler.ForegroundState
+import com.pyamsoft.fridge.butler.NotificationHandler
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.store.NearbyStore
@@ -29,12 +31,16 @@ internal object GeofenceNotifications {
   private const val NEEDED_CHANNEL_ID = "fridge_needed_reminders_channel_v1"
 
   private fun notifyNeeded(
+    handler: NotificationHandler,
+    foregroundState: ForegroundState,
     context: Context,
     entry: FridgeEntry,
     storeName: String,
     items: List<FridgeItem>
   ) {
     ButlerNotifications.notify(
+        handler,
+        foregroundState,
         entry,
         context,
         NEEDED_CHANNEL_ID,
@@ -51,22 +57,26 @@ internal object GeofenceNotifications {
 
   @JvmStatic
   fun notifyNeeded(
+    handler: NotificationHandler,
+    foregroundState: ForegroundState,
     context: Context,
     entry: FridgeEntry,
     store: NearbyStore,
     items: List<FridgeItem>
   ) {
-    notifyNeeded(context, entry, store.name(), items)
+    notifyNeeded(handler, foregroundState, context, entry, store.name(), items)
   }
 
   @JvmStatic
   fun notifyNeeded(
+    handler: NotificationHandler,
+    foregroundState: ForegroundState,
     context: Context,
     entry: FridgeEntry,
     zone: NearbyZone,
     items: List<FridgeItem>
   ) {
-    notifyNeeded(context, entry, zone.name(), items)
+    notifyNeeded(handler, foregroundState, context, entry, zone.name(), items)
   }
 
 }

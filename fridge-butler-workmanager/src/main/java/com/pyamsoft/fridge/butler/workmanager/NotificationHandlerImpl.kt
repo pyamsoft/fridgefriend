@@ -17,25 +17,30 @@
 
 package com.pyamsoft.fridge.butler.workmanager
 
-import androidx.annotation.CheckResult
-import com.pyamsoft.fridge.butler.Butler
-import com.pyamsoft.fridge.butler.ForegroundState
+import android.app.Activity
+import android.app.PendingIntent
+import android.content.Context
+import android.content.Intent
 import com.pyamsoft.fridge.butler.NotificationHandler
-import dagger.Binds
-import dagger.Module
+import javax.inject.Inject
+import javax.inject.Singleton
 
-@Module
-abstract class ButlerModule {
+@Singleton
+internal class NotificationHandlerImpl @Inject internal constructor(
+  private val context: Context,
+  private val activityClass: Class<out Activity>
+) : NotificationHandler {
 
-  @Binds
-  @CheckResult
-  internal abstract fun bindButler(impl: WorkManagerButler): Butler
+  override fun contentIntent(): PendingIntent {
+    return PendingIntent.getActivity(
+        context, CONTENT_INTENT_RC, Intent(context, activityClass),
+        PendingIntent.FLAG_UPDATE_CURRENT
+    )
+  }
 
-  @Binds
-  @CheckResult
-  internal abstract fun bindForegroundState(impl: ForegroundStateDetector): ForegroundState
+  companion object {
 
-  @Binds
-  @CheckResult
-  internal abstract fun bindNotificationHandler(impl: NotificationHandlerImpl): NotificationHandler
+    private const val CONTENT_INTENT_RC = 1589
+  }
+
 }

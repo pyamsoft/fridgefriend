@@ -21,6 +21,7 @@ import android.app.Application
 import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.butler.Butler
 import com.pyamsoft.fridge.butler.ForegroundState
+import com.pyamsoft.fridge.butler.NotificationHandler
 import com.pyamsoft.fridge.db.entry.FridgeEntryQueryDao
 import com.pyamsoft.fridge.db.item.FridgeItemQueryDao
 import com.pyamsoft.fridge.db.store.NearbyStoreQueryDao
@@ -28,6 +29,7 @@ import com.pyamsoft.fridge.db.zone.NearbyZoneQueryDao
 import com.pyamsoft.fridge.locator.GeofenceUpdateReceiver
 import com.pyamsoft.fridge.locator.Geofencer
 import com.pyamsoft.fridge.locator.Locator
+import com.pyamsoft.fridge.main.MainActivity
 import com.pyamsoft.pydroid.bootstrap.libraries.OssLibraries
 import com.pyamsoft.pydroid.ui.PYDroid
 import com.squareup.leakcanary.LeakCanary
@@ -64,6 +66,7 @@ class FridgeFriend : Application() {
               provider.enforcer(),
               this,
               provider.imageLoader(),
+              MainActivity::class.java,
               GeofenceUpdateReceiver::class.java
           )
           .also { onInitialized(it) }
@@ -158,6 +161,7 @@ class FridgeFriend : Application() {
       FridgeEntryQueryDao::class.java.name -> requireNotNull(component).provideFridgeEntryQueryDao()
       NearbyStoreQueryDao::class.java.name -> requireNotNull(component).provideNearbyStoreQueryDao()
       NearbyZoneQueryDao::class.java.name -> requireNotNull(component).provideNearbyZoneQueryDao()
+      NotificationHandler::class.java.name -> requireNotNull(component).provideNotificationHandler()
       else -> null
     }
   }

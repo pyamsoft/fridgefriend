@@ -86,7 +86,7 @@ internal class GmsLocator @Inject internal constructor(
     onUnhandledError: (throwable: Throwable) -> Unit
   ) {
     val request = LocationRequest.create()
-        .setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY)
+        .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
 
     val settingsRequest = LocationSettingsRequest.Builder()
         .addLocationRequest(request)
@@ -318,7 +318,7 @@ internal class GmsLocator @Inject internal constructor(
           .build()
 
       geofencingClient.addGeofences(request, pendingIntent)
-          .addOnSuccessListener { Timber.d("Registered Geofences!: $fences") }
+          .addOnSuccessListener { Timber.d("Registered Geofences!") }
           .addOnFailureListener { Timber.e(it, "Failed to register Geofences!") }
     }
   }

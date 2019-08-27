@@ -74,15 +74,19 @@ internal class ExpirationWorker internal constructor(
     }
 
     if (expiringItems.isNotEmpty()) {
-      ExpirationNotifications.notifyExpiring(
-          applicationContext, entry, expiringItems
-      )
+      notification { handler, foregroundState ->
+        ExpirationNotifications.notifyExpiring(
+            handler, foregroundState, applicationContext, entry, expiringItems
+        )
+      }
     }
 
     if (expiredItems.isNotEmpty()) {
-      ExpirationNotifications.notifyExpired(
-          applicationContext, entry, expiredItems
-      )
+      notification { handler, foregroundState ->
+        ExpirationNotifications.notifyExpired(
+            handler, foregroundState, applicationContext, entry, expiredItems
+        )
+      }
     }
 
     if (unknownExpirationItems.isNotEmpty()) {

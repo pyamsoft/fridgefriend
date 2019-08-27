@@ -15,7 +15,7 @@
  *
  */
 
-package com.pyamsoft.fridge.core
+package com.pyamsoft.fridge.butler
 
 import android.app.Notification
 import android.app.NotificationChannel
@@ -64,6 +64,7 @@ object Notifications {
 
   @JvmStatic
   fun notify(
+    handler: NotificationHandler,
     context: Context,
     notificationId: Int,
     tag: String,
@@ -88,12 +89,14 @@ object Notifications {
         .setOngoing(false)
         .setPriority(NotificationCompat.PRIORITY_DEFAULT)
         .setColor(Color.RED)
+        .setContentIntent(handler.contentIntent())
 
     val notification = createNotification(builder)
-    notificationManager(context).apply {
-      cancel(this, tag, notificationId)
-      notify(tag, notificationId, notification)
-    }
+    notificationManager(context)
+        .apply {
+          cancel(this, tag, notificationId)
+          notify(tag, notificationId, notification)
+        }
   }
 
   @JvmStatic

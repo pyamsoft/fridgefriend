@@ -22,6 +22,8 @@ import androidx.annotation.CheckResult
 import androidx.work.WorkerParameters
 import com.pyamsoft.fridge.butler.Butler
 import com.pyamsoft.fridge.butler.workmanager.FridgeWorker
+import com.pyamsoft.fridge.db.item.FridgeItem.Presence.NEED
+import com.pyamsoft.fridge.db.item.isArchived
 import com.pyamsoft.fridge.db.store.NearbyStore
 import com.pyamsoft.fridge.db.store.NearbyStoreQueryDao
 import com.pyamsoft.fridge.db.zone.NearbyZone
@@ -66,7 +68,7 @@ internal class GeofenceWorker internal constructor(
         return@coroutineScope
       }
 
-      Timber.d("Processing geofence events for fences: $fenceIds")
+      Timber.d("Processing geofence events for fences")
       val storeJob = async { requireNotNull(storeDb).query(false) }
       val zoneJob = async { requireNotNull(zoneDb).query(false) }
 
@@ -87,20 +89,40 @@ internal class GeofenceWorker internal constructor(
         }
       }
 
-      return@coroutineScope fireNotifications(storeNotifications, zoneNotifications)
+      fireNotifications(storeNotifications, zoneNotifications)
     }
   }
 
   private suspend fun fireNotifications(
     storeNotifications: Set<NearbyStore>,
     zoneNotifications: Set<NearbyZone>
-  ) = coroutineScope {
+  ) {
+    if (storeNotifications.isEmpty() && zoneNotifications.isEmpty()) {
+      Timber.w("Cannot process a completely empty fence event")
+      return
+    }
+
     withFridgeData { entry, items ->
+      val neededItems = items.filterNot { it.isArchived() }
+          .filter { it.presence() == NEED }
+      if (neededItems.isEmpty()) {
+        Timber.w("There are nearby's but nothing is needed")
+        return@withFridgeData
+      }
+
       storeNotifications.forEach { store ->
-        GeofenceNotifications.notifyNeeded(applicationContext, entry, store, items)
+        notification { handler, foregroundState ->
+          GeofenceNotifications.notifyNeeded(
+              handler, foregroundState, applicationContext, entry, store, neededItems
+          )
+        }
       }
       zoneNotifications.forEach { zone ->
-        GeofenceNotifications.notifyNeeded(applicationContext, entry, zone, items)
+        notification { handler, foregroundState ->
+          GeofenceNotifications.notifyNeeded(
+              handler, foregroundState, applicationContext, entry, zone, neededItems
+          )
+        }
       }
     }
   }
