@@ -312,15 +312,13 @@ internal class GmsLocator @Inject internal constructor(
       }
 
       // If fences is empty this will throw
-      val triggers =
-        GeofencingRequest.INITIAL_TRIGGER_DWELL or GeofencingRequest.INITIAL_TRIGGER_ENTER
       val request = GeofencingRequest.Builder()
-          .setInitialTrigger(triggers)
+          .setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_DWELL)
           .addGeofences(fences)
           .build()
 
       geofencingClient.addGeofences(request, pendingIntent)
-          .addOnSuccessListener { Timber.d("Registered Geofences!") }
+          .addOnSuccessListener { Timber.d("Registered Geofences!: $fences") }
           .addOnFailureListener { Timber.e(it, "Failed to register Geofences!") }
     }
   }
@@ -344,7 +342,7 @@ internal class GmsLocator @Inject internal constructor(
   companion object {
 
     private const val ENABLE_GPS_REQUEST_CODE = 4321
-    private const val GEOFENCE_REQUEST_CODE = 1234
+    private const val GEOFENCE_REQUEST_CODE = 2563
 
     private const val RADIUS_IN_METERS = 1600.0F
     private val LOITER_IN_MILLIS = TimeUnit.MINUTES.toMillis(2L)
