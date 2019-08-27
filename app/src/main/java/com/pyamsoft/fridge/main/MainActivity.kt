@@ -37,7 +37,6 @@ import com.pyamsoft.pydroid.ui.rating.buildChangeLog
 import com.pyamsoft.pydroid.ui.util.commitNow
 import com.pyamsoft.pydroid.ui.util.layout
 import com.pyamsoft.pydroid.util.makeWindowSexy
-import timber.log.Timber
 import javax.inject.Inject
 
 internal class MainActivity : RatingActivity() {
@@ -61,12 +60,10 @@ internal class MainActivity : RatingActivity() {
       if (entryFragment is SnackbarContainer) {
         val snackbarContainer = entryFragment.getSnackbarContainer()
         if (snackbarContainer != null) {
-          Timber.d("SnackbarContainer provided by ${EntryFragment.TAG}")
           return snackbarContainer
         }
       }
 
-      Timber.d("Fallback SnackbarContainer")
       return requireNotNull(rootView)
     }
 
@@ -95,28 +92,19 @@ internal class MainActivity : RatingActivity() {
     pushFragment()
   }
 
-  override fun onBackPressed() {
-    super.onBackPressed()
-    Timber.d("ON BACK PRESSED")
-  }
-
   override fun onStart() {
     super.onStart()
-    Timber.d("App enters foreground onStart")
     requireNotNull(foregroundState).isForeground = true
   }
 
   override fun onStop() {
     super.onStop()
-
-    Timber.d("App enters background onStop")
     requireNotNull(foregroundState).isForeground = false
   }
 
   override fun onTrimMemory(level: Int) {
     super.onTrimMemory(level)
     if (level == ComponentCallbacks2.TRIM_MEMORY_UI_HIDDEN) {
-      Timber.d("App enters background UI_HIDDEN")
       requireNotNull(foregroundState).isForeground = false
     }
   }

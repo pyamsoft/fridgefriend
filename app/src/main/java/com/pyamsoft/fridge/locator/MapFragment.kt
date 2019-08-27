@@ -89,11 +89,9 @@ internal class MapFragment : Fragment(), SnackbarContainer {
       viewModel.requestStoragePermission()
     }
 
-    requireNotNull(deviceGps).enableGps(requireActivity(), onEnabled = {
-      requireNotNull(deviceGps).isGpsEnabled { Timber.d("GPS enabled: $it") }
-    }, onUnhandledError = { error ->
-      Timber.e(error, "On unhandled error")
-    })
+    requireNotNull(deviceGps).enableGps(requireActivity()) {
+      Timber.e(it, "Error enabling GPS")
+    }
   }
 
   private fun requestStoragePermission() {

@@ -18,6 +18,7 @@
 package com.pyamsoft.fridge.butler.workmanager
 
 import android.content.Context
+import android.location.Location
 import androidx.annotation.CheckResult
 import androidx.work.Constraints
 import androidx.work.Data
@@ -28,6 +29,7 @@ import com.pyamsoft.fridge.butler.Butler
 import com.pyamsoft.fridge.butler.workmanager.expiration.ExpirationWorker
 import com.pyamsoft.fridge.butler.workmanager.geofence.GeofenceNotifierWorker
 import com.pyamsoft.fridge.butler.workmanager.geofence.GeofenceRegistrationWorker
+import com.pyamsoft.fridge.butler.workmanager.locator.LocationWorker
 import timber.log.Timber
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
@@ -114,9 +116,24 @@ internal class WorkManagerButler @Inject internal constructor(
     )
   }
 
+  override fun processLocation(location: Location) {
+    schedule(
+        LocationWorker::class.java, LOCATION_TAG, 0, null,
+        mapOf(
+            LocationWorker.KEY_LATITUDE to location.latitude,
+            LocationWorker.KEY_LONGITUDE to location.longitude
+        )
+    )
+  }
+
   override fun cancelGeofenceProcessing() {
     Timber.d("Cancel all pending geofence processing")
     workManager().cancelAllWorkByTag(GEOFENCE_NOTIFY_TAG)
+  }
+
+  override fun cancelLocationProcessing() {
+    Timber.d("Cancel all pending location processing")
+    workManager().cancelAllWorkByTag(LOCATION_TAG)
   }
 
   override fun cancel() {
@@ -127,8 +144,10 @@ internal class WorkManagerButler @Inject internal constructor(
   companion object {
 
     private const val EXPIRATION_TAG = "WorkManagerButler: Expiration Reminder 1"
-    private const val GEOFENCE_REGISTRATION_TAG = "WorkManagerButler: Geofence Registration Reminder 1"
+    private const val GEOFENCE_REGISTRATION_TAG =
+      "WorkManagerButler: Geofence Registration Reminder 1"
     private const val GEOFENCE_NOTIFY_TAG = "WorkManagerButler: Geofence Notifier Reminder 1"
+    private const val LOCATION_TAG = "WorkManagerButler: Location Reminder 1"
   }
 
 }

@@ -25,8 +25,13 @@ interface DeviceGps {
 
   fun enableGps(
     activity: Activity,
-    onEnabled: () -> Unit,
-    onUnhandledError: (throwable: Throwable) -> Unit
+    onError: (throwable: Throwable) -> Unit
   )
+
+  companion object {
+
+    const val ENABLE_GPS_REQUEST_CODE = 4321
+
+  }
 
 }

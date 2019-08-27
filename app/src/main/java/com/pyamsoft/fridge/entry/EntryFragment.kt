@@ -67,20 +67,13 @@ internal class EntryFragment : Fragment(), SnackbarContainer {
   private var initialized = false
 
   override fun getSnackbarContainer(): ViewGroup? {
-    val frame = frame
-    if (frame == null) {
-      Timber.d("No frame, cannot provide container")
-      return null
-    }
+    val frame = frame ?: return null
 
     val fragment = childFragmentManager.findFragmentById(frame.id())
-    Timber.d("Child: $fragment")
     if (fragment is SnackbarContainer) {
-      Timber.d("Child fragment provides snackbar container")
       return fragment.getSnackbarContainer()
     }
 
-    Timber.w("Child fragment is not snackbar container")
     return null
   }
 

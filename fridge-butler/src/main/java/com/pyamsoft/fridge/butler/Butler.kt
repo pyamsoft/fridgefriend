@@ -17,6 +17,7 @@
 
 package com.pyamsoft.fridge.butler
 
+import android.location.Location
 import java.util.concurrent.TimeUnit
 
 interface Butler {
@@ -33,7 +34,11 @@ interface Butler {
 
   fun processGeofences(fences: List<String>)
 
+  fun processLocation(location: Location)
+
   fun cancelGeofenceProcessing()
+
+  fun cancelLocationProcessing()
 
   fun cancelExpirationReminder()
 

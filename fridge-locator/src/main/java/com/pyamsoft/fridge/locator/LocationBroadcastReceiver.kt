@@ -17,6 +17,29 @@
 
 package com.pyamsoft.fridge.locator
 
-import android.location.Location
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import timber.log.Timber
 
-data class LastKnownLocation(val location: Location?)
+abstract class LocationBroadcastReceiver protected constructor() : BroadcastReceiver() {
+
+  final override fun onReceive(
+    context: Context?,
+    intent: Intent?
+  ) {
+    if (context == null || intent == null) {
+      Timber.e("Context or Intent is null. Stopping.")
+      return
+    }
+
+    Timber.d("Location event received!")
+    onLocationEvent(context, intent)
+  }
+
+  protected abstract fun onLocationEvent(
+    context: Context,
+    intent: Intent
+  )
+
+}

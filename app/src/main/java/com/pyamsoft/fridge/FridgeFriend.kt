@@ -28,6 +28,7 @@ import com.pyamsoft.fridge.db.store.NearbyStoreQueryDao
 import com.pyamsoft.fridge.db.zone.NearbyZoneQueryDao
 import com.pyamsoft.fridge.locator.GeofenceUpdateReceiver
 import com.pyamsoft.fridge.locator.Geofencer
+import com.pyamsoft.fridge.locator.LocationUpdateReceiver
 import com.pyamsoft.fridge.locator.Locator
 import com.pyamsoft.fridge.main.MainActivity
 import com.pyamsoft.pydroid.bootstrap.libraries.OssLibraries
@@ -67,7 +68,8 @@ class FridgeFriend : Application() {
               this,
               provider.imageLoader(),
               MainActivity::class.java,
-              GeofenceUpdateReceiver::class.java
+              GeofenceUpdateReceiver::class.java,
+              LocationUpdateReceiver::class.java
           )
           .also { onInitialized(it) }
     }

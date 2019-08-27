@@ -23,6 +23,7 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.location.Location
 import android.os.Build.VERSION
 import android.os.Build.VERSION_CODES
 import androidx.annotation.CheckResult
@@ -30,16 +31,19 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.common.api.ResolvableApiException
+import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.Geofence
 import com.google.android.gms.location.GeofencingEvent
 import com.google.android.gms.location.GeofencingRequest
 import com.google.android.gms.location.LocationRequest
+import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.LocationSettingsRequest
 import com.google.android.gms.location.LocationSettingsStatusCodes
 import com.pyamsoft.fridge.locator.DeviceGps
 import com.pyamsoft.fridge.locator.GeofenceBroadcastReceiver
 import com.pyamsoft.fridge.locator.Geofencer
+import com.pyamsoft.fridge.locator.LocationBroadcastReceiver
 import com.pyamsoft.fridge.locator.Locator
 import com.pyamsoft.fridge.locator.Locator.Fence
 import com.pyamsoft.fridge.locator.MapPermission
@@ -50,14 +54,22 @@ import javax.inject.Singleton
 
 @Singleton
 internal class GmsLocator @Inject internal constructor(
-  receiverClass: Class<out GeofenceBroadcastReceiver>,
+  geofenceReceiverClass: Class<out GeofenceBroadcastReceiver>,
+  locationReceiverClass: Class<out LocationBroadcastReceiver>,
   private val context: Context
 ) : Locator, MapPermission, DeviceGps, Geofencer {
 
+  private val locationClient = FusedLocationProviderClient(context)
   private val settingsClient = LocationServices.getSettingsClient(context)
   private val geofencingClient = LocationServices.getGeofencingClient(context)
-  private val pendingIntent = PendingIntent.getBroadcast(
-      context, GEOFENCE_REQUEST_CODE, Intent(context, receiverClass),
+
+  private val geofenceIntent = PendingIntent.getBroadcast(
+      context, GEOFENCE_REQUEST_CODE, Intent(context, geofenceReceiverClass),
+      PendingIntent.FLAG_UPDATE_CURRENT
+  )
+
+  private val locationIntent = PendingIntent.getBroadcast(
+      context, LOCATION_REQUEST_CODE, Intent(context, locationReceiverClass),
       PendingIntent.FLAG_UPDATE_CURRENT
   )
 
@@ -67,26 +79,25 @@ internal class GmsLocator @Inject internal constructor(
 
   override fun enableGps(
     activity: Activity,
-    onEnabled: () -> Unit,
-    onUnhandledError: (throwable: Throwable) -> Unit
+    onError: (throwable: Throwable) -> Unit
   ) {
-    checkGpsSettings(onEnabled = onEnabled, onDisabled = { throwable ->
+    checkGpsSettings(onEnabled = EMPTY_CALLBACK, onDisabled = { throwable ->
       if (throwable !is ApiException) {
-        onUnhandledError(throwable)
+        onError(throwable)
       } else {
         return@checkGpsSettings when (throwable.statusCode) {
           LocationSettingsStatusCodes.RESOLUTION_REQUIRED -> {
             if (throwable !is ResolvableApiException) {
-              onUnhandledError(throwable)
+              onError(throwable)
             } else {
               try {
-                throwable.startResolutionForResult(activity, ENABLE_GPS_REQUEST_CODE)
+                throwable.startResolutionForResult(activity, DeviceGps.ENABLE_GPS_REQUEST_CODE)
               } catch (e: Exception) {
-                onUnhandledError(e)
+                onError(e)
               }
             }
           }
-          else -> onUnhandledError(throwable)
+          else -> onError(throwable)
         }
       }
     })
@@ -125,6 +136,16 @@ internal class GmsLocator @Inject internal constructor(
     return event.triggeringGeofences.map { it.requestId }
   }
 
+  override fun getLastKnownLocation(intent: Intent): Location? {
+    val result = LocationResult.extractResult(intent)
+    if (result == null) {
+      Timber.e("Cannot get last known location, result is NULL")
+      return null
+    }
+
+    return result.lastLocation
+  }
+
   @CheckResult
   private fun checkPermission(permission: String): Boolean {
     return checkPermission(permission)
@@ -134,13 +155,7 @@ internal class GmsLocator @Inject internal constructor(
   private fun checkPermission(vararg permissions: String): Boolean {
     return permissions.all { permission ->
       val permissionCheck = ContextCompat.checkSelfPermission(context, permission)
-      val haveIt = permissionCheck == PackageManager.PERMISSION_GRANTED
-      if (haveIt) {
-        Timber.d("Permission: $permission is GRANTED")
-      } else {
-        Timber.w("Permission: $permission is DECLINED")
-      }
-      return@all haveIt
+      return@all permissionCheck == PackageManager.PERMISSION_GRANTED
     }
   }
 
@@ -291,6 +306,7 @@ internal class GmsLocator @Inject internal constructor(
     }
 
     addGeofences(fences.map { createGeofence(it) })
+    startLocationUpdates()
   }
 
   @SuppressLint("MissingPermission")
@@ -318,7 +334,7 @@ internal class GmsLocator @Inject internal constructor(
             .addGeofences(fences)
             .build()
 
-        geofencingClient.addGeofences(request, pendingIntent)
+        geofencingClient.addGeofences(request, geofenceIntent)
             .addOnSuccessListener { Timber.d("Registered Geofences!") }
             .addOnFailureListener { Timber.e(it, "Failed to register Geofences!") }
       }
@@ -326,21 +342,59 @@ internal class GmsLocator @Inject internal constructor(
   }
 
   override fun unregisterGeofences() {
+    removeGeofences()
+    stopLocationUpdates()
+  }
+
+  private fun removeGeofences() {
     removeFences { Timber.d("Geofences manually unregistered") }
   }
 
   private inline fun removeFences(crossinline andThen: () -> Unit) {
-    geofencingClient.removeGeofences(pendingIntent)
+    geofencingClient.removeGeofences(geofenceIntent)
         .addOnSuccessListener { andThen() }
         .addOnFailureListener {
           Timber.e(GeofenceErrorMessages.getErrorString(context, it))
         }
   }
 
+  @SuppressLint("MissingPermission")
+  private fun startLocationUpdates() {
+    removeLocationUpdates {
+      isGpsEnabled { enabled ->
+        if (!enabled) {
+          Timber.w("Cannot register Location updates, GPS is not enabled")
+          return@isGpsEnabled
+        }
+      }
+
+      val locationRequest = LocationRequest.create()
+          .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
+          .setInterval(LOCATION_INTERVAL)
+          .setFastestInterval(FASTEST_LOCATION_INTERVAL)
+
+      locationClient.requestLocationUpdates(locationRequest, locationIntent)
+          .addOnSuccessListener { Timber.d("Begin listening for location updates!") }
+          .addOnFailureListener { Timber.e(it, "Failed to begin location update listener!") }
+    }
+  }
+
+  private fun stopLocationUpdates() {
+    removeLocationUpdates { Timber.d("Location updates manually stopped.") }
+  }
+
+  private inline fun removeLocationUpdates(crossinline andThen: () -> Unit) {
+    locationClient.removeLocationUpdates(locationIntent)
+        .addOnSuccessListener { andThen() }
+        .addOnFailureListener { Timber.e(it, "Failed to remove location update listener") }
+  }
+
   companion object {
 
-    private const val ENABLE_GPS_REQUEST_CODE = 4321
+    private val EMPTY_CALLBACK = {}
+
     private const val GEOFENCE_REQUEST_CODE = 2563
+    private const val LOCATION_REQUEST_CODE = 1859
 
     private const val RADIUS_IN_METERS = 1600.0F
     private val LOITER_IN_MILLIS = TimeUnit.MINUTES.toMillis(2L)
@@ -351,6 +405,9 @@ internal class GmsLocator @Inject internal constructor(
     private const val BACKGROUND_LOCATION_PERMISSION_REQUEST_RC = 1234
     private const val FOREGROUND_LOCATION_PERMISSION_REQUEST_RC = 4321
     private const val STORAGE_PERMISSION_REQUEST_RC = 1324
+
+    private val LOCATION_INTERVAL = TimeUnit.HOURS.toMillis(2L)
+    private val FASTEST_LOCATION_INTERVAL = TimeUnit.MINUTES.toMillis(30L)
 
   }
 
