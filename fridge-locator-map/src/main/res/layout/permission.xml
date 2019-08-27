@@ -21,6 +21,7 @@
     android:id="@+id/location_permission"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
+    android:layout_gravity="center"
     >
 
   <Button
