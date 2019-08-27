@@ -36,9 +36,7 @@ buildscript {
     // Us
     pydroid = "20.4.0-SNAPSHOT"
 
-    // AndroidX
-    preference = "1.0.0"
-    annotation = "1.0.2"
+    // Room
     room = "2.1.0"
 
     // Leak Canary
