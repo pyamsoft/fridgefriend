@@ -21,39 +21,28 @@ import android.content.Context
 import androidx.annotation.CheckResult
 import androidx.work.WorkerParameters
 import com.pyamsoft.fridge.butler.Butler
-import com.pyamsoft.fridge.butler.workmanager.FridgeWorker
-import com.pyamsoft.fridge.db.item.FridgeItem.Presence.NEED
-import com.pyamsoft.fridge.db.item.isArchived
+import com.pyamsoft.fridge.butler.workmanager.worker.NearbyNotifyingWorker
 import com.pyamsoft.fridge.db.store.NearbyStore
-import com.pyamsoft.fridge.db.store.NearbyStoreQueryDao
 import com.pyamsoft.fridge.db.zone.NearbyZone
-import com.pyamsoft.fridge.db.zone.NearbyZoneQueryDao
 import com.pyamsoft.fridge.locator.Geofencer
 import com.pyamsoft.fridge.locator.Locator.Fence
 import com.pyamsoft.pydroid.ui.Injector
-import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import timber.log.Timber
 
 internal class GeofenceNotifierWorker internal constructor(
   context: Context,
   params: WorkerParameters
-) : FridgeWorker(context, params) {
+) : NearbyNotifyingWorker(context, params) {
 
   private var geofencer: Geofencer? = null
-  private var storeDb: NearbyStoreQueryDao? = null
-  private var zoneDb: NearbyZoneQueryDao? = null
 
-  override fun afterInject() {
+  override fun onAfterInject() {
     geofencer = Injector.obtain(applicationContext)
-    storeDb = Injector.obtain(applicationContext)
-    zoneDb = Injector.obtain(applicationContext)
   }
 
-  override fun afterTeardown() {
+  override fun onAfterTeardown() {
     geofencer = null
-    storeDb = null
-    zoneDb = null
   }
 
   override fun reschedule(butler: Butler) {
@@ -69,60 +58,23 @@ internal class GeofenceNotifierWorker internal constructor(
       }
 
       Timber.d("Processing geofence events for fences")
-      val storeJob = async { requireNotNull(storeDb).query(false) }
-      val zoneJob = async { requireNotNull(zoneDb).query(false) }
+      withNearbyData { stores, zones ->
+        val properFenceIds = fenceIds.filterNotNull()
 
-      val nearbyStores = storeJob.await()
-      val nearbyZones = zoneJob.await()
-      val properFenceIds = fenceIds.filterNotNull()
+        val storeNotifications = mutableSetOf<NearbyStore>()
+        val zoneNotifications = mutableSetOf<NearbyZone>()
+        for (fenceId in properFenceIds) {
+          val (store, zone) = findNearbyForGeofence(fenceId, stores, zones)
+          if (store != null) {
+            storeNotifications.add(store)
+          }
 
-      val storeNotifications = mutableSetOf<NearbyStore>()
-      val zoneNotifications = mutableSetOf<NearbyZone>()
-      for (fenceId in properFenceIds) {
-        val (store, zone) = findNearbyForGeofence(fenceId, nearbyStores, nearbyZones)
-        if (store != null) {
-          storeNotifications.add(store)
+          if (zone != null) {
+            zoneNotifications.add(zone)
+          }
         }
 
-        if (zone != null) {
-          zoneNotifications.add(zone)
-        }
-      }
-
-      fireNotifications(storeNotifications, zoneNotifications)
-    }
-  }
-
-  private suspend fun fireNotifications(
-    storeNotifications: Set<NearbyStore>,
-    zoneNotifications: Set<NearbyZone>
-  ) {
-    if (storeNotifications.isEmpty() && zoneNotifications.isEmpty()) {
-      Timber.w("Cannot process a completely empty fence event")
-      return
-    }
-
-    withFridgeData { entry, items ->
-      val neededItems = items.filterNot { it.isArchived() }
-          .filter { it.presence() == NEED }
-      if (neededItems.isEmpty()) {
-        Timber.w("There are nearby's but nothing is needed")
-        return@withFridgeData
-      }
-
-      storeNotifications.forEach { store ->
-        notification { handler, foregroundState ->
-          GeofenceNotifications.notifyNeeded(
-              handler, foregroundState, applicationContext, entry, store, neededItems
-          )
-        }
-      }
-      zoneNotifications.forEach { zone ->
-        notification { handler, foregroundState ->
-          GeofenceNotifications.notifyNeeded(
-              handler, foregroundState, applicationContext, entry, zone, neededItems
-          )
-        }
+        fireNotifications(storeNotifications, zoneNotifications)
       }
     }
   }

@@ -282,7 +282,7 @@ internal class GmsLocator @Inject internal constructor(
     val triggers = Geofence.GEOFENCE_TRANSITION_DWELL or Geofence.GEOFENCE_TRANSITION_ENTER
     return Geofence.Builder()
         .setRequestId(fence.id)
-        .setCircularRegion(fence.lat, fence.lon, RADIUS_IN_METERS)
+        .setCircularRegion(fence.lat, fence.lon, Locator.RADIUS_IN_METERS)
         .setExpirationDuration(Locator.RESCHEDULE_TIME)
         .setNotificationResponsiveness(NOTIFICATION_DELAY_IN_MILLIS)
         .setLoiteringDelay(LOITER_IN_MILLIS)
@@ -396,7 +396,6 @@ internal class GmsLocator @Inject internal constructor(
     private const val GEOFENCE_REQUEST_CODE = 2563
     private const val LOCATION_REQUEST_CODE = 1859
 
-    private const val RADIUS_IN_METERS = 1600.0F
     private val LOITER_IN_MILLIS = TimeUnit.MINUTES.toMillis(2L)
         .toInt()
     private val NOTIFICATION_DELAY_IN_MILLIS = TimeUnit.MINUTES.toMillis(2L)

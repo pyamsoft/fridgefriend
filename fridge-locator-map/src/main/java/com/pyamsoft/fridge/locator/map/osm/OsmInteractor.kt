@@ -59,7 +59,7 @@ internal class OsmInteractor @Inject internal constructor(
     val elements = response.elements()
 
     // First compile all the Way objects
-    val polygons = arrayListOf<NearbyZone>()
+    val polygons = mutableListOf<NearbyZone>()
 
     val allNodes = elements.filterIsInstance<Node>()
         .toMutableList()

@@ -81,6 +81,8 @@ interface Locator {
 
   companion object {
 
+    const val PROVIDER = "FridgeFriend Locator Provider"
+    const val RADIUS_IN_METERS = 1600.0F
     const val MAX_GEOFENCE_ALLOWED_COUNT = 90
     val RESCHEDULE_TIME = TimeUnit.HOURS.toMillis(3L)
 

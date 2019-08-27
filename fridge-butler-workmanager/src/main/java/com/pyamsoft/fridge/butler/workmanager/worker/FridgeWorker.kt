@@ -15,7 +15,7 @@
  *
  */
 
-package com.pyamsoft.fridge.butler.workmanager
+package com.pyamsoft.fridge.butler.workmanager.worker
 
 import android.content.Context
 import androidx.work.WorkerParameters
@@ -24,6 +24,7 @@ import com.pyamsoft.fridge.db.entry.FridgeEntryQueryDao
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItemQueryDao
 import com.pyamsoft.pydroid.ui.Injector
+import kotlinx.coroutines.coroutineScope
 
 internal abstract class FridgeWorker protected constructor(
   context: Context,
@@ -51,12 +52,12 @@ internal abstract class FridgeWorker protected constructor(
   protected open fun afterTeardown() {
   }
 
-  protected suspend fun withFridgeData(func: (entry: FridgeEntry, items: List<FridgeItem>) -> Unit) {
-    requireNotNull(fridgeEntryQueryDao).query(false)
-        .forEach { entry ->
-          val items = requireNotNull(fridgeItemQueryDao).query(false, entry.id())
-          func(entry, items)
-        }
-  }
-
+  protected suspend fun withFridgeData(func: (entry: FridgeEntry, items: List<FridgeItem>) -> Unit) =
+    coroutineScope {
+      requireNotNull(fridgeEntryQueryDao).query(false)
+          .forEach { entry ->
+            val items = requireNotNull(fridgeItemQueryDao).query(false, entry.id())
+            func(entry, items)
+          }
+    }
 }

@@ -20,13 +20,10 @@ package com.pyamsoft.fridge.butler.workmanager.geofence
 import android.content.Context
 import androidx.work.WorkerParameters
 import com.pyamsoft.fridge.butler.Butler
-import com.pyamsoft.fridge.butler.workmanager.BaseWorker
-import com.pyamsoft.fridge.db.store.NearbyStoreQueryDao
-import com.pyamsoft.fridge.db.zone.NearbyZoneQueryDao
+import com.pyamsoft.fridge.butler.workmanager.worker.NearbyWorker
 import com.pyamsoft.fridge.locator.Locator
 import com.pyamsoft.fridge.locator.Locator.Fence
 import com.pyamsoft.pydroid.ui.Injector
-import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import timber.log.Timber
 import java.util.concurrent.TimeUnit.HOURS
@@ -34,50 +31,33 @@ import java.util.concurrent.TimeUnit.HOURS
 internal class GeofenceRegistrationWorker internal constructor(
   context: Context,
   params: WorkerParameters
-) : BaseWorker(context, params) {
+) : NearbyWorker(context, params) {
 
   private var locator: Locator? = null
-  private var storeDb: NearbyStoreQueryDao? = null
-  private var zoneDb: NearbyZoneQueryDao? = null
 
-  override fun onInject() {
+  override fun onAfterInject() {
     locator = Injector.obtain(applicationContext)
-    storeDb = Injector.obtain(applicationContext)
-    zoneDb = Injector.obtain(applicationContext)
   }
 
-  override fun onTeardown() {
+  override fun onAfterTeardown() {
     locator = null
-    storeDb = null
-    zoneDb = null
   }
 
   override fun reschedule(butler: Butler) {
     butler.registerGeofences(Locator.RESCHEDULE_TIME, HOURS)
   }
 
-  override suspend fun performWork() {
-    return coroutineScope {
-      Timber.d("GeofenceRegistrationWorker registering fences")
+  override suspend fun performWork() = coroutineScope {
+    Timber.d("GeofenceRegistrationWorker registering fences")
+    withNearbyData { stores, zones ->
 
-      val storeJob = async { requireNotNull(storeDb).query(false) }
-      val zoneJob = async { requireNotNull(zoneDb).query(false) }
-
-      val nearbyStores = storeJob.await()
-          .map { store ->
-            Timber.d("Geofencing nearby zone: $store")
-            return@map Fence.fromStore(store)
-          }
-      val nearbyZones = zoneJob.await()
-          .map { zone ->
-            Timber.d("Geofencing nearby zone: $zone")
-            return@map Fence.fromZone(zone)
-          }
+      val nearbyStores = stores.map { Fence.fromStore(it) }
+      val nearbyZones = zones.map { Fence.fromZone(it) }
           .flatten()
 
       val fences = nearbyStores + nearbyZones
-      Timber.d("Attempting to register fences: $fences")
       requireNotNull(locator).registerGeofences(fences)
     }
+
   }
 }

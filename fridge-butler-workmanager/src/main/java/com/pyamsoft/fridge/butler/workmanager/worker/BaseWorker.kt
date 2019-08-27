@@ -15,7 +15,7 @@
  *
  */
 
-package com.pyamsoft.fridge.butler.workmanager
+package com.pyamsoft.fridge.butler.workmanager.worker
 
 import android.content.Context
 import androidx.annotation.CheckResult

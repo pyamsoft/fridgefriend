@@ -20,7 +20,7 @@ package com.pyamsoft.fridge.butler.workmanager.expiration
 import android.content.Context
 import androidx.work.WorkerParameters
 import com.pyamsoft.fridge.butler.Butler
-import com.pyamsoft.fridge.butler.workmanager.FridgeWorker
+import com.pyamsoft.fridge.butler.workmanager.worker.FridgeWorker
 import com.pyamsoft.fridge.db.cleanMidnight
 import com.pyamsoft.fridge.db.daysLaterMidnight
 import com.pyamsoft.fridge.db.entry.FridgeEntry
@@ -49,9 +49,9 @@ internal class ExpirationWorker internal constructor(
     entry: FridgeEntry,
     items: List<FridgeItem>
   ) {
-    val expiringItems = arrayListOf<FridgeItem>()
-    val expiredItems = arrayListOf<FridgeItem>()
-    val unknownExpirationItems = arrayListOf<FridgeItem>()
+    val expiringItems = mutableListOf<FridgeItem>()
+    val expiredItems = mutableListOf<FridgeItem>()
+    val unknownExpirationItems = mutableListOf<FridgeItem>()
 
     for (item in items.filterNot { it.isArchived() }) {
       if (item.presence() == HAVE) {
@@ -94,15 +94,13 @@ internal class ExpirationWorker internal constructor(
     }
   }
 
-  override suspend fun performWork() {
-    return coroutineScope {
-      val today = Calendar.getInstance()
-          .cleanMidnight()
-      val later = Calendar.getInstance()
-          .daysLaterMidnight(2)
-      withFridgeData { entry, items ->
-        notifyForEntry(today, later, entry, items)
-      }
+  override suspend fun performWork() = coroutineScope {
+    val today = Calendar.getInstance()
+        .cleanMidnight()
+    val later = Calendar.getInstance()
+        .daysLaterMidnight(2)
+    withFridgeData { entry, items ->
+      notifyForEntry(today, later, entry, items)
     }
   }
 }
