@@ -27,5 +27,5 @@ interface Geofencer {
   fun getTriggeredFenceIds(intent: Intent): List<String>
 
   @CheckResult
-  fun getLastKnownLocation(intent: Intent): Location?
+  suspend fun getLastKnownLocation(): Location?
 }

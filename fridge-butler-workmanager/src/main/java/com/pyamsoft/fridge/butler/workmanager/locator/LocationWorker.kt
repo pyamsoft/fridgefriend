@@ -30,6 +30,7 @@ import com.pyamsoft.fridge.locator.Locator
 import com.pyamsoft.pydroid.ui.Injector
 import kotlinx.coroutines.coroutineScope
 import timber.log.Timber
+import java.util.concurrent.TimeUnit.HOURS
 
 internal class LocationWorker internal constructor(
   context: Context,
@@ -47,19 +48,17 @@ internal class LocationWorker internal constructor(
   }
 
   override fun reschedule(butler: Butler) {
-    Timber.w("Location jobs are not rescheduled.")
+    butler.remindLocation(1, HOURS)
   }
 
   override suspend fun performWork() = coroutineScope {
-    val latitude = inputData.getDouble(KEY_LATITUDE, DEFAULT_LOCATION_COORDINATE)
-    val longitude = inputData.getDouble(KEY_LONGITUDE, DEFAULT_LOCATION_COORDINATE)
+    val location = requireNotNull(geofencer).getLastKnownLocation()
 
-    if (latitude == DEFAULT_LOCATION_COORDINATE || longitude == DEFAULT_LOCATION_COORDINATE) {
-      Timber.w("Latitude or Longitude were not provided to worker")
+    if (location == null) {
+      Timber.w("Last Known location was null, cannot continue")
       return@coroutineScope
     }
 
-    val location = fromLatLong(latitude, longitude)
     withNearbyData { stores, zones ->
       val inRangeStores = mutableSetOf<NearbyStore>()
       val inRangeZones = mutableSetOf<NearbyZone>()
@@ -89,7 +88,7 @@ internal class LocationWorker internal constructor(
 
     @JvmStatic
     @CheckResult
-    fun fromLatLong(
+    private fun fromLatLong(
       lat: Double,
       lon: Double
     ): Location {
@@ -98,10 +97,6 @@ internal class LocationWorker internal constructor(
         longitude = lon
       }
     }
-
-    private const val DEFAULT_LOCATION_COORDINATE = -1000000.0
-    internal const val KEY_LATITUDE = "key_latitude"
-    internal const val KEY_LONGITUDE = "key_longitude"
   }
 
 }

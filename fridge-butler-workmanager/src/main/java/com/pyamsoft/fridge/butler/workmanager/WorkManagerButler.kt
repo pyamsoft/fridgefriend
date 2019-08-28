@@ -18,7 +18,6 @@
 package com.pyamsoft.fridge.butler.workmanager
 
 import android.content.Context
-import android.location.Location
 import androidx.annotation.CheckResult
 import androidx.work.Constraints
 import androidx.work.Data
@@ -114,21 +113,18 @@ internal class WorkManagerButler @Inject internal constructor(
     )
   }
 
-  override fun processLocation(location: Location) {
-    schedule(
-        LocationWorker::class.java, LOCATION_TAG, 0, null,
-        mapOf(
-            LocationWorker.KEY_LATITUDE to location.latitude,
-            LocationWorker.KEY_LONGITUDE to location.longitude
-        )
-    )
+  override fun remindLocation(
+    time: Long,
+    unit: TimeUnit
+  ) {
+    schedule(LocationWorker::class.java, LOCATION_TAG, time, unit, null)
   }
 
   override fun cancelGeofenceProcessing() {
     workManager().cancelAllWorkByTag(GEOFENCE_NOTIFY_TAG)
   }
 
-  override fun cancelLocationProcessing() {
+  override fun cancelLocationReminder() {
     workManager().cancelAllWorkByTag(LOCATION_TAG)
   }
 

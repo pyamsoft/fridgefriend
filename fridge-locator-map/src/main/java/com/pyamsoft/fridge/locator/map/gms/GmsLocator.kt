@@ -36,14 +36,12 @@ import com.google.android.gms.location.Geofence
 import com.google.android.gms.location.GeofencingEvent
 import com.google.android.gms.location.GeofencingRequest
 import com.google.android.gms.location.LocationRequest
-import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.LocationSettingsRequest
 import com.google.android.gms.location.LocationSettingsStatusCodes
 import com.pyamsoft.fridge.locator.DeviceGps
 import com.pyamsoft.fridge.locator.GeofenceBroadcastReceiver
 import com.pyamsoft.fridge.locator.Geofencer
-import com.pyamsoft.fridge.locator.LocationBroadcastReceiver
 import com.pyamsoft.fridge.locator.Locator
 import com.pyamsoft.fridge.locator.Locator.Fence
 import com.pyamsoft.fridge.locator.MapPermission
@@ -51,12 +49,15 @@ import timber.log.Timber
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlin.coroutines.Continuation
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
+import kotlin.coroutines.suspendCoroutine
 
 @Singleton
 internal class GmsLocator @Inject internal constructor(
-  geofenceReceiverClass: Class<out GeofenceBroadcastReceiver>,
-  locationReceiverClass: Class<out LocationBroadcastReceiver>,
-  private val context: Context
+  private val context: Context,
+  geofenceReceiverClass: Class<out GeofenceBroadcastReceiver>
 ) : Locator, MapPermission, DeviceGps, Geofencer {
 
   private val locationClient = FusedLocationProviderClient(context)
@@ -68,10 +69,37 @@ internal class GmsLocator @Inject internal constructor(
       PendingIntent.FLAG_UPDATE_CURRENT
   )
 
-  private val locationIntent = PendingIntent.getBroadcast(
-      context, LOCATION_REQUEST_CODE, Intent(context, locationReceiverClass),
-      PendingIntent.FLAG_UPDATE_CURRENT
-  )
+  override suspend fun getLastKnownLocation(): Location? {
+    if (!hasForegroundPermission()) {
+      val permission = android.Manifest.permission.ACCESS_FINE_LOCATION
+      Timber.w("Cannot get last location, missing $permission")
+      return null
+    }
+
+    return suspendCoroutine { continuation ->
+      isGpsEnabled { enabled ->
+        if (!enabled) {
+          Timber.w("Cannot get last location, GPS is not enabled")
+          continuation.resume(null)
+          return@isGpsEnabled
+        }
+
+        continuation.resumeWithLastKnownLocation()
+      }
+    }
+  }
+
+  @SuppressLint("MissingPermission")
+  private fun Continuation<Location?>.resumeWithLastKnownLocation() {
+    locationClient.lastLocation.addOnSuccessListener { location ->
+      Timber.d("Last known location: $location")
+      this.resume(location)
+    }
+        .addOnFailureListener { throwable ->
+          Timber.e(throwable, "Error getting last known location")
+          this.resumeWithException(throwable)
+        }
+  }
 
   override fun isGpsEnabled(func: (enabled: Boolean) -> Unit) {
     checkGpsSettings(onEnabled = { func(true) }, onDisabled = { func(false) })
@@ -134,16 +162,6 @@ internal class GmsLocator @Inject internal constructor(
     }
 
     return event.triggeringGeofences.map { it.requestId }
-  }
-
-  override fun getLastKnownLocation(intent: Intent): Location? {
-    val result = LocationResult.extractResult(intent)
-    if (result == null) {
-      Timber.e("Cannot get last known location, result is NULL")
-      return null
-    }
-
-    return result.lastLocation
   }
 
   @CheckResult
@@ -306,7 +324,6 @@ internal class GmsLocator @Inject internal constructor(
     }
 
     addGeofences(fences.map { createGeofence(it) })
-    startLocationUpdates()
   }
 
   @SuppressLint("MissingPermission")
@@ -343,7 +360,6 @@ internal class GmsLocator @Inject internal constructor(
 
   override fun unregisterGeofences() {
     removeGeofences()
-    stopLocationUpdates()
   }
 
   private fun removeGeofences() {
@@ -358,43 +374,11 @@ internal class GmsLocator @Inject internal constructor(
         }
   }
 
-  @SuppressLint("MissingPermission")
-  private fun startLocationUpdates() {
-    removeLocationUpdates {
-      isGpsEnabled { enabled ->
-        if (!enabled) {
-          Timber.w("Cannot register Location updates, GPS is not enabled")
-          return@isGpsEnabled
-        }
-      }
-
-      val locationRequest = LocationRequest.create()
-          .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
-          .setInterval(LOCATION_INTERVAL)
-          .setFastestInterval(FASTEST_LOCATION_INTERVAL)
-
-      locationClient.requestLocationUpdates(locationRequest, locationIntent)
-          .addOnSuccessListener { Timber.d("Begin listening for location updates!") }
-          .addOnFailureListener { Timber.e(it, "Failed to begin location update listener!") }
-    }
-  }
-
-  private fun stopLocationUpdates() {
-    removeLocationUpdates { Timber.d("Location updates manually stopped.") }
-  }
-
-  private inline fun removeLocationUpdates(crossinline andThen: () -> Unit) {
-    locationClient.removeLocationUpdates(locationIntent)
-        .addOnSuccessListener { andThen() }
-        .addOnFailureListener { Timber.e(it, "Failed to remove location update listener") }
-  }
-
   companion object {
 
     private val EMPTY_CALLBACK = {}
 
     private const val GEOFENCE_REQUEST_CODE = 2563
-    private const val LOCATION_REQUEST_CODE = 1859
 
     private val LOITER_IN_MILLIS = TimeUnit.MINUTES.toMillis(2L)
         .toInt()
@@ -404,9 +388,6 @@ internal class GmsLocator @Inject internal constructor(
     private const val BACKGROUND_LOCATION_PERMISSION_REQUEST_RC = 1234
     private const val FOREGROUND_LOCATION_PERMISSION_REQUEST_RC = 4321
     private const val STORAGE_PERMISSION_REQUEST_RC = 1324
-
-    private val LOCATION_INTERVAL = TimeUnit.HOURS.toMillis(1L)
-    private val FASTEST_LOCATION_INTERVAL = TimeUnit.MINUTES.toMillis(30L)
 
   }
 

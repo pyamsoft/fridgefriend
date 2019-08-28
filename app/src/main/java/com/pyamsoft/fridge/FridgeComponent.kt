@@ -39,7 +39,6 @@ import com.pyamsoft.fridge.detail.item.DateSelectPayload
 import com.pyamsoft.fridge.entry.EntryComponent
 import com.pyamsoft.fridge.locator.GeofenceBroadcastReceiver
 import com.pyamsoft.fridge.locator.Geofencer
-import com.pyamsoft.fridge.locator.LocationBroadcastReceiver
 import com.pyamsoft.fridge.locator.LocationProviderChangeReceiver
 import com.pyamsoft.fridge.locator.Locator
 import com.pyamsoft.fridge.locator.MapComponent
@@ -147,8 +146,7 @@ internal interface FridgeComponent {
       @BindsInstance application: Application,
       @BindsInstance imageLoader: ImageLoader,
       @BindsInstance activityClass: Class<out Activity>,
-      @BindsInstance geofenceReceiverClass: Class<out GeofenceBroadcastReceiver>,
-      @BindsInstance locationReceiverClass: Class<out LocationBroadcastReceiver>
+      @BindsInstance geofenceReceiverClass: Class<out GeofenceBroadcastReceiver>
     ): FridgeComponent
 
   }
