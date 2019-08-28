@@ -53,6 +53,7 @@ class FridgeFriend : Application() {
     PYDroid.init(
         this,
         getString(R.string.app_name),
+        "https://github.com/pyamsoft/fridge",
         "https://github.com/pyamsoft/fridge/issues",
         BuildConfig.VERSION_CODE,
         BuildConfig.DEBUG
