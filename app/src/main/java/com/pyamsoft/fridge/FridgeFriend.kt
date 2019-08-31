@@ -22,6 +22,7 @@ import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.butler.Butler
 import com.pyamsoft.fridge.butler.ForegroundState
 import com.pyamsoft.fridge.butler.NotificationHandler
+import com.pyamsoft.fridge.core.Core
 import com.pyamsoft.fridge.db.entry.FridgeEntryQueryDao
 import com.pyamsoft.fridge.db.item.FridgeItemQueryDao
 import com.pyamsoft.fridge.db.store.NearbyStoreQueryDao
@@ -55,6 +56,8 @@ class FridgeFriend : Application() {
         getString(R.string.app_name),
         "https://github.com/pyamsoft/fridge",
         "https://github.com/pyamsoft/fridge/issues",
+        Core.PRIVACY_POLICY_URL,
+        Core.TERMS_CONDITIONS_URL,
         BuildConfig.VERSION_CODE,
         BuildConfig.DEBUG
     ) { provider ->

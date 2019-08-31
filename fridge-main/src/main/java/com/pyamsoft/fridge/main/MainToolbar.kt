@@ -25,11 +25,14 @@ import android.view.ViewGroup.MarginLayoutParams
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.ViewCompat
 import androidx.core.view.updateLayoutParams
+import com.pyamsoft.fridge.core.Core
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.arch.UiSavedState
 import com.pyamsoft.pydroid.arch.UnitViewEvent
 import com.pyamsoft.pydroid.arch.UnitViewState
 import com.pyamsoft.pydroid.ui.app.ToolbarActivityProvider
+import com.pyamsoft.pydroid.ui.privacy.addPrivacy
+import com.pyamsoft.pydroid.ui.privacy.removePrivacy
 import com.pyamsoft.pydroid.ui.theme.Theming
 import com.pyamsoft.pydroid.util.doOnApplyWindowInsets
 import com.pyamsoft.pydroid.util.toDp
@@ -61,6 +64,8 @@ class MainToolbar @Inject internal constructor(
         topMargin = padding.top + insets.systemWindowInsetTop + 8.toDp(v.context)
       }
     }
+
+    layoutRoot.addPrivacy(Core.PRIVACY_POLICY_URL, Core.TERMS_CONDITIONS_URL)
   }
 
   override fun onRender(
@@ -70,7 +75,9 @@ class MainToolbar @Inject internal constructor(
   }
 
   override fun onTeardown() {
+    layoutRoot.removePrivacy()
     toolbarActivityProvider.setToolbar(null)
+    activity = null
   }
 
   private fun inflateToolbar() {
@@ -87,7 +94,5 @@ class MainToolbar @Inject internal constructor(
       ViewCompat.setElevation(this, 4f.toDp(context).toFloat())
       toolbarActivityProvider.setToolbar(this)
     }
-
-    activity = null
   }
 }
