@@ -22,7 +22,6 @@ import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.CheckResult
-import androidx.appcompat.content.res.AppCompatResources
 import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.ItemTouchHelper
@@ -154,11 +153,7 @@ class DetailList @Inject internal constructor(
         }
       }
     }
-    val leftBehindDrawable =
-      AppCompatResources.getDrawable(
-          recyclerView.context,
-          R.drawable.ic_spoiled_24dp
-      )
+    val leftBehindDrawable = imageLoader.immediate(R.drawable.ic_spoiled_24dp)
     val leftBackground = Color.RED
 
     val directions = consumeSwipeDirection or spoilSwipeDirection
@@ -182,11 +177,7 @@ class DetailList @Inject internal constructor(
       }
 
     }.apply {
-      val rightBehindDrawable =
-        AppCompatResources.getDrawable(
-            recyclerView.context,
-            R.drawable.ic_consumed_24dp
-        )
+      val rightBehindDrawable = imageLoader.immediate(R.drawable.ic_consumed_24dp)
       val rightBackground = Color.GREEN
       withBackgroundSwipeRight(rightBackground)
       withLeaveBehindSwipeRight(rightBehindDrawable)
