@@ -48,7 +48,7 @@ internal class LocationWorker internal constructor(
   }
 
   override fun reschedule(butler: Butler) {
-    butler.remindLocation(1, HOURS)
+    butler.remindLocation(3, HOURS)
   }
 
   override suspend fun performWork() = coroutineScope {

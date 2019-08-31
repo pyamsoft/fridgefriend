@@ -40,7 +40,7 @@ internal class ExpirationWorker internal constructor(
 ) : FridgeWorker(context, params) {
 
   override fun reschedule(butler: Butler) {
-    butler.remindExpiration(3L, HOURS)
+    butler.remindExpiration(3, HOURS)
   }
 
   private fun notifyForEntry(
