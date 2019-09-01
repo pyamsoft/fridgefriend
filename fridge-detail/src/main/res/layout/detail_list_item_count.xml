@@ -35,7 +35,7 @@
 
         <EditText
             android:id="@+id/detail_item_count_editable"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:gravity="center_vertical|start"
@@ -43,6 +43,7 @@
             android:imeOptions="actionNext"
             android:importantForAutofill="no"
             android:inputType="number"
+            android:minWidth="80dp"
             android:textAppearance="?attr/textAppearanceBody1"
             tools:targetApi="o" />
 
