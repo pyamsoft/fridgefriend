@@ -25,6 +25,7 @@ import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent
 import com.pyamsoft.fridge.detail.DetailInteractor
 import com.pyamsoft.fridge.detail.item.DetailItemControllerEvent.ExpandDetails
 import com.pyamsoft.fridge.detail.item.DetailItemViewEvent.CloseItem
+import com.pyamsoft.fridge.detail.item.DetailItemViewEvent.CommitCount
 import com.pyamsoft.fridge.detail.item.DetailItemViewEvent.CommitName
 import com.pyamsoft.fridge.detail.item.DetailItemViewEvent.CommitPresence
 import com.pyamsoft.fridge.detail.item.DetailItemViewEvent.ConsumeItem
@@ -64,7 +65,7 @@ class DetailListItemViewModel @Inject internal constructor(
         return when (event) {
             is CommitPresence -> commitPresence(event.oldItem, event.presence)
             is ExpandItem -> expandItem(event.item)
-            is CommitName, is PickDate, is CloseItem, is DeleteItem, is ConsumeItem, is SpoilItem -> {
+            is CommitName, is PickDate, is CloseItem, is DeleteItem, is ConsumeItem, is SpoilItem, is CommitCount -> {
                 Timber.d("Ignore event: $event")
             }
         }

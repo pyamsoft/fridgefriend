@@ -27,4 +27,5 @@
     <string name="archive">Archive</string>
     <string name="spoiled">Spoiled</string>
     <string name="consumed">Consumed</string>
+    <string name="count">Count</string>
 </resources>

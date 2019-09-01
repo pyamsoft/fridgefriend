@@ -38,6 +38,11 @@ sealed class DetailItemViewEvent : UiViewEvent {
         val name: String
     ) : DetailItemViewEvent()
 
+    data class CommitCount internal constructor(
+        val oldItem: FridgeItem,
+        val count: Int
+    ) : DetailItemViewEvent()
+
     data class CommitPresence internal constructor(
         val oldItem: FridgeItem,
         val presence: Presence

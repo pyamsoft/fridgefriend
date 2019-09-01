@@ -35,6 +35,7 @@ import com.pyamsoft.fridge.db.entry.JsonMappableFridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence
 import com.pyamsoft.fridge.db.item.JsonMappableFridgeItem
+import com.pyamsoft.fridge.detail.expand.ExpandItemCount
 import com.pyamsoft.fridge.detail.expand.ExpandItemError
 import com.pyamsoft.fridge.detail.expand.ExpandItemName
 import com.pyamsoft.fridge.detail.expand.ExpandItemViewModel
@@ -60,21 +61,31 @@ internal class ExpandedFragment : DialogFragment() {
     @JvmField
     @Inject
     internal var factory: ViewModelProvider.Factory? = null
+
     @JvmField
     @Inject
     internal var name: ExpandItemName? = null
+
     @JvmField
     @Inject
     internal var date: DetailListItemDate? = null
+
     @JvmField
     @Inject
     internal var presence: DetailListItemPresence? = null
+
+    @JvmField
+    @Inject
+    internal var count: ExpandItemCount? = null
+
     @JvmField
     @Inject
     internal var errorDisplay: ExpandItemError? = null
+
     @JvmField
     @Inject
     internal var toolbar: ExpandedToolbar? = null
+
     private val viewModel by factory<ExpandItemViewModel> { factory }
 
     override fun onCreateView(
@@ -106,6 +117,7 @@ internal class ExpandedFragment : DialogFragment() {
         val name = requireNotNull(name)
         val date = requireNotNull(date)
         val presence = requireNotNull(presence)
+        val count = requireNotNull(count)
         val errorDisplay = requireNotNull(errorDisplay)
         val toolbar = requireNotNull(toolbar)
         val shadow = DropshadowView.createTyped<DetailItemViewState, DetailItemViewEvent>(parent)
@@ -115,6 +127,7 @@ internal class ExpandedFragment : DialogFragment() {
             name,
             date,
             presence,
+            count,
             errorDisplay,
             toolbar,
             shadow
@@ -152,23 +165,31 @@ internal class ExpandedFragment : DialogFragment() {
 
             presence.also {
                 connect(it.id(), ConstraintSet.TOP, errorDisplay.id(), ConstraintSet.BOTTOM)
-                connect(it.id(), ConstraintSet.BOTTOM, ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM)
                 connect(it.id(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
                 constrainWidth(it.id(), ConstraintSet.WRAP_CONTENT)
+                constrainHeight(it.id(), ConstraintSet.WRAP_CONTENT)
             }
 
             date.also {
                 connect(it.id(), ConstraintSet.TOP, errorDisplay.id(), ConstraintSet.BOTTOM)
-                connect(it.id(), ConstraintSet.BOTTOM, ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM)
                 connect(it.id(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
                 constrainWidth(it.id(), ConstraintSet.WRAP_CONTENT)
+                constrainHeight(it.id(), ConstraintSet.WRAP_CONTENT)
             }
 
             name.also {
                 connect(it.id(), ConstraintSet.TOP, errorDisplay.id(), ConstraintSet.BOTTOM)
-                connect(it.id(), ConstraintSet.BOTTOM, ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM)
                 connect(it.id(), ConstraintSet.START, presence.id(), ConstraintSet.END)
                 connect(it.id(), ConstraintSet.END, date.id(), ConstraintSet.START)
+                constrainWidth(it.id(), ConstraintSet.MATCH_CONSTRAINT)
+                constrainHeight(it.id(), ConstraintSet.WRAP_CONTENT)
+            }
+
+            count.also {
+                connect(it.id(), ConstraintSet.TOP, name.id(), ConstraintSet.BOTTOM)
+                connect(it.id(), ConstraintSet.BOTTOM, ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM)
+                connect(it.id(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
+                connect(it.id(), ConstraintSet.START, name.id(), ConstraintSet.START)
                 constrainWidth(it.id(), ConstraintSet.MATCH_CONSTRAINT)
             }
         }

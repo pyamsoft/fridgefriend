@@ -34,6 +34,7 @@ import com.pyamsoft.fridge.detail.item.DetailItemControllerEvent.DatePick
 import com.pyamsoft.fridge.detail.item.DetailItemControllerEvent.ExpandDetails
 import com.pyamsoft.fridge.detail.item.DetailItemViewEvent
 import com.pyamsoft.fridge.detail.item.DetailItemViewEvent.CloseItem
+import com.pyamsoft.fridge.detail.item.DetailItemViewEvent.CommitCount
 import com.pyamsoft.fridge.detail.item.DetailItemViewEvent.CommitName
 import com.pyamsoft.fridge.detail.item.DetailItemViewEvent.CommitPresence
 import com.pyamsoft.fridge.detail.item.DetailItemViewEvent.ConsumeItem
@@ -107,6 +108,7 @@ class ExpandItemViewModel @Inject internal constructor(
     override fun handleViewEvent(event: DetailItemViewEvent) {
         return when (event) {
             is CommitName -> commitName(event.oldItem, event.name)
+            is CommitCount -> commitCount(event.oldItem, event.count)
             is CommitPresence -> commitPresence(event.oldItem, event.presence)
             is ExpandItem -> expandItem(event.item)
             is PickDate -> pickDate(event.oldItem, event.year, event.month, event.day)
@@ -162,6 +164,19 @@ class ExpandItemViewModel @Inject internal constructor(
     @CheckResult
     private fun isReadyToBeReal(item: FridgeItem): Boolean {
         return isNameValid(item.name())
+    }
+
+    private fun commitCount(
+        oldItem: FridgeItem,
+        count: Int
+    ) {
+        if (count > 0) {
+            setFixMessage("")
+            commitItem(item = oldItem.count(count))
+        } else {
+            Timber.w("Invalid count: $count")
+            handleInvalidCount(count)
+        }
     }
 
     private fun commitName(
@@ -236,6 +251,10 @@ class ExpandItemViewModel @Inject internal constructor(
 
     private fun handleInvalidName(name: String) {
         setFixMessage("ERROR: Name $name is invalid. Please fix.")
+    }
+
+    private fun handleInvalidCount(count: Int) {
+        setFixMessage("ERROR: Count $count is invalid. Please fix.")
     }
 
     private fun handleError(throwable: Throwable) {
