@@ -19,20 +19,17 @@
 
 <merge>
 
-  <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-      xmlns:android="http://schemas.android.com/apk/res/android"
-      android:id="@+id/detail_swipe_refresh"
-      android:layout_width="match_parent"
-      android:layout_height="match_parent"
-      >
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/detail_list"
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/detail_swipe_refresh"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        />
+        android:layout_height="match_parent">
 
-  </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/detail_list"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
 </merge>
 

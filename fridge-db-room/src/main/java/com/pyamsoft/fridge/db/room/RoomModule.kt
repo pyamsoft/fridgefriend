@@ -64,230 +64,228 @@ import javax.inject.Singleton
 @Module
 abstract class RoomModule {
 
-  @Binds
-  @CheckResult
-  internal abstract fun providePersistentEntries(impl: RoomPersistentEntries): PersistentEntries
-
-  @Module
-  companion object {
-
-    @JvmStatic
+    @Binds
     @CheckResult
-    private fun provideRoom(context: Context): RoomFridgeDbImpl {
-      return Room.databaseBuilder(
-          context.applicationContext,
-          RoomFridgeDbImpl::class.java,
-          "fridge_room_db.db"
-      )
-          .build()
-    }
+    internal abstract fun providePersistentEntries(impl: RoomPersistentEntries): PersistentEntries
 
-    @Singleton
-    @JvmStatic
-    @Provides
-    @CheckResult
-    internal fun provideDb(context: Context): FridgeDb {
-      return provideRoom(context.applicationContext).apply {
-        val entryCache = cachify<Sequence<FridgeEntry>, Boolean>(5, MINUTES) { force ->
-          return@cachify roomEntryQueryDao()
-              .query(force)
-              .asSequence()
-              .map { JsonMappableFridgeEntry.from(it.makeReal()) }
+    @Module
+    companion object {
+
+        @JvmStatic
+        @CheckResult
+        private fun provideRoom(context: Context): RoomFridgeDbImpl {
+            return Room.databaseBuilder(
+                context.applicationContext,
+                RoomFridgeDbImpl::class.java,
+                "fridge_room_db.db"
+            )
+                .build()
         }
 
-        val itemCache = cachify<Sequence<FridgeItem>, Boolean>(5, MINUTES) { force ->
-          return@cachify roomItemQueryDao()
-              .query(force)
-              .asSequence()
-              .map { JsonMappableFridgeItem.from(it.makeReal()) }
+        @Singleton
+        @JvmStatic
+        @Provides
+        @CheckResult
+        internal fun provideDb(context: Context): FridgeDb {
+            return provideRoom(context.applicationContext).apply {
+                val entryCache = cachify<Sequence<FridgeEntry>, Boolean>(5, MINUTES) { force ->
+                    return@cachify roomEntryQueryDao()
+                        .query(force)
+                        .asSequence()
+                        .map { JsonMappableFridgeEntry.from(it.makeReal()) }
+                }
+
+                val itemCache = cachify<Sequence<FridgeItem>, Boolean>(5, MINUTES) { force ->
+                    return@cachify roomItemQueryDao()
+                        .query(force)
+                        .asSequence()
+                        .map { JsonMappableFridgeItem.from(it.makeReal()) }
+                }
+
+                val storeCache = cachify<Sequence<NearbyStore>, Boolean>(5, MINUTES) { force ->
+                    return@cachify roomStoreQueryDao()
+                        .query(force)
+                        .asSequence()
+                        .map { JsonMappableNearbyStore.from(it) }
+                }
+
+                val zoneCache = cachify<Sequence<NearbyZone>, Boolean>(5, MINUTES) { force ->
+                    return@cachify roomZoneQueryDao()
+                        .query(force)
+                        .asSequence()
+                        .map { JsonMappableNearbyZone.from(it) }
+                }
+
+                applyCaches(entryCache, itemCache, storeCache, zoneCache)
+            }
         }
 
-        val storeCache = cachify<Sequence<NearbyStore>, Boolean>(5, MINUTES) { force ->
-          return@cachify roomStoreQueryDao()
-              .query(force)
-              .asSequence()
-              .map { JsonMappableNearbyStore.from(it) }
+        @JvmStatic
+        @Provides
+        @CheckResult
+        internal fun provideFridgeItemDb(room: FridgeDb): FridgeItemDb {
+            return room.items()
         }
 
-        val zoneCache = cachify<Sequence<NearbyZone>, Boolean>(5, MINUTES) { force ->
-          return@cachify roomZoneQueryDao()
-              .query(force)
-              .asSequence()
-              .map { JsonMappableNearbyZone.from(it) }
+        @JvmStatic
+        @Provides
+        @CheckResult
+        internal fun provideItemRealtimeDao(db: FridgeItemDb): FridgeItemRealtime {
+            return db.realtime()
         }
 
-        applyCaches(entryCache, itemCache, storeCache, zoneCache)
-      }
-    }
+        @JvmStatic
+        @Provides
+        @CheckResult
+        internal fun provideItemQueryDao(db: FridgeItemDb): FridgeItemQueryDao {
+            return db.queryDao()
+        }
 
-    @JvmStatic
-    @Provides
-    @CheckResult
-    internal fun provideFridgeItemDb(room: FridgeDb): FridgeItemDb {
-      return room.items()
-    }
+        @JvmStatic
+        @Provides
+        @CheckResult
+        internal fun provideItemInsertDao(db: FridgeItemDb): FridgeItemInsertDao {
+            return db.insertDao()
+        }
 
-    @JvmStatic
-    @Provides
-    @CheckResult
-    internal fun provideItemRealtimeDao(db: FridgeItemDb): FridgeItemRealtime {
-      return db.realtime()
-    }
+        @JvmStatic
+        @Provides
+        @CheckResult
+        internal fun provideItemUpdateDao(db: FridgeItemDb): FridgeItemUpdateDao {
+            return db.updateDao()
+        }
 
-    @JvmStatic
-    @Provides
-    @CheckResult
-    internal fun provideItemQueryDao(db: FridgeItemDb): FridgeItemQueryDao {
-      return db.queryDao()
-    }
+        @JvmStatic
+        @Provides
+        @CheckResult
+        internal fun provideItemDeleteDao(db: FridgeItemDb): FridgeItemDeleteDao {
+            return db.deleteDao()
+        }
 
-    @JvmStatic
-    @Provides
-    @CheckResult
-    internal fun provideItemInsertDao(db: FridgeItemDb): FridgeItemInsertDao {
-      return db.insertDao()
-    }
+        @JvmStatic
+        @Provides
+        @CheckResult
+        internal fun provideFridgeEntryDb(room: FridgeDb): FridgeEntryDb {
+            return room.entries()
+        }
 
-    @JvmStatic
-    @Provides
-    @CheckResult
-    internal fun provideItemUpdateDao(db: FridgeItemDb): FridgeItemUpdateDao {
-      return db.updateDao()
-    }
+        @JvmStatic
+        @Provides
+        @CheckResult
+        internal fun provideEntryRealtimeDao(db: FridgeEntryDb): FridgeEntryRealtime {
+            return db.realtime()
+        }
 
-    @JvmStatic
-    @Provides
-    @CheckResult
-    internal fun provideItemDeleteDao(db: FridgeItemDb): FridgeItemDeleteDao {
-      return db.deleteDao()
-    }
+        @JvmStatic
+        @Provides
+        @CheckResult
+        internal fun provideEntryQueryDao(db: FridgeEntryDb): FridgeEntryQueryDao {
+            return db.queryDao()
+        }
 
-    @JvmStatic
-    @Provides
-    @CheckResult
-    internal fun provideFridgeEntryDb(room: FridgeDb): FridgeEntryDb {
-      return room.entries()
-    }
+        @JvmStatic
+        @Provides
+        @CheckResult
+        internal fun provideEntryInsertDao(db: FridgeEntryDb): FridgeEntryInsertDao {
+            return db.insertDao()
+        }
 
-    @JvmStatic
-    @Provides
-    @CheckResult
-    internal fun provideEntryRealtimeDao(db: FridgeEntryDb): FridgeEntryRealtime {
-      return db.realtime()
-    }
+        @JvmStatic
+        @Provides
+        @CheckResult
+        internal fun provideEntryUpdateDao(db: FridgeEntryDb): FridgeEntryUpdateDao {
+            return db.updateDao()
+        }
 
-    @JvmStatic
-    @Provides
-    @CheckResult
-    internal fun provideEntryQueryDao(db: FridgeEntryDb): FridgeEntryQueryDao {
-      return db.queryDao()
-    }
+        @JvmStatic
+        @Provides
+        @CheckResult
+        internal fun provideEntryDeleteDao(db: FridgeEntryDb): FridgeEntryDeleteDao {
+            return db.deleteDao()
+        }
 
-    @JvmStatic
-    @Provides
-    @CheckResult
-    internal fun provideEntryInsertDao(db: FridgeEntryDb): FridgeEntryInsertDao {
-      return db.insertDao()
-    }
+        @JvmStatic
+        @Provides
+        @CheckResult
+        internal fun provideNearbyStoreDb(room: FridgeDb): NearbyStoreDb {
+            return room.stores()
+        }
 
-    @JvmStatic
-    @Provides
-    @CheckResult
-    internal fun provideEntryUpdateDao(db: FridgeEntryDb): FridgeEntryUpdateDao {
-      return db.updateDao()
-    }
+        @JvmStatic
+        @Provides
+        @CheckResult
+        internal fun provideNearbyStoreRealtimeDao(db: NearbyStoreDb): NearbyStoreRealtime {
+            return db.realtime()
+        }
 
-    @JvmStatic
-    @Provides
-    @CheckResult
-    internal fun provideEntryDeleteDao(db: FridgeEntryDb): FridgeEntryDeleteDao {
-      return db.deleteDao()
-    }
+        @JvmStatic
+        @Provides
+        @CheckResult
+        internal fun provideNearbyStoreQueryDao(db: NearbyStoreDb): NearbyStoreQueryDao {
+            return db.queryDao()
+        }
 
-    @JvmStatic
-    @Provides
-    @CheckResult
-    internal fun provideNearbyStoreDb(room: FridgeDb): NearbyStoreDb {
-      return room.stores()
-    }
+        @JvmStatic
+        @Provides
+        @CheckResult
+        internal fun provideNearbyStoreInsertDao(db: NearbyStoreDb): NearbyStoreInsertDao {
+            return db.insertDao()
+        }
 
-    @JvmStatic
-    @Provides
-    @CheckResult
-    internal fun provideNearbyStoreRealtimeDao(db: NearbyStoreDb): NearbyStoreRealtime {
-      return db.realtime()
-    }
+        @JvmStatic
+        @Provides
+        @CheckResult
+        internal fun provideNearbyStoreUpdateDao(db: NearbyStoreDb): NearbyStoreUpdateDao {
+            return db.updateDao()
+        }
 
-    @JvmStatic
-    @Provides
-    @CheckResult
-    internal fun provideNearbyStoreQueryDao(db: NearbyStoreDb): NearbyStoreQueryDao {
-      return db.queryDao()
-    }
+        @JvmStatic
+        @Provides
+        @CheckResult
+        internal fun provideNearbyStoreDeleteDao(db: NearbyStoreDb): NearbyStoreDeleteDao {
+            return db.deleteDao()
+        }
 
-    @JvmStatic
-    @Provides
-    @CheckResult
-    internal fun provideNearbyStoreInsertDao(db: NearbyStoreDb): NearbyStoreInsertDao {
-      return db.insertDao()
-    }
+        @JvmStatic
+        @Provides
+        @CheckResult
+        internal fun provideNearbyZoneDb(room: FridgeDb): NearbyZoneDb {
+            return room.zones()
+        }
 
-    @JvmStatic
-    @Provides
-    @CheckResult
-    internal fun provideNearbyStoreUpdateDao(db: NearbyStoreDb): NearbyStoreUpdateDao {
-      return db.updateDao()
-    }
+        @JvmStatic
+        @Provides
+        @CheckResult
+        internal fun provideNearbyZoneRealtimeDao(db: NearbyZoneDb): NearbyZoneRealtime {
+            return db.realtime()
+        }
 
-    @JvmStatic
-    @Provides
-    @CheckResult
-    internal fun provideNearbyStoreDeleteDao(db: NearbyStoreDb): NearbyStoreDeleteDao {
-      return db.deleteDao()
-    }
+        @JvmStatic
+        @Provides
+        @CheckResult
+        internal fun provideNearbyZoneQueryDao(db: NearbyZoneDb): NearbyZoneQueryDao {
+            return db.queryDao()
+        }
 
-    @JvmStatic
-    @Provides
-    @CheckResult
-    internal fun provideNearbyZoneDb(room: FridgeDb): NearbyZoneDb {
-      return room.zones()
-    }
+        @JvmStatic
+        @Provides
+        @CheckResult
+        internal fun provideNearbyZoneInsertDao(db: NearbyZoneDb): NearbyZoneInsertDao {
+            return db.insertDao()
+        }
 
-    @JvmStatic
-    @Provides
-    @CheckResult
-    internal fun provideNearbyZoneRealtimeDao(db: NearbyZoneDb): NearbyZoneRealtime {
-      return db.realtime()
-    }
+        @JvmStatic
+        @Provides
+        @CheckResult
+        internal fun provideNearbyZoneUpdateDao(db: NearbyZoneDb): NearbyZoneUpdateDao {
+            return db.updateDao()
+        }
 
-    @JvmStatic
-    @Provides
-    @CheckResult
-    internal fun provideNearbyZoneQueryDao(db: NearbyZoneDb): NearbyZoneQueryDao {
-      return db.queryDao()
+        @JvmStatic
+        @Provides
+        @CheckResult
+        internal fun provideNearbyZoneDeleteDao(db: NearbyZoneDb): NearbyZoneDeleteDao {
+            return db.deleteDao()
+        }
     }
-
-    @JvmStatic
-    @Provides
-    @CheckResult
-    internal fun provideNearbyZoneInsertDao(db: NearbyZoneDb): NearbyZoneInsertDao {
-      return db.insertDao()
-    }
-
-    @JvmStatic
-    @Provides
-    @CheckResult
-    internal fun provideNearbyZoneUpdateDao(db: NearbyZoneDb): NearbyZoneUpdateDao {
-      return db.updateDao()
-    }
-
-    @JvmStatic
-    @Provides
-    @CheckResult
-    internal fun provideNearbyZoneDeleteDao(db: NearbyZoneDb): NearbyZoneDeleteDao {
-      return db.deleteDao()
-    }
-
-  }
 }
-

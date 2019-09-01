@@ -40,102 +40,101 @@ import com.pyamsoft.pydroid.ui.util.setUpEnabled
 import javax.inject.Inject
 
 class ExpandedToolbar @Inject internal constructor(
-  private val imageLoader: ImageLoader,
-  parent: ViewGroup
+    private val imageLoader: ImageLoader,
+    parent: ViewGroup
 ) : BaseUiView<DetailItemViewState, DetailItemViewEvent>(parent) {
 
-  override val layout: Int = R.layout.detail_toolbar
+    override val layout: Int = R.layout.detail_toolbar
 
-  override val layoutRoot by boundView<Toolbar>(R.id.detail_toolbar)
+    override val layoutRoot by boundView<Toolbar>(R.id.detail_toolbar)
 
-  private var deleteMenuItem: MenuItem? = null
-  private var consumeMenuItem: MenuItem? = null
-  private var spoilMenuItem: MenuItem? = null
-  private var iconLoaded: Loaded? = null
+    private var deleteMenuItem: MenuItem? = null
+    private var consumeMenuItem: MenuItem? = null
+    private var spoilMenuItem: MenuItem? = null
+    private var iconLoaded: Loaded? = null
 
-  override fun onInflated(
-    view: View,
-    savedInstanceState: Bundle?
-  ) {
-    stopIconLoad()
-    iconLoaded = imageLoader.load(R.drawable.ic_close_24dp)
-        .into(object : ImageTarget<Drawable> {
+    override fun onInflated(
+        view: View,
+        savedInstanceState: Bundle?
+    ) {
+        stopIconLoad()
+        iconLoaded = imageLoader.load(R.drawable.ic_close_24dp)
+            .into(object : ImageTarget<Drawable> {
 
-          override fun clear() {
-            layoutRoot.navigationIcon = null
-          }
+                override fun clear() {
+                    layoutRoot.navigationIcon = null
+                }
 
-          override fun setError(error: Drawable?) {
-            layoutRoot.setUpEnabled(true, error)
-          }
+                override fun setError(error: Drawable?) {
+                    layoutRoot.setUpEnabled(true, error)
+                }
 
-          override fun setImage(image: Drawable) {
-            layoutRoot.setUpEnabled(true, image)
-          }
+                override fun setImage(image: Drawable) {
+                    layoutRoot.setUpEnabled(true, image)
+                }
 
-          override fun setPlaceholder(placeholder: Drawable?) {
-            layoutRoot.setUpEnabled(true, placeholder)
-          }
+                override fun setPlaceholder(placeholder: Drawable?) {
+                    layoutRoot.setUpEnabled(true, placeholder)
+                }
 
-          override fun view(): View {
-            return layoutRoot
-          }
+                override fun view(): View {
+                    return layoutRoot
+                }
+            })
 
-        })
-
-    layoutRoot.inflateMenu(R.menu.menu_expanded)
-    deleteMenuItem = layoutRoot.menu.findItem(R.id.menu_item_delete)
-    consumeMenuItem = layoutRoot.menu.findItem(R.id.menu_item_consume)
-    spoilMenuItem = layoutRoot.menu.findItem(R.id.menu_item_spoil)
-  }
-
-  override fun onRender(
-    state: DetailItemViewState,
-    savedState: UiSavedState
-  ) {
-    state.item.let { item ->
-      layoutRoot.setNavigationOnClickListener(DebouncedOnClickListener.create {
-        publish(CloseItem(item))
-      })
-
-      requireNotNull(deleteMenuItem).isVisible = item.isReal()
-      requireNotNull(consumeMenuItem).isVisible = item.isReal()
-      requireNotNull(spoilMenuItem).isVisible = item.isReal()
-
-      layoutRoot.setOnMenuItemClickListener { menuItem ->
-        return@setOnMenuItemClickListener when (menuItem.itemId) {
-          R.id.menu_item_delete -> {
-            publish(DeleteItem(item))
-            true
-          }
-          R.id.menu_item_consume -> {
-            publish(ConsumeItem(item))
-            true
-          }
-          R.id.menu_item_spoil -> {
-            publish(SpoilItem(item))
-            true
-          }
-          else -> false
-        }
-      }
+        layoutRoot.inflateMenu(R.menu.menu_expanded)
+        deleteMenuItem = layoutRoot.menu.findItem(R.id.menu_item_delete)
+        consumeMenuItem = layoutRoot.menu.findItem(R.id.menu_item_consume)
+        spoilMenuItem = layoutRoot.menu.findItem(R.id.menu_item_spoil)
     }
-  }
 
-  private fun stopIconLoad() {
-    iconLoaded?.dispose()
-    iconLoaded = null
-  }
+    override fun onRender(
+        state: DetailItemViewState,
+        savedState: UiSavedState
+    ) {
+        state.item.let { item ->
+            layoutRoot.setNavigationOnClickListener(DebouncedOnClickListener.create {
+                publish(CloseItem(item))
+            })
 
-  override fun onTeardown() {
-    stopIconLoad()
+            requireNotNull(deleteMenuItem).isVisible = item.isReal()
+            requireNotNull(consumeMenuItem).isVisible = item.isReal()
+            requireNotNull(spoilMenuItem).isVisible = item.isReal()
 
-    layoutRoot.menu.clear()
-    deleteMenuItem = null
-    consumeMenuItem = null
-    spoilMenuItem = null
+            layoutRoot.setOnMenuItemClickListener { menuItem ->
+                return@setOnMenuItemClickListener when (menuItem.itemId) {
+                    R.id.menu_item_delete -> {
+                        publish(DeleteItem(item))
+                        true
+                    }
+                    R.id.menu_item_consume -> {
+                        publish(ConsumeItem(item))
+                        true
+                    }
+                    R.id.menu_item_spoil -> {
+                        publish(SpoilItem(item))
+                        true
+                    }
+                    else -> false
+                }
+            }
+        }
+    }
 
-    layoutRoot.setNavigationOnClickListener(null)
-    layoutRoot.setOnMenuItemClickListener(null)
-  }
+    private fun stopIconLoad() {
+        iconLoaded?.dispose()
+        iconLoaded = null
+    }
+
+    override fun onTeardown() {
+        stopIconLoad()
+
+        layoutRoot.menu.clear()
+        deleteMenuItem = null
+        consumeMenuItem = null
+        spoilMenuItem = null
+
+        layoutRoot.setNavigationOnClickListener(null)
+        layoutRoot.setOnMenuItemClickListener(null)
+    }
 }

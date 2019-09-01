@@ -31,69 +31,68 @@ import java.util.Calendar
 import javax.inject.Inject
 
 internal class RoomPersistentEntries @Inject internal constructor(
-  context: Context,
-  private val enforcer: Enforcer,
-  private val queryDao: FridgeEntryQueryDao,
-  private val insertDao: FridgeEntryInsertDao
+    context: Context,
+    private val enforcer: Enforcer,
+    private val queryDao: FridgeEntryQueryDao,
+    private val insertDao: FridgeEntryInsertDao
 ) : PersistentEntries {
 
-  private val sharedPreferences by lazy { PreferenceManager.getDefaultSharedPreferences(context) }
+    private val sharedPreferences by lazy { PreferenceManager.getDefaultSharedPreferences(context) }
 
-  @CheckResult
-  private suspend fun getEntryForId(
-    entryId: String,
-    force: Boolean
-  ): FridgeEntry? {
-    val entries = queryDao.query(force)
-    return entries.singleOrNull { it.id() == entryId }
-  }
-
-  @CheckResult
-  private suspend fun getValidEntry(
-    entryId: String,
-    force: Boolean
-  ): ValidEntry {
-    val entry = getEntryForId(entryId, force)
-    return ValidEntry(entry)
-  }
-
-  @CheckResult
-  private suspend fun guaranteeEntryExists(
-    key: String,
-    name: String
-  ): FridgeEntry {
-    val entryId = getEntryId(key)
-    val entry = getValidEntry(entryId, false)
-    val valid = entry.entry
-    if (valid != null) {
-      Timber.d("Entry exists, ignore: ${valid.id()}")
-      return valid
-    } else {
-      val createdTime = Calendar.getInstance()
-          .time
-      Timber.d("Create entry: $entryId at $createdTime")
-      val newEntry = FridgeEntry.create(entryId, name, createdTime, isReal = true)
-      insertDao.insert(newEntry)
-      sharedPreferences.edit { putString(key, entryId) }
-      return newEntry
+    @CheckResult
+    private suspend fun getEntryForId(
+        entryId: String,
+        force: Boolean
+    ): FridgeEntry? {
+        val entries = queryDao.query(force)
+        return entries.singleOrNull { it.id() == entryId }
     }
-  }
 
-  @CheckResult
-  private fun getEntryId(key: String): String {
-    return requireNotNull(sharedPreferences.getString(key, FridgeEntry.create().id()))
-  }
+    @CheckResult
+    private suspend fun getValidEntry(
+        entryId: String,
+        force: Boolean
+    ): ValidEntry {
+        val entry = getEntryForId(entryId, force)
+        return ValidEntry(entry)
+    }
 
-  override suspend fun getPersistentEntry(): FridgeEntry {
-    enforcer.assertNotOnMainThread()
-    return guaranteeEntryExists(PERSIST_ENTRY_KEY, "Items")
-  }
+    @CheckResult
+    private suspend fun guaranteeEntryExists(
+        key: String,
+        name: String
+    ): FridgeEntry {
+        val entryId = getEntryId(key)
+        val entry = getValidEntry(entryId, false)
+        val valid = entry.entry
+        if (valid != null) {
+            Timber.d("Entry exists, ignore: ${valid.id()}")
+            return valid
+        } else {
+            val createdTime = Calendar.getInstance()
+                .time
+            Timber.d("Create entry: $entryId at $createdTime")
+            val newEntry = FridgeEntry.create(entryId, name, createdTime, isReal = true)
+            insertDao.insert(newEntry)
+            sharedPreferences.edit { putString(key, entryId) }
+            return newEntry
+        }
+    }
 
-  private data class ValidEntry(val entry: FridgeEntry?)
+    @CheckResult
+    private fun getEntryId(key: String): String {
+        return requireNotNull(sharedPreferences.getString(key, FridgeEntry.create().id()))
+    }
 
-  companion object {
+    override suspend fun getPersistentEntry(): FridgeEntry {
+        enforcer.assertNotOnMainThread()
+        return guaranteeEntryExists(PERSIST_ENTRY_KEY, "Items")
+    }
 
-    private const val PERSIST_ENTRY_KEY = "persistent_entry"
+    private data class ValidEntry(val entry: FridgeEntry?)
 
-  }
+    companion object {
+
+        private const val PERSIST_ENTRY_KEY = "persistent_entry"
+    }
 }

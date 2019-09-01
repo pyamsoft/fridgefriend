@@ -19,10 +19,9 @@ package com.pyamsoft.fridge.db.zone
 
 sealed class NearbyZoneChangeEvent {
 
-  data class Insert(val zone: NearbyZone) : NearbyZoneChangeEvent()
+    data class Insert(val zone: NearbyZone) : NearbyZoneChangeEvent()
 
-  data class Update(val zone: NearbyZone) : NearbyZoneChangeEvent()
+    data class Update(val zone: NearbyZone) : NearbyZoneChangeEvent()
 
-  data class Delete(val zone: NearbyZone) : NearbyZoneChangeEvent()
-
+    data class Delete(val zone: NearbyZone) : NearbyZoneChangeEvent()
 }

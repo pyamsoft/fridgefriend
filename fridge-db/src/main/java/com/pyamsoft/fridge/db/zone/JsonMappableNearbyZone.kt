@@ -27,51 +27,51 @@ import java.util.Date
 @Parcelize
 @JsonClass(generateAdapter = true)
 data class JsonMappableNearbyZone internal constructor(
-  internal val id: Long,
-  internal val name: String,
-  internal val createdTime: Date,
-  internal val points: List<Point>
+    internal val id: Long,
+    internal val name: String,
+    internal val createdTime: Date,
+    internal val points: List<Point>
 ) : NearbyZone, Parcelable {
 
-  override fun id(): Long {
-    return id
-  }
-
-  override fun points(): List<Point> {
-    return points
-  }
-
-  override fun name(): String {
-    return name
-  }
-
-  override fun createdTime(): Date {
-    return createdTime
-  }
-
-  override fun name(name: String): NearbyZone {
-    return this.copy(name = name)
-  }
-
-  override fun points(points: List<Point>): NearbyZone {
-    return this.copy(points = points)
-  }
-
-  companion object {
-
-    @JvmStatic
-    @CheckResult
-    fun from(item: NearbyZone): JsonMappableNearbyZone {
-      if (item is JsonMappableNearbyZone) {
-        return item
-      } else {
-        return JsonMappableNearbyZone(
-            item.id(),
-            item.name(),
-            item.createdTime(),
-            item.points()
-        )
-      }
+    override fun id(): Long {
+        return id
     }
-  }
+
+    override fun points(): List<Point> {
+        return points
+    }
+
+    override fun name(): String {
+        return name
+    }
+
+    override fun createdTime(): Date {
+        return createdTime
+    }
+
+    override fun name(name: String): NearbyZone {
+        return this.copy(name = name)
+    }
+
+    override fun points(points: List<Point>): NearbyZone {
+        return this.copy(points = points)
+    }
+
+    companion object {
+
+        @JvmStatic
+        @CheckResult
+        fun from(item: NearbyZone): JsonMappableNearbyZone {
+            if (item is JsonMappableNearbyZone) {
+                return item
+            } else {
+                return JsonMappableNearbyZone(
+                    item.id(),
+                    item.name(),
+                    item.createdTime(),
+                    item.points()
+                )
+            }
+        }
+    }
 }

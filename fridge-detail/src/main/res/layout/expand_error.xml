@@ -19,25 +19,22 @@
 
 <merge>
 
-  <FrameLayout
-      xmlns:android="http://schemas.android.com/apk/res/android"
-      android:id="@+id/expand_item_error_root"
-      android:layout_width="match_parent"
-      android:layout_height="wrap_content"
-      android:animateLayoutChanges="true"
-      android:gravity="center"
-      >
-
-    <TextView
-        android:id="@+id/expand_item_error_msg"
+    <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/expand_item_error_root"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center"
-        android:textAppearance="?attr/textAppearanceBody2"
-        android:textColor="@color/red500"
-        />
+        android:animateLayoutChanges="true"
+        android:gravity="center">
 
-  </FrameLayout>
+        <TextView
+            android:id="@+id/expand_item_error_msg"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:textAppearance="?attr/textAppearanceBody2"
+            android:textColor="@color/red500" />
+
+    </FrameLayout>
 
 
 </merge>

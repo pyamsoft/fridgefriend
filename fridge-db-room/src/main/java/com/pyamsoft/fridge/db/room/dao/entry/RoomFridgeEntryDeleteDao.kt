@@ -28,21 +28,20 @@ import timber.log.Timber
 @Dao
 internal abstract class RoomFridgeEntryDeleteDao internal constructor() : FridgeEntryDeleteDao {
 
-  override suspend fun delete(o: FridgeEntry) {
-    Timber.d("ROOM: Entry Delete: $o")
-    val roomEntry = RoomFridgeEntry.create(o)
-    daoDelete(roomEntry)
-  }
+    override suspend fun delete(o: FridgeEntry) {
+        Timber.d("ROOM: Entry Delete: $o")
+        val roomEntry = RoomFridgeEntry.create(o)
+        daoDelete(roomEntry)
+    }
 
-  @Delete
-  internal abstract fun daoDelete(entry: RoomFridgeEntry)
+    @Delete
+    internal abstract fun daoDelete(entry: RoomFridgeEntry)
 
-  override suspend fun deleteAll() {
-    Timber.d("ROOM: Entry DeleteAll")
-    daoDeleteAll()
-  }
+    override suspend fun deleteAll() {
+        Timber.d("ROOM: Entry DeleteAll")
+        daoDeleteAll()
+    }
 
-  @Query("DELETE FROM ${RoomFridgeEntry.TABLE_NAME} WHERE 1 = 1")
-  internal abstract fun daoDeleteAll()
-
+    @Query("DELETE FROM ${RoomFridgeEntry.TABLE_NAME} WHERE 1 = 1")
+    internal abstract fun daoDeleteAll()
 }

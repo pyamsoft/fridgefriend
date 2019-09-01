@@ -27,17 +27,16 @@ import dagger.Subcomponent
 @Subcomponent
 internal interface MainComponent {
 
-  fun inject(activity: MainActivity)
+    fun inject(activity: MainActivity)
 
-  @Subcomponent.Factory
-  interface Factory {
+    @Subcomponent.Factory
+    interface Factory {
 
-    @CheckResult
-    fun create(
-      @BindsInstance activity: Activity,
-      @BindsInstance parent: ViewGroup,
-      @BindsInstance provider: ToolbarActivityProvider
-    ): MainComponent
-  }
-
+        @CheckResult
+        fun create(
+            @BindsInstance activity: Activity,
+            @BindsInstance parent: ViewGroup,
+            @BindsInstance provider: ToolbarActivityProvider
+        ): MainComponent
+    }
 }

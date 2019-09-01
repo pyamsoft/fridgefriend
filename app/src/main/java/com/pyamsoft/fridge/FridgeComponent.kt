@@ -61,133 +61,131 @@ import javax.inject.Singleton
 @Singleton
 @Component(
     modules = [
-      FridgeProvider::class,
-      RoomModule::class,
-      ButlerModule::class,
-      LocatorModule::class
+        FridgeProvider::class,
+        RoomModule::class,
+        ButlerModule::class,
+        LocatorModule::class
     ]
 )
 internal interface FridgeComponent {
 
-  // For ButlerNotifications classes
-  @CheckResult
-  fun provideForegroundState(): ForegroundState
+    // For ButlerNotifications classes
+    @CheckResult
+    fun provideForegroundState(): ForegroundState
 
-  // For BaseWorker Work classes
-  @CheckResult
-  fun provideButler(): Butler
+    // For BaseWorker Work classes
+    @CheckResult
+    fun provideButler(): Butler
 
-  // For BaseWorker Work classes
-  @CheckResult
-  fun provideNotificationHandler(): NotificationHandler
+    // For BaseWorker Work classes
+    @CheckResult
+    fun provideNotificationHandler(): NotificationHandler
 
-  // For GeofenceRegistrationWorker Work classes
-  @CheckResult
-  fun provideLocator(): Locator
+    // For GeofenceRegistrationWorker Work classes
+    @CheckResult
+    fun provideLocator(): Locator
 
-  // For GeofenceNotifierWorker Work classes
-  @CheckResult
-  fun provideGeofencer(): Geofencer
+    // For GeofenceNotifierWorker Work classes
+    @CheckResult
+    fun provideGeofencer(): Geofencer
 
-  // For ExpirationWorker Work classes
-  @CheckResult
-  fun provideFridgeEntryQueryDao(): FridgeEntryQueryDao
+    // For ExpirationWorker Work classes
+    @CheckResult
+    fun provideFridgeEntryQueryDao(): FridgeEntryQueryDao
 
-  // For ExpirationWorker Work classes
-  @CheckResult
-  fun provideFridgeItemQueryDao(): FridgeItemQueryDao
+    // For ExpirationWorker Work classes
+    @CheckResult
+    fun provideFridgeItemQueryDao(): FridgeItemQueryDao
 
-  // For GeofenceRegistrationWorker Work classes
-  @CheckResult
-  fun provideNearbyStoreQueryDao(): NearbyStoreQueryDao
+    // For GeofenceRegistrationWorker Work classes
+    @CheckResult
+    fun provideNearbyStoreQueryDao(): NearbyStoreQueryDao
 
-  // For GeofenceRegistrationWorker Work classes
-  @CheckResult
-  fun provideNearbyZoneQueryDao(): NearbyZoneQueryDao
+    // For GeofenceRegistrationWorker Work classes
+    @CheckResult
+    fun provideNearbyZoneQueryDao(): NearbyZoneQueryDao
 
-  //  @CheckResult
-  //  fun plusScannerComponent(): OcrComponent.Factory
-
-  @CheckResult
-  fun plusExpandComponent(): ExpandComponent.Factory
-
-  @CheckResult
-  fun plusDetailComponent(): DetailComponent.Factory
-
-  @CheckResult
-  fun plusEntryComponent(): EntryComponent.Factory
-
-  @CheckResult
-  fun plusMainComponent(): MainComponent.Factory
-
-  @CheckResult
-  fun plusSettingComponent(): SettingComponent.Factory
-
-  @CheckResult
-  fun plusMapComponent(): MapComponent.Factory
-
-  @CheckResult
-  fun plusPermissionComponent(): PermissionComponent.Factory
-
-  fun inject(dialog: DatePickerDialogFragment)
-
-  fun inject(receiver: LocationProviderChangeReceiver)
-
-  fun inject(application: FridgeFriend)
-
-  @Component.Factory
-  interface Factory {
+    //  @CheckResult
+    //  fun plusScannerComponent(): OcrComponent.Factory
 
     @CheckResult
-    fun create(
-      @BindsInstance theming: Theming,
-      @BindsInstance moshi: Moshi,
-      @BindsInstance enforcer: Enforcer,
-      @BindsInstance application: Application,
-      @BindsInstance imageLoader: ImageLoader,
-      @BindsInstance activityClass: Class<out Activity>,
-      @BindsInstance geofenceReceiverClass: Class<out GeofenceBroadcastReceiver>
-    ): FridgeComponent
+    fun plusExpandComponent(): ExpandComponent.Factory
 
-  }
+    @CheckResult
+    fun plusDetailComponent(): DetailComponent.Factory
 
-  @Module
-  object FridgeProvider {
+    @CheckResult
+    fun plusEntryComponent(): EntryComponent.Factory
 
-    @Provides
-    @JvmStatic
-    @Singleton
-    @Named("debug")
-    internal fun provideDebug(): Boolean {
-      return BuildConfig.DEBUG
+    @CheckResult
+    fun plusMainComponent(): MainComponent.Factory
+
+    @CheckResult
+    fun plusSettingComponent(): SettingComponent.Factory
+
+    @CheckResult
+    fun plusMapComponent(): MapComponent.Factory
+
+    @CheckResult
+    fun plusPermissionComponent(): PermissionComponent.Factory
+
+    fun inject(dialog: DatePickerDialogFragment)
+
+    fun inject(receiver: LocationProviderChangeReceiver)
+
+    fun inject(application: FridgeFriend)
+
+    @Component.Factory
+    interface Factory {
+
+        @CheckResult
+        fun create(
+            @BindsInstance theming: Theming,
+            @BindsInstance moshi: Moshi,
+            @BindsInstance enforcer: Enforcer,
+            @BindsInstance application: Application,
+            @BindsInstance imageLoader: ImageLoader,
+            @BindsInstance activityClass: Class<out Activity>,
+            @BindsInstance geofenceReceiverClass: Class<out GeofenceBroadcastReceiver>
+        ): FridgeComponent
     }
 
-    @Provides
-    @JvmStatic
-    @Singleton
-    internal fun provideFakeItemRealtime(): EventBus<FridgeItemChangeEvent> {
-      return EventBus.create()
-    }
+    @Module
+    object FridgeProvider {
 
-    @Provides
-    @JvmStatic
-    @Singleton
-    internal fun provideDateSelectBus(): EventBus<DateSelectPayload> {
-      return EventBus.create()
-    }
+        @Provides
+        @JvmStatic
+        @Singleton
+        @Named("debug")
+        internal fun provideDebug(): Boolean {
+            return BuildConfig.DEBUG
+        }
 
-    @Provides
-    @JvmStatic
-    internal fun provideContext(application: Application): Context {
-      return application
-    }
+        @Provides
+        @JvmStatic
+        @Singleton
+        internal fun provideFakeItemRealtime(): EventBus<FridgeItemChangeEvent> {
+            return EventBus.create()
+        }
 
-    @Provides
-    @JvmStatic
-    @Named("app_name")
-    internal fun provideAppNameRes(): Int {
-      return R.string.app_name
+        @Provides
+        @JvmStatic
+        @Singleton
+        internal fun provideDateSelectBus(): EventBus<DateSelectPayload> {
+            return EventBus.create()
+        }
+
+        @Provides
+        @JvmStatic
+        internal fun provideContext(application: Application): Context {
+            return application
+        }
+
+        @Provides
+        @JvmStatic
+        @Named("app_name")
+        internal fun provideAppNameRes(): Int {
+            return R.string.app_name
+        }
     }
-  }
 }
-

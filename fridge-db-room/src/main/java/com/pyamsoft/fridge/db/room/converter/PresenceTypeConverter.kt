@@ -23,17 +23,17 @@ import com.pyamsoft.fridge.db.item.FridgeItem.Presence
 
 internal object PresenceTypeConverter {
 
-  @JvmStatic
-  @TypeConverter
-  @CheckResult
-  fun toPresence(name: String): Presence {
-    return Presence.valueOf(name)
-  }
+    @JvmStatic
+    @TypeConverter
+    @CheckResult
+    fun toPresence(name: String): Presence {
+        return Presence.valueOf(name)
+    }
 
-  @JvmStatic
-  @TypeConverter
-  @CheckResult
-  fun toName(presence: Presence): String {
-    return presence.name
-  }
+    @JvmStatic
+    @TypeConverter
+    @CheckResult
+    fun toName(presence: Presence): String {
+        return presence.name
+    }
 }

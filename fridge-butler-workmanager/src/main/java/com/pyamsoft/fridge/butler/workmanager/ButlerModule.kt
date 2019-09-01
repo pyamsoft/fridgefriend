@@ -27,15 +27,15 @@ import dagger.Module
 @Module
 abstract class ButlerModule {
 
-  @Binds
-  @CheckResult
-  internal abstract fun bindButler(impl: WorkManagerButler): Butler
+    @Binds
+    @CheckResult
+    internal abstract fun bindButler(impl: WorkManagerButler): Butler
 
-  @Binds
-  @CheckResult
-  internal abstract fun bindForegroundState(impl: ForegroundStateDetector): ForegroundState
+    @Binds
+    @CheckResult
+    internal abstract fun bindForegroundState(impl: ForegroundStateDetector): ForegroundState
 
-  @Binds
-  @CheckResult
-  internal abstract fun bindNotificationHandler(impl: NotificationHandlerImpl): NotificationHandler
+    @Binds
+    @CheckResult
+    internal abstract fun bindNotificationHandler(impl: NotificationHandlerImpl): NotificationHandler
 }

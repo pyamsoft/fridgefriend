@@ -25,26 +25,26 @@ import java.util.Collections
 
 @JsonClass(generateAdapter = true)
 internal data class OverpassResponse internal constructor(
-  internal val elements: List<OsmNodeOrWay>?
+    internal val elements: List<OsmNodeOrWay>?
 ) {
 
-  @CheckResult
-  fun elements(): List<OsmNodeOrWay> {
-    return elements.let { list ->
-      if (list == null) {
-        throw RuntimeException("OverpassResponse: elements was null")
-      } else {
-        return@let Collections.unmodifiableList(list.filter { e ->
-          return@filter when (e) {
-            is Node -> true
-            is Way -> e.tags.name().isNotBlank()
-            else -> false
-          }
-        })
-      }
+    @CheckResult
+    fun elements(): List<OsmNodeOrWay> {
+        return elements.let { list ->
+            if (list == null) {
+                throw RuntimeException("OverpassResponse: elements was null")
+            } else {
+                return@let Collections.unmodifiableList(list.filter { e ->
+                    return@filter when (e) {
+                        is Node -> true
+                        is Way -> e.tags.name().isNotBlank()
+                        else -> false
+                    }
+                })
+            }
+        }
     }
-  }
 
-  // Needed to generate static adapter
-  companion object
+    // Needed to generate static adapter
+    companion object
 }

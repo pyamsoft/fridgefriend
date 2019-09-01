@@ -27,50 +27,50 @@ import timber.log.Timber
 
 object ButlerNotifications {
 
-  @JvmStatic
-  @CheckResult
-  fun getExtraItems(items: List<FridgeItem>): String {
-    return when {
-      items.size == 1 -> ""
-      items.size == 2 -> "and '${items[1].name()}'"
-      else -> "and ${items.size - 1} other items"
-    }
-  }
-
-  @CheckResult
-  private fun notificationId(
-    id: String,
-    channelId: String
-  ): Int {
-    return "${id}_$channelId".hashCode()
-  }
-
-  @JvmStatic
-  fun notify(
-    handler: NotificationHandler,
-    foregroundState: ForegroundState,
-    entry: FridgeEntry,
-    context: Context,
-    channelId: String,
-    channelTitle: String,
-    channelDescription: String,
-    createNotification: (builder: NotificationCompat.Builder) -> Notification
-  ) {
-    if (foregroundState.isForeground) {
-      Timber.w("Do not send notification while in foreground: ${entry.id()}")
-      return
+    @JvmStatic
+    @CheckResult
+    fun getExtraItems(items: List<FridgeItem>): String {
+        return when {
+            items.size == 1 -> ""
+            items.size == 2 -> "and '${items[1].name()}'"
+            else -> "and ${items.size - 1} other items"
+        }
     }
 
-    Notifications.notify(
-        handler,
-        context,
-        notificationId(entry.id(), channelId),
-        entry.id(),
-        R.drawable.ic_get_app_24dp,
-        channelId,
-        channelTitle,
-        channelDescription,
-        createNotification
-    )
-  }
+    @CheckResult
+    private fun notificationId(
+        id: String,
+        channelId: String
+    ): Int {
+        return "${id}_$channelId".hashCode()
+    }
+
+    @JvmStatic
+    fun notify(
+        handler: NotificationHandler,
+        foregroundState: ForegroundState,
+        entry: FridgeEntry,
+        context: Context,
+        channelId: String,
+        channelTitle: String,
+        channelDescription: String,
+        createNotification: (builder: NotificationCompat.Builder) -> Notification
+    ) {
+        if (foregroundState.isForeground) {
+            Timber.w("Do not send notification while in foreground: ${entry.id()}")
+            return
+        }
+
+        Notifications.notify(
+            handler,
+            context,
+            notificationId(entry.id(), channelId),
+            entry.id(),
+            R.drawable.ic_get_app_24dp,
+            channelId,
+            channelTitle,
+            channelDescription,
+            createNotification
+        )
+    }
 }

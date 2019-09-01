@@ -26,26 +26,26 @@ import timber.log.Timber
 
 internal class GeofenceUpdateReceiver internal constructor() : GmsGeofenceBroadcastReceiver() {
 
-  private var geofencer: Geofencer? = null
-  private var butler: Butler? = null
+    private var geofencer: Geofencer? = null
+    private var butler: Butler? = null
 
-  override fun onInject(context: Context) {
-    geofencer = Injector.obtain(context.applicationContext)
-    butler = Injector.obtain(context.applicationContext)
-  }
-
-  override fun onTeardown() {
-    geofencer = null
-    butler = null
-  }
-
-  override fun onGeofenceEvent(intent: Intent) {
-    val triggeredIds = requireNotNull(geofencer).getTriggeredFenceIds(intent)
-    if (triggeredIds.isEmpty()) {
-      Timber.w("Geofence event received, but triggered ids were empty")
-      return
+    override fun onInject(context: Context) {
+        geofencer = Injector.obtain(context.applicationContext)
+        butler = Injector.obtain(context.applicationContext)
     }
 
-    requireNotNull(butler).processGeofences(triggeredIds)
-  }
+    override fun onTeardown() {
+        geofencer = null
+        butler = null
+    }
+
+    override fun onGeofenceEvent(intent: Intent) {
+        val triggeredIds = requireNotNull(geofencer).getTriggeredFenceIds(intent)
+        if (triggeredIds.isEmpty()) {
+            Timber.w("Geofence event received, but triggered ids were empty")
+            return
+        }
+
+        requireNotNull(butler).processGeofences(triggeredIds)
+    }
 }

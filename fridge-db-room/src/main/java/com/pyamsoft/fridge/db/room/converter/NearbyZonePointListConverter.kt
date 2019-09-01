@@ -25,24 +25,24 @@ import com.squareup.moshi.Types
 
 internal object NearbyZonePointListConverter {
 
-  private val adapter by lazy {
-    val type = Types.newParameterizedType(List::class.java, Point::class.java)
-    return@lazy Moshi.Builder()
-        .build()
-        .adapter<List<Point>>(type)
-  }
+    private val adapter by lazy {
+        val type = Types.newParameterizedType(List::class.java, Point::class.java)
+        return@lazy Moshi.Builder()
+            .build()
+            .adapter<List<Point>>(type)
+    }
 
-  @JvmStatic
-  @TypeConverter
-  @CheckResult
-  fun toPointList(json: String): List<Point> {
-    return requireNotNull(adapter.fromJson(json))
-  }
+    @JvmStatic
+    @TypeConverter
+    @CheckResult
+    fun toPointList(json: String): List<Point> {
+        return requireNotNull(adapter.fromJson(json))
+    }
 
-  @JvmStatic
-  @TypeConverter
-  @CheckResult
-  fun toString(points: List<Point>): String {
-    return adapter.toJson(points)
-  }
+    @JvmStatic
+    @TypeConverter
+    @CheckResult
+    fun toString(points: List<Point>): String {
+        return adapter.toJson(points)
+    }
 }

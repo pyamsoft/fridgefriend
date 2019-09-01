@@ -34,28 +34,26 @@ import dagger.multibindings.IntoMap
 @Subcomponent(modules = [ViewModelModule::class])
 internal interface PermissionComponent {
 
-  fun inject(fragment: PermissionFragment)
+    fun inject(fragment: PermissionFragment)
 
-  @Subcomponent.Factory
-  interface Factory {
+    @Subcomponent.Factory
+    interface Factory {
 
-    @CheckResult
-    fun create(
-      @BindsInstance parent: ViewGroup
-    ): PermissionComponent
-  }
+        @CheckResult
+        fun create(
+            @BindsInstance parent: ViewGroup
+        ): PermissionComponent
+    }
 
-  @Module
-  abstract class ViewModelModule {
+    @Module
+    abstract class ViewModelModule {
 
-    @Binds
-    internal abstract fun bindViewModelFactory(factory: FridgeViewModelFactory): ViewModelProvider.Factory
+        @Binds
+        internal abstract fun bindViewModelFactory(factory: FridgeViewModelFactory): ViewModelProvider.Factory
 
-    @Binds
-    @IntoMap
-    @ViewModelKey(LocationPermissionViewModel::class)
-    internal abstract fun locationPermissionViewModel(viewModel: LocationPermissionViewModel): UiViewModel<*, *, *>
-
-  }
-
+        @Binds
+        @IntoMap
+        @ViewModelKey(LocationPermissionViewModel::class)
+        internal abstract fun locationPermissionViewModel(viewModel: LocationPermissionViewModel): UiViewModel<*, *, *>
+    }
 }

@@ -24,15 +24,14 @@ import javax.inject.Named
 @Module
 abstract class ExpandModule {
 
-  @Module
-  companion object {
+    @Module
+    companion object {
 
-    @Provides
-    @JvmStatic
-    @Named("item_editable")
-    fun provideEditable(): Boolean {
-      return true
+        @Provides
+        @JvmStatic
+        @Named("item_editable")
+        fun provideEditable(): Boolean {
+            return true
+        }
     }
-  }
-
 }

@@ -19,10 +19,9 @@ package com.pyamsoft.fridge.db.store
 
 sealed class NearbyStoreChangeEvent {
 
-  data class Insert(val store: NearbyStore) : NearbyStoreChangeEvent()
+    data class Insert(val store: NearbyStore) : NearbyStoreChangeEvent()
 
-  data class Update(val store: NearbyStore) : NearbyStoreChangeEvent()
+    data class Update(val store: NearbyStore) : NearbyStoreChangeEvent()
 
-  data class Delete(val store: NearbyStore) : NearbyStoreChangeEvent()
-
+    data class Delete(val store: NearbyStore) : NearbyStoreChangeEvent()
 }

@@ -25,32 +25,30 @@ import com.pyamsoft.pydroid.arch.UiSavedState
 import javax.inject.Inject
 
 internal class ZoneInfoLocation @Inject internal constructor(
-  parent: ViewGroup
+    parent: ViewGroup
 ) : BaseUiView<ZoneInfoViewState, ZoneInfoViewEvent>(parent) {
 
-  override val layout: Int = R.layout.zone_info_location
-  override val layoutRoot by boundView<TextView>(R.id.zone_info_coords)
+    override val layout: Int = R.layout.zone_info_location
+    override val layoutRoot by boundView<TextView>(R.id.zone_info_coords)
 
-  override fun onRender(
-    state: ZoneInfoViewState,
-    savedState: UiSavedState
-  ) {
-    state.polygon.let { polygon ->
-      if (polygon == null) {
-        layoutRoot.text = ""
-      } else {
-        val centerPoint = requireNotNull(polygon.infoWindowLocation)
-        val lat = "%.5f".format(centerPoint.latitude)
-        val lon = "%.5f".format(centerPoint.longitude)
-        val coords = "($lat, $lon)"
-        layoutRoot.text = "Located at: $coords"
-      }
+    override fun onRender(
+        state: ZoneInfoViewState,
+        savedState: UiSavedState
+    ) {
+        state.polygon.let { polygon ->
+            if (polygon == null) {
+                layoutRoot.text = ""
+            } else {
+                val centerPoint = requireNotNull(polygon.infoWindowLocation)
+                val lat = "%.5f".format(centerPoint.latitude)
+                val lon = "%.5f".format(centerPoint.longitude)
+                val coords = "($lat, $lon)"
+                layoutRoot.text = "Located at: $coords"
+            }
+        }
     }
-  }
 
-  override fun onTeardown() {
-    layoutRoot.text = ""
-  }
-
+    override fun onTeardown() {
+        layoutRoot.text = ""
+    }
 }
-

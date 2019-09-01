@@ -57,177 +57,187 @@ import javax.inject.Inject
 
 internal class ExpandedFragment : DialogFragment() {
 
-  @JvmField @Inject internal var factory: ViewModelProvider.Factory? = null
-  @JvmField @Inject internal var name: ExpandItemName? = null
-  @JvmField @Inject internal var date: DetailListItemDate? = null
-  @JvmField @Inject internal var presence: DetailListItemPresence? = null
-  @JvmField @Inject internal var errorDisplay: ExpandItemError? = null
-  @JvmField @Inject internal var toolbar: ExpandedToolbar? = null
-  private val viewModel by factory<ExpandItemViewModel> { factory }
+    @JvmField
+    @Inject
+    internal var factory: ViewModelProvider.Factory? = null
+    @JvmField
+    @Inject
+    internal var name: ExpandItemName? = null
+    @JvmField
+    @Inject
+    internal var date: DetailListItemDate? = null
+    @JvmField
+    @Inject
+    internal var presence: DetailListItemPresence? = null
+    @JvmField
+    @Inject
+    internal var errorDisplay: ExpandItemError? = null
+    @JvmField
+    @Inject
+    internal var toolbar: ExpandedToolbar? = null
+    private val viewModel by factory<ExpandItemViewModel> { factory }
 
-  override fun onCreateView(
-    inflater: LayoutInflater,
-    container: ViewGroup?,
-    savedInstanceState: Bundle?
-  ): View? {
-    return inflater.inflate(R.layout.layout_constraint, container, false)
-  }
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        return inflater.inflate(R.layout.layout_constraint, container, false)
+    }
 
-  override fun onViewCreated(
-    view: View,
-    savedInstanceState: Bundle?
-  ) {
-    super.onViewCreated(view, savedInstanceState)
-
-    val parent = view.findViewById<ConstraintLayout>(R.id.layout_constraint)
-    val itemArgument =
-      requireNotNull(requireArguments().getParcelable<JsonMappableFridgeItem>(ITEM))
-    val entryArgument =
-      requireNotNull(requireArguments().getParcelable<JsonMappableFridgeEntry>(ENTRY))
-    val presenceArgument = Presence.valueOf(requireNotNull(requireArguments().getString(PRESENCE)))
-
-    Injector.obtain<FridgeComponent>(view.context.applicationContext)
-        .plusExpandComponent()
-        .create(parent, itemArgument, entryArgument, presenceArgument)
-        .inject(this)
-
-    val name = requireNotNull(name)
-    val date = requireNotNull(date)
-    val presence = requireNotNull(presence)
-    val errorDisplay = requireNotNull(errorDisplay)
-    val toolbar = requireNotNull(toolbar)
-    val shadow = DropshadowView.createTyped<DetailItemViewState, DetailItemViewEvent>(parent)
-    createComponent(
-        null, viewLifecycleOwner,
-        viewModel,
-        name,
-        date,
-        presence,
-        errorDisplay,
-        toolbar,
-        shadow
+    override fun onViewCreated(
+        view: View,
+        savedInstanceState: Bundle?
     ) {
-      return@createComponent when (it) {
-        is ExpandDetails -> expandItem(it.item)
-        is DatePick -> pickDate(it.oldItem, it.year, it.month, it.day)
-        is CloseExpand -> dismiss()
-      }
-    }
+        super.onViewCreated(view, savedInstanceState)
 
-    parent.layout {
-      toolbar.also {
-        connect(it.id(), ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP)
-        connect(it.id(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
-        connect(it.id(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
-        constrainWidth(it.id(), ConstraintSet.MATCH_CONSTRAINT)
-        constrainHeight(it.id(), ConstraintSet.WRAP_CONTENT)
-      }
+        val parent = view.findViewById<ConstraintLayout>(R.id.layout_constraint)
+        val itemArgument =
+            requireNotNull(requireArguments().getParcelable<JsonMappableFridgeItem>(ITEM))
+        val entryArgument =
+            requireNotNull(requireArguments().getParcelable<JsonMappableFridgeEntry>(ENTRY))
+        val presenceArgument = Presence.valueOf(requireNotNull(requireArguments().getString(PRESENCE)))
 
-      shadow.also {
-        connect(it.id(), ConstraintSet.TOP, toolbar.id(), ConstraintSet.BOTTOM)
-        connect(it.id(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
-        connect(it.id(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
-        constrainWidth(it.id(), ConstraintSet.MATCH_CONSTRAINT)
-      }
+        Injector.obtain<FridgeComponent>(view.context.applicationContext)
+            .plusExpandComponent()
+            .create(parent, itemArgument, entryArgument, presenceArgument)
+            .inject(this)
 
-      errorDisplay.also {
-        connect(it.id(), ConstraintSet.TOP, toolbar.id(), ConstraintSet.BOTTOM)
-        connect(it.id(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
-        connect(it.id(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
-        constrainWidth(it.id(), ConstraintSet.MATCH_CONSTRAINT)
-        constrainHeight(it.id(), ConstraintSet.WRAP_CONTENT)
-      }
-
-      presence.also {
-        connect(it.id(), ConstraintSet.TOP, errorDisplay.id(), ConstraintSet.BOTTOM)
-        connect(it.id(), ConstraintSet.BOTTOM, ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM)
-        connect(it.id(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
-        constrainWidth(it.id(), ConstraintSet.WRAP_CONTENT)
-      }
-
-      date.also {
-        connect(it.id(), ConstraintSet.TOP, errorDisplay.id(), ConstraintSet.BOTTOM)
-        connect(it.id(), ConstraintSet.BOTTOM, ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM)
-        connect(it.id(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
-        constrainWidth(it.id(), ConstraintSet.WRAP_CONTENT)
-      }
-
-      name.also {
-        connect(it.id(), ConstraintSet.TOP, errorDisplay.id(), ConstraintSet.BOTTOM)
-        connect(it.id(), ConstraintSet.BOTTOM, ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM)
-        connect(it.id(), ConstraintSet.START, presence.id(), ConstraintSet.END)
-        connect(it.id(), ConstraintSet.END, date.id(), ConstraintSet.START)
-        constrainWidth(it.id(), ConstraintSet.MATCH_CONSTRAINT)
-      }
-
-    }
-  }
-
-  private fun expandItem(item: FridgeItem) {
-    Timber.d("Noop in expanded fragment: $item")
-  }
-
-  private fun pickDate(
-    oldItem: FridgeItem,
-    year: Int,
-    month: Int,
-    day: Int
-  ) {
-    DatePickerDialogFragment.newInstance(oldItem, year, month, day)
-        .show(requireActivity(), DatePickerDialogFragment.TAG)
-  }
-
-  override fun onSaveInstanceState(outState: Bundle) {
-    super.onSaveInstanceState(outState)
-    name?.saveState(outState)
-    date?.saveState(outState)
-    presence?.saveState(outState)
-    errorDisplay?.saveState(outState)
-    toolbar?.saveState(outState)
-  }
-
-  override fun onDestroyView() {
-    super.onDestroyView()
-
-    factory = null
-    name = null
-    date = null
-    presence = null
-    toolbar = null
-    errorDisplay = null
-  }
-
-  override fun onResume() {
-    super.onResume()
-    dialog?.window?.apply {
-      setLayout(WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.WRAP_CONTENT)
-      setGravity(Gravity.CENTER)
-    }
-  }
-
-  companion object {
-
-    const val TAG = "ExpandedFragment"
-
-    private const val ITEM = "item"
-    private const val ENTRY = "entry"
-    private const val PRESENCE = "presence"
-
-    @JvmStatic
-    @CheckResult
-    fun newInstance(
-      entry: FridgeEntry,
-      item: FridgeItem,
-      presence: Presence
-    ): DialogFragment {
-      return ExpandedFragment().apply {
-        arguments = Bundle().apply {
-          putParcelable(ENTRY, JsonMappableFridgeEntry.from(entry))
-          putParcelable(ITEM, JsonMappableFridgeItem.from(item))
-          putString(PRESENCE, presence.name)
+        val name = requireNotNull(name)
+        val date = requireNotNull(date)
+        val presence = requireNotNull(presence)
+        val errorDisplay = requireNotNull(errorDisplay)
+        val toolbar = requireNotNull(toolbar)
+        val shadow = DropshadowView.createTyped<DetailItemViewState, DetailItemViewEvent>(parent)
+        createComponent(
+            null, viewLifecycleOwner,
+            viewModel,
+            name,
+            date,
+            presence,
+            errorDisplay,
+            toolbar,
+            shadow
+        ) {
+            return@createComponent when (it) {
+                is ExpandDetails -> expandItem(it.item)
+                is DatePick -> pickDate(it.oldItem, it.year, it.month, it.day)
+                is CloseExpand -> dismiss()
+            }
         }
-      }
-    }
-  }
 
+        parent.layout {
+            toolbar.also {
+                connect(it.id(), ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP)
+                connect(it.id(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
+                connect(it.id(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
+                constrainWidth(it.id(), ConstraintSet.MATCH_CONSTRAINT)
+                constrainHeight(it.id(), ConstraintSet.WRAP_CONTENT)
+            }
+
+            shadow.also {
+                connect(it.id(), ConstraintSet.TOP, toolbar.id(), ConstraintSet.BOTTOM)
+                connect(it.id(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
+                connect(it.id(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
+                constrainWidth(it.id(), ConstraintSet.MATCH_CONSTRAINT)
+            }
+
+            errorDisplay.also {
+                connect(it.id(), ConstraintSet.TOP, toolbar.id(), ConstraintSet.BOTTOM)
+                connect(it.id(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
+                connect(it.id(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
+                constrainWidth(it.id(), ConstraintSet.MATCH_CONSTRAINT)
+                constrainHeight(it.id(), ConstraintSet.WRAP_CONTENT)
+            }
+
+            presence.also {
+                connect(it.id(), ConstraintSet.TOP, errorDisplay.id(), ConstraintSet.BOTTOM)
+                connect(it.id(), ConstraintSet.BOTTOM, ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM)
+                connect(it.id(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
+                constrainWidth(it.id(), ConstraintSet.WRAP_CONTENT)
+            }
+
+            date.also {
+                connect(it.id(), ConstraintSet.TOP, errorDisplay.id(), ConstraintSet.BOTTOM)
+                connect(it.id(), ConstraintSet.BOTTOM, ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM)
+                connect(it.id(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
+                constrainWidth(it.id(), ConstraintSet.WRAP_CONTENT)
+            }
+
+            name.also {
+                connect(it.id(), ConstraintSet.TOP, errorDisplay.id(), ConstraintSet.BOTTOM)
+                connect(it.id(), ConstraintSet.BOTTOM, ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM)
+                connect(it.id(), ConstraintSet.START, presence.id(), ConstraintSet.END)
+                connect(it.id(), ConstraintSet.END, date.id(), ConstraintSet.START)
+                constrainWidth(it.id(), ConstraintSet.MATCH_CONSTRAINT)
+            }
+        }
+    }
+
+    private fun expandItem(item: FridgeItem) {
+        Timber.d("Noop in expanded fragment: $item")
+    }
+
+    private fun pickDate(
+        oldItem: FridgeItem,
+        year: Int,
+        month: Int,
+        day: Int
+    ) {
+        DatePickerDialogFragment.newInstance(oldItem, year, month, day)
+            .show(requireActivity(), DatePickerDialogFragment.TAG)
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        name?.saveState(outState)
+        date?.saveState(outState)
+        presence?.saveState(outState)
+        errorDisplay?.saveState(outState)
+        toolbar?.saveState(outState)
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+
+        factory = null
+        name = null
+        date = null
+        presence = null
+        toolbar = null
+        errorDisplay = null
+    }
+
+    override fun onResume() {
+        super.onResume()
+        dialog?.window?.apply {
+            setLayout(WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.WRAP_CONTENT)
+            setGravity(Gravity.CENTER)
+        }
+    }
+
+    companion object {
+
+        const val TAG = "ExpandedFragment"
+
+        private const val ITEM = "item"
+        private const val ENTRY = "entry"
+        private const val PRESENCE = "presence"
+
+        @JvmStatic
+        @CheckResult
+        fun newInstance(
+            entry: FridgeEntry,
+            item: FridgeItem,
+            presence: Presence
+        ): DialogFragment {
+            return ExpandedFragment().apply {
+                arguments = Bundle().apply {
+                    putParcelable(ENTRY, JsonMappableFridgeEntry.from(entry))
+                    putParcelable(ITEM, JsonMappableFridgeItem.from(item))
+                    putString(PRESENCE, presence.name)
+                }
+            }
+        }
+    }
 }

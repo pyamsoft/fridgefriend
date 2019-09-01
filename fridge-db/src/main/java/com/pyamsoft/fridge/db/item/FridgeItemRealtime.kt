@@ -23,7 +23,6 @@ import com.pyamsoft.pydroid.arch.EventConsumer
 
 interface FridgeItemRealtime : BaseDb.Realtime<FridgeItemChangeEvent> {
 
-  @CheckResult
-  fun listenForChanges(entryId: String): EventConsumer<FridgeItemChangeEvent>
-
+    @CheckResult
+    fun listenForChanges(entryId: String): EventConsumer<FridgeItemChangeEvent>
 }

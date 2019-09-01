@@ -33,42 +33,40 @@ import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
 import javax.inject.Inject
 
 class AddNewItemView @Inject internal constructor(
-  private val imageLoader: ImageLoader,
-  parent: ViewGroup
+    private val imageLoader: ImageLoader,
+    parent: ViewGroup
 ) : BaseUiView<UnitViewState, AddNewViewEvent>(parent) {
 
-  override val layout: Int = R.layout.add_new
+    override val layout: Int = R.layout.add_new
 
-  override val layoutRoot by boundView<FloatingActionButton>(R.id.detail_add_new_item)
+    override val layoutRoot by boundView<FloatingActionButton>(R.id.detail_add_new_item)
 
-  private var iconLoaded: Loaded? = null
+    private var iconLoaded: Loaded? = null
 
-  override fun onInflated(
-    view: View,
-    savedInstanceState: Bundle?
-  ) {
-    iconLoaded = imageLoader.load(R.drawable.ic_add_24dp)
-        .into(layoutRoot)
+    override fun onInflated(
+        view: View,
+        savedInstanceState: Bundle?
+    ) {
+        iconLoaded = imageLoader.load(R.drawable.ic_add_24dp)
+            .into(layoutRoot)
 
-    layoutRoot.setOnDebouncedClickListener { publish(AddNewItemEvent) }
-    layoutRoot.popShow()
+        layoutRoot.setOnDebouncedClickListener { publish(AddNewItemEvent) }
+        layoutRoot.popShow()
+    }
 
-  }
+    override fun onRender(
+        state: UnitViewState,
+        savedState: UiSavedState
+    ) {
+    }
 
-  override fun onRender(
-    state: UnitViewState,
-    savedState: UiSavedState
-  ) {
-  }
+    override fun onTeardown() {
+        disposeIcon()
+        layoutRoot.setOnClickListener(null)
+    }
 
-  override fun onTeardown() {
-    disposeIcon()
-    layoutRoot.setOnClickListener(null)
-  }
-
-  private fun disposeIcon() {
-    iconLoaded?.dispose()
-    iconLoaded = null
-  }
+    private fun disposeIcon() {
+        iconLoaded?.dispose()
+        iconLoaded = null
+    }
 }
-

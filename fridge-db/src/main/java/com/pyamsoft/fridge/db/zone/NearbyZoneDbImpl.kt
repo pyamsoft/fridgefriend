@@ -25,82 +25,77 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 
 internal class NearbyZoneDbImpl internal constructor(
-  private val db: NearbyZoneDb,
-  private val cache: Cached1<Sequence<NearbyZone>, Boolean>
+    private val db: NearbyZoneDb,
+    private val cache: Cached1<Sequence<NearbyZone>, Boolean>
 ) : NearbyZoneDb {
 
-  private val mutex = Mutex()
+    private val mutex = Mutex()
 
-  private suspend fun publishRealtime(event: NearbyZoneChangeEvent) {
-    cache.clear()
-    publish(event)
-  }
-
-  override suspend fun publish(event: NearbyZoneChangeEvent) {
-    db.publish(event)
-  }
-
-  override fun realtime(): NearbyZoneRealtime {
-    return db.realtime()
-  }
-
-  override fun queryDao(): NearbyZoneQueryDao {
-    return object : NearbyZoneQueryDao {
-
-      override suspend fun query(force: Boolean): List<NearbyZone> {
-        mutex.withLock {
-          if (force) {
-            cache.clear()
-          }
-
-          return cache.call(force)
-              .toList()
-        }
-      }
-
-    }
-  }
-
-  override fun insertDao(): NearbyZoneInsertDao {
-    return object : NearbyZoneInsertDao {
-
-      override suspend fun insert(o: NearbyZone) {
-        mutex.withLock {
-          db.insertDao()
-              .insert(o)
-          publishRealtime(Insert(o))
-        }
-      }
-
-    }
-  }
-
-  override fun updateDao(): NearbyZoneUpdateDao {
-    return object : NearbyZoneUpdateDao {
-
-      override suspend fun update(o: NearbyZone) {
-        mutex.withLock {
-          db.updateDao()
-              .update(o)
-          publishRealtime(Update(o))
-        }
-      }
+    private suspend fun publishRealtime(event: NearbyZoneChangeEvent) {
+        cache.clear()
+        publish(event)
     }
 
-  }
-
-  override fun deleteDao(): NearbyZoneDeleteDao {
-    return object : NearbyZoneDeleteDao {
-
-      override suspend fun delete(o: NearbyZone) {
-        mutex.withLock {
-          db.deleteDao()
-              .delete(o)
-          publishRealtime(Delete(o))
-        }
-      }
-
+    override suspend fun publish(event: NearbyZoneChangeEvent) {
+        db.publish(event)
     }
-  }
 
+    override fun realtime(): NearbyZoneRealtime {
+        return db.realtime()
+    }
+
+    override fun queryDao(): NearbyZoneQueryDao {
+        return object : NearbyZoneQueryDao {
+
+            override suspend fun query(force: Boolean): List<NearbyZone> {
+                mutex.withLock {
+                    if (force) {
+                        cache.clear()
+                    }
+
+                    return cache.call(force)
+                        .toList()
+                }
+            }
+        }
+    }
+
+    override fun insertDao(): NearbyZoneInsertDao {
+        return object : NearbyZoneInsertDao {
+
+            override suspend fun insert(o: NearbyZone) {
+                mutex.withLock {
+                    db.insertDao()
+                        .insert(o)
+                    publishRealtime(Insert(o))
+                }
+            }
+        }
+    }
+
+    override fun updateDao(): NearbyZoneUpdateDao {
+        return object : NearbyZoneUpdateDao {
+
+            override suspend fun update(o: NearbyZone) {
+                mutex.withLock {
+                    db.updateDao()
+                        .update(o)
+                    publishRealtime(Update(o))
+                }
+            }
+        }
+    }
+
+    override fun deleteDao(): NearbyZoneDeleteDao {
+        return object : NearbyZoneDeleteDao {
+
+            override suspend fun delete(o: NearbyZone) {
+                mutex.withLock {
+                    db.deleteDao()
+                        .delete(o)
+                    publishRealtime(Delete(o))
+                }
+            }
+        }
+    }
 }

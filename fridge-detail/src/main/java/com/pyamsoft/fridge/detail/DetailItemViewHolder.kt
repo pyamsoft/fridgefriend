@@ -45,172 +45,180 @@ import timber.log.Timber
 import javax.inject.Inject
 
 internal class DetailItemViewHolder internal constructor(
-  itemView: View,
-  private val injectComponent: (parent: ViewGroup, item: FridgeItem, editable: Boolean) -> DetailItemComponent
+    itemView: View,
+    private val injectComponent: (parent: ViewGroup, item: FridgeItem, editable: Boolean) -> DetailItemComponent
 ) : DetailViewHolder(itemView) {
 
-  @JvmField @Inject internal var factory: Factory? = null
-  @JvmField @Inject internal var name: DetailListItemName? = null
-  @JvmField @Inject internal var date: DetailListItemDate? = null
-  @JvmField @Inject internal var presence: DetailListItemPresence? = null
-  @JvmField @Inject internal var glances: DetailListItemGlances? = null
-  private var viewModel: DetailListItemViewModel? = null
+    @JvmField
+    @Inject
+    internal var factory: Factory? = null
+    @JvmField
+    @Inject
+    internal var name: DetailListItemName? = null
+    @JvmField
+    @Inject
+    internal var date: DetailListItemDate? = null
+    @JvmField
+    @Inject
+    internal var presence: DetailListItemPresence? = null
+    @JvmField
+    @Inject
+    internal var glances: DetailListItemGlances? = null
+    private var viewModel: DetailListItemViewModel? = null
 
-  private val parent: ConstraintLayout = itemView.findViewById(id.listitem_constraint)
+    private val parent: ConstraintLayout = itemView.findViewById(id.listitem_constraint)
 
-  private var lifecycle: ListItemLifecycle? = null
-  private var boundItem: FridgeItem? = null
+    private var lifecycle: ListItemLifecycle? = null
+    private var boundItem: FridgeItem? = null
 
-  private fun injectViewModel(lifecycle: Lifecycle) {
-    viewModel = lifecycle.factory<DetailListItemViewModel>(ViewModelStore()) { factory }
-        .get()
-  }
+    private fun injectViewModel(lifecycle: Lifecycle) {
+        viewModel = lifecycle.factory<DetailListItemViewModel>(ViewModelStore()) { factory }
+            .get()
+    }
 
-  override fun bind(
-    item: FridgeItem,
-    editable: Boolean,
-    callback: Callback
-  ) {
-    boundItem = item
-    val owner = ListItemLifecycle()
-    lifecycle?.unbind()
-    lifecycle = owner
-
-    injectComponent(parent, item, editable)
-        .inject(this)
-    injectViewModel(owner.lifecycle)
-
-    val name = requireNotNull(name)
-    val date = requireNotNull(date)
-    val presence = requireNotNull(presence)
-    val glances = requireNotNull(glances)
-
-    createComponent(
-        null, owner,
-        requireNotNull(viewModel),
-        name,
-        date,
-        presence,
-        glances
+    override fun bind(
+        item: FridgeItem,
+        editable: Boolean,
+        callback: Callback
     ) {
-      return@createComponent when (it) {
-        is ExpandDetails -> callback.onItemExpanded(
-            it.item
-        )
-        is DatePick -> callback.onPickDate(
-            it.oldItem, it.year, it.month, it.day
-        )
-        is CloseExpand -> Timber.d(
-            "Deleted item"
-        )
-      }
+        boundItem = item
+        val owner = ListItemLifecycle()
+        lifecycle?.unbind()
+        lifecycle = owner
+
+        injectComponent(parent, item, editable)
+            .inject(this)
+        injectViewModel(owner.lifecycle)
+
+        val name = requireNotNull(name)
+        val date = requireNotNull(date)
+        val presence = requireNotNull(presence)
+        val glances = requireNotNull(glances)
+
+        createComponent(
+            null, owner,
+            requireNotNull(viewModel),
+            name,
+            date,
+            presence,
+            glances
+        ) {
+            return@createComponent when (it) {
+                is ExpandDetails -> callback.onItemExpanded(
+                    it.item
+                )
+                is DatePick -> callback.onPickDate(
+                    it.oldItem, it.year, it.month, it.day
+                )
+                is CloseExpand -> Timber.d(
+                    "Deleted item"
+                )
+            }
+        }
+
+        parent.layout {
+            presence.also {
+                connect(
+                    it.id(), ConstraintSet.TOP,
+                    ConstraintSet.PARENT_ID,
+                    ConstraintSet.TOP
+                )
+                connect(
+                    it.id(), ConstraintSet.BOTTOM,
+                    ConstraintSet.PARENT_ID,
+                    ConstraintSet.BOTTOM
+                )
+                connect(
+                    it.id(), ConstraintSet.START,
+                    ConstraintSet.PARENT_ID,
+                    ConstraintSet.START
+                )
+                constrainWidth(it.id(), ConstraintSet.WRAP_CONTENT)
+            }
+
+            date.also {
+                connect(
+                    it.id(), ConstraintSet.TOP,
+                    ConstraintSet.PARENT_ID,
+                    ConstraintSet.TOP
+                )
+                connect(
+                    it.id(), ConstraintSet.END,
+                    ConstraintSet.PARENT_ID,
+                    ConstraintSet.END
+                )
+                constrainWidth(it.id(), ConstraintSet.WRAP_CONTENT)
+                constrainHeight(it.id(), ConstraintSet.WRAP_CONTENT)
+            }
+
+            name.also {
+                connect(
+                    it.id(), ConstraintSet.TOP,
+                    ConstraintSet.PARENT_ID,
+                    ConstraintSet.TOP
+                )
+                connect(
+                    it.id(), ConstraintSet.BOTTOM,
+                    ConstraintSet.PARENT_ID,
+                    ConstraintSet.BOTTOM
+                )
+                connect(
+                    it.id(), ConstraintSet.START, presence.id(),
+                    ConstraintSet.END
+                )
+                connect(
+                    it.id(), ConstraintSet.END, date.id(),
+                    ConstraintSet.START
+                )
+                constrainWidth(it.id(), ConstraintSet.MATCH_CONSTRAINT)
+                constrainHeight(it.id(), ConstraintSet.WRAP_CONTENT)
+            }
+
+            glances.also {
+                connect(
+                    it.id(), ConstraintSet.TOP, date.id(),
+                    ConstraintSet.BOTTOM
+                )
+                connect(
+                    it.id(), ConstraintSet.BOTTOM,
+                    ConstraintSet.PARENT_ID,
+                    ConstraintSet.BOTTOM
+                )
+                connect(
+                    it.id(), ConstraintSet.START, date.id(),
+                    ConstraintSet.START
+                )
+                connect(
+                    it.id(), ConstraintSet.END,
+                    ConstraintSet.PARENT_ID,
+                    ConstraintSet.END
+                )
+                constrainWidth(it.id(), ConstraintSet.WRAP_CONTENT)
+                constrainHeight(it.id(), ConstraintSet.WRAP_CONTENT)
+            }
+        }
+
+        owner.bind()
     }
 
-    parent.layout {
-      presence.also {
-        connect(
-            it.id(), ConstraintSet.TOP,
-            ConstraintSet.PARENT_ID,
-            ConstraintSet.TOP
-        )
-        connect(
-            it.id(), ConstraintSet.BOTTOM,
-            ConstraintSet.PARENT_ID,
-            ConstraintSet.BOTTOM
-        )
-        connect(
-            it.id(), ConstraintSet.START,
-            ConstraintSet.PARENT_ID,
-            ConstraintSet.START
-        )
-        constrainWidth(it.id(), ConstraintSet.WRAP_CONTENT)
-      }
+    override fun unbind() {
+        lifecycle?.unbind()
+        lifecycle = null
 
-      date.also {
-        connect(
-            it.id(), ConstraintSet.TOP,
-            ConstraintSet.PARENT_ID,
-            ConstraintSet.TOP
-        )
-        connect(
-            it.id(), ConstraintSet.END,
-            ConstraintSet.PARENT_ID,
-            ConstraintSet.END
-        )
-        constrainWidth(it.id(), ConstraintSet.WRAP_CONTENT)
-        constrainHeight(it.id(), ConstraintSet.WRAP_CONTENT)
-      }
-
-      name.also {
-        connect(
-            it.id(), ConstraintSet.TOP,
-            ConstraintSet.PARENT_ID,
-            ConstraintSet.TOP
-        )
-        connect(
-            it.id(), ConstraintSet.BOTTOM,
-            ConstraintSet.PARENT_ID,
-            ConstraintSet.BOTTOM
-        )
-        connect(
-            it.id(), ConstraintSet.START, presence.id(),
-            ConstraintSet.END
-        )
-        connect(
-            it.id(), ConstraintSet.END, date.id(),
-            ConstraintSet.START
-        )
-        constrainWidth(it.id(), ConstraintSet.MATCH_CONSTRAINT)
-        constrainHeight(it.id(), ConstraintSet.WRAP_CONTENT)
-      }
-
-      glances.also {
-        connect(
-            it.id(), ConstraintSet.TOP, date.id(),
-            ConstraintSet.BOTTOM
-        )
-        connect(
-            it.id(), ConstraintSet.BOTTOM,
-            ConstraintSet.PARENT_ID,
-            ConstraintSet.BOTTOM
-        )
-        connect(
-            it.id(), ConstraintSet.START, date.id(),
-            ConstraintSet.START
-        )
-        connect(
-            it.id(), ConstraintSet.END,
-            ConstraintSet.PARENT_ID,
-            ConstraintSet.END
-        )
-        constrainWidth(it.id(), ConstraintSet.WRAP_CONTENT)
-        constrainHeight(it.id(), ConstraintSet.WRAP_CONTENT)
-      }
-
+        viewModel = null
+        boundItem = null
+        name = null
+        date = null
+        presence = null
     }
 
-    owner.bind()
-  }
+    // Kind of hacky
+    fun consume() {
+        requireNotNull(viewModel).consume()
+    }
 
-  override fun unbind() {
-    lifecycle?.unbind()
-    lifecycle = null
-
-    viewModel = null
-    boundItem = null
-    name = null
-    date = null
-    presence = null
-  }
-
-  // Kind of hacky
-  fun consume() {
-    requireNotNull(viewModel).consume()
-  }
-
-  // Kind of hacky
-  fun spoil() {
-    requireNotNull(viewModel).spoil()
-  }
-
+    // Kind of hacky
+    fun spoil() {
+        requireNotNull(viewModel).spoil()
+    }
 }

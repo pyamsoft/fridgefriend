@@ -33,25 +33,24 @@ import dagger.multibindings.IntoMap
 @Subcomponent(modules = [ViewModelModule::class])
 internal interface SettingComponent {
 
-  fun inject(dialog: SettingsDialog)
+    fun inject(dialog: SettingsDialog)
 
-  @Subcomponent.Factory
-  interface Factory {
+    @Subcomponent.Factory
+    interface Factory {
 
-    @CheckResult
-    fun create(@BindsInstance parent: ViewGroup): SettingComponent
-  }
+        @CheckResult
+        fun create(@BindsInstance parent: ViewGroup): SettingComponent
+    }
 
-  @Module
-  abstract class ViewModelModule {
+    @Module
+    abstract class ViewModelModule {
 
-    @Binds
-    internal abstract fun bindViewModelFactory(factory: FridgeViewModelFactory): ViewModelProvider.Factory
+        @Binds
+        internal abstract fun bindViewModelFactory(factory: FridgeViewModelFactory): ViewModelProvider.Factory
 
-    @Binds
-    @IntoMap
-    @ViewModelKey(SettingToolbarViewModel::class)
-    internal abstract fun settingToolbarViewModel(viewModel: SettingToolbarViewModel): UiViewModel<*, *, *>
-  }
-
+        @Binds
+        @IntoMap
+        @ViewModelKey(SettingToolbarViewModel::class)
+        internal abstract fun settingToolbarViewModel(viewModel: SettingToolbarViewModel): UiViewModel<*, *, *>
+    }
 }

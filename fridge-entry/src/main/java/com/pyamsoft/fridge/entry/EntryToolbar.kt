@@ -29,64 +29,63 @@ import javax.inject.Inject
 import javax.inject.Named
 
 class EntryToolbar @Inject internal constructor(
-  private val toolbarActivity: ToolbarActivity,
-  @Named("app_name") private val appNameRes: Int
+    private val toolbarActivity: ToolbarActivity,
+    @Named("app_name") private val appNameRes: Int
 ) : UiView<EntryViewState, EntryViewEvent>() {
 
-  override fun id(): Int {
-    throw InvalidIdException
-  }
+    override fun id(): Int {
+        throw InvalidIdException
+    }
 
-  private var settingsItem: MenuItem? = null
+    private var settingsItem: MenuItem? = null
 
-  override fun doInflate(savedInstanceState: Bundle?) {
-  }
+    override fun doInflate(savedInstanceState: Bundle?) {
+    }
 
-  override fun saveState(outState: Bundle) {
-  }
+    override fun saveState(outState: Bundle) {
+    }
 
-  override fun doTeardown() {
-    teardownMenu()
-  }
+    override fun doTeardown() {
+        teardownMenu()
+    }
 
-  private fun teardownMenu() {
-    settingsItem?.setOnMenuItemClickListener(null)
-    settingsItem = null
-    toolbarActivity.withToolbar { it.menu.removeItem(R.id.menu_item_settings) }
-  }
+    private fun teardownMenu() {
+        settingsItem?.setOnMenuItemClickListener(null)
+        settingsItem = null
+        toolbarActivity.withToolbar { it.menu.removeItem(R.id.menu_item_settings) }
+    }
 
-  private fun inflateMenu() {
-    toolbarActivity.requireToolbar { toolbar ->
-      toolbar.setUpEnabled(false)
-      toolbar.setTitle(appNameRes)
+    private fun inflateMenu() {
+        toolbarActivity.requireToolbar { toolbar ->
+            toolbar.setUpEnabled(false)
+            toolbar.setTitle(appNameRes)
 
-      if (toolbar.menu.findItem(R.id.menu_item_settings) == null) {
-        toolbar.inflateMenu(R.menu.toolbar_menu)
-        toolbar.menu.findItem(R.id.menu_item_settings)
-            .also {
-              it.setOnMenuItemClickListener {
-                publish(SettingsNavigate)
-                return@setOnMenuItemClickListener true
-              }
-              settingsItem = it
+            if (toolbar.menu.findItem(R.id.menu_item_settings) == null) {
+                toolbar.inflateMenu(R.menu.toolbar_menu)
+                toolbar.menu.findItem(R.id.menu_item_settings)
+                    .also {
+                        it.setOnMenuItemClickListener {
+                            publish(SettingsNavigate)
+                            return@setOnMenuItemClickListener true
+                        }
+                        settingsItem = it
+                    }
             }
-      }
+        }
     }
-  }
 
-  private fun showMenu(show: Boolean) {
-    if (show) {
-      inflateMenu()
-    } else {
-      teardownMenu()
+    private fun showMenu(show: Boolean) {
+        if (show) {
+            inflateMenu()
+        } else {
+            teardownMenu()
+        }
     }
-  }
 
-  override fun render(
-    state: EntryViewState,
-    savedState: UiSavedState
-  ) {
-    showMenu(state.isSettingsItemVisible)
-  }
-
+    override fun render(
+        state: EntryViewState,
+        savedState: UiSavedState
+    ) {
+        showMenu(state.isSettingsItemVisible)
+    }
 }

@@ -30,14 +30,14 @@ interface NearbyZoneDb : BaseDb<
     NearbyZoneDeleteDao
     > {
 
-  companion object {
+    companion object {
 
-    @CheckResult
-    fun wrap(
-      db: NearbyZoneDb,
-      cache: Cached1<Sequence<NearbyZone>, Boolean>
-    ): NearbyZoneDb {
-      return NearbyZoneDbImpl(db, cache)
+        @CheckResult
+        fun wrap(
+            db: NearbyZoneDb,
+            cache: Cached1<Sequence<NearbyZone>, Boolean>
+        ): NearbyZoneDb {
+            return NearbyZoneDbImpl(db, cache)
+        }
     }
-  }
 }

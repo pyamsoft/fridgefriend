@@ -2,60 +2,60 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.pyamsoft.fridge">
 
-  <application
-      android:name="com.pyamsoft.fridge.FridgeFriend"
-      android:allowBackup="true"
-      android:icon="@mipmap/ic_launcher"
-      android:label="@string/app_name"
-      android:roundIcon="@mipmap/ic_launcher_round"
-      android:supportsRtl="true"
-      android:theme="@style/Theme.Fridge.Normal"
-      tools:ignore="GoogleAppIndexingWarning">
-
-    <!-- Support super wide screen -->
-    <meta-data
-        android:name="android.max_aspect"
-        android:value="2.1"/>
-
-    <!-- Disable Analytics Collection from Firebase -->
-    <meta-data
-        android:name="firebase_analytics_collection_deactivated"
-        android:value="true"/>
-
-    <!-- Disable advertising id collection from Firebase -->
-    <meta-data
-        android:name="google_analytics_adid_collection_enabled"
-        android:value="false"/>
-
-    <!-- Main Activity -->
-    <activity
-        android:name="com.pyamsoft.fridge.main.MainActivity"
-        android:excludeFromRecents="false"
-        android:exported="true"
+    <application
+        android:name="com.pyamsoft.fridge.FridgeFriend"
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
-        android:launchMode="singleTask"
-        android:noHistory="false"
-        android:theme="@style/Theme.Fridge.Splash"
-        android:windowSoftInputMode="adjustResize">
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.Fridge.Normal"
+        tools:ignore="GoogleAppIndexingWarning">
 
-      <intent-filter>
-        <action android:name="android.intent.action.MAIN"/>
-        <category android:name="android.intent.category.LAUNCHER"/>
-      </intent-filter>
+        <!-- Support super wide screen -->
+        <meta-data
+            android:name="android.max_aspect"
+            android:value="2.1" />
 
-    </activity>
+        <!-- Disable Analytics Collection from Firebase -->
+        <meta-data
+            android:name="firebase_analytics_collection_deactivated"
+            android:value="true" />
 
-    <receiver
-        android:name=".locator.GeofenceUpdateReceiver"
-        android:enabled="true"/>
+        <!-- Disable advertising id collection from Firebase -->
+        <meta-data
+            android:name="google_analytics_adid_collection_enabled"
+            android:value="false" />
 
-    <receiver
-        android:name=".locator.LocationProviderChangeReceiver"
-        android:enabled="true">
-      <intent-filter>
-        <action android:name="android.location.PROVIDERS_CHANGED"/>
-      </intent-filter>
-    </receiver>
+        <!-- Main Activity -->
+        <activity
+            android:name="com.pyamsoft.fridge.main.MainActivity"
+            android:excludeFromRecents="false"
+            android:exported="true"
+            android:label="@string/app_name"
+            android:launchMode="singleTask"
+            android:noHistory="false"
+            android:theme="@style/Theme.Fridge.Splash"
+            android:windowSoftInputMode="adjustResize">
 
-  </application>
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+
+        </activity>
+
+        <receiver
+            android:name=".locator.GeofenceUpdateReceiver"
+            android:enabled="true" />
+
+        <receiver
+            android:name=".locator.LocationProviderChangeReceiver"
+            android:enabled="true">
+            <intent-filter>
+                <action android:name="android.location.PROVIDERS_CHANGED" />
+            </intent-filter>
+        </receiver>
+
+    </application>
 </manifest>

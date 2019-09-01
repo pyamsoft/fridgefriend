@@ -38,103 +38,108 @@ import javax.inject.Inject
 
 internal class PermissionFragment : Fragment(), SnackbarContainer {
 
-  @JvmField @Inject internal var factory: ViewModelProvider.Factory? = null
-  @JvmField @Inject internal var mapPermission: MapPermission? = null
+    @JvmField
+    @Inject
+    internal var factory: ViewModelProvider.Factory? = null
+    @JvmField
+    @Inject
+    internal var mapPermission: MapPermission? = null
 
-  @JvmField @Inject internal var screen: LocationPermissionScreen? = null
-  private val viewModel by factory<LocationPermissionViewModel> { factory }
+    @JvmField
+    @Inject
+    internal var screen: LocationPermissionScreen? = null
+    private val viewModel by factory<LocationPermissionViewModel> { factory }
 
-  private var rootView: ViewGroup? = null
+    private var rootView: ViewGroup? = null
 
-  override fun getSnackbarContainer(): ViewGroup? {
-    return rootView
-  }
+    override fun getSnackbarContainer(): ViewGroup? {
+        return rootView
+    }
 
-  override fun onCreateView(
-    inflater: LayoutInflater,
-    container: ViewGroup?,
-    savedInstanceState: Bundle?
-  ): View? {
-    return inflater.inflate(R.layout.layout_coordinator, container, false)
-  }
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        return inflater.inflate(R.layout.layout_coordinator, container, false)
+    }
 
-  override fun onViewCreated(
-    view: View,
-    savedInstanceState: Bundle?
-  ) {
-    super.onViewCreated(view, savedInstanceState)
-
-    val parent = view.findViewById<CoordinatorLayout>(R.id.layout_coordinator)
-    rootView = parent
-    Injector.obtain<FridgeComponent>(view.context.applicationContext)
-        .plusPermissionComponent()
-        .create(parent)
-        .inject(this)
-
-    val screen = requireNotNull(screen)
-
-    createComponent(
-        savedInstanceState, viewLifecycleOwner,
-        viewModel,
-        screen
+    override fun onViewCreated(
+        view: View,
+        savedInstanceState: Bundle?
     ) {
-      return@createComponent when (it) {
-        is LocationPermissionRequest -> requestLocationPermission()
-      }
-    }
-  }
+        super.onViewCreated(view, savedInstanceState)
 
-  private fun requestLocationPermission() {
-    requireNotNull(mapPermission).requestForegroundPermission(this)
-  }
+        val parent = view.findViewById<CoordinatorLayout>(R.id.layout_coordinator)
+        rootView = parent
+        Injector.obtain<FridgeComponent>(view.context.applicationContext)
+            .plusPermissionComponent()
+            .create(parent)
+            .inject(this)
 
-  override fun onRequestPermissionsResult(
-    requestCode: Int,
-    permissions: Array<out String>,
-    grantResults: IntArray
-  ) {
-    super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-    requireNotNull(mapPermission).onForegroundResult(requestCode, permissions, grantResults) {
-      pushMapFragmentOncePermissionGranted()
-    }
-  }
+        val screen = requireNotNull(screen)
 
-  private fun pushMapFragmentOncePermissionGranted() {
-    val self = this
-    requireNotNull(parentFragment).childFragmentManager.commitNow(viewLifecycleOwner) {
-      remove(self)
-      add(requireArguments().getInt(CONTAINER_ID, 0), MapFragment.newInstance(), MapFragment.TAG)
-    }
-  }
-
-  override fun onSaveInstanceState(outState: Bundle) {
-    super.onSaveInstanceState(outState)
-    screen?.saveState(outState)
-  }
-
-  override fun onDestroyView() {
-    super.onDestroyView()
-
-    rootView = null
-    factory = null
-    screen = null
-    mapPermission = null
-  }
-
-  companion object {
-
-    private const val CONTAINER_ID = "parent_container_id"
-    const val TAG = "PermissionFragment"
-
-    @JvmStatic
-    @CheckResult
-    fun newInstance(containerId: Int): Fragment {
-      return PermissionFragment().apply {
-        arguments = Bundle().apply {
-          putInt(CONTAINER_ID, containerId)
+        createComponent(
+            savedInstanceState, viewLifecycleOwner,
+            viewModel,
+            screen
+        ) {
+            return@createComponent when (it) {
+                is LocationPermissionRequest -> requestLocationPermission()
+            }
         }
-      }
     }
-  }
 
+    private fun requestLocationPermission() {
+        requireNotNull(mapPermission).requestForegroundPermission(this)
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        requireNotNull(mapPermission).onForegroundResult(requestCode, permissions, grantResults) {
+            pushMapFragmentOncePermissionGranted()
+        }
+    }
+
+    private fun pushMapFragmentOncePermissionGranted() {
+        val self = this
+        requireNotNull(parentFragment).childFragmentManager.commitNow(viewLifecycleOwner) {
+            remove(self)
+            add(requireArguments().getInt(CONTAINER_ID, 0), MapFragment.newInstance(), MapFragment.TAG)
+        }
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        screen?.saveState(outState)
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+
+        rootView = null
+        factory = null
+        screen = null
+        mapPermission = null
+    }
+
+    companion object {
+
+        private const val CONTAINER_ID = "parent_container_id"
+        const val TAG = "PermissionFragment"
+
+        @JvmStatic
+        @CheckResult
+        fun newInstance(containerId: Int): Fragment {
+            return PermissionFragment().apply {
+                arguments = Bundle().apply {
+                    putInt(CONTAINER_ID, containerId)
+                }
+            }
+        }
+    }
 }

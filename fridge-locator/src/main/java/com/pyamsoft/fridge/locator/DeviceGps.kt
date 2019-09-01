@@ -21,17 +21,15 @@ import android.app.Activity
 
 interface DeviceGps {
 
-  fun isGpsEnabled(func: (enabled: Boolean) -> Unit)
+    fun isGpsEnabled(func: (enabled: Boolean) -> Unit)
 
-  fun enableGps(
-    activity: Activity,
-    onError: (throwable: Throwable) -> Unit
-  )
+    fun enableGps(
+        activity: Activity,
+        onError: (throwable: Throwable) -> Unit
+    )
 
-  companion object {
+    companion object {
 
-    const val ENABLE_GPS_REQUEST_CODE = 4321
-
-  }
-
+        const val ENABLE_GPS_REQUEST_CODE = 4321
+    }
 }

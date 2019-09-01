@@ -31,88 +31,87 @@ import kotlinx.coroutines.coroutineScope
 import timber.log.Timber
 
 internal class GeofenceNotifierWorker internal constructor(
-  context: Context,
-  params: WorkerParameters
+    context: Context,
+    params: WorkerParameters
 ) : NearbyNotifyingWorker(context, params) {
 
-  private var geofencer: Geofencer? = null
+    private var geofencer: Geofencer? = null
 
-  override fun onAfterInject() {
-    geofencer = Injector.obtain(applicationContext)
-  }
+    override fun onAfterInject() {
+        geofencer = Injector.obtain(applicationContext)
+    }
 
-  override fun onAfterTeardown() {
-    geofencer = null
-  }
+    override fun onAfterTeardown() {
+        geofencer = null
+    }
 
-  override fun reschedule(butler: Butler) {
-    Timber.w("Geofence jobs are not rescheduled.")
-  }
+    override fun reschedule(butler: Butler) {
+        Timber.w("Geofence jobs are not rescheduled.")
+    }
 
-  override suspend fun performWork() {
-    return coroutineScope {
-      val fenceIds = inputData.getStringArray(KEY_FENCES) ?: emptyArray()
-      if (fenceIds.isEmpty()) {
-        Timber.e("Bail: Empty fences, this should not happen!")
-        return@coroutineScope
-      }
+    override suspend fun performWork() {
+        return coroutineScope {
+            val fenceIds = inputData.getStringArray(KEY_FENCES) ?: emptyArray()
+            if (fenceIds.isEmpty()) {
+                Timber.e("Bail: Empty fences, this should not happen!")
+                return@coroutineScope
+            }
 
-      Timber.d("Processing geofence events for fences")
-      withNearbyData { stores, zones ->
-        val properFenceIds = fenceIds.filterNotNull()
+            Timber.d("Processing geofence events for fences")
+            withNearbyData { stores, zones ->
+                val properFenceIds = fenceIds.filterNotNull()
 
-        val storeNotifications = mutableSetOf<NearbyStore>()
-        val zoneNotifications = mutableSetOf<NearbyZone>()
-        for (fenceId in properFenceIds) {
-          val (store, zone) = findNearbyForGeofence(fenceId, stores, zones)
-          if (store != null) {
-            storeNotifications.add(store)
-          }
+                val storeNotifications = mutableSetOf<NearbyStore>()
+                val zoneNotifications = mutableSetOf<NearbyZone>()
+                for (fenceId in properFenceIds) {
+                    val (store, zone) = findNearbyForGeofence(fenceId, stores, zones)
+                    if (store != null) {
+                        storeNotifications.add(store)
+                    }
 
-          if (zone != null) {
-            zoneNotifications.add(zone)
-          }
+                    if (zone != null) {
+                        zoneNotifications.add(zone)
+                    }
+                }
+
+                fireNotifications(storeNotifications, zoneNotifications)
+            }
+        }
+    }
+
+    @CheckResult
+    private fun findNearbyForGeofence(
+        fenceId: String,
+        nearbyStores: Collection<NearbyStore>,
+        nearbyZones: Collection<NearbyZone>
+    ): Nearbys {
+        for (store in nearbyStores) {
+            if (fenceId == Fence.getId(store)) {
+                Timber.d("Geofence event $fenceId fired for zone: $store")
+                return Nearbys(store, null)
+            }
         }
 
-        fireNotifications(storeNotifications, zoneNotifications)
-      }
-    }
-  }
-
-  @CheckResult
-  private fun findNearbyForGeofence(
-    fenceId: String,
-    nearbyStores: Collection<NearbyStore>,
-    nearbyZones: Collection<NearbyZone>
-  ): Nearbys {
-    for (store in nearbyStores) {
-      if (fenceId == Fence.getId(store)) {
-        Timber.d("Geofence event $fenceId fired for zone: $store")
-        return Nearbys(store, null)
-      }
-    }
-
-    for (zone in nearbyZones) {
-      for (point in zone.points()) {
-        if (fenceId == Fence.getId(zone, point)) {
-          Timber.d("Geofence event $fenceId fired for zone point: ($point) $zone")
-          return Nearbys(null, zone)
+        for (zone in nearbyZones) {
+            for (point in zone.points()) {
+                if (fenceId == Fence.getId(zone, point)) {
+                    Timber.d("Geofence event $fenceId fired for zone point: ($point) $zone")
+                    return Nearbys(null, zone)
+                }
+            }
         }
-      }
+
+        Timber.w("Geofence event $fenceId fired but no matches")
+        return Nearbys(null, null)
     }
 
-    Timber.w("Geofence event $fenceId fired but no matches")
-    return Nearbys(null, null)
-  }
+    private data class Nearbys internal constructor(
+        val store: NearbyStore?,
+        val zone: NearbyZone?
+    )
 
-  private data class Nearbys internal constructor(
-    val store: NearbyStore?,
-    val zone: NearbyZone?
-  )
+    companion object {
 
-  companion object {
-
-    internal const val KEY_FENCES = "key_fences"
-  }
-
+        internal const val KEY_FENCES = "key_fences"
+    }
 }

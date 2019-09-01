@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ Copyright 2019 Peter Kenji Yamanaka
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,32 +17,32 @@
 
 <resources>
 
-  <style name="Base.Theme.Fridge" parent="@style/Theme.MaterialComponents.NoActionBar">
-    <item name="colorPrimary">@color/red500</item>
-    <item name="colorPrimaryDark">@color/red700</item>
-    <item name="colorAccent">@color/red500</item>
-    <item name="android:navigationBarColor">@color/navigationBarColor</item>
-    <item name="android:statusBarColor">@color/statusBarColor</item>
-  </style>
+    <style name="Base.Theme.Fridge" parent="@style/Theme.MaterialComponents.NoActionBar">
+        <item name="colorPrimary">@color/red500</item>
+        <item name="colorPrimaryDark">@color/red700</item>
+        <item name="colorAccent">@color/red500</item>
+        <item name="android:navigationBarColor">@color/navigationBarColor</item>
+        <item name="android:statusBarColor">@color/statusBarColor</item>
+    </style>
 
-  <!-- Dialogs -->
-  <style name="Base.Theme.Fridge.Dialog" parent="@style/Theme.MaterialComponents.Dialog.Alert">
-    <item name="colorPrimary">@color/red500</item>
-    <item name="colorPrimaryDark">@color/red700</item>
-    <item name="colorAccent">@color/red500</item>
-    <item name="android:navigationBarColor">@color/navigationBarColor</item>
-    <item name="android:statusBarColor">@color/statusBarColor</item>
-  </style>
+    <!-- Dialogs -->
+    <style name="Base.Theme.Fridge.Dialog" parent="@style/Theme.MaterialComponents.Dialog.Alert">
+        <item name="colorPrimary">@color/red500</item>
+        <item name="colorPrimaryDark">@color/red700</item>
+        <item name="colorAccent">@color/red500</item>
+        <item name="android:navigationBarColor">@color/navigationBarColor</item>
+        <item name="android:statusBarColor">@color/statusBarColor</item>
+    </style>
 
-  <!-- Normal App Theme -->
-  <style name="Base.Theme.Fridge.Normal" parent="@style/Base.Theme.Fridge">
-    <item name="preferenceTheme">@style/PreferenceThemeOverlay.v14.Material</item>
-    <item name="android:windowBackground">@color/material_dark_background</item>
-  </style>
+    <!-- Normal App Theme -->
+    <style name="Base.Theme.Fridge.Normal" parent="@style/Base.Theme.Fridge">
+        <item name="preferenceTheme">@style/PreferenceThemeOverlay.v14.Material</item>
+        <item name="android:windowBackground">@color/material_dark_background</item>
+    </style>
 
-  <!-- Splash screen -->
-  <style name="Base.Theme.Fridge.Splash" parent="@style/Base.Theme.Fridge">
-    <item name="android:windowBackground">@drawable/splash_screen</item>
-  </style>
+    <!-- Splash screen -->
+    <style name="Base.Theme.Fridge.Splash" parent="@style/Base.Theme.Fridge">
+        <item name="android:windowBackground">@drawable/splash_screen</item>
+    </style>
 
 </resources>

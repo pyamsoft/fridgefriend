@@ -27,13 +27,12 @@ import timber.log.Timber
 @Dao
 internal abstract class RoomNearbyStoreDeleteDao internal constructor() : NearbyStoreDeleteDao {
 
-  override suspend fun delete(o: NearbyStore) {
-    Timber.d("ROOM: NearbyStore Delete: $o")
-    val roomNearbyStore = RoomNearbyStore.create(o)
-    daoDelete(roomNearbyStore)
-  }
+    override suspend fun delete(o: NearbyStore) {
+        Timber.d("ROOM: NearbyStore Delete: $o")
+        val roomNearbyStore = RoomNearbyStore.create(o)
+        daoDelete(roomNearbyStore)
+    }
 
-  @Delete
-  internal abstract fun daoDelete(entry: RoomNearbyStore)
-
+    @Delete
+    internal abstract fun daoDelete(entry: RoomNearbyStore)
 }

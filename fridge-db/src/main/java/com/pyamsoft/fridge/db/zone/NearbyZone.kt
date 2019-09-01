@@ -26,46 +26,44 @@ import java.util.Date
 
 interface NearbyZone : BaseModel<NearbyZone> {
 
-  @CheckResult
-  fun id(): Long
-
-  @CheckResult
-  fun points(): List<Point>
-
-  @CheckResult
-  fun points(points: List<Point>): NearbyZone
-
-  @Parcelize
-  @JsonClass(generateAdapter = true)
-  data class Point(
-    val id: Long,
-    val lat: Double,
-    val lon: Double
-  ) : Parcelable
-
-  companion object {
+    @CheckResult
+    fun id(): Long
 
     @CheckResult
-    fun create(
-      id: Long,
-      name: String,
-      createdTime: Date,
-      points: List<Point>
-    ): NearbyZone {
-      return JsonMappableNearbyZone(id, name, createdTime, points)
-    }
+    fun points(): List<Point>
 
     @CheckResult
-    @JvmOverloads
-    fun create(
-      zone: NearbyZone,
-      name: String = zone.name(),
-      createdTime: Date = zone.createdTime(),
-      points: List<Point> = zone.points()
-    ): NearbyZone {
-      return JsonMappableNearbyZone(zone.id(), name, createdTime, points)
+    fun points(points: List<Point>): NearbyZone
+
+    @Parcelize
+    @JsonClass(generateAdapter = true)
+    data class Point(
+        val id: Long,
+        val lat: Double,
+        val lon: Double
+    ) : Parcelable
+
+    companion object {
+
+        @CheckResult
+        fun create(
+            id: Long,
+            name: String,
+            createdTime: Date,
+            points: List<Point>
+        ): NearbyZone {
+            return JsonMappableNearbyZone(id, name, createdTime, points)
+        }
+
+        @CheckResult
+        @JvmOverloads
+        fun create(
+            zone: NearbyZone,
+            name: String = zone.name(),
+            createdTime: Date = zone.createdTime(),
+            points: List<Point> = zone.points()
+        ): NearbyZone {
+            return JsonMappableNearbyZone(zone.id(), name, createdTime, points)
+        }
     }
-
-  }
-
 }

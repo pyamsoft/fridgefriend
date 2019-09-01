@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ Copyright 2019 Peter Kenji Yamanaka
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,16 +17,14 @@
 
 <merge>
 
-  <androidx.appcompat.widget.Toolbar
-      xmlns:android="http://schemas.android.com/apk/res/android"
-      android:id="@+id/main_toolbar"
-      android:layout_width="match_parent"
-      android:layout_height="?attr/actionBarSize"
-      android:layout_marginEnd="16dp"
-      android:layout_marginStart="16dp"
-      android:background="@drawable/toolbar"
-      android:theme="@style/ThemeOverlay.MaterialComponents.Dark.ActionBar"
-      />
+    <androidx.appcompat.widget.Toolbar xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/main_toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:background="@drawable/toolbar"
+        android:theme="@style/ThemeOverlay.MaterialComponents.Dark.ActionBar" />
 
 </merge>
 

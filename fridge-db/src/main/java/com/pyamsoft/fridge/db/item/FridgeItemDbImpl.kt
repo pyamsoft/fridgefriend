@@ -26,97 +26,92 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 
 internal class FridgeItemDbImpl internal constructor(
-  private val db: FridgeItemDb,
-  private val cache: Cached1<Sequence<FridgeItem>, Boolean>
+    private val db: FridgeItemDb,
+    private val cache: Cached1<Sequence<FridgeItem>, Boolean>
 ) : FridgeItemDb {
 
-  private val mutex = Mutex()
+    private val mutex = Mutex()
 
-  private suspend fun publishRealtime(event: FridgeItemChangeEvent) {
-    cache.clear()
-    publish(event)
-  }
-
-  override suspend fun publish(event: FridgeItemChangeEvent) {
-    db.publish(event)
-  }
-
-  override fun realtime(): FridgeItemRealtime {
-    return db.realtime()
-  }
-
-  override fun queryDao(): FridgeItemQueryDao {
-    return object : FridgeItemQueryDao {
-
-      @CheckResult
-      private suspend fun queryAsSequence(force: Boolean): Sequence<FridgeItem> {
-        if (force) {
-          cache.clear()
-        }
-
-        return cache.call(force)
-      }
-
-      override suspend fun query(force: Boolean): List<FridgeItem> {
-        mutex.withLock {
-          return queryAsSequence(force).toList()
-        }
-      }
-
-      override suspend fun query(
-        force: Boolean,
-        entryId: String
-      ): List<FridgeItem> {
-        mutex.withLock {
-          return queryAsSequence(force)
-              .filter { it.entryId() == entryId }
-              .toList()
-        }
-      }
-
+    private suspend fun publishRealtime(event: FridgeItemChangeEvent) {
+        cache.clear()
+        publish(event)
     }
-  }
 
-  override fun insertDao(): FridgeItemInsertDao {
-    return object : FridgeItemInsertDao {
-
-      override suspend fun insert(o: FridgeItem) {
-        mutex.withLock {
-          db.insertDao()
-              .insert(o)
-          publishRealtime(Insert(o.makeReal()))
-        }
-      }
-
+    override suspend fun publish(event: FridgeItemChangeEvent) {
+        db.publish(event)
     }
-  }
 
-  override fun updateDao(): FridgeItemUpdateDao {
-    return object : FridgeItemUpdateDao {
-
-      override suspend fun update(o: FridgeItem) {
-        mutex.withLock {
-          db.updateDao()
-              .update(o)
-          publishRealtime(Update(o.makeReal()))
-        }
-      }
-
+    override fun realtime(): FridgeItemRealtime {
+        return db.realtime()
     }
-  }
 
-  override fun deleteDao(): FridgeItemDeleteDao {
-    return object : FridgeItemDeleteDao {
+    override fun queryDao(): FridgeItemQueryDao {
+        return object : FridgeItemQueryDao {
 
-      override suspend fun delete(o: FridgeItem) {
-        mutex.withLock {
-          db.deleteDao()
-              .delete(o)
-          publishRealtime(Delete(o.makeReal()))
+            @CheckResult
+            private suspend fun queryAsSequence(force: Boolean): Sequence<FridgeItem> {
+                if (force) {
+                    cache.clear()
+                }
+
+                return cache.call(force)
+            }
+
+            override suspend fun query(force: Boolean): List<FridgeItem> {
+                mutex.withLock {
+                    return queryAsSequence(force).toList()
+                }
+            }
+
+            override suspend fun query(
+                force: Boolean,
+                entryId: String
+            ): List<FridgeItem> {
+                mutex.withLock {
+                    return queryAsSequence(force)
+                        .filter { it.entryId() == entryId }
+                        .toList()
+                }
+            }
         }
-      }
-
     }
-  }
 
+    override fun insertDao(): FridgeItemInsertDao {
+        return object : FridgeItemInsertDao {
+
+            override suspend fun insert(o: FridgeItem) {
+                mutex.withLock {
+                    db.insertDao()
+                        .insert(o)
+                    publishRealtime(Insert(o.makeReal()))
+                }
+            }
+        }
+    }
+
+    override fun updateDao(): FridgeItemUpdateDao {
+        return object : FridgeItemUpdateDao {
+
+            override suspend fun update(o: FridgeItem) {
+                mutex.withLock {
+                    db.updateDao()
+                        .update(o)
+                    publishRealtime(Update(o.makeReal()))
+                }
+            }
+        }
+    }
+
+    override fun deleteDao(): FridgeItemDeleteDao {
+        return object : FridgeItemDeleteDao {
+
+            override suspend fun delete(o: FridgeItem) {
+                mutex.withLock {
+                    db.deleteDao()
+                        .delete(o)
+                    publishRealtime(Delete(o.makeReal()))
+                }
+            }
+        }
+    }
 }

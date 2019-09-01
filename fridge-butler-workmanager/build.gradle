@@ -22,56 +22,56 @@ apply plugin: "com.getkeepsafe.dexcount"
 
 //noinspection GroovyMissingReturnStatement
 android {
-  compileSdkVersion rootProject.ext.maxSdk
+    compileSdkVersion rootProject.ext.maxSdk
 
-  //noinspection GroovyMissingReturnStatement
-  defaultConfig {
-    minSdkVersion rootProject.ext.minSdk
-    targetSdkVersion rootProject.ext.maxSdk
+    //noinspection GroovyMissingReturnStatement
+    defaultConfig {
+        minSdkVersion rootProject.ext.minSdk
+        targetSdkVersion rootProject.ext.maxSdk
 
-    resConfigs "en"
+        resConfigs "en"
 
-    javaCompileOptions {
-      annotationProcessorOptions {
-        // Fix kapt
-        includeCompileClasspath = true
-      }
+        javaCompileOptions {
+            annotationProcessorOptions {
+                // Fix kapt
+                includeCompileClasspath = true
+            }
+        }
     }
-  }
 
-  // TODO replace with https://issuetracker.google.com/issues/72050365 once released.
-  libraryVariants.all {
-    it.generateBuildConfig.enabled = false
-  }
-  compileOptions {
-    sourceCompatibility JavaVersion.VERSION_1_8
-    targetCompatibility JavaVersion.VERSION_1_8
-  }
+    // TODO replace with https://issuetracker.google.com/issues/72050365 once released.
+    libraryVariants.all {
+        it.generateBuildConfig.enabled = false
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
 }
 
 // Kapt flags
 kapt {
-  correctErrorTypes = true
-  useBuildCache = true
-  mapDiagnosticLocations = true
+    correctErrorTypes = true
+    useBuildCache = true
+    mapDiagnosticLocations = true
 
-  javacOptions {
-    option("-Xlint:unchecked")
-    option("-Xlint:deprecation")
-    option("-Xmaxerrs", 10000)
-    option("-Adagger.formatGeneratedSource=disabled")
-  }
+    javacOptions {
+        option("-Xlint:unchecked")
+        option("-Xlint:deprecation")
+        option("-Xmaxerrs", 10000)
+        option("-Adagger.formatGeneratedSource=disabled")
+    }
 }
 
 dependencies {
 
-  implementation "androidx.work:work-runtime:$workmanager"
-  implementation "androidx.work:work-runtime-ktx:$workmanager"
+    implementation "androidx.work:work-runtime:$workmanager"
+    implementation "androidx.work:work-runtime-ktx:$workmanager"
 
-  kapt "com.google.dagger:dagger-compiler:$dagger"
+    kapt "com.google.dagger:dagger-compiler:$dagger"
 
-  api project(':fridge-butler')
-  api project(':fridge-locator')
+    api project(':fridge-butler')
+    api project(':fridge-locator')
 }
 
 

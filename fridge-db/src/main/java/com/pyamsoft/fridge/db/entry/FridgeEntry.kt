@@ -24,47 +24,45 @@ import java.util.Date
 
 interface FridgeEntry : BaseModel<FridgeEntry> {
 
-  @CheckResult
-  fun id(): String
-
-  @CheckResult
-  fun isReal(): Boolean
-
-  @CheckResult
-  fun makeReal(): FridgeEntry
-
-  companion object {
-
-    const val EMPTY_NAME = ""
+    @CheckResult
+    fun id(): String
 
     @CheckResult
-    @JvmOverloads
-    fun create(id: String = IdGenerator.generate()): FridgeEntry {
-      return create(id, EMPTY_NAME, Date(), isReal = false)
-    }
+    fun isReal(): Boolean
 
     @CheckResult
-    @JvmOverloads
-    fun create(
-      id: String = IdGenerator.generate(),
-      name: String,
-      createdTime: Date,
-      isReal: Boolean
-    ): FridgeEntry {
-      return JsonMappableFridgeEntry(id, name, createdTime, isReal)
+    fun makeReal(): FridgeEntry
+
+    companion object {
+
+        const val EMPTY_NAME = ""
+
+        @CheckResult
+        @JvmOverloads
+        fun create(id: String = IdGenerator.generate()): FridgeEntry {
+            return create(id, EMPTY_NAME, Date(), isReal = false)
+        }
+
+        @CheckResult
+        @JvmOverloads
+        fun create(
+            id: String = IdGenerator.generate(),
+            name: String,
+            createdTime: Date,
+            isReal: Boolean
+        ): FridgeEntry {
+            return JsonMappableFridgeEntry(id, name, createdTime, isReal)
+        }
+
+        @CheckResult
+        @JvmOverloads
+        fun create(
+            entry: FridgeEntry,
+            name: String = entry.name(),
+            createdTime: Date = entry.createdTime(),
+            isReal: Boolean
+        ): FridgeEntry {
+            return JsonMappableFridgeEntry(entry.id(), name, createdTime, isReal)
+        }
     }
-
-    @CheckResult
-    @JvmOverloads
-    fun create(
-      entry: FridgeEntry,
-      name: String = entry.name(),
-      createdTime: Date = entry.createdTime(),
-      isReal: Boolean
-    ): FridgeEntry {
-      return JsonMappableFridgeEntry(entry.id(), name, createdTime, isReal)
-    }
-
-  }
-
 }

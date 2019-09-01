@@ -28,55 +28,54 @@ import com.pyamsoft.fridge.db.zone.NearbyZone
 
 internal object GeofenceNotifications {
 
-  private const val NEEDED_CHANNEL_ID = "fridge_needed_reminders_channel_v1"
+    private const val NEEDED_CHANNEL_ID = "fridge_needed_reminders_channel_v1"
 
-  private fun notifyNeeded(
-    handler: NotificationHandler,
-    foregroundState: ForegroundState,
-    context: Context,
-    entry: FridgeEntry,
-    storeName: String,
-    items: List<FridgeItem>
-  ) {
-    ButlerNotifications.notify(
-        handler,
-        foregroundState,
-        entry,
-        context,
-        NEEDED_CHANNEL_ID,
-        "Needed Reminders",
-        "Reminders for items that you still need to purchase."
-    ) { builder ->
-      val extra = ButlerNotifications.getExtraItems(items)
-      return@notify builder
-          .setContentTitle("Nearby Reminder for $storeName")
-          .setContentText("You still need '${items.first().name()}' $extra")
-          .build()
+    private fun notifyNeeded(
+        handler: NotificationHandler,
+        foregroundState: ForegroundState,
+        context: Context,
+        entry: FridgeEntry,
+        storeName: String,
+        items: List<FridgeItem>
+    ) {
+        ButlerNotifications.notify(
+            handler,
+            foregroundState,
+            entry,
+            context,
+            NEEDED_CHANNEL_ID,
+            "Needed Reminders",
+            "Reminders for items that you still need to purchase."
+        ) { builder ->
+            val extra = ButlerNotifications.getExtraItems(items)
+            return@notify builder
+                .setContentTitle("Nearby Reminder for $storeName")
+                .setContentText("You still need '${items.first().name()}' $extra")
+                .build()
+        }
     }
-  }
 
-  @JvmStatic
-  fun notifyNeeded(
-    handler: NotificationHandler,
-    foregroundState: ForegroundState,
-    context: Context,
-    entry: FridgeEntry,
-    store: NearbyStore,
-    items: List<FridgeItem>
-  ) {
-    notifyNeeded(handler, foregroundState, context, entry, store.name(), items)
-  }
+    @JvmStatic
+    fun notifyNeeded(
+        handler: NotificationHandler,
+        foregroundState: ForegroundState,
+        context: Context,
+        entry: FridgeEntry,
+        store: NearbyStore,
+        items: List<FridgeItem>
+    ) {
+        notifyNeeded(handler, foregroundState, context, entry, store.name(), items)
+    }
 
-  @JvmStatic
-  fun notifyNeeded(
-    handler: NotificationHandler,
-    foregroundState: ForegroundState,
-    context: Context,
-    entry: FridgeEntry,
-    zone: NearbyZone,
-    items: List<FridgeItem>
-  ) {
-    notifyNeeded(handler, foregroundState, context, entry, zone.name(), items)
-  }
-
+    @JvmStatic
+    fun notifyNeeded(
+        handler: NotificationHandler,
+        foregroundState: ForegroundState,
+        context: Context,
+        entry: FridgeEntry,
+        zone: NearbyZone,
+        items: List<FridgeItem>
+    ) {
+        notifyNeeded(handler, foregroundState, context, entry, zone.name(), items)
+    }
 }

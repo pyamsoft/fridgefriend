@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ Copyright 2019 Peter Kenji Yamanaka
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,19 +17,19 @@
 
 <set xmlns:android="http://schemas.android.com/apk/res/android">
 
-  <rotate
-      android:duration="70"
-      android:fromDegrees="-10"
-      android:interpolator="@android:anim/overshoot_interpolator"
-      android:pivotX="50%"
-      android:pivotY="50%"
-      android:repeatCount="5"
-      android:repeatMode="reverse"
-      android:toDegrees="10"/>
+    <rotate
+        android:duration="70"
+        android:fromDegrees="-10"
+        android:interpolator="@android:anim/overshoot_interpolator"
+        android:pivotX="50%"
+        android:pivotY="50%"
+        android:repeatCount="5"
+        android:repeatMode="reverse"
+        android:toDegrees="10" />
 
-  <translate
-      android:duration="200"
-      android:fromYDelta="0"
-      android:interpolator="@android:anim/anticipate_overshoot_interpolator"
-      android:toYDelta="-50"/>
+    <translate
+        android:duration="200"
+        android:fromYDelta="0"
+        android:interpolator="@android:anim/anticipate_overshoot_interpolator"
+        android:toYDelta="-50" />
 </set>

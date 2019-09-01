@@ -22,10 +22,9 @@ import com.pyamsoft.fridge.db.BaseDb
 
 interface FridgeItemQueryDao : BaseDb.Query<FridgeItem> {
 
-  @CheckResult
-  suspend fun query(
-    force: Boolean,
-    entryId: String
-  ): List<FridgeItem>
-
+    @CheckResult
+    suspend fun query(
+        force: Boolean,
+        entryId: String
+    ): List<FridgeItem>
 }

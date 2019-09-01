@@ -31,61 +31,59 @@ import java.util.Calendar
 import javax.inject.Inject
 
 class DetailListItemDate @Inject internal constructor(
-  parent: ViewGroup
+    parent: ViewGroup
 ) : BaseUiView<DetailItemViewState, DetailItemViewEvent>(parent) {
 
-  override val layout: Int = R.layout.detail_list_item_date
+    override val layout: Int = R.layout.detail_list_item_date
 
-  override val layoutRoot by boundView<TextView>(R.id.detail_item_date)
+    override val layoutRoot by boundView<TextView>(R.id.detail_item_date)
 
-  override fun onRender(
-    state: DetailItemViewState,
-    savedState: UiSavedState
-  ) {
-    state.item.let { item ->
-      val isEditable = state.isEditable
+    override fun onRender(
+        state: DetailItemViewState,
+        savedState: UiSavedState
+    ) {
+        state.item.let { item ->
+            val isEditable = state.isEditable
 
-      val month: Int
-      val day: Int
-      val year: Int
-      val expireTime = item.expireTime()
-      if (expireTime != null) {
-        val date = Calendar.getInstance()
-            .apply { time = expireTime }
-        Timber.d("Expire time is: $date")
+            val month: Int
+            val day: Int
+            val year: Int
+            val expireTime = item.expireTime()
+            if (expireTime != null) {
+                val date = Calendar.getInstance()
+                    .apply { time = expireTime }
+                Timber.d("Expire time is: $date")
 
-        // Month is zero indexed in storage
-        month = date.get(Calendar.MONTH)
-        day = date.get(Calendar.DAY_OF_MONTH)
-        year = date.get(Calendar.YEAR)
+                // Month is zero indexed in storage
+                month = date.get(Calendar.MONTH)
+                day = date.get(Calendar.DAY_OF_MONTH)
+                year = date.get(Calendar.YEAR)
 
-        val dateString =
-          "${"${month + 1}".padStart(2, '0')}/${
-          "$day".padStart(2, '0')}/${
-          "$year".padStart(4, '0')}"
-        layoutRoot.text = dateString
-      } else {
-        month = 0
-        day = 0
-        year = 0
-        layoutRoot.text = "__/__/____"
-      }
+                val dateString =
+                    "${"${month + 1}".padStart(2, '0')}/${
+                    "$day".padStart(2, '0')}/${
+                    "$year".padStart(4, '0')}"
+                layoutRoot.text = dateString
+            } else {
+                month = 0
+                day = 0
+                year = 0
+                layoutRoot.text = "__/__/____"
+            }
 
-      if (isEditable && !item.isArchived()) {
-        layoutRoot.setOnDebouncedClickListener {
-          publish(PickDate(item, year, month, day))
+            if (isEditable && !item.isArchived()) {
+                layoutRoot.setOnDebouncedClickListener {
+                    publish(PickDate(item, year, month, day))
+                }
+            } else {
+                layoutRoot.setOnDebouncedClickListener {
+                    publish(ExpandItem(item))
+                }
+            }
         }
-      } else {
-        layoutRoot.setOnDebouncedClickListener {
-          publish(ExpandItem(item))
-        }
-      }
     }
-  }
 
-  override fun onTeardown() {
-    layoutRoot.setOnDebouncedClickListener(null)
-  }
-
+    override fun onTeardown() {
+        layoutRoot.setOnDebouncedClickListener(null)
+    }
 }
-

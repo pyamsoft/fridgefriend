@@ -22,91 +22,91 @@ apply plugin: "com.getkeepsafe.dexcount"
 
 //noinspection GroovyMissingReturnStatement
 android {
-  compileSdkVersion rootProject.ext.maxSdk
+    compileSdkVersion rootProject.ext.maxSdk
 
-  defaultConfig {
-    applicationId "com.pyamsoft.fridge"
-    minSdkVersion rootProject.ext.minSdk
-    targetSdkVersion rootProject.ext.maxSdk
-    versionCode 1
-    versionName "0.0.1"
+    defaultConfig {
+        applicationId "com.pyamsoft.fridge"
+        minSdkVersion rootProject.ext.minSdk
+        targetSdkVersion rootProject.ext.maxSdk
+        versionCode 1
+        versionName "0.0.1"
 
-    // For vector drawables
-    vectorDrawables.useSupportLibrary = true
+        // For vector drawables
+        vectorDrawables.useSupportLibrary = true
 
-    resConfigs "en"
-  }
-
-  compileOptions {
-    sourceCompatibility JavaVersion.VERSION_1_8
-    targetCompatibility JavaVersion.VERSION_1_8
-  }
-
-  signingConfigs {
-    release {
-      //noinspection GroovyAssignabilityCheck
-      storeFile new File(RELEASE_STORE_FILE)
-
-      //noinspection GroovyAssignabilityCheck
-      keyAlias RELEASE_KEY_ALIAS
-
-      //noinspection GroovyAssignabilityCheck
-      keyPassword RELEASE_KEY_PASSWD
-
-      //noinspection GroovyAssignabilityCheck
-      storePassword RELEASE_STORE_PASSWD
-    }
-  }
-
-  buildTypes {
-    release {
-      //noinspection GroovyAssignabilityCheck
-      signingConfig signingConfigs.release
-      minifyEnabled true
-      shrinkResources true
-      proguardFiles getDefaultProguardFile("proguard-android-optimize.txt"),
-          "proguard-rules.pro"
+        resConfigs "en"
     }
 
-    debug {
-      applicationIdSuffix ".dev"
-      versionNameSuffix "-dev"
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
     }
-  }
+
+    signingConfigs {
+        release {
+            //noinspection GroovyAssignabilityCheck
+            storeFile new File(RELEASE_STORE_FILE)
+
+            //noinspection GroovyAssignabilityCheck
+            keyAlias RELEASE_KEY_ALIAS
+
+            //noinspection GroovyAssignabilityCheck
+            keyPassword RELEASE_KEY_PASSWD
+
+            //noinspection GroovyAssignabilityCheck
+            storePassword RELEASE_STORE_PASSWD
+        }
+    }
+
+    buildTypes {
+        release {
+            //noinspection GroovyAssignabilityCheck
+            signingConfig signingConfigs.release
+            minifyEnabled true
+            shrinkResources true
+            proguardFiles getDefaultProguardFile("proguard-android-optimize.txt"),
+                    "proguard-rules.pro"
+        }
+
+        debug {
+            applicationIdSuffix ".dev"
+            versionNameSuffix "-dev"
+        }
+    }
 }
 
 // Kapt flags
 kapt {
-  correctErrorTypes = true
-  useBuildCache = true
-  mapDiagnosticLocations = true
+    correctErrorTypes = true
+    useBuildCache = true
+    mapDiagnosticLocations = true
 
-  javacOptions {
-    option("-Xlint:unchecked")
-    option("-Xlint:deprecation")
-    option("-Xmaxerrs", 10000)
-  }
+    javacOptions {
+        option("-Xlint:unchecked")
+        option("-Xlint:deprecation")
+        option("-Xmaxerrs", 10000)
+    }
 }
 
 dependencies {
-  // Leak Canary
-  debugImplementation "com.squareup.leakcanary:leakcanary-support-fragment:$leakCanary"
-  debugImplementation "com.squareup.leakcanary:leakcanary-android:$leakCanary"
-  releaseImplementation "com.squareup.leakcanary:leakcanary-android-no-op:$leakCanary"
-  testImplementation "com.squareup.leakcanary:leakcanary-android-no-op:$leakCanary"
+    // Leak Canary
+    debugImplementation "com.squareup.leakcanary:leakcanary-support-fragment:$leakCanary"
+    debugImplementation "com.squareup.leakcanary:leakcanary-android:$leakCanary"
+    releaseImplementation "com.squareup.leakcanary:leakcanary-android-no-op:$leakCanary"
+    testImplementation "com.squareup.leakcanary:leakcanary-android-no-op:$leakCanary"
 
-  // Dagger
-  kapt "com.google.dagger:dagger-compiler:$dagger"
+    // Dagger
+    kapt "com.google.dagger:dagger-compiler:$dagger"
 
-  api project(':fridge-butler-workmanager')
-  api project(':fridge-db-room')
-  api project(':fridge-core')
-  api project(':fridge-detail')
-  api project(':fridge-entry')
-  api project(':fridge-locator-map')
-  api project(':fridge-main')
-  //  api project(':fridge-ocr')
-  api project(':fridge-setting')
+    api project(':fridge-butler-workmanager')
+    api project(':fridge-db-room')
+    api project(':fridge-core')
+    api project(':fridge-detail')
+    api project(':fridge-entry')
+    api project(':fridge-locator-map')
+    api project(':fridge-main')
+    //  api project(':fridge-ocr')
+    api project(':fridge-setting')
 }
 
 // Leave at bottom

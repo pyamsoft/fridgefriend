@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ Copyright 2019 Peter Kenji Yamanaka
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,26 +15,25 @@
   ~
   -->
 
-<menu
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-  <item
-      android:id="@+id/menu_item_consume"
-      android:icon="@drawable/ic_consumed_24dp"
-      android:title="@string/consumed"
-      app:showAsAction="ifRoom"/>
+    <item
+        android:id="@+id/menu_item_consume"
+        android:icon="@drawable/ic_consumed_24dp"
+        android:title="@string/consumed"
+        app:showAsAction="ifRoom" />
 
-  <item
-      android:id="@+id/menu_item_spoil"
-      android:icon="@drawable/ic_spoiled_24dp"
-      android:title="@string/spoiled"
-      app:showAsAction="ifRoom"/>
+    <item
+        android:id="@+id/menu_item_spoil"
+        android:icon="@drawable/ic_spoiled_24dp"
+        android:title="@string/spoiled"
+        app:showAsAction="ifRoom" />
 
-  <item
-      android:id="@+id/menu_item_delete"
-      android:icon="@drawable/ic_delete_24dp"
-      android:title="@string/delete"
-      app:showAsAction="ifRoom"/>
+    <item
+        android:id="@+id/menu_item_delete"
+        android:icon="@drawable/ic_delete_24dp"
+        android:title="@string/delete"
+        app:showAsAction="ifRoom" />
 
 </menu>

@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ Copyright 2019 Peter Kenji Yamanaka
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,70 +15,63 @@
   ~
   -->
 
-<androidx.coordinatorlayout.widget.CoordinatorLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/osm_frame"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    >
+    android:layout_height="match_parent">
 
-  <org.osmdroid.views.MapView
-      android:id="@+id/osm_map"
-      android:layout_width="match_parent"
-      android:layout_height="match_parent"
-      />
+    <org.osmdroid.views.MapView
+        android:id="@+id/osm_map"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
 
-  <com.google.android.material.floatingactionbutton.FloatingActionButton
-      android:id="@+id/osm_action"
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:layout_gravity="bottom|end"
-      android:layout_marginBottom="16dp"
-      android:layout_marginEnd="16dp"
-      app:elevation="6dp"
-      app:fabSize="normal"
-      app:pressedTranslationZ="12dp"
-      />
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/osm_action"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="16dp"
+        app:elevation="6dp"
+        app:fabSize="normal"
+        app:pressedTranslationZ="12dp" />
 
-  <com.google.android.material.floatingactionbutton.FloatingActionButton
-      android:id="@+id/osm_find_me"
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:layout_gravity="bottom|end"
-      android:layout_marginBottom="80dp"
-      android:layout_marginEnd="24dp"
-      app:backgroundTint="@color/grey500"
-      app:elevation="6dp"
-      app:fabSize="mini"
-      app:pressedTranslationZ="12dp"
-      />
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/osm_find_me"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_marginEnd="24dp"
+        android:layout_marginBottom="80dp"
+        app:backgroundTint="@color/grey500"
+        app:elevation="6dp"
+        app:fabSize="mini"
+        app:pressedTranslationZ="12dp" />
 
-  <com.google.android.material.floatingactionbutton.FloatingActionButton
-      android:id="@+id/osm_storage_permission"
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:layout_gravity="bottom|end"
-      android:layout_marginBottom="128dp"
-      android:layout_marginEnd="24dp"
-      app:backgroundTint="@color/grey500"
-      app:elevation="6dp"
-      app:fabSize="mini"
-      app:pressedTranslationZ="12dp"
-      />
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/osm_storage_permission"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_marginEnd="24dp"
+        android:layout_marginBottom="128dp"
+        app:backgroundTint="@color/grey500"
+        app:elevation="6dp"
+        app:fabSize="mini"
+        app:pressedTranslationZ="12dp" />
 
-  <com.google.android.material.floatingactionbutton.FloatingActionButton
-      android:id="@+id/osm_background_location_permission"
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:layout_gravity="bottom|end"
-      android:layout_marginBottom="176dp"
-      android:layout_marginEnd="24dp"
-      app:backgroundTint="@color/grey500"
-      app:elevation="6dp"
-      app:fabSize="mini"
-      app:pressedTranslationZ="12dp"
-      />
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/osm_background_location_permission"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_marginEnd="24dp"
+        android:layout_marginBottom="176dp"
+        app:backgroundTint="@color/grey500"
+        app:elevation="6dp"
+        app:fabSize="mini"
+        app:pressedTranslationZ="12dp" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
 

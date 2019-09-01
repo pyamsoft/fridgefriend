@@ -24,6 +24,5 @@ import javax.inject.Singleton
 @Singleton
 internal class ForegroundStateDetector @Inject internal constructor() : ForegroundState {
 
-  override var isForeground: Boolean = false
-
+    override var isForeground: Boolean = false
 }

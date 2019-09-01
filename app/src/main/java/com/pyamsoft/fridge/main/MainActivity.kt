@@ -41,128 +41,134 @@ import javax.inject.Inject
 
 internal class MainActivity : RatingActivity() {
 
-  override val checkForUpdates: Boolean = false
+    override val checkForUpdates: Boolean = false
 
-  override val applicationIcon: Int = R.mipmap.ic_launcher
+    override val applicationIcon: Int = R.mipmap.ic_launcher
 
-  override val versionName: String = BuildConfig.VERSION_NAME
+    override val versionName: String = BuildConfig.VERSION_NAME
 
-  override val changeLogLines: ChangeLogBuilder = buildChangeLog {
+    override val changeLogLines: ChangeLogBuilder = buildChangeLog {
+    }
 
-  }
+    override val fragmentContainerId: Int
+        get() = requireNotNull(container).id()
 
-  override val fragmentContainerId: Int
-    get() = requireNotNull(container).id()
+    override val snackbarRoot: ViewGroup
+        get() {
+            val entryFragment = supportFragmentManager.findFragmentByTag(EntryFragment.TAG)
+            if (entryFragment is SnackbarContainer) {
+                val snackbarContainer = entryFragment.getSnackbarContainer()
+                if (snackbarContainer != null) {
+                    return snackbarContainer
+                }
+            }
 
-  override val snackbarRoot: ViewGroup
-    get() {
-      val entryFragment = supportFragmentManager.findFragmentByTag(EntryFragment.TAG)
-      if (entryFragment is SnackbarContainer) {
-        val snackbarContainer = entryFragment.getSnackbarContainer()
-        if (snackbarContainer != null) {
-          return snackbarContainer
+            return requireNotNull(rootView)
         }
-      }
 
-      return requireNotNull(rootView)
+    private var rootView: ConstraintLayout? = null
+    @JvmField
+    @Inject
+    internal var foregroundState: ForegroundState? = null
+    @JvmField
+    @Inject
+    internal var toolbar: MainToolbar? = null
+    @JvmField
+    @Inject
+    internal var container: FragmentContainer? = null
+    @JvmField
+    @Inject
+    internal var butler: Butler? = null
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        setTheme(R.style.Theme_Fridge_Normal)
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.layout_constraint)
+
+        val view = findViewById<ConstraintLayout>(R.id.layout_constraint)
+        rootView = view
+
+        Injector.obtain<FridgeComponent>(applicationContext)
+            .plusMainComponent()
+            .create(this, view, this)
+            .inject(this)
+
+        view.makeWindowSexy()
+        inflateComponents(view, savedInstanceState)
+
+        pushFragment()
     }
 
-  private var rootView: ConstraintLayout? = null
-  @JvmField @Inject internal var foregroundState: ForegroundState? = null
-  @JvmField @Inject internal var toolbar: MainToolbar? = null
-  @JvmField @Inject internal var container: FragmentContainer? = null
-  @JvmField @Inject internal var butler: Butler? = null
-
-  override fun onCreate(savedInstanceState: Bundle?) {
-    setTheme(R.style.Theme_Fridge_Normal)
-    super.onCreate(savedInstanceState)
-    setContentView(R.layout.layout_constraint)
-
-    val view = findViewById<ConstraintLayout>(R.id.layout_constraint)
-    rootView = view
-
-    Injector.obtain<FridgeComponent>(applicationContext)
-        .plusMainComponent()
-        .create(this, view, this)
-        .inject(this)
-
-    view.makeWindowSexy()
-    inflateComponents(view, savedInstanceState)
-
-    pushFragment()
-  }
-
-  override fun onStart() {
-    super.onStart()
-    requireNotNull(foregroundState).isForeground = true
-  }
-
-  override fun onStop() {
-    super.onStop()
-    requireNotNull(foregroundState).isForeground = false
-  }
-
-  override fun onTrimMemory(level: Int) {
-    super.onTrimMemory(level)
-    if (level == ComponentCallbacks2.TRIM_MEMORY_UI_HIDDEN) {
-      requireNotNull(foregroundState).isForeground = false
+    override fun onStart() {
+        super.onStart()
+        requireNotNull(foregroundState).isForeground = true
     }
-  }
 
-  private fun inflateComponents(
-    constraintLayout: ConstraintLayout,
-    savedInstanceState: Bundle?
-  ) {
-    val container = requireNotNull(container)
-    val toolbar = requireNotNull(toolbar)
-
-    createComponent(
-        savedInstanceState, this, UnitViewModel.create(),
-        container, toolbar
-    ) {}
-
-    constraintLayout.layout {
-
-      toolbar.also {
-        connect(it.id(), ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP)
-        connect(it.id(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
-        connect(it.id(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
-        constrainWidth(it.id(), ConstraintSet.MATCH_CONSTRAINT)
-      }
-
-      container.also {
-        connect(it.id(), ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP)
-        connect(it.id(), ConstraintSet.BOTTOM, ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM)
-        connect(it.id(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
-        connect(it.id(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
-        constrainHeight(it.id(), ConstraintSet.MATCH_CONSTRAINT)
-        constrainWidth(it.id(), ConstraintSet.MATCH_CONSTRAINT)
-      }
+    override fun onStop() {
+        super.onStop()
+        requireNotNull(foregroundState).isForeground = false
     }
-  }
 
-  private fun pushFragment() {
-    val fm = supportFragmentManager
-    if (fm.findFragmentById(fragmentContainerId) == null) {
-      fm.commitNow(this) {
-        add(fragmentContainerId, EntryFragment.newInstance(), EntryFragment.TAG)
-      }
+    override fun onTrimMemory(level: Int) {
+        super.onTrimMemory(level)
+        if (level == ComponentCallbacks2.TRIM_MEMORY_UI_HIDDEN) {
+            requireNotNull(foregroundState).isForeground = false
+        }
     }
-  }
 
-  override fun onSaveInstanceState(outState: Bundle) {
-    super.onSaveInstanceState(outState)
-    toolbar?.saveState(outState)
-    container?.saveState(outState)
-  }
+    private fun inflateComponents(
+        constraintLayout: ConstraintLayout,
+        savedInstanceState: Bundle?
+    ) {
+        val container = requireNotNull(container)
+        val toolbar = requireNotNull(toolbar)
 
-  override fun onDestroy() {
-    super.onDestroy()
-    rootView = null
-    toolbar = null
-    container = null
-    butler = null
-    foregroundState = null
-  }
+        createComponent(
+            savedInstanceState, this, UnitViewModel.create(),
+            container, toolbar
+        ) {}
 
+        constraintLayout.layout {
+
+            toolbar.also {
+                connect(it.id(), ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP)
+                connect(it.id(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
+                connect(it.id(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
+                constrainWidth(it.id(), ConstraintSet.MATCH_CONSTRAINT)
+            }
+
+            container.also {
+                connect(it.id(), ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP)
+                connect(it.id(), ConstraintSet.BOTTOM, ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM)
+                connect(it.id(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
+                connect(it.id(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
+                constrainHeight(it.id(), ConstraintSet.MATCH_CONSTRAINT)
+                constrainWidth(it.id(), ConstraintSet.MATCH_CONSTRAINT)
+            }
+        }
+    }
+
+    private fun pushFragment() {
+        val fm = supportFragmentManager
+        if (fm.findFragmentById(fragmentContainerId) == null) {
+            fm.commitNow(this) {
+                add(fragmentContainerId, EntryFragment.newInstance(), EntryFragment.TAG)
+            }
+        }
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        toolbar?.saveState(outState)
+        container?.saveState(outState)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        rootView = null
+        toolbar = null
+        container = null
+        butler = null
+        foregroundState = null
+    }
 }

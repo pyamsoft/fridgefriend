@@ -27,53 +27,47 @@ import com.pyamsoft.pydroid.arch.EventConsumer
 
 interface BaseDb<ChangeEvent : Any, R : Realtime<*>, Q : Query<*>, I : Insert<*>, U : Update<*>, D : Delete<*>> {
 
-  suspend fun publish(event: ChangeEvent)
-
-  @CheckResult
-  fun realtime(): R
-
-  @CheckResult
-  fun queryDao(): Q
-
-  @CheckResult
-  fun insertDao(): I
-
-  @CheckResult
-  fun updateDao(): U
-
-  @CheckResult
-  fun deleteDao(): D
-
-  interface Realtime<T : Any> {
+    suspend fun publish(event: ChangeEvent)
 
     @CheckResult
-    fun listenForChanges(): EventConsumer<T>
-
-  }
-
-  interface Delete<T : Any> {
-
-    suspend fun delete(o: T)
-
-  }
-
-  interface Insert<T : Any> {
-
-    suspend fun insert(o: T)
-
-  }
-
-  interface Update<T : Any> {
-
-    suspend fun update(o: T)
-
-  }
-
-  interface Query<T : Any> {
+    fun realtime(): R
 
     @CheckResult
-    suspend fun query(force: Boolean): List<T>
+    fun queryDao(): Q
 
-  }
+    @CheckResult
+    fun insertDao(): I
 
+    @CheckResult
+    fun updateDao(): U
+
+    @CheckResult
+    fun deleteDao(): D
+
+    interface Realtime<T : Any> {
+
+        @CheckResult
+        fun listenForChanges(): EventConsumer<T>
+    }
+
+    interface Delete<T : Any> {
+
+        suspend fun delete(o: T)
+    }
+
+    interface Insert<T : Any> {
+
+        suspend fun insert(o: T)
+    }
+
+    interface Update<T : Any> {
+
+        suspend fun update(o: T)
+    }
+
+    interface Query<T : Any> {
+
+        @CheckResult
+        suspend fun query(force: Boolean): List<T>
+    }
 }

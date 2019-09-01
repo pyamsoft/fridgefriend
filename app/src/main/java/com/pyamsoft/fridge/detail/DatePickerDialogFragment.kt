@@ -35,69 +35,69 @@ import javax.inject.Inject
 
 internal class DatePickerDialogFragment : DialogFragment() {
 
-  @JvmField @Inject internal var dateSelectBus: EventBus<DateSelectPayload>? = null
+    @JvmField
+    @Inject
+    internal var dateSelectBus: EventBus<DateSelectPayload>? = null
 
-  override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-    Injector.obtain<FridgeComponent>(requireContext().applicationContext)
-        .inject(this)
+    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+        Injector.obtain<FridgeComponent>(requireContext().applicationContext)
+            .inject(this)
 
-    val today = Calendar.getInstance()
-    val item: FridgeItem =
-      requireNotNull(requireArguments().getParcelable<JsonMappableFridgeItem>(ITEM))
+        val today = Calendar.getInstance()
+        val item: FridgeItem =
+            requireNotNull(requireArguments().getParcelable<JsonMappableFridgeItem>(ITEM))
 
-    var initialYear = requireArguments().getInt(YEAR, 0)
-    var initialMonth = requireArguments().getInt(MONTH, 0)
-    var initialDay = requireArguments().getInt(DAY, 0)
-    if (initialYear == 0) {
-      initialYear = today.get(Calendar.YEAR)
-    }
-    if (initialMonth == 0) {
-      initialMonth = today.get(Calendar.MONTH)
-    }
-    if (initialDay == 0) {
-      initialDay = today.get(Calendar.DAY_OF_MONTH)
-    }
-
-    return DatePickerDialog(
-        ContextThemeWrapper(requireActivity(), R.style.Theme_Fridge_Dialog),
-        DatePickerDialog.OnDateSetListener { _, year, month, dayOfMonth ->
-          requireNotNull(dateSelectBus).publish(
-              DateSelectPayload(item, year, month, dayOfMonth)
-          )
-          dismiss()
-        },
-        initialYear, initialMonth, initialDay
-    ).apply {
-      datePicker.minDate = today.timeInMillis
-    }
-  }
-
-  companion object {
-
-    const val TAG = "DatePickerDialogFragment"
-    private const val ITEM = "item"
-    private const val YEAR = "year"
-    private const val MONTH = "month"
-    private const val DAY = "day"
-
-    @JvmStatic
-    @CheckResult
-    fun newInstance(
-      item: FridgeItem,
-      year: Int,
-      month: Int,
-      day: Int
-    ): DialogFragment {
-      return DatePickerDialogFragment().apply {
-        arguments = Bundle().apply {
-          putParcelable(ITEM, JsonMappableFridgeItem.from(item))
-          putInt(YEAR, year)
-          putInt(MONTH, month)
-          putInt(DAY, day)
+        var initialYear = requireArguments().getInt(YEAR, 0)
+        var initialMonth = requireArguments().getInt(MONTH, 0)
+        var initialDay = requireArguments().getInt(DAY, 0)
+        if (initialYear == 0) {
+            initialYear = today.get(Calendar.YEAR)
         }
-      }
+        if (initialMonth == 0) {
+            initialMonth = today.get(Calendar.MONTH)
+        }
+        if (initialDay == 0) {
+            initialDay = today.get(Calendar.DAY_OF_MONTH)
+        }
+
+        return DatePickerDialog(
+            ContextThemeWrapper(requireActivity(), R.style.Theme_Fridge_Dialog),
+            DatePickerDialog.OnDateSetListener { _, year, month, dayOfMonth ->
+                requireNotNull(dateSelectBus).publish(
+                    DateSelectPayload(item, year, month, dayOfMonth)
+                )
+                dismiss()
+            },
+            initialYear, initialMonth, initialDay
+        ).apply {
+            datePicker.minDate = today.timeInMillis
+        }
     }
 
-  }
+    companion object {
 
+        const val TAG = "DatePickerDialogFragment"
+        private const val ITEM = "item"
+        private const val YEAR = "year"
+        private const val MONTH = "month"
+        private const val DAY = "day"
+
+        @JvmStatic
+        @CheckResult
+        fun newInstance(
+            item: FridgeItem,
+            year: Int,
+            month: Int,
+            day: Int
+        ): DialogFragment {
+            return DatePickerDialogFragment().apply {
+                arguments = Bundle().apply {
+                    putParcelable(ITEM, JsonMappableFridgeItem.from(item))
+                    putInt(YEAR, year)
+                    putInt(MONTH, month)
+                    putInt(DAY, day)
+                }
+            }
+        }
+    }
 }

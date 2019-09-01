@@ -31,48 +31,47 @@ import com.pyamsoft.pydroid.arch.UiSavedState
 import javax.inject.Inject
 
 class DetailListItemPresence @Inject internal constructor(
-  private val defaultPresence: Presence,
-  parent: ViewGroup
+    private val defaultPresence: Presence,
+    parent: ViewGroup
 ) : BaseUiView<DetailItemViewState, DetailItemViewEvent>(parent) {
 
-  override val layout: Int = R.layout.detail_list_item_presence
+    override val layout: Int = R.layout.detail_list_item_presence
 
-  override val layoutRoot by boundView<ViewGroup>(R.id.detail_item_presence)
+    override val layoutRoot by boundView<ViewGroup>(R.id.detail_item_presence)
 
-  private val presenceSwitch by boundView<CompoundButton>(R.id.detail_item_presence_switch)
+    private val presenceSwitch by boundView<CompoundButton>(R.id.detail_item_presence_switch)
 
-  override fun onRender(
-    state: DetailItemViewState,
-    savedState: UiSavedState
-  ) {
-    state.item.let { item ->
-      removeListeners()
+    override fun onRender(
+        state: DetailItemViewState,
+        savedState: UiSavedState
+    ) {
+        state.item.let { item ->
+            removeListeners()
 
-      setSwitchEnabled(item)
-      presenceSwitch.isChecked = item.presence() == HAVE
-      presenceSwitch.setOnCheckedChangeListener { _, isChecked ->
-        commit(item, isChecked)
-      }
+            setSwitchEnabled(item)
+            presenceSwitch.isChecked = item.presence() == HAVE
+            presenceSwitch.setOnCheckedChangeListener { _, isChecked ->
+                commit(item, isChecked)
+            }
+        }
     }
-  }
 
-  override fun onTeardown() {
-    removeListeners()
-  }
+    override fun onTeardown() {
+        removeListeners()
+    }
 
-  private fun removeListeners() {
-    presenceSwitch.setOnCheckedChangeListener(null)
-  }
+    private fun removeListeners() {
+        presenceSwitch.setOnCheckedChangeListener(null)
+    }
 
-  private fun setSwitchEnabled(item: FridgeItem) {
-    presenceSwitch.isEnabled = !item.isArchived()
-  }
+    private fun setSwitchEnabled(item: FridgeItem) {
+        presenceSwitch.isEnabled = !item.isArchived()
+    }
 
-  private fun commit(
-    item: FridgeItem,
-    isChecked: Boolean
-  ) {
-    publish(CommitPresence(item, if (isChecked) HAVE else NEED))
-  }
-
+    private fun commit(
+        item: FridgeItem,
+        isChecked: Boolean
+    ) {
+        publish(CommitPresence(item, if (isChecked) HAVE else NEED))
+    }
 }

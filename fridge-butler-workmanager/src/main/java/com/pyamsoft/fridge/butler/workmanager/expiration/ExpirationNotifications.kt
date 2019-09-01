@@ -26,63 +26,62 @@ import com.pyamsoft.fridge.db.item.FridgeItem
 
 internal object ExpirationNotifications {
 
-  private const val EXPIRING_CHANNEL_ID = "fridge_expiring_reminders_channel_v1"
-  private const val EXPIRED_CHANNEL_ID = "fridge_expiration_reminders_channel_v1"
+    private const val EXPIRING_CHANNEL_ID = "fridge_expiring_reminders_channel_v1"
+    private const val EXPIRED_CHANNEL_ID = "fridge_expiration_reminders_channel_v1"
 
-  @JvmStatic
-  fun notifyExpiring(
-    handler: NotificationHandler,
-    foregroundState: ForegroundState,
-    context: Context,
-    entry: FridgeEntry,
-    items: List<FridgeItem>
-  ) {
-    ButlerNotifications.notify(
-        handler,
-        foregroundState,
-        entry,
-        context,
-        EXPIRING_CHANNEL_ID,
-        "Expiring Reminders",
-        "Reminders for items that are going to expire soon"
-    ) { builder ->
-      val extra =
-        "${ButlerNotifications.getExtraItems(
-            items
-        )} ${if (items.size == 1) "is" else "are"} about to expire."
-      return@notify builder
-          .setContentTitle("Expiration reminder for '${entry.name()}'")
-          .setContentText("'${items.first().name()}' $extra")
-          .build()
+    @JvmStatic
+    fun notifyExpiring(
+        handler: NotificationHandler,
+        foregroundState: ForegroundState,
+        context: Context,
+        entry: FridgeEntry,
+        items: List<FridgeItem>
+    ) {
+        ButlerNotifications.notify(
+            handler,
+            foregroundState,
+            entry,
+            context,
+            EXPIRING_CHANNEL_ID,
+            "Expiring Reminders",
+            "Reminders for items that are going to expire soon"
+        ) { builder ->
+            val extra =
+                "${ButlerNotifications.getExtraItems(
+                    items
+                )} ${if (items.size == 1) "is" else "are"} about to expire."
+            return@notify builder
+                .setContentTitle("Expiration reminder for '${entry.name()}'")
+                .setContentText("'${items.first().name()}' $extra")
+                .build()
+        }
     }
-  }
 
-  @JvmStatic
-  fun notifyExpired(
-    handler: NotificationHandler,
-    foregroundState: ForegroundState,
-    context: Context,
-    entry: FridgeEntry,
-    items: List<FridgeItem>
-  ) {
-    ButlerNotifications.notify(
-        handler,
-        foregroundState,
-        entry,
-        context,
-        EXPIRED_CHANNEL_ID,
-        "Expired Reminders",
-        "Reminders for items that have expired"
-    ) { builder ->
-      return@notify builder
-          .setContentTitle("Expired warning for '${entry.name()}'")
-          .setContentText(
-              "'${items.first().name()}' ${ButlerNotifications.getExtraItems(
-                  items
-              )} ${if (items.size == 1) "has" else "have"} passed expiration!"
-          )
-          .build()
+    @JvmStatic
+    fun notifyExpired(
+        handler: NotificationHandler,
+        foregroundState: ForegroundState,
+        context: Context,
+        entry: FridgeEntry,
+        items: List<FridgeItem>
+    ) {
+        ButlerNotifications.notify(
+            handler,
+            foregroundState,
+            entry,
+            context,
+            EXPIRED_CHANNEL_ID,
+            "Expired Reminders",
+            "Reminders for items that have expired"
+        ) { builder ->
+            return@notify builder
+                .setContentTitle("Expired warning for '${entry.name()}'")
+                .setContentText(
+                    "'${items.first().name()}' ${ButlerNotifications.getExtraItems(
+                        items
+                    )} ${if (items.size == 1) "has" else "have"} passed expiration!"
+                )
+                .build()
+        }
     }
-  }
-
 }

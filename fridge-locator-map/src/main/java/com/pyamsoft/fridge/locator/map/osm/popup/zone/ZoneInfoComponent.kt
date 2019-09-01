@@ -42,34 +42,33 @@ import dagger.multibindings.IntoMap
 @Component(modules = [ViewModelModule::class])
 internal interface ZoneInfoComponent {
 
-  fun inject(infoWindow: ZoneInfoWindow)
+    fun inject(infoWindow: ZoneInfoWindow)
 
-  @Component.Factory
-  interface Factory {
+    @Component.Factory
+    interface Factory {
 
-    @CheckResult
-    fun create(
-      @BindsInstance parent: ViewGroup,
-      @BindsInstance imageLoader: ImageLoader,
-      @BindsInstance zone: NearbyZone,
-      @BindsInstance butler: Butler,
-      @BindsInstance nearbyZoneRealtime: NearbyZoneRealtime,
-      @BindsInstance nearbyZoneQueryDao: NearbyZoneQueryDao,
-      @BindsInstance nearbyZoneInsertDao: NearbyZoneInsertDao,
-      @BindsInstance nearbyZoneDeleteDao: NearbyZoneDeleteDao
-    ): ZoneInfoComponent
-  }
+        @CheckResult
+        fun create(
+            @BindsInstance parent: ViewGroup,
+            @BindsInstance imageLoader: ImageLoader,
+            @BindsInstance zone: NearbyZone,
+            @BindsInstance butler: Butler,
+            @BindsInstance nearbyZoneRealtime: NearbyZoneRealtime,
+            @BindsInstance nearbyZoneQueryDao: NearbyZoneQueryDao,
+            @BindsInstance nearbyZoneInsertDao: NearbyZoneInsertDao,
+            @BindsInstance nearbyZoneDeleteDao: NearbyZoneDeleteDao
+        ): ZoneInfoComponent
+    }
 
-  @Module
-  abstract class ViewModelModule {
+    @Module
+    abstract class ViewModelModule {
 
-    @Binds
-    internal abstract fun bindViewModelFactory(factory: PopupViewModelFactory): ViewModelProvider.Factory
+        @Binds
+        internal abstract fun bindViewModelFactory(factory: PopupViewModelFactory): ViewModelProvider.Factory
 
-    @Binds
-    @IntoMap
-    @ViewModelKey(ZoneInfoViewModel::class)
-    internal abstract fun zoneViewModel(viewModel: ZoneInfoViewModel): UiViewModel<*, *, *>
-  }
-
+        @Binds
+        @IntoMap
+        @ViewModelKey(ZoneInfoViewModel::class)
+        internal abstract fun zoneViewModel(viewModel: ZoneInfoViewModel): UiViewModel<*, *, *>
+    }
 }

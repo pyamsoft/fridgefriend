@@ -22,9 +22,8 @@ import java.util.UUID
 
 internal object IdGenerator {
 
-  @CheckResult
-  fun generate(): String {
-    return UUID.randomUUID().toString()
-  }
-
+    @CheckResult
+    fun generate(): String {
+        return UUID.randomUUID().toString()
+    }
 }

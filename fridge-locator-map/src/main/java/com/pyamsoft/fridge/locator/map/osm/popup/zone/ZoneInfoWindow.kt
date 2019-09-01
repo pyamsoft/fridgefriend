@@ -46,121 +46,127 @@ import timber.log.Timber
 import javax.inject.Inject
 
 internal class ZoneInfoWindow private constructor(
-  zone: NearbyZone,
-  map: MapView,
-  butler: Butler,
-  imageLoader: ImageLoader,
-  nearbyZoneRealtime: NearbyZoneRealtime,
-  nearbyZoneQueryDao: NearbyZoneQueryDao,
-  nearbyZoneInsertDao: NearbyZoneInsertDao,
-  nearbyZoneDeleteDao: NearbyZoneDeleteDao
+    zone: NearbyZone,
+    map: MapView,
+    butler: Butler,
+    imageLoader: ImageLoader,
+    nearbyZoneRealtime: NearbyZoneRealtime,
+    nearbyZoneQueryDao: NearbyZoneQueryDao,
+    nearbyZoneInsertDao: NearbyZoneInsertDao,
+    nearbyZoneDeleteDao: NearbyZoneDeleteDao
 ) : InfoWindow(R.layout.zone_info_layout, map), LifecycleOwner {
 
-  private val registry = LifecycleRegistry(this)
+    private val registry = LifecycleRegistry(this)
 
-  @JvmField @Inject internal var factory: ViewModelProvider.Factory? = null
-  @JvmField @Inject internal var infoTitle: ZoneInfoTitle? = null
-  @JvmField @Inject internal var infoLocation: ZoneInfoLocation? = null
-  private val viewModel by factory<ZoneInfoViewModel>(ViewModelStore()) { factory }
+    @JvmField
+    @Inject
+    internal var factory: ViewModelProvider.Factory? = null
+    @JvmField
+    @Inject
+    internal var infoTitle: ZoneInfoTitle? = null
+    @JvmField
+    @Inject
+    internal var infoLocation: ZoneInfoLocation? = null
+    private val viewModel by factory<ZoneInfoViewModel>(ViewModelStore()) { factory }
 
-  override fun getLifecycle(): Lifecycle {
-    return registry
-  }
-
-  init {
-    val parent = view.findViewById<ConstraintLayout>(R.id.zone_info_root)
-
-    DaggerZoneInfoComponent.factory()
-        .create(
-            parent,
-            imageLoader,
-            zone,
-            butler,
-            nearbyZoneRealtime,
-            nearbyZoneQueryDao,
-            nearbyZoneInsertDao,
-            nearbyZoneDeleteDao
-        )
-        .inject(this)
-
-    val title = requireNotNull(infoTitle)
-    val location = requireNotNull(infoLocation)
-    createComponent(
-        null, this,
-        viewModel,
-        title,
-        location
-    ) {
-      // TODO
+    override fun getLifecycle(): Lifecycle {
+        return registry
     }
 
-    parent?.layout {
-      title.also {
-        connect(it.id(), ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP)
-        connect(it.id(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
-        connect(it.id(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
-        constrainHeight(it.id(), ConstraintSet.WRAP_CONTENT)
-        constrainWidth(it.id(), ConstraintSet.MATCH_CONSTRAINT)
-      }
+    init {
+        val parent = view.findViewById<ConstraintLayout>(R.id.zone_info_root)
 
-      location.also {
-        connect(it.id(), ConstraintSet.TOP, title.id(), ConstraintSet.BOTTOM)
-        connect(it.id(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
-        connect(it.id(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
-        constrainHeight(it.id(), ConstraintSet.WRAP_CONTENT)
-        constrainWidth(it.id(), ConstraintSet.WRAP_CONTENT)
-      }
+        DaggerZoneInfoComponent.factory()
+            .create(
+                parent,
+                imageLoader,
+                zone,
+                butler,
+                nearbyZoneRealtime,
+                nearbyZoneQueryDao,
+                nearbyZoneInsertDao,
+                nearbyZoneDeleteDao
+            )
+            .inject(this)
+
+        val title = requireNotNull(infoTitle)
+        val location = requireNotNull(infoLocation)
+        createComponent(
+            null, this,
+            viewModel,
+            title,
+            location
+        ) {
+            // TODO
+        }
+
+        parent?.layout {
+            title.also {
+                connect(it.id(), ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP)
+                connect(it.id(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
+                connect(it.id(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
+                constrainHeight(it.id(), ConstraintSet.WRAP_CONTENT)
+                constrainWidth(it.id(), ConstraintSet.MATCH_CONSTRAINT)
+            }
+
+            location.also {
+                connect(it.id(), ConstraintSet.TOP, title.id(), ConstraintSet.BOTTOM)
+                connect(it.id(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
+                connect(it.id(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
+                constrainHeight(it.id(), ConstraintSet.WRAP_CONTENT)
+                constrainWidth(it.id(), ConstraintSet.WRAP_CONTENT)
+            }
+        }
+
+        registry.fakeBind()
     }
 
-    registry.fakeBind()
-  }
+    override fun onOpen(item: Any?) {
+        val v: View? = view
+        if (v == null) {
+            Timber.e("ZoneInfoWindow.open, mView is null! Bail")
+            return
+        }
 
-  override fun onOpen(item: Any?) {
-    val v: View? = view
-    if (v == null) {
-      Timber.e("ZoneInfoWindow.open, mView is null! Bail")
-      return
+        if (item == null || item !is Polygon) {
+            Timber.e("ZoneInfoWindow.open, item is not OverlayWithIW! Bail")
+            return
+        }
+
+        viewModel.updatePolygon(item)
     }
 
-    if (item == null || item !is Polygon) {
-      Timber.e("ZoneInfoWindow.open, item is not OverlayWithIW! Bail")
-      return
+    override fun onClose() {
     }
 
-    viewModel.updatePolygon(item)
-  }
-
-  override fun onClose() {
-  }
-
-  override fun onDetach() {
-    registry.fakeUnbind()
-    infoTitle = null
-    infoLocation = null
-    factory = null
-  }
-
-  companion object {
-
-    @JvmStatic
-    @CheckResult
-    fun fromMap(
-      zone: NearbyZone,
-      map: MapView,
-      butler: Butler,
-      imageLoader: ImageLoader,
-      nearbyZoneRealtime: NearbyZoneRealtime,
-      nearbyZoneQueryDao: NearbyZoneQueryDao,
-      nearbyZoneInsertDao: NearbyZoneInsertDao,
-      nearbyZoneDeleteDao: NearbyZoneDeleteDao
-    ): InfoWindow {
-      return ZoneInfoWindow(
-          zone, map, butler, imageLoader,
-          nearbyZoneRealtime,
-          nearbyZoneQueryDao,
-          nearbyZoneInsertDao,
-          nearbyZoneDeleteDao
-      )
+    override fun onDetach() {
+        registry.fakeUnbind()
+        infoTitle = null
+        infoLocation = null
+        factory = null
     }
-  }
+
+    companion object {
+
+        @JvmStatic
+        @CheckResult
+        fun fromMap(
+            zone: NearbyZone,
+            map: MapView,
+            butler: Butler,
+            imageLoader: ImageLoader,
+            nearbyZoneRealtime: NearbyZoneRealtime,
+            nearbyZoneQueryDao: NearbyZoneQueryDao,
+            nearbyZoneInsertDao: NearbyZoneInsertDao,
+            nearbyZoneDeleteDao: NearbyZoneDeleteDao
+        ): InfoWindow {
+            return ZoneInfoWindow(
+                zone, map, butler, imageLoader,
+                nearbyZoneRealtime,
+                nearbyZoneQueryDao,
+                nearbyZoneInsertDao,
+                nearbyZoneDeleteDao
+            )
+        }
+    }
 }

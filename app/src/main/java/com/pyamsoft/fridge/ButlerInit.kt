@@ -21,12 +21,12 @@ import com.pyamsoft.fridge.butler.Butler
 import java.util.concurrent.TimeUnit.SECONDS
 
 fun Butler.initOnAppStart() {
-  cancelExpirationReminder()
-  remindExpiration(1, SECONDS)
+    cancelExpirationReminder()
+    remindExpiration(1, SECONDS)
 
-  cancelLocationReminder()
-  remindLocation(1, SECONDS)
+    cancelLocationReminder()
+    remindLocation(1, SECONDS)
 
-  unregisterGeofences()
-  registerGeofences(1, SECONDS)
+    unregisterGeofences()
+    registerGeofences(1, SECONDS)
 }

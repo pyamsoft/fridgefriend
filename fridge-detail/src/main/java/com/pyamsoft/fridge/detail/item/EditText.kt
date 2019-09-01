@@ -21,9 +21,9 @@ import android.graphics.Color
 import android.widget.EditText
 
 internal fun EditText.setNotEditable() {
-  isFocusableInTouchMode = false
-  isFocusable = false
-  isCursorVisible = false
-  keyListener = null
-  setBackgroundColor(Color.TRANSPARENT)
+    isFocusableInTouchMode = false
+    isFocusable = false
+    isCursorVisible = false
+    keyListener = null
+    setBackgroundColor(Color.TRANSPARENT)
 }

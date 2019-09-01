@@ -30,14 +30,14 @@ interface FridgeItemDb : BaseDb<
     FridgeItemDeleteDao
     > {
 
-  companion object {
+    companion object {
 
-    @CheckResult
-    fun wrap(
-      db: FridgeItemDb,
-      cache: Cached1<Sequence<FridgeItem>, Boolean>
-    ): FridgeItemDb {
-      return FridgeItemDbImpl(db, cache)
+        @CheckResult
+        fun wrap(
+            db: FridgeItemDb,
+            cache: Cached1<Sequence<FridgeItem>, Boolean>
+        ): FridgeItemDb {
+            return FridgeItemDbImpl(db, cache)
+        }
     }
-  }
 }

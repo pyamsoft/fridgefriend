@@ -25,50 +25,48 @@ import org.osmdroid.views.overlay.Polygon
 import java.util.concurrent.atomic.AtomicBoolean
 
 internal abstract class ZoneInfoContainer<T : ZoneInfoEvent> protected constructor(
-  private val eventBus: EventBus<T>
+    private val eventBus: EventBus<T>
 ) {
 
-  private val inflated = AtomicBoolean(false)
+    private val inflated = AtomicBoolean(false)
 
-  protected fun publish(event: T) {
-    eventBus.publish(event)
-  }
-
-  fun inflate(parent: ViewGroup) {
-    if (inflated.compareAndSet(false, true)) {
-      onInflate(parent)
+    protected fun publish(event: T) {
+        eventBus.publish(event)
     }
-  }
 
-  protected abstract fun onInflate(parent: ViewGroup)
-
-  fun open(
-    zone: NearbyZone,
-    polygon: Polygon
-  ) {
-    onOpen(zone, polygon)
-  }
-
-  protected abstract fun onOpen(
-    zone: NearbyZone,
-    polygon: Polygon
-  )
-
-  fun close() {
-    onClose()
-  }
-
-  protected abstract fun onClose()
-
-  fun teardown() {
-    if (inflated.compareAndSet(true, false)) {
-      onTeardown()
+    fun inflate(parent: ViewGroup) {
+        if (inflated.compareAndSet(false, true)) {
+            onInflate(parent)
+        }
     }
-  }
 
-  protected abstract fun onTeardown()
+    protected abstract fun onInflate(parent: ViewGroup)
 
-  internal sealed class ZoneInfoEvent {
+    fun open(
+        zone: NearbyZone,
+        polygon: Polygon
+    ) {
+        onOpen(zone, polygon)
+    }
 
-  }
+    protected abstract fun onOpen(
+        zone: NearbyZone,
+        polygon: Polygon
+    )
+
+    fun close() {
+        onClose()
+    }
+
+    protected abstract fun onClose()
+
+    fun teardown() {
+        if (inflated.compareAndSet(true, false)) {
+            onTeardown()
+        }
+    }
+
+    protected abstract fun onTeardown()
+
+    internal sealed class ZoneInfoEvent
 }

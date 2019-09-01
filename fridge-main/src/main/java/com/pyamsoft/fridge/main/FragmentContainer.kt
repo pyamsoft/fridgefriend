@@ -26,16 +26,16 @@ import com.pyamsoft.pydroid.arch.UnitViewState
 import javax.inject.Inject
 
 class FragmentContainer @Inject internal constructor(
-  parent: ViewGroup
+    parent: ViewGroup
 ) : BaseUiView<UnitViewState, UnitViewEvent>(parent) {
 
-  override val layout: Int = R.layout.layout_constraint
+    override val layout: Int = R.layout.layout_constraint
 
-  override val layoutRoot by boundView<ConstraintLayout>(R.id.layout_constraint)
+    override val layoutRoot by boundView<ConstraintLayout>(R.id.layout_constraint)
 
-  override fun onRender(
-    state: UnitViewState,
-    savedState: UiSavedState
-  ) {
-  }
+    override fun onRender(
+        state: UnitViewState,
+        savedState: UiSavedState
+    ) {
+    }
 }

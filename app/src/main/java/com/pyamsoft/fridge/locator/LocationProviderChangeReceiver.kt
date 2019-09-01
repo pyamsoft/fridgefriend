@@ -30,35 +30,40 @@ import javax.inject.Inject
 
 internal class LocationProviderChangeReceiver internal constructor() : BroadcastReceiver() {
 
-  @JvmField @Inject internal var gps: DeviceGps? = null
-  @JvmField @Inject internal var butler: Butler? = null
-  @JvmField @Inject internal var locator: Locator? = null
+    @JvmField
+    @Inject
+    internal var gps: DeviceGps? = null
+    @JvmField
+    @Inject
+    internal var butler: Butler? = null
+    @JvmField
+    @Inject
+    internal var locator: Locator? = null
 
-  override fun onReceive(
-    context: Context?,
-    intent: Intent?
-  ) {
-    if (context == null || intent == null) {
-      Timber.w("Cannot continue, Context or Intent is null")
-      return
-    }
-
-    Injector.obtain<FridgeComponent>(context.applicationContext)
-        .inject(this)
-
-    if (intent.action == LocationManager.PROVIDERS_CHANGED_ACTION) {
-      Timber.d("LocationProviders have changed - update Geofences")
-      requireNotNull(gps).isGpsEnabled { enabled ->
-        requireNotNull(butler).apply {
-          unregisterGeofences()
-          if (enabled) {
-            registerGeofences(1, SECONDS)
-          } else {
-            requireNotNull(locator).unregisterGeofences()
-          }
+    override fun onReceive(
+        context: Context?,
+        intent: Intent?
+    ) {
+        if (context == null || intent == null) {
+            Timber.w("Cannot continue, Context or Intent is null")
+            return
         }
-      }
-    }
-  }
 
+        Injector.obtain<FridgeComponent>(context.applicationContext)
+            .inject(this)
+
+        if (intent.action == LocationManager.PROVIDERS_CHANGED_ACTION) {
+            Timber.d("LocationProviders have changed - update Geofences")
+            requireNotNull(gps).isGpsEnabled { enabled ->
+                requireNotNull(butler).apply {
+                    unregisterGeofences()
+                    if (enabled) {
+                        registerGeofences(1, SECONDS)
+                    } else {
+                        requireNotNull(locator).unregisterGeofences()
+                    }
+                }
+            }
+        }
+    }
 }

@@ -27,20 +27,19 @@ import javax.inject.Singleton
 
 @Singleton
 internal class NotificationHandlerImpl @Inject internal constructor(
-  private val context: Context,
-  private val activityClass: Class<out Activity>
+    private val context: Context,
+    private val activityClass: Class<out Activity>
 ) : NotificationHandler {
 
-  override fun contentIntent(): PendingIntent {
-    return PendingIntent.getActivity(
-        context, CONTENT_INTENT_RC, Intent(context, activityClass),
-        PendingIntent.FLAG_UPDATE_CURRENT
-    )
-  }
+    override fun contentIntent(): PendingIntent {
+        return PendingIntent.getActivity(
+            context, CONTENT_INTENT_RC, Intent(context, activityClass),
+            PendingIntent.FLAG_UPDATE_CURRENT
+        )
+    }
 
-  companion object {
+    companion object {
 
-    private const val CONTENT_INTENT_RC = 1589
-  }
-
+        private const val CONTENT_INTENT_RC = 1589
+    }
 }

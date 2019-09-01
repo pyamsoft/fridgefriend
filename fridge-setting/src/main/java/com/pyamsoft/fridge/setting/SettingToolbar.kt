@@ -30,33 +30,32 @@ import com.pyamsoft.pydroid.ui.util.setUpEnabled
 import javax.inject.Inject
 
 class SettingToolbar @Inject internal constructor(
-  parent: ViewGroup
+    parent: ViewGroup
 ) : BaseUiView<UnitViewState, SettingViewEvent>(parent) {
 
-  override val layout: Int = R.layout.setting_toolbar
+    override val layout: Int = R.layout.setting_toolbar
 
-  override val layoutRoot by boundView<Toolbar>(R.id.setting_toolbar)
+    override val layoutRoot by boundView<Toolbar>(R.id.setting_toolbar)
 
-  override fun onInflated(
-    view: View,
-    savedInstanceState: Bundle?
-  ) {
-    layoutRoot.title = "Settings"
-    layoutRoot.setUpEnabled(true)
-    layoutRoot.setNavigationOnClickListener(DebouncedOnClickListener.create {
-      publish(Navigate)
-    })
-  }
+    override fun onInflated(
+        view: View,
+        savedInstanceState: Bundle?
+    ) {
+        layoutRoot.title = "Settings"
+        layoutRoot.setUpEnabled(true)
+        layoutRoot.setNavigationOnClickListener(DebouncedOnClickListener.create {
+            publish(Navigate)
+        })
+    }
 
-  override fun onRender(
-    state: UnitViewState,
-    savedState: UiSavedState
-  ) {
-  }
+    override fun onRender(
+        state: UnitViewState,
+        savedState: UiSavedState
+    ) {
+    }
 
-  override fun onTeardown() {
-    layoutRoot.setUpEnabled(false)
-    layoutRoot.setNavigationOnClickListener(null)
-  }
-
+    override fun onTeardown() {
+        layoutRoot.setUpEnabled(false)
+        layoutRoot.setNavigationOnClickListener(null)
+    }
 }

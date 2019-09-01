@@ -33,54 +33,52 @@ import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
 import javax.inject.Inject
 
 internal class ZoneInfoTitle @Inject internal constructor(
-  private val zone: NearbyZone,
-  private val imageLoader: ImageLoader,
-  parent: ViewGroup
+    private val zone: NearbyZone,
+    private val imageLoader: ImageLoader,
+    parent: ViewGroup
 ) : BaseUiView<ZoneInfoViewState, ZoneInfoViewEvent>(parent) {
 
-  override val layout: Int = R.layout.zone_info_title
-  override val layoutRoot by boundView<ViewGroup>(R.id.zone_info_title_root)
-  private val title by boundView<TextView>(R.id.zone_info_title)
-  private val favorite by boundView<ImageView>(R.id.zone_info_favorite)
+    override val layout: Int = R.layout.zone_info_title
+    override val layoutRoot by boundView<ViewGroup>(R.id.zone_info_title_root)
+    private val title by boundView<TextView>(R.id.zone_info_title)
+    private val favorite by boundView<ImageView>(R.id.zone_info_favorite)
 
-  private var favoriteBinder: Loaded? = null
+    private var favoriteBinder: Loaded? = null
 
-  private fun clearFavoriteIcon() {
-    favoriteBinder?.dispose()
-    favoriteBinder = null
-  }
-
-  override fun onInflated(
-    view: View,
-    savedInstanceState: Bundle?
-  ) {
-    title.text = zone.name()
-  }
-
-  override fun onRender(
-    state: ZoneInfoViewState,
-    savedState: UiSavedState
-  ) {
-    state.cached.let { cached ->
-      if (cached == null) {
-        favorite.setOnDebouncedClickListener(null)
-      } else {
-        val icon = if (cached.cached) R.drawable.ic_star_24dp else R.drawable.ic_star_empty_24dp
-        clearFavoriteIcon()
-        favoriteBinder = imageLoader.load(icon)
-            .into(favorite)
-        favorite.setOnDebouncedClickListener {
-          publish(ZoneFavoriteAction(zone, !cached.cached))
-        }
-      }
+    private fun clearFavoriteIcon() {
+        favoriteBinder?.dispose()
+        favoriteBinder = null
     }
-  }
 
-  override fun onTeardown() {
-    title.text = ""
-    favorite.setOnDebouncedClickListener(null)
-    clearFavoriteIcon()
-  }
+    override fun onInflated(
+        view: View,
+        savedInstanceState: Bundle?
+    ) {
+        title.text = zone.name()
+    }
 
+    override fun onRender(
+        state: ZoneInfoViewState,
+        savedState: UiSavedState
+    ) {
+        state.cached.let { cached ->
+            if (cached == null) {
+                favorite.setOnDebouncedClickListener(null)
+            } else {
+                val icon = if (cached.cached) R.drawable.ic_star_24dp else R.drawable.ic_star_empty_24dp
+                clearFavoriteIcon()
+                favoriteBinder = imageLoader.load(icon)
+                    .into(favorite)
+                favorite.setOnDebouncedClickListener {
+                    publish(ZoneFavoriteAction(zone, !cached.cached))
+                }
+            }
+        }
+    }
+
+    override fun onTeardown() {
+        title.text = ""
+        favorite.setOnDebouncedClickListener(null)
+        clearFavoriteIcon()
+    }
 }
-

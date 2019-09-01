@@ -30,39 +30,38 @@ import com.pyamsoft.pydroid.arch.UiSavedState
 import javax.inject.Inject
 
 class ExpandItemError @Inject internal constructor(
-  parent: ViewGroup
+    parent: ViewGroup
 ) : BaseUiView<DetailItemViewState, DetailItemViewEvent>(parent) {
 
-  override val layout: Int = R.layout.expand_error
+    override val layout: Int = R.layout.expand_error
 
-  override val layoutRoot by boundView<ViewGroup>(R.id.expand_item_error_root)
-  private val message by boundView<TextView>(R.id.expand_item_error_msg)
+    override val layoutRoot by boundView<ViewGroup>(R.id.expand_item_error_root)
+    private val message by boundView<TextView>(R.id.expand_item_error_msg)
 
-  override fun onInflated(
-    view: View,
-    savedInstanceState: Bundle?
-  ) {
-    message.isVisible = false
-  }
+    override fun onInflated(
+        view: View,
+        savedInstanceState: Bundle?
+    ) {
+        message.isVisible = false
+    }
 
-  override fun onRender(
-    state: DetailItemViewState,
-    savedState: UiSavedState
-  ) {
-    state.throwable.let { throwable ->
-      if (throwable == null) {
+    override fun onRender(
+        state: DetailItemViewState,
+        savedState: UiSavedState
+    ) {
+        state.throwable.let { throwable ->
+            if (throwable == null) {
+                message.isVisible = false
+                message.text = ""
+            } else {
+                message.isVisible = true
+                message.text = throwable.message ?: "An unknown error occurred"
+            }
+        }
+    }
+
+    override fun onTeardown() {
         message.isVisible = false
         message.text = ""
-      } else {
-        message.isVisible = true
-        message.text = throwable.message ?: "An unknown error occurred"
-      }
     }
-  }
-
-  override fun onTeardown() {
-    message.isVisible = false
-    message.text = ""
-  }
 }
-

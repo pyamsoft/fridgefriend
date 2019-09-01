@@ -33,64 +33,64 @@ import java.util.concurrent.TimeUnit.SECONDS
 import javax.inject.Inject
 
 internal class ZoneInfoInteractor @Inject internal constructor(
-  private val butler: Butler,
-  private val realtime: NearbyZoneRealtime,
-  private val queryDao: NearbyZoneQueryDao,
-  private val insertDao: NearbyZoneInsertDao,
-  private val deleteDao: NearbyZoneDeleteDao
+    private val butler: Butler,
+    private val realtime: NearbyZoneRealtime,
+    private val queryDao: NearbyZoneQueryDao,
+    private val insertDao: NearbyZoneInsertDao,
+    private val deleteDao: NearbyZoneDeleteDao
 ) {
 
-  @CheckResult
-  suspend fun isNearbyZoneCached(id: Long): Boolean = withContext(context = Dispatchers.Default) {
-    return@withContext queryDao.query(false)
-        .any { it.id() == id }
-  }
+    @CheckResult
+    suspend fun isNearbyZoneCached(id: Long): Boolean = withContext(context = Dispatchers.Default) {
+        return@withContext queryDao.query(false)
+            .any { it.id() == id }
+    }
 
-  suspend inline fun listenForNearbyCacheChanges(
-    id: Long,
-    crossinline onInsert: (zone: NearbyZone) -> Unit,
-    crossinline onDelete: (zone: NearbyZone) -> Unit
-  ) = withContext(context = Dispatchers.Default) {
-    realtime.listenForChanges()
-        .onEvent { event ->
-          return@onEvent when (event) {
-            is Insert -> {
-              if (event.zone.id() == id) {
-                onInsert(event.zone)
-              } else {
-                // Ignore event for other zone
-              }
+    suspend inline fun listenForNearbyCacheChanges(
+        id: Long,
+        crossinline onInsert: (zone: NearbyZone) -> Unit,
+        crossinline onDelete: (zone: NearbyZone) -> Unit
+    ) = withContext(context = Dispatchers.Default) {
+        realtime.listenForChanges()
+            .onEvent { event ->
+                return@onEvent when (event) {
+                    is Insert -> {
+                        if (event.zone.id() == id) {
+                            onInsert(event.zone)
+                        } else {
+                            // Ignore event for other zone
+                        }
+                    }
+                    is Delete -> {
+                        if (event.zone.id() == id) {
+                            onDelete(event.zone)
+                        } else {
+                            // Ignore event for other zone
+                        }
+                    }
+                    is Update -> {
+                        // Ignore Update events
+                        Unit
+                    }
+                }
             }
-            is Delete -> {
-              if (event.zone.id() == id) {
-                onDelete(event.zone)
-              } else {
-                // Ignore event for other zone
-              }
-            }
-            is Update -> {
-              // Ignore Update events
-              Unit
-            }
-          }
-        }
-  }
+    }
 
-  suspend fun deleteZoneFromDb(zone: NearbyZone) = withContext(context = Dispatchers.Default) {
-    deleteDao.delete(zone)
-    restartLocationWorker()
-  }
+    suspend fun deleteZoneFromDb(zone: NearbyZone) = withContext(context = Dispatchers.Default) {
+        deleteDao.delete(zone)
+        restartLocationWorker()
+    }
 
-  suspend fun insertZoneIntoDb(zone: NearbyZone) = withContext(context = Dispatchers.Default) {
-    insertDao.insert(zone)
-    restartLocationWorker()
-  }
+    suspend fun insertZoneIntoDb(zone: NearbyZone) = withContext(context = Dispatchers.Default) {
+        insertDao.insert(zone)
+        restartLocationWorker()
+    }
 
-  private fun restartLocationWorker() {
-    butler.unregisterGeofences()
-    butler.registerGeofences(1, SECONDS)
+    private fun restartLocationWorker() {
+        butler.unregisterGeofences()
+        butler.registerGeofences(1, SECONDS)
 
-    butler.cancelLocationReminder()
-    butler.remindLocation(1, SECONDS)
-  }
+        butler.cancelLocationReminder()
+        butler.remindLocation(1, SECONDS)
+    }
 }

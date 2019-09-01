@@ -27,31 +27,30 @@ import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
 import javax.inject.Inject
 
 class DetailListItemName @Inject internal constructor(
-  parent: ViewGroup
+    parent: ViewGroup
 ) : BaseUiView<DetailItemViewState, DetailItemViewEvent>(parent) {
 
-  override val layout: Int = R.layout.detail_list_item_name
+    override val layout: Int = R.layout.detail_list_item_name
 
-  override val layoutRoot by boundView<ViewGroup>(R.id.detail_item_name)
+    override val layoutRoot by boundView<ViewGroup>(R.id.detail_item_name)
 
-  private val nameView by boundView<EditText>(R.id.detail_item_name_editable)
+    private val nameView by boundView<EditText>(R.id.detail_item_name_editable)
 
-  override fun onRender(
-    state: DetailItemViewState,
-    savedState: UiSavedState
-  ) {
-    state.item.let { item ->
-      nameView.setTextKeepState(item.name())
-      nameView.setNotEditable()
-      nameView.setOnDebouncedClickListener {
-        publish(ExpandItem(item))
-      }
+    override fun onRender(
+        state: DetailItemViewState,
+        savedState: UiSavedState
+    ) {
+        state.item.let { item ->
+            nameView.setTextKeepState(item.name())
+            nameView.setNotEditable()
+            nameView.setOnDebouncedClickListener {
+                publish(ExpandItem(item))
+            }
+        }
     }
-  }
 
-  override fun onTeardown() {
-    nameView.text.clear()
-    nameView.setOnDebouncedClickListener(null)
-  }
+    override fun onTeardown() {
+        nameView.text.clear()
+        nameView.setOnDebouncedClickListener(null)
+    }
 }
-

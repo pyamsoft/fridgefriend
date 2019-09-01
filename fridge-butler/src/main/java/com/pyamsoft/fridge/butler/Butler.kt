@@ -21,31 +21,30 @@ import java.util.concurrent.TimeUnit
 
 interface Butler {
 
-  fun remindExpiration(
-    time: Long,
-    unit: TimeUnit
-  )
+    fun remindExpiration(
+        time: Long,
+        unit: TimeUnit
+    )
 
-  fun remindLocation(
-    time: Long,
-    unit: TimeUnit
-  )
+    fun remindLocation(
+        time: Long,
+        unit: TimeUnit
+    )
 
-  fun registerGeofences(
-    time: Long,
-    unit: TimeUnit
-  )
+    fun registerGeofences(
+        time: Long,
+        unit: TimeUnit
+    )
 
-  fun processGeofences(fences: List<String>)
+    fun processGeofences(fences: List<String>)
 
-  fun cancelGeofenceProcessing()
+    fun cancelGeofenceProcessing()
 
-  fun cancelLocationReminder()
+    fun cancelLocationReminder()
 
-  fun cancelExpirationReminder()
+    fun cancelExpirationReminder()
 
-  fun unregisterGeofences()
+    fun unregisterGeofences()
 
-  fun cancel()
-
+    fun cancel()
 }

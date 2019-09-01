@@ -73,385 +73,383 @@ import timber.log.Timber
 import javax.inject.Inject
 
 class OsmMap @Inject internal constructor(
-  private val owner: LifecycleOwner,
-  private val theming: Theming,
-  private val imageLoader: ImageLoader,
-  private val butler: Butler,
-  private val mapPermission: MapPermission,
+    private val owner: LifecycleOwner,
+    private val theming: Theming,
+    private val imageLoader: ImageLoader,
+    private val butler: Butler,
+    private val mapPermission: MapPermission,
 
-  private val nearbyStoreQueryDao: NearbyStoreQueryDao,
-  private val nearbyStoreInsertDao: NearbyStoreInsertDao,
-  private val nearbyStoreDeleteDao: NearbyStoreDeleteDao,
+    private val nearbyStoreQueryDao: NearbyStoreQueryDao,
+    private val nearbyStoreInsertDao: NearbyStoreInsertDao,
+    private val nearbyStoreDeleteDao: NearbyStoreDeleteDao,
 
-  private val nearbyZoneRealtime: NearbyZoneRealtime,
-  private val nearbyZoneQueryDao: NearbyZoneQueryDao,
-  private val nearbyZoneInsertDao: NearbyZoneInsertDao,
-  private val nearbyZoneDeleteDao: NearbyZoneDeleteDao,
-  activity: Activity,
-  parent: ViewGroup
+    private val nearbyZoneRealtime: NearbyZoneRealtime,
+    private val nearbyZoneQueryDao: NearbyZoneQueryDao,
+    private val nearbyZoneInsertDao: NearbyZoneInsertDao,
+    private val nearbyZoneDeleteDao: NearbyZoneDeleteDao,
+    activity: Activity,
+    parent: ViewGroup
 ) : BaseUiView<OsmViewState, OsmViewEvent>(parent), LifecycleObserver {
 
-  override val layout: Int = R.layout.osm_map
+    override val layout: Int = R.layout.osm_map
 
-  override val layoutRoot by boundView<ViewGroup>(R.id.osm_frame)
+    override val layoutRoot by boundView<ViewGroup>(R.id.osm_frame)
 
-  private var markerOverlay: ItemizedOverlayWithFocus<OverlayItem>? = null
-  private var activity: Activity? = activity
+    private var markerOverlay: ItemizedOverlayWithFocus<OverlayItem>? = null
+    private var activity: Activity? = activity
 
-  private var boundFindMeImage: Loaded? = null
-  private var boundNearbyImage: Loaded? = null
-  private var boundStorageImage: Loaded? = null
-  private var boundBackgroundImage: Loaded? = null
+    private var boundFindMeImage: Loaded? = null
+    private var boundNearbyImage: Loaded? = null
+    private var boundStorageImage: Loaded? = null
+    private var boundBackgroundImage: Loaded? = null
 
-  private var locationOverlay: MyLocationNewOverlay? = null
+    private var locationOverlay: MyLocationNewOverlay? = null
 
-  private val itemListener = object : ItemizedIconOverlay.OnItemGestureListener<OverlayItem> {
+    private val itemListener = object : ItemizedIconOverlay.OnItemGestureListener<OverlayItem> {
 
-    override fun onItemLongPress(
-      index: Int,
-      item: OverlayItem?
-    ): Boolean {
-      // TODO do something on click
-      return true
-    }
-
-    override fun onItemSingleTapUp(
-      index: Int,
-      item: OverlayItem?
-    ): Boolean {
-      return false
-    }
-
-  }
-
-  private val map by boundView<MapView>(R.id.osm_map)
-  private val findNearby by boundView<FloatingActionButton>(R.id.osm_action)
-  private val findMe by boundView<FloatingActionButton>(R.id.osm_find_me)
-  private val backgroundPermission by boundView<FloatingActionButton>(
-      R.id.osm_background_location_permission
-  )
-  private val storagePermission by boundView<FloatingActionButton>(R.id.osm_storage_permission)
-
-  init {
-    // Must happen before inflate
-    Configuration.getInstance()
-        .load(
-            activity.application,
-            PreferenceManager.getDefaultSharedPreferences(activity.application)
-        )
-  }
-
-  override fun onInflated(
-    view: View,
-    savedInstanceState: Bundle?
-  ) {
-    owner.lifecycle.addObserver(this)
-    initMap(view.context.applicationContext)
-
-    boundNearbyImage?.dispose()
-    boundNearbyImage = imageLoader.load(R.drawable.ic_shopping_cart_24dp)
-        .into(findNearby)
-
-    boundFindMeImage?.dispose()
-    boundFindMeImage = imageLoader.load(R.drawable.ic_location_search_24dp)
-        .into(findMe)
-
-    boundStorageImage?.dispose()
-    boundStorageImage = imageLoader.load(R.drawable.ic_storage_24dp)
-        .into(storagePermission)
-
-    boundBackgroundImage?.dispose()
-    boundBackgroundImage = imageLoader.load(R.drawable.ic_location_24dp)
-        .into(backgroundPermission)
-
-    findNearby.isVisible = false
-    findMe.isVisible = false
-    storagePermission.isVisible = false
-    backgroundPermission.isVisible = false
-
-    findNearby.setOnDebouncedClickListener { publish(FindNearby(getBoundingBoxOfCurrentScreen())) }
-    findMe.setOnDebouncedClickListener { locateMe() }
-    backgroundPermission.setOnDebouncedClickListener { publish(RequestBackgroundPermission) }
-    storagePermission.setOnDebouncedClickListener { publish(RequestStoragePermission) }
-  }
-
-  private fun locateMe() {
-    locationOverlay?.let { overlay ->
-      val location = overlay.myLocation
-      if (location != null) {
-        centerOnLocation(locationProvider = { location }) {
-          Timber.d("Centered onto current user location")
+        override fun onItemLongPress(
+            index: Int,
+            item: OverlayItem?
+        ): Boolean {
+            // TODO do something on click
+            return true
         }
-      }
-    }
-  }
 
-  override fun onTeardown() {
-    owner.lifecycle.removeObserver(this)
-
-    findMe.setOnDebouncedClickListener(null)
-    findNearby.setOnDebouncedClickListener(null)
-    backgroundPermission.setOnDebouncedClickListener(null)
-    storagePermission.setOnDebouncedClickListener(null)
-
-    removeMarkerOverlay()
-    locationOverlay = null
-    map.onDetach()
-
-    boundFindMeImage?.dispose()
-    boundNearbyImage?.dispose()
-    boundStorageImage?.dispose()
-    boundBackgroundImage?.dispose()
-    boundFindMeImage = null
-    boundNearbyImage = null
-    boundStorageImage = null
-    boundBackgroundImage = null
-
-    activity = null
-  }
-
-  private fun removeMarkerOverlay() {
-    markerOverlay?.let { map.overlays.remove(it) }
-    markerOverlay = null
-  }
-
-  override fun onRender(
-    state: OsmViewState,
-    savedState: UiSavedState
-  ) {
-    var invalidate = false
-    state.points.let { points ->
-      if (renderMapMarkers(points)) {
-        invalidate = true
-      }
-    }
-
-    state.zones.let { zones ->
-      if (renderMapPolygons(zones)) {
-        invalidate = true
-      }
-    }
-
-    if (invalidate) {
-      map.invalidate()
-    }
-
-    state.nearbyError.let { throwable ->
-      if (throwable == null) {
-        clearError()
-      } else {
-        showError(throwable)
-      }
-    }
-
-    state.cachedFetchError.let { throwable ->
-      if (throwable == null) {
-        clearCacheError()
-      } else {
-        showCacheError(throwable)
-      }
-    }
-  }
-
-  @CheckResult
-  private fun renderMapPolygons(zones: List<NearbyZone>): Boolean {
-    // Skip work if no polygons
-    if (zones.isEmpty()) {
-      return false
-    }
-
-    val color = Color.argb(75, 255, 255, 0)
-    for (zone in zones) {
-      // Convert list of nodes to geo points
-      val points = ArrayList(zone.points().map { GeoPoint(it.lat, it.lon) })
-      // Add the first point again to close the polygon
-      points.add(points[0])
-
-      val uid = zone.getPolygonUid()
-      val polygon = Polygon(map).apply {
-        infoWindow = ZoneInfoWindow.fromMap(
-            zone,
-            map,
-            butler,
-            imageLoader,
-            nearbyZoneRealtime,
-            nearbyZoneQueryDao,
-            nearbyZoneInsertDao,
-            nearbyZoneDeleteDao
-        )
-        id = uid
-        title = zone.name()
-        setPoints(points)
-        fillColor = color
-
-        val isDarkTheme = theming.isDarkTheme(requireNotNull(activity))
-        strokeColor = if (isDarkTheme) Color.WHITE else Color.BLACK
-      }
-
-
-      polygon.setOnClickListener { p, _, _ ->
-        if (p.isInfoWindowOpen) {
-          p.closeInfoWindow()
-        } else {
-          p.showInfoWindow()
+        override fun onItemSingleTapUp(
+            index: Int,
+            item: OverlayItem?
+        ): Boolean {
+            return false
         }
-        return@setOnClickListener true
-      }
-
-      val oldPolygon = map.overlayManager.filterIsInstance<Polygon>()
-          .find { it.id == uid }
-      if (oldPolygon != null) {
-        map.overlayManager.remove(oldPolygon)
-      }
-      map.overlayManager.add(polygon)
-    }
-    return true
-  }
-
-  @CheckResult
-  private fun renderMapMarkers(marks: List<NearbyStore>): Boolean {
-    // Skip work if no markers
-    if (marks.isEmpty()) {
-      return false
     }
 
-    markerOverlay?.let { overlay ->
-      // Clear old overlay if it exists
-      overlay.removeAllItems(false)
+    private val map by boundView<MapView>(R.id.osm_map)
+    private val findNearby by boundView<FloatingActionButton>(R.id.osm_action)
+    private val findMe by boundView<FloatingActionButton>(R.id.osm_find_me)
+    private val backgroundPermission by boundView<FloatingActionButton>(
+        R.id.osm_background_location_permission
+    )
+    private val storagePermission by boundView<FloatingActionButton>(R.id.osm_storage_permission)
 
-      // Remove old overlay from map
-      map.overlays.remove(overlay)
+    init {
+        // Must happen before inflate
+        Configuration.getInstance()
+            .load(
+                activity.application,
+                PreferenceManager.getDefaultSharedPreferences(activity.application)
+            )
     }
 
-    markerOverlay =
-      ItemizedOverlayWithFocus(
-          marks.map { point ->
-            val name = point.name()
-            val description = "Supermarket: $name"
-            val geo = GeoPoint(point.latitude(), point.longitude())
-            return@map OverlayItem(point.getMarkerUid(), name, description, geo)
-          },
-          itemListener, map.context.applicationContext
-      ).apply {
-        setFocusItemsOnTap(true)
-      }
-          .also { map.overlays.add(it) }
+    override fun onInflated(
+        view: View,
+        savedInstanceState: Bundle?
+    ) {
+        owner.lifecycle.addObserver(this)
+        initMap(view.context.applicationContext)
 
-    return true
-  }
+        boundNearbyImage?.dispose()
+        boundNearbyImage = imageLoader.load(R.drawable.ic_shopping_cart_24dp)
+            .into(findNearby)
 
-  @CheckResult
-  private fun getBoundingBoxOfCurrentScreen(): BBox {
-    val mapView = map
-    val bbox = Projection(
-        mapView.zoomLevelDouble, mapView.getIntrinsicScreenRect(null),
-        GeoPoint(mapView.mapCenter),
-        mapView.mapScrollX, mapView.mapScrollY,
-        mapView.mapOrientation,
-        mapView.isHorizontalMapRepetitionEnabled, mapView.isVerticalMapRepetitionEnabled,
-        MapView.getTileSystem()
-    ).boundingBox
-    return BBox(bbox.latSouth, bbox.lonWest, bbox.latNorth, bbox.lonEast)
-  }
+        boundFindMeImage?.dispose()
+        boundFindMeImage = imageLoader.load(R.drawable.ic_location_search_24dp)
+            .into(findMe)
 
-  @Suppress("unused")
-  @OnLifecycleEvent(ON_RESUME)
-  internal fun onResume() {
-    map.onResume()
-  }
+        boundStorageImage?.dispose()
+        boundStorageImage = imageLoader.load(R.drawable.ic_storage_24dp)
+            .into(storagePermission)
 
-  @Suppress("unused")
-  @OnLifecycleEvent(ON_PAUSE)
-  internal fun onPause() {
-    map.onPause()
-  }
+        boundBackgroundImage?.dispose()
+        boundBackgroundImage = imageLoader.load(R.drawable.ic_location_24dp)
+            .into(backgroundPermission)
 
-  private fun initMap(context: Context) {
-    map.apply {
-      setMultiTouchControls(true)
-      isTilesScaledToDpi = true
-      setTileSource(TileSourceFactory.MAPNIK)
-      addMapOverlays(context)
-      zoomController.setVisibility(CustomZoomButtonsController.Visibility.SHOW_AND_FADEOUT)
+        findNearby.isVisible = false
+        findMe.isVisible = false
+        storagePermission.isVisible = false
+        backgroundPermission.isVisible = false
 
-      if (theming.isDarkTheme(requireNotNull(activity))) {
-        mapOverlay.setColorFilter(TilesOverlay.INVERT_COLORS)
-      }
+        findNearby.setOnDebouncedClickListener { publish(FindNearby(getBoundingBoxOfCurrentScreen())) }
+        findMe.setOnDebouncedClickListener { locateMe() }
+        backgroundPermission.setOnDebouncedClickListener { publish(RequestBackgroundPermission) }
+        storagePermission.setOnDebouncedClickListener { publish(RequestStoragePermission) }
     }
-  }
 
-  private inline fun centerOnLocation(
-      // Can't just use location: GeoPoint here because of a kapt missing symbol build-error, fails to compile...
-      // what.
-    locationProvider: () -> GeoPoint,
-    crossinline onCentered: (location: GeoPoint) -> Unit
-  ) {
-    val location = locationProvider()
-    val mapView = map
-    mapView.post {
-      mapView.controller.setZoom(DEFAULT_ZOOM)
-      mapView.controller.animateTo(location)
-      mapView.controller.setCenter(location)
-      onCentered(location)
-    }
-  }
-
-  private fun addMapOverlays(context: Context) {
-    val mapView = map
-
-    val overlay = MyLocationNewOverlay(GpsMyLocationProvider(context), mapView)
-    overlay.runOnFirstFix {
-      val currentLocation = overlay.myLocation
-      if (currentLocation != null) {
-        centerOnLocation(locationProvider = { currentLocation }) {
-          var delay = 700L
-          findNearby.popShow(startDelay = delay)
-          delay += 300L
-
-          findMe.popShow(startDelay = delay)
-          delay += 300L
-
-          storagePermission.popShow(startDelay = delay)
-          delay += 300L
-
-          if (!mapPermission.hasBackgroundPermission()) {
-            backgroundPermission.popShow(startDelay = delay)
-            delay += 300L
-          }
+    private fun locateMe() {
+        locationOverlay?.let { overlay ->
+            val location = overlay.myLocation
+            if (location != null) {
+                centerOnLocation(locationProvider = { location }) {
+                    Timber.d("Centered onto current user location")
+                }
+            }
         }
-      }
     }
-    overlay.enableMyLocation()
-    mapView.overlays.add(overlay)
-    locationOverlay = overlay
-  }
 
-  private fun showError(throwable: Throwable) {
-    Snackbreak.bindTo(owner, "nearby") {
-      make(layoutRoot, throwable.message ?: "An unexpected error occurred.")
+    override fun onTeardown() {
+        owner.lifecycle.removeObserver(this)
+
+        findMe.setOnDebouncedClickListener(null)
+        findNearby.setOnDebouncedClickListener(null)
+        backgroundPermission.setOnDebouncedClickListener(null)
+        storagePermission.setOnDebouncedClickListener(null)
+
+        removeMarkerOverlay()
+        locationOverlay = null
+        map.onDetach()
+
+        boundFindMeImage?.dispose()
+        boundNearbyImage?.dispose()
+        boundStorageImage?.dispose()
+        boundBackgroundImage?.dispose()
+        boundFindMeImage = null
+        boundNearbyImage = null
+        boundStorageImage = null
+        boundBackgroundImage = null
+
+        activity = null
     }
-  }
 
-  private fun clearError() {
-    Snackbreak.bindTo(owner, "nearby") {
-      dismiss()
+    private fun removeMarkerOverlay() {
+        markerOverlay?.let { map.overlays.remove(it) }
+        markerOverlay = null
     }
-  }
 
-  private fun showCacheError(throwable: Throwable) {
-    Snackbreak.bindTo(owner, "cache") {
-      make(layoutRoot, throwable.message ?: "An error occurred fetching cached stores.")
+    override fun onRender(
+        state: OsmViewState,
+        savedState: UiSavedState
+    ) {
+        var invalidate = false
+        state.points.let { points ->
+            if (renderMapMarkers(points)) {
+                invalidate = true
+            }
+        }
+
+        state.zones.let { zones ->
+            if (renderMapPolygons(zones)) {
+                invalidate = true
+            }
+        }
+
+        if (invalidate) {
+            map.invalidate()
+        }
+
+        state.nearbyError.let { throwable ->
+            if (throwable == null) {
+                clearError()
+            } else {
+                showError(throwable)
+            }
+        }
+
+        state.cachedFetchError.let { throwable ->
+            if (throwable == null) {
+                clearCacheError()
+            } else {
+                showCacheError(throwable)
+            }
+        }
     }
-  }
 
-  private fun clearCacheError() {
-    Snackbreak.bindTo(owner, "cache") {
-      dismiss()
+    @CheckResult
+    private fun renderMapPolygons(zones: List<NearbyZone>): Boolean {
+        // Skip work if no polygons
+        if (zones.isEmpty()) {
+            return false
+        }
+
+        val color = Color.argb(75, 255, 255, 0)
+        for (zone in zones) {
+            // Convert list of nodes to geo points
+            val points = ArrayList(zone.points().map { GeoPoint(it.lat, it.lon) })
+            // Add the first point again to close the polygon
+            points.add(points[0])
+
+            val uid = zone.getPolygonUid()
+            val polygon = Polygon(map).apply {
+                infoWindow = ZoneInfoWindow.fromMap(
+                    zone,
+                    map,
+                    butler,
+                    imageLoader,
+                    nearbyZoneRealtime,
+                    nearbyZoneQueryDao,
+                    nearbyZoneInsertDao,
+                    nearbyZoneDeleteDao
+                )
+                id = uid
+                title = zone.name()
+                setPoints(points)
+                fillColor = color
+
+                val isDarkTheme = theming.isDarkTheme(requireNotNull(activity))
+                strokeColor = if (isDarkTheme) Color.WHITE else Color.BLACK
+            }
+
+            polygon.setOnClickListener { p, _, _ ->
+                if (p.isInfoWindowOpen) {
+                    p.closeInfoWindow()
+                } else {
+                    p.showInfoWindow()
+                }
+                return@setOnClickListener true
+            }
+
+            val oldPolygon = map.overlayManager.filterIsInstance<Polygon>()
+                .find { it.id == uid }
+            if (oldPolygon != null) {
+                map.overlayManager.remove(oldPolygon)
+            }
+            map.overlayManager.add(polygon)
+        }
+        return true
     }
-  }
 
-  companion object {
+    @CheckResult
+    private fun renderMapMarkers(marks: List<NearbyStore>): Boolean {
+        // Skip work if no markers
+        if (marks.isEmpty()) {
+            return false
+        }
 
-    private const val DEFAULT_ZOOM = 14.8
-  }
+        markerOverlay?.let { overlay ->
+            // Clear old overlay if it exists
+            overlay.removeAllItems(false)
+
+            // Remove old overlay from map
+            map.overlays.remove(overlay)
+        }
+
+        markerOverlay =
+            ItemizedOverlayWithFocus(
+                marks.map { point ->
+                    val name = point.name()
+                    val description = "Supermarket: $name"
+                    val geo = GeoPoint(point.latitude(), point.longitude())
+                    return@map OverlayItem(point.getMarkerUid(), name, description, geo)
+                },
+                itemListener, map.context.applicationContext
+            ).apply {
+                setFocusItemsOnTap(true)
+            }
+                .also { map.overlays.add(it) }
+
+        return true
+    }
+
+    @CheckResult
+    private fun getBoundingBoxOfCurrentScreen(): BBox {
+        val mapView = map
+        val bbox = Projection(
+            mapView.zoomLevelDouble, mapView.getIntrinsicScreenRect(null),
+            GeoPoint(mapView.mapCenter),
+            mapView.mapScrollX, mapView.mapScrollY,
+            mapView.mapOrientation,
+            mapView.isHorizontalMapRepetitionEnabled, mapView.isVerticalMapRepetitionEnabled,
+            MapView.getTileSystem()
+        ).boundingBox
+        return BBox(bbox.latSouth, bbox.lonWest, bbox.latNorth, bbox.lonEast)
+    }
+
+    @Suppress("unused")
+    @OnLifecycleEvent(ON_RESUME)
+    internal fun onResume() {
+        map.onResume()
+    }
+
+    @Suppress("unused")
+    @OnLifecycleEvent(ON_PAUSE)
+    internal fun onPause() {
+        map.onPause()
+    }
+
+    private fun initMap(context: Context) {
+        map.apply {
+            setMultiTouchControls(true)
+            isTilesScaledToDpi = true
+            setTileSource(TileSourceFactory.MAPNIK)
+            addMapOverlays(context)
+            zoomController.setVisibility(CustomZoomButtonsController.Visibility.SHOW_AND_FADEOUT)
+
+            if (theming.isDarkTheme(requireNotNull(activity))) {
+                mapOverlay.setColorFilter(TilesOverlay.INVERT_COLORS)
+            }
+        }
+    }
+
+    private inline fun centerOnLocation(
+        // Can't just use location: GeoPoint here because of a kapt missing symbol build-error, fails to compile...
+        // what.
+        locationProvider: () -> GeoPoint,
+        crossinline onCentered: (location: GeoPoint) -> Unit
+    ) {
+        val location = locationProvider()
+        val mapView = map
+        mapView.post {
+            mapView.controller.setZoom(DEFAULT_ZOOM)
+            mapView.controller.animateTo(location)
+            mapView.controller.setCenter(location)
+            onCentered(location)
+        }
+    }
+
+    private fun addMapOverlays(context: Context) {
+        val mapView = map
+
+        val overlay = MyLocationNewOverlay(GpsMyLocationProvider(context), mapView)
+        overlay.runOnFirstFix {
+            val currentLocation = overlay.myLocation
+            if (currentLocation != null) {
+                centerOnLocation(locationProvider = { currentLocation }) {
+                    var delay = 700L
+                    findNearby.popShow(startDelay = delay)
+                    delay += 300L
+
+                    findMe.popShow(startDelay = delay)
+                    delay += 300L
+
+                    storagePermission.popShow(startDelay = delay)
+                    delay += 300L
+
+                    if (!mapPermission.hasBackgroundPermission()) {
+                        backgroundPermission.popShow(startDelay = delay)
+                        delay += 300L
+                    }
+                }
+            }
+        }
+        overlay.enableMyLocation()
+        mapView.overlays.add(overlay)
+        locationOverlay = overlay
+    }
+
+    private fun showError(throwable: Throwable) {
+        Snackbreak.bindTo(owner, "nearby") {
+            make(layoutRoot, throwable.message ?: "An unexpected error occurred.")
+        }
+    }
+
+    private fun clearError() {
+        Snackbreak.bindTo(owner, "nearby") {
+            dismiss()
+        }
+    }
+
+    private fun showCacheError(throwable: Throwable) {
+        Snackbreak.bindTo(owner, "cache") {
+            make(layoutRoot, throwable.message ?: "An error occurred fetching cached stores.")
+        }
+    }
+
+    private fun clearCacheError() {
+        Snackbreak.bindTo(owner, "cache") {
+            dismiss()
+        }
+    }
+
+    companion object {
+
+        private const val DEFAULT_ZOOM = 14.8
+    }
 }

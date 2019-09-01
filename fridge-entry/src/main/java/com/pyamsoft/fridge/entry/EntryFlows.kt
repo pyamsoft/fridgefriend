@@ -23,36 +23,34 @@ import com.pyamsoft.pydroid.arch.UiViewEvent
 import com.pyamsoft.pydroid.arch.UiViewState
 
 data class EntryViewState(
-  val entry: FridgeEntry?,
-  val isSettingsItemVisible: Boolean
+    val entry: FridgeEntry?,
+    val isSettingsItemVisible: Boolean
 ) : UiViewState
 
 sealed class EntryViewEvent : UiViewEvent {
 
-  data class OpenHave internal constructor(val entry: FridgeEntry) : EntryViewEvent()
+    data class OpenHave internal constructor(val entry: FridgeEntry) : EntryViewEvent()
 
-  data class OpenNeed internal constructor(val entry: FridgeEntry) : EntryViewEvent()
+    data class OpenNeed internal constructor(val entry: FridgeEntry) : EntryViewEvent()
 
-  data class OpenNearby internal constructor(val entry: FridgeEntry) : EntryViewEvent()
+    data class OpenNearby internal constructor(val entry: FridgeEntry) : EntryViewEvent()
 
-  object SettingsNavigate : EntryViewEvent()
-
+    object SettingsNavigate : EntryViewEvent()
 }
 
 sealed class EntryControllerEvent : UiControllerEvent {
 
-  data class PushHave internal constructor(
-    val entry: FridgeEntry
-  ) : EntryControllerEvent()
+    data class PushHave internal constructor(
+        val entry: FridgeEntry
+    ) : EntryControllerEvent()
 
-  data class PushNeed internal constructor(
-    val entry: FridgeEntry
-  ) : EntryControllerEvent()
+    data class PushNeed internal constructor(
+        val entry: FridgeEntry
+    ) : EntryControllerEvent()
 
-  data class PushNearby internal constructor(
-    val entry: FridgeEntry
-  ) : EntryControllerEvent()
+    data class PushNearby internal constructor(
+        val entry: FridgeEntry
+    ) : EntryControllerEvent()
 
-  object NavigateToSettings : EntryControllerEvent()
-
+    object NavigateToSettings : EntryControllerEvent()
 }

@@ -27,66 +27,70 @@ import java.util.Date
 
 @Entity(tableName = RoomFridgeEntry.TABLE_NAME)
 internal data class RoomFridgeEntry internal constructor(
-  @field:[PrimaryKey ColumnInfo(name = COLUMN_ID)]
-  val id: String,
+    @field:[PrimaryKey ColumnInfo(name = COLUMN_ID)]
+    val id: String,
 
-  @field:ColumnInfo(name = COLUMN_NAME)
-  val name: String,
+    @field:ColumnInfo(name = COLUMN_NAME)
+    val name: String,
 
-  @field:ColumnInfo(name = COLUMN_CREATED_TIME)
-  val createdTime: Date
+    @field:ColumnInfo(name = COLUMN_CREATED_TIME)
+    val createdTime: Date
 ) : FridgeEntry {
 
-  @Ignore
-  override fun id(): String {
-    return id
-  }
-
-  @Ignore
-  override fun name(): String {
-    return name
-  }
-
-  @Ignore
-  override fun createdTime(): Date {
-    return createdTime
-  }
-
-  @Ignore
-  override fun isReal(): Boolean {
-    return true
-  }
-
-  @Ignore
-  override fun name(name: String): FridgeEntry {
-    return FridgeEntry.create(this, name = name, isReal = isReal())
-  }
-
-  @Ignore
-  override fun makeReal(): FridgeEntry {
-    return FridgeEntry.create(this, isReal = true)
-  }
-
-  companion object {
-
-    @Ignore internal const val TABLE_NAME = "room_fridge_entry_table"
-    @Ignore internal const val COLUMN_ID = "_id"
-    @Ignore internal const val COLUMN_NAME = "name"
-    @Ignore internal const val COLUMN_CREATED_TIME = "created_time"
+    @Ignore
+    override fun id(): String {
+        return id
+    }
 
     @Ignore
-    @JvmStatic
-    @CheckResult
-    internal fun create(entry: FridgeEntry): RoomFridgeEntry {
-      if (entry is RoomFridgeEntry) {
-        return entry
-      } else {
-        return RoomFridgeEntry(
-            entry.id(),
-            entry.name(),
-            entry.createdTime()
-        )
-      }
+    override fun name(): String {
+        return name
     }
-  }
+
+    @Ignore
+    override fun createdTime(): Date {
+        return createdTime
+    }
+
+    @Ignore
+    override fun isReal(): Boolean {
+        return true
+    }
+
+    @Ignore
+    override fun name(name: String): FridgeEntry {
+        return FridgeEntry.create(this, name = name, isReal = isReal())
+    }
+
+    @Ignore
+    override fun makeReal(): FridgeEntry {
+        return FridgeEntry.create(this, isReal = true)
+    }
+
+    companion object {
+
+        @Ignore
+        internal const val TABLE_NAME = "room_fridge_entry_table"
+        @Ignore
+        internal const val COLUMN_ID = "_id"
+        @Ignore
+        internal const val COLUMN_NAME = "name"
+        @Ignore
+        internal const val COLUMN_CREATED_TIME = "created_time"
+
+        @Ignore
+        @JvmStatic
+        @CheckResult
+        internal fun create(entry: FridgeEntry): RoomFridgeEntry {
+            if (entry is RoomFridgeEntry) {
+                return entry
+            } else {
+                return RoomFridgeEntry(
+                    entry.id(),
+                    entry.name(),
+                    entry.createdTime()
+                )
+            }
+        }
+    }
 }

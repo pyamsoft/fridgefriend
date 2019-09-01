@@ -22,22 +22,21 @@ import java.util.Date
 
 interface ConsumableModel<T : Any> : BaseModel<T> {
 
-  @CheckResult
-  fun isConsumed(): Boolean
+    @CheckResult
+    fun isConsumed(): Boolean
 
-  @CheckResult
-  fun consumptionDate(): Date?
+    @CheckResult
+    fun consumptionDate(): Date?
 
-  @CheckResult
-  fun consume(date: Date): T
+    @CheckResult
+    fun consume(date: Date): T
 
-  @CheckResult
-  fun isSpoiled(): Boolean
+    @CheckResult
+    fun isSpoiled(): Boolean
 
-  @CheckResult
-  fun spoiledDate(): Date?
+    @CheckResult
+    fun spoiledDate(): Date?
 
-  @CheckResult
-  fun spoil(date: Date): T
-
+    @CheckResult
+    fun spoil(date: Date): T
 }

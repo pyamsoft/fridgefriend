@@ -31,30 +31,29 @@ import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
 import javax.inject.Inject
 
 class LocationPermissionScreen @Inject internal constructor(
-  parent: ViewGroup
+    parent: ViewGroup
 ) : BaseUiView<UnitViewState, PermissionViewEvent>(parent) {
 
-  override val layout: Int = R.layout.permission
-  override val layoutRoot by boundView<FrameLayout>(R.id.location_permission)
-  private val permissionButton by boundView<Button>(R.id.location_permission_button)
+    override val layout: Int = R.layout.permission
+    override val layoutRoot by boundView<FrameLayout>(R.id.location_permission)
+    private val permissionButton by boundView<Button>(R.id.location_permission_button)
 
-  override fun onInflated(
-    view: View,
-    savedInstanceState: Bundle?
-  ) {
-    permissionButton.setOnDebouncedClickListener {
-      publish(FireLocationPermission)
+    override fun onInflated(
+        view: View,
+        savedInstanceState: Bundle?
+    ) {
+        permissionButton.setOnDebouncedClickListener {
+            publish(FireLocationPermission)
+        }
     }
-  }
 
-  override fun onTeardown() {
-    permissionButton.setOnDebouncedClickListener(null)
-  }
+    override fun onTeardown() {
+        permissionButton.setOnDebouncedClickListener(null)
+    }
 
-  override fun onRender(
-    state: UnitViewState,
-    savedState: UiSavedState
-  ) {
-  }
-
+    override fun onRender(
+        state: UnitViewState,
+        savedState: UiSavedState
+    ) {
+    }
 }

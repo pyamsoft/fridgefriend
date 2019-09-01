@@ -15,4 +15,4 @@
   ~
   -->
 
-<manifest package="com.pyamsoft.fridge.db"/>
+<manifest package="com.pyamsoft.fridge.db" />

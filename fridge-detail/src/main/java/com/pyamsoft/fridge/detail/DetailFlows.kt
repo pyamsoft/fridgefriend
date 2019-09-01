@@ -23,53 +23,50 @@ import com.pyamsoft.pydroid.arch.UiViewEvent
 import com.pyamsoft.pydroid.arch.UiViewState
 
 data class DetailViewState(
-  val isLoading: Loading?,
-  val items: List<FridgeItem>,
-  val filterArchived: Boolean,
-  val nameUpdateError: Throwable?,
-  val listError: Throwable?
+    val isLoading: Loading?,
+    val items: List<FridgeItem>,
+    val filterArchived: Boolean,
+    val nameUpdateError: Throwable?,
+    val listError: Throwable?
 ) : UiViewState {
 
-  data class Loading internal constructor(val isLoading: Boolean)
-
+    data class Loading internal constructor(val isLoading: Boolean)
 }
 
 sealed class DetailViewEvent : UiViewEvent {
 
-  object ForceRefresh : DetailViewEvent()
+    object ForceRefresh : DetailViewEvent()
 
-  data class ExpandItem internal constructor(val item: FridgeItem) : DetailViewEvent()
+    data class ExpandItem internal constructor(val item: FridgeItem) : DetailViewEvent()
 
-  data class PickDate internal constructor(
-    val oldItem: FridgeItem,
-    val year: Int,
-    val month: Int,
-    val day: Int
-  ) : DetailViewEvent()
+    data class PickDate internal constructor(
+        val oldItem: FridgeItem,
+        val year: Int,
+        val month: Int,
+        val day: Int
+    ) : DetailViewEvent()
 
-  data class ToggleArchiveVisibility internal constructor(val show: Boolean) : DetailViewEvent()
+    data class ToggleArchiveVisibility internal constructor(val show: Boolean) : DetailViewEvent()
 
-  object CloseEntry : DetailViewEvent()
+    object CloseEntry : DetailViewEvent()
 
-  data class NameUpdate internal constructor(val name: String) : DetailViewEvent()
-
+    data class NameUpdate internal constructor(val name: String) : DetailViewEvent()
 }
 
 sealed class DetailControllerEvent : UiControllerEvent {
 
-  data class ExpandForEditing internal constructor(
-    val item: FridgeItem
-  ) : DetailControllerEvent()
+    data class ExpandForEditing internal constructor(
+        val item: FridgeItem
+    ) : DetailControllerEvent()
 
-  data class DatePick internal constructor(
-    val oldItem: FridgeItem,
-    val year: Int,
-    val month: Int,
-    val day: Int
-  ) : DetailControllerEvent()
+    data class DatePick internal constructor(
+        val oldItem: FridgeItem,
+        val year: Int,
+        val month: Int,
+        val day: Int
+    ) : DetailControllerEvent()
 
-  object EntryArchived : DetailControllerEvent()
+    object EntryArchived : DetailControllerEvent()
 
-  object NavigateUp : DetailControllerEvent()
-
+    object NavigateUp : DetailControllerEvent()
 }

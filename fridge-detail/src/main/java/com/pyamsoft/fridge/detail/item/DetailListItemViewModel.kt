@@ -41,78 +41,77 @@ import javax.inject.Inject
 import javax.inject.Named
 
 class DetailListItemViewModel @Inject internal constructor(
-  @Named("item_editable") isEditable: Boolean,
-  fakeRealtime: EventBus<FridgeItemChangeEvent>,
-  private val interactor: DetailInteractor,
-  private val item: FridgeItem
+    @Named("item_editable") isEditable: Boolean,
+    fakeRealtime: EventBus<FridgeItemChangeEvent>,
+    private val interactor: DetailInteractor,
+    private val item: FridgeItem
 ) : DetailItemViewModel(isEditable, item, fakeRealtime) {
 
-  private val updateRunner = highlander<Unit, FridgeItem> { item ->
-    try {
-      interactor.commit(item.makeReal())
-    } catch (error: Throwable) {
-      error.onActualError { e ->
-        Timber.e(e, "Error updating item: ${item.id()}")
-      }
-    }
-  }
-
-  override fun onInit() {
-  }
-
-  override fun handleViewEvent(event: DetailItemViewEvent) {
-    return when (event) {
-      is CommitPresence -> commitPresence(event.oldItem, event.presence)
-      is ExpandItem -> expandItem(event.item)
-      is CommitName, is PickDate, is CloseItem, is DeleteItem, is ConsumeItem, is SpoilItem -> {
-        Timber.d("Ignore event: $event")
-      }
-    }
-  }
-
-  private fun commitPresence(
-    oldItem: FridgeItem,
-    presence: Presence
-  ) {
-    commitItem(item = oldItem.presence(presence))
-  }
-
-  private fun commitItem(item: FridgeItem) {
-    viewModelScope.launch {
-      if (item.isReal()) {
-        updateRunner.call(item.run {
-          val dateOfPurchase = purchaseTime()
-          if (presence() == HAVE) {
-            if (dateOfPurchase == null) {
-              val now = Date()
-              Timber.d("${item.name()} purchased! $now")
-              return@run purchaseTime(now)
+    private val updateRunner = highlander<Unit, FridgeItem> { item ->
+        try {
+            interactor.commit(item.makeReal())
+        } catch (error: Throwable) {
+            error.onActualError { e ->
+                Timber.e(e, "Error updating item: ${item.id()}")
             }
-          } else {
-            if (dateOfPurchase != null) {
-              Timber.d("${item.name()} purchase date cleared")
-              return@run invalidatePurchase()
-            }
-          }
-
-          return@run this
-        })
-      } else {
-        Timber.w("Cannot commit change for not-real item: $item")
-      }
+        }
     }
-  }
 
-  fun consume() {
-    remove(item, doRemove = { interactor.consume(it) })
-  }
+    override fun onInit() {
+    }
 
-  fun spoil() {
-    remove(item, doRemove = { interactor.spoil(it) })
-  }
+    override fun handleViewEvent(event: DetailItemViewEvent) {
+        return when (event) {
+            is CommitPresence -> commitPresence(event.oldItem, event.presence)
+            is ExpandItem -> expandItem(event.item)
+            is CommitName, is PickDate, is CloseItem, is DeleteItem, is ConsumeItem, is SpoilItem -> {
+                Timber.d("Ignore event: $event")
+            }
+        }
+    }
 
-  private fun expandItem(item: FridgeItem) {
-    publish(ExpandDetails(item))
-  }
+    private fun commitPresence(
+        oldItem: FridgeItem,
+        presence: Presence
+    ) {
+        commitItem(item = oldItem.presence(presence))
+    }
 
+    private fun commitItem(item: FridgeItem) {
+        viewModelScope.launch {
+            if (item.isReal()) {
+                updateRunner.call(item.run {
+                    val dateOfPurchase = purchaseTime()
+                    if (presence() == HAVE) {
+                        if (dateOfPurchase == null) {
+                            val now = Date()
+                            Timber.d("${item.name()} purchased! $now")
+                            return@run purchaseTime(now)
+                        }
+                    } else {
+                        if (dateOfPurchase != null) {
+                            Timber.d("${item.name()} purchase date cleared")
+                            return@run invalidatePurchase()
+                        }
+                    }
+
+                    return@run this
+                })
+            } else {
+                Timber.w("Cannot commit change for not-real item: $item")
+            }
+        }
+    }
+
+    fun consume() {
+        remove(item, doRemove = { interactor.consume(it) })
+    }
+
+    fun spoil() {
+        remove(item, doRemove = { interactor.spoil(it) })
+    }
+
+    private fun expandItem(item: FridgeItem) {
+        publish(ExpandDetails(item))
+    }
 }

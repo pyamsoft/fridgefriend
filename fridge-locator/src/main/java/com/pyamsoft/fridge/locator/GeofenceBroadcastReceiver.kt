@@ -24,22 +24,21 @@ import timber.log.Timber
 
 abstract class GeofenceBroadcastReceiver protected constructor() : BroadcastReceiver() {
 
-  final override fun onReceive(
-    context: Context?,
-    intent: Intent?
-  ) {
-    if (context == null || intent == null) {
-      Timber.e("Context or Intent is null. Stopping.")
-      return
+    final override fun onReceive(
+        context: Context?,
+        intent: Intent?
+    ) {
+        if (context == null || intent == null) {
+            Timber.e("Context or Intent is null. Stopping.")
+            return
+        }
+
+        Timber.d("Geofence event received!")
+        onGeofenceEvent(context, intent)
     }
 
-    Timber.d("Geofence event received!")
-    onGeofenceEvent(context, intent)
-  }
-
-  protected abstract fun onGeofenceEvent(
-    context: Context,
-    intent: Intent
-  )
-
+    protected abstract fun onGeofenceEvent(
+        context: Context,
+        intent: Intent
+    )
 }

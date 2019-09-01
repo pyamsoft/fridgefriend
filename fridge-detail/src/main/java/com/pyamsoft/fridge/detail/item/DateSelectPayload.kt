@@ -20,8 +20,8 @@ package com.pyamsoft.fridge.detail.item
 import com.pyamsoft.fridge.db.item.FridgeItem
 
 data class DateSelectPayload(
-  val oldItem: FridgeItem,
-  val year: Int,
-  val month: Int,
-  val day: Int
+    val oldItem: FridgeItem,
+    val year: Int,
+    val month: Int,
+    val day: Int
 )

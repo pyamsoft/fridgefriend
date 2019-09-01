@@ -19,10 +19,9 @@ package com.pyamsoft.fridge.db.item
 
 sealed class FridgeItemChangeEvent(open val entryId: String) {
 
-  data class Insert(val item: FridgeItem) : FridgeItemChangeEvent(item.entryId())
+    data class Insert(val item: FridgeItem) : FridgeItemChangeEvent(item.entryId())
 
-  data class Update(val item: FridgeItem) : FridgeItemChangeEvent(item.entryId())
+    data class Update(val item: FridgeItem) : FridgeItemChangeEvent(item.entryId())
 
-  data class Delete(val item: FridgeItem) : FridgeItemChangeEvent(item.entryId())
-
+    data class Delete(val item: FridgeItem) : FridgeItemChangeEvent(item.entryId())
 }

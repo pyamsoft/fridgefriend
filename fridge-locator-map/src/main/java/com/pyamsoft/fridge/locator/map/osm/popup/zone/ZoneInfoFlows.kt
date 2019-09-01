@@ -24,22 +24,19 @@ import com.pyamsoft.pydroid.arch.UiViewState
 import org.osmdroid.views.overlay.Polygon
 
 data class ZoneInfoViewState internal constructor(
-  val polygon: Polygon?,
-  val cached: ZoneCached?
+    val polygon: Polygon?,
+    val cached: ZoneCached?
 ) : UiViewState {
 
-  data class ZoneCached internal constructor(val cached: Boolean)
+    data class ZoneCached internal constructor(val cached: Boolean)
 }
 
 sealed class ZoneInfoViewEvent : UiViewEvent {
 
-  data class ZoneFavoriteAction internal constructor(
-    val zone: NearbyZone,
-    val add: Boolean
-  ) : ZoneInfoViewEvent()
-
+    data class ZoneFavoriteAction internal constructor(
+        val zone: NearbyZone,
+        val add: Boolean
+    ) : ZoneInfoViewEvent()
 }
 
-sealed class ZoneInfoControllerEvent : UiControllerEvent {
-
-}
+sealed class ZoneInfoControllerEvent : UiControllerEvent

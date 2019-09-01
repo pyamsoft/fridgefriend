@@ -24,53 +24,51 @@ import com.pyamsoft.pydroid.arch.UiViewEvent
 import com.pyamsoft.pydroid.arch.UiViewState
 
 data class DetailItemViewState internal constructor(
-  val item: FridgeItem,
-  val isEditable: Boolean,
-  val throwable: Throwable?
+    val item: FridgeItem,
+    val isEditable: Boolean,
+    val throwable: Throwable?
 ) : UiViewState
 
 sealed class DetailItemViewEvent : UiViewEvent {
 
-  data class ExpandItem internal constructor(val item: FridgeItem) : DetailItemViewEvent()
+    data class ExpandItem internal constructor(val item: FridgeItem) : DetailItemViewEvent()
 
-  data class CommitName internal constructor(
-    val oldItem: FridgeItem,
-    val name: String
-  ) : DetailItemViewEvent()
+    data class CommitName internal constructor(
+        val oldItem: FridgeItem,
+        val name: String
+    ) : DetailItemViewEvent()
 
-  data class CommitPresence internal constructor(
-    val oldItem: FridgeItem,
-    val presence: Presence
-  ) : DetailItemViewEvent()
+    data class CommitPresence internal constructor(
+        val oldItem: FridgeItem,
+        val presence: Presence
+    ) : DetailItemViewEvent()
 
-  data class PickDate internal constructor(
-    val oldItem: FridgeItem,
-    val year: Int,
-    val month: Int,
-    val day: Int
-  ) : DetailItemViewEvent()
+    data class PickDate internal constructor(
+        val oldItem: FridgeItem,
+        val year: Int,
+        val month: Int,
+        val day: Int
+    ) : DetailItemViewEvent()
 
-  data class CloseItem internal constructor(val item: FridgeItem) : DetailItemViewEvent()
+    data class CloseItem internal constructor(val item: FridgeItem) : DetailItemViewEvent()
 
-  data class DeleteItem internal constructor(val item: FridgeItem) : DetailItemViewEvent()
+    data class DeleteItem internal constructor(val item: FridgeItem) : DetailItemViewEvent()
 
-  data class ConsumeItem internal constructor(val item: FridgeItem) : DetailItemViewEvent()
+    data class ConsumeItem internal constructor(val item: FridgeItem) : DetailItemViewEvent()
 
-  data class SpoilItem internal constructor(val item: FridgeItem) : DetailItemViewEvent()
-
+    data class SpoilItem internal constructor(val item: FridgeItem) : DetailItemViewEvent()
 }
 
 sealed class DetailItemControllerEvent : UiControllerEvent {
 
-  data class ExpandDetails internal constructor(val item: FridgeItem) : DetailItemControllerEvent()
+    data class ExpandDetails internal constructor(val item: FridgeItem) : DetailItemControllerEvent()
 
-  data class DatePick internal constructor(
-    val oldItem: FridgeItem,
-    val year: Int,
-    val month: Int,
-    val day: Int
-  ) : DetailItemControllerEvent()
+    data class DatePick internal constructor(
+        val oldItem: FridgeItem,
+        val year: Int,
+        val month: Int,
+        val day: Int
+    ) : DetailItemControllerEvent()
 
-  object CloseExpand : DetailItemControllerEvent()
-
+    object CloseExpand : DetailItemControllerEvent()
 }

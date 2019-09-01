@@ -22,15 +22,14 @@ import com.squareup.moshi.JsonClass
 
 @JsonClass(generateAdapter = true)
 internal data class OsmTags internal constructor(
-  internal val name: String?
+    internal val name: String?
 ) {
 
-  @CheckResult
-  fun name(): String {
-    return name.orEmpty()
-  }
+    @CheckResult
+    fun name(): String {
+        return name.orEmpty()
+    }
 
-  // Needed to generate static adapter
-  companion object
-
+    // Needed to generate static adapter
+    companion object
 }

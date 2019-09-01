@@ -22,12 +22,10 @@ import com.pyamsoft.pydroid.arch.UiViewEvent
 
 sealed class PermissionViewEvent : UiViewEvent {
 
-  object FireLocationPermission : PermissionViewEvent()
-
+    object FireLocationPermission : PermissionViewEvent()
 }
 
 sealed class PermissionControllerEvent : UiControllerEvent {
 
-  object LocationPermissionRequest : PermissionControllerEvent()
-
+    object LocationPermissionRequest : PermissionControllerEvent()
 }

@@ -23,21 +23,21 @@ import java.util.Date
 
 internal object DateTypeConverter {
 
-  @JvmStatic
-  @TypeConverter
-  @CheckResult
-  fun toDate(time: Long?): Date? {
-    if (time == null) {
-      return null
-    } else {
-      return Date().apply { this.time = time }
+    @JvmStatic
+    @TypeConverter
+    @CheckResult
+    fun toDate(time: Long?): Date? {
+        if (time == null) {
+            return null
+        } else {
+            return Date().apply { this.time = time }
+        }
     }
-  }
 
-  @JvmStatic
-  @TypeConverter
-  @CheckResult
-  fun toLong(date: Date?): Long? {
-    return date?.time
-  }
+    @JvmStatic
+    @TypeConverter
+    @CheckResult
+    fun toLong(date: Date?): Long? {
+        return date?.time
+    }
 }

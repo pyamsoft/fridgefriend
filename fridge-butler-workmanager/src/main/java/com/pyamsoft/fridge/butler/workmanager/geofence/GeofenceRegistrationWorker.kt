@@ -29,35 +29,34 @@ import timber.log.Timber
 import java.util.concurrent.TimeUnit.HOURS
 
 internal class GeofenceRegistrationWorker internal constructor(
-  context: Context,
-  params: WorkerParameters
+    context: Context,
+    params: WorkerParameters
 ) : NearbyWorker(context, params) {
 
-  private var locator: Locator? = null
+    private var locator: Locator? = null
 
-  override fun onAfterInject() {
-    locator = Injector.obtain(applicationContext)
-  }
-
-  override fun onAfterTeardown() {
-    locator = null
-  }
-
-  override fun reschedule(butler: Butler) {
-    butler.registerGeofences(Locator.RESCHEDULE_TIME, HOURS)
-  }
-
-  override suspend fun performWork() = coroutineScope {
-    Timber.d("GeofenceRegistrationWorker registering fences")
-    withNearbyData { stores, zones ->
-
-      val nearbyStores = stores.map { Fence.fromStore(it) }
-      val nearbyZones = zones.map { Fence.fromZone(it) }
-          .flatten()
-
-      val fences = nearbyStores + nearbyZones
-      requireNotNull(locator).registerGeofences(fences)
+    override fun onAfterInject() {
+        locator = Injector.obtain(applicationContext)
     }
 
-  }
+    override fun onAfterTeardown() {
+        locator = null
+    }
+
+    override fun reschedule(butler: Butler) {
+        butler.registerGeofences(Locator.RESCHEDULE_TIME, HOURS)
+    }
+
+    override suspend fun performWork() = coroutineScope {
+        Timber.d("GeofenceRegistrationWorker registering fences")
+        withNearbyData { stores, zones ->
+
+            val nearbyStores = stores.map { Fence.fromStore(it) }
+            val nearbyZones = zones.map { Fence.fromZone(it) }
+                .flatten()
+
+            val fences = nearbyStores + nearbyZones
+            requireNotNull(locator).registerGeofences(fences)
+        }
+    }
 }

@@ -26,61 +26,61 @@ import java.util.Date
 @Parcelize
 @JsonClass(generateAdapter = true)
 data class JsonMappableNearbyStore internal constructor(
-  internal val id: Long,
-  internal val name: String,
-  internal val createdTime: Date,
-  internal val latitude: Double,
-  internal val longitude: Double
+    internal val id: Long,
+    internal val name: String,
+    internal val createdTime: Date,
+    internal val latitude: Double,
+    internal val longitude: Double
 ) : NearbyStore, Parcelable {
 
-  override fun id(): Long {
-    return id
-  }
-
-  override fun latitude(): Double {
-    return latitude
-  }
-
-  override fun longitude(): Double {
-    return longitude
-  }
-
-  override fun name(): String {
-    return name
-  }
-
-  override fun createdTime(): Date {
-    return createdTime
-  }
-
-  override fun name(name: String): NearbyStore {
-    return this.copy(name = name)
-  }
-
-  override fun latitude(lat: Double): NearbyStore {
-    return this.copy(latitude = lat)
-  }
-
-  override fun longitude(lon: Double): NearbyStore {
-    return this.copy(longitude = lon)
-  }
-
-  companion object {
-
-    @JvmStatic
-    @CheckResult
-    fun from(item: NearbyStore): JsonMappableNearbyStore {
-      if (item is JsonMappableNearbyStore) {
-        return item
-      } else {
-        return JsonMappableNearbyStore(
-            item.id(),
-            item.name(),
-            item.createdTime(),
-            item.latitude(),
-            item.longitude()
-        )
-      }
+    override fun id(): Long {
+        return id
     }
-  }
+
+    override fun latitude(): Double {
+        return latitude
+    }
+
+    override fun longitude(): Double {
+        return longitude
+    }
+
+    override fun name(): String {
+        return name
+    }
+
+    override fun createdTime(): Date {
+        return createdTime
+    }
+
+    override fun name(name: String): NearbyStore {
+        return this.copy(name = name)
+    }
+
+    override fun latitude(lat: Double): NearbyStore {
+        return this.copy(latitude = lat)
+    }
+
+    override fun longitude(lon: Double): NearbyStore {
+        return this.copy(longitude = lon)
+    }
+
+    companion object {
+
+        @JvmStatic
+        @CheckResult
+        fun from(item: NearbyStore): JsonMappableNearbyStore {
+            if (item is JsonMappableNearbyStore) {
+                return item
+            } else {
+                return JsonMappableNearbyStore(
+                    item.id(),
+                    item.name(),
+                    item.createdTime(),
+                    item.latitude(),
+                    item.longitude()
+                )
+            }
+        }
+    }
 }

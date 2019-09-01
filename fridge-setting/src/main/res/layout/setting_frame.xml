@@ -19,12 +19,10 @@
 
 <merge>
 
-  <FrameLayout
-      xmlns:android="http://schemas.android.com/apk/res/android"
-      android:id="@+id/setting_frame"
-      android:layout_width="match_parent"
-      android:layout_height="match_parent"
-      />
+    <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/setting_frame"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
 
 </merge>
 

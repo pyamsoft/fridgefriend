@@ -25,20 +25,19 @@ import com.pyamsoft.pydroid.arch.UnitViewState
 import javax.inject.Inject
 
 class AddNewItemViewModel @Inject internal constructor(
-  entry: FridgeEntry
+    entry: FridgeEntry
 ) : UiViewModel<UnitViewState, AddNewViewEvent, AddNewControllerEvent>(
     initialState = UnitViewState
 ) {
 
-  private val entryId = entry.id()
+    private val entryId = entry.id()
 
-  override fun onInit() {
-  }
-
-  override fun handleViewEvent(event: AddNewViewEvent) {
-    return when (event) {
-      is AddNewItemEvent -> publish(AddNew(entryId))
+    override fun onInit() {
     }
-  }
 
+    override fun handleViewEvent(event: AddNewViewEvent) {
+        return when (event) {
+            is AddNewItemEvent -> publish(AddNew(entryId))
+        }
+    }
 }

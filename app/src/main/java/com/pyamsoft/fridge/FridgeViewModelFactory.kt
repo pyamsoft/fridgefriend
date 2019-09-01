@@ -25,14 +25,13 @@ import javax.inject.Provider
 import kotlin.reflect.KClass
 
 internal class FridgeViewModelFactory @Inject internal constructor(
-  private val viewModels: MutableMap<Class<out UiViewModel<*, *, *>>, Provider<UiViewModel<*, *, *>>>
+    private val viewModels: MutableMap<Class<out UiViewModel<*, *, *>>, Provider<UiViewModel<*, *, *>>>
 ) : UiViewModelFactory() {
 
-  override fun <T : UiViewModel<*, *, *>> viewModel(modelClass: KClass<T>): UiViewModel<*, *, *> {
-    @Suppress("UNCHECKED_CAST")
-    return viewModels[modelClass.java]?.get() as? T ?: fail()
-  }
-
+    override fun <T : UiViewModel<*, *, *>> viewModel(modelClass: KClass<T>): UiViewModel<*, *, *> {
+        @Suppress("UNCHECKED_CAST")
+        return viewModels[modelClass.java]?.get() as? T ?: fail()
+    }
 }
 
 @MapKey

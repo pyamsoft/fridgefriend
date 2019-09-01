@@ -29,50 +29,49 @@ import timber.log.Timber
 import javax.inject.Named
 
 abstract class DetailItemViewModel protected constructor(
-  @Named("item_editable") isEditable: Boolean,
-  item: FridgeItem,
-  protected val fakeRealtime: EventBus<FridgeItemChangeEvent>
+    @Named("item_editable") isEditable: Boolean,
+    item: FridgeItem,
+    protected val fakeRealtime: EventBus<FridgeItemChangeEvent>
 ) : UiViewModel<DetailItemViewState, DetailItemViewEvent, DetailItemControllerEvent>(
     initialState = DetailItemViewState(throwable = null, item = item, isEditable = isEditable)
 ) {
 
-  private val deleteRunner = highlander<
-      Unit,
-      suspend (item: FridgeItem) -> Unit,
-      (item: FridgeItem) -> Unit> { doRemove, onRemoved ->
-    try {
-      doRemove(item)
-    } catch (error: Throwable) {
-      error.onActualError { e ->
-        Timber.e(e, "Error removing item: ${item.id()}")
-      }
-    } finally {
-      onRemoved(item)
-    }
-  }
-
-  private suspend fun handleFakeDelete(item: FridgeItem) {
-    fakeRealtime.send(Delete(item))
-  }
-
-  @JvmOverloads
-  protected fun remove(
-    item: FridgeItem,
-    doRemove: suspend (item: FridgeItem) -> Unit,
-    onRemoved: (item: FridgeItem) -> Unit = {}
-  ) = viewModelScope.launch {
-    // If this item is not real, its an empty placeholder
-    // The user may still wish to delete it from their list
-    // in case they have too many placeholders.
-    // Directly call the realtime delete callback as if the
-    // delete had actually happened
-    if (!item.isReal()) {
-      Timber.w("Remove called on a non-real item: $item, fake callback")
-      handleFakeDelete(item)
-      return@launch
+    private val deleteRunner = highlander<
+        Unit,
+        suspend (item: FridgeItem) -> Unit,
+            (item: FridgeItem) -> Unit> { doRemove, onRemoved ->
+        try {
+            doRemove(item)
+        } catch (error: Throwable) {
+            error.onActualError { e ->
+                Timber.e(e, "Error removing item: ${item.id()}")
+            }
+        } finally {
+            onRemoved(item)
+        }
     }
 
-    deleteRunner.call(doRemove, onRemoved)
-  }
+    private suspend fun handleFakeDelete(item: FridgeItem) {
+        fakeRealtime.send(Delete(item))
+    }
 
+    @JvmOverloads
+    protected fun remove(
+        item: FridgeItem,
+        doRemove: suspend (item: FridgeItem) -> Unit,
+        onRemoved: (item: FridgeItem) -> Unit = {}
+    ) = viewModelScope.launch {
+        // If this item is not real, its an empty placeholder
+        // The user may still wish to delete it from their list
+        // in case they have too many placeholders.
+        // Directly call the realtime delete callback as if the
+        // delete had actually happened
+        if (!item.isReal()) {
+            Timber.w("Remove called on a non-real item: $item, fake callback")
+            handleFakeDelete(item)
+            return@launch
+        }
+
+        deleteRunner.call(doRemove, onRemoved)
+    }
 }

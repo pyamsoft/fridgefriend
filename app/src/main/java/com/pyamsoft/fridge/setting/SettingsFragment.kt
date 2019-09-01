@@ -25,35 +25,33 @@ import com.pyamsoft.pydroid.ui.settings.AppSettingsPreferenceFragment
 
 internal class SettingsFragment : AppSettingsFragment() {
 
-  override fun provideSettingsFragment(): AppSettingsPreferenceFragment {
-    return SettingsPreferenceFragment()
-  }
-
-  override fun provideSettingsTag(): String {
-    return SettingsPreferenceFragment.TAG
-  }
-
-  companion object {
-
-    const val TAG = "SettingsFragment"
-
-    @JvmStatic
-    @CheckResult
-    fun newInstance(): Fragment {
-      return SettingsFragment().apply {
-        arguments = Bundle().apply {
-        }
-      }
+    override fun provideSettingsFragment(): AppSettingsPreferenceFragment {
+        return SettingsPreferenceFragment()
     }
-  }
 
-  internal class SettingsPreferenceFragment : AppSettingsPreferenceFragment() {
+    override fun provideSettingsTag(): String {
+        return SettingsPreferenceFragment.TAG
+    }
 
     companion object {
 
-      const val TAG = "SettingsPreferenceFragment"
+        const val TAG = "SettingsFragment"
+
+        @JvmStatic
+        @CheckResult
+        fun newInstance(): Fragment {
+            return SettingsFragment().apply {
+                arguments = Bundle().apply {
+                }
+            }
+        }
     }
 
-  }
+    internal class SettingsPreferenceFragment : AppSettingsPreferenceFragment() {
 
+        companion object {
+
+            const val TAG = "SettingsPreferenceFragment"
+        }
+    }
 }

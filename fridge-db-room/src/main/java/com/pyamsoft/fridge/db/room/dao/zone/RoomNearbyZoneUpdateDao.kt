@@ -28,13 +28,12 @@ import timber.log.Timber
 @Dao
 internal abstract class RoomNearbyZoneUpdateDao internal constructor() : NearbyZoneUpdateDao {
 
-  override suspend fun update(o: NearbyZone) {
-    Timber.d("ROOM: NearbyZone Update: $o")
-    val roomNearbyZone = RoomNearbyZone.create(o)
-    daoUpdate(roomNearbyZone)
-  }
+    override suspend fun update(o: NearbyZone) {
+        Timber.d("ROOM: NearbyZone Update: $o")
+        val roomNearbyZone = RoomNearbyZone.create(o)
+        daoUpdate(roomNearbyZone)
+    }
 
-  @Update(onConflict = OnConflictStrategy.ABORT)
-  internal abstract fun daoUpdate(entry: RoomNearbyZone)
-
+    @Update(onConflict = OnConflictStrategy.ABORT)
+    internal abstract fun daoUpdate(entry: RoomNearbyZone)
 }

@@ -35,72 +35,72 @@ import java.util.Calendar
 import java.util.concurrent.TimeUnit.HOURS
 
 internal class ExpirationWorker internal constructor(
-  context: Context,
-  params: WorkerParameters
+    context: Context,
+    params: WorkerParameters
 ) : FridgeWorker(context, params) {
 
-  override fun reschedule(butler: Butler) {
-    butler.remindExpiration(3, HOURS)
-  }
+    override fun reschedule(butler: Butler) {
+        butler.remindExpiration(3, HOURS)
+    }
 
-  private fun notifyForEntry(
-    today: Calendar,
-    later: Calendar,
-    entry: FridgeEntry,
-    items: List<FridgeItem>
-  ) {
-    val expiringItems = mutableListOf<FridgeItem>()
-    val expiredItems = mutableListOf<FridgeItem>()
-    val unknownExpirationItems = mutableListOf<FridgeItem>()
+    private fun notifyForEntry(
+        today: Calendar,
+        later: Calendar,
+        entry: FridgeEntry,
+        items: List<FridgeItem>
+    ) {
+        val expiringItems = mutableListOf<FridgeItem>()
+        val expiredItems = mutableListOf<FridgeItem>()
+        val unknownExpirationItems = mutableListOf<FridgeItem>()
 
-    for (item in items.filterNot { it.isArchived() }) {
-      if (item.presence() == HAVE) {
-        val expirationTime = item.expireTime()
-        if (expirationTime != null) {
+        for (item in items.filterNot { it.isArchived() }) {
+            if (item.presence() == HAVE) {
+                val expirationTime = item.expireTime()
+                if (expirationTime != null) {
 
-          if (item.isExpired(today)) {
-            Timber.w("${entry.id()} expired! $item")
-            expiredItems.add(item)
-          } else {
-            if (item.isExpiringSoon(today, later)) {
-              Timber.w("${entry.id()} is expiring soon! $item")
-              expiringItems.add(item)
+                    if (item.isExpired(today)) {
+                        Timber.w("${entry.id()} expired! $item")
+                        expiredItems.add(item)
+                    } else {
+                        if (item.isExpiringSoon(today, later)) {
+                            Timber.w("${entry.id()} is expiring soon! $item")
+                            expiringItems.add(item)
+                        }
+                    }
+                } else {
+                    unknownExpirationItems.add(item)
+                }
             }
-          }
-        } else {
-          unknownExpirationItems.add(item)
         }
-      }
+
+        if (expiringItems.isNotEmpty()) {
+            notification { handler, foregroundState ->
+                ExpirationNotifications.notifyExpiring(
+                    handler, foregroundState, applicationContext, entry, expiringItems
+                )
+            }
+        }
+
+        if (expiredItems.isNotEmpty()) {
+            notification { handler, foregroundState ->
+                ExpirationNotifications.notifyExpired(
+                    handler, foregroundState, applicationContext, entry, expiredItems
+                )
+            }
+        }
+
+        if (unknownExpirationItems.isNotEmpty()) {
+            Timber.w("Butler cannot handle unknowns: $unknownExpirationItems")
+        }
     }
 
-    if (expiringItems.isNotEmpty()) {
-      notification { handler, foregroundState ->
-        ExpirationNotifications.notifyExpiring(
-            handler, foregroundState, applicationContext, entry, expiringItems
-        )
-      }
+    override suspend fun performWork() = coroutineScope {
+        val today = Calendar.getInstance()
+            .cleanMidnight()
+        val later = Calendar.getInstance()
+            .daysLaterMidnight(2)
+        withFridgeData { entry, items ->
+            notifyForEntry(today, later, entry, items)
+        }
     }
-
-    if (expiredItems.isNotEmpty()) {
-      notification { handler, foregroundState ->
-        ExpirationNotifications.notifyExpired(
-            handler, foregroundState, applicationContext, entry, expiredItems
-        )
-      }
-    }
-
-    if (unknownExpirationItems.isNotEmpty()) {
-      Timber.w("Butler cannot handle unknowns: $unknownExpirationItems")
-    }
-  }
-
-  override suspend fun performWork() = coroutineScope {
-    val today = Calendar.getInstance()
-        .cleanMidnight()
-    val later = Calendar.getInstance()
-        .daysLaterMidnight(2)
-    withFridgeData { entry, items ->
-      notifyForEntry(today, later, entry, items)
-    }
-  }
 }

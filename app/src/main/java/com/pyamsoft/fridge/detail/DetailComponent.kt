@@ -39,36 +39,36 @@ import dagger.multibindings.IntoMap
 @Subcomponent(modules = [ViewModelModule::class])
 internal interface DetailComponent {
 
-  fun inject(fragment: DetailFragment)
+    fun inject(fragment: DetailFragment)
 
-  @Subcomponent.Factory
-  interface Factory {
+    @Subcomponent.Factory
+    interface Factory {
 
-    @CheckResult
-    fun create(
-      @BindsInstance activity: Activity,
-      @BindsInstance parent: ViewGroup,
-      @BindsInstance toolbarActivity: ToolbarActivity,
-      @BindsInstance owner: LifecycleOwner,
-      @BindsInstance entry: FridgeEntry,
-      @BindsInstance filterPresence: Presence
-    ): DetailComponent
-  }
+        @CheckResult
+        fun create(
+            @BindsInstance activity: Activity,
+            @BindsInstance parent: ViewGroup,
+            @BindsInstance toolbarActivity: ToolbarActivity,
+            @BindsInstance owner: LifecycleOwner,
+            @BindsInstance entry: FridgeEntry,
+            @BindsInstance filterPresence: Presence
+        ): DetailComponent
+    }
 
-  @Module
-  abstract class ViewModelModule {
+    @Module
+    abstract class ViewModelModule {
 
-    @Binds
-    internal abstract fun bindViewModelFactory(factory: FridgeViewModelFactory): ViewModelProvider.Factory
+        @Binds
+        internal abstract fun bindViewModelFactory(factory: FridgeViewModelFactory): ViewModelProvider.Factory
 
-    @Binds
-    @IntoMap
-    @ViewModelKey(DetailViewModel::class)
-    internal abstract fun detailViewModel(viewModel: DetailViewModel): UiViewModel<*, *, *>
+        @Binds
+        @IntoMap
+        @ViewModelKey(DetailViewModel::class)
+        internal abstract fun detailViewModel(viewModel: DetailViewModel): UiViewModel<*, *, *>
 
-    @Binds
-    @IntoMap
-    @ViewModelKey(AddNewItemViewModel::class)
-    internal abstract fun addNewViewModel(viewModel: AddNewItemViewModel): UiViewModel<*, *, *>
-  }
+        @Binds
+        @IntoMap
+        @ViewModelKey(AddNewItemViewModel::class)
+        internal abstract fun addNewViewModel(viewModel: AddNewItemViewModel): UiViewModel<*, *, *>
+    }
 }

@@ -22,12 +22,10 @@ import com.pyamsoft.pydroid.arch.UiViewEvent
 
 sealed class AddNewViewEvent : UiViewEvent {
 
-  object AddNewItemEvent : AddNewViewEvent()
-
+    object AddNewItemEvent : AddNewViewEvent()
 }
 
 sealed class AddNewControllerEvent : UiControllerEvent {
 
-  data class AddNew internal constructor(val entryId: String) : AddNewControllerEvent()
-
+    data class AddNew internal constructor(val entryId: String) : AddNewControllerEvent()
 }

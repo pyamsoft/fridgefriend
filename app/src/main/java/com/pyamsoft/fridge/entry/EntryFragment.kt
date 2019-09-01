@@ -56,197 +56,205 @@ import javax.inject.Inject
 
 internal class EntryFragment : Fragment(), SnackbarContainer {
 
-  @JvmField @Inject internal var factory: ViewModelProvider.Factory? = null
-  @JvmField @Inject internal var mapPermission: MapPermission? = null
+    @JvmField
+    @Inject
+    internal var factory: ViewModelProvider.Factory? = null
+    @JvmField
+    @Inject
+    internal var mapPermission: MapPermission? = null
 
-  @JvmField @Inject internal var toolbar: EntryToolbar? = null
-  @JvmField @Inject internal var frame: EntryFrame? = null
-  @JvmField @Inject internal var navigation: EntryNavigation? = null
-  private val viewModel by factory<EntryViewModel> { factory }
+    @JvmField
+    @Inject
+    internal var toolbar: EntryToolbar? = null
+    @JvmField
+    @Inject
+    internal var frame: EntryFrame? = null
+    @JvmField
+    @Inject
+    internal var navigation: EntryNavigation? = null
+    private val viewModel by factory<EntryViewModel> { factory }
 
-  private var initialized = false
+    private var initialized = false
 
-  override fun getSnackbarContainer(): ViewGroup? {
-    val frame = frame ?: return null
+    override fun getSnackbarContainer(): ViewGroup? {
+        val frame = frame ?: return null
 
-    val fragment = childFragmentManager.findFragmentById(frame.id())
-    if (fragment is SnackbarContainer) {
-      return fragment.getSnackbarContainer()
-    }
-
-    return null
-  }
-
-  override fun onCreate(savedInstanceState: Bundle?) {
-    super.onCreate(savedInstanceState)
-    initialized = savedInstanceState?.getBoolean(INITIALIZED, false) ?: false
-  }
-
-  override fun onCreateView(
-    inflater: LayoutInflater,
-    container: ViewGroup?,
-    savedInstanceState: Bundle?
-  ): View? {
-    return inflater.inflate(R.layout.layout_constraint, container, false)
-  }
-
-  override fun onViewCreated(
-    view: View,
-    savedInstanceState: Bundle?
-  ) {
-    super.onViewCreated(view, savedInstanceState)
-
-    val parent = view.findViewById<ConstraintLayout>(R.id.layout_constraint)
-    Injector.obtain<FridgeComponent>(view.context.applicationContext)
-        .plusEntryComponent()
-        .create(viewLifecycleOwner, parent, requireToolbarActivity())
-        .inject(this)
-
-    val toolbar = requireNotNull(toolbar)
-    val frame = requireNotNull(frame)
-    val navigation = requireNotNull(navigation)
-    val topshadow = TopshadowView.createTyped<EntryViewState, EntryViewEvent>(parent)
-
-    createComponent(
-        savedInstanceState, viewLifecycleOwner,
-        viewModel,
-        frame,
-        navigation,
-        toolbar,
-        topshadow
-    ) {
-      return@createComponent when (it) {
-        is PushHave -> pushHave(it.entry)
-        is PushNeed -> pushNeed(it.entry)
-        is PushNearby -> pushNearby()
-        is NavigateToSettings -> showSettingsDialog()
-      }
-    }
-
-    parent.layout {
-      navigation.also {
-        connect(it.id(), ConstraintSet.BOTTOM, ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM)
-        connect(it.id(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
-        connect(it.id(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
-        constrainWidth(it.id(), ConstraintSet.MATCH_CONSTRAINT)
-        constrainHeight(it.id(), ConstraintSet.WRAP_CONTENT)
-      }
-
-      frame.also {
-        connect(it.id(), ConstraintSet.BOTTOM, navigation.id(), ConstraintSet.TOP)
-        connect(it.id(), ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP)
-        connect(it.id(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
-        connect(it.id(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
-        constrainWidth(it.id(), ConstraintSet.MATCH_CONSTRAINT)
-        constrainHeight(it.id(), ConstraintSet.MATCH_CONSTRAINT)
-      }
-
-      topshadow.also {
-        connect(it.id(), ConstraintSet.BOTTOM, navigation.id(), ConstraintSet.TOP)
-        connect(it.id(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
-        connect(it.id(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
-        constrainWidth(it.id(), ConstraintSet.MATCH_CONSTRAINT)
-      }
-    }
-  }
-
-  private fun onAppInitialized() {
-    if (!initialized) {
-      initialized = true
-      val activity = requireActivity()
-      if (activity is VersionCheckActivity) {
-        Timber.d("Trigger update check")
-        activity.checkForUpdate()
-      }
-    }
-  }
-
-  override fun onSaveInstanceState(outState: Bundle) {
-    super.onSaveInstanceState(outState)
-    outState.putBoolean(INITIALIZED, initialized)
-    frame?.saveState(outState)
-    toolbar?.saveState(outState)
-    navigation?.saveState(outState)
-  }
-
-  override fun onDestroyView() {
-    super.onDestroyView()
-
-    factory = null
-    toolbar = null
-    frame = null
-    navigation = null
-    mapPermission = null
-  }
-
-  private fun showSettingsDialog() {
-    SettingsDialog().show(requireActivity(), SettingsDialog.TAG)
-  }
-
-  private fun pushHave(entry: FridgeEntry) {
-    pushPage(entry, HAVE)
-  }
-
-  private fun pushNeed(entry: FridgeEntry) {
-    pushPage(entry, NEED)
-  }
-
-  private fun pushNearby() {
-    val fm = childFragmentManager
-    if (
-        fm.findFragmentByTag(MapFragment.TAG) == null &&
-        fm.findFragmentByTag(PermissionFragment.TAG) == null
-    ) {
-      fm.commitNow(viewLifecycleOwner) {
-        val container = requireNotNull(frame).id()
-        if (requireNotNull(mapPermission).hasForegroundPermission()) {
-          replace(container, MapFragment.newInstance(), MapFragment.TAG)
-        } else {
-          replace(container, PermissionFragment.newInstance(container), PermissionFragment.TAG)
+        val fragment = childFragmentManager.findFragmentById(frame.id())
+        if (fragment is SnackbarContainer) {
+            return fragment.getSnackbarContainer()
         }
-      }
+
+        return null
     }
 
-    onAppInitialized()
-  }
-
-  private fun pushPage(
-    entry: FridgeEntry,
-    filterPresence: Presence
-  ) {
-    val fm = childFragmentManager
-    if (fm.findFragmentByTag(filterPresence.name) == null) {
-      fm.commitNow(viewLifecycleOwner) {
-        replace(
-            requireNotNull(frame).id(),
-            DetailFragment.newInstance(entry, filterPresence),
-            filterPresence.name
-        )
-      }
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        initialized = savedInstanceState?.getBoolean(INITIALIZED, false) ?: false
     }
 
-    onAppInitialized()
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        return inflater.inflate(R.layout.layout_constraint, container, false)
+    }
 
-  }
+    override fun onViewCreated(
+        view: View,
+        savedInstanceState: Bundle?
+    ) {
+        super.onViewCreated(view, savedInstanceState)
 
-  override fun onHiddenChanged(hidden: Boolean) {
-    super.onHiddenChanged(hidden)
-    viewModel.showMenu(!hidden)
-  }
+        val parent = view.findViewById<ConstraintLayout>(R.id.layout_constraint)
+        Injector.obtain<FridgeComponent>(view.context.applicationContext)
+            .plusEntryComponent()
+            .create(viewLifecycleOwner, parent, requireToolbarActivity())
+            .inject(this)
 
-  companion object {
+        val toolbar = requireNotNull(toolbar)
+        val frame = requireNotNull(frame)
+        val navigation = requireNotNull(navigation)
+        val topshadow = TopshadowView.createTyped<EntryViewState, EntryViewEvent>(parent)
 
-    private const val INITIALIZED = "initialized"
-    const val TAG = "EntryFragment"
-
-    @JvmStatic
-    @CheckResult
-    fun newInstance(): Fragment {
-      return EntryFragment().apply {
-        arguments = Bundle().apply {
+        createComponent(
+            savedInstanceState, viewLifecycleOwner,
+            viewModel,
+            frame,
+            navigation,
+            toolbar,
+            topshadow
+        ) {
+            return@createComponent when (it) {
+                is PushHave -> pushHave(it.entry)
+                is PushNeed -> pushNeed(it.entry)
+                is PushNearby -> pushNearby()
+                is NavigateToSettings -> showSettingsDialog()
+            }
         }
-      }
-    }
-  }
 
+        parent.layout {
+            navigation.also {
+                connect(it.id(), ConstraintSet.BOTTOM, ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM)
+                connect(it.id(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
+                connect(it.id(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
+                constrainWidth(it.id(), ConstraintSet.MATCH_CONSTRAINT)
+                constrainHeight(it.id(), ConstraintSet.WRAP_CONTENT)
+            }
+
+            frame.also {
+                connect(it.id(), ConstraintSet.BOTTOM, navigation.id(), ConstraintSet.TOP)
+                connect(it.id(), ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP)
+                connect(it.id(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
+                connect(it.id(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
+                constrainWidth(it.id(), ConstraintSet.MATCH_CONSTRAINT)
+                constrainHeight(it.id(), ConstraintSet.MATCH_CONSTRAINT)
+            }
+
+            topshadow.also {
+                connect(it.id(), ConstraintSet.BOTTOM, navigation.id(), ConstraintSet.TOP)
+                connect(it.id(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
+                connect(it.id(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
+                constrainWidth(it.id(), ConstraintSet.MATCH_CONSTRAINT)
+            }
+        }
+    }
+
+    private fun onAppInitialized() {
+        if (!initialized) {
+            initialized = true
+            val activity = requireActivity()
+            if (activity is VersionCheckActivity) {
+                Timber.d("Trigger update check")
+                activity.checkForUpdate()
+            }
+        }
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putBoolean(INITIALIZED, initialized)
+        frame?.saveState(outState)
+        toolbar?.saveState(outState)
+        navigation?.saveState(outState)
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+
+        factory = null
+        toolbar = null
+        frame = null
+        navigation = null
+        mapPermission = null
+    }
+
+    private fun showSettingsDialog() {
+        SettingsDialog().show(requireActivity(), SettingsDialog.TAG)
+    }
+
+    private fun pushHave(entry: FridgeEntry) {
+        pushPage(entry, HAVE)
+    }
+
+    private fun pushNeed(entry: FridgeEntry) {
+        pushPage(entry, NEED)
+    }
+
+    private fun pushNearby() {
+        val fm = childFragmentManager
+        if (
+            fm.findFragmentByTag(MapFragment.TAG) == null &&
+            fm.findFragmentByTag(PermissionFragment.TAG) == null
+        ) {
+            fm.commitNow(viewLifecycleOwner) {
+                val container = requireNotNull(frame).id()
+                if (requireNotNull(mapPermission).hasForegroundPermission()) {
+                    replace(container, MapFragment.newInstance(), MapFragment.TAG)
+                } else {
+                    replace(container, PermissionFragment.newInstance(container), PermissionFragment.TAG)
+                }
+            }
+        }
+
+        onAppInitialized()
+    }
+
+    private fun pushPage(
+        entry: FridgeEntry,
+        filterPresence: Presence
+    ) {
+        val fm = childFragmentManager
+        if (fm.findFragmentByTag(filterPresence.name) == null) {
+            fm.commitNow(viewLifecycleOwner) {
+                replace(
+                    requireNotNull(frame).id(),
+                    DetailFragment.newInstance(entry, filterPresence),
+                    filterPresence.name
+                )
+            }
+        }
+
+        onAppInitialized()
+    }
+
+    override fun onHiddenChanged(hidden: Boolean) {
+        super.onHiddenChanged(hidden)
+        viewModel.showMenu(!hidden)
+    }
+
+    companion object {
+
+        private const val INITIALIZED = "initialized"
+        const val TAG = "EntryFragment"
+
+        @JvmStatic
+        @CheckResult
+        fun newInstance(): Fragment {
+            return EntryFragment().apply {
+                arguments = Bundle().apply {
+                }
+            }
+        }
+    }
 }

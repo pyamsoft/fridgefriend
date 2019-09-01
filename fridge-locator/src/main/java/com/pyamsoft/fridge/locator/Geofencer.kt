@@ -23,9 +23,9 @@ import androidx.annotation.CheckResult
 
 interface Geofencer {
 
-  @CheckResult
-  fun getTriggeredFenceIds(intent: Intent): List<String>
+    @CheckResult
+    fun getTriggeredFenceIds(intent: Intent): List<String>
 
-  @CheckResult
-  suspend fun getLastKnownLocation(): Location?
+    @CheckResult
+    suspend fun getLastKnownLocation(): Location?
 }

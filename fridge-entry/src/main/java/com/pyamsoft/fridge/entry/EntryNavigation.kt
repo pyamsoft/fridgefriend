@@ -34,83 +34,82 @@ import com.pyamsoft.pydroid.util.doOnApplyWindowInsets
 import javax.inject.Inject
 
 class EntryNavigation @Inject internal constructor(
-  parent: ViewGroup
+    parent: ViewGroup
 ) : BaseUiView<EntryViewState, EntryViewEvent>(parent) {
 
-  override val layout: Int = R.layout.entry_navigation
+    override val layout: Int = R.layout.entry_navigation
 
-  override val layoutRoot by boundView<BottomNavigationView>(R.id.entry_bottom_navigation_menu)
+    override val layoutRoot by boundView<BottomNavigationView>(R.id.entry_bottom_navigation_menu)
 
-  override fun onInflated(
-    view: View,
-    savedInstanceState: Bundle?
-  ) {
-    layoutRoot.isVisible = false
+    override fun onInflated(
+        view: View,
+        savedInstanceState: Bundle?
+    ) {
+        layoutRoot.isVisible = false
 
-    layoutRoot.doOnApplyWindowInsets { v, insets, padding ->
-      v.updatePadding(bottom = padding.bottom + insets.systemWindowInsetBottom)
-    }
-  }
-
-  override fun onRender(
-    state: EntryViewState,
-    savedState: UiSavedState
-  ) {
-    layoutRoot.isVisible = state.entry != null
-
-    layoutRoot.setOnNavigationItemSelectedListener { item ->
-      return@setOnNavigationItemSelectedListener when (item.itemId) {
-        R.id.menu_item_nav_need -> handleClick(state.entry) { OpenNeed(it) }
-        R.id.menu_item_nav_have -> handleClick(state.entry) { OpenHave(it) }
-        R.id.menu_item_nav_nearby -> handleClick(state.entry) { OpenNearby(it) }
-        else -> false
-      }
-    }
-
-    selectDefault(state.entry, savedState)
-  }
-
-  private fun selectDefault(
-    entry: FridgeEntry?,
-    savedState: UiSavedState
-  ) {
-    if (entry != null) {
-      savedState.consume(LAST_PAGE, layoutRoot.selectedItemId) { itemId ->
-        layoutRoot.selectedItemId = if (itemId == 0) {
-          layoutRoot.menu.getItem(0)
-              .itemId
-        } else {
-          itemId
+        layoutRoot.doOnApplyWindowInsets { v, insets, padding ->
+            v.updatePadding(bottom = padding.bottom + insets.systemWindowInsetBottom)
         }
-      }
     }
-  }
 
-  @CheckResult
-  private fun handleClick(
-    entry: FridgeEntry?,
-    getEvent: (entry: FridgeEntry) -> EntryViewEvent
-  ): Boolean {
-    if (entry != null) {
-      publish(getEvent(entry))
-      return true
-    } else {
-      return false
+    override fun onRender(
+        state: EntryViewState,
+        savedState: UiSavedState
+    ) {
+        layoutRoot.isVisible = state.entry != null
+
+        layoutRoot.setOnNavigationItemSelectedListener { item ->
+            return@setOnNavigationItemSelectedListener when (item.itemId) {
+                R.id.menu_item_nav_need -> handleClick(state.entry) { OpenNeed(it) }
+                R.id.menu_item_nav_have -> handleClick(state.entry) { OpenHave(it) }
+                R.id.menu_item_nav_nearby -> handleClick(state.entry) { OpenNearby(it) }
+                else -> false
+            }
+        }
+
+        selectDefault(state.entry, savedState)
     }
-  }
 
-  override fun onSaveState(outState: Bundle) {
-    outState.putInt(LAST_PAGE, layoutRoot.selectedItemId)
-  }
+    private fun selectDefault(
+        entry: FridgeEntry?,
+        savedState: UiSavedState
+    ) {
+        if (entry != null) {
+            savedState.consume(LAST_PAGE, layoutRoot.selectedItemId) { itemId ->
+                layoutRoot.selectedItemId = if (itemId == 0) {
+                    layoutRoot.menu.getItem(0)
+                        .itemId
+                } else {
+                    itemId
+                }
+            }
+        }
+    }
 
-  override fun onTeardown() {
-    layoutRoot.isVisible = false
-    layoutRoot.setOnNavigationItemSelectedListener(null)
-  }
+    @CheckResult
+    private fun handleClick(
+        entry: FridgeEntry?,
+        getEvent: (entry: FridgeEntry) -> EntryViewEvent
+    ): Boolean {
+        if (entry != null) {
+            publish(getEvent(entry))
+            return true
+        } else {
+            return false
+        }
+    }
 
-  companion object {
+    override fun onSaveState(outState: Bundle) {
+        outState.putInt(LAST_PAGE, layoutRoot.selectedItemId)
+    }
 
-    private const val LAST_PAGE = "last_page"
-  }
+    override fun onTeardown() {
+        layoutRoot.isVisible = false
+        layoutRoot.setOnNavigationItemSelectedListener(null)
+    }
 
+    companion object {
+
+        private const val LAST_PAGE = "last_page"
+    }
 }

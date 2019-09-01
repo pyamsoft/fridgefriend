@@ -28,33 +28,32 @@ import com.pyamsoft.pydroid.util.doOnApplyWindowInsets
 import com.pyamsoft.pydroid.util.toDp
 
 internal class SpacerItemViewHolder internal constructor(
-  itemView: View
+    itemView: View
 ) : DetailViewHolder(itemView) {
 
-  private val frame = itemView.findViewById<ViewGroup>(R.id.listitem_frame)
+    private val frame = itemView.findViewById<ViewGroup>(R.id.listitem_frame)
 
-  init {
-    frame.doOnApplyWindowInsets { v, insets, padding ->
-      val offset = 8.toDp(v.context)
-      val toolbarTopMargin = padding.top + insets.systemWindowInsetTop + offset
-      v.context.withStyledAttributes(R.attr.toolbarStyle, intArrayOf(R.attr.actionBarSize)) {
-        val sizeId = getResourceId(0, 0)
-        if (sizeId != 0) {
-          val toolbarHeight = v.context.resources.getDimensionPixelSize(sizeId)
-          v.updatePadding(top = toolbarTopMargin + toolbarHeight + (offset * 2))
+    init {
+        frame.doOnApplyWindowInsets { v, insets, padding ->
+            val offset = 8.toDp(v.context)
+            val toolbarTopMargin = padding.top + insets.systemWindowInsetTop + offset
+            v.context.withStyledAttributes(R.attr.toolbarStyle, intArrayOf(R.attr.actionBarSize)) {
+                val sizeId = getResourceId(0, 0)
+                if (sizeId != 0) {
+                    val toolbarHeight = v.context.resources.getDimensionPixelSize(sizeId)
+                    v.updatePadding(top = toolbarTopMargin + toolbarHeight + (offset * 2))
+                }
+            }
         }
-      }
     }
-  }
 
-  override fun bind(
-    item: FridgeItem,
-    editable: Boolean,
-    callback: Callback
-  ) {
-  }
+    override fun bind(
+        item: FridgeItem,
+        editable: Boolean,
+        callback: Callback
+    ) {
+    }
 
-  override fun unbind() {
-  }
-
+    override fun unbind() {
+    }
 }

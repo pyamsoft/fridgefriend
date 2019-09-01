@@ -19,12 +19,11 @@ package com.pyamsoft.fridge.db.entry
 
 sealed class FridgeEntryChangeEvent {
 
-  data class Insert(val entry: FridgeEntry) : FridgeEntryChangeEvent()
+    data class Insert(val entry: FridgeEntry) : FridgeEntryChangeEvent()
 
-  data class Update(val entry: FridgeEntry) : FridgeEntryChangeEvent()
+    data class Update(val entry: FridgeEntry) : FridgeEntryChangeEvent()
 
-  data class Delete(val entry: FridgeEntry) : FridgeEntryChangeEvent()
+    data class Delete(val entry: FridgeEntry) : FridgeEntryChangeEvent()
 
-  object DeleteAll : FridgeEntryChangeEvent()
-
+    object DeleteAll : FridgeEntryChangeEvent()
 }

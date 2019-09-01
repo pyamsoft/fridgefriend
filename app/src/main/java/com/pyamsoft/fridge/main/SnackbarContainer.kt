@@ -22,6 +22,6 @@ import androidx.annotation.CheckResult
 
 interface SnackbarContainer {
 
-  @CheckResult
-  fun getSnackbarContainer(): ViewGroup?
+    @CheckResult
+    fun getSnackbarContainer(): ViewGroup?
 }

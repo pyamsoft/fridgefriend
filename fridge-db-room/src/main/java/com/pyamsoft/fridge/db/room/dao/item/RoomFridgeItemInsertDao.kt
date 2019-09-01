@@ -28,13 +28,12 @@ import timber.log.Timber
 @Dao
 internal abstract class RoomFridgeItemInsertDao internal constructor() : FridgeItemInsertDao {
 
-  override suspend fun insert(o: FridgeItem) {
-    Timber.d("ROOM: Item Insert: $o")
-    val roomItem = RoomFridgeItem.create(o)
-    daoInsert(roomItem)
-  }
+    override suspend fun insert(o: FridgeItem) {
+        Timber.d("ROOM: Item Insert: $o")
+        val roomItem = RoomFridgeItem.create(o)
+        daoInsert(roomItem)
+    }
 
-  @Insert(onConflict = OnConflictStrategy.ABORT)
-  internal abstract fun daoInsert(item: RoomFridgeItem)
-
+    @Insert(onConflict = OnConflictStrategy.ABORT)
+    internal abstract fun daoInsert(item: RoomFridgeItem)
 }

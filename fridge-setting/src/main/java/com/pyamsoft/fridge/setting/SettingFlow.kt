@@ -22,12 +22,10 @@ import com.pyamsoft.pydroid.arch.UiViewEvent
 
 sealed class SettingViewEvent : UiViewEvent {
 
-  object Navigate : SettingViewEvent()
-
+    object Navigate : SettingViewEvent()
 }
 
 sealed class SettingControllerEvent : UiControllerEvent {
 
-  object NavigateUp : SettingControllerEvent()
-
+    object NavigateUp : SettingControllerEvent()
 }

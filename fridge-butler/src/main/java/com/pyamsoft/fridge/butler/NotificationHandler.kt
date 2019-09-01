@@ -22,7 +22,6 @@ import androidx.annotation.CheckResult
 
 interface NotificationHandler {
 
-  @CheckResult
-  fun contentIntent(): PendingIntent
-
+    @CheckResult
+    fun contentIntent(): PendingIntent
 }

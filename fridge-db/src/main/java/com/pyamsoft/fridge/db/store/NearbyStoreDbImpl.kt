@@ -25,82 +25,77 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 
 internal class NearbyStoreDbImpl internal constructor(
-  private val db: NearbyStoreDb,
-  private val cache: Cached1<Sequence<NearbyStore>, Boolean>
+    private val db: NearbyStoreDb,
+    private val cache: Cached1<Sequence<NearbyStore>, Boolean>
 ) : NearbyStoreDb {
 
-  private val mutex = Mutex()
+    private val mutex = Mutex()
 
-  private suspend fun publishRealtime(event: NearbyStoreChangeEvent) {
-    cache.clear()
-    publish(event)
-  }
-
-  override suspend fun publish(event: NearbyStoreChangeEvent) {
-    db.publish(event)
-  }
-
-  override fun realtime(): NearbyStoreRealtime {
-    return db.realtime()
-  }
-
-  override fun queryDao(): NearbyStoreQueryDao {
-    return object : NearbyStoreQueryDao {
-
-      override suspend fun query(force: Boolean): List<NearbyStore> {
-        mutex.withLock {
-          if (force) {
-            cache.clear()
-          }
-
-          return cache.call(force)
-              .toList()
-        }
-      }
-
-    }
-  }
-
-  override fun insertDao(): NearbyStoreInsertDao {
-    return object : NearbyStoreInsertDao {
-
-      override suspend fun insert(o: NearbyStore) {
-        mutex.withLock {
-          db.insertDao()
-              .insert(o)
-          publishRealtime(Insert(o))
-        }
-      }
-
-    }
-  }
-
-  override fun updateDao(): NearbyStoreUpdateDao {
-    return object : NearbyStoreUpdateDao {
-
-      override suspend fun update(o: NearbyStore) {
-        mutex.withLock {
-          db.updateDao()
-              .update(o)
-          publishRealtime(Update(o))
-        }
-      }
+    private suspend fun publishRealtime(event: NearbyStoreChangeEvent) {
+        cache.clear()
+        publish(event)
     }
 
-  }
-
-  override fun deleteDao(): NearbyStoreDeleteDao {
-    return object : NearbyStoreDeleteDao {
-
-      override suspend fun delete(o: NearbyStore) {
-        mutex.withLock {
-          db.deleteDao()
-              .delete(o)
-          publishRealtime(Delete(o))
-        }
-      }
-
+    override suspend fun publish(event: NearbyStoreChangeEvent) {
+        db.publish(event)
     }
-  }
 
+    override fun realtime(): NearbyStoreRealtime {
+        return db.realtime()
+    }
+
+    override fun queryDao(): NearbyStoreQueryDao {
+        return object : NearbyStoreQueryDao {
+
+            override suspend fun query(force: Boolean): List<NearbyStore> {
+                mutex.withLock {
+                    if (force) {
+                        cache.clear()
+                    }
+
+                    return cache.call(force)
+                        .toList()
+                }
+            }
+        }
+    }
+
+    override fun insertDao(): NearbyStoreInsertDao {
+        return object : NearbyStoreInsertDao {
+
+            override suspend fun insert(o: NearbyStore) {
+                mutex.withLock {
+                    db.insertDao()
+                        .insert(o)
+                    publishRealtime(Insert(o))
+                }
+            }
+        }
+    }
+
+    override fun updateDao(): NearbyStoreUpdateDao {
+        return object : NearbyStoreUpdateDao {
+
+            override suspend fun update(o: NearbyStore) {
+                mutex.withLock {
+                    db.updateDao()
+                        .update(o)
+                    publishRealtime(Update(o))
+                }
+            }
+        }
+    }
+
+    override fun deleteDao(): NearbyStoreDeleteDao {
+        return object : NearbyStoreDeleteDao {
+
+            override suspend fun delete(o: NearbyStore) {
+                mutex.withLock {
+                    db.deleteDao()
+                        .delete(o)
+                    publishRealtime(Delete(o))
+                }
+            }
+        }
+    }
 }

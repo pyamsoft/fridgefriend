@@ -19,6 +19,5 @@ package com.pyamsoft.fridge.butler
 
 interface ForegroundState {
 
-  var isForeground: Boolean
-
+    var isForeground: Boolean
 }

@@ -33,70 +33,69 @@ import timber.log.Timber
 import java.util.concurrent.TimeUnit.HOURS
 
 internal class LocationWorker internal constructor(
-  context: Context,
-  params: WorkerParameters
+    context: Context,
+    params: WorkerParameters
 ) : NearbyNotifyingWorker(context, params) {
 
-  private var geofencer: Geofencer? = null
+    private var geofencer: Geofencer? = null
 
-  override fun onAfterInject() {
-    geofencer = Injector.obtain(applicationContext)
-  }
-
-  override fun onAfterTeardown() {
-    geofencer = null
-  }
-
-  override fun reschedule(butler: Butler) {
-    butler.remindLocation(3, HOURS)
-  }
-
-  override suspend fun performWork() = coroutineScope {
-    val location = requireNotNull(geofencer).getLastKnownLocation()
-
-    if (location == null) {
-      Timber.w("Last Known location was null, cannot continue")
-      return@coroutineScope
+    override fun onAfterInject() {
+        geofencer = Injector.obtain(applicationContext)
     }
 
-    withNearbyData { stores, zones ->
-      val inRangeStores = mutableSetOf<NearbyStore>()
-      val inRangeZones = mutableSetOf<NearbyZone>()
+    override fun onAfterTeardown() {
+        geofencer = null
+    }
 
-      for (store in stores) {
-        val storeLocation = fromLatLong(store.latitude(), store.longitude())
-        if (location.distanceTo(storeLocation) <= Locator.RADIUS_IN_METERS) {
-          inRangeStores.add(store)
+    override fun reschedule(butler: Butler) {
+        butler.remindLocation(3, HOURS)
+    }
+
+    override suspend fun performWork() = coroutineScope {
+        val location = requireNotNull(geofencer).getLastKnownLocation()
+
+        if (location == null) {
+            Timber.w("Last Known location was null, cannot continue")
+            return@coroutineScope
         }
-      }
 
-      for (zone in zones) {
-        for (point in zone.points()) {
-          val pointLocation = fromLatLong(point.lat, point.lon)
-          if (location.distanceTo(pointLocation) <= Locator.RADIUS_IN_METERS) {
-            inRangeZones.add(zone)
-            break
-          }
+        withNearbyData { stores, zones ->
+            val inRangeStores = mutableSetOf<NearbyStore>()
+            val inRangeZones = mutableSetOf<NearbyZone>()
+
+            for (store in stores) {
+                val storeLocation = fromLatLong(store.latitude(), store.longitude())
+                if (location.distanceTo(storeLocation) <= Locator.RADIUS_IN_METERS) {
+                    inRangeStores.add(store)
+                }
+            }
+
+            for (zone in zones) {
+                for (point in zone.points()) {
+                    val pointLocation = fromLatLong(point.lat, point.lon)
+                    if (location.distanceTo(pointLocation) <= Locator.RADIUS_IN_METERS) {
+                        inRangeZones.add(zone)
+                        break
+                    }
+                }
+            }
+
+            fireNotifications(inRangeStores, inRangeZones)
         }
-      }
-
-      fireNotifications(inRangeStores, inRangeZones)
     }
-  }
 
-  companion object {
+    companion object {
 
-    @JvmStatic
-    @CheckResult
-    private fun fromLatLong(
-      lat: Double,
-      lon: Double
-    ): Location {
-      return Location(Locator.PROVIDER).apply {
-        latitude = lat
-        longitude = lon
-      }
+        @JvmStatic
+        @CheckResult
+        private fun fromLatLong(
+            lat: Double,
+            lon: Double
+        ): Location {
+            return Location(Locator.PROVIDER).apply {
+                latitude = lat
+                longitude = lon
+            }
+        }
     }
-  }
-
 }

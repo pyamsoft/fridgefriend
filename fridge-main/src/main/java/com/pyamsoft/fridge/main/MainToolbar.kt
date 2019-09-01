@@ -40,59 +40,59 @@ import javax.inject.Inject
 import javax.inject.Named
 
 class MainToolbar @Inject internal constructor(
-  private val toolbarActivityProvider: ToolbarActivityProvider,
-  private val theming: Theming,
-  @Named("app_name") private val appNameRes: Int,
-  activity: Activity,
-  parent: ViewGroup
+    private val toolbarActivityProvider: ToolbarActivityProvider,
+    private val theming: Theming,
+    @Named("app_name") private val appNameRes: Int,
+    activity: Activity,
+    parent: ViewGroup
 ) : BaseUiView<UnitViewState, UnitViewEvent>(parent) {
 
-  override val layout: Int = R.layout.main_toolbar
+    override val layout: Int = R.layout.main_toolbar
 
-  override val layoutRoot by boundView<Toolbar>(R.id.main_toolbar)
+    override val layoutRoot by boundView<Toolbar>(R.id.main_toolbar)
 
-  private var activity: Activity? = activity
+    private var activity: Activity? = activity
 
-  override fun onInflated(
-    view: View,
-    savedInstanceState: Bundle?
-  ) {
-    inflateToolbar()
+    override fun onInflated(
+        view: View,
+        savedInstanceState: Bundle?
+    ) {
+        inflateToolbar()
 
-    layoutRoot.doOnApplyWindowInsets { v, insets, padding ->
-      v.updateLayoutParams<MarginLayoutParams> {
-        topMargin = padding.top + insets.systemWindowInsetTop + 8.toDp(v.context)
-      }
+        layoutRoot.doOnApplyWindowInsets { v, insets, padding ->
+            v.updateLayoutParams<MarginLayoutParams> {
+                topMargin = padding.top + insets.systemWindowInsetTop + 8.toDp(v.context)
+            }
+        }
+
+        layoutRoot.addPrivacy(Core.PRIVACY_POLICY_URL, Core.TERMS_CONDITIONS_URL)
     }
 
-    layoutRoot.addPrivacy(Core.PRIVACY_POLICY_URL, Core.TERMS_CONDITIONS_URL)
-  }
-
-  override fun onRender(
-    state: UnitViewState,
-    savedState: UiSavedState
-  ) {
-  }
-
-  override fun onTeardown() {
-    layoutRoot.removePrivacy()
-    toolbarActivityProvider.setToolbar(null)
-    activity = null
-  }
-
-  private fun inflateToolbar() {
-    val theme: Int
-    if (theming.isDarkTheme(requireNotNull(activity))) {
-      theme = R.style.ThemeOverlay_MaterialComponents
-    } else {
-      theme = R.style.ThemeOverlay_MaterialComponents_Light
+    override fun onRender(
+        state: UnitViewState,
+        savedState: UiSavedState
+    ) {
     }
 
-    layoutRoot.apply {
-      popupTheme = theme
-      setTitle(appNameRes)
-      ViewCompat.setElevation(this, 4f.toDp(context).toFloat())
-      toolbarActivityProvider.setToolbar(this)
+    override fun onTeardown() {
+        layoutRoot.removePrivacy()
+        toolbarActivityProvider.setToolbar(null)
+        activity = null
     }
-  }
+
+    private fun inflateToolbar() {
+        val theme: Int
+        if (theming.isDarkTheme(requireNotNull(activity))) {
+            theme = R.style.ThemeOverlay_MaterialComponents
+        } else {
+            theme = R.style.ThemeOverlay_MaterialComponents_Light
+        }
+
+        layoutRoot.apply {
+            popupTheme = theme
+            setTitle(appNameRes)
+            ViewCompat.setElevation(this, 4f.toDp(context).toFloat())
+            toolbarActivityProvider.setToolbar(this)
+        }
+    }
 }

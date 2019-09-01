@@ -27,133 +27,133 @@ import java.util.Date
 @Parcelize
 @JsonClass(generateAdapter = true)
 data class JsonMappableFridgeItem internal constructor(
-  internal val id: String,
-  internal val entryId: String,
-  internal val name: String,
-  internal val count: Int,
-  internal val createdTime: Date,
-  internal val purchasedTime: Date?,
-  internal val expireTime: Date?,
-  internal val presence: Presence,
-  internal val consumptionDate: Date?,
-  internal val spoiledDate: Date?,
-  internal val isReal: Boolean
+    internal val id: String,
+    internal val entryId: String,
+    internal val name: String,
+    internal val count: Int,
+    internal val createdTime: Date,
+    internal val purchasedTime: Date?,
+    internal val expireTime: Date?,
+    internal val presence: Presence,
+    internal val consumptionDate: Date?,
+    internal val spoiledDate: Date?,
+    internal val isReal: Boolean
 ) : FridgeItem, Parcelable {
 
-  override fun id(): String {
-    return id
-  }
-
-  override fun entryId(): String {
-    return entryId
-  }
-
-  override fun name(): String {
-    return name
-  }
-
-  override fun count(): Int {
-    return count
-  }
-
-  override fun createdTime(): Date {
-    return createdTime
-  }
-
-  override fun purchaseTime(): Date? {
-    return purchasedTime
-  }
-
-  override fun expireTime(): Date? {
-    return expireTime
-  }
-
-  override fun presence(): Presence {
-    return presence
-  }
-
-  override fun isReal(): Boolean {
-    return isReal
-  }
-
-  override fun consumptionDate(): Date? {
-    return consumptionDate
-  }
-
-  override fun isConsumed(): Boolean {
-    return consumptionDate != null
-  }
-
-  override fun spoiledDate(): Date? {
-    return spoiledDate
-  }
-
-  override fun isSpoiled(): Boolean {
-    return spoiledDate != null
-  }
-
-  override fun name(name: String): FridgeItem {
-    return this.copy(name = name)
-  }
-
-  override fun count(count: Int): FridgeItem {
-    return this.copy(count = count)
-  }
-
-  override fun expireTime(expireTime: Date): FridgeItem {
-    return this.copy(expireTime = expireTime)
-  }
-
-  override fun invalidateExpiration(): FridgeItem {
-    return this.copy(expireTime = null)
-  }
-
-  override fun purchaseTime(purchaseTime: Date): FridgeItem {
-    return this.copy(purchasedTime = purchaseTime)
-  }
-
-  override fun invalidatePurchase(): FridgeItem {
-    return this.copy(purchasedTime = null)
-  }
-
-  override fun presence(presence: Presence): FridgeItem {
-    return this.copy(presence = presence)
-  }
-
-  override fun makeReal(): FridgeItem {
-    return this.copy(isReal = true)
-  }
-
-  override fun consume(date: Date): FridgeItem {
-    return this.copy(consumptionDate = date)
-  }
-
-  override fun spoil(date: Date): FridgeItem {
-    return this.copy(spoiledDate = date)
-  }
-
-  companion object {
-
-    @JvmStatic
-    @CheckResult
-    fun from(item: FridgeItem): JsonMappableFridgeItem {
-      if (item is JsonMappableFridgeItem) {
-        return item
-      } else {
-        return JsonMappableFridgeItem(
-            item.id(),
-            item.entryId(),
-            item.name(),
-            item.count(),
-            item.createdTime(),
-            item.purchaseTime(),
-            item.expireTime(),
-            item.presence(),
-            item.consumptionDate(),
-            item.spoiledDate(),
-            item.isReal()
-        )
-      }
+    override fun id(): String {
+        return id
     }
-  }
+
+    override fun entryId(): String {
+        return entryId
+    }
+
+    override fun name(): String {
+        return name
+    }
+
+    override fun count(): Int {
+        return count
+    }
+
+    override fun createdTime(): Date {
+        return createdTime
+    }
+
+    override fun purchaseTime(): Date? {
+        return purchasedTime
+    }
+
+    override fun expireTime(): Date? {
+        return expireTime
+    }
+
+    override fun presence(): Presence {
+        return presence
+    }
+
+    override fun isReal(): Boolean {
+        return isReal
+    }
+
+    override fun consumptionDate(): Date? {
+        return consumptionDate
+    }
+
+    override fun isConsumed(): Boolean {
+        return consumptionDate != null
+    }
+
+    override fun spoiledDate(): Date? {
+        return spoiledDate
+    }
+
+    override fun isSpoiled(): Boolean {
+        return spoiledDate != null
+    }
+
+    override fun name(name: String): FridgeItem {
+        return this.copy(name = name)
+    }
+
+    override fun count(count: Int): FridgeItem {
+        return this.copy(count = count)
+    }
+
+    override fun expireTime(expireTime: Date): FridgeItem {
+        return this.copy(expireTime = expireTime)
+    }
+
+    override fun invalidateExpiration(): FridgeItem {
+        return this.copy(expireTime = null)
+    }
+
+    override fun purchaseTime(purchaseTime: Date): FridgeItem {
+        return this.copy(purchasedTime = purchaseTime)
+    }
+
+    override fun invalidatePurchase(): FridgeItem {
+        return this.copy(purchasedTime = null)
+    }
+
+    override fun presence(presence: Presence): FridgeItem {
+        return this.copy(presence = presence)
+    }
+
+    override fun makeReal(): FridgeItem {
+        return this.copy(isReal = true)
+    }
+
+    override fun consume(date: Date): FridgeItem {
+        return this.copy(consumptionDate = date)
+    }
+
+    override fun spoil(date: Date): FridgeItem {
+        return this.copy(spoiledDate = date)
+    }
+
+    companion object {
+
+        @JvmStatic
+        @CheckResult
+        fun from(item: FridgeItem): JsonMappableFridgeItem {
+            if (item is JsonMappableFridgeItem) {
+                return item
+            } else {
+                return JsonMappableFridgeItem(
+                    item.id(),
+                    item.entryId(),
+                    item.name(),
+                    item.count(),
+                    item.createdTime(),
+                    item.purchaseTime(),
+                    item.expireTime(),
+                    item.presence(),
+                    item.consumptionDate(),
+                    item.spoiledDate(),
+                    item.isReal()
+                )
+            }
+        }
+    }
 }

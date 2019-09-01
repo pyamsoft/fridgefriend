@@ -19,37 +19,33 @@ package com.pyamsoft.fridge.locator.map.gms
 
 import android.content.Context
 import android.content.Intent
-import com.google.android.gms.location.Geofence
-import com.google.android.gms.location.GeofencingEvent
 import com.pyamsoft.fridge.locator.GeofenceBroadcastReceiver
-import timber.log.Timber
 
 abstract class GmsGeofenceBroadcastReceiver protected constructor() : GeofenceBroadcastReceiver() {
 
-  final override fun onGeofenceEvent(
-    context: Context,
-    intent: Intent
-  ) {
-    try {
-      inject(context)
-      onGeofenceEvent(intent)
-    } finally {
-      teardown()
+    final override fun onGeofenceEvent(
+        context: Context,
+        intent: Intent
+    ) {
+        try {
+            inject(context)
+            onGeofenceEvent(intent)
+        } finally {
+            teardown()
+        }
     }
-  }
 
-  protected abstract fun onGeofenceEvent(intent: Intent)
+    protected abstract fun onGeofenceEvent(intent: Intent)
 
-  private fun inject(context: Context) {
-    onInject(context)
-  }
+    private fun inject(context: Context) {
+        onInject(context)
+    }
 
-  protected abstract fun onInject(context: Context)
+    protected abstract fun onInject(context: Context)
 
-  private fun teardown() {
-    onTeardown()
-  }
+    private fun teardown() {
+        onTeardown()
+    }
 
-  protected abstract fun onTeardown()
-
+    protected abstract fun onTeardown()
 }

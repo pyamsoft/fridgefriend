@@ -40,133 +40,135 @@ import javax.inject.Inject
 
 class FridgeFriend : Application() {
 
-  @JvmField @Inject internal var butler: Butler? = null
+    @JvmField
+    @Inject
+    internal var butler: Butler? = null
 
-  private var component: FridgeComponent? = null
-  private var refWatcher: RefWatcher? = null
+    private var component: FridgeComponent? = null
+    private var refWatcher: RefWatcher? = null
 
-  override fun onCreate() {
-    super.onCreate()
-    if (LeakCanary.isInAnalyzerProcess(this)) {
-      return
+    override fun onCreate() {
+        super.onCreate()
+        if (LeakCanary.isInAnalyzerProcess(this)) {
+            return
+        }
+
+        PYDroid.init(
+            this,
+            getString(R.string.app_name),
+            "https://github.com/pyamsoft/fridge",
+            "https://github.com/pyamsoft/fridge/issues",
+            Core.PRIVACY_POLICY_URL,
+            Core.TERMS_CONDITIONS_URL,
+            BuildConfig.VERSION_CODE,
+            BuildConfig.DEBUG
+        ) { provider ->
+            val moshi = Moshi.Builder()
+                .build()
+            component = DaggerFridgeComponent.factory()
+                .create(
+                    provider.theming(),
+                    moshi,
+                    provider.enforcer(),
+                    this,
+                    provider.imageLoader(),
+                    MainActivity::class.java,
+                    GeofenceUpdateReceiver::class.java
+                )
+                .also { onInitialized(it) }
+        }
     }
 
-    PYDroid.init(
-        this,
-        getString(R.string.app_name),
-        "https://github.com/pyamsoft/fridge",
-        "https://github.com/pyamsoft/fridge/issues",
-        Core.PRIVACY_POLICY_URL,
-        Core.TERMS_CONDITIONS_URL,
-        BuildConfig.VERSION_CODE,
-        BuildConfig.DEBUG
-    ) { provider ->
-      val moshi = Moshi.Builder()
-          .build()
-      component = DaggerFridgeComponent.factory()
-          .create(
-              provider.theming(),
-              moshi,
-              provider.enforcer(),
-              this,
-              provider.imageLoader(),
-              MainActivity::class.java,
-              GeofenceUpdateReceiver::class.java
-          )
-          .also { onInitialized(it) }
-    }
-  }
+    private fun onInitialized(component: FridgeComponent) {
+        installRefWatcher()
+        addLibraries()
 
-  private fun onInitialized(component: FridgeComponent) {
-    installRefWatcher()
-    addLibraries()
+        component.inject(this)
 
-    component.inject(this)
-
-    beginWork()
-  }
-
-  private fun beginWork() {
-    requireNotNull(butler).initOnAppStart()
-  }
-
-  private fun installRefWatcher() {
-    if (BuildConfig.DEBUG) {
-      refWatcher = LeakCanary.install(this)
-    } else {
-      refWatcher = RefWatcher.DISABLED
-    }
-  }
-
-  private fun addLibraries() {
-    OssLibraries.add(
-        "Room",
-        "https://android.googlesource.com/platform/frameworks/support/+/androidx-master-dev/room/",
-        "The AndroidX Jetpack Room library. Fluent SQLite database access."
-    )
-    OssLibraries.add(
-        "WorkManager",
-        "https://android.googlesource.com/platform/frameworks/support/+/androidx-master-dev/work/",
-        "The AndroidX Jetpack WorkManager library. Schedule periodic work in a device friendly way."
-    )
-    OssLibraries.add(
-        "Dagger",
-        "https://github.com/google/dagger",
-        "A fast dependency injector for Android and Java."
-    )
-    OssLibraries.add(
-        "FastAdapter",
-        "https://github.com/mikepenz/fastadapter",
-        "The bullet proof, fast and easy to use adapter library, which minimizes developing time to a fraction..."
-    )
-    OssLibraries.add(
-        "OsmDroid",
-        "https://github.com/osmdroid/osmdroid",
-        "OpenStreetMap-Tools for Android"
-    )
-  }
-
-  override fun getSystemService(name: String): Any? {
-    val service = PYDroid.getSystemService(name)
-    if (service != null) {
-      return service
+        beginWork()
     }
 
-    if (name == FridgeComponent::class.java.name) {
-      return requireNotNull(component)
-    } else {
-      val serviceFromComponent = getServiceFromComponent(name)
-      if (serviceFromComponent != null) {
-        return serviceFromComponent
-      } else {
-        return super.getSystemService(name)
-      }
-    }
-  }
-
-  @CheckResult
-  private fun getServiceFromComponent(name: String): Any? {
-    val dependency = provideWorkerDependencies(name)
-    if (dependency != null) {
-      return dependency
+    private fun beginWork() {
+        requireNotNull(butler).initOnAppStart()
     }
 
-    return null
-  }
-
-  @CheckResult
-  private fun provideWorkerDependencies(name: String): Any? {
-    return when (name) {
-      Butler::class.java.name -> requireNotNull(component).provideButler()
-      Locator::class.java.name -> requireNotNull(component).provideLocator()
-      Geofencer::class.java.name -> requireNotNull(component).provideGeofencer()
-      ForegroundState::class.java.name -> requireNotNull(component).provideForegroundState()
-      FridgeItemQueryDao::class.java.name -> requireNotNull(component).provideFridgeItemQueryDao()
-      FridgeEntryQueryDao::class.java.name -> requireNotNull(component).provideFridgeEntryQueryDao()
-      NearbyStoreQueryDao::class.java.name -> requireNotNull(component).provideNearbyStoreQueryDao()
-      NearbyZoneQueryDao::class.java.name -> requireNotNull(component).provideNearbyZoneQueryDao()
-      NotificationHandler::class.java.name -> requireNotNull(component).provideNotificationHandler()
-      else -> null
+    private fun installRefWatcher() {
+        if (BuildConfig.DEBUG) {
+            refWatcher = LeakCanary.install(this)
+        } else {
+            refWatcher = RefWatcher.DISABLED
+        }
     }
-  }
+
+    private fun addLibraries() {
+        OssLibraries.add(
+            "Room",
+            "https://android.googlesource.com/platform/frameworks/support/+/androidx-master-dev/room/",
+            "The AndroidX Jetpack Room library. Fluent SQLite database access."
+        )
+        OssLibraries.add(
+            "WorkManager",
+            "https://android.googlesource.com/platform/frameworks/support/+/androidx-master-dev/work/",
+            "The AndroidX Jetpack WorkManager library. Schedule periodic work in a device friendly way."
+        )
+        OssLibraries.add(
+            "Dagger",
+            "https://github.com/google/dagger",
+            "A fast dependency injector for Android and Java."
+        )
+        OssLibraries.add(
+            "FastAdapter",
+            "https://github.com/mikepenz/fastadapter",
+            "The bullet proof, fast and easy to use adapter library, which minimizes developing time to a fraction..."
+        )
+        OssLibraries.add(
+            "OsmDroid",
+            "https://github.com/osmdroid/osmdroid",
+            "OpenStreetMap-Tools for Android"
+        )
+    }
+
+    override fun getSystemService(name: String): Any? {
+        val service = PYDroid.getSystemService(name)
+        if (service != null) {
+            return service
+        }
+
+        if (name == FridgeComponent::class.java.name) {
+            return requireNotNull(component)
+        } else {
+            val serviceFromComponent = getServiceFromComponent(name)
+            if (serviceFromComponent != null) {
+                return serviceFromComponent
+            } else {
+                return super.getSystemService(name)
+            }
+        }
+    }
+
+    @CheckResult
+    private fun getServiceFromComponent(name: String): Any? {
+        val dependency = provideWorkerDependencies(name)
+        if (dependency != null) {
+            return dependency
+        }
+
+        return null
+    }
+
+    @CheckResult
+    private fun provideWorkerDependencies(name: String): Any? {
+        return when (name) {
+            Butler::class.java.name -> requireNotNull(component).provideButler()
+            Locator::class.java.name -> requireNotNull(component).provideLocator()
+            Geofencer::class.java.name -> requireNotNull(component).provideGeofencer()
+            ForegroundState::class.java.name -> requireNotNull(component).provideForegroundState()
+            FridgeItemQueryDao::class.java.name -> requireNotNull(component).provideFridgeItemQueryDao()
+            FridgeEntryQueryDao::class.java.name -> requireNotNull(component).provideFridgeEntryQueryDao()
+            NearbyStoreQueryDao::class.java.name -> requireNotNull(component).provideNearbyStoreQueryDao()
+            NearbyZoneQueryDao::class.java.name -> requireNotNull(component).provideNearbyZoneQueryDao()
+            NotificationHandler::class.java.name -> requireNotNull(component).provideNotificationHandler()
+            else -> null
+        }
+    }
 }

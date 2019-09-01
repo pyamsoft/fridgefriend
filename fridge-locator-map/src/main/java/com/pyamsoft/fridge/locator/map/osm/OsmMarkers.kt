@@ -27,76 +27,76 @@ import java.util.Date
 
 @CheckResult
 internal fun NearbyStore.Companion.create(node: Node): NearbyStore {
-  return create(node.id, node.tags.name(), Date(), node.lat, node.lon)
+    return create(node.id, node.tags.name(), Date(), node.lat, node.lon)
 }
 
 @CheckResult
 internal fun NearbyStore.Companion.getMarkerUidPrefix(): String {
-  return "OsmMarker: "
+    return "OsmMarker: "
 }
 
 @CheckResult
 internal fun NearbyStore.getMarkerUid(): String {
-  return "${NearbyStore.getMarkerUidPrefix()}${id()}"
+    return "${NearbyStore.getMarkerUidPrefix()}${id()}"
 }
 
 @CheckResult
 internal fun NearbyStore.Companion.getIdFromUid(uid: String): Long {
-  return uid.replace(NearbyStore.getMarkerUidPrefix(), "")
-      .toLong()
+    return uid.replace(NearbyStore.getMarkerUidPrefix(), "")
+        .toLong()
 }
 
 @CheckResult
 private fun findName(
-  way: Way,
-  nodes: List<Node>
+    way: Way,
+    nodes: List<Node>
 ): String {
-  var name = ""
-  val wayName = way.tags.name()
-  if (wayName.isNotBlank()) {
-    name = wayName
-  } else {
-    for (node in nodes) {
-      val nodeName = node.tags.name()
-      if (nodeName.isNotBlank()) {
-        name = nodeName
-      }
+    var name = ""
+    val wayName = way.tags.name()
+    if (wayName.isNotBlank()) {
+        name = wayName
+    } else {
+        for (node in nodes) {
+            val nodeName = node.tags.name()
+            if (nodeName.isNotBlank()) {
+                name = nodeName
+            }
+        }
     }
-  }
 
-  return name
+    return name
 }
 
 @CheckResult
 internal fun NearbyZone.Companion.create(
-  way: Way,
-  nodes: List<Node>
+    way: Way,
+    nodes: List<Node>
 ): NearbyZone {
-  return create(
-      way.id,
-      findName(way, nodes),
-      Date(),
-      nodes.map { Point(it.id, it.lat, it.lon) }
-  )
+    return create(
+        way.id,
+        findName(way, nodes),
+        Date(),
+        nodes.map { Point(it.id, it.lat, it.lon) }
+    )
 }
 
 @CheckResult
 internal fun NearbyZone.Companion.getPolygonUidPrefix(): String {
-  return "OsmPolygon: "
+    return "OsmPolygon: "
 }
 
 @CheckResult
 internal fun NearbyZone.getPolygonUid(): String {
-  return "${NearbyZone.getPolygonUidPrefix()}${id()}"
+    return "${NearbyZone.getPolygonUidPrefix()}${id()}"
 }
 
 @CheckResult
 internal fun NearbyZone.Companion.getIdFromUid(uid: String): Long {
-  return uid.replace(NearbyZone.getPolygonUidPrefix(), "")
-      .toLong()
+    return uid.replace(NearbyZone.getPolygonUidPrefix(), "")
+        .toLong()
 }
 
 data class OsmMarkers internal constructor(
-  val points: List<NearbyStore>,
-  val zones: List<NearbyZone>
+    val points: List<NearbyStore>,
+    val zones: List<NearbyZone>
 )

@@ -23,17 +23,16 @@ import com.pyamsoft.pydroid.arch.UiSavedState
 import javax.inject.Inject
 
 class EntryFrame @Inject internal constructor(
-  parent: ViewGroup
+    parent: ViewGroup
 ) : BaseUiView<EntryViewState, EntryViewEvent>(parent) {
 
-  override val layout: Int = R.layout.entry_frame
+    override val layout: Int = R.layout.entry_frame
 
-  override val layoutRoot by boundView<ViewGroup>(R.id.entry_frame)
+    override val layoutRoot by boundView<ViewGroup>(R.id.entry_frame)
 
-  override fun onRender(
-    state: EntryViewState,
-    savedState: UiSavedState
-  ) {
-  }
+    override fun onRender(
+        state: EntryViewState,
+        savedState: UiSavedState
+    ) {
+    }
 }
-

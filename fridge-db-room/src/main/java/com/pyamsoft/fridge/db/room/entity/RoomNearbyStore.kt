@@ -27,86 +27,92 @@ import java.util.Date
 
 @Entity(tableName = RoomNearbyStore.TABLE_NAME)
 internal data class RoomNearbyStore internal constructor(
-  @field:[PrimaryKey ColumnInfo(name = COLUMN_ID)]
-  val id: Long,
+    @field:[PrimaryKey ColumnInfo(name = COLUMN_ID)]
+    val id: Long,
 
-  @field:ColumnInfo(name = COLUMN_NAME)
-  val name: String,
+    @field:ColumnInfo(name = COLUMN_NAME)
+    val name: String,
 
-  @field:ColumnInfo(name = COLUMN_CREATED_TIME)
-  val createdTime: Date,
+    @field:ColumnInfo(name = COLUMN_CREATED_TIME)
+    val createdTime: Date,
 
-  @field:ColumnInfo(name = COLUMN_LATITUDE)
-  val latitude: Double,
+    @field:ColumnInfo(name = COLUMN_LATITUDE)
+    val latitude: Double,
 
-  @field:ColumnInfo(name = COLUMN_LONGITUDE)
-  val longitude: Double
+    @field:ColumnInfo(name = COLUMN_LONGITUDE)
+    val longitude: Double
 ) : NearbyStore {
 
-  @Ignore
-  override fun id(): Long {
-    return id
-  }
-
-  @Ignore
-  override fun name(): String {
-    return name
-  }
-
-  @Ignore
-  override fun createdTime(): Date {
-    return createdTime
-  }
-
-  @Ignore
-  override fun latitude(): Double {
-    return latitude
-  }
-
-  @Ignore
-  override fun longitude(): Double {
-    return longitude
-  }
-
-  @Ignore
-  override fun name(name: String): NearbyStore {
-    return NearbyStore.create(this, name = name)
-  }
-
-  @Ignore
-  override fun latitude(lat: Double): NearbyStore {
-    return NearbyStore.create(this, latitude = lat)
-  }
-
-  @Ignore
-  override fun longitude(lon: Double): NearbyStore {
-    return NearbyStore.create(this, longitude = lon)
-  }
-
-  companion object {
-
-    @Ignore internal const val TABLE_NAME = "room_nearby_store_table"
-    @Ignore internal const val COLUMN_ID = "_id"
-    @Ignore internal const val COLUMN_NAME = "name"
-    @Ignore internal const val COLUMN_CREATED_TIME = "created_time"
-    @Ignore internal const val COLUMN_LATITUDE = "latitude"
-    @Ignore internal const val COLUMN_LONGITUDE = "longitude"
+    @Ignore
+    override fun id(): Long {
+        return id
+    }
 
     @Ignore
-    @JvmStatic
-    @CheckResult
-    internal fun create(store: NearbyStore): RoomNearbyStore {
-      if (store is RoomNearbyStore) {
-        return store
-      } else {
-        return RoomNearbyStore(
-            store.id(),
-            store.name(),
-            store.createdTime(),
-            store.latitude(),
-            store.longitude()
-        )
-      }
+    override fun name(): String {
+        return name
     }
-  }
+
+    @Ignore
+    override fun createdTime(): Date {
+        return createdTime
+    }
+
+    @Ignore
+    override fun latitude(): Double {
+        return latitude
+    }
+
+    @Ignore
+    override fun longitude(): Double {
+        return longitude
+    }
+
+    @Ignore
+    override fun name(name: String): NearbyStore {
+        return NearbyStore.create(this, name = name)
+    }
+
+    @Ignore
+    override fun latitude(lat: Double): NearbyStore {
+        return NearbyStore.create(this, latitude = lat)
+    }
+
+    @Ignore
+    override fun longitude(lon: Double): NearbyStore {
+        return NearbyStore.create(this, longitude = lon)
+    }
+
+    companion object {
+
+        @Ignore
+        internal const val TABLE_NAME = "room_nearby_store_table"
+        @Ignore
+        internal const val COLUMN_ID = "_id"
+        @Ignore
+        internal const val COLUMN_NAME = "name"
+        @Ignore
+        internal const val COLUMN_CREATED_TIME = "created_time"
+        @Ignore
+        internal const val COLUMN_LATITUDE = "latitude"
+        @Ignore
+        internal const val COLUMN_LONGITUDE = "longitude"
+
+        @Ignore
+        @JvmStatic
+        @CheckResult
+        internal fun create(store: NearbyStore): RoomNearbyStore {
+            if (store is RoomNearbyStore) {
+                return store
+            } else {
+                return RoomNearbyStore(
+                    store.id(),
+                    store.name(),
+                    store.createdTime(),
+                    store.latitude(),
+                    store.longitude()
+                )
+            }
+        }
+    }
 }

@@ -28,39 +28,37 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 
 internal abstract class NearbyWorker protected constructor(
-  context: Context,
-  params: WorkerParameters
+    context: Context,
+    params: WorkerParameters
 ) : FridgeWorker(context, params) {
 
-  private var storeDb: NearbyStoreQueryDao? = null
-  private var zoneDb: NearbyZoneQueryDao? = null
+    private var storeDb: NearbyStoreQueryDao? = null
+    private var zoneDb: NearbyZoneQueryDao? = null
 
-  final override fun afterInject() {
-    storeDb = Injector.obtain(applicationContext)
-    zoneDb = Injector.obtain(applicationContext)
-    onAfterInject()
-  }
-
-  final override fun afterTeardown() {
-    storeDb = null
-    zoneDb = null
-    onAfterTeardown()
-  }
-
-  protected open fun onAfterInject() {
-
-  }
-
-  protected open fun onAfterTeardown() {
-
-  }
-
-  protected suspend fun withNearbyData(func: suspend (stores: List<NearbyStore>, zones: List<NearbyZone>) -> Unit) =
-    coroutineScope {
-      val storeJob = async { requireNotNull(storeDb).query(false) }
-      val zoneJob = async { requireNotNull(zoneDb).query(false) }
-      val nearbyStores = storeJob.await()
-      val nearbyZones = zoneJob.await()
-      func(nearbyStores, nearbyZones)
+    final override fun afterInject() {
+        storeDb = Injector.obtain(applicationContext)
+        zoneDb = Injector.obtain(applicationContext)
+        onAfterInject()
     }
+
+    final override fun afterTeardown() {
+        storeDb = null
+        zoneDb = null
+        onAfterTeardown()
+    }
+
+    protected open fun onAfterInject() {
+    }
+
+    protected open fun onAfterTeardown() {
+    }
+
+    protected suspend fun withNearbyData(func: suspend (stores: List<NearbyStore>, zones: List<NearbyZone>) -> Unit) =
+        coroutineScope {
+            val storeJob = async { requireNotNull(storeDb).query(false) }
+            val zoneJob = async { requireNotNull(zoneDb).query(false) }
+            val nearbyStores = storeJob.await()
+            val nearbyZones = zoneJob.await()
+            func(nearbyStores, nearbyZones)
+        }
 }

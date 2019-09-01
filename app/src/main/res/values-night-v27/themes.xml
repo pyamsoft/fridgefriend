@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ Copyright 2019 Peter Kenji Yamanaka
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,21 +17,21 @@
 
 <resources>
 
-  <style name="Theme.Fridge.Normal" parent="@style/Base.Theme.Fridge.Normal">
-    <item name="dialogTheme">@style/Theme.Fridge.Dialog</item>
-    <item name="alertDialogTheme">@style/Theme.Fridge.Dialog</item>
-    <item name="android:windowLightNavigationBar">false</item>
-    <item name="android:windowLightStatusBar">false</item>
-  </style>
+    <style name="Theme.Fridge.Normal" parent="@style/Base.Theme.Fridge.Normal">
+        <item name="dialogTheme">@style/Theme.Fridge.Dialog</item>
+        <item name="alertDialogTheme">@style/Theme.Fridge.Dialog</item>
+        <item name="android:windowLightNavigationBar">false</item>
+        <item name="android:windowLightStatusBar">false</item>
+    </style>
 
-  <style name="Theme.Fridge.Dialog" parent="@style/Base.Theme.Fridge.Dialog">
-    <item name="android:windowLightNavigationBar">false</item>
-    <item name="android:windowLightStatusBar">false</item>
-  </style>
+    <style name="Theme.Fridge.Dialog" parent="@style/Base.Theme.Fridge.Dialog">
+        <item name="android:windowLightNavigationBar">false</item>
+        <item name="android:windowLightStatusBar">false</item>
+    </style>
 
-  <!-- Splash screen -->
-  <style name="Theme.Fridge.Splash" parent="@style/Base.Theme.Fridge.Splash">
-    <item name="android:windowLightNavigationBar">true</item>
-  </style>
+    <!-- Splash screen -->
+    <style name="Theme.Fridge.Splash" parent="@style/Base.Theme.Fridge.Splash">
+        <item name="android:windowLightNavigationBar">true</item>
+    </style>
 
 </resources>

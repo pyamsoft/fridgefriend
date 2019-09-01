@@ -24,27 +24,25 @@ import com.pyamsoft.pydroid.arch.UiViewEvent
 import com.pyamsoft.pydroid.arch.UiViewState
 
 data class OsmViewState internal constructor(
-  val loading: Boolean,
-  val points: List<NearbyStore>,
-  val zones: List<NearbyZone>,
-  val nearbyError: Throwable?,
-  val cachedFetchError: Throwable?
+    val loading: Boolean,
+    val points: List<NearbyStore>,
+    val zones: List<NearbyZone>,
+    val nearbyError: Throwable?,
+    val cachedFetchError: Throwable?
 ) : UiViewState
 
 sealed class OsmViewEvent : UiViewEvent {
 
-  data class FindNearby internal constructor(internal val box: BBox) : OsmViewEvent()
+    data class FindNearby internal constructor(internal val box: BBox) : OsmViewEvent()
 
-  object RequestBackgroundPermission : OsmViewEvent()
+    object RequestBackgroundPermission : OsmViewEvent()
 
-  object RequestStoragePermission : OsmViewEvent()
-
+    object RequestStoragePermission : OsmViewEvent()
 }
 
 sealed class OsmControllerEvent : UiControllerEvent {
 
-  object BackgroundPermissionRequest : OsmControllerEvent()
+    object BackgroundPermissionRequest : OsmControllerEvent()
 
-  object StoragePermissionRequest : OsmControllerEvent()
-
+    object StoragePermissionRequest : OsmControllerEvent()
 }

@@ -21,6 +21,5 @@ import com.pyamsoft.fridge.db.BaseDb
 
 interface FridgeEntryDeleteDao : BaseDb.Delete<FridgeEntry> {
 
-  suspend fun deleteAll()
-
+    suspend fun deleteAll()
 }

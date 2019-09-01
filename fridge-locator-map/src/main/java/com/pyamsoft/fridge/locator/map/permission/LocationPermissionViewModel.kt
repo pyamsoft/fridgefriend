@@ -23,18 +23,17 @@ import com.pyamsoft.pydroid.arch.UiViewModel
 import com.pyamsoft.pydroid.arch.UnitViewState
 import javax.inject.Inject
 
-class LocationPermissionViewModel @Inject internal constructor(
-) : UiViewModel<UnitViewState, PermissionViewEvent, PermissionControllerEvent>(
-    initialState = UnitViewState
-) {
+class LocationPermissionViewModel @Inject internal constructor() :
+    UiViewModel<UnitViewState, PermissionViewEvent, PermissionControllerEvent>(
+        initialState = UnitViewState
+    ) {
 
-  override fun onInit() {
-  }
-
-  override fun handleViewEvent(event: PermissionViewEvent) {
-    return when (event) {
-      is FireLocationPermission -> publish(LocationPermissionRequest)
+    override fun onInit() {
     }
-  }
 
+    override fun handleViewEvent(event: PermissionViewEvent) {
+        return when (event) {
+            is FireLocationPermission -> publish(LocationPermissionRequest)
+        }
+    }
 }

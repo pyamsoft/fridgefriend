@@ -28,13 +28,12 @@ import timber.log.Timber
 @Dao
 internal abstract class RoomNearbyZoneQueryDao internal constructor() : NearbyZoneQueryDao {
 
-  override suspend fun query(force: Boolean): List<NearbyZone> {
-    Timber.d("ROOM: NearbyZone Query: $force")
-    return daoQuery()
-  }
+    override suspend fun query(force: Boolean): List<NearbyZone> {
+        Timber.d("ROOM: NearbyZone Query: $force")
+        return daoQuery()
+    }
 
-  @Query("SELECT * FROM ${RoomNearbyZone.TABLE_NAME}")
-  @CheckResult
-  internal abstract suspend fun daoQuery(): List<RoomNearbyZone>
-
+    @Query("SELECT * FROM ${RoomNearbyZone.TABLE_NAME}")
+    @CheckResult
+    internal abstract suspend fun daoQuery(): List<RoomNearbyZone>
 }

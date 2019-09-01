@@ -22,6 +22,6 @@ import com.pyamsoft.fridge.db.entry.FridgeEntry
 
 interface PersistentEntries {
 
-  @CheckResult
-  suspend fun getPersistentEntry(): FridgeEntry
+    @CheckResult
+    suspend fun getPersistentEntry(): FridgeEntry
 }

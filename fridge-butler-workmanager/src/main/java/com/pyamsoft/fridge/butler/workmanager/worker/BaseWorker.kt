@@ -30,78 +30,78 @@ import kotlinx.coroutines.CancellationException
 import timber.log.Timber
 
 internal abstract class BaseWorker protected constructor(
-  context: Context,
-  params: WorkerParameters
+    context: Context,
+    params: WorkerParameters
 ) : CoroutineWorker(context, params) {
 
-  private var handler: NotificationHandler? = null
-  private var foregroundState: ForegroundState? = null
-  private var butler: Butler? = null
-  private var enforcer: Enforcer? = null
+    private var handler: NotificationHandler? = null
+    private var foregroundState: ForegroundState? = null
+    private var butler: Butler? = null
+    private var enforcer: Enforcer? = null
 
-  private fun inject() {
-    handler = Injector.obtain(applicationContext)
-    foregroundState = Injector.obtain(applicationContext)
-    butler = Injector.obtain(applicationContext)
-    enforcer = Injector.obtain(applicationContext)
-    onInject()
-  }
-
-  protected abstract fun onInject()
-
-  private fun teardown() {
-    handler = null
-    foregroundState = null
-    butler = null
-    enforcer = null
-    onTeardown()
-  }
-
-  protected inline fun notification(func: (handler: NotificationHandler, foregroundState: ForegroundState) -> Unit) {
-    func(requireNotNull(handler), requireNotNull(foregroundState))
-  }
-
-  protected abstract fun onTeardown()
-
-  protected abstract fun reschedule(butler: Butler)
-
-  final override suspend fun doWork(): Result {
-    inject()
-    requireNotNull(enforcer).assertNotOnMainThread()
-
-    try {
-      performWork()
-      return success()
-    } catch (e: Throwable) {
-      if (e is CancellationException) {
-        return cancelled(e)
-      } else {
-        return fail(e)
-      }
-    } finally {
-      teardown()
+    private fun inject() {
+        handler = Injector.obtain(applicationContext)
+        foregroundState = Injector.obtain(applicationContext)
+        butler = Injector.obtain(applicationContext)
+        enforcer = Injector.obtain(applicationContext)
+        onInject()
     }
-  }
 
-  protected abstract suspend fun performWork()
+    protected abstract fun onInject()
 
-  @CheckResult
-  private fun success(): Result {
-    Timber.d("Worker completed successfully")
-    reschedule(requireNotNull(butler))
-    return Result.success()
-  }
+    private fun teardown() {
+        handler = null
+        foregroundState = null
+        butler = null
+        enforcer = null
+        onTeardown()
+    }
 
-  @CheckResult
-  private fun fail(throwable: Throwable): Result {
-    Timber.e(throwable, "Worker failed to complete")
-    reschedule(requireNotNull(butler))
-    return Result.failure()
-  }
+    protected inline fun notification(func: (handler: NotificationHandler, foregroundState: ForegroundState) -> Unit) {
+        func(requireNotNull(handler), requireNotNull(foregroundState))
+    }
 
-  @CheckResult
-  private fun cancelled(throwable: CancellationException): Result {
-    Timber.w(throwable, "Worker was cancelled")
-    return Result.failure()
-  }
+    protected abstract fun onTeardown()
+
+    protected abstract fun reschedule(butler: Butler)
+
+    final override suspend fun doWork(): Result {
+        inject()
+        requireNotNull(enforcer).assertNotOnMainThread()
+
+        try {
+            performWork()
+            return success()
+        } catch (e: Throwable) {
+            if (e is CancellationException) {
+                return cancelled(e)
+            } else {
+                return fail(e)
+            }
+        } finally {
+            teardown()
+        }
+    }
+
+    protected abstract suspend fun performWork()
+
+    @CheckResult
+    private fun success(): Result {
+        Timber.d("Worker completed successfully")
+        reschedule(requireNotNull(butler))
+        return Result.success()
+    }
+
+    @CheckResult
+    private fun fail(throwable: Throwable): Result {
+        Timber.e(throwable, "Worker failed to complete")
+        reschedule(requireNotNull(butler))
+        return Result.failure()
+    }
+
+    @CheckResult
+    private fun cancelled(throwable: CancellationException): Result {
+        Timber.w(throwable, "Worker was cancelled")
+        return Result.failure()
+    }
 }

@@ -39,130 +39,130 @@ import java.util.Date
 import javax.inject.Inject
 
 internal class DetailInteractor @Inject internal constructor(
-  entry: FridgeEntry,
-  private val itemQueryDao: FridgeItemQueryDao,
-  private val itemInsertDao: FridgeItemInsertDao,
-  private val itemUpdateDao: FridgeItemUpdateDao,
-  private val itemDeleteDao: FridgeItemDeleteDao,
-  private val itemRealtime: FridgeItemRealtime,
-  private val entryUpdateDao: FridgeEntryUpdateDao,
-  private val enforcer: Enforcer,
-  private val queryDao: FridgeEntryQueryDao,
-  private val insertDao: FridgeEntryInsertDao
+    entry: FridgeEntry,
+    private val itemQueryDao: FridgeItemQueryDao,
+    private val itemInsertDao: FridgeItemInsertDao,
+    private val itemUpdateDao: FridgeItemUpdateDao,
+    private val itemDeleteDao: FridgeItemDeleteDao,
+    private val itemRealtime: FridgeItemRealtime,
+    private val entryUpdateDao: FridgeEntryUpdateDao,
+    private val enforcer: Enforcer,
+    private val queryDao: FridgeEntryQueryDao,
+    private val insertDao: FridgeEntryInsertDao
 ) {
 
-  private val entryId = entry.id()
+    private val entryId = entry.id()
 
-  @CheckResult
-  private suspend fun getEntryForId(
-    entryId: String,
-    force: Boolean
-  ): FridgeEntry? {
-    return queryDao.query(force)
-        .singleOrNull { it.id() == entryId }
-  }
-
-  @CheckResult
-  private suspend fun guaranteeEntryExists(
-    entryId: String,
-    name: String
-  ): FridgeEntry {
-    val valid = getEntryForId(entryId, false)
-    if (valid != null) {
-      Timber.d("Entry exists, ignore: ${valid.id()}")
-      return valid
-    } else {
-      val createdTime = Calendar.getInstance()
-          .time
-      Timber.d("Create entry: $entryId at $createdTime")
-      val newEntry =
-        FridgeEntry.create(entryId, name, createdTime, isReal = true)
-      insertDao.insert(newEntry)
-      return newEntry
+    @CheckResult
+    private suspend fun getEntryForId(
+        entryId: String,
+        force: Boolean
+    ): FridgeEntry? {
+        return queryDao.query(force)
+            .singleOrNull { it.id() == entryId }
     }
-  }
 
-  @CheckResult
-  suspend fun getItems(
-    entryId: String,
-    force: Boolean
-  ): List<FridgeItem> = withContext(context = Dispatchers.Default) {
-    enforcer.assertNotOnMainThread()
-    return@withContext itemQueryDao.query(force, entryId)
-  }
-
-  @CheckResult
-  fun listenForChanges(entryId: String): EventConsumer<FridgeItemChangeEvent> {
-    return itemRealtime.listenForChanges(entryId)
-  }
-
-  suspend fun commit(item: FridgeItem) = withContext(context = Dispatchers.Default) {
-    enforcer.assertNotOnMainThread()
-    if (item.name().isBlank()) {
-      Timber.w("Do not commit empty name FridgeItem: $item")
-    } else {
-      guaranteeEntryExists(item.entryId(), FridgeEntry.EMPTY_NAME)
-      commitItem(item)
+    @CheckResult
+    private suspend fun guaranteeEntryExists(
+        entryId: String,
+        name: String
+    ): FridgeEntry {
+        val valid = getEntryForId(entryId, false)
+        if (valid != null) {
+            Timber.d("Entry exists, ignore: ${valid.id()}")
+            return valid
+        } else {
+            val createdTime = Calendar.getInstance()
+                .time
+            Timber.d("Create entry: $entryId at $createdTime")
+            val newEntry =
+                FridgeEntry.create(entryId, name, createdTime, isReal = true)
+            insertDao.insert(newEntry)
+            return newEntry
+        }
     }
-  }
 
-  private suspend fun commitItem(item: FridgeItem) {
-    val valid = getItems(item.entryId(), false)
-        .singleOrNull { it.id() == item.id() }
-    if (valid != null) {
-      Timber.d("Update existing item [${item.id()}]: $item")
-      itemUpdateDao.update(item)
-    } else {
-      Timber.d("Create new item [${item.id()}]: $item")
-      itemInsertDao.insert(item)
+    @CheckResult
+    suspend fun getItems(
+        entryId: String,
+        force: Boolean
+    ): List<FridgeItem> = withContext(context = Dispatchers.Default) {
+        enforcer.assertNotOnMainThread()
+        return@withContext itemQueryDao.query(force, entryId)
     }
-  }
 
-  @CheckResult
-  private fun now(): Date {
-    return Calendar.getInstance()
-        .time
-  }
-
-  suspend fun consume(item: FridgeItem) = withContext(context = Dispatchers.Default) {
-    enforcer.assertNotOnMainThread()
-    if (!item.isReal()) {
-      Timber.w("Cannot consume item that is not real: [${item.id()}]: $item")
-    } else {
-      Timber.d("Consuming item [${item.id()}]: $item")
-      itemUpdateDao.update(item.consume(now()))
+    @CheckResult
+    fun listenForChanges(entryId: String): EventConsumer<FridgeItemChangeEvent> {
+        return itemRealtime.listenForChanges(entryId)
     }
-  }
 
-  suspend fun spoil(item: FridgeItem) = withContext(context = Dispatchers.Default) {
-    enforcer.assertNotOnMainThread()
-    if (!item.isReal()) {
-      Timber.w("Cannot spoil item that is not real: [${item.id()}]: $item")
-    } else {
-      Timber.d("Spoiling item [${item.id()}]: $item")
-      itemUpdateDao.update(item.spoil(now()))
+    suspend fun commit(item: FridgeItem) = withContext(context = Dispatchers.Default) {
+        enforcer.assertNotOnMainThread()
+        if (item.name().isBlank()) {
+            Timber.w("Do not commit empty name FridgeItem: $item")
+        } else {
+            guaranteeEntryExists(item.entryId(), FridgeEntry.EMPTY_NAME)
+            commitItem(item)
+        }
     }
-  }
 
-  suspend fun delete(item: FridgeItem) = withContext(context = Dispatchers.Default) {
-    enforcer.assertNotOnMainThread()
-    if (!item.isReal()) {
-      Timber.w("Cannot delete item that is not real: [${item.id()}]: $item")
-    } else {
-      Timber.d("Deleting item [${item.id()}]: $item")
-      itemDeleteDao.delete(item)
+    private suspend fun commitItem(item: FridgeItem) {
+        val valid = getItems(item.entryId(), false)
+            .singleOrNull { it.id() == item.id() }
+        if (valid != null) {
+            Timber.d("Update existing item [${item.id()}]: $item")
+            itemUpdateDao.update(item)
+        } else {
+            Timber.d("Create new item [${item.id()}]: $item")
+            itemInsertDao.insert(item)
+        }
     }
-  }
 
-  suspend fun saveName(name: String) = withContext(context = Dispatchers.Default) {
-    enforcer.assertNotOnMainThread()
-    val valid = getEntryForId(entryId, false)
-    if (valid != null) {
-      Timber.d("Updating entry name [${valid.id()}]: $name")
-      entryUpdateDao.update(valid.name(name))
-    } else {
-      Timber.d("saveName called but Entry does not exist, create it")
-      guaranteeEntryExists(entryId, name)
+    @CheckResult
+    private fun now(): Date {
+        return Calendar.getInstance()
+            .time
     }
-  }
+
+    suspend fun consume(item: FridgeItem) = withContext(context = Dispatchers.Default) {
+        enforcer.assertNotOnMainThread()
+        if (!item.isReal()) {
+            Timber.w("Cannot consume item that is not real: [${item.id()}]: $item")
+        } else {
+            Timber.d("Consuming item [${item.id()}]: $item")
+            itemUpdateDao.update(item.consume(now()))
+        }
+    }
+
+    suspend fun spoil(item: FridgeItem) = withContext(context = Dispatchers.Default) {
+        enforcer.assertNotOnMainThread()
+        if (!item.isReal()) {
+            Timber.w("Cannot spoil item that is not real: [${item.id()}]: $item")
+        } else {
+            Timber.d("Spoiling item [${item.id()}]: $item")
+            itemUpdateDao.update(item.spoil(now()))
+        }
+    }
+
+    suspend fun delete(item: FridgeItem) = withContext(context = Dispatchers.Default) {
+        enforcer.assertNotOnMainThread()
+        if (!item.isReal()) {
+            Timber.w("Cannot delete item that is not real: [${item.id()}]: $item")
+        } else {
+            Timber.d("Deleting item [${item.id()}]: $item")
+            itemDeleteDao.delete(item)
+        }
+    }
+
+    suspend fun saveName(name: String) = withContext(context = Dispatchers.Default) {
+        enforcer.assertNotOnMainThread()
+        val valid = getEntryForId(entryId, false)
+        if (valid != null) {
+            Timber.d("Updating entry name [${valid.id()}]: $name")
+            entryUpdateDao.update(valid.name(name))
+        } else {
+            Timber.d("saveName called but Entry does not exist, create it")
+            guaranteeEntryExists(entryId, name)
+        }
+    }
 }

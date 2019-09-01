@@ -22,13 +22,12 @@ import java.util.Date
 
 interface BaseModel<T : Any> {
 
-  @CheckResult
-  fun name(): String
+    @CheckResult
+    fun name(): String
 
-  @CheckResult
-  fun createdTime(): Date
+    @CheckResult
+    fun createdTime(): Date
 
-  @CheckResult
-  fun name(name: String): T
-
+    @CheckResult
+    fun name(name: String): T
 }

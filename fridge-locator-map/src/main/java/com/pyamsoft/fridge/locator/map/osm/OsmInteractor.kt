@@ -33,75 +33,74 @@ import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 internal class OsmInteractor @Inject internal constructor(
-  private val nearbyStores: NearbyStoreQueryDao,
-  private val nearbyZones: NearbyZoneQueryDao,
-  private val enforcer: Enforcer,
-  private val api: NearbyLocationApi
+    private val nearbyStores: NearbyStoreQueryDao,
+    private val nearbyZones: NearbyZoneQueryDao,
+    private val enforcer: Enforcer,
+    private val api: NearbyLocationApi
 ) {
 
-  @CheckResult
-  suspend fun fromCache(): OsmMarkers = withContext(context = Dispatchers.IO) {
-    enforcer.assertNotOnMainThread()
-
-    coroutineScope {
-      val storeJob = async { nearbyStores.query(false) }
-      val zoneJob = async { nearbyZones.query(false) }
-      return@coroutineScope OsmMarkers(storeJob.await(), zoneJob.await())
-    }
-  }
-
-  @CheckResult
-  suspend fun nearbyLocations(box: BBox): OsmMarkers = withContext(context = Dispatchers.IO) {
-    enforcer.assertNotOnMainThread()
-
-    val data = createOverpassData(box.south, box.west, box.north, box.east)
-    val response = api.queryNearby(data)
-    val elements = response.elements()
-
-    // First compile all the Way objects
-    val polygons = mutableListOf<NearbyZone>()
-
-    val allNodes = elements.filterIsInstance<Node>()
-        .toMutableList()
-    elements.filterIsInstance<Way>()
-        .forEach { way ->
-          val nodes = way.nodes.map { id ->
-            val node: Node? = allNodes.find { it.id == id }
-            if (node == null) {
-              return@map null
-            } else {
-              allNodes.remove(node)
-              return@map node
-            }
-          }
-              .filterNot { it == null }
-              .map { requireNotNull(it) }
-
-          polygons.add(NearbyZone.create(way, nodes))
-        }
-
-    val remainingNodes = allNodes.filter {
-      it.tags.name()
-          .isNotBlank()
-    }
-    val markers = remainingNodes.map { NearbyStore.create(it) }
-
-    return@withContext OsmMarkers(markers, polygons)
-  }
-
-  companion object {
-
-    @JvmStatic
     @CheckResult
-    private fun createOverpassData(
-      south: Double,
-      west: Double,
-      north: Double,
-      east: Double
-    ): String {
-      val box = "$south,$west,$north,$east"
-      return """[out:json][timeout:25];(node["shop"="supermarket"]($box);way["shop"="supermarket"]($box);relation["shop"="supermarket"]($box););out body;>;out body qt;"""
-    }
-  }
+    suspend fun fromCache(): OsmMarkers = withContext(context = Dispatchers.IO) {
+        enforcer.assertNotOnMainThread()
 
+        coroutineScope {
+            val storeJob = async { nearbyStores.query(false) }
+            val zoneJob = async { nearbyZones.query(false) }
+            return@coroutineScope OsmMarkers(storeJob.await(), zoneJob.await())
+        }
+    }
+
+    @CheckResult
+    suspend fun nearbyLocations(box: BBox): OsmMarkers = withContext(context = Dispatchers.IO) {
+        enforcer.assertNotOnMainThread()
+
+        val data = createOverpassData(box.south, box.west, box.north, box.east)
+        val response = api.queryNearby(data)
+        val elements = response.elements()
+
+        // First compile all the Way objects
+        val polygons = mutableListOf<NearbyZone>()
+
+        val allNodes = elements.filterIsInstance<Node>()
+            .toMutableList()
+        elements.filterIsInstance<Way>()
+            .forEach { way ->
+                val nodes = way.nodes.map { id ->
+                    val node: Node? = allNodes.find { it.id == id }
+                    if (node == null) {
+                        return@map null
+                    } else {
+                        allNodes.remove(node)
+                        return@map node
+                    }
+                }
+                    .filterNot { it == null }
+                    .map { requireNotNull(it) }
+
+                polygons.add(NearbyZone.create(way, nodes))
+            }
+
+        val remainingNodes = allNodes.filter {
+            it.tags.name()
+                .isNotBlank()
+        }
+        val markers = remainingNodes.map { NearbyStore.create(it) }
+
+        return@withContext OsmMarkers(markers, polygons)
+    }
+
+    companion object {
+
+        @JvmStatic
+        @CheckResult
+        private fun createOverpassData(
+            south: Double,
+            west: Double,
+            north: Double,
+            east: Double
+        ): String {
+            val box = "$south,$west,$north,$east"
+            return """[out:json][timeout:25];(node["shop"="supermarket"]($box);way["shop"="supermarket"]($box);relation["shop"="supermarket"]($box););out body;>;out body qt;"""
+        }
+    }
 }

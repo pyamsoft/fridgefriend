@@ -23,46 +23,44 @@ import java.util.Date
 
 interface NearbyStore : BaseModel<NearbyStore> {
 
-  @CheckResult
-  fun id(): Long
-
-  @CheckResult
-  fun latitude(): Double
-
-  @CheckResult
-  fun latitude(lat: Double): NearbyStore
-
-  @CheckResult
-  fun longitude(): Double
-
-  @CheckResult
-  fun longitude(lon: Double): NearbyStore
-
-  companion object {
+    @CheckResult
+    fun id(): Long
 
     @CheckResult
-    fun create(
-      id: Long,
-      name: String,
-      createdTime: Date,
-      latitude: Double,
-      longitude: Double
-    ): NearbyStore {
-      return JsonMappableNearbyStore(id, name, createdTime, latitude, longitude)
-    }
+    fun latitude(): Double
 
     @CheckResult
-    @JvmOverloads
-    fun create(
-      store: NearbyStore,
-      name: String = store.name(),
-      createdTime: Date = store.createdTime(),
-      latitude: Double = store.latitude(),
-      longitude: Double = store.longitude()
-    ): NearbyStore {
-      return JsonMappableNearbyStore(store.id(), name, createdTime, latitude, longitude)
+    fun latitude(lat: Double): NearbyStore
+
+    @CheckResult
+    fun longitude(): Double
+
+    @CheckResult
+    fun longitude(lon: Double): NearbyStore
+
+    companion object {
+
+        @CheckResult
+        fun create(
+            id: Long,
+            name: String,
+            createdTime: Date,
+            latitude: Double,
+            longitude: Double
+        ): NearbyStore {
+            return JsonMappableNearbyStore(id, name, createdTime, latitude, longitude)
+        }
+
+        @CheckResult
+        @JvmOverloads
+        fun create(
+            store: NearbyStore,
+            name: String = store.name(),
+            createdTime: Date = store.createdTime(),
+            latitude: Double = store.latitude(),
+            longitude: Double = store.longitude()
+        ): NearbyStore {
+            return JsonMappableNearbyStore(store.id(), name, createdTime, latitude, longitude)
+        }
     }
-
-  }
-
 }

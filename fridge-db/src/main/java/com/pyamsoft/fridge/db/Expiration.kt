@@ -23,53 +23,51 @@ import java.util.Calendar
 
 @CheckResult
 fun Calendar.cleanMidnight(): Calendar {
-  return this.apply {
-    set(Calendar.HOUR, 0)
-    set(Calendar.MINUTE, 0)
-    set(Calendar.SECOND, 0)
-    set(Calendar.MILLISECOND, 0)
-  }
+    return this.apply {
+        set(Calendar.HOUR, 0)
+        set(Calendar.MINUTE, 0)
+        set(Calendar.SECOND, 0)
+        set(Calendar.MILLISECOND, 0)
+    }
 }
 
 @CheckResult
 fun Calendar.daysLaterMidnight(later: Int): Calendar {
-  return this.apply {
-    add(Calendar.DAY_OF_MONTH, later)
-  }
-      .cleanMidnight()
+    return this.apply {
+        add(Calendar.DAY_OF_MONTH, later)
+    }
+        .cleanMidnight()
 }
 
 @CheckResult
 @JvmOverloads
 fun FridgeItem.isExpired(today: Calendar = Calendar.getInstance().cleanMidnight()): Boolean {
-  val expireTime = this.expireTime() ?: return false
+    val expireTime = this.expireTime() ?: return false
 
-  // Clean Y/M/D only
-  val expiration = Calendar.getInstance()
-      .also { it.time = expireTime }
-      .cleanMidnight()
+    // Clean Y/M/D only
+    val expiration = Calendar.getInstance()
+        .also { it.time = expireTime }
+        .cleanMidnight()
 
-  val midnightToday = today.cleanMidnight()
-  return expiration.before(midnightToday)
+    val midnightToday = today.cleanMidnight()
+    return expiration.before(midnightToday)
 }
 
 @CheckResult
 @JvmOverloads
 fun FridgeItem.isExpiringSoon(
-  today: Calendar = Calendar.getInstance().cleanMidnight(),
-  tomorrow: Calendar = Calendar.getInstance().daysLaterMidnight(2)
+    today: Calendar = Calendar.getInstance().cleanMidnight(),
+    tomorrow: Calendar = Calendar.getInstance().daysLaterMidnight(2)
 ): Boolean {
-  val expireTime = this.expireTime() ?: return false
+    val expireTime = this.expireTime() ?: return false
 
-  // Clean Y/M/D only
-  val expiration = Calendar.getInstance()
-      .also { it.time = expireTime }
-      .cleanMidnight()
+    // Clean Y/M/D only
+    val expiration = Calendar.getInstance()
+        .also { it.time = expireTime }
+        .cleanMidnight()
 
-  val midnightToday = today.cleanMidnight()
-  val midnightTomorrow = tomorrow.cleanMidnight()
-  return (expiration.before(midnightTomorrow) && !this.isExpired(today))
-      || expiration == midnightTomorrow || expiration == midnightToday
+    val midnightToday = today.cleanMidnight()
+    val midnightTomorrow = tomorrow.cleanMidnight()
+    return (expiration.before(midnightTomorrow) && !this.isExpired(today)) ||
+        expiration == midnightTomorrow || expiration == midnightToday
 }
-
-

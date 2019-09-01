@@ -15,4 +15,4 @@
   ~
   -->
 
-<manifest package="com.pyamsoft.fridge.setting"/>
+<manifest package="com.pyamsoft.fridge.setting" />

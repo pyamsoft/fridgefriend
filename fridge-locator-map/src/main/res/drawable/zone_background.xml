@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ Copyright 2019 Peter Kenji Yamanaka
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,17 +18,17 @@
 <shape xmlns:android="http://schemas.android.com/apk/res/android"
     android:shape="rectangle">
 
-  <corners android:radius="4dp"/>
-  <padding
-      android:bottom="8dp"
-      android:left="8dp"
-      android:right="8dp"
-      android:top="8dp"/>
+    <corners android:radius="4dp" />
+    <padding
+        android:bottom="8dp"
+        android:left="8dp"
+        android:right="8dp"
+        android:top="8dp" />
 
-  <stroke
-      android:color="?android:attr/colorForeground"
-      android:width="2dp"/>
+    <stroke
+        android:width="2dp"
+        android:color="?android:attr/colorForeground" />
 
-  <solid android:color="@color/amber50"/>
+    <solid android:color="@color/amber50" />
 
 </shape>

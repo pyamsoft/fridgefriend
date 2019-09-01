@@ -27,37 +27,37 @@ import com.pyamsoft.pydroid.ui.Injector
 import kotlinx.coroutines.coroutineScope
 
 internal abstract class FridgeWorker protected constructor(
-  context: Context,
-  params: WorkerParameters
+    context: Context,
+    params: WorkerParameters
 ) : BaseWorker(context, params) {
 
-  private var fridgeEntryQueryDao: FridgeEntryQueryDao? = null
-  private var fridgeItemQueryDao: FridgeItemQueryDao? = null
+    private var fridgeEntryQueryDao: FridgeEntryQueryDao? = null
+    private var fridgeItemQueryDao: FridgeItemQueryDao? = null
 
-  final override fun onInject() {
-    fridgeEntryQueryDao = Injector.obtain(applicationContext)
-    fridgeItemQueryDao = Injector.obtain(applicationContext)
-    afterInject()
-  }
-
-  protected open fun afterInject() {
-  }
-
-  final override fun onTeardown() {
-    fridgeEntryQueryDao = null
-    fridgeItemQueryDao = null
-    afterTeardown()
-  }
-
-  protected open fun afterTeardown() {
-  }
-
-  protected suspend fun withFridgeData(func: (entry: FridgeEntry, items: List<FridgeItem>) -> Unit) =
-    coroutineScope {
-      requireNotNull(fridgeEntryQueryDao).query(false)
-          .forEach { entry ->
-            val items = requireNotNull(fridgeItemQueryDao).query(false, entry.id())
-            func(entry, items)
-          }
+    final override fun onInject() {
+        fridgeEntryQueryDao = Injector.obtain(applicationContext)
+        fridgeItemQueryDao = Injector.obtain(applicationContext)
+        afterInject()
     }
+
+    protected open fun afterInject() {
+    }
+
+    final override fun onTeardown() {
+        fridgeEntryQueryDao = null
+        fridgeItemQueryDao = null
+        afterTeardown()
+    }
+
+    protected open fun afterTeardown() {
+    }
+
+    protected suspend fun withFridgeData(func: (entry: FridgeEntry, items: List<FridgeItem>) -> Unit) =
+        coroutineScope {
+            requireNotNull(fridgeEntryQueryDao).query(false)
+                .forEach { entry ->
+                    val items = requireNotNull(fridgeItemQueryDao).query(false, entry.id())
+                    func(entry, items)
+                }
+        }
 }

@@ -42,35 +42,35 @@ import javax.inject.Named
 @Component(modules = [ViewModelModule::class])
 internal interface DetailItemComponent {
 
-  fun inject(holder: DetailItemViewHolder)
+    fun inject(holder: DetailItemViewHolder)
 
-  @Component.Factory
-  interface Factory {
+    @Component.Factory
+    interface Factory {
 
-    @CheckResult
-    fun create(
-      @BindsInstance parent: ViewGroup,
-      @BindsInstance item: FridgeItem,
-      @BindsInstance @Named("item_editable") editable: Boolean,
-      @BindsInstance imageLoader: ImageLoader,
-      @BindsInstance theming: Theming,
-      @BindsInstance interactor: DetailInteractor,
-      @BindsInstance itemUpdateDao: FridgeItemRealtime,
-      @BindsInstance fakeRealtime: EventBus<FridgeItemChangeEvent>,
-      @BindsInstance dateSelectBus: EventBus<DateSelectPayload>,
-      @BindsInstance listPresence: Presence
-    ): DetailItemComponent
-  }
+        @CheckResult
+        fun create(
+            @BindsInstance parent: ViewGroup,
+            @BindsInstance item: FridgeItem,
+            @BindsInstance @Named("item_editable") editable: Boolean,
+            @BindsInstance imageLoader: ImageLoader,
+            @BindsInstance theming: Theming,
+            @BindsInstance interactor: DetailInteractor,
+            @BindsInstance itemUpdateDao: FridgeItemRealtime,
+            @BindsInstance fakeRealtime: EventBus<FridgeItemChangeEvent>,
+            @BindsInstance dateSelectBus: EventBus<DateSelectPayload>,
+            @BindsInstance listPresence: Presence
+        ): DetailItemComponent
+    }
 
-  @Module
-  abstract class ViewModelModule {
+    @Module
+    abstract class ViewModelModule {
 
-    @Binds
-    internal abstract fun bindViewModelFactory(factory: DetailItemViewModelFactory): ViewModelProvider.Factory
+        @Binds
+        internal abstract fun bindViewModelFactory(factory: DetailItemViewModelFactory): ViewModelProvider.Factory
 
-    @Binds
-    @IntoMap
-    @ViewModelKey(DetailListItemViewModel::class)
-    internal abstract fun detailListItemViewModel(viewModel: DetailListItemViewModel): UiViewModel<*, *, *>
-  }
+        @Binds
+        @IntoMap
+        @ViewModelKey(DetailListItemViewModel::class)
+        internal abstract fun detailListItemViewModel(viewModel: DetailListItemViewModel): UiViewModel<*, *, *>
+    }
 }

@@ -49,159 +49,162 @@ import javax.inject.Inject
 
 internal class SettingsDialog : DialogFragment() {
 
-  @JvmField @Inject internal var factory: ViewModelProvider.Factory? = null
-  @JvmField @Inject internal var toolbar: SettingToolbar? = null
-  @JvmField @Inject internal var frame: SettingFrame? = null
-  private val viewModel by factory<SettingToolbarViewModel> { factory }
+    @JvmField
+    @Inject
+    internal var factory: ViewModelProvider.Factory? = null
+    @JvmField
+    @Inject
+    internal var toolbar: SettingToolbar? = null
+    @JvmField
+    @Inject
+    internal var frame: SettingFrame? = null
+    private val viewModel by factory<SettingToolbarViewModel> { factory }
 
-  override fun onCreateView(
-    inflater: LayoutInflater,
-    container: ViewGroup?,
-    savedInstanceState: Bundle?
-  ): View? {
-    val view = inflater.inflate(R.layout.layout_constraint, container, false)
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        val view = inflater.inflate(R.layout.layout_constraint, container, false)
 
-    val margin = 16.toDp(view.context)
-    val params = view.layoutParams
-    if (params == null) {
-      view.layoutParams = MarginLayoutParams(margin, margin * 2)
-    } else {
-      view.updateLayoutParams<MarginLayoutParams> {
-        topMargin = margin
-        bottomMargin = margin
-        marginStart = margin
-        marginEnd = margin
-      }
+        val margin = 16.toDp(view.context)
+        val params = view.layoutParams
+        if (params == null) {
+            view.layoutParams = MarginLayoutParams(margin, margin * 2)
+        } else {
+            view.updateLayoutParams<MarginLayoutParams> {
+                topMargin = margin
+                bottomMargin = margin
+                marginStart = margin
+                marginEnd = margin
+            }
+        }
+
+        return view
     }
 
-    return view
-  }
+    private inline fun handleBackPressed(onNotHandled: () -> Unit) {
+        Timber.d("Handle back pressed")
+        val settingsFragment = childFragmentManager.findFragmentByTag(SettingsFragment.TAG)
+        if (settingsFragment != null) {
+            val fm = settingsFragment.childFragmentManager
+            if (AboutFragment.isPresent(fm)) {
+                fm.popBackStack()
+                return
+            }
+        }
 
-  private inline fun handleBackPressed(onNotHandled: () -> Unit) {
-    Timber.d("Handle back pressed")
-    val settingsFragment = childFragmentManager.findFragmentByTag(SettingsFragment.TAG)
-    if (settingsFragment != null) {
-      val fm = settingsFragment.childFragmentManager
-      if (AboutFragment.isPresent(fm)) {
-        fm.popBackStack()
-        return
-      }
+        onNotHandled()
     }
 
-    onNotHandled()
-  }
-
-  override fun getTheme(): Int {
-    return R.style.Theme_Fridge_Dialog
-  }
-
-  override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-    return object : Dialog(ContextThemeWrapper(requireActivity(), R.style.Theme_Fridge_Dialog)) {
-
-      override fun onBackPressed() {
-        handleBackPressed { super.onBackPressed() }
-      }
+    override fun getTheme(): Int {
+        return R.style.Theme_Fridge_Dialog
     }
-  }
 
-  override fun onViewCreated(
-    view: View,
-    savedInstanceState: Bundle?
-  ) {
-    super.onViewCreated(view, savedInstanceState)
+    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+        return object : Dialog(ContextThemeWrapper(requireActivity(), R.style.Theme_Fridge_Dialog)) {
 
-    requireActivity().onBackPressedDispatcher.addCallback(
-        viewLifecycleOwner, object : OnBackPressedCallback(true) {
+            override fun onBackPressed() {
+                handleBackPressed { super.onBackPressed() }
+            }
+        }
+    }
 
-      override fun handleOnBackPressed() {
-        handleBackPressed { dismiss() }
-      }
-
-    })
-
-    val parent = view.findViewById<ConstraintLayout>(R.id.layout_constraint)
-    Injector.obtain<FridgeComponent>(view.context.applicationContext)
-        .plusSettingComponent()
-        .create(parent)
-        .inject(this)
-
-    val toolbar = requireNotNull(toolbar)
-    val dropshadow = DropshadowView.createTyped<UnitViewState, SettingViewEvent>(parent)
-    val frame = requireNotNull(frame)
-    createComponent(
-        savedInstanceState, viewLifecycleOwner,
-        viewModel,
-        frame,
-        toolbar,
-        dropshadow
+    override fun onViewCreated(
+        view: View,
+        savedInstanceState: Bundle?
     ) {
-      return@createComponent when (it) {
-        is NavigateUp -> requireActivity().onBackPressed()
-      }
+        super.onViewCreated(view, savedInstanceState)
+
+        requireActivity().onBackPressedDispatcher.addCallback(
+            viewLifecycleOwner, object : OnBackPressedCallback(true) {
+
+                override fun handleOnBackPressed() {
+                    handleBackPressed { dismiss() }
+                }
+            })
+
+        val parent = view.findViewById<ConstraintLayout>(R.id.layout_constraint)
+        Injector.obtain<FridgeComponent>(view.context.applicationContext)
+            .plusSettingComponent()
+            .create(parent)
+            .inject(this)
+
+        val toolbar = requireNotNull(toolbar)
+        val dropshadow = DropshadowView.createTyped<UnitViewState, SettingViewEvent>(parent)
+        val frame = requireNotNull(frame)
+        createComponent(
+            savedInstanceState, viewLifecycleOwner,
+            viewModel,
+            frame,
+            toolbar,
+            dropshadow
+        ) {
+            return@createComponent when (it) {
+                is NavigateUp -> requireActivity().onBackPressed()
+            }
+        }
+
+        parent.layout {
+            toolbar.also {
+                connect(it.id(), ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP)
+                connect(it.id(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
+                connect(it.id(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
+                constrainWidth(it.id(), ConstraintSet.MATCH_CONSTRAINT)
+            }
+
+            dropshadow.also {
+                connect(it.id(), ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP)
+                connect(it.id(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
+                connect(it.id(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
+                constrainWidth(it.id(), ConstraintSet.MATCH_CONSTRAINT)
+            }
+
+            frame.also {
+                connect(it.id(), ConstraintSet.TOP, toolbar.id(), ConstraintSet.BOTTOM)
+                connect(it.id(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
+                connect(it.id(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
+                connect(it.id(), ConstraintSet.BOTTOM, ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM)
+                constrainWidth(it.id(), ConstraintSet.MATCH_CONSTRAINT)
+                constrainHeight(it.id(), ConstraintSet.MATCH_CONSTRAINT)
+            }
+        }
+
+        pushSettings(frame)
     }
 
-    parent.layout {
-      toolbar.also {
-        connect(it.id(), ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP)
-        connect(it.id(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
-        connect(it.id(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
-        constrainWidth(it.id(), ConstraintSet.MATCH_CONSTRAINT)
-      }
-
-      dropshadow.also {
-        connect(it.id(), ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP)
-        connect(it.id(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
-        connect(it.id(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
-        constrainWidth(it.id(), ConstraintSet.MATCH_CONSTRAINT)
-      }
-
-      frame.also {
-        connect(it.id(), ConstraintSet.TOP, toolbar.id(), ConstraintSet.BOTTOM)
-        connect(it.id(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
-        connect(it.id(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
-        connect(it.id(), ConstraintSet.BOTTOM, ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM)
-        constrainWidth(it.id(), ConstraintSet.MATCH_CONSTRAINT)
-        constrainHeight(it.id(), ConstraintSet.MATCH_CONSTRAINT)
-      }
+    override fun onResume() {
+        super.onResume()
+        dialog?.window?.apply {
+            setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
+            setGravity(Gravity.CENTER)
+        }
     }
 
-    pushSettings(frame)
-  }
-
-  override fun onResume() {
-    super.onResume()
-    dialog?.window?.apply {
-      setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
-      setGravity(Gravity.CENTER)
+    private fun pushSettings(container: UiView<*, *>) {
+        val fm = childFragmentManager
+        if (fm.findFragmentByTag(SettingsFragment.TAG) == null) {
+            fm.commit(viewLifecycleOwner) {
+                add(container.id(), SettingsFragment.newInstance(), SettingsFragment.TAG)
+            }
+        }
     }
-  }
 
-  private fun pushSettings(container: UiView<*, *>) {
-    val fm = childFragmentManager
-    if (fm.findFragmentByTag(SettingsFragment.TAG) == null) {
-      fm.commit(viewLifecycleOwner) {
-        add(container.id(), SettingsFragment.newInstance(), SettingsFragment.TAG)
-      }
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        toolbar?.saveState(outState)
+        frame?.saveState(outState)
     }
-  }
 
-  override fun onSaveInstanceState(outState: Bundle) {
-    super.onSaveInstanceState(outState)
-    toolbar?.saveState(outState)
-    frame?.saveState(outState)
-  }
+    override fun onDestroyView() {
+        super.onDestroyView()
+        toolbar = null
+        frame = null
+        factory = null
+    }
 
-  override fun onDestroyView() {
-    super.onDestroyView()
-    toolbar = null
-    frame = null
-    factory = null
-  }
+    companion object {
 
-  companion object {
-
-    internal const val TAG = "SettingsDialog"
-
-  }
-
+        internal const val TAG = "SettingsDialog"
+    }
 }

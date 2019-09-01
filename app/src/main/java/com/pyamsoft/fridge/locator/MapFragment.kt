@@ -39,113 +39,120 @@ import javax.inject.Inject
 
 internal class MapFragment : Fragment(), SnackbarContainer {
 
-  @JvmField @Inject internal var factory: ViewModelProvider.Factory? = null
-  @JvmField @Inject internal var map: OsmMap? = null
-  @JvmField @Inject internal var mapPermission: MapPermission? = null
-  @JvmField @Inject internal var deviceGps: DeviceGps? = null
-  private val viewModel by factory<OsmViewModel> { factory }
+    @JvmField
+    @Inject
+    internal var factory: ViewModelProvider.Factory? = null
+    @JvmField
+    @Inject
+    internal var map: OsmMap? = null
+    @JvmField
+    @Inject
+    internal var mapPermission: MapPermission? = null
+    @JvmField
+    @Inject
+    internal var deviceGps: DeviceGps? = null
+    private val viewModel by factory<OsmViewModel> { factory }
 
-  private var rootView: ViewGroup? = null
+    private var rootView: ViewGroup? = null
 
-  override fun getSnackbarContainer(): ViewGroup? {
-    return rootView
-  }
+    override fun getSnackbarContainer(): ViewGroup? {
+        return rootView
+    }
 
-  override fun onCreateView(
-    inflater: LayoutInflater,
-    container: ViewGroup?,
-    savedInstanceState: Bundle?
-  ): View? {
-    return inflater.inflate(R.layout.layout_coordinator, container, false)
-  }
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        return inflater.inflate(R.layout.layout_coordinator, container, false)
+    }
 
-  override fun onViewCreated(
-    view: View,
-    savedInstanceState: Bundle?
-  ) {
-    super.onViewCreated(view, savedInstanceState)
-
-    val parent = view.findViewById<CoordinatorLayout>(R.id.layout_coordinator)
-    rootView = parent
-    Injector.obtain<FridgeComponent>(view.context.applicationContext)
-        .plusMapComponent()
-        .create(requireActivity(), parent, viewLifecycleOwner)
-        .inject(this)
-
-    val map = requireNotNull(map)
-
-    createComponent(
-        savedInstanceState, viewLifecycleOwner,
-        viewModel,
-        map
+    override fun onViewCreated(
+        view: View,
+        savedInstanceState: Bundle?
     ) {
-      return@createComponent when (it) {
-        is BackgroundPermissionRequest -> requestBackgroundLocationPermission()
-        is StoragePermissionRequest -> requestStoragePermission()
-      }
+        super.onViewCreated(view, savedInstanceState)
+
+        val parent = view.findViewById<CoordinatorLayout>(R.id.layout_coordinator)
+        rootView = parent
+        Injector.obtain<FridgeComponent>(view.context.applicationContext)
+            .plusMapComponent()
+            .create(requireActivity(), parent, viewLifecycleOwner)
+            .inject(this)
+
+        val map = requireNotNull(map)
+
+        createComponent(
+            savedInstanceState, viewLifecycleOwner,
+            viewModel,
+            map
+        ) {
+            return@createComponent when (it) {
+                is BackgroundPermissionRequest -> requestBackgroundLocationPermission()
+                is StoragePermissionRequest -> requestStoragePermission()
+            }
+        }
+
+        if (!requireNotNull(mapPermission).hasStoragePermission()) {
+            viewModel.requestStoragePermission()
+        }
+
+        requireNotNull(deviceGps).enableGps(requireActivity()) {
+            Timber.e(it, "Error enabling GPS")
+        }
     }
 
-    if (!requireNotNull(mapPermission).hasStoragePermission()) {
-      viewModel.requestStoragePermission()
+    private fun requestStoragePermission() {
+        requireNotNull(mapPermission).requestStoragePermission(this)
     }
 
-    requireNotNull(deviceGps).enableGps(requireActivity()) {
-      Timber.e(it, "Error enabling GPS")
+    private fun requestBackgroundLocationPermission() {
+        requireNotNull(mapPermission).requestBackgroundPermission(this)
     }
-  }
 
-  private fun requestStoragePermission() {
-    requireNotNull(mapPermission).requestStoragePermission(this)
-  }
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        requireNotNull(mapPermission).let { mp ->
+            mp.onBackgroundResult(requestCode, permissions, grantResults) {
+                Timber.d("BACKGROUND permission granted!")
+                // TODO Handle background permission granted state
+            }
 
-  private fun requestBackgroundLocationPermission() {
-    requireNotNull(mapPermission).requestBackgroundPermission(this)
-  }
-
-  override fun onRequestPermissionsResult(
-    requestCode: Int,
-    permissions: Array<out String>,
-    grantResults: IntArray
-  ) {
-    super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-    requireNotNull(mapPermission).let { mp ->
-      mp.onBackgroundResult(requestCode, permissions, grantResults) {
-        Timber.d("BACKGROUND permission granted!")
-        // TODO Handle background permission granted state
-      }
-
-      mp.onStorageResult(requestCode, permissions, grantResults) {
-        Timber.d("STORAGE permission granted!")
-        // TODO Handle storage permission granted state
-      }
+            mp.onStorageResult(requestCode, permissions, grantResults) {
+                Timber.d("STORAGE permission granted!")
+                // TODO Handle storage permission granted state
+            }
+        }
     }
-  }
 
-  override fun onSaveInstanceState(outState: Bundle) {
-    super.onSaveInstanceState(outState)
-    map?.saveState(outState)
-  }
-
-  override fun onDestroyView() {
-    super.onDestroyView()
-
-    rootView = null
-    factory = null
-    map = null
-    mapPermission = null
-  }
-
-  companion object {
-
-    const val TAG = "MapFragment"
-
-    @JvmStatic
-    @CheckResult
-    fun newInstance(): Fragment {
-      return MapFragment().apply {
-        arguments = Bundle().apply {}
-      }
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        map?.saveState(outState)
     }
-  }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+
+        rootView = null
+        factory = null
+        map = null
+        mapPermission = null
+    }
+
+    companion object {
+
+        const val TAG = "MapFragment"
+
+        @JvmStatic
+        @CheckResult
+        fun newInstance(): Fragment {
+            return MapFragment().apply {
+                arguments = Bundle().apply {}
+            }
+        }
+    }
 }

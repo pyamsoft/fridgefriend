@@ -29,191 +29,202 @@ import java.util.Date
 
 @Entity(
     tableName = RoomFridgeItem.TABLE_NAME, foreignKeys = [ForeignKey(
-    entity = RoomFridgeEntry::class,
-    parentColumns = arrayOf(RoomFridgeEntry.COLUMN_ID),
-    childColumns = arrayOf(RoomFridgeItem.COLUMN_ENTRY_ID),
-    onDelete = ForeignKey.CASCADE
-)]
+        entity = RoomFridgeEntry::class,
+        parentColumns = arrayOf(RoomFridgeEntry.COLUMN_ID),
+        childColumns = arrayOf(RoomFridgeItem.COLUMN_ENTRY_ID),
+        onDelete = ForeignKey.CASCADE
+    )]
 )
 internal data class RoomFridgeItem internal constructor(
-  @field:[PrimaryKey ColumnInfo(name = COLUMN_ID)]
-  val id: String,
+    @field:[PrimaryKey ColumnInfo(name = COLUMN_ID)]
+    val id: String,
 
-  @field:ColumnInfo(name = COLUMN_ENTRY_ID)
-  val entryId: String,
+    @field:ColumnInfo(name = COLUMN_ENTRY_ID)
+    val entryId: String,
 
-  @field:ColumnInfo(name = COLUMN_NAME)
-  val name: String,
+    @field:ColumnInfo(name = COLUMN_NAME)
+    val name: String,
 
-  @field:ColumnInfo(name = COLUMN_COUNT)
-  val count: Int,
+    @field:ColumnInfo(name = COLUMN_COUNT)
+    val count: Int,
 
-  @field:ColumnInfo(name = COLUMN_CREATED_TIME)
-  val createdTime: Date,
+    @field:ColumnInfo(name = COLUMN_CREATED_TIME)
+    val createdTime: Date,
 
-  @field:ColumnInfo(name = COLUMN_PURCHASE_TIME)
-  val purchaseTime: Date?,
+    @field:ColumnInfo(name = COLUMN_PURCHASE_TIME)
+    val purchaseTime: Date?,
 
-  @field:ColumnInfo(name = COLUMN_EXPIRE_TIME)
-  val expireTime: Date?,
+    @field:ColumnInfo(name = COLUMN_EXPIRE_TIME)
+    val expireTime: Date?,
 
-  @field:ColumnInfo(name = COLUMN_PRESENCE)
-  val presence: Presence,
+    @field:ColumnInfo(name = COLUMN_PRESENCE)
+    val presence: Presence,
 
-  @field:ColumnInfo(name = COLUMN_CONSUMED)
-  val consumedTime: Date?,
+    @field:ColumnInfo(name = COLUMN_CONSUMED)
+    val consumedTime: Date?,
 
-  @field:ColumnInfo(name = COLUMN_SPOILED)
-  val spoiledTime: Date?
+    @field:ColumnInfo(name = COLUMN_SPOILED)
+    val spoiledTime: Date?
 ) : FridgeItem {
 
-  @Ignore
-  override fun id(): String {
-    return id
-  }
-
-  @Ignore
-  override fun entryId(): String {
-    return entryId
-  }
-
-  @Ignore
-  override fun name(): String {
-    return name
-  }
-
-  @Ignore
-  override fun count(): Int {
-    return count
-  }
-
-  @Ignore
-  override fun createdTime(): Date {
-    return createdTime
-  }
-
-  @Ignore
-  override fun purchaseTime(): Date? {
-    return purchaseTime
-  }
-
-  @Ignore
-  override fun expireTime(): Date? {
-    return expireTime
-  }
-
-  @Ignore
-  override fun presence(): Presence {
-    return presence
-  }
-
-  @Ignore
-  override fun isReal(): Boolean {
-    return true
-  }
-
-  @Ignore
-  override fun consumptionDate(): Date? {
-    return consumedTime
-  }
-
-  @Ignore
-  override fun isConsumed(): Boolean {
-    return consumedTime != null
-  }
-
-  @Ignore
-  override fun spoiledDate(): Date? {
-    return spoiledTime
-  }
-
-  override fun isSpoiled(): Boolean {
-    return spoiledTime != null
-  }
-
-  @Ignore
-  override fun name(name: String): FridgeItem {
-    return FridgeItem.create(this, name = name, isReal = isReal())
-  }
-
-  @Ignore
-  override fun count(count: Int): FridgeItem {
-    return FridgeItem.create(this, count = count, isReal = isReal())
-  }
-
-  @Ignore
-  override fun expireTime(expireTime: Date): FridgeItem {
-    return FridgeItem.create(this, expireTime = expireTime, isReal = isReal())
-  }
-
-  @Ignore
-  override fun invalidateExpiration(): FridgeItem {
-    return FridgeItem.create(this, expireTime = null, isReal = isReal())
-  }
-
-  @Ignore
-  override fun purchaseTime(purchaseTime: Date): FridgeItem {
-    return FridgeItem.create(this, purchaseTime = purchaseTime, isReal = isReal())
-  }
-
-  @Ignore
-  override fun invalidatePurchase(): FridgeItem {
-    return FridgeItem.create(this, purchaseTime = null, isReal = isReal())
-  }
-
-  @Ignore
-  override fun presence(presence: Presence): FridgeItem {
-    return FridgeItem.create(this, presence = presence, isReal = isReal())
-  }
-
-  @Ignore
-  override fun makeReal(): FridgeItem {
-    return FridgeItem.create(this, isReal = true)
-  }
-
-  @Ignore
-  override fun consume(date: Date): FridgeItem {
-    return FridgeItem.create(this, consumptionDate = date, isReal = isReal())
-  }
-
-  override fun spoil(date: Date): FridgeItem {
-    return FridgeItem.create(this, spoiledDate = date, isReal = isReal())
-  }
-
-  companion object {
-
-    @Ignore internal const val TABLE_NAME = "room_fridge_item_table"
-    @Ignore internal const val COLUMN_ID = "_id"
-    @Ignore internal const val COLUMN_ENTRY_ID = "entry_id"
-    @Ignore internal const val COLUMN_NAME = "name"
-    @Ignore internal const val COLUMN_COUNT = "count"
-    @Ignore internal const val COLUMN_CREATED_TIME = "created_time"
-    @Ignore internal const val COLUMN_PURCHASE_TIME = "purchase_time"
-    @Ignore internal const val COLUMN_EXPIRE_TIME = "expire_time"
-    @Ignore internal const val COLUMN_PRESENCE = "presence"
-    @Ignore internal const val COLUMN_CONSUMED = "consumed"
-    @Ignore internal const val COLUMN_SPOILED = "spoiled"
+    @Ignore
+    override fun id(): String {
+        return id
+    }
 
     @Ignore
-    @JvmStatic
-    @CheckResult
-    internal fun create(item: FridgeItem): RoomFridgeItem {
-      if (item is RoomFridgeItem) {
-        return item
-      } else {
-        return RoomFridgeItem(
-            item.id(),
-            item.entryId(),
-            item.name(),
-            item.count(),
-            item.createdTime(),
-            item.purchaseTime(),
-            item.expireTime(),
-            item.presence(),
-            item.consumptionDate(),
-            item.spoiledDate()
-        )
-      }
+    override fun entryId(): String {
+        return entryId
     }
-  }
+
+    @Ignore
+    override fun name(): String {
+        return name
+    }
+
+    @Ignore
+    override fun count(): Int {
+        return count
+    }
+
+    @Ignore
+    override fun createdTime(): Date {
+        return createdTime
+    }
+
+    @Ignore
+    override fun purchaseTime(): Date? {
+        return purchaseTime
+    }
+
+    @Ignore
+    override fun expireTime(): Date? {
+        return expireTime
+    }
+
+    @Ignore
+    override fun presence(): Presence {
+        return presence
+    }
+
+    @Ignore
+    override fun isReal(): Boolean {
+        return true
+    }
+
+    @Ignore
+    override fun consumptionDate(): Date? {
+        return consumedTime
+    }
+
+    @Ignore
+    override fun isConsumed(): Boolean {
+        return consumedTime != null
+    }
+
+    @Ignore
+    override fun spoiledDate(): Date? {
+        return spoiledTime
+    }
+
+    override fun isSpoiled(): Boolean {
+        return spoiledTime != null
+    }
+
+    @Ignore
+    override fun name(name: String): FridgeItem {
+        return FridgeItem.create(this, name = name, isReal = isReal())
+    }
+
+    @Ignore
+    override fun count(count: Int): FridgeItem {
+        return FridgeItem.create(this, count = count, isReal = isReal())
+    }
+
+    @Ignore
+    override fun expireTime(expireTime: Date): FridgeItem {
+        return FridgeItem.create(this, expireTime = expireTime, isReal = isReal())
+    }
+
+    @Ignore
+    override fun invalidateExpiration(): FridgeItem {
+        return FridgeItem.create(this, expireTime = null, isReal = isReal())
+    }
+
+    @Ignore
+    override fun purchaseTime(purchaseTime: Date): FridgeItem {
+        return FridgeItem.create(this, purchaseTime = purchaseTime, isReal = isReal())
+    }
+
+    @Ignore
+    override fun invalidatePurchase(): FridgeItem {
+        return FridgeItem.create(this, purchaseTime = null, isReal = isReal())
+    }
+
+    @Ignore
+    override fun presence(presence: Presence): FridgeItem {
+        return FridgeItem.create(this, presence = presence, isReal = isReal())
+    }
+
+    @Ignore
+    override fun makeReal(): FridgeItem {
+        return FridgeItem.create(this, isReal = true)
+    }
+
+    @Ignore
+    override fun consume(date: Date): FridgeItem {
+        return FridgeItem.create(this, consumptionDate = date, isReal = isReal())
+    }
+
+    override fun spoil(date: Date): FridgeItem {
+        return FridgeItem.create(this, spoiledDate = date, isReal = isReal())
+    }
+
+    companion object {
+
+        @Ignore
+        internal const val TABLE_NAME = "room_fridge_item_table"
+        @Ignore
+        internal const val COLUMN_ID = "_id"
+        @Ignore
+        internal const val COLUMN_ENTRY_ID = "entry_id"
+        @Ignore
+        internal const val COLUMN_NAME = "name"
+        @Ignore
+        internal const val COLUMN_COUNT = "count"
+        @Ignore
+        internal const val COLUMN_CREATED_TIME = "created_time"
+        @Ignore
+        internal const val COLUMN_PURCHASE_TIME = "purchase_time"
+        @Ignore
+        internal const val COLUMN_EXPIRE_TIME = "expire_time"
+        @Ignore
+        internal const val COLUMN_PRESENCE = "presence"
+        @Ignore
+        internal const val COLUMN_CONSUMED = "consumed"
+        @Ignore
+        internal const val COLUMN_SPOILED = "spoiled"
+
+        @Ignore
+        @JvmStatic
+        @CheckResult
+        internal fun create(item: FridgeItem): RoomFridgeItem {
+            if (item is RoomFridgeItem) {
+                return item
+            } else {
+                return RoomFridgeItem(
+                    item.id(),
+                    item.entryId(),
+                    item.name(),
+                    item.count(),
+                    item.createdTime(),
+                    item.purchaseTime(),
+                    item.expireTime(),
+                    item.presence(),
+                    item.consumptionDate(),
+                    item.spoiledDate()
+                )
+            }
+        }
+    }
 }

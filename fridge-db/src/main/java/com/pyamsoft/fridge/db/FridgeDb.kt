@@ -25,16 +25,15 @@ import com.pyamsoft.fridge.db.zone.NearbyZoneDb
 
 interface FridgeDb {
 
-  @CheckResult
-  fun items(): FridgeItemDb
+    @CheckResult
+    fun items(): FridgeItemDb
 
-  @CheckResult
-  fun entries(): FridgeEntryDb
+    @CheckResult
+    fun entries(): FridgeEntryDb
 
-  @CheckResult
-  fun stores(): NearbyStoreDb
+    @CheckResult
+    fun stores(): NearbyStoreDb
 
-  @CheckResult
-  fun zones(): NearbyZoneDb
-
+    @CheckResult
+    fun zones(): NearbyZoneDb
 }

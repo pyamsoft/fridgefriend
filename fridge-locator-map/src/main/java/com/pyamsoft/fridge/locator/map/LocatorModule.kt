@@ -40,59 +40,57 @@ import javax.inject.Singleton
 @Module
 abstract class LocatorModule {
 
-  @Binds
-  @CheckResult
-  internal abstract fun bindLocator(impl: GmsLocator): Locator
+    @Binds
+    @CheckResult
+    internal abstract fun bindLocator(impl: GmsLocator): Locator
 
-  @Binds
-  @CheckResult
-  internal abstract fun bindLocationPermissions(impl: GmsLocator): MapPermission
+    @Binds
+    @CheckResult
+    internal abstract fun bindLocationPermissions(impl: GmsLocator): MapPermission
 
-  @Binds
-  @CheckResult
-  internal abstract fun bindDeviceGps(impl: GmsLocator): DeviceGps
+    @Binds
+    @CheckResult
+    internal abstract fun bindDeviceGps(impl: GmsLocator): DeviceGps
 
-  @Binds
-  @CheckResult
-  internal abstract fun bindGeofencer(impl: GmsLocator): Geofencer
+    @Binds
+    @CheckResult
+    internal abstract fun bindGeofencer(impl: GmsLocator): Geofencer
 
-  @Module
-  companion object {
+    @Module
+    companion object {
 
-    @Provides
-    @JvmStatic
-    @Singleton
-    internal fun provideRetrofit(
-      @Named("debug") debug: Boolean,
-      moshi: Moshi
-    ): Retrofit {
-      val baseUrl = "https://overpass-api.de/api/"
-      val client = OkHttpClient.Builder()
-          .apply {
-            if (debug) {
-              addInterceptor(HttpLoggingInterceptor().apply {
-                level = BODY
-              })
-            }
-          }
-          .build()
-      val newMoshi = moshi.newBuilder()
-          .add(OsmNodeOrWay.Adapter())
-          .build()
-      return Retrofit.Builder()
-          .baseUrl(baseUrl)
-          .addConverterFactory(MoshiConverterFactory.create(newMoshi))
-          .client(client)
-          .build()
+        @Provides
+        @JvmStatic
+        @Singleton
+        internal fun provideRetrofit(
+            @Named("debug") debug: Boolean,
+            moshi: Moshi
+        ): Retrofit {
+            val baseUrl = "https://overpass-api.de/api/"
+            val client = OkHttpClient.Builder()
+                .apply {
+                    if (debug) {
+                        addInterceptor(HttpLoggingInterceptor().apply {
+                            level = BODY
+                        })
+                    }
+                }
+                .build()
+            val newMoshi = moshi.newBuilder()
+                .add(OsmNodeOrWay.Adapter())
+                .build()
+            return Retrofit.Builder()
+                .baseUrl(baseUrl)
+                .addConverterFactory(MoshiConverterFactory.create(newMoshi))
+                .client(client)
+                .build()
+        }
+
+        @Provides
+        @JvmStatic
+        @Singleton
+        internal fun provideNearbyLocationApi(retrofit: Retrofit): NearbyLocationApi {
+            return retrofit.create(NearbyLocationApi::class.java)
+        }
     }
-
-    @Provides
-    @JvmStatic
-    @Singleton
-    internal fun provideNearbyLocationApi(retrofit: Retrofit): NearbyLocationApi {
-      return retrofit.create(NearbyLocationApi::class.java)
-    }
-
-  }
-
 }

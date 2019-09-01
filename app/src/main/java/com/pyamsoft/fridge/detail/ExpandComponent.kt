@@ -38,31 +38,29 @@ import dagger.multibindings.IntoMap
 @Subcomponent(modules = [ExpandModule::class, ViewModelModule::class])
 internal interface ExpandComponent {
 
-  fun inject(fragment: ExpandedFragment)
+    fun inject(fragment: ExpandedFragment)
 
-  @Subcomponent.Factory
-  interface Factory {
+    @Subcomponent.Factory
+    interface Factory {
 
-    @CheckResult
-    fun create(
-      @BindsInstance parent: ViewGroup,
-      @BindsInstance item: FridgeItem,
-      @BindsInstance entry: FridgeEntry,
-      @BindsInstance defaultPresence: Presence
-    ): ExpandComponent
-  }
+        @CheckResult
+        fun create(
+            @BindsInstance parent: ViewGroup,
+            @BindsInstance item: FridgeItem,
+            @BindsInstance entry: FridgeEntry,
+            @BindsInstance defaultPresence: Presence
+        ): ExpandComponent
+    }
 
-  @Module
-  abstract class ViewModelModule {
+    @Module
+    abstract class ViewModelModule {
 
-    @Binds
-    internal abstract fun bindViewModelFactory(factory: FridgeViewModelFactory): ViewModelProvider.Factory
+        @Binds
+        internal abstract fun bindViewModelFactory(factory: FridgeViewModelFactory): ViewModelProvider.Factory
 
-    @Binds
-    @IntoMap
-    @ViewModelKey(ExpandItemViewModel::class)
-    internal abstract fun expandViewModel(viewModel: ExpandItemViewModel): UiViewModel<*, *, *>
-
-  }
-
+        @Binds
+        @IntoMap
+        @ViewModelKey(ExpandItemViewModel::class)
+        internal abstract fun expandViewModel(viewModel: ExpandItemViewModel): UiViewModel<*, *, *>
+    }
 }

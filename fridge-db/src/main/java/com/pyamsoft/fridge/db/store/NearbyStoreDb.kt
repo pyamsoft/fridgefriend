@@ -30,14 +30,14 @@ interface NearbyStoreDb : BaseDb<
     NearbyStoreDeleteDao
     > {
 
-  companion object {
+    companion object {
 
-    @CheckResult
-    fun wrap(
-      db: NearbyStoreDb,
-      cache: Cached1<Sequence<NearbyStore>, Boolean>
-    ): NearbyStoreDb {
-      return NearbyStoreDbImpl(db, cache)
+        @CheckResult
+        fun wrap(
+            db: NearbyStoreDb,
+            cache: Cached1<Sequence<NearbyStore>, Boolean>
+        ): NearbyStoreDb {
+            return NearbyStoreDbImpl(db, cache)
+        }
     }
-  }
 }

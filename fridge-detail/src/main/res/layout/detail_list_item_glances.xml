@@ -19,39 +19,34 @@
 
 <merge>
 
-  <LinearLayout
-      xmlns:android="http://schemas.android.com/apk/res/android"
-      android:id="@+id/detail_item_glances"
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:layout_marginBottom="8dp"
-      android:layout_marginEnd="8dp"
-      android:orientation="horizontal"
-      >
-
-    <CheckBox
-        android:id="@+id/detail_item_glances_date"
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/detail_item_glances"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        />
-
-    <CheckBox
-        android:id="@+id/detail_item_glances_expiring"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        />
-
-    <CheckBox
-        android:id="@+id/detail_item_glances_expired"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
         android:layout_marginEnd="8dp"
-        />
+        android:layout_marginBottom="8dp"
+        android:orientation="horizontal">
 
-  </LinearLayout>
+        <CheckBox
+            android:id="@+id/detail_item_glances_date"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center" />
+
+        <CheckBox
+            android:id="@+id/detail_item_glances_expiring"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center" />
+
+        <CheckBox
+            android:id="@+id/detail_item_glances_expired"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginEnd="8dp" />
+
+    </LinearLayout>
 
 </merge>
 

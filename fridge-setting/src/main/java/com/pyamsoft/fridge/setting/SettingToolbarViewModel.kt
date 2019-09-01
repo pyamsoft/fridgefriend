@@ -23,17 +23,17 @@ import com.pyamsoft.pydroid.arch.UiViewModel
 import com.pyamsoft.pydroid.arch.UnitViewState
 import javax.inject.Inject
 
-class SettingToolbarViewModel @Inject internal constructor(
-) : UiViewModel<UnitViewState, SettingViewEvent, SettingControllerEvent>(
-    initialState = UnitViewState
-) {
+class SettingToolbarViewModel @Inject internal constructor() :
+    UiViewModel<UnitViewState, SettingViewEvent, SettingControllerEvent>(
+        initialState = UnitViewState
+    ) {
 
-  override fun onInit() {
-  }
-
-  override fun handleViewEvent(event: SettingViewEvent) {
-    return when (event) {
-      is Navigate -> publish(NavigateUp)
+    override fun onInit() {
     }
-  }
+
+    override fun handleViewEvent(event: SettingViewEvent) {
+        return when (event) {
+            is Navigate -> publish(NavigateUp)
+        }
+    }
 }
