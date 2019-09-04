@@ -71,13 +71,15 @@ class DetailListItemDate @Inject internal constructor(
                 layoutRoot.text = "__/__/____"
             }
 
-            if (isEditable && !item.isArchived()) {
-                layoutRoot.setOnDebouncedClickListener {
-                    publish(PickDate(item, year, month, day))
-                }
-            } else {
-                layoutRoot.setOnDebouncedClickListener {
-                    publish(ExpandItem(item))
+            if (!item.isArchived()) {
+                if (isEditable) {
+                    layoutRoot.setOnDebouncedClickListener {
+                        publish(PickDate(item, year, month, day))
+                    }
+                } else {
+                    layoutRoot.setOnDebouncedClickListener {
+                        publish(ExpandItem(item))
+                    }
                 }
             }
         }

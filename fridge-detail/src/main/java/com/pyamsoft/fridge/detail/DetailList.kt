@@ -88,7 +88,7 @@ class DetailList @Inject internal constructor(
 
         modelAdapter =
             DetailListAdapter(
-                editable = true,
+                editable = false,
                 injectComponent = injectComponent,
                 callback = object : Callback {
 

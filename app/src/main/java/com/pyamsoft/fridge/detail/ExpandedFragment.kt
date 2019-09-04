@@ -37,7 +37,6 @@ import com.pyamsoft.fridge.db.item.FridgeItem.Presence
 import com.pyamsoft.fridge.db.item.JsonMappableFridgeItem
 import com.pyamsoft.fridge.detail.expand.ExpandItemCount
 import com.pyamsoft.fridge.detail.expand.ExpandItemError
-import com.pyamsoft.fridge.detail.expand.ExpandItemName
 import com.pyamsoft.fridge.detail.expand.ExpandItemViewModel
 import com.pyamsoft.fridge.detail.expand.ExpandedToolbar
 import com.pyamsoft.fridge.detail.item.DetailItemControllerEvent.CloseExpand
@@ -46,6 +45,7 @@ import com.pyamsoft.fridge.detail.item.DetailItemControllerEvent.ExpandDetails
 import com.pyamsoft.fridge.detail.item.DetailItemViewEvent
 import com.pyamsoft.fridge.detail.item.DetailItemViewState
 import com.pyamsoft.fridge.detail.item.DetailListItemDate
+import com.pyamsoft.fridge.detail.item.DetailListItemName
 import com.pyamsoft.fridge.detail.item.DetailListItemPresence
 import com.pyamsoft.pydroid.arch.createComponent
 import com.pyamsoft.pydroid.ui.Injector
@@ -64,7 +64,7 @@ internal class ExpandedFragment : DialogFragment() {
 
     @JvmField
     @Inject
-    internal var name: ExpandItemName? = null
+    internal var name: DetailListItemName? = null
 
     @JvmField
     @Inject
