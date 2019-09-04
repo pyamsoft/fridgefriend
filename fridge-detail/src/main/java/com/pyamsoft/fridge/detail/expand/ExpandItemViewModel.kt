@@ -222,17 +222,11 @@ class ExpandItemViewModel @Inject internal constructor(
     }
 
     private fun findSimilarItems(item: FridgeItem) {
-        viewModelScope.launch(context = Dispatchers.Main) {
-            val similarItems = interactor.findSameNamedItems(item.name(), getOppositePresence(item))
-            setState { copy(similarItems = similarItems) }
-        }
-    }
-
-    @CheckResult
-    private fun getOppositePresence(item: FridgeItem): Presence {
-        return when (item.presence()) {
-            HAVE -> NEED
-            NEED -> HAVE
+        if (item.presence() == NEED) {
+            viewModelScope.launch(context = Dispatchers.Main) {
+                val similarItems = interactor.findSameNamedItems(item.name(), HAVE)
+                setState { copy(similarItems = similarItems) }
+            }
         }
     }
 

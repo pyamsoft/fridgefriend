@@ -35,8 +35,8 @@ import com.pyamsoft.fridge.db.entry.JsonMappableFridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence
 import com.pyamsoft.fridge.db.item.JsonMappableFridgeItem
-import com.pyamsoft.fridge.detail.item.DetailListItemCount
 import com.pyamsoft.fridge.detail.expand.ExpandItemError
+import com.pyamsoft.fridge.detail.expand.ExpandItemSimilar
 import com.pyamsoft.fridge.detail.expand.ExpandItemViewModel
 import com.pyamsoft.fridge.detail.expand.ExpandedToolbar
 import com.pyamsoft.fridge.detail.item.DetailItemControllerEvent.CloseExpand
@@ -44,6 +44,7 @@ import com.pyamsoft.fridge.detail.item.DetailItemControllerEvent.DatePick
 import com.pyamsoft.fridge.detail.item.DetailItemControllerEvent.ExpandDetails
 import com.pyamsoft.fridge.detail.item.DetailItemViewEvent
 import com.pyamsoft.fridge.detail.item.DetailItemViewState
+import com.pyamsoft.fridge.detail.item.DetailListItemCount
 import com.pyamsoft.fridge.detail.item.DetailListItemDate
 import com.pyamsoft.fridge.detail.item.DetailListItemName
 import com.pyamsoft.fridge.detail.item.DetailListItemPresence
@@ -84,6 +85,10 @@ internal class ExpandedFragment : DialogFragment() {
 
     @JvmField
     @Inject
+    internal var similarItems: ExpandItemSimilar? = null
+
+    @JvmField
+    @Inject
     internal var toolbar: ExpandedToolbar? = null
 
     private val viewModel by factory<ExpandItemViewModel> { factory }
@@ -118,6 +123,7 @@ internal class ExpandedFragment : DialogFragment() {
         val date = requireNotNull(date)
         val presence = requireNotNull(presence)
         val count = requireNotNull(count)
+        val similarItems = requireNotNull(similarItems)
         val errorDisplay = requireNotNull(errorDisplay)
         val toolbar = requireNotNull(toolbar)
         val shadow = DropshadowView.createTyped<DetailItemViewState, DetailItemViewEvent>(parent)
@@ -128,6 +134,7 @@ internal class ExpandedFragment : DialogFragment() {
             date,
             presence,
             count,
+            similarItems,
             errorDisplay,
             toolbar,
             shadow
@@ -163,22 +170,39 @@ internal class ExpandedFragment : DialogFragment() {
                 constrainHeight(it.id(), ConstraintSet.WRAP_CONTENT)
             }
 
-            presence.also {
+            errorDisplay.also {
+                connect(it.id(), ConstraintSet.TOP, toolbar.id(), ConstraintSet.BOTTOM)
+                connect(it.id(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
+                connect(it.id(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
+                constrainWidth(it.id(), ConstraintSet.MATCH_CONSTRAINT)
+                constrainHeight(it.id(), ConstraintSet.WRAP_CONTENT)
+            }
+
+            similarItems.also {
                 connect(it.id(), ConstraintSet.TOP, errorDisplay.id(), ConstraintSet.BOTTOM)
+                connect(it.id(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
+                connect(it.id(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
+                constrainWidth(it.id(), ConstraintSet.MATCH_CONSTRAINT)
+                constrainHeight(it.id(), ConstraintSet.WRAP_CONTENT)
+            }
+
+            val topId = similarItems.id()
+            presence.also {
+                connect(it.id(), ConstraintSet.TOP, topId, ConstraintSet.BOTTOM)
                 connect(it.id(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
                 constrainWidth(it.id(), ConstraintSet.WRAP_CONTENT)
                 constrainHeight(it.id(), ConstraintSet.WRAP_CONTENT)
             }
 
             date.also {
-                connect(it.id(), ConstraintSet.TOP, errorDisplay.id(), ConstraintSet.BOTTOM)
+                connect(it.id(), ConstraintSet.TOP, topId, ConstraintSet.BOTTOM)
                 connect(it.id(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
                 constrainWidth(it.id(), ConstraintSet.WRAP_CONTENT)
                 constrainHeight(it.id(), ConstraintSet.WRAP_CONTENT)
             }
 
             name.also {
-                connect(it.id(), ConstraintSet.TOP, errorDisplay.id(), ConstraintSet.BOTTOM)
+                connect(it.id(), ConstraintSet.TOP, topId, ConstraintSet.BOTTOM)
                 connect(it.id(), ConstraintSet.START, presence.id(), ConstraintSet.END)
                 connect(it.id(), ConstraintSet.END, date.id(), ConstraintSet.START)
                 constrainWidth(it.id(), ConstraintSet.MATCH_CONSTRAINT)
