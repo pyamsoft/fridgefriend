@@ -21,6 +21,7 @@ import androidx.annotation.CheckResult
 import androidx.room.Dao
 import androidx.room.Query
 import com.pyamsoft.fridge.db.item.FridgeItem
+import com.pyamsoft.fridge.db.item.FridgeItem.Presence
 import com.pyamsoft.fridge.db.item.FridgeItemQueryDao
 import com.pyamsoft.fridge.db.room.entity.RoomFridgeItem
 import timber.log.Timber
@@ -28,26 +29,27 @@ import timber.log.Timber
 @Dao
 internal abstract class RoomFridgeItemQueryDao internal constructor() : FridgeItemQueryDao {
 
-    override suspend fun query(
-        force: Boolean,
-        entryId: String
-    ): List<FridgeItem> {
-        Timber.d("ROOM: Item Query: $force $entryId")
-        return daoQuery(entryId)
-    }
-
-    @Query(
-        "SELECT * FROM ${RoomFridgeItem.TABLE_NAME} WHERE ${RoomFridgeItem.COLUMN_ENTRY_ID} = :entryId"
-    )
-    @CheckResult
-    internal abstract suspend fun daoQuery(entryId: String): List<RoomFridgeItem>
-
-    override suspend fun query(force: Boolean): List<FridgeItem> {
-        Timber.d("ROOM: Item Query: $force")
+    final override suspend fun query(force: Boolean): List<FridgeItem> {
+        Timber.d("ROOM: All Items Query: $force")
         return daoQuery()
     }
 
     @Query("SELECT * FROM ${RoomFridgeItem.TABLE_NAME}")
     @CheckResult
     internal abstract suspend fun daoQuery(): List<RoomFridgeItem>
+
+    final override suspend fun query(
+        force: Boolean,
+        entryId: String
+    ): List<FridgeItem> {
+        throw IllegalStateException("This method should not be called")
+    }
+
+    final override suspend fun querySameNameDifferentPresence(
+        force: Boolean,
+        name: String,
+        presence: Presence
+    ): List<FridgeItem> {
+        throw IllegalStateException("This method should not be called")
+    }
 }

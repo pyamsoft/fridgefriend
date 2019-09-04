@@ -31,9 +31,11 @@ import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.arch.UiSavedState
 import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
 import javax.inject.Inject
+import javax.inject.Named
 
 class DetailListItemName @Inject internal constructor(
     parent: ViewGroup,
+    @Named("item_editable") private val isEditable: Boolean,
     private val initialItem: FridgeItem
 ) : BaseUiView<DetailItemViewState, DetailItemViewEvent>(parent) {
 
@@ -58,7 +60,6 @@ class DetailListItemName @Inject internal constructor(
         state: DetailItemViewState,
         savedState: UiSavedState
     ) {
-        val isEditable = state.isEditable
         val item = state.item
 
         if (isEditable) {
@@ -77,7 +78,9 @@ class DetailListItemName @Inject internal constructor(
         val watcher = object : TextWatcher {
 
             override fun afterTextChanged(s: Editable?) {
-                commit(item)
+                s?.also { editable ->
+                    commit(item, editable.toString())
+                }
             }
 
             override fun beforeTextChanged(
@@ -111,8 +114,7 @@ class DetailListItemName @Inject internal constructor(
         nameWatcher = null
     }
 
-    private fun commit(item: FridgeItem) {
-        val name = nameView.text.toString()
+    private fun commit(item: FridgeItem, name: String) {
         publish(CommitName(item, name))
     }
 }

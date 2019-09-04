@@ -20,7 +20,6 @@ package com.pyamsoft.fridge.detail.item
 import android.view.ViewGroup
 import android.widget.CompoundButton
 import com.pyamsoft.fridge.db.item.FridgeItem
-import com.pyamsoft.fridge.db.item.FridgeItem.Presence
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence.HAVE
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence.NEED
 import com.pyamsoft.fridge.db.item.isArchived
@@ -31,7 +30,6 @@ import com.pyamsoft.pydroid.arch.UiSavedState
 import javax.inject.Inject
 
 class DetailListItemPresence @Inject internal constructor(
-    private val defaultPresence: Presence,
     parent: ViewGroup
 ) : BaseUiView<DetailItemViewState, DetailItemViewEvent>(parent) {
 

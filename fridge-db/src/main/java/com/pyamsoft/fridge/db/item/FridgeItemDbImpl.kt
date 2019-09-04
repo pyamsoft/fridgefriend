@@ -19,6 +19,7 @@ package com.pyamsoft.fridge.db.item
 
 import androidx.annotation.CheckResult
 import com.pyamsoft.cachify.Cached1
+import com.pyamsoft.fridge.db.item.FridgeItem.Presence
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent.Delete
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent.Insert
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent.Update
@@ -70,6 +71,19 @@ internal class FridgeItemDbImpl internal constructor(
                 mutex.withLock {
                     return queryAsSequence(force)
                         .filter { it.entryId() == entryId }
+                        .toList()
+                }
+            }
+
+            override suspend fun querySameNameDifferentPresence(
+                force: Boolean,
+                name: String,
+                presence: Presence
+            ): List<FridgeItem> {
+                mutex.withLock {
+                    return queryAsSequence(force)
+                        .filter { it.presence() == presence }
+                        .filter { it.name() == name }
                         .toList()
                 }
             }

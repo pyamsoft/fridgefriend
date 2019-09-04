@@ -23,6 +23,7 @@ import com.pyamsoft.fridge.db.entry.FridgeEntryInsertDao
 import com.pyamsoft.fridge.db.entry.FridgeEntryQueryDao
 import com.pyamsoft.fridge.db.entry.FridgeEntryUpdateDao
 import com.pyamsoft.fridge.db.item.FridgeItem
+import com.pyamsoft.fridge.db.item.FridgeItem.Presence
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent
 import com.pyamsoft.fridge.db.item.FridgeItemDeleteDao
 import com.pyamsoft.fridge.db.item.FridgeItemInsertDao
@@ -52,6 +53,11 @@ internal class DetailInteractor @Inject internal constructor(
 ) {
 
     private val entryId = entry.id()
+
+    @CheckResult
+    suspend fun findSameNamedItems(name: String, presence: Presence): Collection<FridgeItem> {
+        return itemQueryDao.querySameNameDifferentPresence(false, name, presence)
+    }
 
     @CheckResult
     private suspend fun getEntryForId(

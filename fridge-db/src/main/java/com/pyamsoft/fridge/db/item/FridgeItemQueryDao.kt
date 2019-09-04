@@ -19,6 +19,7 @@ package com.pyamsoft.fridge.db.item
 
 import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.db.BaseDb
+import com.pyamsoft.fridge.db.item.FridgeItem.Presence
 
 interface FridgeItemQueryDao : BaseDb.Query<FridgeItem> {
 
@@ -26,5 +27,12 @@ interface FridgeItemQueryDao : BaseDb.Query<FridgeItem> {
     suspend fun query(
         force: Boolean,
         entryId: String
+    ): List<FridgeItem>
+
+    @CheckResult
+    suspend fun querySameNameDifferentPresence(
+        force: Boolean,
+        name: String,
+        presence: Presence
     ): List<FridgeItem>
 }

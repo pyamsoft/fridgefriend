@@ -28,7 +28,7 @@ import timber.log.Timber
 @Dao
 internal abstract class RoomFridgeEntryQueryDao internal constructor() : FridgeEntryQueryDao {
 
-    override suspend fun query(force: Boolean): List<FridgeEntry> {
+    final override suspend fun query(force: Boolean): List<FridgeEntry> {
         Timber.d("ROOM: Entry Query: $force")
         return daoQuery()
     }

@@ -39,14 +39,12 @@ import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.util.Date
 import javax.inject.Inject
-import javax.inject.Named
 
 class DetailListItemViewModel @Inject internal constructor(
-    @Named("item_editable") isEditable: Boolean,
     fakeRealtime: EventBus<FridgeItemChangeEvent>,
     private val interactor: DetailInteractor,
     private val item: FridgeItem
-) : DetailItemViewModel(isEditable, item, fakeRealtime) {
+) : DetailItemViewModel(item, fakeRealtime) {
 
     private val updateRunner = highlander<Unit, FridgeItem> { item ->
         try {

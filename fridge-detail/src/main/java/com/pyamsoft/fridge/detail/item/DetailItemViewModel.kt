@@ -26,14 +26,12 @@ import com.pyamsoft.pydroid.arch.EventBus
 import com.pyamsoft.pydroid.arch.UiViewModel
 import kotlinx.coroutines.launch
 import timber.log.Timber
-import javax.inject.Named
 
 abstract class DetailItemViewModel protected constructor(
-    @Named("item_editable") isEditable: Boolean,
     item: FridgeItem,
     protected val fakeRealtime: EventBus<FridgeItemChangeEvent>
 ) : UiViewModel<DetailItemViewState, DetailItemViewEvent, DetailItemControllerEvent>(
-    initialState = DetailItemViewState(throwable = null, item = item, isEditable = isEditable)
+    initialState = DetailItemViewState(throwable = null, item = item, similarItems = emptyList())
 ) {
 
     private val deleteRunner = highlander<

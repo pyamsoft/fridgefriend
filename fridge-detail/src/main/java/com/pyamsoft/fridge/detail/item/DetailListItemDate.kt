@@ -29,9 +29,11 @@ import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
 import timber.log.Timber
 import java.util.Calendar
 import javax.inject.Inject
+import javax.inject.Named
 
 class DetailListItemDate @Inject internal constructor(
-    parent: ViewGroup
+    parent: ViewGroup,
+    @Named("item_editable") private val isEditable: Boolean
 ) : BaseUiView<DetailItemViewState, DetailItemViewEvent>(parent) {
 
     override val layout: Int = R.layout.detail_list_item_date
@@ -43,8 +45,6 @@ class DetailListItemDate @Inject internal constructor(
         savedState: UiSavedState
     ) {
         state.item.let { item ->
-            val isEditable = state.isEditable
-
             val month: Int
             val day: Int
             val year: Int

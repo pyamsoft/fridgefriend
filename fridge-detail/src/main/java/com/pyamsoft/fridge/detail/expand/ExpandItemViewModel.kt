@@ -22,6 +22,7 @@ import androidx.lifecycle.viewModelScope
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence.HAVE
+import com.pyamsoft.fridge.db.item.FridgeItem.Presence.NEED
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent.Delete
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent.Insert
@@ -52,17 +53,15 @@ import timber.log.Timber
 import java.util.Calendar
 import java.util.Date
 import javax.inject.Inject
-import javax.inject.Named
 
 class ExpandItemViewModel @Inject internal constructor(
-    @Named("item_editable") isEditable: Boolean,
     item: FridgeItem,
     defaultPresence: Presence,
     fakeRealtime: EventBus<FridgeItemChangeEvent>,
     private val dateSelectBus: EventBus<DateSelectPayload>,
     private val realtime: FridgeItemRealtime,
     private val interactor: DetailInteractor
-) : DetailItemViewModel(isEditable, item.presence(defaultPresence), fakeRealtime) {
+) : DetailItemViewModel(item = item.presence(defaultPresence), fakeRealtime = fakeRealtime) {
 
     private val updateRunner = highlander<Unit, FridgeItem> { item ->
         try {
@@ -218,7 +217,27 @@ class ExpandItemViewModel @Inject internal constructor(
     }
 
     private fun commitItem(item: FridgeItem) {
-        viewModelScope.launch {
+        updateItem(item)
+        findSimilarItems(item)
+    }
+
+    private fun findSimilarItems(item: FridgeItem) {
+        viewModelScope.launch(context = Dispatchers.Main) {
+            val similarItems = interactor.findSameNamedItems(item.name(), getOppositePresence(item))
+            setState { copy(similarItems = similarItems) }
+        }
+    }
+
+    @CheckResult
+    private fun getOppositePresence(item: FridgeItem): Presence {
+        return when (item.presence()) {
+            HAVE -> NEED
+            NEED -> HAVE
+        }
+    }
+
+    private fun updateItem(item: FridgeItem) {
+        viewModelScope.launch(context = Dispatchers.Main) {
             if (item.isReal() || isReadyToBeReal(item)) {
                 updateRunner.call(item.run {
                     val dateOfPurchase = purchaseTime()

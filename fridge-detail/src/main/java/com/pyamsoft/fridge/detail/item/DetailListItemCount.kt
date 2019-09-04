@@ -31,9 +31,11 @@ import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.arch.UiSavedState
 import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
 import javax.inject.Inject
+import javax.inject.Named
 
 class DetailListItemCount @Inject internal constructor(
     parent: ViewGroup,
+    @Named("item_editable") private val isEditable: Boolean,
     private val initialItem: FridgeItem
 ) : BaseUiView<DetailItemViewState, DetailItemViewEvent>(parent) {
 
@@ -69,9 +71,7 @@ class DetailListItemCount @Inject internal constructor(
             addWatcher(item)
         }
 
-        val isEditable = state.isEditable
         val item = state.item
-
         if (isEditable) {
             removeListeners()
             addWatcher(item)
