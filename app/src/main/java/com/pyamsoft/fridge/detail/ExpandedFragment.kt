@@ -35,7 +35,7 @@ import com.pyamsoft.fridge.db.entry.JsonMappableFridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence
 import com.pyamsoft.fridge.db.item.JsonMappableFridgeItem
-import com.pyamsoft.fridge.detail.expand.ExpandItemCount
+import com.pyamsoft.fridge.detail.item.DetailListItemCount
 import com.pyamsoft.fridge.detail.expand.ExpandItemError
 import com.pyamsoft.fridge.detail.expand.ExpandItemViewModel
 import com.pyamsoft.fridge.detail.expand.ExpandedToolbar
@@ -76,7 +76,7 @@ internal class ExpandedFragment : DialogFragment() {
 
     @JvmField
     @Inject
-    internal var count: ExpandItemCount? = null
+    internal var count: DetailListItemCount? = null
 
     @JvmField
     @Inject

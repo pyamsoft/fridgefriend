@@ -15,7 +15,7 @@
  *
  */
 
-package com.pyamsoft.fridge.detail.expand
+package com.pyamsoft.fridge.detail.item
 
 import android.os.Bundle
 import android.text.Editable
@@ -25,13 +25,14 @@ import android.view.ViewGroup
 import android.widget.EditText
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.detail.R
-import com.pyamsoft.fridge.detail.item.DetailItemViewEvent
-import com.pyamsoft.fridge.detail.item.DetailItemViewState
+import com.pyamsoft.fridge.detail.item.DetailItemViewEvent.CommitCount
+import com.pyamsoft.fridge.detail.item.DetailItemViewEvent.ExpandItem
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.arch.UiSavedState
+import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
 import javax.inject.Inject
 
-class ExpandItemCount @Inject internal constructor(
+class DetailListItemCount @Inject internal constructor(
     parent: ViewGroup,
     private val initialItem: FridgeItem
 ) : BaseUiView<DetailItemViewState, DetailItemViewEvent>(parent) {
@@ -50,7 +51,11 @@ class ExpandItemCount @Inject internal constructor(
         view: View,
         savedInstanceState: Bundle?
     ) {
-        val count = initialItem.count()
+        setCount(item = initialItem)
+    }
+
+    private fun setCount(item: FridgeItem) {
+        val count = item.count()
         val countText = if (count > 0) "$count" else ""
         countView.setTextKeepState(countText)
     }
@@ -62,6 +67,20 @@ class ExpandItemCount @Inject internal constructor(
         state.item.let { item ->
             removeListeners()
             addWatcher(item)
+        }
+
+        val isEditable = state.isEditable
+        val item = state.item
+
+        if (isEditable) {
+            removeListeners()
+            addWatcher(item)
+        } else {
+            setCount(item)
+            countView.setNotEditable()
+            countView.setOnDebouncedClickListener {
+                publish(ExpandItem(item))
+            }
         }
     }
 
@@ -95,6 +114,7 @@ class ExpandItemCount @Inject internal constructor(
     override fun onTeardown() {
         removeListeners()
         countView.text.clear()
+        countView.setOnDebouncedClickListener(null)
     }
 
     private fun removeListeners() {
@@ -104,6 +124,6 @@ class ExpandItemCount @Inject internal constructor(
 
     private fun commit(item: FridgeItem) {
         val count = countView.text.toString().toIntOrNull() ?: 0
-        publish(DetailItemViewEvent.CommitCount(item, count))
+        publish(CommitCount(item, count))
     }
 }
