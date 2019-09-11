@@ -25,6 +25,8 @@ import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent.Insert
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent.Update
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import timber.log.Timber
+import kotlin.math.min
 
 internal class FridgeItemDbImpl internal constructor(
     private val db: FridgeItemDb,
@@ -82,24 +84,77 @@ internal class FridgeItemDbImpl internal constructor(
             ): List<FridgeItem> {
                 mutex.withLock {
                     return queryAsSequence(force)
+                        .filter { it.isReal() }
                         .filter { it.presence() == presence }
-                        .filter { it.name() == name }
+                        .filter { item ->
+                            val cleanName = name.toLowerCase().trim()
+                            val itemName = item.name().toLowerCase().trim()
+                            return@filter itemName == cleanName
+                        }
                         .toList()
                 }
             }
 
-            override suspend fun querySimilarNamedItems(force: Boolean, name: String): List<FridgeItem> {
+            override suspend fun querySimilarNamedItems(force: Boolean, item: FridgeItem): List<FridgeItem> {
                 mutex.withLock {
                     return queryAsSequence(force)
-                        .filter { item ->
-                            val itemName = item.name()
+                        .filter { it.isReal() }
+                        .filterNot { it.id() == item.id() }
+                        .filter { fridgeItem ->
+                            val name = item.name().toLowerCase().trim()
+                            val itemName = fridgeItem.name().toLowerCase().trim()
                             return@filter itemName == name ||
                                 itemName.startsWith(name) ||
                                 itemName.endsWith(name) ||
-                                itemName.contains(name)
+                                itemName.contains(name) ||
+                                itemName.withDistanceRatio(name, 0.65F)
                         }
                         .toList()
                 }
+            }
+
+            @CheckResult
+            private fun String.withDistanceRatio(str: String, accepted: Float): Boolean {
+                // Initialize a zero-matrix
+                val s1Len = this.length
+                val s2Len = str.length
+                val rows = s1Len + 1
+                val columns = s2Len + 1
+                val matrix = Array(rows) { IntArray(columns) { 0 } }
+
+                // Populate matrix with indices of each character in strings
+                for (i in 1 until rows) {
+                    matrix[i][0] = i
+                }
+
+                for (j in 1 until columns) {
+                    matrix[0][j] = j
+                }
+
+                // Calculate the cost of deletes, inserts, and subs
+                for (col in 1 until columns) {
+                    for (row in 1 until rows) {
+                        // If the character is the same in a given position, cost is 0, else cost is 2
+                        val cost = if (this[row - 1] == str[col - 1]) 0 else 2
+
+                        // The cost of a deletion, insertion, and substitution
+                        val deleteCost = matrix[row - 1][col] + 1
+                        val insertCost = matrix[row][col - 1] + 1
+                        val substitutionCost = matrix[row - 1][col - 1] + cost
+
+                        // Populate the matrix
+                        matrix[row][col] = min(deleteCost, min(insertCost, substitutionCost))
+                    }
+                }
+
+                // Calculate distance ratio
+                val totalLength = (s1Len + s2Len)
+                val ratio = (totalLength - matrix[s1Len][s2Len]).toFloat() / totalLength
+                val closeEnough = ratio >= accepted
+                if (closeEnough) {
+                    Timber.d("Within distance ratio: '${this}' <=> '${str}' [$ratio]")
+                }
+                return closeEnough
             }
         }
     }

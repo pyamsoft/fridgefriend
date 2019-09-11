@@ -60,8 +60,8 @@ internal class DetailInteractor @Inject internal constructor(
     }
 
     @CheckResult
-    suspend fun findSimilarNamedItems(name: String): Collection<FridgeItem> {
-        return itemQueryDao.querySimilarNamedItems(false, name)
+    suspend fun findSimilarNamedItems(item: FridgeItem): Collection<FridgeItem> {
+        return itemQueryDao.querySimilarNamedItems(false, item)
     }
 
     @CheckResult

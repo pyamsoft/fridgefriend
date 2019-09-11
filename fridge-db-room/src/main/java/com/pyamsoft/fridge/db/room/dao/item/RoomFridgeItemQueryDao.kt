@@ -53,7 +53,7 @@ internal abstract class RoomFridgeItemQueryDao internal constructor() : FridgeIt
         throw IllegalStateException("This method should not be called")
     }
 
-    final override suspend fun querySimilarNamedItems(force: Boolean, name: String): List<FridgeItem> {
+    final override suspend fun querySimilarNamedItems(force: Boolean, item: FridgeItem): List<FridgeItem> {
         throw IllegalStateException("This method should not be called")
     }
 }

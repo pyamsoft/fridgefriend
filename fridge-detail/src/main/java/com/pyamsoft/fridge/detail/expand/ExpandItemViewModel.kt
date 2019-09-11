@@ -226,6 +226,13 @@ class ExpandItemViewModel @Inject internal constructor(
             viewModelScope.launch(context = Dispatchers.Main) {
                 val similarItems = interactor.findSameNamedItems(item.name(), HAVE)
                 setState { copy(similarItems = similarItems) }
+
+                // TODO Do something with close names too
+                interactor.findSimilarNamedItems(item).let { result ->
+                    if (result.isNotEmpty()) {
+                        Timber.d("Ratio matched: $result")
+                    }
+                }
             }
         }
     }

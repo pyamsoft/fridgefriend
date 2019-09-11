@@ -30,5 +30,5 @@ interface FridgeItemQueryDao : BaseDb.Query<FridgeItem> {
     suspend fun querySameNameDifferentPresence(force: Boolean, name: String, presence: Presence): List<FridgeItem>
 
     @CheckResult
-    suspend fun querySimilarNamedItems(force: Boolean, name: String): List<FridgeItem>
+    suspend fun querySimilarNamedItems(force: Boolean, item: FridgeItem): List<FridgeItem>
 }
