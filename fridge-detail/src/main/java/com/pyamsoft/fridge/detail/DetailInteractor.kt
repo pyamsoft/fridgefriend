@@ -60,6 +60,11 @@ internal class DetailInteractor @Inject internal constructor(
     }
 
     @CheckResult
+    suspend fun findSimilarNamedItems(name: String): Collection<FridgeItem> {
+        return itemQueryDao.querySimilarNamedItems(false, name)
+    }
+
+    @CheckResult
     private suspend fun getEntryForId(
         entryId: String,
         force: Boolean

@@ -87,6 +87,20 @@ internal class FridgeItemDbImpl internal constructor(
                         .toList()
                 }
             }
+
+            override suspend fun querySimilarNamedItems(force: Boolean, name: String): List<FridgeItem> {
+                mutex.withLock {
+                    return queryAsSequence(force)
+                        .filter { item ->
+                            val itemName = item.name()
+                            return@filter itemName == name ||
+                                itemName.startsWith(name) ||
+                                itemName.endsWith(name) ||
+                                itemName.contains(name)
+                        }
+                        .toList()
+                }
+            }
         }
     }
 
