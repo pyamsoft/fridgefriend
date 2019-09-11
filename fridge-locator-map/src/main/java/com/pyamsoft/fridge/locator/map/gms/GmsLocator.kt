@@ -166,11 +166,11 @@ internal class GmsLocator @Inject internal constructor(
 
     @CheckResult
     private fun checkPermission(permission: String): Boolean {
-        return checkPermission(permission)
+        return checkPermissions(permission)
     }
 
     @CheckResult
-    private fun checkPermission(vararg permissions: String): Boolean {
+    private fun checkPermissions(vararg permissions: String): Boolean {
         return permissions.all { permission ->
             val permissionCheck = ContextCompat.checkSelfPermission(context, permission)
             return@all permissionCheck == PackageManager.PERMISSION_GRANTED
@@ -182,10 +182,10 @@ internal class GmsLocator @Inject internal constructor(
         requestCode: Int,
         permission: String
     ) {
-        requestPermission(fragment, requestCode, permission)
+        requestPermissions(fragment, requestCode, permission)
     }
 
-    private fun requestPermission(
+    private fun requestPermissions(
         fragment: Fragment,
         requestCode: Int,
         vararg permissions: String
@@ -207,14 +207,14 @@ internal class GmsLocator @Inject internal constructor(
     }
 
     override fun hasForegroundPermission(): Boolean {
-        return checkPermission(
+        return checkPermissions(
             android.Manifest.permission.ACCESS_FINE_LOCATION,
             android.Manifest.permission.ACCESS_COARSE_LOCATION
         )
     }
 
     override fun requestForegroundPermission(fragment: Fragment) {
-        requestPermission(
+        requestPermissions(
             fragment,
             FOREGROUND_LOCATION_PERMISSION_REQUEST_RC,
             android.Manifest.permission.ACCESS_COARSE_LOCATION,
@@ -267,14 +267,14 @@ internal class GmsLocator @Inject internal constructor(
     }
 
     override fun hasStoragePermission(): Boolean {
-        return checkPermission(
+        return checkPermissions(
             android.Manifest.permission.WRITE_EXTERNAL_STORAGE,
             android.Manifest.permission.READ_EXTERNAL_STORAGE
         )
     }
 
     override fun requestStoragePermission(fragment: Fragment) {
-        requestPermission(
+        requestPermissions(
             fragment,
             STORAGE_PERMISSION_REQUEST_RC,
             android.Manifest.permission.WRITE_EXTERNAL_STORAGE,
