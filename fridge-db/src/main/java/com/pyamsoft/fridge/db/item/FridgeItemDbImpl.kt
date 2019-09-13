@@ -25,7 +25,7 @@ import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent.Insert
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent.Update
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import timber.log.Timber
+import java.util.Locale
 import kotlin.math.min
 
 internal class FridgeItemDbImpl internal constructor(
@@ -87,34 +87,45 @@ internal class FridgeItemDbImpl internal constructor(
                         .filter { it.isReal() }
                         .filter { it.presence() == presence }
                         .filter { item ->
-                            val cleanName = name.toLowerCase().trim()
-                            val itemName = item.name().toLowerCase().trim()
+                            val cleanName = name.toLowerCase(Locale.getDefault()).trim()
+                            val itemName = item.name().toLowerCase(Locale.getDefault()).trim()
                             return@filter itemName == cleanName
                         }
                         .toList()
                 }
             }
 
-            override suspend fun querySimilarNamedItems(force: Boolean, item: FridgeItem): List<FridgeItem> {
+            override suspend fun querySimilarNamedItems(
+                force: Boolean,
+                item: FridgeItem
+            ): List<FridgeItem> {
                 mutex.withLock {
                     return queryAsSequence(force)
                         .filter { it.isReal() }
                         .filterNot { it.id() == item.id() }
-                        .filter { fridgeItem ->
-                            val name = item.name().toLowerCase().trim()
-                            val itemName = fridgeItem.name().toLowerCase().trim()
-                            return@filter itemName == name ||
-                                itemName.startsWith(name) ||
-                                itemName.endsWith(name) ||
-                                itemName.contains(name) ||
-                                itemName.withDistanceRatio(name, 0.65F)
+                        .map { fridgeItem ->
+                            val name = item.name().toLowerCase(Locale.getDefault()).trim()
+                            val itemName = fridgeItem.name().toLowerCase(Locale.getDefault()).trim()
+
+                            val score = when {
+                                itemName == name -> 1.0F
+                                itemName.startsWith(name) -> 0.75F
+                                itemName.endsWith(name) -> 0.5F
+                                else -> itemName.withDistanceRatio(name)
+                            }
+                            return@map SimilarityScore(fridgeItem, score)
                         }
+                        .filterNot { it.score < SIMILARITY_MIN_SCORE_CUTOFF }
+                        .sortedBy { it.score }
+                        .chunked(SIMILARITY_MAX_ITEM_COUNT)
+                        .first()
+                        .map { it.item }
                         .toList()
                 }
             }
 
             @CheckResult
-            private fun String.withDistanceRatio(str: String, accepted: Float): Boolean {
+            private fun String.withDistanceRatio(str: String): Float {
                 // Initialize a zero-matrix
                 val s1Len = this.length
                 val s2Len = str.length
@@ -149,12 +160,7 @@ internal class FridgeItemDbImpl internal constructor(
 
                 // Calculate distance ratio
                 val totalLength = (s1Len + s2Len)
-                val ratio = (totalLength - matrix[s1Len][s2Len]).toFloat() / totalLength
-                val closeEnough = ratio >= accepted
-                if (closeEnough) {
-                    Timber.d("Within distance ratio: '${this}' <=> '${str}' [$ratio]")
-                }
-                return closeEnough
+                return (totalLength - matrix[s1Len][s2Len]).toFloat() / totalLength
             }
         }
     }
@@ -196,5 +202,13 @@ internal class FridgeItemDbImpl internal constructor(
                 }
             }
         }
+    }
+
+    private data class SimilarityScore internal constructor(val item: FridgeItem, val score: Float)
+
+    companion object {
+
+        private const val SIMILARITY_MIN_SCORE_CUTOFF = 0.45F
+        private const val SIMILARITY_MAX_ITEM_COUNT = 6
     }
 }
