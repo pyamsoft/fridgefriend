@@ -85,6 +85,7 @@ internal class FridgeItemDbImpl internal constructor(
                 mutex.withLock {
                     return queryAsSequence(force)
                         .filter { it.isReal() }
+                        .filterNot { it.isArchived() }
                         .filter { it.presence() == presence }
                         .filter { item ->
                             val cleanName = name.toLowerCase(Locale.getDefault()).trim()
@@ -100,7 +101,7 @@ internal class FridgeItemDbImpl internal constructor(
                 item: FridgeItem
             ): List<FridgeItem> {
                 mutex.withLock {
-                    return queryAsSequence(force)
+                    val sequence = queryAsSequence(force)
                         .filter { it.isReal() }
                         .filterNot { it.id() == item.id() }
                         .map { fridgeItem ->
@@ -117,6 +118,12 @@ internal class FridgeItemDbImpl internal constructor(
                         }
                         .filterNot { it.score < SIMILARITY_MIN_SCORE_CUTOFF }
                         .sortedBy { it.score }
+
+                    if (sequence.none()) {
+                        return emptyList()
+                    }
+
+                    return sequence
                         .chunked(SIMILARITY_MAX_ITEM_COUNT)
                         .first()
                         .map { it.item }

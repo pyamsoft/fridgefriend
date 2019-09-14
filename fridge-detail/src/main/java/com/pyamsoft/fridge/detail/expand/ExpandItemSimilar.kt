@@ -57,7 +57,7 @@ class ExpandItemSimilar @Inject internal constructor(
                 val item = state.item
                 message.isVisible = true
                 message.text =
-                    "${item.name()} is similar to other items you already own, are you sure you need another?"
+                    "'${item.name().trim()}' is similar to other items you already own, are you sure you need another?"
             }
         }
     }
