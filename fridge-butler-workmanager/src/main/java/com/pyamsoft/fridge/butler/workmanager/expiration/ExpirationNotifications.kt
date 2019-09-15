@@ -26,6 +26,9 @@ import com.pyamsoft.fridge.db.item.FridgeItem
 
 internal object ExpirationNotifications {
 
+    private const val EXPIRING_NOTIFICATION_ID = 2345
+    private const val EXPIRED_NOTIFICATION_ID = 3456
+
     private const val EXPIRING_CHANNEL_ID = "fridge_expiring_reminders_channel_v1"
     private const val EXPIRED_CHANNEL_ID = "fridge_expiration_reminders_channel_v1"
 
@@ -38,9 +41,9 @@ internal object ExpirationNotifications {
         items: List<FridgeItem>
     ) {
         ButlerNotifications.notify(
+            EXPIRING_NOTIFICATION_ID,
             handler,
             foregroundState,
-            entry,
             context,
             EXPIRING_CHANNEL_ID,
             "Expiring Reminders",
@@ -66,9 +69,9 @@ internal object ExpirationNotifications {
         items: List<FridgeItem>
     ) {
         ButlerNotifications.notify(
+            EXPIRED_NOTIFICATION_ID,
             handler,
             foregroundState,
-            entry,
             context,
             EXPIRED_CHANNEL_ID,
             "Expired Reminders",

@@ -40,7 +40,7 @@ internal abstract class NearbyNotifyingWorker protected constructor(
             return
         }
 
-        withFridgeData { entry, items ->
+        withFridgeData { _, items ->
             val neededItems = items.filterNot { it.isArchived() }
                 .filter { it.presence() == NEED }
             if (neededItems.isEmpty()) {
@@ -51,14 +51,14 @@ internal abstract class NearbyNotifyingWorker protected constructor(
             storeNotifications.forEach { store ->
                 notification { handler, foregroundState ->
                     GeofenceNotifications.notifyNeeded(
-                        handler, foregroundState, applicationContext, entry, store, neededItems
+                        handler, foregroundState, applicationContext, store, neededItems
                     )
                 }
             }
             zoneNotifications.forEach { zone ->
                 notification { handler, foregroundState ->
                     GeofenceNotifications.notifyNeeded(
-                        handler, foregroundState, applicationContext, entry, zone, neededItems
+                        handler, foregroundState, applicationContext, zone, neededItems
                     )
                 }
             }

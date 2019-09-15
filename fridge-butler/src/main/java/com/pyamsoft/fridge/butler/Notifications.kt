@@ -46,7 +46,11 @@ object Notifications {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val notificationGroup = NotificationChannelGroup(channelId, channelTitle)
             val notificationChannel =
-                NotificationChannel(channelId, channelTitle, NotificationManager.IMPORTANCE_DEFAULT).apply {
+                NotificationChannel(
+                    channelId,
+                    channelTitle,
+                    NotificationManager.IMPORTANCE_DEFAULT
+                ).apply {
                     group = notificationGroup.id
                     lockscreenVisibility = Notification.VISIBILITY_PUBLIC
                     description = channelDescription
@@ -64,17 +68,16 @@ object Notifications {
 
     @JvmStatic
     fun notify(
+        notificationId: Int,
         handler: NotificationHandler,
         context: Context,
-        notificationId: Int,
-        tag: String,
         icon: Int,
         channelId: String,
         channelTitle: String,
         channelDescription: String,
         createNotification: (builder: NotificationCompat.Builder) -> Notification
     ) {
-        require(tag.isNotBlank())
+        require(notificationId > 0)
         require(channelId.isNotBlank())
         require(channelTitle.isNotBlank())
         require(channelDescription.isNotBlank())
@@ -94,18 +97,17 @@ object Notifications {
         val notification = createNotification(builder)
         notificationManager(context)
             .apply {
-                cancel(this, tag, notificationId)
-                notify(tag, notificationId, notification)
+                cancel(this, notificationId)
+                notify(notificationId, notification)
             }
     }
 
     @JvmStatic
     private fun cancel(
         manager: NotificationManagerCompat,
-        tag: String,
         notificationId: Int
     ) {
         Timber.w("Cancel notification: $notificationId")
-        manager.cancel(tag, notificationId)
+        manager.cancel(notificationId)
     }
 }

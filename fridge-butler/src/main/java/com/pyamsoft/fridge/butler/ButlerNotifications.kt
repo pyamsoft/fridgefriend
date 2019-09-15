@@ -21,7 +21,6 @@ import android.app.Notification
 import android.content.Context
 import androidx.annotation.CheckResult
 import androidx.core.app.NotificationCompat
-import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItem
 import timber.log.Timber
 
@@ -37,19 +36,11 @@ object ButlerNotifications {
         }
     }
 
-    @CheckResult
-    private fun notificationId(
-        id: String,
-        channelId: String
-    ): Int {
-        return "${id}_$channelId".hashCode()
-    }
-
     @JvmStatic
     fun notify(
+        notificationId: Int,
         handler: NotificationHandler,
         foregroundState: ForegroundState,
-        entry: FridgeEntry,
         context: Context,
         channelId: String,
         channelTitle: String,
@@ -57,15 +48,14 @@ object ButlerNotifications {
         createNotification: (builder: NotificationCompat.Builder) -> Notification
     ) {
         if (foregroundState.isForeground) {
-            Timber.w("Do not send notification while in foreground: ${entry.id()}")
+            Timber.w("Do not send notification while in foreground: $notificationId")
             return
         }
 
         Notifications.notify(
+            notificationId,
             handler,
             context,
-            notificationId(entry.id(), channelId),
-            entry.id(),
             R.drawable.ic_get_app_24dp,
             channelId,
             channelTitle,
