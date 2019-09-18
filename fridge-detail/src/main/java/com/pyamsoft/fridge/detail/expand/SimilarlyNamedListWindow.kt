@@ -36,7 +36,7 @@ internal class SimilarlyNamedListWindow internal constructor(context: Context) {
 
     init {
         popupWindow.setAdapter(adapter)
-        popupWindow.isModal = true
+        popupWindow.isModal = false
     }
 
     private fun dismiss() {
@@ -160,9 +160,4 @@ internal class SimilarlyNamedListWindow internal constructor(context: Context) {
     }
 
     private data class ViewHolder internal constructor(val name: TextView)
-
-    companion object {
-
-        private const val ITEM_HEIGHT = 48
-    }
 }
