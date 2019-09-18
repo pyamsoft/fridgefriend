@@ -35,7 +35,9 @@ import com.pyamsoft.fridge.db.entry.JsonMappableFridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence
 import com.pyamsoft.fridge.db.item.JsonMappableFridgeItem
+import com.pyamsoft.fridge.detail.expand.ExpandItemCount
 import com.pyamsoft.fridge.detail.expand.ExpandItemError
+import com.pyamsoft.fridge.detail.expand.ExpandItemName
 import com.pyamsoft.fridge.detail.expand.ExpandItemSimilar
 import com.pyamsoft.fridge.detail.expand.ExpandItemViewModel
 import com.pyamsoft.fridge.detail.expand.ExpandedToolbar
@@ -44,9 +46,7 @@ import com.pyamsoft.fridge.detail.item.DetailItemControllerEvent.DatePick
 import com.pyamsoft.fridge.detail.item.DetailItemControllerEvent.ExpandDetails
 import com.pyamsoft.fridge.detail.item.DetailItemViewEvent
 import com.pyamsoft.fridge.detail.item.DetailItemViewState
-import com.pyamsoft.fridge.detail.item.DetailListItemCount
 import com.pyamsoft.fridge.detail.item.DetailListItemDate
-import com.pyamsoft.fridge.detail.item.DetailListItemName
 import com.pyamsoft.fridge.detail.item.DetailListItemPresence
 import com.pyamsoft.pydroid.arch.createComponent
 import com.pyamsoft.pydroid.ui.Injector
@@ -65,7 +65,7 @@ internal class ExpandedFragment : DialogFragment() {
 
     @JvmField
     @Inject
-    internal var name: DetailListItemName? = null
+    internal var name: ExpandItemName? = null
 
     @JvmField
     @Inject
@@ -77,7 +77,7 @@ internal class ExpandedFragment : DialogFragment() {
 
     @JvmField
     @Inject
-    internal var count: DetailListItemCount? = null
+    internal var count: ExpandItemCount? = null
 
     @JvmField
     @Inject
@@ -112,7 +112,8 @@ internal class ExpandedFragment : DialogFragment() {
             requireNotNull(requireArguments().getParcelable<JsonMappableFridgeItem>(ITEM))
         val entryArgument =
             requireNotNull(requireArguments().getParcelable<JsonMappableFridgeEntry>(ENTRY))
-        val presenceArgument = Presence.valueOf(requireNotNull(requireArguments().getString(PRESENCE)))
+        val presenceArgument =
+            Presence.valueOf(requireNotNull(requireArguments().getString(PRESENCE)))
 
         Injector.obtain<FridgeComponent>(view.context.applicationContext)
             .plusExpandComponent()
@@ -203,7 +204,12 @@ internal class ExpandedFragment : DialogFragment() {
 
             count.also {
                 connect(it.id(), ConstraintSet.TOP, name.id(), ConstraintSet.BOTTOM)
-                connect(it.id(), ConstraintSet.BOTTOM, ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM)
+                connect(
+                    it.id(),
+                    ConstraintSet.BOTTOM,
+                    ConstraintSet.PARENT_ID,
+                    ConstraintSet.BOTTOM
+                )
                 connect(it.id(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
                 connect(it.id(), ConstraintSet.START, name.id(), ConstraintSet.START)
                 constrainWidth(it.id(), ConstraintSet.MATCH_CONSTRAINT)
@@ -248,7 +254,10 @@ internal class ExpandedFragment : DialogFragment() {
     override fun onResume() {
         super.onResume()
         dialog?.window?.apply {
-            setLayout(WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.WRAP_CONTENT)
+            setLayout(
+                WindowManager.LayoutParams.MATCH_PARENT,
+                WindowManager.LayoutParams.WRAP_CONTENT
+            )
             setGravity(Gravity.CENTER)
         }
     }

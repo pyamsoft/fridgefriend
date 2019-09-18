@@ -17,113 +17,34 @@
 
 package com.pyamsoft.fridge.detail.item
 
-import android.os.Bundle
-import android.text.Editable
-import android.text.TextWatcher
-import android.view.View
 import android.view.ViewGroup
-import android.widget.EditText
 import com.pyamsoft.fridge.db.item.FridgeItem
-import com.pyamsoft.fridge.detail.R
-import com.pyamsoft.fridge.detail.item.DetailItemViewEvent.CommitCount
+import com.pyamsoft.fridge.detail.base.BaseItemCount
 import com.pyamsoft.fridge.detail.item.DetailItemViewEvent.ExpandItem
-import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.arch.UiSavedState
 import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
 import javax.inject.Inject
 import javax.inject.Named
 
 class DetailListItemCount @Inject internal constructor(
-    parent: ViewGroup,
     @Named("item_editable") private val isEditable: Boolean,
-    private val initialItem: FridgeItem
-) : BaseUiView<DetailItemViewState, DetailItemViewEvent>(parent) {
-
-    override val layout: Int = R.layout.detail_list_item_count
-
-    override val layoutRoot by boundView<ViewGroup>(R.id.detail_item_count)
-
-    private val countView by boundView<EditText>(R.id.detail_item_count_editable)
-
-    private var countWatcher: TextWatcher? = null
-
-    // Don't bind nameView text based on state
-    // Android does not re-render fast enough for edits to keep up
-    override fun onInflated(
-        view: View,
-        savedInstanceState: Bundle?
-    ) {
-        setCount(item = initialItem)
-    }
-
-    private fun setCount(item: FridgeItem) {
-        val count = item.count()
-        val countText = if (count > 0) "$count" else ""
-        countView.setTextKeepState(countText)
-    }
+    parent: ViewGroup,
+    initialItem: FridgeItem
+) : BaseItemCount(parent, initialItem) {
 
     override fun onRender(
         state: DetailItemViewState,
         savedState: UiSavedState
     ) {
-        state.item.let { item ->
-            removeListeners()
-            addWatcher(item)
+        if (!isEditable) {
+            return
         }
 
         val item = state.item
-        if (isEditable) {
-            removeListeners()
-            addWatcher(item)
-        } else {
-            setCount(item)
-            countView.setNotEditable()
-            countView.setOnDebouncedClickListener {
-                publish(ExpandItem(item))
-            }
+        setCount(item)
+        countView.setNotEditable()
+        countView.setOnDebouncedClickListener {
+            publish(ExpandItem(item))
         }
-    }
-
-    private fun addWatcher(item: FridgeItem) {
-        val watcher = object : TextWatcher {
-
-            override fun afterTextChanged(s: Editable?) {
-                commit(item)
-            }
-
-            override fun beforeTextChanged(
-                s: CharSequence?,
-                start: Int,
-                count: Int,
-                after: Int
-            ) {
-            }
-
-            override fun onTextChanged(
-                s: CharSequence?,
-                start: Int,
-                before: Int,
-                count: Int
-            ) {
-            }
-        }
-        countView.addTextChangedListener(watcher)
-        countWatcher = watcher
-    }
-
-    override fun onTeardown() {
-        removeListeners()
-        countView.text.clear()
-        countView.setOnDebouncedClickListener(null)
-    }
-
-    private fun removeListeners() {
-        countWatcher?.let { countView.removeTextChangedListener(it) }
-        countWatcher = null
-    }
-
-    private fun commit(item: FridgeItem) {
-        val count = countView.text.toString().toIntOrNull() ?: 0
-        publish(CommitCount(item, count))
     }
 }
