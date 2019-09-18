@@ -56,8 +56,8 @@ class FridgeFriend : Application() {
         PYDroid.init(
             this,
             getString(R.string.app_name),
-            "https://github.com/pyamsoft/fridge",
-            "https://github.com/pyamsoft/fridge/issues",
+            "https://github.com/pyamsoft/fridgefriend",
+            "https://github.com/pyamsoft/fridgefriend/issues",
             Core.PRIVACY_POLICY_URL,
             Core.TERMS_CONDITIONS_URL,
             BuildConfig.VERSION_CODE,
