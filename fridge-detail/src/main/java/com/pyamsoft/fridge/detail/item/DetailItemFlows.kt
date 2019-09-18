@@ -26,6 +26,7 @@ import com.pyamsoft.pydroid.arch.UiViewState
 data class DetailItemViewState internal constructor(
     val item: FridgeItem,
     val throwable: Throwable?,
+    val sameNamedItems: Collection<FridgeItem>,
     val similarItems: Collection<FridgeItem>
 ) : UiViewState
 

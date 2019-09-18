@@ -85,7 +85,7 @@ internal class ExpandedFragment : DialogFragment() {
 
     @JvmField
     @Inject
-    internal var similarItems: ExpandItemSimilar? = null
+    internal var sameNamedItems: ExpandItemSimilar? = null
 
     @JvmField
     @Inject
@@ -123,7 +123,7 @@ internal class ExpandedFragment : DialogFragment() {
         val date = requireNotNull(date)
         val presence = requireNotNull(presence)
         val count = requireNotNull(count)
-        val similarItems = requireNotNull(similarItems)
+        val sameNamedItems = requireNotNull(sameNamedItems)
         val errorDisplay = requireNotNull(errorDisplay)
         val toolbar = requireNotNull(toolbar)
         val shadow = DropshadowView.createTyped<DetailItemViewState, DetailItemViewEvent>(parent)
@@ -134,7 +134,7 @@ internal class ExpandedFragment : DialogFragment() {
             date,
             presence,
             count,
-            similarItems,
+            sameNamedItems,
             errorDisplay,
             toolbar,
             shadow
@@ -170,7 +170,7 @@ internal class ExpandedFragment : DialogFragment() {
                 constrainHeight(it.id(), ConstraintSet.WRAP_CONTENT)
             }
 
-            similarItems.also {
+            sameNamedItems.also {
                 connect(it.id(), ConstraintSet.TOP, errorDisplay.id(), ConstraintSet.BOTTOM)
                 connect(it.id(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
                 connect(it.id(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
@@ -178,7 +178,7 @@ internal class ExpandedFragment : DialogFragment() {
                 constrainHeight(it.id(), ConstraintSet.WRAP_CONTENT)
             }
 
-            val topId = similarItems.id()
+            val topId = sameNamedItems.id()
             presence.also {
                 connect(it.id(), ConstraintSet.TOP, topId, ConstraintSet.BOTTOM)
                 connect(it.id(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)

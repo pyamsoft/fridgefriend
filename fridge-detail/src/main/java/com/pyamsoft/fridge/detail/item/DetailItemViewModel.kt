@@ -31,7 +31,12 @@ abstract class DetailItemViewModel protected constructor(
     item: FridgeItem,
     protected val fakeRealtime: EventBus<FridgeItemChangeEvent>
 ) : UiViewModel<DetailItemViewState, DetailItemViewEvent, DetailItemControllerEvent>(
-    initialState = DetailItemViewState(throwable = null, item = item, similarItems = emptyList())
+    initialState = DetailItemViewState(
+        throwable = null,
+        item = item,
+        sameNamedItems = emptyList(),
+        similarItems = emptyList()
+    )
 ) {
 
     private val deleteRunner = highlander<

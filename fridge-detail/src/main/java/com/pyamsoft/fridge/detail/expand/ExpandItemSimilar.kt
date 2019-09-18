@@ -49,7 +49,7 @@ class ExpandItemSimilar @Inject internal constructor(
         state: DetailItemViewState,
         savedState: UiSavedState
     ) {
-        state.similarItems.let { similar ->
+        state.sameNamedItems.let { similar ->
             if (similar.isEmpty()) {
                 message.isVisible = false
                 message.text = ""
