@@ -46,12 +46,16 @@ abstract class BaseItemName protected constructor(
         savedInstanceState: Bundle?
     ) {
         nameView.setTextKeepState(initialItem.name())
+        onAfterInflated(view, savedInstanceState)
     }
 
     final override fun onTeardown() {
         nameView.text.clear()
         nameView.setOnDebouncedClickListener(null)
         onAfterTeardown()
+    }
+
+    protected open fun onAfterInflated(view: View, savedInstanceState: Bundle?) {
     }
 
     protected open fun onAfterTeardown() {

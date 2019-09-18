@@ -25,6 +25,7 @@ import com.pyamsoft.fridge.detail.base.BaseItemName
 import com.pyamsoft.fridge.detail.item.DetailItemViewEvent.CommitName
 import com.pyamsoft.fridge.detail.item.DetailItemViewState
 import com.pyamsoft.pydroid.arch.UiSavedState
+import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Named
 
@@ -35,6 +36,19 @@ class ExpandItemName @Inject internal constructor(
 ) : BaseItemName(parent, initialItem) {
 
     private var nameWatcher: TextWatcher? = null
+    private val popupWindow = SimilarlyNamedListWindow(parent.context)
+
+    init {
+        popupWindow.apply {
+            initializeView(nameView)
+            setOnDismissListener {
+                Timber.d("Popup dismissed")
+            }
+            setOnItemClickListener { item ->
+                Timber.d("FridgeItem selected: $item")
+            }
+        }
+    }
 
     override fun onRender(
         state: DetailItemViewState,
@@ -43,9 +57,12 @@ class ExpandItemName @Inject internal constructor(
         if (!isEditable) {
             return
         }
+
         val item = state.item
         removeListeners()
         addWatcher(item)
+
+        popupWindow.set(state.similarItems)
     }
 
     private fun addWatcher(item: FridgeItem) {
@@ -79,6 +96,7 @@ class ExpandItemName @Inject internal constructor(
 
     override fun onAfterTeardown() {
         removeListeners()
+        popupWindow.teardown()
     }
 
     private fun removeListeners() {

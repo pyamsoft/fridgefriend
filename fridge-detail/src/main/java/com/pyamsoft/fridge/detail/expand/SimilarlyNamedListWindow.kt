@@ -27,51 +27,62 @@ import androidx.annotation.CheckResult
 import androidx.appcompat.widget.ListPopupWindow
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.detail.R
+import timber.log.Timber
 
-internal class SimilarlyNamedListWindow internal constructor(
-    context: Context,
-    onItemClicked: (item: FridgeItem) -> Unit,
-    onDismissed: () -> Unit
-) : ListPopupWindow(context) {
+internal class SimilarlyNamedListWindow internal constructor(context: Context) {
 
+    private val popupWindow = ListPopupWindow(context)
     private val adapter = SimilarlyNamedListAdapter()
 
     init {
-        setAdapter(adapter)
-        isModal = true
+        popupWindow.setAdapter(adapter)
+        popupWindow.isModal = true
+    }
 
-        setOnItemClickListener { _, _, position, _ ->
-            val item = adapter.getFridgeItem(position)
-            onItemClicked(item)
-            dismiss()
+    private fun dismiss() {
+        try {
+            if (popupWindow.isShowing) {
+                popupWindow.dismiss()
+            }
+        } catch (e: Exception) {
+            Timber.w("Caught exception on dismiss: $e")
         }
+    }
 
-        setOnDismissListener(onDismissed)
+    private fun clear() {
+        adapter.clear()
+        popupWindow.height = 0
     }
 
     fun initializeView(anchor: View) {
         anchor.post {
-            anchorView = anchor
-            width = anchor.width
+            popupWindow.anchorView = anchor
+            popupWindow.width = anchor.width
         }
     }
 
-    fun clear() {
-        adapter.clear()
-        height = 0
+    fun setOnItemClickListener(listener: (item: FridgeItem) -> Unit) {
+        popupWindow.setOnItemClickListener { _, _, position, _ ->
+            val item = adapter.getFridgeItem(position)
+            listener(item)
+            dismiss()
+        }
     }
 
-    fun add(item: FridgeItem) {
-        add(listOf(item))
+    fun setOnDismissListener(listener: () -> Unit) {
+        popupWindow.setOnDismissListener(listener)
     }
 
-    fun add(vararg items: FridgeItem) {
-        add(items.asList())
+    fun teardown() {
+        clear()
+        dismiss()
+        popupWindow.setOnItemClickListener(null)
+        popupWindow.setOnDismissListener(null)
     }
 
-    internal fun add(items: List<FridgeItem>) {
-        adapter.add(items)
-        height = adapter.count * ITEM_HEIGHT
+    fun set(items: Collection<FridgeItem>) {
+        adapter.set(items)
+        popupWindow.height = adapter.count * ITEM_HEIGHT
     }
 
     private abstract class FridgeItemListAdapter protected constructor() : BaseAdapter() {
@@ -100,7 +111,8 @@ internal class SimilarlyNamedListWindow internal constructor(
             notifyDataSetChanged()
         }
 
-        internal fun add(items: List<FridgeItem>) {
+        internal fun set(items: Collection<FridgeItem>) {
+            fridgeItems.clear()
             fridgeItems.addAll(items)
             notifyDataSetChanged()
         }
