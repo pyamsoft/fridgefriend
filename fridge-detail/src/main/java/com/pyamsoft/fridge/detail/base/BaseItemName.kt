@@ -45,8 +45,12 @@ abstract class BaseItemName protected constructor(
         view: View,
         savedInstanceState: Bundle?
     ) {
-        nameView.setTextKeepState(initialItem.name())
+        setName(initialItem)
         onAfterInflated(view, savedInstanceState)
+    }
+
+    protected fun setName(item: FridgeItem) {
+        nameView.setTextKeepState(item.name())
     }
 
     final override fun onTeardown() {

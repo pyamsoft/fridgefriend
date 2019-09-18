@@ -44,10 +44,11 @@ class ExpandItemName @Inject internal constructor(
         popupWindow.apply {
             initializeView(layoutRoot)
             setOnDismissListener {
-                Timber.d("Popup dismissed")
+                Timber.d("Similar popup dismissed")
             }
-            setOnItemClickListener { item ->
-                Timber.d("FridgeItem selected: $item")
+            setOnItemClickListener { selectedItem ->
+                Timber.d("Similar popup FridgeItem selected: $selectedItem")
+                setName(selectedItem)
             }
         }
     }
