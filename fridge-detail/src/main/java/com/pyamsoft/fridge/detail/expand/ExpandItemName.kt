@@ -48,6 +48,7 @@ class ExpandItemName @Inject internal constructor(
             }
             setOnItemClickListener { selectedItem ->
                 Timber.d("Similar popup FridgeItem selected: $selectedItem")
+                // TODO publish SELECT_SIMILAR event to VM
                 setName(selectedItem)
             }
         }
