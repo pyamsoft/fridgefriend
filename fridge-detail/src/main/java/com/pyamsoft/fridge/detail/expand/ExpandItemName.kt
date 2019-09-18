@@ -17,8 +17,10 @@
 
 package com.pyamsoft.fridge.detail.expand
 
+import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.view.View
 import android.view.ViewGroup
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.detail.base.BaseItemName
@@ -38,7 +40,7 @@ class ExpandItemName @Inject internal constructor(
     private var nameWatcher: TextWatcher? = null
     private val popupWindow = SimilarlyNamedListWindow(parent.context)
 
-    init {
+    override fun onAfterInflated(view: View, savedInstanceState: Bundle?) {
         popupWindow.apply {
             initializeView(nameView)
             setOnDismissListener {

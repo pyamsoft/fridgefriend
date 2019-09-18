@@ -57,7 +57,7 @@ internal class SimilarlyNamedListWindow internal constructor(context: Context) {
     fun initializeView(anchor: View) {
         anchor.post {
             popupWindow.anchorView = anchor
-            popupWindow.width = anchor.width
+            popupWindow.width = anchor.measuredWidth
         }
     }
 
@@ -82,7 +82,11 @@ internal class SimilarlyNamedListWindow internal constructor(context: Context) {
 
     fun set(items: Collection<FridgeItem>) {
         adapter.set(items)
-        popupWindow.height = adapter.count * ITEM_HEIGHT
+        popupWindow.height = items.size * ITEM_HEIGHT
+        if (items.isNotEmpty()) {
+            Timber.d("Show popup window: ${popupWindow.width} ${popupWindow.height}")
+            popupWindow.postShow()
+        }
     }
 
     private abstract class FridgeItemListAdapter protected constructor() : BaseAdapter() {
@@ -108,11 +112,10 @@ internal class SimilarlyNamedListWindow internal constructor(context: Context) {
 
         internal fun clear() {
             fridgeItems.clear()
-            notifyDataSetChanged()
         }
 
         internal fun set(items: Collection<FridgeItem>) {
-            fridgeItems.clear()
+            clear()
             fridgeItems.addAll(items)
             notifyDataSetChanged()
         }
@@ -125,6 +128,7 @@ internal class SimilarlyNamedListWindow internal constructor(context: Context) {
             val holder = view.getViewHolder()
             val item = getFridgeItem(position)
             holder.name.text = item.name()
+            Timber.d("Get View: $holder ${item.name()}")
             return view
         }
 
