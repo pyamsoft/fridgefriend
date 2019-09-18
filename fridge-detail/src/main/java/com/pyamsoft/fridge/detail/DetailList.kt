@@ -80,10 +80,10 @@ class DetailList @Inject internal constructor(
             .create(
                 imageLoader, theming, interactor,
                 realtime, fakeRealtime, dateSelectBus, listItemPresence
-            )
+            ).plusItemComponent()
 
         val injectComponent = { parent: ViewGroup, item: FridgeItem, editable: Boolean ->
-            component.plusItemComponent().create(parent, item, editable)
+            component.create(parent, item, editable)
         }
 
         modelAdapter =
