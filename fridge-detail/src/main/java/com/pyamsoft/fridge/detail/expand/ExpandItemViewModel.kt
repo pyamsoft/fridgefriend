@@ -48,8 +48,6 @@ import com.pyamsoft.fridge.detail.item.isNameValid
 import com.pyamsoft.highlander.highlander
 import com.pyamsoft.pydroid.arch.EventBus
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.util.Calendar
@@ -220,25 +218,25 @@ class ExpandItemViewModel @Inject internal constructor(
 
     private fun commitItem(item: FridgeItem) {
         updateItem(item)
-        findsameNamedItems(item)
+        findSameNamedItems(item)
+        findSimilarItems(item)
     }
 
-    private fun findsameNamedItems(item: FridgeItem) {
-        if (item.presence() == NEED) {
-            viewModelScope.launch(context = Dispatchers.Main) {
-                return@launch coroutineScope {
-                    val sameNamedJob = async(context = Dispatchers.Default) {
-                        interactor.findSameNamedItems(item.name(), HAVE)
-                    }
-                    val similarJob = async(context = Dispatchers.Default) {
-                        interactor.findSimilarNamedItems(item)
-                    }
+    private fun findSameNamedItems(item: FridgeItem) {
+        if (item.presence() != NEED) {
+            return
+        }
 
-                    val sameNamedItems = sameNamedJob.await()
-                    val similarItems = similarJob.await()
-                    setState { copy(sameNamedItems = sameNamedItems, similarItems = similarItems) }
-                }
-            }
+        viewModelScope.launch(context = Dispatchers.Main) {
+            val sameNamedItems = interactor.findSameNamedItems(item.name(), HAVE)
+            setState { copy(sameNamedItems = sameNamedItems) }
+        }
+    }
+
+    private fun findSimilarItems(item: FridgeItem) {
+        viewModelScope.launch(context = Dispatchers.Main) {
+            val similarItems = interactor.findSimilarNamedItems(item)
+            setState { copy(similarItems = similarItems) }
         }
     }
 

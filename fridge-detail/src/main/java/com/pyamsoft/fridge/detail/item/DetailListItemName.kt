@@ -68,9 +68,7 @@ class DetailListItemName @Inject internal constructor(
         } else {
             nameView.setTextKeepState(item.name())
             nameView.setNotEditable()
-            nameView.setOnDebouncedClickListener {
-                publish(ExpandItem(item))
-            }
+            nameView.setOnDebouncedClickListener { publish(ExpandItem(item)) }
         }
     }
 
