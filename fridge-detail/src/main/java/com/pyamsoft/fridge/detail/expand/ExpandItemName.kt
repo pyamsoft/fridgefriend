@@ -42,7 +42,7 @@ class ExpandItemName @Inject internal constructor(
 
     override fun onAfterInflated(view: View, savedInstanceState: Bundle?) {
         popupWindow.apply {
-            initializeView(nameView)
+            initializeView(layoutRoot)
             setOnDismissListener {
                 Timber.d("Popup dismissed")
             }

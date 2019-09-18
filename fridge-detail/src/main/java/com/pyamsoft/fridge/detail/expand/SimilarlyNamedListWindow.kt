@@ -57,7 +57,6 @@ internal class SimilarlyNamedListWindow internal constructor(context: Context) {
     fun initializeView(anchor: View) {
         anchor.post {
             popupWindow.anchorView = anchor
-            popupWindow.width = anchor.measuredWidth
         }
     }
 
@@ -82,10 +81,11 @@ internal class SimilarlyNamedListWindow internal constructor(context: Context) {
 
     fun set(items: Collection<FridgeItem>) {
         adapter.set(items)
-        popupWindow.height = items.size * ITEM_HEIGHT
-        if (items.isNotEmpty()) {
-            Timber.d("Show popup window: ${popupWindow.width} ${popupWindow.height}")
-            popupWindow.postShow()
+
+        if (items.isEmpty()) {
+            dismiss()
+        } else {
+            popupWindow.show()
         }
     }
 
