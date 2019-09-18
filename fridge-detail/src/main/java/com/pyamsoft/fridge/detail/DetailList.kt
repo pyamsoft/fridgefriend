@@ -37,7 +37,6 @@ import com.pyamsoft.fridge.detail.DetailListAdapter.Callback
 import com.pyamsoft.fridge.detail.DetailViewEvent.ExpandItem
 import com.pyamsoft.fridge.detail.DetailViewEvent.ForceRefresh
 import com.pyamsoft.fridge.detail.DetailViewEvent.PickDate
-import com.pyamsoft.fridge.detail.item.DaggerDetailItemComponent
 import com.pyamsoft.fridge.detail.item.DateSelectPayload
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.arch.EventBus
@@ -77,13 +76,14 @@ class DetailList @Inject internal constructor(
         view: View,
         savedInstanceState: Bundle?
     ) {
+        val component = DaggerDetailListComponent.factory()
+            .create(
+                imageLoader, theming, interactor,
+                realtime, fakeRealtime, dateSelectBus, listItemPresence
+            )
+
         val injectComponent = { parent: ViewGroup, item: FridgeItem, editable: Boolean ->
-            DaggerDetailItemComponent.factory()
-                .create(
-                    parent, item, editable,
-                    imageLoader, theming, interactor,
-                    realtime, fakeRealtime, dateSelectBus, listItemPresence
-                )
+            component.plusItemComponent().create(parent, item, editable)
         }
 
         modelAdapter =
@@ -167,12 +167,8 @@ class DetailList @Inject internal constructor(
                 recyclerView: RecyclerView,
                 viewHolder: ViewHolder
             ): Int {
-                if (viewHolder is DetailItemViewHolder) {
-                    return directions
-                } else {
-                    // Can't swipe non item view holders
-                    return 0
-                }
+                // Can't swipe non item view holders
+                return if (viewHolder is DetailItemViewHolder) directions else 0
             }
         }.apply {
             val rightBehindDrawable = imageLoader.immediate(R.drawable.ic_consumed_24dp)

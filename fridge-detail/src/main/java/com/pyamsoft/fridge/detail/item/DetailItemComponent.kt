@@ -21,44 +21,30 @@ import android.view.ViewGroup
 import androidx.annotation.CheckResult
 import androidx.lifecycle.ViewModelProvider
 import com.pyamsoft.fridge.db.item.FridgeItem
-import com.pyamsoft.fridge.db.item.FridgeItem.Presence
-import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent
-import com.pyamsoft.fridge.db.item.FridgeItemRealtime
-import com.pyamsoft.fridge.detail.DetailInteractor
 import com.pyamsoft.fridge.detail.DetailItemViewHolder
 import com.pyamsoft.fridge.detail.item.DetailItemComponent.ViewModelModule
-import com.pyamsoft.pydroid.arch.EventBus
 import com.pyamsoft.pydroid.arch.UiViewModel
-import com.pyamsoft.pydroid.loader.ImageLoader
-import com.pyamsoft.pydroid.ui.theme.Theming
 import dagger.Binds
 import dagger.BindsInstance
-import dagger.Component
 import dagger.Module
+import dagger.Subcomponent
 import dagger.multibindings.IntoMap
 import javax.inject.Named
 
 @DetailItemScope
-@Component(modules = [ViewModelModule::class])
+@Subcomponent(modules = [ViewModelModule::class])
 internal interface DetailItemComponent {
 
     fun inject(holder: DetailItemViewHolder)
 
-    @Component.Factory
+    @Subcomponent.Factory
     interface Factory {
 
         @CheckResult
         fun create(
             @BindsInstance parent: ViewGroup,
             @BindsInstance item: FridgeItem,
-            @BindsInstance @Named("item_editable") editable: Boolean,
-            @BindsInstance imageLoader: ImageLoader,
-            @BindsInstance theming: Theming,
-            @BindsInstance interactor: DetailInteractor,
-            @BindsInstance itemUpdateDao: FridgeItemRealtime,
-            @BindsInstance fakeRealtime: EventBus<FridgeItemChangeEvent>,
-            @BindsInstance dateSelectBus: EventBus<DateSelectPayload>,
-            @BindsInstance listPresence: Presence
+            @BindsInstance @Named("item_editable") editable: Boolean
         ): DetailItemComponent
     }
 
