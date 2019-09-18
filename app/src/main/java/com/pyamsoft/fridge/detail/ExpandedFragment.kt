@@ -36,6 +36,7 @@ import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence
 import com.pyamsoft.fridge.db.item.JsonMappableFridgeItem
 import com.pyamsoft.fridge.detail.expand.ExpandItemCount
+import com.pyamsoft.fridge.detail.expand.ExpandItemDate
 import com.pyamsoft.fridge.detail.expand.ExpandItemError
 import com.pyamsoft.fridge.detail.expand.ExpandItemName
 import com.pyamsoft.fridge.detail.expand.ExpandItemSimilar
@@ -46,7 +47,6 @@ import com.pyamsoft.fridge.detail.item.DetailItemControllerEvent.DatePick
 import com.pyamsoft.fridge.detail.item.DetailItemControllerEvent.ExpandDetails
 import com.pyamsoft.fridge.detail.item.DetailItemViewEvent
 import com.pyamsoft.fridge.detail.item.DetailItemViewState
-import com.pyamsoft.fridge.detail.item.DetailListItemDate
 import com.pyamsoft.fridge.detail.item.DetailListItemPresence
 import com.pyamsoft.pydroid.arch.createComponent
 import com.pyamsoft.pydroid.ui.Injector
@@ -69,11 +69,7 @@ internal class ExpandedFragment : DialogFragment() {
 
     @JvmField
     @Inject
-    internal var date: DetailListItemDate? = null
-
-    @JvmField
-    @Inject
-    internal var presence: DetailListItemPresence? = null
+    internal var date: ExpandItemDate? = null
 
     @JvmField
     @Inject
@@ -86,6 +82,10 @@ internal class ExpandedFragment : DialogFragment() {
     @JvmField
     @Inject
     internal var sameNamedItems: ExpandItemSimilar? = null
+
+    @JvmField
+    @Inject
+    internal var presence: DetailListItemPresence? = null
 
     @JvmField
     @Inject
