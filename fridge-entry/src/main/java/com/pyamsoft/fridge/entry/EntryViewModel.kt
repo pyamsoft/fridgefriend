@@ -33,15 +33,17 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class EntryViewModel @Inject internal constructor(
-    private val persistentEntries: PersistentEntries
+    persistentEntries: PersistentEntries
 ) : UiViewModel<EntryViewState, EntryViewEvent, EntryControllerEvent>(
     initialState = EntryViewState(entry = null, isSettingsItemVisible = true)
 ) {
 
-    override fun onInit() {
-        viewModelScope.launch(context = Dispatchers.Default) {
-            val entry = persistentEntries.getPersistentEntry()
-            setState { copy(entry = entry) }
+    init {
+        doOnInit {
+            viewModelScope.launch(context = Dispatchers.Default) {
+                val entry = persistentEntries.getPersistentEntry()
+                setState { copy(entry = entry) }
+            }
         }
     }
 

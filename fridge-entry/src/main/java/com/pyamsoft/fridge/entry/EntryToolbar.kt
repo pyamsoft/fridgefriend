@@ -17,7 +17,6 @@
 
 package com.pyamsoft.fridge.entry
 
-import android.os.Bundle
 import android.view.MenuItem
 import com.pyamsoft.fridge.entry.EntryViewEvent.SettingsNavigate
 import com.pyamsoft.pydroid.arch.UiSavedState
@@ -33,20 +32,16 @@ class EntryToolbar @Inject internal constructor(
     @Named("app_name") private val appNameRes: Int
 ) : UiView<EntryViewState, EntryViewEvent>() {
 
-    override fun id(): Int {
-        throw InvalidIdException
-    }
-
     private var settingsItem: MenuItem? = null
 
-    override fun doInflate(savedInstanceState: Bundle?) {
+    init {
+        doOnTeardown {
+            teardownMenu()
+        }
     }
 
-    override fun saveState(outState: Bundle) {
-    }
-
-    override fun doTeardown() {
-        teardownMenu()
+    override fun id(): Int {
+        throw InvalidIdException
     }
 
     private fun teardownMenu() {

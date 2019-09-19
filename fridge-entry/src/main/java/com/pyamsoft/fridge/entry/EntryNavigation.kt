@@ -17,8 +17,6 @@
 
 package com.pyamsoft.fridge.entry
 
-import android.os.Bundle
-import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.CheckResult
 import androidx.core.view.isVisible
@@ -41,14 +39,22 @@ class EntryNavigation @Inject internal constructor(
 
     override val layoutRoot by boundView<BottomNavigationView>(R.id.entry_bottom_navigation_menu)
 
-    override fun onInflated(
-        view: View,
-        savedInstanceState: Bundle?
-    ) {
-        layoutRoot.isVisible = false
+    init {
+        doOnInflate {
+            layoutRoot.isVisible = false
 
-        layoutRoot.doOnApplyWindowInsets { v, insets, padding ->
-            v.updatePadding(bottom = padding.bottom + insets.systemWindowInsetBottom)
+            layoutRoot.doOnApplyWindowInsets { v, insets, padding ->
+                v.updatePadding(bottom = padding.bottom + insets.systemWindowInsetBottom)
+            }
+        }
+
+        doOnTeardown {
+            layoutRoot.isVisible = false
+            layoutRoot.setOnNavigationItemSelectedListener(null)
+        }
+
+        doOnSaveState { outState ->
+            outState.putInt(LAST_PAGE, layoutRoot.selectedItemId)
         }
     }
 
@@ -91,21 +97,12 @@ class EntryNavigation @Inject internal constructor(
         entry: FridgeEntry?,
         getEvent: (entry: FridgeEntry) -> EntryViewEvent
     ): Boolean {
-        if (entry != null) {
+        return if (entry != null) {
             publish(getEvent(entry))
-            return true
+            true
         } else {
-            return false
+            false
         }
-    }
-
-    override fun onSaveState(outState: Bundle) {
-        outState.putInt(LAST_PAGE, layoutRoot.selectedItemId)
-    }
-
-    override fun onTeardown() {
-        layoutRoot.isVisible = false
-        layoutRoot.setOnNavigationItemSelectedListener(null)
     }
 
     companion object {
