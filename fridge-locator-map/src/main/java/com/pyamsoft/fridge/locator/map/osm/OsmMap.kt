@@ -20,8 +20,6 @@ package com.pyamsoft.fridge.locator.map.osm
 import android.app.Activity
 import android.content.Context
 import android.graphics.Color
-import android.os.Bundle
-import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.CheckResult
 import androidx.core.view.isVisible
@@ -138,40 +136,65 @@ class OsmMap @Inject internal constructor(
                 activity.application,
                 PreferenceManager.getDefaultSharedPreferences(activity.application)
             )
-    }
 
-    override fun onInflated(
-        view: View,
-        savedInstanceState: Bundle?
-    ) {
-        owner.lifecycle.addObserver(this)
-        initMap(view.context.applicationContext)
+        doOnInflate {
+            owner.lifecycle.addObserver(this)
+            initMap(activity.applicationContext)
 
-        boundNearbyImage?.dispose()
-        boundNearbyImage = imageLoader.load(R.drawable.ic_shopping_cart_24dp)
-            .into(findNearby)
+            boundNearbyImage?.dispose()
+            boundNearbyImage = imageLoader.load(R.drawable.ic_shopping_cart_24dp)
+                .into(findNearby)
 
-        boundFindMeImage?.dispose()
-        boundFindMeImage = imageLoader.load(R.drawable.ic_location_search_24dp)
-            .into(findMe)
+            boundFindMeImage?.dispose()
+            boundFindMeImage = imageLoader.load(R.drawable.ic_location_search_24dp)
+                .into(findMe)
 
-        boundStorageImage?.dispose()
-        boundStorageImage = imageLoader.load(R.drawable.ic_storage_24dp)
-            .into(storagePermission)
+            boundStorageImage?.dispose()
+            boundStorageImage = imageLoader.load(R.drawable.ic_storage_24dp)
+                .into(storagePermission)
 
-        boundBackgroundImage?.dispose()
-        boundBackgroundImage = imageLoader.load(R.drawable.ic_location_24dp)
-            .into(backgroundPermission)
+            boundBackgroundImage?.dispose()
+            boundBackgroundImage = imageLoader.load(R.drawable.ic_location_24dp)
+                .into(backgroundPermission)
 
-        findNearby.isVisible = false
-        findMe.isVisible = false
-        storagePermission.isVisible = false
-        backgroundPermission.isVisible = false
+            findNearby.isVisible = false
+            findMe.isVisible = false
+            storagePermission.isVisible = false
+            backgroundPermission.isVisible = false
 
-        findNearby.setOnDebouncedClickListener { publish(FindNearby(getBoundingBoxOfCurrentScreen())) }
-        findMe.setOnDebouncedClickListener { locateMe() }
-        backgroundPermission.setOnDebouncedClickListener { publish(RequestBackgroundPermission) }
-        storagePermission.setOnDebouncedClickListener { publish(RequestStoragePermission) }
+            findNearby.setOnDebouncedClickListener {
+                publish(
+                    FindNearby(
+                        getBoundingBoxOfCurrentScreen()
+                    )
+                )
+            }
+            findMe.setOnDebouncedClickListener { locateMe() }
+            backgroundPermission.setOnDebouncedClickListener { publish(RequestBackgroundPermission) }
+            storagePermission.setOnDebouncedClickListener { publish(RequestStoragePermission) }
+        }
+
+        doOnTeardown {
+            owner.lifecycle.removeObserver(this)
+
+            findMe.setOnDebouncedClickListener(null)
+            findNearby.setOnDebouncedClickListener(null)
+            backgroundPermission.setOnDebouncedClickListener(null)
+            storagePermission.setOnDebouncedClickListener(null)
+
+            removeMarkerOverlay()
+            locationOverlay = null
+            map.onDetach()
+
+            boundFindMeImage?.dispose()
+            boundNearbyImage?.dispose()
+            boundStorageImage?.dispose()
+            boundBackgroundImage?.dispose()
+            boundFindMeImage = null
+            boundNearbyImage = null
+            boundStorageImage = null
+            boundBackgroundImage = null
+        }
     }
 
     private fun locateMe() {
@@ -183,30 +206,6 @@ class OsmMap @Inject internal constructor(
                 }
             }
         }
-    }
-
-    override fun onTeardown() {
-        owner.lifecycle.removeObserver(this)
-
-        findMe.setOnDebouncedClickListener(null)
-        findNearby.setOnDebouncedClickListener(null)
-        backgroundPermission.setOnDebouncedClickListener(null)
-        storagePermission.setOnDebouncedClickListener(null)
-
-        removeMarkerOverlay()
-        locationOverlay = null
-        map.onDetach()
-
-        boundFindMeImage?.dispose()
-        boundNearbyImage?.dispose()
-        boundStorageImage?.dispose()
-        boundBackgroundImage?.dispose()
-        boundFindMeImage = null
-        boundNearbyImage = null
-        boundStorageImage = null
-        boundBackgroundImage = null
-
-        activity = null
     }
 
     private fun removeMarkerOverlay() {

@@ -38,9 +38,11 @@ internal class ZoneInfoViewModel @Inject internal constructor(
 
     private val zoneId = zone.id()
 
-    override fun onInit() {
-        findCachedZoneIfExists()
-        listenForRealtime()
+    init {
+        doOnInit {
+            findCachedZoneIfExists()
+            listenForRealtime()
+        }
     }
 
     private fun listenForRealtime() {

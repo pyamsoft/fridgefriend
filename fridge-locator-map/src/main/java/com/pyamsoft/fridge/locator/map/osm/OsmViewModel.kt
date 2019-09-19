@@ -73,6 +73,10 @@ class OsmViewModel @Inject internal constructor(
         }
     }
 
+    init {
+        initialFetchFromCache()
+    }
+
     private fun nearbyError(throwable: Throwable) {
         setState { copy(nearbyError = throwable) }
     }
@@ -115,10 +119,6 @@ class OsmViewModel @Inject internal constructor(
             }
         }
         return result
-    }
-
-    override fun onInit() {
-        initialFetchFromCache()
     }
 
     private fun initialFetchFromCache() {

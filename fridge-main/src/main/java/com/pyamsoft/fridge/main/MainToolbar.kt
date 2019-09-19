@@ -18,8 +18,6 @@
 package com.pyamsoft.fridge.main
 
 import android.app.Activity
-import android.os.Bundle
-import android.view.View
 import android.view.ViewGroup
 import android.view.ViewGroup.MarginLayoutParams
 import androidx.appcompat.widget.Toolbar
@@ -40,9 +38,9 @@ import javax.inject.Inject
 import javax.inject.Named
 
 class MainToolbar @Inject internal constructor(
-    private val toolbarActivityProvider: ToolbarActivityProvider,
-    private val theming: Theming,
-    @Named("app_name") private val appNameRes: Int,
+    @Named("app_name") appNameRes: Int,
+    toolbarActivityProvider: ToolbarActivityProvider,
+    theming: Theming,
     activity: Activity,
     parent: ViewGroup
 ) : BaseUiView<UnitViewState, UnitViewEvent>(parent) {
@@ -51,21 +49,23 @@ class MainToolbar @Inject internal constructor(
 
     override val layoutRoot by boundView<Toolbar>(R.id.main_toolbar)
 
-    private var activity: Activity? = activity
+    init {
+        doOnInflate {
+            inflateToolbar(toolbarActivityProvider, theming, activity, appNameRes)
 
-    override fun onInflated(
-        view: View,
-        savedInstanceState: Bundle?
-    ) {
-        inflateToolbar()
-
-        layoutRoot.doOnApplyWindowInsets { v, insets, padding ->
-            v.updateLayoutParams<MarginLayoutParams> {
-                topMargin = padding.top + insets.systemWindowInsetTop + 8.toDp(v.context)
+            layoutRoot.doOnApplyWindowInsets { v, insets, padding ->
+                v.updateLayoutParams<MarginLayoutParams> {
+                    topMargin = padding.top + insets.systemWindowInsetTop + 8.toDp(v.context)
+                }
             }
+
+            layoutRoot.addPrivacy(Core.PRIVACY_POLICY_URL, Core.TERMS_CONDITIONS_URL)
         }
 
-        layoutRoot.addPrivacy(Core.PRIVACY_POLICY_URL, Core.TERMS_CONDITIONS_URL)
+        doOnTeardown {
+            layoutRoot.removePrivacy()
+            toolbarActivityProvider.setToolbar(null)
+        }
     }
 
     override fun onRender(
@@ -74,18 +74,16 @@ class MainToolbar @Inject internal constructor(
     ) {
     }
 
-    override fun onTeardown() {
-        layoutRoot.removePrivacy()
-        toolbarActivityProvider.setToolbar(null)
-        activity = null
-    }
-
-    private fun inflateToolbar() {
-        val theme: Int
-        if (theming.isDarkTheme(requireNotNull(activity))) {
-            theme = R.style.ThemeOverlay_MaterialComponents
+    private fun inflateToolbar(
+        toolbarActivityProvider: ToolbarActivityProvider,
+        theming: Theming,
+        activity: Activity,
+        appNameRes: Int
+    ) {
+        val theme = if (theming.isDarkTheme(activity)) {
+            R.style.ThemeOverlay_MaterialComponents
         } else {
-            theme = R.style.ThemeOverlay_MaterialComponents_Light
+            R.style.ThemeOverlay_MaterialComponents_Light
         }
 
         layoutRoot.apply {

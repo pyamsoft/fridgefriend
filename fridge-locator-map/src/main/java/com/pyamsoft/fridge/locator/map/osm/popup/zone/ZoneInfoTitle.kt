@@ -17,8 +17,6 @@
 
 package com.pyamsoft.fridge.locator.map.osm.popup.zone
 
-import android.os.Bundle
-import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
@@ -45,16 +43,21 @@ internal class ZoneInfoTitle @Inject internal constructor(
 
     private var favoriteBinder: Loaded? = null
 
+    init {
+        doOnInflate {
+            title.text = zone.name()
+        }
+
+        doOnTeardown {
+            title.text = ""
+            favorite.setOnDebouncedClickListener(null)
+            clearFavoriteIcon()
+        }
+    }
+
     private fun clearFavoriteIcon() {
         favoriteBinder?.dispose()
         favoriteBinder = null
-    }
-
-    override fun onInflated(
-        view: View,
-        savedInstanceState: Bundle?
-    ) {
-        title.text = zone.name()
     }
 
     override fun onRender(
@@ -65,7 +68,8 @@ internal class ZoneInfoTitle @Inject internal constructor(
             if (cached == null) {
                 favorite.setOnDebouncedClickListener(null)
             } else {
-                val icon = if (cached.cached) R.drawable.ic_star_24dp else R.drawable.ic_star_empty_24dp
+                val icon =
+                    if (cached.cached) R.drawable.ic_star_24dp else R.drawable.ic_star_empty_24dp
                 clearFavoriteIcon()
                 favoriteBinder = imageLoader.load(icon)
                     .into(favorite)
@@ -74,11 +78,5 @@ internal class ZoneInfoTitle @Inject internal constructor(
                 }
             }
         }
-    }
-
-    override fun onTeardown() {
-        title.text = ""
-        favorite.setOnDebouncedClickListener(null)
-        clearFavoriteIcon()
     }
 }

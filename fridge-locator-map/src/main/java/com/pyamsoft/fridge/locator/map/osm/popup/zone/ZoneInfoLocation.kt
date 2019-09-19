@@ -31,6 +31,12 @@ internal class ZoneInfoLocation @Inject internal constructor(
     override val layout: Int = R.layout.zone_info_location
     override val layoutRoot by boundView<TextView>(R.id.zone_info_coords)
 
+    init {
+        doOnTeardown {
+            layoutRoot.text = ""
+        }
+    }
+
     override fun onRender(
         state: ZoneInfoViewState,
         savedState: UiSavedState
@@ -46,9 +52,5 @@ internal class ZoneInfoLocation @Inject internal constructor(
                 layoutRoot.text = "Located at: $coords"
             }
         }
-    }
-
-    override fun onTeardown() {
-        layoutRoot.text = ""
     }
 }

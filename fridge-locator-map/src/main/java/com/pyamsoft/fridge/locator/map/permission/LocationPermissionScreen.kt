@@ -17,8 +17,6 @@
 
 package com.pyamsoft.fridge.locator.map.permission
 
-import android.os.Bundle
-import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.FrameLayout
@@ -38,17 +36,14 @@ class LocationPermissionScreen @Inject internal constructor(
     override val layoutRoot by boundView<FrameLayout>(R.id.location_permission)
     private val permissionButton by boundView<Button>(R.id.location_permission_button)
 
-    override fun onInflated(
-        view: View,
-        savedInstanceState: Bundle?
-    ) {
-        permissionButton.setOnDebouncedClickListener {
-            publish(FireLocationPermission)
+    init {
+        doOnInflate {
+            permissionButton.setOnDebouncedClickListener { publish(FireLocationPermission) }
         }
-    }
 
-    override fun onTeardown() {
-        permissionButton.setOnDebouncedClickListener(null)
+        doOnTeardown {
+            permissionButton.setOnDebouncedClickListener(null)
+        }
     }
 
     override fun onRender(
