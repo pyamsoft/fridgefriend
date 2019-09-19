@@ -39,6 +39,12 @@ class DetailListItemPresence @Inject internal constructor(
 
     private val presenceSwitch by boundView<CompoundButton>(R.id.detail_item_presence_switch)
 
+    init {
+        doOnTeardown {
+            removeListeners()
+        }
+    }
+
     override fun onRender(
         state: DetailItemViewState,
         savedState: UiSavedState
@@ -52,10 +58,6 @@ class DetailListItemPresence @Inject internal constructor(
                 commit(item, isChecked)
             }
         }
-    }
-
-    override fun onTeardown() {
-        removeListeners()
     }
 
     private fun removeListeners() {

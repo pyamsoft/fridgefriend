@@ -56,9 +56,6 @@ class DetailListItemViewModel @Inject internal constructor(
         }
     }
 
-    override fun onInit() {
-    }
-
     override fun handleViewEvent(event: DetailItemViewEvent) {
         return when (event) {
             is CommitPresence -> commitPresence(event.oldItem, event.presence)

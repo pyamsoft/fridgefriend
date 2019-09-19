@@ -18,8 +18,6 @@
 package com.pyamsoft.fridge.detail
 
 import android.graphics.Color
-import android.os.Bundle
-import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.CheckResult
 import androidx.lifecycle.LifecycleOwner
@@ -52,13 +50,13 @@ import javax.inject.Inject
 
 class DetailList @Inject internal constructor(
     parent: ViewGroup,
-    private val interactor: DetailInteractor,
+    interactor: DetailInteractor,
     private val imageLoader: ImageLoader,
-    private val theming: Theming,
-    private val realtime: FridgeItemRealtime,
-    private val fakeRealtime: EventBus<FridgeItemChangeEvent>,
-    private val dateSelectBus: EventBus<DateSelectPayload>,
-    private val listItemPresence: FridgeItem.Presence,
+    theming: Theming,
+    realtime: FridgeItemRealtime,
+    fakeRealtime: EventBus<FridgeItemChangeEvent>,
+    dateSelectBus: EventBus<DateSelectPayload>,
+    listItemPresence: FridgeItem.Presence,
     private val owner: LifecycleOwner
 ) : BaseUiView<DetailViewState, DetailViewEvent>(parent) {
 
@@ -72,62 +70,75 @@ class DetailList @Inject internal constructor(
     private var touchHelper: ItemTouchHelper? = null
     private var modelAdapter: DetailListAdapter? = null
 
-    override fun onInflated(
-        view: View,
-        savedInstanceState: Bundle?
-    ) {
-        val component = DaggerDetailListComponent.factory()
-            .create(
-                imageLoader, theming, interactor,
-                realtime, fakeRealtime, dateSelectBus, listItemPresence
-            ).plusItemComponent()
+    init {
+        doOnInflate {
+            val component = DaggerDetailListComponent.factory()
+                .create(
+                    imageLoader, theming, interactor,
+                    realtime, fakeRealtime, dateSelectBus, listItemPresence
+                ).plusItemComponent()
 
-        val injectComponent = { parent: ViewGroup, item: FridgeItem, editable: Boolean ->
-            component.create(parent, item, editable)
+            val injectComponent = { parent: ViewGroup, item: FridgeItem, editable: Boolean ->
+                component.create(parent, item, editable)
+            }
+
+            modelAdapter =
+                DetailListAdapter(
+                    editable = false,
+                    injectComponent = injectComponent,
+                    callback = object : Callback {
+
+                        override fun onItemExpanded(item: FridgeItem) {
+                            publish(ExpandItem(item))
+                        }
+
+                        override fun onPickDate(
+                            oldItem: FridgeItem,
+                            year: Int,
+                            month: Int,
+                            day: Int
+                        ) {
+                            publish(PickDate(oldItem, year, month, day))
+                        }
+                    })
+
+            recyclerView.layoutManager = LinearLayoutManager(recyclerView.context).apply {
+                isItemPrefetchEnabled = true
+                initialPrefetchItemCount = 3
+            }
+
+            val decor = DividerItemDecoration(recyclerView.context, DividerItemDecoration.VERTICAL)
+            recyclerView.addItemDecoration(decor)
+            decoration = decor
+
+            recyclerView.adapter = usingAdapter().apply { setHasStableIds(true) }
+
+            layoutRoot.doOnApplyWindowInsets { v, insets, padding ->
+                val offset = 8.toDp(v.context)
+                val toolbarTopMargin = padding.top + insets.systemWindowInsetTop + offset
+                layoutRoot.setProgressViewOffset(
+                    false,
+                    toolbarTopMargin,
+                    toolbarTopMargin * 3
+                )
+            }
+            layoutRoot.setOnRefreshListener { publish(ForceRefresh) }
+            setupSwipeCallback()
         }
 
-        modelAdapter =
-            DetailListAdapter(
-                editable = false,
-                injectComponent = injectComponent,
-                callback = object : Callback {
+        doOnTeardown {
+            // Throws
+            // recyclerView.adapter = null
+            clearList()
 
-                    override fun onItemExpanded(item: FridgeItem) {
-                        publish(ExpandItem(item))
-                    }
+            touchHelper?.attachToRecyclerView(null)
+            decoration?.let { recyclerView.removeItemDecoration(it) }
+            layoutRoot.setOnRefreshListener(null)
 
-                    override fun onPickDate(
-                        oldItem: FridgeItem,
-                        year: Int,
-                        month: Int,
-                        day: Int
-                    ) {
-                        publish(PickDate(oldItem, year, month, day))
-                    }
-                })
-
-        recyclerView.layoutManager = LinearLayoutManager(view.context).apply {
-            isItemPrefetchEnabled = true
-            initialPrefetchItemCount = 3
+            modelAdapter = null
+            touchHelper = null
+            decoration = null
         }
-
-        val decor = DividerItemDecoration(view.context, DividerItemDecoration.VERTICAL)
-        recyclerView.addItemDecoration(decor)
-        decoration = decor
-
-        recyclerView.adapter = usingAdapter().apply { setHasStableIds(true) }
-
-        layoutRoot.doOnApplyWindowInsets { v, insets, padding ->
-            val offset = 8.toDp(v.context)
-            val toolbarTopMargin = padding.top + insets.systemWindowInsetTop + offset
-            layoutRoot.setProgressViewOffset(
-                false,
-                toolbarTopMargin,
-                toolbarTopMargin * 3
-            )
-        }
-        layoutRoot.setOnRefreshListener { publish(ForceRefresh) }
-        setupSwipeCallback()
     }
 
     private fun setupSwipeCallback() {
@@ -180,20 +191,6 @@ class DetailList @Inject internal constructor(
         val helper = ItemTouchHelper(swipeCallback)
         helper.attachToRecyclerView(recyclerView)
         touchHelper = helper
-    }
-
-    override fun onTeardown() {
-        // Throws
-        // recyclerView.adapter = null
-        clearList()
-
-        touchHelper?.attachToRecyclerView(null)
-        decoration?.let { recyclerView.removeItemDecoration(it) }
-        layoutRoot.setOnRefreshListener(null)
-
-        modelAdapter = null
-        touchHelper = null
-        decoration = null
     }
 
     @CheckResult

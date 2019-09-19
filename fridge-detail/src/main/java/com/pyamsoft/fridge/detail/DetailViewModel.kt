@@ -47,8 +47,8 @@ import timber.log.Timber
 import javax.inject.Inject
 
 class DetailViewModel @Inject internal constructor(
-    private val interactor: DetailInteractor,
-    private val fakeRealtime: EventBus<FridgeItemChangeEvent>,
+    interactor: DetailInteractor,
+    fakeRealtime: EventBus<FridgeItemChangeEvent>,
     private val listItemPresence: FridgeItem.Presence,
     entry: FridgeEntry
 ) : UiViewModel<DetailViewState, DetailViewEvent, DetailControllerEvent>(
@@ -105,8 +105,10 @@ class DetailViewModel @Inject internal constructor(
         }
     }
 
-    override fun onInit() {
-        refreshList(false)
+    init {
+        doOnInit {
+            refreshList(false)
+        }
     }
 
     override fun handleViewEvent(event: DetailViewEvent) {

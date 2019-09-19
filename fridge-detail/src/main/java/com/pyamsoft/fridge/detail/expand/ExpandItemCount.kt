@@ -36,6 +36,12 @@ class ExpandItemCount @Inject internal constructor(
 
     private var countWatcher: TextWatcher? = null
 
+    init {
+        doOnTeardown {
+            removeListeners()
+        }
+    }
+
     override fun onRender(
         state: DetailItemViewState,
         savedState: UiSavedState
@@ -74,10 +80,6 @@ class ExpandItemCount @Inject internal constructor(
         }
         countView.addTextChangedListener(watcher)
         countWatcher = watcher
-    }
-
-    override fun onAfterTeardown() {
-        removeListeners()
     }
 
     private fun removeListeners() {

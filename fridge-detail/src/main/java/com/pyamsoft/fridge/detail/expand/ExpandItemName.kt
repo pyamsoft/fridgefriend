@@ -17,10 +17,8 @@
 
 package com.pyamsoft.fridge.detail.expand
 
-import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
-import android.view.View
 import android.view.ViewGroup
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.detail.base.BaseItemName
@@ -40,17 +38,24 @@ class ExpandItemName @Inject internal constructor(
     private var nameWatcher: TextWatcher? = null
     private val popupWindow = SimilarlyNamedListWindow(parent.context)
 
-    override fun onAfterInflated(view: View, savedInstanceState: Bundle?) {
-        popupWindow.apply {
-            initializeView(layoutRoot)
-            setOnDismissListener {
-                Timber.d("Similar popup dismissed")
+    init {
+        doOnInflate {
+            popupWindow.apply {
+                initializeView(layoutRoot)
+                setOnDismissListener {
+                    Timber.d("Similar popup dismissed")
+                }
+                setOnItemClickListener { selectedItem ->
+                    Timber.d("Similar popup FridgeItem selected: $selectedItem")
+                    // TODO publish SELECT_SIMILAR event to VM
+                    setName(selectedItem)
+                }
             }
-            setOnItemClickListener { selectedItem ->
-                Timber.d("Similar popup FridgeItem selected: $selectedItem")
-                // TODO publish SELECT_SIMILAR event to VM
-                setName(selectedItem)
-            }
+        }
+
+        doOnTeardown {
+            removeListeners()
+            popupWindow.teardown()
         }
     }
 
@@ -96,11 +101,6 @@ class ExpandItemName @Inject internal constructor(
         }
         nameView.addTextChangedListener(watcher)
         nameWatcher = watcher
-    }
-
-    override fun onAfterTeardown() {
-        removeListeners()
-        popupWindow.teardown()
     }
 
     private fun removeListeners() {

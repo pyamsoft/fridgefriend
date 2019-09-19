@@ -17,8 +17,6 @@
 
 package com.pyamsoft.fridge.detail.base
 
-import android.os.Bundle
-import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
 import com.pyamsoft.fridge.db.item.FridgeItem
@@ -30,7 +28,7 @@ import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
 
 abstract class BaseItemName protected constructor(
     parent: ViewGroup,
-    private val initialItem: FridgeItem
+    initialItem: FridgeItem
 ) : BaseUiView<DetailItemViewState, DetailItemViewEvent>(parent) {
 
     final override val layout: Int = R.layout.detail_list_item_name
@@ -39,29 +37,20 @@ abstract class BaseItemName protected constructor(
 
     protected val nameView by boundView<EditText>(R.id.detail_item_name_editable)
 
-    // Don't bind nameView text based on state
+    // Don't bind nameView text based on state in onRender
     // Android does not re-render fast enough for edits to keep up
-    final override fun onInflated(
-        view: View,
-        savedInstanceState: Bundle?
-    ) {
-        setName(initialItem)
-        onAfterInflated(view, savedInstanceState)
+    init {
+        doOnInflate {
+            setName(initialItem)
+        }
+
+        doOnTeardown {
+            nameView.text.clear()
+            nameView.setOnDebouncedClickListener(null)
+        }
     }
 
     protected fun setName(item: FridgeItem) {
         nameView.setTextKeepState(item.name())
-    }
-
-    final override fun onTeardown() {
-        nameView.text.clear()
-        nameView.setOnDebouncedClickListener(null)
-        onAfterTeardown()
-    }
-
-    protected open fun onAfterInflated(view: View, savedInstanceState: Bundle?) {
-    }
-
-    protected open fun onAfterTeardown() {
     }
 }

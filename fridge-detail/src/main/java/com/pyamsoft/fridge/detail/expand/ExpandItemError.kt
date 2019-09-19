@@ -17,8 +17,6 @@
 
 package com.pyamsoft.fridge.detail.expand
 
-import android.os.Bundle
-import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.core.view.isVisible
@@ -38,11 +36,16 @@ class ExpandItemError @Inject internal constructor(
     override val layoutRoot by boundView<ViewGroup>(R.id.expand_item_error_root)
     private val message by boundView<TextView>(R.id.expand_item_error_msg)
 
-    override fun onInflated(
-        view: View,
-        savedInstanceState: Bundle?
-    ) {
-        message.isVisible = false
+    init {
+        doOnInflate {
+            // No errors initially right
+            message.isVisible = false
+        }
+
+        doOnTeardown {
+            message.isVisible = false
+            message.text = ""
+        }
     }
 
     override fun onRender(
@@ -58,10 +61,5 @@ class ExpandItemError @Inject internal constructor(
                 message.text = throwable.message ?: "An unknown error occurred"
             }
         }
-    }
-
-    override fun onTeardown() {
-        message.isVisible = false
-        message.text = ""
     }
 }

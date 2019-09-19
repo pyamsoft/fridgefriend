@@ -37,6 +37,12 @@ abstract class BaseItemDate protected constructor(
 
     final override val layoutRoot by boundView<TextView>(R.id.detail_item_date)
 
+    init {
+        doOnTeardown {
+            layoutRoot.setOnDebouncedClickListener(null)
+        }
+    }
+
     final override fun onRender(state: DetailItemViewState, savedState: UiSavedState) {
         val item = state.item
         val month: Int
@@ -77,8 +83,4 @@ abstract class BaseItemDate protected constructor(
         state: DetailItemViewState,
         savedState: UiSavedState
     )
-
-    final override fun onTeardown() {
-        layoutRoot.setOnDebouncedClickListener(null)
-    }
 }

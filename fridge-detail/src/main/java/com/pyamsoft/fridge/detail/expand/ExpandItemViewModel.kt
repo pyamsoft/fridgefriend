@@ -58,8 +58,8 @@ class ExpandItemViewModel @Inject internal constructor(
     item: FridgeItem,
     defaultPresence: Presence,
     fakeRealtime: EventBus<FridgeItemChangeEvent>,
-    private val dateSelectBus: EventBus<DateSelectPayload>,
-    private val realtime: FridgeItemRealtime,
+    dateSelectBus: EventBus<DateSelectPayload>,
+    realtime: FridgeItemRealtime,
     private val interactor: DetailInteractor
 ) : DetailItemViewModel(item = item.presence(defaultPresence), fakeRealtime = fakeRealtime) {
 
@@ -77,29 +77,38 @@ class ExpandItemViewModel @Inject internal constructor(
     private val itemEntryId = item.entryId()
     private val itemId = item.id()
 
-    override fun onInit() {
-        viewModelScope.launch(context = Dispatchers.Default) {
-            launch {
-                dateSelectBus.onEvent { event ->
-                    if (event.oldItem.entryId() != itemEntryId) {
-                        return@onEvent
-                    }
-
-                    if (event.oldItem.id() != itemId) {
-                        return@onEvent
-                    }
-
-                    commitDate(event.oldItem, event.year, event.month, event.day)
+    init {
+        doOnInit {
+            viewModelScope.launch(context = Dispatchers.Default) {
+                launch {
+                    realtime.listenForChanges(itemEntryId)
+                        .onEvent { handleRealtimeEvent(it) }
                 }
-            }
 
-            launch {
-                realtime.listenForChanges(itemEntryId)
-                    .onEvent { handleRealtimeEvent(it) }
             }
+        }
 
-            launch {
-                fakeRealtime.onEvent { handleRealtimeEvent(it) }
+        doOnInit {
+            viewModelScope.launch(context = Dispatchers.Default) {
+                launch { fakeRealtime.onEvent { handleRealtimeEvent(it) } }
+            }
+        }
+
+        doOnInit {
+            viewModelScope.launch(context = Dispatchers.Default) {
+                launch {
+                    dateSelectBus.onEvent { event ->
+                        if (event.oldItem.entryId() != itemEntryId) {
+                            return@onEvent
+                        }
+
+                        if (event.oldItem.id() != itemId) {
+                            return@onEvent
+                        }
+
+                        commitDate(event.oldItem, event.year, event.month, event.day)
+                    }
+                }
             }
         }
     }

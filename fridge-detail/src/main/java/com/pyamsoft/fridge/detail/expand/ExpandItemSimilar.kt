@@ -17,8 +17,6 @@
 
 package com.pyamsoft.fridge.detail.expand
 
-import android.os.Bundle
-import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.core.view.isVisible
@@ -38,11 +36,16 @@ class ExpandItemSimilar @Inject internal constructor(
     override val layoutRoot by boundView<ViewGroup>(R.id.expand_item_similar)
     private val message by boundView<TextView>(R.id.expand_item_similar_msg)
 
-    override fun onInflated(
-        view: View,
-        savedInstanceState: Bundle?
-    ) {
-        message.isVisible = false
+    init {
+        doOnInflate {
+            // No similar by default
+            message.isVisible = false
+        }
+
+        doOnTeardown {
+            message.isVisible = false
+            message.text = ""
+        }
     }
 
     override fun onRender(
@@ -60,10 +63,5 @@ class ExpandItemSimilar @Inject internal constructor(
                     "'${item.name().trim()}' is similar to other items you already own, are you sure you need another?"
             }
         }
-    }
-
-    override fun onTeardown() {
-        message.isVisible = false
-        message.text = ""
     }
 }

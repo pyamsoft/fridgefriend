@@ -17,8 +17,6 @@
 
 package com.pyamsoft.fridge.detail.add
 
-import android.os.Bundle
-import android.view.View
 import android.view.ViewGroup
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.pyamsoft.fridge.detail.R
@@ -33,7 +31,7 @@ import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
 import javax.inject.Inject
 
 class AddNewItemView @Inject internal constructor(
-    private val imageLoader: ImageLoader,
+    imageLoader: ImageLoader,
     parent: ViewGroup
 ) : BaseUiView<UnitViewState, AddNewViewEvent>(parent) {
 
@@ -43,26 +41,25 @@ class AddNewItemView @Inject internal constructor(
 
     private var iconLoaded: Loaded? = null
 
-    override fun onInflated(
-        view: View,
-        savedInstanceState: Bundle?
-    ) {
-        iconLoaded = imageLoader.load(R.drawable.ic_add_24dp)
-            .into(layoutRoot)
+    init {
+        doOnInflate {
+            iconLoaded = imageLoader.load(R.drawable.ic_add_24dp)
+                .into(layoutRoot)
 
-        layoutRoot.setOnDebouncedClickListener { publish(AddNewItemEvent) }
-        layoutRoot.popShow()
+            layoutRoot.setOnDebouncedClickListener { publish(AddNewItemEvent) }
+            layoutRoot.popShow()
+        }
+
+        doOnTeardown {
+            disposeIcon()
+            layoutRoot.setOnClickListener(null)
+        }
     }
 
     override fun onRender(
         state: UnitViewState,
         savedState: UiSavedState
     ) {
-    }
-
-    override fun onTeardown() {
-        disposeIcon()
-        layoutRoot.setOnClickListener(null)
     }
 
     private fun disposeIcon() {

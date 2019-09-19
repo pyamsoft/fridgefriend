@@ -18,7 +18,6 @@
 package com.pyamsoft.fridge.detail.expand
 
 import android.graphics.drawable.Drawable
-import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
@@ -40,7 +39,7 @@ import com.pyamsoft.pydroid.ui.util.setUpEnabled
 import javax.inject.Inject
 
 class ExpandedToolbar @Inject internal constructor(
-    private val imageLoader: ImageLoader,
+    imageLoader: ImageLoader,
     parent: ViewGroup
 ) : BaseUiView<DetailItemViewState, DetailItemViewEvent>(parent) {
 
@@ -53,39 +52,50 @@ class ExpandedToolbar @Inject internal constructor(
     private var spoilMenuItem: MenuItem? = null
     private var iconLoaded: Loaded? = null
 
-    override fun onInflated(
-        view: View,
-        savedInstanceState: Bundle?
-    ) {
-        stopIconLoad()
-        iconLoaded = imageLoader.load(R.drawable.ic_close_24dp)
-            .into(object : ImageTarget<Drawable> {
+    init {
+        doOnInflate {
+            stopIconLoad()
+            iconLoaded = imageLoader.load(R.drawable.ic_close_24dp)
+                .into(object : ImageTarget<Drawable> {
 
-                override fun clear() {
-                    layoutRoot.navigationIcon = null
-                }
+                    override fun clear() {
+                        layoutRoot.navigationIcon = null
+                    }
 
-                override fun setError(error: Drawable?) {
-                    layoutRoot.setUpEnabled(true, error)
-                }
+                    override fun setError(error: Drawable?) {
+                        layoutRoot.setUpEnabled(true, error)
+                    }
 
-                override fun setImage(image: Drawable) {
-                    layoutRoot.setUpEnabled(true, image)
-                }
+                    override fun setImage(image: Drawable) {
+                        layoutRoot.setUpEnabled(true, image)
+                    }
 
-                override fun setPlaceholder(placeholder: Drawable?) {
-                    layoutRoot.setUpEnabled(true, placeholder)
-                }
+                    override fun setPlaceholder(placeholder: Drawable?) {
+                        layoutRoot.setUpEnabled(true, placeholder)
+                    }
 
-                override fun view(): View {
-                    return layoutRoot
-                }
-            })
+                    override fun view(): View {
+                        return layoutRoot
+                    }
+                })
 
-        layoutRoot.inflateMenu(R.menu.menu_expanded)
-        deleteMenuItem = layoutRoot.menu.findItem(R.id.menu_item_delete)
-        consumeMenuItem = layoutRoot.menu.findItem(R.id.menu_item_consume)
-        spoilMenuItem = layoutRoot.menu.findItem(R.id.menu_item_spoil)
+            layoutRoot.inflateMenu(R.menu.menu_expanded)
+            deleteMenuItem = layoutRoot.menu.findItem(R.id.menu_item_delete)
+            consumeMenuItem = layoutRoot.menu.findItem(R.id.menu_item_consume)
+            spoilMenuItem = layoutRoot.menu.findItem(R.id.menu_item_spoil)
+        }
+
+        doOnTeardown {
+            stopIconLoad()
+
+            layoutRoot.menu.clear()
+            deleteMenuItem = null
+            consumeMenuItem = null
+            spoilMenuItem = null
+
+            layoutRoot.setNavigationOnClickListener(null)
+            layoutRoot.setOnMenuItemClickListener(null)
+        }
     }
 
     override fun onRender(
@@ -124,17 +134,5 @@ class ExpandedToolbar @Inject internal constructor(
     private fun stopIconLoad() {
         iconLoaded?.dispose()
         iconLoaded = null
-    }
-
-    override fun onTeardown() {
-        stopIconLoad()
-
-        layoutRoot.menu.clear()
-        deleteMenuItem = null
-        consumeMenuItem = null
-        spoilMenuItem = null
-
-        layoutRoot.setNavigationOnClickListener(null)
-        layoutRoot.setOnMenuItemClickListener(null)
     }
 }

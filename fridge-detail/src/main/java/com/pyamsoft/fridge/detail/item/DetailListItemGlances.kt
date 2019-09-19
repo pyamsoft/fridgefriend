@@ -45,6 +45,12 @@ class DetailListItemGlances @Inject internal constructor(
     private val itemExpiringSoon by boundView<CompoundButton>(R.id.detail_item_glances_expiring)
     private val itemExpired by boundView<CompoundButton>(R.id.detail_item_glances_expired)
 
+    init {
+        doOnTeardown {
+            layoutRoot.setOnDebouncedClickListener(null)
+        }
+    }
+
     override fun onRender(
         state: DetailItemViewState,
         savedState: UiSavedState
@@ -64,9 +70,5 @@ class DetailListItemGlances @Inject internal constructor(
             itemExpired.isChecked = if (isReal) item.isExpired(today) else false
             itemExpiringSoon.isChecked = if (isReal) item.isExpiringSoon(today) else false
         }
-    }
-
-    override fun onTeardown() {
-        layoutRoot.setOnDebouncedClickListener(null)
     }
 }

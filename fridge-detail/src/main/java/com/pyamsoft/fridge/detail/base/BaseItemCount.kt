@@ -17,8 +17,6 @@
 
 package com.pyamsoft.fridge.detail.base
 
-import android.os.Bundle
-import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
 import com.pyamsoft.fridge.db.item.FridgeItem
@@ -30,7 +28,7 @@ import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
 
 abstract class BaseItemCount protected constructor(
     parent: ViewGroup,
-    private val initialItem: FridgeItem
+    initialItem: FridgeItem
 ) : BaseUiView<DetailItemViewState, DetailItemViewEvent>(parent) {
 
     final override val layout: Int = R.layout.detail_list_item_count
@@ -39,27 +37,22 @@ abstract class BaseItemCount protected constructor(
 
     protected val countView by boundView<EditText>(R.id.detail_item_count_editable)
 
-    // Don't bind nameView text based on state
+    // Don't bind nameView text based on state in onRender
     // Android does not re-render fast enough for edits to keep up
-    final override fun onInflated(
-        view: View,
-        savedInstanceState: Bundle?
-    ) {
-        setCount(item = initialItem)
+    init {
+        doOnInflate {
+            setCount(item = initialItem)
+        }
+
+        doOnTeardown {
+            countView.text.clear()
+            countView.setOnDebouncedClickListener(null)
+        }
     }
 
     protected fun setCount(item: FridgeItem) {
         val count = item.count()
         val countText = if (count > 0) "$count" else ""
         countView.setTextKeepState(countText)
-    }
-
-    final override fun onTeardown() {
-        countView.text.clear()
-        countView.setOnDebouncedClickListener(null)
-        onAfterTeardown()
-    }
-
-    protected open fun onAfterTeardown() {
     }
 }
