@@ -17,8 +17,6 @@
 
 package com.pyamsoft.fridge.setting
 
-import android.os.Bundle
-import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.widget.Toolbar
 import com.pyamsoft.fridge.setting.SettingViewEvent.Navigate
@@ -37,25 +35,24 @@ class SettingToolbar @Inject internal constructor(
 
     override val layoutRoot by boundView<Toolbar>(R.id.setting_toolbar)
 
-    override fun onInflated(
-        view: View,
-        savedInstanceState: Bundle?
-    ) {
-        layoutRoot.title = "Settings"
-        layoutRoot.setUpEnabled(true)
-        layoutRoot.setNavigationOnClickListener(DebouncedOnClickListener.create {
-            publish(Navigate)
-        })
+    init {
+        doOnInflate {
+            layoutRoot.title = "Settings"
+            layoutRoot.setUpEnabled(true)
+            layoutRoot.setNavigationOnClickListener(DebouncedOnClickListener.create {
+                publish(Navigate)
+            })
+        }
+
+        doOnTeardown {
+            layoutRoot.setUpEnabled(false)
+            layoutRoot.setNavigationOnClickListener(null)
+        }
     }
 
     override fun onRender(
         state: UnitViewState,
         savedState: UiSavedState
     ) {
-    }
-
-    override fun onTeardown() {
-        layoutRoot.setUpEnabled(false)
-        layoutRoot.setNavigationOnClickListener(null)
     }
 }
