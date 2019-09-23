@@ -17,55 +17,30 @@
 
 package com.pyamsoft.fridge.locator.map.gms
 
-import android.content.Context
-import android.content.res.Resources
 import androidx.annotation.CheckResult
 import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.location.GeofenceStatusCodes
-import com.pyamsoft.fridge.locator.map.R.string
 
 internal object GeofenceErrorMessages {
 
+    private const val UNKNOWN_ERROR = "An unknown error occurred, please try again later."
+
     @CheckResult
-    fun getErrorString(
-        context: Context,
-        e: Exception
-    ): String {
-        val appContext = context.applicationContext
-        val resources = appContext.resources
-        if (e is ApiException) {
-            return getErrorString(resources, e.statusCode)
+    fun getErrorString(e: Exception): String {
+        return if (e is ApiException) {
+            getErrorString(e.statusCode)
         } else {
-            return resources.getString(string.geofence_unknown_error)
+            UNKNOWN_ERROR
         }
     }
 
     @CheckResult
-    fun getErrorString(
-        context: Context,
-        errorCode: Int
-    ): String {
-        return getErrorString(context.applicationContext.resources, errorCode)
-    }
-
-    @CheckResult
-    private fun getErrorString(
-        resources: Resources,
-        errorCode: Int
-    ): String {
+    fun getErrorString(errorCode: Int): String {
         return when (errorCode) {
-            GeofenceStatusCodes.GEOFENCE_NOT_AVAILABLE -> resources.getString(
-                string.geofence_not_available
-            )
-            GeofenceStatusCodes.GEOFENCE_TOO_MANY_GEOFENCES -> resources.getString(
-                string.geofence_too_many_geofences
-            )
-            GeofenceStatusCodes.GEOFENCE_TOO_MANY_PENDING_INTENTS -> resources.getString(
-                string.geofence_too_many_pending_intents
-            )
-            else -> resources.getString(
-                string.geofence_unknown_error
-            )
+            GeofenceStatusCodes.GEOFENCE_NOT_AVAILABLE -> "Sorry, the Geofence service is not available now"
+            GeofenceStatusCodes.GEOFENCE_TOO_MANY_GEOFENCES -> "Unable to register Geofence: Geofence count exceeds per-app limit of 100."
+            GeofenceStatusCodes.GEOFENCE_TOO_MANY_PENDING_INTENTS -> "Unable to register Geofence: Too many request objects."
+            else -> UNKNOWN_ERROR
         }
     }
 }

@@ -103,30 +103,21 @@ internal class MapFragment : Fragment(), SnackbarContainer {
     }
 
     private fun requestStoragePermission() {
-        requireNotNull(mapPermission).requestStoragePermission(this)
+        requireNotNull(mapPermission).requestStoragePermission(
+            this,
+            onGranted = {
+                Timber.d("STORAGE granted")
+            },
+            onDenied = { permanently -> Timber.e("STORAGE denied. Permant? $permanently") })
     }
 
     private fun requestBackgroundLocationPermission() {
-        requireNotNull(mapPermission).requestBackgroundPermission(this)
-    }
-
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        requireNotNull(mapPermission).let { mp ->
-            mp.onBackgroundResult(requestCode, permissions, grantResults) {
-                Timber.d("BACKGROUND permission granted!")
-                // TODO Handle background permission granted state
-            }
-
-            mp.onStorageResult(requestCode, permissions, grantResults) {
-                Timber.d("STORAGE permission granted!")
-                // TODO Handle storage permission granted state
-            }
-        }
+        requireNotNull(mapPermission).requestBackgroundPermission(
+            this,
+            onGranted = {
+                Timber.d("BACKGROUND granted")
+            },
+            onDenied = { permanently -> Timber.e("BACKGROUND denied. Permant? $permanently") })
     }
 
     override fun onSaveInstanceState(outState: Bundle) {

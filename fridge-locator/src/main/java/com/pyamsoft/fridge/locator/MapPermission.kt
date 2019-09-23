@@ -25,36 +25,29 @@ interface MapPermission {
     @CheckResult
     fun hasBackgroundPermission(): Boolean
 
-    fun requestBackgroundPermission(fragment: Fragment)
-
-    fun onBackgroundResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray,
-        onBackgroundPermissionGranted: () -> Unit
+    fun requestBackgroundPermission(
+        fragment: Fragment,
+        onGranted: () -> Unit,
+        onDenied: (permanently: Boolean) -> Unit
     )
 
     @CheckResult
     fun hasForegroundPermission(): Boolean
 
-    fun requestForegroundPermission(fragment: Fragment)
-
-    fun onForegroundResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray,
-        onForegroundPermissionGranted: () -> Unit
+    fun requestForegroundPermission(
+        fragment: Fragment,
+        onGranted: () -> Unit,
+        onDenied: (coarsePermanently: PermissionDenial?, finePermanently: PermissionDenial?) -> Unit
     )
 
     @CheckResult
     fun hasStoragePermission(): Boolean
 
-    fun requestStoragePermission(fragment: Fragment)
-
-    fun onStorageResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray,
-        onStoragePermissionGranted: () -> Unit
+    fun requestStoragePermission(
+        fragment: Fragment,
+        onGranted: () -> Unit,
+        onDenied: (permanently: Boolean) -> Unit
     )
+
+    data class PermissionDenial(val permission: String, val permanently: Boolean)
 }

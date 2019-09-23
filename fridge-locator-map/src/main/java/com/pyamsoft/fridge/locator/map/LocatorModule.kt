@@ -46,7 +46,7 @@ abstract class LocatorModule {
 
     @Binds
     @CheckResult
-    internal abstract fun bindLocationPermissions(impl: GmsLocator): MapPermission
+    internal abstract fun bindLocationPermissions(impl: PermissionGranter): MapPermission
 
     @Binds
     @CheckResult

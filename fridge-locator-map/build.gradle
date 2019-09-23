@@ -74,6 +74,8 @@ dependencies {
 
     implementation "com.google.android.gms:play-services-location:$gmsLocation"
 
+    implementation "com.karumi:dexter:$dexter"
+
     kapt "com.google.dagger:dagger-compiler:$dagger"
 
     implementation project(':fridge-butler')

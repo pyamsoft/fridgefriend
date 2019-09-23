@@ -67,6 +67,9 @@ buildscript {
 
         // FusedLocationProvider
         gmsLocation = "17.0.0"
+
+        // Permission library
+        dexter = "6.0.0"
     }
 
     dependencies {

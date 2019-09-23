@@ -34,6 +34,7 @@ import com.pyamsoft.pydroid.arch.createComponent
 import com.pyamsoft.pydroid.ui.Injector
 import com.pyamsoft.pydroid.ui.arch.factory
 import com.pyamsoft.pydroid.ui.util.commitNow
+import timber.log.Timber
 import javax.inject.Inject
 
 internal class PermissionFragment : Fragment(), SnackbarContainer {
@@ -91,25 +92,22 @@ internal class PermissionFragment : Fragment(), SnackbarContainer {
     }
 
     private fun requestLocationPermission() {
-        requireNotNull(mapPermission).requestForegroundPermission(this)
-    }
-
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        requireNotNull(mapPermission).onForegroundResult(requestCode, permissions, grantResults) {
+        requireNotNull(mapPermission).requestForegroundPermission(this, onGranted = {
             pushMapFragmentOncePermissionGranted()
-        }
+        }, onDenied = { coarsePermanently, finePermanently ->
+            Timber.e("Map permissions denied: $coarsePermanently $finePermanently")
+        })
     }
 
     private fun pushMapFragmentOncePermissionGranted() {
         val self = this
         requireNotNull(parentFragment).childFragmentManager.commitNow(viewLifecycleOwner) {
             remove(self)
-            add(requireArguments().getInt(CONTAINER_ID, 0), MapFragment.newInstance(), MapFragment.TAG)
+            add(
+                requireArguments().getInt(CONTAINER_ID, 0),
+                MapFragment.newInstance(),
+                MapFragment.TAG
+            )
         }
     }
 

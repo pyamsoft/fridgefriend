@@ -22,13 +22,8 @@ import android.app.Activity
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.location.Location
-import android.os.Build.VERSION
-import android.os.Build.VERSION_CODES
 import androidx.annotation.CheckResult
-import androidx.core.content.ContextCompat
-import androidx.fragment.app.Fragment
 import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.common.api.ResolvableApiException
 import com.google.android.gms.location.FusedLocationProviderClient
@@ -56,9 +51,10 @@ import kotlin.coroutines.suspendCoroutine
 
 @Singleton
 internal class GmsLocator @Inject internal constructor(
-    private val context: Context,
+    context: Context,
+    private val permission: MapPermission,
     geofenceReceiverClass: Class<out GeofenceBroadcastReceiver>
-) : Locator, MapPermission, DeviceGps, Geofencer {
+) : Locator, DeviceGps, Geofencer {
 
     private val locationClient = FusedLocationProviderClient(context)
     private val settingsClient = LocationServices.getSettingsClient(context)
@@ -70,9 +66,8 @@ internal class GmsLocator @Inject internal constructor(
     )
 
     override suspend fun getLastKnownLocation(): Location? {
-        if (!hasForegroundPermission()) {
-            val permission = android.Manifest.permission.ACCESS_FINE_LOCATION
-            Timber.w("Cannot get last location, missing $permission")
+        if (!permission.hasForegroundPermission()) {
+            Timber.w("Cannot get last location, missing foreground location permissions")
             return null
         }
 
@@ -119,7 +114,10 @@ internal class GmsLocator @Inject internal constructor(
                             onError(throwable)
                         } else {
                             try {
-                                throwable.startResolutionForResult(activity, DeviceGps.ENABLE_GPS_REQUEST_CODE)
+                                throwable.startResolutionForResult(
+                                    activity,
+                                    DeviceGps.ENABLE_GPS_REQUEST_CODE
+                                )
                             } catch (e: Exception) {
                                 onError(e)
                             }
@@ -150,7 +148,7 @@ internal class GmsLocator @Inject internal constructor(
     override fun getTriggeredFenceIds(intent: Intent): List<String> {
         val event = GeofencingEvent.fromIntent(intent)
         if (event.hasError()) {
-            val errorMessage = GeofenceErrorMessages.getErrorString(context, event.errorCode)
+            val errorMessage = GeofenceErrorMessages.getErrorString(event.errorCode)
             Timber.e(errorMessage)
             return emptyList()
         }
@@ -162,137 +160,6 @@ internal class GmsLocator @Inject internal constructor(
         }
 
         return event.triggeringGeofences.map { it.requestId }
-    }
-
-    @CheckResult
-    private fun checkPermission(permission: String): Boolean {
-        return checkPermissions(permission)
-    }
-
-    @CheckResult
-    private fun checkPermissions(vararg permissions: String): Boolean {
-        return permissions.all { permission ->
-            val permissionCheck = ContextCompat.checkSelfPermission(context, permission)
-            return@all permissionCheck == PackageManager.PERMISSION_GRANTED
-        }
-    }
-
-    private fun requestPermission(
-        fragment: Fragment,
-        requestCode: Int,
-        permission: String
-    ) {
-        requestPermissions(fragment, requestCode, permission)
-    }
-
-    private fun requestPermissions(
-        fragment: Fragment,
-        requestCode: Int,
-        vararg permissions: String
-    ) {
-        fragment.requestPermissions(permissions, requestCode)
-    }
-
-    private inline fun onPermissionResult(
-        requestCode: Int,
-        expectedCode: Int,
-        hasPermission: () -> Boolean,
-        onPermissionGranted: () -> Unit
-    ) {
-        if (requestCode == expectedCode) {
-            if (hasPermission()) {
-                onPermissionGranted()
-            }
-        }
-    }
-
-    override fun hasForegroundPermission(): Boolean {
-        return checkPermissions(
-            android.Manifest.permission.ACCESS_FINE_LOCATION,
-            android.Manifest.permission.ACCESS_COARSE_LOCATION
-        )
-    }
-
-    override fun requestForegroundPermission(fragment: Fragment) {
-        requestPermissions(
-            fragment,
-            FOREGROUND_LOCATION_PERMISSION_REQUEST_RC,
-            android.Manifest.permission.ACCESS_COARSE_LOCATION,
-            android.Manifest.permission.ACCESS_FINE_LOCATION
-        )
-    }
-
-    override fun onForegroundResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray,
-        onForegroundPermissionGranted: () -> Unit
-    ) {
-        onPermissionResult(
-            requestCode, FOREGROUND_LOCATION_PERMISSION_REQUEST_RC,
-            hasPermission = { hasForegroundPermission() }) {
-            onForegroundPermissionGranted()
-        }
-    }
-
-    override fun hasBackgroundPermission(): Boolean {
-        if (VERSION.SDK_INT >= VERSION_CODES.Q) {
-            return checkPermission(android.Manifest.permission.ACCESS_BACKGROUND_LOCATION)
-        } else {
-            return true
-        }
-    }
-
-    override fun requestBackgroundPermission(fragment: Fragment) {
-        if (VERSION.SDK_INT >= VERSION_CODES.Q) {
-            requestPermission(
-                fragment,
-                BACKGROUND_LOCATION_PERMISSION_REQUEST_RC,
-                android.Manifest.permission.ACCESS_BACKGROUND_LOCATION
-            )
-        }
-    }
-
-    override fun onBackgroundResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray,
-        onBackgroundPermissionGranted: () -> Unit
-    ) {
-        onPermissionResult(
-            requestCode, BACKGROUND_LOCATION_PERMISSION_REQUEST_RC,
-            hasPermission = { hasBackgroundPermission() }) {
-            onBackgroundPermissionGranted()
-        }
-    }
-
-    override fun hasStoragePermission(): Boolean {
-        return checkPermissions(
-            android.Manifest.permission.WRITE_EXTERNAL_STORAGE,
-            android.Manifest.permission.READ_EXTERNAL_STORAGE
-        )
-    }
-
-    override fun requestStoragePermission(fragment: Fragment) {
-        requestPermissions(
-            fragment,
-            STORAGE_PERMISSION_REQUEST_RC,
-            android.Manifest.permission.WRITE_EXTERNAL_STORAGE,
-            android.Manifest.permission.READ_EXTERNAL_STORAGE
-        )
-    }
-
-    override fun onStorageResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray,
-        onStoragePermissionGranted: () -> Unit
-    ) {
-        onPermissionResult(
-            requestCode, STORAGE_PERMISSION_REQUEST_RC,
-            hasPermission = { hasStoragePermission() }) {
-            onStoragePermissionGranted()
-        }
     }
 
     @CheckResult
@@ -309,17 +176,13 @@ internal class GmsLocator @Inject internal constructor(
     }
 
     override fun registerGeofences(fences: List<Fence>) {
-        if (!hasForegroundPermission()) {
-            val permission = android.Manifest.permission.ACCESS_FINE_LOCATION
-            Timber.w("Cannot register Geofences, missing $permission")
+        if (!permission.hasForegroundPermission()) {
+            Timber.w("Cannot register Geofences, missing foreground location permissions")
             return
         }
 
-        if (!hasBackgroundPermission()) {
-            if (VERSION.SDK_INT >= VERSION_CODES.Q) {
-                val permission = android.Manifest.permission.ACCESS_BACKGROUND_LOCATION
-                Timber.w("Cannot register Geofences, missing $permission")
-            }
+        if (!permission.hasBackgroundPermission()) {
+            Timber.w("Cannot register Geofences, missing background location permissions")
             return
         }
 
@@ -370,7 +233,7 @@ internal class GmsLocator @Inject internal constructor(
         geofencingClient.removeGeofences(geofenceIntent)
             .addOnSuccessListener { andThen() }
             .addOnFailureListener {
-                Timber.e(GeofenceErrorMessages.getErrorString(context, it))
+                Timber.e(GeofenceErrorMessages.getErrorString(it))
             }
     }
 
@@ -384,9 +247,5 @@ internal class GmsLocator @Inject internal constructor(
             .toInt()
         private val NOTIFICATION_DELAY_IN_MILLIS = TimeUnit.MINUTES.toMillis(2L)
             .toInt()
-
-        private const val BACKGROUND_LOCATION_PERMISSION_REQUEST_RC = 1234
-        private const val FOREGROUND_LOCATION_PERMISSION_REQUEST_RC = 4321
-        private const val STORAGE_PERMISSION_REQUEST_RC = 1324
     }
 }
