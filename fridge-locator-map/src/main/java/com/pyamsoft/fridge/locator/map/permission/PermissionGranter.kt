@@ -69,7 +69,7 @@ internal class PermissionGranter @Inject internal constructor(
 
     override fun hasBackgroundPermission(): Boolean {
         if (VERSION.SDK_INT < VERSION_CODES.Q) {
-            return false
+            return true
         }
 
         return checkPermissions(Manifest.permission.ACCESS_BACKGROUND_LOCATION)
