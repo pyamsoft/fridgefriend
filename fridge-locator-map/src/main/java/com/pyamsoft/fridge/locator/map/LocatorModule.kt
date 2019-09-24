@@ -25,6 +25,7 @@ import com.pyamsoft.fridge.locator.MapPermission
 import com.pyamsoft.fridge.locator.map.gms.GmsLocator
 import com.pyamsoft.fridge.locator.map.osm.api.NearbyLocationApi
 import com.pyamsoft.fridge.locator.map.osm.api.OsmNodeOrWay
+import com.pyamsoft.fridge.locator.map.permission.PermissionGranter
 import com.squareup.moshi.Moshi
 import dagger.Binds
 import dagger.Module

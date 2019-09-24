@@ -15,7 +15,7 @@
  *
  */
 
-package com.pyamsoft.fridge.locator.map
+package com.pyamsoft.fridge.locator.map.permission
 
 import android.Manifest
 import android.content.Context
@@ -62,15 +62,11 @@ internal class PermissionGranter @Inject internal constructor(
         onDenied: (coarsePermanently: PermissionDenial?, finePermanently: PermissionDenial?) -> Unit
     ) {
         Dexter.withActivity(fragment.requireActivity())
-            .withPermissions(COARSE_PERMISSION, FINE_PERMISSION)
+            .withPermissions(
+                COARSE_PERMISSION,
+                FINE_PERMISSION
+            )
             .withListener(object : BaseMultiplePermissionsListener() {
-
-                // We need this in here otherwise, Dagger will not be able to find Dexter
-                // using implementation.
-                @CheckResult
-                private fun PermissionDeniedResponse.toDenial(): PermissionDenial {
-                    return PermissionDenial(this.permissionName, this.isPermanentlyDenied)
-                }
 
                 override fun onPermissionsChecked(report: MultiplePermissionsReport) {
                     if (report.areAllPermissionsGranted()) {
