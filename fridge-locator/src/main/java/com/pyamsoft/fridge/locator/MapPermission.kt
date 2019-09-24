@@ -28,7 +28,7 @@ interface MapPermission {
     fun requestBackgroundPermission(
         fragment: Fragment,
         onGranted: () -> Unit,
-        onDenied: (permanently: Boolean) -> Unit
+        onDenied: () -> Unit
     )
 
     @CheckResult
@@ -37,7 +37,7 @@ interface MapPermission {
     fun requestForegroundPermission(
         fragment: Fragment,
         onGranted: () -> Unit,
-        onDenied: (coarsePermanently: PermissionDenial?, finePermanently: PermissionDenial?) -> Unit
+        onDenied: (coarseDenied: PermissionDenial?, fineDenied: PermissionDenial?) -> Unit
     )
 
     @CheckResult
@@ -46,8 +46,8 @@ interface MapPermission {
     fun requestStoragePermission(
         fragment: Fragment,
         onGranted: () -> Unit,
-        onDenied: (permanently: Boolean) -> Unit
+        onDenied: () -> Unit
     )
 
-    data class PermissionDenial(val permission: String, val permanently: Boolean)
+    data class PermissionDenial(val permission: String)
 }

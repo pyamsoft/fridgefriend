@@ -25,12 +25,6 @@ import android.os.Build.VERSION_CODES
 import androidx.annotation.CheckResult
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
-import com.karumi.dexter.Dexter
-import com.karumi.dexter.MultiplePermissionsReport
-import com.karumi.dexter.listener.PermissionDeniedResponse
-import com.karumi.dexter.listener.PermissionGrantedResponse
-import com.karumi.dexter.listener.multi.BaseMultiplePermissionsListener
-import com.karumi.dexter.listener.single.BasePermissionListener
 import com.pyamsoft.fridge.locator.MapPermission
 import com.pyamsoft.fridge.locator.MapPermission.PermissionDenial
 import javax.inject.Inject
@@ -59,29 +53,18 @@ internal class PermissionGranter @Inject internal constructor(
     override fun requestForegroundPermission(
         fragment: Fragment,
         onGranted: () -> Unit,
-        onDenied: (coarsePermanently: PermissionDenial?, finePermanently: PermissionDenial?) -> Unit
+        onDenied: (coarseDenied: PermissionDenial?, fineDenied: PermissionDenial?) -> Unit
     ) {
-        Dexter.withActivity(fragment.requireActivity())
-            .withPermissions(
-                COARSE_PERMISSION,
-                FINE_PERMISSION
-            )
-            .withListener(object : BaseMultiplePermissionsListener() {
-
-                override fun onPermissionsChecked(report: MultiplePermissionsReport) {
-                    if (report.areAllPermissionsGranted()) {
-                        onGranted()
-                    } else {
-                        val denied = report.deniedPermissionResponses
-                        val coarse =
-                            denied.find { it.permissionName == COARSE_PERMISSION }
-                        val fine = denied.find { it.permissionName == FINE_PERMISSION }
-                        val coarseResponse = coarse?.toDenial()
-                        val fineResponse = fine?.toDenial()
-                        onDenied(coarseResponse, fineResponse)
-                    }
-                }
-            }).check()
+        PermissionManager.request(
+            fragment,
+            COARSE_PERMISSION,
+            FINE_PERMISSION,
+            onGranted = onGranted,
+            onDenied = { denials ->
+                val coarseDenied = denials.find { it.permission == COARSE_PERMISSION }
+                val fineDenied = denials.find { it.permission == FINE_PERMISSION }
+                onDenied(coarseDenied, fineDenied)
+            })
     }
 
     override fun hasBackgroundPermission(): Boolean {
@@ -95,12 +78,12 @@ internal class PermissionGranter @Inject internal constructor(
     override fun requestBackgroundPermission(
         fragment: Fragment,
         onGranted: () -> Unit,
-        onDenied: (permanently: Boolean) -> Unit
+        onDenied: () -> Unit
     ) {
         if (VERSION.SDK_INT >= VERSION_CODES.Q) {
             requestSinglePermission(
-                Manifest.permission.ACCESS_BACKGROUND_LOCATION,
                 fragment,
+                Manifest.permission.ACCESS_BACKGROUND_LOCATION,
                 onGranted,
                 onDenied
             )
@@ -119,33 +102,23 @@ internal class PermissionGranter @Inject internal constructor(
     override fun requestStoragePermission(
         fragment: Fragment,
         onGranted: () -> Unit,
-        onDenied: (permanently: Boolean) -> Unit
+        onDenied: () -> Unit
     ) {
         requestSinglePermission(
-            Manifest.permission.WRITE_EXTERNAL_STORAGE,
             fragment,
+            Manifest.permission.WRITE_EXTERNAL_STORAGE,
             onGranted,
             onDenied
         )
     }
 
     private inline fun requestSinglePermission(
-        permission: String,
         fragment: Fragment,
+        permission: String,
         crossinline onGranted: () -> Unit,
-        crossinline onDenied: (permanently: Boolean) -> Unit
+        crossinline onDenied: () -> Unit
     ) {
-        Dexter.withActivity(fragment.requireActivity())
-            .withPermission(permission)
-            .withListener(object : BasePermissionListener() {
-                override fun onPermissionGranted(response: PermissionGrantedResponse) {
-                    onGranted()
-                }
-
-                override fun onPermissionDenied(response: PermissionDeniedResponse) {
-                    onDenied(response.isPermanentlyDenied)
-                }
-            }).check()
+        PermissionManager.request(fragment, permission, onGranted, onDenied)
     }
 
     companion object {

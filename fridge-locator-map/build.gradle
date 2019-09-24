@@ -74,7 +74,7 @@ dependencies {
 
     implementation "com.google.android.gms:play-services-location:$gmsLocation"
 
-    implementation "com.karumi:dexter:$dexter"
+    implementation "com.afollestad:assent:$assent"
 
     kapt "com.google.dagger:dagger-compiler:$dagger"
 

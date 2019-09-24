@@ -94,8 +94,8 @@ internal class PermissionFragment : Fragment(), SnackbarContainer {
     private fun requestLocationPermission() {
         requireNotNull(mapPermission).requestForegroundPermission(this, onGranted = {
             pushMapFragmentOncePermissionGranted()
-        }, onDenied = { coarsePermanently, finePermanently ->
-            Timber.e("Map permissions denied: $coarsePermanently $finePermanently")
+        }, onDenied = { coarseDenied, fineDenied ->
+            Timber.e("Map permissions denied: $coarseDenied $fineDenied")
         })
     }
 

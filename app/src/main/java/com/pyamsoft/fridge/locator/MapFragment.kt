@@ -108,7 +108,7 @@ internal class MapFragment : Fragment(), SnackbarContainer {
             onGranted = {
                 Timber.d("STORAGE granted")
             },
-            onDenied = { permanently -> Timber.e("STORAGE denied. Permant? $permanently") })
+            onDenied = { Timber.e("STORAGE denied.") })
     }
 
     private fun requestBackgroundLocationPermission() {
@@ -117,7 +117,7 @@ internal class MapFragment : Fragment(), SnackbarContainer {
             onGranted = {
                 Timber.d("BACKGROUND granted")
             },
-            onDenied = { permanently -> Timber.e("BACKGROUND denied. Permant? $permanently") })
+            onDenied = { Timber.e("BACKGROUND denied.") })
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
