@@ -69,7 +69,7 @@ buildscript {
         gmsLocation = "17.0.0"
 
         // Permission library
-        assent = "2.3.1"
+        assent = "2.3.1-LOCAL"
     }
 
     dependencies {
@@ -79,7 +79,7 @@ buildscript {
         classpath 'com.getkeepsafe.dexcount:dexcount-gradle-plugin:0.8.6'
 
         // Gradle version checker
-        classpath 'com.github.ben-manes:gradle-versions-plugin:0.21.0'
+        classpath 'com.github.ben-manes:gradle-versions-plugin:0.22.0'
 
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
 
