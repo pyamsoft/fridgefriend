@@ -68,11 +68,11 @@ internal class PermissionGranter @Inject internal constructor(
     }
 
     override fun hasBackgroundPermission(): Boolean {
-        return if (VERSION.SDK_INT >= VERSION_CODES.Q) {
-            checkPermissions(Manifest.permission.ACCESS_BACKGROUND_LOCATION)
-        } else {
-            true
+        if (VERSION.SDK_INT < VERSION_CODES.Q) {
+            return false
         }
+
+        return checkPermissions(Manifest.permission.ACCESS_BACKGROUND_LOCATION)
     }
 
     override fun requestBackgroundPermission(
@@ -80,16 +80,17 @@ internal class PermissionGranter @Inject internal constructor(
         onGranted: () -> Unit,
         onDenied: () -> Unit
     ) {
-        if (VERSION.SDK_INT >= VERSION_CODES.Q) {
-            requestSinglePermission(
-                fragment,
-                Manifest.permission.ACCESS_BACKGROUND_LOCATION,
-                onGranted,
-                onDenied
-            )
-        } else {
+        if (VERSION.SDK_INT < VERSION_CODES.Q) {
             onGranted()
+            return
         }
+
+        requestSinglePermission(
+            fragment,
+            Manifest.permission.ACCESS_BACKGROUND_LOCATION,
+            onGranted,
+            onDenied
+        )
     }
 
     override fun hasStoragePermission(): Boolean {
