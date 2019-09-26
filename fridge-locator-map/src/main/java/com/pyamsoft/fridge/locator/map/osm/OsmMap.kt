@@ -17,7 +17,6 @@
 
 package com.pyamsoft.fridge.locator.map.osm
 
-import android.app.Activity
 import android.content.Context
 import android.graphics.Color
 import android.view.ViewGroup
@@ -85,7 +84,6 @@ class OsmMap @Inject internal constructor(
     private val nearbyZoneQueryDao: NearbyZoneQueryDao,
     private val nearbyZoneInsertDao: NearbyZoneInsertDao,
     private val nearbyZoneDeleteDao: NearbyZoneDeleteDao,
-    activity: Activity,
     parent: ViewGroup
 ) : BaseUiView<OsmViewState, OsmViewEvent>(parent), LifecycleObserver {
 
@@ -94,7 +92,6 @@ class OsmMap @Inject internal constructor(
     override val layoutRoot by boundView<ViewGroup>(R.id.osm_frame)
 
     private var markerOverlay: ItemizedOverlayWithFocus<OverlayItem>? = null
-    private var activity: Activity? = activity
 
     private var boundFindMeImage: Loaded? = null
     private var boundNearbyImage: Loaded? = null
@@ -133,13 +130,13 @@ class OsmMap @Inject internal constructor(
         // Must happen before inflate
         Configuration.getInstance()
             .load(
-                activity.application,
-                PreferenceManager.getDefaultSharedPreferences(activity.application)
+                parent.context.applicationContext,
+                PreferenceManager.getDefaultSharedPreferences(parent.context.applicationContext)
             )
 
         doOnInflate {
             owner.lifecycle.addObserver(this)
-            initMap(activity.applicationContext)
+            initMap(parent.context.applicationContext)
 
             boundNearbyImage?.dispose()
             boundNearbyImage = imageLoader.load(R.drawable.ic_shopping_cart_24dp)
@@ -282,8 +279,7 @@ class OsmMap @Inject internal constructor(
                 setPoints(points)
                 fillColor = color
 
-                val isDarkTheme = theming.isDarkTheme(requireNotNull(activity))
-                strokeColor = if (isDarkTheme) Color.WHITE else Color.BLACK
+                strokeColor = if (theming.isDarkTheme()) Color.WHITE else Color.BLACK
             }
 
             polygon.setOnClickListener { p, _, _ ->
@@ -371,7 +367,7 @@ class OsmMap @Inject internal constructor(
             addMapOverlays(context)
             zoomController.setVisibility(CustomZoomButtonsController.Visibility.SHOW_AND_FADEOUT)
 
-            if (theming.isDarkTheme(requireNotNull(activity))) {
+            if (theming.isDarkTheme()) {
                 mapOverlay.setColorFilter(TilesOverlay.INVERT_COLORS)
             }
         }

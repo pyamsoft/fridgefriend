@@ -70,10 +70,8 @@ data class JsonMappableNearbyStore internal constructor(
         @JvmStatic
         @CheckResult
         fun from(item: NearbyStore): JsonMappableNearbyStore {
-            if (item is JsonMappableNearbyStore) {
-                return item
-            } else {
-                return JsonMappableNearbyStore(
+            return if (item is JsonMappableNearbyStore) item else {
+                JsonMappableNearbyStore(
                     item.id(),
                     item.name(),
                     item.createdTime(),

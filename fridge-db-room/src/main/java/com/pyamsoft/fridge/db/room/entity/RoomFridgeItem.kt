@@ -209,10 +209,8 @@ internal data class RoomFridgeItem internal constructor(
         @JvmStatic
         @CheckResult
         internal fun create(item: FridgeItem): RoomFridgeItem {
-            if (item is RoomFridgeItem) {
-                return item
-            } else {
-                return RoomFridgeItem(
+            return if (item is RoomFridgeItem) item else {
+                RoomFridgeItem(
                     item.id(),
                     item.entryId(),
                     item.name(),

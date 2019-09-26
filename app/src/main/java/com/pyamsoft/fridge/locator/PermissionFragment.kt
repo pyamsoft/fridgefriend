@@ -33,7 +33,7 @@ import com.pyamsoft.fridge.main.SnackbarContainer
 import com.pyamsoft.pydroid.arch.createComponent
 import com.pyamsoft.pydroid.ui.Injector
 import com.pyamsoft.pydroid.ui.arch.factory
-import com.pyamsoft.pydroid.ui.util.commitNow
+import com.pyamsoft.pydroid.ui.util.commit
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -101,7 +101,8 @@ internal class PermissionFragment : Fragment(), SnackbarContainer {
 
     private fun pushMapFragmentOncePermissionGranted() {
         val self = this
-        requireNotNull(parentFragment).childFragmentManager.commitNow(viewLifecycleOwner) {
+        // Do not use commitNow because Assent needs to be the first one in the queue to fire
+        requireNotNull(parentFragment).childFragmentManager.commit(viewLifecycleOwner) {
             remove(self)
             add(
                 requireArguments().getInt(CONTAINER_ID, 0),

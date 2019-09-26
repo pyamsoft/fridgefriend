@@ -88,10 +88,8 @@ internal data class RoomNearbyZone internal constructor(
         @JvmStatic
         @CheckResult
         internal fun create(zone: NearbyZone): RoomNearbyZone {
-            if (zone is RoomNearbyZone) {
-                return zone
-            } else {
-                return RoomNearbyZone(
+            return if (zone is RoomNearbyZone) zone else {
+                RoomNearbyZone(
                     zone.id(),
                     zone.name(),
                     zone.createdTime(),

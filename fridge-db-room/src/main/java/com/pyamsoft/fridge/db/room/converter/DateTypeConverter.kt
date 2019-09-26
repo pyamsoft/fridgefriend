@@ -27,11 +27,7 @@ internal object DateTypeConverter {
     @TypeConverter
     @CheckResult
     fun toDate(time: Long?): Date? {
-        if (time == null) {
-            return null
-        } else {
-            return Date().apply { this.time = time }
-        }
+        return if (time == null) null else Date().apply { this.time = time }
     }
 
     @JvmStatic

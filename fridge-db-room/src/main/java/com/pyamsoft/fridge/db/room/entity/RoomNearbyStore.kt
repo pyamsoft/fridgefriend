@@ -102,10 +102,8 @@ internal data class RoomNearbyStore internal constructor(
         @JvmStatic
         @CheckResult
         internal fun create(store: NearbyStore): RoomNearbyStore {
-            if (store is RoomNearbyStore) {
-                return store
-            } else {
-                return RoomNearbyStore(
+            return if (store is RoomNearbyStore) store else {
+                RoomNearbyStore(
                     store.id(),
                     store.name(),
                     store.createdTime(),

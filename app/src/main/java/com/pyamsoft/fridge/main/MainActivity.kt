@@ -90,7 +90,7 @@ internal class MainActivity : RatingActivity() {
 
         Injector.obtain<FridgeComponent>(applicationContext)
             .plusMainComponent()
-            .create(this, view, this)
+            .create(view, this)
             .inject(this)
 
         view.makeWindowSexy()
@@ -139,7 +139,12 @@ internal class MainActivity : RatingActivity() {
 
             container.also {
                 connect(it.id(), ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP)
-                connect(it.id(), ConstraintSet.BOTTOM, ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM)
+                connect(
+                    it.id(),
+                    ConstraintSet.BOTTOM,
+                    ConstraintSet.PARENT_ID,
+                    ConstraintSet.BOTTOM
+                )
                 connect(it.id(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
                 connect(it.id(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
                 constrainHeight(it.id(), ConstraintSet.MATCH_CONSTRAINT)

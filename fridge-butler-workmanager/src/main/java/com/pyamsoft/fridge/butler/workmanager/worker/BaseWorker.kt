@@ -69,14 +69,14 @@ internal abstract class BaseWorker protected constructor(
         inject()
         requireNotNull(enforcer).assertNotOnMainThread()
 
-        try {
+        return try {
             performWork()
-            return success()
+            success()
         } catch (e: Throwable) {
             if (e is CancellationException) {
-                return cancelled(e)
+                cancelled(e)
             } else {
-                return fail(e)
+                fail(e)
             }
         } finally {
             teardown()

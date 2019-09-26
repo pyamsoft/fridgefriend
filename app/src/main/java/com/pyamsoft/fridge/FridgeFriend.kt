@@ -93,10 +93,10 @@ class FridgeFriend : Application() {
     }
 
     private fun installRefWatcher() {
-        if (BuildConfig.DEBUG) {
-            refWatcher = LeakCanary.install(this)
+        refWatcher = if (BuildConfig.DEBUG) {
+            LeakCanary.install(this)
         } else {
-            refWatcher = RefWatcher.DISABLED
+            RefWatcher.DISABLED
         }
     }
 
@@ -134,15 +134,10 @@ class FridgeFriend : Application() {
             return service
         }
 
-        if (name == FridgeComponent::class.java.name) {
-            return requireNotNull(component)
+        return if (name == FridgeComponent::class.java.name) {
+            requireNotNull(component)
         } else {
-            val serviceFromComponent = getServiceFromComponent(name)
-            if (serviceFromComponent != null) {
-                return serviceFromComponent
-            } else {
-                return super.getSystemService(name)
-            }
+            getServiceFromComponent(name) ?: super.getSystemService(name)
         }
     }
 

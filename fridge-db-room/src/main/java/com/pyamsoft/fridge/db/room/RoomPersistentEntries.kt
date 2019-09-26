@@ -65,17 +65,14 @@ internal class RoomPersistentEntries @Inject internal constructor(
         val entryId = getEntryId(key)
         val entry = getValidEntry(entryId, false)
         val valid = entry.entry
-        if (valid != null) {
-            Timber.d("Entry exists, ignore: ${valid.id()}")
-            return valid
-        } else {
+        return if (valid != null) valid else {
             val createdTime = Calendar.getInstance()
                 .time
             Timber.d("Create entry: $entryId at $createdTime")
             val newEntry = FridgeEntry.create(entryId, name, createdTime, isReal = true)
             insertDao.insert(newEntry)
             sharedPreferences.edit { putString(key, entryId) }
-            return newEntry
+            newEntry
         }
     }
 

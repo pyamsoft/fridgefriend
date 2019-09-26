@@ -17,7 +17,6 @@
 
 package com.pyamsoft.fridge.main
 
-import android.app.Activity
 import android.view.ViewGroup
 import android.view.ViewGroup.MarginLayoutParams
 import androidx.appcompat.widget.Toolbar
@@ -41,7 +40,6 @@ class MainToolbar @Inject internal constructor(
     @Named("app_name") appNameRes: Int,
     toolbarActivityProvider: ToolbarActivityProvider,
     theming: Theming,
-    activity: Activity,
     parent: ViewGroup
 ) : BaseUiView<UnitViewState, UnitViewEvent>(parent) {
 
@@ -51,7 +49,7 @@ class MainToolbar @Inject internal constructor(
 
     init {
         doOnInflate {
-            inflateToolbar(toolbarActivityProvider, theming, activity, appNameRes)
+            inflateToolbar(toolbarActivityProvider, theming, appNameRes)
 
             layoutRoot.doOnApplyWindowInsets { v, insets, padding ->
                 v.updateLayoutParams<MarginLayoutParams> {
@@ -77,10 +75,9 @@ class MainToolbar @Inject internal constructor(
     private fun inflateToolbar(
         toolbarActivityProvider: ToolbarActivityProvider,
         theming: Theming,
-        activity: Activity,
         appNameRes: Int
     ) {
-        val theme = if (theming.isDarkTheme(activity)) {
+        val theme = if (theming.isDarkTheme()) {
             R.style.ThemeOverlay_MaterialComponents
         } else {
             R.style.ThemeOverlay_MaterialComponents_Light

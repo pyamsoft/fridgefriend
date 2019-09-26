@@ -71,7 +71,7 @@ class ExpandItemName @Inject internal constructor(
         removeListeners()
         addWatcher(item)
 
-        popupWindow.set(state.similarItems)
+        popupWindow.set(if (nameView.isFocused) state.similarItems else emptyList())
     }
 
     private fun addWatcher(item: FridgeItem) {

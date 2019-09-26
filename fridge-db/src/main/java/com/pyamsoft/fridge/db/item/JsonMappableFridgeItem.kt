@@ -137,10 +137,8 @@ data class JsonMappableFridgeItem internal constructor(
         @JvmStatic
         @CheckResult
         fun from(item: FridgeItem): JsonMappableFridgeItem {
-            if (item is JsonMappableFridgeItem) {
-                return item
-            } else {
-                return JsonMappableFridgeItem(
+            return if (item is JsonMappableFridgeItem) item else {
+                JsonMappableFridgeItem(
                     item.id(),
                     item.entryId(),
                     item.name(),

@@ -59,6 +59,7 @@ internal class ZoneInfoInteractor @Inject internal constructor(
                             onInsert(event.zone)
                         } else {
                             // Ignore event for other zone
+                            Unit
                         }
                     }
                     is Delete -> {
@@ -66,6 +67,7 @@ internal class ZoneInfoInteractor @Inject internal constructor(
                             onDelete(event.zone)
                         } else {
                             // Ignore event for other zone
+                            Unit
                         }
                     }
                     is Update -> {
