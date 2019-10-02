@@ -21,6 +21,7 @@ import android.content.Context
 import androidx.annotation.CheckResult
 import androidx.work.WorkerParameters
 import com.pyamsoft.fridge.butler.Butler
+import com.pyamsoft.fridge.butler.ButlerPreferences
 import com.pyamsoft.fridge.butler.workmanager.worker.NearbyNotifyingWorker
 import com.pyamsoft.fridge.db.store.NearbyStore
 import com.pyamsoft.fridge.db.zone.NearbyZone
@@ -49,7 +50,7 @@ internal class GeofenceNotifierWorker internal constructor(
         Timber.w("Geofence jobs are not rescheduled.")
     }
 
-    override suspend fun performWork() {
+    override suspend fun performWork(preferences: ButlerPreferences) {
         return coroutineScope {
             val fenceIds = inputData.getStringArray(KEY_FENCES) ?: emptyArray()
             if (fenceIds.isEmpty()) {
@@ -74,7 +75,7 @@ internal class GeofenceNotifierWorker internal constructor(
                     }
                 }
 
-                fireNotifications(storeNotifications, zoneNotifications)
+                fireNotifications(preferences, 0, storeNotifications, zoneNotifications)
             }
         }
     }

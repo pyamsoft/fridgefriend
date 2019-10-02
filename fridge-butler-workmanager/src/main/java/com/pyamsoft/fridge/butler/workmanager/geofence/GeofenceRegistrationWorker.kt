@@ -20,6 +20,7 @@ package com.pyamsoft.fridge.butler.workmanager.geofence
 import android.content.Context
 import androidx.work.WorkerParameters
 import com.pyamsoft.fridge.butler.Butler
+import com.pyamsoft.fridge.butler.ButlerPreferences
 import com.pyamsoft.fridge.butler.workmanager.worker.NearbyWorker
 import com.pyamsoft.fridge.locator.Locator
 import com.pyamsoft.fridge.locator.Locator.Fence
@@ -47,7 +48,7 @@ internal class GeofenceRegistrationWorker internal constructor(
         butler.registerGeofences(Locator.RESCHEDULE_TIME, HOURS)
     }
 
-    override suspend fun performWork() = coroutineScope {
+    override suspend fun performWork(preferences: ButlerPreferences) = coroutineScope {
         Timber.d("GeofenceRegistrationWorker registering fences")
         withNearbyData { stores, zones ->
 

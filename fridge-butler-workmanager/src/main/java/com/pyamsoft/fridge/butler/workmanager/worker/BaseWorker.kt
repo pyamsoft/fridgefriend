@@ -22,12 +22,15 @@ import androidx.annotation.CheckResult
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.pyamsoft.fridge.butler.Butler
+import com.pyamsoft.fridge.butler.ButlerPreferences
 import com.pyamsoft.fridge.butler.ForegroundState
 import com.pyamsoft.fridge.butler.NotificationHandler
 import com.pyamsoft.pydroid.core.Enforcer
 import com.pyamsoft.pydroid.ui.Injector
 import kotlinx.coroutines.CancellationException
 import timber.log.Timber
+import java.util.Calendar
+import java.util.concurrent.TimeUnit.HOURS
 
 internal abstract class BaseWorker protected constructor(
     context: Context,
@@ -37,12 +40,14 @@ internal abstract class BaseWorker protected constructor(
     private var handler: NotificationHandler? = null
     private var foregroundState: ForegroundState? = null
     private var butler: Butler? = null
+    private var butlerPreferences: ButlerPreferences? = null
     private var enforcer: Enforcer? = null
 
     private fun inject() {
         handler = Injector.obtain(applicationContext)
         foregroundState = Injector.obtain(applicationContext)
         butler = Injector.obtain(applicationContext)
+        butlerPreferences = Injector.obtain(applicationContext)
         enforcer = Injector.obtain(applicationContext)
         onInject()
     }
@@ -53,6 +58,7 @@ internal abstract class BaseWorker protected constructor(
         handler = null
         foregroundState = null
         butler = null
+        butlerPreferences = null
         enforcer = null
         onTeardown()
     }
@@ -70,7 +76,7 @@ internal abstract class BaseWorker protected constructor(
         requireNotNull(enforcer).assertNotOnMainThread()
 
         return try {
-            performWork()
+            performWork(requireNotNull(butlerPreferences))
             success()
         } catch (e: Throwable) {
             if (e is CancellationException) {
@@ -83,7 +89,7 @@ internal abstract class BaseWorker protected constructor(
         }
     }
 
-    protected abstract suspend fun performWork()
+    protected abstract suspend fun performWork(preferences: ButlerPreferences)
 
     @CheckResult
     private fun success(): Result {
@@ -103,5 +109,11 @@ internal abstract class BaseWorker protected constructor(
     private fun cancelled(throwable: CancellationException): Result {
         Timber.w(throwable, "Worker was cancelled")
         return Result.failure()
+    }
+
+    @CheckResult
+    protected fun Calendar.isAllowedToNotify(lastNotified: Long, hours: Long): Boolean {
+        val nowInMillis = this.timeInMillis
+        return lastNotified + HOURS.toMillis(hours) < nowInMillis
     }
 }

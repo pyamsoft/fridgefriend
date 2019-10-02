@@ -20,6 +20,7 @@ package com.pyamsoft.fridge.butler.workmanager.expiration
 import android.content.Context
 import androidx.work.WorkerParameters
 import com.pyamsoft.fridge.butler.Butler
+import com.pyamsoft.fridge.butler.ButlerPreferences
 import com.pyamsoft.fridge.butler.workmanager.worker.FridgeWorker
 import com.pyamsoft.fridge.db.cleanMidnight
 import com.pyamsoft.fridge.db.daysLaterMidnight
@@ -40,10 +41,11 @@ internal class ExpirationWorker internal constructor(
 ) : FridgeWorker(context, params) {
 
     override fun reschedule(butler: Butler) {
-        butler.remindExpiration(3, HOURS)
+        butler.remindExpiration(RECURRING_INTERVAL, HOURS)
     }
 
     private fun notifyForEntry(
+        preferences: ButlerPreferences,
         today: Calendar,
         later: Calendar,
         entry: FridgeEntry,
@@ -73,19 +75,30 @@ internal class ExpirationWorker internal constructor(
             }
         }
 
-        if (expiringItems.isNotEmpty()) {
+        val now = Calendar.getInstance()
+        if (expiringItems.isNotEmpty() && now.isAllowedToNotify(
+                preferences.getLastNotificationTimeExpiringSoon(),
+                RECURRING_INTERVAL
+            )
+        ) {
             notification { handler, foregroundState ->
                 ExpirationNotifications.notifyExpiring(
                     handler, foregroundState, applicationContext, entry, expiringItems
                 )
+                preferences.markNotificationExpiringSoon(now)
             }
         }
 
-        if (expiredItems.isNotEmpty()) {
+        if (expiredItems.isNotEmpty() && now.isAllowedToNotify(
+                preferences.getLastNotificationTimeExpired(),
+                RECURRING_INTERVAL
+            )
+        ) {
             notification { handler, foregroundState ->
                 ExpirationNotifications.notifyExpired(
                     handler, foregroundState, applicationContext, entry, expiredItems
                 )
+                preferences.markNotificationExpired(now)
             }
         }
 
@@ -94,13 +107,19 @@ internal class ExpirationWorker internal constructor(
         }
     }
 
-    override suspend fun performWork() = coroutineScope {
+    override suspend fun performWork(preferences: ButlerPreferences) = coroutineScope {
         val today = Calendar.getInstance()
             .cleanMidnight()
         val later = Calendar.getInstance()
             .daysLaterMidnight(2)
+
         withFridgeData { entry, items ->
-            notifyForEntry(today, later, entry, items)
+            notifyForEntry(preferences, today, later, entry, items)
         }
+    }
+
+    companion object {
+
+        private const val RECURRING_INTERVAL = 3L
     }
 }

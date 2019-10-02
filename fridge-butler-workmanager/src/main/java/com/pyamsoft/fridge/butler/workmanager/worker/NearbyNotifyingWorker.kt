@@ -19,12 +19,14 @@ package com.pyamsoft.fridge.butler.workmanager.worker
 
 import android.content.Context
 import androidx.work.WorkerParameters
+import com.pyamsoft.fridge.butler.ButlerPreferences
 import com.pyamsoft.fridge.butler.workmanager.geofence.GeofenceNotifications
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence.NEED
 import com.pyamsoft.fridge.db.item.isArchived
 import com.pyamsoft.fridge.db.store.NearbyStore
 import com.pyamsoft.fridge.db.zone.NearbyZone
 import timber.log.Timber
+import java.util.Calendar
 
 internal abstract class NearbyNotifyingWorker protected constructor(
     context: Context,
@@ -32,6 +34,8 @@ internal abstract class NearbyNotifyingWorker protected constructor(
 ) : NearbyWorker(context, params) {
 
     protected suspend fun fireNotifications(
+        preferences: ButlerPreferences,
+        rescheduleInterval: Long,
         storeNotifications: Set<NearbyStore>,
         zoneNotifications: Set<NearbyZone>
     ) {
@@ -48,19 +52,28 @@ internal abstract class NearbyNotifyingWorker protected constructor(
                 return@withFridgeData
             }
 
-            storeNotifications.forEach { store ->
-                notification { handler, foregroundState ->
-                    GeofenceNotifications.notifyNeeded(
-                        handler, foregroundState, applicationContext, store, neededItems
-                    )
+            val now = Calendar.getInstance()
+            if (now.isAllowedToNotify(
+                    preferences.getLastNotificationTimeNearby(),
+                    rescheduleInterval
+                )
+            ) {
+                storeNotifications.forEach { store ->
+                    notification { handler, foregroundState ->
+                        GeofenceNotifications.notifyNeeded(
+                            handler, foregroundState, applicationContext, store, neededItems
+                        )
+                    }
                 }
-            }
-            zoneNotifications.forEach { zone ->
-                notification { handler, foregroundState ->
-                    GeofenceNotifications.notifyNeeded(
-                        handler, foregroundState, applicationContext, zone, neededItems
-                    )
+                zoneNotifications.forEach { zone ->
+                    notification { handler, foregroundState ->
+                        GeofenceNotifications.notifyNeeded(
+                            handler, foregroundState, applicationContext, zone, neededItems
+                        )
+                    }
                 }
+
+                preferences.markNotificationNearby(now)
             }
         }
     }

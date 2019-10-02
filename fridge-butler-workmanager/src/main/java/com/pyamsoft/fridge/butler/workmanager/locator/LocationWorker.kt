@@ -22,6 +22,7 @@ import android.location.Location
 import androidx.annotation.CheckResult
 import androidx.work.WorkerParameters
 import com.pyamsoft.fridge.butler.Butler
+import com.pyamsoft.fridge.butler.ButlerPreferences
 import com.pyamsoft.fridge.butler.workmanager.worker.NearbyNotifyingWorker
 import com.pyamsoft.fridge.db.store.NearbyStore
 import com.pyamsoft.fridge.db.zone.NearbyZone
@@ -48,10 +49,10 @@ internal class LocationWorker internal constructor(
     }
 
     override fun reschedule(butler: Butler) {
-        butler.remindLocation(3, HOURS)
+        butler.remindLocation(RECURRING_INTERVAL, HOURS)
     }
 
-    override suspend fun performWork() = coroutineScope {
+    override suspend fun performWork(preferences: ButlerPreferences) = coroutineScope {
         val location = requireNotNull(geofencer).getLastKnownLocation()
 
         if (location == null) {
@@ -80,11 +81,13 @@ internal class LocationWorker internal constructor(
                 }
             }
 
-            fireNotifications(inRangeStores, inRangeZones)
+            fireNotifications(preferences, RECURRING_INTERVAL, inRangeStores, inRangeZones)
         }
     }
 
     companion object {
+
+        private const val RECURRING_INTERVAL = 3L
 
         @JvmStatic
         @CheckResult

@@ -23,6 +23,7 @@ import android.content.Context
 import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.FridgeComponent.FridgeProvider
 import com.pyamsoft.fridge.butler.Butler
+import com.pyamsoft.fridge.butler.ButlerPreferences
 import com.pyamsoft.fridge.butler.ForegroundState
 import com.pyamsoft.fridge.butler.NotificationHandler
 import com.pyamsoft.fridge.butler.workmanager.ButlerModule
@@ -45,12 +46,14 @@ import com.pyamsoft.fridge.locator.MapComponent
 import com.pyamsoft.fridge.locator.PermissionComponent
 import com.pyamsoft.fridge.locator.map.LocatorModule
 import com.pyamsoft.fridge.main.MainComponent
+import com.pyamsoft.fridge.preference.PreferencesImpl
 import com.pyamsoft.fridge.setting.SettingComponent
 import com.pyamsoft.pydroid.arch.EventBus
 import com.pyamsoft.pydroid.core.Enforcer
 import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.ui.theme.Theming
 import com.squareup.moshi.Moshi
+import dagger.Binds
 import dagger.BindsInstance
 import dagger.Component
 import dagger.Module
@@ -76,6 +79,10 @@ internal interface FridgeComponent {
     // For BaseWorker Work classes
     @CheckResult
     fun provideButler(): Butler
+
+    // For BaseWorker Work classes
+    @CheckResult
+    fun provideButlerPreferences(): ButlerPreferences
 
     // For BaseWorker Work classes
     @CheckResult
@@ -151,41 +158,48 @@ internal interface FridgeComponent {
     }
 
     @Module
-    object FridgeProvider {
+    abstract class FridgeProvider {
 
-        @Provides
-        @JvmStatic
-        @Singleton
-        @Named("debug")
-        internal fun provideDebug(): Boolean {
-            return BuildConfig.DEBUG
-        }
+        @Binds
+        internal abstract fun bindButlerPreferences(impl: PreferencesImpl): ButlerPreferences
 
-        @Provides
-        @JvmStatic
-        @Singleton
-        internal fun provideFakeItemRealtime(): EventBus<FridgeItemChangeEvent> {
-            return EventBus.create()
-        }
+        @Module
+        companion object {
 
-        @Provides
-        @JvmStatic
-        @Singleton
-        internal fun provideDateSelectBus(): EventBus<DateSelectPayload> {
-            return EventBus.create()
-        }
+            @Provides
+            @JvmStatic
+            @Singleton
+            @Named("debug")
+            internal fun provideDebug(): Boolean {
+                return BuildConfig.DEBUG
+            }
 
-        @Provides
-        @JvmStatic
-        internal fun provideContext(application: Application): Context {
-            return application
-        }
+            @Provides
+            @JvmStatic
+            @Singleton
+            internal fun provideFakeItemRealtime(): EventBus<FridgeItemChangeEvent> {
+                return EventBus.create()
+            }
 
-        @Provides
-        @JvmStatic
-        @Named("app_name")
-        internal fun provideAppNameRes(): Int {
-            return R.string.app_name
+            @Provides
+            @JvmStatic
+            @Singleton
+            internal fun provideDateSelectBus(): EventBus<DateSelectPayload> {
+                return EventBus.create()
+            }
+
+            @Provides
+            @JvmStatic
+            internal fun provideContext(application: Application): Context {
+                return application
+            }
+
+            @Provides
+            @JvmStatic
+            @Named("app_name")
+            internal fun provideAppNameRes(): Int {
+                return R.string.app_name
+            }
         }
     }
 }
