@@ -34,6 +34,7 @@ import com.pyamsoft.fridge.db.store.NearbyStore
 import com.pyamsoft.fridge.db.store.NearbyStoreDeleteDao
 import com.pyamsoft.fridge.db.store.NearbyStoreInsertDao
 import com.pyamsoft.fridge.db.store.NearbyStoreQueryDao
+import com.pyamsoft.fridge.db.store.NearbyStoreRealtime
 import com.pyamsoft.fridge.db.zone.NearbyZone
 import com.pyamsoft.fridge.db.zone.NearbyZoneDeleteDao
 import com.pyamsoft.fridge.db.zone.NearbyZoneInsertDao
@@ -44,6 +45,7 @@ import com.pyamsoft.fridge.locator.map.R
 import com.pyamsoft.fridge.locator.map.osm.OsmViewEvent.FindNearby
 import com.pyamsoft.fridge.locator.map.osm.OsmViewEvent.RequestBackgroundPermission
 import com.pyamsoft.fridge.locator.map.osm.OsmViewEvent.RequestStoragePermission
+import com.pyamsoft.fridge.locator.map.osm.popup.store.StoreInfoWindow
 import com.pyamsoft.fridge.locator.map.osm.popup.zone.ZoneInfoWindow
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.arch.UiSavedState
@@ -59,9 +61,7 @@ import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.CustomZoomButtonsController
 import org.osmdroid.views.MapView
 import org.osmdroid.views.Projection
-import org.osmdroid.views.overlay.ItemizedIconOverlay
-import org.osmdroid.views.overlay.ItemizedOverlayWithFocus
-import org.osmdroid.views.overlay.OverlayItem
+import org.osmdroid.views.overlay.Marker
 import org.osmdroid.views.overlay.Polygon
 import org.osmdroid.views.overlay.TilesOverlay
 import org.osmdroid.views.overlay.mylocation.GpsMyLocationProvider
@@ -76,6 +76,7 @@ class OsmMap @Inject internal constructor(
     private val butler: Butler,
     private val mapPermission: MapPermission,
 
+    private val nearbyStoreRealtime: NearbyStoreRealtime,
     private val nearbyStoreQueryDao: NearbyStoreQueryDao,
     private val nearbyStoreInsertDao: NearbyStoreInsertDao,
     private val nearbyStoreDeleteDao: NearbyStoreDeleteDao,
@@ -91,32 +92,12 @@ class OsmMap @Inject internal constructor(
 
     override val layoutRoot by boundView<ViewGroup>(R.id.osm_frame)
 
-    private var markerOverlay: ItemizedOverlayWithFocus<OverlayItem>? = null
-
     private var boundFindMeImage: Loaded? = null
     private var boundNearbyImage: Loaded? = null
     private var boundStorageImage: Loaded? = null
     private var boundBackgroundImage: Loaded? = null
 
     private var locationOverlay: MyLocationNewOverlay? = null
-
-    private val itemListener = object : ItemizedIconOverlay.OnItemGestureListener<OverlayItem> {
-
-        override fun onItemLongPress(
-            index: Int,
-            item: OverlayItem?
-        ): Boolean {
-            // TODO do something on click
-            return true
-        }
-
-        override fun onItemSingleTapUp(
-            index: Int,
-            item: OverlayItem?
-        ): Boolean {
-            return false
-        }
-    }
 
     private val map by boundView<MapView>(R.id.osm_map)
     private val findNearby by boundView<FloatingActionButton>(R.id.osm_action)
@@ -179,7 +160,7 @@ class OsmMap @Inject internal constructor(
             backgroundPermission.setOnDebouncedClickListener(null)
             storagePermission.setOnDebouncedClickListener(null)
 
-            removeMarkerOverlay()
+            locationOverlay?.let { map.overlayManager.remove(it) }
             locationOverlay = null
             map.onDetach()
 
@@ -203,11 +184,6 @@ class OsmMap @Inject internal constructor(
                 }
             }
         }
-    }
-
-    private fun removeMarkerOverlay() {
-        markerOverlay?.let { map.overlays.remove(it) }
-        markerOverlay = null
     }
 
     override fun onRender(
@@ -308,27 +284,41 @@ class OsmMap @Inject internal constructor(
             return false
         }
 
-        markerOverlay?.let { overlay ->
-            // Clear old overlay if it exists
-            overlay.removeAllItems(false)
-
-            // Remove old overlay from map
-            map.overlays.remove(overlay)
-        }
-
-        markerOverlay =
-            ItemizedOverlayWithFocus(
-                marks.map { point ->
-                    val name = point.name()
-                    val description = "Supermarket: $name"
-                    val geo = GeoPoint(point.latitude(), point.longitude())
-                    return@map OverlayItem(point.getMarkerUid(), name, description, geo)
-                },
-                itemListener, map.context.applicationContext
-            ).apply {
-                setFocusItemsOnTap(true)
+        for (mark in marks) {
+            val uid = mark.getMarkerUid()
+            val marker = Marker(map).apply {
+                infoWindow = StoreInfoWindow.fromMap(
+                    mark,
+                    map,
+                    butler,
+                    imageLoader,
+                    nearbyStoreRealtime,
+                    nearbyStoreQueryDao,
+                    nearbyStoreInsertDao,
+                    nearbyStoreDeleteDao
+                )
+                id = uid
+                position = GeoPoint(mark.latitude(), mark.longitude())
+                title = mark.name()
             }
-                .also { map.overlays.add(it) }
+
+            marker.setOnMarkerClickListener { p, _ ->
+                if (p.isInfoWindowOpen) {
+                    p.closeInfoWindow()
+                } else {
+                    p.showInfoWindow()
+                }
+                return@setOnMarkerClickListener true
+            }
+
+            val oldMarker = map.overlayManager.filterIsInstance<Marker>()
+                .find { it.id == uid }
+            if (oldMarker != null) {
+                map.overlayManager.remove(oldMarker)
+            }
+
+            map.overlayManager.add(marker)
+        }
 
         return true
     }
@@ -415,7 +405,7 @@ class OsmMap @Inject internal constructor(
             }
         }
         overlay.enableMyLocation()
-        mapView.overlays.add(overlay)
+        mapView.overlayManager.add(overlay)
         locationOverlay = overlay
     }
 
