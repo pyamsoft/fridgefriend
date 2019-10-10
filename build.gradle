@@ -83,7 +83,7 @@ buildscript {
 
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
 
-        classpath 'com.google.gms:google-services:4.3.2'
+//        classpath 'com.google.gms:google-services:4.3.2'
 
         // Ktlint
         classpath "org.jlleitschuh.gradle:ktlint-gradle:8.2.0"
