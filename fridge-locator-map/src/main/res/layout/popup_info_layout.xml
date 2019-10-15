@@ -16,7 +16,7 @@
   -->
 
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/zone_info_root"
+    android:id="@+id/popup_info_root"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:background="@drawable/zone_background"

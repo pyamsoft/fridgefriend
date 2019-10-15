@@ -17,8 +17,10 @@
 
 package com.pyamsoft.fridge.locator.map.osm.popup.store
 
+import android.location.Location
 import androidx.lifecycle.viewModelScope
 import com.pyamsoft.fridge.db.store.NearbyStore
+import com.pyamsoft.fridge.locator.map.osm.popup.LocationUpdateManager
 import com.pyamsoft.fridge.locator.map.osm.popup.store.StoreInfoViewEvent.StoreFavoriteAction
 import com.pyamsoft.fridge.locator.map.osm.popup.store.StoreInfoViewState.StoreCached
 import com.pyamsoft.pydroid.arch.UiViewModel
@@ -28,13 +30,15 @@ import javax.inject.Inject
 
 internal class StoreInfoViewModel @Inject internal constructor(
     private val interactor: StoreInfoInteractor,
+    myInitialLocation: Location?,
     store: NearbyStore
 ) : UiViewModel<StoreInfoViewState, StoreInfoViewEvent, StoreInfoControllerEvent>(
     initialState = StoreInfoViewState(
+        myLocation = myInitialLocation,
         marker = null,
         cached = null
     )
-) {
+), LocationUpdateManager.Listener {
 
     private val storeId = store.id()
 
@@ -85,5 +89,9 @@ internal class StoreInfoViewModel @Inject internal constructor(
 
     fun updateMarker(marker: Marker) {
         setState { copy(marker = marker) }
+    }
+
+    override fun onLocationUpdate(location: Location?) {
+        setState { copy(myLocation = location) }
     }
 }

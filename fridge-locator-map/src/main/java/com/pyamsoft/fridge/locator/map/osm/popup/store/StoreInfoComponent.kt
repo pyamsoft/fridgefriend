@@ -17,6 +17,7 @@
 
 package com.pyamsoft.fridge.locator.map.osm.popup.store
 
+import android.location.Location
 import android.view.ViewGroup
 import androidx.annotation.CheckResult
 import androidx.lifecycle.ViewModelProvider
@@ -49,6 +50,7 @@ internal interface StoreInfoComponent {
 
         @CheckResult
         fun create(
+            @BindsInstance myLocation: Location?,
             @BindsInstance parent: ViewGroup,
             @BindsInstance imageLoader: ImageLoader,
             @BindsInstance store: NearbyStore,

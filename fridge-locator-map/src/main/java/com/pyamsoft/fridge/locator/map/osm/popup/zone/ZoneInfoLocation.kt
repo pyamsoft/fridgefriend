@@ -17,9 +17,11 @@
 
 package com.pyamsoft.fridge.locator.map.osm.popup.zone
 
+import android.annotation.SuppressLint
 import android.view.ViewGroup
 import android.widget.TextView
 import com.pyamsoft.fridge.locator.map.R
+import com.pyamsoft.fridge.locator.map.osm.popup.calculateKmDistanceTo
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.arch.UiSavedState
 import javax.inject.Inject
@@ -28,28 +30,41 @@ internal class ZoneInfoLocation @Inject internal constructor(
     parent: ViewGroup
 ) : BaseUiView<ZoneInfoViewState, ZoneInfoViewEvent>(parent) {
 
-    override val layout: Int = R.layout.zone_info_location
-    override val layoutRoot by boundView<TextView>(R.id.zone_info_coords)
+    override val layout: Int = R.layout.popup_info_location
+    override val layoutRoot by boundView<ViewGroup>(R.id.popup_info_root)
+
+    private val coordinates by boundView<TextView>(R.id.popup_info_coords)
+    private val distanceToMe by boundView<TextView>(R.id.popup_info_distance_to_me)
 
     init {
         doOnTeardown {
-            layoutRoot.text = ""
+            coordinates.text = ""
+            distanceToMe.text = ""
         }
     }
 
+    @SuppressLint("SetTextI18n")
     override fun onRender(
         state: ZoneInfoViewState,
         savedState: UiSavedState
     ) {
         state.polygon.let { polygon ->
             if (polygon == null) {
-                layoutRoot.text = ""
+                coordinates.text = ""
             } else {
                 val centerPoint = requireNotNull(polygon.infoWindowLocation)
                 val lat = "%.5f".format(centerPoint.latitude)
                 val lon = "%.5f".format(centerPoint.longitude)
                 val coords = "($lat, $lon)"
-                layoutRoot.text = "Located at: $coords"
+                coordinates.text = "Located at: $coords"
+
+                val location = state.myLocation
+                if (location == null) {
+                    distanceToMe.text = ""
+                } else {
+                    val distance = "%.2f".format(location.calculateKmDistanceTo(centerPoint))
+                    distanceToMe.text = "$distance meters away"
+                }
             }
         }
     }

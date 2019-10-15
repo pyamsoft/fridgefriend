@@ -18,7 +18,6 @@
 package com.pyamsoft.fridge.butler.workmanager.geofence
 
 import android.content.Context
-import android.location.Location
 import androidx.annotation.CheckResult
 import androidx.work.WorkerParameters
 import com.pyamsoft.fridge.butler.Butler
@@ -70,7 +69,7 @@ internal class GeofenceNotifierWorker internal constructor(
                 return@coroutineScope
             }
 
-            withNearbyData { stores, zones ->
+            return@coroutineScope withNearbyData { stores, zones ->
                 val properFenceIds = fenceIds.filterNotNull()
 
                 var closestStore: NearbyStore? = null
@@ -84,6 +83,7 @@ internal class GeofenceNotifierWorker internal constructor(
 
                     // Find the closest store during the loop
                     if (store != null) {
+                        Timber.d("Process nearby store: $store")
                         val storeDistance =
                             store.getDistanceTo(currentLatitude, currentLongitude)
                         val newClosest = if (closestStore == null) true else {
@@ -91,6 +91,7 @@ internal class GeofenceNotifierWorker internal constructor(
                         }
 
                         if (newClosest) {
+                            Timber.d("New closest store: $store")
                             closestStore = store
                             closestStoreDistance = storeDistance
                         }
@@ -98,6 +99,7 @@ internal class GeofenceNotifierWorker internal constructor(
 
                     // Find the closest point in the closest zone during the loop
                     if (zone != null) {
+                        Timber.d("Process nearby zone: $zone")
                         val zoneDistance =
                             zone.getDistanceTo(currentLatitude, currentLongitude)
                         val newClosest = if (closestZone == null) true else {
@@ -105,6 +107,7 @@ internal class GeofenceNotifierWorker internal constructor(
                         }
 
                         if (newClosest) {
+                            Timber.d("New closest zone: $zone")
                             closestZone = zone
                             closestZoneDistance = zoneDistance
                         }
@@ -120,12 +123,11 @@ internal class GeofenceNotifierWorker internal constructor(
                     }
                 }
 
-
+                Timber.d("Fire notification for: $closestStore $closestZone")
                 fireNotification(preferences, 0, closestStore, closestZone)
             }
         }
     }
-
 
     @CheckResult
     private fun findNearbyForGeofence(

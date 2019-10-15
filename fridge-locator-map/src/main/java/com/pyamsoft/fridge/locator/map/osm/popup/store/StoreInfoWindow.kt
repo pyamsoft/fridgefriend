@@ -17,9 +17,9 @@
 
 package com.pyamsoft.fridge.locator.map.osm.popup.store
 
+import android.location.Location
 import android.view.View
 import androidx.annotation.CheckResult
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
@@ -32,7 +32,8 @@ import com.pyamsoft.fridge.db.store.NearbyStoreDeleteDao
 import com.pyamsoft.fridge.db.store.NearbyStoreInsertDao
 import com.pyamsoft.fridge.db.store.NearbyStoreQueryDao
 import com.pyamsoft.fridge.db.store.NearbyStoreRealtime
-import com.pyamsoft.fridge.locator.map.R
+import com.pyamsoft.fridge.locator.map.osm.popup.BaseInfoWindow
+import com.pyamsoft.fridge.locator.map.osm.popup.LocationUpdateManager
 import com.pyamsoft.pydroid.arch.createComponent
 import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.ui.arch.factory
@@ -46,6 +47,8 @@ import timber.log.Timber
 import javax.inject.Inject
 
 internal class StoreInfoWindow private constructor(
+    private val manager: LocationUpdateManager,
+    myLocation: Location?,
     store: NearbyStore,
     map: MapView,
     butler: Butler,
@@ -54,7 +57,7 @@ internal class StoreInfoWindow private constructor(
     nearbyStoreQueryDao: NearbyStoreQueryDao,
     nearbyStoreInsertDao: NearbyStoreInsertDao,
     nearbyStoreDeleteDao: NearbyStoreDeleteDao
-) : InfoWindow(R.layout.zone_info_layout, map), LifecycleOwner {
+) : BaseInfoWindow(map), LifecycleOwner {
 
     private val registry = LifecycleRegistry(this)
 
@@ -74,10 +77,9 @@ internal class StoreInfoWindow private constructor(
     }
 
     init {
-        val parent = view.findViewById<ConstraintLayout>(R.id.zone_info_root)
-
         DaggerStoreInfoComponent.factory()
             .create(
+                myLocation,
                 parent,
                 imageLoader,
                 store,
@@ -99,6 +101,8 @@ internal class StoreInfoWindow private constructor(
         ) {
             // TODO
         }
+
+        manager.register(viewModel)
 
         parent?.layout {
             title.also {
@@ -139,7 +143,8 @@ internal class StoreInfoWindow private constructor(
     override fun onClose() {
     }
 
-    override fun onDetach() {
+    override fun onTeardown() {
+        manager.unregister(viewModel)
         registry.fakeUnbind()
         infoTitle = null
         infoLocation = null
@@ -151,6 +156,8 @@ internal class StoreInfoWindow private constructor(
         @JvmStatic
         @CheckResult
         fun fromMap(
+            myLocation: Location?,
+            manager: LocationUpdateManager,
             store: NearbyStore,
             map: MapView,
             butler: Butler,
@@ -161,7 +168,12 @@ internal class StoreInfoWindow private constructor(
             nearbyStoreDeleteDao: NearbyStoreDeleteDao
         ): InfoWindow {
             return StoreInfoWindow(
-                store, map, butler, imageLoader,
+                manager,
+                myLocation,
+                store,
+                map,
+                butler,
+                imageLoader,
                 nearbyStoreRealtime,
                 nearbyStoreQueryDao,
                 nearbyStoreInsertDao,

@@ -17,6 +17,7 @@
 
 package com.pyamsoft.fridge.locator.map.osm
 
+import android.location.Location
 import com.pyamsoft.fridge.db.store.NearbyStore
 import com.pyamsoft.fridge.db.zone.NearbyZone
 import com.pyamsoft.pydroid.arch.UiControllerEvent
@@ -24,6 +25,7 @@ import com.pyamsoft.pydroid.arch.UiViewEvent
 import com.pyamsoft.pydroid.arch.UiViewState
 
 data class OsmViewState internal constructor(
+    val lastKnownLocation: Location?,
     val loading: Boolean,
     val points: List<NearbyStore>,
     val zones: List<NearbyZone>,
@@ -34,6 +36,8 @@ data class OsmViewState internal constructor(
 sealed class OsmViewEvent : UiViewEvent {
 
     data class FindNearby internal constructor(internal val box: BBox) : OsmViewEvent()
+
+    data class MyLocationChanged internal constructor(val location: Location?) : OsmViewEvent()
 
     object RequestBackgroundPermission : OsmViewEvent()
 

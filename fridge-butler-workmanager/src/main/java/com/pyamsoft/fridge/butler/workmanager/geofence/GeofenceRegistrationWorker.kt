@@ -50,7 +50,7 @@ internal class GeofenceRegistrationWorker internal constructor(
 
     override suspend fun performWork(preferences: ButlerPreferences) = coroutineScope {
         Timber.d("GeofenceRegistrationWorker registering fences")
-        withNearbyData { stores, zones ->
+        return@coroutineScope withNearbyData { stores, zones ->
 
             val nearbyStores = stores.map { Fence.fromStore(it) }
             val nearbyZones = zones.map { Fence.fromZone(it) }

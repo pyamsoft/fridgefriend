@@ -18,29 +18,28 @@
 <merge>
 
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        android:id="@+id/zone_info_title_root"
-        android:layout_width="match_parent"
+        android:id="@+id/popup_info_root"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:orientation="vertical">
 
         <TextView
-            android:id="@+id/zone_info_title"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:gravity="center_vertical|start"
-            android:textAppearance="?attr/textAppearanceBody1"
-            android:textColor="@color/titleColor" />
-
-        <ImageView
-            android:id="@+id/zone_info_favorite"
+            android:id="@+id/popup_info_coords"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="8dp"
-            android:contentDescription="@string/blank" />
+            android:gravity="center_vertical|start"
+            android:textAppearance="?attr/textAppearanceBody2"
+            android:textColor="@color/descriptionColor" />
+
+        <TextView
+            android:id="@+id/popup_info_distance_to_me"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical|start"
+            android:textAppearance="?attr/textAppearanceCaption"
+            android:textColor="@color/descriptionColor" />
 
     </LinearLayout>
-
 
 </merge>
 

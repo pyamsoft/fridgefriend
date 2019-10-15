@@ -17,6 +17,7 @@
 
 package com.pyamsoft.fridge.locator.map.osm.popup.store
 
+import android.location.Location
 import com.pyamsoft.fridge.db.store.NearbyStore
 import com.pyamsoft.pydroid.arch.UiControllerEvent
 import com.pyamsoft.pydroid.arch.UiViewEvent
@@ -24,6 +25,7 @@ import com.pyamsoft.pydroid.arch.UiViewState
 import org.osmdroid.views.overlay.Marker
 
 data class StoreInfoViewState internal constructor(
+    val myLocation: Location?,
     val marker: Marker?,
     val cached: StoreCached?
 ) : UiViewState {

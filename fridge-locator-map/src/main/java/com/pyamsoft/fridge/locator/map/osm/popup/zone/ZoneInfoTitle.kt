@@ -36,10 +36,10 @@ internal class ZoneInfoTitle @Inject internal constructor(
     parent: ViewGroup
 ) : BaseUiView<ZoneInfoViewState, ZoneInfoViewEvent>(parent) {
 
-    override val layout: Int = R.layout.zone_info_title
-    override val layoutRoot by boundView<ViewGroup>(R.id.zone_info_title_root)
-    private val title by boundView<TextView>(R.id.zone_info_title)
-    private val favorite by boundView<ImageView>(R.id.zone_info_favorite)
+    override val layout: Int = R.layout.popup_info_title
+    override val layoutRoot by boundView<ViewGroup>(R.id.popup_info_title_root)
+    private val title by boundView<TextView>(R.id.popup_info_title)
+    private val favorite by boundView<ImageView>(R.id.popup_info_favorite)
 
     private var favoriteBinder: Loaded? = null
 

@@ -17,6 +17,7 @@
 
 package com.pyamsoft.fridge.locator.map.osm.popup.zone
 
+import android.location.Location
 import com.pyamsoft.fridge.db.zone.NearbyZone
 import com.pyamsoft.pydroid.arch.UiControllerEvent
 import com.pyamsoft.pydroid.arch.UiViewEvent
@@ -24,6 +25,7 @@ import com.pyamsoft.pydroid.arch.UiViewState
 import org.osmdroid.views.overlay.Polygon
 
 data class ZoneInfoViewState internal constructor(
+    val myLocation: Location?,
     val polygon: Polygon?,
     val cached: ZoneCached?
 ) : UiViewState {

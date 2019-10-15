@@ -63,11 +63,12 @@ internal class LocationWorker internal constructor(
         var closestZone: NearbyZone? = null
         var closestZoneDistance = Float.MAX_VALUE
 
-        withNearbyData { stores, zones ->
+        return@coroutineScope withNearbyData { stores, zones ->
             val currentLatitude = location.latitude
             val currentLongitude = location.longitude
 
             for (store in stores) {
+                Timber.d("Process nearby store: $store")
                 val storeDistance =
                     store.getDistanceTo(currentLatitude, currentLongitude)
                 val newClosest = if (closestStore == null) true else {
@@ -75,12 +76,14 @@ internal class LocationWorker internal constructor(
                 }
 
                 if (newClosest) {
+                    Timber.d("New closest store: $store")
                     closestStore = store
                     closestStoreDistance = storeDistance
                 }
             }
 
             for (zone in zones) {
+                Timber.d("Process nearby zone: $zone")
                 val zoneDistance =
                     zone.getDistanceTo(currentLatitude, currentLongitude)
                 val newClosest = if (closestZone == null) true else {
@@ -88,22 +91,24 @@ internal class LocationWorker internal constructor(
                 }
 
                 if (newClosest) {
+                    Timber.d("New closest zone: $zone")
                     closestZone = zone
                     closestZoneDistance = zoneDistance
                 }
             }
-        }
 
-        // There can be only one
-        if (closestStore != null && closestZone != null) {
-            if (closestStoreDistance < closestZoneDistance) {
-                closestZone = null
-            } else {
-                closestStore = null
+            // There can be only one
+            if (closestStore != null && closestZone != null) {
+                if (closestStoreDistance < closestZoneDistance) {
+                    closestZone = null
+                } else {
+                    closestStore = null
+                }
             }
-        }
 
-        fireNotification(preferences, RECURRING_INTERVAL, closestStore, closestZone)
+            Timber.d("Fire notification for: $closestStore $closestZone")
+            fireNotification(preferences, RECURRING_INTERVAL, closestStore, closestZone)
+        }
     }
 
     companion object {
