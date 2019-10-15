@@ -25,10 +25,11 @@ import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.infowindow.InfoWindow
 
 internal abstract class BaseInfoWindow protected constructor(
+    private val manager: LocationUpdateManager,
     map: MapView
-) : InfoWindow(R.layout.popup_info_layout, map), LifecycleOwner {
+) : InfoWindow(R.layout.popup_info_layout, map), LifecycleOwner, LocationUpdateManager.Listener {
 
-    protected val parent = view.findViewById<ConstraintLayout>(R.id.popup_info_root)
+    protected val parent: ConstraintLayout = view.findViewById(R.id.popup_info_root)
 
     init {
         // A click anywhere but a triggering view will close the popup
@@ -37,11 +38,16 @@ internal abstract class BaseInfoWindow protected constructor(
         }
     }
 
+    protected fun listenForLocationUpdates() {
+        manager.register(this)
+    }
+
     final override fun onDetach() {
         if (isOpen) {
             close()
         }
 
+        manager.unregister(this)
         parent.setOnDebouncedClickListener(null)
         onTeardown()
     }

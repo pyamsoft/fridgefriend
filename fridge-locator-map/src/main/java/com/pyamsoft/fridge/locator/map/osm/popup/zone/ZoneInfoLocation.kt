@@ -63,7 +63,7 @@ internal class ZoneInfoLocation @Inject internal constructor(
                     distanceToMe.text = ""
                 } else {
                     val distance = "%.2f".format(location.calculateKmDistanceTo(centerPoint))
-                    distanceToMe.text = "$distance meters away"
+                    distanceToMe.text = "${distance}km away"
                 }
             }
         }

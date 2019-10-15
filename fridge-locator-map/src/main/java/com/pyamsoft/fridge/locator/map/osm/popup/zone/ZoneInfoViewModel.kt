@@ -20,7 +20,6 @@ package com.pyamsoft.fridge.locator.map.osm.popup.zone
 import android.location.Location
 import androidx.lifecycle.viewModelScope
 import com.pyamsoft.fridge.db.zone.NearbyZone
-import com.pyamsoft.fridge.locator.map.osm.popup.LocationUpdateManager
 import com.pyamsoft.fridge.locator.map.osm.popup.zone.ZoneInfoViewEvent.ZoneFavoriteAction
 import com.pyamsoft.fridge.locator.map.osm.popup.zone.ZoneInfoViewState.ZoneCached
 import com.pyamsoft.pydroid.arch.UiViewModel
@@ -38,7 +37,7 @@ internal class ZoneInfoViewModel @Inject internal constructor(
         polygon = null,
         cached = null
     )
-), LocationUpdateManager.Listener {
+) {
 
     private val zoneId = zone.id()
 
@@ -91,7 +90,7 @@ internal class ZoneInfoViewModel @Inject internal constructor(
         setState { copy(polygon = polygon) }
     }
 
-    override fun onLocationUpdate(location: Location?) {
+    fun handleLocationUpdate(location: Location?) {
         setState { copy(myLocation = location) }
     }
 }

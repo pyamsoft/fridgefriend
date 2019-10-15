@@ -47,7 +47,7 @@ import timber.log.Timber
 import javax.inject.Inject
 
 internal class ZoneInfoWindow private constructor(
-    private val manager: LocationUpdateManager,
+    manager: LocationUpdateManager,
     myLocation: Location?,
     zone: NearbyZone,
     map: MapView,
@@ -57,7 +57,7 @@ internal class ZoneInfoWindow private constructor(
     nearbyZoneQueryDao: NearbyZoneQueryDao,
     nearbyZoneInsertDao: NearbyZoneInsertDao,
     nearbyZoneDeleteDao: NearbyZoneDeleteDao
-) : BaseInfoWindow(map), LifecycleOwner {
+) : BaseInfoWindow(manager, map), LifecycleOwner {
 
     private val registry = LifecycleRegistry(this)
 
@@ -103,9 +103,8 @@ internal class ZoneInfoWindow private constructor(
             // TODO
         }
 
-        manager.register(viewModel)
-
-        parent?.layout {
+        listenForLocationUpdates()
+        parent.layout {
             title.also {
                 connect(it.id(), ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP)
                 connect(it.id(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
@@ -141,11 +140,14 @@ internal class ZoneInfoWindow private constructor(
         viewModel.updatePolygon(item)
     }
 
+    override fun onLocationUpdate(location: Location?) {
+        viewModel.handleLocationUpdate(location)
+    }
+
     override fun onClose() {
     }
 
     override fun onTeardown() {
-        manager.unregister(viewModel)
         registry.fakeUnbind()
         infoTitle = null
         infoLocation = null
