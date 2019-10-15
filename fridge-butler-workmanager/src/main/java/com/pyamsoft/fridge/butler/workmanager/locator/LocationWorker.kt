@@ -18,8 +18,6 @@
 package com.pyamsoft.fridge.butler.workmanager.locator
 
 import android.content.Context
-import android.location.Location
-import androidx.annotation.CheckResult
 import androidx.work.WorkerParameters
 import com.pyamsoft.fridge.butler.Butler
 import com.pyamsoft.fridge.butler.ButlerPreferences
@@ -27,7 +25,6 @@ import com.pyamsoft.fridge.butler.workmanager.worker.NearbyNotifyingWorker
 import com.pyamsoft.fridge.db.store.NearbyStore
 import com.pyamsoft.fridge.db.zone.NearbyZone
 import com.pyamsoft.fridge.locator.Geofencer
-import com.pyamsoft.fridge.locator.Locator
 import com.pyamsoft.pydroid.ui.Injector
 import kotlinx.coroutines.coroutineScope
 import timber.log.Timber
@@ -60,45 +57,57 @@ internal class LocationWorker internal constructor(
             return@coroutineScope
         }
 
+        var closestStore: NearbyStore? = null
+        var closestStoreDistance = Float.MAX_VALUE
+
+        var closestZone: NearbyZone? = null
+        var closestZoneDistance = Float.MAX_VALUE
+
         withNearbyData { stores, zones ->
-            val inRangeStores = mutableSetOf<NearbyStore>()
-            val inRangeZones = mutableSetOf<NearbyZone>()
+            val currentLatitude = location.latitude
+            val currentLongitude = location.longitude
 
             for (store in stores) {
-                val storeLocation = fromLatLong(store.latitude(), store.longitude())
-                if (location.distanceTo(storeLocation) <= Locator.RADIUS_IN_METERS) {
-                    inRangeStores.add(store)
+                val storeDistance =
+                    store.getDistanceTo(currentLatitude, currentLongitude)
+                val newClosest = if (closestStore == null) true else {
+                    storeDistance < closestStoreDistance
+                }
+
+                if (newClosest) {
+                    closestStore = store
+                    closestStoreDistance = storeDistance
                 }
             }
 
             for (zone in zones) {
-                for (point in zone.points()) {
-                    val pointLocation = fromLatLong(point.lat, point.lon)
-                    if (location.distanceTo(pointLocation) <= Locator.RADIUS_IN_METERS) {
-                        inRangeZones.add(zone)
-                        break
-                    }
+                val zoneDistance =
+                    zone.getDistanceTo(currentLatitude, currentLongitude)
+                val newClosest = if (closestZone == null) true else {
+                    zoneDistance < closestZoneDistance
+                }
+
+                if (newClosest) {
+                    closestZone = zone
+                    closestZoneDistance = zoneDistance
                 }
             }
-
-            fireNotifications(preferences, RECURRING_INTERVAL, inRangeStores, inRangeZones)
         }
+
+        // There can be only one
+        if (closestStore != null && closestZone != null) {
+            if (closestStoreDistance < closestZoneDistance) {
+                closestZone = null
+            } else {
+                closestStore = null
+            }
+        }
+
+        fireNotification(preferences, RECURRING_INTERVAL, closestStore, closestZone)
     }
 
     companion object {
 
         private const val RECURRING_INTERVAL = 3L
-
-        @JvmStatic
-        @CheckResult
-        private fun fromLatLong(
-            lat: Double,
-            lon: Double
-        ): Location {
-            return Location(Locator.PROVIDER).apply {
-                latitude = lat
-                longitude = lon
-            }
-        }
     }
 }

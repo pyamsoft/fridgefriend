@@ -99,17 +99,31 @@ internal class WorkManagerButler @Inject internal constructor(
         time: Long,
         unit: TimeUnit
     ) {
-        schedule(GeofenceRegistrationWorker::class.java, GEOFENCE_REGISTRATION_TAG, time, unit, null)
+        schedule(
+            GeofenceRegistrationWorker::class.java,
+            GEOFENCE_REGISTRATION_TAG,
+            time,
+            unit,
+            null
+        )
     }
 
     override fun unregisterGeofences() {
         workManager().cancelAllWorkByTag(GEOFENCE_REGISTRATION_TAG)
     }
 
-    override fun processGeofences(fences: List<String>) {
+    override fun processGeofences(
+        currentLatitude: Double,
+        currentLongitude: Double,
+        fences: List<String>
+    ) {
         schedule(
             GeofenceNotifierWorker::class.java, GEOFENCE_NOTIFY_TAG, 0, null,
-            mapOf(GeofenceNotifierWorker.KEY_FENCES to fences.toTypedArray())
+            mapOf(
+                GeofenceNotifierWorker.KEY_FENCES to fences.toTypedArray(),
+                GeofenceNotifierWorker.KEY_CURRENT_LATITUDE to currentLatitude,
+                GeofenceNotifierWorker.KEY_CURRENT_LONGITUDE to currentLongitude
+            )
         )
     }
 

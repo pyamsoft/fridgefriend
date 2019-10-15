@@ -36,7 +36,11 @@ interface Butler {
         unit: TimeUnit
     )
 
-    fun processGeofences(fences: List<String>)
+    fun processGeofences(
+        currentLatitude: Double,
+        currentLongitude: Double,
+        fences: List<String>
+    )
 
     fun cancelGeofenceProcessing()
 

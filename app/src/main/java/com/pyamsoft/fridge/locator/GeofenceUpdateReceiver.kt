@@ -19,6 +19,7 @@ package com.pyamsoft.fridge.locator
 
 import android.content.Context
 import android.content.Intent
+import android.location.Location
 import com.pyamsoft.fridge.butler.Butler
 import com.pyamsoft.fridge.locator.map.gms.GmsGeofenceBroadcastReceiver
 import com.pyamsoft.pydroid.ui.Injector
@@ -40,12 +41,36 @@ internal class GeofenceUpdateReceiver internal constructor() : GmsGeofenceBroadc
     }
 
     override fun onGeofenceEvent(intent: Intent) {
-        val triggeredIds = requireNotNull(geofencer).getTriggeredFenceIds(intent)
+        // Pull these out here or they will be nulled out by onTeardown
+        val fencer = requireNotNull(geofencer)
+        val butler = requireNotNull(butler)
+
+        val triggeredIds = fencer.getTriggeredFenceIds(intent)
         if (triggeredIds.isEmpty()) {
             Timber.w("Geofence event received, but triggered ids were empty")
             return
         }
 
-        requireNotNull(butler).processGeofences(triggeredIds)
+        // Wait and do
+        fencer.onLastKnownLocationRetrieved(
+            onRetrieve = { lastLocation ->
+                if (lastLocation == null) {
+                    Timber.w("Last Known location was null, cannot continue")
+                    return@onLastKnownLocationRetrieved
+                }
+
+                processFences(butler, lastLocation, triggeredIds)
+            },
+            onError = { throwable ->
+                Timber.e(throwable, "Error fetching last known location for nearby geofence event")
+            })
+    }
+
+    private fun processFences(
+        butler: Butler,
+        lastLocation: Location,
+        triggeredIds: List<String>
+    ) {
+        butler.processGeofences(lastLocation.latitude, lastLocation.longitude, triggeredIds)
     }
 }

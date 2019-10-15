@@ -26,6 +26,11 @@ interface Geofencer {
     @CheckResult
     fun getTriggeredFenceIds(intent: Intent): List<String>
 
+    fun onLastKnownLocationRetrieved(
+        onRetrieve: (lastLocation: Location?) -> Unit,
+        onError: (throwable: Throwable) -> Unit
+    )
+
     @CheckResult
     suspend fun getLastKnownLocation(): Location?
 }

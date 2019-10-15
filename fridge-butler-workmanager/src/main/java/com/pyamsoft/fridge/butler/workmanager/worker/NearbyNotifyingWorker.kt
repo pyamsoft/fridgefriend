@@ -18,6 +18,8 @@
 package com.pyamsoft.fridge.butler.workmanager.worker
 
 import android.content.Context
+import android.location.Location
+import androidx.annotation.CheckResult
 import androidx.work.WorkerParameters
 import com.pyamsoft.fridge.butler.ButlerPreferences
 import com.pyamsoft.fridge.butler.workmanager.geofence.GeofenceNotifications
@@ -33,14 +35,17 @@ internal abstract class NearbyNotifyingWorker protected constructor(
     params: WorkerParameters
 ) : NearbyWorker(context, params) {
 
-    protected suspend fun fireNotifications(
+    protected suspend fun fireNotification(
         preferences: ButlerPreferences,
         rescheduleInterval: Long,
-        storeNotifications: Set<NearbyStore>,
-        zoneNotifications: Set<NearbyZone>
+        storeNotification: NearbyStore?,
+        zoneNotification: NearbyZone?
     ) {
-        if (storeNotifications.isEmpty() && zoneNotifications.isEmpty()) {
+        if (storeNotification == null && zoneNotification == null) {
             Timber.w("Cannot process a completely empty event")
+            return
+        } else if (storeNotification != null && zoneNotification != null) {
+            Timber.w("Cannot process an event with both Store and Zone")
             return
         }
 
@@ -53,22 +58,31 @@ internal abstract class NearbyNotifyingWorker protected constructor(
             }
 
             val now = Calendar.getInstance()
-            if (now.isAllowedToNotify(
-                    preferences.getLastNotificationTimeNearby(),
-                    rescheduleInterval
-                )
-            ) {
-                storeNotifications.forEach { store ->
+            val allowed = now.isAllowedToNotify(
+                preferences.getLastNotificationTimeNearby(),
+                rescheduleInterval
+            )
+            if (allowed) {
+                if (storeNotification != null) {
                     notification { handler, foregroundState ->
                         GeofenceNotifications.notifyNeeded(
-                            handler, foregroundState, applicationContext, store, neededItems
+                            handler,
+                            foregroundState,
+                            applicationContext,
+                            storeNotification,
+                            neededItems
                         )
                     }
                 }
-                zoneNotifications.forEach { zone ->
+
+                if (zoneNotification != null) {
                     notification { handler, foregroundState ->
                         GeofenceNotifications.notifyNeeded(
-                            handler, foregroundState, applicationContext, zone, neededItems
+                            handler,
+                            foregroundState,
+                            applicationContext,
+                            zoneNotification,
+                            neededItems
                         )
                     }
                 }
@@ -76,5 +90,40 @@ internal abstract class NearbyNotifyingWorker protected constructor(
                 preferences.markNotificationNearby(now)
             }
         }
+    }
+
+    // Get the closest point in the zone to the lat lon
+    @CheckResult
+    protected fun NearbyZone.getDistanceTo(lat: Double, lon: Double): Float {
+        var closestDistance = Float.MAX_VALUE
+        for (point in this.points()) {
+            val distance = getDistance(point.lat, point.lon, lat, lon)
+            if (distance < closestDistance) {
+                closestDistance = distance
+            }
+        }
+
+        return closestDistance
+    }
+
+    @CheckResult
+    protected fun NearbyStore.getDistanceTo(lat: Double, lon: Double): Float {
+        return getDistance(this.latitude(), this.longitude(), lat, lon)
+    }
+
+    @CheckResult
+    private fun getDistance(lat1: Double, lon1: Double, lat2: Double, lon2: Double): Float {
+        val resultArray = FloatArray(1)
+        Location.distanceBetween(
+            lat1,
+            lon1,
+            lat2,
+            lon2,
+            resultArray
+        )
+
+        // Arbitrary Android magic number
+        // https://developer.android.com/reference/android/location/Location.html#distanceBetween(double,%20double,%20double,%20double,%20float%5B%5D)
+        return resultArray[0]
     }
 }

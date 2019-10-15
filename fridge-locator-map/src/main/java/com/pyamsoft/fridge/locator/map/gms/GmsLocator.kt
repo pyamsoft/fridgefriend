@@ -44,7 +44,6 @@ import timber.log.Timber
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import javax.inject.Singleton
-import kotlin.coroutines.Continuation
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
@@ -66,34 +65,48 @@ internal class GmsLocator @Inject internal constructor(
     )
 
     override suspend fun getLastKnownLocation(): Location? {
-        if (!permission.hasForegroundPermission()) {
-            Timber.w("Cannot get last location, missing foreground location permissions")
-            return null
-        }
-
         return suspendCoroutine { continuation ->
-            isGpsEnabled { enabled ->
-                if (!enabled) {
-                    Timber.w("Cannot get last location, GPS is not enabled")
-                    continuation.resume(null)
-                    return@isGpsEnabled
-                }
-
-                continuation.resumeWithLastKnownLocation()
-            }
+            fetchLocation(
+                onRetrieve = { continuation.resume(it) },
+                onError = { continuation.resumeWithException(it) }
+            )
         }
     }
 
+    override fun onLastKnownLocationRetrieved(
+        onRetrieve: (lastLocation: Location?) -> Unit,
+        onError: (throwable: Throwable) -> Unit
+    ) {
+        return fetchLocation(onRetrieve, onError)
+    }
+
     @SuppressLint("MissingPermission")
-    private fun Continuation<Location?>.resumeWithLastKnownLocation() {
-        locationClient.lastLocation.addOnSuccessListener { location ->
-            Timber.d("Last known location: $location")
-            this.resume(location)
+    private inline fun fetchLocation(
+        crossinline onRetrieve: (lastLocation: Location?) -> Unit,
+        crossinline onError: (throwable: Throwable) -> Unit
+    ) {
+        if (!permission.hasForegroundPermission()) {
+            Timber.w("Cannot get last location, missing foreground location permissions")
+            onError(IllegalStateException("Missing ACCESS_FOREGROUND_LOCATION permission"))
+            return
         }
-            .addOnFailureListener { throwable ->
-                Timber.e(throwable, "Error getting last known location")
-                this.resumeWithException(throwable)
+
+        isGpsEnabled { enabled ->
+            if (!enabled) {
+                Timber.w("Cannot get last location, GPS is not enabled")
+                onRetrieve(null)
+                return@isGpsEnabled
             }
+
+            locationClient.lastLocation.addOnSuccessListener { location ->
+                Timber.d("Last known location: $location")
+                onRetrieve(location)
+            }
+                .addOnFailureListener { throwable ->
+                    Timber.e(throwable, "Error getting last known location")
+                    onError(throwable)
+                }
+        }
     }
 
     override fun isGpsEnabled(func: (enabled: Boolean) -> Unit) {

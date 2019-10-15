@@ -18,6 +18,7 @@
 package com.pyamsoft.fridge.butler.workmanager.geofence
 
 import android.content.Context
+import android.location.Location
 import androidx.annotation.CheckResult
 import androidx.work.WorkerParameters
 import com.pyamsoft.fridge.butler.Butler
@@ -57,28 +58,74 @@ internal class GeofenceNotifierWorker internal constructor(
                 Timber.e("Bail: Empty fences, this should not happen!")
                 return@coroutineScope
             }
+            val currentLatitude = inputData.getDouble(KEY_CURRENT_LATITUDE, BAD_COORDINATE)
+            if (currentLatitude == BAD_COORDINATE) {
+                Timber.e("Bail: Missing latitude, this should not happen!")
+                return@coroutineScope
+            }
 
-            Timber.d("Processing geofence events for fences")
+            val currentLongitude = inputData.getDouble(KEY_CURRENT_LONGITUDE, BAD_COORDINATE)
+            if (currentLongitude == BAD_COORDINATE) {
+                Timber.e("Bail: Missing longitude, this should not happen!")
+                return@coroutineScope
+            }
+
             withNearbyData { stores, zones ->
                 val properFenceIds = fenceIds.filterNotNull()
 
-                val storeNotifications = mutableSetOf<NearbyStore>()
-                val zoneNotifications = mutableSetOf<NearbyZone>()
+                var closestStore: NearbyStore? = null
+                var closestStoreDistance = Float.MAX_VALUE
+
+                var closestZone: NearbyZone? = null
+                var closestZoneDistance = Float.MAX_VALUE
+
                 for (fenceId in properFenceIds) {
                     val (store, zone) = findNearbyForGeofence(fenceId, stores, zones)
+
+                    // Find the closest store during the loop
                     if (store != null) {
-                        storeNotifications.add(store)
+                        val storeDistance =
+                            store.getDistanceTo(currentLatitude, currentLongitude)
+                        val newClosest = if (closestStore == null) true else {
+                            storeDistance < closestStoreDistance
+                        }
+
+                        if (newClosest) {
+                            closestStore = store
+                            closestStoreDistance = storeDistance
+                        }
                     }
 
+                    // Find the closest point in the closest zone during the loop
                     if (zone != null) {
-                        zoneNotifications.add(zone)
+                        val zoneDistance =
+                            zone.getDistanceTo(currentLatitude, currentLongitude)
+                        val newClosest = if (closestZone == null) true else {
+                            zoneDistance < closestZoneDistance
+                        }
+
+                        if (newClosest) {
+                            closestZone = zone
+                            closestZoneDistance = zoneDistance
+                        }
                     }
                 }
 
-                fireNotifications(preferences, 0, storeNotifications, zoneNotifications)
+                // There can be only one
+                if (closestStore != null && closestZone != null) {
+                    if (closestStoreDistance < closestZoneDistance) {
+                        closestZone = null
+                    } else {
+                        closestStore = null
+                    }
+                }
+
+
+                fireNotification(preferences, 0, closestStore, closestZone)
             }
         }
     }
+
 
     @CheckResult
     private fun findNearbyForGeofence(
@@ -113,6 +160,9 @@ internal class GeofenceNotifierWorker internal constructor(
 
     companion object {
 
+        private const val BAD_COORDINATE = 69420.42069
         internal const val KEY_FENCES = "key_fences"
+        internal const val KEY_CURRENT_LATITUDE = "key_current_latitude"
+        internal const val KEY_CURRENT_LONGITUDE = "key_current_longitude"
     }
 }
