@@ -73,13 +73,6 @@ internal class GmsLocator @Inject internal constructor(
         }
     }
 
-    override fun onLastKnownLocationRetrieved(
-        onRetrieve: (lastLocation: Location?) -> Unit,
-        onError: (throwable: Throwable) -> Unit
-    ) {
-        return fetchLocation(onRetrieve, onError)
-    }
-
     @SuppressLint("MissingPermission")
     private inline fun fetchLocation(
         crossinline onRetrieve: (lastLocation: Location?) -> Unit,

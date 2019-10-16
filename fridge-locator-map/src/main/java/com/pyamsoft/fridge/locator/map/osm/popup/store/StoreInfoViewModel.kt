@@ -29,11 +29,10 @@ import javax.inject.Inject
 
 internal class StoreInfoViewModel @Inject internal constructor(
     private val interactor: StoreInfoInteractor,
-    myInitialLocation: Location?,
     store: NearbyStore
 ) : UiViewModel<StoreInfoViewState, StoreInfoViewEvent, StoreInfoControllerEvent>(
     initialState = StoreInfoViewState(
-        myLocation = myInitialLocation,
+        myLocation = null,
         marker = null,
         cached = null
     )

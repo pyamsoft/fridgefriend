@@ -20,22 +20,28 @@ package com.pyamsoft.fridge.locator.map.gms
 import android.content.Context
 import android.content.Intent
 import com.pyamsoft.fridge.locator.GeofenceBroadcastReceiver
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 
 abstract class GmsGeofenceBroadcastReceiver protected constructor() : GeofenceBroadcastReceiver() {
+
+    private val job = Job()
 
     final override fun onGeofenceEvent(
         context: Context,
         intent: Intent
     ) {
-        try {
-            inject(context)
-            onGeofenceEvent(intent)
-        } finally {
-            teardown()
-        }
+        inject(context)
+
+        val scope = CoroutineScope(Dispatchers.Default + job)
+        scope
+            .launch { onGeofenceEvent(intent) }
+            .invokeOnCompletion { teardown() }
     }
 
-    protected abstract fun onGeofenceEvent(intent: Intent)
+    protected abstract suspend fun onGeofenceEvent(intent: Intent)
 
     private fun inject(context: Context) {
         onInject(context)

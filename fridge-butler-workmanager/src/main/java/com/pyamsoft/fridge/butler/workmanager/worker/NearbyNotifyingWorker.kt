@@ -65,6 +65,7 @@ internal abstract class NearbyNotifyingWorker protected constructor(
             if (allowed) {
                 if (storeNotification != null) {
                     notification { handler, foregroundState ->
+                        Timber.d("Fire notification for: $storeNotification")
                         GeofenceNotifications.notifyNeeded(
                             handler,
                             foregroundState,
@@ -77,6 +78,7 @@ internal abstract class NearbyNotifyingWorker protected constructor(
 
                 if (zoneNotification != null) {
                     notification { handler, foregroundState ->
+                        Timber.d("Fire notification for: $zoneNotification")
                         GeofenceNotifications.notifyNeeded(
                             handler,
                             foregroundState,

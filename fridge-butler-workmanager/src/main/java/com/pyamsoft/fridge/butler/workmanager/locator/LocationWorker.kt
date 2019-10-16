@@ -25,6 +25,7 @@ import com.pyamsoft.fridge.butler.workmanager.worker.NearbyNotifyingWorker
 import com.pyamsoft.fridge.db.store.NearbyStore
 import com.pyamsoft.fridge.db.zone.NearbyZone
 import com.pyamsoft.fridge.locator.Geofencer
+import com.pyamsoft.fridge.locator.Locator
 import com.pyamsoft.pydroid.ui.Injector
 import kotlinx.coroutines.coroutineScope
 import timber.log.Timber
@@ -68,9 +69,14 @@ internal class LocationWorker internal constructor(
             val currentLongitude = location.longitude
 
             for (store in stores) {
-                Timber.d("Process nearby store: $store")
                 val storeDistance =
                     store.getDistanceTo(currentLatitude, currentLongitude)
+                if (storeDistance > Locator.RADIUS_IN_METERS) {
+                    // Out of range
+                    continue
+                }
+
+                Timber.d("Process nearby store: $store")
                 val newClosest = if (closestStore == null) true else {
                     storeDistance < closestStoreDistance
                 }
@@ -83,9 +89,15 @@ internal class LocationWorker internal constructor(
             }
 
             for (zone in zones) {
-                Timber.d("Process nearby zone: $zone")
                 val zoneDistance =
                     zone.getDistanceTo(currentLatitude, currentLongitude)
+
+                if (zoneDistance > Locator.RADIUS_IN_METERS) {
+                    // Out of range
+                    continue
+                }
+
+                Timber.d("Process nearby zone: $zone")
                 val newClosest = if (closestZone == null) true else {
                     zoneDistance < closestZoneDistance
                 }
@@ -106,7 +118,6 @@ internal class LocationWorker internal constructor(
                 }
             }
 
-            Timber.d("Fire notification for: $closestStore $closestZone")
             fireNotification(preferences, RECURRING_INTERVAL, closestStore, closestZone)
         }
     }

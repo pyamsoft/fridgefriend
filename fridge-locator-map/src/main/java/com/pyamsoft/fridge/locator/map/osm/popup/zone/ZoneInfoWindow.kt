@@ -48,7 +48,6 @@ import javax.inject.Inject
 
 internal class ZoneInfoWindow private constructor(
     manager: LocationUpdateManager,
-    myLocation: Location?,
     zone: NearbyZone,
     map: MapView,
     butler: Butler,
@@ -79,7 +78,6 @@ internal class ZoneInfoWindow private constructor(
     init {
         DaggerZoneInfoComponent.factory()
             .create(
-                myLocation,
                 parent,
                 imageLoader,
                 zone,
@@ -159,7 +157,6 @@ internal class ZoneInfoWindow private constructor(
         @JvmStatic
         @CheckResult
         fun fromMap(
-            myLocation: Location?,
             manager: LocationUpdateManager,
             zone: NearbyZone,
             map: MapView,
@@ -172,7 +169,6 @@ internal class ZoneInfoWindow private constructor(
         ): InfoWindow {
             return ZoneInfoWindow(
                 manager,
-                myLocation,
                 zone,
                 map,
                 butler,

@@ -17,12 +17,10 @@
 
 package com.pyamsoft.fridge.locator.map.osm
 
-import android.location.Location
 import androidx.lifecycle.viewModelScope
 import com.pyamsoft.fridge.locator.map.osm.OsmControllerEvent.BackgroundPermissionRequest
 import com.pyamsoft.fridge.locator.map.osm.OsmControllerEvent.StoragePermissionRequest
 import com.pyamsoft.fridge.locator.map.osm.OsmViewEvent.FindNearby
-import com.pyamsoft.fridge.locator.map.osm.OsmViewEvent.MyLocationChanged
 import com.pyamsoft.fridge.locator.map.osm.OsmViewEvent.RequestBackgroundPermission
 import com.pyamsoft.fridge.locator.map.osm.OsmViewEvent.RequestStoragePermission
 import com.pyamsoft.highlander.highlander
@@ -37,7 +35,6 @@ class OsmViewModel @Inject internal constructor(
     private val interactor: OsmInteractor
 ) : UiViewModel<OsmViewState, OsmViewEvent, OsmControllerEvent>(
     initialState = OsmViewState(
-        lastKnownLocation = null,
         loading = false,
         points = emptyList(),
         zones = emptyList(),
@@ -152,12 +149,7 @@ class OsmViewModel @Inject internal constructor(
             is FindNearby -> nearbySupermarkets(event.box)
             is RequestBackgroundPermission -> publish(BackgroundPermissionRequest)
             is RequestStoragePermission -> handleStorageRequestEvent(manual = true)
-            is MyLocationChanged -> handleLastLocationChanged(event.location)
         }
-    }
-
-    private fun handleLastLocationChanged(location: Location?) {
-        setState { copy(lastKnownLocation = location) }
     }
 
     private fun nearbySupermarkets(box: BBox) {

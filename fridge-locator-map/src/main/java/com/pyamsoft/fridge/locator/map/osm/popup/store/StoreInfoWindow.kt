@@ -48,7 +48,6 @@ import javax.inject.Inject
 
 internal class StoreInfoWindow private constructor(
     manager: LocationUpdateManager,
-    myLocation: Location?,
     store: NearbyStore,
     map: MapView,
     butler: Butler,
@@ -79,7 +78,6 @@ internal class StoreInfoWindow private constructor(
     init {
         DaggerStoreInfoComponent.factory()
             .create(
-                myLocation,
                 parent,
                 imageLoader,
                 store,
@@ -158,7 +156,6 @@ internal class StoreInfoWindow private constructor(
         @JvmStatic
         @CheckResult
         fun fromMap(
-            myLocation: Location?,
             manager: LocationUpdateManager,
             store: NearbyStore,
             map: MapView,
@@ -171,7 +168,6 @@ internal class StoreInfoWindow private constructor(
         ): InfoWindow {
             return StoreInfoWindow(
                 manager,
-                myLocation,
                 store,
                 map,
                 butler,

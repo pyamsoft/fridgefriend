@@ -19,7 +19,6 @@ package com.pyamsoft.fridge.locator.map.osm
 
 import android.content.Context
 import android.graphics.Color
-import android.location.Location
 import android.view.ViewGroup
 import androidx.annotation.CheckResult
 import androidx.core.view.isVisible
@@ -44,7 +43,6 @@ import com.pyamsoft.fridge.db.zone.NearbyZoneRealtime
 import com.pyamsoft.fridge.locator.MapPermission
 import com.pyamsoft.fridge.locator.map.R
 import com.pyamsoft.fridge.locator.map.osm.OsmViewEvent.FindNearby
-import com.pyamsoft.fridge.locator.map.osm.OsmViewEvent.MyLocationChanged
 import com.pyamsoft.fridge.locator.map.osm.OsmViewEvent.RequestBackgroundPermission
 import com.pyamsoft.fridge.locator.map.osm.OsmViewEvent.RequestStoragePermission
 import com.pyamsoft.fridge.locator.map.osm.popup.LocationUpdateManagerImpl
@@ -197,17 +195,15 @@ class OsmMap @Inject internal constructor(
         state: OsmViewState,
         savedState: UiSavedState
     ) {
-        val currentLocation = state.lastKnownLocation
-
         var invalidate = false
         state.points.let { points ->
-            if (renderMapMarkers(points, currentLocation)) {
+            if (renderMapMarkers(points)) {
                 invalidate = true
             }
         }
 
         state.zones.let { zones ->
-            if (renderMapPolygons(zones, currentLocation)) {
+            if (renderMapPolygons(zones)) {
                 invalidate = true
             }
         }
@@ -234,7 +230,7 @@ class OsmMap @Inject internal constructor(
     }
 
     @CheckResult
-    private fun renderMapPolygons(zones: List<NearbyZone>, currentLocation: Location?): Boolean {
+    private fun renderMapPolygons(zones: List<NearbyZone>): Boolean {
         // Skip work if no polygons
         if (zones.isEmpty()) {
             return false
@@ -258,7 +254,6 @@ class OsmMap @Inject internal constructor(
 
             val polygon = Polygon(map).apply {
                 infoWindow = ZoneInfoWindow.fromMap(
-                    currentLocation,
                     locationUpdateManager,
                     zone,
                     map,
@@ -296,7 +291,7 @@ class OsmMap @Inject internal constructor(
     }
 
     @CheckResult
-    private fun renderMapMarkers(marks: List<NearbyStore>, currentLocation: Location?): Boolean {
+    private fun renderMapMarkers(marks: List<NearbyStore>): Boolean {
         // Skip work if no markers
         if (marks.isEmpty()) {
             return false
@@ -314,7 +309,6 @@ class OsmMap @Inject internal constructor(
 
             val marker = Marker(map).apply {
                 infoWindow = StoreInfoWindow.fromMap(
-                    currentLocation,
                     locationUpdateManager,
                     mark,
                     map,
@@ -408,10 +402,9 @@ class OsmMap @Inject internal constructor(
         val overlay = UpdateAwareLocationOverlay(
             GpsMyLocationProvider(context),
             mapView,
-            onLocationChanged = { location ->
-                publish(MyLocationChanged(location))
-                locationUpdateManager.publish(location)
-            })
+            onLocationChanged = { locationUpdateManager.publish(it) }
+        )
+
         overlay.runOnFirstFix {
             val currentLocation = overlay.myLocation
             if (currentLocation != null) {

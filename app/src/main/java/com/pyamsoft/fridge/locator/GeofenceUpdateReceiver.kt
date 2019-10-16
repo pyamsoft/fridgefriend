@@ -23,6 +23,7 @@ import android.location.Location
 import com.pyamsoft.fridge.butler.Butler
 import com.pyamsoft.fridge.locator.map.gms.GmsGeofenceBroadcastReceiver
 import com.pyamsoft.pydroid.ui.Injector
+import kotlinx.coroutines.CancellationException
 import timber.log.Timber
 
 internal class GeofenceUpdateReceiver internal constructor() : GmsGeofenceBroadcastReceiver() {
@@ -40,30 +41,27 @@ internal class GeofenceUpdateReceiver internal constructor() : GmsGeofenceBroadc
         butler = null
     }
 
-    override fun onGeofenceEvent(intent: Intent) {
-        // Pull these out here or they will be nulled out by onTeardown
+    override suspend fun onGeofenceEvent(intent: Intent) {
         val fencer = requireNotNull(geofencer)
-        val butler = requireNotNull(butler)
-
         val triggeredIds = fencer.getTriggeredFenceIds(intent)
         if (triggeredIds.isEmpty()) {
             Timber.w("Geofence event received, but triggered ids were empty")
             return
         }
 
-        // Wait and do
-        fencer.onLastKnownLocationRetrieved(
-            onRetrieve = { lastLocation ->
-                if (lastLocation == null) {
-                    Timber.w("Last Known location was null, cannot continue")
-                    return@onLastKnownLocationRetrieved
-                }
+        try {
+            val lastLocation = fencer.getLastKnownLocation()
+            if (lastLocation == null) {
+                Timber.w("Last Known location was null, cannot continue")
+                return
+            }
 
-                processFences(butler, lastLocation, triggeredIds)
-            },
-            onError = { throwable ->
+            processFences(requireNotNull(butler), lastLocation, triggeredIds)
+        } catch (throwable: Throwable) {
+            if (throwable !is CancellationException) {
                 Timber.e(throwable, "Error fetching last known location for nearby geofence event")
-            })
+            }
+        }
     }
 
     private fun processFences(

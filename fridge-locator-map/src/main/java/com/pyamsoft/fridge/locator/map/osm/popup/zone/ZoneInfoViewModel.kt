@@ -29,11 +29,10 @@ import javax.inject.Inject
 
 internal class ZoneInfoViewModel @Inject internal constructor(
     private val interactor: ZoneInfoInteractor,
-    myInitialLocation: Location?,
     zone: NearbyZone
 ) : UiViewModel<ZoneInfoViewState, ZoneInfoViewEvent, ZoneInfoControllerEvent>(
     initialState = ZoneInfoViewState(
-        myLocation = myInitialLocation,
+        myLocation = null,
         polygon = null,
         cached = null
     )
