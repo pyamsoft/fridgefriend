@@ -22,6 +22,7 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.widget.Toolbar
+import com.pyamsoft.fridge.db.item.FridgeItem.Presence.HAVE
 import com.pyamsoft.fridge.detail.R
 import com.pyamsoft.fridge.detail.item.DetailItemViewEvent
 import com.pyamsoft.fridge.detail.item.DetailItemViewEvent.CloseItem
@@ -108,8 +109,8 @@ class ExpandedToolbar @Inject internal constructor(
             })
 
             requireNotNull(deleteMenuItem).isVisible = item.isReal()
-            requireNotNull(consumeMenuItem).isVisible = item.isReal()
-            requireNotNull(spoilMenuItem).isVisible = item.isReal()
+            requireNotNull(consumeMenuItem).isVisible = item.isReal() && item.presence() == HAVE
+            requireNotNull(spoilMenuItem).isVisible = item.isReal() && item.presence() == HAVE
 
             layoutRoot.setOnMenuItemClickListener { menuItem ->
                 return@setOnMenuItemClickListener when (menuItem.itemId) {

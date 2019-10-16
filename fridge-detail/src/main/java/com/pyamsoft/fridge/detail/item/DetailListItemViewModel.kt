@@ -107,6 +107,10 @@ class DetailListItemViewModel @Inject internal constructor(
         remove(item, doRemove = { interactor.spoil(it) })
     }
 
+    fun delete() {
+        remove(item, doRemove = { interactor.delete(it) })
+    }
+
     private fun expandItem(item: FridgeItem) {
         publish(ExpandDetails(item))
     }

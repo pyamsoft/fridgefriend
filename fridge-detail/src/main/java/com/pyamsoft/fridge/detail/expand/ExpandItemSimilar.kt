@@ -52,15 +52,15 @@ class ExpandItemSimilar @Inject internal constructor(
         state: DetailItemViewState,
         savedState: UiSavedState
     ) {
+        val item = state.item
         state.sameNamedItems.let { similar ->
             if (similar.isEmpty()) {
                 message.isVisible = false
                 message.text = ""
             } else {
-                val item = state.item
+                val name = item.name().trim()
                 message.isVisible = true
-                message.text =
-                    "'${item.name().trim()}' is similar to other items you already own, are you sure you need another?"
+                message.text = "You already have at least one '${name}', do you need another?"
             }
         }
     }

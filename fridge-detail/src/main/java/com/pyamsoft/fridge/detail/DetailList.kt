@@ -29,6 +29,7 @@ import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.mikepenz.fastadapter_extensions.swipe.SimpleSwipeCallback
 import com.pyamsoft.fridge.db.item.FridgeItem
+import com.pyamsoft.fridge.db.item.FridgeItem.Presence.NEED
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent
 import com.pyamsoft.fridge.db.item.FridgeItemRealtime
 import com.pyamsoft.fridge.detail.DetailListAdapter.Callback
@@ -69,6 +70,8 @@ class DetailList @Inject internal constructor(
     private var decoration: DividerItemDecoration? = null
     private var touchHelper: ItemTouchHelper? = null
     private var modelAdapter: DetailListAdapter? = null
+
+    private val swipeAwayDeletes = listItemPresence == NEED
 
     init {
         doOnInflate {
@@ -156,14 +159,21 @@ class DetailList @Inject internal constructor(
             }
 
             if (direction == consumeSwipeDirection || direction == spoilSwipeDirection) {
-                if (direction == consumeSwipeDirection) {
-                    consumeListItem(position)
+                if (swipeAwayDeletes) {
+                    deleteListItem(position)
                 } else {
-                    spoilListItem(position)
+                    if (direction == consumeSwipeDirection) {
+                        consumeListItem(position)
+                    } else {
+                        spoilListItem(position)
+                    }
                 }
             }
         }
-        val leftBehindDrawable = imageLoader.immediate(R.drawable.ic_spoiled_24dp)
+        val leftBehindDrawable = imageLoader.immediate(
+            if (swipeAwayDeletes) R.drawable.ic_delete_24dp
+            else R.drawable.ic_spoiled_24dp
+        )
         val leftBackground = Color.RED
 
         val directions = consumeSwipeDirection or spoilSwipeDirection
@@ -182,8 +192,11 @@ class DetailList @Inject internal constructor(
                 return if (viewHolder is DetailItemViewHolder) directions else 0
             }
         }.apply {
-            val rightBehindDrawable = imageLoader.immediate(R.drawable.ic_consumed_24dp)
-            val rightBackground = Color.GREEN
+            val rightBehindDrawable = imageLoader.immediate(
+                if (swipeAwayDeletes) R.drawable.ic_delete_24dp
+                else R.drawable.ic_consumed_24dp
+            )
+            val rightBackground = if (swipeAwayDeletes) Color.RED else Color.GREEN
             withBackgroundSwipeRight(rightBackground)
             withLeaveBehindSwipeRight(rightBehindDrawable)
         }
@@ -196,6 +209,10 @@ class DetailList @Inject internal constructor(
     @CheckResult
     private fun usingAdapter(): DetailListAdapter {
         return requireNotNull(modelAdapter)
+    }
+
+    private fun deleteListItem(position: Int) {
+        withViewHolderAt(position) { it.delete() }
     }
 
     private fun consumeListItem(position: Int) {

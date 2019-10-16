@@ -221,4 +221,9 @@ internal class DetailItemViewHolder internal constructor(
     fun spoil() {
         requireNotNull(viewModel).spoil()
     }
+
+    // Kind of hacky
+    fun delete() {
+        requireNotNull(viewModel).delete()
+    }
 }
