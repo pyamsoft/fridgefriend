@@ -41,7 +41,7 @@ fun Calendar.daysLaterMidnight(later: Int): Calendar {
 
 @CheckResult
 @JvmOverloads
-fun FridgeItem.isExpired(today: Calendar = Calendar.getInstance().cleanMidnight()): Boolean {
+fun FridgeItem.isExpired(today: Calendar = Calendar.getInstance()): Boolean {
     val expireTime = this.expireTime() ?: return false
 
     // Clean Y/M/D only

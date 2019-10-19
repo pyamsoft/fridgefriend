@@ -19,6 +19,8 @@ package com.pyamsoft.fridge.detail.base
 
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.core.view.isVisible
+import com.pyamsoft.fridge.db.item.FridgeItem.Presence.HAVE
 import com.pyamsoft.fridge.db.item.isArchived
 import com.pyamsoft.fridge.detail.R
 import com.pyamsoft.fridge.detail.item.DetailItemViewEvent
@@ -48,6 +50,7 @@ abstract class BaseItemDate protected constructor(
         val month: Int
         val day: Int
         val year: Int
+        layoutRoot.isVisible = item.presence() == HAVE
         val expireTime = item.expireTime()
         if (expireTime != null) {
             val date = Calendar.getInstance()

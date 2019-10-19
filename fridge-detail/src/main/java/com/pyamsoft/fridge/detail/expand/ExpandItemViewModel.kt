@@ -180,7 +180,7 @@ class ExpandItemViewModel @Inject internal constructor(
     ) {
         if (count > 0) {
             setFixMessage("")
-            commitItem(item = oldItem.count(count))
+            commitItem(oldItem.count(count), oldItem.presence())
         } else {
             Timber.w("Invalid count: $count")
             handleInvalidCount(count)
@@ -193,7 +193,7 @@ class ExpandItemViewModel @Inject internal constructor(
     ) {
         if (isNameValid(name)) {
             setFixMessage("")
-            commitItem(item = oldItem.name(name))
+            commitItem(oldItem.name(name), oldItem.presence())
         } else {
             Timber.w("Invalid name: $name")
             handleInvalidName(name)
@@ -215,24 +215,26 @@ class ExpandItemViewModel @Inject internal constructor(
             }
             .time
         Timber.d("Save expire time: $newTime")
-        commitItem(item = oldItem.expireTime(newTime))
+        commitItem(oldItem.expireTime(newTime), oldItem.presence())
     }
 
     private fun commitPresence(
         oldItem: FridgeItem,
         presence: Presence
     ) {
-        commitItem(item = oldItem.presence(presence))
+        val oldPresence = oldItem.presence()
+        val newItem = oldItem.presence(presence)
+        commitItem(newItem, oldPresence)
     }
 
-    private fun commitItem(item: FridgeItem) {
+    private fun commitItem(item: FridgeItem, oldPresence: Presence) {
         updateItem(item)
-        findSameNamedItems(item)
+        findSameNamedItems(item, oldPresence)
         findSimilarItems(item)
     }
 
-    private fun findSameNamedItems(item: FridgeItem) {
-        if (item.presence() != NEED) {
+    private fun findSameNamedItems(item: FridgeItem, oldPresence: Presence) {
+        if (oldPresence != NEED) {
             return
         }
 
