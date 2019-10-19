@@ -21,7 +21,6 @@ import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.entry.FridgeEntryInsertDao
 import com.pyamsoft.fridge.db.entry.FridgeEntryQueryDao
-import com.pyamsoft.fridge.db.entry.FridgeEntryUpdateDao
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent
@@ -40,19 +39,15 @@ import java.util.Date
 import javax.inject.Inject
 
 internal class DetailInteractor @Inject internal constructor(
-    entry: FridgeEntry,
     private val itemQueryDao: FridgeItemQueryDao,
     private val itemInsertDao: FridgeItemInsertDao,
     private val itemUpdateDao: FridgeItemUpdateDao,
     private val itemDeleteDao: FridgeItemDeleteDao,
     private val itemRealtime: FridgeItemRealtime,
-    private val entryUpdateDao: FridgeEntryUpdateDao,
     private val enforcer: Enforcer,
     private val queryDao: FridgeEntryQueryDao,
     private val insertDao: FridgeEntryInsertDao
 ) {
-
-    private val entryId = entry.id()
 
     @CheckResult
     suspend fun findSameNamedItems(name: String, presence: Presence): Collection<FridgeItem> {
@@ -79,9 +74,9 @@ internal class DetailInteractor @Inject internal constructor(
         name: String
     ): FridgeEntry {
         val valid = getEntryForId(entryId, false)
-        if (valid != null) {
+        return if (valid != null) {
             Timber.d("Entry exists, ignore: ${valid.id()}")
-            return valid
+            valid
         } else {
             val createdTime = Calendar.getInstance()
                 .time
@@ -89,7 +84,7 @@ internal class DetailInteractor @Inject internal constructor(
             val newEntry =
                 FridgeEntry.create(entryId, name, createdTime, isReal = true)
             insertDao.insert(newEntry)
-            return newEntry
+            newEntry
         }
     }
 
@@ -162,18 +157,6 @@ internal class DetailInteractor @Inject internal constructor(
         } else {
             Timber.d("Deleting item [${item.id()}]: $item")
             itemDeleteDao.delete(item)
-        }
-    }
-
-    suspend fun saveName(name: String) = withContext(context = Dispatchers.Default) {
-        enforcer.assertNotOnMainThread()
-        val valid = getEntryForId(entryId, false)
-        if (valid != null) {
-            Timber.d("Updating entry name [${valid.id()}]: $name")
-            entryUpdateDao.update(valid.name(name))
-        } else {
-            Timber.d("saveName called but Entry does not exist, create it")
-            guaranteeEntryExists(entryId, name)
         }
     }
 }

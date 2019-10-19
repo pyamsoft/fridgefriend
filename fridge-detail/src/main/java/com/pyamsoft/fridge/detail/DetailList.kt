@@ -36,6 +36,8 @@ import com.pyamsoft.fridge.detail.DetailListAdapter.Callback
 import com.pyamsoft.fridge.detail.DetailViewEvent.ExpandItem
 import com.pyamsoft.fridge.detail.DetailViewEvent.ForceRefresh
 import com.pyamsoft.fridge.detail.DetailViewEvent.PickDate
+import com.pyamsoft.fridge.detail.DetailViewEvent.ReallyDeleteNoUndo
+import com.pyamsoft.fridge.detail.DetailViewEvent.UndoDelete
 import com.pyamsoft.fridge.detail.item.DateSelectPayload
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.arch.EventBus
@@ -241,18 +243,6 @@ class DetailList @Inject internal constructor(
         usingAdapter().submitList(null)
     }
 
-    private fun showNameUpdateError(throwable: Throwable) {
-        Snackbreak.bindTo(owner, "name") {
-            make(layoutRoot, throwable.message ?: "An unexpected error has occurred.")
-        }
-    }
-
-    private fun clearNameUpdateError() {
-        Snackbreak.bindTo(owner, "name") {
-            dismiss()
-        }
-    }
-
     private fun showListError(throwable: Throwable) {
         Snackbreak.bindTo(owner, "list") {
             make(layoutRoot, throwable.message ?: "An unexpected error has occurred.")
@@ -261,6 +251,26 @@ class DetailList @Inject internal constructor(
 
     private fun clearListError() {
         Snackbreak.bindTo(owner, "list") {
+            dismiss()
+        }
+    }
+
+    private fun showUndoSnackbar(undoable: FridgeItem) {
+        Snackbreak.bindTo(owner, "undo") {
+            short(layoutRoot, "Removed ${undoable.name()}", force = true, onHidden = { _, _ ->
+                // Once hidden this will clear out the stored undoable
+                //
+                // If the undoable was restored before this point, this is basically a no-op
+                publish(ReallyDeleteNoUndo(undoable))
+            }) {
+                // Restore the old item
+                setAction("Undo") { publish(UndoDelete(undoable)) }
+            }
+        }
+    }
+
+    private fun clearUndoSnackbar() {
+        Snackbreak.bindTo(owner, "undo") {
             dismiss()
         }
     }
@@ -291,11 +301,11 @@ class DetailList @Inject internal constructor(
             }
         }
 
-        state.nameUpdateError.let { throwable ->
-            if (throwable == null) {
-                clearNameUpdateError()
+        state.undoableItem.let { undoable ->
+            if (undoable == null) {
+                clearUndoSnackbar()
             } else {
-                showNameUpdateError(throwable)
+                showUndoSnackbar(undoable)
             }
         }
     }

@@ -80,12 +80,20 @@ data class JsonMappableFridgeItem internal constructor(
         return consumptionDate
     }
 
+    override fun invalidateConsumption(): FridgeItem {
+        return this.copy(consumptionDate = null)
+    }
+
     override fun isConsumed(): Boolean {
         return consumptionDate != null
     }
 
     override fun spoiledDate(): Date? {
         return spoiledDate
+    }
+
+    override fun invalidateSpoiled(): FridgeItem {
+        return this.copy(spoiledDate = null)
     }
 
     override fun isSpoiled(): Boolean {

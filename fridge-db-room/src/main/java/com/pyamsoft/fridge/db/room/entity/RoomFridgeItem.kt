@@ -118,6 +118,11 @@ internal data class RoomFridgeItem internal constructor(
     }
 
     @Ignore
+    override fun invalidateConsumption(): FridgeItem {
+        return FridgeItem.create(this, consumptionDate = null, isReal = isReal())
+    }
+
+    @Ignore
     override fun isConsumed(): Boolean {
         return consumedTime != null
     }
@@ -125,6 +130,11 @@ internal data class RoomFridgeItem internal constructor(
     @Ignore
     override fun spoiledDate(): Date? {
         return spoiledTime
+    }
+
+    @Ignore
+    override fun invalidateSpoiled(): FridgeItem {
+        return FridgeItem.create(this, spoiledDate = null, isReal = isReal())
     }
 
     override fun isSpoiled(): Boolean {

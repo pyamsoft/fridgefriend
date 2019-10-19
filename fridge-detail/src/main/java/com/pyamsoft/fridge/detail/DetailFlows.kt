@@ -26,8 +26,8 @@ data class DetailViewState(
     val isLoading: Loading?,
     val items: List<FridgeItem>,
     val filterArchived: Boolean,
-    val nameUpdateError: Throwable?,
-    val listError: Throwable?
+    val listError: Throwable?,
+    val undoableItem: FridgeItem?
 ) : UiViewState {
 
     data class Loading internal constructor(val isLoading: Boolean)
@@ -50,7 +50,9 @@ sealed class DetailViewEvent : UiViewEvent {
 
     object CloseEntry : DetailViewEvent()
 
-    data class NameUpdate internal constructor(val name: String) : DetailViewEvent()
+    data class UndoDelete internal constructor(val item: FridgeItem) : DetailViewEvent()
+
+    data class ReallyDeleteNoUndo internal constructor(val item: FridgeItem) : DetailViewEvent()
 }
 
 sealed class DetailControllerEvent : UiControllerEvent {

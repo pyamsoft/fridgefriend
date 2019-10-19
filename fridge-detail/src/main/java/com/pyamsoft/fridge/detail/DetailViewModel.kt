@@ -32,9 +32,10 @@ import com.pyamsoft.fridge.detail.DetailControllerEvent.NavigateUp
 import com.pyamsoft.fridge.detail.DetailViewEvent.CloseEntry
 import com.pyamsoft.fridge.detail.DetailViewEvent.ExpandItem
 import com.pyamsoft.fridge.detail.DetailViewEvent.ForceRefresh
-import com.pyamsoft.fridge.detail.DetailViewEvent.NameUpdate
 import com.pyamsoft.fridge.detail.DetailViewEvent.PickDate
+import com.pyamsoft.fridge.detail.DetailViewEvent.ReallyDeleteNoUndo
 import com.pyamsoft.fridge.detail.DetailViewEvent.ToggleArchiveVisibility
+import com.pyamsoft.fridge.detail.DetailViewEvent.UndoDelete
 import com.pyamsoft.fridge.detail.DetailViewState.Loading
 import com.pyamsoft.highlander.highlander
 import com.pyamsoft.pydroid.arch.EventBus
@@ -56,21 +57,24 @@ class DetailViewModel @Inject internal constructor(
         isLoading = null,
         items = emptyList(),
         filterArchived = true,
-        nameUpdateError = null,
-        listError = null
+        listError = null,
+        undoableItem = null
     )
 ) {
 
     private val entryId = entry.id()
 
-    private val nameRunner = highlander<Unit, String> { name ->
+    private val undoRunner = highlander<Unit, FridgeItem> { item ->
         try {
-            interactor.saveName(name.trim())
-            handleNameUpdated()
+            val undoneItem = item.invalidateSpoiled().invalidateConsumption()
+            if (undoneItem.isReal()) {
+                interactor.commit(undoneItem)
+            } else {
+                fakeRealtime.send(Insert(undoneItem))
+            }
         } catch (error: Throwable) {
             error.onActualError { e ->
-                Timber.e(e, "Error updating entry name")
-                handleNameUpdateError(e)
+                Timber.e(e, "Error undoing item: ${item.id()}")
             }
         }
     }
@@ -117,26 +121,19 @@ class DetailViewModel @Inject internal constructor(
             is ExpandItem -> publish(ExpandForEditing(event.item))
             is PickDate -> publish(DatePick(event.oldItem, event.year, event.month, event.day))
             is CloseEntry -> publish(NavigateUp)
-            is NameUpdate -> updateName(event.name)
             is ToggleArchiveVisibility -> toggleArchived(event.show)
+            is ReallyDeleteNoUndo -> setState { copy(undoableItem = null) }
+            is UndoDelete -> handleUndoDelete(event.item)
         }
+    }
+
+    private fun handleUndoDelete(item: FridgeItem) {
+        viewModelScope.launch(context = Dispatchers.Default) { undoRunner.call(item) }
     }
 
     private fun toggleArchived(show: Boolean) {
         setState { copy(filterArchived = !show) }
         refreshList(false)
-    }
-
-    private fun updateName(name: String) {
-        viewModelScope.launch(context = Dispatchers.Default) { nameRunner.call(name) }
-    }
-
-    private fun handleNameUpdated() {
-        setState { copy(nameUpdateError = null) }
-    }
-
-    private fun handleNameUpdateError(throwable: Throwable) {
-        setState { copy(nameUpdateError = throwable) }
     }
 
     @CheckResult
@@ -222,7 +219,8 @@ class DetailViewModel @Inject internal constructor(
         if (item.isArchived()) {
             setState {
                 copy(
-                    items = getListItems(filterArchived, items.filterNot { it.id() == item.id() })
+                    items = getListItems(filterArchived, items.filterNot { it.id() == item.id() }),
+                    undoableItem = item
                 )
             }
         } else {
@@ -248,7 +246,10 @@ class DetailViewModel @Inject internal constructor(
 
     private fun handleRealtimeDelete(item: FridgeItem) {
         setState {
-            copy(items = getListItems(filterArchived, items.filterNot { it.id() == item.id() }))
+            copy(
+                items = getListItems(filterArchived, items.filterNot { it.id() == item.id() }),
+                undoableItem = item
+            )
         }
     }
 

@@ -32,10 +32,16 @@ interface ConsumableModel<T : Any> : BaseModel<T> {
     fun consume(date: Date): T
 
     @CheckResult
+    fun invalidateConsumption(): T
+
+    @CheckResult
     fun isSpoiled(): Boolean
 
     @CheckResult
     fun spoiledDate(): Date?
+
+    @CheckResult
+    fun invalidateSpoiled(): T
 
     @CheckResult
     fun spoil(date: Date): T
