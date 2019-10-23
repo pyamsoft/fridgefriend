@@ -47,7 +47,7 @@ buildscript {
         leakCanary = "1.6.3"
 
         // Dagger
-        dagger = "2.25"
+        dagger = "2.24"
 
         moshi = "1.8.0"
 
