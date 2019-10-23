@@ -56,18 +56,16 @@ internal class DetailListAdapter constructor(
     }
 
     override fun getItemViewType(position: Int): Int {
-        if (isEmptyItem(position)) {
-            return R.id.id_item_empty_item
+        return if (isEmptyItem(position)) {
+            R.id.id_item_empty_item
         } else {
-            return R.id.id_item_list_item
+            R.id.id_item_list_item
         }
     }
 
     override fun getItemId(position: Int): Long {
-        if (isEmptyItem(position)) {
-            return 0
-        } else {
-            return getItem(position).id()
+        return if (isEmptyItem(position)) 0 else {
+            getItem(position).id()
                 .hashCode()
                 .toLong()
         }
@@ -78,12 +76,12 @@ internal class DetailListAdapter constructor(
         viewType: Int
     ): DetailViewHolder {
         val inflater = LayoutInflater.from(parent.context)
-        if (viewType == R.id.id_item_empty_item) {
+        return if (viewType == R.id.id_item_empty_item) {
             val v = inflater.inflate(R.layout.listitem_frame, parent, false)
-            return SpacerItemViewHolder(v)
+            SpacerItemViewHolder(v)
         } else {
             val v = inflater.inflate(R.layout.listitem_constraint, parent, false)
-            return DetailItemViewHolder(v, injectComponent)
+            DetailItemViewHolder(v, injectComponent)
         }
     }
 

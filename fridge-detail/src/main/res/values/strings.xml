@@ -16,15 +16,8 @@
   -->
 
 <resources>
-    <string name="detail_title_hint">List Name</string>
     <string name="delete">Delete</string>
-    <string name="add_new_item">Add New Item</string>
     <string name="item_name_hint">Item Name</string>
-    <string name="month_hint">MM</string>
-    <string name="day_hint">DD</string>
-    <string name="year_hint">YYYY</string>
-    <string name="date_separator">/</string>
-    <string name="archive">Archive</string>
     <string name="spoiled">Spoiled</string>
     <string name="consumed">Consumed</string>
     <string name="count">Count</string>

@@ -69,10 +69,10 @@ internal sealed class OsmNodeOrWay {
             val lat = json.lat ?: 0.0
             val lon = json.lon ?: 0.0
 
-            if (nodes.isNotEmpty()) {
-                return Way(json.id, nodes, tags)
+            return if (nodes.isNotEmpty()) {
+                Way(json.id, nodes, tags)
             } else {
-                return Node(json.id, lat, lon, tags)
+                Node(json.id, lat, lon, tags)
             }
         }
 
