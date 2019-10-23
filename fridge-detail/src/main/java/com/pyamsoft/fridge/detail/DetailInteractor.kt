@@ -18,6 +18,7 @@
 package com.pyamsoft.fridge.detail
 
 import androidx.annotation.CheckResult
+import com.pyamsoft.fridge.db.FridgeItemPreferences
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.entry.FridgeEntryInsertDao
 import com.pyamsoft.fridge.db.entry.FridgeEntryQueryDao
@@ -47,7 +48,7 @@ internal class DetailInteractor @Inject internal constructor(
     private val enforcer: Enforcer,
     private val queryDao: FridgeEntryQueryDao,
     private val insertDao: FridgeEntryInsertDao,
-    preferences: DetailPreferences
+    preferences: FridgeItemPreferences
 ) : DetailPreferenceInteractor(preferences) {
 
     @CheckResult

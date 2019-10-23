@@ -24,6 +24,7 @@ import com.pyamsoft.fridge.butler.ButlerPreferences
 import com.pyamsoft.fridge.butler.ForegroundState
 import com.pyamsoft.fridge.butler.NotificationHandler
 import com.pyamsoft.fridge.core.Core
+import com.pyamsoft.fridge.db.FridgeItemPreferences
 import com.pyamsoft.fridge.db.entry.FridgeEntryQueryDao
 import com.pyamsoft.fridge.db.item.FridgeItemQueryDao
 import com.pyamsoft.fridge.db.store.NearbyStoreQueryDao
@@ -165,6 +166,7 @@ class FridgeFriend : Application() {
             NearbyZoneQueryDao::class.java.name -> requireNotNull(component).provideNearbyZoneQueryDao()
             NotificationHandler::class.java.name -> requireNotNull(component).provideNotificationHandler()
             ButlerPreferences::class.java.name -> requireNotNull(component).provideButlerPreferences()
+            FridgeItemPreferences::class.java.name -> requireNotNull(component).provideFridgeItemPreferences()
             else -> null
         }
     }

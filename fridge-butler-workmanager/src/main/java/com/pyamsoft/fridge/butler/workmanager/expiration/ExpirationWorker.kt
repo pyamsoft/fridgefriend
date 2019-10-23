@@ -22,6 +22,7 @@ import androidx.work.WorkerParameters
 import com.pyamsoft.fridge.butler.Butler
 import com.pyamsoft.fridge.butler.ButlerPreferences
 import com.pyamsoft.fridge.butler.workmanager.worker.FridgeWorker
+import com.pyamsoft.fridge.db.FridgeItemPreferences
 import com.pyamsoft.fridge.db.cleanMidnight
 import com.pyamsoft.fridge.db.daysLaterMidnight
 import com.pyamsoft.fridge.db.entry.FridgeEntry
@@ -48,6 +49,7 @@ internal class ExpirationWorker internal constructor(
         preferences: ButlerPreferences,
         today: Calendar,
         later: Calendar,
+        isSameDayExpired: Boolean,
         entry: FridgeEntry,
         items: List<FridgeItem>
     ) {
@@ -60,11 +62,11 @@ internal class ExpirationWorker internal constructor(
                 val expirationTime = item.expireTime()
                 if (expirationTime != null) {
 
-                    if (item.isExpired(today)) {
+                    if (item.isExpired(today, isSameDayExpired)) {
                         Timber.w("${entry.id()} expired! $item")
                         expiredItems.add(item)
                     } else {
-                        if (item.isExpiringSoon(today, later)) {
+                        if (item.isExpiringSoon(today, later, isSameDayExpired)) {
                             Timber.w("${entry.id()} is expiring soon! $item")
                             expiringItems.add(item)
                         }
@@ -107,14 +109,18 @@ internal class ExpirationWorker internal constructor(
         }
     }
 
-    override suspend fun performWork(preferences: ButlerPreferences) = coroutineScope {
+    override suspend fun performWork(
+        preferences: ButlerPreferences,
+        fridgeItemPreferences: FridgeItemPreferences
+    ) = coroutineScope {
         val today = Calendar.getInstance()
             .cleanMidnight()
         val later = Calendar.getInstance()
             .daysLaterMidnight(2)
+        val isSameDayExpired = fridgeItemPreferences.isSameDayExpired()
 
         withFridgeData { entry, items ->
-            notifyForEntry(preferences, today, later, entry, items)
+            notifyForEntry(preferences, today, later, isSameDayExpired, entry, items)
         }
     }
 

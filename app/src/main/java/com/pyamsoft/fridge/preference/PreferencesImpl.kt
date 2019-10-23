@@ -19,13 +19,14 @@ package com.pyamsoft.fridge.preference
 
 import android.content.Context
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener
+import androidx.annotation.CheckResult
 import androidx.core.content.edit
 import androidx.preference.PreferenceManager
 import com.pyamsoft.fridge.R
 import com.pyamsoft.fridge.butler.ButlerPreferences
+import com.pyamsoft.fridge.core.Preferences.Unregister
+import com.pyamsoft.fridge.db.FridgeItemPreferences
 import com.pyamsoft.fridge.db.PersistentEntryPreferences
-import com.pyamsoft.fridge.detail.DetailPreferences
-import com.pyamsoft.fridge.detail.DetailPreferences.Unregister
 import com.pyamsoft.fridge.setting.SettingsPreferences
 import com.pyamsoft.pydroid.core.Enforcer
 import java.util.Calendar
@@ -37,7 +38,7 @@ internal class PreferencesImpl @Inject internal constructor(
     private val enforcer: Enforcer,
     context: Context
 ) : ButlerPreferences,
-    DetailPreferences, PersistentEntryPreferences, SettingsPreferences {
+    FridgeItemPreferences, PersistentEntryPreferences, SettingsPreferences {
 
     private val preferences by lazy {
         PreferenceManager.getDefaultSharedPreferences(context.applicationContext)
@@ -46,10 +47,17 @@ internal class PreferencesImpl @Inject internal constructor(
     private val expiringSoonKey: String
     private val expiringSoonDefault: String
 
+    private val isSameDayExpiredKey: String
+    private val isSameDayExpiredDefault: String
+
     init {
         val res = context.applicationContext.resources
+
         expiringSoonKey = res.getString(R.string.expiring_soon_range_key)
         expiringSoonDefault = res.getString(R.string.expiring_soon_range_default)
+
+        isSameDayExpiredKey = res.getString(R.string.expired_same_day_key)
+        isSameDayExpiredDefault = res.getString(R.string.expired_same_day_default)
     }
 
     override fun getLastNotificationTimeNearby(): Long {
@@ -86,13 +94,29 @@ internal class PreferencesImpl @Inject internal constructor(
         return preferences.getString(expiringSoonKey, expiringSoonDefault).orEmpty().toInt()
     }
 
+    override fun isSameDayExpired(): Boolean {
+        return preferences.getString(isSameDayExpiredKey, isSameDayExpiredDefault).orEmpty()
+            .toBoolean()
+    }
+
     override fun watchForExpiringSoonChange(onChange: (newRange: Int) -> Unit): Unregister {
-        val l = OnSharedPreferenceChangeListener { _, key ->
+        return registerPreferenceListener(OnSharedPreferenceChangeListener { _, key ->
             if (key == expiringSoonKey) {
                 onChange(getExpiringSoonRange())
             }
-        }
+        })
+    }
 
+    override fun watchForSameDayExpiredChange(onChange: (newSameDay: Boolean) -> Unit): Unregister {
+        return registerPreferenceListener(OnSharedPreferenceChangeListener { _, key ->
+            if (key == isSameDayExpiredKey) {
+                onChange(isSameDayExpired())
+            }
+        })
+    }
+
+    @CheckResult
+    private fun registerPreferenceListener(l: OnSharedPreferenceChangeListener): Unregister {
         preferences.registerOnSharedPreferenceChangeListener(l)
         var listener: OnSharedPreferenceChangeListener? = l
         return object : Unregister {

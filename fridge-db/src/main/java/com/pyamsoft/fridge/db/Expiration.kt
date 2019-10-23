@@ -40,7 +40,7 @@ fun Calendar.daysLaterMidnight(later: Int): Calendar {
 }
 
 @CheckResult
-fun FridgeItem.isExpired(today: Calendar): Boolean {
+fun FridgeItem.isExpired(today: Calendar, countSameDayAsExpired: Boolean): Boolean {
     val expireTime = this.expireTime() ?: return false
 
     // Clean Y/M/D only
@@ -49,12 +49,28 @@ fun FridgeItem.isExpired(today: Calendar): Boolean {
         .cleanMidnight()
 
     val midnightToday = today.cleanMidnight()
-    return expiration.before(midnightToday)
+    if (expiration.before(midnightToday)) {
+        return true
+    }
+
+    if (countSameDayAsExpired) {
+        return expiration == midnightToday
+    }
+
+    return false
 }
 
 @CheckResult
-fun FridgeItem.isExpiringSoon(today: Calendar, tomorrow: Calendar): Boolean {
+fun FridgeItem.isExpiringSoon(
+    today: Calendar,
+    tomorrow: Calendar,
+    countSameDayAsExpired: Boolean
+): Boolean {
     val expireTime = this.expireTime() ?: return false
+
+    if (this.isExpired(today, countSameDayAsExpired)) {
+        return false
+    }
 
     // Clean Y/M/D only
     val expiration = Calendar.getInstance()
@@ -63,6 +79,5 @@ fun FridgeItem.isExpiringSoon(today: Calendar, tomorrow: Calendar): Boolean {
 
     val midnightToday = today.cleanMidnight()
     val midnightTomorrow = tomorrow.cleanMidnight()
-    return (expiration.before(midnightTomorrow) && !this.isExpired(today)) ||
-        expiration == midnightTomorrow || expiration == midnightToday
+    return expiration.before(midnightTomorrow) || expiration == midnightTomorrow || expiration == midnightToday
 }

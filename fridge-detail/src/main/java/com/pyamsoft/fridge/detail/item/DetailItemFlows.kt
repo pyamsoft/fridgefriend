@@ -25,6 +25,7 @@ import com.pyamsoft.pydroid.arch.UiViewState
 
 data class DetailItemViewState internal constructor(
     val expirationRange: Int,
+    val isSameDayExpired: Boolean,
     val item: FridgeItem,
     val throwable: Throwable?,
     val sameNamedItems: Collection<FridgeItem>,

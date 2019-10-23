@@ -27,7 +27,15 @@
             android:key="@string/expiring_soon_range_key"
             android:summary="@string/expiring_soon_range_summary"
             android:title="@string/expiring_soon_range_title" />
-        />
+
+        <com.pyamsoft.pydroid.ui.preference.ListPreferenceCompat
+            android:defaultValue="@string/expired_same_day_default"
+            android:dialogTitle="@string/expired_same_day_title"
+            android:entries="@array/expired_same_day_names"
+            android:entryValues="@array/expired_same_day_values"
+            android:key="@string/expired_same_day_key"
+            android:summary="@string/expired_same_day_summary"
+            android:title="@string/expired_same_day_title" />
 
     </androidx.preference.PreferenceCategory>
 

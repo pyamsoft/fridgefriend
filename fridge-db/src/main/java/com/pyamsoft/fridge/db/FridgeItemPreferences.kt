@@ -15,33 +15,22 @@
  *
  */
 
-package com.pyamsoft.fridge.detail
+package com.pyamsoft.fridge.db
 
 import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.core.Preferences.Unregister
-import com.pyamsoft.fridge.db.FridgeItemPreferences
 
-abstract class DetailPreferenceInteractor protected constructor(
-    private val preferences: FridgeItemPreferences
-) {
+interface FridgeItemPreferences {
 
     @CheckResult
-    fun getExpiringSoonRange(): Int {
-        return preferences.getExpiringSoonRange()
-    }
+    fun getExpiringSoonRange(): Int
 
     @CheckResult
-    fun isSameDayExpired(): Boolean {
-        return preferences.isSameDayExpired()
-    }
+    fun watchForExpiringSoonChange(onChange: (newRange: Int) -> Unit): Unregister
 
     @CheckResult
-    fun watchForExpiringSoonChanges(onChange: (newRange: Int) -> Unit): Unregister {
-        return preferences.watchForExpiringSoonChange(onChange)
-    }
+    fun isSameDayExpired(): Boolean
 
     @CheckResult
-    fun watchForSameDayExpiredChange(onChange: (newSameDayExpired: Boolean) -> Unit): Unregister {
-        return preferences.watchForSameDayExpiredChange(onChange)
-    }
+    fun watchForSameDayExpiredChange(onChange: (newSameDay: Boolean) -> Unit): Unregister
 }

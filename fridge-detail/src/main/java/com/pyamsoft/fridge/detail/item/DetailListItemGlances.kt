@@ -66,9 +66,11 @@ class DetailListItemGlances @Inject internal constructor(
             val today = Calendar.getInstance()
             val soonDate = Calendar.getInstance().daysLaterMidnight(state.expirationRange)
             val isReal = item.expireTime() != null
+            val isSameDayExpired = state.isSameDayExpired
             validExpirationDate.isChecked = isReal
-            itemExpired.isChecked = if (isReal) item.isExpired(today) else false
-            itemExpiringSoon.isChecked = if (isReal) item.isExpiringSoon(today, soonDate) else false
+            itemExpired.isChecked = if (isReal) item.isExpired(today, isSameDayExpired) else false
+            itemExpiringSoon.isChecked =
+                if (isReal) item.isExpiringSoon(today, soonDate, isSameDayExpired) else false
         }
     }
 }

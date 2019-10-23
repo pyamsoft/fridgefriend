@@ -15,17 +15,9 @@
  *
  */
 
-package com.pyamsoft.fridge.detail
+package com.pyamsoft.fridge.core
 
-import androidx.annotation.CheckResult
-
-interface DetailPreferences {
-
-    @CheckResult
-    fun getExpiringSoonRange(): Int
-
-    @CheckResult
-    fun watchForExpiringSoonChange(onChange: (newRange: Int) -> Unit): Unregister
+interface Preferences {
 
     interface Unregister {
 

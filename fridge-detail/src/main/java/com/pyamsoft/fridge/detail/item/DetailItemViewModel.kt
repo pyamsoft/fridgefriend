@@ -18,11 +18,11 @@
 package com.pyamsoft.fridge.detail.item
 
 import androidx.lifecycle.viewModelScope
+import com.pyamsoft.fridge.core.Preferences
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent.Delete
 import com.pyamsoft.fridge.detail.DetailPreferenceInteractor
-import com.pyamsoft.fridge.detail.DetailPreferences
 import com.pyamsoft.highlander.highlander
 import com.pyamsoft.pydroid.arch.EventBus
 import com.pyamsoft.pydroid.arch.UiViewModel
@@ -36,6 +36,7 @@ abstract class DetailItemViewModel protected constructor(
 ) : UiViewModel<DetailItemViewState, DetailItemViewEvent, DetailItemControllerEvent>(
     initialState = DetailItemViewState(
         expirationRange = interactor.getExpiringSoonRange(),
+        isSameDayExpired = interactor.isSameDayExpired(),
         throwable = null,
         item = item,
         sameNamedItems = emptyList(),
@@ -44,16 +45,30 @@ abstract class DetailItemViewModel protected constructor(
 ) {
 
     init {
-        var unregister: DetailPreferences.Unregister? = null
+        var expiringSoonUnregister: Preferences.Unregister? = null
+
         doOnInit {
-            unregister = interactor.watchForExpiringSoonChanges { newRange ->
+            expiringSoonUnregister = interactor.watchForExpiringSoonChanges { newRange ->
                 setState { copy(expirationRange = newRange) }
             }
         }
 
         doOnTeardown {
-            unregister?.unregister()
-            unregister = null
+            expiringSoonUnregister?.unregister()
+            expiringSoonUnregister = null
+        }
+
+        var isSameDayExpiredUnregister: Preferences.Unregister? = null
+
+        doOnInit {
+            isSameDayExpiredUnregister = interactor.watchForSameDayExpiredChange { newSameDay ->
+                setState { copy(isSameDayExpired = newSameDay) }
+            }
+        }
+
+        doOnTeardown {
+            isSameDayExpiredUnregister?.unregister()
+            isSameDayExpiredUnregister = null
         }
     }
 

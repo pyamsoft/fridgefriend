@@ -25,6 +25,7 @@ import com.pyamsoft.fridge.butler.Butler
 import com.pyamsoft.fridge.butler.ButlerPreferences
 import com.pyamsoft.fridge.butler.ForegroundState
 import com.pyamsoft.fridge.butler.NotificationHandler
+import com.pyamsoft.fridge.db.FridgeItemPreferences
 import com.pyamsoft.pydroid.core.Enforcer
 import com.pyamsoft.pydroid.ui.Injector
 import kotlinx.coroutines.CancellationException
@@ -41,6 +42,7 @@ internal abstract class BaseWorker protected constructor(
     private var foregroundState: ForegroundState? = null
     private var butler: Butler? = null
     private var butlerPreferences: ButlerPreferences? = null
+    private var fridgeItemPreferences: FridgeItemPreferences? = null
     private var enforcer: Enforcer? = null
 
     private fun inject() {
@@ -48,6 +50,7 @@ internal abstract class BaseWorker protected constructor(
         foregroundState = Injector.obtain(applicationContext)
         butler = Injector.obtain(applicationContext)
         butlerPreferences = Injector.obtain(applicationContext)
+        fridgeItemPreferences = Injector.obtain(applicationContext)
         enforcer = Injector.obtain(applicationContext)
         onInject()
     }
@@ -59,6 +62,7 @@ internal abstract class BaseWorker protected constructor(
         foregroundState = null
         butler = null
         butlerPreferences = null
+        fridgeItemPreferences = null
         enforcer = null
         onTeardown()
     }
@@ -76,7 +80,7 @@ internal abstract class BaseWorker protected constructor(
         requireNotNull(enforcer).assertNotOnMainThread()
 
         return try {
-            performWork(requireNotNull(butlerPreferences))
+            performWork(requireNotNull(butlerPreferences), requireNotNull(fridgeItemPreferences))
             success()
         } catch (e: Throwable) {
             if (e is CancellationException) {
@@ -89,7 +93,10 @@ internal abstract class BaseWorker protected constructor(
         }
     }
 
-    protected abstract suspend fun performWork(preferences: ButlerPreferences)
+    protected abstract suspend fun performWork(
+        preferences: ButlerPreferences,
+        fridgeItemPreferences: FridgeItemPreferences
+    )
 
     @CheckResult
     private fun success(): Result {

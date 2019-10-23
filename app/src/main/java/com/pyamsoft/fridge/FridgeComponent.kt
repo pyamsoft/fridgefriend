@@ -27,6 +27,7 @@ import com.pyamsoft.fridge.butler.ButlerPreferences
 import com.pyamsoft.fridge.butler.ForegroundState
 import com.pyamsoft.fridge.butler.NotificationHandler
 import com.pyamsoft.fridge.butler.workmanager.ButlerModule
+import com.pyamsoft.fridge.db.FridgeItemPreferences
 import com.pyamsoft.fridge.db.PersistentEntryPreferences
 import com.pyamsoft.fridge.db.entry.FridgeEntryQueryDao
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent
@@ -36,7 +37,6 @@ import com.pyamsoft.fridge.db.store.NearbyStoreQueryDao
 import com.pyamsoft.fridge.db.zone.NearbyZoneQueryDao
 import com.pyamsoft.fridge.detail.DatePickerDialogFragment
 import com.pyamsoft.fridge.detail.DetailComponent
-import com.pyamsoft.fridge.detail.DetailPreferences
 import com.pyamsoft.fridge.detail.ExpandComponent
 import com.pyamsoft.fridge.detail.item.DateSelectPayload
 import com.pyamsoft.fridge.entry.EntryComponent
@@ -86,6 +86,10 @@ internal interface FridgeComponent {
     // For BaseWorker Work classes
     @CheckResult
     fun provideButlerPreferences(): ButlerPreferences
+
+    // For BaseWorker Work classes
+    @CheckResult
+    fun provideFridgeItemPreferences(): FridgeItemPreferences
 
     // For BaseWorker Work classes
     @CheckResult
@@ -167,7 +171,7 @@ internal interface FridgeComponent {
         internal abstract fun bindButlerPreferences(impl: PreferencesImpl): ButlerPreferences
 
         @Binds
-        internal abstract fun bindDetailPreferences(impl: PreferencesImpl): DetailPreferences
+        internal abstract fun bindDetailPreferences(impl: PreferencesImpl): FridgeItemPreferences
 
         @Binds
         internal abstract fun bindPersistentEntryPreferences(impl: PreferencesImpl): PersistentEntryPreferences

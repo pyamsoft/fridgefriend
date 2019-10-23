@@ -22,6 +22,7 @@ import androidx.work.WorkerParameters
 import com.pyamsoft.fridge.butler.Butler
 import com.pyamsoft.fridge.butler.ButlerPreferences
 import com.pyamsoft.fridge.butler.workmanager.worker.NearbyNotifyingWorker
+import com.pyamsoft.fridge.db.FridgeItemPreferences
 import com.pyamsoft.fridge.db.store.NearbyStore
 import com.pyamsoft.fridge.db.zone.NearbyZone
 import com.pyamsoft.fridge.locator.Geofencer
@@ -50,7 +51,10 @@ internal class LocationWorker internal constructor(
         butler.remindLocation(RECURRING_INTERVAL, HOURS)
     }
 
-    override suspend fun performWork(preferences: ButlerPreferences) = coroutineScope {
+    override suspend fun performWork(
+        preferences: ButlerPreferences,
+        fridgeItemPreferences: FridgeItemPreferences
+    ) = coroutineScope {
         val location = requireNotNull(geofencer).getLastKnownLocation()
 
         if (location == null) {
