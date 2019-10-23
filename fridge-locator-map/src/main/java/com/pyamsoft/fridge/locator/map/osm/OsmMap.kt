@@ -266,8 +266,8 @@ class OsmMap @Inject internal constructor(
                 )
                 id = uid
                 title = zone.name()
-                fillColor = color
-                strokeColor = if (theming.isDarkTheme()) Color.WHITE else Color.BLACK
+                fillPaint.color = color
+                outlinePaint.color = if (theming.isDarkTheme()) Color.WHITE else Color.BLACK
 
                 // This sets up the info window location
                 setPoints(points)
@@ -348,7 +348,8 @@ class OsmMap @Inject internal constructor(
             mapView.mapScrollX, mapView.mapScrollY,
             mapView.mapOrientation,
             mapView.isHorizontalMapRepetitionEnabled, mapView.isVerticalMapRepetitionEnabled,
-            MapView.getTileSystem()
+            MapView.getTileSystem(),
+            map.mapCenterOffsetX, map.mapCenterOffsetY
         ).boundingBox
         return BBox(bbox.latSouth, bbox.lonWest, bbox.latNorth, bbox.lonEast)
     }
