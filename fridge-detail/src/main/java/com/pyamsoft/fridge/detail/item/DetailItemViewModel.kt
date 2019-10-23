@@ -22,6 +22,7 @@ import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent.Delete
 import com.pyamsoft.fridge.detail.DetailPreferenceInteractor
+import com.pyamsoft.fridge.detail.DetailPreferences
 import com.pyamsoft.highlander.highlander
 import com.pyamsoft.pydroid.arch.EventBus
 import com.pyamsoft.pydroid.arch.UiViewModel
@@ -41,6 +42,20 @@ abstract class DetailItemViewModel protected constructor(
         similarItems = emptyList()
     )
 ) {
+
+    init {
+        var unregister: DetailPreferences.Unregister? = null
+        doOnInit {
+            unregister = interactor.watchForExpiringSoonChanges { newRange ->
+                setState { copy(expirationRange = newRange) }
+            }
+        }
+
+        doOnTeardown {
+            unregister?.unregister()
+            unregister = null
+        }
+    }
 
     private val deleteRunner = highlander<
         Unit,

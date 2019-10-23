@@ -18,12 +18,14 @@
 package com.pyamsoft.fridge.preference
 
 import android.content.Context
+import android.content.SharedPreferences.OnSharedPreferenceChangeListener
 import androidx.core.content.edit
 import androidx.preference.PreferenceManager
 import com.pyamsoft.fridge.R
 import com.pyamsoft.fridge.butler.ButlerPreferences
 import com.pyamsoft.fridge.db.PersistentEntryPreferences
 import com.pyamsoft.fridge.detail.DetailPreferences
+import com.pyamsoft.fridge.detail.DetailPreferences.Unregister
 import com.pyamsoft.fridge.setting.SettingsPreferences
 import com.pyamsoft.pydroid.core.Enforcer
 import java.util.Calendar
@@ -82,6 +84,24 @@ internal class PreferencesImpl @Inject internal constructor(
 
     override fun getExpiringSoonRange(): Int {
         return preferences.getString(expiringSoonKey, expiringSoonDefault).orEmpty().toInt()
+    }
+
+    override fun watchForExpiringSoonChange(onChange: (newRange: Int) -> Unit): Unregister {
+        val l = OnSharedPreferenceChangeListener { _, key ->
+            if (key == expiringSoonKey) {
+                onChange(getExpiringSoonRange())
+            }
+        }
+
+        preferences.registerOnSharedPreferenceChangeListener(l)
+        var listener: OnSharedPreferenceChangeListener? = l
+        return object : Unregister {
+
+            override fun unregister() {
+                listener?.let { preferences.unregisterOnSharedPreferenceChangeListener(it) }
+                listener = null
+            }
+        }
     }
 
     override fun getPersistentId(key: String): String {

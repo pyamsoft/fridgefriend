@@ -23,4 +23,12 @@ interface DetailPreferences {
 
     @CheckResult
     fun getExpiringSoonRange(): Int
+
+    @CheckResult
+    fun watchForExpiringSoonChange(onChange: (newRange: Int) -> Unit): Unregister
+
+    interface Unregister {
+
+        fun unregister()
+    }
 }

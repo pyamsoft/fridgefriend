@@ -27,4 +27,9 @@ abstract class DetailPreferenceInteractor protected constructor(
     fun getExpiringSoonRange(): Int {
         return preferences.getExpiringSoonRange()
     }
+
+    @CheckResult
+    fun watchForExpiringSoonChanges(onChange: (newRange: Int) -> Unit): DetailPreferences.Unregister {
+        return preferences.watchForExpiringSoonChange(onChange)
+    }
 }

@@ -20,18 +20,22 @@
     <string name="expiring_soon_range_key">expiring_soon_range_v1</string>
     <string name="expiring_soon_range_title">Expiring soon date range</string>
     <string name="expiring_soon_range_summary">Consider an item expiring soon when it is within this date range</string>
-    <string name="expiring_soon_range_default">2</string>
+    <string name="expiring_soon_range_default">3</string>
 
     <string-array name="expiring_soon_range_names">
-        <item name="value_small">1 day</item>
-        <item name="value_default">2 days</item>
-        <item name="value_large">3 days</item>
+        <item name="value_1">1 day</item>
+        <item name="value_2">2 days</item>
+        <item name="value_3">3 days</item>
+        <item name="value_5">5 days</item>
+        <item name="value_7">1 week</item>
     </string-array>
 
     <string-array name="expiring_soon_range_values">
-        <item name="value_small">1</item>
-        <item name="value_default">2</item>
-        <item name="value_large">3</item>
+        <item name="value_1">1</item>
+        <item name="value_2">2</item>
+        <item name="value_3">3</item>
+        <item name="value_5">5</item>
+        <item name="value_7">7</item>
     </string-array>
 
 </resources>
