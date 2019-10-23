@@ -20,7 +20,7 @@ package com.pyamsoft.fridge.detail.item
 import android.view.ViewGroup
 import android.widget.CompoundButton
 import androidx.core.view.isVisible
-import com.pyamsoft.fridge.db.cleanMidnight
+import com.pyamsoft.fridge.db.daysLaterMidnight
 import com.pyamsoft.fridge.db.isExpired
 import com.pyamsoft.fridge.db.isExpiringSoon
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence.HAVE
@@ -64,11 +64,11 @@ class DetailListItemGlances @Inject internal constructor(
             }
 
             val today = Calendar.getInstance()
-                .cleanMidnight()
+            val soonDate = Calendar.getInstance().daysLaterMidnight(state.expirationRange)
             val isReal = item.expireTime() != null
             validExpirationDate.isChecked = isReal
             itemExpired.isChecked = if (isReal) item.isExpired(today) else false
-            itemExpiringSoon.isChecked = if (isReal) item.isExpiringSoon(today) else false
+            itemExpiringSoon.isChecked = if (isReal) item.isExpiringSoon(today, soonDate) else false
         }
     }
 }

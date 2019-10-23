@@ -24,6 +24,7 @@ import com.pyamsoft.pydroid.arch.UiViewEvent
 import com.pyamsoft.pydroid.arch.UiViewState
 
 data class DetailItemViewState internal constructor(
+    val expirationRange: Int,
     val item: FridgeItem,
     val throwable: Throwable?,
     val sameNamedItems: Collection<FridgeItem>,
@@ -67,7 +68,8 @@ sealed class DetailItemViewEvent : UiViewEvent {
 
 sealed class DetailItemControllerEvent : UiControllerEvent {
 
-    data class ExpandDetails internal constructor(val item: FridgeItem) : DetailItemControllerEvent()
+    data class ExpandDetails internal constructor(val item: FridgeItem) :
+        DetailItemControllerEvent()
 
     data class DatePick internal constructor(
         val oldItem: FridgeItem,

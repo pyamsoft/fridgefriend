@@ -49,6 +49,8 @@ internal class SettingsFragment : AppSettingsFragment() {
 
     internal class SettingsPreferenceFragment : AppSettingsPreferenceFragment() {
 
+        override val preferenceXmlResId: Int = R.xml.preferences
+
         companion object {
 
             const val TAG = "SettingsPreferenceFragment"

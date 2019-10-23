@@ -61,7 +61,7 @@ class ExpandItemViewModel @Inject internal constructor(
     dateSelectBus: EventBus<DateSelectPayload>,
     realtime: FridgeItemRealtime,
     private val interactor: DetailInteractor
-) : DetailItemViewModel(item = item.presence(defaultPresence), fakeRealtime = fakeRealtime) {
+) : DetailItemViewModel(item.presence(defaultPresence), interactor, fakeRealtime) {
 
     private val updateRunner = highlander<Unit, FridgeItem> { item ->
         try {

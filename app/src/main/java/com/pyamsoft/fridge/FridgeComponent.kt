@@ -27,6 +27,7 @@ import com.pyamsoft.fridge.butler.ButlerPreferences
 import com.pyamsoft.fridge.butler.ForegroundState
 import com.pyamsoft.fridge.butler.NotificationHandler
 import com.pyamsoft.fridge.butler.workmanager.ButlerModule
+import com.pyamsoft.fridge.db.PersistentEntryPreferences
 import com.pyamsoft.fridge.db.entry.FridgeEntryQueryDao
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent
 import com.pyamsoft.fridge.db.item.FridgeItemQueryDao
@@ -35,6 +36,7 @@ import com.pyamsoft.fridge.db.store.NearbyStoreQueryDao
 import com.pyamsoft.fridge.db.zone.NearbyZoneQueryDao
 import com.pyamsoft.fridge.detail.DatePickerDialogFragment
 import com.pyamsoft.fridge.detail.DetailComponent
+import com.pyamsoft.fridge.detail.DetailPreferences
 import com.pyamsoft.fridge.detail.ExpandComponent
 import com.pyamsoft.fridge.detail.item.DateSelectPayload
 import com.pyamsoft.fridge.entry.EntryComponent
@@ -48,6 +50,7 @@ import com.pyamsoft.fridge.locator.map.LocatorModule
 import com.pyamsoft.fridge.main.MainComponent
 import com.pyamsoft.fridge.preference.PreferencesImpl
 import com.pyamsoft.fridge.setting.SettingComponent
+import com.pyamsoft.fridge.setting.SettingsPreferences
 import com.pyamsoft.pydroid.arch.EventBus
 import com.pyamsoft.pydroid.core.Enforcer
 import com.pyamsoft.pydroid.loader.ImageLoader
@@ -162,6 +165,15 @@ internal interface FridgeComponent {
 
         @Binds
         internal abstract fun bindButlerPreferences(impl: PreferencesImpl): ButlerPreferences
+
+        @Binds
+        internal abstract fun bindDetailPreferences(impl: PreferencesImpl): DetailPreferences
+
+        @Binds
+        internal abstract fun bindPersistentEntryPreferences(impl: PreferencesImpl): PersistentEntryPreferences
+
+        @Binds
+        internal abstract fun bindSettingsPreferences(impl: PreferencesImpl): SettingsPreferences
 
         @Module
         companion object {

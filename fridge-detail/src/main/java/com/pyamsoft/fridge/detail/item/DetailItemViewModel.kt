@@ -21,6 +21,7 @@ import androidx.lifecycle.viewModelScope
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent.Delete
+import com.pyamsoft.fridge.detail.DetailPreferenceInteractor
 import com.pyamsoft.highlander.highlander
 import com.pyamsoft.pydroid.arch.EventBus
 import com.pyamsoft.pydroid.arch.UiViewModel
@@ -29,9 +30,11 @@ import timber.log.Timber
 
 abstract class DetailItemViewModel protected constructor(
     item: FridgeItem,
+    interactor: DetailPreferenceInteractor,
     protected val fakeRealtime: EventBus<FridgeItemChangeEvent>
 ) : UiViewModel<DetailItemViewState, DetailItemViewEvent, DetailItemControllerEvent>(
     initialState = DetailItemViewState(
+        expirationRange = interactor.getExpiringSoonRange(),
         throwable = null,
         item = item,
         sameNamedItems = emptyList(),

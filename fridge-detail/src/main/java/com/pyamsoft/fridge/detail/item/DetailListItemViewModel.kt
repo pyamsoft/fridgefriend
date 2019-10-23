@@ -44,7 +44,7 @@ class DetailListItemViewModel @Inject internal constructor(
     fakeRealtime: EventBus<FridgeItemChangeEvent>,
     private val interactor: DetailInteractor,
     private val item: FridgeItem
-) : DetailItemViewModel(item, fakeRealtime) {
+) : DetailItemViewModel(item, interactor, fakeRealtime) {
 
     private val updateRunner = highlander<Unit, FridgeItem> { item ->
         try {

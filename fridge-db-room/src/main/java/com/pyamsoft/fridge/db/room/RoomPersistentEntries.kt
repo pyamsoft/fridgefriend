@@ -17,11 +17,9 @@
 
 package com.pyamsoft.fridge.db.room
 
-import android.content.Context
 import androidx.annotation.CheckResult
-import androidx.core.content.edit
-import androidx.preference.PreferenceManager
 import com.pyamsoft.fridge.db.PersistentEntries
+import com.pyamsoft.fridge.db.PersistentEntryPreferences
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.entry.FridgeEntryInsertDao
 import com.pyamsoft.fridge.db.entry.FridgeEntryQueryDao
@@ -31,13 +29,11 @@ import java.util.Calendar
 import javax.inject.Inject
 
 internal class RoomPersistentEntries @Inject internal constructor(
-    context: Context,
     private val enforcer: Enforcer,
     private val queryDao: FridgeEntryQueryDao,
-    private val insertDao: FridgeEntryInsertDao
+    private val insertDao: FridgeEntryInsertDao,
+    private val preferences: PersistentEntryPreferences
 ) : PersistentEntries {
-
-    private val sharedPreferences by lazy { PreferenceManager.getDefaultSharedPreferences(context) }
 
     @CheckResult
     private suspend fun getEntryForId(
@@ -49,44 +45,27 @@ internal class RoomPersistentEntries @Inject internal constructor(
     }
 
     @CheckResult
-    private suspend fun getValidEntry(
-        entryId: String,
-        force: Boolean
-    ): ValidEntry {
-        val entry = getEntryForId(entryId, force)
-        return ValidEntry(entry)
-    }
-
-    @CheckResult
     private suspend fun guaranteeEntryExists(
         key: String,
         name: String
     ): FridgeEntry {
-        val entryId = getEntryId(key)
-        val entry = getValidEntry(entryId, false)
-        val valid = entry.entry
-        return if (valid != null) valid else {
+        val entryId = preferences.getPersistentId(key)
+        val entry = getEntryForId(entryId, false)
+        return if (entry != null) entry else {
             val createdTime = Calendar.getInstance()
                 .time
             Timber.d("Create entry: $entryId at $createdTime")
             val newEntry = FridgeEntry.create(entryId, name, createdTime, isReal = true)
             insertDao.insert(newEntry)
-            sharedPreferences.edit { putString(key, entryId) }
+            preferences.savePersistentId(key, entryId)
             newEntry
         }
-    }
-
-    @CheckResult
-    private fun getEntryId(key: String): String {
-        return requireNotNull(sharedPreferences.getString(key, FridgeEntry.create().id()))
     }
 
     override suspend fun getPersistentEntry(): FridgeEntry {
         enforcer.assertNotOnMainThread()
         return guaranteeEntryExists(PERSIST_ENTRY_KEY, "Items")
     }
-
-    private data class ValidEntry(val entry: FridgeEntry?)
 
     companion object {
 

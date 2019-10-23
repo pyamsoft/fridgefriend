@@ -20,16 +20,34 @@ package com.pyamsoft.fridge.preference
 import android.content.Context
 import androidx.core.content.edit
 import androidx.preference.PreferenceManager
+import com.pyamsoft.fridge.R
 import com.pyamsoft.fridge.butler.ButlerPreferences
+import com.pyamsoft.fridge.db.PersistentEntryPreferences
+import com.pyamsoft.fridge.detail.DetailPreferences
+import com.pyamsoft.fridge.setting.SettingsPreferences
+import com.pyamsoft.pydroid.core.Enforcer
 import java.util.Calendar
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-internal class PreferencesImpl @Inject internal constructor(context: Context) : ButlerPreferences {
+internal class PreferencesImpl @Inject internal constructor(
+    private val enforcer: Enforcer,
+    context: Context
+) : ButlerPreferences,
+    DetailPreferences, PersistentEntryPreferences, SettingsPreferences {
 
     private val preferences by lazy {
         PreferenceManager.getDefaultSharedPreferences(context.applicationContext)
+    }
+
+    private val expiringSoonKey: String
+    private val expiringSoonDefault: String
+
+    init {
+        val res = context.applicationContext.resources
+        expiringSoonKey = res.getString(R.string.expiring_soon_range_key)
+        expiringSoonDefault = res.getString(R.string.expiring_soon_range_default)
     }
 
     override fun getLastNotificationTimeNearby(): Long {
@@ -59,6 +77,25 @@ internal class PreferencesImpl @Inject internal constructor(context: Context) : 
     override fun markNotificationExpired(calendar: Calendar) {
         preferences.edit {
             putLong(KEY_LAST_NOTIFICATION_TIME_EXPIRED, calendar.timeInMillis)
+        }
+    }
+
+    override fun getExpiringSoonRange(): Int {
+        return preferences.getString(expiringSoonKey, expiringSoonDefault).orEmpty().toInt()
+    }
+
+    override fun getPersistentId(key: String): String {
+        return requireNotNull(preferences.getString(key, null))
+    }
+
+    override fun savePersistentId(key: String, id: String) {
+        preferences.edit { putString(key, id) }
+    }
+
+    override suspend fun clear() {
+        enforcer.assertNotOnMainThread()
+        preferences.edit(commit = true) {
+            clear()
         }
     }
 

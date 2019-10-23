@@ -46,8 +46,9 @@ internal class DetailInteractor @Inject internal constructor(
     private val itemRealtime: FridgeItemRealtime,
     private val enforcer: Enforcer,
     private val queryDao: FridgeEntryQueryDao,
-    private val insertDao: FridgeEntryInsertDao
-) {
+    private val insertDao: FridgeEntryInsertDao,
+    preferences: DetailPreferences
+) : DetailPreferenceInteractor(preferences) {
 
     @CheckResult
     suspend fun findSameNamedItems(name: String, presence: Presence): Collection<FridgeItem> {
