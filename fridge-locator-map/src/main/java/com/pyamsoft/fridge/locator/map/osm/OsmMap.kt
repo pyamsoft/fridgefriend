@@ -273,7 +273,6 @@ class OsmMap @Inject internal constructor(
                 setPoints(points)
             }
 
-
             polygon.setOnClickListener { p, _, _ ->
                 if (p.isInfoWindowOpen) {
                     p.closeInfoWindow()

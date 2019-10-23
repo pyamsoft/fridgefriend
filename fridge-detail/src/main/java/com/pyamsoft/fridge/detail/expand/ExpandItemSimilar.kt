@@ -60,7 +60,7 @@ class ExpandItemSimilar @Inject internal constructor(
             } else {
                 val name = item.name().trim()
                 message.isVisible = true
-                message.text = "You already have at least one '${name}', do you need another?"
+                message.text = "You already have at least one '$name', do you need another?"
             }
         }
     }

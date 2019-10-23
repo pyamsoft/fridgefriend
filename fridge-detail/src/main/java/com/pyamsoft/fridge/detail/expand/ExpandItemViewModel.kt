@@ -84,7 +84,6 @@ class ExpandItemViewModel @Inject internal constructor(
                     realtime.listenForChanges(itemEntryId)
                         .onEvent { handleRealtimeEvent(it) }
                 }
-
             }
         }
 
