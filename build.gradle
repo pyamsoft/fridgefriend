@@ -47,7 +47,7 @@ buildscript {
         leakCanary = "1.6.3"
 
         // Dagger
-        dagger = "2.24"
+        dagger = "2.25"
 
         moshi = "1.8.0"
 
@@ -63,7 +63,7 @@ buildscript {
 
         workmanager = "2.2.0"
 
-        osmdroid = "6.1.0"
+        osmdroid = "6.1.2"
 
         // FusedLocationProvider
         gmsLocation = "17.0.0"
