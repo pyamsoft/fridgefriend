@@ -22,7 +22,6 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Ignore
-import androidx.room.Index
 import androidx.room.PrimaryKey
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence
@@ -35,14 +34,13 @@ import java.util.Date
         parentColumns = arrayOf(RoomFridgeEntry.COLUMN_ID),
         childColumns = arrayOf(RoomFridgeItem.COLUMN_ENTRY_ID),
         onDelete = ForeignKey.CASCADE
-    )],
-    indices = [Index(RoomFridgeItem.COLUMN_ENTRY_ID)]
+    )]
 )
 internal data class RoomFridgeItem internal constructor(
     @field:[PrimaryKey ColumnInfo(name = COLUMN_ID)]
     val id: String,
 
-    @field:ColumnInfo(name = COLUMN_ENTRY_ID)
+    @field:ColumnInfo(name = COLUMN_ENTRY_ID, index = true)
     val entryId: String,
 
     @field:ColumnInfo(name = COLUMN_NAME)
