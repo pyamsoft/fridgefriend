@@ -41,7 +41,7 @@ buildscript {
         pydroid = "20.6.1"
 
         // Room
-        room = "2.2.0"
+        room = "2.2.1"
 
         // Leak Canary
         leakCanary = "1.6.3"
@@ -61,7 +61,7 @@ buildscript {
         firebase = "16.0.9"
         mlVision = "20.0.0"
 
-        workmanager = "2.2.1"
+        workmanager = "2.2.0"
 
         osmdroid = "6.1.2"
 
