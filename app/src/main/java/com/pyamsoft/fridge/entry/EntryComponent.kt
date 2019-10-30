@@ -43,7 +43,7 @@ internal interface EntryComponent {
 
         @CheckResult
         fun create(
-            @BindsInstance defaultPage: DefaultActivityPage?,
+            @BindsInstance defaultPage: DefaultActivityPage,
             @BindsInstance owner: LifecycleOwner,
             @BindsInstance parent: ViewGroup,
             @BindsInstance activity: ToolbarActivity

@@ -33,11 +33,10 @@ import com.pyamsoft.fridge.entry.EntryViewEvent.OpenNeed
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.arch.UiSavedState
 import com.pyamsoft.pydroid.util.doOnApplyWindowInsets
-import timber.log.Timber
 import javax.inject.Inject
 
 class EntryNavigation @Inject internal constructor(
-    private val defaultPage: DefaultActivityPage?,
+    private val defaultPage: DefaultActivityPage,
     parent: ViewGroup
 ) : BaseUiView<EntryViewState, EntryViewEvent>(parent) {
 
@@ -46,7 +45,6 @@ class EntryNavigation @Inject internal constructor(
     override val layoutRoot by boundView<BottomNavigationView>(R.id.entry_bottom_navigation_menu)
 
     init {
-        Timber.d("navigation with default page: $defaultPage")
         doOnInflate {
             layoutRoot.isVisible = false
 
@@ -84,8 +82,8 @@ class EntryNavigation @Inject internal constructor(
     }
 
     @CheckResult
-    private fun getIdForPage(page: DefaultActivityPage): Int {
-        return when (page) {
+    private fun getIdForPage(): Int {
+        return when (defaultPage) {
             NEED -> R.id.menu_item_nav_need
             HAVE -> R.id.menu_item_nav_have
             NEARBY -> R.id.menu_item_nav_nearby
@@ -97,17 +95,15 @@ class EntryNavigation @Inject internal constructor(
         savedState: UiSavedState
     ) {
         if (entry != null) {
-            savedState.consume(LAST_PAGE, layoutRoot.selectedItemId) { itemId ->
-                layoutRoot.selectedItemId = if (itemId != 0) itemId else {
-                    defaultPage.let { page ->
-                        if (page == null) {
-                            itemId
-                        } else {
-                            val id = getIdForPage(page)
-                            val item = layoutRoot.menu.findItem(id)
-                            item?.itemId ?: itemId
-                        }
-                    }
+            savedState.consume(LAST_PAGE, 0) { itemId ->
+                val newSelectedItem = if (itemId != 0) itemId else {
+                    val id = getIdForPage()
+                    val item = layoutRoot.menu.findItem(id)
+                    item?.itemId ?: 0
+                }
+
+                if (newSelectedItem != 0) {
+                    layoutRoot.selectedItemId = newSelectedItem
                 }
             }
         }

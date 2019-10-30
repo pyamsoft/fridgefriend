@@ -49,7 +49,7 @@ object ButlerNotifications {
         page: DefaultActivityPage,
         createNotification: (builder: NotificationCompat.Builder) -> Notification
     ) {
-        if (foregroundState.isForeground && false) {
+        if (foregroundState.isForeground) {
             Timber.w("Do not send notification while in foreground: $notificationId")
             return
         }

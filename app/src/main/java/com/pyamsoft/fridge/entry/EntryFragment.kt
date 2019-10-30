@@ -107,14 +107,14 @@ internal class EntryFragment : Fragment(), SnackbarContainer {
     ) {
         super.onViewCreated(view, savedInstanceState)
 
-        val defaultPage: DefaultActivityPage? = if (savedInstanceState == null) {
+        val defaultPage = if (savedInstanceState == null) {
             val page = requireActivity().intent.getStringExtra(DefaultActivityPage.EXTRA_PAGE)
-            if (page == null) DefaultActivityPage.NEED else {
+            if (page == null) DEFAULT_NAVIGATION_PAGE else {
                 Timber.d("Load default page from intent: $page")
                 DefaultActivityPage.valueOf(page)
             }
         } else {
-            null
+            DEFAULT_NAVIGATION_PAGE
         }
 
         val parent = view.findViewById<ConstraintLayout>(R.id.layout_constraint)
@@ -265,6 +265,7 @@ internal class EntryFragment : Fragment(), SnackbarContainer {
 
     companion object {
 
+        private val DEFAULT_NAVIGATION_PAGE = DefaultActivityPage.NEED
         private const val INITIALIZED = "initialized"
         const val TAG = "EntryFragment"
 

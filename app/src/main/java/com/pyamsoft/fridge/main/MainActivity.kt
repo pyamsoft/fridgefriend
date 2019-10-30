@@ -18,6 +18,7 @@
 package com.pyamsoft.fridge.main
 
 import android.content.ComponentCallbacks2
+import android.content.Intent
 import android.os.Bundle
 import android.view.ViewGroup
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -96,7 +97,13 @@ internal class MainActivity : RatingActivity() {
         view.makeWindowSexy()
         inflateComponents(view, savedInstanceState)
 
-        pushFragment()
+        pushFragment(false)
+    }
+
+    override fun onNewIntent(intent: Intent?) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        pushFragment(true)
     }
 
     override fun onStart() {
@@ -153,11 +160,15 @@ internal class MainActivity : RatingActivity() {
         }
     }
 
-    private fun pushFragment() {
+    private fun pushFragment(force: Boolean) {
         val fm = supportFragmentManager
-        if (fm.findFragmentById(fragmentContainerId) == null) {
+        if (fm.findFragmentById(fragmentContainerId) == null || force) {
             fm.commitNow(this) {
-                add(fragmentContainerId, EntryFragment.newInstance(), EntryFragment.TAG)
+                if (force) {
+                    replace(fragmentContainerId, EntryFragment.newInstance(), EntryFragment.TAG)
+                } else {
+                    add(fragmentContainerId, EntryFragment.newInstance(), EntryFragment.TAG)
+                }
             }
         }
     }
