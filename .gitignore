@@ -14,3 +14,6 @@
 
 # Don't include these config files
 google-services.json
+
+# Don't include schemas
+/fridge-db-room/schemas

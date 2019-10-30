@@ -35,6 +35,8 @@ android {
             annotationProcessorOptions {
                 // Fix kapt
                 includeCompileClasspath = true
+
+                arguments = ["room.schemaLocation": "$projectDir/schemas".toString()]
             }
         }
     }
