@@ -15,12 +15,12 @@
  *
  */
 
-package com.pyamsoft.fridge.db
+package com.pyamsoft.fridge.core
 
 import androidx.annotation.CheckResult
 import java.util.UUID
 
-internal object IdGenerator {
+object IdGenerator {
 
     @CheckResult
     fun generate(): String {

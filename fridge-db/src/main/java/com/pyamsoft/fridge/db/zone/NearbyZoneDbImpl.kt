@@ -67,8 +67,8 @@ internal class NearbyZoneDbImpl internal constructor(
                 mutex.withLock {
                     db.insertDao()
                         .insert(o)
-                    publishRealtime(Insert(o))
                 }
+                publishRealtime(Insert(o))
             }
         }
     }
@@ -80,8 +80,8 @@ internal class NearbyZoneDbImpl internal constructor(
                 mutex.withLock {
                     db.updateDao()
                         .update(o)
-                    publishRealtime(Update(o))
                 }
+                publishRealtime(Update(o))
             }
         }
     }
@@ -93,8 +93,8 @@ internal class NearbyZoneDbImpl internal constructor(
                 mutex.withLock {
                     db.deleteDao()
                         .delete(o)
-                    publishRealtime(Delete(o))
                 }
+                publishRealtime(Delete(o))
             }
         }
     }

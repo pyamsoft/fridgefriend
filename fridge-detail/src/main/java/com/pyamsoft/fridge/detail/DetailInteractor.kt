@@ -109,14 +109,22 @@ internal class DetailInteractor @Inject internal constructor(
         if (item.name().isBlank()) {
             Timber.w("Do not commit empty name FridgeItem: $item")
         } else {
+            Timber.d("Guarantee entry exists")
             guaranteeEntryExists(item.entryId(), FridgeEntry.EMPTY_NAME)
+
+            Timber.d("Perform commit: $item")
             commitItem(item)
         }
     }
 
-    private suspend fun commitItem(item: FridgeItem) {
-        val valid = getItems(item.entryId(), false)
+    @CheckResult
+    private suspend fun getValidItem(item: FridgeItem): FridgeItem? {
+        return getItems(item.entryId(), false)
             .singleOrNull { it.id() == item.id() }
+    }
+
+    private suspend fun commitItem(item: FridgeItem) {
+        val valid = getValidItem(item)
         if (valid != null) {
             Timber.d("Update existing item [${item.id()}]: $item")
             itemUpdateDao.update(item)

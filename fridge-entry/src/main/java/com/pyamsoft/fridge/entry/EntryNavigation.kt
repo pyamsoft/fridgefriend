@@ -33,6 +33,7 @@ import com.pyamsoft.fridge.entry.EntryViewEvent.OpenNeed
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.arch.UiSavedState
 import com.pyamsoft.pydroid.util.doOnApplyWindowInsets
+import timber.log.Timber
 import javax.inject.Inject
 
 class EntryNavigation @Inject internal constructor(
@@ -45,6 +46,7 @@ class EntryNavigation @Inject internal constructor(
     override val layoutRoot by boundView<BottomNavigationView>(R.id.entry_bottom_navigation_menu)
 
     init {
+        Timber.d("navigation with default page: $defaultPage")
         doOnInflate {
             layoutRoot.isVisible = false
 

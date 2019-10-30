@@ -88,12 +88,13 @@ abstract class RoomModule {
         @CheckResult
         internal fun provideDb(context: Context): FridgeDb {
             return provideRoom(context.applicationContext).apply {
-                val entryCache = cachify<Sequence<FridgeEntry>, Boolean>(5, MINUTES) { force ->
-                    return@cachify roomEntryQueryDao()
-                        .query(force)
-                        .asSequence()
-                        .map { JsonMappableFridgeEntry.from(it.makeReal()) }
-                }
+                val entryCache =
+                    cachify<Sequence<FridgeEntry>, Boolean>(5, MINUTES) { force ->
+                        return@cachify roomEntryQueryDao()
+                            .query(force)
+                            .asSequence()
+                            .map { JsonMappableFridgeEntry.from(it.makeReal()) }
+                    }
 
                 val itemCache = cachify<Sequence<FridgeItem>, Boolean>(5, MINUTES) { force ->
                     return@cachify roomItemQueryDao()
@@ -102,12 +103,13 @@ abstract class RoomModule {
                         .map { JsonMappableFridgeItem.from(it.makeReal()) }
                 }
 
-                val storeCache = cachify<Sequence<NearbyStore>, Boolean>(5, MINUTES) { force ->
-                    return@cachify roomStoreQueryDao()
-                        .query(force)
-                        .asSequence()
-                        .map { JsonMappableNearbyStore.from(it) }
-                }
+                val storeCache =
+                    cachify<Sequence<NearbyStore>, Boolean>(5, MINUTES) { force ->
+                        return@cachify roomStoreQueryDao()
+                            .query(force)
+                            .asSequence()
+                            .map { JsonMappableNearbyStore.from(it) }
+                    }
 
                 val zoneCache = cachify<Sequence<NearbyZone>, Boolean>(5, MINUTES) { force ->
                     return@cachify roomZoneQueryDao()

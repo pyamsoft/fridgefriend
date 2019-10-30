@@ -40,6 +40,11 @@ internal class RoomPersistentEntries @Inject internal constructor(
         entryId: String,
         force: Boolean
     ): FridgeEntry? {
+        if (entryId.isBlank()) {
+            Timber.w("Cannot find an entry with a blank id")
+            return null
+        }
+
         val entries = queryDao.query(force)
         return entries.singleOrNull { it.id() == entryId }
     }

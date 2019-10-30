@@ -24,6 +24,7 @@ import androidx.core.content.edit
 import androidx.preference.PreferenceManager
 import com.pyamsoft.fridge.R
 import com.pyamsoft.fridge.butler.ButlerPreferences
+import com.pyamsoft.fridge.core.IdGenerator
 import com.pyamsoft.fridge.core.Preferences.Unregister
 import com.pyamsoft.fridge.db.FridgeItemPreferences
 import com.pyamsoft.fridge.db.PersistentEntryPreferences
@@ -129,7 +130,7 @@ internal class PreferencesImpl @Inject internal constructor(
     }
 
     override fun getPersistentId(key: String): String {
-        return preferences.getString(key, null).orEmpty()
+        return requireNotNull(preferences.getString(key, IdGenerator.generate()))
     }
 
     override fun savePersistentId(key: String, id: String) {

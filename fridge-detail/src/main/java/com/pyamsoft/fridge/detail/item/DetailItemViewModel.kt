@@ -74,16 +74,18 @@ abstract class DetailItemViewModel protected constructor(
 
     private val deleteRunner = highlander<
         Unit,
+        FridgeItem,
         suspend (item: FridgeItem) -> Unit,
-            (item: FridgeItem) -> Unit> { doRemove, onRemoved ->
+            (item: FridgeItem) -> Unit
+        > { itemToRemove, doRemove, onRemoved ->
         try {
-            doRemove(item)
+            doRemove(itemToRemove)
         } catch (error: Throwable) {
             error.onActualError { e ->
-                Timber.e(e, "Error removing item: ${item.id()}")
+                Timber.e(e, "Error removing item: ${itemToRemove.id()}")
             }
         } finally {
-            onRemoved(item)
+            onRemoved(itemToRemove)
         }
     }
 
@@ -108,6 +110,6 @@ abstract class DetailItemViewModel protected constructor(
             return@launch
         }
 
-        deleteRunner.call(doRemove, onRemoved)
+        deleteRunner.call(item, doRemove, onRemoved)
     }
 }

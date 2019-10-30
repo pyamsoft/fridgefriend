@@ -55,7 +55,12 @@ internal class LocationWorker internal constructor(
         preferences: ButlerPreferences,
         fridgeItemPreferences: FridgeItemPreferences
     ) = coroutineScope {
-        val location = requireNotNull(geofencer).getLastKnownLocation()
+        val location = try {
+            requireNotNull(geofencer).getLastKnownLocation()
+        } catch (e: Exception) {
+            Timber.w("Could not get last known location - permission issue perhaps?")
+            null
+        }
 
         if (location == null) {
             Timber.w("Last Known location was null, cannot continue")

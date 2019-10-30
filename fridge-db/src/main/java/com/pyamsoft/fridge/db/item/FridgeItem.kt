@@ -19,7 +19,7 @@ package com.pyamsoft.fridge.db.item
 
 import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.db.ConsumableModel
-import com.pyamsoft.fridge.db.IdGenerator
+import com.pyamsoft.fridge.core.IdGenerator
 import java.util.Date
 
 interface FridgeItem : ConsumableModel<FridgeItem> {

@@ -65,6 +65,7 @@ class ExpandItemViewModel @Inject internal constructor(
 
     private val updateRunner = highlander<Unit, FridgeItem> { item ->
         try {
+            Timber.d("Commit item: $item")
             interactor.commit(item.makeReal())
         } catch (error: Throwable) {
             error.onActualError { e ->

@@ -63,11 +63,11 @@ internal class ExpirationWorker internal constructor(
                 if (expirationTime != null) {
 
                     if (item.isExpired(today, isSameDayExpired)) {
-                        Timber.w("${entry.id()} expired! $item")
+                        Timber.w("${item.name()} expired!")
                         expiredItems.add(item)
                     } else {
                         if (item.isExpiringSoon(today, later, isSameDayExpired)) {
-                            Timber.w("${entry.id()} is expiring soon! $item")
+                            Timber.w("${item.name()} is expiring soon!")
                             expiringItems.add(item)
                         }
                     }
@@ -78,29 +78,33 @@ internal class ExpirationWorker internal constructor(
         }
 
         val now = Calendar.getInstance()
-        if (expiringItems.isNotEmpty() && now.isAllowedToNotify(
-                preferences.getLastNotificationTimeExpiringSoon(),
-                RECURRING_INTERVAL
-            )
-        ) {
-            notification { handler, foregroundState ->
-                ExpirationNotifications.notifyExpiring(
-                    handler, foregroundState, applicationContext, entry, expiringItems
-                )
-                preferences.markNotificationExpiringSoon(now)
+        if (expiringItems.isNotEmpty()) {
+            val lastTime = preferences.getLastNotificationTimeExpiringSoon()
+            if (now.isAllowedToNotify(lastTime, RECURRING_INTERVAL)) {
+                Timber.d("Notify user about items expiring soon")
+                notification { handler, foregroundState ->
+                    ExpirationNotifications.notifyExpiring(
+                        handler, foregroundState, applicationContext, entry, expiringItems
+                    )
+                    preferences.markNotificationExpiringSoon(now)
+                }
+            } else {
+                Timber.w("Do not notify user about expiring since last notification time too recent: $lastTime :: ${now.timeInMillis}")
             }
         }
 
-        if (expiredItems.isNotEmpty() && now.isAllowedToNotify(
-                preferences.getLastNotificationTimeExpired(),
-                RECURRING_INTERVAL
-            )
-        ) {
-            notification { handler, foregroundState ->
-                ExpirationNotifications.notifyExpired(
-                    handler, foregroundState, applicationContext, entry, expiredItems
-                )
-                preferences.markNotificationExpired(now)
+        if (expiredItems.isNotEmpty()) {
+            val lastTime = preferences.getLastNotificationTimeExpired()
+            if (now.isAllowedToNotify(lastTime, RECURRING_INTERVAL)) {
+                Timber.d("Notify user about items expired")
+                notification { handler, foregroundState ->
+                    ExpirationNotifications.notifyExpired(
+                        handler, foregroundState, applicationContext, entry, expiredItems
+                    )
+                    preferences.markNotificationExpired(now)
+                }
+            } else {
+                Timber.w("Do not notify user about expired since last notification time too recent: $lastTime :: ${now.timeInMillis}")
             }
         }
 

@@ -109,7 +109,10 @@ internal class EntryFragment : Fragment(), SnackbarContainer {
 
         val defaultPage: DefaultActivityPage? = if (savedInstanceState == null) {
             val page = requireActivity().intent.getStringExtra(DefaultActivityPage.EXTRA_PAGE)
-            if (page == null) DefaultActivityPage.NEED else DefaultActivityPage.valueOf(page)
+            if (page == null) DefaultActivityPage.NEED else {
+                Timber.d("Load default page from intent: $page")
+                DefaultActivityPage.valueOf(page)
+            }
         } else {
             null
         }

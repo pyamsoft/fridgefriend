@@ -50,7 +50,13 @@ internal class GeofenceUpdateReceiver internal constructor() : GmsGeofenceBroadc
         }
 
         try {
-            val lastLocation = fencer.getLastKnownLocation()
+            val lastLocation = try {
+                fencer.getLastKnownLocation()
+            } catch (e: Exception) {
+                Timber.w("Could not get last known location - permission issue perhaps?")
+                null
+            }
+
             if (lastLocation == null) {
                 Timber.w("Last Known location was null, cannot continue")
                 return
