@@ -28,6 +28,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.pyamsoft.fridge.FridgeComponent
 import com.pyamsoft.fridge.R
+import com.pyamsoft.fridge.core.DefaultActivityPage
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence.HAVE
@@ -106,10 +107,17 @@ internal class EntryFragment : Fragment(), SnackbarContainer {
     ) {
         super.onViewCreated(view, savedInstanceState)
 
+        val defaultPage: DefaultActivityPage? = if (savedInstanceState == null) {
+            val page = requireActivity().intent.getStringExtra(DefaultActivityPage.EXTRA_PAGE)
+            if (page == null) DefaultActivityPage.NEED else DefaultActivityPage.valueOf(page)
+        } else {
+            null
+        }
+
         val parent = view.findViewById<ConstraintLayout>(R.id.layout_constraint)
         Injector.obtain<FridgeComponent>(view.context.applicationContext)
             .plusEntryComponent()
-            .create(viewLifecycleOwner, parent, requireToolbarActivity())
+            .create(defaultPage, viewLifecycleOwner, parent, requireToolbarActivity())
             .inject(this)
 
         val toolbar = requireNotNull(toolbar)
@@ -135,7 +143,12 @@ internal class EntryFragment : Fragment(), SnackbarContainer {
 
         parent.layout {
             navigation.also {
-                connect(it.id(), ConstraintSet.BOTTOM, ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM)
+                connect(
+                    it.id(),
+                    ConstraintSet.BOTTOM,
+                    ConstraintSet.PARENT_ID,
+                    ConstraintSet.BOTTOM
+                )
                 connect(it.id(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
                 connect(it.id(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
                 constrainWidth(it.id(), ConstraintSet.MATCH_CONSTRAINT)
@@ -212,7 +225,11 @@ internal class EntryFragment : Fragment(), SnackbarContainer {
                 if (requireNotNull(mapPermission).hasForegroundPermission()) {
                     replace(container, MapFragment.newInstance(), MapFragment.TAG)
                 } else {
-                    replace(container, PermissionFragment.newInstance(container), PermissionFragment.TAG)
+                    replace(
+                        container,
+                        PermissionFragment.newInstance(container),
+                        PermissionFragment.TAG
+                    )
                 }
             }
         }

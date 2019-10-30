@@ -129,7 +129,7 @@ internal class PreferencesImpl @Inject internal constructor(
     }
 
     override fun getPersistentId(key: String): String {
-        return requireNotNull(preferences.getString(key, null))
+        return preferences.getString(key, null).orEmpty()
     }
 
     override fun savePersistentId(key: String, id: String) {

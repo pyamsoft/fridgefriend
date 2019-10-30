@@ -28,7 +28,7 @@ import androidx.annotation.CheckResult
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.getSystemService
-import com.pyamsoft.fridge.butler.NotificationHandler.Page
+import com.pyamsoft.fridge.core.DefaultActivityPage
 import timber.log.Timber
 
 object Notifications {
@@ -76,7 +76,7 @@ object Notifications {
         channelId: String,
         channelTitle: String,
         channelDescription: String,
-        page: Page,
+        page: DefaultActivityPage,
         createNotification: (builder: NotificationCompat.Builder) -> Notification
     ) {
         require(notificationId > 0)

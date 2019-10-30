@@ -22,6 +22,10 @@ import androidx.annotation.CheckResult
 import androidx.core.view.isVisible
 import androidx.core.view.updatePadding
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.pyamsoft.fridge.core.DefaultActivityPage
+import com.pyamsoft.fridge.core.DefaultActivityPage.HAVE
+import com.pyamsoft.fridge.core.DefaultActivityPage.NEARBY
+import com.pyamsoft.fridge.core.DefaultActivityPage.NEED
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.entry.EntryViewEvent.OpenHave
 import com.pyamsoft.fridge.entry.EntryViewEvent.OpenNearby
@@ -32,6 +36,7 @@ import com.pyamsoft.pydroid.util.doOnApplyWindowInsets
 import javax.inject.Inject
 
 class EntryNavigation @Inject internal constructor(
+    private val defaultPage: DefaultActivityPage?,
     parent: ViewGroup
 ) : BaseUiView<EntryViewState, EntryViewEvent>(parent) {
 
@@ -76,17 +81,31 @@ class EntryNavigation @Inject internal constructor(
         selectDefault(state.entry, savedState)
     }
 
+    @CheckResult
+    private fun getIdForPage(page: DefaultActivityPage): Int {
+        return when (page) {
+            NEED -> R.id.menu_item_nav_need
+            HAVE -> R.id.menu_item_nav_have
+            NEARBY -> R.id.menu_item_nav_nearby
+        }
+    }
+
     private fun selectDefault(
         entry: FridgeEntry?,
         savedState: UiSavedState
     ) {
         if (entry != null) {
             savedState.consume(LAST_PAGE, layoutRoot.selectedItemId) { itemId ->
-                layoutRoot.selectedItemId = if (itemId == 0) {
-                    layoutRoot.menu.getItem(0)
-                        .itemId
-                } else {
-                    itemId
+                layoutRoot.selectedItemId = if (itemId != 0) itemId else {
+                    defaultPage.let { page ->
+                        if (page == null) {
+                            itemId
+                        } else {
+                            val id = getIdForPage(page)
+                            val item = layoutRoot.menu.findItem(id)
+                            item?.itemId ?: itemId
+                        }
+                    }
                 }
             }
         }

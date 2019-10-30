@@ -15,14 +15,13 @@
  *
  */
 
-package com.pyamsoft.fridge.butler
+package com.pyamsoft.fridge.core
 
-import android.app.PendingIntent
-import androidx.annotation.CheckResult
-import com.pyamsoft.fridge.core.DefaultActivityPage
+enum class DefaultActivityPage {
+    NEED, HAVE, NEARBY;
 
-interface NotificationHandler {
+    companion object {
 
-    @CheckResult
-    fun contentIntent(page: DefaultActivityPage): PendingIntent
+        const val EXTRA_PAGE = "key_page"
+    }
 }
