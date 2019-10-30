@@ -38,7 +38,7 @@ buildscript {
         maxSdk = 29
 
         // Us
-        pydroid = "20.6.1-SNAPSHOT"
+        pydroid = "20.6.1"
 
         // Room
         room = "2.2.0"
@@ -49,7 +49,7 @@ buildscript {
         // Dagger
         dagger = "2.25.2"
 
-        moshi = "1.8.0"
+        moshi = "1.9.0"
 
         // Fast Adapter
         fastAdapter = "3.3.1"
@@ -61,7 +61,7 @@ buildscript {
         firebase = "16.0.9"
         mlVision = "20.0.0"
 
-        workmanager = "2.2.0"
+        workmanager = "2.2.1"
 
         osmdroid = "6.1.2"
 
@@ -97,8 +97,8 @@ subprojects {
     // Ignore non-release libraries
     dependencyUpdates.resolutionStrategy {
         componentSelection { rules ->
-            rules.all { ComponentSelection selection ->
-                boolean rejected = ['alpha', 'beta', 'rc', 'cr', 'm', 'preview'].any { qualifier ->
+            rules.all { selection ->
+                boolean rejected = ['alpha', 'beta', 'rc', 'eap', 'cr', 'm', 'preview'].any { qualifier ->
                     selection.candidate.version ==~ /(?i).*[.-]${qualifier}[.\d-]*/
                 }
                 if (rejected) {
