@@ -23,5 +23,14 @@ import androidx.annotation.CheckResult
 interface NotificationHandler {
 
     @CheckResult
-    fun contentIntent(): PendingIntent
+    fun contentIntent(page: Page): PendingIntent
+
+    companion object {
+
+        const val CONTENT_KEY_PAGE = "key_page"
+    }
+
+    enum class Page {
+        NEED, HAVE, NEARBY
+    }
 }

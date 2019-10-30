@@ -21,6 +21,7 @@ import android.content.Context
 import com.pyamsoft.fridge.butler.ButlerNotifications
 import com.pyamsoft.fridge.butler.ForegroundState
 import com.pyamsoft.fridge.butler.NotificationHandler
+import com.pyamsoft.fridge.butler.NotificationHandler.Page
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItem
 
@@ -47,7 +48,8 @@ internal object ExpirationNotifications {
             context,
             EXPIRING_CHANNEL_ID,
             "Expiring Reminders",
-            "Reminders for items that are going to expire soon"
+            "Reminders for items that are going to expire soon",
+            Page.HAVE
         ) { builder ->
             val extra =
                 "${ButlerNotifications.getExtraItems(
@@ -75,7 +77,8 @@ internal object ExpirationNotifications {
             context,
             EXPIRED_CHANNEL_ID,
             "Expired Reminders",
-            "Reminders for items that have expired"
+            "Reminders for items that have expired",
+            Page.HAVE
         ) { builder ->
             return@notify builder
                 .setContentTitle("Expired warning for '${entry.name()}'")

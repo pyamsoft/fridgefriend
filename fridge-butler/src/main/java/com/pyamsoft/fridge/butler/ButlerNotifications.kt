@@ -21,6 +21,7 @@ import android.app.Notification
 import android.content.Context
 import androidx.annotation.CheckResult
 import androidx.core.app.NotificationCompat
+import com.pyamsoft.fridge.butler.NotificationHandler.Page
 import com.pyamsoft.fridge.db.item.FridgeItem
 import timber.log.Timber
 
@@ -45,6 +46,7 @@ object ButlerNotifications {
         channelId: String,
         channelTitle: String,
         channelDescription: String,
+        page: Page,
         createNotification: (builder: NotificationCompat.Builder) -> Notification
     ) {
         if (foregroundState.isForeground) {
@@ -60,6 +62,7 @@ object ButlerNotifications {
             channelId,
             channelTitle,
             channelDescription,
+            page,
             createNotification
         )
     }

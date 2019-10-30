@@ -22,6 +22,7 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import com.pyamsoft.fridge.butler.NotificationHandler
+import com.pyamsoft.fridge.butler.NotificationHandler.Page
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -31,9 +32,15 @@ internal class NotificationHandlerImpl @Inject internal constructor(
     private val activityClass: Class<out Activity>
 ) : NotificationHandler {
 
-    override fun contentIntent(): PendingIntent {
+    override fun contentIntent(page: Page): PendingIntent {
+        val intent = Intent(context, activityClass).apply {
+            putExtra(NotificationHandler.CONTENT_KEY_PAGE, page.name)
+        }
+
         return PendingIntent.getActivity(
-            context, CONTENT_INTENT_RC, Intent(context, activityClass),
+            context,
+            CONTENT_INTENT_RC,
+            intent,
             PendingIntent.FLAG_UPDATE_CURRENT
         )
     }
