@@ -84,11 +84,11 @@ internal class SettingsDialog : DialogFragment() {
     }
 
     private inline fun handleBackPressed(onNotHandled: () -> Unit) {
-        Timber.d("Handle back pressed")
         val settingsFragment = childFragmentManager.findFragmentByTag(SettingsFragment.TAG)
         if (settingsFragment != null) {
             val fm = settingsFragment.childFragmentManager
             if (AboutFragment.isPresent(fm)) {
+                Timber.d("Handle back pressed")
                 fm.popBackStack()
                 return
             }
@@ -105,7 +105,7 @@ internal class SettingsDialog : DialogFragment() {
         return object : Dialog(ContextThemeWrapper(requireActivity(), R.style.Theme_Fridge_Dialog)) {
 
             override fun onBackPressed() {
-                handleBackPressed { super.onBackPressed() }
+                handleBackPressed { requireActivity().onBackPressed() }
             }
         }
     }
@@ -120,7 +120,7 @@ internal class SettingsDialog : DialogFragment() {
             viewLifecycleOwner, object : OnBackPressedCallback(true) {
 
                 override fun handleOnBackPressed() {
-                    handleBackPressed { dismiss() }
+                    handleBackPressed { requireActivity().onBackPressed() }
                 }
             })
 
