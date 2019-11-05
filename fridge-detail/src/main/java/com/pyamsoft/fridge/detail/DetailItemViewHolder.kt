@@ -21,7 +21,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
-import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider.Factory
 import androidx.lifecycle.ViewModelStore
 import com.pyamsoft.fridge.db.item.FridgeItem
@@ -71,8 +70,8 @@ internal class DetailItemViewHolder internal constructor(
     private var lifecycle: ListItemLifecycle? = null
     private var boundItem: FridgeItem? = null
 
-    private fun injectViewModel(lifecycle: Lifecycle) {
-        viewModel = lifecycle.factory<DetailListItemViewModel>(ViewModelStore()) { factory }
+    private fun injectViewModel() {
+        viewModel = factory<DetailListItemViewModel>(ViewModelStore()) { factory }
             .get()
     }
 
@@ -88,7 +87,7 @@ internal class DetailItemViewHolder internal constructor(
 
         injectComponent(parent, item, editable)
             .inject(this)
-        injectViewModel(owner.lifecycle)
+        injectViewModel()
 
         val name = requireNotNull(name)
         val date = requireNotNull(date)
