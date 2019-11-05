@@ -83,7 +83,7 @@ internal class SettingsDialog : DialogFragment() {
         return view
     }
 
-    private inline fun handleBackPressed(onNotHandled: () -> Unit) {
+    private fun handleBackPressed() {
         val settingsFragment = childFragmentManager.findFragmentByTag(SettingsFragment.TAG)
         if (settingsFragment != null) {
             val fm = settingsFragment.childFragmentManager
@@ -94,7 +94,7 @@ internal class SettingsDialog : DialogFragment() {
             }
         }
 
-        onNotHandled()
+        requireActivity().onBackPressed()
     }
 
     override fun getTheme(): Int {
@@ -102,10 +102,11 @@ internal class SettingsDialog : DialogFragment() {
     }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        return object : Dialog(ContextThemeWrapper(requireActivity(), R.style.Theme_Fridge_Dialog)) {
+        return object :
+            Dialog(ContextThemeWrapper(requireActivity(), R.style.Theme_Fridge_Dialog)) {
 
             override fun onBackPressed() {
-                handleBackPressed { requireActivity().onBackPressed() }
+                handleBackPressed()
             }
         }
     }
@@ -120,7 +121,7 @@ internal class SettingsDialog : DialogFragment() {
             viewLifecycleOwner, object : OnBackPressedCallback(true) {
 
                 override fun handleOnBackPressed() {
-                    handleBackPressed { requireActivity().onBackPressed() }
+                    handleBackPressed()
                 }
             })
 
@@ -141,7 +142,7 @@ internal class SettingsDialog : DialogFragment() {
             dropshadow
         ) {
             return@createComponent when (it) {
-                is NavigateUp -> requireActivity().onBackPressed()
+                is NavigateUp -> handleBackPressed()
             }
         }
 
@@ -164,7 +165,12 @@ internal class SettingsDialog : DialogFragment() {
                 connect(it.id(), ConstraintSet.TOP, toolbar.id(), ConstraintSet.BOTTOM)
                 connect(it.id(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
                 connect(it.id(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
-                connect(it.id(), ConstraintSet.BOTTOM, ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM)
+                connect(
+                    it.id(),
+                    ConstraintSet.BOTTOM,
+                    ConstraintSet.PARENT_ID,
+                    ConstraintSet.BOTTOM
+                )
                 constrainWidth(it.id(), ConstraintSet.MATCH_CONSTRAINT)
                 constrainHeight(it.id(), ConstraintSet.MATCH_CONSTRAINT)
             }
