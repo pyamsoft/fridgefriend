@@ -36,7 +36,7 @@
         <item name="android:statusBarColor">@color/statusBarColor</item>
 
         <item name="dialogCornerRadius">16dp</item>
-        <item name="android:background">@color/white</item>
+        <item name="android:windowBackground">@drawable/dialog_background</item>
     </style>
 
     <style name="Base.Theme.Fridge.Dialog.Alert" parent="@style/Theme.MaterialComponents.Light.Dialog.Alert">
@@ -48,7 +48,7 @@
         <item name="android:statusBarColor">@color/statusBarColor</item>
 
         <item name="dialogCornerRadius">16dp</item>
-        <item name="android:background">@color/white</item>
+        <item name="android:windowBackground">@drawable/dialog_background</item>
     </style>
 
     <!-- Normal App Theme -->
