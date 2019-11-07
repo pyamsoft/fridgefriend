@@ -17,13 +17,13 @@
 
 package com.pyamsoft.fridge.locator
 
-import android.app.Activity
 import android.view.ViewGroup
 import androidx.annotation.CheckResult
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModelProvider
 import com.pyamsoft.fridge.FridgeViewModelFactory
 import com.pyamsoft.fridge.ViewModelKey
+import com.pyamsoft.fridge.core.ThemeProvider
 import com.pyamsoft.fridge.locator.MapComponent.ViewModelModule
 import com.pyamsoft.fridge.locator.map.osm.OsmViewModel
 import com.pyamsoft.pydroid.arch.UiViewModel
@@ -43,9 +43,9 @@ internal interface MapComponent {
 
         @CheckResult
         fun create(
-            @BindsInstance activity: Activity,
             @BindsInstance parent: ViewGroup,
-            @BindsInstance owner: LifecycleOwner
+            @BindsInstance owner: LifecycleOwner,
+            @BindsInstance themeProvider: ThemeProvider
         ): MapComponent
     }
 

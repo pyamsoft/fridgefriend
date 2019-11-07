@@ -26,6 +26,7 @@ import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.pyamsoft.fridge.FridgeComponent
+import com.pyamsoft.fridge.core.ThemeProvider
 import com.pyamsoft.fridge.locator.map.osm.OsmControllerEvent.BackgroundPermissionRequest
 import com.pyamsoft.fridge.locator.map.osm.OsmControllerEvent.StoragePermissionRequest
 import com.pyamsoft.fridge.locator.map.osm.OsmMap
@@ -34,6 +35,7 @@ import com.pyamsoft.fridge.main.SnackbarContainer
 import com.pyamsoft.pydroid.arch.createComponent
 import com.pyamsoft.pydroid.ui.Injector
 import com.pyamsoft.pydroid.ui.arch.factory
+import com.pyamsoft.pydroid.ui.theme.Theming
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -51,6 +53,9 @@ internal class MapFragment : Fragment(), SnackbarContainer {
     @JvmField
     @Inject
     internal var deviceGps: DeviceGps? = null
+    @JvmField
+    @Inject
+    internal var theming: Theming? = null
     private val viewModel by factory<OsmViewModel> { factory }
 
     private var rootView: ViewGroup? = null
@@ -77,7 +82,10 @@ internal class MapFragment : Fragment(), SnackbarContainer {
         rootView = parent
         Injector.obtain<FridgeComponent>(view.context.applicationContext)
             .plusMapComponent()
-            .create(requireActivity(), parent, viewLifecycleOwner)
+            .create(
+                parent,
+                viewLifecycleOwner,
+                ThemeProvider { requireNotNull(theming).isDarkTheme(requireActivity()) })
             .inject(this)
 
         val map = requireNotNull(map)

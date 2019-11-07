@@ -15,28 +15,22 @@
  *
  */
 
-package com.pyamsoft.fridge.main
+package com.pyamsoft.fridge.core
 
-import android.view.ViewGroup
 import androidx.annotation.CheckResult
-import com.pyamsoft.fridge.core.ThemeProvider
-import com.pyamsoft.pydroid.ui.app.ToolbarActivityProvider
-import dagger.BindsInstance
-import dagger.Subcomponent
 
-@Subcomponent
-internal interface MainComponent {
+@CheckResult
+inline fun ThemeProvider(crossinline realProvider: () -> Boolean): ThemeProvider {
 
-    fun inject(activity: MainActivity)
-
-    @Subcomponent.Factory
-    interface Factory {
-
-        @CheckResult
-        fun create(
-            @BindsInstance parent: ViewGroup,
-            @BindsInstance provider: ToolbarActivityProvider,
-            @BindsInstance themeProvider: ThemeProvider
-        ): MainComponent
+    return object : ThemeProvider {
+        override fun isDarkTheme(): Boolean {
+            return realProvider()
+        }
     }
+}
+
+interface ThemeProvider {
+
+    @CheckResult
+    fun isDarkTheme(): Boolean
 }

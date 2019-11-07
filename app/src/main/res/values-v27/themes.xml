@@ -19,12 +19,18 @@
 
     <style name="Theme.Fridge.Normal" parent="@style/Base.Theme.Fridge.Normal">
         <item name="dialogTheme">@style/Theme.Fridge.Dialog</item>
+        <item name="alertDialogTheme">@style/Theme.Fridge.Dialog.Alert</item>
 
         <item name="android:windowLightNavigationBar">true</item>
         <item name="android:windowLightStatusBar">true</item>
     </style>
 
     <style name="Theme.Fridge.Dialog" parent="@style/Base.Theme.Fridge.Dialog">
+        <item name="android:windowLightNavigationBar">true</item>
+        <item name="android:windowLightStatusBar">true</item>
+    </style>
+
+    <style name="Theme.Fridge.Dialog.Alert" parent="@style/Base.Theme.Fridge.Dialog.Alert">
         <item name="android:windowLightNavigationBar">true</item>
         <item name="android:windowLightStatusBar">true</item>
     </style>

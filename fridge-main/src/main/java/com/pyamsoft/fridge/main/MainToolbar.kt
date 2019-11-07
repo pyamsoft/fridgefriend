@@ -23,6 +23,7 @@ import androidx.appcompat.widget.Toolbar
 import androidx.core.view.ViewCompat
 import androidx.core.view.updateLayoutParams
 import com.pyamsoft.fridge.core.Core
+import com.pyamsoft.fridge.core.ThemeProvider
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.arch.UiSavedState
 import com.pyamsoft.pydroid.arch.UnitViewEvent
@@ -30,7 +31,6 @@ import com.pyamsoft.pydroid.arch.UnitViewState
 import com.pyamsoft.pydroid.ui.app.ToolbarActivityProvider
 import com.pyamsoft.pydroid.ui.privacy.addPrivacy
 import com.pyamsoft.pydroid.ui.privacy.removePrivacy
-import com.pyamsoft.pydroid.ui.theme.Theming
 import com.pyamsoft.pydroid.util.doOnApplyWindowInsets
 import com.pyamsoft.pydroid.util.toDp
 import javax.inject.Inject
@@ -39,7 +39,7 @@ import javax.inject.Named
 class MainToolbar @Inject internal constructor(
     @Named("app_name") appNameRes: Int,
     toolbarActivityProvider: ToolbarActivityProvider,
-    theming: Theming,
+    theming: ThemeProvider,
     parent: ViewGroup
 ) : BaseUiView<UnitViewState, UnitViewEvent>(parent) {
 
@@ -74,7 +74,7 @@ class MainToolbar @Inject internal constructor(
 
     private fun inflateToolbar(
         toolbarActivityProvider: ToolbarActivityProvider,
-        theming: Theming,
+        theming: ThemeProvider,
         appNameRes: Int
     ) {
         val theme = if (theming.isDarkTheme()) {

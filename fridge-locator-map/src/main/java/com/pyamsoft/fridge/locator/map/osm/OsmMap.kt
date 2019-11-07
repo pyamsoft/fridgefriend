@@ -30,6 +30,7 @@ import androidx.lifecycle.OnLifecycleEvent
 import androidx.preference.PreferenceManager
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.pyamsoft.fridge.butler.Butler
+import com.pyamsoft.fridge.core.ThemeProvider
 import com.pyamsoft.fridge.db.store.NearbyStore
 import com.pyamsoft.fridge.db.store.NearbyStoreDeleteDao
 import com.pyamsoft.fridge.db.store.NearbyStoreInsertDao
@@ -52,7 +53,6 @@ import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.arch.UiSavedState
 import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.loader.Loaded
-import com.pyamsoft.pydroid.ui.theme.Theming
 import com.pyamsoft.pydroid.ui.util.Snackbreak
 import com.pyamsoft.pydroid.ui.util.popShow
 import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
@@ -71,8 +71,8 @@ import timber.log.Timber
 import javax.inject.Inject
 
 class OsmMap @Inject internal constructor(
+    private val theming: ThemeProvider,
     private val owner: LifecycleOwner,
-    private val theming: Theming,
     private val imageLoader: ImageLoader,
     private val butler: Butler,
     private val mapPermission: MapPermission,
@@ -373,7 +373,9 @@ class OsmMap @Inject internal constructor(
             setTileSource(TileSourceFactory.MAPNIK)
             addMapOverlays(context)
             zoomController.setVisibility(CustomZoomButtonsController.Visibility.SHOW_AND_FADEOUT)
-            mapOverlay.setColorFilter(if (theming.isDarkTheme()) TilesOverlay.INVERT_COLORS else null)
+
+            val filter = if (theming.isDarkTheme()) TilesOverlay.INVERT_COLORS else null
+            mapOverlay.setColorFilter(filter)
         }
     }
 
