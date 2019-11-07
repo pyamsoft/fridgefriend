@@ -19,7 +19,7 @@
 
     <style name="Theme.Fridge.Normal" parent="@style/Base.Theme.Fridge.Normal">
         <item name="dialogTheme">@style/Theme.Fridge.Dialog</item>
-        <item name="alertDialogTheme">@style/Theme.Fridge.Dialog</item>
+
         <item name="android:windowLightStatusBar">true</item>
     </style>
 

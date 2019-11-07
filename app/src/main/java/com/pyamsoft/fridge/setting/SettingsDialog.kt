@@ -102,8 +102,7 @@ internal class SettingsDialog : DialogFragment() {
     }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        return object :
-            Dialog(ContextThemeWrapper(requireActivity(), R.style.Theme_Fridge_Dialog)) {
+        return object : Dialog(ContextThemeWrapper(requireActivity(), theme), theme) {
 
             override fun onBackPressed() {
                 handleBackPressed()

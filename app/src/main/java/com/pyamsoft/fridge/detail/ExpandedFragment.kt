@@ -17,6 +17,7 @@
 
 package com.pyamsoft.fridge.detail
 
+import android.app.Dialog
 import android.os.Bundle
 import android.view.Gravity
 import android.view.LayoutInflater
@@ -24,6 +25,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
 import androidx.annotation.CheckResult
+import androidx.appcompat.view.ContextThemeWrapper
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.fragment.app.DialogFragment
@@ -215,6 +217,14 @@ internal class ExpandedFragment : DialogFragment() {
                 constrainWidth(it.id(), ConstraintSet.MATCH_CONSTRAINT)
             }
         }
+    }
+
+    override fun getTheme(): Int {
+        return R.style.Theme_Fridge_Dialog
+    }
+
+    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+        return Dialog(ContextThemeWrapper(context, theme), theme)
     }
 
     private fun expandItem(item: FridgeItem) {

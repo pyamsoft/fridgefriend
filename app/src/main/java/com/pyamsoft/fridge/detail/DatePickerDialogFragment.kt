@@ -61,7 +61,7 @@ internal class DatePickerDialogFragment : DialogFragment() {
         }
 
         return DatePickerDialog(
-            ContextThemeWrapper(requireActivity(), R.style.Theme_Fridge_Dialog),
+            ContextThemeWrapper(context, theme), theme,
             DatePickerDialog.OnDateSetListener { _, year, month, dayOfMonth ->
                 requireNotNull(dateSelectBus).publish(
                     DateSelectPayload(item, year, month, dayOfMonth)
@@ -72,6 +72,10 @@ internal class DatePickerDialogFragment : DialogFragment() {
         ).apply {
             datePicker.minDate = today.timeInMillis
         }
+    }
+
+    override fun getTheme(): Int {
+        return R.style.Theme_Fridge_Dialog
     }
 
     companion object {

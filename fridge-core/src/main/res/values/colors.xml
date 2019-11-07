@@ -16,20 +16,5 @@
   -->
 
 <resources>
-
-    <style name="Theme.Fridge.Normal" parent="@style/Base.Theme.Fridge.Normal">
-        <item name="dialogTheme">@style/Theme.Fridge.Dialog</item>
-
-        <item name="android:windowLightStatusBar">false</item>
-    </style>
-
-    <style name="Theme.Fridge.Dialog" parent="@style/Base.Theme.Fridge.Dialog">
-        <item name="android:windowLightStatusBar">false</item>
-    </style>
-
-    <!-- Splash screen -->
-    <style name="Theme.Fridge.Splash" parent="@style/Base.Theme.Fridge.Splash">
-        <item name="android:windowLightStatusBar">false</item>
-    </style>
-
+    <color name="transparent">#00000000</color>
 </resources>

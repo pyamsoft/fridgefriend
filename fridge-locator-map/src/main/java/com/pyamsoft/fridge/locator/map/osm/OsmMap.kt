@@ -373,10 +373,7 @@ class OsmMap @Inject internal constructor(
             setTileSource(TileSourceFactory.MAPNIK)
             addMapOverlays(context)
             zoomController.setVisibility(CustomZoomButtonsController.Visibility.SHOW_AND_FADEOUT)
-
-            if (theming.isDarkTheme()) {
-                mapOverlay.setColorFilter(TilesOverlay.INVERT_COLORS)
-            }
+            mapOverlay.setColorFilter(if (theming.isDarkTheme()) TilesOverlay.INVERT_COLORS else null)
         }
     }
 
