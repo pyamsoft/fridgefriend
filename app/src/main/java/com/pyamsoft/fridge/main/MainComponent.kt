@@ -19,8 +19,8 @@ package com.pyamsoft.fridge.main
 
 import android.view.ViewGroup
 import androidx.annotation.CheckResult
-import com.pyamsoft.fridge.core.ThemeProvider
 import com.pyamsoft.pydroid.ui.app.ToolbarActivityProvider
+import com.pyamsoft.pydroid.ui.theme.ThemeProvider
 import dagger.BindsInstance
 import dagger.Subcomponent
 

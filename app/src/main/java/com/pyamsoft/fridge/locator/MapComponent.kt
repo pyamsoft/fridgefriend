@@ -23,10 +23,10 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModelProvider
 import com.pyamsoft.fridge.FridgeViewModelFactory
 import com.pyamsoft.fridge.ViewModelKey
-import com.pyamsoft.fridge.core.ThemeProvider
 import com.pyamsoft.fridge.locator.MapComponent.ViewModelModule
 import com.pyamsoft.fridge.locator.map.osm.OsmViewModel
 import com.pyamsoft.pydroid.arch.UiViewModel
+import com.pyamsoft.pydroid.ui.theme.ThemeProvider
 import dagger.Binds
 import dagger.BindsInstance
 import dagger.Module

@@ -26,7 +26,6 @@ import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.pyamsoft.fridge.FridgeComponent
-import com.pyamsoft.fridge.core.ThemeProvider
 import com.pyamsoft.fridge.locator.map.osm.OsmControllerEvent.BackgroundPermissionRequest
 import com.pyamsoft.fridge.locator.map.osm.OsmControllerEvent.StoragePermissionRequest
 import com.pyamsoft.fridge.locator.map.osm.OsmMap
@@ -35,6 +34,7 @@ import com.pyamsoft.fridge.main.SnackbarContainer
 import com.pyamsoft.pydroid.arch.createComponent
 import com.pyamsoft.pydroid.ui.Injector
 import com.pyamsoft.pydroid.ui.arch.factory
+import com.pyamsoft.pydroid.ui.theme.ThemeProvider
 import com.pyamsoft.pydroid.ui.theme.Theming
 import timber.log.Timber
 import javax.inject.Inject
