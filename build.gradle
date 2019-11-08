@@ -49,7 +49,7 @@ buildscript {
         // Dagger
         dagger = "2.25.2"
 
-        moshi = "1.9.1"
+        moshi = "1.9.0"
 
         // Fast Adapter
         fastAdapter = "3.3.1"
