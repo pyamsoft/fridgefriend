@@ -39,7 +39,6 @@
 
         <item name="dialogCornerRadius">16dp</item>
         <item name="android:windowBackground">@drawable/dialog_background</item>
-
     </style>
 
     <style name="Base.Theme.Fridge.Dialog.Alert" parent="@style/Parent.Theme.Fridge.Dialog.Alert">
@@ -55,15 +54,15 @@
         <item name="android:windowBackground">@drawable/dialog_background</item>
     </style>
 
+    <style name="Theme.Fridge.Preference" parent="@style/PreferenceThemeOverlay" />
+
     <style name="Base.Theme.Fridge.Normal" parent="@style/Base.Theme.Fridge">
         <item name="android:windowBackground">@color/windowBackground</item>
 
         <item name="preferenceTheme">@style/Theme.Fridge.Preference</item>
         <item name="dialogTheme">@style/Theme.Fridge.Dialog</item>
-        <item name="alertDialogTheme">@style/Theme.Fridge.Dialog</item>
+        <item name="alertDialogTheme">@style/Theme.Fridge.Dialog.Alert</item>
     </style>
-
-    <style name="Theme.Fridge.Preference" parent="@style/PreferenceThemeOverlay" />
 
     <style name="Base.Theme.Fridge.Splash" parent="@style/Base.Theme.Fridge">
         <item name="android:windowBackground">@drawable/splash_screen</item>
