@@ -19,8 +19,6 @@ package com.pyamsoft.fridge.locator.map.osm
 
 import androidx.lifecycle.viewModelScope
 import com.pyamsoft.fridge.locator.map.osm.OsmControllerEvent.BackgroundPermissionRequest
-import com.pyamsoft.fridge.locator.map.osm.OsmViewEvent.FindNearby
-import com.pyamsoft.fridge.locator.map.osm.OsmViewEvent.RequestBackgroundPermission
 import com.pyamsoft.highlander.highlander
 import com.pyamsoft.pydroid.arch.UiViewModel
 import kotlinx.coroutines.launch
@@ -37,7 +35,9 @@ class OsmViewModel @Inject internal constructor(
         points = emptyList(),
         zones = emptyList(),
         nearbyError = null,
-        cachedFetchError = null
+        cachedFetchError = null,
+        requestMapCenter = null,
+        requestNearby = false
     )
 ) {
 
@@ -144,9 +144,30 @@ class OsmViewModel @Inject internal constructor(
 
     override fun handleViewEvent(event: OsmViewEvent) {
         return when (event) {
-            is FindNearby -> nearbySupermarkets(event.box)
-            is RequestBackgroundPermission -> publish(BackgroundPermissionRequest)
+            is OsmViewEvent.FindNearby -> nearbySupermarkets(event.box)
+            is OsmViewEvent.RequestBackgroundPermission -> publish(BackgroundPermissionRequest)
+            is OsmViewEvent.RequestMyLocation -> oneShotSetState(
+                firstState = OsmViewState.MapCenterRequest(event.automatic),
+                secondState = null
+            ) {
+                copy(requestMapCenter = it)
+            }
+            is OsmViewEvent.RequestFindNearby -> oneShotSetState(
+                firstState = true,
+                secondState = false
+            ) {
+                copy(requestNearby = it)
+            }
         }
+    }
+
+    private inline fun <T> oneShotSetState(
+        firstState: T,
+        secondState: T,
+        crossinline func: OsmViewState.(state: T) -> OsmViewState
+    ) {
+        setState { func(this, firstState) }
+        setState { func(this, secondState) }
     }
 
     private fun nearbySupermarkets(box: BBox) {

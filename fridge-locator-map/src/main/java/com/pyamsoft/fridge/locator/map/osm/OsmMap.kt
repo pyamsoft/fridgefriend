@@ -21,14 +21,12 @@ import android.content.Context
 import android.graphics.Color
 import android.view.ViewGroup
 import androidx.annotation.CheckResult
-import androidx.core.view.isVisible
 import androidx.lifecycle.Lifecycle.Event.ON_PAUSE
 import androidx.lifecycle.Lifecycle.Event.ON_RESUME
 import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.OnLifecycleEvent
 import androidx.preference.PreferenceManager
-import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.pyamsoft.fridge.butler.Butler
 import com.pyamsoft.fridge.db.store.NearbyStore
 import com.pyamsoft.fridge.db.store.NearbyStoreDeleteDao
@@ -40,21 +38,14 @@ import com.pyamsoft.fridge.db.zone.NearbyZoneDeleteDao
 import com.pyamsoft.fridge.db.zone.NearbyZoneInsertDao
 import com.pyamsoft.fridge.db.zone.NearbyZoneQueryDao
 import com.pyamsoft.fridge.db.zone.NearbyZoneRealtime
-import com.pyamsoft.fridge.locator.MapPermission
 import com.pyamsoft.fridge.locator.map.R
-import com.pyamsoft.fridge.locator.map.osm.OsmViewEvent.FindNearby
-import com.pyamsoft.fridge.locator.map.osm.OsmViewEvent.RequestBackgroundPermission
 import com.pyamsoft.fridge.locator.map.osm.popup.LocationUpdateManagerImpl
 import com.pyamsoft.fridge.locator.map.osm.popup.store.StoreInfoWindow
 import com.pyamsoft.fridge.locator.map.osm.popup.zone.ZoneInfoWindow
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.arch.UiSavedState
 import com.pyamsoft.pydroid.loader.ImageLoader
-import com.pyamsoft.pydroid.loader.Loaded
 import com.pyamsoft.pydroid.ui.theme.ThemeProvider
-import com.pyamsoft.pydroid.ui.util.Snackbreak
-import com.pyamsoft.pydroid.ui.util.popShow
-import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
 import org.osmdroid.config.Configuration
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
 import org.osmdroid.util.GeoPoint
@@ -74,7 +65,6 @@ class OsmMap @Inject internal constructor(
     private val owner: LifecycleOwner,
     private val imageLoader: ImageLoader,
     private val butler: Butler,
-    private val mapPermission: MapPermission,
 
     private val nearbyStoreRealtime: NearbyStoreRealtime,
     private val nearbyStoreQueryDao: NearbyStoreQueryDao,
@@ -90,20 +80,9 @@ class OsmMap @Inject internal constructor(
 
     override val layout: Int = R.layout.osm_map
 
-    override val layoutRoot by boundView<ViewGroup>(R.id.osm_frame)
-
-    private var boundFindMeImage: Loaded? = null
-    private var boundNearbyImage: Loaded? = null
-    private var boundBackgroundImage: Loaded? = null
+    override val layoutRoot by boundView<MapView>(R.id.osm_map)
 
     private var locationOverlay: MyLocationNewOverlay? = null
-
-    private val map by boundView<MapView>(R.id.osm_map)
-    private val findNearby by boundView<FloatingActionButton>(R.id.osm_action)
-    private val findMe by boundView<FloatingActionButton>(R.id.osm_find_me)
-    private val backgroundPermission by boundView<FloatingActionButton>(
-        R.id.osm_background_location_permission
-    )
     private val locationUpdateManager = LocationUpdateManagerImpl()
 
     init {
@@ -117,64 +96,16 @@ class OsmMap @Inject internal constructor(
         doOnInflate {
             owner.lifecycle.addObserver(this)
             initMap(parent.context.applicationContext)
-
-            boundNearbyImage?.dispose()
-            boundNearbyImage = imageLoader.load(R.drawable.ic_shopping_cart_24dp)
-                .into(findNearby)
-
-            boundFindMeImage?.dispose()
-            boundFindMeImage = imageLoader.load(R.drawable.ic_location_search_24dp)
-                .into(findMe)
-
-            boundBackgroundImage?.dispose()
-            boundBackgroundImage = imageLoader.load(R.drawable.ic_location_24dp)
-                .into(backgroundPermission)
-
-            findNearby.isVisible = false
-            findMe.isVisible = false
-            backgroundPermission.isVisible = false
-
-            findNearby.setOnDebouncedClickListener {
-                publish(
-                    FindNearby(
-                        getBoundingBoxOfCurrentScreen()
-                    )
-                )
-            }
-            findMe.setOnDebouncedClickListener { locateMe() }
-            backgroundPermission.setOnDebouncedClickListener { publish(RequestBackgroundPermission) }
         }
 
         doOnTeardown {
             owner.lifecycle.removeObserver(this)
 
-            findMe.setOnDebouncedClickListener(null)
-            findNearby.setOnDebouncedClickListener(null)
-            backgroundPermission.setOnDebouncedClickListener(null)
-
-            locationOverlay?.let { map.overlayManager.remove(it) }
+            locationOverlay?.let { layoutRoot.overlayManager.remove(it) }
             locationOverlay = null
-            map.onDetach()
+            layoutRoot.onDetach()
 
             locationUpdateManager.clear()
-
-            boundFindMeImage?.dispose()
-            boundNearbyImage?.dispose()
-            boundBackgroundImage?.dispose()
-            boundFindMeImage = null
-            boundNearbyImage = null
-            boundBackgroundImage = null
-        }
-    }
-
-    private fun locateMe() {
-        locationOverlay?.let { overlay ->
-            val location = overlay.myLocation
-            if (location != null) {
-                centerOnLocation(locationProvider = { location }) {
-                    Timber.d("Centered onto current user location")
-                }
-            }
         }
     }
 
@@ -196,22 +127,18 @@ class OsmMap @Inject internal constructor(
         }
 
         if (invalidate) {
-            map.invalidate()
+            layoutRoot.invalidate()
         }
 
-        state.nearbyError.let { throwable ->
-            if (throwable == null) {
-                clearError()
-            } else {
-                showError(throwable)
+        state.requestMapCenter.let { request ->
+            if (request != null) {
+                locateMe()
             }
         }
 
-        state.cachedFetchError.let { throwable ->
-            if (throwable == null) {
-                clearCacheError()
-            } else {
-                showCacheError(throwable)
+        state.requestNearby.let { request ->
+            if (request) {
+                publish(OsmViewEvent.FindNearby(getBoundingBoxOfCurrentScreen()))
             }
         }
     }
@@ -223,6 +150,7 @@ class OsmMap @Inject internal constructor(
             return false
         }
 
+        val map = layoutRoot
         var changed = false
         val color = Color.argb(75, 255, 255, 0)
         for (zone in zones) {
@@ -283,6 +211,7 @@ class OsmMap @Inject internal constructor(
             return false
         }
 
+        val map = layoutRoot
         var changed = false
         for (mark in marks) {
             val uid = mark.getMarkerUid()
@@ -328,7 +257,7 @@ class OsmMap @Inject internal constructor(
 
     @CheckResult
     private fun getBoundingBoxOfCurrentScreen(): BBox {
-        val mapView = map
+        val mapView = layoutRoot
         val bbox = Projection(
             mapView.zoomLevelDouble, mapView.getIntrinsicScreenRect(null),
             GeoPoint(mapView.mapCenter),
@@ -336,7 +265,7 @@ class OsmMap @Inject internal constructor(
             mapView.mapOrientation,
             mapView.isHorizontalMapRepetitionEnabled, mapView.isVerticalMapRepetitionEnabled,
             MapView.getTileSystem(),
-            map.mapCenterOffsetX, map.mapCenterOffsetY
+            mapView.mapCenterOffsetX, mapView.mapCenterOffsetY
         ).boundingBox
         return BBox(bbox.latSouth, bbox.lonWest, bbox.latNorth, bbox.lonEast)
     }
@@ -344,17 +273,17 @@ class OsmMap @Inject internal constructor(
     @Suppress("unused")
     @OnLifecycleEvent(ON_RESUME)
     internal fun onResume() {
-        map.onResume()
+        layoutRoot.onResume()
     }
 
     @Suppress("unused")
     @OnLifecycleEvent(ON_PAUSE)
     internal fun onPause() {
-        map.onPause()
+        layoutRoot.onPause()
     }
 
     private fun initMap(context: Context) {
-        map.apply {
+        layoutRoot.apply {
             setMultiTouchControls(true)
             isTilesScaledToDpi = true
             setTileSource(TileSourceFactory.MAPNIK)
@@ -373,7 +302,7 @@ class OsmMap @Inject internal constructor(
         crossinline onCentered: (location: GeoPoint) -> Unit
     ) {
         val location = locationProvider()
-        val mapView = map
+        val mapView = layoutRoot
         mapView.post {
             mapView.controller.setZoom(DEFAULT_ZOOM)
             mapView.controller.animateTo(location)
@@ -382,59 +311,32 @@ class OsmMap @Inject internal constructor(
         }
     }
 
+    private fun locateMe() {
+        locationOverlay?.let { overlay ->
+            val location = overlay.myLocation
+            if (location != null) {
+                centerOnLocation(locationProvider = { location }) {
+                    Timber.d("Centered onto current user location")
+                }
+            }
+        }
+    }
+
     private fun addMapOverlays(context: Context) {
-        val mapView = map
+        val mapView = layoutRoot
 
         val overlay = UpdateAwareLocationOverlay(
             GpsMyLocationProvider(context),
             mapView,
             onLocationChanged = { locationUpdateManager.publish(it) }
         )
-
-        overlay.runOnFirstFix {
-            val currentLocation = overlay.myLocation
-            if (currentLocation != null) {
-                centerOnLocation(locationProvider = { currentLocation }) {
-                    var delay = 700L
-                    findNearby.popShow(startDelay = delay)
-                    delay += 300L
-
-                    findMe.popShow(startDelay = delay)
-                    delay += 300L
-
-                    if (!mapPermission.hasBackgroundPermission()) {
-                        backgroundPermission.popShow(startDelay = delay)
-                        delay += 300L
-                    }
-                }
-            }
-        }
         overlay.enableMyLocation()
         mapView.overlayManager.add(overlay)
         locationOverlay = overlay
-    }
 
-    private fun showError(throwable: Throwable) {
-        Snackbreak.bindTo(owner, "nearby") {
-            make(layoutRoot, throwable.message ?: "An unexpected error occurred.")
-        }
-    }
-
-    private fun clearError() {
-        Snackbreak.bindTo(owner, "nearby") {
-            dismiss()
-        }
-    }
-
-    private fun showCacheError(throwable: Throwable) {
-        Snackbreak.bindTo(owner, "cache") {
-            make(layoutRoot, throwable.message ?: "An error occurred fetching cached stores.")
-        }
-    }
-
-    private fun clearCacheError() {
-        Snackbreak.bindTo(owner, "cache") {
-            dismiss()
+        overlay.runOnFirstFix {
+            Timber.d("First fix happened!")
+            publish(OsmViewEvent.RequestMyLocation(automatic = true))
         }
     }
 

@@ -17,7 +17,7 @@
 
 package com.pyamsoft.fridge.locator.map.osm
 
-internal data class BBox internal constructor(
+data class BBox internal constructor(
     val south: Double,
     val west: Double,
     val north: Double,

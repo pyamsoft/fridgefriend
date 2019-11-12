@@ -15,19 +15,23 @@
   ~
   -->
 
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/location_permission"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:layout_gravity="center">
+<merge>
 
-    <Button
-        android:id="@+id/location_permission_button"
+    <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/location_permission"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:gravity="center"
-        android:text="Request Location Permission"
-        android:textAppearance="?attr/textAppearanceBody2" />
+        android:layout_gravity="center">
 
-</FrameLayout>
+        <Button
+            android:id="@+id/location_permission_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:text="Request Location Permission"
+            android:textAppearance="?attr/textAppearanceBody2" />
+
+    </FrameLayout>
+
+</merge>

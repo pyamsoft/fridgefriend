@@ -26,7 +26,8 @@ import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.pyamsoft.fridge.FridgeComponent
-import com.pyamsoft.fridge.locator.map.osm.OsmControllerEvent.BackgroundPermissionRequest
+import com.pyamsoft.fridge.locator.map.osm.OsmActions
+import com.pyamsoft.fridge.locator.map.osm.OsmControllerEvent
 import com.pyamsoft.fridge.locator.map.osm.OsmMap
 import com.pyamsoft.fridge.locator.map.osm.OsmViewModel
 import com.pyamsoft.fridge.main.SnackbarContainer
@@ -46,6 +47,9 @@ internal class MapFragment : Fragment(), SnackbarContainer {
     @JvmField
     @Inject
     internal var map: OsmMap? = null
+    @JvmField
+    @Inject
+    internal var actions: OsmActions? = null
     @JvmField
     @Inject
     internal var mapPermission: MapPermission? = null
@@ -88,14 +92,16 @@ internal class MapFragment : Fragment(), SnackbarContainer {
             .inject(this)
 
         val map = requireNotNull(map)
+        val actions = requireNotNull(actions)
 
         createComponent(
             savedInstanceState, viewLifecycleOwner,
             viewModel,
-            map
+            map,
+            actions
         ) {
             return@createComponent when (it) {
-                is BackgroundPermissionRequest -> requestBackgroundLocationPermission()
+                is OsmControllerEvent.BackgroundPermissionRequest -> requestBackgroundLocationPermission()
             }
         }
 
@@ -116,6 +122,7 @@ internal class MapFragment : Fragment(), SnackbarContainer {
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         map?.saveState(outState)
+        actions?.saveState(outState)
     }
 
     override fun onDestroyView() {
@@ -124,6 +131,7 @@ internal class MapFragment : Fragment(), SnackbarContainer {
         rootView = null
         factory = null
         map = null
+        actions = null
         mapPermission = null
     }
 
