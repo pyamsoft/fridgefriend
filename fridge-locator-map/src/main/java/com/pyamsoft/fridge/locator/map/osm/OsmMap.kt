@@ -94,7 +94,6 @@ class OsmMap @Inject internal constructor(
 
     private var boundFindMeImage: Loaded? = null
     private var boundNearbyImage: Loaded? = null
-    private var boundStorageImage: Loaded? = null
     private var boundBackgroundImage: Loaded? = null
 
     private var locationOverlay: MyLocationNewOverlay? = null
@@ -105,8 +104,6 @@ class OsmMap @Inject internal constructor(
     private val backgroundPermission by boundView<FloatingActionButton>(
         R.id.osm_background_location_permission
     )
-    private val storagePermission by boundView<FloatingActionButton>(R.id.osm_storage_permission)
-
     private val locationUpdateManager = LocationUpdateManagerImpl()
 
     init {
@@ -129,17 +126,12 @@ class OsmMap @Inject internal constructor(
             boundFindMeImage = imageLoader.load(R.drawable.ic_location_search_24dp)
                 .into(findMe)
 
-            boundStorageImage?.dispose()
-            boundStorageImage = imageLoader.load(R.drawable.ic_storage_24dp)
-                .into(storagePermission)
-
             boundBackgroundImage?.dispose()
             boundBackgroundImage = imageLoader.load(R.drawable.ic_location_24dp)
                 .into(backgroundPermission)
 
             findNearby.isVisible = false
             findMe.isVisible = false
-            storagePermission.isVisible = false
             backgroundPermission.isVisible = false
 
             findNearby.setOnDebouncedClickListener {
@@ -159,7 +151,6 @@ class OsmMap @Inject internal constructor(
             findMe.setOnDebouncedClickListener(null)
             findNearby.setOnDebouncedClickListener(null)
             backgroundPermission.setOnDebouncedClickListener(null)
-            storagePermission.setOnDebouncedClickListener(null)
 
             locationOverlay?.let { map.overlayManager.remove(it) }
             locationOverlay = null
@@ -169,11 +160,9 @@ class OsmMap @Inject internal constructor(
 
             boundFindMeImage?.dispose()
             boundNearbyImage?.dispose()
-            boundStorageImage?.dispose()
             boundBackgroundImage?.dispose()
             boundFindMeImage = null
             boundNearbyImage = null
-            boundStorageImage = null
             boundBackgroundImage = null
         }
     }
@@ -411,9 +400,6 @@ class OsmMap @Inject internal constructor(
                     delay += 300L
 
                     findMe.popShow(startDelay = delay)
-                    delay += 300L
-
-                    storagePermission.popShow(startDelay = delay)
                     delay += 300L
 
                     if (!mapPermission.hasBackgroundPermission()) {
