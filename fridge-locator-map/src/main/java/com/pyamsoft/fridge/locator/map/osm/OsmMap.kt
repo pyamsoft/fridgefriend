@@ -44,7 +44,6 @@ import com.pyamsoft.fridge.locator.MapPermission
 import com.pyamsoft.fridge.locator.map.R
 import com.pyamsoft.fridge.locator.map.osm.OsmViewEvent.FindNearby
 import com.pyamsoft.fridge.locator.map.osm.OsmViewEvent.RequestBackgroundPermission
-import com.pyamsoft.fridge.locator.map.osm.OsmViewEvent.RequestStoragePermission
 import com.pyamsoft.fridge.locator.map.osm.popup.LocationUpdateManagerImpl
 import com.pyamsoft.fridge.locator.map.osm.popup.store.StoreInfoWindow
 import com.pyamsoft.fridge.locator.map.osm.popup.zone.ZoneInfoWindow
@@ -152,7 +151,6 @@ class OsmMap @Inject internal constructor(
             }
             findMe.setOnDebouncedClickListener { locateMe() }
             backgroundPermission.setOnDebouncedClickListener { publish(RequestBackgroundPermission) }
-            storagePermission.setOnDebouncedClickListener { publish(RequestStoragePermission) }
         }
 
         doOnTeardown {

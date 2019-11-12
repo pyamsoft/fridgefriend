@@ -27,7 +27,6 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.pyamsoft.fridge.FridgeComponent
 import com.pyamsoft.fridge.locator.map.osm.OsmControllerEvent.BackgroundPermissionRequest
-import com.pyamsoft.fridge.locator.map.osm.OsmControllerEvent.StoragePermissionRequest
 import com.pyamsoft.fridge.locator.map.osm.OsmMap
 import com.pyamsoft.fridge.locator.map.osm.OsmViewModel
 import com.pyamsoft.fridge.main.SnackbarContainer
@@ -97,26 +96,12 @@ internal class MapFragment : Fragment(), SnackbarContainer {
         ) {
             return@createComponent when (it) {
                 is BackgroundPermissionRequest -> requestBackgroundLocationPermission()
-                is StoragePermissionRequest -> requestStoragePermission()
             }
-        }
-
-        if (!requireNotNull(mapPermission).hasStoragePermission()) {
-            viewModel.requestStoragePermission()
         }
 
         requireNotNull(deviceGps).enableGps(requireActivity()) {
             Timber.e(it, "Error enabling GPS")
         }
-    }
-
-    private fun requestStoragePermission() {
-        requireNotNull(mapPermission).requestStoragePermission(
-            this,
-            onGranted = {
-                Timber.d("STORAGE granted")
-            },
-            onDenied = { Timber.e("STORAGE denied.") })
     }
 
     private fun requestBackgroundLocationPermission() {

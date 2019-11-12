@@ -85,41 +85,12 @@ internal class PermissionGranter @Inject internal constructor(
             return
         }
 
-        requestSinglePermission(
+        PermissionManager.request(
             fragment,
             Manifest.permission.ACCESS_BACKGROUND_LOCATION,
             onGranted,
             onDenied
         )
-    }
-
-    override fun hasStoragePermission(): Boolean {
-        return checkPermissions(
-            Manifest.permission.WRITE_EXTERNAL_STORAGE,
-            Manifest.permission.READ_EXTERNAL_STORAGE
-        )
-    }
-
-    override fun requestStoragePermission(
-        fragment: Fragment,
-        onGranted: () -> Unit,
-        onDenied: () -> Unit
-    ) {
-        requestSinglePermission(
-            fragment,
-            Manifest.permission.WRITE_EXTERNAL_STORAGE,
-            onGranted,
-            onDenied
-        )
-    }
-
-    private inline fun requestSinglePermission(
-        fragment: Fragment,
-        permission: String,
-        crossinline onGranted: () -> Unit,
-        crossinline onDenied: () -> Unit
-    ) {
-        PermissionManager.request(fragment, permission, onGranted, onDenied)
     }
 
     companion object {

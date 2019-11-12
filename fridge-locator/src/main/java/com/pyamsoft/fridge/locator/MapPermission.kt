@@ -40,14 +40,5 @@ interface MapPermission {
         onDenied: (coarseDenied: PermissionDenial?, fineDenied: PermissionDenial?) -> Unit
     )
 
-    @CheckResult
-    fun hasStoragePermission(): Boolean
-
-    fun requestStoragePermission(
-        fragment: Fragment,
-        onGranted: () -> Unit,
-        onDenied: () -> Unit
-    )
-
     data class PermissionDenial(val permission: String)
 }
