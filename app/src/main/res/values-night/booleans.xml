@@ -16,13 +16,5 @@
   -->
 
 <resources>
-
-    <style name="Theme.Fridge.Normal" parent="@style/Base.Theme.Fridge" />
-
-    <style name="Theme.Fridge.Dialog" parent="@style/Base.Theme.Fridge.Dialog" />
-
-    <style name="Theme.Fridge.Dialog.Alert" parent="@style/Base.Theme.Fridge.Dialog.Alert" />
-
-    <style name="Theme.Fridge.Splash" parent="@style/Base.Theme.Fridge.Splash" />
-
+    <bool name="light_bars">false</bool>
 </resources>

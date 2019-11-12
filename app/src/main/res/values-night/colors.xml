@@ -18,4 +18,5 @@
 <resources>
     <color name="statusBarColor">@color/transparent</color>
     <color name="navigationBarColor">@color/red500</color>
+    <color name="windowBackground">@color/material_dark_background</color>
 </resources>
