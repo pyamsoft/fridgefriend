@@ -335,7 +335,6 @@ class OsmMap @Inject internal constructor(
         locationOverlay = overlay
 
         overlay.runOnFirstFix {
-            Timber.d("First fix happened!")
             publish(OsmViewEvent.RequestMyLocation(automatic = true))
         }
     }

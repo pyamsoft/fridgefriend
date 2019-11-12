@@ -166,8 +166,8 @@ class OsmViewModel @Inject internal constructor(
         secondState: T,
         crossinline func: OsmViewState.(state: T) -> OsmViewState
     ) {
-        setState { func(this, firstState) }
-        setState { func(this, secondState) }
+        setState { func(firstState) }
+        setState { func(secondState) }
     }
 
     private fun nearbySupermarkets(box: BBox) {
