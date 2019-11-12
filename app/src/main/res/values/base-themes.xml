@@ -25,9 +25,6 @@
         <item name="android:navigationBarColor">@color/navigationBarColor</item>
         <item name="android:statusBarColor">@color/statusBarColor</item>
         <item name="android:windowLightStatusBar">@bool/light_bars</item>
-
-        <item name="dialogTheme">@style/Theme.Fridge.Dialog</item>
-        <item name="alertDialogTheme">@style/Theme.Fridge.Dialog</item>
     </style>
 
     <!-- Dialogs -->
@@ -59,8 +56,9 @@
     </style>
 
     <style name="Base.Theme.Fridge.Normal" parent="@style/Base.Theme.Fridge">
-        <item name="preferenceTheme">@style/PreferenceThemeOverlay</item>
         <item name="android:windowBackground">@color/windowBackground</item>
+        <item name="dialogTheme">@style/Theme.Fridge.Dialog</item>
+        <item name="alertDialogTheme">@style/Theme.Fridge.Dialog</item>
     </style>
 
     <style name="Base.Theme.Fridge.Splash" parent="@style/Base.Theme.Fridge">
