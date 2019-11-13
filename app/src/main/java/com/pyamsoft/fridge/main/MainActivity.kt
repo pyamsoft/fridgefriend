@@ -55,21 +55,21 @@ internal class MainActivity : RatingActivity() {
     override val changeLogLines: ChangeLogBuilder = buildChangeLog {
     }
 
-    override val fragmentContainerId by lazy(LazyThreadSafetyMode.NONE) {
-        requireNotNull(container).id()
-    }
+    override val fragmentContainerId: Int
+        get() = requireNotNull(container).id()
 
-    override val snackbarRoot by lazy<ViewGroup>(LazyThreadSafetyMode.NONE) {
-        val entryFragment = supportFragmentManager.findFragmentByTag(EntryFragment.TAG)
-        if (entryFragment is SnackbarContainer) {
-            val snackbarContainer = entryFragment.getSnackbarContainer()
-            if (snackbarContainer != null) {
-                return@lazy snackbarContainer
+    override val snackbarRoot: ViewGroup
+        get() {
+            val entryFragment = supportFragmentManager.findFragmentByTag(EntryFragment.TAG)
+            if (entryFragment is SnackbarContainer) {
+                val snackbarContainer = entryFragment.getSnackbarContainer()
+                if (snackbarContainer != null) {
+                    return snackbarContainer
+                }
             }
-        }
 
-        return@lazy requireNotNull(rootView)
-    }
+            return requireNotNull(rootView)
+        }
 
     private var rootView: ConstraintLayout? = null
     @JvmField
