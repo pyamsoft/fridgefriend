@@ -18,14 +18,18 @@
 package com.pyamsoft.fridge.locator.map
 
 import androidx.annotation.CheckResult
+import com.pyamsoft.fridge.locator.permission.BackgroundLocationPermission
 import com.pyamsoft.fridge.locator.DeviceGps
+import com.pyamsoft.fridge.locator.permission.ForegroundLocationPermission
 import com.pyamsoft.fridge.locator.Geofencer
 import com.pyamsoft.fridge.locator.Locator
 import com.pyamsoft.fridge.locator.MapPermission
+import com.pyamsoft.fridge.locator.permission.PermissionHandler
 import com.pyamsoft.fridge.locator.map.gms.GmsLocator
 import com.pyamsoft.fridge.locator.map.osm.api.NearbyLocationApi
 import com.pyamsoft.fridge.locator.map.osm.api.OsmNodeOrWay
 import com.pyamsoft.fridge.locator.map.permission.PermissionGranter
+import com.pyamsoft.fridge.locator.map.permission.PermissionHandlerImpl
 import com.squareup.moshi.Moshi
 import dagger.Binds
 import dagger.Module
@@ -59,6 +63,20 @@ abstract class LocatorModule {
 
     @Module
     companion object {
+
+        @Provides
+        @JvmStatic
+        @Singleton
+        internal fun provideForegroundHandler(): PermissionHandler<ForegroundLocationPermission> {
+            return PermissionHandlerImpl(ForegroundLocationPermission)
+        }
+
+        @Provides
+        @JvmStatic
+        @Singleton
+        internal fun provideBackgroundHandler(): PermissionHandler<BackgroundLocationPermission> {
+            return PermissionHandlerImpl(BackgroundLocationPermission)
+        }
 
         @Provides
         @JvmStatic

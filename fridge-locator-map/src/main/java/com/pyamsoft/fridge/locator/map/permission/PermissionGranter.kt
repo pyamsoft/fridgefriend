@@ -17,16 +17,16 @@
 
 package com.pyamsoft.fridge.locator.map.permission
 
-import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build.VERSION
 import android.os.Build.VERSION_CODES
 import androidx.annotation.CheckResult
 import androidx.core.content.ContextCompat
-import androidx.fragment.app.Fragment
 import com.pyamsoft.fridge.locator.MapPermission
-import com.pyamsoft.fridge.locator.MapPermission.PermissionDenial
+import com.pyamsoft.fridge.locator.permission.BackgroundLocationPermission
+import com.pyamsoft.fridge.locator.permission.ForegroundLocationPermission
+import com.pyamsoft.fridge.locator.permission.PermissionConsumer
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -36,7 +36,7 @@ internal class PermissionGranter @Inject internal constructor(
 ) : MapPermission {
 
     @CheckResult
-    private fun checkPermissions(vararg permissions: String): Boolean {
+    private fun checkPermissions(permissions: Array<out String>): Boolean {
         return permissions.all { permission ->
             val permissionCheck = ContextCompat.checkSelfPermission(context, permission)
             return@all permissionCheck == PackageManager.PERMISSION_GRANTED
@@ -44,27 +44,14 @@ internal class PermissionGranter @Inject internal constructor(
     }
 
     override fun hasForegroundPermission(): Boolean {
-        return checkPermissions(
-            Manifest.permission.ACCESS_FINE_LOCATION,
-            Manifest.permission.ACCESS_COARSE_LOCATION
-        )
+        return checkPermissions(ForegroundLocationPermission.permissions())
     }
 
-    override fun requestForegroundPermission(
-        fragment: Fragment,
-        onGranted: () -> Unit,
-        onDenied: (coarseDenied: PermissionDenial?, fineDenied: PermissionDenial?) -> Unit
-    ) {
-        PermissionManager.request(
-            fragment,
-            COARSE_PERMISSION,
-            FINE_PERMISSION,
-            onGranted = onGranted,
-            onDenied = { denials ->
-                val coarseDenied = denials.find { it.permission == COARSE_PERMISSION }
-                val fineDenied = denials.find { it.permission == FINE_PERMISSION }
-                onDenied(coarseDenied, fineDenied)
-            })
+    override fun requestForegroundPermission(consumer: PermissionConsumer<ForegroundLocationPermission>) {
+        consumer.onRequestPermissions(
+            ForegroundLocationPermission.permissions(),
+            ForegroundLocationPermission.requestCode()
+        )
     }
 
     override fun hasBackgroundPermission(): Boolean {
@@ -72,30 +59,18 @@ internal class PermissionGranter @Inject internal constructor(
             return true
         }
 
-        return checkPermissions(Manifest.permission.ACCESS_BACKGROUND_LOCATION)
+        return checkPermissions(BackgroundLocationPermission.permissions())
     }
 
-    override fun requestBackgroundPermission(
-        fragment: Fragment,
-        onGranted: () -> Unit,
-        onDenied: () -> Unit
-    ) {
+    override fun requestBackgroundPermission(consumer: PermissionConsumer<BackgroundLocationPermission>) {
         if (VERSION.SDK_INT < VERSION_CODES.Q) {
-            onGranted()
+            consumer.onPermissionResponse(BackgroundLocationPermission.asGrant(true))
             return
         }
 
-        PermissionManager.request(
-            fragment,
-            Manifest.permission.ACCESS_BACKGROUND_LOCATION,
-            onGranted,
-            onDenied
+        consumer.onRequestPermissions(
+            BackgroundLocationPermission.permissions(),
+            BackgroundLocationPermission.requestCode()
         )
-    }
-
-    companion object {
-
-        private const val COARSE_PERMISSION = Manifest.permission.ACCESS_COARSE_LOCATION
-        private const val FINE_PERMISSION = Manifest.permission.ACCESS_FINE_LOCATION
     }
 }

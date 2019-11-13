@@ -40,7 +40,7 @@ import com.pyamsoft.fridge.entry.EntryControllerEvent.PushNearby
 import com.pyamsoft.fridge.entry.EntryControllerEvent.PushNeed
 import com.pyamsoft.fridge.locator.MapFragment
 import com.pyamsoft.fridge.locator.MapPermission
-import com.pyamsoft.fridge.locator.PermissionFragment
+import com.pyamsoft.fridge.permission.PermissionFragment
 import com.pyamsoft.fridge.main.SnackbarContainer
 import com.pyamsoft.fridge.setting.SettingsDialog
 import com.pyamsoft.pydroid.arch.createComponent

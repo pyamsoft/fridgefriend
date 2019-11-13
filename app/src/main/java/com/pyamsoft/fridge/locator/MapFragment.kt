@@ -30,6 +30,10 @@ import com.pyamsoft.fridge.locator.map.osm.OsmActions
 import com.pyamsoft.fridge.locator.map.osm.OsmControllerEvent
 import com.pyamsoft.fridge.locator.map.osm.OsmMap
 import com.pyamsoft.fridge.locator.map.osm.OsmViewModel
+import com.pyamsoft.fridge.locator.permission.BackgroundLocationPermission
+import com.pyamsoft.fridge.locator.permission.PermissionConsumer
+import com.pyamsoft.fridge.locator.permission.PermissionGrant
+import com.pyamsoft.fridge.locator.permission.PermissionHandler
 import com.pyamsoft.fridge.main.SnackbarContainer
 import com.pyamsoft.pydroid.arch.createComponent
 import com.pyamsoft.pydroid.ui.Injector
@@ -39,7 +43,8 @@ import com.pyamsoft.pydroid.ui.theme.Theming
 import timber.log.Timber
 import javax.inject.Inject
 
-internal class MapFragment : Fragment(), SnackbarContainer {
+internal class MapFragment : Fragment(), SnackbarContainer,
+    PermissionConsumer<BackgroundLocationPermission> {
 
     @JvmField
     @Inject
@@ -59,6 +64,10 @@ internal class MapFragment : Fragment(), SnackbarContainer {
     @JvmField
     @Inject
     internal var theming: Theming? = null
+    @JvmField
+    @Inject
+    internal var permissionHandler: PermissionHandler<BackgroundLocationPermission>? =
+        null
     private val viewModel by factory<OsmViewModel> { factory }
 
     private var rootView: ViewGroup? = null
@@ -111,18 +120,36 @@ internal class MapFragment : Fragment(), SnackbarContainer {
     }
 
     private fun requestBackgroundLocationPermission() {
-        requireNotNull(mapPermission).requestBackgroundPermission(
-            this,
-            onGranted = {
-                Timber.d("BACKGROUND granted")
-            },
-            onDenied = { Timber.e("BACKGROUND denied.") })
+        requireNotNull(mapPermission).requestBackgroundPermission(this)
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         map?.saveState(outState)
         actions?.saveState(outState)
+    }
+
+    override fun onPermissionResponse(grant: PermissionGrant<BackgroundLocationPermission>) {
+        if (grant.granted()) {
+            Timber.d("Permissions granted: ${grant.permission().permissions()}")
+        } else {
+            Timber.e("Permissions rejected: ${grant.permission().permissions()}")
+        }
+    }
+
+    override fun onRequestPermissions(permissions: Array<out String>, requestCode: Int) {
+        requestPermissions(permissions, requestCode)
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        requireNotNull(permissionHandler).handlePermissionResponse(
+            this, requestCode, permissions, grantResults
+        )
     }
 
     override fun onDestroyView() {

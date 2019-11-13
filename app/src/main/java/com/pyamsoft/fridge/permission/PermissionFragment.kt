@@ -15,7 +15,7 @@
  *
  */
 
-package com.pyamsoft.fridge.locator
+package com.pyamsoft.fridge.permission
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -26,6 +26,13 @@ import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.pyamsoft.fridge.FridgeComponent
+import com.pyamsoft.fridge.locator.permission.ForegroundLocationPermission
+import com.pyamsoft.fridge.locator.MapFragment
+import com.pyamsoft.fridge.locator.MapPermission
+import com.pyamsoft.fridge.locator.permission.PermissionConsumer
+import com.pyamsoft.fridge.locator.permission.PermissionGrant
+import com.pyamsoft.fridge.locator.permission.PermissionHandler
+import com.pyamsoft.fridge.locator.R
 import com.pyamsoft.fridge.locator.map.permission.LocationPermissionScreen
 import com.pyamsoft.fridge.locator.map.permission.LocationPermissionViewModel
 import com.pyamsoft.fridge.locator.map.permission.PermissionControllerEvent.LocationPermissionRequest
@@ -37,11 +44,17 @@ import com.pyamsoft.pydroid.ui.util.commit
 import timber.log.Timber
 import javax.inject.Inject
 
-internal class PermissionFragment : Fragment(), SnackbarContainer {
+internal class PermissionFragment : Fragment(), SnackbarContainer,
+    PermissionConsumer<ForegroundLocationPermission> {
 
     @JvmField
     @Inject
     internal var factory: ViewModelProvider.Factory? = null
+
+    @JvmField
+    @Inject
+    internal var permissionHandler: PermissionHandler<ForegroundLocationPermission>? = null
+
     @JvmField
     @Inject
     internal var mapPermission: MapPermission? = null
@@ -49,6 +62,7 @@ internal class PermissionFragment : Fragment(), SnackbarContainer {
     @JvmField
     @Inject
     internal var screen: LocationPermissionScreen? = null
+
     private val viewModel by factory<LocationPermissionViewModel> { factory }
 
     private var rootView: ViewGroup? = null
@@ -91,12 +105,20 @@ internal class PermissionFragment : Fragment(), SnackbarContainer {
         }
     }
 
-    private fun requestLocationPermission() {
-        requireNotNull(mapPermission).requestForegroundPermission(this, onGranted = {
+    override fun onRequestPermissions(permissions: Array<out String>, requestCode: Int) {
+        requestPermissions(permissions, requestCode)
+    }
+
+    override fun onPermissionResponse(grant: PermissionGrant<ForegroundLocationPermission>) {
+        if (grant.granted()) {
             pushMapFragmentOncePermissionGranted()
-        }, onDenied = { coarseDenied, fineDenied ->
-            Timber.e("Map permissions denied: $coarseDenied $fineDenied")
-        })
+        } else {
+            Timber.e("Location permissions denied, cannot show Map")
+        }
+    }
+
+    private fun requestLocationPermission() {
+        requireNotNull(mapPermission).requestForegroundPermission(this)
     }
 
     private fun pushMapFragmentOncePermissionGranted() {
@@ -110,6 +132,17 @@ internal class PermissionFragment : Fragment(), SnackbarContainer {
                 MapFragment.TAG
             )
         }
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        requireNotNull(permissionHandler).handlePermissionResponse(
+            this, requestCode, permissions, grantResults
+        )
     }
 
     override fun onSaveInstanceState(outState: Bundle) {

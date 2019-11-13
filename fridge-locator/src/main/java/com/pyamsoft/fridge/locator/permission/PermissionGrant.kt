@@ -15,22 +15,15 @@
  *
  */
 
-package com.pyamsoft.fridge.locator
+package com.pyamsoft.fridge.locator.permission
 
 import androidx.annotation.CheckResult
-import com.pyamsoft.fridge.locator.permission.BackgroundLocationPermission
-import com.pyamsoft.fridge.locator.permission.ForegroundLocationPermission
-import com.pyamsoft.fridge.locator.permission.PermissionConsumer
 
-interface MapPermission {
+interface PermissionGrant<T : Permission> {
 
     @CheckResult
-    fun hasBackgroundPermission(): Boolean
-
-    fun requestBackgroundPermission(consumer: PermissionConsumer<BackgroundLocationPermission>)
+    fun permission(): T
 
     @CheckResult
-    fun hasForegroundPermission(): Boolean
-
-    fun requestForegroundPermission(consumer: PermissionConsumer<ForegroundLocationPermission>)
+    fun granted(): Boolean
 }
