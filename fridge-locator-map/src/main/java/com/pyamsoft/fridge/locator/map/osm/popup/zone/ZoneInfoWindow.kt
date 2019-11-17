@@ -33,7 +33,7 @@ import com.pyamsoft.fridge.db.zone.NearbyZoneInsertDao
 import com.pyamsoft.fridge.db.zone.NearbyZoneQueryDao
 import com.pyamsoft.fridge.db.zone.NearbyZoneRealtime
 import com.pyamsoft.fridge.locator.map.osm.popup.BaseInfoWindow
-import com.pyamsoft.fridge.locator.map.osm.popup.LocationUpdateManager
+import com.pyamsoft.fridge.locator.map.osm.updatemanager.LocationUpdateReceiver
 import com.pyamsoft.pydroid.arch.createComponent
 import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.ui.arch.factory
@@ -47,7 +47,7 @@ import timber.log.Timber
 import javax.inject.Inject
 
 internal class ZoneInfoWindow private constructor(
-    manager: LocationUpdateManager,
+    receiver: LocationUpdateReceiver,
     zone: NearbyZone,
     map: MapView,
     butler: Butler,
@@ -56,7 +56,7 @@ internal class ZoneInfoWindow private constructor(
     nearbyZoneQueryDao: NearbyZoneQueryDao,
     nearbyZoneInsertDao: NearbyZoneInsertDao,
     nearbyZoneDeleteDao: NearbyZoneDeleteDao
-) : BaseInfoWindow(manager, map), LifecycleOwner {
+) : BaseInfoWindow(receiver, map), LifecycleOwner {
 
     private val registry = LifecycleRegistry(this)
 
@@ -157,7 +157,7 @@ internal class ZoneInfoWindow private constructor(
         @JvmStatic
         @CheckResult
         fun fromMap(
-            manager: LocationUpdateManager,
+            receiver: LocationUpdateReceiver,
             zone: NearbyZone,
             map: MapView,
             butler: Butler,
@@ -168,7 +168,7 @@ internal class ZoneInfoWindow private constructor(
             nearbyZoneDeleteDao: NearbyZoneDeleteDao
         ): InfoWindow {
             return ZoneInfoWindow(
-                manager,
+                receiver,
                 zone,
                 map,
                 butler,

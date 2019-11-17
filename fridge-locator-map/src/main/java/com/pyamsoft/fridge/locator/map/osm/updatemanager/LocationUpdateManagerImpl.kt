@@ -15,13 +15,18 @@
  *
  */
 
-package com.pyamsoft.fridge.locator.map.osm.popup
+package com.pyamsoft.fridge.locator.map.osm.updatemanager
 
 import android.location.Location
-import com.pyamsoft.fridge.locator.map.osm.popup.LocationUpdateManager.Listener
+import com.pyamsoft.fridge.locator.map.osm.MapScope
+import com.pyamsoft.fridge.locator.map.osm.updatemanager.LocationUpdateReceiver.Listener
+import javax.inject.Inject
 import kotlin.LazyThreadSafetyMode.NONE
 
-internal class LocationUpdateManagerImpl internal constructor() : LocationUpdateManager {
+@MapScope
+internal class LocationUpdateManagerImpl @Inject internal constructor(
+
+) : LocationUpdateReceiver, LocationUpdatePublisher {
 
     private val listeners by lazy(NONE) { mutableSetOf<Listener>() }
 
@@ -33,11 +38,7 @@ internal class LocationUpdateManagerImpl internal constructor() : LocationUpdate
         listeners.remove(listener)
     }
 
-    fun publish(location: Location?) {
+    override fun publish(location: Location?) {
         listeners.forEach { it.onLocationUpdate(location) }
-    }
-
-    fun clear() {
-        listeners.clear()
     }
 }

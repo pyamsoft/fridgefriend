@@ -161,6 +161,8 @@ class OsmViewModel @Inject internal constructor(
         }
     }
 
+    // Hacky way to do view-to-view interaction by causing a render in one state and then
+    // immediately re-rendering in a different state
     private inline fun <T> oneShotSetState(
         firstState: T,
         secondState: T,

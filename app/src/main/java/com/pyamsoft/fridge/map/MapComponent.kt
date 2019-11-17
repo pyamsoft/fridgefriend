@@ -15,7 +15,7 @@
  *
  */
 
-package com.pyamsoft.fridge.locator
+package com.pyamsoft.fridge.map
 
 import android.view.ViewGroup
 import androidx.annotation.CheckResult
@@ -23,8 +23,10 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModelProvider
 import com.pyamsoft.fridge.FridgeViewModelFactory
 import com.pyamsoft.fridge.ViewModelKey
-import com.pyamsoft.fridge.locator.MapComponent.ViewModelModule
+import com.pyamsoft.fridge.locator.map.osm.MapModule
+import com.pyamsoft.fridge.locator.map.osm.MapScope
 import com.pyamsoft.fridge.locator.map.osm.OsmViewModel
+import com.pyamsoft.fridge.map.MapComponent.ViewModelModule
 import com.pyamsoft.pydroid.arch.UiViewModel
 import com.pyamsoft.pydroid.ui.theme.ThemeProvider
 import dagger.Binds
@@ -33,7 +35,8 @@ import dagger.Module
 import dagger.Subcomponent
 import dagger.multibindings.IntoMap
 
-@Subcomponent(modules = [ViewModelModule::class])
+@MapScope
+@Subcomponent(modules = [ViewModelModule::class, MapModule::class])
 internal interface MapComponent {
 
     fun inject(fragment: MapFragment)

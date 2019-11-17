@@ -38,7 +38,7 @@ import com.pyamsoft.fridge.entry.EntryControllerEvent.NavigateToSettings
 import com.pyamsoft.fridge.entry.EntryControllerEvent.PushHave
 import com.pyamsoft.fridge.entry.EntryControllerEvent.PushNearby
 import com.pyamsoft.fridge.entry.EntryControllerEvent.PushNeed
-import com.pyamsoft.fridge.locator.MapFragment
+import com.pyamsoft.fridge.map.MapFragment
 import com.pyamsoft.fridge.locator.MapPermission
 import com.pyamsoft.fridge.permission.PermissionFragment
 import com.pyamsoft.fridge.main.SnackbarContainer

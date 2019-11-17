@@ -44,7 +44,7 @@ import com.pyamsoft.fridge.locator.GeofenceBroadcastReceiver
 import com.pyamsoft.fridge.locator.Geofencer
 import com.pyamsoft.fridge.locator.LocationProviderChangeReceiver
 import com.pyamsoft.fridge.locator.Locator
-import com.pyamsoft.fridge.locator.MapComponent
+import com.pyamsoft.fridge.map.MapComponent
 import com.pyamsoft.fridge.permission.PermissionComponent
 import com.pyamsoft.fridge.locator.map.LocatorModule
 import com.pyamsoft.fridge.main.MainComponent

@@ -15,7 +15,7 @@
  *
  */
 
-package com.pyamsoft.fridge.locator
+package com.pyamsoft.fridge.map
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -26,6 +26,9 @@ import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.pyamsoft.fridge.FridgeComponent
+import com.pyamsoft.fridge.locator.DeviceGps
+import com.pyamsoft.fridge.locator.MapPermission
+import com.pyamsoft.fridge.locator.R
 import com.pyamsoft.fridge.locator.map.osm.OsmActions
 import com.pyamsoft.fridge.locator.map.osm.OsmControllerEvent
 import com.pyamsoft.fridge.locator.map.osm.OsmMap

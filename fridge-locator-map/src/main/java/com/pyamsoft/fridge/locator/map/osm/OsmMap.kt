@@ -39,9 +39,10 @@ import com.pyamsoft.fridge.db.zone.NearbyZoneInsertDao
 import com.pyamsoft.fridge.db.zone.NearbyZoneQueryDao
 import com.pyamsoft.fridge.db.zone.NearbyZoneRealtime
 import com.pyamsoft.fridge.locator.map.R
-import com.pyamsoft.fridge.locator.map.osm.popup.LocationUpdateManagerImpl
 import com.pyamsoft.fridge.locator.map.osm.popup.store.StoreInfoWindow
 import com.pyamsoft.fridge.locator.map.osm.popup.zone.ZoneInfoWindow
+import com.pyamsoft.fridge.locator.map.osm.updatemanager.LocationUpdatePublisher
+import com.pyamsoft.fridge.locator.map.osm.updatemanager.LocationUpdateReceiver
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.arch.UiSavedState
 import com.pyamsoft.pydroid.loader.ImageLoader
@@ -75,6 +76,9 @@ class OsmMap @Inject internal constructor(
     private val nearbyZoneQueryDao: NearbyZoneQueryDao,
     private val nearbyZoneInsertDao: NearbyZoneInsertDao,
     private val nearbyZoneDeleteDao: NearbyZoneDeleteDao,
+
+    private val locationUpdateReceiver: LocationUpdateReceiver,
+    private val locationUpdatePublisher: LocationUpdatePublisher,
     parent: ViewGroup
 ) : BaseUiView<OsmViewState, OsmViewEvent>(parent), LifecycleObserver {
 
@@ -83,7 +87,6 @@ class OsmMap @Inject internal constructor(
     override val layoutRoot by boundView<MapView>(R.id.osm_map)
 
     private var locationOverlay: MyLocationNewOverlay? = null
-    private val locationUpdateManager = LocationUpdateManagerImpl()
 
     init {
         // Must happen before inflate
@@ -104,8 +107,6 @@ class OsmMap @Inject internal constructor(
             locationOverlay?.let { layoutRoot.overlayManager.remove(it) }
             locationOverlay = null
             layoutRoot.onDetach()
-
-            locationUpdateManager.clear()
         }
     }
 
@@ -169,7 +170,7 @@ class OsmMap @Inject internal constructor(
 
             val polygon = Polygon(map).apply {
                 infoWindow = ZoneInfoWindow.fromMap(
-                    locationUpdateManager,
+                    locationUpdateReceiver,
                     zone,
                     map,
                     butler,
@@ -224,7 +225,7 @@ class OsmMap @Inject internal constructor(
 
             val marker = Marker(map).apply {
                 infoWindow = StoreInfoWindow.fromMap(
-                    locationUpdateManager,
+                    locationUpdateReceiver,
                     mark,
                     map,
                     butler,
@@ -328,7 +329,7 @@ class OsmMap @Inject internal constructor(
         val overlay = UpdateAwareLocationOverlay(
             GpsMyLocationProvider(context),
             mapView,
-            onLocationChanged = { locationUpdateManager.publish(it) }
+            onLocationChanged = { locationUpdatePublisher.publish(it) }
         )
         overlay.enableMyLocation()
         mapView.overlayManager.add(overlay)

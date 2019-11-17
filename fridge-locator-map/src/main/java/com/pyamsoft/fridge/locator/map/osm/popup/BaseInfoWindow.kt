@@ -20,14 +20,15 @@ package com.pyamsoft.fridge.locator.map.osm.popup
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.lifecycle.LifecycleOwner
 import com.pyamsoft.fridge.locator.map.R
+import com.pyamsoft.fridge.locator.map.osm.updatemanager.LocationUpdateReceiver
 import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
 import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.infowindow.InfoWindow
 
 internal abstract class BaseInfoWindow protected constructor(
-    private val manager: LocationUpdateManager,
+    private val receiver: LocationUpdateReceiver,
     map: MapView
-) : InfoWindow(R.layout.popup_info_layout, map), LifecycleOwner, LocationUpdateManager.Listener {
+) : InfoWindow(R.layout.popup_info_layout, map), LifecycleOwner, LocationUpdateReceiver.Listener {
 
     protected val parent: ConstraintLayout = view.findViewById(R.id.popup_info_root)
 
@@ -39,7 +40,7 @@ internal abstract class BaseInfoWindow protected constructor(
     }
 
     protected fun listenForLocationUpdates() {
-        manager.register(this)
+        receiver.register(this)
     }
 
     final override fun onDetach() {
@@ -47,7 +48,7 @@ internal abstract class BaseInfoWindow protected constructor(
             close()
         }
 
-        manager.unregister(this)
+        receiver.unregister(this)
         parent.setOnDebouncedClickListener(null)
         onTeardown()
     }

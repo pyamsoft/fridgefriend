@@ -33,7 +33,7 @@ import com.pyamsoft.fridge.db.store.NearbyStoreInsertDao
 import com.pyamsoft.fridge.db.store.NearbyStoreQueryDao
 import com.pyamsoft.fridge.db.store.NearbyStoreRealtime
 import com.pyamsoft.fridge.locator.map.osm.popup.BaseInfoWindow
-import com.pyamsoft.fridge.locator.map.osm.popup.LocationUpdateManager
+import com.pyamsoft.fridge.locator.map.osm.updatemanager.LocationUpdateReceiver
 import com.pyamsoft.pydroid.arch.createComponent
 import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.ui.arch.factory
@@ -47,7 +47,7 @@ import timber.log.Timber
 import javax.inject.Inject
 
 internal class StoreInfoWindow private constructor(
-    manager: LocationUpdateManager,
+    receiver: LocationUpdateReceiver,
     store: NearbyStore,
     map: MapView,
     butler: Butler,
@@ -56,7 +56,7 @@ internal class StoreInfoWindow private constructor(
     nearbyStoreQueryDao: NearbyStoreQueryDao,
     nearbyStoreInsertDao: NearbyStoreInsertDao,
     nearbyStoreDeleteDao: NearbyStoreDeleteDao
-) : BaseInfoWindow(manager, map), LifecycleOwner {
+) : BaseInfoWindow(receiver, map), LifecycleOwner {
 
     private val registry = LifecycleRegistry(this)
 
@@ -156,7 +156,7 @@ internal class StoreInfoWindow private constructor(
         @JvmStatic
         @CheckResult
         fun fromMap(
-            manager: LocationUpdateManager,
+            receiver: LocationUpdateReceiver,
             store: NearbyStore,
             map: MapView,
             butler: Butler,
@@ -167,7 +167,7 @@ internal class StoreInfoWindow private constructor(
             nearbyStoreDeleteDao: NearbyStoreDeleteDao
         ): InfoWindow {
             return StoreInfoWindow(
-                manager,
+                receiver,
                 store,
                 map,
                 butler,

@@ -15,18 +15,11 @@
  *
  */
 
-package com.pyamsoft.fridge.locator.map.osm.popup
+package com.pyamsoft.fridge.locator.map.osm.updatemanager
 
 import android.location.Location
 
-internal interface LocationUpdateManager {
+internal interface LocationUpdatePublisher {
 
-    fun register(listener: Listener)
-
-    fun unregister(listener: Listener)
-
-    interface Listener {
-
-        fun onLocationUpdate(location: Location?)
-    }
+    fun publish(location: Location?)
 }
