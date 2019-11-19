@@ -166,12 +166,6 @@ class OsmMap @Inject internal constructor(
         if (invalidate) {
             layoutRoot.invalidate()
         }
-
-        state.requestMapCenter.let { request ->
-            if (request != null) {
-                locateMe()
-            }
-        }
     }
 
     @CheckResult
@@ -367,17 +361,6 @@ class OsmMap @Inject internal constructor(
         }
     }
 
-    private fun locateMe() {
-        locationOverlay?.let { overlay ->
-            val location = overlay.myLocation
-            if (location != null) {
-                centerOnLocation(locationProvider = { location }) {
-                    Timber.d("Centered onto current user location")
-                }
-            }
-        }
-    }
-
     private fun addMapOverlays(context: Context) {
         val mapView = layoutRoot
 
@@ -391,7 +374,20 @@ class OsmMap @Inject internal constructor(
         locationOverlay = overlay
 
         overlay.runOnFirstFix {
-            publish(OsmViewEvent.RequestMyLocation(automatic = true))
+            publish(OsmViewEvent.RequestMyLocation(firstTime = true))
+        }
+    }
+
+    // Called directly by MapFragment Controller
+    // This is still hacky at best, but its more performant than a VM one-off render loop
+    fun findMyLocation() {
+        locationOverlay?.let { overlay ->
+            val location = overlay.myLocation
+            if (location != null) {
+                centerOnLocation(locationProvider = { location }) {
+                    Timber.d("Centered onto current user location")
+                }
+            }
         }
     }
 

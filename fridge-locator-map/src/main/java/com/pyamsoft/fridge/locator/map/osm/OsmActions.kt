@@ -75,7 +75,7 @@ class OsmActions @Inject internal constructor(
             backgroundPermission.isVisible = false
 
             findMe.setOnDebouncedClickListener {
-                publish(OsmViewEvent.RequestMyLocation(automatic = false))
+                publish(OsmViewEvent.RequestMyLocation(firstTime = false))
             }
             backgroundPermission.setOnDebouncedClickListener {
                 publish(OsmViewEvent.RequestBackgroundPermission)
@@ -101,20 +101,6 @@ class OsmActions @Inject internal constructor(
         }
     }
 
-    private fun revealButtons() {
-        var delay = 700L
-        findNearby.popShow(startDelay = delay)
-        delay += 300L
-
-        findMe.popShow(startDelay = delay)
-        delay += 300L
-
-        if (!mapPermission.hasBackgroundPermission()) {
-            backgroundPermission.popShow(startDelay = delay)
-            delay += 300L
-        }
-    }
-
     override fun onRender(
         state: OsmViewState,
         savedState: UiSavedState
@@ -132,12 +118,6 @@ class OsmActions @Inject internal constructor(
                 clearCacheError()
             } else {
                 showCacheError(throwable)
-            }
-        }
-
-        state.requestMapCenter.let { request ->
-            if (request != null && request.automatic) {
-                revealButtons()
             }
         }
     }
@@ -163,6 +143,26 @@ class OsmActions @Inject internal constructor(
     private fun clearCacheError() {
         Snackbreak.bindTo(owner, "cache") {
             dismiss()
+        }
+    }
+
+    // Called directly by MapFragment Controller
+    // This is still hacky at best, but its more performant than a VM one-off render loop
+    fun revealButtons(firstTime: Boolean) {
+        if (!firstTime) {
+            return
+        }
+
+        var delay = 700L
+        findNearby.popShow(startDelay = delay)
+        delay += 300L
+
+        findMe.popShow(startDelay = delay)
+        delay += 300L
+
+        if (!mapPermission.hasBackgroundPermission()) {
+            backgroundPermission.popShow(startDelay = delay)
+            delay += 300L
         }
     }
 }

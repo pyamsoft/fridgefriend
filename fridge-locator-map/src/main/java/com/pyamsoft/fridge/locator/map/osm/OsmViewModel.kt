@@ -18,7 +18,6 @@
 package com.pyamsoft.fridge.locator.map.osm
 
 import androidx.lifecycle.viewModelScope
-import com.pyamsoft.fridge.locator.map.osm.OsmControllerEvent.BackgroundPermissionRequest
 import com.pyamsoft.highlander.highlander
 import com.pyamsoft.pydroid.arch.UiViewModel
 import kotlinx.coroutines.launch
@@ -35,8 +34,7 @@ class OsmViewModel @Inject internal constructor(
         points = emptyList(),
         zones = emptyList(),
         nearbyError = null,
-        cachedFetchError = null,
-        requestMapCenter = null
+        cachedFetchError = null
     )
 ) {
 
@@ -145,26 +143,10 @@ class OsmViewModel @Inject internal constructor(
     override fun handleViewEvent(event: OsmViewEvent) {
         return when (event) {
             is OsmViewEvent.UpdateBoundingBox -> this.boundingBox = event.box
-            is OsmViewEvent.RequestBackgroundPermission -> publish(BackgroundPermissionRequest)
-            is OsmViewEvent.RequestMyLocation -> oneShotSetState(
-                firstState = OsmViewState.MapCenterRequest(event.automatic),
-                secondState = null
-            ) {
-                copy(requestMapCenter = it)
-            }
+            is OsmViewEvent.RequestBackgroundPermission -> publish(OsmControllerEvent.BackgroundPermissionRequest)
+            is OsmViewEvent.RequestMyLocation -> publish(OsmControllerEvent.MyLocationRequest(event.firstTime))
             is OsmViewEvent.RequestFindNearby -> nearbySupermarkets()
         }
-    }
-
-    // Hacky way to do view-to-view interaction by causing a render in one state and then
-    // immediately re-rendering in a different state
-    private inline fun <T> oneShotSetState(
-        firstState: T,
-        secondState: T,
-        crossinline func: OsmViewState.(state: T) -> OsmViewState
-    ) {
-        setState { func(firstState) }
-        setState { func(secondState) }
     }
 
     private fun nearbySupermarkets() {

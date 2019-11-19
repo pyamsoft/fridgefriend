@@ -111,15 +111,21 @@ internal class MapFragment : Fragment(), SnackbarContainer,
             viewModel,
             map,
             actions
-        ) {
-            return@createComponent when (it) {
+        ) { event ->
+            return@createComponent when (event) {
                 is OsmControllerEvent.BackgroundPermissionRequest -> requestBackgroundLocationPermission()
+                is OsmControllerEvent.MyLocationRequest -> centerMapOnCurrentLocation(event.firstTime)
             }
         }
 
         requireNotNull(deviceGps).enableGps(requireActivity()) {
             Timber.e(it, "Error enabling GPS")
         }
+    }
+
+    private fun centerMapOnCurrentLocation(firstTime: Boolean) {
+        requireNotNull(map).findMyLocation()
+        requireNotNull(actions).revealButtons(firstTime)
     }
 
     private fun requestBackgroundLocationPermission() {

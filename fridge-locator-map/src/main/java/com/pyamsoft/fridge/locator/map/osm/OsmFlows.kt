@@ -28,14 +28,8 @@ data class OsmViewState internal constructor(
     val points: List<NearbyStore>,
     val zones: List<NearbyZone>,
     val nearbyError: Throwable?,
-    val cachedFetchError: Throwable?,
-
-    // Hacky view-to-view interaction via one shot setState calls in the VM
-    val requestMapCenter: MapCenterRequest?
-) : UiViewState {
-
-    data class MapCenterRequest internal constructor(val automatic: Boolean)
-}
+    val cachedFetchError: Throwable?
+) : UiViewState
 
 sealed class OsmViewEvent : UiViewEvent {
 
@@ -43,7 +37,7 @@ sealed class OsmViewEvent : UiViewEvent {
 
     object RequestBackgroundPermission : OsmViewEvent()
 
-    data class RequestMyLocation internal constructor(val automatic: Boolean) : OsmViewEvent()
+    data class RequestMyLocation internal constructor(val firstTime: Boolean) : OsmViewEvent()
 
     object RequestFindNearby : OsmViewEvent()
 }
@@ -51,4 +45,6 @@ sealed class OsmViewEvent : UiViewEvent {
 sealed class OsmControllerEvent : UiControllerEvent {
 
     object BackgroundPermissionRequest : OsmControllerEvent()
+
+    data class MyLocationRequest internal constructor(val firstTime: Boolean) : OsmControllerEvent()
 }
