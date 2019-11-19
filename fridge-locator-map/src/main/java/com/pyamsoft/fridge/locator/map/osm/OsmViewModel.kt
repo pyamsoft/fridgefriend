@@ -36,11 +36,11 @@ class OsmViewModel @Inject internal constructor(
         zones = emptyList(),
         nearbyError = null,
         cachedFetchError = null,
-        boundingBox = null,
         requestMapCenter = null
     )
 ) {
 
+    private var boundingBox: BBox? = null
     private val mutex = Mutex()
 
     private val nearbyRunner = highlander<Unit, BBox> { box ->
@@ -144,7 +144,7 @@ class OsmViewModel @Inject internal constructor(
 
     override fun handleViewEvent(event: OsmViewEvent) {
         return when (event) {
-            is OsmViewEvent.UpdateBoundingBox -> setState { copy(boundingBox = event.box) }
+            is OsmViewEvent.UpdateBoundingBox -> this.boundingBox = event.box
             is OsmViewEvent.RequestBackgroundPermission -> publish(BackgroundPermissionRequest)
             is OsmViewEvent.RequestMyLocation -> oneShotSetState(
                 firstState = OsmViewState.MapCenterRequest(event.automatic),
@@ -168,11 +168,9 @@ class OsmViewModel @Inject internal constructor(
     }
 
     private fun nearbySupermarkets() {
-        withState {
-            val box = boundingBox
-            if (box != null) {
-                viewModelScope.launch { nearbyRunner.call(box) }
-            }
+        val box = boundingBox
+        if (box != null) {
+            viewModelScope.launch { nearbyRunner.call(box) }
         }
     }
 }

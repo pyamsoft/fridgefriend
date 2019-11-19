@@ -29,7 +29,6 @@ data class OsmViewState internal constructor(
     val zones: List<NearbyZone>,
     val nearbyError: Throwable?,
     val cachedFetchError: Throwable?,
-    val boundingBox: BBox?,
 
     // Hacky view-to-view interaction via one shot setState calls in the VM
     val requestMapCenter: MapCenterRequest?
