@@ -47,6 +47,7 @@ import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.arch.UiSavedState
 import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.ui.theme.ThemeProvider
+import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
 import org.osmdroid.config.Configuration
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
 import org.osmdroid.util.GeoPoint
@@ -56,6 +57,7 @@ import org.osmdroid.views.Projection
 import org.osmdroid.views.overlay.Marker
 import org.osmdroid.views.overlay.Polygon
 import org.osmdroid.views.overlay.TilesOverlay
+import org.osmdroid.views.overlay.infowindow.InfoWindow
 import org.osmdroid.views.overlay.mylocation.GpsMyLocationProvider
 import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay
 import timber.log.Timber
@@ -99,6 +101,8 @@ class OsmMap @Inject internal constructor(
         doOnInflate {
             owner.lifecycle.addObserver(this)
             initMap(parent.context.applicationContext)
+
+            layoutRoot.setOnDebouncedClickListener { closeAllMapPopups() }
         }
 
         doOnTeardown {
@@ -106,6 +110,7 @@ class OsmMap @Inject internal constructor(
 
             locationOverlay?.let { layoutRoot.overlayManager.remove(it) }
             locationOverlay = null
+            layoutRoot.setOnDebouncedClickListener(null)
             layoutRoot.onDetach()
         }
     }
@@ -271,15 +276,36 @@ class OsmMap @Inject internal constructor(
         return BBox(bbox.latSouth, bbox.lonWest, bbox.latNorth, bbox.lonEast)
     }
 
+    private fun closeAllMapPopups() {
+        Timber.d("Closing all open map popups")
+        InfoWindow.closeAllInfoWindowsOn(layoutRoot)
+    }
+
     @Suppress("unused")
     @OnLifecycleEvent(ON_RESUME)
     internal fun onResume() {
+
+        // Load configuration
+        Configuration.getInstance()
+            .load(
+                layoutRoot.context.applicationContext,
+                PreferenceManager.getDefaultSharedPreferences(layoutRoot.context.applicationContext)
+            )
+
         layoutRoot.onResume()
     }
 
     @Suppress("unused")
     @OnLifecycleEvent(ON_PAUSE)
     internal fun onPause() {
+
+        // Save configuration
+        Configuration.getInstance()
+            .save(
+                layoutRoot.context.applicationContext,
+                PreferenceManager.getDefaultSharedPreferences(layoutRoot.context.applicationContext)
+            )
+
         layoutRoot.onPause()
     }
 
