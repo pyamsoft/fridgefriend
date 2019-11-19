@@ -49,6 +49,9 @@ import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.ui.theme.ThemeProvider
 import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
 import org.osmdroid.config.Configuration
+import org.osmdroid.events.MapListener
+import org.osmdroid.events.ScrollEvent
+import org.osmdroid.events.ZoomEvent
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
 import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.CustomZoomButtonsController
@@ -98,18 +101,46 @@ class OsmMap @Inject internal constructor(
                 PreferenceManager.getDefaultSharedPreferences(parent.context.applicationContext)
             )
 
+        val mapListener = object : MapListener {
+
+            override fun onScroll(event: ScrollEvent): Boolean {
+                Timber.d("On map scrolled: $event")
+                publishCurrentBoundingBox()
+                return true
+            }
+
+            override fun onZoom(event: ZoomEvent): Boolean {
+                Timber.d("On map zoomed: $event")
+                publishCurrentBoundingBox()
+                return true
+            }
+        }
+
         doOnInflate {
             owner.lifecycle.addObserver(this)
-            initMap(parent.context.applicationContext)
+        }
 
+        doOnInflate {
+            initMap(parent.context.applicationContext)
+        }
+
+        doOnInflate {
             layoutRoot.setOnDebouncedClickListener { closeAllMapPopups() }
+            layoutRoot.addMapListener(mapListener)
+            publishCurrentBoundingBox()
         }
 
         doOnTeardown {
             owner.lifecycle.removeObserver(this)
+        }
 
+        doOnTeardown {
             locationOverlay?.let { layoutRoot.overlayManager.remove(it) }
             locationOverlay = null
+        }
+
+        doOnTeardown {
+            layoutRoot.removeMapListener(mapListener)
             layoutRoot.setOnDebouncedClickListener(null)
             layoutRoot.onDetach()
         }
@@ -139,12 +170,6 @@ class OsmMap @Inject internal constructor(
         state.requestMapCenter.let { request ->
             if (request != null) {
                 locateMe()
-            }
-        }
-
-        state.requestNearby.let { request ->
-            if (request) {
-                publish(OsmViewEvent.FindNearby(getBoundingBoxOfCurrentScreen()))
             }
         }
     }
@@ -259,6 +284,10 @@ class OsmMap @Inject internal constructor(
         }
 
         return changed
+    }
+
+    private fun publishCurrentBoundingBox() {
+        publish(OsmViewEvent.UpdateBoundingBox(getBoundingBoxOfCurrentScreen()))
     }
 
     @CheckResult

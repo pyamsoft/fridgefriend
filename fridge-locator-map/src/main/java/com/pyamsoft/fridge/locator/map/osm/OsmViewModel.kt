@@ -36,8 +36,8 @@ class OsmViewModel @Inject internal constructor(
         zones = emptyList(),
         nearbyError = null,
         cachedFetchError = null,
-        requestMapCenter = null,
-        requestNearby = false
+        boundingBox = null,
+        requestMapCenter = null
     )
 ) {
 
@@ -144,7 +144,7 @@ class OsmViewModel @Inject internal constructor(
 
     override fun handleViewEvent(event: OsmViewEvent) {
         return when (event) {
-            is OsmViewEvent.FindNearby -> nearbySupermarkets(event.box)
+            is OsmViewEvent.UpdateBoundingBox -> setState { copy(boundingBox = event.box) }
             is OsmViewEvent.RequestBackgroundPermission -> publish(BackgroundPermissionRequest)
             is OsmViewEvent.RequestMyLocation -> oneShotSetState(
                 firstState = OsmViewState.MapCenterRequest(event.automatic),
@@ -152,12 +152,7 @@ class OsmViewModel @Inject internal constructor(
             ) {
                 copy(requestMapCenter = it)
             }
-            is OsmViewEvent.RequestFindNearby -> oneShotSetState(
-                firstState = true,
-                secondState = false
-            ) {
-                copy(requestNearby = it)
-            }
+            is OsmViewEvent.RequestFindNearby -> nearbySupermarkets()
         }
     }
 
@@ -172,7 +167,12 @@ class OsmViewModel @Inject internal constructor(
         setState { func(secondState) }
     }
 
-    private fun nearbySupermarkets(box: BBox) {
-        viewModelScope.launch { nearbyRunner.call(box) }
+    private fun nearbySupermarkets() {
+        withState {
+            val box = boundingBox
+            if (box != null) {
+                viewModelScope.launch { nearbyRunner.call(box) }
+            }
+        }
     }
 }
