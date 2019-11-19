@@ -30,6 +30,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.withContext
+import timber.log.Timber
 import javax.inject.Inject
 
 internal class OsmInteractor @Inject internal constructor(
@@ -54,6 +55,7 @@ internal class OsmInteractor @Inject internal constructor(
     suspend fun nearbyLocations(box: BBox): OsmMarkers = withContext(context = Dispatchers.IO) {
         enforcer.assertNotOnMainThread()
 
+        Timber.d("Query overpass with bounding box: ${box.south} ${box.west} ${box.north} ${box.east}")
         val data = createOverpassData(box.south, box.west, box.north, box.east)
         val response = api.queryNearby(data)
         val elements = response.elements()
