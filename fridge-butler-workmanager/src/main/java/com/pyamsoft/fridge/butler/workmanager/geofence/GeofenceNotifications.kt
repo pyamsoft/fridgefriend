@@ -18,6 +18,7 @@
 package com.pyamsoft.fridge.butler.workmanager.geofence
 
 import android.content.Context
+import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.butler.ButlerNotifications
 import com.pyamsoft.fridge.butler.ForegroundState
 import com.pyamsoft.fridge.butler.NotificationHandler
@@ -25,6 +26,7 @@ import com.pyamsoft.fridge.core.DefaultActivityPage
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.store.NearbyStore
 import com.pyamsoft.fridge.db.zone.NearbyZone
+import java.util.Calendar
 
 internal object GeofenceNotifications {
 
@@ -32,14 +34,16 @@ internal object GeofenceNotifications {
 
     private const val NEEDED_CHANNEL_ID = "fridge_needed_reminders_channel_v1"
 
+    @CheckResult
     private fun notifyNeeded(
         handler: NotificationHandler,
         foregroundState: ForegroundState,
         context: Context,
         storeName: String,
+        now: Calendar,
         items: List<FridgeItem>
-    ) {
-        ButlerNotifications.notify(
+    ): Boolean {
+        return ButlerNotifications.notify(
             NEEDED_NOTIFICATION_ID,
             handler,
             foregroundState,
@@ -47,7 +51,8 @@ internal object GeofenceNotifications {
             NEEDED_CHANNEL_ID,
             "Needed Reminders",
             "Reminders for items that you still need to purchase.",
-            DefaultActivityPage.NEED
+            DefaultActivityPage.NEED,
+            now
         ) { builder ->
             val extra = ButlerNotifications.getExtraItems(items)
             return@notify builder
@@ -57,25 +62,29 @@ internal object GeofenceNotifications {
         }
     }
 
+    @CheckResult
     @JvmStatic
     fun notifyNeeded(
         handler: NotificationHandler,
         foregroundState: ForegroundState,
         context: Context,
         store: NearbyStore,
+        now: Calendar,
         items: List<FridgeItem>
-    ) {
-        notifyNeeded(handler, foregroundState, context, store.name(), items)
+    ): Boolean {
+        return notifyNeeded(handler, foregroundState, context, store.name(), now, items)
     }
 
+    @CheckResult
     @JvmStatic
     fun notifyNeeded(
         handler: NotificationHandler,
         foregroundState: ForegroundState,
         context: Context,
         zone: NearbyZone,
+        now: Calendar,
         items: List<FridgeItem>
-    ) {
-        notifyNeeded(handler, foregroundState, context, zone.name(), items)
+    ): Boolean {
+        return notifyNeeded(handler, foregroundState, context, zone.name(), now, items)
     }
 }

@@ -18,12 +18,14 @@
 package com.pyamsoft.fridge.butler.workmanager.expiration
 
 import android.content.Context
+import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.butler.ButlerNotifications
 import com.pyamsoft.fridge.butler.ForegroundState
 import com.pyamsoft.fridge.butler.NotificationHandler
 import com.pyamsoft.fridge.core.DefaultActivityPage
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItem
+import java.util.Calendar
 
 internal object ExpirationNotifications {
 
@@ -33,15 +35,17 @@ internal object ExpirationNotifications {
     private const val EXPIRING_CHANNEL_ID = "fridge_expiring_reminders_channel_v1"
     private const val EXPIRED_CHANNEL_ID = "fridge_expiration_reminders_channel_v1"
 
+    @CheckResult
     @JvmStatic
     fun notifyExpiring(
         handler: NotificationHandler,
         foregroundState: ForegroundState,
         context: Context,
         entry: FridgeEntry,
+        now: Calendar,
         items: List<FridgeItem>
-    ) {
-        ButlerNotifications.notify(
+    ): Boolean {
+        return ButlerNotifications.notify(
             EXPIRING_NOTIFICATION_ID,
             handler,
             foregroundState,
@@ -49,7 +53,8 @@ internal object ExpirationNotifications {
             EXPIRING_CHANNEL_ID,
             "Expiring Reminders",
             "Reminders for items that are going to expire soon",
-            DefaultActivityPage.HAVE
+            DefaultActivityPage.HAVE,
+            now
         ) { builder ->
             val extra =
                 "${ButlerNotifications.getExtraItems(
@@ -62,15 +67,17 @@ internal object ExpirationNotifications {
         }
     }
 
+    @CheckResult
     @JvmStatic
     fun notifyExpired(
         handler: NotificationHandler,
         foregroundState: ForegroundState,
         context: Context,
         entry: FridgeEntry,
+        now: Calendar,
         items: List<FridgeItem>
-    ) {
-        ButlerNotifications.notify(
+    ): Boolean {
+        return ButlerNotifications.notify(
             EXPIRED_NOTIFICATION_ID,
             handler,
             foregroundState,
@@ -78,7 +85,8 @@ internal object ExpirationNotifications {
             EXPIRED_CHANNEL_ID,
             "Expired Reminders",
             "Reminders for items that have expired",
-            DefaultActivityPage.HAVE
+            DefaultActivityPage.HAVE,
+            now
         ) { builder ->
             return@notify builder
                 .setContentTitle("Expired warning for '${entry.name()}'")

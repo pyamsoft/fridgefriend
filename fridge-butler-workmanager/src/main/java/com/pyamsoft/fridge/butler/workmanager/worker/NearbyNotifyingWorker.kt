@@ -66,30 +66,36 @@ internal abstract class NearbyNotifyingWorker protected constructor(
                 if (storeNotification != null) {
                     notification { handler, foregroundState ->
                         Timber.d("Fire notification for: $storeNotification")
-                        GeofenceNotifications.notifyNeeded(
+                        val notified = GeofenceNotifications.notifyNeeded(
                             handler,
                             foregroundState,
                             applicationContext,
                             storeNotification,
+                            now,
                             neededItems
                         )
+                        if (notified) {
+                            preferences.markNotificationNearby(now)
+                        }
                     }
                 }
 
                 if (zoneNotification != null) {
                     notification { handler, foregroundState ->
                         Timber.d("Fire notification for: $zoneNotification")
-                        GeofenceNotifications.notifyNeeded(
+                        val notified = GeofenceNotifications.notifyNeeded(
                             handler,
                             foregroundState,
                             applicationContext,
                             zoneNotification,
+                            now,
                             neededItems
                         )
+                        if (notified) {
+                            preferences.markNotificationNearby(now)
+                        }
                     }
                 }
-
-                preferences.markNotificationNearby(now)
             }
         }
     }

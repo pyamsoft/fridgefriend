@@ -24,6 +24,7 @@ import androidx.core.app.NotificationCompat
 import com.pyamsoft.fridge.core.DefaultActivityPage
 import com.pyamsoft.fridge.db.item.FridgeItem
 import timber.log.Timber
+import java.util.Calendar
 
 object ButlerNotifications {
 
@@ -37,6 +38,7 @@ object ButlerNotifications {
         }
     }
 
+    @CheckResult
     @JvmStatic
     fun notify(
         notificationId: Int,
@@ -47,11 +49,18 @@ object ButlerNotifications {
         channelTitle: String,
         channelDescription: String,
         page: DefaultActivityPage,
+        now: Calendar,
         createNotification: (builder: NotificationCompat.Builder) -> Notification
-    ) {
+    ): Boolean {
         if (foregroundState.isForeground) {
             Timber.w("Do not send notification while in foreground: $notificationId")
-            return
+            return false
+        }
+
+        val currentHour = now.get(Calendar.HOUR_OF_DAY)
+        if (currentHour < 6 || currentHour > 22) {
+            Timber.w("Do not send notification before 6AM and after 10PM")
+            return false
         }
 
         Notifications.notify(
@@ -65,5 +74,6 @@ object ButlerNotifications {
             page,
             createNotification
         )
+        return true
     }
 }
