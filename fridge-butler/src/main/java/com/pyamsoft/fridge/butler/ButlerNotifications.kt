@@ -58,8 +58,8 @@ object ButlerNotifications {
         }
 
         val currentHour = now.get(Calendar.HOUR_OF_DAY)
-        if (currentHour < 6 || currentHour > 22) {
-            Timber.w("Do not send notification before 6AM and after 10PM")
+        if (currentHour < 7 || currentHour >= 22) {
+            Timber.w("Do not send notification before 7AM and after 10PM")
             return false
         }
 
