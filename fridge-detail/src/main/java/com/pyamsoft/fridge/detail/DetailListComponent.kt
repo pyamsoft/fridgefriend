@@ -18,6 +18,7 @@
 package com.pyamsoft.fridge.detail
 
 import androidx.annotation.CheckResult
+import com.pyamsoft.fridge.core.tooltip.TooltipCreator
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent
 import com.pyamsoft.fridge.db.item.FridgeItemRealtime

@@ -20,6 +20,7 @@ package com.pyamsoft.fridge.detail.item
 import android.view.ViewGroup
 import androidx.annotation.CheckResult
 import androidx.lifecycle.ViewModelProvider
+import com.pyamsoft.fridge.core.tooltip.TooltipCreator
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.detail.DetailItemViewHolder
 import com.pyamsoft.fridge.detail.item.DetailItemComponent.ViewModelModule
@@ -42,6 +43,7 @@ internal interface DetailItemComponent {
 
         @CheckResult
         fun create(
+            @BindsInstance tooltipCreator: TooltipCreator,
             @BindsInstance parent: ViewGroup,
             @BindsInstance item: FridgeItem,
             @BindsInstance @Named("item_editable") editable: Boolean

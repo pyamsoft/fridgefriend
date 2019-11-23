@@ -28,6 +28,7 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.mikepenz.fastadapter_extensions.swipe.SimpleSwipeCallback
+import com.pyamsoft.fridge.core.tooltip.TooltipCreator
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence.NEED
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent
@@ -54,6 +55,7 @@ import javax.inject.Inject
 class DetailList @Inject internal constructor(
     parent: ViewGroup,
     interactor: DetailInteractor,
+    tooltipCreator: TooltipCreator,
     private val imageLoader: ImageLoader,
     theming: Theming,
     realtime: FridgeItemRealtime,
@@ -84,7 +86,7 @@ class DetailList @Inject internal constructor(
                 ).plusItemComponent()
 
             val injectComponent = { parent: ViewGroup, item: FridgeItem, editable: Boolean ->
-                component.create(parent, item, editable)
+                component.create(tooltipCreator, parent, item, editable)
             }
 
             modelAdapter =

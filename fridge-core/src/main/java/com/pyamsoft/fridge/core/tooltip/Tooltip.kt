@@ -38,4 +38,9 @@ interface Tooltip {
         LEFT,
         RIGHT
     }
+
+    enum class Animation {
+        FADE,
+        CIRCLE
+    }
 }

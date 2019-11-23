@@ -22,6 +22,8 @@ import android.widget.ImageView
 import androidx.annotation.CheckResult
 import androidx.annotation.DrawableRes
 import androidx.core.view.isVisible
+import com.pyamsoft.fridge.core.tooltip.Tooltip
+import com.pyamsoft.fridge.core.tooltip.TooltipCreator
 import com.pyamsoft.fridge.db.daysLaterMidnight
 import com.pyamsoft.fridge.db.isExpired
 import com.pyamsoft.fridge.db.isExpiringSoon
@@ -36,10 +38,12 @@ import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.loader.Loaded
 import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
 import com.pyamsoft.pydroid.util.tintWith
+import java.text.SimpleDateFormat
 import java.util.Calendar
 import javax.inject.Inject
 
 class DetailListItemGlances @Inject internal constructor(
+    private val tooltipCreator: TooltipCreator,
     private val imageLoader: ImageLoader,
     parent: ViewGroup
 ) : BaseUiView<DetailItemViewState, DetailItemViewEvent>(parent) {
@@ -56,6 +60,10 @@ class DetailListItemGlances @Inject internal constructor(
     private var expiringLoader: Loaded? = null
     private var expiredLoader: Loaded? = null
 
+    private var dateRangeTooltip: Tooltip? = null
+    private var expiringTooltip: Tooltip? = null
+    private var expiredTooltip: Tooltip? = null
+
     init {
         doOnTeardown {
             layoutRoot.setOnDebouncedClickListener(null)
@@ -64,16 +72,25 @@ class DetailListItemGlances @Inject internal constructor(
         doOnTeardown {
             dateRangeLoader?.dispose()
             dateRangeLoader = null
+            dateRangeTooltip?.hide()
+            dateRangeTooltip = null
+            validExpirationDate.setOnDebouncedClickListener(null)
         }
 
         doOnTeardown {
             expiringLoader?.dispose()
             expiringLoader = null
+            expiringTooltip?.hide()
+            expiringTooltip = null
+            itemExpiringSoon.setOnDebouncedClickListener(null)
         }
 
         doOnTeardown {
             expiredLoader?.dispose()
             expiredLoader = null
+            expiredTooltip?.hide()
+            expiredTooltip = null
+            itemExpired.setOnDebouncedClickListener(null)
         }
     }
 
@@ -100,14 +117,31 @@ class DetailListItemGlances @Inject internal constructor(
     }
 
     private fun setDateRangeView(item: FridgeItem, isReal: Boolean) {
+        val expireTime = item.expireTime()
         dateRangeLoader = setViewColor(
             imageLoader,
             validExpirationDate,
             R.drawable.ic_date_range_24dp,
             dateRangeLoader,
-            item.expireTime() != null,
+            expireTime != null,
             isReal
         )
+
+        dateRangeTooltip?.hide()
+        dateRangeTooltip = tooltipCreator.top {
+            dismissOnClick()
+            dismissOnClickOutside()
+            if (expireTime == null) {
+                setText("I don't know when ${item.name()} will expire.")
+            } else {
+                val dateFormatted = SimpleDateFormat.getDateInstance().format(expireTime)
+                setText("${item.name()} expires on $dateFormatted")
+            }
+        }
+
+        validExpirationDate.setOnDebouncedClickListener {
+            dateRangeTooltip?.show(validExpirationDate)
+        }
     }
 
     private fun setExpiringView(

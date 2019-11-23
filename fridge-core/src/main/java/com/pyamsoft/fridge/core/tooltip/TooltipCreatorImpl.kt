@@ -18,9 +18,13 @@
 package com.pyamsoft.fridge.core.tooltip
 
 import android.content.Context
+import android.view.MotionEvent
+import android.view.View
 import androidx.annotation.CheckResult
 import com.skydoves.balloon.Balloon
 import com.skydoves.balloon.BalloonAnimation
+import com.skydoves.balloon.OnBalloonClickListener
+import com.skydoves.balloon.OnBalloonOutsideTouchListener
 import com.skydoves.balloon.createBalloon
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -32,16 +36,41 @@ internal class TooltipCreatorImpl @Inject internal constructor(
 
     @CheckResult
     private inline fun create(builder: TooltipBuilder.() -> TooltipBuilder): Balloon {
-        return createBalloon(context.applicationContext) {
+        var dismissOnClick = false
+        var dismissOnClickOutside = false
+
+        val balloon = createBalloon(context.applicationContext) {
             setArrowSize(10)
-            setWidthRatio(1.0f)
+            setWidthRatio(1.0F)
             setHeight(65)
-            setArrowPosition(0.7f)
-            setCornerRadius(4f)
-            setAlpha(0.9f)
-            setBalloonAnimation(BalloonAnimation.CIRCULAR)
-            TooltipBuilderImpl(this).builder()
+            setCornerRadius(8F)
+            setAlpha(0.8F)
+            setArrowPosition(0.77F)
+            setTextSize(16F)
+            setBalloonAnimation(BalloonAnimation.FADE)
+            val tooltipBuilder = TooltipBuilderImpl(this)
+            tooltipBuilder.builder()
+            dismissOnClick = tooltipBuilder.dismissOnClick
+            dismissOnClickOutside = tooltipBuilder.dismissOnClickOutside
         }
+
+        if (dismissOnClick) {
+            balloon.onBalloonClickListener = object : OnBalloonClickListener {
+                override fun onBalloonClick(view: View) {
+                    balloon.dismiss()
+                }
+            }
+        }
+
+        if (dismissOnClickOutside) {
+            balloon.onBalloonOutsideTouchListener = object : OnBalloonOutsideTouchListener {
+                override fun onBalloonOutsideTouch(view: View, event: MotionEvent) {
+                    balloon.dismiss()
+                }
+            }
+        }
+
+        return balloon
     }
 
     override fun center(): Tooltip {

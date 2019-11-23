@@ -22,9 +22,15 @@ import androidx.annotation.CheckResult
 import androidx.annotation.ColorInt
 import androidx.annotation.ColorRes
 import androidx.annotation.DrawableRes
-import androidx.annotation.StringRes
+import androidx.annotation.FloatRange
 
 interface TooltipBuilder {
+
+    @CheckResult
+    fun dismissOnClick(): TooltipBuilder
+
+    @CheckResult
+    fun dismissOnClickOutside(): TooltipBuilder
 
     @CheckResult
     fun setText(text: String): TooltipBuilder
@@ -46,4 +52,13 @@ interface TooltipBuilder {
 
     @CheckResult
     fun setTextColorRes(@ColorRes color: Int): TooltipBuilder
+
+    @CheckResult
+    fun setArrowPosition(@FloatRange(from = 0.0, to = 1.0) value: Float): TooltipBuilder
+
+    @CheckResult
+    fun setTextSize(value: Float): TooltipBuilder
+
+    @CheckResult
+    fun setAnimation(animation: Tooltip.Animation?): TooltipBuilder
 }

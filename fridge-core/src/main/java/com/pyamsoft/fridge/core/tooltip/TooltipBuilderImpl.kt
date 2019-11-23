@@ -19,10 +19,24 @@ package com.pyamsoft.fridge.core.tooltip
 
 import android.graphics.drawable.Drawable
 import com.skydoves.balloon.Balloon
+import com.skydoves.balloon.BalloonAnimation
 
 internal class TooltipBuilderImpl internal constructor(
     private val builder: Balloon.Builder
 ) : TooltipBuilder {
+
+    internal var dismissOnClick = false
+    internal var dismissOnClickOutside = false
+
+    override fun dismissOnClick(): TooltipBuilder {
+        this.dismissOnClick = true
+        return this
+    }
+
+    override fun dismissOnClickOutside(): TooltipBuilder {
+        this.dismissOnClickOutside = true
+        return this
+    }
 
     override fun setText(text: String): TooltipBuilder {
         builder.setText(text)
@@ -56,6 +70,25 @@ internal class TooltipBuilderImpl internal constructor(
 
     override fun setTextColorRes(color: Int): TooltipBuilder {
         builder.setTextColorResource(color)
+        return this
+    }
+
+    override fun setAnimation(animation: Tooltip.Animation?): TooltipBuilder {
+        val anim = if (animation == null) BalloonAnimation.NONE else when (animation) {
+            Tooltip.Animation.FADE -> BalloonAnimation.FADE
+            Tooltip.Animation.CIRCLE -> BalloonAnimation.CIRCULAR
+        }
+        builder.setBalloonAnimation(anim)
+        return this
+    }
+
+    override fun setArrowPosition(value: Float): TooltipBuilder {
+        builder.setArrowPosition(value)
+        return this
+    }
+
+    override fun setTextSize(value: Float): TooltipBuilder {
+        builder.setTextSize(value)
         return this
     }
 }
