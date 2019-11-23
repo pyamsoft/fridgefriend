@@ -22,7 +22,6 @@ import android.view.MotionEvent
 import android.view.View
 import androidx.annotation.CheckResult
 import com.skydoves.balloon.Balloon
-import com.skydoves.balloon.BalloonAnimation
 import com.skydoves.balloon.OnBalloonClickListener
 import com.skydoves.balloon.OnBalloonOutsideTouchListener
 import com.skydoves.balloon.createBalloon
@@ -45,11 +44,14 @@ internal class TooltipCreatorImpl @Inject internal constructor(
             setHeight(65)
             setCornerRadius(8F)
             setAlpha(0.8F)
-            setArrowPosition(0.77F)
-            setTextSize(16F)
-            setBalloonAnimation(BalloonAnimation.FADE)
-            val tooltipBuilder = TooltipBuilderImpl(this)
-            tooltipBuilder.builder()
+
+            val tooltipBuilder = TooltipBuilderImpl(this).apply {
+                setArrowPosition(0.77F)
+                setAnimation(Tooltip.Animation.FADE)
+                setTextSize(16F)
+                builder()
+            }
+
             dismissOnClick = tooltipBuilder.dismissOnClick
             dismissOnClickOutside = tooltipBuilder.dismissOnClickOutside
         }
