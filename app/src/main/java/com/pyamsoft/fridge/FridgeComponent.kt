@@ -27,6 +27,7 @@ import com.pyamsoft.fridge.butler.ButlerPreferences
 import com.pyamsoft.fridge.butler.ForegroundState
 import com.pyamsoft.fridge.butler.NotificationHandler
 import com.pyamsoft.fridge.butler.workmanager.ButlerModule
+import com.pyamsoft.fridge.core.CoreModule
 import com.pyamsoft.fridge.db.FridgeItemPreferences
 import com.pyamsoft.fridge.db.PersistentEntryPreferences
 import com.pyamsoft.fridge.db.entry.FridgeEntryQueryDao
@@ -44,10 +45,10 @@ import com.pyamsoft.fridge.locator.GeofenceBroadcastReceiver
 import com.pyamsoft.fridge.locator.Geofencer
 import com.pyamsoft.fridge.locator.LocationProviderChangeReceiver
 import com.pyamsoft.fridge.locator.Locator
-import com.pyamsoft.fridge.map.MapComponent
-import com.pyamsoft.fridge.permission.PermissionComponent
 import com.pyamsoft.fridge.locator.map.LocatorModule
 import com.pyamsoft.fridge.main.MainComponent
+import com.pyamsoft.fridge.map.MapComponent
+import com.pyamsoft.fridge.permission.PermissionComponent
 import com.pyamsoft.fridge.preference.PreferencesImpl
 import com.pyamsoft.fridge.setting.SettingComponent
 import com.pyamsoft.fridge.setting.SettingsPreferences
@@ -67,6 +68,7 @@ import javax.inject.Singleton
 @Singleton
 @Component(
     modules = [
+        CoreModule::class,
         FridgeProvider::class,
         RoomModule::class,
         ButlerModule::class,
