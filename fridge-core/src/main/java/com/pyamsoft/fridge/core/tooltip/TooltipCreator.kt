@@ -18,37 +18,36 @@
 package com.pyamsoft.fridge.core.tooltip
 
 import androidx.annotation.CheckResult
-import androidx.lifecycle.LifecycleOwner
 
 interface TooltipCreator {
 
     @CheckResult
-    fun center(owner: LifecycleOwner): Tooltip
+    fun center(): Tooltip
 
     @CheckResult
-    fun center(owner: LifecycleOwner, builder: TooltipBuilder.() -> TooltipBuilder): Tooltip
+    fun center(builder: TooltipBuilder.() -> TooltipBuilder): Tooltip
 
     @CheckResult
-    fun top(owner: LifecycleOwner): Tooltip
+    fun top(): Tooltip
 
     @CheckResult
-    fun top(owner: LifecycleOwner, builder: TooltipBuilder.() -> TooltipBuilder): Tooltip
+    fun top(builder: TooltipBuilder.() -> TooltipBuilder): Tooltip
 
     @CheckResult
-    fun left(owner: LifecycleOwner): Tooltip
+    fun left(): Tooltip
 
     @CheckResult
-    fun left(owner: LifecycleOwner, builder: TooltipBuilder.() -> TooltipBuilder): Tooltip
+    fun left(builder: TooltipBuilder.() -> TooltipBuilder): Tooltip
 
     @CheckResult
-    fun right(owner: LifecycleOwner): Tooltip
+    fun right(): Tooltip
 
     @CheckResult
-    fun right(owner: LifecycleOwner, builder: TooltipBuilder.() -> TooltipBuilder): Tooltip
+    fun right(builder: TooltipBuilder.() -> TooltipBuilder): Tooltip
 
     @CheckResult
-    fun bottom(owner: LifecycleOwner): Tooltip
+    fun bottom(): Tooltip
 
     @CheckResult
-    fun bottom(owner: LifecycleOwner, builder: TooltipBuilder.() -> TooltipBuilder): Tooltip
+    fun bottom(builder: TooltipBuilder.() -> TooltipBuilder): Tooltip
 }

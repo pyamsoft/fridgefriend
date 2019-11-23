@@ -19,7 +19,6 @@ package com.pyamsoft.fridge.core.tooltip
 
 import android.content.Context
 import androidx.annotation.CheckResult
-import androidx.lifecycle.LifecycleOwner
 import com.skydoves.balloon.Balloon
 import com.skydoves.balloon.BalloonAnimation
 import com.skydoves.balloon.createBalloon
@@ -32,10 +31,7 @@ internal class TooltipCreatorImpl @Inject internal constructor(
 ) : TooltipCreator {
 
     @CheckResult
-    private fun create(
-        owner: LifecycleOwner,
-        builder: TooltipBuilder.() -> TooltipBuilder
-    ): Balloon {
+    private inline fun create(builder: TooltipBuilder.() -> TooltipBuilder): Balloon {
         return createBalloon(context.applicationContext) {
             setArrowSize(10)
             setWidthRatio(1.0f)
@@ -43,62 +39,49 @@ internal class TooltipCreatorImpl @Inject internal constructor(
             setArrowPosition(0.7f)
             setCornerRadius(4f)
             setAlpha(0.9f)
-            setBalloonAnimation(BalloonAnimation.FADE)
-            setLifecycleOwner(owner)
+            setBalloonAnimation(BalloonAnimation.CIRCULAR)
             TooltipBuilderImpl(this).builder()
         }
     }
 
-    override fun center(owner: LifecycleOwner): Tooltip {
-        return center(owner, EMPTY_BUILDER)
+    override fun center(): Tooltip {
+        return center(EMPTY_BUILDER)
     }
 
-    override fun center(
-        owner: LifecycleOwner,
-        builder: TooltipBuilder.() -> TooltipBuilder
-    ): Tooltip {
-        return TooltipImpl(create(owner, builder), Tooltip.Direction.CENTER)
+    override fun center(builder: TooltipBuilder.() -> TooltipBuilder): Tooltip {
+        return TooltipImpl(create(builder), Tooltip.Direction.CENTER)
     }
 
-    override fun top(owner: LifecycleOwner): Tooltip {
-        return top(owner, EMPTY_BUILDER)
+    override fun top(): Tooltip {
+        return top(EMPTY_BUILDER)
     }
 
-    override fun top(owner: LifecycleOwner, builder: TooltipBuilder.() -> TooltipBuilder): Tooltip {
-        return TooltipImpl(create(owner, builder), Tooltip.Direction.TOP)
+    override fun top(builder: TooltipBuilder.() -> TooltipBuilder): Tooltip {
+        return TooltipImpl(create(builder), Tooltip.Direction.TOP)
     }
 
-    override fun left(owner: LifecycleOwner): Tooltip {
-        return left(owner, EMPTY_BUILDER)
+    override fun left(): Tooltip {
+        return left(EMPTY_BUILDER)
     }
 
-    override fun left(
-        owner: LifecycleOwner,
-        builder: TooltipBuilder.() -> TooltipBuilder
-    ): Tooltip {
-        return TooltipImpl(create(owner, builder), Tooltip.Direction.LEFT)
+    override fun left(builder: TooltipBuilder.() -> TooltipBuilder): Tooltip {
+        return TooltipImpl(create(builder), Tooltip.Direction.LEFT)
     }
 
-    override fun right(owner: LifecycleOwner): Tooltip {
-        return right(owner, EMPTY_BUILDER)
+    override fun right(): Tooltip {
+        return right(EMPTY_BUILDER)
     }
 
-    override fun right(
-        owner: LifecycleOwner,
-        builder: TooltipBuilder.() -> TooltipBuilder
-    ): Tooltip {
-        return TooltipImpl(create(owner, builder), Tooltip.Direction.RIGHT)
+    override fun right(builder: TooltipBuilder.() -> TooltipBuilder): Tooltip {
+        return TooltipImpl(create(builder), Tooltip.Direction.RIGHT)
     }
 
-    override fun bottom(owner: LifecycleOwner): Tooltip {
-        return bottom(owner, EMPTY_BUILDER)
+    override fun bottom(): Tooltip {
+        return bottom(EMPTY_BUILDER)
     }
 
-    override fun bottom(
-        owner: LifecycleOwner,
-        builder: TooltipBuilder.() -> TooltipBuilder
-    ): Tooltip {
-        return TooltipImpl(create(owner, builder), Tooltip.Direction.BOTTOM)
+    override fun bottom(builder: TooltipBuilder.() -> TooltipBuilder): Tooltip {
+        return TooltipImpl(create(builder), Tooltip.Direction.BOTTOM)
     }
 
     companion object {
