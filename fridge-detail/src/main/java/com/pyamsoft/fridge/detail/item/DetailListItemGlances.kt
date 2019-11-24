@@ -24,6 +24,7 @@ import androidx.annotation.DrawableRes
 import androidx.core.view.isVisible
 import com.pyamsoft.fridge.core.tooltip.Tooltip
 import com.pyamsoft.fridge.core.tooltip.TooltipCreator
+import com.pyamsoft.fridge.db.cleanMidnight
 import com.pyamsoft.fridge.db.daysLaterMidnight
 import com.pyamsoft.fridge.db.isExpired
 import com.pyamsoft.fridge.db.isExpiringSoon
@@ -106,7 +107,7 @@ class DetailListItemGlances @Inject internal constructor(
                 publish(ExpandItem(item))
             }
 
-            val today = Calendar.getInstance()
+            val today = Calendar.getInstance().cleanMidnight()
             val soonDate = Calendar.getInstance().daysLaterMidnight(state.expirationRange)
             val isSameDayExpired = state.isSameDayExpired
             val isReal = item.isReal()
@@ -128,19 +129,20 @@ class DetailListItemGlances @Inject internal constructor(
         )
 
         dateRangeTooltip?.hide()
-        dateRangeTooltip = tooltipCreator.top {
-            dismissOnClick()
-            dismissOnClickOutside()
-            if (expireTime == null) {
-                setText("I don't know when ${item.name()} will expire.")
-            } else {
-                val dateFormatted = SimpleDateFormat.getDateInstance().format(expireTime)
-                setText("${item.name()} expires on $dateFormatted")
-            }
-        }
+        if (expireTime == null) {
+            dateRangeTooltip = null
+            validExpirationDate.setOnDebouncedClickListener(null)
+        } else {
+            dateRangeTooltip = tooltipCreator.top {
+                dismissOnClick()
+                dismissOnClickOutside()
+                setArrowPosition(0.77F)
 
-        validExpirationDate.setOnDebouncedClickListener {
-            dateRangeTooltip?.show(validExpirationDate)
+                val dateFormatted = SimpleDateFormat.getDateInstance().format(expireTime)
+                setText("${item.name().trim()} expires on $dateFormatted")
+            }
+
+            validExpirationDate.setOnDebouncedClickListener { dateRangeTooltip?.show(it) }
         }
     }
 
@@ -159,6 +161,55 @@ class DetailListItemGlances @Inject internal constructor(
             item.isExpiringSoon(today, soonDate, isSameDayExpired),
             isReal
         )
+
+        expiringTooltip?.hide()
+        val expireTime = item.expireTime()
+        val expireCalendar = if (expireTime == null) null else {
+            Calendar.getInstance()
+                .apply { time = expireTime }
+                .cleanMidnight()
+        }
+        if (expireCalendar == null) {
+            expiringTooltip = null
+            itemExpiringSoon.setOnDebouncedClickListener(null)
+        } else {
+            expiringTooltip = tooltipCreator.top {
+                dismissOnClick()
+                dismissOnClickOutside()
+                setArrowPosition(0.85F)
+
+                val currentYear = today.get(Calendar.YEAR)
+                val currentMonth = today.get(Calendar.MONTH)
+                val currentDay = today.get(Calendar.DAY_OF_YEAR)
+
+                val expiringYear = expireCalendar.get(Calendar.YEAR)
+                val expiringMonth = expireCalendar.get(Calendar.MONTH)
+                val expiringDay = expireCalendar.get(Calendar.DAY_OF_YEAR)
+
+                val expirationRange = if (expiringYear > currentYear) {
+                    val year = expiringYear - currentYear
+                    "in $year ${if (year == 1) "year" else "years"}"
+                } else if (expiringMonth > currentMonth) {
+                    val month = expiringMonth - currentMonth
+                    "in $month ${if (month == 1) "month" else "months"}"
+                } else if (expiringDay > currentDay) {
+                    val day = expiringDay - currentDay
+                    val week = day / 7
+                    if (week > 0) {
+                        "in $week ${if (week == 1) "week" else "weeks"}"
+                    } else {
+                        "in $day ${if (day == 1) "day" else "days"}"
+                    }
+                } else if (expiringYear == currentYear && expiringMonth == currentMonth && expiringDay == currentDay) {
+                    "today"
+                } else {
+                    "someday"
+                }
+
+                setText("${item.name().trim()} expires $expirationRange")
+            }
+            itemExpiringSoon.setOnDebouncedClickListener { expiringTooltip?.show(it) }
+        }
     }
 
     private fun setExpiredView(
@@ -167,14 +218,69 @@ class DetailListItemGlances @Inject internal constructor(
         isSameDayExpired: Boolean,
         isReal: Boolean
     ) {
+        val isExpired = item.isExpired(today, isSameDayExpired)
         expiredLoader = setViewColor(
             imageLoader,
             itemExpired,
             R.drawable.ic_spoiled_24dp,
             expiredLoader,
-            item.isExpired(today, isSameDayExpired),
+            isExpired,
             isReal
         )
+
+        expiredTooltip?.hide()
+        if (!isExpired) {
+            expiredTooltip = null
+            itemExpired.setOnDebouncedClickListener(null)
+        } else {
+            val expireTime = item.expireTime()
+            val expireCalendar = if (expireTime == null) null else {
+                Calendar.getInstance()
+                    .apply { time = expireTime }
+                    .cleanMidnight()
+            }
+            if (expireCalendar == null) {
+                expiredTooltip = null
+                itemExpired.setOnDebouncedClickListener(null)
+            } else {
+                expiredTooltip = tooltipCreator.top {
+                    dismissOnClick()
+                    dismissOnClickOutside()
+                    setArrowPosition(0.93F)
+
+                    val currentYear = today.get(Calendar.YEAR)
+                    val currentMonth = today.get(Calendar.MONTH)
+                    val currentDay = today.get(Calendar.DAY_OF_YEAR)
+
+                    val expiringYear = expireCalendar.get(Calendar.YEAR)
+                    val expiringMonth = expireCalendar.get(Calendar.MONTH)
+                    val expiringDay = expireCalendar.get(Calendar.DAY_OF_YEAR)
+
+                    val expirationRange = if (expiringYear < currentYear) {
+                        val year = expiringYear - currentYear
+                        "$year ${if (year == 1) "year" else "years"} ago"
+                    } else if (expiringMonth < currentMonth) {
+                        val month = expiringMonth - currentMonth
+                        "$month ${if (month == 1) "month" else "months"} ago"
+                    } else if (expiringDay < currentDay) {
+                        val day = expiringDay - currentDay
+                        val week = day / 7
+                        if (week > 0) {
+                            "$week ${if (week == 1) "week" else "weeks"} ago"
+                        } else {
+                            "$day ${if (day == 1) "day" else "days"} ago"
+                        }
+                    } else if (expiringYear == currentYear && expiringMonth == currentMonth && expiringDay == currentDay) {
+                        "today"
+                    } else {
+                        "someday"
+                    }
+
+                    setText("${item.name().trim()} expires $expirationRange")
+                }
+                itemExpired.setOnDebouncedClickListener { expiredTooltip?.show(it) }
+            }
+        }
     }
 
     companion object {

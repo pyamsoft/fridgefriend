@@ -39,14 +39,14 @@ internal class TooltipCreatorImpl @Inject internal constructor(
         var dismissOnClickOutside = false
 
         val balloon = createBalloon(context.applicationContext) {
-            setArrowSize(10)
-            setWidthRatio(1.0F)
+            setArrowSize(12)
+            setWidthRatio(0.85F)
             setHeight(65)
             setCornerRadius(8F)
             setAlpha(0.8F)
 
             val tooltipBuilder = TooltipBuilderImpl(this).apply {
-                setArrowPosition(0.77F)
+                setArrowPosition(0.5F)
                 setAnimation(Tooltip.Animation.FADE)
                 setTextSize(16F)
                 builder()
