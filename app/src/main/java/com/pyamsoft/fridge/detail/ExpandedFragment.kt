@@ -182,8 +182,10 @@ internal class ExpandedFragment : DialogFragment() {
             }
 
             val topId = sameNamedItems.id()
+            val nameId = name.id()
             presence.also {
                 connect(it.id(), ConstraintSet.TOP, topId, ConstraintSet.BOTTOM)
+                connect(it.id(), ConstraintSet.BOTTOM, nameId, ConstraintSet.BOTTOM)
                 connect(it.id(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
                 constrainWidth(it.id(), ConstraintSet.WRAP_CONTENT)
                 constrainHeight(it.id(), ConstraintSet.WRAP_CONTENT)
@@ -191,6 +193,7 @@ internal class ExpandedFragment : DialogFragment() {
 
             date.also {
                 connect(it.id(), ConstraintSet.TOP, topId, ConstraintSet.BOTTOM)
+                connect(it.id(), ConstraintSet.BOTTOM, nameId, ConstraintSet.BOTTOM)
                 connect(it.id(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
                 constrainWidth(it.id(), ConstraintSet.WRAP_CONTENT)
                 constrainHeight(it.id(), ConstraintSet.WRAP_CONTENT)

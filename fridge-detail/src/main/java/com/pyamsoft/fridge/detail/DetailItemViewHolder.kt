@@ -165,11 +165,7 @@ internal class DetailItemViewHolder internal constructor(
                     it.id(), ConstraintSet.START, presence.id(),
                     ConstraintSet.END
                 )
-                connect(
-                    it.id(), ConstraintSet.END, date.id(),
-                    ConstraintSet.START
-                )
-                constrainWidth(it.id(), ConstraintSet.MATCH_CONSTRAINT)
+                constrainWidth(it.id(), ConstraintSet.WRAP_CONTENT)
                 constrainHeight(it.id(), ConstraintSet.WRAP_CONTENT)
             }
 
