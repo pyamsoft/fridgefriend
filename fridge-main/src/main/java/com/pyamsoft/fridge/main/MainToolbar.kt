@@ -86,7 +86,7 @@ class MainToolbar @Inject internal constructor(
         layoutRoot.apply {
             popupTheme = theme
             setTitle(appNameRes)
-            ViewCompat.setElevation(this, 4f.toDp(context).toFloat())
+            ViewCompat.setElevation(this, 8f.toDp(context).toFloat())
             toolbarActivityProvider.setToolbar(this)
         }
     }
