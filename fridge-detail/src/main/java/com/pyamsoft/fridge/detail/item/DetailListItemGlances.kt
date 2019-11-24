@@ -110,14 +110,14 @@ class DetailListItemGlances @Inject internal constructor(
             val today = Calendar.getInstance().cleanMidnight()
             val soonDate = Calendar.getInstance().daysLaterMidnight(state.expirationRange)
             val isSameDayExpired = state.isSameDayExpired
-            val isReal = item.isReal()
-            setDateRangeView(item, isReal)
-            setExpiringView(item, today, soonDate, isSameDayExpired, isReal)
-            setExpiredView(item, today, isSameDayExpired, isReal)
+            val hasTime = item.expireTime() != null
+            setDateRangeView(item, hasTime)
+            setExpiringView(item, today, soonDate, isSameDayExpired, hasTime)
+            setExpiredView(item, today, isSameDayExpired, hasTime)
         }
     }
 
-    private fun setDateRangeView(item: FridgeItem, isReal: Boolean) {
+    private fun setDateRangeView(item: FridgeItem, hasTime: Boolean) {
         val expireTime = item.expireTime()
         dateRangeLoader = setViewColor(
             imageLoader,
@@ -125,7 +125,7 @@ class DetailListItemGlances @Inject internal constructor(
             R.drawable.ic_date_range_24dp,
             dateRangeLoader,
             expireTime != null,
-            isReal
+            hasTime
         )
 
         dateRangeTooltip?.hide()
@@ -151,7 +151,7 @@ class DetailListItemGlances @Inject internal constructor(
         today: Calendar,
         soonDate: Calendar,
         isSameDayExpired: Boolean,
-        isReal: Boolean
+        hasTime: Boolean
     ) {
         expiringLoader = setViewColor(
             imageLoader,
@@ -159,7 +159,7 @@ class DetailListItemGlances @Inject internal constructor(
             R.drawable.ic_consumed_24dp,
             expiringLoader,
             item.isExpiringSoon(today, soonDate, isSameDayExpired),
-            isReal
+            hasTime
         )
 
         expiringTooltip?.hide()
@@ -216,7 +216,7 @@ class DetailListItemGlances @Inject internal constructor(
         item: FridgeItem,
         today: Calendar,
         isSameDayExpired: Boolean,
-        isReal: Boolean
+        hasTime: Boolean
     ) {
         val isExpired = item.isExpired(today, isSameDayExpired)
         expiredLoader = setViewColor(
@@ -225,7 +225,7 @@ class DetailListItemGlances @Inject internal constructor(
             R.drawable.ic_spoiled_24dp,
             expiredLoader,
             isExpired,
-            isReal
+            hasTime
         )
 
         expiredTooltip?.hide()
@@ -285,6 +285,7 @@ class DetailListItemGlances @Inject internal constructor(
 
     companion object {
 
+        @JvmStatic
         @CheckResult
         private fun setViewColor(
             imageLoader: ImageLoader,
@@ -292,9 +293,9 @@ class DetailListItemGlances @Inject internal constructor(
             @DrawableRes drawable: Int,
             loaded: Loaded?,
             isColored: Boolean,
-            isReal: Boolean
+            hasTime: Boolean
         ): Loaded? {
-            if (isReal) {
+            if (hasTime) {
                 val color = if (isColored) R.color.red500 else R.color.grey500
                 loaded?.dispose()
                 return imageLoader.load(drawable)

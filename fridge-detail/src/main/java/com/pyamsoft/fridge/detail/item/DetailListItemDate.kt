@@ -21,14 +21,16 @@ import android.view.ViewGroup
 import com.pyamsoft.fridge.detail.base.BaseItemDate
 import com.pyamsoft.fridge.detail.item.DetailItemViewEvent.ExpandItem
 import com.pyamsoft.pydroid.arch.UiSavedState
+import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
 import javax.inject.Inject
 import javax.inject.Named
 
 class DetailListItemDate @Inject internal constructor(
     @Named("item_editable") private val isEditable: Boolean,
+    imageLoader: ImageLoader,
     parent: ViewGroup
-) : BaseItemDate(parent) {
+) : BaseItemDate(imageLoader, parent) {
 
     override fun afterRender(
         month: Int,

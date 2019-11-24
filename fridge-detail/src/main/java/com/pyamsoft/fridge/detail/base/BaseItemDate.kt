@@ -18,40 +18,55 @@
 package com.pyamsoft.fridge.detail.base
 
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.core.view.isVisible
-import com.pyamsoft.fridge.db.item.FridgeItem.Presence.HAVE
 import com.pyamsoft.fridge.db.item.isArchived
 import com.pyamsoft.fridge.detail.R
 import com.pyamsoft.fridge.detail.item.DetailItemViewEvent
 import com.pyamsoft.fridge.detail.item.DetailItemViewState
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.arch.UiSavedState
+import com.pyamsoft.pydroid.loader.ImageLoader
+import com.pyamsoft.pydroid.loader.Loaded
 import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
+import com.pyamsoft.pydroid.util.tintWith
 import timber.log.Timber
 import java.util.Calendar
 
 abstract class BaseItemDate protected constructor(
+    private val imageLoader: ImageLoader,
     parent: ViewGroup
 ) : BaseUiView<DetailItemViewState, DetailItemViewEvent>(parent) {
 
     final override val layout: Int = R.layout.detail_list_item_date
 
-    final override val layoutRoot by boundView<TextView>(R.id.detail_item_date)
+    final override val layoutRoot by boundView<ViewGroup>(R.id.detail_item_date)
+
+    private val iconView by boundView<ImageView>(R.id.detail_item_date_icon)
+    private val textView by boundView<TextView>(R.id.detail_item_date_text)
+
+    private var dateLoaded: Loaded? = null
 
     init {
         doOnTeardown {
             layoutRoot.setOnDebouncedClickListener(null)
         }
+
+        doOnTeardown {
+            dateLoaded?.dispose()
+            dateLoaded = null
+        }
     }
 
     final override fun onRender(state: DetailItemViewState, savedState: UiSavedState) {
         val item = state.item
+        val expireTime = item.expireTime()
+
         val month: Int
         val day: Int
         val year: Int
-        layoutRoot.isVisible = item.presence() == HAVE
-        val expireTime = item.expireTime()
+
         if (expireTime != null) {
             val date = Calendar.getInstance()
                 .apply { time = expireTime }
@@ -66,12 +81,19 @@ abstract class BaseItemDate protected constructor(
                 "${"${month + 1}".padStart(2, '0')}/${
                 "$day".padStart(2, '0')}/${
                 "$year".padStart(4, '0')}"
-            layoutRoot.text = dateString
+            textView.text = dateString
+            iconView.isVisible = false
         } else {
             month = 0
             day = 0
             year = 0
-            layoutRoot.text = "__/__/____"
+            textView.text = "-----"
+            iconView.isVisible = true
+
+            dateLoaded?.dispose()
+            dateLoaded = imageLoader.load(R.drawable.ic_date_range_24dp)
+                .mutate { it.tintWith(iconView.context, R.color.white) }
+                .into(iconView)
         }
 
         if (!item.isArchived()) {
