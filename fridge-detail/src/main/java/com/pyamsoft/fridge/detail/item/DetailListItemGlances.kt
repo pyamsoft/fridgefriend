@@ -257,13 +257,13 @@ class DetailListItemGlances @Inject internal constructor(
                     val expiringDay = expireCalendar.get(Calendar.DAY_OF_YEAR)
 
                     val expirationRange = if (expiringYear < currentYear) {
-                        val year = expiringYear - currentYear
+                        val year = currentYear - expiringYear
                         "$year ${if (year == 1) "year" else "years"} ago"
                     } else if (expiringMonth < currentMonth) {
-                        val month = expiringMonth - currentMonth
+                        val month = currentMonth - expiringMonth
                         "$month ${if (month == 1) "month" else "months"} ago"
                     } else if (expiringDay < currentDay) {
-                        val day = expiringDay - currentDay
+                        val day = currentDay - expiringDay
                         val week = day / 7
                         if (week > 0) {
                             "$week ${if (week == 1) "week" else "weeks"} ago"
@@ -276,7 +276,7 @@ class DetailListItemGlances @Inject internal constructor(
                         "someday"
                     }
 
-                    setText("${item.name().trim()} expires $expirationRange")
+                    setText("${item.name().trim()} expired $expirationRange")
                 }
                 itemExpired.setOnDebouncedClickListener { expiredTooltip?.show(it) }
             }

@@ -18,6 +18,7 @@
 package com.pyamsoft.fridge.detail.expand
 
 import android.view.ViewGroup
+import com.pyamsoft.fridge.db.item.isArchived
 import com.pyamsoft.fridge.detail.base.BaseItemDate
 import com.pyamsoft.fridge.detail.item.DetailItemViewEvent.PickDate
 import com.pyamsoft.fridge.detail.item.DetailItemViewState
@@ -45,6 +46,10 @@ class ExpandItemDate @Inject internal constructor(
         }
 
         val item = state.item
-        layoutRoot.setOnDebouncedClickListener { publish(PickDate(item, year, month, day)) }
+        if (!item.isArchived()) {
+            layoutRoot.setOnDebouncedClickListener { publish(PickDate(item, year, month, day)) }
+        } else {
+            layoutRoot.setOnDebouncedClickListener(null)
+        }
     }
 }

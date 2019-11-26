@@ -21,7 +21,6 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.core.view.isVisible
-import com.pyamsoft.fridge.db.item.isArchived
 import com.pyamsoft.fridge.detail.R
 import com.pyamsoft.fridge.detail.item.DetailItemViewEvent
 import com.pyamsoft.fridge.detail.item.DetailItemViewState
@@ -96,9 +95,7 @@ abstract class BaseItemDate protected constructor(
                 .into(iconView)
         }
 
-        if (!item.isArchived()) {
-            afterRender(month, day, year, state, savedState)
-        }
+        afterRender(month, day, year, state, savedState)
     }
 
     protected abstract fun afterRender(

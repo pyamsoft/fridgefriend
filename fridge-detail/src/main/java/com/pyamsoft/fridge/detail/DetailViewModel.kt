@@ -56,7 +56,7 @@ class DetailViewModel @Inject internal constructor(
     initialState = DetailViewState(
         isLoading = null,
         items = emptyList(),
-        showArchived = true,
+        showArchived = false,
         listError = null,
         undoableItem = null
     )

@@ -150,6 +150,16 @@ internal class DetailInteractor @Inject internal constructor(
         }
     }
 
+    suspend fun restore(item: FridgeItem) = withContext(context = Dispatchers.Default) {
+        enforcer.assertNotOnMainThread()
+        if (!item.isReal()) {
+            Timber.w("Cannot restore item that is not real: [${item.id()}]: $item")
+        } else {
+            Timber.d("Restoring item [${item.id()}]: $item")
+            itemUpdateDao.update(item.invalidateConsumption().invalidateSpoiled())
+        }
+    }
+
     suspend fun spoil(item: FridgeItem) = withContext(context = Dispatchers.Default) {
         enforcer.assertNotOnMainThread()
         if (!item.isReal()) {

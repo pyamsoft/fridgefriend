@@ -100,15 +100,19 @@ class DetailListItemViewModel @Inject internal constructor(
     }
 
     fun consume() {
-        remove(item, doRemove = { interactor.consume(it) })
+        updateItem(item, doUpdate = { interactor.consume(it) })
+    }
+
+    fun restore() {
+        updateItem(item, doUpdate = { interactor.restore(it) })
     }
 
     fun spoil() {
-        remove(item, doRemove = { interactor.spoil(it) })
+        updateItem(item, doUpdate = { interactor.spoil(it) })
     }
 
     fun delete() {
-        remove(item, doRemove = { interactor.delete(it) })
+        updateItem(item, doUpdate = { interactor.delete(it) })
     }
 
     private fun expandItem(item: FridgeItem) {

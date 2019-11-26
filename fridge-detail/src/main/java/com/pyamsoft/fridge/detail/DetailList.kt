@@ -30,6 +30,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.mikepenz.fastadapter_extensions.swipe.SimpleSwipeCallback
 import com.pyamsoft.fridge.core.tooltip.TooltipCreator
 import com.pyamsoft.fridge.db.item.FridgeItem
+import com.pyamsoft.fridge.db.item.FridgeItem.Presence.HAVE
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence.NEED
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent
 import com.pyamsoft.fridge.db.item.FridgeItemRealtime
@@ -61,7 +62,7 @@ class DetailList @Inject internal constructor(
     realtime: FridgeItemRealtime,
     fakeRealtime: EventBus<FridgeItemChangeEvent>,
     dateSelectBus: EventBus<DateSelectPayload>,
-    listItemPresence: FridgeItem.Presence,
+    private val listItemPresence: FridgeItem.Presence,
     private val owner: LifecycleOwner
 ) : BaseUiView<DetailViewState, DetailViewEvent>(parent) {
 
@@ -74,8 +75,6 @@ class DetailList @Inject internal constructor(
     private var decoration: DividerItemDecoration? = null
     private var touchHelper: ItemTouchHelper? = null
     private var modelAdapter: DetailListAdapter? = null
-
-    private val swipeAwayDeletes = listItemPresence == NEED
 
     init {
         doOnInflate {
@@ -130,7 +129,6 @@ class DetailList @Inject internal constructor(
                 )
             }
             layoutRoot.setOnRefreshListener { publish(ForceRefresh) }
-            setupSwipeCallback()
         }
 
         doOnTeardown {
@@ -148,7 +146,10 @@ class DetailList @Inject internal constructor(
         }
     }
 
-    private fun setupSwipeCallback() {
+    private fun setupSwipeCallback(showArchived: Boolean) {
+        val swipeAwayDeletes = !showArchived && listItemPresence == NEED
+        val swipeAwayRestores = showArchived && listItemPresence == HAVE
+
         val consumeSwipeDirection = ItemTouchHelper.RIGHT
         val spoilSwipeDirection = ItemTouchHelper.LEFT
         val itemSwipeCallback = SimpleSwipeCallback.ItemSwipeCallback { position, direction ->
@@ -165,6 +166,14 @@ class DetailList @Inject internal constructor(
             if (direction == consumeSwipeDirection || direction == spoilSwipeDirection) {
                 if (swipeAwayDeletes) {
                     deleteListItem(position)
+                } else if (swipeAwayRestores) {
+                    if (direction == consumeSwipeDirection) {
+                        // Restore from archive
+                        restoreListItem(position)
+                    } else {
+                        // Delete forever
+                        deleteListItem(position)
+                    }
                 } else {
                     if (direction == consumeSwipeDirection) {
                         consumeListItem(position)
@@ -175,8 +184,11 @@ class DetailList @Inject internal constructor(
             }
         }
         val leftBehindDrawable = imageLoader.immediate(
-            if (swipeAwayDeletes) R.drawable.ic_delete_24dp
-            else R.drawable.ic_spoiled_24dp
+            when {
+                swipeAwayDeletes -> R.drawable.ic_delete_24dp
+                swipeAwayRestores -> R.drawable.ic_code_24dp
+                else -> R.drawable.ic_spoiled_24dp
+            }
         )
         val leftBackground = Color.RED
 
@@ -197,14 +209,25 @@ class DetailList @Inject internal constructor(
             }
         }.apply {
             val rightBehindDrawable = imageLoader.immediate(
-                if (swipeAwayDeletes) R.drawable.ic_delete_24dp
-                else R.drawable.ic_consumed_24dp
+                when {
+                    swipeAwayDeletes -> R.drawable.ic_delete_24dp
+                    swipeAwayRestores -> R.drawable.ic_code_24dp
+                    else -> R.drawable.ic_consumed_24dp
+                }
             )
-            val rightBackground = if (swipeAwayDeletes) Color.RED else Color.GREEN
+            val rightBackground = when {
+                swipeAwayDeletes -> Color.RED
+                swipeAwayRestores -> Color.YELLOW
+                else -> Color.GREEN
+            }
             withBackgroundSwipeRight(rightBackground)
             withLeaveBehindSwipeRight(rightBehindDrawable)
         }
 
+        // Detach any existing helper from the recyclerview
+        touchHelper?.attachToRecyclerView(null)
+
+        // Attach new helper
         val helper = ItemTouchHelper(swipeCallback)
         helper.attachToRecyclerView(recyclerView)
         touchHelper = helper
@@ -213,6 +236,10 @@ class DetailList @Inject internal constructor(
     @CheckResult
     private fun usingAdapter(): DetailListAdapter {
         return requireNotNull(modelAdapter)
+    }
+
+    private fun restoreListItem(position: Int) {
+        withViewHolderAt(position) { it.restore() }
     }
 
     private fun deleteListItem(position: Int) {
@@ -309,6 +336,10 @@ class DetailList @Inject internal constructor(
             } else {
                 showUndoSnackbar(undoable)
             }
+        }
+
+        state.showArchived.let { showArchived ->
+            setupSwipeCallback(showArchived)
         }
     }
 }

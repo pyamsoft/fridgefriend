@@ -72,44 +72,50 @@ abstract class DetailItemViewModel protected constructor(
         }
     }
 
-    private val deleteRunner = highlander<
+    private val updateRunner = highlander<
         Unit,
         FridgeItem,
         suspend (item: FridgeItem) -> Unit,
             (item: FridgeItem) -> Unit
-        > { itemToRemove, doRemove, onRemoved ->
+        > { item, doUpdate, onUpdated ->
         try {
-            doRemove(itemToRemove)
+            doUpdate(item)
         } catch (error: Throwable) {
             error.onActualError { e ->
-                Timber.e(e, "Error removing item: ${itemToRemove.id()}")
+                Timber.e(e, "Error updating item: ${item.id()}")
             }
         } finally {
-            onRemoved(itemToRemove)
+            onUpdated(item)
         }
     }
 
     private suspend fun handleFakeDelete(item: FridgeItem) {
+        Timber.w("Remove called on a non-real item: $item, fake callback")
         fakeRealtime.send(Delete(item))
     }
 
     @JvmOverloads
-    protected fun remove(
+    protected fun updateItem(
         item: FridgeItem,
-        doRemove: suspend (item: FridgeItem) -> Unit,
-        onRemoved: (item: FridgeItem) -> Unit = {}
+        doUpdate: suspend (item: FridgeItem) -> Unit,
+        onUpdated: (item: FridgeItem) -> Unit = EMPTY_ON_UPDATED
     ) = viewModelScope.launch {
+
         // If this item is not real, its an empty placeholder
         // The user may still wish to delete it from their list
         // in case they have too many placeholders.
         // Directly call the realtime delete callback as if the
         // delete had actually happened
         if (!item.isReal()) {
-            Timber.w("Remove called on a non-real item: $item, fake callback")
             handleFakeDelete(item)
             return@launch
         }
 
-        deleteRunner.call(item, doRemove, onRemoved)
+        updateRunner.call(item, doUpdate, onUpdated)
+    }
+
+    companion object {
+
+        private val EMPTY_ON_UPDATED: (item: FridgeItem) -> Unit = {}
     }
 }

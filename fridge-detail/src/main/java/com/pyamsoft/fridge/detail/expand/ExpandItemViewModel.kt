@@ -128,15 +128,15 @@ class ExpandItemViewModel @Inject internal constructor(
     }
 
     private fun consumeSelf(item: FridgeItem) {
-        remove(item, doRemove = { interactor.consume(it) }) { closeSelf(it) }
+        updateItem(item, doUpdate = { interactor.consume(it) }) { closeSelf(it) }
     }
 
     private fun spoilSelf(item: FridgeItem) {
-        remove(item, doRemove = { interactor.spoil(it) }) { closeSelf(it) }
+        updateItem(item, doUpdate = { interactor.spoil(it) }) { closeSelf(it) }
     }
 
     private fun deleteSelf(item: FridgeItem) {
-        remove(item, doRemove = { interactor.delete(it) }) { closeSelf(it) }
+        updateItem(item, doUpdate = { interactor.delete(it) }) { closeSelf(it) }
     }
 
     private fun handleRealtimeEvent(event: FridgeItemChangeEvent) {

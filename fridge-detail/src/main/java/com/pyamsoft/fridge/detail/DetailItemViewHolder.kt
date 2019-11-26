@@ -218,6 +218,11 @@ internal class DetailItemViewHolder internal constructor(
     }
 
     // Kind of hacky
+    fun restore() {
+        requireNotNull(viewModel).restore()
+    }
+
+    // Kind of hacky
     fun delete() {
         requireNotNull(viewModel).delete()
     }
