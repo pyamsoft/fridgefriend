@@ -56,7 +56,7 @@ class DetailViewModel @Inject internal constructor(
     initialState = DetailViewState(
         isLoading = null,
         items = emptyList(),
-        filterArchived = true,
+        showArchived = true,
         listError = null,
         undoableItem = null
     )
@@ -132,13 +132,13 @@ class DetailViewModel @Inject internal constructor(
     }
 
     private fun toggleArchived(show: Boolean) {
-        setState { copy(filterArchived = !show) }
+        setState { copy(showArchived = !show) }
         refreshList(false)
     }
 
     @CheckResult
     private fun getListItems(
-        filterArchived: Boolean,
+        showArchived: Boolean,
         items: List<FridgeItem>
     ): List<FridgeItem> {
         val listItems = items
@@ -151,7 +151,7 @@ class DetailViewModel @Inject internal constructor(
                     else -> 0
                 }
             })
-            .filterNot { filterArchived && it.isArchived() }
+            .filter { if (showArchived) it.isArchived() else !it.isArchived() }
             .filter { it.presence() == listItemPresence }
             .toList()
 
@@ -209,7 +209,7 @@ class DetailViewModel @Inject internal constructor(
                 items = items.let { list ->
                     val newItems = list.toMutableList()
                     insert(newItems, item)
-                    return@let getListItems(filterArchived, newItems)
+                    return@let getListItems(showArchived, newItems)
                 })
         }
     }
@@ -219,14 +219,14 @@ class DetailViewModel @Inject internal constructor(
         if (item.isArchived()) {
             setState {
                 copy(
-                    items = getListItems(filterArchived, items.filterNot { it.id() == item.id() }),
+                    items = getListItems(showArchived, items.filterNot { it.id() == item.id() }),
                     undoableItem = item
                 )
             }
         } else {
             setState {
                 copy(
-                    items = getListItems(filterArchived,
+                    items = getListItems(showArchived,
                         if (items.map { it.id() }.contains(item.id())) {
                             items.map { old ->
                                 if (old.id() == item.id()) {
@@ -247,7 +247,7 @@ class DetailViewModel @Inject internal constructor(
     private fun handleRealtimeDelete(item: FridgeItem) {
         setState {
             copy(
-                items = getListItems(filterArchived, items.filterNot { it.id() == item.id() }),
+                items = getListItems(showArchived, items.filterNot { it.id() == item.id() }),
                 undoableItem = item
             )
         }
@@ -258,7 +258,7 @@ class DetailViewModel @Inject internal constructor(
     }
 
     private fun handleListRefreshed(items: List<FridgeItem>) {
-        setState { copy(items = getListItems(filterArchived, items), listError = null) }
+        setState { copy(items = getListItems(showArchived, items), listError = null) }
     }
 
     private fun handleListRefreshError(throwable: Throwable) {
