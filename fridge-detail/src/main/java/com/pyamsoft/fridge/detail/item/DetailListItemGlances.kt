@@ -178,35 +178,30 @@ class DetailListItemGlances @Inject internal constructor(
                 dismissOnClickOutside()
                 setArrowPosition(0.82F)
 
-                val currentYear = today.get(Calendar.YEAR)
-                val currentMonth = today.get(Calendar.MONTH)
-                val currentDay = today.get(Calendar.DAY_OF_YEAR)
+                // shitty old time format parser for very basic expiration estimate
+                val todayTime = today.timeInMillis
+                val expiringTime = expireCalendar.timeInMillis
 
-                val expiringYear = expireCalendar.get(Calendar.YEAR)
-                val expiringMonth = expireCalendar.get(Calendar.MONTH)
-                val expiringDay = expireCalendar.get(Calendar.DAY_OF_YEAR)
+                val difference = expiringTime - todayTime
+                val seconds = difference / 1000L
+                val minutes = seconds / 60L
+                val hours = minutes / 60L
+                val days = hours / 24L
 
-                val expirationRange = if (expiringYear > currentYear) {
-                    val year = expiringYear - currentYear
-                    "in $year ${if (year == 1) "year" else "years"}"
-                } else if (expiringMonth > currentMonth) {
-                    val month = expiringMonth - currentMonth
-                    "in $month ${if (month == 1) "month" else "months"}"
-                } else if (expiringDay > currentDay) {
-                    val day = expiringDay - currentDay
-                    val week = day / 7
-                    if (week > 0) {
-                        "in $week ${if (week == 1) "week" else "weeks"}"
+                val expirationRange = if (days < 0) "someday" else {
+                    if (days < 7) {
+                        "expires in $days ${if (days == 1L) "day" else "days"}"
                     } else {
-                        "in $day ${if (day == 1) "day" else "days"}"
+                        val weeks = days / 7L
+                        if (weeks < WEEK_LIMIT) {
+                            "expires in $weeks ${if (weeks == 1L) "week" else "weeks"}"
+                        } else {
+                            "doesn't expire for a long time"
+                        }
                     }
-                } else if (expiringYear == currentYear && expiringMonth == currentMonth && expiringDay == currentDay) {
-                    "today"
-                } else {
-                    "someday"
                 }
 
-                setText("${item.name().trim()} expires $expirationRange")
+                setText("${item.name().trim()} $expirationRange")
             }
             itemExpiringSoon.setOnDebouncedClickListener { expiringTooltip?.show(it) }
         }
@@ -248,32 +243,27 @@ class DetailListItemGlances @Inject internal constructor(
                     dismissOnClickOutside()
                     setArrowPosition(0.90F)
 
-                    val currentYear = today.get(Calendar.YEAR)
-                    val currentMonth = today.get(Calendar.MONTH)
-                    val currentDay = today.get(Calendar.DAY_OF_YEAR)
+                    // shitty old time format parser for very basic expiration estimate
+                    val todayTime = today.timeInMillis
+                    val expiringTime = expireCalendar.timeInMillis
 
-                    val expiringYear = expireCalendar.get(Calendar.YEAR)
-                    val expiringMonth = expireCalendar.get(Calendar.MONTH)
-                    val expiringDay = expireCalendar.get(Calendar.DAY_OF_YEAR)
+                    val difference = todayTime - expiringTime
+                    val seconds = difference / 1000L
+                    val minutes = seconds / 60L
+                    val hours = minutes / 60L
+                    val days = hours / 24L
 
-                    val expirationRange = if (expiringYear < currentYear) {
-                        val year = currentYear - expiringYear
-                        "$year ${if (year == 1) "year" else "years"} ago"
-                    } else if (expiringMonth < currentMonth) {
-                        val month = currentMonth - expiringMonth
-                        "$month ${if (month == 1) "month" else "months"} ago"
-                    } else if (expiringDay < currentDay) {
-                        val day = currentDay - expiringDay
-                        val week = day / 7
-                        if (week > 0) {
-                            "$week ${if (week == 1) "week" else "weeks"} ago"
+                    val expirationRange = if (days < 0) "someday" else {
+                        if (days < 7) {
+                            "$days ${if (days == 1L) "day" else "days"} ago"
                         } else {
-                            "$day ${if (day == 1) "day" else "days"} ago"
+                            val weeks = days / 7L
+                            if (weeks < WEEK_LIMIT) {
+                                "$weeks ${if (weeks == 1L) "week" else "weeks"} ago"
+                            } else {
+                                "a long time ago"
+                            }
                         }
-                    } else if (expiringYear == currentYear && expiringMonth == currentMonth && expiringDay == currentDay) {
-                        "today"
-                    } else {
-                        "someday"
                     }
 
                     setText("${item.name().trim()} expired $expirationRange")
@@ -284,6 +274,9 @@ class DetailListItemGlances @Inject internal constructor(
     }
 
     companion object {
+
+        // TODO: Make preference
+        private const val WEEK_LIMIT = 10
 
         @JvmStatic
         @CheckResult
