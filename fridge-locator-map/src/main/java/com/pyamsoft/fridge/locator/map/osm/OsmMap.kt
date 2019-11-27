@@ -92,6 +92,7 @@ class OsmMap @Inject internal constructor(
     override val layoutRoot by boundView<MapView>(R.id.osm_map)
 
     private var locationOverlay: MyLocationNewOverlay? = null
+    private var centeringLocation = false
 
     init {
         // Must happen before inflate
@@ -358,11 +359,17 @@ class OsmMap @Inject internal constructor(
     ) {
         val location = locationProvider()
         val mapView = layoutRoot
+        if (centeringLocation) {
+            return
+        }
+
         mapView.post {
+            centeringLocation = true
             mapView.controller.setZoom(DEFAULT_ZOOM)
             mapView.controller.animateTo(location)
             mapView.controller.setCenter(location)
             onCentered(location)
+            centeringLocation = false
         }
     }
 
