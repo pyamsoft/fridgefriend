@@ -43,6 +43,8 @@ sealed class OsmViewEvent : UiViewEvent {
 
     data class RequestMyLocation internal constructor(val firstTime: Boolean) : OsmViewEvent()
 
+    object DoneFindingMyLocation : OsmViewEvent()
+
     object RequestFindNearby : OsmViewEvent()
 }
 

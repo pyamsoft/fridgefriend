@@ -389,6 +389,7 @@ class OsmMap @Inject internal constructor(
             if (location != null) {
                 centerOnLocation(locationProvider = { location }) {
                     Timber.d("Centered onto current user location")
+                    publish(OsmViewEvent.DoneFindingMyLocation)
                 }
             }
         }

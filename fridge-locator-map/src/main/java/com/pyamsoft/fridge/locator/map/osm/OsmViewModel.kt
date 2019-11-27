@@ -145,14 +145,17 @@ class OsmViewModel @Inject internal constructor(
         return when (event) {
             is OsmViewEvent.UpdateBoundingBox -> this.boundingBox = event.box
             is OsmViewEvent.RequestBackgroundPermission -> publish(OsmControllerEvent.BackgroundPermissionRequest)
-            is OsmViewEvent.RequestMyLocation -> publishCenter(event.firstTime)
+            is OsmViewEvent.RequestMyLocation -> findMyLocation(event.firstTime)
+            is OsmViewEvent.DoneFindingMyLocation -> doneFindingMyLocation()
             is OsmViewEvent.RequestFindNearby -> nearbySupermarkets()
         }
     }
 
-    private fun publishCenter(firstTime: Boolean) {
-        // Fire as a one-off operation
+    private fun findMyLocation(firstTime: Boolean) {
         setState { copy(centerMyLocation = OsmViewState.CenterMyLocation(firstTime)) }
+    }
+
+    private fun doneFindingMyLocation() {
         setState { copy(centerMyLocation = null) }
     }
 
