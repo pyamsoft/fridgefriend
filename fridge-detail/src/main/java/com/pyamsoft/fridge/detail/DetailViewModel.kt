@@ -125,14 +125,17 @@ class DetailViewModel @Inject internal constructor(
             is ToggleArchiveVisibility -> toggleArchived(event.show)
             is ReallyDeleteNoUndo -> setState { copy(undoableItem = null) }
             is UndoDelete -> handleUndoDelete(event.item)
-            is DetailViewEvent.ScrollActionVisibilityChange -> publishScroll(event.visible)
+            is DetailViewEvent.ScrollActionVisibilityChange -> changeActionVisibility(event.visible)
             is DetailViewEvent.AddNewItemEvent -> publish(DetailControllerEvent.AddNew(entryId))
+            is DetailViewEvent.DoneScrollActionVisibilityChange -> doneChangingActionVisibility()
         }
     }
 
-    private fun publishScroll(visible: Boolean) {
-        // Fire as a one-off operation
+    private fun changeActionVisibility(visible: Boolean) {
         setState { copy(actionVisible = DetailViewState.ActionVisible(visible)) }
+    }
+
+    private fun doneChangingActionVisibility() {
         setState { copy(actionVisible = null) }
     }
 

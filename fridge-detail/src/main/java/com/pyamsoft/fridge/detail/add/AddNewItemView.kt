@@ -17,7 +17,9 @@
 
 package com.pyamsoft.fridge.detail.add
 
+import android.view.View
 import android.view.ViewGroup
+import androidx.core.view.ViewPropertyAnimatorListenerAdapter
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.pyamsoft.fridge.detail.DetailViewEvent
 import com.pyamsoft.fridge.detail.DetailViewState
@@ -63,9 +65,21 @@ class AddNewItemView @Inject internal constructor(
     ) {
         state.actionVisible?.let { action ->
             if (action.visible) {
-                layoutRoot.popShow()
+                layoutRoot.popShow(listener = object : ViewPropertyAnimatorListenerAdapter() {
+
+                    override fun onAnimationEnd(view: View) {
+                        super.onAnimationEnd(view)
+                        publish(DetailViewEvent.DoneScrollActionVisibilityChange)
+                    }
+                })
             } else {
-                layoutRoot.popHide()
+                layoutRoot.popHide(listener = object : ViewPropertyAnimatorListenerAdapter() {
+
+                    override fun onAnimationEnd(view: View) {
+                        super.onAnimationEnd(view)
+                        publish(DetailViewEvent.DoneScrollActionVisibilityChange)
+                    }
+                })
             }
         }
     }

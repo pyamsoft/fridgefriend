@@ -62,6 +62,8 @@ sealed class DetailViewEvent : UiViewEvent {
     data class ScrollActionVisibilityChange internal constructor(
         val visible: Boolean
     ) : DetailViewEvent()
+
+    object DoneScrollActionVisibilityChange : DetailViewEvent()
 }
 
 sealed class DetailControllerEvent : UiControllerEvent {
