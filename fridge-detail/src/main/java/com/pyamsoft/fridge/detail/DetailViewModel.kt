@@ -58,7 +58,8 @@ class DetailViewModel @Inject internal constructor(
         items = emptyList(),
         showArchived = false,
         listError = null,
-        undoableItem = null
+        undoableItem = null,
+        actionVisible = null
     )
 ) {
 
@@ -124,7 +125,15 @@ class DetailViewModel @Inject internal constructor(
             is ToggleArchiveVisibility -> toggleArchived(event.show)
             is ReallyDeleteNoUndo -> setState { copy(undoableItem = null) }
             is UndoDelete -> handleUndoDelete(event.item)
+            is DetailViewEvent.ScrollActionVisibilityChange -> publishScroll(event.visible)
+            is DetailViewEvent.AddNewItemEvent -> publish(DetailControllerEvent.AddNew(entryId))
         }
+    }
+
+    private fun publishScroll(visible: Boolean) {
+        // Fire as a one-off operation
+        setState { copy(actionVisible = DetailViewState.ActionVisible(visible)) }
+        setState { copy(actionVisible = null) }
     }
 
     private fun handleUndoDelete(item: FridgeItem) {

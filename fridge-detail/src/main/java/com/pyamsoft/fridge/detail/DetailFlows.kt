@@ -27,13 +27,18 @@ data class DetailViewState(
     val items: List<FridgeItem>,
     val showArchived: Boolean,
     val listError: Throwable?,
-    val undoableItem: FridgeItem?
+    val undoableItem: FridgeItem?,
+    val actionVisible: ActionVisible?
 ) : UiViewState {
+
+    data class ActionVisible internal constructor(val visible: Boolean)
 
     data class Loading internal constructor(val isLoading: Boolean)
 }
 
 sealed class DetailViewEvent : UiViewEvent {
+
+    object AddNewItemEvent : DetailViewEvent()
 
     object ForceRefresh : DetailViewEvent()
 
@@ -53,9 +58,15 @@ sealed class DetailViewEvent : UiViewEvent {
     data class UndoDelete internal constructor(val item: FridgeItem) : DetailViewEvent()
 
     data class ReallyDeleteNoUndo internal constructor(val item: FridgeItem) : DetailViewEvent()
+
+    data class ScrollActionVisibilityChange internal constructor(
+        val visible: Boolean
+    ) : DetailViewEvent()
 }
 
 sealed class DetailControllerEvent : UiControllerEvent {
+
+    data class AddNew internal constructor(val entryId: String) : DetailControllerEvent()
 
     data class ExpandForEditing internal constructor(
         val item: FridgeItem

@@ -150,6 +150,11 @@ class OsmMap @Inject internal constructor(
         state: OsmViewState,
         savedState: UiSavedState
     ) {
+        renderMap(state)
+        state.centerMyLocation?.let { findMyLocation() }
+    }
+
+    private fun renderMap(state: OsmViewState) {
         var invalidate = false
         state.points.let { points ->
             if (renderMapMarkers(points)) {
@@ -378,9 +383,7 @@ class OsmMap @Inject internal constructor(
         }
     }
 
-    // Called directly by MapFragment Controller
-    // This is still hacky at best, but its more performant than a VM one-off render loop
-    fun findMyLocation() {
+    private fun findMyLocation() {
         locationOverlay?.let { overlay ->
             val location = overlay.myLocation
             if (location != null) {
@@ -396,3 +399,4 @@ class OsmMap @Inject internal constructor(
         private const val DEFAULT_ZOOM = 14.8
     }
 }
+

@@ -34,7 +34,8 @@ class OsmViewModel @Inject internal constructor(
         points = emptyList(),
         zones = emptyList(),
         nearbyError = null,
-        cachedFetchError = null
+        cachedFetchError = null,
+        centerMyLocation = null
     )
 ) {
 
@@ -144,9 +145,15 @@ class OsmViewModel @Inject internal constructor(
         return when (event) {
             is OsmViewEvent.UpdateBoundingBox -> this.boundingBox = event.box
             is OsmViewEvent.RequestBackgroundPermission -> publish(OsmControllerEvent.BackgroundPermissionRequest)
-            is OsmViewEvent.RequestMyLocation -> publish(OsmControllerEvent.MyLocationRequest(event.firstTime))
+            is OsmViewEvent.RequestMyLocation -> publishCenter(event.firstTime)
             is OsmViewEvent.RequestFindNearby -> nearbySupermarkets()
         }
+    }
+
+    private fun publishCenter(firstTime: Boolean) {
+        // Fire as a one-off operation
+        setState { copy(centerMyLocation = OsmViewState.CenterMyLocation(firstTime)) }
+        setState { copy(centerMyLocation = null) }
     }
 
     private fun nearbySupermarkets() {

@@ -120,6 +120,12 @@ class OsmActions @Inject internal constructor(
                 showCacheError(throwable)
             }
         }
+
+        state.centerMyLocation?.let { event ->
+            if (event.firstTime) {
+                revealButtons()
+            }
+        }
     }
 
     private fun showError(throwable: Throwable) {
@@ -146,13 +152,7 @@ class OsmActions @Inject internal constructor(
         }
     }
 
-    // Called directly by MapFragment Controller
-    // This is still hacky at best, but its more performant than a VM one-off render loop
-    fun revealButtons(firstTime: Boolean) {
-        if (!firstTime) {
-            return
-        }
-
+    private fun revealButtons() {
         var delay = 700L
         findNearby.popShow(startDelay = delay)
         delay += 300L

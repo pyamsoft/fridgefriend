@@ -28,8 +28,12 @@ data class OsmViewState internal constructor(
     val points: List<NearbyStore>,
     val zones: List<NearbyZone>,
     val nearbyError: Throwable?,
-    val cachedFetchError: Throwable?
-) : UiViewState
+    val cachedFetchError: Throwable?,
+    val centerMyLocation: CenterMyLocation?
+) : UiViewState {
+
+    data class CenterMyLocation internal constructor(val firstTime: Boolean)
+}
 
 sealed class OsmViewEvent : UiViewEvent {
 
@@ -45,6 +49,4 @@ sealed class OsmViewEvent : UiViewEvent {
 sealed class OsmControllerEvent : UiControllerEvent {
 
     object BackgroundPermissionRequest : OsmControllerEvent()
-
-    data class MyLocationRequest internal constructor(val firstTime: Boolean) : OsmControllerEvent()
 }

@@ -31,13 +31,7 @@ import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.entry.JsonMappableFridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence
-import com.pyamsoft.fridge.detail.DetailControllerEvent.DatePick
-import com.pyamsoft.fridge.detail.DetailControllerEvent.EntryArchived
-import com.pyamsoft.fridge.detail.DetailControllerEvent.ExpandForEditing
-import com.pyamsoft.fridge.detail.DetailControllerEvent.NavigateUp
-import com.pyamsoft.fridge.detail.add.AddNewControllerEvent.AddNew
 import com.pyamsoft.fridge.detail.add.AddNewItemView
-import com.pyamsoft.fridge.detail.add.AddNewItemViewModel
 import com.pyamsoft.fridge.main.SnackbarContainer
 import com.pyamsoft.pydroid.arch.createComponent
 import com.pyamsoft.pydroid.ui.Injector
@@ -50,16 +44,15 @@ internal class DetailFragment : Fragment(), SnackbarContainer {
 
     @JvmField
     @Inject
-    internal var factory: ViewModelProvider.Factory? = null
-    @JvmField
-    @Inject
     internal var list: DetailList? = null
-    private val viewModel by factory<DetailViewModel> { factory }
-
     @JvmField
     @Inject
     internal var addNew: AddNewItemView? = null
-    private val addNewViewModel by factory<AddNewItemViewModel> { factory }
+
+    @JvmField
+    @Inject
+    internal var factory: ViewModelProvider.Factory? = null
+    private val viewModel by factory<DetailViewModel> { factory }
 
     private var rootView: ViewGroup? = null
 
@@ -107,23 +100,15 @@ internal class DetailFragment : Fragment(), SnackbarContainer {
         createComponent(
             savedInstanceState, viewLifecycleOwner,
             viewModel,
-            list
-        ) {
-            return@createComponent when (it) {
-                is ExpandForEditing -> expandItem(it.item)
-                is DatePick -> pickDate(it.oldItem, it.year, it.month, it.day)
-                is EntryArchived -> close()
-                is NavigateUp -> close()
-            }
-        }
-
-        createComponent(
-            savedInstanceState, viewLifecycleOwner,
-            addNewViewModel,
+            list,
             addNew
         ) {
             return@createComponent when (it) {
-                is AddNew -> expandItem(FridgeItem.create(entryId = it.entryId))
+                is DetailControllerEvent.ExpandForEditing -> expandItem(it.item)
+                is DetailControllerEvent.DatePick -> pickDate(it.oldItem, it.year, it.month, it.day)
+                is DetailControllerEvent.EntryArchived -> close()
+                is DetailControllerEvent.NavigateUp -> close()
+                is DetailControllerEvent.AddNew -> expandItem(FridgeItem.create(entryId = it.entryId))
             }
         }
     }

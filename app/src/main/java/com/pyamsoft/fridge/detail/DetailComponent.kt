@@ -27,7 +27,6 @@ import com.pyamsoft.fridge.ViewModelKey
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence
 import com.pyamsoft.fridge.detail.DetailComponent.ViewModelModule
-import com.pyamsoft.fridge.detail.add.AddNewItemViewModel
 import com.pyamsoft.pydroid.arch.UiViewModel
 import com.pyamsoft.pydroid.ui.app.ToolbarActivity
 import dagger.Binds
@@ -65,10 +64,5 @@ internal interface DetailComponent {
         @IntoMap
         @ViewModelKey(DetailViewModel::class)
         internal abstract fun detailViewModel(viewModel: DetailViewModel): UiViewModel<*, *, *>
-
-        @Binds
-        @IntoMap
-        @ViewModelKey(AddNewItemViewModel::class)
-        internal abstract fun addNewViewModel(viewModel: AddNewItemViewModel): UiViewModel<*, *, *>
     }
 }

@@ -48,6 +48,7 @@ import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.ui.theme.Theming
 import com.pyamsoft.pydroid.ui.util.Snackbreak
 import com.pyamsoft.pydroid.ui.util.refreshing
+import com.pyamsoft.pydroid.ui.widget.scroll.HideOnScrollListener
 import com.pyamsoft.pydroid.util.doOnApplyWindowInsets
 import com.pyamsoft.pydroid.util.toDp
 import timber.log.Timber
@@ -72,11 +73,17 @@ class DetailList @Inject internal constructor(
 
     private val recyclerView by boundView<RecyclerView>(R.id.detail_list)
 
-    private var decoration: DividerItemDecoration? = null
     private var touchHelper: ItemTouchHelper? = null
     private var modelAdapter: DetailListAdapter? = null
 
     init {
+        doOnInflate {
+            recyclerView.layoutManager = LinearLayoutManager(recyclerView.context).apply {
+                isItemPrefetchEnabled = true
+                initialPrefetchItemCount = 3
+            }
+        }
+
         doOnInflate {
             val component = DaggerDetailListComponent.factory()
                 .create(
@@ -88,37 +95,37 @@ class DetailList @Inject internal constructor(
                 component.create(tooltipCreator, parent, item, editable)
             }
 
-            modelAdapter =
-                DetailListAdapter(
-                    editable = false,
-                    injectComponent = injectComponent,
-                    callback = object : Callback {
+            modelAdapter = DetailListAdapter(
+                editable = false,
+                injectComponent = injectComponent,
+                callback = object : Callback {
 
-                        override fun onItemExpanded(item: FridgeItem) {
-                            publish(ExpandItem(item))
-                        }
+                    override fun onItemExpanded(item: FridgeItem) {
+                        publish(ExpandItem(item))
+                    }
 
-                        override fun onPickDate(
-                            oldItem: FridgeItem,
-                            year: Int,
-                            month: Int,
-                            day: Int
-                        ) {
-                            publish(PickDate(oldItem, year, month, day))
-                        }
-                    })
+                    override fun onPickDate(
+                        oldItem: FridgeItem,
+                        year: Int,
+                        month: Int,
+                        day: Int
+                    ) {
+                        publish(PickDate(oldItem, year, month, day))
+                    }
+                })
+            recyclerView.adapter = usingAdapter().apply { setHasStableIds(true) }
+        }
 
-            recyclerView.layoutManager = LinearLayoutManager(recyclerView.context).apply {
-                isItemPrefetchEnabled = true
-                initialPrefetchItemCount = 3
-            }
-
+        doOnInflate {
             val decor = DividerItemDecoration(recyclerView.context, DividerItemDecoration.VERTICAL)
             recyclerView.addItemDecoration(decor)
-            decoration = decor
 
-            recyclerView.adapter = usingAdapter().apply { setHasStableIds(true) }
+            doOnTeardown {
+                decor.let { recyclerView.removeItemDecoration(it) }
+            }
+        }
 
+        doOnInflate {
             layoutRoot.doOnApplyWindowInsets { v, insets, padding ->
                 val offset = 8.toDp(v.context)
                 val toolbarTopMargin = padding.top + insets.systemWindowInsetTop + offset
@@ -128,6 +135,20 @@ class DetailList @Inject internal constructor(
                     toolbarTopMargin * 3
                 )
             }
+        }
+
+        doOnInflate {
+            val scrollListener = HideOnScrollListener.create(true) {
+                publish(DetailViewEvent.ScrollActionVisibilityChange(it))
+            }
+            recyclerView.addOnScrollListener(scrollListener)
+
+            doOnTeardown {
+                recyclerView.removeOnScrollListener(scrollListener)
+            }
+        }
+
+        doOnInflate {
             layoutRoot.setOnRefreshListener { publish(ForceRefresh) }
         }
 
@@ -137,12 +158,10 @@ class DetailList @Inject internal constructor(
             clearList()
 
             touchHelper?.attachToRecyclerView(null)
-            decoration?.let { recyclerView.removeItemDecoration(it) }
             layoutRoot.setOnRefreshListener(null)
 
             modelAdapter = null
             touchHelper = null
-            decoration = null
         }
     }
 

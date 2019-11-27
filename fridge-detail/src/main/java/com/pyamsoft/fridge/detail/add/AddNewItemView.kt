@@ -19,13 +19,14 @@ package com.pyamsoft.fridge.detail.add
 
 import android.view.ViewGroup
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.pyamsoft.fridge.detail.DetailViewEvent
+import com.pyamsoft.fridge.detail.DetailViewState
 import com.pyamsoft.fridge.detail.R
-import com.pyamsoft.fridge.detail.add.AddNewViewEvent.AddNewItemEvent
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.arch.UiSavedState
-import com.pyamsoft.pydroid.arch.UnitViewState
 import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.loader.Loaded
+import com.pyamsoft.pydroid.ui.util.popHide
 import com.pyamsoft.pydroid.ui.util.popShow
 import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
 import javax.inject.Inject
@@ -33,7 +34,7 @@ import javax.inject.Inject
 class AddNewItemView @Inject internal constructor(
     imageLoader: ImageLoader,
     parent: ViewGroup
-) : BaseUiView<UnitViewState, AddNewViewEvent>(parent) {
+) : BaseUiView<DetailViewState, DetailViewEvent>(parent) {
 
     override val layout: Int = R.layout.add_new
 
@@ -46,7 +47,7 @@ class AddNewItemView @Inject internal constructor(
             iconLoaded = imageLoader.load(R.drawable.ic_add_24dp)
                 .into(layoutRoot)
 
-            layoutRoot.setOnDebouncedClickListener { publish(AddNewItemEvent) }
+            layoutRoot.setOnDebouncedClickListener { publish(DetailViewEvent.AddNewItemEvent) }
             layoutRoot.popShow()
         }
 
@@ -57,9 +58,16 @@ class AddNewItemView @Inject internal constructor(
     }
 
     override fun onRender(
-        state: UnitViewState,
+        state: DetailViewState,
         savedState: UiSavedState
     ) {
+        state.actionVisible?.let { action ->
+            if (action.visible) {
+                layoutRoot.popShow()
+            } else {
+                layoutRoot.popHide()
+            }
+        }
     }
 
     private fun disposeIcon() {
