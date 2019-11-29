@@ -44,7 +44,7 @@ buildscript {
         room = "2.2.2"
 
         // Leak Canary
-        leakCanary = "1.6.3"
+        leakCanary = "2.0"
 
         // Dagger
         dagger = "2.25.2"

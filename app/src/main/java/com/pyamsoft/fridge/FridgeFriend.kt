@@ -35,8 +35,6 @@ import com.pyamsoft.fridge.locator.Locator
 import com.pyamsoft.fridge.main.MainActivity
 import com.pyamsoft.pydroid.bootstrap.libraries.OssLibraries
 import com.pyamsoft.pydroid.ui.PYDroid
-import com.squareup.leakcanary.LeakCanary
-import com.squareup.leakcanary.RefWatcher
 import com.squareup.moshi.Moshi
 import javax.inject.Inject
 
@@ -47,14 +45,9 @@ class FridgeFriend : Application() {
     internal var butler: Butler? = null
 
     private var component: FridgeComponent? = null
-    private var refWatcher: RefWatcher? = null
 
     override fun onCreate() {
         super.onCreate()
-        if (LeakCanary.isInAnalyzerProcess(this)) {
-            return
-        }
-
         PYDroid.init(
             this,
             getString(R.string.app_name),
@@ -82,7 +75,6 @@ class FridgeFriend : Application() {
     }
 
     private fun onInitialized(component: FridgeComponent) {
-        installRefWatcher()
         addLibraries()
 
         component.inject(this)
@@ -92,14 +84,6 @@ class FridgeFriend : Application() {
 
     private fun beginWork() {
         requireNotNull(butler).initOnAppStart()
-    }
-
-    private fun installRefWatcher() {
-        refWatcher = if (BuildConfig.DEBUG) {
-            LeakCanary.install(this)
-        } else {
-            RefWatcher.DISABLED
-        }
     }
 
     private fun addLibraries() {

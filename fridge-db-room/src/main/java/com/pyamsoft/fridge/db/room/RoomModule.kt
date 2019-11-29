@@ -20,6 +20,7 @@ package com.pyamsoft.fridge.db.room
 import android.content.Context
 import androidx.annotation.CheckResult
 import androidx.room.Room
+import com.pyamsoft.cachify.MemoryCacheStorage
 import com.pyamsoft.cachify.cachify
 import com.pyamsoft.fridge.db.FridgeDb
 import com.pyamsoft.fridge.db.PersistentEntries
@@ -89,14 +90,18 @@ abstract class RoomModule {
         internal fun provideDb(context: Context): FridgeDb {
             return provideRoom(context.applicationContext).apply {
                 val entryCache =
-                    cachify<Sequence<FridgeEntry>, Boolean>(5, MINUTES) { force ->
+                    cachify<Sequence<FridgeEntry>, Boolean>(
+                        storage = MemoryCacheStorage.create(5, MINUTES)
+                    ) { force ->
                         return@cachify roomEntryQueryDao()
                             .query(force)
                             .asSequence()
                             .map { JsonMappableFridgeEntry.from(it.makeReal()) }
                     }
 
-                val itemCache = cachify<Sequence<FridgeItem>, Boolean>(5, MINUTES) { force ->
+                val itemCache = cachify<Sequence<FridgeItem>, Boolean>(
+                    storage = MemoryCacheStorage.create(5, MINUTES)
+                ) { force ->
                     return@cachify roomItemQueryDao()
                         .query(force)
                         .asSequence()
@@ -104,14 +109,18 @@ abstract class RoomModule {
                 }
 
                 val storeCache =
-                    cachify<Sequence<NearbyStore>, Boolean>(5, MINUTES) { force ->
+                    cachify<Sequence<NearbyStore>, Boolean>(
+                        storage = MemoryCacheStorage.create(5, MINUTES)
+                    ) { force ->
                         return@cachify roomStoreQueryDao()
                             .query(force)
                             .asSequence()
                             .map { JsonMappableNearbyStore.from(it) }
                     }
 
-                val zoneCache = cachify<Sequence<NearbyZone>, Boolean>(5, MINUTES) { force ->
+                val zoneCache = cachify<Sequence<NearbyZone>, Boolean>(
+                    storage = MemoryCacheStorage.create(5, MINUTES)
+                ) { force ->
                     return@cachify roomZoneQueryDao()
                         .query(force)
                         .asSequence()
