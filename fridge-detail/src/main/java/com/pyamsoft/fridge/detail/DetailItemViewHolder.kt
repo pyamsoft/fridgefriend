@@ -180,10 +180,6 @@ internal class DetailItemViewHolder internal constructor(
                     ConstraintSet.BOTTOM
                 )
                 connect(
-                    it.id(), ConstraintSet.START, date.id(),
-                    ConstraintSet.START
-                )
-                connect(
                     it.id(), ConstraintSet.END,
                     ConstraintSet.PARENT_ID,
                     ConstraintSet.END

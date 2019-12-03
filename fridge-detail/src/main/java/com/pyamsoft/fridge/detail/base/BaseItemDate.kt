@@ -21,6 +21,7 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.core.view.isVisible
+import androidx.core.view.updateLayoutParams
 import com.pyamsoft.fridge.detail.R
 import com.pyamsoft.fridge.detail.item.DetailItemViewEvent
 import com.pyamsoft.fridge.detail.item.DetailItemViewState
@@ -30,6 +31,7 @@ import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.loader.Loaded
 import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
 import com.pyamsoft.pydroid.util.tintWith
+import com.pyamsoft.pydroid.util.toDp
 import timber.log.Timber
 import java.util.Calendar
 
@@ -82,12 +84,19 @@ abstract class BaseItemDate protected constructor(
                 "$year".padStart(4, '0')}"
             textView.text = dateString
             iconView.isVisible = false
+
+            textView.updateLayoutParams<ViewGroup.MarginLayoutParams> { topMargin = 0 }
+            iconView.updateLayoutParams<ViewGroup.MarginLayoutParams> { topMargin = 0 }
         } else {
             month = 0
             day = 0
             year = 0
             textView.text = "-----"
             iconView.isVisible = true
+
+            val margin = 8.toDp(textView.context)
+            textView.updateLayoutParams<ViewGroup.MarginLayoutParams> { topMargin = margin }
+            iconView.updateLayoutParams<ViewGroup.MarginLayoutParams> { topMargin = margin }
 
             dateLoaded?.dispose()
             dateLoaded = imageLoader.load(R.drawable.ic_date_range_24dp)
