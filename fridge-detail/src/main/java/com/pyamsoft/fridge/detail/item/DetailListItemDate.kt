@@ -32,13 +32,9 @@ class DetailListItemDate @Inject internal constructor(
     parent: ViewGroup
 ) : BaseItemDate(imageLoader, parent) {
 
-    override fun afterRender(
-        month: Int,
-        day: Int,
-        year: Int,
-        state: DetailItemViewState,
-        savedState: UiSavedState
-    ) {
+    override fun onRender(state: DetailItemViewState, savedState: UiSavedState) {
+        baseRender(state)
+
         if (isEditable) {
             return
         }

@@ -26,7 +26,6 @@ import com.pyamsoft.fridge.detail.R
 import com.pyamsoft.fridge.detail.item.DetailItemViewEvent
 import com.pyamsoft.fridge.detail.item.DetailItemViewState
 import com.pyamsoft.pydroid.arch.BaseUiView
-import com.pyamsoft.pydroid.arch.UiSavedState
 import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.loader.Loaded
 import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
@@ -60,13 +59,9 @@ abstract class BaseItemDate protected constructor(
         }
     }
 
-    final override fun onRender(state: DetailItemViewState, savedState: UiSavedState) {
+    protected fun baseRender(state: DetailItemViewState) {
         val item = state.item
         val expireTime = item.expireTime()
-
-        val month: Int
-        val day: Int
-        val year: Int
 
         if (expireTime != null) {
             val date = Calendar.getInstance()
@@ -74,9 +69,9 @@ abstract class BaseItemDate protected constructor(
             Timber.d("Expire time is: $date")
 
             // Month is zero indexed in storage
-            month = date.get(Calendar.MONTH)
-            day = date.get(Calendar.DAY_OF_MONTH)
-            year = date.get(Calendar.YEAR)
+            val month = date.get(Calendar.MONTH)
+            val day = date.get(Calendar.DAY_OF_MONTH)
+            val year = date.get(Calendar.YEAR)
 
             val dateString =
                 "${"${month + 1}".padStart(2, '0')}/${
@@ -88,9 +83,6 @@ abstract class BaseItemDate protected constructor(
             textView.updateLayoutParams<ViewGroup.MarginLayoutParams> { topMargin = 0 }
             iconView.updateLayoutParams<ViewGroup.MarginLayoutParams> { topMargin = 0 }
         } else {
-            month = 0
-            day = 0
-            year = 0
             textView.text = "-----"
             iconView.isVisible = true
 
@@ -106,15 +98,5 @@ abstract class BaseItemDate protected constructor(
                 .mutate { it.tintWith(iconView.context, R.color.white) }
                 .into(iconView)
         }
-
-        afterRender(month, day, year, state, savedState)
     }
-
-    protected abstract fun afterRender(
-        month: Int,
-        day: Int,
-        year: Int,
-        state: DetailItemViewState,
-        savedState: UiSavedState
-    )
 }

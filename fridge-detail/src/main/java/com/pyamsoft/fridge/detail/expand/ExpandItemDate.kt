@@ -25,6 +25,8 @@ import com.pyamsoft.fridge.detail.item.DetailItemViewState
 import com.pyamsoft.pydroid.arch.UiSavedState
 import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
+import timber.log.Timber
+import java.util.Calendar
 import javax.inject.Inject
 import javax.inject.Named
 
@@ -34,18 +36,34 @@ class ExpandItemDate @Inject internal constructor(
     parent: ViewGroup
 ) : BaseItemDate(imageLoader, parent) {
 
-    override fun afterRender(
-        month: Int,
-        day: Int,
-        year: Int,
-        state: DetailItemViewState,
-        savedState: UiSavedState
-    ) {
+    override fun onRender(state: DetailItemViewState, savedState: UiSavedState) {
+        baseRender(state)
         if (!isEditable) {
             return
         }
 
         val item = state.item
+        val expireTime = item.expireTime()
+
+        val month: Int
+        val day: Int
+        val year: Int
+
+        if (expireTime != null) {
+            val date = Calendar.getInstance()
+                .apply { time = expireTime }
+            Timber.d("Expire time is: $date")
+
+            // Month is zero indexed in storage
+            month = date.get(Calendar.MONTH)
+            day = date.get(Calendar.DAY_OF_MONTH)
+            year = date.get(Calendar.YEAR)
+        } else {
+            month = 0
+            day = 0
+            year = 0
+        }
+
         if (!item.isArchived()) {
             layoutRoot.setOnDebouncedClickListener { publish(PickDate(item, year, month, day)) }
         } else {
