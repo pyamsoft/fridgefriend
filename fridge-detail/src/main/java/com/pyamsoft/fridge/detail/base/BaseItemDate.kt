@@ -94,9 +94,12 @@ abstract class BaseItemDate protected constructor(
             textView.text = "-----"
             iconView.isVisible = true
 
-            val margin = 8.toDp(textView.context)
-            textView.updateLayoutParams<ViewGroup.MarginLayoutParams> { topMargin = margin }
-            iconView.updateLayoutParams<ViewGroup.MarginLayoutParams> { topMargin = margin }
+            textView.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+                topMargin = 8.toDp(textView.context)
+            }
+            iconView.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+                topMargin = 12.toDp(textView.context)
+            }
 
             dateLoaded?.dispose()
             dateLoaded = imageLoader.load(R.drawable.ic_date_range_24dp)

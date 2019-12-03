@@ -113,13 +113,17 @@ class DetailListItemGlances @Inject internal constructor(
             val isExpiringSoon = item.isExpiringSoon(today, soonDate, isSameDayExpired)
             val isExpired = item.isExpired(today, isSameDayExpired)
 
-            setDateRangeView(item, expireTime, hasTime)
+            setDateRangeView(item, expireTime, isExpired, hasTime)
             setExpiringView(item, expireTime, today, isExpiringSoon, isExpired, hasTime)
             setExpiredView(item, expireTime, today, isExpired, hasTime)
         }
     }
 
-    private fun setDateRangeView(item: FridgeItem, expireTime: Date?, hasTime: Boolean) {
+    private fun setDateRangeView(
+        item: FridgeItem, expireTime: Date?,
+        isExpired: Boolean,
+        hasTime: Boolean
+    ) {
         dateRangeLoader = setViewColor(
             imageLoader,
             validExpirationDate,
@@ -139,7 +143,7 @@ class DetailListItemGlances @Inject internal constructor(
         dateRangeTooltip = tooltipCreator.top {
             dismissOnClick()
             dismissOnClickOutside()
-            setArrowPosition(0.78F)
+            setArrowPosition(if (isExpired) 0.80F else 0.795F)
 
             val dateFormatted = SimpleDateFormat.getDateInstance().format(expireTime)
             setText("${item.name().trim()} expires on $dateFormatted")
@@ -181,7 +185,7 @@ class DetailListItemGlances @Inject internal constructor(
         expiringTooltip = tooltipCreator.top {
             dismissOnClick()
             dismissOnClickOutside()
-            setArrowPosition(0.90F)
+            setArrowPosition(0.91F)
 
             // shitty old time format parser for very basic expiration estimate
             val todayTime = today.timeInMillis

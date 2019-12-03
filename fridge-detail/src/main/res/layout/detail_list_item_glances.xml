@@ -28,8 +28,8 @@
 
         <ImageView
             android:id="@+id/detail_item_glances_date"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
             android:layout_gravity="center"
             android:layout_marginStart="16dp"
             android:layout_marginEnd="8dp"
@@ -37,11 +37,12 @@
 
         <ImageView
             android:id="@+id/detail_item_glances_expiring"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
             android:layout_gravity="center"
             android:layout_marginStart="8dp"
             android:layout_marginEnd="16dp"
+            android:layout_marginBottom="2dp"
             android:contentDescription="@string/blank" />
 
         <ImageView
