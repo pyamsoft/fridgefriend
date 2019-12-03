@@ -41,7 +41,7 @@ class DetailListItemName @Inject internal constructor(
         }
 
         val item = state.item
-        nameView.setTextKeepState(item.name())
+        setName(item)
         nameView.setNotEditable()
         nameView.setOnDebouncedClickListener { publish(ExpandItem(item)) }
     }
