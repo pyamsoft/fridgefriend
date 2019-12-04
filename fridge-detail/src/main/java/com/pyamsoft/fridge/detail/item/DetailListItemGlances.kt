@@ -146,7 +146,7 @@ class DetailListItemGlances @Inject internal constructor(
             setArrowPosition(if (isExpired) 0.80F else 0.795F)
 
             val dateFormatted = SimpleDateFormat.getDateInstance().format(expireTime)
-            setText("${item.name().trim()} expires on $dateFormatted")
+            setText("${item.name().trim()} will expire on $dateFormatted")
         }
 
         validExpirationDate.setOnDebouncedClickListener { dateRangeTooltip?.show(it) }
@@ -198,13 +198,13 @@ class DetailListItemGlances @Inject internal constructor(
             val days = hours / 24L
 
             require(days >= 0)
-            val expirationRange = if (days == 0L) "expires today" else {
+            val expirationRange = if (days == 0L) "will expire today" else {
                 if (days < 7) {
-                    "expires in $days ${if (days == 1L) "day" else "days"}"
+                    "will expire in $days ${if (days == 1L) "day" else "days"}"
                 } else {
                     val weeks = days / 7L
                     if (weeks < WEEK_LIMIT) {
-                        "expires in $weeks ${if (weeks == 1L) "week" else "weeks"}"
+                        "will expire in $weeks ${if (weeks == 1L) "week" else "weeks"}"
                     } else {
                         "doesn't expire for a long time"
                     }
