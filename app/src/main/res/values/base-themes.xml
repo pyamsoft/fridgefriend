@@ -18,9 +18,9 @@
 <resources>
 
     <style name="Base.Theme.Fridge" parent="@style/Parent.Theme.Fridge">
-        <item name="colorPrimary">@color/red500</item>
-        <item name="colorPrimaryDark">@color/red700</item>
-        <item name="colorAccent">@color/red500</item>
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
 
         <item name="android:navigationBarColor">@color/navigationBarColor</item>
         <item name="android:statusBarColor">@color/statusBarColor</item>
@@ -29,9 +29,9 @@
 
     <!-- Dialogs -->
     <style name="Base.Theme.Fridge.Dialog" parent="@style/Parent.Theme.Fridge.Dialog">
-        <item name="colorPrimary">@color/red500</item>
-        <item name="colorPrimaryDark">@color/red700</item>
-        <item name="colorAccent">@color/red500</item>
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
 
         <item name="android:navigationBarColor">@color/navigationBarColor</item>
         <item name="android:statusBarColor">@color/statusBarColor</item>
@@ -42,9 +42,9 @@
     </style>
 
     <style name="Base.Theme.Fridge.Dialog.Alert" parent="@style/Parent.Theme.Fridge.Dialog.Alert">
-        <item name="colorPrimary">@color/red500</item>
-        <item name="colorPrimaryDark">@color/red700</item>
-        <item name="colorAccent">@color/red500</item>
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
 
         <item name="android:navigationBarColor">@color/navigationBarColor</item>
         <item name="android:statusBarColor">@color/statusBarColor</item>

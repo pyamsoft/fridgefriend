@@ -38,10 +38,10 @@ import com.pyamsoft.fridge.entry.EntryControllerEvent.NavigateToSettings
 import com.pyamsoft.fridge.entry.EntryControllerEvent.PushHave
 import com.pyamsoft.fridge.entry.EntryControllerEvent.PushNearby
 import com.pyamsoft.fridge.entry.EntryControllerEvent.PushNeed
-import com.pyamsoft.fridge.map.MapFragment
 import com.pyamsoft.fridge.locator.MapPermission
-import com.pyamsoft.fridge.permission.PermissionFragment
 import com.pyamsoft.fridge.main.SnackbarContainer
+import com.pyamsoft.fridge.map.MapFragment
+import com.pyamsoft.fridge.permission.PermissionFragment
 import com.pyamsoft.fridge.setting.SettingsDialog
 import com.pyamsoft.pydroid.arch.createComponent
 import com.pyamsoft.pydroid.ui.Injector
@@ -51,7 +51,6 @@ import com.pyamsoft.pydroid.ui.util.commitNow
 import com.pyamsoft.pydroid.ui.util.layout
 import com.pyamsoft.pydroid.ui.util.show
 import com.pyamsoft.pydroid.ui.version.VersionCheckActivity
-import com.pyamsoft.pydroid.ui.widget.shadow.TopshadowView
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -126,15 +125,13 @@ internal class EntryFragment : Fragment(), SnackbarContainer {
         val toolbar = requireNotNull(toolbar)
         val frame = requireNotNull(frame)
         val navigation = requireNotNull(navigation)
-        val topshadow = TopshadowView.createTyped<EntryViewState, EntryViewEvent>(parent)
 
         createComponent(
             savedInstanceState, viewLifecycleOwner,
             viewModel,
             frame,
             navigation,
-            toolbar,
-            topshadow
+            toolbar
         ) {
             return@createComponent when (it) {
                 is PushHave -> pushHave(it.entry)
@@ -165,13 +162,6 @@ internal class EntryFragment : Fragment(), SnackbarContainer {
                 connect(it.id(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
                 constrainWidth(it.id(), ConstraintSet.MATCH_CONSTRAINT)
                 constrainHeight(it.id(), ConstraintSet.MATCH_CONSTRAINT)
-            }
-
-            topshadow.also {
-                connect(it.id(), ConstraintSet.BOTTOM, navigation.id(), ConstraintSet.TOP)
-                connect(it.id(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
-                connect(it.id(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
-                constrainWidth(it.id(), ConstraintSet.MATCH_CONSTRAINT)
             }
         }
     }

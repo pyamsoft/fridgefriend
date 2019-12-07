@@ -19,6 +19,8 @@ package com.pyamsoft.fridge.detail.add
 
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
+import androidx.cardview.widget.CardView
 import androidx.core.view.ViewPropertyAnimatorListenerAdapter
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.pyamsoft.fridge.detail.DetailViewEvent
@@ -46,10 +48,13 @@ class AddNewItemView @Inject internal constructor(
 
     init {
         doOnInflate {
-            iconLoaded = imageLoader.load(R.drawable.ic_add_24dp)
+            iconLoaded = imageLoader
+                .load(R.drawable.ic_add_24dp)
                 .into(layoutRoot)
 
-            layoutRoot.setOnDebouncedClickListener { publish(DetailViewEvent.AddNewItemEvent) }
+            layoutRoot.setOnDebouncedClickListener {
+                publish(DetailViewEvent.AddNewItemEvent)
+            }
             layoutRoot.popShow()
         }
 
@@ -89,3 +94,4 @@ class AddNewItemView @Inject internal constructor(
         iconLoaded = null
     }
 }
+

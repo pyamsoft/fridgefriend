@@ -26,7 +26,6 @@ import androidx.lifecycle.ViewModelStore
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.detail.DetailListAdapter.Callback
 import com.pyamsoft.fridge.detail.DetailListAdapter.DetailViewHolder
-import com.pyamsoft.fridge.detail.R.id
 import com.pyamsoft.fridge.detail.item.DetailItemComponent
 import com.pyamsoft.fridge.detail.item.DetailItemControllerEvent.CloseExpand
 import com.pyamsoft.fridge.detail.item.DetailItemControllerEvent.DatePick
@@ -50,9 +49,6 @@ internal class DetailItemViewHolder internal constructor(
 
     @JvmField
     @Inject
-    internal var factory: Factory? = null
-    @JvmField
-    @Inject
     internal var name: DetailListItemName? = null
     @JvmField
     @Inject
@@ -63,17 +59,16 @@ internal class DetailItemViewHolder internal constructor(
     @JvmField
     @Inject
     internal var glances: DetailListItemGlances? = null
-    private var viewModel: DetailListItemViewModel? = null
 
-    private val parent: ConstraintLayout = itemView.findViewById(id.listitem_constraint)
+    @JvmField
+    @Inject
+    internal var factory: Factory? = null
+    private val viewModel by factory<DetailListItemViewModel>(ViewModelStore()) { factory }
+
+    private val parent: ConstraintLayout = itemView.findViewById(R.id.detail_list_item)
 
     private var lifecycle: ListItemLifecycle? = null
     private var boundItem: FridgeItem? = null
-
-    private fun injectViewModel() {
-        viewModel = factory<DetailListItemViewModel>(ViewModelStore()) { factory }
-            .get()
-    }
 
     override fun bind(
         item: FridgeItem,
@@ -87,7 +82,6 @@ internal class DetailItemViewHolder internal constructor(
 
         injectComponent(parent, item, editable)
             .inject(this)
-        injectViewModel()
 
         val name = requireNotNull(name)
         val date = requireNotNull(date)
@@ -96,7 +90,7 @@ internal class DetailItemViewHolder internal constructor(
 
         createComponent(
             null, owner,
-            requireNotNull(viewModel),
+            viewModel,
             name,
             date,
             presence,
@@ -196,30 +190,25 @@ internal class DetailItemViewHolder internal constructor(
         lifecycle?.unbind()
         lifecycle = null
 
-        viewModel = null
         boundItem = null
         name = null
         date = null
         presence = null
     }
 
-    // Kind of hacky
     fun consume() {
-        requireNotNull(viewModel).consume()
+        viewModel.consume()
     }
 
-    // Kind of hacky
     fun spoil() {
-        requireNotNull(viewModel).spoil()
+        viewModel.spoil()
     }
 
-    // Kind of hacky
     fun restore() {
-        requireNotNull(viewModel).restore()
+        viewModel.restore()
     }
 
-    // Kind of hacky
     fun delete() {
-        requireNotNull(viewModel).delete()
+        viewModel.delete()
     }
 }

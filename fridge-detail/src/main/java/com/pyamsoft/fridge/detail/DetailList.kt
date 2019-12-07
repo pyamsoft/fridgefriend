@@ -21,7 +21,6 @@ import android.graphics.Color
 import android.view.ViewGroup
 import androidx.annotation.CheckResult
 import androidx.lifecycle.LifecycleOwner
-import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -114,15 +113,6 @@ class DetailList @Inject internal constructor(
                     }
                 })
             recyclerView.adapter = usingAdapter().apply { setHasStableIds(true) }
-        }
-
-        doOnInflate {
-            val decor = DividerItemDecoration(recyclerView.context, DividerItemDecoration.VERTICAL)
-            recyclerView.addItemDecoration(decor)
-
-            doOnTeardown {
-                decor.let { recyclerView.removeItemDecoration(it) }
-            }
         }
 
         doOnInflate {

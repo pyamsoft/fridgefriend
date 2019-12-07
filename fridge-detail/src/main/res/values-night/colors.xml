@@ -16,5 +16,5 @@
   -->
 
 <resources>
-    <color name="transparent">#00000000</color>
+    <color name="cardBackground">@color/material_dark_background</color>
 </resources>

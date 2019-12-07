@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <color name="transparentWhite">#80FFFFFF</color>
-
-    <color name="statusBarColor">@color/transparentWhite</color>
-    <color name="navigationBarColor">@color/transparentWhite</color>
-    <color name="windowBackground">@color/white</color>
-</resources>

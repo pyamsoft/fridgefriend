@@ -80,7 +80,7 @@ internal class DetailListAdapter constructor(
             val v = inflater.inflate(R.layout.listitem_frame, parent, false)
             SpacerItemViewHolder(v)
         } else {
-            val v = inflater.inflate(R.layout.listitem_constraint, parent, false)
+            val v = inflater.inflate(R.layout.detail_list_item_holder, parent, false)
             DetailItemViewHolder(v, injectComponent)
         }
     }
