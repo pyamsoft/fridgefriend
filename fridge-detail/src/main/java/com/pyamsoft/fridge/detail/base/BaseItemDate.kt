@@ -89,7 +89,7 @@ abstract class BaseItemDate protected constructor(
             iconView.isVisible = true
 
             textView.updateLayoutParams<ViewGroup.MarginLayoutParams> {
-                topMargin = 8.toDp(textView.context)
+                topMargin = 9.toDp(textView.context)
             }
             iconView.updateLayoutParams<ViewGroup.MarginLayoutParams> {
                 topMargin = 12.toDp(textView.context)
