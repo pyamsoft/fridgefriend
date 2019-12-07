@@ -28,6 +28,7 @@ import com.pyamsoft.fridge.detail.item.DetailItemViewState
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.loader.Loaded
+import com.pyamsoft.pydroid.ui.theme.ThemeProvider
 import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
 import com.pyamsoft.pydroid.util.tintWith
 import com.pyamsoft.pydroid.util.toDp
@@ -36,6 +37,7 @@ import java.util.Calendar
 
 abstract class BaseItemDate protected constructor(
     private val imageLoader: ImageLoader,
+    private val theming: ThemeProvider,
     parent: ViewGroup
 ) : BaseUiView<DetailItemViewState, DetailItemViewEvent>(parent) {
 
@@ -95,7 +97,10 @@ abstract class BaseItemDate protected constructor(
 
             dateLoaded?.dispose()
             dateLoaded = imageLoader.load(R.drawable.ic_date_range_24dp)
-                .mutate { it.tintWith(iconView.context, R.color.white) }
+                .mutate {
+                    val color = if (theming.isDarkTheme()) R.color.white else R.color.black
+                    it.tintWith(iconView.context, color)
+                }
                 .into(iconView)
         }
     }

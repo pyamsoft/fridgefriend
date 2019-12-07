@@ -18,7 +18,6 @@
 package com.pyamsoft.fridge.detail
 
 import androidx.annotation.CheckResult
-import com.pyamsoft.fridge.core.tooltip.TooltipCreator
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent
 import com.pyamsoft.fridge.db.item.FridgeItemRealtime
@@ -26,7 +25,7 @@ import com.pyamsoft.fridge.detail.item.DateSelectPayload
 import com.pyamsoft.fridge.detail.item.DetailItemComponent
 import com.pyamsoft.pydroid.arch.EventBus
 import com.pyamsoft.pydroid.loader.ImageLoader
-import com.pyamsoft.pydroid.ui.theme.Theming
+import com.pyamsoft.pydroid.ui.theme.ThemeProvider
 import dagger.BindsInstance
 import dagger.Component
 
@@ -42,7 +41,7 @@ internal interface DetailListComponent {
         @CheckResult
         fun create(
             @BindsInstance imageLoader: ImageLoader,
-            @BindsInstance theming: Theming,
+            @BindsInstance theming: ThemeProvider,
             @BindsInstance interactor: DetailInteractor,
             @BindsInstance itemUpdateDao: FridgeItemRealtime,
             @BindsInstance fakeRealtime: EventBus<FridgeItemChangeEvent>,

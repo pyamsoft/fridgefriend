@@ -17,7 +17,6 @@
 
 package com.pyamsoft.fridge.detail
 
-import android.app.Activity
 import android.view.ViewGroup
 import androidx.annotation.CheckResult
 import androidx.lifecycle.LifecycleOwner
@@ -29,6 +28,7 @@ import com.pyamsoft.fridge.db.item.FridgeItem.Presence
 import com.pyamsoft.fridge.detail.DetailComponent.ViewModelModule
 import com.pyamsoft.pydroid.arch.UiViewModel
 import com.pyamsoft.pydroid.ui.app.ToolbarActivity
+import com.pyamsoft.pydroid.ui.theme.ThemeProvider
 import dagger.Binds
 import dagger.BindsInstance
 import dagger.Module
@@ -45,7 +45,7 @@ internal interface DetailComponent {
 
         @CheckResult
         fun create(
-            @BindsInstance activity: Activity,
+            @BindsInstance theming: ThemeProvider,
             @BindsInstance parent: ViewGroup,
             @BindsInstance toolbarActivity: ToolbarActivity,
             @BindsInstance owner: LifecycleOwner,

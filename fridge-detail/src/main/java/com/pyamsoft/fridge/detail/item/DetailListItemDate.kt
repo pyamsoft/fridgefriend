@@ -22,6 +22,7 @@ import com.pyamsoft.fridge.detail.base.BaseItemDate
 import com.pyamsoft.fridge.detail.item.DetailItemViewEvent.ExpandItem
 import com.pyamsoft.pydroid.arch.UiSavedState
 import com.pyamsoft.pydroid.loader.ImageLoader
+import com.pyamsoft.pydroid.ui.theme.ThemeProvider
 import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
 import javax.inject.Inject
 import javax.inject.Named
@@ -29,8 +30,9 @@ import javax.inject.Named
 class DetailListItemDate @Inject internal constructor(
     @Named("item_editable") private val isEditable: Boolean,
     imageLoader: ImageLoader,
+    theming: ThemeProvider,
     parent: ViewGroup
-) : BaseItemDate(imageLoader, parent) {
+) : BaseItemDate(imageLoader, theming, parent) {
 
     override fun onRender(state: DetailItemViewState, savedState: UiSavedState) {
         baseRender(state)

@@ -44,7 +44,7 @@ import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.arch.EventBus
 import com.pyamsoft.pydroid.arch.UiSavedState
 import com.pyamsoft.pydroid.loader.ImageLoader
-import com.pyamsoft.pydroid.ui.theme.Theming
+import com.pyamsoft.pydroid.ui.theme.ThemeProvider
 import com.pyamsoft.pydroid.ui.util.Snackbreak
 import com.pyamsoft.pydroid.ui.util.refreshing
 import com.pyamsoft.pydroid.ui.widget.scroll.HideOnScrollListener
@@ -58,7 +58,7 @@ class DetailList @Inject internal constructor(
     interactor: DetailInteractor,
     tooltipCreator: TooltipCreator,
     private val imageLoader: ImageLoader,
-    theming: Theming,
+    theming: ThemeProvider,
     realtime: FridgeItemRealtime,
     fakeRealtime: EventBus<FridgeItemChangeEvent>,
     dateSelectBus: EventBus<DateSelectPayload>,

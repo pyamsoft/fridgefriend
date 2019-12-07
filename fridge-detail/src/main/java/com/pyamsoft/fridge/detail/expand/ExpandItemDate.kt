@@ -24,6 +24,7 @@ import com.pyamsoft.fridge.detail.item.DetailItemViewEvent.PickDate
 import com.pyamsoft.fridge.detail.item.DetailItemViewState
 import com.pyamsoft.pydroid.arch.UiSavedState
 import com.pyamsoft.pydroid.loader.ImageLoader
+import com.pyamsoft.pydroid.ui.theme.ThemeProvider
 import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
 import timber.log.Timber
 import java.util.Calendar
@@ -33,8 +34,9 @@ import javax.inject.Named
 class ExpandItemDate @Inject internal constructor(
     @Named("item_editable") private val isEditable: Boolean,
     imageLoader: ImageLoader,
+    theming: ThemeProvider,
     parent: ViewGroup
-) : BaseItemDate(imageLoader, parent) {
+) : BaseItemDate(imageLoader, theming, parent) {
 
     override fun onRender(state: DetailItemViewState, savedState: UiSavedState) {
         baseRender(state)

@@ -29,6 +29,7 @@ import com.pyamsoft.fridge.detail.ExpandComponent.ViewModelModule
 import com.pyamsoft.fridge.detail.expand.ExpandItemViewModel
 import com.pyamsoft.fridge.detail.expand.ExpandModule
 import com.pyamsoft.pydroid.arch.UiViewModel
+import com.pyamsoft.pydroid.ui.theme.ThemeProvider
 import dagger.Binds
 import dagger.BindsInstance
 import dagger.Module
@@ -45,6 +46,7 @@ internal interface ExpandComponent {
 
         @CheckResult
         fun create(
+            @BindsInstance theming: ThemeProvider,
             @BindsInstance parent: ViewGroup,
             @BindsInstance item: FridgeItem,
             @BindsInstance entry: FridgeEntry,

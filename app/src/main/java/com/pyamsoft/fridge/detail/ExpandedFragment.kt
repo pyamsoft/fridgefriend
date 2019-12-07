@@ -53,6 +53,8 @@ import com.pyamsoft.fridge.detail.item.DetailListItemPresence
 import com.pyamsoft.pydroid.arch.createComponent
 import com.pyamsoft.pydroid.ui.Injector
 import com.pyamsoft.pydroid.ui.arch.factory
+import com.pyamsoft.pydroid.ui.theme.ThemeProvider
+import com.pyamsoft.pydroid.ui.theme.Theming
 import com.pyamsoft.pydroid.ui.util.layout
 import com.pyamsoft.pydroid.ui.util.show
 import com.pyamsoft.pydroid.ui.widget.shadow.DropshadowView
@@ -93,6 +95,10 @@ internal class ExpandedFragment : DialogFragment() {
     @Inject
     internal var toolbar: ExpandedToolbar? = null
 
+    @JvmField
+    @Inject
+    internal var theming: Theming? = null
+
     private val viewModel by factory<ExpandItemViewModel> { factory }
 
     override fun onCreateView(
@@ -119,7 +125,10 @@ internal class ExpandedFragment : DialogFragment() {
 
         Injector.obtain<FridgeComponent>(view.context.applicationContext)
             .plusExpandComponent()
-            .create(parent, itemArgument, entryArgument, presenceArgument)
+            .create(
+                ThemeProvider { requireNotNull(theming).isDarkTheme(requireActivity()) },
+                parent, itemArgument, entryArgument, presenceArgument
+            )
             .inject(this)
 
         val name = requireNotNull(name)
