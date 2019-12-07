@@ -63,12 +63,16 @@ internal class DetailItemViewHolder internal constructor(
     @JvmField
     @Inject
     internal var factory: Factory? = null
-    private val viewModel by factory<DetailListItemViewModel>(ViewModelStore()) { factory }
+    private var viewModel: DetailListItemViewModel? = null
 
     private val parent: ConstraintLayout = itemView.findViewById(R.id.detail_list_item)
 
     private var lifecycle: ListItemLifecycle? = null
     private var boundItem: FridgeItem? = null
+
+    private fun injectViewModel() {
+        viewModel = factory<DetailListItemViewModel>(ViewModelStore()) { factory }.get()
+    }
 
     override fun bind(
         item: FridgeItem,
@@ -82,6 +86,7 @@ internal class DetailItemViewHolder internal constructor(
 
         injectComponent(parent, item, editable)
             .inject(this)
+        injectViewModel()
 
         val name = requireNotNull(name)
         val date = requireNotNull(date)
@@ -90,7 +95,7 @@ internal class DetailItemViewHolder internal constructor(
 
         createComponent(
             null, owner,
-            viewModel,
+            requireNotNull(viewModel),
             name,
             date,
             presence,
@@ -197,18 +202,18 @@ internal class DetailItemViewHolder internal constructor(
     }
 
     fun consume() {
-        viewModel.consume()
+        requireNotNull(viewModel).consume()
     }
 
     fun spoil() {
-        viewModel.spoil()
+        requireNotNull(viewModel).spoil()
     }
 
     fun restore() {
-        viewModel.restore()
+        requireNotNull(viewModel).restore()
     }
 
     fun delete() {
-        viewModel.delete()
+        requireNotNull(viewModel).delete()
     }
 }
