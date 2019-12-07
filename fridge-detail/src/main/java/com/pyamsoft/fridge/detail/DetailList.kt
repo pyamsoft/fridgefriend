@@ -199,14 +199,12 @@ class DetailList @Inject internal constructor(
                 else -> R.drawable.ic_spoiled_24dp
             }
         )
-        val leftBackground = Color.RED
-
         val directions = consumeSwipeDirection or spoilSwipeDirection
         val swipeCallback = object : SimpleSwipeCallback(
             itemSwipeCallback,
             leftBehindDrawable,
             directions,
-            leftBackground
+            Color.TRANSPARENT
         ) {
 
             override fun getSwipeDirs(
@@ -224,12 +222,7 @@ class DetailList @Inject internal constructor(
                     else -> R.drawable.ic_consumed_24dp
                 }
             )
-            val rightBackground = when {
-                swipeAwayDeletes -> Color.RED
-                swipeAwayRestores -> Color.YELLOW
-                else -> Color.GREEN
-            }
-            withBackgroundSwipeRight(rightBackground)
+            withBackgroundSwipeRight(Color.TRANSPARENT)
             withLeaveBehindSwipeRight(rightBehindDrawable)
         }
 
