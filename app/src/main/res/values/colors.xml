@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ Copyright 2019 Peter Kenji Yamanaka
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,5 +16,5 @@
   -->
 
 <resources>
-    <color name="windowBackground">#6D4C41</color>
+    <color name="windowBackground">#795548</color>
 </resources>
