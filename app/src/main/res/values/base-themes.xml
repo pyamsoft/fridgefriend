@@ -24,7 +24,7 @@
 
         <item name="android:navigationBarColor">@color/navigationBarColor</item>
         <item name="android:statusBarColor">@color/statusBarColor</item>
-        <item name="android:windowLightStatusBar">@bool/light_bars</item>
+        <item name="android:windowLightStatusBar">false</item>
     </style>
 
     <!-- Dialogs -->
@@ -35,7 +35,7 @@
 
         <item name="android:navigationBarColor">@color/navigationBarColor</item>
         <item name="android:statusBarColor">@color/statusBarColor</item>
-        <item name="android:windowLightStatusBar">@bool/light_bars</item>
+        <item name="android:windowLightStatusBar">false</item>
 
         <item name="dialogCornerRadius">16dp</item>
         <item name="android:windowBackground">@drawable/dialog_background</item>
@@ -48,7 +48,7 @@
 
         <item name="android:navigationBarColor">@color/navigationBarColor</item>
         <item name="android:statusBarColor">@color/statusBarColor</item>
-        <item name="android:windowLightStatusBar">@bool/light_bars</item>
+        <item name="android:windowLightStatusBar">false</item>
 
         <item name="dialogCornerRadius">16dp</item>
         <item name="android:windowBackground">@drawable/dialog_background</item>
