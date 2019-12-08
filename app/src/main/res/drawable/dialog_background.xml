@@ -19,7 +19,7 @@
     android:inset="16dp">
     <shape android:shape="rectangle">
         <corners android:radius="16dp" />
-        <solid android:color="@color/white" />
+        <solid android:color="@color/cardBackground" />
     </shape>
 </inset>
 
