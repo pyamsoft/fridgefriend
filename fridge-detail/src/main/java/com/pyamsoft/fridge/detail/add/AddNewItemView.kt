@@ -17,11 +17,19 @@
 
 package com.pyamsoft.fridge.detail.add
 
+import android.animation.ValueAnimator
+import android.content.Context
+import android.graphics.Point
 import android.view.View
 import android.view.ViewGroup
+import android.view.WindowManager
 import android.widget.ImageView
+import androidx.annotation.CheckResult
+import androidx.cardview.widget.CardView
+import androidx.core.content.getSystemService
 import androidx.core.view.ViewPropertyAnimatorCompat
 import androidx.core.view.ViewPropertyAnimatorListenerAdapter
+import com.pyamsoft.fridge.detail.CardAnimator
 import com.pyamsoft.fridge.detail.DetailViewEvent
 import com.pyamsoft.fridge.detail.DetailViewState
 import com.pyamsoft.fridge.detail.R
@@ -32,6 +40,7 @@ import com.pyamsoft.pydroid.loader.Loaded
 import com.pyamsoft.pydroid.ui.util.popShow
 import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
 import com.pyamsoft.pydroid.util.tintWith
+import com.pyamsoft.pydroid.util.toDp
 import javax.inject.Inject
 
 class AddNewItemView @Inject internal constructor(
@@ -41,10 +50,10 @@ class AddNewItemView @Inject internal constructor(
 
     override val layout: Int = R.layout.add_new
 
-    override val layoutRoot by boundView<ViewGroup>(R.id.detail_add_new_item)
+    override val layoutRoot by boundView<CardView>(R.id.detail_add_new_item)
     private val addNewIcon by boundView<ImageView>(R.id.detail_add_new_icon)
 
-    private val filterButton by boundView<ViewGroup>(R.id.detail_filter_item)
+    private val filterButton by boundView<CardView>(R.id.detail_filter_item)
     private val filterIcon by boundView<ImageView>(R.id.detail_filter_icon)
 
     private var addNewIconLoaded: Loaded? = null
@@ -52,6 +61,12 @@ class AddNewItemView @Inject internal constructor(
 
     private var addNewIconAnimator: ViewPropertyAnimatorCompat? = null
     private var filterIconAnimator: ViewPropertyAnimatorCompat? = null
+
+    private var expandAnimator: ValueAnimator? = null
+
+    private val positionings by lazy(LazyThreadSafetyMode.NONE) {
+        Positionings(layoutRoot.context.applicationContext)
+    }
 
     init {
         doOnInflate {
@@ -61,9 +76,7 @@ class AddNewItemView @Inject internal constructor(
                 .mutate { it.tintWith(addNewIcon.context, R.color.white) }
                 .into(addNewIcon)
 
-            layoutRoot.setOnDebouncedClickListener {
-                publish(DetailViewEvent.AddNewItemEvent)
-            }
+            layoutRoot.setOnDebouncedClickListener { expandItem() }
         }
 
         doOnTeardown {
@@ -96,6 +109,7 @@ class AddNewItemView @Inject internal constructor(
         doOnTeardown {
             disposeAddNewAnimator()
             disposeFilterAnimator()
+            disposeExpandAnimator()
         }
     }
 
@@ -119,10 +133,46 @@ class AddNewItemView @Inject internal constructor(
         addNewIconLoaded = null
     }
 
+    private fun disposeExpandAnimator() {
+        expandAnimator?.cancel()
+        expandAnimator = null
+    }
+
+    private fun expandItem() {
+        disposeExpandAnimator()
+        expandAnimator = CardAnimator(
+            layoutRoot,
+            endX = positionings.addNewMovedX,
+            endY = positionings.addNewMovedY,
+            endElevation = 12.toDp(layoutRoot.context).toFloat()
+        ).animator(true) { progress ->
+            if (progress == 1F) {
+                publish(DetailViewEvent.AddNewItemEvent)
+            }
+        }.apply { start() }
+    }
+
+    private fun dismissItem() {
+        disposeExpandAnimator()
+        expandAnimator = CardAnimator(
+            layoutRoot,
+            endX = positionings.addNewOriginalX,
+            endY = positionings.addNewOriginalY,
+            endElevation = 6.toDp(layoutRoot.context).toFloat()
+        ).animator(true)
+            .apply { start() }
+    }
+
     override fun onRender(
         state: DetailViewState,
         savedState: UiSavedState
     ) {
+        state.isExpanded.let { expanded ->
+            if (!expanded) {
+                dismissItem()
+            }
+        }
+
         state.showArchived.let { show ->
             disposeFilterLoaded()
             filterIconLoaded = imageLoader
@@ -163,6 +213,66 @@ class AddNewItemView @Inject internal constructor(
                         }
                     })
             }
+        }
+    }
+
+    private class Positionings internal constructor(context: Context) {
+
+        val addNewOriginalX: Float
+        val addNewMovedX: Float
+
+        val addNewOriginalY: Float
+        val addNewMovedY: Float
+
+        init {
+            val screen = screen(context)
+            val screenWidth = screenWidth(screen)
+            val screenHeight = screenHeight(screen)
+
+            val fabMargin = fabMargin(context)
+            val fabSize = fabSize(context)
+            val navbarSize = navbarSize(context)
+
+            addNewOriginalX = screenWidth - fabSize - fabMargin
+            addNewMovedX = (screenWidth - fabSize) / 2
+
+            val halfMargin = fabMargin / 2
+            val y = screenHeight - navbarSize - halfMargin * 4.5F
+            addNewOriginalY = y
+            addNewMovedY = y / 2 + fabSize
+        }
+
+        @CheckResult
+        private fun navbarSize(context: Context): Float {
+            return 56.toDp(context).toFloat()
+        }
+
+        @CheckResult
+        private fun fabSize(context: Context): Float {
+            return 56.toDp(context).toFloat()
+        }
+
+        @CheckResult
+        private fun fabMargin(context: Context): Float {
+            return 16.toDp(context).toFloat()
+        }
+
+        @CheckResult
+        private fun screen(context: Context): Point {
+            val point = Point()
+            val windowService = requireNotNull(context.getSystemService<WindowManager>())
+            windowService.defaultDisplay.getSize(point)
+            return point
+        }
+
+        @CheckResult
+        private fun screenWidth(point: Point): Float {
+            return point.x.toFloat()
+        }
+
+        @CheckResult
+        private fun screenHeight(point: Point): Float {
+            return point.y.toFloat()
         }
     }
 }

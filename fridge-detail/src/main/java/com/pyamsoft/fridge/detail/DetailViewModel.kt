@@ -51,6 +51,7 @@ class DetailViewModel @Inject internal constructor(
     interactor: DetailInteractor,
     fakeRealtime: EventBus<FridgeItemChangeEvent>,
     private val listItemPresence: FridgeItem.Presence,
+    private val expandVisibilityBus: EventBus<ExpandVisibilityEvent>,
     entry: FridgeEntry
 ) : UiViewModel<DetailViewState, DetailViewEvent, DetailControllerEvent>(
     initialState = DetailViewState(
@@ -59,7 +60,8 @@ class DetailViewModel @Inject internal constructor(
         showArchived = false,
         listError = null,
         undoableItem = null,
-        actionVisible = null
+        actionVisible = null,
+        isExpanded = false
     )
 ) {
 
@@ -113,6 +115,14 @@ class DetailViewModel @Inject internal constructor(
     init {
         doOnInit {
             refreshList(false)
+        }
+
+        doOnInit {
+            viewModelScope.launch(context = Dispatchers.Default) {
+                expandVisibilityBus.onEvent {
+                    setState { copy(isExpanded = it.visible) }
+                }
+            }
         }
     }
 

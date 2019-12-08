@@ -29,6 +29,7 @@ import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent.Insert
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent.Update
 import com.pyamsoft.fridge.db.item.FridgeItemRealtime
 import com.pyamsoft.fridge.detail.DetailInteractor
+import com.pyamsoft.fridge.detail.ExpandVisibilityEvent
 import com.pyamsoft.fridge.detail.item.DateSelectPayload
 import com.pyamsoft.fridge.detail.item.DetailItemControllerEvent.CloseExpand
 import com.pyamsoft.fridge.detail.item.DetailItemControllerEvent.DatePick
@@ -60,7 +61,8 @@ class ExpandItemViewModel @Inject internal constructor(
     fakeRealtime: EventBus<FridgeItemChangeEvent>,
     dateSelectBus: EventBus<DateSelectPayload>,
     realtime: FridgeItemRealtime,
-    private val interactor: DetailInteractor
+    private val interactor: DetailInteractor,
+    private val expandVisibilityBus: EventBus<ExpandVisibilityEvent>
 ) : DetailItemViewModel(item.presence(defaultPresence), interactor, fakeRealtime) {
 
     private val updateRunner = highlander<Unit, FridgeItem> { item ->
@@ -110,6 +112,17 @@ class ExpandItemViewModel @Inject internal constructor(
                     }
                 }
             }
+        }
+
+        doOnInit {
+            viewModelScope.launch(context = Dispatchers.Default) {
+                expandVisibilityBus.send(ExpandVisibilityEvent(true))
+            }
+        }
+
+        doOnTeardown {
+            // Don't use coroutine scope because launch will insta-die on teardown
+            expandVisibilityBus.publish(ExpandVisibilityEvent(false))
         }
     }
 
