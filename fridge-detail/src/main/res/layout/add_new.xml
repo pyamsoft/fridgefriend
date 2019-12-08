@@ -19,18 +19,27 @@
 
 <merge>
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton xmlns:android="http://schemas.android.com/apk/res/android"
+    <com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
         android:id="@+id/detail_add_new_item"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="56dp"
+        android:layout_height="56dp"
         android:layout_gravity="center_horizontal|bottom"
         android:layout_margin="16dp"
         android:contentDescription="@string/blank"
         android:visibility="gone"
-        app:elevation="6dp"
-        app:fabSize="normal"
-        app:pressedTranslationZ="12dp" />
+        app:cardBackgroundColor="@color/colorPrimary"
+        app:cardCornerRadius="28dp"
+        app:cardElevation="6dp">
+
+        <ImageView
+            android:id="@+id/detail_add_new_icon"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_gravity="center"
+            android:contentDescription="@string/blank" />
+
+    </com.google.android.material.card.MaterialCardView>
 
 </merge>
 

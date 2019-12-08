@@ -20,9 +20,7 @@ package com.pyamsoft.fridge.detail.add
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
-import androidx.cardview.widget.CardView
 import androidx.core.view.ViewPropertyAnimatorListenerAdapter
-import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.pyamsoft.fridge.detail.DetailViewEvent
 import com.pyamsoft.fridge.detail.DetailViewState
 import com.pyamsoft.fridge.detail.R
@@ -33,6 +31,7 @@ import com.pyamsoft.pydroid.loader.Loaded
 import com.pyamsoft.pydroid.ui.util.popHide
 import com.pyamsoft.pydroid.ui.util.popShow
 import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
+import com.pyamsoft.pydroid.util.tintWith
 import javax.inject.Inject
 
 class AddNewItemView @Inject internal constructor(
@@ -42,7 +41,8 @@ class AddNewItemView @Inject internal constructor(
 
     override val layout: Int = R.layout.add_new
 
-    override val layoutRoot by boundView<FloatingActionButton>(R.id.detail_add_new_item)
+    override val layoutRoot by boundView<ViewGroup>(R.id.detail_add_new_item)
+    private val icon by boundView<ImageView>(R.id.detail_add_new_icon)
 
     private var iconLoaded: Loaded? = null
 
@@ -50,7 +50,8 @@ class AddNewItemView @Inject internal constructor(
         doOnInflate {
             iconLoaded = imageLoader
                 .load(R.drawable.ic_add_24dp)
-                .into(layoutRoot)
+                .mutate { it.tintWith(icon.context, R.color.white) }
+                .into(icon)
 
             layoutRoot.setOnDebouncedClickListener {
                 publish(DetailViewEvent.AddNewItemEvent)
