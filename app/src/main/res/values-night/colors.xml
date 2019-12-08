@@ -1,4 +1,5 @@
-<?xml version="1.0" encoding="utf-8"?><!--
+<?xml version="1.0" encoding="utf-8"?>
+<!--
   ~ Copyright 2019 Peter Kenji Yamanaka
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,11 +17,5 @@
   -->
 
 <resources>
-    <color name="colorPrimary">@color/red500</color>
-    <color name="colorPrimaryDark">@color/red700</color>
-    <color name="colorAccent">@color/red500</color>
-
-    <color name="transparent">#00000000</color>
-    <color name="statusBarColor">@color/transparent</color>
-    <color name="navigationBarColor">@color/red500</color>
+    <color name="windowBackground">#4E342E</color>
 </resources>
