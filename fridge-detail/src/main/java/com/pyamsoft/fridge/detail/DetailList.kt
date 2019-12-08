@@ -128,7 +128,7 @@ class DetailList @Inject internal constructor(
         }
 
         doOnInflate {
-            val scrollListener = HideOnScrollListener.create(true) {
+            val scrollListener = HideOnScrollListener.create(startVisible = true, distance = 24) {
                 publish(DetailViewEvent.ScrollActionVisibilityChange(it))
             }
             recyclerView.addOnScrollListener(scrollListener)
