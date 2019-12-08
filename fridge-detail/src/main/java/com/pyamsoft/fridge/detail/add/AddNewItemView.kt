@@ -20,6 +20,7 @@ package com.pyamsoft.fridge.detail.add
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import androidx.core.view.ViewPropertyAnimatorCompat
 import androidx.core.view.ViewPropertyAnimatorListenerAdapter
 import com.pyamsoft.fridge.detail.DetailViewEvent
 import com.pyamsoft.fridge.detail.DetailViewState
@@ -28,71 +29,141 @@ import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.arch.UiSavedState
 import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.loader.Loaded
-import com.pyamsoft.pydroid.ui.util.popHide
 import com.pyamsoft.pydroid.ui.util.popShow
 import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
 import com.pyamsoft.pydroid.util.tintWith
 import javax.inject.Inject
 
 class AddNewItemView @Inject internal constructor(
-    imageLoader: ImageLoader,
+    private val imageLoader: ImageLoader,
     parent: ViewGroup
 ) : BaseUiView<DetailViewState, DetailViewEvent>(parent) {
 
     override val layout: Int = R.layout.add_new
 
     override val layoutRoot by boundView<ViewGroup>(R.id.detail_add_new_item)
-    private val icon by boundView<ImageView>(R.id.detail_add_new_icon)
+    private val addNewIcon by boundView<ImageView>(R.id.detail_add_new_icon)
 
-    private var iconLoaded: Loaded? = null
+    private val filterButton by boundView<ViewGroup>(R.id.detail_filter_item)
+    private val filterIcon by boundView<ImageView>(R.id.detail_filter_icon)
+
+    private var addNewIconLoaded: Loaded? = null
+    private var filterIconLoaded: Loaded? = null
+
+    private var addNewIconAnimator: ViewPropertyAnimatorCompat? = null
+    private var filterIconAnimator: ViewPropertyAnimatorCompat? = null
 
     init {
         doOnInflate {
-            iconLoaded = imageLoader
+            disposeAddNewLoaded()
+            addNewIconLoaded = imageLoader
                 .load(R.drawable.ic_add_24dp)
-                .mutate { it.tintWith(icon.context, R.color.white) }
-                .into(icon)
+                .mutate { it.tintWith(addNewIcon.context, R.color.white) }
+                .into(addNewIcon)
 
             layoutRoot.setOnDebouncedClickListener {
                 publish(DetailViewEvent.AddNewItemEvent)
             }
-            layoutRoot.popShow()
         }
 
         doOnTeardown {
-            disposeIcon()
+            disposeAddNewLoaded()
             layoutRoot.setOnClickListener(null)
         }
+
+        doOnInflate {
+            filterButton.setOnDebouncedClickListener {
+                publish(DetailViewEvent.ToggleArchiveVisibility)
+            }
+        }
+
+        doOnTeardown {
+            disposeFilterLoaded()
+            filterButton.setOnClickListener(null)
+        }
+
+        doOnInflate {
+            disposeAddNewAnimator()
+            addNewIconAnimator =
+                layoutRoot.popShow(listener = object : ViewPropertyAnimatorListenerAdapter() {
+                    override fun onAnimationEnd(view: View) {
+                        disposeFilterAnimator()
+                        filterIconAnimator = filterButton.popShow(startDelay = 0)
+                    }
+                })
+        }
+
+        doOnTeardown {
+            disposeAddNewAnimator()
+            disposeFilterAnimator()
+        }
+    }
+
+    private fun disposeFilterAnimator() {
+        filterIconAnimator?.cancel()
+        filterIconAnimator = null
+    }
+
+    private fun disposeFilterLoaded() {
+        filterIconLoaded?.dispose()
+        filterIconLoaded = null
+    }
+
+    private fun disposeAddNewAnimator() {
+        addNewIconAnimator?.cancel()
+        addNewIconAnimator = null
+    }
+
+    private fun disposeAddNewLoaded() {
+        addNewIconLoaded?.dispose()
+        addNewIconLoaded = null
     }
 
     override fun onRender(
         state: DetailViewState,
         savedState: UiSavedState
     ) {
+        state.showArchived.let { show ->
+            disposeFilterLoaded()
+            filterIconLoaded = imageLoader
+                .load(if (show) R.drawable.ic_add_24dp else R.drawable.ic_date_range_24dp)
+                .mutate { it.tintWith(filterButton.context, R.color.white) }
+                .into(filterIcon)
+        }
+
         state.actionVisible?.let { action ->
             if (action.visible) {
-                layoutRoot.popShow(listener = object : ViewPropertyAnimatorListenerAdapter() {
-
-                    override fun onAnimationEnd(view: View) {
-                        super.onAnimationEnd(view)
-                        publish(DetailViewEvent.DoneScrollActionVisibilityChange)
-                    }
-                })
+                disposeAddNewAnimator()
+                addNewIconAnimator =
+                    layoutRoot.popShow(listener = object : ViewPropertyAnimatorListenerAdapter() {
+                        override fun onAnimationEnd(view: View) {
+                            disposeFilterAnimator()
+                            filterIconAnimator = filterButton.popShow(
+                                startDelay = 0,
+                                listener = object : ViewPropertyAnimatorListenerAdapter() {
+                                    override fun onAnimationEnd(view: View) {
+                                        publish(DetailViewEvent.DoneScrollActionVisibilityChange)
+                                    }
+                                })
+                        }
+                    })
             } else {
-                layoutRoot.popHide(listener = object : ViewPropertyAnimatorListenerAdapter() {
-
-                    override fun onAnimationEnd(view: View) {
-                        super.onAnimationEnd(view)
-                        publish(DetailViewEvent.DoneScrollActionVisibilityChange)
-                    }
-                })
+                disposeFilterAnimator()
+                filterIconAnimator =
+                    filterButton.popShow(listener = object : ViewPropertyAnimatorListenerAdapter() {
+                        override fun onAnimationEnd(view: View) {
+                            disposeAddNewAnimator()
+                            addNewIconAnimator = layoutRoot.popShow(
+                                startDelay = 0,
+                                listener = object : ViewPropertyAnimatorListenerAdapter() {
+                                    override fun onAnimationEnd(view: View) {
+                                        publish(DetailViewEvent.DoneScrollActionVisibilityChange)
+                                    }
+                                })
+                        }
+                    })
             }
         }
-    }
-
-    private fun disposeIcon() {
-        iconLoaded?.dispose()
-        iconLoaded = null
     }
 }
 

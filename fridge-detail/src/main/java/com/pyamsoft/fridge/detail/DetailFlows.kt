@@ -51,7 +51,7 @@ sealed class DetailViewEvent : UiViewEvent {
         val day: Int
     ) : DetailViewEvent()
 
-    data class ToggleArchiveVisibility internal constructor(val show: Boolean) : DetailViewEvent()
+    object ToggleArchiveVisibility : DetailViewEvent()
 
     object CloseEntry : DetailViewEvent()
 

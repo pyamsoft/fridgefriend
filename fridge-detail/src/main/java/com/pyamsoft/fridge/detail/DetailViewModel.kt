@@ -122,7 +122,7 @@ class DetailViewModel @Inject internal constructor(
             is ExpandItem -> publish(ExpandForEditing(event.item))
             is PickDate -> publish(DatePick(event.oldItem, event.year, event.month, event.day))
             is CloseEntry -> publish(NavigateUp)
-            is ToggleArchiveVisibility -> toggleArchived(event.show)
+            is ToggleArchiveVisibility -> toggleArchived()
             is ReallyDeleteNoUndo -> setState { copy(undoableItem = null) }
             is UndoDelete -> handleUndoDelete(event.item)
             is DetailViewEvent.ScrollActionVisibilityChange -> changeActionVisibility(event.visible)
@@ -143,8 +143,8 @@ class DetailViewModel @Inject internal constructor(
         viewModelScope.launch(context = Dispatchers.Default) { undoRunner.call(item) }
     }
 
-    private fun toggleArchived(show: Boolean) {
-        setState { copy(showArchived = !show) }
+    private fun toggleArchived() {
+        setState { copy(showArchived = !showArchived) }
         refreshList(false)
     }
 

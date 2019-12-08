@@ -113,7 +113,7 @@ class DetailListItemGlances @Inject internal constructor(
             val isExpiringSoon = item.isExpiringSoon(today, soonDate, isSameDayExpired)
             val isExpired = item.isExpired(today, isSameDayExpired)
 
-            setDateRangeView(item, expireTime, isExpired, hasTime)
+            setDateRangeView(item, expireTime, hasTime)
             setExpiringView(item, expireTime, today, isExpiringSoon, isExpired, hasTime)
             setExpiredView(item, expireTime, today, isExpired, hasTime)
         }
@@ -121,7 +121,6 @@ class DetailListItemGlances @Inject internal constructor(
 
     private fun setDateRangeView(
         item: FridgeItem, expireTime: Date?,
-        isExpired: Boolean,
         hasTime: Boolean
     ) {
         dateRangeLoader = setViewColor(

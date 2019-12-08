@@ -49,6 +49,7 @@ import com.pyamsoft.pydroid.ui.util.Snackbreak
 import com.pyamsoft.pydroid.ui.util.refreshing
 import com.pyamsoft.pydroid.ui.widget.scroll.HideOnScrollListener
 import com.pyamsoft.pydroid.util.doOnApplyWindowInsets
+import com.pyamsoft.pydroid.util.tintWith
 import com.pyamsoft.pydroid.util.toDp
 import timber.log.Timber
 import javax.inject.Inject
@@ -195,10 +196,11 @@ class DetailList @Inject internal constructor(
         val leftBehindDrawable = imageLoader.immediate(
             when {
                 swipeAwayDeletes -> R.drawable.ic_delete_24dp
-                swipeAwayRestores -> R.drawable.ic_code_24dp
+                swipeAwayRestores -> R.drawable.ic_delete_24dp
                 else -> R.drawable.ic_spoiled_24dp
             }
-        )
+        ).tintWith(layoutRoot.context, R.color.white)
+
         val directions = consumeSwipeDirection or spoilSwipeDirection
         val swipeCallback = object : SimpleSwipeCallback(
             itemSwipeCallback,
@@ -221,7 +223,7 @@ class DetailList @Inject internal constructor(
                     swipeAwayRestores -> R.drawable.ic_code_24dp
                     else -> R.drawable.ic_consumed_24dp
                 }
-            )
+            ).tintWith(layoutRoot.context, R.color.white)
             withBackgroundSwipeRight(Color.TRANSPARENT)
             withLeaveBehindSwipeRight(rightBehindDrawable)
         }
