@@ -37,6 +37,7 @@ import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.arch.UiSavedState
 import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.loader.Loaded
+import com.pyamsoft.pydroid.ui.util.popHide
 import com.pyamsoft.pydroid.ui.util.popShow
 import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
 import com.pyamsoft.pydroid.util.tintWith
@@ -200,10 +201,10 @@ class AddNewItemView @Inject internal constructor(
             } else {
                 disposeFilterAnimator()
                 filterIconAnimator =
-                    filterButton.popShow(listener = object : ViewPropertyAnimatorListenerAdapter() {
+                    filterButton.popHide(listener = object : ViewPropertyAnimatorListenerAdapter() {
                         override fun onAnimationEnd(view: View) {
                             disposeAddNewAnimator()
-                            addNewIconAnimator = layoutRoot.popShow(
+                            addNewIconAnimator = layoutRoot.popHide(
                                 startDelay = 0,
                                 listener = object : ViewPropertyAnimatorListenerAdapter() {
                                     override fun onAnimationEnd(view: View) {
