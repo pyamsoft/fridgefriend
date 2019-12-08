@@ -29,8 +29,10 @@ data class DetailViewState(
     val listError: Throwable?,
     val undoableItem: FridgeItem?,
     val actionVisible: ActionVisible?,
-    val isExpanded: Boolean
+    val isExpanded: Expanded?
 ) : UiViewState {
+
+    data class Expanded internal constructor(val expanded: Boolean)
 
     data class ActionVisible internal constructor(val visible: Boolean)
 

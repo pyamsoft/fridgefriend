@@ -167,8 +167,8 @@ class AddNewItemView @Inject internal constructor(
         state: DetailViewState,
         savedState: UiSavedState
     ) {
-        state.isExpanded.let { expanded ->
-            if (!expanded) {
+        state.isExpanded?.let { expanded ->
+            if (!expanded.expanded) {
                 dismissItem()
             }
         }

@@ -61,7 +61,7 @@ class DetailViewModel @Inject internal constructor(
         listError = null,
         undoableItem = null,
         actionVisible = null,
-        isExpanded = false
+        isExpanded = null
     )
 ) {
 
@@ -120,7 +120,7 @@ class DetailViewModel @Inject internal constructor(
         doOnInit {
             viewModelScope.launch(context = Dispatchers.Default) {
                 expandVisibilityBus.onEvent {
-                    setState { copy(isExpanded = it.visible) }
+                    setState { copy(isExpanded = DetailViewState.Expanded(it.visible)) }
                 }
             }
         }
