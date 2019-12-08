@@ -17,7 +17,10 @@
 
 package com.pyamsoft.fridge.locator.map.osm
 
+import android.view.View
 import android.view.ViewGroup
+import androidx.core.view.ViewPropertyAnimatorCompat
+import androidx.core.view.ViewPropertyAnimatorListenerAdapter
 import androidx.core.view.isVisible
 import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.LifecycleOwner
@@ -53,6 +56,10 @@ class OsmActions @Inject internal constructor(
     private val backgroundPermission by boundView<FloatingActionButton>(
         R.id.osm_background_location_permission
     )
+
+    private var nearbyAnimator: ViewPropertyAnimatorCompat? = null
+    private var meAnimator: ViewPropertyAnimatorCompat? = null
+    private var backgroundAnimator: ViewPropertyAnimatorCompat? = null
 
     init {
         doOnInflate {
@@ -98,7 +105,26 @@ class OsmActions @Inject internal constructor(
             boundFindMeImage = null
             boundNearbyImage = null
             boundBackgroundImage = null
+
+            dismissBackgroundAnimator()
+            dismissNearbyAnimator()
+            dismissMeAnimator()
         }
+    }
+
+    private fun dismissBackgroundAnimator() {
+        backgroundAnimator?.cancel()
+        backgroundAnimator = null
+    }
+
+    private fun dismissNearbyAnimator() {
+        nearbyAnimator?.cancel()
+        nearbyAnimator = null
+    }
+
+    private fun dismissMeAnimator() {
+        meAnimator?.cancel()
+        meAnimator = null
     }
 
     override fun onRender(
@@ -153,16 +179,24 @@ class OsmActions @Inject internal constructor(
     }
 
     private fun revealButtons() {
-        var delay = 700L
-        findNearby.popShow(startDelay = delay)
-        delay += 300L
-
-        findMe.popShow(startDelay = delay)
-        delay += 300L
-
-        if (!mapPermission.hasBackgroundPermission()) {
-            backgroundPermission.popShow(startDelay = delay)
-            delay += 300L
-        }
+        dismissNearbyAnimator()
+        nearbyAnimator = findNearby.popShow(
+            startDelay = 700L,
+            listener = object : ViewPropertyAnimatorListenerAdapter() {
+                override fun onAnimationEnd(view: View) {
+                    dismissMeAnimator()
+                    meAnimator = findMe.popShow(
+                        startDelay = 0,
+                        listener = object : ViewPropertyAnimatorListenerAdapter() {
+                            override fun onAnimationEnd(view: View) {
+                                if (!mapPermission.hasBackgroundPermission()) {
+                                    dismissBackgroundAnimator()
+                                    backgroundAnimator =
+                                        backgroundPermission.popShow(startDelay = 0)
+                                }
+                            }
+                        })
+                }
+            })
     }
 }
