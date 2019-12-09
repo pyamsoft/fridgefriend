@@ -319,10 +319,9 @@ class DetailList @Inject internal constructor(
         }
 
         state.items.let { items ->
-            if (items.isEmpty()) {
-                clearList()
-            } else {
-                setList(items)
+            when {
+                items == null || items.isEmpty() -> clearList()
+                else -> setList(items)
             }
         }
 
@@ -342,8 +341,6 @@ class DetailList @Inject internal constructor(
             }
         }
 
-        state.showArchived.let { showArchived ->
-            setupSwipeCallback(showArchived)
-        }
+        setupSwipeCallback(state.showArchived)
     }
 }

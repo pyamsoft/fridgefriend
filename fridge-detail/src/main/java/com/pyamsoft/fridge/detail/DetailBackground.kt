@@ -63,16 +63,19 @@ class DetailBackground @Inject internal constructor(
 
     override fun onRender(state: DetailViewState, savedState: UiSavedState) {
         state.items.let { items ->
-            if (items.isEmpty()) {
-                val message: String
-                val which = if (need) "Your shopping list is empty" else "Your fridge is empty"
-                message = "${which}, click the plus to get started"
+            when {
+                items == null || items.isNotEmpty() -> {
+                    text.text = null
+                    text.isInvisible = true
+                }
+                items.isEmpty() -> {
+                    val message: String
+                    val which = if (need) "Your shopping list is empty" else "Your fridge is empty"
+                    message = "${which}, click the plus to get started"
 
-                text.text = message
-                text.isVisible = true
-            } else {
-                text.text = null
-                text.isInvisible = true
+                    text.text = message
+                    text.isVisible = true
+                }
             }
         }
     }

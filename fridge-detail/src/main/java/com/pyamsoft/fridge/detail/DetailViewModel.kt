@@ -56,7 +56,7 @@ class DetailViewModel @Inject internal constructor(
 ) : UiViewModel<DetailViewState, DetailViewEvent, DetailControllerEvent>(
     initialState = DetailViewState(
         isLoading = null,
-        items = emptyList(),
+        items = null,
         showArchived = false,
         listError = null,
         undoableItem = null,
@@ -228,7 +228,7 @@ class DetailViewModel @Inject internal constructor(
     private fun handleRealtimeInsert(item: FridgeItem) {
         setState {
             copy(
-                items = items.let { list ->
+                items = items.orEmpty().let { list ->
                     val newItems = list.toMutableList()
                     insert(newItems, item)
                     return@let getListItems(showArchived, newItems)
@@ -241,16 +241,19 @@ class DetailViewModel @Inject internal constructor(
         if (item.isArchived()) {
             setState {
                 copy(
-                    items = getListItems(showArchived, items.filterNot { it.id() == item.id() }),
+                    items = getListItems(
+                        showArchived,
+                        items.orEmpty().filterNot { it.id() == item.id() }),
                     undoableItem = item
                 )
             }
         } else {
             setState {
+                val oldList = items.orEmpty()
                 copy(
                     items = getListItems(showArchived,
-                        if (items.map { it.id() }.contains(item.id())) {
-                            items.map { old ->
+                        if (oldList.map { it.id() }.contains(item.id())) {
+                            oldList.map { old ->
                                 if (old.id() == item.id()) {
                                     return@map item
                                 } else {
@@ -258,7 +261,7 @@ class DetailViewModel @Inject internal constructor(
                                 }
                             }
                         } else {
-                            items + item
+                            oldList + item
                         }
                     )
                 )
@@ -269,7 +272,9 @@ class DetailViewModel @Inject internal constructor(
     private fun handleRealtimeDelete(item: FridgeItem) {
         setState {
             copy(
-                items = getListItems(showArchived, items.filterNot { it.id() == item.id() }),
+                items = getListItems(
+                    showArchived,
+                    items.orEmpty().filterNot { it.id() == item.id() }),
                 undoableItem = item
             )
         }
