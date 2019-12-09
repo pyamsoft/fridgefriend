@@ -47,9 +47,14 @@ internal class DetailFragment : Fragment(), SnackbarContainer {
     @JvmField
     @Inject
     internal var list: DetailList? = null
+
     @JvmField
     @Inject
     internal var addNew: AddNewItemView? = null
+
+    @JvmField
+    @Inject
+    internal var background: DetailBackground? = null
 
     @JvmField
     @Inject
@@ -103,10 +108,12 @@ internal class DetailFragment : Fragment(), SnackbarContainer {
 
         val list = requireNotNull(list)
         val addNew = requireNotNull(addNew)
+        val background = requireNotNull(background)
 
         createComponent(
             savedInstanceState, viewLifecycleOwner,
             viewModel,
+            background,
             list,
             addNew
         ) {
@@ -134,6 +141,7 @@ internal class DetailFragment : Fragment(), SnackbarContainer {
         super.onSaveInstanceState(outState)
         list?.saveState(outState)
         addNew?.saveState(outState)
+        background?.saveState(outState)
     }
 
     override fun onDestroyView() {
@@ -141,6 +149,7 @@ internal class DetailFragment : Fragment(), SnackbarContainer {
 
         rootView = null
         factory = null
+        background = null
         list = null
         addNew = null
     }
