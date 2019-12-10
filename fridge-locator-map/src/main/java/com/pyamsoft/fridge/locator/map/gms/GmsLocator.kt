@@ -66,9 +66,14 @@ internal class GmsLocator @Inject internal constructor(
 
     override suspend fun getLastKnownLocation(): Location? {
         return suspendCancellableCoroutine { continuation ->
+            continuation.invokeOnCancellation {
+                Timber.w("Get last known coroutine cancelled: $it")
+            }
+
             fetchLocation(
                 onRetrieve = { continuation.resume(it) },
-                onError = { continuation.resumeWithException(it) }
+                onError = { continuation.resumeWithException(it) },
+                onCancel = { continuation.cancel() }
             )
         }
     }
@@ -76,7 +81,8 @@ internal class GmsLocator @Inject internal constructor(
     @SuppressLint("MissingPermission")
     private inline fun fetchLocation(
         crossinline onRetrieve: (lastLocation: Location?) -> Unit,
-        crossinline onError: (throwable: Throwable) -> Unit
+        crossinline onError: (throwable: Throwable) -> Unit,
+        crossinline onCancel: () -> Unit
     ) {
         if (!permission.hasForegroundPermission()) {
             Timber.w("Cannot get last location, missing foreground location permissions")
@@ -91,13 +97,17 @@ internal class GmsLocator @Inject internal constructor(
                 return@isGpsEnabled
             }
 
-            locationClient.lastLocation.addOnSuccessListener { location ->
-                Timber.d("Last known location: $location")
-                onRetrieve(location)
-            }
+            locationClient.lastLocation
+                .addOnSuccessListener { location ->
+                    Timber.d("Last known location: $location")
+                    onRetrieve(location)
+                }
                 .addOnFailureListener { throwable ->
                     Timber.e(throwable, "Error getting last known location")
                     onError(throwable)
+                }.addOnCanceledListener {
+                    Timber.w("Last known location cancelled")
+                    onCancel()
                 }
         }
     }
