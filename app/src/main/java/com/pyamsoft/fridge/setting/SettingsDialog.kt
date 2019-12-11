@@ -154,7 +154,7 @@ internal class SettingsDialog : DialogFragment() {
             }
 
             dropshadow.also {
-                connect(it.id(), ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP)
+                connect(it.id(), ConstraintSet.TOP, toolbar.id(), ConstraintSet.BOTTOM)
                 connect(it.id(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
                 connect(it.id(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
                 constrainWidth(it.id(), ConstraintSet.MATCH_CONSTRAINT)
