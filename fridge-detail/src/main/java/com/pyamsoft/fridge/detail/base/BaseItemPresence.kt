@@ -19,6 +19,8 @@ package com.pyamsoft.fridge.detail.base
 
 import android.view.ViewGroup
 import android.widget.CompoundButton
+import androidx.core.view.isInvisible
+import androidx.core.view.isVisible
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.isArchived
 import com.pyamsoft.fridge.detail.R
@@ -47,12 +49,13 @@ abstract class BaseItemPresence<S : UiViewState, V : UiViewEvent> protected cons
 
         setSwitchEnabled(item)
         if (item != null) {
+            presenceSwitch.isVisible = true
             presenceSwitch.isChecked = item.presence() == FridgeItem.Presence.HAVE
             presenceSwitch.setOnCheckedChangeListener { _, isChecked ->
                 commit(item, if (isChecked) FridgeItem.Presence.HAVE else FridgeItem.Presence.NEED)
             }
         } else {
-            presenceSwitch.isChecked = false
+            presenceSwitch.isInvisible = true
         }
     }
 

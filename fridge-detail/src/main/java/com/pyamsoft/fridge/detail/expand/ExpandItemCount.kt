@@ -30,11 +30,15 @@ class ExpandItemCount @Inject internal constructor(
     @Named("item_editable") private val isEditable: Boolean,
     parent: ViewGroup,
     initialItem: FridgeItem
-) : BaseItemCount<ExpandItemViewState, ExpandedItemViewEvent>(parent, initialItem) {
+) : BaseItemCount<ExpandItemViewState, ExpandedItemViewEvent>(parent) {
 
     private var countWatcher: TextWatcher? = null
 
     init {
+        doOnInflate {
+            setCount(initialItem)
+        }
+
         doOnTeardown {
             removeListeners()
         }

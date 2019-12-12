@@ -31,12 +31,16 @@ class ExpandItemName @Inject internal constructor(
     @Named("item_editable") private val isEditable: Boolean,
     parent: ViewGroup,
     initialItem: FridgeItem
-) : BaseItemName<ExpandItemViewState, ExpandedItemViewEvent>(parent, initialItem) {
+) : BaseItemName<ExpandItemViewState, ExpandedItemViewEvent>(parent) {
 
     private var nameWatcher: TextWatcher? = null
     private val popupWindow = SimilarlyNamedListWindow(parent.context)
 
     init {
+        doOnInflate {
+            setName(initialItem, null)
+        }
+
         doOnInflate {
             popupWindow.apply {
                 initializeView(layoutRoot)

@@ -91,12 +91,13 @@ class DetailList @Inject internal constructor(
                     realtime, fakeRealtime, dateSelectBus, listItemPresence
                 ).plusItemComponent()
 
-            val injectComponent = { parent: ViewGroup, item: FridgeItem, editable: Boolean ->
-                component.create(tooltipCreator, parent, item, editable)
+            val injectComponent = { parent: ViewGroup, editable: Boolean ->
+                component.create(tooltipCreator, parent, editable)
             }
 
             modelAdapter = DetailListAdapter(
                 editable = false,
+                owner = owner,
                 injectComponent = injectComponent,
                 callback = object : Callback {
 

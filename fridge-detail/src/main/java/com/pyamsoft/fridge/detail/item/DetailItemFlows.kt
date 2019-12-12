@@ -51,6 +51,4 @@ sealed class DetailItemControllerEvent : UiControllerEvent {
         val month: Int,
         val day: Int
     ) : DetailItemControllerEvent()
-
-    object CloseExpand : DetailItemControllerEvent()
 }

@@ -22,7 +22,6 @@ import android.view.ViewGroup
 import androidx.core.content.withStyledAttributes
 import androidx.core.view.updatePadding
 import com.pyamsoft.fridge.db.item.FridgeItem
-import com.pyamsoft.fridge.detail.DetailListAdapter.Callback
 import com.pyamsoft.fridge.detail.DetailListAdapter.DetailViewHolder
 import com.pyamsoft.pydroid.util.doOnApplyWindowInsets
 import com.pyamsoft.pydroid.util.toDp
@@ -31,9 +30,9 @@ internal class SpacerItemViewHolder internal constructor(
     itemView: View
 ) : DetailViewHolder(itemView) {
 
-    private val frame = itemView.findViewById<ViewGroup>(R.id.listitem_frame)
 
     init {
+        val frame = itemView.findViewById<ViewGroup>(R.id.listitem_frame)
         frame.doOnApplyWindowInsets { v, insets, padding ->
             val offset = 8.toDp(v.context)
             val toolbarTopMargin = padding.top + insets.systemWindowInsetTop + offset
@@ -47,11 +46,7 @@ internal class SpacerItemViewHolder internal constructor(
         }
     }
 
-    override fun bind(
-        item: FridgeItem,
-        editable: Boolean,
-        callback: Callback
-    ) {
+    override fun bind(item: FridgeItem) {
     }
 
     override fun unbind() {

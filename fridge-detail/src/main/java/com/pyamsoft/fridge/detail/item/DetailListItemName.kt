@@ -18,7 +18,6 @@
 package com.pyamsoft.fridge.detail.item
 
 import android.view.ViewGroup
-import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.detail.base.BaseItemName
 import com.pyamsoft.pydroid.arch.UiSavedState
 import javax.inject.Inject
@@ -26,9 +25,8 @@ import javax.inject.Named
 
 class DetailListItemName @Inject internal constructor(
     @Named("item_editable") private val isEditable: Boolean,
-    parent: ViewGroup,
-    initialItem: FridgeItem
-) : BaseItemName<DetailItemViewState, DetailItemViewEvent>(parent, initialItem) {
+    parent: ViewGroup
+) : BaseItemName<DetailItemViewState, DetailItemViewEvent>(parent) {
 
     init {
         doOnInflate {

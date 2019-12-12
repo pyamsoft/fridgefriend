@@ -21,13 +21,13 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModelProvider.Factory
 import androidx.lifecycle.ViewModelStore
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.detail.DetailListAdapter.Callback
 import com.pyamsoft.fridge.detail.DetailListAdapter.DetailViewHolder
 import com.pyamsoft.fridge.detail.item.DetailItemComponent
-import com.pyamsoft.fridge.detail.item.DetailItemControllerEvent.CloseExpand
 import com.pyamsoft.fridge.detail.item.DetailItemControllerEvent.DatePick
 import com.pyamsoft.fridge.detail.item.DetailItemControllerEvent.ExpandDetails
 import com.pyamsoft.fridge.detail.item.DetailListItemDate
@@ -36,81 +36,58 @@ import com.pyamsoft.fridge.detail.item.DetailListItemName
 import com.pyamsoft.fridge.detail.item.DetailListItemPresence
 import com.pyamsoft.fridge.detail.item.DetailListItemViewModel
 import com.pyamsoft.pydroid.arch.createComponent
-import com.pyamsoft.pydroid.ui.app.ListItemLifecycle
+import com.pyamsoft.pydroid.arch.doOnDestroy
 import com.pyamsoft.pydroid.ui.arch.factory
 import com.pyamsoft.pydroid.ui.util.layout
-import timber.log.Timber
 import javax.inject.Inject
 
 internal class DetailItemViewHolder internal constructor(
     itemView: View,
-    private val injectComponent: (parent: ViewGroup, item: FridgeItem, editable: Boolean) -> DetailItemComponent
+    owner: LifecycleOwner,
+    editable: Boolean,
+    callback: Callback,
+    injectComponent: (parent: ViewGroup, editable: Boolean) -> DetailItemComponent
 ) : DetailViewHolder(itemView) {
 
     @JvmField
     @Inject
-    internal var name: DetailListItemName? = null
+    internal var nameView: DetailListItemName? = null
     @JvmField
     @Inject
-    internal var date: DetailListItemDate? = null
+    internal var dateView: DetailListItemDate? = null
     @JvmField
     @Inject
-    internal var presence: DetailListItemPresence? = null
+    internal var presenceView: DetailListItemPresence? = null
     @JvmField
     @Inject
-    internal var glances: DetailListItemGlances? = null
+    internal var glancesView: DetailListItemGlances? = null
 
     @JvmField
     @Inject
     internal var factory: Factory? = null
-    private var viewModel: DetailListItemViewModel? = null
+    private val viewModel by factory<DetailListItemViewModel>(ViewModelStore()) { factory }
 
-    private val parent: ConstraintLayout = itemView.findViewById(R.id.detail_list_item)
-
-    private var lifecycle: ListItemLifecycle? = null
-    private var boundItem: FridgeItem? = null
-
-    private fun injectViewModel() {
-        viewModel = factory<DetailListItemViewModel>(ViewModelStore()) { factory }.get()
-    }
-
-    override fun bind(
-        item: FridgeItem,
-        editable: Boolean,
-        callback: Callback
-    ) {
-        boundItem = item
-        val owner = ListItemLifecycle()
-        lifecycle?.unbind()
-        lifecycle = owner
-
-        injectComponent(parent, item, editable)
+    init {
+        val parent = itemView.findViewById<ConstraintLayout>(R.id.detail_list_item)
+        injectComponent(parent, editable)
             .inject(this)
-        injectViewModel()
 
-        val name = requireNotNull(name)
-        val date = requireNotNull(date)
-        val presence = requireNotNull(presence)
-        val glances = requireNotNull(glances)
+        val name = requireNotNull(nameView)
+        val date = requireNotNull(dateView)
+        val presence = requireNotNull(presenceView)
+        val glances = requireNotNull(glancesView)
 
         createComponent(
             null, owner,
-            requireNotNull(viewModel),
+            viewModel,
             name,
             date,
             presence,
             glances
         ) {
             return@createComponent when (it) {
-                is ExpandDetails -> callback.onItemExpanded(
-                    it.item
-                )
-                is DatePick -> callback.onPickDate(
-                    it.oldItem, it.year, it.month, it.day
-                )
-                is CloseExpand -> Timber.d(
-                    "Deleted item"
-                )
+                is ExpandDetails -> callback.onItemExpanded(it.item)
+                is DatePick -> callback.onPickDate(it.oldItem, it.year, it.month, it.day)
             }
         }
 
@@ -190,35 +167,36 @@ internal class DetailItemViewHolder internal constructor(
             }
         }
 
-        owner.bind()
+        owner.doOnDestroy {
+            nameView = null
+            glancesView = null
+            dateView = null
+            presenceView = null
+            factory = null
+        }
+    }
 
-        requireNotNull(viewModel).bind(item)
+    override fun bind(item: FridgeItem) {
+        viewModel.bind(item)
     }
 
     override fun unbind() {
-        requireNotNull(viewModel).unbind()
-        lifecycle?.unbind()
-        lifecycle = null
-
-        boundItem = null
-        name = null
-        date = null
-        presence = null
+        viewModel.unbind()
     }
 
     fun consume() {
-        requireNotNull(viewModel).consume()
+        viewModel.consume()
     }
 
     fun spoil() {
-        requireNotNull(viewModel).spoil()
+        viewModel.spoil()
     }
 
     fun restore() {
-        requireNotNull(viewModel).restore()
+        viewModel.restore()
     }
 
     fun delete() {
-        requireNotNull(viewModel).delete()
+        viewModel.delete()
     }
 }

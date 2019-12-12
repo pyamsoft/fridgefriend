@@ -296,6 +296,7 @@ class DetailListItemGlances @Inject internal constructor(
             isVisible: Boolean
         ): Loaded? {
             if (isVisible) {
+                view.isVisible = true
                 val color = if (isColored) R.color.red500 else R.color.grey500
                 loaded?.dispose()
                 return imageLoader.load(drawable)

@@ -27,8 +27,7 @@ import com.pyamsoft.pydroid.arch.UiViewState
 import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
 
 abstract class BaseItemCount<S : UiViewState, V : UiViewEvent> protected constructor(
-    parent: ViewGroup,
-    initialItem: FridgeItem
+    parent: ViewGroup
 ) : BaseUiView<S, V>(parent) {
 
     final override val layout: Int = R.layout.detail_list_item_count
@@ -37,13 +36,7 @@ abstract class BaseItemCount<S : UiViewState, V : UiViewEvent> protected constru
 
     protected val countView by boundView<EditText>(R.id.detail_item_count_editable)
 
-    // Don't bind nameView text based on state in onRender
-    // Android does not re-render fast enough for edits to keep up
     init {
-        doOnInflate {
-            setCount(item = initialItem)
-        }
-
         doOnTeardown {
             clear()
         }

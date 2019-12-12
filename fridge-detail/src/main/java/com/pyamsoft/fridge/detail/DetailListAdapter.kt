@@ -21,6 +21,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.CheckResult
+import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -30,9 +31,10 @@ import com.pyamsoft.fridge.detail.DetailListAdapter.DetailViewHolder
 import com.pyamsoft.fridge.detail.item.DetailItemComponent
 
 internal class DetailListAdapter constructor(
+    private val owner: LifecycleOwner,
     private val editable: Boolean,
-    private val injectComponent: (parent: ViewGroup, item: FridgeItem, editable: Boolean) -> DetailItemComponent,
-    private val callback: Callback
+    private val callback: Callback,
+    private val injectComponent: (parent: ViewGroup, editable: Boolean) -> DetailItemComponent
 ) : ListAdapter<FridgeItem, DetailViewHolder>(object : DiffUtil.ItemCallback<FridgeItem>() {
 
     override fun areItemsTheSame(
@@ -81,7 +83,7 @@ internal class DetailListAdapter constructor(
             SpacerItemViewHolder(v)
         } else {
             val v = inflater.inflate(R.layout.detail_list_item_holder, parent, false)
-            DetailItemViewHolder(v, injectComponent)
+            DetailItemViewHolder(v, owner, editable, callback, injectComponent)
         }
     }
 
@@ -90,7 +92,7 @@ internal class DetailListAdapter constructor(
         position: Int
     ) {
         val item = getItem(position)
-        holder.bind(item, editable, callback)
+        holder.bind(item)
     }
 
     override fun onViewRecycled(holder: DetailViewHolder) {
@@ -102,11 +104,7 @@ internal class DetailListAdapter constructor(
         view: View
     ) : RecyclerView.ViewHolder(view) {
 
-        abstract fun bind(
-            item: FridgeItem,
-            editable: Boolean,
-            callback: Callback
-        )
+        abstract fun bind(item: FridgeItem)
 
         abstract fun unbind()
     }

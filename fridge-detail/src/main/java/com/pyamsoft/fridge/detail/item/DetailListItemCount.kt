@@ -18,7 +18,6 @@
 package com.pyamsoft.fridge.detail.item
 
 import android.view.ViewGroup
-import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.detail.base.BaseItemCount
 import com.pyamsoft.fridge.detail.item.DetailItemViewEvent.ExpandItem
 import com.pyamsoft.pydroid.arch.UiSavedState
@@ -28,9 +27,8 @@ import javax.inject.Named
 
 class DetailListItemCount @Inject internal constructor(
     @Named("item_editable") private val isEditable: Boolean,
-    parent: ViewGroup,
-    initialItem: FridgeItem
-) : BaseItemCount<DetailItemViewState, DetailItemViewEvent>(parent, initialItem) {
+    parent: ViewGroup
+) : BaseItemCount<DetailItemViewState, DetailItemViewEvent>(parent) {
 
     init {
         doOnInflate {
