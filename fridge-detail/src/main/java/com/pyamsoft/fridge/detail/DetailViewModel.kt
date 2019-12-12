@@ -28,8 +28,6 @@ import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent.Update
 import com.pyamsoft.fridge.db.item.isArchived
 import com.pyamsoft.fridge.detail.DetailControllerEvent.DatePick
 import com.pyamsoft.fridge.detail.DetailControllerEvent.ExpandForEditing
-import com.pyamsoft.fridge.detail.DetailControllerEvent.NavigateUp
-import com.pyamsoft.fridge.detail.DetailViewEvent.CloseEntry
 import com.pyamsoft.fridge.detail.DetailViewEvent.ExpandItem
 import com.pyamsoft.fridge.detail.DetailViewEvent.ForceRefresh
 import com.pyamsoft.fridge.detail.DetailViewEvent.PickDate
@@ -131,7 +129,6 @@ class DetailViewModel @Inject internal constructor(
             is ForceRefresh -> refreshList(true)
             is ExpandItem -> publish(ExpandForEditing(event.item))
             is PickDate -> publish(DatePick(event.oldItem, event.year, event.month, event.day))
-            is CloseEntry -> publish(NavigateUp)
             is ToggleArchiveVisibility -> toggleArchived()
             is ReallyDeleteNoUndo -> setState { copy(undoableItem = null) }
             is UndoDelete -> handleUndoDelete(event.item)

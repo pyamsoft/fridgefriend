@@ -121,7 +121,6 @@ internal class DetailFragment : Fragment(), SnackbarContainer {
                 is DetailControllerEvent.ExpandForEditing -> expandItem(it.item)
                 is DetailControllerEvent.DatePick -> pickDate(it.oldItem, it.year, it.month, it.day)
                 is DetailControllerEvent.EntryArchived -> close()
-                is DetailControllerEvent.NavigateUp -> close()
                 is DetailControllerEvent.AddNew -> expandItem(FridgeItem.create(entryId = it.entryId))
             }
         }

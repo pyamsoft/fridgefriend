@@ -56,8 +56,6 @@ sealed class DetailViewEvent : UiViewEvent {
 
     object ToggleArchiveVisibility : DetailViewEvent()
 
-    object CloseEntry : DetailViewEvent()
-
     data class UndoDelete internal constructor(val item: FridgeItem) : DetailViewEvent()
 
     data class ReallyDeleteNoUndo internal constructor(val item: FridgeItem) : DetailViewEvent()
@@ -85,6 +83,4 @@ sealed class DetailControllerEvent : UiControllerEvent {
     ) : DetailControllerEvent()
 
     object EntryArchived : DetailControllerEvent()
-
-    object NavigateUp : DetailControllerEvent()
 }
