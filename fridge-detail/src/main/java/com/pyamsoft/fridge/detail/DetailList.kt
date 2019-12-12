@@ -291,7 +291,7 @@ class DetailList @Inject internal constructor(
 
     private fun showUndoSnackbar(undoable: FridgeItem) {
         Snackbreak.bindTo(owner, "undo") {
-            short(layoutRoot, "Removed ${undoable.name()}", force = true, onHidden = { _, _ ->
+            short(layoutRoot, "Removed ${undoable.name()}", onHidden = { _, _ ->
                 // Once hidden this will clear out the stored undoable
                 //
                 // If the undoable was restored before this point, this is basically a no-op
