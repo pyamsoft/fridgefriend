@@ -22,8 +22,6 @@ import android.text.TextWatcher
 import android.view.ViewGroup
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.detail.base.BaseItemCount
-import com.pyamsoft.fridge.detail.item.DetailItemViewEvent.CommitCount
-import com.pyamsoft.fridge.detail.item.DetailItemViewState
 import com.pyamsoft.pydroid.arch.UiSavedState
 import javax.inject.Inject
 import javax.inject.Named
@@ -32,7 +30,7 @@ class ExpandItemCount @Inject internal constructor(
     @Named("item_editable") private val isEditable: Boolean,
     parent: ViewGroup,
     initialItem: FridgeItem
-) : BaseItemCount(parent, initialItem) {
+) : BaseItemCount<ExpandItemViewState, ExpandedItemViewEvent>(parent, initialItem) {
 
     private var countWatcher: TextWatcher? = null
 
@@ -43,16 +41,21 @@ class ExpandItemCount @Inject internal constructor(
     }
 
     override fun onRender(
-        state: DetailItemViewState,
+        state: ExpandItemViewState,
         savedState: UiSavedState
     ) {
         if (!isEditable) {
             return
         }
 
-        val item = state.item
         removeListeners()
-        addWatcher(item)
+        state.item.let { item ->
+            if (item == null) {
+                clear()
+            } else {
+                addWatcher(item)
+            }
+        }
     }
 
     private fun addWatcher(item: FridgeItem) {
@@ -89,6 +92,6 @@ class ExpandItemCount @Inject internal constructor(
 
     private fun commit(item: FridgeItem) {
         val count = countView.text.toString().toIntOrNull() ?: 0
-        publish(CommitCount(item, count))
+        publish(ExpandedItemViewEvent.CommitCount(item, count))
     }
 }

@@ -21,15 +21,15 @@ import android.view.ViewGroup
 import android.widget.EditText
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.detail.R
-import com.pyamsoft.fridge.detail.item.DetailItemViewEvent
-import com.pyamsoft.fridge.detail.item.DetailItemViewState
 import com.pyamsoft.pydroid.arch.BaseUiView
+import com.pyamsoft.pydroid.arch.UiViewEvent
+import com.pyamsoft.pydroid.arch.UiViewState
 import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
 
-abstract class BaseItemCount protected constructor(
+abstract class BaseItemCount<S : UiViewState, V : UiViewEvent> protected constructor(
     parent: ViewGroup,
     initialItem: FridgeItem
-) : BaseUiView<DetailItemViewState, DetailItemViewEvent>(parent) {
+) : BaseUiView<S, V>(parent) {
 
     final override val layout: Int = R.layout.detail_list_item_count
 
@@ -45,9 +45,13 @@ abstract class BaseItemCount protected constructor(
         }
 
         doOnTeardown {
-            countView.text.clear()
-            countView.setOnDebouncedClickListener(null)
+            clear()
         }
+    }
+
+    protected fun clear() {
+        countView.text.clear()
+        countView.setOnDebouncedClickListener(null)
     }
 
     protected fun setCount(item: FridgeItem) {

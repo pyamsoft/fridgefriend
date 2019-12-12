@@ -39,7 +39,7 @@ import com.pyamsoft.fridge.detail.DetailViewEvent.ForceRefresh
 import com.pyamsoft.fridge.detail.DetailViewEvent.PickDate
 import com.pyamsoft.fridge.detail.DetailViewEvent.ReallyDeleteNoUndo
 import com.pyamsoft.fridge.detail.DetailViewEvent.UndoDelete
-import com.pyamsoft.fridge.detail.item.DateSelectPayload
+import com.pyamsoft.fridge.detail.expand.DateSelectPayload
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.arch.EventBus
 import com.pyamsoft.pydroid.arch.UiSavedState

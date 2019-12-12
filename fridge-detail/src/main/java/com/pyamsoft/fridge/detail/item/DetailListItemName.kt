@@ -20,9 +20,7 @@ package com.pyamsoft.fridge.detail.item
 import android.view.ViewGroup
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.detail.base.BaseItemName
-import com.pyamsoft.fridge.detail.item.DetailItemViewEvent.ExpandItem
 import com.pyamsoft.pydroid.arch.UiSavedState
-import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
 import javax.inject.Inject
 import javax.inject.Named
 
@@ -30,7 +28,13 @@ class DetailListItemName @Inject internal constructor(
     @Named("item_editable") private val isEditable: Boolean,
     parent: ViewGroup,
     initialItem: FridgeItem
-) : BaseItemName(parent, initialItem) {
+) : BaseItemName<DetailItemViewState, DetailItemViewEvent>(parent, initialItem) {
+
+    init {
+        doOnInflate {
+            nameView.setNotEditable()
+        }
+    }
 
     override fun onRender(
         state: DetailItemViewState,
@@ -40,9 +44,12 @@ class DetailListItemName @Inject internal constructor(
             return
         }
 
-        val item = state.item
-        setName(item)
-        nameView.setNotEditable()
-        nameView.setOnDebouncedClickListener { publish(ExpandItem(item)) }
+        state.item.let { item ->
+            if (item == null) {
+                clear()
+            } else {
+                setName(item) { publish(DetailItemViewEvent.ExpandItem(item)) }
+            }
+        }
     }
 }

@@ -68,32 +68,30 @@ class DetailListItemGlances @Inject internal constructor(
 
     init {
         doOnTeardown {
-            layoutRoot.setOnDebouncedClickListener(null)
+            clear()
         }
+    }
 
-        doOnTeardown {
-            dateRangeLoader?.dispose()
-            dateRangeLoader = null
-            dateRangeTooltip?.hide()
-            dateRangeTooltip = null
-            validExpirationDate.setOnDebouncedClickListener(null)
-        }
+    private fun clear() {
+        layoutRoot.setOnDebouncedClickListener(null)
 
-        doOnTeardown {
-            expiringLoader?.dispose()
-            expiringLoader = null
-            expiringTooltip?.hide()
-            expiringTooltip = null
-            itemExpiringSoon.setOnDebouncedClickListener(null)
-        }
+        dateRangeLoader?.dispose()
+        dateRangeLoader = null
+        dateRangeTooltip?.hide()
+        dateRangeTooltip = null
+        validExpirationDate.setOnDebouncedClickListener(null)
 
-        doOnTeardown {
-            expiredLoader?.dispose()
-            expiredLoader = null
-            expiredTooltip?.hide()
-            expiredTooltip = null
-            itemExpired.setOnDebouncedClickListener(null)
-        }
+        expiringLoader?.dispose()
+        expiringLoader = null
+        expiringTooltip?.hide()
+        expiringTooltip = null
+        itemExpiringSoon.setOnDebouncedClickListener(null)
+
+        expiredLoader?.dispose()
+        expiredLoader = null
+        expiredTooltip?.hide()
+        expiredTooltip = null
+        itemExpired.setOnDebouncedClickListener(null)
     }
 
     override fun onRender(
@@ -101,21 +99,25 @@ class DetailListItemGlances @Inject internal constructor(
         savedState: UiSavedState
     ) {
         state.item.let { item ->
-            val isVisible = item.isReal() && !item.isArchived() && item.presence() == HAVE
-            layoutRoot.isVisible = isVisible
-            layoutRoot.setOnDebouncedClickListener { publish(ExpandItem(item)) }
+            if (item == null) {
+                clear()
+            } else {
+                val isVisible = item.isReal() && !item.isArchived() && item.presence() == HAVE
+                layoutRoot.isVisible = isVisible
+                layoutRoot.setOnDebouncedClickListener { publish(ExpandItem(item)) }
 
-            val today = Calendar.getInstance().cleanMidnight()
-            val soonDate = Calendar.getInstance().daysLaterMidnight(state.expirationRange)
-            val isSameDayExpired = state.isSameDayExpired
-            val expireTime = item.expireTime()
-            val hasTime = expireTime != null
-            val isExpiringSoon = item.isExpiringSoon(today, soonDate, isSameDayExpired)
-            val isExpired = item.isExpired(today, isSameDayExpired)
+                val today = Calendar.getInstance().cleanMidnight()
+                val soonDate = Calendar.getInstance().daysLaterMidnight(state.expirationRange)
+                val isSameDayExpired = state.isSameDayExpired
+                val expireTime = item.expireTime()
+                val hasTime = expireTime != null
+                val isExpiringSoon = item.isExpiringSoon(today, soonDate, isSameDayExpired)
+                val isExpired = item.isExpired(today, isSameDayExpired)
 
-            setDateRangeView(item, expireTime, hasTime)
-            setExpiringView(item, expireTime, today, isExpiringSoon, isExpired, hasTime)
-            setExpiredView(item, expireTime, today, isExpired, hasTime)
+                setDateRangeView(item, expireTime, hasTime)
+                setExpiringView(item, expireTime, today, isExpiringSoon, isExpired, hasTime)
+                setExpiredView(item, expireTime, today, isExpired, hasTime)
+            }
         }
     }
 

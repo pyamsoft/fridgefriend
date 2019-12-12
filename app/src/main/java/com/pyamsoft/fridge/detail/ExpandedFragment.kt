@@ -37,19 +37,17 @@ import com.pyamsoft.fridge.db.entry.JsonMappableFridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence
 import com.pyamsoft.fridge.db.item.JsonMappableFridgeItem
+import com.pyamsoft.fridge.detail.expand.ExpandItemControllerEvent
 import com.pyamsoft.fridge.detail.expand.ExpandItemCount
 import com.pyamsoft.fridge.detail.expand.ExpandItemDate
 import com.pyamsoft.fridge.detail.expand.ExpandItemError
 import com.pyamsoft.fridge.detail.expand.ExpandItemName
+import com.pyamsoft.fridge.detail.expand.ExpandItemPresence
 import com.pyamsoft.fridge.detail.expand.ExpandItemSimilar
 import com.pyamsoft.fridge.detail.expand.ExpandItemViewModel
+import com.pyamsoft.fridge.detail.expand.ExpandItemViewState
+import com.pyamsoft.fridge.detail.expand.ExpandedItemViewEvent
 import com.pyamsoft.fridge.detail.expand.ExpandedToolbar
-import com.pyamsoft.fridge.detail.item.DetailItemControllerEvent.CloseExpand
-import com.pyamsoft.fridge.detail.item.DetailItemControllerEvent.DatePick
-import com.pyamsoft.fridge.detail.item.DetailItemControllerEvent.ExpandDetails
-import com.pyamsoft.fridge.detail.item.DetailItemViewEvent
-import com.pyamsoft.fridge.detail.item.DetailItemViewState
-import com.pyamsoft.fridge.detail.item.DetailListItemPresence
 import com.pyamsoft.pydroid.arch.createComponent
 import com.pyamsoft.pydroid.ui.Injector
 import com.pyamsoft.pydroid.ui.arch.factory
@@ -58,7 +56,6 @@ import com.pyamsoft.pydroid.ui.theme.Theming
 import com.pyamsoft.pydroid.ui.util.layout
 import com.pyamsoft.pydroid.ui.util.show
 import com.pyamsoft.pydroid.ui.widget.shadow.DropshadowView
-import timber.log.Timber
 import javax.inject.Inject
 
 internal class ExpandedFragment : DialogFragment() {
@@ -89,7 +86,7 @@ internal class ExpandedFragment : DialogFragment() {
 
     @JvmField
     @Inject
-    internal var presence: DetailListItemPresence? = null
+    internal var presence: ExpandItemPresence? = null
 
     @JvmField
     @Inject
@@ -138,7 +135,7 @@ internal class ExpandedFragment : DialogFragment() {
         val sameNamedItems = requireNotNull(sameNamedItems)
         val errorDisplay = requireNotNull(errorDisplay)
         val toolbar = requireNotNull(toolbar)
-        val shadow = DropshadowView.createTyped<DetailItemViewState, DetailItemViewEvent>(parent)
+        val shadow = DropshadowView.createTyped<ExpandItemViewState, ExpandedItemViewEvent>(parent)
         createComponent(
             null, viewLifecycleOwner,
             viewModel,
@@ -152,9 +149,13 @@ internal class ExpandedFragment : DialogFragment() {
             shadow
         ) {
             return@createComponent when (it) {
-                is ExpandDetails -> expandItem(it.item)
-                is DatePick -> pickDate(it.oldItem, it.year, it.month, it.day)
-                is CloseExpand -> dismiss()
+                is ExpandItemControllerEvent.DatePick -> pickDate(
+                    it.oldItem,
+                    it.year,
+                    it.month,
+                    it.day
+                )
+                is ExpandItemControllerEvent.CloseExpand -> dismiss()
             }
         }
 
@@ -237,10 +238,6 @@ internal class ExpandedFragment : DialogFragment() {
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         return Dialog(ContextThemeWrapper(context, theme), theme)
-    }
-
-    private fun expandItem(item: FridgeItem) {
-        Timber.d("Noop in expanded fragment: $item")
     }
 
     private fun pickDate(

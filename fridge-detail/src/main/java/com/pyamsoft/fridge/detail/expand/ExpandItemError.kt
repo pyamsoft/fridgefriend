@@ -21,15 +21,13 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.core.view.isVisible
 import com.pyamsoft.fridge.detail.R
-import com.pyamsoft.fridge.detail.item.DetailItemViewEvent
-import com.pyamsoft.fridge.detail.item.DetailItemViewState
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.arch.UiSavedState
 import javax.inject.Inject
 
 class ExpandItemError @Inject internal constructor(
     parent: ViewGroup
-) : BaseUiView<DetailItemViewState, DetailItemViewEvent>(parent) {
+) : BaseUiView<ExpandItemViewState, ExpandedItemViewEvent>(parent) {
 
     override val layout: Int = R.layout.expand_error
 
@@ -43,19 +41,22 @@ class ExpandItemError @Inject internal constructor(
         }
 
         doOnTeardown {
-            message.isVisible = false
-            message.text = ""
+            clear()
         }
     }
 
+    private fun clear() {
+        message.isVisible = false
+        message.text = ""
+    }
+
     override fun onRender(
-        state: DetailItemViewState,
+        state: ExpandItemViewState,
         savedState: UiSavedState
     ) {
         state.throwable.let { throwable ->
             if (throwable == null) {
-                message.isVisible = false
-                message.text = ""
+                clear()
             } else {
                 message.isVisible = true
                 message.text = throwable.message ?: "An unknown error occurred"

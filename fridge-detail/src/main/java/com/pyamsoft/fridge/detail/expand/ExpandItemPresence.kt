@@ -15,27 +15,23 @@
  *
  */
 
-package com.pyamsoft.fridge.detail.item
+package com.pyamsoft.fridge.detail.expand
 
 import android.view.ViewGroup
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.detail.base.BaseItemPresence
-import com.pyamsoft.fridge.detail.item.DetailItemViewEvent.CommitPresence
 import com.pyamsoft.pydroid.arch.UiSavedState
 import javax.inject.Inject
 
-class DetailListItemPresence @Inject internal constructor(
+class ExpandItemPresence @Inject internal constructor(
     parent: ViewGroup
-) : BaseItemPresence<DetailItemViewState, DetailItemViewEvent>(parent) {
-
-    override fun onRender(
-        state: DetailItemViewState,
-        savedState: UiSavedState
-    ) {
-        render(state.item)
-    }
+) : BaseItemPresence<ExpandItemViewState, ExpandedItemViewEvent>(parent) {
 
     override fun commit(item: FridgeItem, presence: FridgeItem.Presence) {
-        publish(CommitPresence(item, presence))
+        publish(ExpandedItemViewEvent.CommitPresence(item, presence))
+    }
+
+    override fun onRender(state: ExpandItemViewState, savedState: UiSavedState) {
+        render(state.item)
     }
 }

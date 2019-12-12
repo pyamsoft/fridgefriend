@@ -191,9 +191,12 @@ internal class DetailItemViewHolder internal constructor(
         }
 
         owner.bind()
+
+        requireNotNull(viewModel).bind(item)
     }
 
     override fun unbind() {
+        requireNotNull(viewModel).unbind()
         lifecycle?.unbind()
         lifecycle = null
 

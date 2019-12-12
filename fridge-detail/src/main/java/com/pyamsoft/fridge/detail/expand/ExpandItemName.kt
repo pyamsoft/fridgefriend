@@ -22,8 +22,6 @@ import android.text.TextWatcher
 import android.view.ViewGroup
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.detail.base.BaseItemName
-import com.pyamsoft.fridge.detail.item.DetailItemViewEvent.CommitName
-import com.pyamsoft.fridge.detail.item.DetailItemViewState
 import com.pyamsoft.pydroid.arch.UiSavedState
 import timber.log.Timber
 import javax.inject.Inject
@@ -33,7 +31,7 @@ class ExpandItemName @Inject internal constructor(
     @Named("item_editable") private val isEditable: Boolean,
     parent: ViewGroup,
     initialItem: FridgeItem
-) : BaseItemName(parent, initialItem) {
+) : BaseItemName<ExpandItemViewState, ExpandedItemViewEvent>(parent, initialItem) {
 
     private var nameWatcher: TextWatcher? = null
     private val popupWindow = SimilarlyNamedListWindow(parent.context)
@@ -48,7 +46,7 @@ class ExpandItemName @Inject internal constructor(
                 setOnItemClickListener { selectedItem ->
                     Timber.d("Similar popup FridgeItem selected: $selectedItem")
                     // TODO publish SELECT_SIMILAR event to VM
-                    setName(selectedItem)
+                    setName(selectedItem, null)
                 }
             }
         }
@@ -60,18 +58,22 @@ class ExpandItemName @Inject internal constructor(
     }
 
     override fun onRender(
-        state: DetailItemViewState,
+        state: ExpandItemViewState,
         savedState: UiSavedState
     ) {
         if (!isEditable) {
             return
         }
 
-        val item = state.item
-        removeListeners()
-        addWatcher(item)
-
-        popupWindow.set(if (nameView.isFocused) state.similarItems else emptyList())
+        state.item.let { item ->
+            removeListeners()
+            if (item == null) {
+                clear()
+            } else {
+                addWatcher(item)
+                popupWindow.set(if (nameView.isFocused) state.similarItems else emptyList())
+            }
+        }
     }
 
     private fun addWatcher(item: FridgeItem) {
@@ -109,6 +111,6 @@ class ExpandItemName @Inject internal constructor(
     }
 
     private fun commit(item: FridgeItem, name: String) {
-        publish(CommitName(item, name))
+        publish(ExpandedItemViewEvent.CommitName(item, name))
     }
 }

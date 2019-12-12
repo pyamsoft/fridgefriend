@@ -30,7 +30,13 @@ class DetailListItemCount @Inject internal constructor(
     @Named("item_editable") private val isEditable: Boolean,
     parent: ViewGroup,
     initialItem: FridgeItem
-) : BaseItemCount(parent, initialItem) {
+) : BaseItemCount<DetailItemViewState, DetailItemViewEvent>(parent, initialItem) {
+
+    init {
+        doOnInflate {
+            countView.setNotEditable()
+        }
+    }
 
     override fun onRender(
         state: DetailItemViewState,
@@ -40,11 +46,13 @@ class DetailListItemCount @Inject internal constructor(
             return
         }
 
-        val item = state.item
-        setCount(item)
-        countView.setNotEditable()
-        countView.setOnDebouncedClickListener {
-            publish(ExpandItem(item))
+        state.item.let { item ->
+            if (item == null) {
+                clear()
+            } else {
+                setCount(item)
+                countView.setOnDebouncedClickListener { publish(ExpandItem(item)) }
+            }
         }
     }
 }

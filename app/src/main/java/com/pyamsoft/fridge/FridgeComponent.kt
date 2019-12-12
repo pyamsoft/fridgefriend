@@ -40,7 +40,7 @@ import com.pyamsoft.fridge.detail.DatePickerDialogFragment
 import com.pyamsoft.fridge.detail.DetailComponent
 import com.pyamsoft.fridge.detail.ExpandComponent
 import com.pyamsoft.fridge.detail.ExpandVisibilityEvent
-import com.pyamsoft.fridge.detail.item.DateSelectPayload
+import com.pyamsoft.fridge.detail.expand.DateSelectPayload
 import com.pyamsoft.fridge.entry.EntryComponent
 import com.pyamsoft.fridge.locator.GeofenceBroadcastReceiver
 import com.pyamsoft.fridge.locator.Geofencer

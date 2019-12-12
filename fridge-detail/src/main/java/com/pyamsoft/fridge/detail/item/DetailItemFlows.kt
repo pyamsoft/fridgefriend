@@ -24,47 +24,20 @@ import com.pyamsoft.pydroid.arch.UiViewEvent
 import com.pyamsoft.pydroid.arch.UiViewState
 
 data class DetailItemViewState internal constructor(
+    val item: FridgeItem?,
     val expirationRange: Int,
     val isSameDayExpired: Boolean,
-    val item: FridgeItem,
-    val throwable: Throwable?,
-    val sameNamedItems: Collection<FridgeItem>,
-    val similarItems: Collection<FridgeItem>
+    val throwable: Throwable?
 ) : UiViewState
 
 sealed class DetailItemViewEvent : UiViewEvent {
 
     data class ExpandItem internal constructor(val item: FridgeItem) : DetailItemViewEvent()
 
-    data class CommitName internal constructor(
-        val oldItem: FridgeItem,
-        val name: String
-    ) : DetailItemViewEvent()
-
-    data class CommitCount internal constructor(
-        val oldItem: FridgeItem,
-        val count: Int
-    ) : DetailItemViewEvent()
-
     data class CommitPresence internal constructor(
         val oldItem: FridgeItem,
         val presence: Presence
     ) : DetailItemViewEvent()
-
-    data class PickDate internal constructor(
-        val oldItem: FridgeItem,
-        val year: Int,
-        val month: Int,
-        val day: Int
-    ) : DetailItemViewEvent()
-
-    data class CloseItem internal constructor(val item: FridgeItem) : DetailItemViewEvent()
-
-    data class DeleteItem internal constructor(val item: FridgeItem) : DetailItemViewEvent()
-
-    data class ConsumeItem internal constructor(val item: FridgeItem) : DetailItemViewEvent()
-
-    data class SpoilItem internal constructor(val item: FridgeItem) : DetailItemViewEvent()
 }
 
 sealed class DetailItemControllerEvent : UiControllerEvent {

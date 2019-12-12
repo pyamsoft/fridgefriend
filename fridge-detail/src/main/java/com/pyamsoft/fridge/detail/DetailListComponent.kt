@@ -21,7 +21,7 @@ import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent
 import com.pyamsoft.fridge.db.item.FridgeItemRealtime
-import com.pyamsoft.fridge.detail.item.DateSelectPayload
+import com.pyamsoft.fridge.detail.expand.DateSelectPayload
 import com.pyamsoft.fridge.detail.item.DetailItemComponent
 import com.pyamsoft.pydroid.arch.EventBus
 import com.pyamsoft.pydroid.loader.ImageLoader

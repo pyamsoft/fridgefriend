@@ -24,12 +24,6 @@ import android.view.ViewGroup
 import androidx.appcompat.widget.Toolbar
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence.HAVE
 import com.pyamsoft.fridge.detail.R
-import com.pyamsoft.fridge.detail.item.DetailItemViewEvent
-import com.pyamsoft.fridge.detail.item.DetailItemViewEvent.CloseItem
-import com.pyamsoft.fridge.detail.item.DetailItemViewEvent.ConsumeItem
-import com.pyamsoft.fridge.detail.item.DetailItemViewEvent.DeleteItem
-import com.pyamsoft.fridge.detail.item.DetailItemViewEvent.SpoilItem
-import com.pyamsoft.fridge.detail.item.DetailItemViewState
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.arch.UiSavedState
 import com.pyamsoft.pydroid.loader.ImageLoader
@@ -42,7 +36,7 @@ import javax.inject.Inject
 class ExpandedToolbar @Inject internal constructor(
     imageLoader: ImageLoader,
     parent: ViewGroup
-) : BaseUiView<DetailItemViewState, DetailItemViewEvent>(parent) {
+) : BaseUiView<ExpandItemViewState, ExpandedItemViewEvent>(parent) {
 
     override val layout: Int = R.layout.detail_toolbar
 
@@ -87,46 +81,54 @@ class ExpandedToolbar @Inject internal constructor(
         }
 
         doOnTeardown {
-            stopIconLoad()
-
-            layoutRoot.menu.clear()
-            deleteMenuItem = null
-            consumeMenuItem = null
-            spoilMenuItem = null
-
-            layoutRoot.setNavigationOnClickListener(null)
-            layoutRoot.setOnMenuItemClickListener(null)
+            clear()
         }
     }
 
+    private fun clear() {
+        stopIconLoad()
+
+        layoutRoot.menu.clear()
+        deleteMenuItem = null
+        consumeMenuItem = null
+        spoilMenuItem = null
+
+        layoutRoot.setNavigationOnClickListener(null)
+        layoutRoot.setOnMenuItemClickListener(null)
+    }
+
     override fun onRender(
-        state: DetailItemViewState,
+        state: ExpandItemViewState,
         savedState: UiSavedState
     ) {
         state.item.let { item ->
-            layoutRoot.setNavigationOnClickListener(DebouncedOnClickListener.create {
-                publish(CloseItem(item))
-            })
+            if (item == null) {
+                clear()
+            } else {
+                layoutRoot.setNavigationOnClickListener(DebouncedOnClickListener.create {
+                    publish(ExpandedItemViewEvent.CloseItem(item))
+                })
 
-            requireNotNull(deleteMenuItem).isVisible = item.isReal()
-            requireNotNull(consumeMenuItem).isVisible = item.isReal() && item.presence() == HAVE
-            requireNotNull(spoilMenuItem).isVisible = item.isReal() && item.presence() == HAVE
+                requireNotNull(deleteMenuItem).isVisible = item.isReal()
+                requireNotNull(consumeMenuItem).isVisible = item.isReal() && item.presence() == HAVE
+                requireNotNull(spoilMenuItem).isVisible = item.isReal() && item.presence() == HAVE
 
-            layoutRoot.setOnMenuItemClickListener { menuItem ->
-                return@setOnMenuItemClickListener when (menuItem.itemId) {
-                    R.id.menu_item_delete -> {
-                        publish(DeleteItem(item))
-                        true
+                layoutRoot.setOnMenuItemClickListener { menuItem ->
+                    return@setOnMenuItemClickListener when (menuItem.itemId) {
+                        R.id.menu_item_delete -> {
+                            publish(ExpandedItemViewEvent.DeleteItem(item))
+                            true
+                        }
+                        R.id.menu_item_consume -> {
+                            publish(ExpandedItemViewEvent.ConsumeItem(item))
+                            true
+                        }
+                        R.id.menu_item_spoil -> {
+                            publish(ExpandedItemViewEvent.SpoilItem(item))
+                            true
+                        }
+                        else -> false
                     }
-                    R.id.menu_item_consume -> {
-                        publish(ConsumeItem(item))
-                        true
-                    }
-                    R.id.menu_item_spoil -> {
-                        publish(SpoilItem(item))
-                        true
-                    }
-                    else -> false
                 }
             }
         }

@@ -21,15 +21,13 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.core.view.isVisible
 import com.pyamsoft.fridge.detail.R
-import com.pyamsoft.fridge.detail.item.DetailItemViewEvent
-import com.pyamsoft.fridge.detail.item.DetailItemViewState
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.arch.UiSavedState
 import javax.inject.Inject
 
 class ExpandItemSimilar @Inject internal constructor(
     parent: ViewGroup
-) : BaseUiView<DetailItemViewState, DetailItemViewEvent>(parent) {
+) : BaseUiView<ExpandItemViewState, ExpandedItemViewEvent>(parent) {
 
     override val layout: Int = R.layout.expand_similar
 
@@ -43,24 +41,32 @@ class ExpandItemSimilar @Inject internal constructor(
         }
 
         doOnTeardown {
-            message.isVisible = false
-            message.text = ""
+            clear()
         }
     }
 
+    private fun clear() {
+        message.isVisible = false
+        message.text = ""
+    }
+
     override fun onRender(
-        state: DetailItemViewState,
+        state: ExpandItemViewState,
         savedState: UiSavedState
     ) {
-        val item = state.item
         state.sameNamedItems.let { similar ->
             if (similar.isEmpty()) {
-                message.isVisible = false
-                message.text = ""
+                clear()
             } else {
-                val name = item.name().trim()
-                message.isVisible = true
-                message.text = "You already have at least one '$name', do you need another?"
+                state.item.let { item ->
+                    if (item == null) {
+                        clear()
+                    } else {
+                        val name = item.name().trim()
+                        message.isVisible = true
+                        message.text = "You already have at least one '$name', do you need another?"
+                    }
+                }
             }
         }
     }

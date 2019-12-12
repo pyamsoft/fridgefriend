@@ -15,7 +15,7 @@
  *
  */
 
-package com.pyamsoft.fridge.detail.item
+package com.pyamsoft.fridge.detail.expand
 
 import com.pyamsoft.fridge.db.item.FridgeItem
 

@@ -18,22 +18,16 @@
 package com.pyamsoft.fridge.detail.item
 
 import androidx.lifecycle.viewModelScope
+import com.pyamsoft.fridge.core.Preferences
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence.HAVE
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent
 import com.pyamsoft.fridge.detail.DetailInteractor
+import com.pyamsoft.fridge.detail.base.BaseUpdaterViewModel
 import com.pyamsoft.fridge.detail.item.DetailItemControllerEvent.ExpandDetails
-import com.pyamsoft.fridge.detail.item.DetailItemViewEvent.CloseItem
-import com.pyamsoft.fridge.detail.item.DetailItemViewEvent.CommitCount
-import com.pyamsoft.fridge.detail.item.DetailItemViewEvent.CommitName
 import com.pyamsoft.fridge.detail.item.DetailItemViewEvent.CommitPresence
-import com.pyamsoft.fridge.detail.item.DetailItemViewEvent.ConsumeItem
-import com.pyamsoft.fridge.detail.item.DetailItemViewEvent.DeleteItem
 import com.pyamsoft.fridge.detail.item.DetailItemViewEvent.ExpandItem
-import com.pyamsoft.fridge.detail.item.DetailItemViewEvent.PickDate
-import com.pyamsoft.fridge.detail.item.DetailItemViewEvent.SpoilItem
-import com.pyamsoft.highlander.highlander
 import com.pyamsoft.pydroid.arch.EventBus
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -41,18 +35,42 @@ import java.util.Date
 import javax.inject.Inject
 
 class DetailListItemViewModel @Inject internal constructor(
-    fakeRealtime: EventBus<FridgeItemChangeEvent>,
     private val interactor: DetailInteractor,
-    private val item: FridgeItem
-) : DetailItemViewModel(item, interactor, fakeRealtime) {
+    private val fakeRealtime: EventBus<FridgeItemChangeEvent>
+) : BaseUpdaterViewModel<DetailItemViewState, DetailItemViewEvent, DetailItemControllerEvent>(
+    initialState = DetailItemViewState(
+        item = null,
+        expirationRange = interactor.getExpiringSoonRange(),
+        isSameDayExpired = interactor.isSameDayExpired(),
+        throwable = null
+    )
+) {
 
-    private val updateRunner = highlander<Unit, FridgeItem> { item ->
-        try {
-            interactor.commit(item.makeReal())
-        } catch (error: Throwable) {
-            error.onActualError { e ->
-                Timber.e(e, "Error updating item: ${item.id()}")
+    init {
+        var expiringSoonUnregister: Preferences.Unregister? = null
+
+        doOnInit {
+            expiringSoonUnregister = interactor.watchForExpiringSoonChanges { newRange ->
+                setState { copy(expirationRange = newRange) }
             }
+        }
+
+        doOnTeardown {
+            expiringSoonUnregister?.unregister()
+            expiringSoonUnregister = null
+        }
+
+        var isSameDayExpiredUnregister: Preferences.Unregister? = null
+
+        doOnInit {
+            isSameDayExpiredUnregister = interactor.watchForSameDayExpiredChange { newSameDay ->
+                setState { copy(isSameDayExpired = newSameDay) }
+            }
+        }
+
+        doOnTeardown {
+            isSameDayExpiredUnregister?.unregister()
+            isSameDayExpiredUnregister = null
         }
     }
 
@@ -60,9 +78,6 @@ class DetailListItemViewModel @Inject internal constructor(
         return when (event) {
             is CommitPresence -> commitPresence(event.oldItem, event.presence)
             is ExpandItem -> expandItem(event.item)
-            is CommitName, is PickDate, is CloseItem, is DeleteItem, is ConsumeItem, is SpoilItem, is CommitCount -> {
-                Timber.d("Ignore event: $event")
-            }
         }
     }
 
@@ -70,49 +85,94 @@ class DetailListItemViewModel @Inject internal constructor(
         oldItem: FridgeItem,
         presence: Presence
     ) {
-        commitItem(item = oldItem.presence(presence))
+        if (!oldItem.isReal()) {
+            Timber.w("Cannot commit change for not-real item: $oldItem")
+            return
+        }
+
+        val item = oldItem.presence(presence)
+        val updated = item.run {
+            val dateOfPurchase = purchaseTime()
+            if (presence() == HAVE) {
+                if (dateOfPurchase == null) {
+                    val now = Date()
+                    Timber.d("${item.name()} purchased! $now")
+                    return@run purchaseTime(now)
+                }
+            } else {
+                if (dateOfPurchase != null) {
+                    Timber.d("${item.name()} purchase date cleared")
+                    return@run invalidatePurchase()
+                }
+            }
+
+            return@run this
+        }
+
+        viewModelScope.launch {
+            update(updated, doUpdate = { interactor.commit(it) }, onError = { handleError(it) })
+        }
     }
 
-    private fun commitItem(item: FridgeItem) {
+    private fun handleFakeDelete(item: FridgeItem) {
         viewModelScope.launch {
-            if (item.isReal()) {
-                updateRunner.call(item.run {
-                    val dateOfPurchase = purchaseTime()
-                    if (presence() == HAVE) {
-                        if (dateOfPurchase == null) {
-                            val now = Date()
-                            Timber.d("${item.name()} purchased! $now")
-                            return@run purchaseTime(now)
-                        }
-                    } else {
-                        if (dateOfPurchase != null) {
-                            Timber.d("${item.name()} purchase date cleared")
-                            return@run invalidatePurchase()
-                        }
-                    }
+            Timber.w("Remove called on a non-real item: $item, fake callback")
+            fakeRealtime.send(FridgeItemChangeEvent.Delete(item))
+        }
+    }
 
-                    return@run this
-                })
-            } else {
-                Timber.w("Cannot commit change for not-real item: $item")
+    private fun handleError(throwable: Throwable) {
+        setState { copy(throwable = throwable) }
+    }
+
+    fun bind(item: FridgeItem) {
+        setState { copy(item = item) }
+    }
+
+    fun unbind() {
+        setState { copy(item = null) }
+    }
+
+    fun consume() {
+        withState {
+            item?.let { fi ->
+                if (fi.isReal()) {
+                    update(fi, doUpdate = { interactor.consume(it) }, onError = { handleError(it) })
+                }
             }
         }
     }
 
-    fun consume() {
-        updateItem(item, doUpdate = { interactor.consume(it) })
-    }
-
     fun restore() {
-        updateItem(item, doUpdate = { interactor.restore(it) })
+        withState {
+            item?.let { fi ->
+                if (fi.isReal()) {
+                    update(fi, doUpdate = { interactor.restore(it) }, onError = { handleError(it) })
+                }
+            }
+        }
     }
 
     fun spoil() {
-        updateItem(item, doUpdate = { interactor.spoil(it) })
+        withState {
+            item?.let { fi ->
+                if (fi.isReal()) {
+                    update(fi, doUpdate = { interactor.spoil(it) }, onError = { handleError(it) })
+                }
+            }
+        }
     }
 
     fun delete() {
-        updateItem(item, doUpdate = { interactor.delete(it) })
+        withState {
+            item?.let { fi ->
+                if (fi.isReal()) {
+                    update(fi, doUpdate = { interactor.delete(it) }, onError = { handleError(it) })
+                } else {
+                    handleFakeDelete(fi)
+                }
+            }
+        }
     }
 
     private fun expandItem(item: FridgeItem) {

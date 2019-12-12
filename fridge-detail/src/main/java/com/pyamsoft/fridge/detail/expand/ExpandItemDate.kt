@@ -20,8 +20,6 @@ package com.pyamsoft.fridge.detail.expand
 import android.view.ViewGroup
 import com.pyamsoft.fridge.db.item.isArchived
 import com.pyamsoft.fridge.detail.base.BaseItemDate
-import com.pyamsoft.fridge.detail.item.DetailItemViewEvent.PickDate
-import com.pyamsoft.fridge.detail.item.DetailItemViewState
 import com.pyamsoft.pydroid.arch.UiSavedState
 import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.ui.theme.ThemeProvider
@@ -36,40 +34,52 @@ class ExpandItemDate @Inject internal constructor(
     imageLoader: ImageLoader,
     theming: ThemeProvider,
     parent: ViewGroup
-) : BaseItemDate(imageLoader, theming, parent) {
+) : BaseItemDate<ExpandItemViewState, ExpandedItemViewEvent>(imageLoader, theming, parent) {
 
-    override fun onRender(state: DetailItemViewState, savedState: UiSavedState) {
-        baseRender(state)
+    override fun onRender(state: ExpandItemViewState, savedState: UiSavedState) {
+        val item = state.item
+        baseRender(item)
         if (!isEditable) {
             return
         }
 
-        val item = state.item
-        val expireTime = item.expireTime()
-
-        val month: Int
-        val day: Int
-        val year: Int
-
-        if (expireTime != null) {
-            val date = Calendar.getInstance()
-                .apply { time = expireTime }
-            Timber.d("Expire time is: $date")
-
-            // Month is zero indexed in storage
-            month = date.get(Calendar.MONTH)
-            day = date.get(Calendar.DAY_OF_MONTH)
-            year = date.get(Calendar.YEAR)
-        } else {
-            month = 0
-            day = 0
-            year = 0
-        }
-
-        if (!item.isArchived()) {
-            layoutRoot.setOnDebouncedClickListener { publish(PickDate(item, year, month, day)) }
-        } else {
+        if (item == null) {
             layoutRoot.setOnDebouncedClickListener(null)
+        } else {
+            val expireTime = item.expireTime()
+            val month: Int
+            val day: Int
+            val year: Int
+
+            if (expireTime != null) {
+                val date = Calendar.getInstance()
+                    .apply { time = expireTime }
+                Timber.d("Expire time is: $date")
+
+                // Month is zero indexed in storage
+                month = date.get(Calendar.MONTH)
+                day = date.get(Calendar.DAY_OF_MONTH)
+                year = date.get(Calendar.YEAR)
+            } else {
+                month = 0
+                day = 0
+                year = 0
+            }
+
+            if (!item.isArchived()) {
+                layoutRoot.setOnDebouncedClickListener {
+                    publish(
+                        ExpandedItemViewEvent.PickDate(
+                            item,
+                            year,
+                            month,
+                            day
+                        )
+                    )
+                }
+            } else {
+                layoutRoot.setOnDebouncedClickListener(null)
+            }
         }
     }
 }
