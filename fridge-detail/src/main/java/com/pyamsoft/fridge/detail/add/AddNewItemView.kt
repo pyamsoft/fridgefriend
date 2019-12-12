@@ -29,6 +29,7 @@ import androidx.cardview.widget.CardView
 import androidx.core.content.getSystemService
 import androidx.core.view.ViewPropertyAnimatorCompat
 import androidx.core.view.ViewPropertyAnimatorListenerAdapter
+import androidx.core.view.isVisible
 import com.pyamsoft.fridge.detail.CardAnimator
 import com.pyamsoft.fridge.detail.DetailViewEvent
 import com.pyamsoft.fridge.detail.DetailViewState
@@ -148,6 +149,7 @@ class AddNewItemView @Inject internal constructor(
             endElevation = 12.toDp(layoutRoot.context).toFloat()
         ).animator(true) { progress ->
             if (progress == 1F) {
+                layoutRoot.isVisible = false
                 publish(DetailViewEvent.AddNewItemEvent)
             }
         }.apply { start() }
@@ -160,7 +162,11 @@ class AddNewItemView @Inject internal constructor(
             endX = positionings.addNewOriginalX,
             endY = positionings.addNewOriginalY,
             endElevation = 6.toDp(layoutRoot.context).toFloat()
-        ).animator(true)
+        ).animator(true) {
+            if (!layoutRoot.isVisible) {
+                layoutRoot.isVisible = true
+            }
+        }
             .apply { start() }
     }
 
