@@ -32,7 +32,7 @@ data class DetailItemViewState internal constructor(
 
 sealed class DetailItemViewEvent : UiViewEvent {
 
-    data class ExpandItem internal constructor(val item: FridgeItem) : DetailItemViewEvent()
+    object ExpandItem : DetailItemViewEvent()
 
     data class CommitPresence internal constructor(
         val oldItem: FridgeItem,

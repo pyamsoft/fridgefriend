@@ -20,6 +20,7 @@ package com.pyamsoft.fridge.detail.item
 import android.view.ViewGroup
 import com.pyamsoft.fridge.detail.base.BaseItemName
 import com.pyamsoft.pydroid.arch.UiSavedState
+import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
 import javax.inject.Inject
 import javax.inject.Named
 
@@ -31,6 +32,7 @@ class DetailListItemName @Inject internal constructor(
     init {
         doOnInflate {
             nameView.setNotEditable()
+            nameView.setOnDebouncedClickListener { publish(DetailItemViewEvent.ExpandItem) }
         }
     }
 
@@ -46,7 +48,7 @@ class DetailListItemName @Inject internal constructor(
             if (item == null) {
                 clear()
             } else {
-                setName(item) { publish(DetailItemViewEvent.ExpandItem(item)) }
+                setName(item)
             }
         }
     }

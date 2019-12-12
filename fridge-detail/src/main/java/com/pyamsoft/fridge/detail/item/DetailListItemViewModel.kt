@@ -77,7 +77,7 @@ class DetailListItemViewModel @Inject internal constructor(
     override fun handleViewEvent(event: DetailItemViewEvent) {
         return when (event) {
             is CommitPresence -> commitPresence(event.oldItem, event.presence)
-            is ExpandItem -> expandItem(event.item)
+            is ExpandItem -> withState { item?.let { expandItem(it) } }
         }
     }
 

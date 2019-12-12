@@ -33,6 +33,7 @@ class DetailListItemCount @Inject internal constructor(
     init {
         doOnInflate {
             countView.setNotEditable()
+            countView.setOnDebouncedClickListener { publish(ExpandItem) }
         }
     }
 
@@ -49,7 +50,6 @@ class DetailListItemCount @Inject internal constructor(
                 clear()
             } else {
                 setCount(item)
-                countView.setOnDebouncedClickListener { publish(ExpandItem(item)) }
             }
         }
     }

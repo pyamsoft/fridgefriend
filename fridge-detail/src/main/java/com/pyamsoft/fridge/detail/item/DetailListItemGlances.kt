@@ -67,31 +67,38 @@ class DetailListItemGlances @Inject internal constructor(
     private var expiredTooltip: Tooltip? = null
 
     init {
+        doOnInflate {
+            layoutRoot.setOnDebouncedClickListener { publish(ExpandItem) }
+            validExpirationDate.setOnDebouncedClickListener { dateRangeTooltip?.show(it) }
+            itemExpiringSoon.setOnDebouncedClickListener { expiringTooltip?.show(it) }
+            itemExpired.setOnDebouncedClickListener { expiredTooltip?.show(it) }
+        }
+
         doOnTeardown {
+            layoutRoot.setOnDebouncedClickListener(null)
+            validExpirationDate.setOnDebouncedClickListener(null)
+            itemExpiringSoon.setOnDebouncedClickListener(null)
+            itemExpired.setOnDebouncedClickListener(null)
             clear()
         }
     }
 
     private fun clear() {
-        layoutRoot.setOnDebouncedClickListener(null)
 
         dateRangeLoader?.dispose()
         dateRangeLoader = null
         dateRangeTooltip?.hide()
         dateRangeTooltip = null
-        validExpirationDate.setOnDebouncedClickListener(null)
 
         expiringLoader?.dispose()
         expiringLoader = null
         expiringTooltip?.hide()
         expiringTooltip = null
-        itemExpiringSoon.setOnDebouncedClickListener(null)
 
         expiredLoader?.dispose()
         expiredLoader = null
         expiredTooltip?.hide()
         expiredTooltip = null
-        itemExpired.setOnDebouncedClickListener(null)
     }
 
     override fun onRender(
@@ -104,7 +111,6 @@ class DetailListItemGlances @Inject internal constructor(
             } else {
                 val isVisible = item.isReal() && !item.isArchived() && item.presence() == HAVE
                 layoutRoot.isVisible = isVisible
-                layoutRoot.setOnDebouncedClickListener { publish(ExpandItem(item)) }
 
                 val today = Calendar.getInstance().cleanMidnight()
                 val soonDate = Calendar.getInstance().daysLaterMidnight(state.expirationRange)
@@ -137,7 +143,6 @@ class DetailListItemGlances @Inject internal constructor(
         dateRangeTooltip?.hide()
         if (expireTime == null) {
             dateRangeTooltip = null
-            validExpirationDate.setOnDebouncedClickListener(null)
             return
         }
 
@@ -150,7 +155,6 @@ class DetailListItemGlances @Inject internal constructor(
             setText("${item.name().trim()} will expire on $dateFormatted")
         }
 
-        validExpirationDate.setOnDebouncedClickListener { dateRangeTooltip?.show(it) }
     }
 
     private fun setExpiringView(
@@ -176,7 +180,6 @@ class DetailListItemGlances @Inject internal constructor(
         expiringTooltip?.hide()
         if (!isVisible || !hasTime) {
             expiringTooltip = null
-            itemExpiringSoon.setOnDebouncedClickListener(null)
             return
         }
 
@@ -214,7 +217,6 @@ class DetailListItemGlances @Inject internal constructor(
 
             setText("${item.name().trim()} $expirationRange")
         }
-        itemExpiringSoon.setOnDebouncedClickListener { expiringTooltip?.show(it) }
     }
 
     private fun setExpiredView(
@@ -239,7 +241,6 @@ class DetailListItemGlances @Inject internal constructor(
         expiredTooltip?.hide()
         if (!isVisible) {
             expiredTooltip = null
-            itemExpired.setOnDebouncedClickListener(null)
             return
         }
 
@@ -277,7 +278,6 @@ class DetailListItemGlances @Inject internal constructor(
 
             setText("${item.name().trim()} expired $expirationRange")
         }
-        itemExpired.setOnDebouncedClickListener { expiredTooltip?.show(it) }
     }
 
     companion object {

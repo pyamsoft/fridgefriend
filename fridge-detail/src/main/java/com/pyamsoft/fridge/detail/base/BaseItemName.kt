@@ -17,7 +17,6 @@
 
 package com.pyamsoft.fridge.detail.base
 
-import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
 import androidx.annotation.CallSuper
@@ -44,9 +43,8 @@ abstract class BaseItemName<S : UiViewState, V : UiViewEvent> protected construc
         }
     }
 
-    protected fun setName(item: FridgeItem, onClick: ((view: View) -> Unit)?) {
+    protected fun setName(item: FridgeItem) {
         nameView.setTextKeepState(item.name())
-        nameView.setOnDebouncedClickListener { onClick?.invoke(it) }
     }
 
     @CallSuper

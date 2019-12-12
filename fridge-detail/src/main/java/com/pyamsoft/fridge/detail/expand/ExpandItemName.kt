@@ -38,7 +38,7 @@ class ExpandItemName @Inject internal constructor(
 
     init {
         doOnInflate {
-            setName(initialItem, null)
+            setName(initialItem)
         }
 
         doOnInflate {
@@ -50,7 +50,7 @@ class ExpandItemName @Inject internal constructor(
                 setOnItemClickListener { selectedItem ->
                     Timber.d("Similar popup FridgeItem selected: $selectedItem")
                     // TODO publish SELECT_SIMILAR event to VM
-                    setName(selectedItem, null)
+                    setName(selectedItem)
                 }
             }
         }

@@ -34,18 +34,22 @@ class DetailListItemDate @Inject internal constructor(
     parent: ViewGroup
 ) : BaseItemDate<DetailItemViewState, DetailItemViewEvent>(imageLoader, theming, parent) {
 
+    init {
+        doOnInflate {
+            layoutRoot.setOnDebouncedClickListener { publish(ExpandItem) }
+        }
+
+        doOnTeardown {
+            layoutRoot.setOnDebouncedClickListener(null)
+        }
+    }
+
     override fun onRender(state: DetailItemViewState, savedState: UiSavedState) {
         val item = state.item
         baseRender(item)
 
         if (isEditable) {
             return
-        }
-
-        if (item == null) {
-            layoutRoot.setOnDebouncedClickListener(null)
-        } else {
-            layoutRoot.setOnDebouncedClickListener { publish(ExpandItem(item)) }
         }
     }
 }
