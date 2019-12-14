@@ -29,7 +29,10 @@ data class DetailViewState(
     val listError: Throwable?,
     val undoableItem: FridgeItem?,
     val actionVisible: ActionVisible?,
-    val isExpanded: Expanded?
+    val isExpanded: Expanded?,
+    val expirationRange: Int,
+    val isSameDayExpired: Boolean,
+    val listItemPresence: FridgeItem.Presence
 ) : UiViewState {
 
     data class Expanded internal constructor(val expanded: Boolean)
@@ -45,14 +48,9 @@ sealed class DetailViewEvent : UiViewEvent {
 
     object ForceRefresh : DetailViewEvent()
 
-    data class ExpandItem internal constructor(val item: FridgeItem) : DetailViewEvent()
+    data class ExpandItem internal constructor(val index: Int) : DetailViewEvent()
 
-    data class PickDate internal constructor(
-        val oldItem: FridgeItem,
-        val year: Int,
-        val month: Int,
-        val day: Int
-    ) : DetailViewEvent()
+    data class ChangePresence internal constructor(val index: Int) : DetailViewEvent()
 
     object ToggleArchiveVisibility : DetailViewEvent()
 
@@ -65,6 +63,14 @@ sealed class DetailViewEvent : UiViewEvent {
     ) : DetailViewEvent()
 
     object DoneScrollActionVisibilityChange : DetailViewEvent()
+
+    data class Consume internal constructor(val index: Int) : DetailViewEvent()
+
+    data class Delete internal constructor(val index: Int) : DetailViewEvent()
+
+    data class Restore internal constructor(val index: Int) : DetailViewEvent()
+
+    data class Spoil internal constructor(val index: Int) : DetailViewEvent()
 }
 
 sealed class DetailControllerEvent : UiControllerEvent {
@@ -73,13 +79,6 @@ sealed class DetailControllerEvent : UiControllerEvent {
 
     data class ExpandForEditing internal constructor(
         val item: FridgeItem
-    ) : DetailControllerEvent()
-
-    data class DatePick internal constructor(
-        val oldItem: FridgeItem,
-        val year: Int,
-        val month: Int,
-        val day: Int
     ) : DetailControllerEvent()
 
     object EntryArchived : DetailControllerEvent()

@@ -27,24 +27,14 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.mikepenz.fastadapter_extensions.swipe.SimpleSwipeCallback
-import com.pyamsoft.fridge.core.tooltip.TooltipCreator
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence.HAVE
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence.NEED
-import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent
-import com.pyamsoft.fridge.db.item.FridgeItemRealtime
 import com.pyamsoft.fridge.detail.DetailListAdapter.Callback
-import com.pyamsoft.fridge.detail.DetailViewEvent.ExpandItem
-import com.pyamsoft.fridge.detail.DetailViewEvent.ForceRefresh
-import com.pyamsoft.fridge.detail.DetailViewEvent.PickDate
-import com.pyamsoft.fridge.detail.DetailViewEvent.ReallyDeleteNoUndo
-import com.pyamsoft.fridge.detail.DetailViewEvent.UndoDelete
-import com.pyamsoft.fridge.detail.expand.DateSelectPayload
+import com.pyamsoft.fridge.detail.item.DetailListItemViewState
 import com.pyamsoft.pydroid.arch.BaseUiView
-import com.pyamsoft.pydroid.arch.EventBus
 import com.pyamsoft.pydroid.arch.UiSavedState
 import com.pyamsoft.pydroid.loader.ImageLoader
-import com.pyamsoft.pydroid.ui.theme.ThemeProvider
 import com.pyamsoft.pydroid.ui.util.Snackbreak
 import com.pyamsoft.pydroid.ui.util.refreshing
 import com.pyamsoft.pydroid.ui.widget.scroll.HideOnScrollListener
@@ -56,15 +46,9 @@ import javax.inject.Inject
 
 class DetailList @Inject internal constructor(
     parent: ViewGroup,
-    interactor: DetailInteractor,
-    tooltipCreator: TooltipCreator,
     private val imageLoader: ImageLoader,
-    theming: ThemeProvider,
-    realtime: FridgeItemRealtime,
-    fakeRealtime: EventBus<FridgeItemChangeEvent>,
-    dateSelectBus: EventBus<DateSelectPayload>,
-    private val listItemPresence: FridgeItem.Presence,
-    private val owner: LifecycleOwner
+    private val owner: LifecycleOwner,
+    componentCreator: DetailListItemComponentCreator
 ) : BaseUiView<DetailViewState, DetailViewEvent>(parent) {
 
     override val layout: Int = R.layout.detail_list
@@ -85,33 +69,17 @@ class DetailList @Inject internal constructor(
         }
 
         doOnInflate {
-            val component = DaggerDetailListComponent.factory()
-                .create(
-                    imageLoader, theming, interactor,
-                    realtime, fakeRealtime, dateSelectBus, listItemPresence
-                ).plusItemComponent()
-
-            val injectComponent = { parent: ViewGroup, editable: Boolean ->
-                component.create(tooltipCreator, parent, editable)
-            }
-
             modelAdapter = DetailListAdapter(
                 editable = false,
                 owner = owner,
-                injectComponent = injectComponent,
+                componentCreator = componentCreator,
                 callback = object : Callback {
-
-                    override fun onItemExpanded(item: FridgeItem) {
-                        publish(ExpandItem(item))
+                    override fun onItemExpanded(index: Int) {
+                        publish(DetailViewEvent.ExpandItem(index))
                     }
 
-                    override fun onPickDate(
-                        oldItem: FridgeItem,
-                        year: Int,
-                        month: Int,
-                        day: Int
-                    ) {
-                        publish(PickDate(oldItem, year, month, day))
+                    override fun onPresenceChange(index: Int) {
+                        publish(DetailViewEvent.ChangePresence(index))
                     }
                 })
             recyclerView.adapter = usingAdapter().apply { setHasStableIds(true) }
@@ -141,7 +109,7 @@ class DetailList @Inject internal constructor(
         }
 
         doOnInflate {
-            layoutRoot.setOnRefreshListener { publish(ForceRefresh) }
+            layoutRoot.setOnRefreshListener { publish(DetailViewEvent.ForceRefresh) }
         }
 
         doOnTeardown {
@@ -157,7 +125,7 @@ class DetailList @Inject internal constructor(
         }
     }
 
-    private fun setupSwipeCallback(showArchived: Boolean) {
+    private fun setupSwipeCallback(showArchived: Boolean, listItemPresence: FridgeItem.Presence) {
         val swipeAwayDeletes = !showArchived && listItemPresence == NEED
         val swipeAwayRestores = showArchived && listItemPresence == HAVE
 
@@ -244,33 +212,33 @@ class DetailList @Inject internal constructor(
     }
 
     private fun restoreListItem(position: Int) {
-        withViewHolderAt(position) { it.restore() }
+        publish(DetailViewEvent.Restore(position))
     }
 
     private fun deleteListItem(position: Int) {
-        withViewHolderAt(position) { it.delete() }
+        publish(DetailViewEvent.Delete(position))
     }
 
     private fun consumeListItem(position: Int) {
-        withViewHolderAt(position) { it.consume() }
+        publish(DetailViewEvent.Consume(position))
     }
 
     private fun spoilListItem(position: Int) {
-        withViewHolderAt(position) { it.spoil() }
+        publish(DetailViewEvent.Spoil(position))
     }
 
-    private inline fun withViewHolderAt(
-        position: Int,
-        crossinline func: (holder: DetailItemViewHolder) -> Unit
+    private fun setList(
+        list: List<FridgeItem>,
+        expirationRange: Int,
+        sameDayExpired: Boolean
     ) {
-        val holder: ViewHolder? = recyclerView.findViewHolderForLayoutPosition(position)
-        if (holder is DetailItemViewHolder) {
-            func(holder)
-        }
-    }
-
-    private fun setList(list: List<FridgeItem>) {
-        usingAdapter().submitList(list)
+        usingAdapter().submitList(list.map {
+            DetailListItemViewState(
+                it,
+                expirationRange,
+                sameDayExpired
+            )
+        })
     }
 
     private fun clearList() {
@@ -295,10 +263,10 @@ class DetailList @Inject internal constructor(
                 // Once hidden this will clear out the stored undoable
                 //
                 // If the undoable was restored before this point, this is basically a no-op
-                publish(ReallyDeleteNoUndo(undoable))
+                publish(DetailViewEvent.ReallyDeleteNoUndo(undoable))
             }) {
                 // Restore the old item
-                setAction("Undo") { publish(UndoDelete(undoable)) }
+                setAction("Undo") { publish(DetailViewEvent.UndoDelete(undoable)) }
             }
         }
     }
@@ -322,7 +290,7 @@ class DetailList @Inject internal constructor(
         state.items.let { items ->
             when {
                 items == null || items.isEmpty() -> clearList()
-                else -> setList(items)
+                else -> setList(items, state.expirationRange, state.isSameDayExpired)
             }
         }
 
@@ -342,6 +310,6 @@ class DetailList @Inject internal constructor(
             }
         }
 
-        setupSwipeCallback(state.showArchived)
+        setupSwipeCallback(state.showArchived, state.listItemPresence)
     }
 }

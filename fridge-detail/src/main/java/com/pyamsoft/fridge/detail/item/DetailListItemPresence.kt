@@ -26,16 +26,16 @@ import javax.inject.Inject
 
 class DetailListItemPresence @Inject internal constructor(
     parent: ViewGroup
-) : BaseItemPresence<DetailItemViewState, DetailItemViewEvent>(parent) {
+) : BaseItemPresence<DetailListItemViewState, DetailItemViewEvent>(parent) {
 
     override fun onRender(
-        state: DetailItemViewState,
+        state: DetailListItemViewState,
         savedState: UiSavedState
     ) {
         render(state.item)
     }
 
     override fun commit(item: FridgeItem, presence: FridgeItem.Presence) {
-        publish(CommitPresence(item, presence))
+        publish(CommitPresence)
     }
 }

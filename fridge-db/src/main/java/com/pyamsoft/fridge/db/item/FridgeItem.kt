@@ -18,8 +18,8 @@
 package com.pyamsoft.fridge.db.item
 
 import androidx.annotation.CheckResult
-import com.pyamsoft.fridge.db.ConsumableModel
 import com.pyamsoft.fridge.core.IdGenerator
+import com.pyamsoft.fridge.db.ConsumableModel
 import java.util.Date
 
 interface FridgeItem : ConsumableModel<FridgeItem> {
@@ -68,7 +68,12 @@ interface FridgeItem : ConsumableModel<FridgeItem> {
 
     enum class Presence {
         HAVE,
-        NEED
+        NEED;
+
+        @CheckResult
+        fun flip(): Presence {
+            return if (this == NEED) HAVE else NEED
+        }
     }
 
     companion object {

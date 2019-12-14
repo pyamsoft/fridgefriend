@@ -15,30 +15,25 @@
  *
  */
 
-package com.pyamsoft.fridge.detail.item
+package com.pyamsoft.fridge.detail
 
 import android.view.ViewGroup
 import androidx.annotation.CheckResult
-import com.pyamsoft.fridge.core.tooltip.TooltipCreator
-import com.pyamsoft.fridge.detail.DetailItemViewHolder
+import com.pyamsoft.fridge.db.item.FridgeItem.Presence
+import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent
+import com.pyamsoft.fridge.db.item.FridgeItemRealtime
+import com.pyamsoft.fridge.detail.expand.DateSelectPayload
+import com.pyamsoft.fridge.detail.item.DetailItemComponent
+import com.pyamsoft.pydroid.arch.EventBus
+import com.pyamsoft.pydroid.loader.ImageLoader
+import com.pyamsoft.pydroid.ui.theme.ThemeProvider
 import dagger.BindsInstance
-import dagger.Subcomponent
-import javax.inject.Named
+import dagger.Component
 
-@DetailItemScope
-@Subcomponent
-internal interface DetailItemComponent {
+internal interface DetailListItemComponentCreator {
 
-    fun inject(holder: DetailItemViewHolder)
+    @CheckResult
+    fun create(parent: ViewGroup, editable: Boolean): DetailItemComponent
 
-    @Subcomponent.Factory
-    interface Factory {
-
-        @CheckResult
-        fun create(
-            @BindsInstance tooltipCreator: TooltipCreator,
-            @BindsInstance parent: ViewGroup,
-            @BindsInstance @Named("item_editable") editable: Boolean
-        ): DetailItemComponent
-    }
 }
+

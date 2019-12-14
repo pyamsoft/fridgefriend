@@ -18,37 +18,18 @@
 package com.pyamsoft.fridge.detail.item
 
 import com.pyamsoft.fridge.db.item.FridgeItem
-import com.pyamsoft.fridge.db.item.FridgeItem.Presence
-import com.pyamsoft.pydroid.arch.UiControllerEvent
 import com.pyamsoft.pydroid.arch.UiViewEvent
 import com.pyamsoft.pydroid.arch.UiViewState
 
-data class DetailItemViewState internal constructor(
-    val item: FridgeItem?,
+data class DetailListItemViewState internal constructor(
+    val item: FridgeItem,
     val expirationRange: Int,
-    val isSameDayExpired: Boolean,
-    val throwable: Throwable?
+    val isSameDayExpired: Boolean
 ) : UiViewState
 
 sealed class DetailItemViewEvent : UiViewEvent {
 
     object ExpandItem : DetailItemViewEvent()
 
-    data class CommitPresence internal constructor(
-        val oldItem: FridgeItem,
-        val presence: Presence
-    ) : DetailItemViewEvent()
-}
-
-sealed class DetailItemControllerEvent : UiControllerEvent {
-
-    data class ExpandDetails internal constructor(val item: FridgeItem) :
-        DetailItemControllerEvent()
-
-    data class DatePick internal constructor(
-        val oldItem: FridgeItem,
-        val year: Int,
-        val month: Int,
-        val day: Int
-    ) : DetailItemControllerEvent()
+    object CommitPresence : DetailItemViewEvent()
 }

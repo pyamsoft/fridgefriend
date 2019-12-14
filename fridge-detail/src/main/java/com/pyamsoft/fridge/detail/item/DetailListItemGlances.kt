@@ -48,7 +48,7 @@ class DetailListItemGlances @Inject internal constructor(
     private val tooltipCreator: TooltipCreator,
     private val imageLoader: ImageLoader,
     parent: ViewGroup
-) : BaseUiView<DetailItemViewState, DetailItemViewEvent>(parent) {
+) : BaseUiView<DetailListItemViewState, DetailItemViewEvent>(parent) {
 
     override val layout: Int = R.layout.detail_list_item_glances
 
@@ -84,7 +84,6 @@ class DetailListItemGlances @Inject internal constructor(
     }
 
     private fun clear() {
-
         dateRangeLoader?.dispose()
         dateRangeLoader = null
         dateRangeTooltip?.hide()
@@ -102,28 +101,24 @@ class DetailListItemGlances @Inject internal constructor(
     }
 
     override fun onRender(
-        state: DetailItemViewState,
+        state: DetailListItemViewState,
         savedState: UiSavedState
     ) {
         state.item.let { item ->
-            if (item == null) {
-                clear()
-            } else {
-                val isVisible = item.isReal() && !item.isArchived() && item.presence() == HAVE
-                layoutRoot.isVisible = isVisible
+            val isVisible = item.isReal() && !item.isArchived() && item.presence() == HAVE
+            layoutRoot.isVisible = isVisible
 
-                val today = Calendar.getInstance().cleanMidnight()
-                val soonDate = Calendar.getInstance().daysLaterMidnight(state.expirationRange)
-                val isSameDayExpired = state.isSameDayExpired
-                val expireTime = item.expireTime()
-                val hasTime = expireTime != null
-                val isExpiringSoon = item.isExpiringSoon(today, soonDate, isSameDayExpired)
-                val isExpired = item.isExpired(today, isSameDayExpired)
+            val today = Calendar.getInstance().cleanMidnight()
+            val soonDate = Calendar.getInstance().daysLaterMidnight(state.expirationRange)
+            val isSameDayExpired = state.isSameDayExpired
+            val expireTime = item.expireTime()
+            val hasTime = expireTime != null
+            val isExpiringSoon = item.isExpiringSoon(today, soonDate, isSameDayExpired)
+            val isExpired = item.isExpired(today, isSameDayExpired)
 
-                setDateRangeView(item, expireTime, hasTime)
-                setExpiringView(item, expireTime, today, isExpiringSoon, isExpired, hasTime)
-                setExpiredView(item, expireTime, today, isExpired, hasTime)
-            }
+            setDateRangeView(item, expireTime, hasTime)
+            setExpiringView(item, expireTime, today, isExpiringSoon, isExpired, hasTime)
+            setExpiredView(item, expireTime, today, isExpired, hasTime)
         }
     }
 
@@ -154,7 +149,6 @@ class DetailListItemGlances @Inject internal constructor(
             val dateFormatted = SimpleDateFormat.getDateInstance().format(expireTime)
             setText("${item.name().trim()} will expire on $dateFormatted")
         }
-
     }
 
     private fun setExpiringView(

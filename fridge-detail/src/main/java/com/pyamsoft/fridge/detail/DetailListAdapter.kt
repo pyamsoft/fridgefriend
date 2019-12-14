@@ -25,37 +25,17 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.JsonMappableFridgeItem
 import com.pyamsoft.fridge.detail.DetailListAdapter.DetailViewHolder
-import com.pyamsoft.fridge.detail.item.DetailItemComponent
+import com.pyamsoft.fridge.detail.item.DetailListItemViewState
+import com.pyamsoft.pydroid.arch.ViewBinder
 
 internal class DetailListAdapter constructor(
     private val owner: LifecycleOwner,
     private val editable: Boolean,
     private val callback: Callback,
-    private val injectComponent: (parent: ViewGroup, editable: Boolean) -> DetailItemComponent
-) : ListAdapter<FridgeItem, DetailViewHolder>(object : DiffUtil.ItemCallback<FridgeItem>() {
-
-    override fun areItemsTheSame(
-        oldItem: FridgeItem,
-        newItem: FridgeItem
-    ): Boolean {
-        return oldItem.id() == newItem.id()
-    }
-
-    override fun areContentsTheSame(
-        oldItem: FridgeItem,
-        newItem: FridgeItem
-    ): Boolean {
-        return JsonMappableFridgeItem.from(oldItem) == JsonMappableFridgeItem.from(newItem)
-    }
-}) {
-
-    @CheckResult
-    private fun isEmptyItem(position: Int): Boolean {
-        return position == 0
-    }
+    private val componentCreator: DetailListItemComponentCreator
+) : ListAdapter<DetailListItemViewState, DetailViewHolder>(DIFFER) {
 
     override fun getItemViewType(position: Int): Int {
         return if (isEmptyItem(position)) {
@@ -67,7 +47,7 @@ internal class DetailListAdapter constructor(
 
     override fun getItemId(position: Int): Long {
         return if (isEmptyItem(position)) 0 else {
-            getItem(position).id()
+            getItem(position).item.id()
                 .hashCode()
                 .toLong()
         }
@@ -83,7 +63,7 @@ internal class DetailListAdapter constructor(
             SpacerItemViewHolder(v)
         } else {
             val v = inflater.inflate(R.layout.detail_list_item_holder, parent, false)
-            DetailItemViewHolder(v, owner, editable, callback, injectComponent)
+            DetailItemViewHolder(v, owner, editable, callback, componentCreator)
         }
     }
 
@@ -95,29 +75,42 @@ internal class DetailListAdapter constructor(
         holder.bind(item)
     }
 
-    override fun onViewRecycled(holder: DetailViewHolder) {
-        super.onViewRecycled(holder)
-        holder.unbind()
-    }
-
     internal abstract class DetailViewHolder protected constructor(
         view: View
-    ) : RecyclerView.ViewHolder(view) {
-
-        abstract fun bind(item: FridgeItem)
-
-        abstract fun unbind()
-    }
+    ) : RecyclerView.ViewHolder(view), ViewBinder<DetailListItemViewState>
 
     interface Callback {
 
-        fun onItemExpanded(item: FridgeItem)
+        fun onItemExpanded(index: Int)
 
-        fun onPickDate(
-            oldItem: FridgeItem,
-            year: Int,
-            month: Int,
-            day: Int
-        )
+        fun onPresenceChange(index: Int)
+    }
+
+    companion object {
+
+        private val DIFFER = object : DiffUtil.ItemCallback<DetailListItemViewState>() {
+
+            override fun areItemsTheSame(
+                oldItem: DetailListItemViewState,
+                newItem: DetailListItemViewState
+            ): Boolean {
+                return oldItem.item.id() == newItem.item.id()
+            }
+
+            override fun areContentsTheSame(
+                oldItem: DetailListItemViewState,
+                newItem: DetailListItemViewState
+            ): Boolean {
+                return JsonMappableFridgeItem.from(oldItem.item) == JsonMappableFridgeItem.from(
+                    newItem.item
+                )
+            }
+        }
+
+        @JvmStatic
+        @CheckResult
+        private fun isEmptyItem(position: Int): Boolean {
+            return position == 0
+        }
     }
 }

@@ -43,43 +43,39 @@ class ExpandItemDate @Inject internal constructor(
             return
         }
 
-        if (item == null) {
-            layoutRoot.setOnDebouncedClickListener(null)
+        val expireTime = item.expireTime()
+        val month: Int
+        val day: Int
+        val year: Int
+
+        if (expireTime != null) {
+            val date = Calendar.getInstance()
+                .apply { time = expireTime }
+            Timber.d("Expire time is: $date")
+
+            // Month is zero indexed in storage
+            month = date.get(Calendar.MONTH)
+            day = date.get(Calendar.DAY_OF_MONTH)
+            year = date.get(Calendar.YEAR)
         } else {
-            val expireTime = item.expireTime()
-            val month: Int
-            val day: Int
-            val year: Int
+            month = 0
+            day = 0
+            year = 0
+        }
 
-            if (expireTime != null) {
-                val date = Calendar.getInstance()
-                    .apply { time = expireTime }
-                Timber.d("Expire time is: $date")
-
-                // Month is zero indexed in storage
-                month = date.get(Calendar.MONTH)
-                day = date.get(Calendar.DAY_OF_MONTH)
-                year = date.get(Calendar.YEAR)
-            } else {
-                month = 0
-                day = 0
-                year = 0
-            }
-
-            if (!item.isArchived()) {
-                layoutRoot.setOnDebouncedClickListener {
-                    publish(
-                        ExpandedItemViewEvent.PickDate(
-                            item,
-                            year,
-                            month,
-                            day
-                        )
+        if (!item.isArchived()) {
+            layoutRoot.setOnDebouncedClickListener {
+                publish(
+                    ExpandedItemViewEvent.PickDate(
+                        item,
+                        year,
+                        month,
+                        day
                     )
-                }
-            } else {
-                layoutRoot.setOnDebouncedClickListener(null)
+                )
             }
+        } else {
+            layoutRoot.setOnDebouncedClickListener(null)
         }
     }
 }

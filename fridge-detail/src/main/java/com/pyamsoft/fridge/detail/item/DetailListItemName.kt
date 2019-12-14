@@ -27,7 +27,7 @@ import javax.inject.Named
 class DetailListItemName @Inject internal constructor(
     @Named("item_editable") private val isEditable: Boolean,
     parent: ViewGroup
-) : BaseItemName<DetailItemViewState, DetailItemViewEvent>(parent) {
+) : BaseItemName<DetailListItemViewState, DetailItemViewEvent>(parent) {
 
     init {
         doOnInflate {
@@ -37,19 +37,13 @@ class DetailListItemName @Inject internal constructor(
     }
 
     override fun onRender(
-        state: DetailItemViewState,
+        state: DetailListItemViewState,
         savedState: UiSavedState
     ) {
         if (isEditable) {
             return
         }
 
-        state.item.let { item ->
-            if (item == null) {
-                clear()
-            } else {
-                setName(item)
-            }
-        }
+        setName(state.item)
     }
 }

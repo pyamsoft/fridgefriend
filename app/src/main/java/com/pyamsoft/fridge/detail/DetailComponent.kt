@@ -35,7 +35,7 @@ import dagger.Module
 import dagger.Subcomponent
 import dagger.multibindings.IntoMap
 
-@Subcomponent(modules = [ViewModelModule::class])
+@Subcomponent(modules = [ViewModelModule::class, DetailListModule::class])
 internal interface DetailComponent {
 
     fun inject(fragment: DetailFragment)

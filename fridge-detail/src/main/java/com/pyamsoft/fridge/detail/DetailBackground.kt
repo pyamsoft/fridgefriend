@@ -22,7 +22,6 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.core.view.isInvisible
 import androidx.core.view.isVisible
-import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence.NEED
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.arch.UiSavedState
@@ -32,8 +31,7 @@ import javax.inject.Inject
 
 class DetailBackground @Inject internal constructor(
     parent: ViewGroup,
-    imageLoader: ImageLoader,
-    listItemPresence: FridgeItem.Presence
+    private val imageLoader: ImageLoader
 ) : BaseUiView<DetailViewState, DetailViewEvent>(parent) {
 
     override val layout: Int = R.layout.detail_background
@@ -42,18 +40,11 @@ class DetailBackground @Inject internal constructor(
     private val image by boundView<ImageView>(R.id.detail_background_image)
     private val text by boundView<TextView>(R.id.detail_background_text)
 
-    private val need = listItemPresence == NEED
+    private var loaded: Loaded? = null
 
     init {
-        var loaded: Loaded? = null
-        doOnInflate {
-            val icon = if (need) R.drawable.bg_item_need else R.drawable.bg_item_have
-            loaded = imageLoader.load(icon)
-                .into(image)
-        }
-
         doOnTeardown {
-            loaded?.dispose()
+            clear()
         }
 
         doOnTeardown {
@@ -61,7 +52,15 @@ class DetailBackground @Inject internal constructor(
         }
     }
 
+    private fun clear() {
+        loaded?.dispose()
+        loaded = null
+    }
+
     override fun onRender(state: DetailViewState, savedState: UiSavedState) {
+        val need = state.listItemPresence == NEED
+        loadImage(need)
+
         state.items.let { items ->
             when {
                 items == null || items.isNotEmpty() -> {
@@ -78,5 +77,13 @@ class DetailBackground @Inject internal constructor(
                 }
             }
         }
+    }
+
+    private fun loadImage(need: Boolean) {
+        clear()
+
+        val icon = if (need) R.drawable.bg_item_need else R.drawable.bg_item_have
+        loaded = imageLoader.load(icon)
+            .into(image)
     }
 }

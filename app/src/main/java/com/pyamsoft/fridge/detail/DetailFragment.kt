@@ -119,21 +119,10 @@ internal class DetailFragment : Fragment(), SnackbarContainer {
         ) {
             return@createComponent when (it) {
                 is DetailControllerEvent.ExpandForEditing -> expandItem(it.item)
-                is DetailControllerEvent.DatePick -> pickDate(it.oldItem, it.year, it.month, it.day)
                 is DetailControllerEvent.EntryArchived -> close()
                 is DetailControllerEvent.AddNew -> expandItem(FridgeItem.create(entryId = it.entryId))
             }
         }
-    }
-
-    private fun pickDate(
-        oldItem: FridgeItem,
-        year: Int,
-        month: Int,
-        day: Int
-    ) {
-        DatePickerDialogFragment.newInstance(oldItem, year, month, day)
-            .show(requireActivity(), DatePickerDialogFragment.TAG)
     }
 
     override fun onSaveInstanceState(outState: Bundle) {

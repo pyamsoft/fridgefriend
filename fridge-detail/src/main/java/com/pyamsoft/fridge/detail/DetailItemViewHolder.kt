@@ -18,26 +18,19 @@
 package com.pyamsoft.fridge.detail
 
 import android.view.View
-import android.view.ViewGroup
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.ViewModelProvider.Factory
-import androidx.lifecycle.ViewModelStore
-import com.pyamsoft.fridge.db.item.FridgeItem
-import com.pyamsoft.fridge.detail.DetailListAdapter.Callback
 import com.pyamsoft.fridge.detail.DetailListAdapter.DetailViewHolder
-import com.pyamsoft.fridge.detail.item.DetailItemComponent
-import com.pyamsoft.fridge.detail.item.DetailItemControllerEvent.DatePick
-import com.pyamsoft.fridge.detail.item.DetailItemControllerEvent.ExpandDetails
+import com.pyamsoft.fridge.detail.item.DetailItemViewEvent
 import com.pyamsoft.fridge.detail.item.DetailListItemDate
 import com.pyamsoft.fridge.detail.item.DetailListItemGlances
 import com.pyamsoft.fridge.detail.item.DetailListItemName
 import com.pyamsoft.fridge.detail.item.DetailListItemPresence
-import com.pyamsoft.fridge.detail.item.DetailListItemViewModel
-import com.pyamsoft.pydroid.arch.createComponent
+import com.pyamsoft.fridge.detail.item.DetailListItemViewState
+import com.pyamsoft.pydroid.arch.ViewBinder
+import com.pyamsoft.pydroid.arch.bindViews
 import com.pyamsoft.pydroid.arch.doOnDestroy
-import com.pyamsoft.pydroid.ui.arch.factory
 import com.pyamsoft.pydroid.ui.util.layout
 import javax.inject.Inject
 
@@ -45,8 +38,8 @@ internal class DetailItemViewHolder internal constructor(
     itemView: View,
     owner: LifecycleOwner,
     editable: Boolean,
-    callback: Callback,
-    injectComponent: (parent: ViewGroup, editable: Boolean) -> DetailItemComponent
+    callback: DetailListAdapter.Callback,
+    componentCreator: DetailListItemComponentCreator
 ) : DetailViewHolder(itemView) {
 
     @JvmField
@@ -62,32 +55,27 @@ internal class DetailItemViewHolder internal constructor(
     @Inject
     internal var glancesView: DetailListItemGlances? = null
 
-    @JvmField
-    @Inject
-    internal var factory: Factory? = null
-    private val viewModel by factory<DetailListItemViewModel>(ViewModelStore()) { factory }
+    private val viewBinder: ViewBinder<DetailListItemViewState>
 
     init {
         val parent = itemView.findViewById<ConstraintLayout>(R.id.detail_list_item)
-        injectComponent(parent, editable)
-            .inject(this)
+        componentCreator.create(parent, editable).inject(this)
 
         val name = requireNotNull(nameView)
         val date = requireNotNull(dateView)
         val presence = requireNotNull(presenceView)
         val glances = requireNotNull(glancesView)
 
-        createComponent(
-            null, owner,
-            viewModel,
+        viewBinder = bindViews(
+            owner,
             name,
             date,
             presence,
             glances
         ) {
-            return@createComponent when (it) {
-                is ExpandDetails -> callback.onItemExpanded(it.item)
-                is DatePick -> callback.onPickDate(it.oldItem, it.year, it.month, it.day)
+            return@bindViews when (it) {
+                is DetailItemViewEvent.ExpandItem -> callback.onItemExpanded(adapterPosition)
+                is DetailItemViewEvent.CommitPresence -> callback.onPresenceChange(adapterPosition)
             }
         }
 
@@ -172,31 +160,10 @@ internal class DetailItemViewHolder internal constructor(
             glancesView = null
             dateView = null
             presenceView = null
-            factory = null
         }
     }
 
-    override fun bind(item: FridgeItem) {
-        viewModel.bind(item)
-    }
-
-    override fun unbind() {
-        viewModel.unbind()
-    }
-
-    fun consume() {
-        viewModel.consume()
-    }
-
-    fun spoil() {
-        viewModel.spoil()
-    }
-
-    fun restore() {
-        viewModel.restore()
-    }
-
-    fun delete() {
-        viewModel.delete()
+    override fun bind(state: DetailListItemViewState) {
+        viewBinder.bind(state)
     }
 }

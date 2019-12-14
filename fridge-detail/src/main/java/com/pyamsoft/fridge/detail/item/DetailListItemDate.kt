@@ -25,14 +25,12 @@ import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.ui.theme.ThemeProvider
 import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
 import javax.inject.Inject
-import javax.inject.Named
 
 class DetailListItemDate @Inject internal constructor(
-    @Named("item_editable") private val isEditable: Boolean,
     imageLoader: ImageLoader,
     theming: ThemeProvider,
     parent: ViewGroup
-) : BaseItemDate<DetailItemViewState, DetailItemViewEvent>(imageLoader, theming, parent) {
+) : BaseItemDate<DetailListItemViewState, DetailItemViewEvent>(imageLoader, theming, parent) {
 
     init {
         doOnInflate {
@@ -44,12 +42,7 @@ class DetailListItemDate @Inject internal constructor(
         }
     }
 
-    override fun onRender(state: DetailItemViewState, savedState: UiSavedState) {
-        val item = state.item
-        baseRender(item)
-
-        if (isEditable) {
-            return
-        }
+    override fun onRender(state: DetailListItemViewState, savedState: UiSavedState) {
+        baseRender(state.item)
     }
 }
