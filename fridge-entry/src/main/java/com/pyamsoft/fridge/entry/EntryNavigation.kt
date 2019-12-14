@@ -17,6 +17,7 @@
 
 package com.pyamsoft.fridge.entry
 
+import android.os.Bundle
 import android.view.ViewGroup
 import androidx.annotation.CheckResult
 import androidx.core.view.isVisible
@@ -26,7 +27,6 @@ import com.pyamsoft.fridge.core.DefaultActivityPage
 import com.pyamsoft.fridge.core.DefaultActivityPage.HAVE
 import com.pyamsoft.fridge.core.DefaultActivityPage.NEARBY
 import com.pyamsoft.fridge.core.DefaultActivityPage.NEED
-import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.entry.EntryViewEvent.OpenHave
 import com.pyamsoft.fridge.entry.EntryViewEvent.OpenNearby
 import com.pyamsoft.fridge.entry.EntryViewEvent.OpenNeed
@@ -36,8 +36,8 @@ import com.pyamsoft.pydroid.util.doOnApplyWindowInsets
 import javax.inject.Inject
 
 class EntryNavigation @Inject internal constructor(
-    private val defaultPage: DefaultActivityPage,
-    parent: ViewGroup
+    parent: ViewGroup,
+    defaultPage: DefaultActivityPage
 ) : BaseUiView<EntryViewState, EntryViewEvent>(parent) {
 
     override val layout: Int = R.layout.entry_navigation
@@ -46,11 +46,22 @@ class EntryNavigation @Inject internal constructor(
 
     init {
         doOnInflate {
-            layoutRoot.isVisible = false
-
             layoutRoot.doOnApplyWindowInsets { v, insets, padding ->
                 v.updatePadding(bottom = padding.bottom + insets.systemWindowInsetBottom)
             }
+        }
+
+        doOnInflate { savedInstanceState ->
+            layoutRoot.setOnNavigationItemSelectedListener { item ->
+                return@setOnNavigationItemSelectedListener when (item.itemId) {
+                    R.id.menu_item_nav_need -> select(OpenNeed)
+                    R.id.menu_item_nav_have -> select(OpenHave)
+                    R.id.menu_item_nav_nearby -> select(OpenNearby)
+                    else -> false
+                }
+            }
+
+            selectDefault(savedInstanceState, defaultPage)
         }
 
         doOnTeardown {
@@ -68,21 +79,10 @@ class EntryNavigation @Inject internal constructor(
         savedState: UiSavedState
     ) {
         layoutRoot.isVisible = state.entry != null
-
-        layoutRoot.setOnNavigationItemSelectedListener { item ->
-            return@setOnNavigationItemSelectedListener when (item.itemId) {
-                R.id.menu_item_nav_need -> handleClick(state.entry) { OpenNeed(it) }
-                R.id.menu_item_nav_have -> handleClick(state.entry) { OpenHave(it) }
-                R.id.menu_item_nav_nearby -> handleClick(state.entry) { OpenNearby(it) }
-                else -> false
-            }
-        }
-
-        selectDefault(state.entry, savedState)
     }
 
     @CheckResult
-    private fun getIdForPage(): Int {
+    private fun getIdForPage(defaultPage: DefaultActivityPage): Int {
         return when (defaultPage) {
             NEED -> R.id.menu_item_nav_need
             HAVE -> R.id.menu_item_nav_have
@@ -90,36 +90,27 @@ class EntryNavigation @Inject internal constructor(
         }
     }
 
-    private fun selectDefault(
-        entry: FridgeEntry?,
-        savedState: UiSavedState
-    ) {
-        if (entry != null) {
-            savedState.consume(LAST_PAGE, 0) { itemId ->
-                val newSelectedItem = if (itemId != 0) itemId else {
-                    val id = getIdForPage()
-                    val item = layoutRoot.menu.findItem(id)
-                    item?.itemId ?: 0
-                }
+    private fun selectDefault(savedInstanceState: Bundle?, defaultPage: DefaultActivityPage) {
+        if (savedInstanceState == null) {
+            return
+        }
 
-                if (newSelectedItem != 0) {
-                    layoutRoot.selectedItemId = newSelectedItem
-                }
-            }
+        val itemId = savedInstanceState.getInt(LAST_PAGE, 0)
+        val newSelectedItem = if (itemId != 0) itemId else {
+            val id = getIdForPage(defaultPage)
+            val item = layoutRoot.menu.findItem(id)
+            item?.itemId ?: 0
+        }
+
+        if (newSelectedItem != 0) {
+            layoutRoot.selectedItemId = newSelectedItem
         }
     }
 
     @CheckResult
-    private fun handleClick(
-        entry: FridgeEntry?,
-        getEvent: (entry: FridgeEntry) -> EntryViewEvent
-    ): Boolean {
-        return if (entry != null) {
-            publish(getEvent(entry))
-            true
-        } else {
-            false
-        }
+    private fun select(viewEvent: EntryViewEvent): Boolean {
+        publish(viewEvent)
+        return true
     }
 
     companion object {

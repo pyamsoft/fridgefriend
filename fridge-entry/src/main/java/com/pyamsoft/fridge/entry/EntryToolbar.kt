@@ -25,16 +25,18 @@ import com.pyamsoft.pydroid.ui.app.ToolbarActivity
 import com.pyamsoft.pydroid.ui.arch.InvalidIdException
 import com.pyamsoft.pydroid.ui.util.setUpEnabled
 import javax.inject.Inject
-import javax.inject.Named
 
 class EntryToolbar @Inject internal constructor(
-    private val toolbarActivity: ToolbarActivity,
-    @Named("app_name") private val appNameRes: Int
+    private val toolbarActivity: ToolbarActivity
 ) : UiView<EntryViewState, EntryViewEvent>() {
 
     private var settingsItem: MenuItem? = null
 
     init {
+        doOnInflate {
+            inflateMenu()
+        }
+
         doOnTeardown {
             teardownMenu()
         }
@@ -51,29 +53,17 @@ class EntryToolbar @Inject internal constructor(
     }
 
     private fun inflateMenu() {
-        toolbarActivity.requireToolbar { toolbar ->
+        toolbarActivity.withToolbar { toolbar ->
             toolbar.setUpEnabled(false)
-            toolbar.setTitle(appNameRes)
-
-            if (toolbar.menu.findItem(R.id.menu_item_settings) == null) {
-                toolbar.inflateMenu(R.menu.toolbar_menu)
-                toolbar.menu.findItem(R.id.menu_item_settings)
-                    .also {
-                        it.setOnMenuItemClickListener {
-                            publish(SettingsNavigate)
-                            return@setOnMenuItemClickListener true
-                        }
-                        settingsItem = it
+            toolbar.inflateMenu(R.menu.toolbar_menu)
+            toolbar.menu.findItem(R.id.menu_item_settings)
+                .also {
+                    it.setOnMenuItemClickListener {
+                        publish(SettingsNavigate)
+                        return@setOnMenuItemClickListener true
                     }
-            }
-        }
-    }
-
-    private fun showMenu(show: Boolean) {
-        if (show) {
-            inflateMenu()
-        } else {
-            teardownMenu()
+                    settingsItem = it
+                }
         }
     }
 
@@ -81,6 +71,18 @@ class EntryToolbar @Inject internal constructor(
         state: EntryViewState,
         savedState: UiSavedState
     ) {
-        showMenu(state.isSettingsItemVisible)
+        state.isSettingsItemVisible.let { show ->
+            settingsItem?.isVisible = show
+        }
+
+        state.appNameRes.let { name ->
+            toolbarActivity.withToolbar { toolbar ->
+                if (name == 0) {
+                    toolbar.title = null
+                } else {
+                    toolbar.setTitle(name)
+                }
+            }
+        }
     }
 }

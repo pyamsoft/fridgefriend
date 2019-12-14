@@ -19,6 +19,7 @@ package com.pyamsoft.fridge.entry
 
 import androidx.lifecycle.viewModelScope
 import com.pyamsoft.fridge.db.PersistentEntries
+import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.entry.EntryControllerEvent.NavigateToSettings
 import com.pyamsoft.fridge.entry.EntryControllerEvent.PushHave
 import com.pyamsoft.fridge.entry.EntryControllerEvent.PushNearby
@@ -31,11 +32,17 @@ import com.pyamsoft.pydroid.arch.UiViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import javax.inject.Named
 
 class EntryViewModel @Inject internal constructor(
-    persistentEntries: PersistentEntries
+    persistentEntries: PersistentEntries,
+    @Named("app_name") appNameRes: Int
 ) : UiViewModel<EntryViewState, EntryViewEvent, EntryControllerEvent>(
-    initialState = EntryViewState(entry = null, isSettingsItemVisible = true)
+    initialState = EntryViewState(
+        entry = null,
+        isSettingsItemVisible = true,
+        appNameRes = appNameRes
+    )
 ) {
 
     init {
@@ -49,10 +56,18 @@ class EntryViewModel @Inject internal constructor(
 
     override fun handleViewEvent(event: EntryViewEvent) {
         return when (event) {
-            is OpenHave -> publish(PushHave(event.entry))
-            is OpenNeed -> publish(PushNeed(event.entry))
-            is OpenNearby -> publish(PushNearby(event.entry))
+            is OpenHave -> select { PushHave(it) }
+            is OpenNeed -> select { PushNeed(it) }
+            is OpenNearby -> select { PushNearby(it) }
             is SettingsNavigate -> publish(NavigateToSettings)
+        }
+    }
+
+    private inline fun select(crossinline func: (entry: FridgeEntry) -> EntryControllerEvent) {
+        withState {
+            entry?.let { e ->
+                publish(func(e))
+            }
         }
     }
 
