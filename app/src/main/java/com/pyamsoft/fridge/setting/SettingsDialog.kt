@@ -35,7 +35,6 @@ import com.pyamsoft.fridge.FridgeComponent
 import com.pyamsoft.fridge.R
 import com.pyamsoft.fridge.setting.SettingControllerEvent.NavigateUp
 import com.pyamsoft.pydroid.arch.UiView
-import com.pyamsoft.pydroid.arch.UnitViewState
 import com.pyamsoft.pydroid.arch.createComponent
 import com.pyamsoft.pydroid.ui.Injector
 import com.pyamsoft.pydroid.ui.about.AboutFragment
@@ -131,7 +130,7 @@ internal class SettingsDialog : DialogFragment() {
             .inject(this)
 
         val toolbar = requireNotNull(toolbar)
-        val dropshadow = DropshadowView.createTyped<UnitViewState, SettingViewEvent>(parent)
+        val dropshadow = DropshadowView.createTyped<SettingViewState, SettingViewEvent>(parent)
         val frame = requireNotNull(frame)
         createComponent(
             savedInstanceState, viewLifecycleOwner,

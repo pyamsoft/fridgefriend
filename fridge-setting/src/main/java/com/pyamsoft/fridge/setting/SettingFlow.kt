@@ -19,6 +19,9 @@ package com.pyamsoft.fridge.setting
 
 import com.pyamsoft.pydroid.arch.UiControllerEvent
 import com.pyamsoft.pydroid.arch.UiViewEvent
+import com.pyamsoft.pydroid.arch.UiViewState
+
+data class SettingViewState internal constructor(val name: String) : UiViewState
 
 sealed class SettingViewEvent : UiViewEvent {
 

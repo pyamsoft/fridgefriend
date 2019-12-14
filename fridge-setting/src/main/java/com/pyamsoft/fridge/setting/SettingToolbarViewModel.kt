@@ -20,13 +20,12 @@ package com.pyamsoft.fridge.setting
 import com.pyamsoft.fridge.setting.SettingControllerEvent.NavigateUp
 import com.pyamsoft.fridge.setting.SettingViewEvent.Navigate
 import com.pyamsoft.pydroid.arch.UiViewModel
-import com.pyamsoft.pydroid.arch.UnitViewState
 import javax.inject.Inject
 
-class SettingToolbarViewModel @Inject internal constructor() :
-    UiViewModel<UnitViewState, SettingViewEvent, SettingControllerEvent>(
-        initialState = UnitViewState
-    ) {
+class SettingToolbarViewModel @Inject internal constructor(
+) : UiViewModel<SettingViewState, SettingViewEvent, SettingControllerEvent>(
+    initialState = SettingViewState(name = "Settings")
+) {
 
     override fun handleViewEvent(event: SettingViewEvent) {
         return when (event) {
