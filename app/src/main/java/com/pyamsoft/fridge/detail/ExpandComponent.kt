@@ -27,7 +27,6 @@ import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence
 import com.pyamsoft.fridge.detail.ExpandComponent.ViewModelModule
 import com.pyamsoft.fridge.detail.expand.ExpandItemViewModel
-import com.pyamsoft.fridge.detail.expand.ExpandModule
 import com.pyamsoft.pydroid.arch.UiViewModel
 import com.pyamsoft.pydroid.ui.theme.ThemeProvider
 import dagger.Binds
@@ -36,7 +35,7 @@ import dagger.Module
 import dagger.Subcomponent
 import dagger.multibindings.IntoMap
 
-@Subcomponent(modules = [ExpandModule::class, ViewModelModule::class])
+@Subcomponent(modules = [ViewModelModule::class])
 internal interface ExpandComponent {
 
     fun inject(fragment: ExpandedFragment)

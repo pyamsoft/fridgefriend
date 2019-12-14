@@ -59,13 +59,9 @@ class ExpandItemSimilar @Inject internal constructor(
                 clear()
             } else {
                 state.item.let { item ->
-                    if (item == null) {
-                        clear()
-                    } else {
-                        val name = item.name().trim()
-                        message.isVisible = true
-                        message.text = "You already have at least one '$name', do you need another?"
-                    }
+                    val name = item.name().trim()
+                    message.isVisible = true
+                    message.text = "You already have at least one '$name', do you need another?"
                 }
             }
         }

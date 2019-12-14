@@ -20,27 +20,24 @@ package com.pyamsoft.fridge.detail.expand
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.ViewGroup
+import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.detail.base.BaseItemCount
 import com.pyamsoft.pydroid.arch.UiSavedState
 import javax.inject.Inject
-import javax.inject.Named
 
 class ExpandItemCount @Inject internal constructor(
-    @Named("item_editable") private val isEditable: Boolean,
     parent: ViewGroup,
     initialItem: FridgeItem
 ) : BaseItemCount<ExpandItemViewState, ExpandedItemViewEvent>(parent) {
 
-    private var countWatcher: TextWatcher? = null
-
     init {
         doOnInflate {
             setCount(initialItem)
-        }
-
-        doOnTeardown {
-            removeListeners()
+            val watcher = createWatcher()
+            doOnTeardown {
+                removeWatcher(watcher)
+            }
         }
     }
 
@@ -48,25 +45,14 @@ class ExpandItemCount @Inject internal constructor(
         state: ExpandItemViewState,
         savedState: UiSavedState
     ) {
-        if (!isEditable) {
-            return
-        }
-
-        removeListeners()
-        state.item.let { item ->
-            if (item == null) {
-                clear()
-            } else {
-                addWatcher(item)
-            }
-        }
     }
 
-    private fun addWatcher(item: FridgeItem) {
+    @CheckResult
+    private fun createWatcher(): TextWatcher {
         val watcher = object : TextWatcher {
 
             override fun afterTextChanged(s: Editable?) {
-                commit(item)
+                commit()
             }
 
             override fun beforeTextChanged(
@@ -86,16 +72,15 @@ class ExpandItemCount @Inject internal constructor(
             }
         }
         countView.addTextChangedListener(watcher)
-        countWatcher = watcher
+        return watcher
     }
 
-    private fun removeListeners() {
-        countWatcher?.let { countView.removeTextChangedListener(it) }
-        countWatcher = null
+    private fun removeWatcher(watcher: TextWatcher) {
+        countView.removeTextChangedListener(watcher)
     }
 
-    private fun commit(item: FridgeItem) {
+    private fun commit() {
         val count = countView.text.toString().toIntOrNull() ?: 0
-        publish(ExpandedItemViewEvent.CommitCount(item, count))
+        publish(ExpandedItemViewEvent.CommitCount(count))
     }
 }

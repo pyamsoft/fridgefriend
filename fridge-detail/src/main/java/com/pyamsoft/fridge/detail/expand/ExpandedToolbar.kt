@@ -17,24 +17,18 @@
 
 package com.pyamsoft.fridge.detail.expand
 
-import android.graphics.drawable.Drawable
 import android.view.MenuItem
-import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.widget.Toolbar
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence.HAVE
 import com.pyamsoft.fridge.detail.R
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.arch.UiSavedState
-import com.pyamsoft.pydroid.loader.ImageLoader
-import com.pyamsoft.pydroid.loader.ImageTarget
-import com.pyamsoft.pydroid.loader.Loaded
 import com.pyamsoft.pydroid.ui.util.DebouncedOnClickListener
 import com.pyamsoft.pydroid.ui.util.setUpEnabled
 import javax.inject.Inject
 
 class ExpandedToolbar @Inject internal constructor(
-    imageLoader: ImageLoader,
     parent: ViewGroup
 ) : BaseUiView<ExpandItemViewState, ExpandedItemViewEvent>(parent) {
 
@@ -45,39 +39,38 @@ class ExpandedToolbar @Inject internal constructor(
     private var deleteMenuItem: MenuItem? = null
     private var consumeMenuItem: MenuItem? = null
     private var spoilMenuItem: MenuItem? = null
-    private var iconLoaded: Loaded? = null
 
     init {
         doOnInflate {
-            stopIconLoad()
-            iconLoaded = imageLoader.load(R.drawable.ic_close_24dp)
-                .into(object : ImageTarget<Drawable> {
-
-                    override fun clear() {
-                        layoutRoot.navigationIcon = null
-                    }
-
-                    override fun setError(error: Drawable?) {
-                        layoutRoot.setUpEnabled(true, error)
-                    }
-
-                    override fun setImage(image: Drawable) {
-                        layoutRoot.setUpEnabled(true, image)
-                    }
-
-                    override fun setPlaceholder(placeholder: Drawable?) {
-                        layoutRoot.setUpEnabled(true, placeholder)
-                    }
-
-                    override fun view(): View {
-                        return layoutRoot
-                    }
-                })
-
+            layoutRoot.setUpEnabled(true)
             layoutRoot.inflateMenu(R.menu.menu_expanded)
             deleteMenuItem = layoutRoot.menu.findItem(R.id.menu_item_delete)
             consumeMenuItem = layoutRoot.menu.findItem(R.id.menu_item_consume)
             spoilMenuItem = layoutRoot.menu.findItem(R.id.menu_item_spoil)
+        }
+
+        doOnInflate {
+            layoutRoot.setNavigationOnClickListener(DebouncedOnClickListener.create {
+                publish(ExpandedItemViewEvent.CloseItem)
+            })
+
+            layoutRoot.setOnMenuItemClickListener { menuItem ->
+                return@setOnMenuItemClickListener when (menuItem.itemId) {
+                    R.id.menu_item_delete -> {
+                        publish(ExpandedItemViewEvent.DeleteItem)
+                        true
+                    }
+                    R.id.menu_item_consume -> {
+                        publish(ExpandedItemViewEvent.ConsumeItem)
+                        true
+                    }
+                    R.id.menu_item_spoil -> {
+                        publish(ExpandedItemViewEvent.SpoilItem)
+                        true
+                    }
+                    else -> false
+                }
+            }
         }
 
         doOnTeardown {
@@ -86,8 +79,6 @@ class ExpandedToolbar @Inject internal constructor(
     }
 
     private fun clear() {
-        stopIconLoad()
-
         layoutRoot.menu.clear()
         deleteMenuItem = null
         consumeMenuItem = null
@@ -102,40 +93,9 @@ class ExpandedToolbar @Inject internal constructor(
         savedState: UiSavedState
     ) {
         state.item.let { item ->
-            if (item == null) {
-                clear()
-            } else {
-                layoutRoot.setNavigationOnClickListener(DebouncedOnClickListener.create {
-                    publish(ExpandedItemViewEvent.CloseItem(item))
-                })
-
-                requireNotNull(deleteMenuItem).isVisible = item.isReal()
-                requireNotNull(consumeMenuItem).isVisible = item.isReal() && item.presence() == HAVE
-                requireNotNull(spoilMenuItem).isVisible = item.isReal() && item.presence() == HAVE
-
-                layoutRoot.setOnMenuItemClickListener { menuItem ->
-                    return@setOnMenuItemClickListener when (menuItem.itemId) {
-                        R.id.menu_item_delete -> {
-                            publish(ExpandedItemViewEvent.DeleteItem(item))
-                            true
-                        }
-                        R.id.menu_item_consume -> {
-                            publish(ExpandedItemViewEvent.ConsumeItem(item))
-                            true
-                        }
-                        R.id.menu_item_spoil -> {
-                            publish(ExpandedItemViewEvent.SpoilItem(item))
-                            true
-                        }
-                        else -> false
-                    }
-                }
-            }
+            requireNotNull(deleteMenuItem).isVisible = item.isReal()
+            requireNotNull(consumeMenuItem).isVisible = item.isReal() && item.presence() == HAVE
+            requireNotNull(spoilMenuItem).isVisible = item.isReal() && item.presence() == HAVE
         }
-    }
-
-    private fun stopIconLoad() {
-        iconLoaded?.dispose()
-        iconLoaded = null
     }
 }

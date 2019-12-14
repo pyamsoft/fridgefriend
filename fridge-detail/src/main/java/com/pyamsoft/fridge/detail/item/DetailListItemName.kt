@@ -22,10 +22,8 @@ import com.pyamsoft.fridge.detail.base.BaseItemName
 import com.pyamsoft.pydroid.arch.UiSavedState
 import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
 import javax.inject.Inject
-import javax.inject.Named
 
 class DetailListItemName @Inject internal constructor(
-    @Named("item_editable") private val isEditable: Boolean,
     parent: ViewGroup
 ) : BaseItemName<DetailListItemViewState, DetailItemViewEvent>(parent) {
 
@@ -40,10 +38,6 @@ class DetailListItemName @Inject internal constructor(
         state: DetailListItemViewState,
         savedState: UiSavedState
     ) {
-        if (isEditable) {
-            return
-        }
-
         setName(state.item)
     }
 }

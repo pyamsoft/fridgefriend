@@ -42,7 +42,7 @@ abstract class BaseItemCount<S : UiViewState, V : UiViewEvent> protected constru
         }
     }
 
-    protected fun clear() {
+    private fun clear() {
         countView.text.clear()
         countView.setOnDebouncedClickListener(null)
     }

@@ -104,37 +104,38 @@ class ExpandItemViewModel @Inject internal constructor(
 
     override fun handleViewEvent(event: ExpandedItemViewEvent) {
         return when (event) {
-            is ExpandedItemViewEvent.CommitName -> commitName(event.oldItem, event.name)
-            is ExpandedItemViewEvent.CommitCount -> commitCount(event.oldItem, event.count)
-            is ExpandedItemViewEvent.CommitPresence -> commitPresence(event.oldItem, event.presence)
-            is ExpandedItemViewEvent.PickDate -> pickDate(
-                event.oldItem,
-                event.year,
-                event.month,
-                event.day
-            )
-            is ExpandedItemViewEvent.CloseItem -> closeSelf(event.item)
-            is ExpandedItemViewEvent.DeleteItem -> deleteSelf(event.item)
-            is ExpandedItemViewEvent.ConsumeItem -> consumeSelf(event.item)
-            is ExpandedItemViewEvent.SpoilItem -> spoilSelf(event.item)
+            is ExpandedItemViewEvent.CommitName -> commitName(event.name)
+            is ExpandedItemViewEvent.CommitCount -> commitCount(event.count)
+            is ExpandedItemViewEvent.CommitPresence -> commitPresence()
+            is ExpandedItemViewEvent.PickDate -> pickDate()
+            is ExpandedItemViewEvent.CloseItem -> closeSelf()
+            is ExpandedItemViewEvent.DeleteItem -> deleteSelf()
+            is ExpandedItemViewEvent.ConsumeItem -> consumeSelf()
+            is ExpandedItemViewEvent.SpoilItem -> spoilSelf()
         }
     }
 
-    private fun consumeSelf(item: FridgeItem) {
-        update(item, doUpdate = { interactor.consume(it) }, onError = { handleError(it) }) {
-            closeSelf(it)
+    private fun consumeSelf() {
+        withState {
+            update(item, doUpdate = { interactor.consume(it) }, onError = { handleError(it) }) {
+                closeItem(it)
+            }
         }
     }
 
-    private fun spoilSelf(item: FridgeItem) {
-        update(item, doUpdate = { interactor.spoil(it) }, onError = { handleError(it) }) {
-            closeSelf(it)
+    private fun spoilSelf() {
+        withState {
+            update(item, doUpdate = { interactor.spoil(it) }, onError = { handleError(it) }) {
+                closeItem(it)
+            }
         }
     }
 
-    private fun deleteSelf(item: FridgeItem) {
-        update(item, doUpdate = { interactor.delete(it) }, onError = { handleError(it) }) {
-            closeSelf(it)
+    private fun deleteSelf() {
+        withState {
+            update(item, doUpdate = { interactor.delete(it) }, onError = { handleError(it) }) {
+                closeItem(it)
+            }
         }
     }
 
@@ -142,12 +143,18 @@ class ExpandItemViewModel @Inject internal constructor(
         return when (event) {
             is Update -> handleModelUpdate(event.item)
             is Insert -> handleModelUpdate(event.item)
-            is Delete -> closeSelf(event.item)
+            is Delete -> closeItem(event.item)
         }
     }
 
-    private fun closeSelf(newItem: FridgeItem) {
-        if (itemId == newItem.id() && itemEntryId == newItem.entryId()) {
+    private fun closeSelf() {
+        withState {
+            closeItem(item)
+        }
+    }
+
+    private fun closeItem(item: FridgeItem) {
+        if (itemId == item.id() && itemEntryId == item.entryId()) {
             publish(ExpandItemControllerEvent.CloseExpand)
         }
     }
@@ -158,14 +165,30 @@ class ExpandItemViewModel @Inject internal constructor(
         }
     }
 
-    private fun pickDate(
-        oldItem: FridgeItem,
-        year: Int,
-        month: Int,
-        day: Int
-    ) {
-        Timber.d("Launch date picker from date: $year ${month + 1} $day")
-        publish(ExpandItemControllerEvent.DatePick(oldItem, year, month, day))
+    private fun pickDate() {
+        withState {
+            val expireTime = item.expireTime()
+            val month: Int
+            val day: Int
+            val year: Int
+
+            if (expireTime != null) {
+                val date = Calendar.getInstance()
+                    .apply { time = expireTime }
+
+                // Month is zero indexed in storage
+                month = date.get(Calendar.MONTH)
+                day = date.get(Calendar.DAY_OF_MONTH)
+                year = date.get(Calendar.YEAR)
+            } else {
+                month = 0
+                day = 0
+                year = 0
+            }
+
+            Timber.d("Launch date picker from date: $year ${month + 1} $day")
+            publish(ExpandItemControllerEvent.DatePick(item, year, month, day))
+        }
     }
 
     @CheckResult
@@ -173,29 +196,31 @@ class ExpandItemViewModel @Inject internal constructor(
         return isNameValid(item.name())
     }
 
-    private fun commitCount(
-        oldItem: FridgeItem,
-        count: Int
-    ) {
-        if (count > 0) {
-            setFixMessage("")
-            commitItem(oldItem.count(count), oldItem.presence())
-        } else {
-            Timber.w("Invalid count: $count")
-            handleInvalidCount(count)
+    private fun commitCount(count: Int) {
+        withState {
+            item.let { item ->
+                if (count > 0) {
+                    setFixMessage("")
+                    commitItem(item.count(count), item.presence())
+                } else {
+                    Timber.w("Invalid count: $count")
+                    handleInvalidCount(count)
+                }
+            }
         }
     }
 
-    private fun commitName(
-        oldItem: FridgeItem,
-        name: String
-    ) {
-        if (isNameValid(name)) {
-            setFixMessage("")
-            commitItem(oldItem.name(name), oldItem.presence())
-        } else {
-            Timber.w("Invalid name: $name")
-            handleInvalidName(name)
+    private fun commitName(name: String) {
+        withState {
+            item.let { item ->
+                if (isNameValid(name)) {
+                    setFixMessage("")
+                    commitItem(item.name(name), item.presence())
+                } else {
+                    Timber.w("Invalid name: $name")
+                    handleInvalidName(name)
+                }
+            }
         }
     }
 
@@ -217,13 +242,14 @@ class ExpandItemViewModel @Inject internal constructor(
         commitItem(oldItem.expireTime(newTime), oldItem.presence())
     }
 
-    private fun commitPresence(
-        oldItem: FridgeItem,
-        presence: Presence
-    ) {
-        val oldPresence = oldItem.presence()
-        val newItem = oldItem.presence(presence)
-        commitItem(newItem, oldPresence)
+    private fun commitPresence() {
+        withState {
+            item.let { item ->
+                val oldPresence = item.presence()
+                val newItem = item.presence(oldPresence.flip())
+                commitItem(newItem, oldPresence)
+            }
+        }
     }
 
     private fun commitItem(item: FridgeItem, oldPresence: Presence) {

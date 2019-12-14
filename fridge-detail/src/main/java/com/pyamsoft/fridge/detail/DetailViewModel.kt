@@ -172,8 +172,12 @@ class DetailViewModel @Inject internal constructor(
     }
 
     private fun expand(index: Int) {
-        withItem(index) { item ->
-            publish(ExpandForEditing(item))
+        withState {
+            if (!showArchived) {
+                items?.getOrNull(index)?.let { item ->
+                    publish(ExpandForEditing(item))
+                }
+            }
         }
     }
 
@@ -234,9 +238,10 @@ class DetailViewModel @Inject internal constructor(
     }
 
     @CheckResult
-    private fun CoroutineScope.beginListeningForChanges() = launch(context = Dispatchers.Default) {
-        realtimeRunner.call()
-    }
+    private fun CoroutineScope.beginListeningForChanges() =
+        launch(context = Dispatchers.Default) {
+            realtimeRunner.call()
+        }
 
     private fun insert(
         items: MutableList<FridgeItem>,
@@ -398,7 +403,10 @@ class DetailViewModel @Inject internal constructor(
     private fun consume(index: Int) {
         withItem(index) { item ->
             if (item.isReal()) {
-                update(item, doUpdate = { interactor.consume(it) }, onError = { handleError(it) })
+                update(
+                    item,
+                    doUpdate = { interactor.consume(it) },
+                    onError = { handleError(it) })
             }
         }
     }
@@ -406,7 +414,10 @@ class DetailViewModel @Inject internal constructor(
     private fun restore(index: Int) {
         withItem(index) { item ->
             if (item.isReal()) {
-                update(item, doUpdate = { interactor.restore(it) }, onError = { handleError(it) })
+                update(
+                    item,
+                    doUpdate = { interactor.restore(it) },
+                    onError = { handleError(it) })
             }
         }
     }
@@ -422,7 +433,10 @@ class DetailViewModel @Inject internal constructor(
     private fun delete(index: Int) {
         withItem(index) { item ->
             if (item.isReal()) {
-                update(item, doUpdate = { interactor.delete(it) }, onError = { handleError(it) })
+                update(
+                    item,
+                    doUpdate = { interactor.delete(it) },
+                    onError = { handleError(it) })
             } else {
                 handleFakeDelete(item)
             }

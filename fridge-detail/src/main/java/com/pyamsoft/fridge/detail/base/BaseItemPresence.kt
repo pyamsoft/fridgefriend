@@ -38,34 +38,21 @@ abstract class BaseItemPresence<S : UiViewState, V : UiViewEvent> protected cons
 
     private val presenceSwitch by boundView<CompoundButton>(R.id.detail_item_presence_switch)
 
-    init {
-        doOnTeardown {
-            removeListeners()
-        }
+    private val listener = CompoundButton.OnCheckedChangeListener { _, _ ->
+        publishChangePresence()
     }
 
     protected fun render(item: FridgeItem?) {
-        removeListeners()
-
-        setSwitchEnabled(item)
+        presenceSwitch.setOnCheckedChangeListener(null)
+        presenceSwitch.isEnabled = item != null && !item.isArchived()
         if (item != null) {
             presenceSwitch.isVisible = true
             presenceSwitch.isChecked = item.presence() == FridgeItem.Presence.HAVE
-            presenceSwitch.setOnCheckedChangeListener { _, isChecked ->
-                commit(item, if (isChecked) FridgeItem.Presence.HAVE else FridgeItem.Presence.NEED)
-            }
+            presenceSwitch.setOnCheckedChangeListener(listener)
         } else {
             presenceSwitch.isInvisible = true
         }
     }
 
-    private fun removeListeners() {
-        presenceSwitch.setOnCheckedChangeListener(null)
-    }
-
-    private fun setSwitchEnabled(item: FridgeItem?) {
-        presenceSwitch.isEnabled = item != null && !item.isArchived()
-    }
-
-    protected abstract fun commit(item: FridgeItem, presence: FridgeItem.Presence)
+    protected abstract fun publishChangePresence()
 }

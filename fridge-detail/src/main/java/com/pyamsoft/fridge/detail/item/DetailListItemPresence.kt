@@ -18,7 +18,6 @@
 package com.pyamsoft.fridge.detail.item
 
 import android.view.ViewGroup
-import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.detail.base.BaseItemPresence
 import com.pyamsoft.fridge.detail.item.DetailItemViewEvent.CommitPresence
 import com.pyamsoft.pydroid.arch.UiSavedState
@@ -35,7 +34,7 @@ class DetailListItemPresence @Inject internal constructor(
         render(state.item)
     }
 
-    override fun commit(item: FridgeItem, presence: FridgeItem.Presence) {
+    override fun publishChangePresence() {
         publish(CommitPresence)
     }
 }

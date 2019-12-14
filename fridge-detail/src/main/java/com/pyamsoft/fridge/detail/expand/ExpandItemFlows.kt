@@ -18,7 +18,6 @@
 package com.pyamsoft.fridge.detail.expand
 
 import com.pyamsoft.fridge.db.item.FridgeItem
-import com.pyamsoft.fridge.db.item.FridgeItem.Presence
 import com.pyamsoft.pydroid.arch.UiControllerEvent
 import com.pyamsoft.pydroid.arch.UiViewEvent
 import com.pyamsoft.pydroid.arch.UiViewState
@@ -32,35 +31,21 @@ data class ExpandItemViewState internal constructor(
 
 sealed class ExpandedItemViewEvent : UiViewEvent {
 
-    data class CommitName internal constructor(
-        val oldItem: FridgeItem,
-        val name: String
-    ) : ExpandedItemViewEvent()
+    data class CommitName internal constructor(val name: String) : ExpandedItemViewEvent()
 
-    data class CommitCount internal constructor(
-        val oldItem: FridgeItem,
-        val count: Int
-    ) : ExpandedItemViewEvent()
+    data class CommitCount internal constructor(val count: Int) : ExpandedItemViewEvent()
 
-    data class CommitPresence internal constructor(
-        val oldItem: FridgeItem,
-        val presence: Presence
-    ) : ExpandedItemViewEvent()
+    object CommitPresence : ExpandedItemViewEvent()
 
-    data class PickDate internal constructor(
-        val oldItem: FridgeItem,
-        val year: Int,
-        val month: Int,
-        val day: Int
-    ) : ExpandedItemViewEvent()
+    object PickDate : ExpandedItemViewEvent()
 
-    data class CloseItem internal constructor(val item: FridgeItem) : ExpandedItemViewEvent()
+    object CloseItem : ExpandedItemViewEvent()
 
-    data class DeleteItem internal constructor(val item: FridgeItem) : ExpandedItemViewEvent()
+    object DeleteItem : ExpandedItemViewEvent()
 
-    data class ConsumeItem internal constructor(val item: FridgeItem) : ExpandedItemViewEvent()
+    object ConsumeItem : ExpandedItemViewEvent()
 
-    data class SpoilItem internal constructor(val item: FridgeItem) : ExpandedItemViewEvent()
+    object SpoilItem : ExpandedItemViewEvent()
 }
 
 sealed class ExpandItemControllerEvent : UiControllerEvent {

@@ -18,7 +18,6 @@
 package com.pyamsoft.fridge.detail.expand
 
 import android.view.ViewGroup
-import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.detail.base.BaseItemPresence
 import com.pyamsoft.pydroid.arch.UiSavedState
 import javax.inject.Inject
@@ -27,11 +26,11 @@ class ExpandItemPresence @Inject internal constructor(
     parent: ViewGroup
 ) : BaseItemPresence<ExpandItemViewState, ExpandedItemViewEvent>(parent) {
 
-    override fun commit(item: FridgeItem, presence: FridgeItem.Presence) {
-        publish(ExpandedItemViewEvent.CommitPresence(item, presence))
-    }
-
     override fun onRender(state: ExpandItemViewState, savedState: UiSavedState) {
         render(state.item)
+    }
+
+    override fun publishChangePresence() {
+        publish(ExpandedItemViewEvent.CommitPresence)
     }
 }

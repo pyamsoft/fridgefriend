@@ -20,20 +20,18 @@ package com.pyamsoft.fridge.detail.expand
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.ViewGroup
+import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.detail.base.BaseItemName
 import com.pyamsoft.pydroid.arch.UiSavedState
 import timber.log.Timber
 import javax.inject.Inject
-import javax.inject.Named
 
 class ExpandItemName @Inject internal constructor(
-    @Named("item_editable") private val isEditable: Boolean,
     parent: ViewGroup,
     initialItem: FridgeItem
 ) : BaseItemName<ExpandItemViewState, ExpandedItemViewEvent>(parent) {
 
-    private var nameWatcher: TextWatcher? = null
     private val popupWindow = SimilarlyNamedListWindow(parent.context)
 
     init {
@@ -56,8 +54,14 @@ class ExpandItemName @Inject internal constructor(
         }
 
         doOnTeardown {
-            removeListeners()
             popupWindow.teardown()
+        }
+
+        doOnInflate {
+            val watcher = addWatcher()
+            doOnTeardown {
+                removeListeners(watcher)
+            }
         }
     }
 
@@ -65,28 +69,15 @@ class ExpandItemName @Inject internal constructor(
         state: ExpandItemViewState,
         savedState: UiSavedState
     ) {
-        if (!isEditable) {
-            return
-        }
-
-        state.item.let { item ->
-            removeListeners()
-            if (item == null) {
-                clear()
-            } else {
-                addWatcher(item)
-                popupWindow.set(if (nameView.isFocused) state.similarItems else emptyList())
-            }
-        }
+        popupWindow.set(if (nameView.isFocused) state.similarItems else emptyList())
     }
 
-    private fun addWatcher(item: FridgeItem) {
+    @CheckResult
+    private fun addWatcher(): TextWatcher {
         val watcher = object : TextWatcher {
 
             override fun afterTextChanged(s: Editable?) {
-                s?.also { editable ->
-                    commit(item, editable.toString())
-                }
+                s?.also { editable -> commit(editable.toString()) }
             }
 
             override fun beforeTextChanged(
@@ -106,15 +97,14 @@ class ExpandItemName @Inject internal constructor(
             }
         }
         nameView.addTextChangedListener(watcher)
-        nameWatcher = watcher
+        return watcher
     }
 
-    private fun removeListeners() {
-        nameWatcher?.let { nameView.removeTextChangedListener(it) }
-        nameWatcher = null
+    private fun removeListeners(watcher: TextWatcher) {
+        watcher.let { nameView.removeTextChangedListener(it) }
     }
 
-    private fun commit(item: FridgeItem, name: String) {
-        publish(ExpandedItemViewEvent.CommitName(item, name))
+    private fun commit(name: String) {
+        publish(ExpandedItemViewEvent.CommitName(name))
     }
 }
