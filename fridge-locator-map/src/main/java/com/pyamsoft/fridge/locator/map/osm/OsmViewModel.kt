@@ -39,7 +39,8 @@ class OsmViewModel @Inject internal constructor(
         zones = emptyList(),
         nearbyError = null,
         cachedFetchError = null,
-        centerMyLocation = null
+        centerMyLocation = null,
+        hasBackgroundPermission = mapPermission.hasBackgroundPermission()
     )
 ) {
 
@@ -157,12 +158,7 @@ class OsmViewModel @Inject internal constructor(
 
     private fun findMyLocation(firstTime: Boolean) {
         setState {
-            copy(
-                centerMyLocation = OsmViewState.CenterMyLocation(
-                    firstTime,
-                    mapPermission.hasBackgroundPermission()
-                )
-            )
+            copy(centerMyLocation = OsmViewState.CenterMyLocation(firstTime))
         }
     }
 
@@ -174,6 +170,12 @@ class OsmViewModel @Inject internal constructor(
         val box = boundingBox
         if (box != null) {
             viewModelScope.launch { nearbyRunner.call(box) }
+        }
+    }
+
+    fun refreshMapPermissions() {
+        setState {
+            copy(hasBackgroundPermission = mapPermission.hasBackgroundPermission())
         }
     }
 

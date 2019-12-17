@@ -131,6 +131,7 @@ internal class MapFragment : Fragment(), SnackbarContainer,
     override fun onPermissionResponse(grant: PermissionGrant<BackgroundLocationPermission>) {
         if (grant.granted()) {
             Timber.d("Permissions granted: ${grant.permission().permissions()}")
+            viewModel.refreshMapPermissions()
         } else {
             Timber.e("Permissions rejected: ${grant.permission().permissions()}")
         }

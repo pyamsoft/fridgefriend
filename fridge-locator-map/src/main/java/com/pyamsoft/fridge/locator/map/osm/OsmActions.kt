@@ -147,11 +147,13 @@ class OsmActions @Inject internal constructor(
 
         state.centerMyLocation?.let { event ->
             if (event.firstTime) {
-                revealButtons(event.hasBackgroundPermission)
-            } else if (event.hasBackgroundPermission) {
-                dismissBackgroundAnimator()
-                backgroundPermission.isVisible = false
+                revealButtons(state.hasBackgroundPermission)
             }
+        }
+
+        state.hasBackgroundPermission.let {
+            dismissBackgroundAnimator()
+            backgroundPermission.isVisible = false
         }
     }
 
