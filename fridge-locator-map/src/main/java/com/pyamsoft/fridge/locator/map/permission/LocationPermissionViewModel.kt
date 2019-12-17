@@ -17,20 +17,28 @@
 
 package com.pyamsoft.fridge.locator.map.permission
 
+import com.pyamsoft.fridge.locator.MapPermission
 import com.pyamsoft.fridge.locator.map.permission.PermissionControllerEvent.LocationPermissionRequest
 import com.pyamsoft.fridge.locator.map.permission.PermissionViewEvent.FireLocationPermission
+import com.pyamsoft.fridge.locator.permission.ForegroundLocationPermission
+import com.pyamsoft.fridge.locator.permission.PermissionConsumer
 import com.pyamsoft.pydroid.arch.UiViewModel
 import com.pyamsoft.pydroid.arch.UnitViewState
 import javax.inject.Inject
 
-class LocationPermissionViewModel @Inject internal constructor() :
-    UiViewModel<UnitViewState, PermissionViewEvent, PermissionControllerEvent>(
-        initialState = UnitViewState
-    ) {
+class LocationPermissionViewModel @Inject internal constructor(
+    private val mapPermission: MapPermission
+) : UiViewModel<UnitViewState, PermissionViewEvent, PermissionControllerEvent>(
+    initialState = UnitViewState
+) {
 
     override fun handleViewEvent(event: PermissionViewEvent) {
         return when (event) {
             is FireLocationPermission -> publish(LocationPermissionRequest)
         }
+    }
+
+    fun requestForegroundPermission(consumer: PermissionConsumer<ForegroundLocationPermission>) {
+        mapPermission.requestForegroundPermission(consumer)
     }
 }

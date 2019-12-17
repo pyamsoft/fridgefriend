@@ -17,6 +17,7 @@
 
 package com.pyamsoft.fridge.entry
 
+import androidx.annotation.CheckResult
 import androidx.lifecycle.viewModelScope
 import com.pyamsoft.fridge.db.PersistentEntries
 import com.pyamsoft.fridge.db.entry.FridgeEntry
@@ -28,6 +29,7 @@ import com.pyamsoft.fridge.entry.EntryViewEvent.OpenHave
 import com.pyamsoft.fridge.entry.EntryViewEvent.OpenNearby
 import com.pyamsoft.fridge.entry.EntryViewEvent.OpenNeed
 import com.pyamsoft.fridge.entry.EntryViewEvent.SettingsNavigate
+import com.pyamsoft.fridge.locator.MapPermission
 import com.pyamsoft.pydroid.arch.UiViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -35,6 +37,7 @@ import javax.inject.Inject
 import javax.inject.Named
 
 class EntryViewModel @Inject internal constructor(
+    private val mapPermission: MapPermission,
     persistentEntries: PersistentEntries,
     @Named("app_name") appNameRes: Int
 ) : UiViewModel<EntryViewState, EntryViewEvent, EntryControllerEvent>(
@@ -73,5 +76,10 @@ class EntryViewModel @Inject internal constructor(
 
     fun showMenu(visible: Boolean) {
         setState { copy(isSettingsItemVisible = visible) }
+    }
+
+    @CheckResult
+    fun canShowMap(): Boolean {
+        return mapPermission.hasForegroundPermission()
     }
 }

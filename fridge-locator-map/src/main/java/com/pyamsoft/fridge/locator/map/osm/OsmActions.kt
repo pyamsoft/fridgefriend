@@ -25,7 +25,6 @@ import androidx.core.view.isVisible
 import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import com.google.android.material.floatingactionbutton.FloatingActionButton
-import com.pyamsoft.fridge.locator.MapPermission
 import com.pyamsoft.fridge.locator.map.R
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.arch.UiSavedState
@@ -39,7 +38,6 @@ import javax.inject.Inject
 class OsmActions @Inject internal constructor(
     private val owner: LifecycleOwner,
     private val imageLoader: ImageLoader,
-    private val mapPermission: MapPermission,
     parent: ViewGroup
 ) : BaseUiView<OsmViewState, OsmViewEvent>(parent), LifecycleObserver {
 
@@ -149,7 +147,10 @@ class OsmActions @Inject internal constructor(
 
         state.centerMyLocation?.let { event ->
             if (event.firstTime) {
-                revealButtons()
+                revealButtons(event.hasBackgroundPermission)
+            } else if (event.hasBackgroundPermission) {
+                dismissBackgroundAnimator()
+                backgroundPermission.isVisible = false
             }
         }
     }
@@ -178,7 +179,7 @@ class OsmActions @Inject internal constructor(
         }
     }
 
-    private fun revealButtons() {
+    private fun revealButtons(hasBackgroundPermission: Boolean) {
         dismissNearbyAnimator()
         nearbyAnimator = findNearby.popShow(
             startDelay = 700L,
@@ -189,7 +190,7 @@ class OsmActions @Inject internal constructor(
                         startDelay = 0,
                         listener = object : ViewPropertyAnimatorListenerAdapter() {
                             override fun onAnimationEnd(view: View) {
-                                if (!mapPermission.hasBackgroundPermission()) {
+                                if (!hasBackgroundPermission) {
                                     dismissBackgroundAnimator()
                                     backgroundAnimator =
                                         backgroundPermission.popShow(startDelay = 0)

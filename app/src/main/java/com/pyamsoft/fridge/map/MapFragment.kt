@@ -27,7 +27,6 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.pyamsoft.fridge.FridgeComponent
 import com.pyamsoft.fridge.locator.DeviceGps
-import com.pyamsoft.fridge.locator.MapPermission
 import com.pyamsoft.fridge.locator.R
 import com.pyamsoft.fridge.locator.map.osm.OsmActions
 import com.pyamsoft.fridge.locator.map.osm.OsmControllerEvent
@@ -51,16 +50,10 @@ internal class MapFragment : Fragment(), SnackbarContainer,
 
     @JvmField
     @Inject
-    internal var factory: ViewModelProvider.Factory? = null
-    @JvmField
-    @Inject
     internal var map: OsmMap? = null
     @JvmField
     @Inject
     internal var actions: OsmActions? = null
-    @JvmField
-    @Inject
-    internal var mapPermission: MapPermission? = null
     @JvmField
     @Inject
     internal var deviceGps: DeviceGps? = null
@@ -69,8 +62,11 @@ internal class MapFragment : Fragment(), SnackbarContainer,
     internal var theming: Theming? = null
     @JvmField
     @Inject
-    internal var permissionHandler: PermissionHandler<BackgroundLocationPermission>? =
-        null
+    internal var permissionHandler: PermissionHandler<BackgroundLocationPermission>? = null
+
+    @JvmField
+    @Inject
+    internal var factory: ViewModelProvider.Factory? = null
     private val viewModel by factory<OsmViewModel> { factory }
 
     private var rootView: ViewGroup? = null
@@ -123,7 +119,7 @@ internal class MapFragment : Fragment(), SnackbarContainer,
     }
 
     private fun requestBackgroundLocationPermission() {
-        requireNotNull(mapPermission).requestBackgroundPermission(this)
+        viewModel.requestBackgroundPermissions(this)
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -162,7 +158,6 @@ internal class MapFragment : Fragment(), SnackbarContainer,
         factory = null
         map = null
         actions = null
-        mapPermission = null
     }
 
     companion object {

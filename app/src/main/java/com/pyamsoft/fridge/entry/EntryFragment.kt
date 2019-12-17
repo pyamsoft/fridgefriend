@@ -38,7 +38,6 @@ import com.pyamsoft.fridge.entry.EntryControllerEvent.NavigateToSettings
 import com.pyamsoft.fridge.entry.EntryControllerEvent.PushHave
 import com.pyamsoft.fridge.entry.EntryControllerEvent.PushNearby
 import com.pyamsoft.fridge.entry.EntryControllerEvent.PushNeed
-import com.pyamsoft.fridge.locator.MapPermission
 import com.pyamsoft.fridge.main.SnackbarContainer
 import com.pyamsoft.fridge.map.MapFragment
 import com.pyamsoft.fridge.permission.PermissionFragment
@@ -47,7 +46,6 @@ import com.pyamsoft.pydroid.arch.createComponent
 import com.pyamsoft.pydroid.ui.Injector
 import com.pyamsoft.pydroid.ui.app.requireToolbarActivity
 import com.pyamsoft.pydroid.ui.arch.factory
-import com.pyamsoft.pydroid.ui.util.commit
 import com.pyamsoft.pydroid.ui.util.commitNow
 import com.pyamsoft.pydroid.ui.util.layout
 import com.pyamsoft.pydroid.ui.util.show
@@ -59,13 +57,6 @@ internal class EntryFragment : Fragment(), SnackbarContainer {
 
     @JvmField
     @Inject
-    internal var factory: ViewModelProvider.Factory? = null
-    @JvmField
-    @Inject
-    internal var mapPermission: MapPermission? = null
-
-    @JvmField
-    @Inject
     internal var toolbar: EntryToolbar? = null
     @JvmField
     @Inject
@@ -73,6 +64,10 @@ internal class EntryFragment : Fragment(), SnackbarContainer {
     @JvmField
     @Inject
     internal var navigation: EntryNavigation? = null
+
+    @JvmField
+    @Inject
+    internal var factory: ViewModelProvider.Factory? = null
     private val viewModel by factory<EntryViewModel> { factory }
 
     private var initialized = false
@@ -193,7 +188,6 @@ internal class EntryFragment : Fragment(), SnackbarContainer {
         toolbar = null
         frame = null
         navigation = null
-        mapPermission = null
     }
 
     private fun showSettingsDialog() {
@@ -216,7 +210,7 @@ internal class EntryFragment : Fragment(), SnackbarContainer {
         ) {
             fm.commitNow(viewLifecycleOwner) {
                 val container = requireNotNull(frame).id()
-                if (requireNotNull(mapPermission).hasForegroundPermission()) {
+                if (viewModel.canShowMap()) {
                     replace(container, MapFragment.newInstance(), MapFragment.TAG)
                 } else {
                     replace(

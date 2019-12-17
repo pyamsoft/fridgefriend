@@ -26,17 +26,16 @@ import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.pyamsoft.fridge.FridgeComponent
-import com.pyamsoft.fridge.locator.permission.ForegroundLocationPermission
-import com.pyamsoft.fridge.map.MapFragment
-import com.pyamsoft.fridge.locator.MapPermission
-import com.pyamsoft.fridge.locator.permission.PermissionConsumer
-import com.pyamsoft.fridge.locator.permission.PermissionGrant
-import com.pyamsoft.fridge.locator.permission.PermissionHandler
 import com.pyamsoft.fridge.locator.R
 import com.pyamsoft.fridge.locator.map.permission.LocationPermissionScreen
 import com.pyamsoft.fridge.locator.map.permission.LocationPermissionViewModel
 import com.pyamsoft.fridge.locator.map.permission.PermissionControllerEvent.LocationPermissionRequest
+import com.pyamsoft.fridge.locator.permission.ForegroundLocationPermission
+import com.pyamsoft.fridge.locator.permission.PermissionConsumer
+import com.pyamsoft.fridge.locator.permission.PermissionGrant
+import com.pyamsoft.fridge.locator.permission.PermissionHandler
 import com.pyamsoft.fridge.main.SnackbarContainer
+import com.pyamsoft.fridge.map.MapFragment
 import com.pyamsoft.pydroid.arch.createComponent
 import com.pyamsoft.pydroid.ui.Injector
 import com.pyamsoft.pydroid.ui.arch.factory
@@ -49,20 +48,15 @@ internal class PermissionFragment : Fragment(), SnackbarContainer,
 
     @JvmField
     @Inject
-    internal var factory: ViewModelProvider.Factory? = null
-
-    @JvmField
-    @Inject
     internal var permissionHandler: PermissionHandler<ForegroundLocationPermission>? = null
-
-    @JvmField
-    @Inject
-    internal var mapPermission: MapPermission? = null
 
     @JvmField
     @Inject
     internal var screen: LocationPermissionScreen? = null
 
+    @JvmField
+    @Inject
+    internal var factory: ViewModelProvider.Factory? = null
     private val viewModel by factory<LocationPermissionViewModel> { factory }
 
     private var rootView: ViewGroup? = null
@@ -118,7 +112,7 @@ internal class PermissionFragment : Fragment(), SnackbarContainer,
     }
 
     private fun requestLocationPermission() {
-        requireNotNull(mapPermission).requestForegroundPermission(this)
+        viewModel.requestForegroundPermission(this)
     }
 
     private fun pushMapFragmentOncePermissionGranted() {
@@ -156,7 +150,6 @@ internal class PermissionFragment : Fragment(), SnackbarContainer,
         rootView = null
         factory = null
         screen = null
-        mapPermission = null
     }
 
     companion object {

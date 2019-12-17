@@ -69,6 +69,7 @@ dependencies {
 
     api project(':fridge-core')
     api project(':fridge-db')
+    api project(':fridge-locator')
 }
 
 

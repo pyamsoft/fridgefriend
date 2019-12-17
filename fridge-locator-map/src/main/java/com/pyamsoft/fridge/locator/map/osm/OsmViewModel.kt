@@ -18,6 +18,9 @@
 package com.pyamsoft.fridge.locator.map.osm
 
 import androidx.lifecycle.viewModelScope
+import com.pyamsoft.fridge.locator.MapPermission
+import com.pyamsoft.fridge.locator.permission.BackgroundLocationPermission
+import com.pyamsoft.fridge.locator.permission.PermissionConsumer
 import com.pyamsoft.highlander.highlander
 import com.pyamsoft.pydroid.arch.UiViewModel
 import kotlinx.coroutines.launch
@@ -27,6 +30,7 @@ import timber.log.Timber
 import javax.inject.Inject
 
 class OsmViewModel @Inject internal constructor(
+    private val mapPermission: MapPermission,
     private val interactor: OsmInteractor
 ) : UiViewModel<OsmViewState, OsmViewEvent, OsmControllerEvent>(
     initialState = OsmViewState(
@@ -152,7 +156,14 @@ class OsmViewModel @Inject internal constructor(
     }
 
     private fun findMyLocation(firstTime: Boolean) {
-        setState { copy(centerMyLocation = OsmViewState.CenterMyLocation(firstTime)) }
+        setState {
+            copy(
+                centerMyLocation = OsmViewState.CenterMyLocation(
+                    firstTime,
+                    mapPermission.hasBackgroundPermission()
+                )
+            )
+        }
     }
 
     private fun doneFindingMyLocation() {
@@ -164,5 +175,9 @@ class OsmViewModel @Inject internal constructor(
         if (box != null) {
             viewModelScope.launch { nearbyRunner.call(box) }
         }
+    }
+
+    fun requestBackgroundPermissions(consumer: PermissionConsumer<BackgroundLocationPermission>) {
+        mapPermission.requestBackgroundPermission(consumer)
     }
 }

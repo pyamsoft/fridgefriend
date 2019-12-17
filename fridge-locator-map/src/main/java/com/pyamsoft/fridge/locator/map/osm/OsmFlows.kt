@@ -32,7 +32,10 @@ data class OsmViewState internal constructor(
     val centerMyLocation: CenterMyLocation?
 ) : UiViewState {
 
-    data class CenterMyLocation internal constructor(val firstTime: Boolean)
+    data class CenterMyLocation internal constructor(
+        val firstTime: Boolean,
+        val hasBackgroundPermission: Boolean
+    )
 }
 
 sealed class OsmViewEvent : UiViewEvent {
