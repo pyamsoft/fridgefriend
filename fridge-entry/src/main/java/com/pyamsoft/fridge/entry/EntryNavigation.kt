@@ -33,6 +33,7 @@ import com.pyamsoft.fridge.entry.EntryViewEvent.OpenNeed
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.arch.UiSavedState
 import com.pyamsoft.pydroid.util.doOnApplyWindowInsets
+import timber.log.Timber
 import javax.inject.Inject
 
 class EntryNavigation @Inject internal constructor(
@@ -53,6 +54,7 @@ class EntryNavigation @Inject internal constructor(
 
         doOnInflate { savedInstanceState ->
             layoutRoot.setOnNavigationItemSelectedListener { item ->
+                Timber.d("Click nav item: $item")
                 return@setOnNavigationItemSelectedListener when (item.itemId) {
                     R.id.menu_item_nav_need -> select(OpenNeed)
                     R.id.menu_item_nav_have -> select(OpenHave)
@@ -91,18 +93,14 @@ class EntryNavigation @Inject internal constructor(
     }
 
     private fun selectDefault(savedInstanceState: Bundle?, defaultPage: DefaultActivityPage) {
-        if (savedInstanceState == null) {
-            return
-        }
-
-        val itemId = savedInstanceState.getInt(LAST_PAGE, 0)
-        val newSelectedItem = if (itemId != 0) itemId else {
+        val itemId = savedInstanceState?.getInt(LAST_PAGE, PAGE_VALUE_NONE) ?: PAGE_VALUE_NONE
+        val newSelectedItem = if (itemId != PAGE_VALUE_NONE) itemId else {
             val id = getIdForPage(defaultPage)
             val item = layoutRoot.menu.findItem(id)
-            item?.itemId ?: 0
+            item?.itemId ?: PAGE_VALUE_NONE
         }
 
-        if (newSelectedItem != 0) {
+        if (newSelectedItem != PAGE_VALUE_NONE) {
             layoutRoot.selectedItemId = newSelectedItem
         }
     }
@@ -115,6 +113,7 @@ class EntryNavigation @Inject internal constructor(
 
     companion object {
 
+        private const val PAGE_VALUE_NONE = 0
         private const val LAST_PAGE = "last_page"
     }
 }

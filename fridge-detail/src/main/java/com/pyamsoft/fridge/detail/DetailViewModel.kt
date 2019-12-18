@@ -54,7 +54,7 @@ class DetailViewModel @Inject internal constructor(
 ) : BaseUpdaterViewModel<DetailViewState, DetailViewEvent, DetailControllerEvent>(
     initialState = DetailViewState(
         isLoading = null,
-        items = null,
+        items = emptyList(),
         showArchived = false,
         listError = null,
         undoableItem = null,
@@ -174,7 +174,7 @@ class DetailViewModel @Inject internal constructor(
     private fun expand(index: Int) {
         withState {
             if (!showArchived) {
-                items?.getOrNull(index)?.let { item ->
+                items.getOrNull(index)?.let { item ->
                     publish(ExpandForEditing(item))
                 }
             }
@@ -270,7 +270,7 @@ class DetailViewModel @Inject internal constructor(
     private fun handleRealtimeInsert(item: FridgeItem) {
         setState {
             copy(
-                items = items.orEmpty().let { list ->
+                items = items.let { list ->
                     val newItems = list.toMutableList()
                     insert(newItems, item)
                     return@let getListItems(showArchived, newItems, listItemPresence)
@@ -285,14 +285,14 @@ class DetailViewModel @Inject internal constructor(
                 copy(
                     items = getListItems(
                         showArchived,
-                        items.orEmpty().filterNot { it.id() == item.id() }, listItemPresence
+                        items.filterNot { it.id() == item.id() }, listItemPresence
                     ),
                     undoableItem = item
                 )
             }
         } else {
             setState {
-                val oldList = items.orEmpty()
+                val oldList = items
                 copy(
                     items = getListItems(showArchived,
                         if (oldList.map { it.id() }.contains(item.id())) {
@@ -317,7 +317,7 @@ class DetailViewModel @Inject internal constructor(
             copy(
                 items = getListItems(
                     showArchived,
-                    items.orEmpty().filterNot { it.id() == item.id() }, listItemPresence
+                    items.filterNot { it.id() == item.id() }, listItemPresence
                 ),
                 undoableItem = item
             )
@@ -396,7 +396,7 @@ class DetailViewModel @Inject internal constructor(
 
     private inline fun withItem(index: Int, crossinline func: (item: FridgeItem) -> Unit) {
         withState {
-            items?.getOrNull(index)?.let { func(it) }
+            items.getOrNull(index)?.let { func(it) }
         }
     }
 

@@ -289,7 +289,7 @@ class DetailList @Inject internal constructor(
 
         state.items.let { items ->
             when {
-                items == null || items.isEmpty() -> clearList()
+                items.isEmpty() -> clearList()
                 else -> setList(items, state.expirationRange, state.isSameDayExpired)
             }
         }

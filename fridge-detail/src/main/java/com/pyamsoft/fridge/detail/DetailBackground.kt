@@ -61,19 +61,24 @@ class DetailBackground @Inject internal constructor(
         val need = state.listItemPresence == NEED
         loadImage(need)
 
-        state.items.let { items ->
-            when {
-                items == null || items.isNotEmpty() -> {
-                    text.text = null
-                    text.isInvisible = true
-                }
-                items.isEmpty() -> {
-                    val message: String
-                    val which = if (need) "Your shopping list is empty" else "Your fridge is empty"
-                    message = "${which}, click the plus to get started"
+        state.isLoading?.let { loading ->
+            if (!loading.isLoading) {
+                state.items.let { items ->
+                    when {
+                        items.isNotEmpty() -> {
+                            text.text = null
+                            text.isInvisible = true
+                        }
+                        items.isEmpty() -> {
+                            val message: String
+                            val which =
+                                if (need) "Your shopping list is empty" else "Your fridge is empty"
+                            message = "${which}, click the plus to get started"
 
-                    text.text = message
-                    text.isVisible = true
+                            text.text = message
+                            text.isVisible = true
+                        }
+                    }
                 }
             }
         }
