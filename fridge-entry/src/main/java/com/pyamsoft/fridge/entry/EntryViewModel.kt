@@ -67,9 +67,6 @@ class EntryViewModel @Inject internal constructor(
     }
 
     private inline fun select(crossinline func: (entry: FridgeEntry) -> EntryControllerEvent) {
-        // TODO(Peter): Bug on initial app load
-        // On initial app load, the setState call which loads the entry will happen
-        // after this with state call - so the initial page will never load.
         withState {
             entry?.let { e ->
                 publish(func(e))

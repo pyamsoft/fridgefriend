@@ -17,7 +17,6 @@
 
 package com.pyamsoft.fridge.entry
 
-import android.os.Bundle
 import android.view.ViewGroup
 import androidx.annotation.CheckResult
 import androidx.core.view.isVisible
@@ -38,7 +37,7 @@ import javax.inject.Inject
 
 class EntryNavigation @Inject internal constructor(
     parent: ViewGroup,
-    defaultPage: DefaultActivityPage
+    private val defaultPage: DefaultActivityPage
 ) : BaseUiView<EntryViewState, EntryViewEvent>(parent) {
 
     override val layout: Int = R.layout.entry_navigation
@@ -52,7 +51,7 @@ class EntryNavigation @Inject internal constructor(
             }
         }
 
-        doOnInflate { savedInstanceState ->
+        doOnInflate {
             layoutRoot.setOnNavigationItemSelectedListener { item ->
                 Timber.d("Click nav item: $item")
                 return@setOnNavigationItemSelectedListener when (item.itemId) {
@@ -62,8 +61,6 @@ class EntryNavigation @Inject internal constructor(
                     else -> false
                 }
             }
-
-            selectDefault(savedInstanceState, defaultPage)
         }
 
         doOnTeardown {
@@ -80,7 +77,13 @@ class EntryNavigation @Inject internal constructor(
         state: EntryViewState,
         savedState: UiSavedState
     ) {
+        val isCurrentlyVisible = layoutRoot.isVisible
         layoutRoot.isVisible = state.entry != null
+
+        // If the navbar was previously not visible and now is, load the default page
+        if (!isCurrentlyVisible && layoutRoot.isVisible) {
+            selectDefault(savedState, defaultPage)
+        }
     }
 
     @CheckResult
@@ -92,16 +95,17 @@ class EntryNavigation @Inject internal constructor(
         }
     }
 
-    private fun selectDefault(savedInstanceState: Bundle?, defaultPage: DefaultActivityPage) {
-        val itemId = savedInstanceState?.getInt(LAST_PAGE, PAGE_VALUE_NONE) ?: PAGE_VALUE_NONE
-        val newSelectedItem = if (itemId != PAGE_VALUE_NONE) itemId else {
-            val id = getIdForPage(defaultPage)
-            val item = layoutRoot.menu.findItem(id)
-            item?.itemId ?: PAGE_VALUE_NONE
-        }
+    private fun selectDefault(savedState: UiSavedState, defaultPage: DefaultActivityPage) {
+        savedState.consume(LAST_PAGE, PAGE_VALUE_NONE) { itemId ->
+            val newSelectedItem = if (itemId != PAGE_VALUE_NONE) itemId else {
+                val id = getIdForPage(defaultPage)
+                val item = layoutRoot.menu.findItem(id)
+                item?.itemId ?: PAGE_VALUE_NONE
+            }
 
-        if (newSelectedItem != PAGE_VALUE_NONE) {
-            layoutRoot.selectedItemId = newSelectedItem
+            if (newSelectedItem != PAGE_VALUE_NONE) {
+                layoutRoot.selectedItemId = newSelectedItem
+            }
         }
     }
 
