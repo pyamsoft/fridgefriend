@@ -67,7 +67,7 @@ internal class MapFragment : Fragment(), SnackbarContainer,
     @JvmField
     @Inject
     internal var factory: ViewModelProvider.Factory? = null
-    private val viewModel by factory<OsmViewModel> { factory }
+    private val viewModel by factory<OsmViewModel>(activity = true) { factory }
 
     private var rootView: ViewGroup? = null
 

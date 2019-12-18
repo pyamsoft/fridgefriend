@@ -57,7 +57,7 @@ internal class SettingsDialog : DialogFragment() {
     @JvmField
     @Inject
     internal var frame: SettingFrame? = null
-    private val viewModel by factory<SettingToolbarViewModel> { factory }
+    private val viewModel by factory<SettingToolbarViewModel>(activity = true) { factory }
 
     override fun onCreateView(
         inflater: LayoutInflater,
