@@ -81,6 +81,7 @@ class EntryViewModel @Inject internal constructor(
         setState { copy(isSettingsItemVisible = visible) }
     }
 
+    // TODO(Peter): Kind of an anti-pattern
     @CheckResult
     fun canShowMap(): Boolean {
         return mapPermission.hasForegroundPermission()
