@@ -41,13 +41,13 @@ buildscript {
         pydroid = "20.6.10-SNAPSHOT"
 
         // Room
-        room = "2.2.2"
+        room = "2.2.3"
 
         // Leak Canary
         leakCanary = "2.0"
 
         // Dagger
-        dagger = "2.25.2"
+        dagger = "2.25.3"
 
         moshi = "1.9.2"
 
@@ -63,7 +63,7 @@ buildscript {
 
         workmanager = "2.2.0"
 
-        osmdroid = "6.1.4"
+        osmdroid = "6.1.5"
 
         // FusedLocationProvider
         gmsLocation = "17.0.0"
