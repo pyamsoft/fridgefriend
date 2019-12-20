@@ -17,17 +17,17 @@
 
 package com.pyamsoft.fridge.setting
 
-import com.pyamsoft.fridge.setting.SettingControllerEvent.NavigateUp
-import com.pyamsoft.fridge.setting.SettingViewEvent.Navigate
+import com.pyamsoft.fridge.setting.SettingsControllerEvent.NavigateUp
+import com.pyamsoft.fridge.setting.SettingsViewEvent.Navigate
 import com.pyamsoft.pydroid.arch.UiViewModel
 import javax.inject.Inject
 
-class SettingToolbarViewModel @Inject internal constructor(
-) : UiViewModel<SettingViewState, SettingViewEvent, SettingControllerEvent>(
-    initialState = SettingViewState(name = "Settings")
+class SettingsViewModel @Inject internal constructor(
+) : UiViewModel<SettingsViewState, SettingsViewEvent, SettingsControllerEvent>(
+    initialState = SettingsViewState(name = "Settings")
 ) {
 
-    override fun handleViewEvent(event: SettingViewEvent) {
+    override fun handleViewEvent(event: SettingsViewEvent) {
         return when (event) {
             is Navigate -> publish(NavigateUp)
         }

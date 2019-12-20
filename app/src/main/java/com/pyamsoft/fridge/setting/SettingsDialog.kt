@@ -33,7 +33,7 @@ import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.ViewModelProvider
 import com.pyamsoft.fridge.FridgeComponent
 import com.pyamsoft.fridge.R
-import com.pyamsoft.fridge.setting.SettingControllerEvent.NavigateUp
+import com.pyamsoft.fridge.setting.SettingsControllerEvent.NavigateUp
 import com.pyamsoft.pydroid.arch.UiView
 import com.pyamsoft.pydroid.arch.createComponent
 import com.pyamsoft.pydroid.ui.Injector
@@ -57,7 +57,7 @@ internal class SettingsDialog : DialogFragment() {
     @JvmField
     @Inject
     internal var frame: SettingFrame? = null
-    private val viewModel by factory<SettingToolbarViewModel>(activity = false) { factory }
+    private val viewModel by factory<SettingsViewModel>(activity = true) { factory }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -130,7 +130,7 @@ internal class SettingsDialog : DialogFragment() {
             .inject(this)
 
         val toolbar = requireNotNull(toolbar)
-        val dropshadow = DropshadowView.createTyped<SettingViewState, SettingViewEvent>(parent)
+        val dropshadow = DropshadowView.createTyped<SettingsViewState, SettingsViewEvent>(parent)
         val frame = requireNotNull(frame)
         createComponent(
             savedInstanceState, viewLifecycleOwner,

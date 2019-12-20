@@ -68,7 +68,7 @@ internal class EntryFragment : Fragment(), SnackbarContainer {
     @JvmField
     @Inject
     internal var factory: ViewModelProvider.Factory? = null
-    private val viewModel by factory<EntryViewModel>(activity = false) { factory }
+    private val viewModel by factory<EntryViewModel>(activity = true) { factory }
 
     private var initialized = false
 

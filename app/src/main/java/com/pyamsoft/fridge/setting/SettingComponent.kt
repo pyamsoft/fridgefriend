@@ -50,7 +50,7 @@ internal interface SettingComponent {
 
         @Binds
         @IntoMap
-        @ViewModelKey(SettingToolbarViewModel::class)
-        internal abstract fun settingToolbarViewModel(viewModel: SettingToolbarViewModel): UiViewModel<*, *, *>
+        @ViewModelKey(SettingsViewModel::class)
+        internal abstract fun settingToolbarViewModel(viewModel: SettingsViewModel): UiViewModel<*, *, *>
     }
 }

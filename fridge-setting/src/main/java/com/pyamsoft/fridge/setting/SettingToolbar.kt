@@ -19,7 +19,7 @@ package com.pyamsoft.fridge.setting
 
 import android.view.ViewGroup
 import androidx.appcompat.widget.Toolbar
-import com.pyamsoft.fridge.setting.SettingViewEvent.Navigate
+import com.pyamsoft.fridge.setting.SettingsViewEvent.Navigate
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.arch.UiSavedState
 import com.pyamsoft.pydroid.ui.util.DebouncedOnClickListener
@@ -28,7 +28,7 @@ import javax.inject.Inject
 
 class SettingToolbar @Inject internal constructor(
     parent: ViewGroup
-) : BaseUiView<SettingViewState, SettingViewEvent>(parent) {
+) : BaseUiView<SettingsViewState, SettingsViewEvent>(parent) {
 
     override val layout: Int = R.layout.setting_toolbar
 
@@ -49,7 +49,7 @@ class SettingToolbar @Inject internal constructor(
     }
 
     override fun onRender(
-        state: SettingViewState,
+        state: SettingsViewState,
         savedState: UiSavedState
     ) {
         layoutRoot.title = state.name

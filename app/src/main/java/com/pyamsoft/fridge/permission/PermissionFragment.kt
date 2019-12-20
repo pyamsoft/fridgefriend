@@ -57,7 +57,7 @@ internal class PermissionFragment : Fragment(), SnackbarContainer,
     @JvmField
     @Inject
     internal var factory: ViewModelProvider.Factory? = null
-    private val viewModel by factory<LocationPermissionViewModel>(activity = false) { factory }
+    private val viewModel by factory<LocationPermissionViewModel>(activity = true) { factory }
 
     private var rootView: ViewGroup? = null
 

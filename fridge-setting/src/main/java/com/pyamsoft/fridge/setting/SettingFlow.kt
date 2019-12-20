@@ -21,14 +21,14 @@ import com.pyamsoft.pydroid.arch.UiControllerEvent
 import com.pyamsoft.pydroid.arch.UiViewEvent
 import com.pyamsoft.pydroid.arch.UiViewState
 
-data class SettingViewState internal constructor(val name: String) : UiViewState
+data class SettingsViewState internal constructor(val name: String) : UiViewState
 
-sealed class SettingViewEvent : UiViewEvent {
+sealed class SettingsViewEvent : UiViewEvent {
 
-    object Navigate : SettingViewEvent()
+    object Navigate : SettingsViewEvent()
 }
 
-sealed class SettingControllerEvent : UiControllerEvent {
+sealed class SettingsControllerEvent : UiControllerEvent {
 
-    object NavigateUp : SettingControllerEvent()
+    object NavigateUp : SettingsControllerEvent()
 }

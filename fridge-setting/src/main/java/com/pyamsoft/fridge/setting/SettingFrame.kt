@@ -24,14 +24,14 @@ import javax.inject.Inject
 
 class SettingFrame @Inject internal constructor(
     parent: ViewGroup
-) : BaseUiView<SettingViewState, SettingViewEvent>(parent) {
+) : BaseUiView<SettingsViewState, SettingsViewEvent>(parent) {
 
     override val layout: Int = R.layout.setting_frame
 
     override val layoutRoot by boundView<ViewGroup>(R.id.setting_frame)
 
     override fun onRender(
-        state: SettingViewState,
+        state: SettingsViewState,
         savedState: UiSavedState
     ) {
     }
