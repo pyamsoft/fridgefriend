@@ -37,7 +37,7 @@ import javax.inject.Inject
 
 class EntryNavigation @Inject internal constructor(
     parent: ViewGroup,
-    private val defaultPage: DefaultActivityPage
+    private val defaultActivityPage: DefaultActivityPage
 ) : BaseUiView<EntryViewState, EntryViewEvent>(parent) {
 
     override val layout: Int = R.layout.entry_navigation
@@ -77,28 +77,27 @@ class EntryNavigation @Inject internal constructor(
         state: EntryViewState,
         savedState: UiSavedState
     ) {
-        val isCurrentlyVisible = layoutRoot.isVisible
         layoutRoot.isVisible = state.entry != null
 
         // If the navbar was previously not visible and now is, load the default page
-        if (!isCurrentlyVisible && layoutRoot.isVisible) {
-            selectDefault(savedState, defaultPage)
+        if (layoutRoot.isVisible) {
+            selectDefault(savedState)
         }
     }
 
     @CheckResult
-    private fun getIdForPage(defaultPage: DefaultActivityPage): Int {
-        return when (defaultPage) {
+    private fun getIdForDefaultPage(): Int {
+        return when (defaultActivityPage) {
             NEED -> R.id.menu_item_nav_need
             HAVE -> R.id.menu_item_nav_have
             NEARBY -> R.id.menu_item_nav_nearby
         }
     }
 
-    private fun selectDefault(savedState: UiSavedState, defaultPage: DefaultActivityPage) {
+    private fun selectDefault(savedState: UiSavedState) {
         savedState.consume(LAST_PAGE, PAGE_VALUE_NONE) { itemId ->
             val newSelectedItem = if (itemId != PAGE_VALUE_NONE) itemId else {
-                val id = getIdForPage(defaultPage)
+                val id = getIdForDefaultPage()
                 val item = layoutRoot.menu.findItem(id)
                 item?.itemId ?: PAGE_VALUE_NONE
             }

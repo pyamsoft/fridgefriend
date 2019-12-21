@@ -28,6 +28,7 @@ import com.pyamsoft.fridge.FridgeComponent
 import com.pyamsoft.fridge.R
 import com.pyamsoft.fridge.butler.Butler
 import com.pyamsoft.fridge.butler.ForegroundState
+import com.pyamsoft.fridge.core.DefaultActivityPage
 import com.pyamsoft.fridge.entry.EntryFragment
 import com.pyamsoft.pydroid.arch.UnitViewModel
 import com.pyamsoft.pydroid.arch.createComponent
@@ -105,14 +106,13 @@ internal class MainActivity : RatingActivity() {
 
         view.makeWindowSexy()
         inflateComponents(view, savedInstanceState)
-
-        pushFragment(false)
+        pushFragment()
     }
 
     override fun onNewIntent(intent: Intent?) {
         super.onNewIntent(intent)
         setIntent(intent)
-        pushFragment(true)
+        pushFragment()
     }
 
     override fun onStart() {
@@ -169,14 +169,28 @@ internal class MainActivity : RatingActivity() {
         }
     }
 
-    private fun pushFragment(force: Boolean) {
+    private fun pushFragment() {
         val fm = supportFragmentManager
-        if (fm.findFragmentById(fragmentContainerId) == null || force) {
+
+        val pageString = intent.getStringExtra(DefaultActivityPage.EXTRA_PAGE)
+        val page = pageString?.let { DefaultActivityPage.valueOf(it) } ?: EntryFragment.DEFAULT_PAGE
+
+        val entryFragment = fm.findFragmentById(fragmentContainerId)
+
+        // If the page has changed
+        val isPageChanged = if (entryFragment == null) false else {
+            val existingPageString = entryFragment.requireArguments()
+                .getString(DefaultActivityPage.EXTRA_PAGE, EntryFragment.DEFAULT_PAGE.name)
+            val existingPage = DefaultActivityPage.valueOf(existingPageString)
+            existingPage != page
+        }
+
+        if (entryFragment == null || isPageChanged) {
             fm.commitNow(this) {
-                if (force) {
-                    replace(fragmentContainerId, EntryFragment.newInstance(), EntryFragment.TAG)
+                if (isPageChanged) {
+                    replace(fragmentContainerId, EntryFragment.newInstance(page), EntryFragment.TAG)
                 } else {
-                    add(fragmentContainerId, EntryFragment.newInstance(), EntryFragment.TAG)
+                    add(fragmentContainerId, EntryFragment.newInstance(page), EntryFragment.TAG)
                 }
             }
         }

@@ -101,19 +101,17 @@ internal class EntryFragment : Fragment(), SnackbarContainer {
         savedInstanceState: Bundle?
     ) {
         super.onViewCreated(view, savedInstanceState)
-
-        val defaultPage = if (savedInstanceState != null) DEFAULT_NAVIGATION_PAGE else {
-            val page = requireActivity().intent.getStringExtra(DefaultActivityPage.EXTRA_PAGE)
-            if (page == null) DEFAULT_NAVIGATION_PAGE else {
-                Timber.d("Load default page from intent: $page")
-                DefaultActivityPage.valueOf(page)
-            }
-        }
-
         val parent = view.findViewById<ConstraintLayout>(R.id.layout_constraint)
+        val defaultPage =
+            requireArguments().getString(DefaultActivityPage.EXTRA_PAGE, DEFAULT_PAGE.name)
         Injector.obtain<FridgeComponent>(view.context.applicationContext)
             .plusEntryComponent()
-            .create(defaultPage, viewLifecycleOwner, parent, requireToolbarActivity())
+            .create(
+                DefaultActivityPage.valueOf(defaultPage),
+                viewLifecycleOwner,
+                parent,
+                requireToolbarActivity()
+            )
             .inject(this)
 
         val toolbar = requireNotNull(toolbar)
@@ -241,22 +239,18 @@ internal class EntryFragment : Fragment(), SnackbarContainer {
         onAppInitialized()
     }
 
-    override fun onHiddenChanged(hidden: Boolean) {
-        super.onHiddenChanged(hidden)
-        viewModel.showMenu(!hidden)
-    }
-
     companion object {
 
-        private val DEFAULT_NAVIGATION_PAGE = DefaultActivityPage.NEED
+        val DEFAULT_PAGE = DefaultActivityPage.NEED
         private const val INITIALIZED = "initialized"
         const val TAG = "EntryFragment"
 
         @JvmStatic
         @CheckResult
-        fun newInstance(): Fragment {
+        fun newInstance(page: DefaultActivityPage): Fragment {
             return EntryFragment().apply {
                 arguments = Bundle().apply {
+                    putString(DefaultActivityPage.EXTRA_PAGE, page.name)
                 }
             }
         }

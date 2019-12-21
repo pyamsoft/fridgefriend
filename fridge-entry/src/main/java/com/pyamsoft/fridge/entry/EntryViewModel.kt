@@ -74,10 +74,6 @@ class EntryViewModel @Inject internal constructor(
         }
     }
 
-    fun showMenu(visible: Boolean) {
-        setState { copy(isSettingsItemVisible = visible) }
-    }
-
     // TODO(Peter): Kind of an anti-pattern
     @CheckResult
     fun canShowMap(): Boolean {
