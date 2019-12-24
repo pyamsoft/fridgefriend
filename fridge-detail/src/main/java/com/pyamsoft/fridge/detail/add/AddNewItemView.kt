@@ -17,20 +17,11 @@
 
 package com.pyamsoft.fridge.detail.add
 
-import android.animation.ValueAnimator
-import android.content.Context
-import android.graphics.Point
 import android.view.View
 import android.view.ViewGroup
-import android.view.WindowManager
-import android.widget.ImageView
-import androidx.annotation.CheckResult
-import androidx.cardview.widget.CardView
-import androidx.core.content.getSystemService
 import androidx.core.view.ViewPropertyAnimatorCompat
 import androidx.core.view.ViewPropertyAnimatorListenerAdapter
-import androidx.core.view.isVisible
-import com.pyamsoft.fridge.detail.CardAnimator
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.pyamsoft.fridge.detail.DetailViewEvent
 import com.pyamsoft.fridge.detail.DetailViewState
 import com.pyamsoft.fridge.detail.R
@@ -42,7 +33,6 @@ import com.pyamsoft.pydroid.ui.util.popHide
 import com.pyamsoft.pydroid.ui.util.popShow
 import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
 import com.pyamsoft.pydroid.util.tintWith
-import com.pyamsoft.pydroid.util.toDp
 import javax.inject.Inject
 
 class AddNewItemView @Inject internal constructor(
@@ -52,11 +42,10 @@ class AddNewItemView @Inject internal constructor(
 
     override val layout: Int = R.layout.add_new
 
-    override val layoutRoot by boundView<CardView>(R.id.detail_add_new_item)
-    private val addNewIcon by boundView<ImageView>(R.id.detail_add_new_icon)
+    override val layoutRoot by boundView<ViewGroup>(R.id.detail_add)
 
-    private val filterButton by boundView<CardView>(R.id.detail_filter_item)
-    private val filterIcon by boundView<ImageView>(R.id.detail_filter_icon)
+    private val expandButton by boundView<FloatingActionButton>(R.id.detail_add_new_item)
+    private val filterButton by boundView<FloatingActionButton>(R.id.detail_filter_item)
 
     private var addNewIconLoaded: Loaded? = null
     private var filterIconLoaded: Loaded? = null
@@ -64,32 +53,24 @@ class AddNewItemView @Inject internal constructor(
     private var addNewIconAnimator: ViewPropertyAnimatorCompat? = null
     private var filterIconAnimator: ViewPropertyAnimatorCompat? = null
 
-    private var expandAnimator: ValueAnimator? = null
-
-    private val positionings by lazy(LazyThreadSafetyMode.NONE) {
-        Positionings(layoutRoot.context.applicationContext)
-    }
-
     init {
         doOnInflate {
             disposeAddNewLoaded()
             addNewIconLoaded = imageLoader
                 .load(R.drawable.ic_add_24dp)
-                .mutate { it.tintWith(addNewIcon.context, R.color.white) }
-                .into(addNewIcon)
+                .mutate { it.tintWith(expandButton.context, R.color.white) }
+                .into(expandButton)
 
-            layoutRoot.setOnDebouncedClickListener { expandItem() }
+            expandButton.setOnDebouncedClickListener { expandItem() }
         }
 
         doOnTeardown {
             disposeAddNewLoaded()
-            layoutRoot.setOnClickListener(null)
+            expandButton.setOnClickListener(null)
         }
 
         doOnInflate {
-            filterButton.setOnDebouncedClickListener {
-                publish(DetailViewEvent.ToggleArchiveVisibility)
-            }
+            filterButton.setOnDebouncedClickListener { toggleArchived() }
         }
 
         doOnTeardown {
@@ -100,7 +81,7 @@ class AddNewItemView @Inject internal constructor(
         doOnInflate {
             disposeAddNewAnimator()
             addNewIconAnimator =
-                layoutRoot.popShow(listener = object : ViewPropertyAnimatorListenerAdapter() {
+                expandButton.popShow(listener = object : ViewPropertyAnimatorListenerAdapter() {
                     override fun onAnimationEnd(view: View) {
                         disposeFilterAnimator()
                         filterIconAnimator = filterButton.popShow(startDelay = 0)
@@ -111,7 +92,6 @@ class AddNewItemView @Inject internal constructor(
         doOnTeardown {
             disposeAddNewAnimator()
             disposeFilterAnimator()
-            disposeExpandAnimator()
         }
     }
 
@@ -135,64 +115,31 @@ class AddNewItemView @Inject internal constructor(
         addNewIconLoaded = null
     }
 
-    private fun disposeExpandAnimator() {
-        expandAnimator?.cancel()
-        expandAnimator = null
-    }
-
     private fun expandItem() {
-        disposeExpandAnimator()
-        expandAnimator = CardAnimator(
-            layoutRoot,
-            endX = positionings.addNewMovedX,
-            endY = positionings.addNewMovedY,
-            endElevation = 12.toDp(layoutRoot.context).toFloat()
-        ).animator(true) { progress ->
-            if (progress == 1F) {
-                layoutRoot.isVisible = false
-                publish(DetailViewEvent.AddNewItemEvent)
-            }
-        }.apply { start() }
+        publish(DetailViewEvent.AddNewItemEvent)
     }
 
-    private fun dismissItem() {
-        disposeExpandAnimator()
-        expandAnimator = CardAnimator(
-            layoutRoot,
-            endX = positionings.addNewOriginalX,
-            endY = positionings.addNewOriginalY,
-            endElevation = 6.toDp(layoutRoot.context).toFloat()
-        ).animator(true) {
-            if (!layoutRoot.isVisible) {
-                layoutRoot.isVisible = true
-            }
-        }
-            .apply { start() }
+    private fun toggleArchived() {
+        publish(DetailViewEvent.ToggleArchiveVisibility)
     }
 
     override fun onRender(
         state: DetailViewState,
         savedState: UiSavedState
     ) {
-        state.isExpanded?.let { expanded ->
-            if (!expanded.expanded) {
-                dismissItem()
-            }
-        }
-
         state.showArchived.let { show ->
             disposeFilterLoaded()
             filterIconLoaded = imageLoader
                 .load(if (show) R.drawable.ic_add_24dp else R.drawable.ic_date_range_24dp)
                 .mutate { it.tintWith(filterButton.context, R.color.white) }
-                .into(filterIcon)
+                .into(filterButton)
         }
 
         state.actionVisible?.let { action ->
             if (action.visible) {
                 disposeAddNewAnimator()
                 addNewIconAnimator =
-                    layoutRoot.popShow(listener = object : ViewPropertyAnimatorListenerAdapter() {
+                    expandButton.popShow(listener = object : ViewPropertyAnimatorListenerAdapter() {
                         override fun onAnimationEnd(view: View) {
                             disposeFilterAnimator()
                             filterIconAnimator = filterButton.popShow(
@@ -210,7 +157,7 @@ class AddNewItemView @Inject internal constructor(
                     filterButton.popHide(listener = object : ViewPropertyAnimatorListenerAdapter() {
                         override fun onAnimationEnd(view: View) {
                             disposeAddNewAnimator()
-                            addNewIconAnimator = layoutRoot.popHide(
+                            addNewIconAnimator = expandButton.popHide(
                                 startDelay = 0,
                                 listener = object : ViewPropertyAnimatorListenerAdapter() {
                                     override fun onAnimationEnd(view: View) {
@@ -220,66 +167,6 @@ class AddNewItemView @Inject internal constructor(
                         }
                     })
             }
-        }
-    }
-
-    private class Positionings internal constructor(context: Context) {
-
-        val addNewOriginalX: Float
-        val addNewMovedX: Float
-
-        val addNewOriginalY: Float
-        val addNewMovedY: Float
-
-        init {
-            val screen = screen(context)
-            val screenWidth = screenWidth(screen)
-            val screenHeight = screenHeight(screen)
-
-            val fabMargin = fabMargin(context)
-            val fabSize = fabSize(context)
-            val navbarSize = navbarSize(context)
-
-            addNewOriginalX = screenWidth - fabSize - fabMargin
-            addNewMovedX = (screenWidth - fabSize) / 2
-
-            val halfMargin = fabMargin / 2
-            val y = screenHeight - navbarSize - halfMargin * 4.5F
-            addNewOriginalY = y
-            addNewMovedY = y / 2 + fabSize
-        }
-
-        @CheckResult
-        private fun navbarSize(context: Context): Float {
-            return 56.toDp(context).toFloat()
-        }
-
-        @CheckResult
-        private fun fabSize(context: Context): Float {
-            return 56.toDp(context).toFloat()
-        }
-
-        @CheckResult
-        private fun fabMargin(context: Context): Float {
-            return 16.toDp(context).toFloat()
-        }
-
-        @CheckResult
-        private fun screen(context: Context): Point {
-            val point = Point()
-            val windowService = requireNotNull(context.getSystemService<WindowManager>())
-            windowService.defaultDisplay.getSize(point)
-            return point
-        }
-
-        @CheckResult
-        private fun screenWidth(point: Point): Float {
-            return point.x.toFloat()
-        }
-
-        @CheckResult
-        private fun screenHeight(point: Point): Float {
-            return point.y.toFloat()
         }
     }
 }
