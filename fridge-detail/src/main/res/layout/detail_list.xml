@@ -30,7 +30,12 @@
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/detail_list"
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:layout_height="match_parent"
+            app:fastScrollEnabled="true"
+            app:fastScrollHorizontalThumbDrawable="@drawable/list_thumb"
+            app:fastScrollHorizontalTrackDrawable="@drawable/list_line"
+            app:fastScrollVerticalThumbDrawable="@drawable/list_thumb"
+            app:fastScrollVerticalTrackDrawable="@drawable/list_line" />
 
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
