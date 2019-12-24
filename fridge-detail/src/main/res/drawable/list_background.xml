@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ Copyright 2019 Peter Kenji Yamanaka
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,6 +15,12 @@
   ~
   -->
 
-<resources>
-    <color name="windowBackground">#3E2723</color>
-</resources>
+<inset xmlns:android="http://schemas.android.com/apk/res/android">
+    <shape android:shape="rectangle">
+        <corners
+            android:topLeftRadius="16dp"
+            android:topRightRadius="16dp" />
+        <solid android:color="@color/listBackground" />
+    </shape>
+</inset>
+

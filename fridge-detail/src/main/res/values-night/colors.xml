@@ -16,5 +16,6 @@
   -->
 
 <resources>
+    <color name="listBackground">#3E2723</color>
     <color name="cardBackground">@color/material_dark_background</color>
 </resources>
