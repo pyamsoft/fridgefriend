@@ -26,6 +26,12 @@
         android:layout_height="wrap_content"
         android:layout_gravity="end|bottom">
 
+        <!-- Keeps the correct view height -->
+        <Space
+            android:layout_width="136dp"
+            android:layout_height="56dp"
+            android:layout_margin="16dp" />
+
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/detail_add_new_item"
             android:layout_width="wrap_content"
