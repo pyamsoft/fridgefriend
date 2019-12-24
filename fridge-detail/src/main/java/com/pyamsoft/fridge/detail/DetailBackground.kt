@@ -21,6 +21,7 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.core.content.withStyledAttributes
 import androidx.core.view.updatePadding
+import com.google.android.material.appbar.CollapsingToolbarLayout
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence.NEED
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.arch.UiSavedState
@@ -37,13 +38,14 @@ class DetailBackground @Inject internal constructor(
     override val layout: Int = R.layout.detail_background
 
     override val layoutRoot by boundView<ViewGroup>(R.id.detail_background_root)
+    private val collapse by boundView<CollapsingToolbarLayout>(R.id.detail_background_collapse)
     private val image by boundView<ImageView>(R.id.detail_background_image)
 
     private var loaded: Loaded? = null
 
     init {
         doOnInflate {
-            layoutRoot.doOnApplyWindowInsets { v, insets, padding ->
+            collapse.doOnApplyWindowInsets { v, insets, padding ->
                 val toolbarTopMargin = padding.top + insets.systemWindowInsetTop
                 v.context.withStyledAttributes(
                     R.attr.toolbarStyle,
