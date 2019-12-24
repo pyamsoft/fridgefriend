@@ -22,7 +22,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.CheckResult
-import androidx.coordinatorlayout.widget.CoordinatorLayout
+import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.constraintlayout.widget.ConstraintSet
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.pyamsoft.fridge.FridgeComponent
@@ -39,6 +40,7 @@ import com.pyamsoft.pydroid.ui.app.requireToolbarActivity
 import com.pyamsoft.pydroid.ui.arch.factory
 import com.pyamsoft.pydroid.ui.theme.ThemeProvider
 import com.pyamsoft.pydroid.ui.theme.Theming
+import com.pyamsoft.pydroid.ui.util.layout
 import com.pyamsoft.pydroid.ui.util.show
 import javax.inject.Inject
 
@@ -76,7 +78,7 @@ internal class DetailFragment : Fragment(), SnackbarContainer {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        return inflater.inflate(R.layout.layout_coordinator, container, false)
+        return inflater.inflate(R.layout.layout_constraint, container, false)
     }
 
     @CheckResult
@@ -95,7 +97,7 @@ internal class DetailFragment : Fragment(), SnackbarContainer {
     ) {
         super.onViewCreated(view, savedInstanceState)
 
-        val parent = view.findViewById<CoordinatorLayout>(R.id.layout_coordinator)
+        val parent = view.findViewById<ConstraintLayout>(R.id.layout_constraint)
         rootView = parent
         Injector.obtain<FridgeComponent>(view.context.applicationContext)
             .plusDetailComponent()
@@ -121,6 +123,45 @@ internal class DetailFragment : Fragment(), SnackbarContainer {
                 is DetailControllerEvent.ExpandForEditing -> expandItem(it.item)
                 is DetailControllerEvent.EntryArchived -> close()
                 is DetailControllerEvent.AddNew -> expandItem(FridgeItem.create(entryId = it.entryId))
+            }
+        }
+
+        parent.layout {
+            addNew.let {
+                connect(it.id(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
+                connect(
+                    it.id(),
+                    ConstraintSet.BOTTOM,
+                    ConstraintSet.PARENT_ID,
+                    ConstraintSet.BOTTOM
+                )
+
+                constrainWidth(it.id(), ConstraintSet.WRAP_CONTENT)
+                constrainHeight(it.id(), ConstraintSet.WRAP_CONTENT)
+            }
+
+            list.let {
+                connect(it.id(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
+                connect(it.id(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
+                connect(it.id(), ConstraintSet.TOP, background.id(), ConstraintSet.BOTTOM)
+                connect(
+                    it.id(),
+                    ConstraintSet.BOTTOM,
+                    ConstraintSet.PARENT_ID,
+                    ConstraintSet.BOTTOM
+                )
+
+                constrainWidth(it.id(), ConstraintSet.MATCH_CONSTRAINT)
+                constrainHeight(it.id(), ConstraintSet.MATCH_CONSTRAINT)
+            }
+
+            background.let {
+                connect(it.id(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
+                connect(it.id(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
+                connect(it.id(), ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP)
+
+                constrainWidth(it.id(), ConstraintSet.MATCH_CONSTRAINT)
+                constrainHeight(it.id(), ConstraintSet.WRAP_CONTENT)
             }
         }
     }

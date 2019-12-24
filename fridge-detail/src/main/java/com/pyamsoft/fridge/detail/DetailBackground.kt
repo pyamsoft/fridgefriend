@@ -19,14 +19,14 @@ package com.pyamsoft.fridge.detail
 
 import android.view.ViewGroup
 import android.widget.ImageView
-import android.widget.TextView
-import androidx.core.view.isInvisible
-import androidx.core.view.isVisible
+import androidx.core.content.withStyledAttributes
+import androidx.core.view.updatePadding
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence.NEED
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.arch.UiSavedState
 import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.loader.Loaded
+import com.pyamsoft.pydroid.util.doOnApplyWindowInsets
 import javax.inject.Inject
 
 class DetailBackground @Inject internal constructor(
@@ -38,17 +38,28 @@ class DetailBackground @Inject internal constructor(
 
     override val layoutRoot by boundView<ViewGroup>(R.id.detail_background_root)
     private val image by boundView<ImageView>(R.id.detail_background_image)
-    private val text by boundView<TextView>(R.id.detail_background_text)
 
     private var loaded: Loaded? = null
 
     init {
-        doOnTeardown {
-            clear()
+        doOnInflate {
+            layoutRoot.doOnApplyWindowInsets { v, insets, padding ->
+                val toolbarTopMargin = padding.top + insets.systemWindowInsetTop
+                v.context.withStyledAttributes(
+                    R.attr.toolbarStyle,
+                    intArrayOf(R.attr.actionBarSize)
+                ) {
+                    val sizeId = getResourceId(0, 0)
+                    if (sizeId != 0) {
+                        val toolbarHeight = v.context.resources.getDimensionPixelSize(sizeId)
+                        v.updatePadding(top = toolbarTopMargin + toolbarHeight)
+                    }
+                }
+            }
         }
 
         doOnTeardown {
-            text.text = null
+            clear()
         }
     }
 
@@ -60,28 +71,6 @@ class DetailBackground @Inject internal constructor(
     override fun onRender(state: DetailViewState, savedState: UiSavedState) {
         val need = state.listItemPresence == NEED
         loadImage(need)
-
-        state.isLoading?.let { loading ->
-            if (!loading.isLoading) {
-                state.items.let { items ->
-                    when {
-                        items.isNotEmpty() -> {
-                            text.text = null
-                            text.isInvisible = true
-                        }
-                        items.isEmpty() -> {
-                            val message: String
-                            val which =
-                                if (need) "Your shopping list is empty" else "Your fridge is empty"
-                            message = "${which}, click the plus to get started"
-
-                            text.text = message
-                            text.isVisible = true
-                        }
-                    }
-                }
-            }
-        }
     }
 
     private fun loadImage(need: Boolean) {

@@ -22,37 +22,18 @@
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/detail_background_root"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/detailBackground"
         android:gravity="center_horizontal"
         android:orientation="vertical"
         android:padding="16dp">
 
-        <Space
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_weight="1" />
-
         <ImageView
             android:id="@+id/detail_background_image"
-            android:layout_width="192dp"
-            android:layout_height="192dp"
+            android:layout_width="160dp"
+            android:layout_height="160dp"
             android:contentDescription="@string/blank"
             android:scaleType="fitXY" />
-
-        <TextView
-            android:id="@+id/detail_background_text"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:minLines="2"
-            android:textAppearance="?attr/textAppearanceBody1"
-            android:textColor="@color/white"
-            android:visibility="invisible" />
-
-        <Space
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_weight="1" />
 
     </LinearLayout>
 

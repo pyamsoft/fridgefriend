@@ -19,11 +19,9 @@ package com.pyamsoft.fridge.detail
 
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.content.withStyledAttributes
 import androidx.core.view.updatePadding
 import com.pyamsoft.fridge.detail.DetailListAdapter.DetailViewHolder
 import com.pyamsoft.fridge.detail.item.DetailListItemViewState
-import com.pyamsoft.pydroid.util.doOnApplyWindowInsets
 import com.pyamsoft.pydroid.util.toDp
 
 internal class SpacerItemViewHolder internal constructor(
@@ -33,17 +31,8 @@ internal class SpacerItemViewHolder internal constructor(
 
     init {
         val frame = itemView.findViewById<ViewGroup>(R.id.listitem_frame)
-        frame.doOnApplyWindowInsets { v, insets, padding ->
-            val offset = 8.toDp(v.context)
-            val toolbarTopMargin = padding.top + insets.systemWindowInsetTop + offset
-            v.context.withStyledAttributes(R.attr.toolbarStyle, intArrayOf(R.attr.actionBarSize)) {
-                val sizeId = getResourceId(0, 0)
-                if (sizeId != 0) {
-                    val toolbarHeight = v.context.resources.getDimensionPixelSize(sizeId)
-                    v.updatePadding(top = toolbarTopMargin + toolbarHeight + (offset * 2))
-                }
-            }
-        }
+        val offset = 8.toDp(frame.context)
+        frame.updatePadding(top = offset)
     }
 
     override fun bind(state: DetailListItemViewState) {

@@ -86,18 +86,6 @@ class DetailList @Inject internal constructor(
         }
 
         doOnInflate {
-            layoutRoot.doOnApplyWindowInsets { v, insets, padding ->
-                val offset = 8.toDp(v.context)
-                val toolbarTopMargin = padding.top + insets.systemWindowInsetTop + offset
-                layoutRoot.setProgressViewOffset(
-                    false,
-                    toolbarTopMargin,
-                    toolbarTopMargin * 3
-                )
-            }
-        }
-
-        doOnInflate {
             val scrollListener = HideOnScrollListener.create(startVisible = true, distance = 24) {
                 publish(DetailViewEvent.ScrollActionVisibilityChange(it))
             }
