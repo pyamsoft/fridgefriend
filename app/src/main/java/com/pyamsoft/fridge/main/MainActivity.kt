@@ -30,8 +30,7 @@ import com.pyamsoft.fridge.butler.Butler
 import com.pyamsoft.fridge.butler.ForegroundState
 import com.pyamsoft.fridge.core.DefaultActivityPage
 import com.pyamsoft.fridge.entry.EntryFragment
-import com.pyamsoft.pydroid.arch.UnitViewModel
-import com.pyamsoft.pydroid.arch.createComponent
+import com.pyamsoft.pydroid.arch.doOnDestroy
 import com.pyamsoft.pydroid.ui.Injector
 import com.pyamsoft.pydroid.ui.rating.ChangeLogBuilder
 import com.pyamsoft.pydroid.ui.rating.RatingActivity
@@ -138,11 +137,12 @@ internal class MainActivity : RatingActivity() {
     ) {
         val container = requireNotNull(container)
         val toolbar = requireNotNull(toolbar)
-
-        createComponent(
-            savedInstanceState, this, UnitViewModel.create(),
-            container, toolbar
-        ) {}
+        container.inflate(savedInstanceState)
+        toolbar.inflate(savedInstanceState)
+        doOnDestroy {
+            container.teardown()
+            toolbar.teardown()
+        }
 
         constraintLayout.layout {
 
