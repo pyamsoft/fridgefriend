@@ -17,49 +17,35 @@
   ~
   -->
 
-<merge>
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
-        android:id="@+id/detail_add"
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/detail_add_new_item"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="end|bottom">
+        android:layout_gravity="end|bottom"
+        android:layout_margin="16dp"
+        android:contentDescription="@string/blank"
+        android:visibility="invisible"
+        app:elevation="6dp"
+        app:fabSize="normal"
+        app:pressedTranslationZ="12dp" />
 
-        <!-- Keeps the correct view height -->
-        <Space
-            android:layout_width="136dp"
-            android:layout_height="56dp"
-            android:layout_margin="16dp" />
-
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/detail_add_new_item"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical|end"
-            android:layout_margin="16dp"
-            android:contentDescription="@string/blank"
-            android:visibility="invisible"
-            app:elevation="6dp"
-            app:fabSize="normal"
-            app:pressedTranslationZ="12dp" />
-
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/detail_filter_item"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical|end"
-            android:layout_marginStart="16dp"
-            android:layout_marginEnd="88dp"
-            android:contentDescription="@string/blank"
-            android:visibility="invisible"
-            app:backgroundTint="@color/grey500"
-            app:elevation="6dp"
-            app:fabSize="mini"
-            app:pressedTranslationZ="12dp" />
-
-    </androidx.coordinatorlayout.widget.CoordinatorLayout>
-
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/detail_filter_item"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end|bottom"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="88dp"
+        android:layout_marginBottom="24dp"
+        android:contentDescription="@string/blank"
+        android:visibility="invisible"
+        app:backgroundTint="@color/grey500"
+        app:elevation="6dp"
+        app:fabSize="mini"
+        app:pressedTranslationZ="12dp" />
 
 </merge>
 

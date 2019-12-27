@@ -42,7 +42,7 @@ class AddNewItemView @Inject internal constructor(
 
     override val layout: Int = R.layout.add_new
 
-    override val layoutRoot by boundView<ViewGroup>(R.id.detail_add)
+    override val layoutRoot by boundView<FloatingActionButton>(R.id.detail_add_new_item)
 
     private val expandButton by boundView<FloatingActionButton>(R.id.detail_add_new_item)
     private val filterButton by boundView<FloatingActionButton>(R.id.detail_filter_item)
