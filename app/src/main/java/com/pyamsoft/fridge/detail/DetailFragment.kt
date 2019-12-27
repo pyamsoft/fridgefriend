@@ -33,6 +33,7 @@ import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence
 import com.pyamsoft.fridge.detail.add.AddNewItemView
 import com.pyamsoft.fridge.main.SnackbarContainer
+import com.pyamsoft.pydroid.arch.StateSaver
 import com.pyamsoft.pydroid.arch.createComponent
 import com.pyamsoft.pydroid.ui.Injector
 import com.pyamsoft.pydroid.ui.app.requireToolbarActivity
@@ -64,6 +65,8 @@ internal class DetailFragment : Fragment(), SnackbarContainer {
     @Inject
     internal var factory: ViewModelProvider.Factory? = null
     private val viewModel by factory<DetailViewModel> { factory }
+
+    private var stateSaver: StateSaver? = null
 
     private var rootView: CoordinatorLayout? = null
 
@@ -110,7 +113,7 @@ internal class DetailFragment : Fragment(), SnackbarContainer {
         val addNew = requireNotNull(addNew)
         val background = requireNotNull(background)
 
-        createComponent(
+        stateSaver = createComponent(
             savedInstanceState, viewLifecycleOwner,
             viewModel,
             background,
@@ -127,9 +130,7 @@ internal class DetailFragment : Fragment(), SnackbarContainer {
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        list?.saveState(outState)
-        addNew?.saveState(outState)
-        background?.saveState(outState)
+        stateSaver?.saveState(outState)
     }
 
     override fun onDestroyView() {
@@ -140,6 +141,7 @@ internal class DetailFragment : Fragment(), SnackbarContainer {
         background = null
         list = null
         addNew = null
+        stateSaver = null
     }
 
     private fun close() {

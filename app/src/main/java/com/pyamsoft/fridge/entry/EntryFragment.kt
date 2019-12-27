@@ -43,6 +43,7 @@ import com.pyamsoft.fridge.main.SnackbarContainer
 import com.pyamsoft.fridge.map.MapFragment
 import com.pyamsoft.fridge.permission.PermissionFragment
 import com.pyamsoft.fridge.setting.SettingsDialog
+import com.pyamsoft.pydroid.arch.StateSaver
 import com.pyamsoft.pydroid.arch.createComponent
 import com.pyamsoft.pydroid.ui.Injector
 import com.pyamsoft.pydroid.ui.app.requireToolbarActivity
@@ -70,6 +71,8 @@ internal class EntryFragment : Fragment(), SnackbarContainer {
     @Inject
     internal var factory: ViewModelProvider.Factory? = null
     private val viewModel by factory<EntryViewModel>(activity = true) { factory }
+
+    private var stateSaver: StateSaver? = null
 
     private var initialized = false
 
@@ -119,7 +122,7 @@ internal class EntryFragment : Fragment(), SnackbarContainer {
         val frame = requireNotNull(frame)
         val navigation = requireNotNull(navigation)
 
-        createComponent(
+        stateSaver = createComponent(
             savedInstanceState, viewLifecycleOwner,
             viewModel,
             frame,
@@ -173,9 +176,7 @@ internal class EntryFragment : Fragment(), SnackbarContainer {
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         outState.putBoolean(INITIALIZED, initialized)
-        frame?.saveState(outState)
-        toolbar?.saveState(outState)
-        navigation?.saveState(outState)
+        stateSaver?.saveState(outState)
     }
 
     override fun onDestroyView() {
@@ -185,6 +186,7 @@ internal class EntryFragment : Fragment(), SnackbarContainer {
         toolbar = null
         frame = null
         navigation = null
+        stateSaver = null
     }
 
     private fun showSettingsDialog() {

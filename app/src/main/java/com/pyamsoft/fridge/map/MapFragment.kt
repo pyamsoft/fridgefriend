@@ -37,6 +37,7 @@ import com.pyamsoft.fridge.locator.permission.PermissionConsumer
 import com.pyamsoft.fridge.locator.permission.PermissionGrant
 import com.pyamsoft.fridge.locator.permission.PermissionHandler
 import com.pyamsoft.fridge.main.SnackbarContainer
+import com.pyamsoft.pydroid.arch.StateSaver
 import com.pyamsoft.pydroid.arch.createComponent
 import com.pyamsoft.pydroid.ui.Injector
 import com.pyamsoft.pydroid.ui.arch.factory
@@ -68,6 +69,8 @@ internal class MapFragment : Fragment(), SnackbarContainer,
     @Inject
     internal var factory: ViewModelProvider.Factory? = null
     private val viewModel by factory<OsmViewModel> { factory }
+
+    private var stateSaver: StateSaver? = null
 
     private var rootView: CoordinatorLayout? = null
 
@@ -102,7 +105,7 @@ internal class MapFragment : Fragment(), SnackbarContainer,
         val map = requireNotNull(map)
         val actions = requireNotNull(actions)
 
-        createComponent(
+        stateSaver = createComponent(
             savedInstanceState, viewLifecycleOwner,
             viewModel,
             map,
@@ -124,8 +127,7 @@ internal class MapFragment : Fragment(), SnackbarContainer,
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        map?.saveState(outState)
-        actions?.saveState(outState)
+        stateSaver?.saveState(outState)
     }
 
     override fun onPermissionResponse(grant: PermissionGrant<BackgroundLocationPermission>) {
@@ -159,6 +161,7 @@ internal class MapFragment : Fragment(), SnackbarContainer,
         factory = null
         map = null
         actions = null
+        stateSaver = null
     }
 
     companion object {

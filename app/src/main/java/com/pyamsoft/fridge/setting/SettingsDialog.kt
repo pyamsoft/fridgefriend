@@ -34,6 +34,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.pyamsoft.fridge.FridgeComponent
 import com.pyamsoft.fridge.R
 import com.pyamsoft.fridge.setting.SettingsControllerEvent.NavigateUp
+import com.pyamsoft.pydroid.arch.StateSaver
 import com.pyamsoft.pydroid.arch.UiView
 import com.pyamsoft.pydroid.arch.createComponent
 import com.pyamsoft.pydroid.ui.Injector
@@ -50,14 +51,17 @@ internal class SettingsDialog : DialogFragment() {
 
     @JvmField
     @Inject
-    internal var factory: ViewModelProvider.Factory? = null
-    @JvmField
-    @Inject
     internal var toolbar: SettingToolbar? = null
     @JvmField
     @Inject
     internal var frame: SettingFrame? = null
+
+    @JvmField
+    @Inject
+    internal var factory: ViewModelProvider.Factory? = null
     private val viewModel by factory<SettingsViewModel>(activity = true) { factory }
+
+    private var stateSaver: StateSaver? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -132,7 +136,7 @@ internal class SettingsDialog : DialogFragment() {
         val toolbar = requireNotNull(toolbar)
         val dropshadow = DropshadowView.createTyped<SettingsViewState, SettingsViewEvent>(parent)
         val frame = requireNotNull(frame)
-        createComponent(
+        stateSaver = createComponent(
             savedInstanceState, viewLifecycleOwner,
             viewModel,
             frame,
@@ -196,8 +200,7 @@ internal class SettingsDialog : DialogFragment() {
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        toolbar?.saveState(outState)
-        frame?.saveState(outState)
+        stateSaver?.saveState(outState)
     }
 
     override fun onDestroyView() {
@@ -205,6 +208,7 @@ internal class SettingsDialog : DialogFragment() {
         toolbar = null
         frame = null
         factory = null
+        stateSaver = null
     }
 
     companion object {

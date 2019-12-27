@@ -48,6 +48,7 @@ import com.pyamsoft.fridge.detail.expand.ExpandItemViewModel
 import com.pyamsoft.fridge.detail.expand.ExpandItemViewState
 import com.pyamsoft.fridge.detail.expand.ExpandedItemViewEvent
 import com.pyamsoft.fridge.detail.expand.ExpandedToolbar
+import com.pyamsoft.pydroid.arch.StateSaver
 import com.pyamsoft.pydroid.arch.createComponent
 import com.pyamsoft.pydroid.ui.Injector
 import com.pyamsoft.pydroid.ui.arch.factory
@@ -96,6 +97,8 @@ internal class ExpandedFragment : DialogFragment() {
     @Inject
     internal var theming: Theming? = null
 
+    private var stateSaver: StateSaver? = null
+
     private val viewModel by factory<ExpandItemViewModel> { factory }
 
     override fun onCreateView(
@@ -136,7 +139,7 @@ internal class ExpandedFragment : DialogFragment() {
         val errorDisplay = requireNotNull(errorDisplay)
         val toolbar = requireNotNull(toolbar)
         val shadow = DropshadowView.createTyped<ExpandItemViewState, ExpandedItemViewEvent>(parent)
-        createComponent(
+        stateSaver = createComponent(
             null, viewLifecycleOwner,
             viewModel,
             name,
@@ -252,11 +255,7 @@ internal class ExpandedFragment : DialogFragment() {
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        name?.saveState(outState)
-        date?.saveState(outState)
-        presence?.saveState(outState)
-        errorDisplay?.saveState(outState)
-        toolbar?.saveState(outState)
+        stateSaver?.saveState(outState)
     }
 
     override fun onDestroyView() {
@@ -268,6 +267,7 @@ internal class ExpandedFragment : DialogFragment() {
         presence = null
         toolbar = null
         errorDisplay = null
+        stateSaver = null
     }
 
     override fun onResume() {

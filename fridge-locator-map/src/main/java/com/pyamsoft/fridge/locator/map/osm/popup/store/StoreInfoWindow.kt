@@ -34,6 +34,7 @@ import com.pyamsoft.fridge.db.store.NearbyStoreQueryDao
 import com.pyamsoft.fridge.db.store.NearbyStoreRealtime
 import com.pyamsoft.fridge.locator.map.osm.popup.BaseInfoWindow
 import com.pyamsoft.fridge.locator.map.osm.updatemanager.LocationUpdateReceiver
+import com.pyamsoft.pydroid.arch.StateSaver
 import com.pyamsoft.pydroid.arch.createComponent
 import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.ui.arch.factory
@@ -58,6 +59,7 @@ internal class StoreInfoWindow private constructor(
     nearbyStoreDeleteDao: NearbyStoreDeleteDao
 ) : BaseInfoWindow(receiver, map), LifecycleOwner {
 
+    private var stateSaver: StateSaver? = null
     private val registry = LifecycleRegistry(this)
 
     @JvmField
@@ -91,7 +93,7 @@ internal class StoreInfoWindow private constructor(
 
         val title = requireNotNull(infoTitle)
         val location = requireNotNull(infoLocation)
-        createComponent(
+        stateSaver = createComponent(
             null, this,
             viewModel,
             title,
@@ -149,6 +151,7 @@ internal class StoreInfoWindow private constructor(
         infoTitle = null
         infoLocation = null
         factory = null
+        stateSaver = null
     }
 
     companion object {
