@@ -24,6 +24,7 @@ import android.view.ViewGroup
 import androidx.annotation.CheckResult
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
+import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.pyamsoft.fridge.FridgeComponent
@@ -72,7 +73,7 @@ internal class EntryFragment : Fragment(), SnackbarContainer {
 
     private var initialized = false
 
-    override fun getSnackbarContainer(): ViewGroup? {
+    override fun getSnackbarContainer(): CoordinatorLayout? {
         val frame = frame ?: return null
 
         val fragment = childFragmentManager.findFragmentById(frame.id())

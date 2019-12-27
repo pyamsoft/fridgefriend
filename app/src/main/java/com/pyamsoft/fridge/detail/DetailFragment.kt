@@ -65,9 +65,9 @@ internal class DetailFragment : Fragment(), SnackbarContainer {
     internal var factory: ViewModelProvider.Factory? = null
     private val viewModel by factory<DetailViewModel> { factory }
 
-    private var rootView: ViewGroup? = null
+    private var rootView: CoordinatorLayout? = null
 
-    override fun getSnackbarContainer(): ViewGroup? {
+    override fun getSnackbarContainer(): CoordinatorLayout? {
         return rootView
     }
 

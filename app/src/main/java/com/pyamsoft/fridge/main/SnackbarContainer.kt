@@ -17,11 +17,11 @@
 
 package com.pyamsoft.fridge.main
 
-import android.view.ViewGroup
 import androidx.annotation.CheckResult
+import androidx.coordinatorlayout.widget.CoordinatorLayout
 
 interface SnackbarContainer {
 
     @CheckResult
-    fun getSnackbarContainer(): ViewGroup?
+    fun getSnackbarContainer(): CoordinatorLayout?
 }

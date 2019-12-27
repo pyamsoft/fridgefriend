@@ -59,9 +59,9 @@ internal class PermissionFragment : Fragment(), SnackbarContainer,
     internal var factory: ViewModelProvider.Factory? = null
     private val viewModel by factory<LocationPermissionViewModel>(activity = true) { factory }
 
-    private var rootView: ViewGroup? = null
+    private var rootView: CoordinatorLayout? = null
 
-    override fun getSnackbarContainer(): ViewGroup? {
+    override fun getSnackbarContainer(): CoordinatorLayout? {
         return rootView
     }
 
