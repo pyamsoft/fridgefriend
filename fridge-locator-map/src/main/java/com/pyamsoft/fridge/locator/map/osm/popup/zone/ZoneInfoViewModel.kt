@@ -49,20 +49,24 @@ internal class ZoneInfoViewModel @Inject internal constructor(
 
     private fun listenForRealtime() {
         viewModelScope.launch {
-            interactor.listenForNearbyCacheChanges(zoneId,
-                onInsert = {
-                    setState { copy(cached = ZoneCached(true)) }
+            interactor.listenForNearbyCacheChanges(
+                onInsert = { zone ->
+                    if (zone.id() == zoneId) {
+                        setState { copy(cached = ZoneCached(true)) }
+                    }
                 },
-                onDelete = {
-                    setState { copy(cached = ZoneCached(false)) }
+                onDelete = { zone ->
+                    if (zone.id() == zoneId) {
+                        setState { copy(cached = ZoneCached(false)) }
+                    }
                 })
         }
     }
 
     private fun findCachedZoneIfExists() {
         viewModelScope.launch {
-            val isCached = interactor.isNearbyZoneCached(zoneId)
-            setState { copy(cached = ZoneCached(isCached)) }
+            val cachedZones = interactor.getAllCachedZones()
+            setState { copy(cached = ZoneCached(cached = cachedZones.any { it.id() == zoneId })) }
         }
     }
 

@@ -40,37 +40,26 @@ internal class StoreInfoInteractor @Inject internal constructor(
     private val deleteDao: NearbyStoreDeleteDao
 ) {
 
+    /**
+     * TODO Move out into the parent level MapInteractor
+     */
     @CheckResult
-    suspend fun isNearbyStoreCached(id: Long): Boolean =
-        withContext(context = Dispatchers.Default) {
-            return@withContext queryDao.query(false)
-                .any { it.id() == id }
-        }
+    suspend fun getAllCachedStores(): List<NearbyStore> {
+        return withContext(context = Dispatchers.Default) { queryDao.query(false) }
+    }
 
+    /**
+     * TODO Move out into the parent level MapInteractor
+     */
     suspend inline fun listenForNearbyCacheChanges(
-        id: Long,
         crossinline onInsert: (zone: NearbyStore) -> Unit,
         crossinline onDelete: (zone: NearbyStore) -> Unit
     ) = withContext(context = Dispatchers.Default) {
         realtime.listenForChanges()
             .onEvent { event ->
                 return@onEvent when (event) {
-                    is Insert -> {
-                        if (event.store.id() == id) {
-                            onInsert(event.store)
-                        } else {
-                            // Ignore event for other zone
-                            Unit
-                        }
-                    }
-                    is Delete -> {
-                        if (event.store.id() == id) {
-                            onDelete(event.store)
-                        } else {
-                            // Ignore event for other zone
-                            Unit
-                        }
-                    }
+                    is Insert -> onInsert(event.store)
+                    is Delete -> onDelete(event.store)
                     is Update -> {
                         // Ignore Update events
                         Unit

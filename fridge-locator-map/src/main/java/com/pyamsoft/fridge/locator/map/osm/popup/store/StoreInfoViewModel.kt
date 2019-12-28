@@ -49,20 +49,24 @@ internal class StoreInfoViewModel @Inject internal constructor(
 
     private fun listenForRealtime() {
         viewModelScope.launch {
-            interactor.listenForNearbyCacheChanges(storeId,
-                onInsert = {
-                    setState { copy(cached = StoreCached(true)) }
+            interactor.listenForNearbyCacheChanges(
+                onInsert = { store ->
+                    if (store.id() == storeId) {
+                        setState { copy(cached = StoreCached(true)) }
+                    }
                 },
-                onDelete = {
-                    setState { copy(cached = StoreCached(false)) }
+                onDelete = { store ->
+                    if (store.id() == storeId) {
+                        setState { copy(cached = StoreCached(false)) }
+                    }
                 })
         }
     }
 
     private fun findCachedStoreIfExists() {
         viewModelScope.launch {
-            val isCached = interactor.isNearbyStoreCached(storeId)
-            setState { copy(cached = StoreCached(isCached)) }
+            val cachedStores = interactor.getAllCachedStores()
+            setState { copy(cached = StoreCached(cached = cachedStores.any { it.id() == storeId })) }
         }
     }
 

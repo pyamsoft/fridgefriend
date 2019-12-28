@@ -40,36 +40,26 @@ internal class ZoneInfoInteractor @Inject internal constructor(
     private val deleteDao: NearbyZoneDeleteDao
 ) {
 
+    /**
+     * TODO Move out into the parent level MapInteractor
+     */
     @CheckResult
-    suspend fun isNearbyZoneCached(id: Long): Boolean = withContext(context = Dispatchers.Default) {
-        return@withContext queryDao.query(false)
-            .any { it.id() == id }
+    suspend fun getAllCachedZones(): List<NearbyZone> {
+        return withContext(context = Dispatchers.Default) { queryDao.query(false) }
     }
 
+    /**
+     * TODO Move out into the parent level MapInteractor
+     */
     suspend inline fun listenForNearbyCacheChanges(
-        id: Long,
         crossinline onInsert: (zone: NearbyZone) -> Unit,
         crossinline onDelete: (zone: NearbyZone) -> Unit
     ) = withContext(context = Dispatchers.Default) {
         realtime.listenForChanges()
             .onEvent { event ->
                 return@onEvent when (event) {
-                    is Insert -> {
-                        if (event.zone.id() == id) {
-                            onInsert(event.zone)
-                        } else {
-                            // Ignore event for other zone
-                            Unit
-                        }
-                    }
-                    is Delete -> {
-                        if (event.zone.id() == id) {
-                            onDelete(event.zone)
-                        } else {
-                            // Ignore event for other zone
-                            Unit
-                        }
-                    }
+                    is Insert -> onInsert(event.zone)
+                    is Delete -> onDelete(event.zone)
                     is Update -> {
                         // Ignore Update events
                         Unit
