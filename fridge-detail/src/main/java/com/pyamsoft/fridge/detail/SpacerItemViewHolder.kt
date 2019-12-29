@@ -31,7 +31,7 @@ internal class SpacerItemViewHolder internal constructor(
 
     init {
         val frame = itemView.findViewById<ViewGroup>(R.id.listitem_frame)
-        val offset = 8.toDp(frame.context)
+        val offset = 12.toDp(frame.context)
         frame.updatePadding(top = offset)
     }
 

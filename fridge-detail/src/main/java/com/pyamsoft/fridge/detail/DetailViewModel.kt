@@ -220,7 +220,11 @@ class DetailViewModel @Inject internal constructor(
 
         return when {
             listItems.isEmpty() -> listItems
-            listItems.first().id().isNotBlank() -> listOf(FridgeItem.empty(entryId)) + listItems
+            listItems.first().id().isNotBlank() -> listOf(
+                FridgeItem.empty(entryId),
+                *listItems.toTypedArray(),
+                FridgeItem.empty(entryId)
+            )
             else -> listItems
         }
     }

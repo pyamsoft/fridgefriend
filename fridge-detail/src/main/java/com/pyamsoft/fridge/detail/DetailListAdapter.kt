@@ -38,7 +38,7 @@ internal class DetailListAdapter constructor(
 ) : ListAdapter<DetailListItemViewState, DetailViewHolder>(DIFFER) {
 
     override fun getItemViewType(position: Int): Int {
-        return if (isEmptyItem(position)) {
+        return if (isEmptyItem(position, itemCount)) {
             R.id.id_item_empty_item
         } else {
             R.id.id_item_list_item
@@ -46,7 +46,9 @@ internal class DetailListAdapter constructor(
     }
 
     override fun getItemId(position: Int): Long {
-        return if (isEmptyItem(position)) 0 else {
+        return if (isEmptyItem(position, itemCount)) {
+            if (position == 0) 0 else 1
+        } else {
             getItem(position).item.id()
                 .hashCode()
                 .toLong()
@@ -109,8 +111,8 @@ internal class DetailListAdapter constructor(
 
         @JvmStatic
         @CheckResult
-        private fun isEmptyItem(position: Int): Boolean {
-            return position == 0
+        private fun isEmptyItem(position: Int, maxItems: Int): Boolean {
+            return position == 0 || position >= maxItems - 1
         }
     }
 }
