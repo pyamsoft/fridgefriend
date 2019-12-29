@@ -43,24 +43,22 @@ android {
     }
 
     signingConfigs {
+        debug {
+            storeFile file("debug.keystore")
+            keyAlias "androiddebugkey"
+            keyPassword "android"
+            storePassword "android"
+        }
         release {
-            //noinspection GroovyAssignabilityCheck
             storeFile new File(RELEASE_STORE_FILE)
-
-            //noinspection GroovyAssignabilityCheck
             keyAlias RELEASE_KEY_ALIAS
-
-            //noinspection GroovyAssignabilityCheck
             keyPassword RELEASE_KEY_PASSWD
-
-            //noinspection GroovyAssignabilityCheck
             storePassword RELEASE_STORE_PASSWD
         }
     }
 
     buildTypes {
         release {
-            //noinspection GroovyAssignabilityCheck
             signingConfig signingConfigs.release
             minifyEnabled true
             shrinkResources true
@@ -69,6 +67,7 @@ android {
         }
 
         debug {
+            signingConfig signingConfigs.debug
             applicationIdSuffix ".dev"
             versionNameSuffix "-dev"
         }
