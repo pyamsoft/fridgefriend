@@ -21,6 +21,7 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.view.ViewGroup
 import androidx.annotation.CheckResult
+import androidx.core.view.isVisible
 import com.pyamsoft.fridge.detail.base.BaseItemCount
 import com.pyamsoft.pydroid.arch.UiSavedState
 import javax.inject.Inject
@@ -41,13 +42,17 @@ class ExpandItemCount @Inject internal constructor(
         state: ExpandItemViewState,
         savedState: UiSavedState
     ) {
-        state.item?.let { item ->
-            if (firstRender) {
-                firstRender = false
-                setCount(item)
-                val watcher = createWatcher()
-                doOnTeardown {
-                    removeWatcher(watcher)
+        state.item.let { item ->
+            if (item == null) {
+                countView.isVisible = false
+            } else {
+                if (firstRender) {
+                    firstRender = false
+                    setCount(item)
+                    val watcher = createWatcher()
+                    doOnTeardown {
+                        removeWatcher(watcher)
+                    }
                 }
             }
         }

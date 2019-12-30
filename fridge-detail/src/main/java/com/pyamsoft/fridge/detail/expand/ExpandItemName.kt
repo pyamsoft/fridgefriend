@@ -21,6 +21,7 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.view.ViewGroup
 import androidx.annotation.CheckResult
+import androidx.core.view.isVisible
 import com.pyamsoft.fridge.detail.base.BaseItemName
 import com.pyamsoft.pydroid.arch.UiSavedState
 import timber.log.Timber
@@ -63,14 +64,18 @@ class ExpandItemName @Inject internal constructor(
     ) {
         popupWindow.set(if (nameView.isFocused) state.similarItems else emptyList())
 
-        state.item?.let { item ->
-            if (firstRender) {
-                firstRender = false
-            }
-            setName(item)
-            val watcher = addWatcher()
-            doOnTeardown {
-                removeListeners(watcher)
+        state.item.let { item ->
+            if (item == null) {
+                nameView.isVisible = false
+            } else {
+                if (firstRender) {
+                    firstRender = false
+                }
+                setName(item)
+                val watcher = addWatcher()
+                doOnTeardown {
+                    removeListeners(watcher)
+                }
             }
         }
     }
