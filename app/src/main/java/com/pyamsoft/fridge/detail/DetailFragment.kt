@@ -28,7 +28,6 @@ import androidx.lifecycle.ViewModelProvider
 import com.pyamsoft.fridge.FridgeComponent
 import com.pyamsoft.fridge.R
 import com.pyamsoft.fridge.db.entry.FridgeEntry
-import com.pyamsoft.fridge.db.entry.JsonMappableFridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence
 import com.pyamsoft.fridge.detail.add.AddNewItemView
@@ -83,8 +82,8 @@ internal class DetailFragment : Fragment(), SnackbarContainer {
     }
 
     @CheckResult
-    private fun getEntryArgument(): FridgeEntry {
-        return requireNotNull(requireArguments().getParcelable<JsonMappableFridgeEntry>(ENTRY))
+    private fun getEntryIdArgument(): String {
+        return requireNotNull(requireArguments().getString(ENTRY))
     }
 
     @CheckResult
@@ -105,7 +104,7 @@ internal class DetailFragment : Fragment(), SnackbarContainer {
             .create(
                 ThemeProvider { requireNotNull(theming).isDarkTheme(requireActivity()) },
                 parent, requireToolbarActivity(), viewLifecycleOwner,
-                getEntryArgument(), getPresenceArgument()
+                getEntryIdArgument(), getPresenceArgument()
             )
             .inject(this)
 
@@ -149,7 +148,7 @@ internal class DetailFragment : Fragment(), SnackbarContainer {
     }
 
     private fun expandItem(item: FridgeItem) {
-        ExpandedFragment.newInstance(getEntryArgument(), item, getPresenceArgument())
+        ExpandedFragment.newInstance(getEntryIdArgument(), item, getPresenceArgument())
             .show(requireActivity(), ExpandedFragment.TAG)
     }
 
@@ -166,7 +165,7 @@ internal class DetailFragment : Fragment(), SnackbarContainer {
         ): Fragment {
             return DetailFragment().apply {
                 arguments = Bundle().apply {
-                    putParcelable(ENTRY, JsonMappableFridgeEntry.from(entry))
+                    putString(ENTRY, entry.id())
                     putString(PRESENCE, filterPresence.name)
                 }
             }

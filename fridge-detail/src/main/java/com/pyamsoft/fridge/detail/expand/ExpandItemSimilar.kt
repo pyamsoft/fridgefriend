@@ -58,7 +58,7 @@ class ExpandItemSimilar @Inject internal constructor(
             if (similar.isEmpty()) {
                 clear()
             } else {
-                state.item.let { item ->
+                state.item?.let { item ->
                     val name = item.name().trim()
                     message.isVisible = true
                     message.text = "You already have at least one '$name', do you need another?"

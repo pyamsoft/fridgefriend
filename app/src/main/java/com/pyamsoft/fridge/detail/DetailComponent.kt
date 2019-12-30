@@ -23,7 +23,6 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModelProvider
 import com.pyamsoft.fridge.FridgeViewModelFactory
 import com.pyamsoft.fridge.ViewModelKey
-import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence
 import com.pyamsoft.fridge.detail.DetailComponent.ViewModelModule
 import com.pyamsoft.pydroid.arch.UiViewModel
@@ -34,6 +33,7 @@ import dagger.BindsInstance
 import dagger.Module
 import dagger.Subcomponent
 import dagger.multibindings.IntoMap
+import javax.inject.Named
 
 @Subcomponent(modules = [ViewModelModule::class, DetailListModule::class])
 internal interface DetailComponent {
@@ -49,7 +49,7 @@ internal interface DetailComponent {
             @BindsInstance parent: ViewGroup,
             @BindsInstance toolbarActivity: ToolbarActivity,
             @BindsInstance owner: LifecycleOwner,
-            @BindsInstance entry: FridgeEntry,
+            @BindsInstance @Named("entry_id") entryId: String,
             @BindsInstance filterPresence: Presence
         ): DetailComponent
     }

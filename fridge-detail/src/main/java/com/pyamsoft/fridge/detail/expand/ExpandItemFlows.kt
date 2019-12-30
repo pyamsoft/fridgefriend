@@ -23,7 +23,7 @@ import com.pyamsoft.pydroid.arch.UiViewEvent
 import com.pyamsoft.pydroid.arch.UiViewState
 
 data class ExpandItemViewState internal constructor(
-    val item: FridgeItem,
+    val item: FridgeItem?,
     val throwable: Throwable?,
     val sameNamedItems: Collection<FridgeItem>,
     val similarItems: Collection<FridgeItem>

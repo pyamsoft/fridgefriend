@@ -26,7 +26,6 @@ import androidx.fragment.app.DialogFragment
 import com.pyamsoft.fridge.FridgeComponent
 import com.pyamsoft.fridge.R
 import com.pyamsoft.fridge.db.item.FridgeItem
-import com.pyamsoft.fridge.db.item.JsonMappableFridgeItem
 import com.pyamsoft.fridge.detail.expand.DateSelectPayload
 import com.pyamsoft.pydroid.arch.EventBus
 import com.pyamsoft.pydroid.ui.Injector
@@ -44,9 +43,8 @@ internal class DatePickerDialogFragment : DialogFragment() {
             .inject(this)
 
         val today = Calendar.getInstance()
-        val item: FridgeItem =
-            requireNotNull(requireArguments().getParcelable<JsonMappableFridgeItem>(ITEM))
-
+        val itemId = requireNotNull(requireArguments().getString(ITEM))
+        val entryId = requireNotNull(requireArguments().getString(ENTRY))
         var initialYear = requireArguments().getInt(YEAR, 0)
         var initialMonth = requireArguments().getInt(MONTH, 0)
         var initialDay = requireArguments().getInt(DAY, 0)
@@ -65,7 +63,8 @@ internal class DatePickerDialogFragment : DialogFragment() {
             DatePickerDialog.OnDateSetListener { _, year, month, dayOfMonth ->
                 requireNotNull(dateSelectBus).publish(
                     DateSelectPayload(
-                        item,
+                        itemId,
+                        entryId,
                         year,
                         month,
                         dayOfMonth
@@ -86,6 +85,7 @@ internal class DatePickerDialogFragment : DialogFragment() {
     companion object {
 
         const val TAG = "DatePickerDialogFragment"
+        private const val ENTRY = "entry"
         private const val ITEM = "item"
         private const val YEAR = "year"
         private const val MONTH = "month"
@@ -101,7 +101,8 @@ internal class DatePickerDialogFragment : DialogFragment() {
         ): DialogFragment {
             return DatePickerDialogFragment().apply {
                 arguments = Bundle().apply {
-                    putParcelable(ITEM, JsonMappableFridgeItem.from(item))
+                    putString(ITEM, item.id())
+                    putString(ENTRY, item.entryId())
                     putInt(YEAR, year)
                     putInt(MONTH, month)
                     putInt(DAY, day)

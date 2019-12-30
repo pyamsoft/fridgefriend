@@ -21,24 +21,19 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.view.ViewGroup
 import androidx.annotation.CheckResult
-import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.detail.base.BaseItemName
 import com.pyamsoft.pydroid.arch.UiSavedState
 import timber.log.Timber
 import javax.inject.Inject
 
 class ExpandItemName @Inject internal constructor(
-    parent: ViewGroup,
-    initialItem: FridgeItem
+    parent: ViewGroup
 ) : BaseItemName<ExpandItemViewState, ExpandedItemViewEvent>(parent) {
 
     private val popupWindow = SimilarlyNamedListWindow(parent.context)
+    private var firstRender = true
 
     init {
-        doOnInflate {
-            setName(initialItem)
-        }
-
         doOnInflate {
             popupWindow.apply {
                 initializeView(layoutRoot)
@@ -57,11 +52,8 @@ class ExpandItemName @Inject internal constructor(
             popupWindow.teardown()
         }
 
-        doOnInflate {
-            val watcher = addWatcher()
-            doOnTeardown {
-                removeListeners(watcher)
-            }
+        doOnTeardown {
+            firstRender = false
         }
     }
 
@@ -70,6 +62,17 @@ class ExpandItemName @Inject internal constructor(
         savedState: UiSavedState
     ) {
         popupWindow.set(if (nameView.isFocused) state.similarItems else emptyList())
+
+        state.item?.let { item ->
+            if (firstRender) {
+                firstRender = false
+            }
+            setName(item)
+            val watcher = addWatcher()
+            doOnTeardown {
+                removeListeners(watcher)
+            }
+        }
     }
 
     @CheckResult

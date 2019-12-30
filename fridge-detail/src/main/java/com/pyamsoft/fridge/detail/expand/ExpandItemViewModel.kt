@@ -39,28 +39,34 @@ import timber.log.Timber
 import java.util.Calendar
 import java.util.Date
 import javax.inject.Inject
+import javax.inject.Named
 
 class ExpandItemViewModel @Inject internal constructor(
-    item: FridgeItem,
     defaultPresence: Presence,
     dateSelectBus: EventBus<DateSelectPayload>,
     expandVisibilityBus: EventBus<ExpandVisibilityEvent>,
     realtime: FridgeItemRealtime,
     private val fakeRealtime: EventBus<FridgeItemChangeEvent>,
-    private val interactor: DetailInteractor
+    private val interactor: DetailInteractor,
+    @Named("item_id") private val itemId: String,
+    @Named("item_entry_id") private val itemEntryId: String
 ) : BaseUpdaterViewModel<ExpandItemViewState, ExpandedItemViewEvent, ExpandItemControllerEvent>(
     initialState = ExpandItemViewState(
-        item = item.presence(defaultPresence),
+        item = null,
         throwable = null,
         sameNamedItems = emptyList(),
         similarItems = emptyList()
     )
 ) {
 
-    private val itemEntryId = item.entryId()
-    private val itemId = item.id()
-
     init {
+        doOnInit {
+            viewModelScope.launch(context = Dispatchers.Default) {
+                val item = interactor.loadItem(itemId, itemEntryId, force = false)
+                setState { copy(item = item.presence(defaultPresence)) }
+            }
+        }
+
         doOnInit {
             viewModelScope.launch(context = Dispatchers.Default) {
                 realtime.listenForChanges(itemEntryId)
@@ -77,15 +83,15 @@ class ExpandItemViewModel @Inject internal constructor(
         doOnInit {
             viewModelScope.launch(context = Dispatchers.Default) {
                 dateSelectBus.onEvent { event ->
-                    if (event.oldItem.entryId() != itemEntryId) {
+                    if (event.entryId != itemEntryId) {
                         return@onEvent
                     }
 
-                    if (event.oldItem.id() != itemId) {
+                    if (event.itemId != itemId) {
                         return@onEvent
                     }
 
-                    commitDate(event.oldItem, event.year, event.month, event.day)
+                    commitDate(event.year, event.month, event.day)
                 }
             }
         }
@@ -117,7 +123,10 @@ class ExpandItemViewModel @Inject internal constructor(
 
     private fun consumeSelf() {
         withState {
-            update(item, doUpdate = { interactor.consume(it) }, onError = { handleError(it) }) {
+            update(
+                requireNotNull(item),
+                doUpdate = { interactor.consume(it) },
+                onError = { handleError(it) }) {
                 closeItem(it)
             }
         }
@@ -125,7 +134,10 @@ class ExpandItemViewModel @Inject internal constructor(
 
     private fun spoilSelf() {
         withState {
-            update(item, doUpdate = { interactor.spoil(it) }, onError = { handleError(it) }) {
+            update(
+                requireNotNull(item),
+                doUpdate = { interactor.spoil(it) },
+                onError = { handleError(it) }) {
                 closeItem(it)
             }
         }
@@ -133,7 +145,10 @@ class ExpandItemViewModel @Inject internal constructor(
 
     private fun deleteSelf() {
         withState {
-            update(item, doUpdate = { interactor.delete(it) }, onError = { handleError(it) }) {
+            update(
+                requireNotNull(item),
+                doUpdate = { interactor.delete(it) },
+                onError = { handleError(it) }) {
                 closeItem(it)
             }
         }
@@ -149,7 +164,7 @@ class ExpandItemViewModel @Inject internal constructor(
 
     private fun closeSelf() {
         withState {
-            closeItem(item)
+            closeItem(requireNotNull(item))
         }
     }
 
@@ -167,7 +182,7 @@ class ExpandItemViewModel @Inject internal constructor(
 
     private fun pickDate() {
         withState {
-            val expireTime = item.expireTime()
+            val expireTime = requireNotNull(item).expireTime()
             val month: Int
             val day: Int
             val year: Int
@@ -198,7 +213,7 @@ class ExpandItemViewModel @Inject internal constructor(
 
     private fun commitCount(count: Int) {
         withState {
-            item.let { item ->
+            requireNotNull(item).let { item ->
                 if (count > 0) {
                     setFixMessage("")
                     commitItem(item.count(count), item.presence())
@@ -212,7 +227,7 @@ class ExpandItemViewModel @Inject internal constructor(
 
     private fun commitName(name: String) {
         withState {
-            item.let { item ->
+            requireNotNull(item).let { item ->
                 if (isNameValid(name)) {
                     setFixMessage("")
                     commitItem(item.name(name), item.presence())
@@ -225,26 +240,29 @@ class ExpandItemViewModel @Inject internal constructor(
     }
 
     private fun commitDate(
-        oldItem: FridgeItem,
         year: Int,
         month: Int,
         day: Int
     ) {
-        Timber.d("Attempt save time: $year/${month + 1}/$day")
-        val newTime = Calendar.getInstance()
-            .apply {
-                set(Calendar.YEAR, year)
-                set(Calendar.MONTH, month)
-                set(Calendar.DAY_OF_MONTH, day)
+        withState {
+            requireNotNull(item).let { item ->
+                Timber.d("Attempt save time: $year/${month + 1}/$day")
+                val newTime = Calendar.getInstance()
+                    .apply {
+                        set(Calendar.YEAR, year)
+                        set(Calendar.MONTH, month)
+                        set(Calendar.DAY_OF_MONTH, day)
+                    }
+                    .time
+                Timber.d("Save expire time: $newTime")
+                commitItem(item.expireTime(newTime), item.presence())
             }
-            .time
-        Timber.d("Save expire time: $newTime")
-        commitItem(oldItem.expireTime(newTime), oldItem.presence())
+        }
     }
 
     private fun commitPresence() {
         withState {
-            item.let { item ->
+            requireNotNull(item).let { item ->
                 val oldPresence = item.presence()
                 val newItem = item.presence(oldPresence.flip())
                 commitItem(newItem, oldPresence)

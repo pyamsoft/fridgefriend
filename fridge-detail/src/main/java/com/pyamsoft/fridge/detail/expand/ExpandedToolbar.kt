@@ -47,6 +47,10 @@ class ExpandedToolbar @Inject internal constructor(
             deleteMenuItem = layoutRoot.menu.findItem(R.id.menu_item_delete)
             consumeMenuItem = layoutRoot.menu.findItem(R.id.menu_item_consume)
             spoilMenuItem = layoutRoot.menu.findItem(R.id.menu_item_spoil)
+
+            requireNotNull(deleteMenuItem).isVisible = false
+            requireNotNull(consumeMenuItem).isVisible = false
+            requireNotNull(spoilMenuItem).isVisible = false
         }
 
         doOnInflate {
@@ -92,7 +96,7 @@ class ExpandedToolbar @Inject internal constructor(
         state: ExpandItemViewState,
         savedState: UiSavedState
     ) {
-        state.item.let { item ->
+        state.item?.let { item ->
             requireNotNull(deleteMenuItem).isVisible = item.isReal()
             requireNotNull(consumeMenuItem).isVisible = item.isReal() && item.presence() == HAVE
             requireNotNull(spoilMenuItem).isVisible = item.isReal() && item.presence() == HAVE

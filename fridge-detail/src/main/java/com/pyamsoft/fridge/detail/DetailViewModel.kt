@@ -20,7 +20,6 @@ package com.pyamsoft.fridge.detail
 import androidx.annotation.CheckResult
 import androidx.lifecycle.viewModelScope
 import com.pyamsoft.fridge.core.Preferences
-import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent.Delete
@@ -44,13 +43,14 @@ import kotlinx.coroutines.withContext
 import timber.log.Timber
 import java.util.Date
 import javax.inject.Inject
+import javax.inject.Named
 
 class DetailViewModel @Inject internal constructor(
     private val interactor: DetailInteractor,
     private val fakeRealtime: EventBus<FridgeItemChangeEvent>,
     private val expandVisibilityBus: EventBus<ExpandVisibilityEvent>,
-    listItemPresence: FridgeItem.Presence,
-    entry: FridgeEntry
+    @Named("entry_id") private val entryId: String,
+    listItemPresence: FridgeItem.Presence
 ) : BaseUpdaterViewModel<DetailViewState, DetailViewEvent, DetailControllerEvent>(
     initialState = DetailViewState(
         isLoading = null,
@@ -65,8 +65,6 @@ class DetailViewModel @Inject internal constructor(
         listItemPresence = listItemPresence
     )
 ) {
-
-    private val entryId = entry.id()
 
     private val undoRunner = highlander<Unit, FridgeItem> { item ->
         try {

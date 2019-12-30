@@ -21,23 +21,19 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.view.ViewGroup
 import androidx.annotation.CheckResult
-import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.detail.base.BaseItemCount
 import com.pyamsoft.pydroid.arch.UiSavedState
 import javax.inject.Inject
 
 class ExpandItemCount @Inject internal constructor(
-    parent: ViewGroup,
-    initialItem: FridgeItem
+    parent: ViewGroup
 ) : BaseItemCount<ExpandItemViewState, ExpandedItemViewEvent>(parent) {
 
+    private var firstRender = true
+
     init {
-        doOnInflate {
-            setCount(initialItem)
-            val watcher = createWatcher()
-            doOnTeardown {
-                removeWatcher(watcher)
-            }
+        doOnTeardown {
+            firstRender = false
         }
     }
 
@@ -45,6 +41,16 @@ class ExpandItemCount @Inject internal constructor(
         state: ExpandItemViewState,
         savedState: UiSavedState
     ) {
+        state.item?.let { item ->
+            if (firstRender) {
+                firstRender = false
+                setCount(item)
+                val watcher = createWatcher()
+                doOnTeardown {
+                    removeWatcher(watcher)
+                }
+            }
+        }
     }
 
     @CheckResult

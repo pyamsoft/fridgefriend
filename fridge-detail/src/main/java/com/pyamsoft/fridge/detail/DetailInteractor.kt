@@ -91,6 +91,13 @@ internal class DetailInteractor @Inject internal constructor(
     }
 
     @CheckResult
+    suspend fun loadItem(
+        itemId: String,
+        entryId: String,
+        force: Boolean
+    ): FridgeItem = getItems(entryId, force).first { it.id() == itemId }
+
+    @CheckResult
     suspend fun getItems(
         entryId: String,
         force: Boolean

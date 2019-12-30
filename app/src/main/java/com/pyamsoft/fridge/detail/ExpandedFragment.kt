@@ -32,11 +32,8 @@ import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.ViewModelProvider
 import com.pyamsoft.fridge.FridgeComponent
 import com.pyamsoft.fridge.R
-import com.pyamsoft.fridge.db.entry.FridgeEntry
-import com.pyamsoft.fridge.db.entry.JsonMappableFridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence
-import com.pyamsoft.fridge.db.item.JsonMappableFridgeItem
 import com.pyamsoft.fridge.detail.expand.ExpandItemControllerEvent
 import com.pyamsoft.fridge.detail.expand.ExpandItemCount
 import com.pyamsoft.fridge.detail.expand.ExpandItemDate
@@ -116,10 +113,8 @@ internal class ExpandedFragment : DialogFragment() {
         super.onViewCreated(view, savedInstanceState)
 
         val parent = view.findViewById<ConstraintLayout>(R.id.layout_constraint)
-        val itemArgument =
-            requireNotNull(requireArguments().getParcelable<JsonMappableFridgeItem>(ITEM))
-        val entryArgument =
-            requireNotNull(requireArguments().getParcelable<JsonMappableFridgeEntry>(ENTRY))
+        val itemId = requireNotNull(requireArguments().getString(ITEM))
+        val entryId = requireNotNull(requireArguments().getString(ENTRY))
         val presenceArgument =
             Presence.valueOf(requireNotNull(requireArguments().getString(PRESENCE)))
 
@@ -127,7 +122,7 @@ internal class ExpandedFragment : DialogFragment() {
             .plusExpandComponent()
             .create(
                 ThemeProvider { requireNotNull(theming).isDarkTheme(requireActivity()) },
-                parent, itemArgument, entryArgument, presenceArgument
+                parent, itemId, entryId, presenceArgument
             )
             .inject(this)
 
@@ -292,14 +287,14 @@ internal class ExpandedFragment : DialogFragment() {
         @JvmStatic
         @CheckResult
         fun newInstance(
-            entry: FridgeEntry,
+            entryId: String,
             item: FridgeItem,
             presence: Presence
         ): DialogFragment {
             return ExpandedFragment().apply {
                 arguments = Bundle().apply {
-                    putParcelable(ENTRY, JsonMappableFridgeEntry.from(entry))
-                    putParcelable(ITEM, JsonMappableFridgeItem.from(item))
+                    putString(ITEM, item.id())
+                    putString(ENTRY, entryId)
                     putString(PRESENCE, presence.name)
                 }
             }
