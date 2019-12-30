@@ -17,20 +17,17 @@
 
 package com.pyamsoft.fridge.db.entry
 
-import android.os.Parcelable
 import androidx.annotation.CheckResult
 import com.squareup.moshi.JsonClass
-import kotlinx.android.parcel.Parcelize
 import java.util.Date
 
-@Parcelize
 @JsonClass(generateAdapter = true)
 data class JsonMappableFridgeEntry internal constructor(
     internal val id: String,
     internal val name: String,
     internal val createdTime: Date,
     internal val isReal: Boolean
-) : FridgeEntry, Parcelable {
+) : FridgeEntry {
 
     override fun id(): String {
         return id

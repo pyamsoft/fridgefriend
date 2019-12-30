@@ -17,11 +17,9 @@
 
 package com.pyamsoft.fridge.db.zone
 
-import android.os.Parcelable
 import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.db.BaseModel
 import com.squareup.moshi.JsonClass
-import kotlinx.android.parcel.Parcelize
 import java.util.Date
 
 interface NearbyZone : BaseModel<NearbyZone> {
@@ -35,13 +33,12 @@ interface NearbyZone : BaseModel<NearbyZone> {
     @CheckResult
     fun points(points: List<Point>): NearbyZone
 
-    @Parcelize
     @JsonClass(generateAdapter = true)
     data class Point(
         val id: Long,
         val lat: Double,
         val lon: Double
-    ) : Parcelable
+    )
 
     companion object {
 

@@ -17,21 +17,18 @@
 
 package com.pyamsoft.fridge.db.zone
 
-import android.os.Parcelable
 import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.db.zone.NearbyZone.Point
 import com.squareup.moshi.JsonClass
-import kotlinx.android.parcel.Parcelize
 import java.util.Date
 
-@Parcelize
 @JsonClass(generateAdapter = true)
 data class JsonMappableNearbyZone internal constructor(
     internal val id: Long,
     internal val name: String,
     internal val createdTime: Date,
     internal val points: List<Point>
-) : NearbyZone, Parcelable {
+) : NearbyZone {
 
     override fun id(): Long {
         return id

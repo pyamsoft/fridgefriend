@@ -17,13 +17,10 @@
 
 package com.pyamsoft.fridge.db.store
 
-import android.os.Parcelable
 import androidx.annotation.CheckResult
 import com.squareup.moshi.JsonClass
-import kotlinx.android.parcel.Parcelize
 import java.util.Date
 
-@Parcelize
 @JsonClass(generateAdapter = true)
 data class JsonMappableNearbyStore internal constructor(
     internal val id: Long,
@@ -31,7 +28,7 @@ data class JsonMappableNearbyStore internal constructor(
     internal val createdTime: Date,
     internal val latitude: Double,
     internal val longitude: Double
-) : NearbyStore, Parcelable {
+) : NearbyStore {
 
     override fun id(): Long {
         return id
