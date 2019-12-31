@@ -18,7 +18,7 @@
 package com.pyamsoft.fridge.main
 
 import android.view.ViewGroup
-import androidx.constraintlayout.widget.ConstraintLayout
+import android.widget.FrameLayout
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.arch.UiSavedState
 import com.pyamsoft.pydroid.arch.UnitViewEvent
@@ -29,9 +29,9 @@ class FragmentContainer @Inject internal constructor(
     parent: ViewGroup
 ) : BaseUiView<UnitViewState, UnitViewEvent>(parent) {
 
-    override val layout: Int = R.layout.layout_constraint
+    override val layout: Int = R.layout.layout_frame
 
-    override val layoutRoot by boundView<ConstraintLayout>(R.id.layout_constraint)
+    override val layoutRoot by boundView<FrameLayout>(R.id.layout_frame)
 
     override fun onRender(
         state: UnitViewState,

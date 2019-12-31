@@ -33,31 +33,23 @@ import com.pyamsoft.fridge.locator.MapPermission
 import com.pyamsoft.pydroid.arch.UiViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Named
 
 class EntryViewModel @Inject internal constructor(
     private val mapPermission: MapPermission,
-    persistentEntries: PersistentEntries,
+    private val persistentEntries: PersistentEntries,
     @Named("app_name") appNameRes: Int
 ) : UiViewModel<EntryViewState, EntryViewEvent, EntryControllerEvent>(
     initialState = EntryViewState(
-        entry = null,
         isSettingsItemVisible = true,
         appNameRes = appNameRes
     )
 ) {
 
-    init {
-        doOnInit {
-            viewModelScope.launch(context = Dispatchers.Default) {
-                val entry = persistentEntries.getPersistentEntry()
-                setState { copy(entry = entry) }
-            }
-        }
-    }
-
     override fun handleViewEvent(event: EntryViewEvent) {
+        Timber.d("Handle View event: ", event)
         return when (event) {
             is OpenHave -> select { PushHave(it) }
             is OpenNeed -> select { PushNeed(it) }
@@ -67,10 +59,13 @@ class EntryViewModel @Inject internal constructor(
     }
 
     private inline fun select(crossinline func: (entry: FridgeEntry) -> EntryControllerEvent) {
-        withState {
-            entry?.let { e ->
-                publish(func(e))
-            }
+        Timber.d("Attempt selection!")
+        viewModelScope.launch(context = Dispatchers.Default) {
+            val entry = persistentEntries.getPersistentEntry()
+
+            val event = func(entry)
+            Timber.d("Publish selection: ", event)
+            publish(event)
         }
     }
 
