@@ -137,8 +137,12 @@ internal class MainActivity : RatingActivity() {
     ) {
         val container = requireNotNull(container)
         val toolbar = requireNotNull(toolbar)
+        container.init(savedInstanceState)
+        toolbar.init(savedInstanceState)
+
         container.inflate(savedInstanceState)
         toolbar.inflate(savedInstanceState)
+
         doOnDestroy {
             container.teardown()
             toolbar.teardown()
