@@ -120,9 +120,9 @@ internal class DetailFragment : Fragment(), SnackbarContainer {
             addNew
         ) {
             return@createComponent when (it) {
-                is DetailControllerEvent.ExpandForEditing -> expandItem(it.item)
+                is DetailControllerEvent.ExpandForEditing -> openExisting(it.item)
                 is DetailControllerEvent.EntryArchived -> close()
-                is DetailControllerEvent.AddNew -> expandItem(FridgeItem.create(entryId = it.entryId))
+                is DetailControllerEvent.AddNew -> createItem()
             }
         }
     }
@@ -147,9 +147,22 @@ internal class DetailFragment : Fragment(), SnackbarContainer {
         requireActivity().onBackPressed()
     }
 
-    private fun expandItem(item: FridgeItem) {
-        ExpandedFragment.newInstance(getEntryIdArgument(), item, getPresenceArgument())
-            .show(requireActivity(), ExpandedFragment.TAG)
+    private fun createItem() {
+        expandItem(null)
+    }
+
+    private fun openExisting(item: FridgeItem) {
+        expandItem(item)
+    }
+
+    private fun expandItem(item: FridgeItem?) {
+        val expandFragment = if (item == null) {
+            ExpandedFragment.createNew(getEntryIdArgument(), getPresenceArgument())
+        } else {
+            ExpandedFragment.openExisting(getEntryIdArgument(), item, getPresenceArgument())
+        }
+
+        expandFragment.show(requireActivity(), ExpandedFragment.TAG)
     }
 
     companion object {

@@ -286,7 +286,38 @@ internal class ExpandedFragment : DialogFragment() {
 
         @JvmStatic
         @CheckResult
-        fun newInstance(
+        fun createNew(
+            entryId: String,
+            presence: Presence
+        ): DialogFragment {
+            return ExpandedFragment().apply {
+                arguments = Bundle().apply {
+                    putString(ITEM, "")
+                    putString(ENTRY, entryId)
+                    putString(PRESENCE, presence.name)
+                }
+            }
+        }
+
+        @JvmStatic
+        @CheckResult
+        fun openExisting(
+            entryId: String,
+            item: FridgeItem,
+            presence: Presence
+        ): DialogFragment {
+            return ExpandedFragment().apply {
+                arguments = Bundle().apply {
+                    putString(ITEM, item.id())
+                    putString(ENTRY, entryId)
+                    putString(PRESENCE, presence.name)
+                }
+            }
+        }
+
+        @JvmStatic
+        @CheckResult
+        private fun newInstance(
             entryId: String,
             item: FridgeItem,
             presence: Presence

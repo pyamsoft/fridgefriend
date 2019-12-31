@@ -204,6 +204,9 @@ class DetailViewModel @Inject internal constructor(
     ): List<FridgeItem> {
         val listItems = items
             .asSequence()
+            // Remove the placeholder items here
+            .filter { it.id().isNotBlank() }
+            // Sort
             .sortedWith(Comparator { o1, o2 ->
                 return@Comparator when {
                     o1.isArchived() && o2.isArchived() -> 0
@@ -212,18 +215,20 @@ class DetailViewModel @Inject internal constructor(
                     else -> 0
                 }
             })
+            // Filter by archived and presence
             .filter { if (showArchived) it.isArchived() else !it.isArchived() }
             .filter { it.presence() == listItemPresence }
             .toList()
 
         return when {
             listItems.isEmpty() -> listItems
-            listItems.first().id().isNotBlank() -> listOf(
+
+            // Add them back here
+            else -> listOf(
                 FridgeItem.empty(entryId),
                 *listItems.toTypedArray(),
                 FridgeItem.empty(entryId)
             )
-            else -> listItems
         }
     }
 

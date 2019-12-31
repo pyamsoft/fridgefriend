@@ -70,11 +70,11 @@ class ExpandItemName @Inject internal constructor(
             } else {
                 if (firstRender) {
                     firstRender = false
-                }
-                setName(item)
-                val watcher = addWatcher()
-                doOnTeardown {
-                    removeListeners(watcher)
+                    setName(item)
+                    val watcher = addWatcher()
+                    doOnTeardown {
+                        removeListeners(watcher)
+                    }
                 }
             }
         }

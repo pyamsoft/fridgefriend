@@ -91,7 +91,29 @@ internal class DetailInteractor @Inject internal constructor(
     }
 
     @CheckResult
-    suspend fun loadItem(
+    suspend fun resolveItem(
+        itemId: String,
+        entryId: String,
+        force: Boolean
+    ): FridgeItem {
+        return if (itemId.isBlank()) createNewItem(entryId) else loadItem(itemId, entryId, force)
+    }
+
+    /**
+     * Create a new FridgeItem
+     */
+    @CheckResult
+    private fun createNewItem(entryId: String): FridgeItem {
+        return FridgeItem.create(entryId = entryId)
+    }
+
+    /**
+     * If the itemId parameter is blank, this will crash the app.
+     *
+     * This should only be called on items that already exist in the db.
+     */
+    @CheckResult
+    private suspend fun loadItem(
         itemId: String,
         entryId: String,
         force: Boolean
@@ -116,10 +138,8 @@ internal class DetailInteractor @Inject internal constructor(
         if (item.name().isBlank()) {
             Timber.w("Do not commit empty name FridgeItem: $item")
         } else {
-            Timber.d("Guarantee entry exists")
-            guaranteeEntryExists(item.entryId(), FridgeEntry.EMPTY_NAME)
-
-            Timber.d("Perform commit: $item")
+            val entry = guaranteeEntryExists(item.entryId(), FridgeEntry.EMPTY_NAME)
+            Timber.d("Guarantee entry exists: $entry")
             commitItem(item)
         }
     }

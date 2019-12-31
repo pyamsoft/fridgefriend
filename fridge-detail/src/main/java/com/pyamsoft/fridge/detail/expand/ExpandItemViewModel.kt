@@ -34,7 +34,6 @@ import com.pyamsoft.fridge.detail.base.BaseUpdaterViewModel
 import com.pyamsoft.fridge.detail.item.isNameValid
 import com.pyamsoft.pydroid.arch.EventBus
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.util.Calendar
@@ -49,8 +48,8 @@ class ExpandItemViewModel @Inject internal constructor(
     realtime: FridgeItemRealtime,
     private val fakeRealtime: EventBus<FridgeItemChangeEvent>,
     private val interactor: DetailInteractor,
-    @Named("item_id") private val itemId: String,
-    @Named("item_entry_id") private val itemEntryId: String
+    @Named("item_id") possibleItemId: String,
+    @Named("item_entry_id") itemEntryId: String
 ) : BaseUpdaterViewModel<ExpandItemViewState, ExpandedItemViewEvent, ExpandItemControllerEvent>(
     initialState = ExpandItemViewState(
         item = null,
@@ -61,9 +60,31 @@ class ExpandItemViewModel @Inject internal constructor(
 ) {
 
     init {
-        doOnInit {
+        doOnSaveState { state ->
+            // If this viewmodel lives on a "new" item which has since been created
+            if (possibleItemId.isBlank()) {
+                // Save the newly created item id if possible
+                state.item?.let { item ->
+                    if (item.isReal()) {
+                        putString(CREATED_ITEM_ID, item.id())
+                    } else {
+                        remove(CREATED_ITEM_ID)
+                    }
+                }
+            }
+        }
+
+        doOnInit { savedInstanceState ->
+            // Resolve the existing item id
+            val resolveItemId = if (possibleItemId.isNotBlank()) possibleItemId else {
+                // But incase a newly created item was persisted, resolve that
+                if (savedInstanceState == null) possibleItemId else {
+                    savedInstanceState.getString(CREATED_ITEM_ID, possibleItemId)
+                }
+            }
+
             viewModelScope.launch(context = Dispatchers.Default) {
-                val item = interactor.loadItem(itemId, itemEntryId, force = false)
+                val item = interactor.resolveItem(resolveItemId, itemEntryId, force = false)
                 setState { copy(item = item.presence(defaultPresence)) }
             }
         }
@@ -84,15 +105,19 @@ class ExpandItemViewModel @Inject internal constructor(
         doOnInit {
             viewModelScope.launch(context = Dispatchers.Default) {
                 dateSelectBus.onEvent { event ->
-                    if (event.entryId != itemEntryId) {
-                        return@onEvent
-                    }
+                    withState {
+                        requireNotNull(item).let { item ->
+                            if (event.entryId != item.entryId()) {
+                                return@let
+                            }
 
-                    if (event.itemId != itemId) {
-                        return@onEvent
-                    }
+                            if (event.itemId != item.id()) {
+                                return@let
+                            }
 
-                    commitDate(event.year, event.month, event.day)
+                            commitDate(event.year, event.month, event.day)
+                        }
+                    }
                 }
             }
         }
@@ -169,15 +194,23 @@ class ExpandItemViewModel @Inject internal constructor(
         }
     }
 
-    private fun closeItem(item: FridgeItem) {
-        if (itemId == item.id() && itemEntryId == item.entryId()) {
-            publish(ExpandItemControllerEvent.CloseExpand)
+    private fun closeItem(closeMe: FridgeItem) {
+        withState {
+            requireNotNull(item).let { item ->
+                if (closeMe.id() == item.id() && closeMe.entryId() == item.entryId()) {
+                    publish(ExpandItemControllerEvent.CloseExpand)
+                }
+            }
         }
     }
 
     private fun handleModelUpdate(newItem: FridgeItem) {
-        if (itemId == newItem.id() && itemEntryId == newItem.entryId()) {
-            setState { copy(item = newItem) }
+        withState {
+            requireNotNull(item).let { item ->
+                if (item.id() == newItem.id() && item.entryId() == newItem.entryId()) {
+                    setState { copy(item = newItem) }
+                }
+            }
         }
     }
 
@@ -321,9 +354,7 @@ class ExpandItemViewModel @Inject internal constructor(
             return@run this
         }
 
-        viewModelScope.launch(context = Dispatchers.Main) {
-            update(item, doUpdate = { interactor.commit(it) }, onError = { handleError(it) })
-        }
+        update(item, doUpdate = { interactor.commit(it) }, onError = { handleError(it) })
     }
 
     private fun handleFakeCommit(item: FridgeItem) {
@@ -349,5 +380,12 @@ class ExpandItemViewModel @Inject internal constructor(
         setState {
             copy(throwable = if (message.isBlank()) null else IllegalArgumentException(message))
         }
+    }
+
+    companion object {
+
+        // Item was new but was created. Then the App is killed from memory conditions.
+        // Instead of reloading a new item when the app loads, reload the current newly created item
+        private const val CREATED_ITEM_ID = "created_item_id"
     }
 }
