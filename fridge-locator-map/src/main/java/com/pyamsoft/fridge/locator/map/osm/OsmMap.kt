@@ -346,24 +346,25 @@ class OsmMap @Inject internal constructor(
     }
 
     private inline fun centerOnLocation(
-        // Can't just use location: GeoPoint here because of a kapt missing symbol build-error, fails to compile...
-        // what.
-        locationProvider: () -> GeoPoint,
+        latitude: Double,
+        longitude: Double,
         crossinline onCentered: (location: GeoPoint) -> Unit
     ) {
-        val location = locationProvider()
-        val mapView = layoutRoot
         if (centeringLocation) {
             return
         }
 
+        val mapView = layoutRoot
+        val point = GeoPoint(latitude, longitude)
         mapView.post {
             centeringLocation = true
             mapView.controller.setZoom(DEFAULT_ZOOM)
-            mapView.controller.animateTo(location)
-            mapView.controller.setCenter(location)
-            onCentered(location)
-            centeringLocation = false
+            mapView.controller.animateTo(point)
+            mapView.controller.setCenter(point)
+            mapView.post {
+                onCentered(point)
+                centeringLocation = false
+            }
         }
     }
 
@@ -388,7 +389,7 @@ class OsmMap @Inject internal constructor(
         locationOverlay?.let { overlay ->
             val location = overlay.myLocation
             if (location != null) {
-                centerOnLocation(locationProvider = { location }) {
+                centerOnLocation(location.latitude, location.longitude) {
                     Timber.d("Centered onto current user location")
                     publish(OsmViewEvent.DoneFindingMyLocation)
                 }
