@@ -17,12 +17,14 @@
 
 package com.pyamsoft.fridge.entry
 
+import com.pyamsoft.fridge.core.DefaultActivityPage
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.pydroid.arch.UiControllerEvent
 import com.pyamsoft.pydroid.arch.UiViewEvent
 import com.pyamsoft.pydroid.arch.UiViewState
 
 data class EntryViewState(
+    val page: DefaultActivityPage,
     val appNameRes: Int,
     val isSettingsItemVisible: Boolean
 ) : UiViewState
@@ -48,9 +50,7 @@ sealed class EntryControllerEvent : UiControllerEvent {
         val entry: FridgeEntry
     ) : EntryControllerEvent()
 
-    data class PushNearby internal constructor(
-        val entry: FridgeEntry
-    ) : EntryControllerEvent()
+    object PushNearby : EntryControllerEvent()
 
     object NavigateToSettings : EntryControllerEvent()
 }

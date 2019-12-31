@@ -17,7 +17,6 @@
 
 package com.pyamsoft.fridge.entry
 
-import android.os.Bundle
 import android.view.ViewGroup
 import androidx.annotation.CheckResult
 import androidx.core.view.updatePadding
@@ -36,8 +35,7 @@ import timber.log.Timber
 import javax.inject.Inject
 
 class EntryNavigation @Inject internal constructor(
-    parent: ViewGroup,
-    private val defaultActivityPage: DefaultActivityPage
+    parent: ViewGroup
 ) : BaseUiView<EntryViewState, EntryViewEvent>(parent) {
 
     override val layout: Int = R.layout.entry_navigation
@@ -51,8 +49,7 @@ class EntryNavigation @Inject internal constructor(
             }
         }
 
-        doOnInflate { savedInstanceState ->
-
+        doOnInflate {
             layoutRoot.setOnNavigationItemSelectedListener { item ->
                 Timber.d("Click nav item: $item")
                 return@setOnNavigationItemSelectedListener when (item.itemId) {
@@ -62,8 +59,6 @@ class EntryNavigation @Inject internal constructor(
                     else -> false
                 }
             }
-
-            selectDefault(savedInstanceState)
         }
 
         doOnTeardown {
@@ -79,41 +74,32 @@ class EntryNavigation @Inject internal constructor(
         state: EntryViewState,
         savedState: UiSavedState
     ) {
+        state.page.let { page ->
+            val pageId = getIdForPage(page)
+            if (pageId != layoutRoot.selectedItemId) {
+                layoutRoot.selectedItemId = pageId
+                layoutRoot.menu.findItem(pageId).isChecked = true
+            }
+        }
     }
 
     @CheckResult
-    private fun getIdForDefaultPage(): Int {
-        return when (defaultActivityPage) {
+    private fun getIdForPage(page: DefaultActivityPage): Int {
+        return when (page) {
             NEED -> R.id.menu_item_nav_need
             HAVE -> R.id.menu_item_nav_have
             NEARBY -> R.id.menu_item_nav_nearby
         }
     }
 
-    private fun selectDefault(savedInstanceState: Bundle?) {
-        val itemId = savedInstanceState?.getInt(DefaultActivityPage.EXTRA_PAGE, PAGE_VALUE_NONE)
-            ?: PAGE_VALUE_NONE
-
-        val newSelectedItem = if (itemId != PAGE_VALUE_NONE) itemId else {
-            val id = getIdForDefaultPage()
-            val item = layoutRoot.menu.findItem(id)
-            item?.itemId ?: PAGE_VALUE_NONE
-        }
-
-        if (newSelectedItem != PAGE_VALUE_NONE) {
-            layoutRoot.selectedItemId = newSelectedItem
-        }
-    }
-
     @CheckResult
     private fun select(viewEvent: EntryViewEvent): Boolean {
         publish(viewEvent)
-        return true
+        return false
     }
 
     companion object {
 
-        private const val PAGE_VALUE_NONE = 0
         private const val LAST_PAGE = "last_page"
     }
 }

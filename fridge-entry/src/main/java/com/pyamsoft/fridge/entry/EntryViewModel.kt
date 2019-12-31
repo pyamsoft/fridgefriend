@@ -19,6 +19,7 @@ package com.pyamsoft.fridge.entry
 
 import androidx.annotation.CheckResult
 import androidx.lifecycle.viewModelScope
+import com.pyamsoft.fridge.core.DefaultActivityPage
 import com.pyamsoft.fridge.db.PersistentEntries
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.entry.EntryControllerEvent.NavigateToSettings
@@ -40,31 +41,61 @@ import javax.inject.Named
 class EntryViewModel @Inject internal constructor(
     private val mapPermission: MapPermission,
     private val persistentEntries: PersistentEntries,
-    @Named("app_name") appNameRes: Int
+    @Named("app_name") appNameRes: Int,
+    defaultPage: DefaultActivityPage
 ) : UiViewModel<EntryViewState, EntryViewEvent, EntryControllerEvent>(
     initialState = EntryViewState(
+        page = defaultPage,
         isSettingsItemVisible = true,
         appNameRes = appNameRes
     )
 ) {
 
+    init {
+        doOnSaveState { state ->
+            putString(PAGE, state.page.name)
+        }
+
+        doOnInit { savedInstanceState ->
+            val savedPageString = savedInstanceState?.getString(PAGE)
+            val page = if (savedPageString == null) defaultPage else {
+                DefaultActivityPage.valueOf(savedPageString)
+            }
+
+            setState { copy(page = page) }
+            pushPage(page)
+        }
+    }
+
     override fun handleViewEvent(event: EntryViewEvent) {
-        Timber.d("Handle View event: ", event)
         return when (event) {
-            is OpenHave -> select { PushHave(it) }
-            is OpenNeed -> select { PushNeed(it) }
-            is OpenNearby -> select { PushNearby(it) }
+            is OpenHave -> pushPage(DefaultActivityPage.HAVE)
+            is OpenNeed -> pushPage(DefaultActivityPage.NEED)
+            is OpenNearby -> pushPage(DefaultActivityPage.NEARBY)
             is SettingsNavigate -> publish(NavigateToSettings)
         }
     }
 
-    private inline fun select(crossinline func: (entry: FridgeEntry) -> EntryControllerEvent) {
-        Timber.d("Attempt selection!")
+    private fun pushPage(page: DefaultActivityPage) {
+        return when (page) {
+            DefaultActivityPage.NEED -> select(DefaultActivityPage.NEED) { PushNeed(it) }
+            DefaultActivityPage.HAVE -> select(DefaultActivityPage.HAVE) { PushHave(it) }
+            DefaultActivityPage.NEARBY -> select(DefaultActivityPage.NEARBY) { PushNearby }
+        }
+    }
+
+    private inline fun select(
+        page: DefaultActivityPage,
+        crossinline func: (entry: FridgeEntry) -> EntryControllerEvent
+    ) {
+        Timber.d("Select entry")
+        setState { copy(page = page) }
+
         viewModelScope.launch(context = Dispatchers.Default) {
             val entry = persistentEntries.getPersistentEntry()
 
             val event = func(entry)
-            Timber.d("Publish selection: ", event)
+            Timber.d("Publish selection: $event")
             publish(event)
         }
     }
@@ -73,5 +104,10 @@ class EntryViewModel @Inject internal constructor(
     @CheckResult
     fun canShowMap(): Boolean {
         return mapPermission.hasForegroundPermission()
+    }
+
+    companion object {
+
+        private const val PAGE = "page"
     }
 }
