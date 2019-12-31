@@ -64,10 +64,6 @@ class EntryNavigation @Inject internal constructor(
         doOnTeardown {
             layoutRoot.setOnNavigationItemSelectedListener(null)
         }
-
-        doOnSaveState { outState ->
-            outState.putInt(LAST_PAGE, layoutRoot.selectedItemId)
-        }
     }
 
     override fun onRender(
@@ -96,10 +92,5 @@ class EntryNavigation @Inject internal constructor(
     private fun select(viewEvent: EntryViewEvent): Boolean {
         publish(viewEvent)
         return false
-    }
-
-    companion object {
-
-        private const val LAST_PAGE = "last_page"
     }
 }

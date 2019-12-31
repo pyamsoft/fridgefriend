@@ -35,6 +35,7 @@ import com.pyamsoft.fridge.db.item.FridgeItem.Presence
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence.HAVE
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence.NEED
 import com.pyamsoft.fridge.detail.DetailFragment
+import com.pyamsoft.fridge.entry.EntryControllerEvent.AppInitialized
 import com.pyamsoft.fridge.entry.EntryControllerEvent.NavigateToSettings
 import com.pyamsoft.fridge.entry.EntryControllerEvent.PushHave
 import com.pyamsoft.fridge.entry.EntryControllerEvent.PushNearby
@@ -74,8 +75,6 @@ internal class EntryFragment : Fragment(), SnackbarContainer {
 
     private var stateSaver: StateSaver? = null
 
-    private var initialized = false
-
     override fun getSnackbarContainer(): CoordinatorLayout? {
         val frame = frame ?: return null
 
@@ -85,11 +84,6 @@ internal class EntryFragment : Fragment(), SnackbarContainer {
         }
 
         return null
-    }
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        initialized = savedInstanceState?.getBoolean(INITIALIZED, false) ?: false
     }
 
     override fun onCreateView(
@@ -134,6 +128,7 @@ internal class EntryFragment : Fragment(), SnackbarContainer {
                 is PushNeed -> pushNeed(it.entry)
                 is PushNearby -> pushNearby()
                 is NavigateToSettings -> showSettingsDialog()
+                is AppInitialized -> onAppInitialized()
             }
         }
 
@@ -163,19 +158,15 @@ internal class EntryFragment : Fragment(), SnackbarContainer {
     }
 
     private fun onAppInitialized() {
-        if (!initialized) {
-            initialized = true
-            val activity = requireActivity()
-            if (activity is VersionCheckActivity) {
-                Timber.d("Trigger update check")
-                activity.checkForUpdate()
-            }
+        val activity = requireActivity()
+        if (activity is VersionCheckActivity) {
+            Timber.d("Trigger update check")
+            activity.checkForUpdate()
         }
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        outState.putBoolean(INITIALIZED, initialized)
         stateSaver?.saveState(outState)
     }
 
@@ -220,8 +211,6 @@ internal class EntryFragment : Fragment(), SnackbarContainer {
                 }
             }
         }
-
-        onAppInitialized()
     }
 
     private fun pushPage(
@@ -238,14 +227,11 @@ internal class EntryFragment : Fragment(), SnackbarContainer {
                 )
             }
         }
-
-        onAppInitialized()
     }
 
     companion object {
 
         val DEFAULT_PAGE = DefaultActivityPage.NEED
-        private const val INITIALIZED = "initialized"
         const val TAG = "EntryFragment"
 
         @JvmStatic

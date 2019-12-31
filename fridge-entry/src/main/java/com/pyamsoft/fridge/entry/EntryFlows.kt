@@ -24,6 +24,7 @@ import com.pyamsoft.pydroid.arch.UiViewEvent
 import com.pyamsoft.pydroid.arch.UiViewState
 
 data class EntryViewState(
+    val appInitialized: Boolean,
     val page: DefaultActivityPage,
     val appNameRes: Int,
     val isSettingsItemVisible: Boolean
@@ -53,4 +54,6 @@ sealed class EntryControllerEvent : UiControllerEvent {
     object PushNearby : EntryControllerEvent()
 
     object NavigateToSettings : EntryControllerEvent()
+
+    object AppInitialized : EntryControllerEvent()
 }

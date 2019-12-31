@@ -22,6 +22,7 @@ import androidx.lifecycle.viewModelScope
 import com.pyamsoft.fridge.core.DefaultActivityPage
 import com.pyamsoft.fridge.db.PersistentEntries
 import com.pyamsoft.fridge.db.entry.FridgeEntry
+import com.pyamsoft.fridge.entry.EntryControllerEvent.AppInitialized
 import com.pyamsoft.fridge.entry.EntryControllerEvent.NavigateToSettings
 import com.pyamsoft.fridge.entry.EntryControllerEvent.PushHave
 import com.pyamsoft.fridge.entry.EntryControllerEvent.PushNearby
@@ -45,6 +46,7 @@ class EntryViewModel @Inject internal constructor(
     defaultPage: DefaultActivityPage
 ) : UiViewModel<EntryViewState, EntryViewEvent, EntryControllerEvent>(
     initialState = EntryViewState(
+        appInitialized = false,
         page = defaultPage,
         isSettingsItemVisible = true,
         appNameRes = appNameRes
@@ -56,6 +58,10 @@ class EntryViewModel @Inject internal constructor(
             putString(PAGE, state.page.name)
         }
 
+        doOnSaveState { state ->
+            putBoolean(INITIALIZED, state.appInitialized)
+        }
+
         doOnInit { savedInstanceState ->
             val savedPageString = savedInstanceState?.getString(PAGE)
             val page = if (savedPageString == null) defaultPage else {
@@ -64,6 +70,18 @@ class EntryViewModel @Inject internal constructor(
 
             setState { copy(page = page) }
             pushPage(page)
+        }
+
+        doOnInit { savedInstanceState ->
+            val initialized = savedInstanceState?.getBoolean(INITIALIZED, false) ?: false
+            if (!initialized) {
+                setState { copy(appInitialized = true) }
+                withState {
+                    if (appInitialized) {
+                        publish(AppInitialized)
+                    }
+                }
+            }
         }
     }
 
@@ -109,5 +127,6 @@ class EntryViewModel @Inject internal constructor(
     companion object {
 
         private const val PAGE = "page"
+        private const val INITIALIZED = "initialized"
     }
 }
