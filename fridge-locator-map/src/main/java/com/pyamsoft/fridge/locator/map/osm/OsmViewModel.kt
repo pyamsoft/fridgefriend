@@ -34,6 +34,7 @@ class OsmViewModel @Inject internal constructor(
     private val interactor: OsmInteractor
 ) : UiViewModel<OsmViewState, OsmViewEvent, OsmControllerEvent>(
     initialState = OsmViewState(
+        boundingBox = null,
         loading = false,
         points = emptyList(),
         zones = emptyList(),
@@ -44,7 +45,6 @@ class OsmViewModel @Inject internal constructor(
     )
 ) {
 
-    private var boundingBox: BBox? = null
     private val mutex = Mutex()
 
     private val nearbyRunner = highlander<Unit, BBox> { box ->
@@ -148,7 +148,7 @@ class OsmViewModel @Inject internal constructor(
 
     override fun handleViewEvent(event: OsmViewEvent) {
         return when (event) {
-            is OsmViewEvent.UpdateBoundingBox -> this.boundingBox = event.box
+            is OsmViewEvent.UpdateBoundingBox -> setState { copy(boundingBox = event.box) }
             is OsmViewEvent.RequestBackgroundPermission -> publish(OsmControllerEvent.BackgroundPermissionRequest)
             is OsmViewEvent.RequestMyLocation -> findMyLocation(event.firstTime)
             is OsmViewEvent.DoneFindingMyLocation -> doneFindingMyLocation()
@@ -167,9 +167,10 @@ class OsmViewModel @Inject internal constructor(
     }
 
     private fun nearbySupermarkets() {
-        val box = boundingBox
-        if (box != null) {
-            viewModelScope.launch { nearbyRunner.call(box) }
+        withState {
+            boundingBox?.let { box ->
+                viewModelScope.launch { nearbyRunner.call(box) }
+            }
         }
     }
 

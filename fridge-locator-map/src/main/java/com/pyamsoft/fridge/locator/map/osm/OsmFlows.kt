@@ -24,6 +24,7 @@ import com.pyamsoft.pydroid.arch.UiViewEvent
 import com.pyamsoft.pydroid.arch.UiViewState
 
 data class OsmViewState internal constructor(
+    val boundingBox: BBox?,
     val loading: Boolean,
     val points: List<NearbyStore>,
     val zones: List<NearbyZone>,
