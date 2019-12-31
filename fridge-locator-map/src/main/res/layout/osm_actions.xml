@@ -15,11 +15,8 @@
   ~
   -->
 
-<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/osm_action_frame"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent">
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/osm_find_nearby"
@@ -28,6 +25,7 @@
         android:layout_gravity="bottom|end"
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="16dp"
+        android:visibility="gone"
         app:elevation="6dp"
         app:fabSize="normal"
         app:pressedTranslationZ="12dp" />
@@ -39,24 +37,26 @@
         android:layout_gravity="bottom|end"
         android:layout_marginEnd="24dp"
         android:layout_marginBottom="84dp"
+        android:visibility="gone"
         app:backgroundTint="@color/grey500"
         app:elevation="6dp"
         app:fabSize="mini"
         app:pressedTranslationZ="12dp" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/osm_background_location_permission"
+        android:id="@+id/osm_background_perm"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
         android:layout_marginEnd="24dp"
         android:layout_marginBottom="136dp"
+        android:visibility="gone"
         app:backgroundTint="@color/grey500"
         app:elevation="6dp"
         app:fabSize="mini"
         app:pressedTranslationZ="12dp" />
 
-</androidx.coordinatorlayout.widget.CoordinatorLayout>
+</merge>
 
 
 

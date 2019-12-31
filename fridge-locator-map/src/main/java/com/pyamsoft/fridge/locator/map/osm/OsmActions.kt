@@ -22,7 +22,6 @@ import android.view.ViewGroup
 import androidx.core.view.ViewPropertyAnimatorCompat
 import androidx.core.view.ViewPropertyAnimatorListenerAdapter
 import androidx.core.view.isVisible
-import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.pyamsoft.fridge.locator.map.R
@@ -39,21 +38,18 @@ class OsmActions @Inject internal constructor(
     private val owner: LifecycleOwner,
     private val imageLoader: ImageLoader,
     parent: ViewGroup
-) : BaseUiView<OsmViewState, OsmViewEvent>(parent), LifecycleObserver {
+) : BaseUiView<OsmViewState, OsmViewEvent>(parent) {
 
     override val layout: Int = R.layout.osm_actions
 
-    override val layoutRoot by boundView<ViewGroup>(R.id.osm_action_frame)
+    override val layoutRoot by boundView<FloatingActionButton>(R.id.osm_find_nearby)
 
     private var boundFindMeImage: Loaded? = null
     private var boundNearbyImage: Loaded? = null
     private var boundBackgroundImage: Loaded? = null
 
-    private val findNearby by boundView<FloatingActionButton>(R.id.osm_find_nearby)
     private val findMe by boundView<FloatingActionButton>(R.id.osm_find_me)
-    private val backgroundPermission by boundView<FloatingActionButton>(
-        R.id.osm_background_location_permission
-    )
+    private val backgroundPermission by boundView<FloatingActionButton>(R.id.osm_background_perm)
 
     private var nearbyAnimator: ViewPropertyAnimatorCompat? = null
     private var meAnimator: ViewPropertyAnimatorCompat? = null
@@ -61,11 +57,9 @@ class OsmActions @Inject internal constructor(
 
     init {
         doOnInflate {
-            owner.lifecycle.addObserver(this)
-
             boundNearbyImage?.dispose()
             boundNearbyImage = imageLoader.load(R.drawable.ic_shopping_cart_24dp)
-                .into(findNearby)
+                .into(layoutRoot)
 
             boundFindMeImage?.dispose()
             boundFindMeImage = imageLoader.load(R.drawable.ic_location_search_24dp)
@@ -75,7 +69,7 @@ class OsmActions @Inject internal constructor(
             boundBackgroundImage = imageLoader.load(R.drawable.ic_location_24dp)
                 .into(backgroundPermission)
 
-            findNearby.isVisible = false
+            layoutRoot.isVisible = false
             findMe.isVisible = false
             backgroundPermission.isVisible = false
 
@@ -85,16 +79,14 @@ class OsmActions @Inject internal constructor(
             backgroundPermission.setOnDebouncedClickListener {
                 publish(OsmViewEvent.RequestBackgroundPermission)
             }
-            findNearby.setOnDebouncedClickListener {
+            layoutRoot.setOnDebouncedClickListener {
                 publish(OsmViewEvent.RequestFindNearby)
             }
         }
 
         doOnTeardown {
-            owner.lifecycle.removeObserver(this)
-
             findMe.setOnDebouncedClickListener(null)
-            findNearby.setOnDebouncedClickListener(null)
+            layoutRoot.setOnDebouncedClickListener(null)
             backgroundPermission.setOnDebouncedClickListener(null)
 
             boundFindMeImage?.dispose()
@@ -184,18 +176,27 @@ class OsmActions @Inject internal constructor(
     }
 
     private fun revealButtons(hasBackgroundPermission: Boolean) {
-        dismissNearbyAnimator()
-        nearbyAnimator = findNearby.popShow(
+        if (nearbyAnimator != null) {
+            return
+        }
+
+        nearbyAnimator = layoutRoot.popShow(
             startDelay = 700L,
             listener = object : ViewPropertyAnimatorListenerAdapter() {
                 override fun onAnimationEnd(view: View) {
-                    dismissMeAnimator()
+                    if (meAnimator != null) {
+                        return
+                    }
+
                     meAnimator = findMe.popShow(
-                        startDelay = 0,
+                        startDelay = 0L,
                         listener = object : ViewPropertyAnimatorListenerAdapter() {
                             override fun onAnimationEnd(view: View) {
                                 if (!hasBackgroundPermission) {
-                                    dismissBackgroundAnimator()
+                                    if (backgroundAnimator != null) {
+                                        return
+                                    }
+
                                     backgroundAnimator =
                                         backgroundPermission.popShow(startDelay = 0)
                                 }
