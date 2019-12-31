@@ -79,12 +79,25 @@ class AddNewItemView @Inject internal constructor(
         }
 
         doOnInflate {
-            disposeAddNewAnimator()
+            if (addNewIconAnimator != null) {
+                return@doOnInflate
+            }
+
             addNewIconAnimator =
                 expandButton.popShow(listener = object : ViewPropertyAnimatorListenerAdapter() {
                     override fun onAnimationEnd(view: View) {
-                        disposeFilterAnimator()
-                        filterIconAnimator = filterButton.popShow(startDelay = 0)
+                        disposeAddNewAnimator()
+
+                        if (filterIconAnimator != null) {
+                            return
+                        }
+                        filterIconAnimator = filterButton.popShow(
+                            startDelay = 0,
+                            listener = object : ViewPropertyAnimatorListenerAdapter() {
+                                override fun onAnimationEnd(view: View?) {
+                                    disposeFilterAnimator()
+                                }
+                            })
                     }
                 })
         }
@@ -137,30 +150,46 @@ class AddNewItemView @Inject internal constructor(
 
         state.actionVisible?.let { action ->
             if (action.visible) {
-                disposeAddNewAnimator()
+                if (addNewIconAnimator != null) {
+                    return
+                }
+
                 addNewIconAnimator =
                     expandButton.popShow(listener = object : ViewPropertyAnimatorListenerAdapter() {
                         override fun onAnimationEnd(view: View) {
-                            disposeFilterAnimator()
+                            disposeAddNewAnimator()
+
+                            if (filterIconAnimator != null) {
+                                return
+                            }
                             filterIconAnimator = filterButton.popShow(
                                 startDelay = 0,
                                 listener = object : ViewPropertyAnimatorListenerAdapter() {
                                     override fun onAnimationEnd(view: View) {
+                                        disposeFilterAnimator()
                                         publish(DetailViewEvent.DoneScrollActionVisibilityChange)
                                     }
                                 })
                         }
                     })
             } else {
-                disposeFilterAnimator()
+                if (filterIconAnimator != null) {
+                    return
+                }
+
                 filterIconAnimator =
                     filterButton.popHide(listener = object : ViewPropertyAnimatorListenerAdapter() {
                         override fun onAnimationEnd(view: View) {
-                            disposeAddNewAnimator()
+                            disposeFilterAnimator()
+
+                            if (addNewIconAnimator != null) {
+                                return
+                            }
                             addNewIconAnimator = expandButton.popHide(
                                 startDelay = 0,
                                 listener = object : ViewPropertyAnimatorListenerAdapter() {
                                     override fun onAnimationEnd(view: View) {
+                                        disposeAddNewAnimator()
                                         publish(DetailViewEvent.DoneScrollActionVisibilityChange)
                                     }
                                 })

@@ -179,26 +179,34 @@ class OsmActions @Inject internal constructor(
         if (nearbyAnimator != null) {
             return
         }
-
         nearbyAnimator = layoutRoot.popShow(
             startDelay = 700L,
             listener = object : ViewPropertyAnimatorListenerAdapter() {
                 override fun onAnimationEnd(view: View) {
+                    dismissNearbyAnimator()
+
                     if (meAnimator != null) {
                         return
                     }
-
                     meAnimator = findMe.popShow(
                         startDelay = 0L,
                         listener = object : ViewPropertyAnimatorListenerAdapter() {
                             override fun onAnimationEnd(view: View) {
+                                dismissMeAnimator()
+
                                 if (!hasBackgroundPermission) {
                                     if (backgroundAnimator != null) {
                                         return
                                     }
-
                                     backgroundAnimator =
-                                        backgroundPermission.popShow(startDelay = 0)
+                                        backgroundPermission.popShow(
+                                            startDelay = 0,
+                                            listener = object :
+                                                ViewPropertyAnimatorListenerAdapter() {
+                                                override fun onAnimationEnd(view: View?) {
+                                                    dismissBackgroundAnimator()
+                                                }
+                                            })
                                 }
                             }
                         })
