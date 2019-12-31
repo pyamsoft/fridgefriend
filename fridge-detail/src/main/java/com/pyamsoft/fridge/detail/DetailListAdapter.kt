@@ -47,7 +47,7 @@ internal class DetailListAdapter constructor(
 
     override fun getItemId(position: Int): Long {
         return if (isEmptyItem(position, itemCount)) {
-            if (position == 0) 0 else 1
+            if (position == 0) 0 else itemCount - 1L
         } else {
             getItem(position).item.id()
                 .hashCode()

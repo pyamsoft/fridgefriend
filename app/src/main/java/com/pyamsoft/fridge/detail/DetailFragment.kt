@@ -46,7 +46,7 @@ internal class DetailFragment : Fragment(), SnackbarContainer {
 
     @JvmField
     @Inject
-    internal var list: DetailList? = null
+    internal var container: DetailContainer? = null
 
     @JvmField
     @Inject
@@ -108,7 +108,7 @@ internal class DetailFragment : Fragment(), SnackbarContainer {
             )
             .inject(this)
 
-        val list = requireNotNull(list)
+        val container = requireNotNull(container)
         val addNew = requireNotNull(addNew)
         val background = requireNotNull(background)
 
@@ -116,7 +116,7 @@ internal class DetailFragment : Fragment(), SnackbarContainer {
             savedInstanceState, viewLifecycleOwner,
             viewModel,
             background,
-            list,
+            container,
             addNew
         ) {
             return@createComponent when (it) {
@@ -138,7 +138,7 @@ internal class DetailFragment : Fragment(), SnackbarContainer {
         rootView = null
         factory = null
         background = null
-        list = null
+        container = null
         addNew = null
         stateSaver = null
     }
