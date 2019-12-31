@@ -151,9 +151,11 @@ class OsmActions @Inject internal constructor(
             }
         }
 
-        state.hasBackgroundPermission.let {
-            dismissBackgroundAnimator()
-            backgroundPermission.isVisible = false
+        state.hasBackgroundPermission.let { hasPermission ->
+            if (hasPermission) {
+                dismissBackgroundAnimator()
+                backgroundPermission.isVisible = false
+            }
         }
     }
 
