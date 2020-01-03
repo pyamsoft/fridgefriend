@@ -27,4 +27,3 @@ interface Permission {
     @CheckResult
     fun requestCode(): Int
 }
-

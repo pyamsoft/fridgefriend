@@ -24,9 +24,9 @@ import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.entry.FridgeEntryInsertDao
 import com.pyamsoft.fridge.db.entry.FridgeEntryQueryDao
 import com.pyamsoft.pydroid.core.Enforcer
-import timber.log.Timber
 import java.util.Calendar
 import javax.inject.Inject
+import timber.log.Timber
 
 internal class RoomPersistentEntries @Inject internal constructor(
     private val enforcer: Enforcer,

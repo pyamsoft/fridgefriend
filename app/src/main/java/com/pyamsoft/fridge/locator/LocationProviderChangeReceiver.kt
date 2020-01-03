@@ -24,9 +24,9 @@ import android.location.LocationManager
 import com.pyamsoft.fridge.FridgeComponent
 import com.pyamsoft.fridge.butler.Butler
 import com.pyamsoft.pydroid.ui.Injector
-import timber.log.Timber
 import java.util.concurrent.TimeUnit.SECONDS
 import javax.inject.Inject
+import timber.log.Timber
 
 internal class LocationProviderChangeReceiver internal constructor() : BroadcastReceiver() {
 

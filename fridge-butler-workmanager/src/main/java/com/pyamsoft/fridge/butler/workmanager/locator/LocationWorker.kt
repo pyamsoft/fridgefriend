@@ -28,9 +28,9 @@ import com.pyamsoft.fridge.db.zone.NearbyZone
 import com.pyamsoft.fridge.locator.Geofencer
 import com.pyamsoft.fridge.locator.Locator
 import com.pyamsoft.pydroid.ui.Injector
+import java.util.concurrent.TimeUnit.HOURS
 import kotlinx.coroutines.coroutineScope
 import timber.log.Timber
-import java.util.concurrent.TimeUnit.HOURS
 
 internal class LocationWorker internal constructor(
     context: Context,

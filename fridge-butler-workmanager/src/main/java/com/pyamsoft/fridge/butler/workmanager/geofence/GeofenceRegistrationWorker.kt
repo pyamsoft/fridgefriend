@@ -26,9 +26,9 @@ import com.pyamsoft.fridge.db.FridgeItemPreferences
 import com.pyamsoft.fridge.locator.Locator
 import com.pyamsoft.fridge.locator.Locator.Fence
 import com.pyamsoft.pydroid.ui.Injector
+import java.util.concurrent.TimeUnit.HOURS
 import kotlinx.coroutines.coroutineScope
 import timber.log.Timber
-import java.util.concurrent.TimeUnit.HOURS
 
 internal class GeofenceRegistrationWorker internal constructor(
     context: Context,

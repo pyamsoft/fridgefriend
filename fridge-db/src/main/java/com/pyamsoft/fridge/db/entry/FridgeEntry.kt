@@ -18,8 +18,8 @@
 package com.pyamsoft.fridge.db.entry
 
 import androidx.annotation.CheckResult
-import com.pyamsoft.fridge.db.BaseModel
 import com.pyamsoft.fridge.core.IdGenerator
+import com.pyamsoft.fridge.db.BaseModel
 import java.util.Date
 
 interface FridgeEntry : BaseModel<FridgeEntry> {

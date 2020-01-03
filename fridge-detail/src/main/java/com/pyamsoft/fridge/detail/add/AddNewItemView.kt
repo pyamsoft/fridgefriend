@@ -199,4 +199,3 @@ class AddNewItemView @Inject internal constructor(
         }
     }
 }
-

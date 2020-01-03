@@ -123,7 +123,8 @@ class DetailListItemGlances @Inject internal constructor(
     }
 
     private fun setDateRangeView(
-        item: FridgeItem, expireTime: Date?,
+        item: FridgeItem,
+        expireTime: Date?,
         hasTime: Boolean
     ) {
         dateRangeLoader = setViewColor(

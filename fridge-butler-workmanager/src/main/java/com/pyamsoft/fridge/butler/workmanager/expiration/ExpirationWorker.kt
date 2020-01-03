@@ -31,10 +31,10 @@ import com.pyamsoft.fridge.db.isExpiringSoon
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence.HAVE
 import com.pyamsoft.fridge.db.item.isArchived
-import kotlinx.coroutines.coroutineScope
-import timber.log.Timber
 import java.util.Calendar
 import java.util.concurrent.TimeUnit.HOURS
+import kotlinx.coroutines.coroutineScope
+import timber.log.Timber
 
 internal class ExpirationWorker internal constructor(
     context: Context,

@@ -33,11 +33,11 @@ import com.pyamsoft.fridge.entry.EntryViewEvent.OpenNeed
 import com.pyamsoft.fridge.entry.EntryViewEvent.SettingsNavigate
 import com.pyamsoft.fridge.locator.MapPermission
 import com.pyamsoft.pydroid.arch.UiViewModel
+import javax.inject.Inject
+import javax.inject.Named
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import timber.log.Timber
-import javax.inject.Inject
-import javax.inject.Named
 
 class EntryViewModel @Inject internal constructor(
     private val mapPermission: MapPermission,

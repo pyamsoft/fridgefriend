@@ -23,8 +23,8 @@ import androidx.annotation.CheckResult
 import androidx.core.app.NotificationCompat
 import com.pyamsoft.fridge.core.DefaultActivityPage
 import com.pyamsoft.fridge.db.item.FridgeItem
-import timber.log.Timber
 import java.util.Calendar
+import timber.log.Timber
 
 object ButlerNotifications {
 

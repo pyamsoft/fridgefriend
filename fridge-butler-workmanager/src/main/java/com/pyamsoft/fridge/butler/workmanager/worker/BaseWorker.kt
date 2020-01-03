@@ -28,10 +28,10 @@ import com.pyamsoft.fridge.butler.NotificationHandler
 import com.pyamsoft.fridge.db.FridgeItemPreferences
 import com.pyamsoft.pydroid.core.Enforcer
 import com.pyamsoft.pydroid.ui.Injector
-import kotlinx.coroutines.CancellationException
-import timber.log.Timber
 import java.util.Calendar
 import java.util.concurrent.TimeUnit.HOURS
+import kotlinx.coroutines.CancellationException
+import timber.log.Timber
 
 internal abstract class BaseWorker protected constructor(
     context: Context,

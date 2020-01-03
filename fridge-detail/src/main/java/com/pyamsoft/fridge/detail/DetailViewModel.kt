@@ -36,14 +36,14 @@ import com.pyamsoft.fridge.detail.DetailViewState.Loading
 import com.pyamsoft.fridge.detail.base.BaseUpdaterViewModel
 import com.pyamsoft.highlander.highlander
 import com.pyamsoft.pydroid.arch.EventBus
+import java.util.Date
+import javax.inject.Inject
+import javax.inject.Named
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import timber.log.Timber
-import java.util.Date
-import javax.inject.Inject
-import javax.inject.Named
 
 class DetailViewModel @Inject internal constructor(
     private val interactor: DetailInteractor,
@@ -312,8 +312,7 @@ class DetailViewModel @Inject internal constructor(
                             }
                         } else {
                             oldList + item
-                        }
-                        , listItemPresence)
+                        }, listItemPresence)
                 )
             }
         }

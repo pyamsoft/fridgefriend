@@ -38,11 +38,9 @@ import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.ui.util.Snackbreak
 import com.pyamsoft.pydroid.ui.util.refreshing
 import com.pyamsoft.pydroid.ui.widget.scroll.HideOnScrollListener
-import com.pyamsoft.pydroid.util.doOnApplyWindowInsets
 import com.pyamsoft.pydroid.util.tintWith
-import com.pyamsoft.pydroid.util.toDp
-import timber.log.Timber
 import javax.inject.Inject
+import timber.log.Timber
 
 class DetailList @Inject internal constructor(
     parent: ViewGroup,

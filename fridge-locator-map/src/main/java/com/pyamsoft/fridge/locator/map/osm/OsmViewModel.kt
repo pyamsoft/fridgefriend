@@ -23,11 +23,11 @@ import com.pyamsoft.fridge.locator.permission.BackgroundLocationPermission
 import com.pyamsoft.fridge.locator.permission.PermissionConsumer
 import com.pyamsoft.highlander.highlander
 import com.pyamsoft.pydroid.arch.UiViewModel
+import javax.inject.Inject
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import timber.log.Timber
-import javax.inject.Inject
 
 class OsmViewModel @Inject internal constructor(
     private val mapPermission: MapPermission,

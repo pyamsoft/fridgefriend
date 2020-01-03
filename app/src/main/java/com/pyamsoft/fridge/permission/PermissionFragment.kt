@@ -41,8 +41,8 @@ import com.pyamsoft.pydroid.arch.createComponent
 import com.pyamsoft.pydroid.ui.Injector
 import com.pyamsoft.pydroid.ui.arch.factory
 import com.pyamsoft.pydroid.ui.util.commit
-import timber.log.Timber
 import javax.inject.Inject
+import timber.log.Timber
 
 internal class PermissionFragment : Fragment(), SnackbarContainer,
     PermissionConsumer<ForegroundLocationPermission> {

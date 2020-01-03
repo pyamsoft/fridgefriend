@@ -43,8 +43,8 @@ import com.pyamsoft.pydroid.ui.Injector
 import com.pyamsoft.pydroid.ui.arch.factory
 import com.pyamsoft.pydroid.ui.theme.ThemeProvider
 import com.pyamsoft.pydroid.ui.theme.Theming
-import timber.log.Timber
 import javax.inject.Inject
+import timber.log.Timber
 
 internal class MapFragment : Fragment(), SnackbarContainer,
     PermissionConsumer<BackgroundLocationPermission> {

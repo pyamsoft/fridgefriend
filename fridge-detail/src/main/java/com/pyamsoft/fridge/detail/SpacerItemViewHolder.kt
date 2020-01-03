@@ -28,7 +28,6 @@ internal class SpacerItemViewHolder internal constructor(
     itemView: View
 ) : DetailViewHolder(itemView) {
 
-
     init {
         val frame = itemView.findViewById<ViewGroup>(R.id.listitem_frame)
         val offset = 12.toDp(frame.context)

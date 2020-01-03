@@ -41,11 +41,11 @@ import com.pyamsoft.pydroid.ui.arch.factory
 import com.pyamsoft.pydroid.ui.util.layout
 import com.pyamsoft.pydroid.util.fakeBind
 import com.pyamsoft.pydroid.util.fakeUnbind
+import javax.inject.Inject
 import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.Polygon
 import org.osmdroid.views.overlay.infowindow.InfoWindow
 import timber.log.Timber
-import javax.inject.Inject
 
 internal class ZoneInfoWindow private constructor(
     receiver: LocationUpdateReceiver,

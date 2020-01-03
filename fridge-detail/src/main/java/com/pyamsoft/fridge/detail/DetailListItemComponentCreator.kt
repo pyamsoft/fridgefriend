@@ -19,21 +19,10 @@ package com.pyamsoft.fridge.detail
 
 import android.view.ViewGroup
 import androidx.annotation.CheckResult
-import com.pyamsoft.fridge.db.item.FridgeItem.Presence
-import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent
-import com.pyamsoft.fridge.db.item.FridgeItemRealtime
-import com.pyamsoft.fridge.detail.expand.DateSelectPayload
 import com.pyamsoft.fridge.detail.item.DetailItemComponent
-import com.pyamsoft.pydroid.arch.EventBus
-import com.pyamsoft.pydroid.loader.ImageLoader
-import com.pyamsoft.pydroid.ui.theme.ThemeProvider
-import dagger.BindsInstance
-import dagger.Component
 
 internal interface DetailListItemComponentCreator {
 
     @CheckResult
     fun create(parent: ViewGroup, editable: Boolean): DetailItemComponent
-
 }
-

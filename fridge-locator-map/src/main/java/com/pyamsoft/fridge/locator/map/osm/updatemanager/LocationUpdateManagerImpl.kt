@@ -24,9 +24,7 @@ import javax.inject.Inject
 import kotlin.LazyThreadSafetyMode.NONE
 
 @MapScope
-internal class LocationUpdateManagerImpl @Inject internal constructor(
-
-) : LocationUpdateReceiver, LocationUpdatePublisher {
+internal class LocationUpdateManagerImpl @Inject internal constructor() : LocationUpdateReceiver, LocationUpdatePublisher {
 
     private val listeners by lazy(NONE) { mutableSetOf<Listener>() }
 

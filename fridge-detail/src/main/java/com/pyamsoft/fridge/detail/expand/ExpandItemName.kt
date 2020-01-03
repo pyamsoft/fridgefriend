@@ -24,8 +24,8 @@ import androidx.annotation.CheckResult
 import androidx.core.view.isVisible
 import com.pyamsoft.fridge.detail.base.BaseItemName
 import com.pyamsoft.pydroid.arch.UiSavedState
-import timber.log.Timber
 import javax.inject.Inject
+import timber.log.Timber
 
 class ExpandItemName @Inject internal constructor(
     parent: ViewGroup

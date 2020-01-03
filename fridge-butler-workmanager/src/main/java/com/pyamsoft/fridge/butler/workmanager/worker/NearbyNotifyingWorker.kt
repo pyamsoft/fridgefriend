@@ -27,8 +27,8 @@ import com.pyamsoft.fridge.db.item.FridgeItem.Presence.NEED
 import com.pyamsoft.fridge.db.item.isArchived
 import com.pyamsoft.fridge.db.store.NearbyStore
 import com.pyamsoft.fridge.db.zone.NearbyZone
-import timber.log.Timber
 import java.util.Calendar
+import timber.log.Timber
 
 internal abstract class NearbyNotifyingWorker protected constructor(
     context: Context,

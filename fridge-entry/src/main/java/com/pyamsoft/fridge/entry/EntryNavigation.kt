@@ -31,8 +31,8 @@ import com.pyamsoft.fridge.entry.EntryViewEvent.OpenNeed
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.arch.UiSavedState
 import com.pyamsoft.pydroid.util.doOnApplyWindowInsets
-import timber.log.Timber
 import javax.inject.Inject
+import timber.log.Timber
 
 class EntryNavigation @Inject internal constructor(
     parent: ViewGroup
