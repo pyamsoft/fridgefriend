@@ -17,116 +17,55 @@
 
 package com.pyamsoft.fridge.entry
 
-import androidx.annotation.CheckResult
 import androidx.lifecycle.viewModelScope
-import com.pyamsoft.fridge.core.DefaultActivityPage
 import com.pyamsoft.fridge.db.PersistentEntries
 import com.pyamsoft.fridge.db.entry.FridgeEntry
-import com.pyamsoft.fridge.entry.EntryControllerEvent.AppInitialized
-import com.pyamsoft.fridge.entry.EntryControllerEvent.NavigateToSettings
-import com.pyamsoft.fridge.entry.EntryControllerEvent.PushHave
-import com.pyamsoft.fridge.entry.EntryControllerEvent.PushNearby
-import com.pyamsoft.fridge.entry.EntryControllerEvent.PushNeed
-import com.pyamsoft.fridge.entry.EntryViewEvent.OpenHave
-import com.pyamsoft.fridge.entry.EntryViewEvent.OpenNearby
-import com.pyamsoft.fridge.entry.EntryViewEvent.OpenNeed
-import com.pyamsoft.fridge.entry.EntryViewEvent.SettingsNavigate
-import com.pyamsoft.fridge.locator.MapPermission
 import com.pyamsoft.pydroid.arch.UiViewModel
-import javax.inject.Inject
-import javax.inject.Named
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import timber.log.Timber
+import javax.inject.Inject
 
 class EntryViewModel @Inject internal constructor(
-    private val mapPermission: MapPermission,
-    private val persistentEntries: PersistentEntries,
-    @Named("app_name") appNameRes: Int,
-    defaultPage: DefaultActivityPage
+    private val persistentEntries: PersistentEntries
 ) : UiViewModel<EntryViewState, EntryViewEvent, EntryControllerEvent>(
     initialState = EntryViewState(
-        appInitialized = false,
-        page = defaultPage,
-        isSettingsItemVisible = true,
-        appNameRes = appNameRes
+        entries = emptyList()
     )
 ) {
 
     init {
-        doOnSaveState { state ->
-            putString(PAGE, state.page.name)
+        doOnInit {
+            loadDefaultEntry()
         }
+    }
 
-        doOnSaveState { state ->
-            putBoolean(INITIALIZED, state.appInitialized)
-        }
-
-        doOnInit { savedInstanceState ->
-            val savedPageString = savedInstanceState?.getString(PAGE)
-            val page = if (savedPageString == null) defaultPage else {
-                DefaultActivityPage.valueOf(savedPageString)
-            }
-
-            setState { copy(page = page) }
-            pushPage(page)
-        }
-
-        doOnInit { savedInstanceState ->
-            val initialized = savedInstanceState?.getBoolean(INITIALIZED, false) ?: false
-            if (!initialized) {
-                setState { copy(appInitialized = true) }
-                withState {
-                    if (appInitialized) {
-                        publish(AppInitialized)
-                    }
-                }
-            }
+    // NOTE(Peter): This exists only as a workaround for now since we always load one default entry.
+    // When we support multiple entries, this can be removed
+    private fun loadDefaultEntry() {
+        Timber.d("Loading default entry page")
+        viewModelScope.launch(context = Dispatchers.Default) {
+            val entry = persistentEntries.getPersistentEntry()
+            loadEntry(entry)
         }
     }
 
     override fun handleViewEvent(event: EntryViewEvent) {
         return when (event) {
-            is OpenHave -> pushPage(DefaultActivityPage.HAVE)
-            is OpenNeed -> pushPage(DefaultActivityPage.NEED)
-            is OpenNearby -> pushPage(DefaultActivityPage.NEARBY)
-            is SettingsNavigate -> publish(NavigateToSettings)
+            is EntryViewEvent.SelectEntry -> select(event.position)
         }
     }
 
-    private fun pushPage(page: DefaultActivityPage) {
-        return when (page) {
-            DefaultActivityPage.NEED -> select(DefaultActivityPage.NEED) { PushNeed(it) }
-            DefaultActivityPage.HAVE -> select(DefaultActivityPage.HAVE) { PushHave(it) }
-            DefaultActivityPage.NEARBY -> select(DefaultActivityPage.NEARBY) { PushNearby }
+    private fun select(position: Int) {
+        withState {
+            entries.getOrNull(position)?.let { entry ->
+                loadEntry(entry)
+            }
         }
     }
 
-    private inline fun select(
-        page: DefaultActivityPage,
-        crossinline func: (entry: FridgeEntry) -> EntryControllerEvent
-    ) {
-        Timber.d("Select entry")
-        setState { copy(page = page) }
-
-        viewModelScope.launch(context = Dispatchers.Default) {
-            val entry = persistentEntries.getPersistentEntry()
-
-            val event = func(entry)
-            Timber.d("Publish selection: $event")
-            publish(event)
-        }
-    }
-
-    // TODO(Peter): Kind of an anti-pattern
-    @CheckResult
-    fun canShowMap(): Boolean {
-        return mapPermission.hasForegroundPermission()
-    }
-
-    companion object {
-
-        private const val PAGE = "page"
-        private const val INITIALIZED = "initialized"
+    private fun loadEntry(entry: FridgeEntry) {
+        Timber.d("Loading entry page: $entry")
+        publish(EntryControllerEvent.LoadEntry(entry))
     }
 }

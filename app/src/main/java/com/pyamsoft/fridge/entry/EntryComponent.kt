@@ -23,7 +23,6 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModelProvider
 import com.pyamsoft.fridge.FridgeViewModelFactory
 import com.pyamsoft.fridge.ViewModelKey
-import com.pyamsoft.fridge.core.DefaultActivityPage
 import com.pyamsoft.fridge.entry.EntryComponent.ViewModelModule
 import com.pyamsoft.pydroid.arch.UiViewModel
 import com.pyamsoft.pydroid.ui.app.ToolbarActivity
@@ -43,7 +42,6 @@ internal interface EntryComponent {
 
         @CheckResult
         fun create(
-            @BindsInstance defaultPage: DefaultActivityPage,
             @BindsInstance owner: LifecycleOwner,
             @BindsInstance parent: ViewGroup,
             @BindsInstance activity: ToolbarActivity

@@ -22,7 +22,7 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import com.pyamsoft.fridge.butler.NotificationHandler
-import com.pyamsoft.fridge.core.DefaultActivityPage
+import com.pyamsoft.fridge.db.item.FridgeItem
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -32,9 +32,9 @@ internal class NotificationHandlerImpl @Inject internal constructor(
     private val activityClass: Class<out Activity>
 ) : NotificationHandler {
 
-    override fun contentIntent(page: DefaultActivityPage): PendingIntent {
+    override fun contentIntent(presence: FridgeItem.Presence): PendingIntent {
         val intent = Intent(context, activityClass).apply {
-            putExtra(DefaultActivityPage.EXTRA_PAGE, page.name)
+            putExtra(FridgeItem.Presence.KEY, presence.name)
         }
 
         return PendingIntent.getActivity(

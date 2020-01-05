@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Peter Kenji Yamanaka
+ * Copyright 2020 Peter Kenji Yamanaka
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,32 +15,25 @@
  *
  */
 
-package com.pyamsoft.fridge.entry
+package com.pyamsoft.fridge.main
 
 import android.view.ViewGroup
 import androidx.annotation.CheckResult
 import androidx.core.view.updatePadding
 import com.google.android.material.bottomnavigation.BottomNavigationView
-import com.pyamsoft.fridge.core.DefaultActivityPage
-import com.pyamsoft.fridge.core.DefaultActivityPage.HAVE
-import com.pyamsoft.fridge.core.DefaultActivityPage.NEARBY
-import com.pyamsoft.fridge.core.DefaultActivityPage.NEED
-import com.pyamsoft.fridge.entry.EntryViewEvent.OpenHave
-import com.pyamsoft.fridge.entry.EntryViewEvent.OpenNearby
-import com.pyamsoft.fridge.entry.EntryViewEvent.OpenNeed
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.arch.UiSavedState
 import com.pyamsoft.pydroid.util.doOnApplyWindowInsets
-import javax.inject.Inject
 import timber.log.Timber
+import javax.inject.Inject
 
-class EntryNavigation @Inject internal constructor(
+class MainNavigation @Inject internal constructor(
     parent: ViewGroup
-) : BaseUiView<EntryViewState, EntryViewEvent>(parent) {
+) : BaseUiView<MainViewState, MainViewEvent>(parent) {
 
-    override val layout: Int = R.layout.entry_navigation
+    override val layout: Int = R.layout.main_navigation
 
-    override val layoutRoot by boundView<BottomNavigationView>(R.id.entry_bottom_navigation_menu)
+    override val layoutRoot by boundView<BottomNavigationView>(R.id.main_bottom_navigation_menu)
 
     init {
         doOnInflate {
@@ -53,9 +46,9 @@ class EntryNavigation @Inject internal constructor(
             layoutRoot.setOnNavigationItemSelectedListener { item ->
                 Timber.d("Click nav item: $item")
                 return@setOnNavigationItemSelectedListener when (item.itemId) {
-                    R.id.menu_item_nav_need -> select(OpenNeed)
-                    R.id.menu_item_nav_have -> select(OpenHave)
-                    R.id.menu_item_nav_nearby -> select(OpenNearby)
+                    R.id.menu_item_nav_need -> select(MainViewEvent.OpenNeed)
+                    R.id.menu_item_nav_have -> select(MainViewEvent.OpenHave)
+                    R.id.menu_item_nav_nearby -> select(MainViewEvent.OpenNearby)
                     else -> false
                 }
             }
@@ -67,12 +60,12 @@ class EntryNavigation @Inject internal constructor(
     }
 
     override fun onRender(
-        state: EntryViewState,
+        state: MainViewState,
         savedState: UiSavedState
     ) {
         state.page.let { page ->
             val pageId = getIdForPage(page)
-            if (pageId != layoutRoot.selectedItemId) {
+            if (pageId != 0) {
                 layoutRoot.selectedItemId = pageId
                 layoutRoot.menu.findItem(pageId).isChecked = true
             }
@@ -80,16 +73,18 @@ class EntryNavigation @Inject internal constructor(
     }
 
     @CheckResult
-    private fun getIdForPage(page: DefaultActivityPage): Int {
-        return when (page) {
-            NEED -> R.id.menu_item_nav_need
-            HAVE -> R.id.menu_item_nav_have
-            NEARBY -> R.id.menu_item_nav_nearby
+    private fun getIdForPage(page: MainPage?): Int {
+        return if (page == null) 0 else {
+            when (page) {
+                MainPage.NEED -> R.id.menu_item_nav_need
+                MainPage.HAVE -> R.id.menu_item_nav_have
+                MainPage.NEARBY -> R.id.menu_item_nav_nearby
+            }
         }
     }
 
     @CheckResult
-    private fun select(viewEvent: EntryViewEvent): Boolean {
+    private fun select(viewEvent: MainViewEvent): Boolean {
         publish(viewEvent)
         return false
     }

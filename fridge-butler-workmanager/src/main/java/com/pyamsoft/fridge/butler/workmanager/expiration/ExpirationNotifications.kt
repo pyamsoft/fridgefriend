@@ -22,7 +22,6 @@ import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.butler.ButlerNotifications
 import com.pyamsoft.fridge.butler.ForegroundState
 import com.pyamsoft.fridge.butler.NotificationHandler
-import com.pyamsoft.fridge.core.DefaultActivityPage
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItem
 import java.util.Calendar
@@ -53,7 +52,7 @@ internal object ExpirationNotifications {
             EXPIRING_CHANNEL_ID,
             "Expiring Reminders",
             "Reminders for items that are going to expire soon",
-            DefaultActivityPage.HAVE,
+            FridgeItem.Presence.HAVE,
             now
         ) { builder ->
             val extra =
@@ -85,7 +84,7 @@ internal object ExpirationNotifications {
             EXPIRED_CHANNEL_ID,
             "Expired Reminders",
             "Reminders for items that have expired",
-            DefaultActivityPage.HAVE,
+            FridgeItem.Presence.HAVE,
             now
         ) { builder ->
             return@notify builder

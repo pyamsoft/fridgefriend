@@ -21,10 +21,9 @@ import android.app.Notification
 import android.content.Context
 import androidx.annotation.CheckResult
 import androidx.core.app.NotificationCompat
-import com.pyamsoft.fridge.core.DefaultActivityPage
 import com.pyamsoft.fridge.db.item.FridgeItem
-import java.util.Calendar
 import timber.log.Timber
+import java.util.Calendar
 
 object ButlerNotifications {
 
@@ -48,7 +47,7 @@ object ButlerNotifications {
         channelId: String,
         channelTitle: String,
         channelDescription: String,
-        page: DefaultActivityPage,
+        presence: FridgeItem.Presence,
         now: Calendar,
         createNotification: (builder: NotificationCompat.Builder) -> Notification
     ): Boolean {
@@ -71,7 +70,7 @@ object ButlerNotifications {
             channelId,
             channelTitle,
             channelDescription,
-            page,
+            presence,
             createNotification
         )
         return true

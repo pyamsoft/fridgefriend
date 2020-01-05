@@ -32,6 +32,7 @@ import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence
 import com.pyamsoft.fridge.detail.add.AddNewItemView
 import com.pyamsoft.fridge.main.SnackbarContainer
+import com.pyamsoft.fridge.main.VersionChecker
 import com.pyamsoft.pydroid.arch.StateSaver
 import com.pyamsoft.pydroid.arch.createComponent
 import com.pyamsoft.pydroid.ui.Injector
@@ -124,6 +125,15 @@ internal class DetailFragment : Fragment(), SnackbarContainer {
                 is DetailControllerEvent.EntryArchived -> close()
                 is DetailControllerEvent.AddNew -> createItem()
             }
+        }
+
+        initializeApp()
+    }
+
+    private fun initializeApp() {
+        val act = requireActivity()
+        if (act is VersionChecker) {
+            act.checkVersionForUpdate()
         }
     }
 

@@ -22,7 +22,6 @@ import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.butler.ButlerNotifications
 import com.pyamsoft.fridge.butler.ForegroundState
 import com.pyamsoft.fridge.butler.NotificationHandler
-import com.pyamsoft.fridge.core.DefaultActivityPage
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.store.NearbyStore
 import com.pyamsoft.fridge.db.zone.NearbyZone
@@ -51,7 +50,7 @@ internal object GeofenceNotifications {
             NEEDED_CHANNEL_ID,
             "Needed Reminders",
             "Reminders for items that you still need to purchase.",
-            DefaultActivityPage.NEED,
+            FridgeItem.Presence.NEED,
             now
         ) { builder ->
             val extra = ButlerNotifications.getExtraItems(items)

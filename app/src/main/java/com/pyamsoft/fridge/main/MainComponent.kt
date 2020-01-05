@@ -19,12 +19,20 @@ package com.pyamsoft.fridge.main
 
 import android.view.ViewGroup
 import androidx.annotation.CheckResult
+import androidx.lifecycle.ViewModelProvider
+import com.pyamsoft.fridge.FridgeViewModelFactory
+import com.pyamsoft.fridge.ViewModelKey
+import com.pyamsoft.fridge.entry.EntryViewModel
+import com.pyamsoft.pydroid.arch.UiViewModel
 import com.pyamsoft.pydroid.ui.app.ToolbarActivityProvider
 import com.pyamsoft.pydroid.ui.theme.ThemeProvider
+import dagger.Binds
 import dagger.BindsInstance
+import dagger.Module
 import dagger.Subcomponent
+import dagger.multibindings.IntoMap
 
-@Subcomponent
+@Subcomponent(modules = [MainComponent.ViewModelModule::class])
 internal interface MainComponent {
 
     fun inject(activity: MainActivity)
@@ -35,8 +43,21 @@ internal interface MainComponent {
         @CheckResult
         fun create(
             @BindsInstance parent: ViewGroup,
+            @BindsInstance page: MainPage,
             @BindsInstance provider: ToolbarActivityProvider,
             @BindsInstance themeProvider: ThemeProvider
         ): MainComponent
+    }
+
+    @Module
+    abstract class ViewModelModule {
+
+        @Binds
+        internal abstract fun bindViewModelFactory(factory: FridgeViewModelFactory): ViewModelProvider.Factory
+
+        @Binds
+        @IntoMap
+        @ViewModelKey(MainViewModel::class)
+        internal abstract fun entryViewModel(viewModel: MainViewModel): UiViewModel<*, *, *>
     }
 }

@@ -22,63 +22,38 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.CheckResult
-import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.constraintlayout.widget.ConstraintSet
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.pyamsoft.fridge.FridgeComponent
 import com.pyamsoft.fridge.R
-import com.pyamsoft.fridge.core.DefaultActivityPage
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence
-import com.pyamsoft.fridge.db.item.FridgeItem.Presence.HAVE
-import com.pyamsoft.fridge.db.item.FridgeItem.Presence.NEED
 import com.pyamsoft.fridge.detail.DetailFragment
-import com.pyamsoft.fridge.entry.EntryControllerEvent.AppInitialized
-import com.pyamsoft.fridge.entry.EntryControllerEvent.NavigateToSettings
-import com.pyamsoft.fridge.entry.EntryControllerEvent.PushHave
-import com.pyamsoft.fridge.entry.EntryControllerEvent.PushNearby
-import com.pyamsoft.fridge.entry.EntryControllerEvent.PushNeed
 import com.pyamsoft.fridge.main.SnackbarContainer
-import com.pyamsoft.fridge.map.MapFragment
-import com.pyamsoft.fridge.permission.PermissionFragment
-import com.pyamsoft.fridge.setting.SettingsDialog
 import com.pyamsoft.pydroid.arch.StateSaver
 import com.pyamsoft.pydroid.arch.createComponent
 import com.pyamsoft.pydroid.ui.Injector
 import com.pyamsoft.pydroid.ui.app.requireToolbarActivity
 import com.pyamsoft.pydroid.ui.arch.factory
 import com.pyamsoft.pydroid.ui.util.commitNow
-import com.pyamsoft.pydroid.ui.util.layout
-import com.pyamsoft.pydroid.ui.util.show
-import com.pyamsoft.pydroid.ui.version.VersionCheckActivity
-import javax.inject.Inject
 import timber.log.Timber
+import javax.inject.Inject
 
 internal class EntryFragment : Fragment(), SnackbarContainer {
 
     @JvmField
     @Inject
-    internal var toolbar: EntryToolbar? = null
-    @JvmField
-    @Inject
-    internal var frame: EntryFrame? = null
-    @JvmField
-    @Inject
-    internal var navigation: EntryNavigation? = null
-
-    @JvmField
-    @Inject
     internal var factory: ViewModelProvider.Factory? = null
-    private val viewModel by factory<EntryViewModel>(activity = true) { factory }
+    private val viewModel by factory<EntryViewModel> { factory }
 
     private var stateSaver: StateSaver? = null
+    private var container: CoordinatorLayout? = null
 
     override fun getSnackbarContainer(): CoordinatorLayout? {
-        val frame = frame ?: return null
+        val frame = container ?: return null
 
-        val fragment = childFragmentManager.findFragmentById(frame.id())
+        val fragment = childFragmentManager.findFragmentById(frame.id)
         if (fragment is SnackbarContainer) {
             return fragment.getSnackbarContainer()
         }
@@ -91,7 +66,7 @@ internal class EntryFragment : Fragment(), SnackbarContainer {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        return inflater.inflate(R.layout.layout_constraint, container, false)
+        return inflater.inflate(R.layout.layout_coordinator, container, false)
     }
 
     override fun onViewCreated(
@@ -99,69 +74,24 @@ internal class EntryFragment : Fragment(), SnackbarContainer {
         savedInstanceState: Bundle?
     ) {
         super.onViewCreated(view, savedInstanceState)
-        val parent = view.findViewById<ConstraintLayout>(R.id.layout_constraint)
-        val defaultPage =
-            requireArguments().getString(DefaultActivityPage.EXTRA_PAGE, DEFAULT_PAGE.name)
+        val parent = view.findViewById<CoordinatorLayout>(R.id.layout_coordinator)
+        container = parent
         Injector.obtain<FridgeComponent>(view.context.applicationContext)
             .plusEntryComponent()
             .create(
-                DefaultActivityPage.valueOf(defaultPage),
                 viewLifecycleOwner,
                 parent,
                 requireToolbarActivity()
             )
             .inject(this)
 
-        val toolbar = requireNotNull(toolbar)
-        val frame = requireNotNull(frame)
-        val navigation = requireNotNull(navigation)
-
         stateSaver = createComponent(
             savedInstanceState, viewLifecycleOwner,
-            viewModel,
-            frame,
-            navigation,
-            toolbar
+            viewModel
         ) {
             return@createComponent when (it) {
-                is PushHave -> pushHave(it.entry)
-                is PushNeed -> pushNeed(it.entry)
-                is PushNearby -> pushNearby()
-                is NavigateToSettings -> showSettingsDialog()
-                is AppInitialized -> onAppInitialized()
+                is EntryControllerEvent.LoadEntry -> pushPage(it.entry)
             }
-        }
-
-        parent.layout {
-            navigation.also {
-                connect(
-                    it.id(),
-                    ConstraintSet.BOTTOM,
-                    ConstraintSet.PARENT_ID,
-                    ConstraintSet.BOTTOM
-                )
-                connect(it.id(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
-                connect(it.id(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
-                constrainWidth(it.id(), ConstraintSet.MATCH_CONSTRAINT)
-                constrainHeight(it.id(), ConstraintSet.WRAP_CONTENT)
-            }
-
-            frame.also {
-                connect(it.id(), ConstraintSet.BOTTOM, navigation.id(), ConstraintSet.TOP)
-                connect(it.id(), ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP)
-                connect(it.id(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
-                connect(it.id(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
-                constrainWidth(it.id(), ConstraintSet.MATCH_CONSTRAINT)
-                constrainHeight(it.id(), ConstraintSet.MATCH_CONSTRAINT)
-            }
-        }
-    }
-
-    private fun onAppInitialized() {
-        val activity = requireActivity()
-        if (activity is VersionCheckActivity) {
-            Timber.d("Trigger update check")
-            activity.checkForUpdate()
         }
     }
 
@@ -174,56 +104,21 @@ internal class EntryFragment : Fragment(), SnackbarContainer {
         super.onDestroyView()
 
         factory = null
-        toolbar = null
-        frame = null
-        navigation = null
         stateSaver = null
+        container = null
     }
 
-    private fun showSettingsDialog() {
-        SettingsDialog().show(requireActivity(), SettingsDialog.TAG)
-    }
-
-    private fun pushHave(entry: FridgeEntry) {
-        pushPage(entry, HAVE)
-    }
-
-    private fun pushNeed(entry: FridgeEntry) {
-        pushPage(entry, NEED)
-    }
-
-    private fun pushNearby() {
+    private fun pushPage(entry: FridgeEntry) {
+        Timber.d("Push new entry page: ${entry.id()}")
         val fm = childFragmentManager
-        if (
-            fm.findFragmentByTag(MapFragment.TAG) == null &&
-            fm.findFragmentByTag(PermissionFragment.TAG) == null
-        ) {
-            fm.commitNow(viewLifecycleOwner) {
-                val container = requireNotNull(frame).id()
-                if (viewModel.canShowMap()) {
-                    replace(container, MapFragment.newInstance(), MapFragment.TAG)
-                } else {
-                    replace(
-                        container,
-                        PermissionFragment.newInstance(container),
-                        PermissionFragment.TAG
-                    )
-                }
-            }
-        }
-    }
-
-    private fun pushPage(
-        entry: FridgeEntry,
-        filterPresence: Presence
-    ) {
-        val fm = childFragmentManager
-        if (fm.findFragmentByTag(filterPresence.name) == null) {
+        if (fm.findFragmentByTag(entry.id()) == null) {
+            val presenceString = requireNotNull(requireArguments().getString(EXTRA_PRESENCE))
+            val presence = Presence.valueOf(presenceString)
             fm.commitNow(viewLifecycleOwner) {
                 replace(
-                    requireNotNull(frame).id(),
-                    DetailFragment.newInstance(entry, filterPresence),
-                    filterPresence.name
+                    requireNotNull(container).id,
+                    DetailFragment.newInstance(entry, presence),
+                    entry.id()
                 )
             }
         }
@@ -231,15 +126,15 @@ internal class EntryFragment : Fragment(), SnackbarContainer {
 
     companion object {
 
-        val DEFAULT_PAGE = DefaultActivityPage.NEED
+        const val EXTRA_PRESENCE = "presence"
         const val TAG = "EntryFragment"
 
         @JvmStatic
         @CheckResult
-        fun newInstance(page: DefaultActivityPage): Fragment {
+        fun newInstance(presence: Presence): Fragment {
             return EntryFragment().apply {
                 arguments = Bundle().apply {
-                    putString(DefaultActivityPage.EXTRA_PAGE, page.name)
+                    putString(EXTRA_PRESENCE, presence.name)
                 }
             }
         }

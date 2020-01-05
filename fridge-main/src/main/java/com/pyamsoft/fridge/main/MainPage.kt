@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Peter Kenji Yamanaka
+ * Copyright 2020 Peter Kenji Yamanaka
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,13 +15,8 @@
  *
  */
 
-package com.pyamsoft.fridge.core
+package com.pyamsoft.fridge.main
 
-enum class DefaultActivityPage {
-    NEED, HAVE, NEARBY;
-
-    companion object {
-
-        const val EXTRA_PAGE = "key_page"
-    }
+enum class MainPage {
+    NEED, HAVE, NEARBY
 }

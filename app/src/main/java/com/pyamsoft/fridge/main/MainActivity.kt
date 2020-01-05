@@ -21,17 +21,24 @@ import android.content.ComponentCallbacks2
 import android.content.Intent
 import android.os.Bundle
 import android.view.ViewGroup
+import androidx.annotation.CheckResult
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
+import androidx.lifecycle.ViewModelProvider
 import com.pyamsoft.fridge.BuildConfig
 import com.pyamsoft.fridge.FridgeComponent
 import com.pyamsoft.fridge.R
 import com.pyamsoft.fridge.butler.Butler
 import com.pyamsoft.fridge.butler.ForegroundState
-import com.pyamsoft.fridge.core.DefaultActivityPage
+import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.entry.EntryFragment
-import com.pyamsoft.pydroid.arch.doOnDestroy
+import com.pyamsoft.fridge.map.MapFragment
+import com.pyamsoft.fridge.permission.PermissionFragment
+import com.pyamsoft.fridge.setting.SettingsDialog
+import com.pyamsoft.pydroid.arch.StateSaver
+import com.pyamsoft.pydroid.arch.createComponent
 import com.pyamsoft.pydroid.ui.Injector
+import com.pyamsoft.pydroid.ui.arch.factory
 import com.pyamsoft.pydroid.ui.rating.ChangeLogBuilder
 import com.pyamsoft.pydroid.ui.rating.RatingActivity
 import com.pyamsoft.pydroid.ui.rating.buildChangeLog
@@ -39,10 +46,12 @@ import com.pyamsoft.pydroid.ui.theme.ThemeProvider
 import com.pyamsoft.pydroid.ui.theme.Theming
 import com.pyamsoft.pydroid.ui.util.commitNow
 import com.pyamsoft.pydroid.ui.util.layout
+import com.pyamsoft.pydroid.ui.util.show
 import com.pyamsoft.pydroid.util.makeWindowSexy
+import timber.log.Timber
 import javax.inject.Inject
 
-internal class MainActivity : RatingActivity() {
+internal class MainActivity : RatingActivity(), VersionChecker {
 
     override val checkForUpdates: Boolean = false
 
@@ -62,9 +71,9 @@ internal class MainActivity : RatingActivity() {
 
     override val snackbarRoot: ViewGroup
         get() {
-            val entryFragment = supportFragmentManager.findFragmentByTag(EntryFragment.TAG)
-            if (entryFragment is SnackbarContainer) {
-                val snackbarContainer = entryFragment.getSnackbarContainer()
+            val containerFragment = supportFragmentManager.findFragmentById(fragmentContainerId)
+            if (containerFragment is SnackbarContainer) {
+                val snackbarContainer = containerFragment.getSnackbarContainer()
                 if (snackbarContainer != null) {
                     return snackbarContainer
                 }
@@ -74,15 +83,26 @@ internal class MainActivity : RatingActivity() {
         }
 
     private var rootView: ConstraintLayout? = null
-    @JvmField
-    @Inject
-    internal var foregroundState: ForegroundState? = null
+    private var stateSaver: StateSaver? = null
+
     @JvmField
     @Inject
     internal var toolbar: MainToolbar? = null
     @JvmField
     @Inject
-    internal var container: FragmentContainer? = null
+    internal var navigation: MainNavigation? = null
+    @JvmField
+    @Inject
+    internal var container: MainContainer? = null
+
+    @JvmField
+    @Inject
+    internal var factory: ViewModelProvider.Factory? = null
+    private val viewModel by factory<MainViewModel> { factory }
+
+    @JvmField
+    @Inject
+    internal var foregroundState: ForegroundState? = null
     @JvmField
     @Inject
     internal var butler: Butler? = null
@@ -100,18 +120,34 @@ internal class MainActivity : RatingActivity() {
 
         Injector.obtain<FridgeComponent>(applicationContext)
             .plusMainComponent()
-            .create(view, this, ThemeProvider { requireNotNull(theming).isDarkTheme(this) })
+            .create(view,
+                getPage(intent),
+                this,
+                ThemeProvider { requireNotNull(theming).isDarkTheme(this) })
             .inject(this)
 
         view.makeWindowSexy()
         inflateComponents(view, savedInstanceState)
-        pushFragment()
     }
 
-    override fun onNewIntent(intent: Intent?) {
+    @CheckResult
+    private fun getPage(intent: Intent): MainPage {
+        val presenceString =
+            intent.getStringExtra(FridgeItem.Presence.KEY) ?: FridgeItem.Presence.NEED.name
+        return when (FridgeItem.Presence.valueOf(presenceString)) {
+            FridgeItem.Presence.HAVE -> MainPage.HAVE
+            FridgeItem.Presence.NEED -> MainPage.NEED
+        }
+    }
+
+    override fun checkVersionForUpdate() {
+        viewModel.checkForUpdates()
+    }
+
+    override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         setIntent(intent)
-        pushFragment()
+        viewModel.selectPage(getPage(intent))
     }
 
     override fun onStart() {
@@ -137,15 +173,20 @@ internal class MainActivity : RatingActivity() {
     ) {
         val container = requireNotNull(container)
         val toolbar = requireNotNull(toolbar)
-        container.init(savedInstanceState)
-        toolbar.init(savedInstanceState)
-
-        container.inflate(savedInstanceState)
-        toolbar.inflate(savedInstanceState)
-
-        doOnDestroy {
-            container.teardown()
-            toolbar.teardown()
+        val navigation = requireNotNull(navigation)
+        stateSaver = createComponent(
+            savedInstanceState, this, viewModel,
+            container,
+            toolbar,
+            navigation
+        ) {
+            return@createComponent when (it) {
+                is MainControllerEvent.PushHave -> pushHave()
+                is MainControllerEvent.PushNeed -> pushNeed()
+                is MainControllerEvent.PushNearby -> pushNearby()
+                is MainControllerEvent.NavigateToSettings -> showSettingsDialog()
+                is MainControllerEvent.VersionCheck -> checkForUpdate()
+            }
         }
 
         constraintLayout.layout {
@@ -157,8 +198,7 @@ internal class MainActivity : RatingActivity() {
                 constrainWidth(it.id(), ConstraintSet.MATCH_CONSTRAINT)
             }
 
-            container.also {
-                connect(it.id(), ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP)
+            navigation.also {
                 connect(
                     it.id(),
                     ConstraintSet.BOTTOM,
@@ -167,51 +207,81 @@ internal class MainActivity : RatingActivity() {
                 )
                 connect(it.id(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
                 connect(it.id(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
+                constrainWidth(it.id(), ConstraintSet.MATCH_CONSTRAINT)
+                constrainHeight(it.id(), ConstraintSet.WRAP_CONTENT)
+            }
+
+            container.also {
+                connect(it.id(), ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP)
+                connect(it.id(), ConstraintSet.BOTTOM, navigation.id(), ConstraintSet.TOP)
+                connect(it.id(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
+                connect(it.id(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
                 constrainHeight(it.id(), ConstraintSet.MATCH_CONSTRAINT)
                 constrainWidth(it.id(), ConstraintSet.MATCH_CONSTRAINT)
             }
         }
     }
 
-    private fun pushFragment() {
+    private fun pushHave() {
+        pushFragment(FridgeItem.Presence.HAVE)
+    }
+
+    private fun pushNeed() {
+        pushFragment(FridgeItem.Presence.NEED)
+    }
+
+    private fun pushNearby() {
         val fm = supportFragmentManager
-
-        val pageString = intent.getStringExtra(DefaultActivityPage.EXTRA_PAGE)
-        val page = pageString?.let { DefaultActivityPage.valueOf(it) } ?: EntryFragment.DEFAULT_PAGE
-
-        val entryFragment = fm.findFragmentById(fragmentContainerId)
-
-        // If the page has changed
-        val isPageChanged = if (entryFragment == null) false else {
-            val existingPageString = entryFragment.requireArguments()
-                .getString(DefaultActivityPage.EXTRA_PAGE, EntryFragment.DEFAULT_PAGE.name)
-            val existingPage = DefaultActivityPage.valueOf(existingPageString)
-            existingPage != page
-        }
-
-        if (entryFragment == null || isPageChanged) {
+        if (
+            fm.findFragmentByTag(MapFragment.TAG) == null &&
+            fm.findFragmentByTag(PermissionFragment.TAG) == null
+        ) {
             fm.commitNow(this) {
-                if (isPageChanged) {
-                    replace(fragmentContainerId, EntryFragment.newInstance(page), EntryFragment.TAG)
+                val container = fragmentContainerId
+                if (viewModel.canShowMap()) {
+                    replace(container, MapFragment.newInstance(), MapFragment.TAG)
                 } else {
-                    add(fragmentContainerId, EntryFragment.newInstance(page), EntryFragment.TAG)
+                    replace(
+                        container,
+                        PermissionFragment.newInstance(container),
+                        PermissionFragment.TAG
+                    )
                 }
             }
         }
     }
 
+    private fun showSettingsDialog() {
+        SettingsDialog().show(this, SettingsDialog.TAG)
+    }
+
+    private fun pushFragment(presence: FridgeItem.Presence) {
+        val fm = supportFragmentManager
+
+        Timber.d("Pushing fragment: $presence")
+        val tag = "${EntryFragment.TAG}|${presence.name}"
+        fm.commitNow(this) {
+            replace(fragmentContainerId, EntryFragment.newInstance(presence), tag)
+        }
+    }
+
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        toolbar?.saveState(outState)
-        container?.saveState(outState)
+        stateSaver?.saveState(outState)
     }
 
     override fun onDestroy() {
         super.onDestroy()
         rootView = null
+        stateSaver = null
+
         toolbar = null
         container = null
+        navigation = null
+
+        factory = null
         butler = null
         foregroundState = null
+        theming = null
     }
 }

@@ -17,43 +17,19 @@
 
 package com.pyamsoft.fridge.entry
 
-import com.pyamsoft.fridge.core.DefaultActivityPage
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.pydroid.arch.UiControllerEvent
 import com.pyamsoft.pydroid.arch.UiViewEvent
 import com.pyamsoft.pydroid.arch.UiViewState
 
-data class EntryViewState(
-    val appInitialized: Boolean,
-    val page: DefaultActivityPage,
-    val appNameRes: Int,
-    val isSettingsItemVisible: Boolean
-) : UiViewState
+data class EntryViewState(val entries: List<FridgeEntry>) : UiViewState
 
 sealed class EntryViewEvent : UiViewEvent {
 
-    object OpenHave : EntryViewEvent()
-
-    object OpenNeed : EntryViewEvent()
-
-    object OpenNearby : EntryViewEvent()
-
-    object SettingsNavigate : EntryViewEvent()
+    data class SelectEntry internal constructor(val position: Int) : EntryViewEvent()
 }
 
 sealed class EntryControllerEvent : UiControllerEvent {
 
-    data class PushHave internal constructor(
-        val entry: FridgeEntry
-    ) : EntryControllerEvent()
-
-    data class PushNeed internal constructor(
-        val entry: FridgeEntry
-    ) : EntryControllerEvent()
-
-    object PushNearby : EntryControllerEvent()
-
-    object NavigateToSettings : EntryControllerEvent()
-
-    object AppInitialized : EntryControllerEvent()
+    data class LoadEntry internal constructor(val entry: FridgeEntry) : EntryControllerEvent()
 }

@@ -28,7 +28,7 @@ import androidx.annotation.CheckResult
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.getSystemService
-import com.pyamsoft.fridge.core.DefaultActivityPage
+import com.pyamsoft.fridge.db.item.FridgeItem
 import timber.log.Timber
 
 object Notifications {
@@ -76,7 +76,7 @@ object Notifications {
         channelId: String,
         channelTitle: String,
         channelDescription: String,
-        page: DefaultActivityPage,
+        presence: FridgeItem.Presence,
         createNotification: (builder: NotificationCompat.Builder) -> Notification
     ) {
         require(notificationId > 0)
@@ -94,7 +94,7 @@ object Notifications {
             .setOngoing(false)
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
             .setColor(Color.RED)
-            .setContentIntent(handler.contentIntent(page))
+            .setContentIntent(handler.contentIntent(presence))
 
         val notification = createNotification(builder)
         notificationManager(context)

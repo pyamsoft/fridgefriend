@@ -17,6 +17,7 @@
 
 package com.pyamsoft.fridge.main
 
+import android.view.MenuItem
 import android.view.ViewGroup
 import android.view.ViewGroup.MarginLayoutParams
 import androidx.appcompat.widget.Toolbar
@@ -25,12 +26,11 @@ import androidx.core.view.updateLayoutParams
 import com.pyamsoft.fridge.core.Core
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.arch.UiSavedState
-import com.pyamsoft.pydroid.arch.UnitViewEvent
-import com.pyamsoft.pydroid.arch.UnitViewState
 import com.pyamsoft.pydroid.ui.app.ToolbarActivityProvider
 import com.pyamsoft.pydroid.ui.privacy.addPrivacy
 import com.pyamsoft.pydroid.ui.privacy.removePrivacy
 import com.pyamsoft.pydroid.ui.theme.ThemeProvider
+import com.pyamsoft.pydroid.ui.util.setUpEnabled
 import com.pyamsoft.pydroid.util.doOnApplyWindowInsets
 import com.pyamsoft.pydroid.util.toDp
 import javax.inject.Inject
@@ -41,11 +41,13 @@ class MainToolbar @Inject internal constructor(
     toolbarActivityProvider: ToolbarActivityProvider,
     theming: ThemeProvider,
     parent: ViewGroup
-) : BaseUiView<UnitViewState, UnitViewEvent>(parent) {
+) : BaseUiView<MainViewState, MainViewEvent>(parent) {
 
     override val layout: Int = R.layout.main_toolbar
 
     override val layoutRoot by boundView<Toolbar>(R.id.main_toolbar)
+
+    private var settingsItem: MenuItem? = null
 
     init {
         doOnInflate {
@@ -64,12 +66,52 @@ class MainToolbar @Inject internal constructor(
             layoutRoot.removePrivacy()
             toolbarActivityProvider.setToolbar(null)
         }
+
+        doOnInflate {
+            inflateMenu()
+        }
+
+        doOnTeardown {
+            teardownMenu()
+        }
     }
 
     override fun onRender(
-        state: UnitViewState,
+        state: MainViewState,
         savedState: UiSavedState
     ) {
+        state.isSettingsItemVisible.let { show ->
+            settingsItem?.isVisible = show
+        }
+
+        state.appNameRes.let { name ->
+            if (name == 0) {
+                layoutRoot.title = null
+            } else {
+                layoutRoot.setTitle(name)
+            }
+        }
+    }
+
+    private fun teardownMenu() {
+        settingsItem?.setOnMenuItemClickListener(null)
+        settingsItem = null
+        layoutRoot.menu.removeItem(R.id.menu_item_settings)
+    }
+
+    private fun inflateMenu() {
+        layoutRoot.let { toolbar ->
+            toolbar.setUpEnabled(false)
+            toolbar.inflateMenu(R.menu.toolbar_menu)
+            toolbar.menu.findItem(R.id.menu_item_settings)
+                .also { item ->
+                    item.setOnMenuItemClickListener {
+                        publish(MainViewEvent.SettingsNavigate)
+                        return@setOnMenuItemClickListener true
+                    }
+                    settingsItem = item
+                }
+        }
     }
 
     private fun inflateToolbar(
