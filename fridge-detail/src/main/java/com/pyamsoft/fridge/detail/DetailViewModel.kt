@@ -19,7 +19,6 @@ package com.pyamsoft.fridge.detail
 
 import androidx.annotation.CheckResult
 import androidx.lifecycle.viewModelScope
-import com.pyamsoft.fridge.core.Preferences
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent.Delete
@@ -36,14 +35,14 @@ import com.pyamsoft.fridge.detail.DetailViewState.Loading
 import com.pyamsoft.fridge.detail.base.BaseUpdaterViewModel
 import com.pyamsoft.highlander.highlander
 import com.pyamsoft.pydroid.arch.EventBus
-import java.util.Date
-import javax.inject.Inject
-import javax.inject.Named
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import timber.log.Timber
+import java.util.Date
+import javax.inject.Inject
+import javax.inject.Named
 
 class DetailViewModel @Inject internal constructor(
     private val interactor: DetailInteractor,
@@ -124,30 +123,22 @@ class DetailViewModel @Inject internal constructor(
             }
         }
 
-        var expiringSoonUnregister: Preferences.Unregister? = null
-
         doOnInit {
-            expiringSoonUnregister = interactor.watchForExpiringSoonChanges { newRange ->
+            val expiringSoonUnregister = interactor.watchForExpiringSoonChanges { newRange ->
                 setState { copy(expirationRange = newRange) }
             }
-        }
-
-        doOnTeardown {
-            expiringSoonUnregister?.unregister()
-            expiringSoonUnregister = null
-        }
-
-        var isSameDayExpiredUnregister: Preferences.Unregister? = null
-
-        doOnInit {
-            isSameDayExpiredUnregister = interactor.watchForSameDayExpiredChange { newSameDay ->
-                setState { copy(isSameDayExpired = newSameDay) }
+            doOnTeardown {
+                expiringSoonUnregister.unregister()
             }
         }
 
-        doOnTeardown {
-            isSameDayExpiredUnregister?.unregister()
-            isSameDayExpiredUnregister = null
+        doOnInit {
+            val isSameDayExpiredUnregister = interactor.watchForSameDayExpiredChange { newSameDay ->
+                setState { copy(isSameDayExpired = newSameDay) }
+            }
+            doOnTeardown {
+                isSameDayExpiredUnregister.unregister()
+            }
         }
     }
 
