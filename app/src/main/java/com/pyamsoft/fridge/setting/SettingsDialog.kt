@@ -44,8 +44,8 @@ import com.pyamsoft.pydroid.ui.util.commit
 import com.pyamsoft.pydroid.ui.util.layout
 import com.pyamsoft.pydroid.ui.widget.shadow.DropshadowView
 import com.pyamsoft.pydroid.util.toDp
-import timber.log.Timber
 import javax.inject.Inject
+import timber.log.Timber
 
 internal class SettingsDialog : DialogFragment() {
 

@@ -21,10 +21,10 @@ import androidx.lifecycle.viewModelScope
 import com.pyamsoft.fridge.db.PersistentEntries
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.pydroid.arch.UiViewModel
+import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import timber.log.Timber
-import javax.inject.Inject
 
 class EntryViewModel @Inject internal constructor(
     private val persistentEntries: PersistentEntries

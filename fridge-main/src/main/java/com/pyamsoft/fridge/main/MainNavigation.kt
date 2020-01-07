@@ -24,8 +24,8 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.arch.UiSavedState
 import com.pyamsoft.pydroid.util.doOnApplyWindowInsets
-import timber.log.Timber
 import javax.inject.Inject
+import timber.log.Timber
 
 class MainNavigation @Inject internal constructor(
     parent: ViewGroup
