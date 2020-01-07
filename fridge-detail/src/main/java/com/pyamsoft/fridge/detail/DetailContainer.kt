@@ -17,9 +17,19 @@
 
 package com.pyamsoft.fridge.detail
 
+import android.content.Context
+import android.graphics.Point
+import android.view.View
 import android.view.ViewGroup
+import android.view.WindowManager
+import android.view.animation.OvershootInterpolator
+import androidx.annotation.CheckResult
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
+import androidx.core.content.getSystemService
+import androidx.core.view.ViewCompat
+import androidx.core.view.ViewPropertyAnimatorCompat
+import androidx.core.view.ViewPropertyAnimatorListenerAdapter
 import androidx.core.view.isVisible
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.arch.UiSavedState
@@ -36,9 +46,16 @@ class DetailContainer @Inject internal constructor(
 
     override val layoutRoot by boundView<ConstraintLayout>(R.id.detail_container)
 
+    private var animator: ViewPropertyAnimatorCompat? = null
+
     init {
         nest(emptyState)
         nest(list)
+
+        doOnTeardown {
+            animator?.cancel()
+            animator = null
+        }
 
         doOnInflate {
             layoutRoot.layout {
@@ -90,12 +107,49 @@ class DetailContainer @Inject internal constructor(
                 if (!loading.isLoading) {
                     // If root is currently hidden, show it
                     if (!layoutRoot.isVisible) {
-                        layoutRoot.isVisible = true
+                        animateRootIn()
                     }
                 }
             }
         }
         emptyState.render(state, savedState)
         list.render(state, savedState)
+    }
+
+    private fun animateRootIn() {
+        val root = layoutRoot
+        val context = root.context.applicationContext
+        if (animator == null) {
+            root.post {
+                root.translationY = animatingHeight(context)
+                root.isVisible = true
+
+                animator = ViewCompat.animate(root)
+                    .translationY(0F)
+                    .setDuration(600)
+                    .setInterpolator(interpolator)
+                    .setListener(object : ViewPropertyAnimatorListenerAdapter() {
+                        override fun onAnimationEnd(view: View) {
+                            publish(DetailViewEvent.ScrollActionVisibilityChange(true))
+                        }
+                    })
+            }
+        }
+    }
+
+    companion object {
+
+        private val interpolator by lazy(LazyThreadSafetyMode.NONE) { OvershootInterpolator(1.4F) }
+
+        @JvmStatic
+        @CheckResult
+        private fun animatingHeight(context: Context): Float {
+            val point = Point()
+
+            val window =
+                requireNotNull(context.applicationContext.getSystemService<WindowManager>())
+            window.defaultDisplay.getSize(point)
+            return point.y.toFloat()
+        }
     }
 }

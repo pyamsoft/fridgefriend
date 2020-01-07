@@ -78,30 +78,6 @@ class AddNewItemView @Inject internal constructor(
             filterButton.setOnClickListener(null)
         }
 
-        doOnInflate {
-            if (addNewIconAnimator != null) {
-                return@doOnInflate
-            }
-
-            addNewIconAnimator =
-                expandButton.popShow(listener = object : ViewPropertyAnimatorListenerAdapter() {
-                    override fun onAnimationEnd(view: View) {
-                        disposeAddNewAnimator()
-
-                        if (filterIconAnimator != null) {
-                            return
-                        }
-                        filterIconAnimator = filterButton.popShow(
-                            startDelay = 0,
-                            listener = object : ViewPropertyAnimatorListenerAdapter() {
-                                override fun onAnimationEnd(view: View?) {
-                                    disposeFilterAnimator()
-                                }
-                            })
-                    }
-                })
-        }
-
         doOnTeardown {
             disposeAddNewAnimator()
             disposeFilterAnimator()
@@ -151,7 +127,7 @@ class AddNewItemView @Inject internal constructor(
         state.actionVisible?.let { action ->
             if (action.visible) {
                 if (addNewIconAnimator != null) {
-                    return
+                    return@let
                 }
 
                 addNewIconAnimator =
@@ -162,6 +138,7 @@ class AddNewItemView @Inject internal constructor(
                             if (filterIconAnimator != null) {
                                 return
                             }
+
                             filterIconAnimator = filterButton.popShow(
                                 startDelay = 0,
                                 listener = object : ViewPropertyAnimatorListenerAdapter() {
@@ -174,7 +151,7 @@ class AddNewItemView @Inject internal constructor(
                     })
             } else {
                 if (filterIconAnimator != null) {
-                    return
+                    return@let
                 }
 
                 filterIconAnimator =
