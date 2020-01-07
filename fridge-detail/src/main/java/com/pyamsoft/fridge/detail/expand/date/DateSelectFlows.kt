@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Peter Kenji Yamanaka
+ * Copyright 2020 Peter Kenji Yamanaka
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,17 @@
  *
  */
 
-package com.pyamsoft.fridge.detail
+package com.pyamsoft.fridge.detail.expand.date
 
-data class ExpandVisibilityEvent internal constructor(val visible: Boolean)
+import com.pyamsoft.pydroid.arch.UiControllerEvent
+import com.pyamsoft.pydroid.arch.UiViewEvent
+import com.pyamsoft.pydroid.arch.UiViewState
+
+object DateSelectViewState : UiViewState
+
+sealed class DateSelectViewEvent : UiViewEvent
+
+sealed class DateSelectControllerEvent : UiControllerEvent {
+
+    object Close : DateSelectControllerEvent()
+}

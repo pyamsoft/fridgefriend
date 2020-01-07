@@ -36,11 +36,10 @@ import com.pyamsoft.fridge.db.item.FridgeItemQueryDao
 import com.pyamsoft.fridge.db.room.RoomModule
 import com.pyamsoft.fridge.db.store.NearbyStoreQueryDao
 import com.pyamsoft.fridge.db.zone.NearbyZoneQueryDao
-import com.pyamsoft.fridge.detail.DatePickerDialogFragment
+import com.pyamsoft.fridge.detail.DateSelectComponent
 import com.pyamsoft.fridge.detail.DetailComponent
 import com.pyamsoft.fridge.detail.ExpandComponent
-import com.pyamsoft.fridge.detail.ExpandVisibilityEvent
-import com.pyamsoft.fridge.detail.expand.DateSelectPayload
+import com.pyamsoft.fridge.detail.expand.date.DateSelectPayload
 import com.pyamsoft.fridge.entry.EntryComponent
 import com.pyamsoft.fridge.locator.GeofenceBroadcastReceiver
 import com.pyamsoft.fridge.locator.Geofencer
@@ -146,7 +145,8 @@ internal interface FridgeComponent {
     @CheckResult
     fun plusPermissionComponent(): PermissionComponent.Factory
 
-    fun inject(dialog: DatePickerDialogFragment)
+    @CheckResult
+    fun plusDateSelectComponent(): DateSelectComponent
 
     fun inject(receiver: LocationProviderChangeReceiver)
 
@@ -197,13 +197,6 @@ internal interface FridgeComponent {
             @JvmStatic
             @Singleton
             internal fun provideFakeItemRealtime(): EventBus<FridgeItemChangeEvent> {
-                return EventBus.create()
-            }
-
-            @Provides
-            @JvmStatic
-            @Singleton
-            internal fun provideExpandVisibilityBus(): EventBus<ExpandVisibilityEvent> {
                 return EventBus.create()
             }
 

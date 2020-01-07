@@ -29,8 +29,8 @@ import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent.Insert
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent.Update
 import com.pyamsoft.fridge.db.item.FridgeItemRealtime
 import com.pyamsoft.fridge.detail.DetailInteractor
-import com.pyamsoft.fridge.detail.ExpandVisibilityEvent
 import com.pyamsoft.fridge.detail.base.BaseUpdaterViewModel
+import com.pyamsoft.fridge.detail.expand.date.DateSelectPayload
 import com.pyamsoft.fridge.detail.item.isNameValid
 import com.pyamsoft.pydroid.arch.EventBus
 import java.util.Calendar
@@ -44,7 +44,6 @@ import timber.log.Timber
 class ExpandItemViewModel @Inject internal constructor(
     defaultPresence: Presence,
     dateSelectBus: EventBus<DateSelectPayload>,
-    expandVisibilityBus: EventBus<ExpandVisibilityEvent>,
     realtime: FridgeItemRealtime,
     private val fakeRealtime: EventBus<FridgeItemChangeEvent>,
     private val interactor: DetailInteractor,
@@ -120,17 +119,6 @@ class ExpandItemViewModel @Inject internal constructor(
                     }
                 }
             }
-        }
-
-        doOnInit {
-            viewModelScope.launch(context = Dispatchers.Default) {
-                expandVisibilityBus.send(ExpandVisibilityEvent(true))
-            }
-        }
-
-        doOnTeardown {
-            // Don't use coroutine scope because launch will insta-die on teardown
-            expandVisibilityBus.publish(ExpandVisibilityEvent(false))
         }
     }
 

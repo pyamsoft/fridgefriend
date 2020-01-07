@@ -143,8 +143,8 @@ internal class PermissionFragment : Fragment(), SnackbarContainer,
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
         stateSaver?.saveState(outState)
+        super.onSaveInstanceState(outState)
     }
 
     override fun onDestroyView() {

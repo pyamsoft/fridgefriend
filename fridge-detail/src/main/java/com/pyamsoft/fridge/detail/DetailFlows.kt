@@ -29,13 +29,10 @@ data class DetailViewState(
     val listError: Throwable?,
     val undoableItem: FridgeItem?,
     val actionVisible: ActionVisible?,
-    val isExpanded: Expanded?,
     val expirationRange: Int,
     val isSameDayExpired: Boolean,
     val listItemPresence: FridgeItem.Presence
 ) : UiViewState {
-
-    data class Expanded internal constructor(val expanded: Boolean)
 
     data class ActionVisible internal constructor(val visible: Boolean)
 

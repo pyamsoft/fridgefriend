@@ -47,7 +47,6 @@ import timber.log.Timber
 class DetailViewModel @Inject internal constructor(
     private val interactor: DetailInteractor,
     private val fakeRealtime: EventBus<FridgeItemChangeEvent>,
-    private val expandVisibilityBus: EventBus<ExpandVisibilityEvent>,
     @Named("entry_id") private val entryId: String,
     listItemPresence: FridgeItem.Presence
 ) : BaseUpdaterViewModel<DetailViewState, DetailViewEvent, DetailControllerEvent>(
@@ -58,7 +57,6 @@ class DetailViewModel @Inject internal constructor(
         listError = null,
         undoableItem = null,
         actionVisible = null,
-        isExpanded = null,
         expirationRange = interactor.getExpiringSoonRange(),
         isSameDayExpired = interactor.isSameDayExpired(),
         listItemPresence = listItemPresence
@@ -113,14 +111,6 @@ class DetailViewModel @Inject internal constructor(
     init {
         doOnInit {
             refreshList(false)
-        }
-
-        doOnInit {
-            viewModelScope.launch(context = Dispatchers.Default) {
-                expandVisibilityBus.onEvent {
-                    setState { copy(isExpanded = DetailViewState.Expanded(it.visible)) }
-                }
-            }
         }
 
         doOnInit {

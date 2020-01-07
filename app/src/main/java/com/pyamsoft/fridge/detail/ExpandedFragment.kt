@@ -244,13 +244,13 @@ internal class ExpandedFragment : DialogFragment() {
         month: Int,
         day: Int
     ) {
-        DatePickerDialogFragment.newInstance(oldItem, year, month, day)
-            .show(requireActivity(), DatePickerDialogFragment.TAG)
+        DateSelectDialogFragment.newInstance(oldItem, year, month, day)
+            .show(requireActivity(), DateSelectDialogFragment.TAG)
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
         stateSaver?.saveState(outState)
+        super.onSaveInstanceState(outState)
     }
 
     override fun onDestroyView() {

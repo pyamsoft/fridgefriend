@@ -23,24 +23,38 @@ import android.os.Bundle
 import androidx.annotation.CheckResult
 import androidx.appcompat.view.ContextThemeWrapper
 import androidx.fragment.app.DialogFragment
+import androidx.lifecycle.ViewModelProvider
 import com.pyamsoft.fridge.FridgeComponent
 import com.pyamsoft.fridge.R
 import com.pyamsoft.fridge.db.item.FridgeItem
-import com.pyamsoft.fridge.detail.expand.DateSelectPayload
-import com.pyamsoft.pydroid.arch.EventBus
+import com.pyamsoft.fridge.detail.expand.date.DateSelectControllerEvent
+import com.pyamsoft.fridge.detail.expand.date.DateSelectViewModel
+import com.pyamsoft.pydroid.arch.StateSaver
+import com.pyamsoft.pydroid.arch.createComponent
 import com.pyamsoft.pydroid.ui.Injector
+import com.pyamsoft.pydroid.ui.arch.factory
 import java.util.Calendar
 import javax.inject.Inject
 
-internal class DatePickerDialogFragment : DialogFragment() {
+internal class DateSelectDialogFragment : DialogFragment() {
 
     @JvmField
     @Inject
-    internal var dateSelectBus: EventBus<DateSelectPayload>? = null
+    internal var factory: ViewModelProvider.Factory? = null
+    private val viewModel by factory<DateSelectViewModel>(activity = true) { factory }
+
+    private var stateSaver: StateSaver? = null
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         Injector.obtain<FridgeComponent>(requireContext().applicationContext)
+            .plusDateSelectComponent()
             .inject(this)
+
+        stateSaver = createComponent(savedInstanceState, this, viewModel) {
+            return@createComponent when (it) {
+                is DateSelectControllerEvent.Close -> dismiss()
+            }
+        }
 
         val today = Calendar.getInstance()
         val itemId = requireNotNull(requireArguments().getString(ITEM))
@@ -58,24 +72,21 @@ internal class DatePickerDialogFragment : DialogFragment() {
             initialDay = today.get(Calendar.DAY_OF_MONTH)
         }
 
+        val listener = DatePickerDialog.OnDateSetListener { _, year, month, dayOfMonth ->
+            viewModel.publish(itemId, entryId, year, month, dayOfMonth)
+        }
+
         return DatePickerDialog(
-            ContextThemeWrapper(context, theme), theme,
-            DatePickerDialog.OnDateSetListener { _, year, month, dayOfMonth ->
-                requireNotNull(dateSelectBus).publish(
-                    DateSelectPayload(
-                        itemId,
-                        entryId,
-                        year,
-                        month,
-                        dayOfMonth
-                    )
-                )
-                dismiss()
-            },
-            initialYear, initialMonth, initialDay
+            ContextThemeWrapper(context, theme),
+            theme, listener, initialYear, initialMonth, initialDay
         ).apply {
             datePicker.minDate = today.timeInMillis
         }
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        stateSaver?.saveState(outState)
+        super.onSaveInstanceState(outState)
     }
 
     override fun getTheme(): Int {
@@ -99,7 +110,7 @@ internal class DatePickerDialogFragment : DialogFragment() {
             month: Int,
             day: Int
         ): DialogFragment {
-            return DatePickerDialogFragment().apply {
+            return DateSelectDialogFragment().apply {
                 arguments = Bundle().apply {
                     putString(ITEM, item.id())
                     putString(ENTRY, item.entryId())
