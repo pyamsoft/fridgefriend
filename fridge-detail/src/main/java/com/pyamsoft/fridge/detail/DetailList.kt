@@ -39,8 +39,8 @@ import com.pyamsoft.pydroid.ui.util.Snackbreak
 import com.pyamsoft.pydroid.ui.util.refreshing
 import com.pyamsoft.pydroid.ui.widget.scroll.HideOnScrollListener
 import com.pyamsoft.pydroid.util.tintWith
-import javax.inject.Inject
 import timber.log.Timber
+import javax.inject.Inject
 
 class DetailList @Inject internal constructor(
     parent: ViewGroup,
@@ -270,13 +270,16 @@ class DetailList @Inject internal constructor(
         state.isLoading.let { loading ->
             if (loading != null) {
                 layoutRoot.refreshing(loading.isLoading)
-            }
-        }
 
-        state.items.let { items ->
-            when {
-                items.isEmpty() -> clearList()
-                else -> setList(items, state.expirationRange, state.isSameDayExpired)
+                // Done loading
+                if (!loading.isLoading) {
+                    state.items.let { items ->
+                        when {
+                            items.isEmpty() -> clearList()
+                            else -> setList(items, state.expirationRange, state.isSameDayExpired)
+                        }
+                    }
+                }
             }
         }
 

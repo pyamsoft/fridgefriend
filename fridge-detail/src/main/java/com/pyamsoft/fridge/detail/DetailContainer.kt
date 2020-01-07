@@ -20,6 +20,7 @@ package com.pyamsoft.fridge.detail
 import android.view.ViewGroup
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
+import androidx.core.view.isVisible
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.arch.UiSavedState
 import com.pyamsoft.pydroid.ui.util.layout
@@ -83,6 +84,17 @@ class DetailContainer @Inject internal constructor(
     }
 
     override fun onRender(state: DetailViewState, savedState: UiSavedState) {
+        state.isLoading.let { loading ->
+            if (loading != null) {
+                // Done loading
+                if (!loading.isLoading) {
+                    // If root is currently hidden, show it
+                    if (!layoutRoot.isVisible) {
+                        layoutRoot.isVisible = true
+                    }
+                }
+            }
+        }
         emptyState.render(state, savedState)
         list.render(state, savedState)
     }
