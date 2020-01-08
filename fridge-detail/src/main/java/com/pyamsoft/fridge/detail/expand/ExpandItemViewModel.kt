@@ -33,19 +33,20 @@ import com.pyamsoft.fridge.detail.base.BaseUpdaterViewModel
 import com.pyamsoft.fridge.detail.expand.date.DateSelectPayload
 import com.pyamsoft.fridge.detail.item.isNameValid
 import com.pyamsoft.pydroid.arch.EventBus
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import timber.log.Timber
 import java.util.Calendar
 import java.util.Date
 import javax.inject.Inject
 import javax.inject.Named
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import timber.log.Timber
 
 class ExpandItemViewModel @Inject internal constructor(
     defaultPresence: Presence,
     dateSelectBus: EventBus<DateSelectPayload>,
     realtime: FridgeItemRealtime,
     private val fakeRealtime: EventBus<FridgeItemChangeEvent>,
+    private val itemExpandBus: EventBus<ItemExpandPayload>,
     private val interactor: DetailInteractor,
     @Named("item_id") possibleItemId: String,
     @Named("item_entry_id") itemEntryId: String
@@ -59,6 +60,18 @@ class ExpandItemViewModel @Inject internal constructor(
 ) {
 
     init {
+        doOnInit {
+            viewModelScope.launch(context = Dispatchers.Default) {
+                itemExpandBus.send(ItemExpandPayload(true))
+            }
+        }
+
+        doOnTeardown {
+            // Must do this without using viewModelScope since we are tearing down
+            // so send() would instantly cancel
+            itemExpandBus.publish(ItemExpandPayload(false))
+        }
+
         doOnSaveState { state ->
             // If this viewmodel lives on a "new" item which has since been created
             if (possibleItemId.isBlank()) {
@@ -96,26 +109,22 @@ class ExpandItemViewModel @Inject internal constructor(
         }
 
         doOnInit {
-            viewModelScope.launch(context = Dispatchers.Default) {
-                fakeRealtime.onEvent { handleRealtimeEvent(it) }
-            }
+            fakeRealtime.scopedEvent(context = Dispatchers.Default) { handleRealtimeEvent(it) }
         }
 
         doOnInit {
-            viewModelScope.launch(context = Dispatchers.Default) {
-                dateSelectBus.onEvent { event ->
-                    withState {
-                        requireNotNull(item).let { item ->
-                            if (event.entryId != item.entryId()) {
-                                return@let
-                            }
-
-                            if (event.itemId != item.id()) {
-                                return@let
-                            }
-
-                            commitDate(event.year, event.month, event.day)
+            dateSelectBus.scopedEvent(context = Dispatchers.Default) { event ->
+                withState {
+                    requireNotNull(item).let { item ->
+                        if (event.entryId != item.entryId()) {
+                            return@let
                         }
+
+                        if (event.itemId != item.id()) {
+                            return@let
+                        }
+
+                        commitDate(event.year, event.month, event.day)
                     }
                 }
             }

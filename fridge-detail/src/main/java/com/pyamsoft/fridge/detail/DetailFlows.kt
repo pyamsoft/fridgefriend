@@ -31,7 +31,8 @@ data class DetailViewState(
     val actionVisible: ActionVisible?,
     val expirationRange: Int,
     val isSameDayExpired: Boolean,
-    val listItemPresence: FridgeItem.Presence
+    val listItemPresence: FridgeItem.Presence,
+    val isItemExpanded: Boolean
 ) : UiViewState {
 
     data class ActionVisible internal constructor(val visible: Boolean)

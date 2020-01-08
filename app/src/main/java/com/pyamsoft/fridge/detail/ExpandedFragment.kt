@@ -60,10 +60,6 @@ internal class ExpandedFragment : DialogFragment() {
 
     @JvmField
     @Inject
-    internal var factory: ViewModelProvider.Factory? = null
-
-    @JvmField
-    @Inject
     internal var name: ExpandItemName? = null
 
     @JvmField
@@ -96,6 +92,9 @@ internal class ExpandedFragment : DialogFragment() {
 
     private var stateSaver: StateSaver? = null
 
+    @JvmField
+    @Inject
+    internal var factory: ViewModelProvider.Factory? = null
     private val viewModel by factory<ExpandItemViewModel> { factory }
 
     override fun onCreateView(

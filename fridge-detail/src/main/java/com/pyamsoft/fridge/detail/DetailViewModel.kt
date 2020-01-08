@@ -33,20 +33,22 @@ import com.pyamsoft.fridge.detail.DetailViewEvent.ToggleArchiveVisibility
 import com.pyamsoft.fridge.detail.DetailViewEvent.UndoDelete
 import com.pyamsoft.fridge.detail.DetailViewState.Loading
 import com.pyamsoft.fridge.detail.base.BaseUpdaterViewModel
+import com.pyamsoft.fridge.detail.expand.ItemExpandPayload
 import com.pyamsoft.highlander.highlander
 import com.pyamsoft.pydroid.arch.EventBus
-import java.util.Date
-import javax.inject.Inject
-import javax.inject.Named
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import timber.log.Timber
+import java.util.Date
+import javax.inject.Inject
+import javax.inject.Named
 
 class DetailViewModel @Inject internal constructor(
     private val interactor: DetailInteractor,
     private val fakeRealtime: EventBus<FridgeItemChangeEvent>,
+    private val itemExpandedBus: EventBus<ItemExpandPayload>,
     @Named("entry_id") private val entryId: String,
     listItemPresence: FridgeItem.Presence
 ) : BaseUpdaterViewModel<DetailViewState, DetailViewEvent, DetailControllerEvent>(
@@ -59,7 +61,8 @@ class DetailViewModel @Inject internal constructor(
         actionVisible = null,
         expirationRange = interactor.getExpiringSoonRange(),
         isSameDayExpired = interactor.isSameDayExpired(),
-        listItemPresence = listItemPresence
+        listItemPresence = listItemPresence,
+        isItemExpanded = false
     )
 ) {
 
@@ -102,9 +105,7 @@ class DetailViewModel @Inject internal constructor(
                     .onEvent { handleRealtime(it) }
             }
 
-            launch {
-                fakeRealtime.onEvent { handleRealtime(it) }
-            }
+            fakeRealtime.scopedEvent { handleRealtime(it) }
         }
     }
 
@@ -128,6 +129,12 @@ class DetailViewModel @Inject internal constructor(
             }
             doOnTeardown {
                 isSameDayExpiredUnregister.unregister()
+            }
+        }
+
+        doOnInit {
+            itemExpandedBus.scopedEvent(Dispatchers.Default) {
+                setState { copy(isItemExpanded = it.expanded) }
             }
         }
     }

@@ -39,6 +39,7 @@ import com.pyamsoft.fridge.db.zone.NearbyZoneQueryDao
 import com.pyamsoft.fridge.detail.DateSelectComponent
 import com.pyamsoft.fridge.detail.DetailComponent
 import com.pyamsoft.fridge.detail.ExpandComponent
+import com.pyamsoft.fridge.detail.expand.ItemExpandPayload
 import com.pyamsoft.fridge.detail.expand.date.DateSelectPayload
 import com.pyamsoft.fridge.entry.EntryComponent
 import com.pyamsoft.fridge.locator.GeofenceBroadcastReceiver
@@ -204,6 +205,13 @@ internal interface FridgeComponent {
             @JvmStatic
             @Singleton
             internal fun provideDateSelectBus(): EventBus<DateSelectPayload> {
+                return EventBus.create()
+            }
+
+            @Provides
+            @JvmStatic
+            @Singleton
+            internal fun provideItemExpandedBus(): EventBus<ItemExpandPayload> {
                 return EventBus.create()
             }
 

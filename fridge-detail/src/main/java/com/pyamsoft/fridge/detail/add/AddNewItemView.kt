@@ -19,6 +19,8 @@ package com.pyamsoft.fridge.detail.add
 
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.AccelerateInterpolator
+import androidx.core.view.ViewCompat
 import androidx.core.view.ViewPropertyAnimatorCompat
 import androidx.core.view.ViewPropertyAnimatorListenerAdapter
 import com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -33,6 +35,7 @@ import com.pyamsoft.pydroid.ui.util.popHide
 import com.pyamsoft.pydroid.ui.util.popShow
 import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
 import com.pyamsoft.pydroid.util.tintWith
+import timber.log.Timber
 import javax.inject.Inject
 
 class AddNewItemView @Inject internal constructor(
@@ -52,10 +55,13 @@ class AddNewItemView @Inject internal constructor(
 
     private var addNewIconAnimator: ViewPropertyAnimatorCompat? = null
     private var filterIconAnimator: ViewPropertyAnimatorCompat? = null
+    private var rotateIconAnimator: ViewPropertyAnimatorCompat? = null
+
+    private var previousVisible: DetailViewState.ActionVisible? = null
+    private var previousRotated = false
 
     init {
         doOnInflate {
-            disposeAddNewLoaded()
             addNewIconLoaded = imageLoader
                 .load(R.drawable.ic_add_24dp)
                 .mutate { it.tintWith(expandButton.context, R.color.white) }
@@ -81,6 +87,11 @@ class AddNewItemView @Inject internal constructor(
         doOnTeardown {
             disposeAddNewAnimator()
             disposeFilterAnimator()
+            disposeRotate()
+        }
+
+        doOnTeardown {
+            previousVisible = null
         }
     }
 
@@ -104,6 +115,11 @@ class AddNewItemView @Inject internal constructor(
         addNewIconLoaded = null
     }
 
+    private fun disposeRotate() {
+        rotateIconAnimator?.cancel()
+        rotateIconAnimator = null
+    }
+
     private fun expandItem() {
         publish(DetailViewEvent.AddNewItemEvent)
     }
@@ -125,48 +141,42 @@ class AddNewItemView @Inject internal constructor(
         }
 
         state.actionVisible?.let { action ->
-            if (action.visible) {
-                if (addNewIconAnimator != null) {
-                    return@let
-                }
+            val previous = previousVisible
+            previousVisible = action
 
+            // If the visibility state has not changed, do nothing
+            if (previous != null && previous.visible == action.visible) {
+                Timber.w("Same action visible: $action")
+                return@let
+            }
+
+            Timber.d("Run action visible: $action")
+            if (action.visible) {
+                disposeAddNewAnimator()
                 addNewIconAnimator =
                     expandButton.popShow(listener = object : ViewPropertyAnimatorListenerAdapter() {
+
                         override fun onAnimationEnd(view: View) {
-                            disposeAddNewAnimator()
-
-                            if (filterIconAnimator != null) {
-                                return
-                            }
-
+                            disposeFilterAnimator()
                             filterIconAnimator = filterButton.popShow(
                                 startDelay = 0,
                                 listener = object : ViewPropertyAnimatorListenerAdapter() {
                                     override fun onAnimationEnd(view: View) {
-                                        disposeFilterAnimator()
                                         publish(DetailViewEvent.DoneScrollActionVisibilityChange)
                                     }
                                 })
                         }
                     })
             } else {
-                if (filterIconAnimator != null) {
-                    return@let
-                }
-
+                disposeFilterAnimator()
                 filterIconAnimator =
                     filterButton.popHide(listener = object : ViewPropertyAnimatorListenerAdapter() {
                         override fun onAnimationEnd(view: View) {
-                            disposeFilterAnimator()
-
-                            if (addNewIconAnimator != null) {
-                                return
-                            }
+                            disposeAddNewAnimator()
                             addNewIconAnimator = expandButton.popHide(
                                 startDelay = 0,
                                 listener = object : ViewPropertyAnimatorListenerAdapter() {
                                     override fun onAnimationEnd(view: View) {
-                                        disposeAddNewAnimator()
                                         publish(DetailViewEvent.DoneScrollActionVisibilityChange)
                                     }
                                 })
@@ -174,5 +184,33 @@ class AddNewItemView @Inject internal constructor(
                     })
             }
         }
+
+        state.isItemExpanded.let { expanded ->
+            Timber.d("Item expanded: $expanded")
+            val previous = previousRotated
+            previousRotated = expanded
+            if (previous != expanded) {
+                disposeRotate()
+                rotateIconAnimator = ViewCompat.animate(expandButton).apply {
+                    startDelay = 0
+                    duration = 200
+                    interpolator = ROTATE_INTERPOLATOR
+
+                    // Need to null out the listener here or it will react to above popShow and popHide
+                    setListener(null)
+
+                    if (expanded) {
+                        rotation(45F)
+                    } else {
+                        rotation(0F)
+                    }
+                }
+            }
+        }
+    }
+
+    companion object {
+
+        private val ROTATE_INTERPOLATOR = AccelerateInterpolator()
     }
 }
