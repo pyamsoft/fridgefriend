@@ -154,16 +154,12 @@ internal class MainActivity : RatingActivity(), VersionChecker {
     override fun onStart() {
         super.onStart()
         requireNotNull(foregroundState).isForeground = true
+        checkNearbyFragmentPermissions()
     }
 
     override fun onStop() {
         super.onStop()
         requireNotNull(foregroundState).isForeground = false
-    }
-
-    override fun onResume() {
-        super.onResume()
-        checkNearbyFragmentPermissions()
     }
 
     override fun onTrimMemory(level: Int) {
