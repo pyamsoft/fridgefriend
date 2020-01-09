@@ -102,9 +102,8 @@ class ExpandItemViewModel @Inject internal constructor(
         }
 
         doOnInit {
-            viewModelScope.launch(context = Dispatchers.Default) {
-                realtime.listenForChanges(itemEntryId)
-                    .onEvent { handleRealtimeEvent(it) }
+            realtime.listenForChanges(itemEntryId).scopedEvent(context = Dispatchers.Default) {
+                handleRealtimeEvent(it)
             }
         }
 
