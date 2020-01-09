@@ -41,8 +41,8 @@ import com.pyamsoft.pydroid.arch.createComponent
 import com.pyamsoft.pydroid.ui.Injector
 import com.pyamsoft.pydroid.ui.arch.factory
 import com.pyamsoft.pydroid.ui.util.commit
-import javax.inject.Inject
 import timber.log.Timber
+import javax.inject.Inject
 
 internal class PermissionFragment : Fragment(), SnackbarContainer,
     PermissionConsumer<ForegroundLocationPermission> {
@@ -58,7 +58,7 @@ internal class PermissionFragment : Fragment(), SnackbarContainer,
     @JvmField
     @Inject
     internal var factory: ViewModelProvider.Factory? = null
-    private val viewModel by factory<LocationPermissionViewModel> { factory }
+    private val viewModel by factory<LocationPermissionViewModel>(activity = true) { factory }
 
     private var stateSaver: StateSaver? = null
 
