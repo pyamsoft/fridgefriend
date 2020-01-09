@@ -23,17 +23,17 @@ import java.util.Calendar
 interface ButlerPreferences {
 
     @CheckResult
-    fun getLastNotificationTimeNearby(): Long
+    suspend fun getLastNotificationTimeNearby(): Long
 
-    fun markNotificationNearby(calendar: Calendar)
-
-    @CheckResult
-    fun getLastNotificationTimeExpiringSoon(): Long
-
-    fun markNotificationExpiringSoon(calendar: Calendar)
+    suspend fun markNotificationNearby(calendar: Calendar)
 
     @CheckResult
-    fun getLastNotificationTimeExpired(): Long
+    suspend fun getLastNotificationTimeExpiringSoon(): Long
 
-    fun markNotificationExpired(calendar: Calendar)
+    suspend fun markNotificationExpiringSoon(calendar: Calendar)
+
+    @CheckResult
+    suspend fun getLastNotificationTimeExpired(): Long
+
+    suspend fun markNotificationExpired(calendar: Calendar)
 }

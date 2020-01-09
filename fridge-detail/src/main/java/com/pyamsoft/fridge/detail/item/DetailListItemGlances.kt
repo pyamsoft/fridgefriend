@@ -105,20 +105,29 @@ class DetailListItemGlances @Inject internal constructor(
         savedState: UiSavedState
     ) {
         state.item.let { item ->
-            val isVisible = item.isReal() && !item.isArchived() && item.presence() == HAVE
+            val range = state.expirationRange
+            val isSameDayExpired = state.isSameDayExpired
+
+            val isVisible =
+                item.isReal() && !item.isArchived() && item.presence() == HAVE && range != null && isSameDayExpired != null
             layoutRoot.isVisible = isVisible
 
-            val today = Calendar.getInstance().cleanMidnight()
-            val soonDate = Calendar.getInstance().daysLaterMidnight(state.expirationRange)
-            val isSameDayExpired = state.isSameDayExpired
-            val expireTime = item.expireTime()
-            val hasTime = expireTime != null
-            val isExpiringSoon = item.isExpiringSoon(today, soonDate, isSameDayExpired)
-            val isExpired = item.isExpired(today, isSameDayExpired)
+            if (isVisible) {
+                // This should be fine because of the isVisible conditional
+                val dateRange = requireNotNull(range).range
+                val isSameDay = requireNotNull(isSameDayExpired).isSame
 
-            setDateRangeView(item, expireTime, hasTime)
-            setExpiringView(item, expireTime, today, isExpiringSoon, isExpired, hasTime)
-            setExpiredView(item, expireTime, today, isExpired, hasTime)
+                val today = Calendar.getInstance().cleanMidnight()
+                val soonDate = Calendar.getInstance().daysLaterMidnight(dateRange)
+                val expireTime = item.expireTime()
+                val hasTime = expireTime != null
+                val isExpiringSoon = item.isExpiringSoon(today, soonDate, isSameDay)
+                val isExpired = item.isExpired(today, isSameDay)
+
+                setDateRangeView(item, expireTime, hasTime)
+                setExpiringView(item, expireTime, today, isExpiringSoon, isExpired, hasTime)
+                setExpiredView(item, expireTime, today, isExpired, hasTime)
+            }
         }
     }
 

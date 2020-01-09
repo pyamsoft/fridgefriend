@@ -26,22 +26,22 @@ abstract class DetailPreferenceInteractor protected constructor(
 ) {
 
     @CheckResult
-    fun getExpiringSoonRange(): Int {
+    suspend fun getExpiringSoonRange(): Int {
         return preferences.getExpiringSoonRange()
     }
 
     @CheckResult
-    fun isSameDayExpired(): Boolean {
+    suspend fun isSameDayExpired(): Boolean {
         return preferences.isSameDayExpired()
     }
 
     @CheckResult
-    fun watchForExpiringSoonChanges(onChange: (newRange: Int) -> Unit): Unregister {
+    suspend fun watchForExpiringSoonChanges(onChange: (newRange: Int) -> Unit): Unregister {
         return preferences.watchForExpiringSoonChange(onChange)
     }
 
     @CheckResult
-    fun watchForSameDayExpiredChange(onChange: (newSameDayExpired: Boolean) -> Unit): Unregister {
+    suspend fun watchForSameDayExpiredChange(onChange: (newSameDayExpired: Boolean) -> Unit): Unregister {
         return preferences.watchForSameDayExpiredChange(onChange)
     }
 }

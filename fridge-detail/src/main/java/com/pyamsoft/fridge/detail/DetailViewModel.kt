@@ -59,8 +59,8 @@ class DetailViewModel @Inject internal constructor(
         listError = null,
         undoableItem = null,
         actionVisible = null,
-        expirationRange = interactor.getExpiringSoonRange(),
-        isSameDayExpired = interactor.isSameDayExpired(),
+        expirationRange = null,
+        isSameDayExpired = null,
         listItemPresence = listItemPresence,
         isItemExpanded = false
     )
@@ -115,20 +115,38 @@ class DetailViewModel @Inject internal constructor(
         }
 
         doOnInit {
-            val expiringSoonUnregister = interactor.watchForExpiringSoonChanges { newRange ->
-                setState { copy(expirationRange = newRange) }
-            }
-            doOnTeardown {
-                expiringSoonUnregister.unregister()
+            viewModelScope.launch(context = Dispatchers.Default) {
+                val range = interactor.getExpiringSoonRange()
+                setState { copy(expirationRange = DetailViewState.ExpirationRange(range)) }
             }
         }
 
         doOnInit {
-            val isSameDayExpiredUnregister = interactor.watchForSameDayExpiredChange { newSameDay ->
-                setState { copy(isSameDayExpired = newSameDay) }
+            viewModelScope.launch(context = Dispatchers.Default) {
+                val expiringSoonUnregister = interactor.watchForExpiringSoonChanges { range ->
+                    setState { copy(expirationRange = DetailViewState.ExpirationRange(range)) }
+                }
+                doOnTeardown {
+                    expiringSoonUnregister.unregister()
+                }
             }
-            doOnTeardown {
-                isSameDayExpiredUnregister.unregister()
+        }
+
+        doOnInit {
+            viewModelScope.launch(context = Dispatchers.Default) {
+                val isSame = interactor.isSameDayExpired()
+                setState { copy(isSameDayExpired = DetailViewState.IsSameDayExpired(isSame)) }
+            }
+        }
+
+        doOnInit {
+            viewModelScope.launch(context = Dispatchers.Default) {
+                val isSameDayExpiredUnregister = interactor.watchForSameDayExpiredChange { same ->
+                    setState { copy(isSameDayExpired = DetailViewState.IsSameDayExpired(same)) }
+                }
+                doOnTeardown {
+                    isSameDayExpiredUnregister.unregister()
+                }
             }
         }
 

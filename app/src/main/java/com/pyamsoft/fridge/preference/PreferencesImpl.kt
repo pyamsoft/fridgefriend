@@ -30,6 +30,9 @@ import com.pyamsoft.fridge.db.FridgeItemPreferences
 import com.pyamsoft.fridge.db.PersistentEntryPreferences
 import com.pyamsoft.fridge.setting.SettingsPreferences
 import com.pyamsoft.pydroid.core.Enforcer
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.util.Calendar
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -38,8 +41,7 @@ import javax.inject.Singleton
 internal class PreferencesImpl @Inject internal constructor(
     private val enforcer: Enforcer,
     context: Context
-) : ButlerPreferences,
-    FridgeItemPreferences, PersistentEntryPreferences, SettingsPreferences {
+) : ButlerPreferences, FridgeItemPreferences, PersistentEntryPreferences, SettingsPreferences {
 
     private val preferences by lazy {
         PreferenceManager.getDefaultSharedPreferences(context.applicationContext)
@@ -61,59 +63,67 @@ internal class PreferencesImpl @Inject internal constructor(
         isSameDayExpiredDefault = res.getString(R.string.expired_same_day_default)
     }
 
-    override fun getLastNotificationTimeNearby(): Long {
+    override suspend fun getLastNotificationTimeNearby(): Long {
         return preferences.getLong(KEY_LAST_NOTIFICATION_TIME_NEARBY, 0)
     }
 
-    override fun markNotificationNearby(calendar: Calendar) {
+    override suspend fun markNotificationNearby(calendar: Calendar) {
         preferences.edit {
             putLong(KEY_LAST_NOTIFICATION_TIME_NEARBY, calendar.timeInMillis)
         }
     }
 
-    override fun getLastNotificationTimeExpiringSoon(): Long {
+    override suspend fun getLastNotificationTimeExpiringSoon(): Long {
         return preferences.getLong(KEY_LAST_NOTIFICATION_TIME_EXPIRING_SOON, 0)
     }
 
-    override fun markNotificationExpiringSoon(calendar: Calendar) {
+    override suspend fun markNotificationExpiringSoon(calendar: Calendar) {
         preferences.edit {
             putLong(KEY_LAST_NOTIFICATION_TIME_EXPIRING_SOON, calendar.timeInMillis)
         }
     }
 
-    override fun getLastNotificationTimeExpired(): Long {
+    override suspend fun getLastNotificationTimeExpired(): Long {
         return preferences.getLong(KEY_LAST_NOTIFICATION_TIME_EXPIRED, 0)
     }
 
-    override fun markNotificationExpired(calendar: Calendar) {
+    override suspend fun markNotificationExpired(calendar: Calendar) {
         preferences.edit {
             putLong(KEY_LAST_NOTIFICATION_TIME_EXPIRED, calendar.timeInMillis)
         }
     }
 
-    override fun getExpiringSoonRange(): Int {
+    override suspend fun getExpiringSoonRange(): Int {
         return preferences.getString(expiringSoonKey, expiringSoonDefault).orEmpty().toInt()
     }
 
-    override fun isSameDayExpired(): Boolean {
+    override suspend fun isSameDayExpired(): Boolean {
         return preferences.getString(isSameDayExpiredKey, isSameDayExpiredDefault).orEmpty()
             .toBoolean()
     }
 
-    override fun watchForExpiringSoonChange(onChange: (newRange: Int) -> Unit): Unregister {
-        return registerPreferenceListener(OnSharedPreferenceChangeListener { _, key ->
-            if (key == expiringSoonKey) {
-                onChange(getExpiringSoonRange())
-            }
-        })
+    override suspend fun watchForExpiringSoonChange(onChange: (newRange: Int) -> Unit): Unregister {
+        return withContext(context = Dispatchers.Default) {
+            registerPreferenceListener(OnSharedPreferenceChangeListener { _, key ->
+                if (key == expiringSoonKey) {
+                    launch(context = Dispatchers.Default) {
+                        onChange(getExpiringSoonRange())
+                    }
+                }
+            })
+        }
     }
 
-    override fun watchForSameDayExpiredChange(onChange: (newSameDay: Boolean) -> Unit): Unregister {
-        return registerPreferenceListener(OnSharedPreferenceChangeListener { _, key ->
-            if (key == isSameDayExpiredKey) {
-                onChange(isSameDayExpired())
-            }
-        })
+    override suspend fun watchForSameDayExpiredChange(onChange: (newSameDay: Boolean) -> Unit): Unregister {
+        return withContext(context = Dispatchers.Default) {
+            registerPreferenceListener(OnSharedPreferenceChangeListener { _, key ->
+                if (key == isSameDayExpiredKey) {
+                    launch(context = Dispatchers.Default) {
+                        onChange(isSameDayExpired())
+                    }
+                }
+            })
+        }
     }
 
     @CheckResult
@@ -129,11 +139,11 @@ internal class PreferencesImpl @Inject internal constructor(
         }
     }
 
-    override fun getPersistentId(key: String): String {
+    override suspend fun getPersistentId(key: String): String {
         return requireNotNull(preferences.getString(key, IdGenerator.generate()))
     }
 
-    override fun savePersistentId(key: String, id: String) {
+    override suspend fun savePersistentId(key: String, id: String) {
         preferences.edit { putString(key, id) }
     }
 

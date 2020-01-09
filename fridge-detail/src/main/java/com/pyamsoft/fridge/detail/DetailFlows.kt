@@ -29,11 +29,15 @@ data class DetailViewState(
     val listError: Throwable?,
     val undoableItem: FridgeItem?,
     val actionVisible: ActionVisible?,
-    val expirationRange: Int,
-    val isSameDayExpired: Boolean,
+    val expirationRange: ExpirationRange?,
+    val isSameDayExpired: IsSameDayExpired?,
     val listItemPresence: FridgeItem.Presence,
     val isItemExpanded: Boolean
 ) : UiViewState {
+
+    data class ExpirationRange internal constructor(val range: Int)
+
+    data class IsSameDayExpired internal constructor(val isSame: Boolean)
 
     data class ActionVisible internal constructor(val visible: Boolean)
 

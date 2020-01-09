@@ -31,10 +31,10 @@ import com.pyamsoft.fridge.db.isExpiringSoon
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence.HAVE
 import com.pyamsoft.fridge.db.item.isArchived
-import java.util.Calendar
-import java.util.concurrent.TimeUnit.HOURS
 import kotlinx.coroutines.coroutineScope
 import timber.log.Timber
+import java.util.Calendar
+import java.util.concurrent.TimeUnit.HOURS
 
 internal class ExpirationWorker internal constructor(
     context: Context,
@@ -45,7 +45,7 @@ internal class ExpirationWorker internal constructor(
         butler.remindExpiration(RECURRING_INTERVAL, HOURS)
     }
 
-    private fun notifyForEntry(
+    private suspend fun notifyForEntry(
         preferences: ButlerPreferences,
         today: Calendar,
         later: Calendar,

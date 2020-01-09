@@ -23,14 +23,14 @@ import com.pyamsoft.fridge.core.Preferences.Unregister
 interface FridgeItemPreferences {
 
     @CheckResult
-    fun getExpiringSoonRange(): Int
+    suspend fun getExpiringSoonRange(): Int
 
     @CheckResult
-    fun watchForExpiringSoonChange(onChange: (newRange: Int) -> Unit): Unregister
+    suspend fun watchForExpiringSoonChange(onChange: (newRange: Int) -> Unit): Unregister
 
     @CheckResult
-    fun isSameDayExpired(): Boolean
+    suspend fun isSameDayExpired(): Boolean
 
     @CheckResult
-    fun watchForSameDayExpiredChange(onChange: (newSameDay: Boolean) -> Unit): Unregister
+    suspend fun watchForSameDayExpiredChange(onChange: (newSameDay: Boolean) -> Unit): Unregister
 }

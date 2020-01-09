@@ -22,7 +22,7 @@ import androidx.annotation.CheckResult
 interface PersistentEntryPreferences {
 
     @CheckResult
-    fun getPersistentId(key: String): String
+    suspend fun getPersistentId(key: String): String
 
-    fun savePersistentId(key: String, id: String)
+    suspend fun savePersistentId(key: String, id: String)
 }

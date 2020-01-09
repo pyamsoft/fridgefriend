@@ -24,6 +24,7 @@ import com.pyamsoft.fridge.db.entry.FridgeEntryQueryDao
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItemQueryDao
 import com.pyamsoft.pydroid.ui.Injector
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.coroutineScope
 
 internal abstract class FridgeWorker protected constructor(
@@ -52,7 +53,7 @@ internal abstract class FridgeWorker protected constructor(
     protected open fun afterTeardown() {
     }
 
-    protected suspend fun withFridgeData(func: (entry: FridgeEntry, items: List<FridgeItem>) -> Unit) =
+    protected suspend fun withFridgeData(func: suspend CoroutineScope.(entry: FridgeEntry, items: List<FridgeItem>) -> Unit) {
         coroutineScope {
             requireNotNull(fridgeEntryQueryDao).query(false)
                 .forEach { entry ->
@@ -60,4 +61,5 @@ internal abstract class FridgeWorker protected constructor(
                     func(entry, items)
                 }
         }
+    }
 }

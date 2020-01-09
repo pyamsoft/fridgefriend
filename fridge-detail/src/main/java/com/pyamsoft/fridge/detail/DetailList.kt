@@ -215,8 +215,8 @@ class DetailList @Inject internal constructor(
 
     private fun setList(
         list: List<FridgeItem>,
-        expirationRange: Int,
-        sameDayExpired: Boolean
+        expirationRange: DetailViewState.ExpirationRange?,
+        sameDayExpired: DetailViewState.IsSameDayExpired?
     ) {
         usingAdapter().submitList(list.map {
             DetailListItemViewState(
