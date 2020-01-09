@@ -24,6 +24,7 @@ import android.view.ViewGroup
 import androidx.annotation.CheckResult
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
+import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.ViewModelProvider
 import com.pyamsoft.fridge.BuildConfig
 import com.pyamsoft.fridge.FridgeComponent
@@ -48,8 +49,8 @@ import com.pyamsoft.pydroid.ui.util.commitNow
 import com.pyamsoft.pydroid.ui.util.layout
 import com.pyamsoft.pydroid.ui.util.show
 import com.pyamsoft.pydroid.util.makeWindowSexy
-import javax.inject.Inject
 import timber.log.Timber
+import javax.inject.Inject
 
 internal class MainActivity : RatingActivity(), VersionChecker {
 
@@ -160,6 +161,11 @@ internal class MainActivity : RatingActivity(), VersionChecker {
         requireNotNull(foregroundState).isForeground = false
     }
 
+    override fun onResume() {
+        super.onResume()
+        checkNearbyFragmentPermissions()
+    }
+
     override fun onTrimMemory(level: Int) {
         super.onTrimMemory(level)
         if (level == ComponentCallbacks2.TRIM_MEMORY_UI_HIDDEN) {
@@ -236,17 +242,36 @@ internal class MainActivity : RatingActivity(), VersionChecker {
             fm.findFragmentByTag(MapFragment.TAG) == null &&
             fm.findFragmentByTag(PermissionFragment.TAG) == null
         ) {
-            fm.commitNow(this) {
-                val container = fragmentContainerId
-                if (viewModel.canShowMap()) {
-                    replace(container, MapFragment.newInstance(), MapFragment.TAG)
-                } else {
-                    replace(
-                        container,
-                        PermissionFragment.newInstance(container),
-                        PermissionFragment.TAG
-                    )
-                }
+            commitNearbyFragment(fm)
+        }
+    }
+
+    private fun checkNearbyFragmentPermissions() {
+        val fm = supportFragmentManager
+        if (fm.findFragmentByTag(PermissionFragment.TAG) != null) {
+            if (viewModel.canShowMap()) {
+                // Replace permission with map
+                commitNearbyFragment(fm)
+            }
+        } else if (fm.findFragmentByTag(MapFragment.TAG) != null) {
+            if (!viewModel.canShowMap()) {
+                // Replace map with permission
+                commitNearbyFragment(fm)
+            }
+        }
+    }
+
+    private fun commitNearbyFragment(fragmentManager: FragmentManager) {
+        fragmentManager.commitNow(this) {
+            val container = fragmentContainerId
+            if (viewModel.canShowMap()) {
+                replace(container, MapFragment.newInstance(), MapFragment.TAG)
+            } else {
+                replace(
+                    container,
+                    PermissionFragment.newInstance(container),
+                    PermissionFragment.TAG
+                )
             }
         }
     }
