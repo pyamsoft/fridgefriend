@@ -53,7 +53,7 @@ internal class GeofenceUpdateReceiver internal constructor() : GmsGeofenceBroadc
             val lastLocation = try {
                 fencer.getLastKnownLocation()
             } catch (e: Exception) {
-                Timber.w("Could not get last known location - permission issue perhaps?")
+                Timber.w("Could not get last known location - permission_button issue perhaps?")
                 null
             }
 

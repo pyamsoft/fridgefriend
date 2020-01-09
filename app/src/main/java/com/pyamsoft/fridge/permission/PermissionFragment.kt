@@ -22,30 +22,30 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.CheckResult
-import androidx.coordinatorlayout.widget.CoordinatorLayout
+import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.constraintlayout.widget.ConstraintSet
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.pyamsoft.fridge.FridgeComponent
 import com.pyamsoft.fridge.locator.R
-import com.pyamsoft.fridge.locator.map.permission.LocationPermissionScreen
 import com.pyamsoft.fridge.locator.map.permission.LocationPermissionViewModel
+import com.pyamsoft.fridge.locator.map.permission.LocationRequestButton
 import com.pyamsoft.fridge.locator.map.permission.PermissionControllerEvent.LocationPermissionRequest
 import com.pyamsoft.fridge.locator.permission.ForegroundLocationPermission
 import com.pyamsoft.fridge.locator.permission.PermissionConsumer
 import com.pyamsoft.fridge.locator.permission.PermissionGrant
 import com.pyamsoft.fridge.locator.permission.PermissionHandler
-import com.pyamsoft.fridge.main.SnackbarContainer
 import com.pyamsoft.fridge.map.MapFragment
 import com.pyamsoft.pydroid.arch.StateSaver
 import com.pyamsoft.pydroid.arch.createComponent
 import com.pyamsoft.pydroid.ui.Injector
 import com.pyamsoft.pydroid.ui.arch.factory
 import com.pyamsoft.pydroid.ui.util.commit
+import com.pyamsoft.pydroid.ui.util.layout
 import timber.log.Timber
 import javax.inject.Inject
 
-internal class PermissionFragment : Fragment(), SnackbarContainer,
-    PermissionConsumer<ForegroundLocationPermission> {
+internal class PermissionFragment : Fragment(), PermissionConsumer<ForegroundLocationPermission> {
 
     @JvmField
     @Inject
@@ -53,7 +53,7 @@ internal class PermissionFragment : Fragment(), SnackbarContainer,
 
     @JvmField
     @Inject
-    internal var screen: LocationPermissionScreen? = null
+    internal var requestButton: LocationRequestButton? = null
 
     @JvmField
     @Inject
@@ -62,18 +62,12 @@ internal class PermissionFragment : Fragment(), SnackbarContainer,
 
     private var stateSaver: StateSaver? = null
 
-    private var rootView: CoordinatorLayout? = null
-
-    override fun getSnackbarContainer(): CoordinatorLayout? {
-        return rootView
-    }
-
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        return inflater.inflate(R.layout.layout_coordinator, container, false)
+        return inflater.inflate(R.layout.layout_constraint, container, false)
     }
 
     override fun onViewCreated(
@@ -82,22 +76,37 @@ internal class PermissionFragment : Fragment(), SnackbarContainer,
     ) {
         super.onViewCreated(view, savedInstanceState)
 
-        val parent = view.findViewById<CoordinatorLayout>(R.id.layout_coordinator)
-        rootView = parent
+        val parent = view.findViewById<ConstraintLayout>(R.id.layout_constraint)
         Injector.obtain<FridgeComponent>(view.context.applicationContext)
             .plusPermissionComponent()
             .create(parent)
             .inject(this)
 
-        val screen = requireNotNull(screen)
-
+        val requestButton = requireNotNull(requestButton)
         stateSaver = createComponent(
             savedInstanceState, viewLifecycleOwner,
             viewModel,
-            screen
+            requestButton
         ) {
             return@createComponent when (it) {
                 is LocationPermissionRequest -> requestLocationPermission()
+            }
+        }
+
+        parent.layout {
+            requestButton.let {
+                connect(it.id(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
+                connect(it.id(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
+                connect(it.id(), ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP)
+                connect(
+                    it.id(),
+                    ConstraintSet.BOTTOM,
+                    ConstraintSet.PARENT_ID,
+                    ConstraintSet.BOTTOM
+                )
+
+                constrainWidth(it.id(), ConstraintSet.WRAP_CONTENT)
+                constrainHeight(it.id(), ConstraintSet.WRAP_CONTENT)
             }
         }
     }
@@ -119,11 +128,8 @@ internal class PermissionFragment : Fragment(), SnackbarContainer,
     }
 
     private fun pushMapFragmentOncePermissionGranted() {
-        val self = this
-        // Do not use commitNow because Assent needs to be the first one in the queue to fire
-        requireNotNull(parentFragment).childFragmentManager.commit(viewLifecycleOwner) {
-            remove(self)
-            add(
+        requireActivity().supportFragmentManager.commit(viewLifecycleOwner) {
+            replace(
                 requireArguments().getInt(CONTAINER_ID, 0),
                 MapFragment.newInstance(),
                 MapFragment.TAG
@@ -149,11 +155,10 @@ internal class PermissionFragment : Fragment(), SnackbarContainer,
 
     override fun onDestroyView() {
         super.onDestroyView()
-
-        rootView = null
         factory = null
-        screen = null
         stateSaver = null
+
+        requestButton = null
     }
 
     companion object {

@@ -26,7 +26,7 @@ object BackgroundLocationPermission : Permission {
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             arrayOf(Manifest.permission.ACCESS_BACKGROUND_LOCATION)
         } else {
-            throw IllegalStateException("API levels below Q do not need background location permission")
+            throw IllegalStateException("API levels below Q do not need background location permission_button")
         }
     }
 

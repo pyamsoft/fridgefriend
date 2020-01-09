@@ -86,7 +86,7 @@ internal class GmsLocator @Inject internal constructor(
     ) {
         if (!permission.hasForegroundPermission()) {
             Timber.w("Cannot get last location, missing foreground location permissions")
-            onError(IllegalStateException("Missing ACCESS_FOREGROUND_LOCATION permission"))
+            onError(IllegalStateException("Missing ACCESS_FOREGROUND_LOCATION permission_button"))
             return
         }
 

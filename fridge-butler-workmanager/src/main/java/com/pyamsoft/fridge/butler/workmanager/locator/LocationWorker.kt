@@ -58,7 +58,7 @@ internal class LocationWorker internal constructor(
         val location = try {
             requireNotNull(geofencer).getLastKnownLocation()
         } catch (e: Exception) {
-            Timber.w("Could not get last known location - permission issue perhaps?")
+            Timber.w("Could not get last known location - permission_button issue perhaps?")
             null
         }
 

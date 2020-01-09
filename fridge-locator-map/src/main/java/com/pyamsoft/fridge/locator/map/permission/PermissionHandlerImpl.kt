@@ -41,7 +41,7 @@ internal class PermissionHandlerImpl<T : Permission> @Inject internal constructo
         val permissionArray = permission.permissions()
         for (p in permissions) {
             if (p !in permissionArray) {
-                Timber.w("Unknown permission found in response: $p")
+                Timber.w("Unknown permission_button found in response: $p")
                 return consumer.onPermissionResponse(permission.asGrant(granted = false))
             }
         }
