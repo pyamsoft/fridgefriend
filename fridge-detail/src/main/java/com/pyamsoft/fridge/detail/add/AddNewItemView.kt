@@ -17,13 +17,13 @@
 
 package com.pyamsoft.fridge.detail.add
 
-import android.view.View
 import android.view.ViewGroup
 import android.view.animation.AccelerateInterpolator
 import androidx.core.view.ViewCompat
 import androidx.core.view.ViewPropertyAnimatorCompat
-import androidx.core.view.ViewPropertyAnimatorListenerAdapter
+import androidx.core.view.isVisible
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.detail.DetailViewEvent
 import com.pyamsoft.fridge.detail.DetailViewState
 import com.pyamsoft.fridge.detail.R
@@ -35,8 +35,8 @@ import com.pyamsoft.pydroid.ui.util.popHide
 import com.pyamsoft.pydroid.ui.util.popShow
 import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
 import com.pyamsoft.pydroid.util.tintWith
-import timber.log.Timber
 import javax.inject.Inject
+import timber.log.Timber
 
 class AddNewItemView @Inject internal constructor(
     private val imageLoader: ImageLoader,
@@ -132,10 +132,19 @@ class AddNewItemView @Inject internal constructor(
         state: DetailViewState,
         savedState: UiSavedState
     ) {
-        state.showArchived.let { show ->
+        val presence = state.listItemPresence
+        val hideFilter = presence == FridgeItem.Presence.NEED
+
+        state.showing.let { showing ->
             disposeFilterLoaded()
             filterIconLoaded = imageLoader
-                .load(if (show) R.drawable.ic_add_24dp else R.drawable.ic_date_range_24dp)
+                .load(
+                    when (showing) {
+                        DetailViewState.Showing.FRESH -> R.drawable.ic_open_in_browser_24dp
+                        DetailViewState.Showing.CONSUMED -> R.drawable.ic_consumed_24dp
+                        DetailViewState.Showing.SPOILED -> R.drawable.ic_spoiled_24dp
+                    }
+                )
                 .mutate { it.tintWith(filterButton.context, R.color.white) }
                 .into(filterButton)
         }
@@ -153,35 +162,18 @@ class AddNewItemView @Inject internal constructor(
             Timber.d("Run action visible: $action")
             if (action.visible) {
                 disposeAddNewAnimator()
-                addNewIconAnimator =
-                    expandButton.popShow(listener = object : ViewPropertyAnimatorListenerAdapter() {
-
-                        override fun onAnimationEnd(view: View) {
-                            disposeFilterAnimator()
-                            filterIconAnimator = filterButton.popShow(
-                                startDelay = 0,
-                                listener = object : ViewPropertyAnimatorListenerAdapter() {
-                                    override fun onAnimationEnd(view: View) {
-                                        publish(DetailViewEvent.DoneScrollActionVisibilityChange)
-                                    }
-                                })
-                        }
-                    })
+                addNewIconAnimator = expandButton.popShow().withEndAction {
+                    if (!hideFilter) {
+                        showFilterButton()
+                    }
+                }
             } else {
                 disposeFilterAnimator()
-                filterIconAnimator =
-                    filterButton.popHide(listener = object : ViewPropertyAnimatorListenerAdapter() {
-                        override fun onAnimationEnd(view: View) {
-                            disposeAddNewAnimator()
-                            addNewIconAnimator = expandButton.popHide(
-                                startDelay = 0,
-                                listener = object : ViewPropertyAnimatorListenerAdapter() {
-                                    override fun onAnimationEnd(view: View) {
-                                        publish(DetailViewEvent.DoneScrollActionVisibilityChange)
-                                    }
-                                })
-                        }
-                    })
+                if (hideFilter) {
+                    hideExpandButton()
+                } else {
+                    filterIconAnimator = filterButton.popHide().withEndAction { hideExpandButton() }
+                }
             }
         }
 
@@ -206,6 +198,28 @@ class AddNewItemView @Inject internal constructor(
                     }
                 }
             }
+        }
+
+        // Hide filter button for NEED
+        if (hideFilter) {
+            disposeFilterAnimator()
+            filterButton.isVisible = false
+        }
+    }
+
+    // Extracted because this action is conditional
+    private fun showFilterButton() {
+        disposeFilterAnimator()
+        filterIconAnimator = filterButton.popShow(startDelay = 0).withEndAction {
+            publish(DetailViewEvent.DoneScrollActionVisibilityChange)
+        }
+    }
+
+    // Extracted because this action is conditional
+    private fun hideExpandButton() {
+        disposeAddNewAnimator()
+        addNewIconAnimator = expandButton.popHide(startDelay = 0).withEndAction {
+            publish(DetailViewEvent.DoneScrollActionVisibilityChange)
         }
     }
 

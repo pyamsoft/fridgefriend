@@ -17,10 +17,8 @@
 
 package com.pyamsoft.fridge.locator.map.osm
 
-import android.view.View
 import android.view.ViewGroup
 import androidx.core.view.ViewPropertyAnimatorCompat
-import androidx.core.view.ViewPropertyAnimatorListenerAdapter
 import androidx.core.view.isVisible
 import androidx.lifecycle.LifecycleOwner
 import com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -179,38 +177,32 @@ class OsmActions @Inject internal constructor(
         if (nearbyAnimator != null) {
             return
         }
-        nearbyAnimator = layoutRoot.popShow(
-            startDelay = 700L,
-            listener = object : ViewPropertyAnimatorListenerAdapter() {
-                override fun onAnimationEnd(view: View) {
-                    dismissNearbyAnimator()
+        nearbyAnimator = layoutRoot.popShow(startDelay = 700L).withEndAction {
+            revealFindMeButton(hasBackgroundPermission)
+        }
+    }
 
-                    if (meAnimator != null) {
-                        return
-                    }
-                    meAnimator = findMe.popShow(
-                        startDelay = 0L,
-                        listener = object : ViewPropertyAnimatorListenerAdapter() {
-                            override fun onAnimationEnd(view: View) {
-                                dismissMeAnimator()
+    private fun revealFindMeButton(hasBackgroundPermission: Boolean) {
+        dismissNearbyAnimator()
+        if (meAnimator != null) {
+            return
+        }
+        meAnimator = findMe.popShow(startDelay = 0L).withEndAction {
+            dismissMeAnimator()
+            if (!hasBackgroundPermission) {
+                revealBackgroundPermissionButton()
+            }
+        }
+    }
 
-                                if (!hasBackgroundPermission) {
-                                    if (backgroundAnimator != null) {
-                                        return
-                                    }
-                                    backgroundAnimator =
-                                        backgroundPermission.popShow(
-                                            startDelay = 0,
-                                            listener = object :
-                                                ViewPropertyAnimatorListenerAdapter() {
-                                                override fun onAnimationEnd(view: View?) {
-                                                    dismissBackgroundAnimator()
-                                                }
-                                            })
-                                }
-                            }
-                        })
-                }
-            })
+    private fun revealBackgroundPermissionButton() {
+        if (backgroundAnimator != null) {
+            return
+        }
+
+        backgroundAnimator =
+            backgroundPermission.popShow(startDelay = 0).withEndAction {
+                dismissBackgroundAnimator()
+            }
     }
 }

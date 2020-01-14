@@ -111,9 +111,13 @@ class DetailList @Inject internal constructor(
         }
     }
 
-    private fun setupSwipeCallback(showArchived: Boolean, listItemPresence: FridgeItem.Presence) {
-        val swipeAwayDeletes = !showArchived && listItemPresence == NEED
-        val swipeAwayRestores = showArchived && listItemPresence == HAVE
+    private fun setupSwipeCallback(
+        showing: DetailViewState.Showing,
+        listItemPresence: FridgeItem.Presence
+    ) {
+        val isFresh = showing == DetailViewState.Showing.FRESH
+        val swipeAwayDeletes = isFresh && listItemPresence == NEED
+        val swipeAwayRestores = !isFresh && listItemPresence == HAVE
 
         val consumeSwipeDirection = ItemTouchHelper.RIGHT
         val spoilSwipeDirection = ItemTouchHelper.LEFT
@@ -299,6 +303,6 @@ class DetailList @Inject internal constructor(
             }
         }
 
-        setupSwipeCallback(state.showArchived, state.listItemPresence)
+        setupSwipeCallback(state.showing, state.listItemPresence)
     }
 }

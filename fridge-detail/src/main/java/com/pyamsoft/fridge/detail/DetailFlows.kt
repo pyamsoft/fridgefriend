@@ -25,7 +25,7 @@ import com.pyamsoft.pydroid.arch.UiViewState
 data class DetailViewState(
     val isLoading: Loading?,
     val items: List<FridgeItem>,
-    val showArchived: Boolean,
+    val showing: Showing,
     val listError: Throwable?,
     val undoableItem: FridgeItem?,
     val actionVisible: ActionVisible?,
@@ -34,6 +34,12 @@ data class DetailViewState(
     val listItemPresence: FridgeItem.Presence,
     val isItemExpanded: Boolean
 ) : UiViewState {
+
+    enum class Showing {
+        FRESH,
+        CONSUMED,
+        SPOILED
+    }
 
     data class ExpirationRange internal constructor(val range: Int)
 

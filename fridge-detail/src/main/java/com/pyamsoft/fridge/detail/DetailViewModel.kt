@@ -36,14 +36,14 @@ import com.pyamsoft.fridge.detail.base.BaseUpdaterViewModel
 import com.pyamsoft.fridge.detail.expand.ItemExpandPayload
 import com.pyamsoft.highlander.highlander
 import com.pyamsoft.pydroid.arch.EventBus
+import java.util.Date
+import javax.inject.Inject
+import javax.inject.Named
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import timber.log.Timber
-import java.util.Date
-import javax.inject.Inject
-import javax.inject.Named
 
 class DetailViewModel @Inject internal constructor(
     private val interactor: DetailInteractor,
@@ -55,7 +55,7 @@ class DetailViewModel @Inject internal constructor(
     initialState = DetailViewState(
         isLoading = null,
         items = emptyList(),
-        showArchived = false,
+        showing = DetailViewState.Showing.FRESH,
         listError = null,
         undoableItem = null,
         actionVisible = null,
@@ -177,7 +177,7 @@ class DetailViewModel @Inject internal constructor(
 
     private fun expand(index: Int) {
         withState {
-            if (!showArchived) {
+            if (showing == DetailViewState.Showing.FRESH) {
                 items.getOrNull(index)?.let { item ->
                     publish(ExpandForEditing(item))
                 }
@@ -198,13 +198,20 @@ class DetailViewModel @Inject internal constructor(
     }
 
     private fun toggleArchived() {
-        setState { copy(showArchived = !showArchived) }
+        setState {
+            val newShowing = when (showing) {
+                DetailViewState.Showing.FRESH -> DetailViewState.Showing.CONSUMED
+                DetailViewState.Showing.CONSUMED -> DetailViewState.Showing.SPOILED
+                DetailViewState.Showing.SPOILED -> DetailViewState.Showing.FRESH
+            }
+            copy(showing = newShowing)
+        }
         refreshList(false)
     }
 
     @CheckResult
     private fun getListItems(
-        showArchived: Boolean,
+        showing: DetailViewState.Showing,
         items: List<FridgeItem>,
         listItemPresence: FridgeItem.Presence
     ): List<FridgeItem> {
@@ -222,7 +229,13 @@ class DetailViewModel @Inject internal constructor(
                 }
             })
             // Filter by archived and presence
-            .filter { if (showArchived) it.isArchived() else !it.isArchived() }
+            .filter { item ->
+                when (showing) {
+                    DetailViewState.Showing.FRESH -> !item.isArchived()
+                    DetailViewState.Showing.CONSUMED -> item.isConsumed()
+                    DetailViewState.Showing.SPOILED -> item.isSpoiled()
+                }
+            }
             .filter { it.presence() == listItemPresence }
             .toList()
 
@@ -286,7 +299,7 @@ class DetailViewModel @Inject internal constructor(
                 items = items.let { list ->
                     val newItems = list.toMutableList()
                     insert(newItems, item)
-                    return@let getListItems(showArchived, newItems, listItemPresence)
+                    return@let getListItems(showing, newItems, listItemPresence)
                 })
         }
     }
@@ -297,7 +310,7 @@ class DetailViewModel @Inject internal constructor(
             setState {
                 copy(
                     items = getListItems(
-                        showArchived,
+                        showing,
                         items.filterNot { it.id() == item.id() }, listItemPresence
                     ),
                     undoableItem = item
@@ -307,7 +320,7 @@ class DetailViewModel @Inject internal constructor(
             setState {
                 val oldList = items
                 copy(
-                    items = getListItems(showArchived,
+                    items = getListItems(showing,
                         if (oldList.map { it.id() }.contains(item.id())) {
                             oldList.map { old ->
                                 if (old.id() == item.id()) {
@@ -328,7 +341,7 @@ class DetailViewModel @Inject internal constructor(
         setState {
             copy(
                 items = getListItems(
-                    showArchived,
+                    showing,
                     items.filterNot { it.id() == item.id() }, listItemPresence
                 ),
                 undoableItem = item
@@ -343,7 +356,7 @@ class DetailViewModel @Inject internal constructor(
     private fun handleListRefreshed(items: List<FridgeItem>) {
         setState {
             copy(
-                items = getListItems(showArchived, items, listItemPresence),
+                items = getListItems(showing, items, listItemPresence),
                 listError = null
             )
         }

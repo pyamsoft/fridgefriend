@@ -19,7 +19,6 @@ package com.pyamsoft.fridge.detail
 
 import android.content.Context
 import android.graphics.Point
-import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
 import android.view.animation.OvershootInterpolator
@@ -29,7 +28,6 @@ import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.content.getSystemService
 import androidx.core.view.ViewCompat
 import androidx.core.view.ViewPropertyAnimatorCompat
-import androidx.core.view.ViewPropertyAnimatorListenerAdapter
 import androidx.core.view.isVisible
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.arch.UiSavedState
@@ -128,11 +126,9 @@ class DetailContainer @Inject internal constructor(
                     .translationY(0F)
                     .setDuration(600)
                     .setInterpolator(interpolator)
-                    .setListener(object : ViewPropertyAnimatorListenerAdapter() {
-                        override fun onAnimationEnd(view: View) {
-                            publish(DetailViewEvent.ScrollActionVisibilityChange(true))
-                        }
-                    })
+                    .withEndAction {
+                        publish(DetailViewEvent.ScrollActionVisibilityChange(true))
+                    }
             }
         }
     }
