@@ -21,7 +21,6 @@ import android.view.ViewGroup
 import androidx.appcompat.widget.Toolbar
 import com.pyamsoft.fridge.setting.SettingsViewEvent.Navigate
 import com.pyamsoft.pydroid.arch.BaseUiView
-import com.pyamsoft.pydroid.arch.UiSavedState
 import com.pyamsoft.pydroid.ui.util.DebouncedOnClickListener
 import com.pyamsoft.pydroid.ui.util.setUpEnabled
 import javax.inject.Inject
@@ -48,10 +47,7 @@ class SettingToolbar @Inject internal constructor(
         }
     }
 
-    override fun onRender(
-        state: SettingsViewState,
-        savedState: UiSavedState
-    ) {
+    override fun onRender(state: SettingsViewState) {
         layoutRoot.title = state.name
     }
 }

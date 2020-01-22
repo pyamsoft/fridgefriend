@@ -30,7 +30,6 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.ViewPropertyAnimatorCompat
 import androidx.core.view.isVisible
 import com.pyamsoft.pydroid.arch.BaseUiView
-import com.pyamsoft.pydroid.arch.UiSavedState
 import com.pyamsoft.pydroid.ui.util.layout
 import javax.inject.Inject
 
@@ -98,7 +97,7 @@ class DetailContainer @Inject internal constructor(
         }
     }
 
-    override fun onRender(state: DetailViewState, savedState: UiSavedState) {
+    override fun onRender(state: DetailViewState) {
         state.isLoading.let { loading ->
             if (loading != null) {
                 // Done loading
@@ -110,8 +109,8 @@ class DetailContainer @Inject internal constructor(
                 }
             }
         }
-        emptyState.render(state, savedState)
-        list.render(state, savedState)
+        emptyState.render(state)
+        list.render(state)
     }
 
     private fun animateRootIn() {

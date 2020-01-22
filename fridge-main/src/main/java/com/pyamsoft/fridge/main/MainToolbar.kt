@@ -25,7 +25,6 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.updateLayoutParams
 import com.pyamsoft.fridge.core.Core
 import com.pyamsoft.pydroid.arch.BaseUiView
-import com.pyamsoft.pydroid.arch.UiSavedState
 import com.pyamsoft.pydroid.ui.app.ToolbarActivityProvider
 import com.pyamsoft.pydroid.ui.privacy.addPrivacy
 import com.pyamsoft.pydroid.ui.privacy.removePrivacy
@@ -76,10 +75,7 @@ class MainToolbar @Inject internal constructor(
         }
     }
 
-    override fun onRender(
-        state: MainViewState,
-        savedState: UiSavedState
-    ) {
+    override fun onRender(state: MainViewState) {
         state.isSettingsItemVisible.let { show ->
             settingsItem?.isVisible = show
         }

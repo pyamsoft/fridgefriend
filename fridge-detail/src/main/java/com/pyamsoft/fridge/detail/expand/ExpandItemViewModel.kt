@@ -33,13 +33,13 @@ import com.pyamsoft.fridge.detail.base.BaseUpdaterViewModel
 import com.pyamsoft.fridge.detail.expand.date.DateSelectPayload
 import com.pyamsoft.fridge.detail.item.isNameValid
 import com.pyamsoft.pydroid.arch.EventBus
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import timber.log.Timber
 import java.util.Calendar
 import java.util.Date
 import javax.inject.Inject
 import javax.inject.Named
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import timber.log.Timber
 
 class ExpandItemViewModel @Inject internal constructor(
     defaultPresence: Presence,
@@ -78,7 +78,7 @@ class ExpandItemViewModel @Inject internal constructor(
                 // Save the newly created item id if possible
                 state.item?.let { item ->
                     if (item.isReal()) {
-                        putString(CREATED_ITEM_ID, item.id())
+                        put(CREATED_ITEM_ID, item.id())
                     } else {
                         remove(CREATED_ITEM_ID)
                     }
@@ -88,13 +88,7 @@ class ExpandItemViewModel @Inject internal constructor(
 
         doOnInit { savedInstanceState ->
             // Resolve the existing item id
-            val resolveItemId = if (possibleItemId.isNotBlank()) possibleItemId else {
-                // But incase a newly created item was persisted, resolve that
-                if (savedInstanceState == null) possibleItemId else {
-                    savedInstanceState.getString(CREATED_ITEM_ID, possibleItemId)
-                }
-            }
-
+            val resolveItemId = savedInstanceState.getOrDefault(CREATED_ITEM_ID, possibleItemId)
             viewModelScope.launch(context = Dispatchers.Default) {
                 val item = interactor.resolveItem(resolveItemId, itemEntryId, force = false)
                 setState { copy(item = item.presence(defaultPresence)) }

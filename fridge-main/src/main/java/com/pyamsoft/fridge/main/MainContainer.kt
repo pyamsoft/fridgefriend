@@ -20,7 +20,6 @@ package com.pyamsoft.fridge.main
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import com.pyamsoft.pydroid.arch.BaseUiView
-import com.pyamsoft.pydroid.arch.UiSavedState
 import javax.inject.Inject
 
 class MainContainer @Inject internal constructor(
@@ -31,9 +30,6 @@ class MainContainer @Inject internal constructor(
 
     override val layoutRoot by boundView<FrameLayout>(R.id.layout_frame)
 
-    override fun onRender(
-        state: MainViewState,
-        savedState: UiSavedState
-    ) {
+    override fun onRender(state: MainViewState) {
     }
 }

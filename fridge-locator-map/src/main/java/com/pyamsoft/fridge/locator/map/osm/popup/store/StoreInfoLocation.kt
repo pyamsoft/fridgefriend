@@ -22,7 +22,6 @@ import android.widget.TextView
 import com.pyamsoft.fridge.locator.map.R
 import com.pyamsoft.fridge.locator.map.osm.popup.calculateKmDistanceTo
 import com.pyamsoft.pydroid.arch.BaseUiView
-import com.pyamsoft.pydroid.arch.UiSavedState
 import javax.inject.Inject
 
 internal class StoreInfoLocation @Inject internal constructor(
@@ -41,10 +40,7 @@ internal class StoreInfoLocation @Inject internal constructor(
         }
     }
 
-    override fun onRender(
-        state: StoreInfoViewState,
-        savedState: UiSavedState
-    ) {
+    override fun onRender(state: StoreInfoViewState) {
         state.marker.let { marker ->
             if (marker == null) {
                 coordinates.text = ""

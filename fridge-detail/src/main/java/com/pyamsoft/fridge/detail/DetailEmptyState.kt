@@ -21,7 +21,6 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence.NEED
 import com.pyamsoft.pydroid.arch.BaseUiView
-import com.pyamsoft.pydroid.arch.UiSavedState
 import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.loader.Loaded
 import javax.inject.Inject
@@ -49,7 +48,7 @@ class DetailEmptyState @Inject internal constructor(
         loaded = null
     }
 
-    override fun onRender(state: DetailViewState, savedState: UiSavedState) {
+    override fun onRender(state: DetailViewState) {
         state.isLoading.let { loading ->
             if (loading == null) {
                 clear()

@@ -34,7 +34,6 @@ import com.pyamsoft.fridge.db.item.isArchived
 import com.pyamsoft.fridge.detail.R
 import com.pyamsoft.fridge.detail.item.DetailItemViewEvent.ExpandItem
 import com.pyamsoft.pydroid.arch.BaseUiView
-import com.pyamsoft.pydroid.arch.UiSavedState
 import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.loader.Loaded
 import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
@@ -100,10 +99,7 @@ class DetailListItemGlances @Inject internal constructor(
         expiredTooltip = null
     }
 
-    override fun onRender(
-        state: DetailListItemViewState,
-        savedState: UiSavedState
-    ) {
+    override fun onRender(state: DetailListItemViewState) {
         state.item.let { item ->
             val range = state.expirationRange
             val isSameDayExpired = state.isSameDayExpired

@@ -17,10 +17,7 @@
 
 package com.pyamsoft.fridge.core
 
-interface Preferences {
+interface PreferenceUnregister {
 
-    interface Unregister {
-
-        fun unregister()
-    }
+    fun unregister()
 }

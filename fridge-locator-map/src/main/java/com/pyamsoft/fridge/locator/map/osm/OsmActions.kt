@@ -24,7 +24,6 @@ import androidx.lifecycle.LifecycleOwner
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.pyamsoft.fridge.locator.map.R
 import com.pyamsoft.pydroid.arch.BaseUiView
-import com.pyamsoft.pydroid.arch.UiSavedState
 import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.loader.Loaded
 import com.pyamsoft.pydroid.ui.util.Snackbreak
@@ -115,10 +114,7 @@ class OsmActions @Inject internal constructor(
         meAnimator = null
     }
 
-    override fun onRender(
-        state: OsmViewState,
-        savedState: UiSavedState
-    ) {
+    override fun onRender(state: OsmViewState) {
         state.nearbyError.let { throwable ->
             if (throwable == null) {
                 clearError()

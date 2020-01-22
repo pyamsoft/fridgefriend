@@ -19,7 +19,6 @@ package com.pyamsoft.fridge.detail.expand
 
 import android.view.ViewGroup
 import com.pyamsoft.fridge.detail.base.BaseItemDate
-import com.pyamsoft.pydroid.arch.UiSavedState
 import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.ui.theme.ThemeProvider
 import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
@@ -43,7 +42,7 @@ class ExpandItemDate @Inject internal constructor(
         }
     }
 
-    override fun onRender(state: ExpandItemViewState, savedState: UiSavedState) {
+    override fun onRender(state: ExpandItemViewState) {
         baseRender(state.item)
     }
 }

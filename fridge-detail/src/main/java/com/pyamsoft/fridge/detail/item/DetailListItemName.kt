@@ -19,7 +19,6 @@ package com.pyamsoft.fridge.detail.item
 
 import android.view.ViewGroup
 import com.pyamsoft.fridge.detail.base.BaseItemName
-import com.pyamsoft.pydroid.arch.UiSavedState
 import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
 import javax.inject.Inject
 
@@ -34,10 +33,7 @@ class DetailListItemName @Inject internal constructor(
         }
     }
 
-    override fun onRender(
-        state: DetailListItemViewState,
-        savedState: UiSavedState
-    ) {
+    override fun onRender(state: DetailListItemViewState) {
         setName(state.item)
     }
 }

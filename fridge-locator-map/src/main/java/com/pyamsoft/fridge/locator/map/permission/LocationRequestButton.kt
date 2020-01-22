@@ -22,7 +22,6 @@ import android.widget.Button
 import com.pyamsoft.fridge.locator.map.R
 import com.pyamsoft.fridge.locator.map.permission.PermissionViewEvent.FireLocationPermission
 import com.pyamsoft.pydroid.arch.BaseUiView
-import com.pyamsoft.pydroid.arch.UiSavedState
 import com.pyamsoft.pydroid.arch.UnitViewState
 import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
 import javax.inject.Inject
@@ -45,9 +44,6 @@ class LocationRequestButton @Inject internal constructor(
         }
     }
 
-    override fun onRender(
-        state: UnitViewState,
-        savedState: UiSavedState
-    ) {
+    override fun onRender(state: UnitViewState) {
     }
 }

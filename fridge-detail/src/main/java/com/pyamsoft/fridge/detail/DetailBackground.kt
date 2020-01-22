@@ -24,7 +24,6 @@ import androidx.core.view.updatePadding
 import com.google.android.material.appbar.CollapsingToolbarLayout
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence.NEED
 import com.pyamsoft.pydroid.arch.BaseUiView
-import com.pyamsoft.pydroid.arch.UiSavedState
 import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.loader.Loaded
 import com.pyamsoft.pydroid.util.doOnApplyWindowInsets
@@ -70,7 +69,7 @@ class DetailBackground @Inject internal constructor(
         loaded = null
     }
 
-    override fun onRender(state: DetailViewState, savedState: UiSavedState) {
+    override fun onRender(state: DetailViewState) {
         val need = state.listItemPresence == NEED
         loadImage(need)
     }

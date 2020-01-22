@@ -22,10 +22,9 @@ import androidx.annotation.CheckResult
 import androidx.core.view.updatePadding
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.pyamsoft.pydroid.arch.BaseUiView
-import com.pyamsoft.pydroid.arch.UiSavedState
 import com.pyamsoft.pydroid.util.doOnApplyWindowInsets
-import javax.inject.Inject
 import timber.log.Timber
+import javax.inject.Inject
 
 class MainNavigation @Inject internal constructor(
     parent: ViewGroup
@@ -59,10 +58,7 @@ class MainNavigation @Inject internal constructor(
         }
     }
 
-    override fun onRender(
-        state: MainViewState,
-        savedState: UiSavedState
-    ) {
+    override fun onRender(state: MainViewState) {
         state.page.let { page ->
             val pageId = getIdForPage(page)
             if (pageId != 0) {

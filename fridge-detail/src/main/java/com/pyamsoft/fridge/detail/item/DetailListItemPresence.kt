@@ -20,17 +20,13 @@ package com.pyamsoft.fridge.detail.item
 import android.view.ViewGroup
 import com.pyamsoft.fridge.detail.base.BaseItemPresence
 import com.pyamsoft.fridge.detail.item.DetailItemViewEvent.CommitPresence
-import com.pyamsoft.pydroid.arch.UiSavedState
 import javax.inject.Inject
 
 class DetailListItemPresence @Inject internal constructor(
     parent: ViewGroup
 ) : BaseItemPresence<DetailListItemViewState, DetailItemViewEvent>(parent) {
 
-    override fun onRender(
-        state: DetailListItemViewState,
-        savedState: UiSavedState
-    ) {
+    override fun onRender(state: DetailListItemViewState) {
         render(state.item)
     }
 

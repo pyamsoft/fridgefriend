@@ -23,7 +23,6 @@ import androidx.appcompat.widget.Toolbar
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence.HAVE
 import com.pyamsoft.fridge.detail.R
 import com.pyamsoft.pydroid.arch.BaseUiView
-import com.pyamsoft.pydroid.arch.UiSavedState
 import com.pyamsoft.pydroid.ui.util.DebouncedOnClickListener
 import com.pyamsoft.pydroid.ui.util.setUpEnabled
 import javax.inject.Inject
@@ -88,10 +87,7 @@ class ExpandedToolbar @Inject internal constructor(
         layoutRoot.setOnMenuItemClickListener(null)
     }
 
-    override fun onRender(
-        state: ExpandItemViewState,
-        savedState: UiSavedState
-    ) {
+    override fun onRender(state: ExpandItemViewState) {
         state.item.let { item ->
             if (item == null) {
                 requireNotNull(deleteMenuItem).isVisible = false

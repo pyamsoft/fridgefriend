@@ -18,7 +18,7 @@
 package com.pyamsoft.fridge.detail
 
 import androidx.annotation.CheckResult
-import com.pyamsoft.fridge.core.Preferences.Unregister
+import com.pyamsoft.fridge.core.PreferenceUnregister
 import com.pyamsoft.fridge.db.FridgeItemPreferences
 
 abstract class DetailPreferenceInteractor protected constructor(
@@ -36,12 +36,12 @@ abstract class DetailPreferenceInteractor protected constructor(
     }
 
     @CheckResult
-    suspend fun watchForExpiringSoonChanges(onChange: (newRange: Int) -> Unit): Unregister {
+    suspend fun watchForExpiringSoonChanges(onChange: (newRange: Int) -> Unit): PreferenceUnregister {
         return preferences.watchForExpiringSoonChange(onChange)
     }
 
     @CheckResult
-    suspend fun watchForSameDayExpiredChange(onChange: (newSameDayExpired: Boolean) -> Unit): Unregister {
+    suspend fun watchForSameDayExpiredChange(onChange: (newSameDayExpired: Boolean) -> Unit): PreferenceUnregister {
         return preferences.watchForSameDayExpiredChange(onChange)
     }
 }

@@ -18,7 +18,7 @@
 package com.pyamsoft.fridge.db
 
 import androidx.annotation.CheckResult
-import com.pyamsoft.fridge.core.Preferences.Unregister
+import com.pyamsoft.fridge.core.PreferenceUnregister
 
 interface FridgeItemPreferences {
 
@@ -26,11 +26,11 @@ interface FridgeItemPreferences {
     suspend fun getExpiringSoonRange(): Int
 
     @CheckResult
-    suspend fun watchForExpiringSoonChange(onChange: (newRange: Int) -> Unit): Unregister
+    suspend fun watchForExpiringSoonChange(onChange: (newRange: Int) -> Unit): PreferenceUnregister
 
     @CheckResult
     suspend fun isSameDayExpired(): Boolean
 
     @CheckResult
-    suspend fun watchForSameDayExpiredChange(onChange: (newSameDay: Boolean) -> Unit): Unregister
+    suspend fun watchForSameDayExpiredChange(onChange: (newSameDay: Boolean) -> Unit): PreferenceUnregister
 }

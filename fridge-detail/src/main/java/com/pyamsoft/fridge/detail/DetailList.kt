@@ -33,14 +33,13 @@ import com.pyamsoft.fridge.db.item.FridgeItem.Presence.NEED
 import com.pyamsoft.fridge.detail.DetailListAdapter.Callback
 import com.pyamsoft.fridge.detail.item.DetailListItemViewState
 import com.pyamsoft.pydroid.arch.BaseUiView
-import com.pyamsoft.pydroid.arch.UiSavedState
 import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.ui.util.Snackbreak
 import com.pyamsoft.pydroid.ui.util.refreshing
 import com.pyamsoft.pydroid.ui.widget.scroll.HideOnScrollListener
 import com.pyamsoft.pydroid.util.tintWith
-import javax.inject.Inject
 import timber.log.Timber
+import javax.inject.Inject
 
 class DetailList @Inject internal constructor(
     parent: ViewGroup,
@@ -267,10 +266,7 @@ class DetailList @Inject internal constructor(
         }
     }
 
-    override fun onRender(
-        state: DetailViewState,
-        savedState: UiSavedState
-    ) {
+    override fun onRender(state: DetailViewState) {
         state.isLoading.let { loading ->
             if (loading != null) {
                 layoutRoot.refreshing(loading.isLoading)

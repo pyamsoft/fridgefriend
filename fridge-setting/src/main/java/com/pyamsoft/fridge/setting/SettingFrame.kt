@@ -19,7 +19,6 @@ package com.pyamsoft.fridge.setting
 
 import android.view.ViewGroup
 import com.pyamsoft.pydroid.arch.BaseUiView
-import com.pyamsoft.pydroid.arch.UiSavedState
 import javax.inject.Inject
 
 class SettingFrame @Inject internal constructor(
@@ -30,9 +29,6 @@ class SettingFrame @Inject internal constructor(
 
     override val layoutRoot by boundView<ViewGroup>(R.id.setting_frame)
 
-    override fun onRender(
-        state: SettingsViewState,
-        savedState: UiSavedState
-    ) {
+    override fun onRender(state: SettingsViewState) {
     }
 }

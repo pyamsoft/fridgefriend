@@ -22,7 +22,6 @@ import android.widget.TextView
 import androidx.core.view.isVisible
 import com.pyamsoft.fridge.detail.R
 import com.pyamsoft.pydroid.arch.BaseUiView
-import com.pyamsoft.pydroid.arch.UiSavedState
 import javax.inject.Inject
 
 class ExpandItemError @Inject internal constructor(
@@ -50,10 +49,7 @@ class ExpandItemError @Inject internal constructor(
         message.text = ""
     }
 
-    override fun onRender(
-        state: ExpandItemViewState,
-        savedState: UiSavedState
-    ) {
+    override fun onRender(state: ExpandItemViewState) {
         state.throwable.let { throwable ->
             if (throwable == null) {
                 clear()

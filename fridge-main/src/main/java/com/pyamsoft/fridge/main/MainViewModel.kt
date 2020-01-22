@@ -20,9 +20,9 @@ package com.pyamsoft.fridge.main
 import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.locator.MapPermission
 import com.pyamsoft.pydroid.arch.UiViewModel
+import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Named
-import timber.log.Timber
 
 class MainViewModel @Inject internal constructor(
     private val mapPermission: MapPermission,
@@ -40,12 +40,12 @@ class MainViewModel @Inject internal constructor(
     init {
         doOnSaveState { state ->
             state.page?.let { p ->
-                putString(PAGE, p.name)
+                put(PAGE, p.name)
             }
         }
 
         doOnInit { savedInstanceState ->
-            val savedPageString = savedInstanceState?.getString(PAGE)
+            val savedPageString = savedInstanceState.get<String>(PAGE)
             val page = if (savedPageString == null) defaultPage else {
                 MainPage.valueOf(savedPageString)
             }

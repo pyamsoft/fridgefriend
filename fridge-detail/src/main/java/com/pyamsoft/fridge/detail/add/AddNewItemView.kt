@@ -28,15 +28,14 @@ import com.pyamsoft.fridge.detail.DetailViewEvent
 import com.pyamsoft.fridge.detail.DetailViewState
 import com.pyamsoft.fridge.detail.R
 import com.pyamsoft.pydroid.arch.BaseUiView
-import com.pyamsoft.pydroid.arch.UiSavedState
 import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.loader.Loaded
 import com.pyamsoft.pydroid.ui.util.popHide
 import com.pyamsoft.pydroid.ui.util.popShow
 import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
 import com.pyamsoft.pydroid.util.tintWith
-import javax.inject.Inject
 import timber.log.Timber
+import javax.inject.Inject
 
 class AddNewItemView @Inject internal constructor(
     private val imageLoader: ImageLoader,
@@ -128,10 +127,7 @@ class AddNewItemView @Inject internal constructor(
         publish(DetailViewEvent.ToggleArchiveVisibility)
     }
 
-    override fun onRender(
-        state: DetailViewState,
-        savedState: UiSavedState
-    ) {
+    override fun onRender(state: DetailViewState) {
         val presence = state.listItemPresence
         val hideFilter = presence == FridgeItem.Presence.NEED
 

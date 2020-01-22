@@ -24,7 +24,6 @@ import com.pyamsoft.fridge.db.zone.NearbyZone
 import com.pyamsoft.fridge.locator.map.R
 import com.pyamsoft.fridge.locator.map.osm.popup.zone.ZoneInfoViewEvent.ZoneFavoriteAction
 import com.pyamsoft.pydroid.arch.BaseUiView
-import com.pyamsoft.pydroid.arch.UiSavedState
 import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.loader.Loaded
 import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
@@ -60,10 +59,7 @@ internal class ZoneInfoTitle @Inject internal constructor(
         favoriteBinder = null
     }
 
-    override fun onRender(
-        state: ZoneInfoViewState,
-        savedState: UiSavedState
-    ) {
+    override fun onRender(state: ZoneInfoViewState) {
         state.cached.let { cached ->
             if (cached == null) {
                 favorite.setOnDebouncedClickListener(null)

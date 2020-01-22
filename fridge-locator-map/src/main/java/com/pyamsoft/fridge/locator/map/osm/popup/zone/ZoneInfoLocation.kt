@@ -17,13 +17,11 @@
 
 package com.pyamsoft.fridge.locator.map.osm.popup.zone
 
-import android.annotation.SuppressLint
 import android.view.ViewGroup
 import android.widget.TextView
 import com.pyamsoft.fridge.locator.map.R
 import com.pyamsoft.fridge.locator.map.osm.popup.calculateKmDistanceTo
 import com.pyamsoft.pydroid.arch.BaseUiView
-import com.pyamsoft.pydroid.arch.UiSavedState
 import javax.inject.Inject
 
 internal class ZoneInfoLocation @Inject internal constructor(
@@ -43,11 +41,7 @@ internal class ZoneInfoLocation @Inject internal constructor(
         }
     }
 
-    @SuppressLint("SetTextI18n")
-    override fun onRender(
-        state: ZoneInfoViewState,
-        savedState: UiSavedState
-    ) {
+    override fun onRender(state: ZoneInfoViewState) {
         state.polygon.let { polygon ->
             if (polygon == null) {
                 coordinates.text = ""
