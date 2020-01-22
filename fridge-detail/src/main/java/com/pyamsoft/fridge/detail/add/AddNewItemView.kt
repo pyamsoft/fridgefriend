@@ -34,8 +34,8 @@ import com.pyamsoft.pydroid.ui.util.popHide
 import com.pyamsoft.pydroid.ui.util.popShow
 import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
 import com.pyamsoft.pydroid.util.tintWith
-import timber.log.Timber
 import javax.inject.Inject
+import timber.log.Timber
 
 class AddNewItemView @Inject internal constructor(
     private val imageLoader: ImageLoader,
