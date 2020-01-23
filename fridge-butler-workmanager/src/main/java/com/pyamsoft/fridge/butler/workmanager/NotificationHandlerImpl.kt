@@ -32,9 +32,10 @@ internal class NotificationHandlerImpl @Inject internal constructor(
     private val activityClass: Class<out Activity>
 ) : NotificationHandler {
 
-    override fun contentIntent(presence: FridgeItem.Presence): PendingIntent {
+    override fun contentIntent(notificationId: Int, presence: FridgeItem.Presence): PendingIntent {
         val intent = Intent(context, activityClass).apply {
             putExtra(FridgeItem.Presence.KEY, presence.name)
+            putExtra(NotificationHandler.NOTIFICATION_ID_KEY, notificationId)
         }
 
         return PendingIntent.getActivity(

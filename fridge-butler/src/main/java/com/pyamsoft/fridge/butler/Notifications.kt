@@ -35,7 +35,7 @@ object Notifications {
 
     @CheckResult
     private fun notificationManager(context: Context): NotificationManagerCompat {
-        return NotificationManagerCompat.from(context)
+        return NotificationManagerCompat.from(context.applicationContext)
     }
 
     private fun guaranteeNotificationChannelExists(
@@ -94,7 +94,7 @@ object Notifications {
             .setOngoing(false)
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
             .setColor(Color.RED)
-            .setContentIntent(handler.contentIntent(presence))
+            .setContentIntent(handler.contentIntent(notificationId, presence))
 
         val notification = createNotification(builder)
         notificationManager(context)
@@ -111,5 +111,9 @@ object Notifications {
     ) {
         Timber.w("Cancel notification: $notificationId")
         manager.cancel(notificationId)
+    }
+
+    fun cancel(context: Context, notificationId: Int) {
+        cancel(notificationManager(context), notificationId)
     }
 }

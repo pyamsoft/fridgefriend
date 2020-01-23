@@ -24,5 +24,10 @@ import com.pyamsoft.fridge.db.item.FridgeItem
 interface NotificationHandler {
 
     @CheckResult
-    fun contentIntent(presence: FridgeItem.Presence): PendingIntent
+    fun contentIntent(notificationId: Int, presence: FridgeItem.Presence): PendingIntent
+
+    companion object {
+
+        const val NOTIFICATION_ID_KEY = "key_notification_id"
+    }
 }
