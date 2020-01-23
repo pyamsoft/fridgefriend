@@ -21,7 +21,6 @@ import android.app.Application
 import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.butler.Butler
 import com.pyamsoft.fridge.butler.ButlerPreferences
-import com.pyamsoft.fridge.butler.ForegroundState
 import com.pyamsoft.fridge.butler.NotificationHandler
 import com.pyamsoft.fridge.core.Core
 import com.pyamsoft.fridge.db.FridgeItemPreferences
@@ -143,7 +142,6 @@ class FridgeFriend : Application() {
             Butler::class.java.name -> requireNotNull(component).provideButler()
             Locator::class.java.name -> requireNotNull(component).provideLocator()
             Geofencer::class.java.name -> requireNotNull(component).provideGeofencer()
-            ForegroundState::class.java.name -> requireNotNull(component).provideForegroundState()
             FridgeItemQueryDao::class.java.name -> requireNotNull(component).provideFridgeItemQueryDao()
             FridgeEntryQueryDao::class.java.name -> requireNotNull(component).provideFridgeEntryQueryDao()
             NearbyStoreQueryDao::class.java.name -> requireNotNull(component).provideNearbyStoreQueryDao()

@@ -20,7 +20,6 @@ package com.pyamsoft.fridge.butler.workmanager.geofence
 import android.content.Context
 import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.butler.ButlerNotifications
-import com.pyamsoft.fridge.butler.ForegroundState
 import com.pyamsoft.fridge.butler.NotificationHandler
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.store.NearbyStore
@@ -36,7 +35,6 @@ internal object GeofenceNotifications {
     @CheckResult
     private fun notifyNeeded(
         handler: NotificationHandler,
-        foregroundState: ForegroundState,
         context: Context,
         storeName: String,
         now: Calendar,
@@ -45,7 +43,6 @@ internal object GeofenceNotifications {
         return ButlerNotifications.notify(
             NEEDED_NOTIFICATION_ID,
             handler,
-            foregroundState,
             context,
             NEEDED_CHANNEL_ID,
             "Needed Reminders",
@@ -65,25 +62,23 @@ internal object GeofenceNotifications {
     @JvmStatic
     fun notifyNeeded(
         handler: NotificationHandler,
-        foregroundState: ForegroundState,
         context: Context,
         store: NearbyStore,
         now: Calendar,
         items: List<FridgeItem>
     ): Boolean {
-        return notifyNeeded(handler, foregroundState, context, store.name(), now, items)
+        return notifyNeeded(handler, context, store.name(), now, items)
     }
 
     @CheckResult
     @JvmStatic
     fun notifyNeeded(
         handler: NotificationHandler,
-        foregroundState: ForegroundState,
         context: Context,
         zone: NearbyZone,
         now: Calendar,
         items: List<FridgeItem>
     ): Boolean {
-        return notifyNeeded(handler, foregroundState, context, zone.name(), now, items)
+        return notifyNeeded(handler, context, zone.name(), now, items)
     }
 }

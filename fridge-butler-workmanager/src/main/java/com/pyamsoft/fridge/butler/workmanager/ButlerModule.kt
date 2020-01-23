@@ -19,7 +19,6 @@ package com.pyamsoft.fridge.butler.workmanager
 
 import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.butler.Butler
-import com.pyamsoft.fridge.butler.ForegroundState
 import com.pyamsoft.fridge.butler.NotificationHandler
 import dagger.Binds
 import dagger.Module
@@ -30,10 +29,6 @@ abstract class ButlerModule {
     @Binds
     @CheckResult
     internal abstract fun bindButler(impl: WorkManagerButler): Butler
-
-    @Binds
-    @CheckResult
-    internal abstract fun bindForegroundState(impl: ForegroundStateDetector): ForegroundState
 
     @Binds
     @CheckResult

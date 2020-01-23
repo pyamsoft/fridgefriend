@@ -42,7 +42,6 @@ object ButlerNotifications {
     fun notify(
         notificationId: Int,
         handler: NotificationHandler,
-        foregroundState: ForegroundState,
         context: Context,
         channelId: String,
         channelTitle: String,
@@ -51,11 +50,6 @@ object ButlerNotifications {
         now: Calendar,
         createNotification: (builder: NotificationCompat.Builder) -> Notification
     ): Boolean {
-        if (foregroundState.isForeground) {
-            Timber.w("Do not send notification while in foreground: $notificationId")
-            return false
-        }
-
         val currentHour = now.get(Calendar.HOUR_OF_DAY)
         if (currentHour < 7 || currentHour >= 22) {
             Timber.w("Do not send notification before 7AM and after 10PM")

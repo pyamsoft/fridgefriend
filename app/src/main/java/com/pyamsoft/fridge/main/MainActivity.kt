@@ -17,7 +17,6 @@
 
 package com.pyamsoft.fridge.main
 
-import android.content.ComponentCallbacks2
 import android.content.Intent
 import android.os.Bundle
 import android.view.ViewGroup
@@ -30,7 +29,6 @@ import com.pyamsoft.fridge.BuildConfig
 import com.pyamsoft.fridge.FridgeComponent
 import com.pyamsoft.fridge.R
 import com.pyamsoft.fridge.butler.Butler
-import com.pyamsoft.fridge.butler.ForegroundState
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.entry.EntryFragment
 import com.pyamsoft.fridge.map.MapFragment
@@ -103,9 +101,6 @@ internal class MainActivity : RatingActivity(), VersionChecker {
 
     @JvmField
     @Inject
-    internal var foregroundState: ForegroundState? = null
-    @JvmField
-    @Inject
     internal var butler: Butler? = null
     @JvmField
     @Inject
@@ -153,20 +148,7 @@ internal class MainActivity : RatingActivity(), VersionChecker {
 
     override fun onStart() {
         super.onStart()
-        requireNotNull(foregroundState).isForeground = true
         checkNearbyFragmentPermissions()
-    }
-
-    override fun onStop() {
-        super.onStop()
-        requireNotNull(foregroundState).isForeground = false
-    }
-
-    override fun onTrimMemory(level: Int) {
-        super.onTrimMemory(level)
-        if (level == ComponentCallbacks2.TRIM_MEMORY_UI_HIDDEN) {
-            requireNotNull(foregroundState).isForeground = false
-        }
     }
 
     private fun inflateComponents(
@@ -302,7 +284,6 @@ internal class MainActivity : RatingActivity(), VersionChecker {
 
         factory = null
         butler = null
-        foregroundState = null
         theming = null
     }
 }

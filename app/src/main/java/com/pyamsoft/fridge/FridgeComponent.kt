@@ -24,7 +24,6 @@ import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.FridgeComponent.FridgeProvider
 import com.pyamsoft.fridge.butler.Butler
 import com.pyamsoft.fridge.butler.ButlerPreferences
-import com.pyamsoft.fridge.butler.ForegroundState
 import com.pyamsoft.fridge.butler.NotificationHandler
 import com.pyamsoft.fridge.butler.workmanager.ButlerModule
 import com.pyamsoft.fridge.core.CoreModule
@@ -77,10 +76,6 @@ import javax.inject.Singleton
     ]
 )
 internal interface FridgeComponent {
-
-    // For ButlerNotifications classes
-    @CheckResult
-    fun provideForegroundState(): ForegroundState
 
     // For BaseWorker Work classes
     @CheckResult

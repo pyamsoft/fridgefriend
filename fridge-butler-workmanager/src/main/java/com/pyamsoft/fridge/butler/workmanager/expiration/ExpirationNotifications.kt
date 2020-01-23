@@ -20,7 +20,6 @@ package com.pyamsoft.fridge.butler.workmanager.expiration
 import android.content.Context
 import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.butler.ButlerNotifications
-import com.pyamsoft.fridge.butler.ForegroundState
 import com.pyamsoft.fridge.butler.NotificationHandler
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItem
@@ -38,7 +37,6 @@ internal object ExpirationNotifications {
     @JvmStatic
     fun notifyExpiring(
         handler: NotificationHandler,
-        foregroundState: ForegroundState,
         context: Context,
         entry: FridgeEntry,
         now: Calendar,
@@ -47,7 +45,6 @@ internal object ExpirationNotifications {
         return ButlerNotifications.notify(
             EXPIRING_NOTIFICATION_ID,
             handler,
-            foregroundState,
             context,
             EXPIRING_CHANNEL_ID,
             "Expiring Reminders",
@@ -70,7 +67,6 @@ internal object ExpirationNotifications {
     @JvmStatic
     fun notifyExpired(
         handler: NotificationHandler,
-        foregroundState: ForegroundState,
         context: Context,
         entry: FridgeEntry,
         now: Calendar,
@@ -79,7 +75,6 @@ internal object ExpirationNotifications {
         return ButlerNotifications.notify(
             EXPIRED_NOTIFICATION_ID,
             handler,
-            foregroundState,
             context,
             EXPIRED_CHANNEL_ID,
             "Expired Reminders",

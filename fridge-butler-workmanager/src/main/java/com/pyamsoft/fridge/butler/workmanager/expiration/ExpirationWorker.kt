@@ -82,9 +82,9 @@ internal class ExpirationWorker internal constructor(
             val lastTime = preferences.getLastNotificationTimeExpiringSoon()
             if (now.isAllowedToNotify(lastTime, RECURRING_INTERVAL)) {
                 Timber.d("Notify user about items expiring soon")
-                notification { handler, foregroundState ->
+                notification { handler ->
                     val notified = ExpirationNotifications.notifyExpiring(
-                        handler, foregroundState, applicationContext, entry, now, expiringItems
+                        handler, applicationContext, entry, now, expiringItems
                     )
                     if (notified) {
                         preferences.markNotificationExpiringSoon(now)
@@ -99,9 +99,9 @@ internal class ExpirationWorker internal constructor(
             val lastTime = preferences.getLastNotificationTimeExpired()
             if (now.isAllowedToNotify(lastTime, RECURRING_INTERVAL)) {
                 Timber.d("Notify user about items expired")
-                notification { handler, foregroundState ->
+                notification { handler ->
                     val notified = ExpirationNotifications.notifyExpired(
-                        handler, foregroundState, applicationContext, entry, now, expiredItems
+                        handler, applicationContext, entry, now, expiredItems
                     )
                     if (notified) {
                         preferences.markNotificationExpired(now)

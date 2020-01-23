@@ -23,7 +23,6 @@ import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.pyamsoft.fridge.butler.Butler
 import com.pyamsoft.fridge.butler.ButlerPreferences
-import com.pyamsoft.fridge.butler.ForegroundState
 import com.pyamsoft.fridge.butler.NotificationHandler
 import com.pyamsoft.fridge.db.FridgeItemPreferences
 import com.pyamsoft.pydroid.core.Enforcer
@@ -39,7 +38,6 @@ internal abstract class BaseWorker protected constructor(
 ) : CoroutineWorker(context, params) {
 
     private var handler: NotificationHandler? = null
-    private var foregroundState: ForegroundState? = null
     private var butler: Butler? = null
     private var butlerPreferences: ButlerPreferences? = null
     private var fridgeItemPreferences: FridgeItemPreferences? = null
@@ -47,7 +45,6 @@ internal abstract class BaseWorker protected constructor(
 
     private fun inject() {
         handler = Injector.obtain(applicationContext)
-        foregroundState = Injector.obtain(applicationContext)
         butler = Injector.obtain(applicationContext)
         butlerPreferences = Injector.obtain(applicationContext)
         fridgeItemPreferences = Injector.obtain(applicationContext)
@@ -59,7 +56,6 @@ internal abstract class BaseWorker protected constructor(
 
     private fun teardown() {
         handler = null
-        foregroundState = null
         butler = null
         butlerPreferences = null
         fridgeItemPreferences = null
@@ -67,8 +63,8 @@ internal abstract class BaseWorker protected constructor(
         onTeardown()
     }
 
-    protected inline fun notification(func: (handler: NotificationHandler, foregroundState: ForegroundState) -> Unit) {
-        func(requireNotNull(handler), requireNotNull(foregroundState))
+    protected inline fun notification(func: (handler: NotificationHandler) -> Unit) {
+        func(requireNotNull(handler))
     }
 
     protected abstract fun onTeardown()
