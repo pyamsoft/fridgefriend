@@ -27,10 +27,10 @@ import com.pyamsoft.fridge.butler.NotificationHandler
 import com.pyamsoft.fridge.db.FridgeItemPreferences
 import com.pyamsoft.pydroid.core.Enforcer
 import com.pyamsoft.pydroid.ui.Injector
-import java.util.Calendar
-import java.util.concurrent.TimeUnit.HOURS
 import kotlinx.coroutines.CancellationException
 import timber.log.Timber
+import java.util.Calendar
+import java.util.concurrent.TimeUnit.HOURS
 
 internal abstract class BaseWorker protected constructor(
     context: Context,
@@ -69,8 +69,6 @@ internal abstract class BaseWorker protected constructor(
 
     protected abstract fun onTeardown()
 
-    protected abstract fun reschedule(butler: Butler)
-
     final override suspend fun doWork(): Result {
         inject()
         requireNotNull(enforcer).assertNotOnMainThread()
@@ -97,14 +95,12 @@ internal abstract class BaseWorker protected constructor(
     @CheckResult
     private fun success(): Result {
         Timber.d("Worker completed successfully")
-        reschedule(requireNotNull(butler))
         return Result.success()
     }
 
     @CheckResult
     private fun fail(throwable: Throwable): Result {
         Timber.e(throwable, "Worker failed to complete")
-        reschedule(requireNotNull(butler))
         return Result.failure()
     }
 

@@ -19,7 +19,6 @@ package com.pyamsoft.fridge.butler.workmanager.locator
 
 import android.content.Context
 import androidx.work.WorkerParameters
-import com.pyamsoft.fridge.butler.Butler
 import com.pyamsoft.fridge.butler.ButlerPreferences
 import com.pyamsoft.fridge.butler.workmanager.worker.NearbyNotifyingWorker
 import com.pyamsoft.fridge.db.FridgeItemPreferences
@@ -28,7 +27,6 @@ import com.pyamsoft.fridge.db.zone.NearbyZone
 import com.pyamsoft.fridge.locator.Geofencer
 import com.pyamsoft.fridge.locator.Locator
 import com.pyamsoft.pydroid.ui.Injector
-import java.util.concurrent.TimeUnit.HOURS
 import kotlinx.coroutines.coroutineScope
 import timber.log.Timber
 
@@ -45,10 +43,6 @@ internal class LocationWorker internal constructor(
 
     override fun onAfterTeardown() {
         geofencer = null
-    }
-
-    override fun reschedule(butler: Butler) {
-        butler.remindLocation(RECURRING_INTERVAL, HOURS)
     }
 
     override suspend fun performWork(

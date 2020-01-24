@@ -17,24 +17,19 @@
 
 package com.pyamsoft.fridge.butler
 
-import java.util.concurrent.TimeUnit
-
 interface Butler {
 
-    fun remindExpiration(
-        time: Long,
-        unit: TimeUnit
-    )
+    fun remindExpiration()
 
-    fun remindLocation(
-        time: Long,
-        unit: TimeUnit
-    )
+    fun cancelExpirationReminder()
 
-    fun registerGeofences(
-        time: Long,
-        unit: TimeUnit
-    )
+    fun remindLocation()
+
+    fun cancelLocationReminder()
+
+    fun registerGeofences()
+
+    fun unregisterGeofences()
 
     fun processGeofences(
         currentLatitude: Double,
@@ -43,12 +38,6 @@ interface Butler {
     )
 
     fun cancelGeofenceProcessing()
-
-    fun cancelLocationReminder()
-
-    fun cancelExpirationReminder()
-
-    fun unregisterGeofences()
 
     fun cancel()
 }

@@ -80,9 +80,9 @@ internal class ZoneInfoInteractor @Inject internal constructor(
 
     private fun restartLocationWorker() {
         butler.unregisterGeofences()
-        butler.registerGeofences(1, SECONDS)
+        butler.registerGeofences()
 
         butler.cancelLocationReminder()
-        butler.remindLocation(1, SECONDS)
+        butler.remindLocation()
     }
 }

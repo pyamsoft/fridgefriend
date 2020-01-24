@@ -18,15 +18,14 @@
 package com.pyamsoft.fridge
 
 import com.pyamsoft.fridge.butler.Butler
-import java.util.concurrent.TimeUnit.SECONDS
 
 fun Butler.initOnAppStart() {
     cancelExpirationReminder()
-    remindExpiration(1, SECONDS)
+    remindExpiration()
 
     cancelLocationReminder()
-    remindLocation(1, SECONDS)
+    remindLocation()
 
     unregisterGeofences()
-    registerGeofences(1, SECONDS)
+    registerGeofences()
 }

@@ -19,7 +19,6 @@ package com.pyamsoft.fridge.butler.workmanager.expiration
 
 import android.content.Context
 import androidx.work.WorkerParameters
-import com.pyamsoft.fridge.butler.Butler
 import com.pyamsoft.fridge.butler.ButlerPreferences
 import com.pyamsoft.fridge.butler.workmanager.worker.FridgeWorker
 import com.pyamsoft.fridge.db.FridgeItemPreferences
@@ -31,19 +30,15 @@ import com.pyamsoft.fridge.db.isExpiringSoon
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence.HAVE
 import com.pyamsoft.fridge.db.item.isArchived
-import java.util.Calendar
-import java.util.concurrent.TimeUnit.HOURS
 import kotlinx.coroutines.coroutineScope
 import timber.log.Timber
+import java.util.Calendar
+import java.util.concurrent.TimeUnit
 
 internal class ExpirationWorker internal constructor(
     context: Context,
     params: WorkerParameters
 ) : FridgeWorker(context, params) {
-
-    override fun reschedule(butler: Butler) {
-        butler.remindExpiration(RECURRING_INTERVAL, HOURS)
-    }
 
     private suspend fun notifyForEntry(
         preferences: ButlerPreferences,
@@ -80,7 +75,7 @@ internal class ExpirationWorker internal constructor(
         val now = Calendar.getInstance()
         if (expiringItems.isNotEmpty()) {
             val lastTime = preferences.getLastNotificationTimeExpiringSoon()
-            if (now.isAllowedToNotify(lastTime, RECURRING_INTERVAL)) {
+            if (now.isAllowedToNotify(lastTime, NOTIFICATION_ALLOWED_PERIOD)) {
                 Timber.d("Notify user about items expiring soon")
                 notification { handler ->
                     val notified = ExpirationNotifications.notifyExpiring(
@@ -97,7 +92,7 @@ internal class ExpirationWorker internal constructor(
 
         if (expiredItems.isNotEmpty()) {
             val lastTime = preferences.getLastNotificationTimeExpired()
-            if (now.isAllowedToNotify(lastTime, RECURRING_INTERVAL)) {
+            if (now.isAllowedToNotify(lastTime, NOTIFICATION_ALLOWED_PERIOD)) {
                 Timber.d("Notify user about items expired")
                 notification { handler ->
                     val notified = ExpirationNotifications.notifyExpired(
@@ -134,6 +129,6 @@ internal class ExpirationWorker internal constructor(
 
     companion object {
 
-        private const val RECURRING_INTERVAL = 3L
+        private val NOTIFICATION_ALLOWED_PERIOD = TimeUnit.HOURS.toMillis(2)
     }
 }

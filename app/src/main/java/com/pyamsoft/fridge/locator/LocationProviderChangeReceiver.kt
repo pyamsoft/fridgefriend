@@ -24,9 +24,8 @@ import android.location.LocationManager
 import com.pyamsoft.fridge.FridgeComponent
 import com.pyamsoft.fridge.butler.Butler
 import com.pyamsoft.pydroid.ui.Injector
-import java.util.concurrent.TimeUnit.SECONDS
-import javax.inject.Inject
 import timber.log.Timber
+import javax.inject.Inject
 
 internal class LocationProviderChangeReceiver internal constructor() : BroadcastReceiver() {
 
@@ -56,9 +55,9 @@ internal class LocationProviderChangeReceiver internal constructor() : Broadcast
             Timber.d("LocationProviders have changed - update Geofences")
             requireNotNull(gps).isGpsEnabled { enabled ->
                 requireNotNull(butler).apply {
-                    unregisterGeofences()
                     if (enabled) {
-                        registerGeofences(1, SECONDS)
+                        unregisterGeofences()
+                        registerGeofences()
                     } else {
                         requireNotNull(locator).unregisterGeofences()
                     }

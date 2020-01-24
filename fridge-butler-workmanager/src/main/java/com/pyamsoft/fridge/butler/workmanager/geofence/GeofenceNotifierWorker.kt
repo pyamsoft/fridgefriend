@@ -20,7 +20,6 @@ package com.pyamsoft.fridge.butler.workmanager.geofence
 import android.content.Context
 import androidx.annotation.CheckResult
 import androidx.work.WorkerParameters
-import com.pyamsoft.fridge.butler.Butler
 import com.pyamsoft.fridge.butler.ButlerPreferences
 import com.pyamsoft.fridge.butler.workmanager.worker.NearbyNotifyingWorker
 import com.pyamsoft.fridge.db.FridgeItemPreferences
@@ -45,10 +44,6 @@ internal class GeofenceNotifierWorker internal constructor(
 
     override fun onAfterTeardown() {
         geofencer = null
-    }
-
-    override fun reschedule(butler: Butler) {
-        Timber.w("Geofence jobs are not rescheduled.")
     }
 
     override suspend fun performWork(

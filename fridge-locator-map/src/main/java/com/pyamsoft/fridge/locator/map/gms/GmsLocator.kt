@@ -40,13 +40,13 @@ import com.pyamsoft.fridge.locator.Geofencer
 import com.pyamsoft.fridge.locator.Locator
 import com.pyamsoft.fridge.locator.Locator.Fence
 import com.pyamsoft.fridge.locator.MapPermission
+import kotlinx.coroutines.suspendCancellableCoroutine
+import timber.log.Timber
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
-import kotlinx.coroutines.suspendCancellableCoroutine
-import timber.log.Timber
 
 @Singleton
 internal class GmsLocator @Inject internal constructor(
@@ -184,7 +184,7 @@ internal class GmsLocator @Inject internal constructor(
         return Geofence.Builder()
             .setRequestId(fence.id)
             .setCircularRegion(fence.lat, fence.lon, Locator.RADIUS_IN_METERS)
-            .setExpirationDuration(Locator.RESCHEDULE_TIME)
+            .setExpirationDuration(EXPIRATION_TIME)
             .setNotificationResponsiveness(NOTIFICATION_DELAY_IN_MILLIS)
             .setLoiteringDelay(LOITER_IN_MILLIS)
             .setTransitionTypes(triggers)
@@ -263,5 +263,7 @@ internal class GmsLocator @Inject internal constructor(
             .toInt()
         private val NOTIFICATION_DELAY_IN_MILLIS = TimeUnit.MINUTES.toMillis(2L)
             .toInt()
+
+        private val EXPIRATION_TIME = TimeUnit.HOURS.toMillis(2L)
     }
 }
