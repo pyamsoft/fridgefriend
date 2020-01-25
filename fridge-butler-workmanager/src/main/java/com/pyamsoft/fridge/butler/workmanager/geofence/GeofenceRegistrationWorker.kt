@@ -19,6 +19,7 @@ package com.pyamsoft.fridge.butler.workmanager.geofence
 
 import android.content.Context
 import androidx.work.WorkerParameters
+import com.pyamsoft.fridge.butler.Butler
 import com.pyamsoft.fridge.butler.ButlerPreferences
 import com.pyamsoft.fridge.butler.workmanager.worker.NearbyWorker
 import com.pyamsoft.fridge.db.FridgeItemPreferences
@@ -37,6 +38,10 @@ internal class GeofenceRegistrationWorker internal constructor(
 
     override fun onAfterInject() {
         locator = Injector.obtain(applicationContext)
+    }
+
+    override fun reschedule(butler: Butler) {
+        butler.scheduleRegisterGeofences()
     }
 
     override fun onAfterTeardown() {

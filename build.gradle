@@ -61,7 +61,7 @@ buildscript {
         firebase = "16.0.9"
         mlVision = "20.0.0"
 
-        workmanager = "2.2.0"
+        workmanager = "2.3.0"
 
         osmdroid = "6.1.5"
 

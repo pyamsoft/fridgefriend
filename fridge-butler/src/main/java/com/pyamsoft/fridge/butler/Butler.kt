@@ -21,13 +21,19 @@ interface Butler {
 
     fun remindExpiration()
 
+    fun scheduleRemindExpiration()
+
     fun cancelExpirationReminder()
 
     fun remindLocation()
 
+    fun scheduleRemindLocation()
+
     fun cancelLocationReminder()
 
     fun registerGeofences()
+
+    fun scheduleRegisterGeofences()
 
     fun unregisterGeofences()
 

@@ -23,13 +23,13 @@ import androidx.work.Constraints
 import androidx.work.Data
 import androidx.work.ListenableWorker
 import androidx.work.OneTimeWorkRequest
-import androidx.work.PeriodicWorkRequest
 import androidx.work.WorkManager
 import com.pyamsoft.fridge.butler.Butler
 import com.pyamsoft.fridge.butler.workmanager.expiration.ExpirationWorker
 import com.pyamsoft.fridge.butler.workmanager.geofence.GeofenceNotifierWorker
 import com.pyamsoft.fridge.butler.workmanager.geofence.GeofenceRegistrationWorker
 import com.pyamsoft.fridge.butler.workmanager.locator.LocationWorker
+import com.pyamsoft.fridge.core.Core
 import timber.log.Timber
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
@@ -58,15 +58,14 @@ internal class WorkManagerButler @Inject internal constructor(
         type: WorkType,
         data: Map<String, Any?>?
     ) {
-        val builder = when (type) {
-            is WorkType.Instant -> OneTimeWorkRequest.Builder(worker)
-            is WorkType.Periodic -> PeriodicWorkRequest.Builder(worker, type.time, type.unit)
-        }
-
-        val request = builder
+        val request = OneTimeWorkRequest.Builder(worker)
             .addTag(tag)
             .setConstraints(generateConstraints())
             .apply {
+                // We must manually reschedule since PeriodicWork jobs do not repeat on Samsung...
+                if (type is WorkType.Periodic) {
+                    setInitialDelay(type.time, TimeUnit.MILLISECONDS)
+                }
                 if (data != null) {
                     setInputData(Data.Builder().putAll(data).build())
                 }
@@ -83,7 +82,11 @@ internal class WorkManagerButler @Inject internal constructor(
     }
 
     override fun remindExpiration() {
-        scheduleExpirationWork(WorkType.Periodic(RESCHEDULE_TIME, RESCHEDULE_UNIT))
+        scheduleExpirationWork(WorkType.Instant)
+    }
+
+    override fun scheduleRemindExpiration() {
+        scheduleExpirationWork(WorkType.Periodic(Core.RESCHEDULE_TIME))
     }
 
     override fun cancelExpirationReminder() {
@@ -96,7 +99,11 @@ internal class WorkManagerButler @Inject internal constructor(
     }
 
     override fun registerGeofences() {
-        scheduleGeofenceWork(WorkType.Periodic(RESCHEDULE_TIME, RESCHEDULE_UNIT))
+        scheduleGeofenceWork(WorkType.Instant)
+    }
+
+    override fun scheduleRegisterGeofences() {
+        scheduleGeofenceWork(WorkType.Periodic(Core.RESCHEDULE_TIME))
     }
 
     override fun unregisterGeofences() {
@@ -129,7 +136,11 @@ internal class WorkManagerButler @Inject internal constructor(
     }
 
     override fun remindLocation() {
-        scheduleLocation(WorkType.Periodic(RESCHEDULE_TIME, RESCHEDULE_UNIT))
+        scheduleLocation(WorkType.Instant)
+    }
+
+    override fun scheduleRemindLocation() {
+        scheduleLocation(WorkType.Periodic(Core.RESCHEDULE_TIME))
     }
 
     override fun cancelLocationReminder() {
@@ -142,7 +153,7 @@ internal class WorkManagerButler @Inject internal constructor(
 
     private sealed class WorkType {
         object Instant : WorkType()
-        data class Periodic(val time: Long, val unit: TimeUnit) : WorkType()
+        data class Periodic(val time: Long) : WorkType()
     }
 
     companion object {
@@ -151,8 +162,5 @@ internal class WorkManagerButler @Inject internal constructor(
         private const val GEOFENCE_REGISTRATION_TAG = "Geofence Registration Reminder 1"
         private const val GEOFENCE_NOTIFY_TAG = "Geofence Notifier Reminder 1"
         private const val LOCATION_TAG = "Location Reminder 1"
-
-        private const val RESCHEDULE_TIME = 2L
-        private val RESCHEDULE_UNIT = TimeUnit.HOURS
     }
 }

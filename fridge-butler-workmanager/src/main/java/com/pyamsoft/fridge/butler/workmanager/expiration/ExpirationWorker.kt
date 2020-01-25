@@ -19,6 +19,7 @@ package com.pyamsoft.fridge.butler.workmanager.expiration
 
 import android.content.Context
 import androidx.work.WorkerParameters
+import com.pyamsoft.fridge.butler.Butler
 import com.pyamsoft.fridge.butler.ButlerPreferences
 import com.pyamsoft.fridge.butler.workmanager.worker.FridgeWorker
 import com.pyamsoft.fridge.db.FridgeItemPreferences
@@ -30,10 +31,10 @@ import com.pyamsoft.fridge.db.isExpiringSoon
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence.HAVE
 import com.pyamsoft.fridge.db.item.isArchived
-import kotlinx.coroutines.coroutineScope
-import timber.log.Timber
 import java.util.Calendar
 import java.util.concurrent.TimeUnit
+import kotlinx.coroutines.coroutineScope
+import timber.log.Timber
 
 internal class ExpirationWorker internal constructor(
     context: Context,
@@ -110,6 +111,10 @@ internal class ExpirationWorker internal constructor(
         if (unknownExpirationItems.isNotEmpty()) {
             Timber.w("Butler cannot handle unknowns: $unknownExpirationItems")
         }
+    }
+
+    override fun reschedule(butler: Butler) {
+        butler.scheduleRemindExpiration()
     }
 
     override suspend fun performWork(

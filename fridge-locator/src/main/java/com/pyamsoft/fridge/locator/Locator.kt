@@ -20,7 +20,6 @@ package com.pyamsoft.fridge.locator
 import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.db.store.NearbyStore
 import com.pyamsoft.fridge.db.zone.NearbyZone
-import java.util.concurrent.TimeUnit
 
 interface Locator {
 
