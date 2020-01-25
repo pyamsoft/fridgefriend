@@ -27,8 +27,8 @@ import com.pyamsoft.fridge.db.item.FridgeItem.Presence.NEED
 import com.pyamsoft.fridge.db.item.isArchived
 import com.pyamsoft.fridge.db.store.NearbyStore
 import com.pyamsoft.fridge.db.zone.NearbyZone
-import java.util.Calendar
 import timber.log.Timber
+import java.util.Calendar
 
 internal abstract class NearbyNotifyingWorker protected constructor(
     context: Context,
@@ -36,8 +36,8 @@ internal abstract class NearbyNotifyingWorker protected constructor(
 ) : NearbyWorker(context, params) {
 
     protected suspend fun fireNotification(
+        forceNotify: Boolean,
         preferences: ButlerPreferences,
-        rescheduleInterval: Long,
         storeNotification: NearbyStore?,
         zoneNotification: NearbyZone?
     ) {
@@ -58,10 +58,8 @@ internal abstract class NearbyNotifyingWorker protected constructor(
             }
 
             val now = Calendar.getInstance()
-            val allowed = now.isAllowedToNotify(
-                preferences.getLastNotificationTimeNearby(),
-                rescheduleInterval
-            )
+            val lastTime = preferences.getLastNotificationTimeNearby()
+            val allowed = forceNotify || now.isAllowedToNotify(lastTime)
             if (allowed) {
                 if (storeNotification != null) {
                     notification { handler ->

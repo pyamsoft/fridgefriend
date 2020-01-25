@@ -123,7 +123,7 @@ internal class GeofenceNotifierWorker internal constructor(
                 }
 
                 Timber.d("Fire notification for: $closestStore $closestZone")
-                fireNotification(preferences, 0, closestStore, closestZone)
+                fireNotification(true, preferences, closestStore, closestZone)
             }
         }
     }

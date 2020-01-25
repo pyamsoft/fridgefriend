@@ -126,12 +126,7 @@ internal class LocationWorker internal constructor(
                 }
             }
 
-            fireNotification(preferences, RECURRING_INTERVAL, closestStore, closestZone)
+            fireNotification(false, preferences, closestStore, closestZone)
         }
-    }
-
-    companion object {
-
-        private const val RECURRING_INTERVAL = 3L
     }
 }

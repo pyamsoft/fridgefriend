@@ -22,6 +22,7 @@ import androidx.work.WorkerParameters
 import com.pyamsoft.fridge.butler.Butler
 import com.pyamsoft.fridge.butler.ButlerPreferences
 import com.pyamsoft.fridge.butler.workmanager.worker.FridgeWorker
+import com.pyamsoft.fridge.core.Core
 import com.pyamsoft.fridge.db.FridgeItemPreferences
 import com.pyamsoft.fridge.db.cleanMidnight
 import com.pyamsoft.fridge.db.daysLaterMidnight
@@ -31,10 +32,9 @@ import com.pyamsoft.fridge.db.isExpiringSoon
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence.HAVE
 import com.pyamsoft.fridge.db.item.isArchived
-import java.util.Calendar
-import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.coroutineScope
 import timber.log.Timber
+import java.util.Calendar
 
 internal class ExpirationWorker internal constructor(
     context: Context,
@@ -76,7 +76,7 @@ internal class ExpirationWorker internal constructor(
         val now = Calendar.getInstance()
         if (expiringItems.isNotEmpty()) {
             val lastTime = preferences.getLastNotificationTimeExpiringSoon()
-            if (now.isAllowedToNotify(lastTime, NOTIFICATION_ALLOWED_PERIOD)) {
+            if (now.isAllowedToNotify(lastTime)) {
                 Timber.d("Notify user about items expiring soon")
                 notification { handler ->
                     val notified = ExpirationNotifications.notifyExpiring(
@@ -93,7 +93,7 @@ internal class ExpirationWorker internal constructor(
 
         if (expiredItems.isNotEmpty()) {
             val lastTime = preferences.getLastNotificationTimeExpired()
-            if (now.isAllowedToNotify(lastTime, NOTIFICATION_ALLOWED_PERIOD)) {
+            if (now.isAllowedToNotify(lastTime)) {
                 Timber.d("Notify user about items expired")
                 notification { handler ->
                     val notified = ExpirationNotifications.notifyExpired(
@@ -130,10 +130,5 @@ internal class ExpirationWorker internal constructor(
         withFridgeData { entry, items ->
             notifyForEntry(preferences, today, later, isSameDayExpired, entry, items)
         }
-    }
-
-    companion object {
-
-        private val NOTIFICATION_ALLOWED_PERIOD = TimeUnit.HOURS.toMillis(2)
     }
 }
