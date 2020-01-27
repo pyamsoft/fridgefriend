@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Peter Kenji Yamanaka
+ * Copyright 2020 Peter Kenji Yamanaka
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,20 +15,14 @@
  *
  */
 
-package com.pyamsoft.fridge.butler.workmanager
+package com.pyamsoft.fridge.butler
 
 import androidx.annotation.CheckResult
-import com.pyamsoft.fridge.butler.Butler
-import com.pyamsoft.fridge.butler.NotificationHandler
 import dagger.Binds
 import dagger.Module
 
 @Module
 abstract class ButlerModule {
-
-    @Binds
-    @CheckResult
-    internal abstract fun bindButler(impl: WorkManagerButler): Butler
 
     @Binds
     @CheckResult

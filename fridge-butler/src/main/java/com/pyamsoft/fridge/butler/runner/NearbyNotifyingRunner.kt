@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Peter Kenji Yamanaka
+ * Copyright 2020 Peter Kenji Yamanaka
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,25 +15,50 @@
  *
  */
 
-package com.pyamsoft.fridge.butler.workmanager.worker
+package com.pyamsoft.fridge.butler.runner
 
 import android.content.Context
 import android.location.Location
 import androidx.annotation.CheckResult
-import androidx.work.WorkerParameters
+import com.pyamsoft.fridge.butler.Butler
 import com.pyamsoft.fridge.butler.ButlerPreferences
-import com.pyamsoft.fridge.butler.workmanager.geofence.GeofenceNotifications
+import com.pyamsoft.fridge.butler.NotificationHandler
+import com.pyamsoft.fridge.butler.runner.geofence.GeofenceNotifications
+import com.pyamsoft.fridge.db.FridgeItemPreferences
+import com.pyamsoft.fridge.db.entry.FridgeEntryQueryDao
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence.NEED
+import com.pyamsoft.fridge.db.item.FridgeItemQueryDao
 import com.pyamsoft.fridge.db.item.isArchived
 import com.pyamsoft.fridge.db.store.NearbyStore
+import com.pyamsoft.fridge.db.store.NearbyStoreQueryDao
 import com.pyamsoft.fridge.db.zone.NearbyZone
+import com.pyamsoft.fridge.db.zone.NearbyZoneQueryDao
+import com.pyamsoft.pydroid.core.Enforcer
 import timber.log.Timber
 import java.util.Calendar
 
-internal abstract class NearbyNotifyingWorker protected constructor(
-    context: Context,
-    params: WorkerParameters
-) : NearbyWorker(context, params) {
+internal abstract class NearbyNotifyingRunner protected constructor(
+    private val context: Context,
+    handler: NotificationHandler,
+    butler: Butler,
+    butlerPreferences: ButlerPreferences,
+    fridgeItemPreferences: FridgeItemPreferences,
+    enforcer: Enforcer,
+    fridgeEntryQueryDao: FridgeEntryQueryDao,
+    fridgeItemQueryDao: FridgeItemQueryDao,
+    storeDb: NearbyStoreQueryDao,
+    zoneDb: NearbyZoneQueryDao
+) : NearbyRunner(
+    handler,
+    butler,
+    butlerPreferences,
+    fridgeItemPreferences,
+    enforcer,
+    fridgeEntryQueryDao,
+    fridgeItemQueryDao,
+    storeDb,
+    zoneDb
+) {
 
     protected suspend fun fireNotification(
         forceNotify: Boolean,
@@ -66,7 +91,7 @@ internal abstract class NearbyNotifyingWorker protected constructor(
                         Timber.d("Fire notification for: $storeNotification")
                         val notified = GeofenceNotifications.notifyNeeded(
                             handler,
-                            applicationContext,
+                            context.applicationContext,
                             storeNotification,
                             now,
                             neededItems
@@ -82,7 +107,7 @@ internal abstract class NearbyNotifyingWorker protected constructor(
                         Timber.d("Fire notification for: $zoneNotification")
                         val notified = GeofenceNotifications.notifyNeeded(
                             handler,
-                            applicationContext,
+                            context.applicationContext,
                             zoneNotification,
                             now,
                             neededItems

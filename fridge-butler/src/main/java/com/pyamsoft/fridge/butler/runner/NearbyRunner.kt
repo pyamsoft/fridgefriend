@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Peter Kenji Yamanaka
+ * Copyright 2020 Peter Kenji Yamanaka
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,48 +15,46 @@
  *
  */
 
-package com.pyamsoft.fridge.butler.workmanager.worker
+package com.pyamsoft.fridge.butler.runner
 
-import android.content.Context
-import androidx.work.WorkerParameters
+import com.pyamsoft.fridge.butler.Butler
+import com.pyamsoft.fridge.butler.ButlerPreferences
+import com.pyamsoft.fridge.butler.NotificationHandler
+import com.pyamsoft.fridge.db.FridgeItemPreferences
+import com.pyamsoft.fridge.db.entry.FridgeEntryQueryDao
+import com.pyamsoft.fridge.db.item.FridgeItemQueryDao
 import com.pyamsoft.fridge.db.store.NearbyStore
 import com.pyamsoft.fridge.db.store.NearbyStoreQueryDao
 import com.pyamsoft.fridge.db.zone.NearbyZone
 import com.pyamsoft.fridge.db.zone.NearbyZoneQueryDao
-import com.pyamsoft.pydroid.ui.Injector
+import com.pyamsoft.pydroid.core.Enforcer
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 
-internal abstract class NearbyWorker protected constructor(
-    context: Context,
-    params: WorkerParameters
-) : FridgeWorker(context, params) {
-
-    private var storeDb: NearbyStoreQueryDao? = null
-    private var zoneDb: NearbyZoneQueryDao? = null
-
-    final override fun afterInject() {
-        storeDb = Injector.obtain(applicationContext)
-        zoneDb = Injector.obtain(applicationContext)
-        onAfterInject()
-    }
-
-    final override fun afterTeardown() {
-        storeDb = null
-        zoneDb = null
-        onAfterTeardown()
-    }
-
-    protected open fun onAfterInject() {
-    }
-
-    protected open fun onAfterTeardown() {
-    }
+internal abstract class NearbyRunner protected constructor(
+    handler: NotificationHandler,
+    butler: Butler,
+    butlerPreferences: ButlerPreferences,
+    fridgeItemPreferences: FridgeItemPreferences,
+    enforcer: Enforcer,
+    fridgeEntryQueryDao: FridgeEntryQueryDao,
+    fridgeItemQueryDao: FridgeItemQueryDao,
+    private val storeDb: NearbyStoreQueryDao,
+    private val zoneDb: NearbyZoneQueryDao
+) : FridgeRunner(
+    handler,
+    butler,
+    butlerPreferences,
+    fridgeItemPreferences,
+    enforcer,
+    fridgeEntryQueryDao,
+    fridgeItemQueryDao
+) {
 
     protected suspend fun withNearbyData(func: suspend (stores: List<NearbyStore>, zones: List<NearbyZone>) -> Unit) =
         coroutineScope {
-            val storeJob = async { requireNotNull(storeDb).query(false) }
-            val zoneJob = async { requireNotNull(zoneDb).query(false) }
+            val storeJob = async { storeDb.query(false) }
+            val zoneJob = async { zoneDb.query(false) }
             val nearbyStores = storeJob.await()
             val nearbyZones = zoneJob.await()
             func(nearbyStores, nearbyZones)

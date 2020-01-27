@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Peter Kenji Yamanaka
+ * Copyright 2020 Peter Kenji Yamanaka
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,31 +15,48 @@
  *
  */
 
-package com.pyamsoft.fridge.butler.workmanager.expiration
+package com.pyamsoft.fridge.butler.runner.expiration
 
 import android.content.Context
-import androidx.work.WorkerParameters
 import com.pyamsoft.fridge.butler.Butler
 import com.pyamsoft.fridge.butler.ButlerPreferences
-import com.pyamsoft.fridge.butler.workmanager.worker.FridgeWorker
-import com.pyamsoft.fridge.core.Core
+import com.pyamsoft.fridge.butler.NotificationHandler
+import com.pyamsoft.fridge.butler.runner.FridgeRunner
 import com.pyamsoft.fridge.db.FridgeItemPreferences
 import com.pyamsoft.fridge.db.cleanMidnight
 import com.pyamsoft.fridge.db.daysLaterMidnight
 import com.pyamsoft.fridge.db.entry.FridgeEntry
+import com.pyamsoft.fridge.db.entry.FridgeEntryQueryDao
 import com.pyamsoft.fridge.db.isExpired
 import com.pyamsoft.fridge.db.isExpiringSoon
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence.HAVE
+import com.pyamsoft.fridge.db.item.FridgeItemQueryDao
 import com.pyamsoft.fridge.db.item.isArchived
+import com.pyamsoft.pydroid.core.Enforcer
 import kotlinx.coroutines.coroutineScope
 import timber.log.Timber
 import java.util.Calendar
+import javax.inject.Inject
 
-internal class ExpirationWorker internal constructor(
-    context: Context,
-    params: WorkerParameters
-) : FridgeWorker(context, params) {
+internal class ExpirationRunner @Inject internal constructor(
+    private val context: Context,
+    handler: NotificationHandler,
+    butler: Butler,
+    butlerPreferences: ButlerPreferences,
+    fridgeItemPreferences: FridgeItemPreferences,
+    enforcer: Enforcer,
+    fridgeEntryQueryDao: FridgeEntryQueryDao,
+    fridgeItemQueryDao: FridgeItemQueryDao
+) : FridgeRunner(
+    handler,
+    butler,
+    butlerPreferences,
+    fridgeItemPreferences,
+    enforcer,
+    fridgeEntryQueryDao,
+    fridgeItemQueryDao
+) {
 
     private suspend fun notifyForEntry(
         preferences: ButlerPreferences,
@@ -79,9 +96,10 @@ internal class ExpirationWorker internal constructor(
             if (now.isAllowedToNotify(lastTime)) {
                 Timber.d("Notify user about items expiring soon")
                 notification { handler ->
-                    val notified = ExpirationNotifications.notifyExpiring(
-                        handler, applicationContext, entry, now, expiringItems
-                    )
+                    val notified =
+                        ExpirationNotifications.notifyExpiring(
+                            handler, context.applicationContext, entry, now, expiringItems
+                        )
                     if (notified) {
                         preferences.markNotificationExpiringSoon(now)
                     }
@@ -96,9 +114,10 @@ internal class ExpirationWorker internal constructor(
             if (now.isAllowedToNotify(lastTime)) {
                 Timber.d("Notify user about items expired")
                 notification { handler ->
-                    val notified = ExpirationNotifications.notifyExpired(
-                        handler, applicationContext, entry, now, expiredItems
-                    )
+                    val notified =
+                        ExpirationNotifications.notifyExpired(
+                            handler, context.applicationContext, entry, now, expiredItems
+                        )
                     if (notified) {
                         preferences.markNotificationExpired(now)
                     }

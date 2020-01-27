@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Peter Kenji Yamanaka
+ * Copyright 2020 Peter Kenji Yamanaka
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
  *
  */
 
-package com.pyamsoft.fridge.butler.workmanager.geofence
+package com.pyamsoft.fridge.butler.runner.geofence
 
 import android.content.Context
 import androidx.annotation.CheckResult
@@ -67,7 +67,13 @@ internal object GeofenceNotifications {
         now: Calendar,
         items: List<FridgeItem>
     ): Boolean {
-        return notifyNeeded(handler, context, store.name(), now, items)
+        return notifyNeeded(
+            handler,
+            context,
+            store.name(),
+            now,
+            items
+        )
     }
 
     @CheckResult
@@ -79,6 +85,12 @@ internal object GeofenceNotifications {
         now: Calendar,
         items: List<FridgeItem>
     ): Boolean {
-        return notifyNeeded(handler, context, zone.name(), now, items)
+        return notifyNeeded(
+            handler,
+            context,
+            zone.name(),
+            now,
+            items
+        )
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Peter Kenji Yamanaka
+ * Copyright 2020 Peter Kenji Yamanaka
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,70 +15,44 @@
  *
  */
 
-package com.pyamsoft.fridge.butler.workmanager.worker
+package com.pyamsoft.fridge.butler.runner
 
-import android.content.Context
 import androidx.annotation.CheckResult
-import androidx.work.CoroutineWorker
-import androidx.work.WorkerParameters
 import com.pyamsoft.fridge.butler.Butler
 import com.pyamsoft.fridge.butler.ButlerPreferences
 import com.pyamsoft.fridge.butler.NotificationHandler
 import com.pyamsoft.fridge.core.Core
 import com.pyamsoft.fridge.db.FridgeItemPreferences
 import com.pyamsoft.pydroid.core.Enforcer
-import com.pyamsoft.pydroid.ui.Injector
 import kotlinx.coroutines.CancellationException
 import timber.log.Timber
 import java.util.Calendar
 
-internal abstract class BaseWorker protected constructor(
-    context: Context,
-    params: WorkerParameters
-) : CoroutineWorker(context, params) {
-
-    private var handler: NotificationHandler? = null
-    private var butler: Butler? = null
-    private var butlerPreferences: ButlerPreferences? = null
-    private var fridgeItemPreferences: FridgeItemPreferences? = null
-    private var enforcer: Enforcer? = null
-
-    private fun inject() {
-        handler = Injector.obtain(applicationContext)
-        butler = Injector.obtain(applicationContext)
-        butlerPreferences = Injector.obtain(applicationContext)
-        fridgeItemPreferences = Injector.obtain(applicationContext)
-        enforcer = Injector.obtain(applicationContext)
-        onInject()
-    }
-
-    protected abstract fun onInject()
+internal abstract class BaseRunner protected constructor(
+    private val handler: NotificationHandler,
+    private val butler: Butler,
+    private val butlerPreferences: ButlerPreferences,
+    private val fridgeItemPreferences: FridgeItemPreferences,
+    private val enforcer: Enforcer
+) {
 
     private fun teardown() {
-        reschedule(requireNotNull(butler))
-        butler = null
-        handler = null
-        butlerPreferences = null
-        fridgeItemPreferences = null
-        enforcer = null
-        onTeardown()
+        reschedule(butler)
     }
 
-    protected inline fun notification(func: (handler: NotificationHandler) -> Unit) {
-        func(requireNotNull(handler))
+    protected suspend fun notification(func: suspend (handler: NotificationHandler) -> Unit) {
+        func(handler)
     }
-
-    protected abstract fun onTeardown()
 
     protected open fun reschedule(butler: Butler) {
     }
 
-    final override suspend fun doWork(): Result {
-        inject()
-        requireNotNull(enforcer).assertNotOnMainThread()
+    @CheckResult
+    suspend fun doWork(): WorkResult {
+        enforcer.assertNotOnMainThread()
 
         return try {
-            performWork(requireNotNull(butlerPreferences), requireNotNull(fridgeItemPreferences))
+            performWork(butlerPreferences, fridgeItemPreferences)
             success()
         } catch (e: Throwable) {
             if (e is CancellationException) {
@@ -97,21 +71,21 @@ internal abstract class BaseWorker protected constructor(
     )
 
     @CheckResult
-    private fun success(): Result {
+    private fun success(): WorkResult {
         Timber.d("Worker completed successfully")
-        return Result.success()
+        return WorkResult.Success
     }
 
     @CheckResult
-    private fun fail(throwable: Throwable): Result {
+    private fun fail(throwable: Throwable): WorkResult {
         Timber.e(throwable, "Worker failed to complete")
-        return Result.failure()
+        return WorkResult.Failure
     }
 
     @CheckResult
-    private fun cancelled(throwable: CancellationException): Result {
+    private fun cancelled(throwable: CancellationException): WorkResult {
         Timber.w(throwable, "Worker was cancelled")
-        return Result.failure()
+        return WorkResult.Failure
     }
 
     @CheckResult

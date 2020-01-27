@@ -25,10 +25,10 @@ import androidx.work.ListenableWorker
 import androidx.work.OneTimeWorkRequest
 import androidx.work.WorkManager
 import com.pyamsoft.fridge.butler.Butler
-import com.pyamsoft.fridge.butler.workmanager.expiration.ExpirationWorker
-import com.pyamsoft.fridge.butler.workmanager.geofence.GeofenceNotifierWorker
-import com.pyamsoft.fridge.butler.workmanager.geofence.GeofenceRegistrationWorker
-import com.pyamsoft.fridge.butler.workmanager.locator.LocationWorker
+import com.pyamsoft.fridge.butler.workmanager.worker.ExpirationWorker
+import com.pyamsoft.fridge.butler.workmanager.worker.GeofenceNotifierWorker
+import com.pyamsoft.fridge.butler.workmanager.worker.GeofenceRegistrationWorker
+import com.pyamsoft.fridge.butler.workmanager.worker.LocationWorker
 import com.pyamsoft.fridge.core.Core
 import timber.log.Timber
 import java.util.concurrent.TimeUnit

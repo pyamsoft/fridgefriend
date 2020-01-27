@@ -25,7 +25,7 @@ import com.pyamsoft.fridge.db.item.FridgeItem
 import java.util.Calendar
 import timber.log.Timber
 
-object ButlerNotifications {
+internal object ButlerNotifications {
 
     @JvmStatic
     @CheckResult

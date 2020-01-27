@@ -22,19 +22,16 @@ import android.app.Application
 import android.content.Context
 import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.FridgeComponent.FridgeProvider
-import com.pyamsoft.fridge.butler.Butler
+import com.pyamsoft.fridge.butler.ButlerModule
 import com.pyamsoft.fridge.butler.ButlerPreferences
-import com.pyamsoft.fridge.butler.NotificationHandler
-import com.pyamsoft.fridge.butler.workmanager.ButlerModule
+import com.pyamsoft.fridge.butler.injector.component.ButlerComponent
+import com.pyamsoft.fridge.butler.injector.component.InputButlerComponent
+import com.pyamsoft.fridge.butler.workmanager.WorkManagerModule
 import com.pyamsoft.fridge.core.CoreModule
 import com.pyamsoft.fridge.db.FridgeItemPreferences
 import com.pyamsoft.fridge.db.PersistentEntryPreferences
-import com.pyamsoft.fridge.db.entry.FridgeEntryQueryDao
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent
-import com.pyamsoft.fridge.db.item.FridgeItemQueryDao
 import com.pyamsoft.fridge.db.room.RoomModule
-import com.pyamsoft.fridge.db.store.NearbyStoreQueryDao
-import com.pyamsoft.fridge.db.zone.NearbyZoneQueryDao
 import com.pyamsoft.fridge.detail.DateSelectComponent
 import com.pyamsoft.fridge.detail.DetailComponent
 import com.pyamsoft.fridge.detail.ExpandComponent
@@ -42,9 +39,7 @@ import com.pyamsoft.fridge.detail.expand.ItemExpandPayload
 import com.pyamsoft.fridge.detail.expand.date.DateSelectPayload
 import com.pyamsoft.fridge.entry.EntryComponent
 import com.pyamsoft.fridge.locator.GeofenceBroadcastReceiver
-import com.pyamsoft.fridge.locator.Geofencer
 import com.pyamsoft.fridge.locator.LocationProviderChangeReceiver
-import com.pyamsoft.fridge.locator.Locator
 import com.pyamsoft.fridge.locator.map.LocatorModule
 import com.pyamsoft.fridge.main.MainComponent
 import com.pyamsoft.fridge.map.MapComponent
@@ -71,54 +66,21 @@ import javax.inject.Singleton
         CoreModule::class,
         FridgeProvider::class,
         RoomModule::class,
+        WorkManagerModule::class,
         ButlerModule::class,
         LocatorModule::class
     ]
 )
 internal interface FridgeComponent {
 
-    // For BaseWorker Work classes
-    @CheckResult
-    fun provideButler(): Butler
-
-    // For BaseWorker Work classes
-    @CheckResult
-    fun provideButlerPreferences(): ButlerPreferences
-
-    // For BaseWorker Work classes
-    @CheckResult
-    fun provideFridgeItemPreferences(): FridgeItemPreferences
-
-    // For BaseWorker Work classes
-    @CheckResult
-    fun provideNotificationHandler(): NotificationHandler
-
-    // For GeofenceRegistrationWorker Work classes
-    @CheckResult
-    fun provideLocator(): Locator
-
-    // For GeofenceNotifierWorker Work classes
-    @CheckResult
-    fun provideGeofencer(): Geofencer
-
-    // For ExpirationWorker Work classes
-    @CheckResult
-    fun provideFridgeEntryQueryDao(): FridgeEntryQueryDao
-
-    // For ExpirationWorker Work classes
-    @CheckResult
-    fun provideFridgeItemQueryDao(): FridgeItemQueryDao
-
-    // For GeofenceRegistrationWorker Work classes
-    @CheckResult
-    fun provideNearbyStoreQueryDao(): NearbyStoreQueryDao
-
-    // For GeofenceRegistrationWorker Work classes
-    @CheckResult
-    fun provideNearbyZoneQueryDao(): NearbyZoneQueryDao
-
     //  @CheckResult
     //  fun plusScannerComponent(): OcrComponent.Factory
+
+    @CheckResult
+    fun plusButlerComponent(): ButlerComponent
+
+    @CheckResult
+    fun plusInputButlerComponent(): InputButlerComponent.Factory
 
     @CheckResult
     fun plusExpandComponent(): ExpandComponent.Factory

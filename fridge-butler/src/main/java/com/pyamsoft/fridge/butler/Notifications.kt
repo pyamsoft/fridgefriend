@@ -68,7 +68,7 @@ object Notifications {
     }
 
     @JvmStatic
-    fun notify(
+    internal fun notify(
         notificationId: Int,
         handler: NotificationHandler,
         context: Context,

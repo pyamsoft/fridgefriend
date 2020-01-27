@@ -20,17 +20,10 @@ package com.pyamsoft.fridge
 import android.app.Application
 import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.butler.Butler
-import com.pyamsoft.fridge.butler.ButlerPreferences
-import com.pyamsoft.fridge.butler.NotificationHandler
+import com.pyamsoft.fridge.butler.injector.component.ButlerComponent
+import com.pyamsoft.fridge.butler.injector.component.InputButlerComponent
 import com.pyamsoft.fridge.core.Core
-import com.pyamsoft.fridge.db.FridgeItemPreferences
-import com.pyamsoft.fridge.db.entry.FridgeEntryQueryDao
-import com.pyamsoft.fridge.db.item.FridgeItemQueryDao
-import com.pyamsoft.fridge.db.store.NearbyStoreQueryDao
-import com.pyamsoft.fridge.db.zone.NearbyZoneQueryDao
 import com.pyamsoft.fridge.locator.GeofenceUpdateReceiver
-import com.pyamsoft.fridge.locator.Geofencer
-import com.pyamsoft.fridge.locator.Locator
 import com.pyamsoft.fridge.main.MainActivity
 import com.pyamsoft.pydroid.bootstrap.libraries.OssLibraries
 import com.pyamsoft.pydroid.ui.PYDroid
@@ -139,16 +132,8 @@ class FridgeFriend : Application() {
     @CheckResult
     private fun provideWorkerDependencies(name: String): Any? {
         return when (name) {
-            Butler::class.java.name -> requireNotNull(component).provideButler()
-            Locator::class.java.name -> requireNotNull(component).provideLocator()
-            Geofencer::class.java.name -> requireNotNull(component).provideGeofencer()
-            FridgeItemQueryDao::class.java.name -> requireNotNull(component).provideFridgeItemQueryDao()
-            FridgeEntryQueryDao::class.java.name -> requireNotNull(component).provideFridgeEntryQueryDao()
-            NearbyStoreQueryDao::class.java.name -> requireNotNull(component).provideNearbyStoreQueryDao()
-            NearbyZoneQueryDao::class.java.name -> requireNotNull(component).provideNearbyZoneQueryDao()
-            NotificationHandler::class.java.name -> requireNotNull(component).provideNotificationHandler()
-            ButlerPreferences::class.java.name -> requireNotNull(component).provideButlerPreferences()
-            FridgeItemPreferences::class.java.name -> requireNotNull(component).provideFridgeItemPreferences()
+            ButlerComponent::class.java.name -> requireNotNull(component).plusButlerComponent()
+            InputButlerComponent.Factory::class.java.name -> requireNotNull(component).plusInputButlerComponent()
             else -> null
         }
     }

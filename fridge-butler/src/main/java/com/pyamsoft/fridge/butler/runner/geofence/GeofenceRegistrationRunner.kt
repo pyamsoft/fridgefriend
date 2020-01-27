@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Peter Kenji Yamanaka
+ * Copyright 2020 Peter Kenji Yamanaka
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,37 +15,49 @@
  *
  */
 
-package com.pyamsoft.fridge.butler.workmanager.geofence
+package com.pyamsoft.fridge.butler.runner.geofence
 
-import android.content.Context
-import androidx.work.WorkerParameters
 import com.pyamsoft.fridge.butler.Butler
 import com.pyamsoft.fridge.butler.ButlerPreferences
-import com.pyamsoft.fridge.butler.workmanager.worker.NearbyWorker
+import com.pyamsoft.fridge.butler.NotificationHandler
+import com.pyamsoft.fridge.butler.runner.NearbyRunner
 import com.pyamsoft.fridge.db.FridgeItemPreferences
+import com.pyamsoft.fridge.db.entry.FridgeEntryQueryDao
+import com.pyamsoft.fridge.db.item.FridgeItemQueryDao
+import com.pyamsoft.fridge.db.store.NearbyStoreQueryDao
+import com.pyamsoft.fridge.db.zone.NearbyZoneQueryDao
 import com.pyamsoft.fridge.locator.Locator
 import com.pyamsoft.fridge.locator.Locator.Fence
-import com.pyamsoft.pydroid.ui.Injector
+import com.pyamsoft.pydroid.core.Enforcer
 import kotlinx.coroutines.coroutineScope
 import timber.log.Timber
+import javax.inject.Inject
 
-internal class GeofenceRegistrationWorker internal constructor(
-    context: Context,
-    params: WorkerParameters
-) : NearbyWorker(context, params) {
-
-    private var locator: Locator? = null
-
-    override fun onAfterInject() {
-        locator = Injector.obtain(applicationContext)
-    }
+internal class GeofenceRegistrationRunner @Inject internal constructor(
+    handler: NotificationHandler,
+    butler: Butler,
+    butlerPreferences: ButlerPreferences,
+    fridgeItemPreferences: FridgeItemPreferences,
+    enforcer: Enforcer,
+    fridgeEntryQueryDao: FridgeEntryQueryDao,
+    fridgeItemQueryDao: FridgeItemQueryDao,
+    storeDb: NearbyStoreQueryDao,
+    zoneDb: NearbyZoneQueryDao,
+    private val locator: Locator
+) : NearbyRunner(
+    handler,
+    butler,
+    butlerPreferences,
+    fridgeItemPreferences,
+    enforcer,
+    fridgeEntryQueryDao,
+    fridgeItemQueryDao,
+    storeDb,
+    zoneDb
+) {
 
     override fun reschedule(butler: Butler) {
         butler.scheduleRegisterGeofences()
-    }
-
-    override fun onAfterTeardown() {
-        locator = null
     }
 
     override suspend fun performWork(
@@ -60,7 +72,7 @@ internal class GeofenceRegistrationWorker internal constructor(
                 .flatten()
 
             val fences = nearbyStores + nearbyZones
-            requireNotNull(locator).registerGeofences(fences)
+            locator.registerGeofences(fences)
         }
     }
 }

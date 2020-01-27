@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Peter Kenji Yamanaka
+ * Copyright 2020 Peter Kenji Yamanaka
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,39 +15,54 @@
  *
  */
 
-package com.pyamsoft.fridge.butler.workmanager.locator
+package com.pyamsoft.fridge.butler.runner.locator
 
 import android.content.Context
-import androidx.work.WorkerParameters
 import com.pyamsoft.fridge.butler.Butler
 import com.pyamsoft.fridge.butler.ButlerPreferences
-import com.pyamsoft.fridge.butler.workmanager.worker.NearbyNotifyingWorker
+import com.pyamsoft.fridge.butler.NotificationHandler
+import com.pyamsoft.fridge.butler.runner.NearbyNotifyingRunner
 import com.pyamsoft.fridge.db.FridgeItemPreferences
+import com.pyamsoft.fridge.db.entry.FridgeEntryQueryDao
+import com.pyamsoft.fridge.db.item.FridgeItemQueryDao
 import com.pyamsoft.fridge.db.store.NearbyStore
+import com.pyamsoft.fridge.db.store.NearbyStoreQueryDao
 import com.pyamsoft.fridge.db.zone.NearbyZone
+import com.pyamsoft.fridge.db.zone.NearbyZoneQueryDao
 import com.pyamsoft.fridge.locator.Geofencer
 import com.pyamsoft.fridge.locator.Locator
-import com.pyamsoft.pydroid.ui.Injector
+import com.pyamsoft.pydroid.core.Enforcer
 import kotlinx.coroutines.coroutineScope
 import timber.log.Timber
+import javax.inject.Inject
 
-internal class LocationWorker internal constructor(
+internal class LocationRunner @Inject internal constructor(
     context: Context,
-    params: WorkerParameters
-) : NearbyNotifyingWorker(context, params) {
-
-    private var geofencer: Geofencer? = null
-
-    override fun onAfterInject() {
-        geofencer = Injector.obtain(applicationContext)
-    }
+    handler: NotificationHandler,
+    butler: Butler,
+    butlerPreferences: ButlerPreferences,
+    fridgeItemPreferences: FridgeItemPreferences,
+    enforcer: Enforcer,
+    fridgeEntryQueryDao: FridgeEntryQueryDao,
+    fridgeItemQueryDao: FridgeItemQueryDao,
+    storeDb: NearbyStoreQueryDao,
+    zoneDb: NearbyZoneQueryDao,
+    private val geofencer: Geofencer
+) : NearbyNotifyingRunner(
+    context,
+    handler,
+    butler,
+    butlerPreferences,
+    fridgeItemPreferences,
+    enforcer,
+    fridgeEntryQueryDao,
+    fridgeItemQueryDao,
+    storeDb,
+    zoneDb
+) {
 
     override fun reschedule(butler: Butler) {
         butler.scheduleRemindLocation()
-    }
-
-    override fun onAfterTeardown() {
-        geofencer = null
     }
 
     override suspend fun performWork(
@@ -55,7 +70,7 @@ internal class LocationWorker internal constructor(
         fridgeItemPreferences: FridgeItemPreferences
     ) = coroutineScope {
         val location = try {
-            requireNotNull(geofencer).getLastKnownLocation()
+            geofencer.getLastKnownLocation()
         } catch (e: Exception) {
             Timber.w("Could not get last known location - permission_button issue perhaps?")
             null
