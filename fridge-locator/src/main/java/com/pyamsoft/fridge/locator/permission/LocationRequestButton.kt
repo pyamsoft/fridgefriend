@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Peter Kenji Yamanaka
+ * Copyright 2020 Peter Kenji Yamanaka
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,12 +15,11 @@
  *
  */
 
-package com.pyamsoft.fridge.locator.map.permission
+package com.pyamsoft.fridge.locator.permission
 
 import android.view.ViewGroup
 import android.widget.Button
-import com.pyamsoft.fridge.locator.map.R
-import com.pyamsoft.fridge.locator.map.permission.PermissionViewEvent.FireLocationPermission
+import com.pyamsoft.fridge.locator.R
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.arch.UnitViewState
 import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
@@ -36,7 +35,7 @@ class LocationRequestButton @Inject internal constructor(
 
     init {
         doOnInflate {
-            layoutRoot.setOnDebouncedClickListener { publish(FireLocationPermission) }
+            layoutRoot.setOnDebouncedClickListener { publish(PermissionViewEvent.FireLocationPermission) }
         }
 
         doOnTeardown {

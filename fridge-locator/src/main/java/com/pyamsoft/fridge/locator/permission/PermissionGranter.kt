@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Peter Kenji Yamanaka
+ * Copyright 2020 Peter Kenji Yamanaka
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
  *
  */
 
-package com.pyamsoft.fridge.locator.map.permission
+package com.pyamsoft.fridge.locator.permission
 
 import android.content.Context
 import android.content.pm.PackageManager
@@ -24,9 +24,6 @@ import android.os.Build.VERSION_CODES
 import androidx.annotation.CheckResult
 import androidx.core.content.ContextCompat
 import com.pyamsoft.fridge.locator.MapPermission
-import com.pyamsoft.fridge.locator.permission.BackgroundLocationPermission
-import com.pyamsoft.fridge.locator.permission.ForegroundLocationPermission
-import com.pyamsoft.fridge.locator.permission.PermissionConsumer
 import javax.inject.Inject
 import javax.inject.Singleton
 

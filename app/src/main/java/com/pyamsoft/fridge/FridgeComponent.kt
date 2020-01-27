@@ -40,7 +40,8 @@ import com.pyamsoft.fridge.detail.expand.date.DateSelectPayload
 import com.pyamsoft.fridge.entry.EntryComponent
 import com.pyamsoft.fridge.locator.GeofenceBroadcastReceiver
 import com.pyamsoft.fridge.locator.LocationProviderChangeReceiver
-import com.pyamsoft.fridge.locator.map.LocatorModule
+import com.pyamsoft.fridge.locator.LocatorModule
+import com.pyamsoft.fridge.locator.map.MapModule
 import com.pyamsoft.fridge.main.MainComponent
 import com.pyamsoft.fridge.map.MapComponent
 import com.pyamsoft.fridge.permission.PermissionComponent
@@ -66,9 +67,10 @@ import javax.inject.Singleton
         CoreModule::class,
         FridgeProvider::class,
         RoomModule::class,
-        WorkManagerModule::class,
         ButlerModule::class,
-        LocatorModule::class
+        WorkManagerModule::class,
+        LocatorModule::class,
+        MapModule::class
     ]
 )
 internal interface FridgeComponent {

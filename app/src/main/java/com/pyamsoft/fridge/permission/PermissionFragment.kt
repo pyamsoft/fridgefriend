@@ -28,9 +28,9 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.pyamsoft.fridge.FridgeComponent
 import com.pyamsoft.fridge.locator.R
-import com.pyamsoft.fridge.locator.map.permission.LocationPermissionViewModel
-import com.pyamsoft.fridge.locator.map.permission.LocationRequestButton
-import com.pyamsoft.fridge.locator.map.permission.PermissionControllerEvent.LocationPermissionRequest
+import com.pyamsoft.fridge.locator.permission.LocationPermissionViewModel
+import com.pyamsoft.fridge.locator.permission.LocationRequestButton
+import com.pyamsoft.fridge.locator.permission.PermissionControllerEvent.LocationPermissionRequest
 import com.pyamsoft.fridge.locator.permission.ForegroundLocationPermission
 import com.pyamsoft.fridge.locator.permission.PermissionConsumer
 import com.pyamsoft.fridge.locator.permission.PermissionGrant

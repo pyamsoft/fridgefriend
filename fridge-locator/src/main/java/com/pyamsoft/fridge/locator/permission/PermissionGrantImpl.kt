@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Peter Kenji Yamanaka
+ * Copyright 2020 Peter Kenji Yamanaka
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,11 +15,9 @@
  *
  */
 
-package com.pyamsoft.fridge.locator.map.permission
+package com.pyamsoft.fridge.locator.permission
 
 import androidx.annotation.CheckResult
-import com.pyamsoft.fridge.locator.permission.Permission
-import com.pyamsoft.fridge.locator.permission.PermissionGrant
 
 internal data class PermissionGrantImpl<T : Permission> internal constructor(
     private val permission: T,
@@ -37,5 +35,8 @@ internal data class PermissionGrantImpl<T : Permission> internal constructor(
 
 @CheckResult
 internal fun <T : Permission> T.asGrant(granted: Boolean): PermissionGrant<T> {
-    return PermissionGrantImpl(this, granted)
+    return PermissionGrantImpl(
+        this,
+        granted
+    )
 }

@@ -21,37 +21,27 @@ import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.locator.DeviceGps
 import com.pyamsoft.fridge.locator.Geofencer
 import com.pyamsoft.fridge.locator.Locator
-import com.pyamsoft.fridge.locator.MapPermission
 import com.pyamsoft.fridge.locator.map.gms.GmsLocator
 import com.pyamsoft.fridge.locator.map.osm.api.NearbyLocationApi
 import com.pyamsoft.fridge.locator.map.osm.api.OsmNodeOrWay
-import com.pyamsoft.fridge.locator.map.permission.PermissionGranter
-import com.pyamsoft.fridge.locator.map.permission.PermissionHandlerImpl
-import com.pyamsoft.fridge.locator.permission.BackgroundLocationPermission
-import com.pyamsoft.fridge.locator.permission.ForegroundLocationPermission
-import com.pyamsoft.fridge.locator.permission.PermissionHandler
 import com.squareup.moshi.Moshi
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
-import javax.inject.Named
-import javax.inject.Singleton
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import okhttp3.logging.HttpLoggingInterceptor.Level.BODY
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
+import javax.inject.Named
+import javax.inject.Singleton
 
 @Module
-abstract class LocatorModule {
+abstract class MapModule {
 
     @Binds
     @CheckResult
     internal abstract fun bindLocator(impl: GmsLocator): Locator
-
-    @Binds
-    @CheckResult
-    internal abstract fun bindLocationPermissions(impl: PermissionGranter): MapPermission
 
     @Binds
     @CheckResult
@@ -63,20 +53,6 @@ abstract class LocatorModule {
 
     @Module
     companion object {
-
-        @Provides
-        @JvmStatic
-        @Singleton
-        internal fun provideForegroundHandler(): PermissionHandler<ForegroundLocationPermission> {
-            return PermissionHandlerImpl(ForegroundLocationPermission)
-        }
-
-        @Provides
-        @JvmStatic
-        @Singleton
-        internal fun provideBackgroundHandler(): PermissionHandler<BackgroundLocationPermission> {
-            return PermissionHandlerImpl(BackgroundLocationPermission)
-        }
 
         @Provides
         @JvmStatic
