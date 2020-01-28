@@ -34,8 +34,8 @@ import com.pyamsoft.fridge.db.store.NearbyStoreQueryDao
 import com.pyamsoft.fridge.db.zone.NearbyZone
 import com.pyamsoft.fridge.db.zone.NearbyZoneQueryDao
 import com.pyamsoft.pydroid.core.Enforcer
-import timber.log.Timber
 import java.util.Calendar
+import timber.log.Timber
 
 internal abstract class NearbyNotifyingRunner protected constructor(
     private val context: Context,

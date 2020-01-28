@@ -29,9 +29,9 @@ import com.pyamsoft.fridge.db.zone.NearbyZoneQueryDao
 import com.pyamsoft.fridge.locator.Locator
 import com.pyamsoft.fridge.locator.Locator.Fence
 import com.pyamsoft.pydroid.core.Enforcer
+import javax.inject.Inject
 import kotlinx.coroutines.coroutineScope
 import timber.log.Timber
-import javax.inject.Inject
 
 internal class GeofenceRegistrationRunner @Inject internal constructor(
     handler: NotificationHandler,

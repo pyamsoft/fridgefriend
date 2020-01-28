@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?><!--
-  ~ Copyright 2019 Peter Kenji Yamanaka
+  ~ Copyright 2020 Peter Kenji Yamanaka
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -17,13 +17,13 @@
 
 <merge>
 
-    <Button xmlns:android="http://schemas.android.com/apk/res/android"
-        android:id="@+id/location_permission_button"
+    <TextView xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/location_permission_explanation"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:gravity="center"
-        android:text="@string/request_location_permission"
-        android:textAppearance="?attr/textAppearanceBody2" />
+        android:gravity="start|center_vertical"
+        android:text="@string/location_permission_explanation"
+        android:textAppearance="?attr/textAppearanceBody1" />
 
 </merge>

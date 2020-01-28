@@ -32,10 +32,10 @@ import com.pyamsoft.fridge.db.zone.NearbyZone
 import com.pyamsoft.fridge.db.zone.NearbyZoneQueryDao
 import com.pyamsoft.fridge.locator.Locator
 import com.pyamsoft.pydroid.core.Enforcer
-import kotlinx.coroutines.coroutineScope
-import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Named
+import kotlinx.coroutines.coroutineScope
+import timber.log.Timber
 
 internal class GeofenceNotifierRunner @Inject internal constructor(
     context: Context,

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?><!--
-  ~ Copyright 2019 Peter Kenji Yamanaka
+  ~ Copyright 2020 Peter Kenji Yamanaka
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -15,15 +15,11 @@
   ~
   -->
 
-<merge>
+<resources>
+    <string name="request_location_permission">Allow Location Access</string>
+    <string name="location_permission_explanation">
+        FridgeFriend has the optional ability to remind you about items you still need to shop for when you are near a supermarket.
 
-    <Button xmlns:android="http://schemas.android.com/apk/res/android"
-        android:id="@+id/location_permission_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:gravity="center"
-        android:text="@string/request_location_permission"
-        android:textAppearance="?attr/textAppearanceBody2" />
-
-</merge>
+        \n\nIn order to do this however, it requires access to your Location whenever the App is in use.
+    </string>
+</resources>

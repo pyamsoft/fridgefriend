@@ -24,9 +24,9 @@ import com.pyamsoft.fridge.butler.NotificationHandler
 import com.pyamsoft.fridge.core.Core
 import com.pyamsoft.fridge.db.FridgeItemPreferences
 import com.pyamsoft.pydroid.core.Enforcer
+import java.util.Calendar
 import kotlinx.coroutines.CancellationException
 import timber.log.Timber
-import java.util.Calendar
 
 internal abstract class BaseRunner protected constructor(
     private val handler: NotificationHandler,
