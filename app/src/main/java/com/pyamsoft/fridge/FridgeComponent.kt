@@ -39,6 +39,7 @@ import com.pyamsoft.fridge.detail.expand.ItemExpandPayload
 import com.pyamsoft.fridge.detail.expand.date.DateSelectPayload
 import com.pyamsoft.fridge.entry.EntryComponent
 import com.pyamsoft.fridge.locator.GeofenceBroadcastReceiver
+import com.pyamsoft.fridge.locator.GeofenceUpdateReceiver
 import com.pyamsoft.fridge.locator.LocationProviderChangeReceiver
 import com.pyamsoft.fridge.locator.LocatorModule
 import com.pyamsoft.fridge.locator.map.MapModule
@@ -110,7 +111,10 @@ internal interface FridgeComponent {
 
     fun inject(receiver: LocationProviderChangeReceiver)
 
+    fun inject(receiver: GeofenceUpdateReceiver)
+
     fun inject(application: FridgeFriend)
+
 
     @Component.Factory
     interface Factory {

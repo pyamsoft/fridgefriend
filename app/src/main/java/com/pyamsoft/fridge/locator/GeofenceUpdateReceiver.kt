@@ -20,25 +20,30 @@ package com.pyamsoft.fridge.locator
 import android.content.Context
 import android.content.Intent
 import android.location.Location
-import com.pyamsoft.fridge.butler.Butler
+import com.pyamsoft.fridge.FridgeComponent
 import com.pyamsoft.fridge.locator.map.gms.GmsGeofenceBroadcastReceiver
 import com.pyamsoft.pydroid.ui.Injector
 import kotlinx.coroutines.CancellationException
 import timber.log.Timber
+import javax.inject.Inject
 
 internal class GeofenceUpdateReceiver internal constructor() : GmsGeofenceBroadcastReceiver() {
 
-    private var geofencer: Geofencer? = null
-    private var butler: Butler? = null
+    @JvmField
+    @Inject
+    internal var processor: GeofenceProcessor? = null
+
+    @JvmField
+    @Inject
+    internal var geofencer: Geofencer? = null
 
     override fun onInject(context: Context) {
-        geofencer = Injector.obtain(context.applicationContext)
-        butler = Injector.obtain(context.applicationContext)
+        Injector.obtain<FridgeComponent>(context.applicationContext).inject(this)
     }
 
     override fun onTeardown() {
         geofencer = null
-        butler = null
+        processor = null
     }
 
     override suspend fun onGeofenceEvent(intent: Intent) {
@@ -62,7 +67,7 @@ internal class GeofenceUpdateReceiver internal constructor() : GmsGeofenceBroadc
                 return
             }
 
-            processFences(requireNotNull(butler), lastLocation, triggeredIds)
+            processFences(requireNotNull(processor), lastLocation, triggeredIds)
         } catch (throwable: Throwable) {
             if (throwable !is CancellationException) {
                 Timber.e(throwable, "Error fetching last known location for nearby geofence event")
@@ -71,10 +76,10 @@ internal class GeofenceUpdateReceiver internal constructor() : GmsGeofenceBroadc
     }
 
     private fun processFences(
-        butler: Butler,
+        processor: GeofenceProcessor,
         lastLocation: Location,
         triggeredIds: List<String>
     ) {
-        butler.processGeofences(lastLocation.latitude, lastLocation.longitude, triggeredIds)
+        processor.processGeofences(lastLocation.latitude, lastLocation.longitude, triggeredIds)
     }
 }

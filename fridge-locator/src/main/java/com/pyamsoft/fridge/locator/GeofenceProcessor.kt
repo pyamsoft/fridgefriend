@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Peter Kenji Yamanaka
+ * Copyright 2020 Peter Kenji Yamanaka
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,27 +15,15 @@
  *
  */
 
-package com.pyamsoft.fridge.butler
+package com.pyamsoft.fridge.locator
 
-interface Butler {
+interface GeofenceProcessor {
 
-    fun remindExpiration()
+    fun processGeofences(
+        currentLatitude: Double,
+        currentLongitude: Double,
+        fences: List<String>
+    )
 
-    fun scheduleRemindExpiration()
-
-    fun cancelExpirationReminder()
-
-    fun remindLocation()
-
-    fun scheduleRemindLocation()
-
-    fun cancelLocationReminder()
-
-    fun registerGeofences()
-
-    fun scheduleRegisterGeofences()
-
-    fun unregisterGeofences()
-
-    fun cancel()
+    fun cancelGeofenceProcessing()
 }

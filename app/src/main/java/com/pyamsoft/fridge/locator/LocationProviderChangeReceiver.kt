@@ -24,17 +24,19 @@ import android.location.LocationManager
 import com.pyamsoft.fridge.FridgeComponent
 import com.pyamsoft.fridge.butler.Butler
 import com.pyamsoft.pydroid.ui.Injector
-import javax.inject.Inject
 import timber.log.Timber
+import javax.inject.Inject
 
 internal class LocationProviderChangeReceiver internal constructor() : BroadcastReceiver() {
 
     @JvmField
     @Inject
     internal var gps: DeviceGps? = null
+
     @JvmField
     @Inject
     internal var butler: Butler? = null
+
     @JvmField
     @Inject
     internal var locator: Locator? = null
