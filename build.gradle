@@ -38,7 +38,7 @@ buildscript {
         maxSdk = 29
 
         // Us
-        pydroid = "20.8.0-SNAPSHOT"
+        pydroid = "20.8.0"
 
         // Room
         room = "2.2.3"
@@ -47,7 +47,7 @@ buildscript {
         leakCanary = "2.1"
 
         // Dagger
-        dagger = "2.25.4"
+        dagger = "2.26"
 
         moshi = "1.9.2"
 
