@@ -27,7 +27,7 @@ import com.pyamsoft.fridge.butler.ButlerPreferences
 import com.pyamsoft.fridge.core.IdGenerator
 import com.pyamsoft.fridge.core.PreferenceUnregister
 import com.pyamsoft.fridge.db.FridgeItemPreferences
-import com.pyamsoft.fridge.db.PersistentEntryPreferences
+import com.pyamsoft.fridge.db.persist.PersistentEntryPreferences
 import com.pyamsoft.fridge.setting.SettingsPreferences
 import com.pyamsoft.pydroid.core.Enforcer
 import java.util.Calendar
@@ -41,7 +41,8 @@ import kotlinx.coroutines.withContext
 internal class PreferencesImpl @Inject internal constructor(
     private val enforcer: Enforcer,
     context: Context
-) : ButlerPreferences, FridgeItemPreferences, PersistentEntryPreferences, SettingsPreferences {
+) : ButlerPreferences, FridgeItemPreferences,
+    PersistentEntryPreferences, SettingsPreferences {
 
     private val preferences by lazy {
         PreferenceManager.getDefaultSharedPreferences(context.applicationContext)

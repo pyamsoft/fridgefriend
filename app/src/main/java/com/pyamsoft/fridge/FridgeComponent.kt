@@ -28,9 +28,10 @@ import com.pyamsoft.fridge.butler.injector.component.ButlerComponent
 import com.pyamsoft.fridge.butler.injector.component.InputButlerComponent
 import com.pyamsoft.fridge.butler.workmanager.WorkManagerModule
 import com.pyamsoft.fridge.core.CoreModule
+import com.pyamsoft.fridge.db.DbModule
 import com.pyamsoft.fridge.db.FridgeItemPreferences
-import com.pyamsoft.fridge.db.PersistentEntryPreferences
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent
+import com.pyamsoft.fridge.db.persist.PersistentEntryPreferences
 import com.pyamsoft.fridge.db.room.RoomModule
 import com.pyamsoft.fridge.detail.DateSelectComponent
 import com.pyamsoft.fridge.detail.DetailComponent
@@ -67,10 +68,11 @@ import javax.inject.Singleton
     modules = [
         CoreModule::class,
         FridgeProvider::class,
-        RoomModule::class,
+        DbModule::class,
         ButlerModule::class,
-        WorkManagerModule::class,
         LocatorModule::class,
+        WorkManagerModule::class,
+        RoomModule::class,
         MapModule::class
     ]
 )
@@ -114,7 +116,6 @@ internal interface FridgeComponent {
     fun inject(receiver: GeofenceUpdateReceiver)
 
     fun inject(application: FridgeFriend)
-
 
     @Component.Factory
     interface Factory {

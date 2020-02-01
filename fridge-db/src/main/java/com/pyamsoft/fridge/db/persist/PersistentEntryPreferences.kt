@@ -15,13 +15,14 @@
  *
  */
 
-package com.pyamsoft.fridge.db
+package com.pyamsoft.fridge.db.persist
 
 import androidx.annotation.CheckResult
-import com.pyamsoft.fridge.db.entry.FridgeEntry
 
-interface PersistentEntries {
+interface PersistentEntryPreferences {
 
     @CheckResult
-    suspend fun getPersistentEntry(): FridgeEntry
+    suspend fun getPersistentId(key: String): String
+
+    suspend fun savePersistentId(key: String, id: String)
 }

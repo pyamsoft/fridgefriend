@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Peter Kenji Yamanaka
+ * Copyright 2020 Peter Kenji Yamanaka
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,18 +15,16 @@
  *
  */
 
-package com.pyamsoft.fridge.db.room
+package com.pyamsoft.fridge.db.persist
 
 import androidx.annotation.CheckResult
-import com.pyamsoft.fridge.db.PersistentEntries
-import com.pyamsoft.fridge.db.PersistentEntryPreferences
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.entry.FridgeEntryInsertDao
 import com.pyamsoft.fridge.db.entry.FridgeEntryQueryDao
 import com.pyamsoft.pydroid.core.Enforcer
+import timber.log.Timber
 import java.util.Calendar
 import javax.inject.Inject
-import timber.log.Timber
 
 internal class RoomPersistentEntries @Inject internal constructor(
     private val enforcer: Enforcer,
@@ -69,7 +67,7 @@ internal class RoomPersistentEntries @Inject internal constructor(
 
     override suspend fun getPersistentEntry(): FridgeEntry {
         enforcer.assertNotOnMainThread()
-        return guaranteeEntryExists(PERSIST_ENTRY_KEY, "Items")
+        return guaranteeEntryExists(PERSIST_ENTRY_KEY, "My Fridge")
     }
 
     companion object {
