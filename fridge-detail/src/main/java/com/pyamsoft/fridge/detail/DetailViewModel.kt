@@ -36,14 +36,14 @@ import com.pyamsoft.fridge.detail.base.BaseUpdaterViewModel
 import com.pyamsoft.fridge.detail.expand.ItemExpandPayload
 import com.pyamsoft.highlander.highlander
 import com.pyamsoft.pydroid.arch.EventBus
-import java.util.Date
-import javax.inject.Inject
-import javax.inject.Named
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import timber.log.Timber
+import java.util.Date
+import javax.inject.Inject
+import javax.inject.Named
 
 class DetailViewModel @Inject internal constructor(
     private val interactor: DetailInteractor,
@@ -213,12 +213,21 @@ class DetailViewModel @Inject internal constructor(
     private fun getListItems(
         showing: DetailViewState.Showing,
         items: List<FridgeItem>,
-        listItemPresence: FridgeItem.Presence
+        defaultPresence: FridgeItem.Presence
     ): List<FridgeItem> {
         val listItems = items
             .asSequence()
             // Remove the placeholder items here
             .filter { it.id().isNotBlank() }
+            // Filter by archived and presence
+            .filter { item ->
+                when (showing) {
+                    DetailViewState.Showing.FRESH -> !item.isArchived()
+                    DetailViewState.Showing.CONSUMED -> item.isConsumed()
+                    DetailViewState.Showing.SPOILED -> item.isSpoiled()
+                }
+            }
+            .filter { it.presence() == defaultPresence }
             // Sort
             .sortedWith(Comparator { o1, o2 ->
                 return@Comparator when {
@@ -228,15 +237,6 @@ class DetailViewModel @Inject internal constructor(
                     else -> 0
                 }
             })
-            // Filter by archived and presence
-            .filter { item ->
-                when (showing) {
-                    DetailViewState.Showing.FRESH -> !item.isArchived()
-                    DetailViewState.Showing.CONSUMED -> item.isConsumed()
-                    DetailViewState.Showing.SPOILED -> item.isSpoiled()
-                }
-            }
-            .filter { it.presence() == listItemPresence }
             .toList()
 
         return when {
@@ -244,9 +244,9 @@ class DetailViewModel @Inject internal constructor(
 
             // Add them back here
             else -> listOf(
-                FridgeItem.empty(entryId),
+                FridgeItem.empty(entryId, defaultPresence),
                 *listItems.toTypedArray(),
-                FridgeItem.empty(entryId)
+                FridgeItem.empty(entryId, defaultPresence)
             )
         }
     }

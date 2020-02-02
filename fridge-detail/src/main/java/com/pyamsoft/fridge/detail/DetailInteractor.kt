@@ -32,12 +32,12 @@ import com.pyamsoft.fridge.db.item.FridgeItemRealtime
 import com.pyamsoft.fridge.db.item.FridgeItemUpdateDao
 import com.pyamsoft.pydroid.arch.EventConsumer
 import com.pyamsoft.pydroid.core.Enforcer
-import java.util.Calendar
-import java.util.Date
-import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import timber.log.Timber
+import java.util.Calendar
+import java.util.Date
+import javax.inject.Inject
 
 internal class DetailInteractor @Inject internal constructor(
     private val itemQueryDao: FridgeItemQueryDao,
@@ -94,17 +94,22 @@ internal class DetailInteractor @Inject internal constructor(
     suspend fun resolveItem(
         itemId: String,
         entryId: String,
+        presence: Presence,
         force: Boolean
     ): FridgeItem {
-        return if (itemId.isBlank()) createNewItem(entryId) else loadItem(itemId, entryId, force)
+        return if (itemId.isBlank()) {
+            createNewItem(entryId, presence)
+        } else {
+            loadItem(itemId, entryId, force)
+        }
     }
 
     /**
      * Create a new FridgeItem
      */
     @CheckResult
-    private fun createNewItem(entryId: String): FridgeItem {
-        return FridgeItem.create(entryId = entryId)
+    private fun createNewItem(entryId: String, presence: Presence): FridgeItem {
+        return FridgeItem.create(entryId = entryId, presence = presence)
     }
 
     /**

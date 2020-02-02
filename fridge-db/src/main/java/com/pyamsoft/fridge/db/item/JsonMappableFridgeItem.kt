@@ -34,6 +34,7 @@ data class JsonMappableFridgeItem internal constructor(
     internal val presence: Presence,
     internal val consumptionDate: Date?,
     internal val spoiledDate: Date?,
+    internal val categoryId: String?,
     internal val isReal: Boolean
 ) : FridgeItem {
 
@@ -67,6 +68,10 @@ data class JsonMappableFridgeItem internal constructor(
 
     override fun presence(): Presence {
         return presence
+    }
+
+    override fun categoryId(): String? {
+        return categoryId
     }
 
     override fun isReal(): Boolean {
@@ -137,6 +142,14 @@ data class JsonMappableFridgeItem internal constructor(
         return this.copy(spoiledDate = date)
     }
 
+    override fun invalidateCategoryId(): FridgeItem {
+        return this.copy(categoryId = null)
+    }
+
+    override fun categoryId(id: String): FridgeItem {
+        return this.copy(categoryId = categoryId)
+    }
+
     companion object {
 
         @JvmStatic
@@ -154,6 +167,7 @@ data class JsonMappableFridgeItem internal constructor(
                     item.presence(),
                     item.consumptionDate(),
                     item.spoiledDate(),
+                    item.categoryId(),
                     item.isReal()
                 )
             }

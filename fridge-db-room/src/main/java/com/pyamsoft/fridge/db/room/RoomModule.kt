@@ -49,7 +49,7 @@ abstract class RoomModule {
                 context.applicationContext,
                 RoomFridgeDbImpl::class.java,
                 "fridge_room_db.db"
-            )
+            ).fallbackToDestructiveMigration()
                 .build()
         }
 

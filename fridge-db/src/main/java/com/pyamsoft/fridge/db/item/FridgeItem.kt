@@ -19,10 +19,10 @@ package com.pyamsoft.fridge.db.item
 
 import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.core.IdGenerator
-import com.pyamsoft.fridge.db.ConsumableModel
+import com.pyamsoft.fridge.db.BaseModel
 import java.util.Date
 
-interface FridgeItem : ConsumableModel<FridgeItem> {
+interface FridgeItem : BaseModel<FridgeItem> {
 
     @CheckResult
     fun id(): String
@@ -41,6 +41,9 @@ interface FridgeItem : ConsumableModel<FridgeItem> {
 
     @CheckResult
     fun presence(): Presence
+
+    @CheckResult
+    fun categoryId(): String?
 
     @CheckResult
     fun isReal(): Boolean
@@ -64,6 +67,36 @@ interface FridgeItem : ConsumableModel<FridgeItem> {
     fun presence(presence: Presence): FridgeItem
 
     @CheckResult
+    fun isConsumed(): Boolean
+
+    @CheckResult
+    fun consumptionDate(): Date?
+
+    @CheckResult
+    fun consume(date: Date): FridgeItem
+
+    @CheckResult
+    fun invalidateConsumption(): FridgeItem
+
+    @CheckResult
+    fun isSpoiled(): Boolean
+
+    @CheckResult
+    fun spoiledDate(): Date?
+
+    @CheckResult
+    fun invalidateSpoiled(): FridgeItem
+
+    @CheckResult
+    fun spoil(date: Date): FridgeItem
+
+    @CheckResult
+    fun invalidateCategoryId(): FridgeItem
+
+    @CheckResult
+    fun categoryId(id: String): FridgeItem
+
+    @CheckResult
     fun makeReal(): FridgeItem
 
     enum class Presence {
@@ -85,7 +118,6 @@ interface FridgeItem : ConsumableModel<FridgeItem> {
 
         private const val EMPTY_NAME = ""
         private const val DEFAULT_COUNT = 1
-        private val DEFAULT_PRESENCE = Presence.NEED
 
         @CheckResult
         fun isValidName(name: String): Boolean {
@@ -93,19 +125,8 @@ interface FridgeItem : ConsumableModel<FridgeItem> {
         }
 
         @CheckResult
-        fun empty(entryId: String): FridgeItem {
-            return create("", entryId)
-        }
-
-        @CheckResult
-        @JvmOverloads
-        fun create(
-            id: String = IdGenerator.generate(),
-            entryId: String
-        ): FridgeItem {
-            return create(
-                id, entryId, EMPTY_NAME, DEFAULT_COUNT, Date(), null, null, DEFAULT_PRESENCE, false
-            )
+        fun empty(entryId: String, presence: Presence): FridgeItem {
+            return create("", entryId, presence)
         }
 
         @CheckResult
@@ -113,26 +134,21 @@ interface FridgeItem : ConsumableModel<FridgeItem> {
         fun create(
             id: String = IdGenerator.generate(),
             entryId: String,
-            name: String,
-            count: Int,
-            createdTime: Date,
-            purchaseTime: Date?,
-            expireTime: Date?,
-            presence: Presence,
-            isReal: Boolean
+            presence: Presence
         ): FridgeItem {
             return JsonMappableFridgeItem(
-                id,
-                entryId,
-                name,
-                count,
-                createdTime,
-                purchaseTime,
-                expireTime,
-                presence,
+                id = id,
+                entryId = entryId,
+                name = EMPTY_NAME,
+                count = DEFAULT_COUNT,
+                createdTime = Date(),
+                purchasedTime = null,
+                expireTime = null,
+                presence = presence,
+                categoryId = null,
                 consumptionDate = null,
                 spoiledDate = null,
-                isReal = isReal
+                isReal = false
             )
         }
 
@@ -148,6 +164,7 @@ interface FridgeItem : ConsumableModel<FridgeItem> {
             presence: Presence = item.presence(),
             consumptionDate: Date? = item.consumptionDate(),
             spoiledDate: Date? = item.spoiledDate(),
+            categoryId: String? = item.categoryId(),
             isReal: Boolean
         ): FridgeItem {
             return JsonMappableFridgeItem(
@@ -161,6 +178,7 @@ interface FridgeItem : ConsumableModel<FridgeItem> {
                 presence,
                 consumptionDate,
                 spoiledDate,
+                categoryId,
                 isReal
             )
         }

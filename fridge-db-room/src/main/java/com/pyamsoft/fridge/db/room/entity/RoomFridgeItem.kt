@@ -65,7 +65,10 @@ internal data class RoomFridgeItem internal constructor(
     val consumedTime: Date?,
 
     @field:ColumnInfo(name = COLUMN_SPOILED)
-    val spoiledTime: Date?
+    val spoiledTime: Date?,
+
+    @field:ColumnInfo(name = COLUMN_CATEGORY)
+    val categoryId: String?
 ) : FridgeItem {
 
     @Ignore
@@ -109,6 +112,11 @@ internal data class RoomFridgeItem internal constructor(
     }
 
     @Ignore
+    override fun categoryId(): String? {
+        return categoryId
+    }
+
+    @Ignore
     override fun isReal(): Boolean {
         return true
     }
@@ -138,6 +146,7 @@ internal data class RoomFridgeItem internal constructor(
         return FridgeItem.create(this, spoiledDate = null, isReal = isReal())
     }
 
+    @Ignore
     override fun isSpoiled(): Boolean {
         return spoiledTime != null
     }
@@ -187,8 +196,17 @@ internal data class RoomFridgeItem internal constructor(
         return FridgeItem.create(this, consumptionDate = date, isReal = isReal())
     }
 
+    @Ignore
     override fun spoil(date: Date): FridgeItem {
         return FridgeItem.create(this, spoiledDate = date, isReal = isReal())
+    }
+
+    override fun invalidateCategoryId(): FridgeItem {
+        return FridgeItem.create(this, categoryId = null, isReal = isReal())
+    }
+
+    override fun categoryId(id: String): FridgeItem {
+        return FridgeItem.create(this, categoryId = categoryId, isReal = isReal())
     }
 
     companion object {
@@ -215,6 +233,8 @@ internal data class RoomFridgeItem internal constructor(
         internal const val COLUMN_CONSUMED = "consumed"
         @Ignore
         internal const val COLUMN_SPOILED = "spoiled"
+        @Ignore
+        internal const val COLUMN_CATEGORY = "category"
 
         @Ignore
         @JvmStatic
@@ -231,7 +251,8 @@ internal data class RoomFridgeItem internal constructor(
                     item.expireTime(),
                     item.presence(),
                     item.consumptionDate(),
-                    item.spoiledDate()
+                    item.spoiledDate(),
+                    item.categoryId()
                 )
             }
         }

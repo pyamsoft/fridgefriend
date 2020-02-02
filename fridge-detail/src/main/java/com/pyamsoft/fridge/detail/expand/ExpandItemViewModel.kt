@@ -33,21 +33,21 @@ import com.pyamsoft.fridge.detail.base.BaseUpdaterViewModel
 import com.pyamsoft.fridge.detail.expand.date.DateSelectPayload
 import com.pyamsoft.fridge.detail.item.isNameValid
 import com.pyamsoft.pydroid.arch.EventBus
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import timber.log.Timber
 import java.util.Calendar
 import java.util.Date
 import javax.inject.Inject
 import javax.inject.Named
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import timber.log.Timber
 
 class ExpandItemViewModel @Inject internal constructor(
-    defaultPresence: Presence,
-    dateSelectBus: EventBus<DateSelectPayload>,
-    realtime: FridgeItemRealtime,
     private val fakeRealtime: EventBus<FridgeItemChangeEvent>,
     private val itemExpandBus: EventBus<ItemExpandPayload>,
     private val interactor: DetailInteractor,
+    defaultPresence: Presence,
+    dateSelectBus: EventBus<DateSelectPayload>,
+    realtime: FridgeItemRealtime,
     @Named("item_id") possibleItemId: String,
     @Named("item_entry_id") itemEntryId: String
 ) : BaseUpdaterViewModel<ExpandItemViewState, ExpandedItemViewEvent, ExpandItemControllerEvent>(
@@ -90,8 +90,13 @@ class ExpandItemViewModel @Inject internal constructor(
             // Resolve the existing item id
             val resolveItemId = savedInstanceState.getOrDefault(CREATED_ITEM_ID, possibleItemId)
             viewModelScope.launch(context = Dispatchers.Default) {
-                val item = interactor.resolveItem(resolveItemId, itemEntryId, force = false)
-                setState { copy(item = item.presence(defaultPresence)) }
+                val item = interactor.resolveItem(
+                    resolveItemId,
+                    itemEntryId,
+                    defaultPresence,
+                    force = false
+                )
+                setState { copy(item = item) }
             }
         }
 
