@@ -23,6 +23,8 @@ import androidx.room.Room
 import com.pyamsoft.cachify.MemoryCacheStorage
 import com.pyamsoft.cachify.cachify
 import com.pyamsoft.fridge.db.FridgeDb
+import com.pyamsoft.fridge.db.category.FridgeCategory
+import com.pyamsoft.fridge.db.category.JsonMappableFridgeCategory
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.entry.JsonMappableFridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItem
@@ -59,45 +61,54 @@ abstract class RoomModule {
         @CheckResult
         internal fun provideDb(context: Context): FridgeDb {
             return provideRoom(context.applicationContext).apply {
-                val entryCache =
-                    cachify<Sequence<FridgeEntry>, Boolean>(
-                        storage = MemoryCacheStorage.create(5, MINUTES)
-                    ) { force ->
-                        return@cachify roomEntryQueryDao()
-                            .query(force)
-                            .asSequence()
-                            .map { JsonMappableFridgeEntry.from(it.makeReal()) }
-                    }
+                val cacheTime = 10L
+                val cacheUnit = MINUTES
+                val entryCache = cachify<Sequence<FridgeEntry>, Boolean>(
+                    storage = MemoryCacheStorage.create(cacheTime, cacheUnit)
+                ) { force ->
+                    roomEntryQueryDao()
+                        .query(force)
+                        .asSequence()
+                        .map { JsonMappableFridgeEntry.from(it.makeReal()) }
+                }
 
                 val itemCache = cachify<Sequence<FridgeItem>, Boolean>(
-                    storage = MemoryCacheStorage.create(5, MINUTES)
+                    storage = MemoryCacheStorage.create(cacheTime, cacheUnit)
                 ) { force ->
-                    return@cachify roomItemQueryDao()
+                    roomItemQueryDao()
                         .query(force)
                         .asSequence()
                         .map { JsonMappableFridgeItem.from(it.makeReal()) }
                 }
 
-                val storeCache =
-                    cachify<Sequence<NearbyStore>, Boolean>(
-                        storage = MemoryCacheStorage.create(5, MINUTES)
-                    ) { force ->
-                        return@cachify roomStoreQueryDao()
-                            .query(force)
-                            .asSequence()
-                            .map { JsonMappableNearbyStore.from(it) }
-                    }
+                val storeCache = cachify<Sequence<NearbyStore>, Boolean>(
+                    storage = MemoryCacheStorage.create(cacheTime, cacheUnit)
+                ) { force ->
+                    roomStoreQueryDao()
+                        .query(force)
+                        .asSequence()
+                        .map { JsonMappableNearbyStore.from(it) }
+                }
 
                 val zoneCache = cachify<Sequence<NearbyZone>, Boolean>(
-                    storage = MemoryCacheStorage.create(5, MINUTES)
+                    storage = MemoryCacheStorage.create(cacheTime, cacheUnit)
                 ) { force ->
-                    return@cachify roomZoneQueryDao()
+                    roomZoneQueryDao()
                         .query(force)
                         .asSequence()
                         .map { JsonMappableNearbyZone.from(it) }
                 }
 
-                applyCaches(entryCache, itemCache, storeCache, zoneCache)
+                val categoryCache = cachify<Sequence<FridgeCategory>, Boolean>(
+                    storage = MemoryCacheStorage.create(cacheTime, cacheUnit)
+                ) { force ->
+                    roomCategoryQueryDao()
+                        .query(force)
+                        .asSequence()
+                        .map { JsonMappableFridgeCategory.from(it) }
+                }
+
+                applyCaches(entryCache, itemCache, storeCache, zoneCache, categoryCache)
             }
         }
     }

@@ -23,6 +23,14 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import com.pyamsoft.cachify.Cached1
 import com.pyamsoft.fridge.db.FridgeDb
+import com.pyamsoft.fridge.db.category.FridgeCategory
+import com.pyamsoft.fridge.db.category.FridgeCategoryChangeEvent
+import com.pyamsoft.fridge.db.category.FridgeCategoryDb
+import com.pyamsoft.fridge.db.category.FridgeCategoryDeleteDao
+import com.pyamsoft.fridge.db.category.FridgeCategoryInsertDao
+import com.pyamsoft.fridge.db.category.FridgeCategoryQueryDao
+import com.pyamsoft.fridge.db.category.FridgeCategoryRealtime
+import com.pyamsoft.fridge.db.category.FridgeCategoryUpdateDao
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.entry.FridgeEntryChangeEvent
 import com.pyamsoft.fridge.db.entry.FridgeEntryDb
@@ -42,6 +50,11 @@ import com.pyamsoft.fridge.db.item.FridgeItemUpdateDao
 import com.pyamsoft.fridge.db.room.converter.DateTypeConverter
 import com.pyamsoft.fridge.db.room.converter.NearbyZonePointListConverter
 import com.pyamsoft.fridge.db.room.converter.PresenceTypeConverter
+import com.pyamsoft.fridge.db.room.converter.ThumbnailTypeConverter
+import com.pyamsoft.fridge.db.room.dao.category.RoomFridgeCategoryDeleteDao
+import com.pyamsoft.fridge.db.room.dao.category.RoomFridgeCategoryInsertDao
+import com.pyamsoft.fridge.db.room.dao.category.RoomFridgeCategoryQueryDao
+import com.pyamsoft.fridge.db.room.dao.category.RoomFridgeCategoryUpdateDao
 import com.pyamsoft.fridge.db.room.dao.entry.RoomFridgeEntryDeleteDao
 import com.pyamsoft.fridge.db.room.dao.entry.RoomFridgeEntryInsertDao
 import com.pyamsoft.fridge.db.room.dao.entry.RoomFridgeEntryQueryDao
@@ -58,6 +71,7 @@ import com.pyamsoft.fridge.db.room.dao.zone.RoomNearbyZoneDeleteDao
 import com.pyamsoft.fridge.db.room.dao.zone.RoomNearbyZoneInsertDao
 import com.pyamsoft.fridge.db.room.dao.zone.RoomNearbyZoneQueryDao
 import com.pyamsoft.fridge.db.room.dao.zone.RoomNearbyZoneUpdateDao
+import com.pyamsoft.fridge.db.room.entity.RoomFridgeCategory
 import com.pyamsoft.fridge.db.room.entity.RoomFridgeEntry
 import com.pyamsoft.fridge.db.room.entity.RoomFridgeItem
 import com.pyamsoft.fridge.db.room.entity.RoomNearbyStore
@@ -87,13 +101,15 @@ import com.pyamsoft.pydroid.arch.EventConsumer
         RoomFridgeItem::class,
         RoomFridgeEntry::class,
         RoomNearbyStore::class,
-        RoomNearbyZone::class
+        RoomNearbyZone::class,
+        RoomFridgeCategory::class
     ]
 )
 @TypeConverters(
     PresenceTypeConverter::class,
     DateTypeConverter::class,
-    NearbyZonePointListConverter::class
+    NearbyZonePointListConverter::class,
+    ThumbnailTypeConverter::class
 )
 internal abstract class RoomFridgeDbImpl internal constructor() : RoomDatabase(),
     FridgeDb {
@@ -102,22 +118,26 @@ internal abstract class RoomFridgeDbImpl internal constructor() : RoomDatabase()
     private val itemRealtimeChangeBus = EventBus.create<FridgeItemChangeEvent>()
     private val storeRealtimeChangeBus = EventBus.create<NearbyStoreChangeEvent>()
     private val zoneRealtimeChangeBus = EventBus.create<NearbyZoneChangeEvent>()
+    private val categoryRealtimeChangeBus = EventBus.create<FridgeCategoryChangeEvent>()
 
     private var entryCache: Cached1<Sequence<FridgeEntry>, Boolean>? = null
     private var itemCache: Cached1<Sequence<FridgeItem>, Boolean>? = null
     private var storeCache: Cached1<Sequence<NearbyStore>, Boolean>? = null
     private var zoneCache: Cached1<Sequence<NearbyZone>, Boolean>? = null
+    private var categoryCache: Cached1<Sequence<FridgeCategory>, Boolean>? = null
 
     internal fun applyCaches(
         entryCache: Cached1<Sequence<FridgeEntry>, Boolean>,
         itemCache: Cached1<Sequence<FridgeItem>, Boolean>,
         storeCache: Cached1<Sequence<NearbyStore>, Boolean>,
-        zoneCache: Cached1<Sequence<NearbyZone>, Boolean>
+        zoneCache: Cached1<Sequence<NearbyZone>, Boolean>,
+        categoryCache: Cached1<Sequence<FridgeCategory>, Boolean>
     ) {
         this.entryCache = entryCache
         this.itemCache = itemCache
         this.storeCache = storeCache
         this.zoneCache = zoneCache
+        this.categoryCache = categoryCache
     }
 
     @CheckResult
@@ -364,5 +384,63 @@ internal abstract class RoomFridgeDbImpl internal constructor() : RoomDatabase()
     @CheckResult
     override fun zones(): NearbyZoneDb {
         return zoneDb
+    }
+
+    @CheckResult
+    internal abstract fun roomCategoryQueryDao(): RoomFridgeCategoryQueryDao
+
+    @CheckResult
+    internal abstract fun roomCategoryInsertDao(): RoomFridgeCategoryInsertDao
+
+    @CheckResult
+    internal abstract fun roomCategoryUpdateDao(): RoomFridgeCategoryUpdateDao
+
+    @CheckResult
+    internal abstract fun roomCategoryDeleteDao(): RoomFridgeCategoryDeleteDao
+
+    private val categoryDb by lazy {
+        FridgeCategoryDb.wrap(object : FridgeCategoryDb {
+
+            private val realtime by lazy {
+                object : FridgeCategoryRealtime {
+                    override fun listenForChanges(): EventConsumer<FridgeCategoryChangeEvent> {
+                        return categoryRealtimeChangeBus
+                    }
+                }
+            }
+
+            override suspend fun publish(event: FridgeCategoryChangeEvent) {
+                categoryRealtimeChangeBus.send(event)
+            }
+
+            override fun invalidate() {
+                requireNotNull(categoryCache).clear()
+            }
+
+            override fun realtime(): FridgeCategoryRealtime {
+                return realtime
+            }
+
+            override fun queryDao(): FridgeCategoryQueryDao {
+                return roomCategoryQueryDao()
+            }
+
+            override fun insertDao(): FridgeCategoryInsertDao {
+                return roomCategoryInsertDao()
+            }
+
+            override fun updateDao(): FridgeCategoryUpdateDao {
+                return roomCategoryUpdateDao()
+            }
+
+            override fun deleteDao(): FridgeCategoryDeleteDao {
+                return roomCategoryDeleteDao()
+            }
+        }, requireNotNull(categoryCache))
+    }
+
+    @CheckResult
+    override fun categories(): FridgeCategoryDb {
+        return categoryDb
     }
 }

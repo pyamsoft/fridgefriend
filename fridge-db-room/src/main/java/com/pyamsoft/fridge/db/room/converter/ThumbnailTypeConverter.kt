@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Peter Kenji Yamanaka
+ * Copyright 2020 Peter Kenji Yamanaka
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,29 +15,25 @@
  *
  */
 
-package com.pyamsoft.fridge.db
+package com.pyamsoft.fridge.db.room.converter
 
 import androidx.annotation.CheckResult
-import com.pyamsoft.fridge.db.category.FridgeCategoryDb
-import com.pyamsoft.fridge.db.entry.FridgeEntryDb
-import com.pyamsoft.fridge.db.item.FridgeItemDb
-import com.pyamsoft.fridge.db.store.NearbyStoreDb
-import com.pyamsoft.fridge.db.zone.NearbyZoneDb
+import androidx.room.TypeConverter
+import com.pyamsoft.fridge.db.category.FridgeCategory
 
-interface FridgeDb {
+internal object ThumbnailTypeConverter {
 
+    @JvmStatic
+    @TypeConverter
     @CheckResult
-    fun items(): FridgeItemDb
+    fun toThumbnail(data: ByteArray?): FridgeCategory.Thumbnail? {
+        return if (data == null) null else FridgeCategory.Thumbnail.create(data)
+    }
 
+    @JvmStatic
+    @TypeConverter
     @CheckResult
-    fun entries(): FridgeEntryDb
-
-    @CheckResult
-    fun stores(): NearbyStoreDb
-
-    @CheckResult
-    fun zones(): NearbyZoneDb
-
-    @CheckResult
-    fun categories(): FridgeCategoryDb
+    fun toByteArray(thumbnail: FridgeCategory.Thumbnail?): ByteArray? {
+        return thumbnail?.data
+    }
 }

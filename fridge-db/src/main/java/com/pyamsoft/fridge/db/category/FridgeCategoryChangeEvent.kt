@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Peter Kenji Yamanaka
+ * Copyright 2020 Peter Kenji Yamanaka
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,13 +15,13 @@
  *
  */
 
-package com.pyamsoft.fridge.db.item
+package com.pyamsoft.fridge.db.category
 
-sealed class FridgeItemChangeEvent(val entryId: String) {
+sealed class FridgeCategoryChangeEvent {
 
-    data class Insert(val item: FridgeItem) : FridgeItemChangeEvent(item.entryId())
+    data class Insert(val category: FridgeCategory) : FridgeCategoryChangeEvent()
 
-    data class Update(val item: FridgeItem) : FridgeItemChangeEvent(item.entryId())
+    data class Update(val category: FridgeCategory) : FridgeCategoryChangeEvent()
 
-    data class Delete(val item: FridgeItem) : FridgeItemChangeEvent(item.entryId())
+    data class Delete(val category: FridgeCategory) : FridgeCategoryChangeEvent()
 }
