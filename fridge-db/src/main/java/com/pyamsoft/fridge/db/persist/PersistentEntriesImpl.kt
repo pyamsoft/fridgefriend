@@ -23,7 +23,6 @@ import com.pyamsoft.fridge.db.entry.FridgeEntryInsertDao
 import com.pyamsoft.fridge.db.entry.FridgeEntryQueryDao
 import com.pyamsoft.pydroid.core.Enforcer
 import timber.log.Timber
-import java.util.Calendar
 import javax.inject.Inject
 
 internal class PersistentEntriesImpl @Inject internal constructor(
@@ -52,10 +51,8 @@ internal class PersistentEntriesImpl @Inject internal constructor(
         val entryId = preferences.getPersistentEntryId()
         val entry = getEntryForId(entryId, false)
         return if (entry != null) entry else {
-            val createdTime = Calendar.getInstance()
-                .time
-            Timber.d("Create entry: $entryId at $createdTime")
-            val newEntry = FridgeEntry.create(entryId, name, createdTime, isReal = true)
+            Timber.d("Create entry: $entryId")
+            val newEntry = FridgeEntry.create(entryId, name)
             insertDao.insert(newEntry)
             preferences.savePersistentEntryId(entryId)
             newEntry
@@ -64,6 +61,6 @@ internal class PersistentEntriesImpl @Inject internal constructor(
 
     override suspend fun getPersistentEntry(): FridgeEntry {
         enforcer.assertNotOnMainThread()
-        return guaranteeEntryExists("My Fridge")
+        return guaranteeEntryExists(FridgeEntry.DEFAULT_NAME)
     }
 }

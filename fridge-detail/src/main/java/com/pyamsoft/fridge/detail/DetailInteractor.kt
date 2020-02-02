@@ -18,7 +18,6 @@
 package com.pyamsoft.fridge.detail
 
 import androidx.annotation.CheckResult
-import com.pyamsoft.fridge.db.item.FridgeItemPreferences
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.entry.FridgeEntryInsertDao
 import com.pyamsoft.fridge.db.entry.FridgeEntryQueryDao
@@ -27,6 +26,7 @@ import com.pyamsoft.fridge.db.item.FridgeItem.Presence
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent
 import com.pyamsoft.fridge.db.item.FridgeItemDeleteDao
 import com.pyamsoft.fridge.db.item.FridgeItemInsertDao
+import com.pyamsoft.fridge.db.item.FridgeItemPreferences
 import com.pyamsoft.fridge.db.item.FridgeItemQueryDao
 import com.pyamsoft.fridge.db.item.FridgeItemRealtime
 import com.pyamsoft.fridge.db.item.FridgeItemUpdateDao
@@ -80,11 +80,8 @@ internal class DetailInteractor @Inject internal constructor(
             Timber.d("Entry exists, ignore: ${valid.id()}")
             valid
         } else {
-            val createdTime = Calendar.getInstance()
-                .time
-            Timber.d("Create entry: $entryId at $createdTime")
-            val newEntry =
-                FridgeEntry.create(entryId, name, createdTime, isReal = true)
+            Timber.d("Create entry: $entryId")
+            val newEntry = FridgeEntry.create(entryId, name)
             insertDao.insert(newEntry)
             newEntry
         }
@@ -143,7 +140,7 @@ internal class DetailInteractor @Inject internal constructor(
         if (item.name().isBlank()) {
             Timber.w("Do not commit empty name FridgeItem: $item")
         } else {
-            val entry = guaranteeEntryExists(item.entryId(), FridgeEntry.EMPTY_NAME)
+            val entry = guaranteeEntryExists(item.entryId(), FridgeEntry.DEFAULT_NAME)
             Timber.d("Guarantee entry exists: $entry")
             commitItem(item)
         }

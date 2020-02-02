@@ -18,7 +18,6 @@
 package com.pyamsoft.fridge.db.entry
 
 import androidx.annotation.CheckResult
-import com.pyamsoft.fridge.core.IdGenerator
 import com.pyamsoft.fridge.db.BaseModel
 import java.util.Date
 
@@ -35,23 +34,14 @@ interface FridgeEntry : BaseModel<FridgeEntry> {
 
     companion object {
 
-        const val EMPTY_NAME = ""
+        const val DEFAULT_NAME = "My Fridge"
 
         @CheckResult
-        @JvmOverloads
-        fun create(id: String = IdGenerator.generate()): FridgeEntry {
-            return create(id, EMPTY_NAME, Date(), isReal = false)
-        }
-
-        @CheckResult
-        @JvmOverloads
         fun create(
-            id: String = IdGenerator.generate(),
-            name: String,
-            createdTime: Date,
-            isReal: Boolean
+            id: String,
+            name: String
         ): FridgeEntry {
-            return JsonMappableFridgeEntry(id, name, createdTime, isReal)
+            return JsonMappableFridgeEntry(id, name, Date(), isReal = true)
         }
 
         @CheckResult
