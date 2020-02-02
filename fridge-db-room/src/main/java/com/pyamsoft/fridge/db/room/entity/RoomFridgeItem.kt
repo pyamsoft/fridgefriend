@@ -201,10 +201,12 @@ internal data class RoomFridgeItem internal constructor(
         return FridgeItem.create(this, spoiledDate = date, isReal = isReal())
     }
 
+    @Ignore
     override fun invalidateCategoryId(): FridgeItem {
         return FridgeItem.create(this, categoryId = null, isReal = isReal())
     }
 
+    @Ignore
     override fun categoryId(id: String): FridgeItem {
         return FridgeItem.create(this, categoryId = categoryId, isReal = isReal())
     }
