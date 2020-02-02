@@ -24,13 +24,13 @@ import androidx.annotation.DrawableRes
 import androidx.core.view.isVisible
 import com.pyamsoft.fridge.core.tooltip.Tooltip
 import com.pyamsoft.fridge.core.tooltip.TooltipCreator
-import com.pyamsoft.fridge.db.item.cleanMidnight
-import com.pyamsoft.fridge.db.item.daysLaterMidnight
-import com.pyamsoft.fridge.db.item.isExpired
-import com.pyamsoft.fridge.db.item.isExpiringSoon
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence.HAVE
+import com.pyamsoft.fridge.db.item.cleanMidnight
+import com.pyamsoft.fridge.db.item.daysLaterMidnight
 import com.pyamsoft.fridge.db.item.isArchived
+import com.pyamsoft.fridge.db.item.isExpired
+import com.pyamsoft.fridge.db.item.isExpiringSoon
 import com.pyamsoft.fridge.detail.R
 import com.pyamsoft.fridge.detail.item.DetailItemViewEvent.ExpandItem
 import com.pyamsoft.pydroid.arch.BaseUiView

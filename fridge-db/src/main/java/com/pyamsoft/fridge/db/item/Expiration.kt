@@ -37,4 +37,3 @@ fun Calendar.daysLaterMidnight(later: Int): Calendar {
     }
         .cleanMidnight()
 }
-

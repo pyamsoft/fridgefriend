@@ -23,9 +23,9 @@ import android.location.Location
 import com.pyamsoft.fridge.FridgeComponent
 import com.pyamsoft.fridge.locator.map.gms.GmsGeofenceBroadcastReceiver
 import com.pyamsoft.pydroid.ui.Injector
+import javax.inject.Inject
 import kotlinx.coroutines.CancellationException
 import timber.log.Timber
-import javax.inject.Inject
 
 internal class GeofenceUpdateReceiver internal constructor() : GmsGeofenceBroadcastReceiver() {
 

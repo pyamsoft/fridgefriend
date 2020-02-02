@@ -18,8 +18,8 @@
 package com.pyamsoft.fridge.entry
 
 import androidx.lifecycle.viewModelScope
-import com.pyamsoft.fridge.db.persist.PersistentEntries
 import com.pyamsoft.fridge.db.entry.FridgeEntry
+import com.pyamsoft.fridge.db.persist.PersistentEntries
 import com.pyamsoft.pydroid.arch.UiViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
