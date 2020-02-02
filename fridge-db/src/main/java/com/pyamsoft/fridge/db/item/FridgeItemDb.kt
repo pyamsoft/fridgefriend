@@ -37,7 +37,7 @@ interface FridgeItemDb : BaseDb<
             db: FridgeItemDb,
             cache: Cached1<Sequence<FridgeItem>, Boolean>
         ): FridgeItemDb {
-            return FridgeItemDbImpl(db, cache)
+            return FridgeItemDbImpl(db) { force -> cache.call(force) }
         }
     }
 }

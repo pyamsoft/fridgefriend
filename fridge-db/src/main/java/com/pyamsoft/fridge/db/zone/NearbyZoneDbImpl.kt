@@ -17,7 +17,6 @@
 
 package com.pyamsoft.fridge.db.zone
 
-import com.pyamsoft.cachify.Cached1
 import com.pyamsoft.fridge.db.zone.NearbyZoneChangeEvent.Delete
 import com.pyamsoft.fridge.db.zone.NearbyZoneChangeEvent.Insert
 import com.pyamsoft.fridge.db.zone.NearbyZoneChangeEvent.Update
@@ -26,7 +25,7 @@ import kotlinx.coroutines.sync.withLock
 
 internal class NearbyZoneDbImpl internal constructor(
     private val db: NearbyZoneDb,
-    private val cache: Cached1<Sequence<NearbyZone>, Boolean>
+    private val dbQuery: suspend (force: Boolean) -> Sequence<NearbyZone>
 ) : NearbyZoneDb {
 
     private val mutex = Mutex()
@@ -37,7 +36,7 @@ internal class NearbyZoneDbImpl internal constructor(
     }
 
     override fun invalidate() {
-        cache.clear()
+        db.invalidate()
     }
 
     override suspend fun publish(event: NearbyZoneChangeEvent) {
@@ -54,11 +53,10 @@ internal class NearbyZoneDbImpl internal constructor(
             override suspend fun query(force: Boolean): List<NearbyZone> {
                 mutex.withLock {
                     if (force) {
-                        cache.clear()
+                        invalidate()
                     }
 
-                    return cache.call(force)
-                        .toList()
+                    return dbQuery(force).toList()
                 }
             }
         }

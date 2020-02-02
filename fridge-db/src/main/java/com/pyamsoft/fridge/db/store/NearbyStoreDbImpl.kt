@@ -17,7 +17,6 @@
 
 package com.pyamsoft.fridge.db.store
 
-import com.pyamsoft.cachify.Cached1
 import com.pyamsoft.fridge.db.store.NearbyStoreChangeEvent.Delete
 import com.pyamsoft.fridge.db.store.NearbyStoreChangeEvent.Insert
 import com.pyamsoft.fridge.db.store.NearbyStoreChangeEvent.Update
@@ -26,7 +25,7 @@ import kotlinx.coroutines.sync.withLock
 
 internal class NearbyStoreDbImpl internal constructor(
     private val db: NearbyStoreDb,
-    private val cache: Cached1<Sequence<NearbyStore>, Boolean>
+    private val dbQuery: suspend (force: Boolean) -> Sequence<NearbyStore>
 ) : NearbyStoreDb {
 
     private val mutex = Mutex()
@@ -37,7 +36,7 @@ internal class NearbyStoreDbImpl internal constructor(
     }
 
     override fun invalidate() {
-        cache.clear()
+        db.invalidate()
     }
 
     override suspend fun publish(event: NearbyStoreChangeEvent) {
@@ -54,10 +53,10 @@ internal class NearbyStoreDbImpl internal constructor(
             override suspend fun query(force: Boolean): List<NearbyStore> {
                 mutex.withLock {
                     if (force) {
-                        cache.clear()
+                        invalidate()
                     }
 
-                    return cache.call(force)
+                    return dbQuery(force)
                         .toList()
                 }
             }

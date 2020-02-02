@@ -18,7 +18,6 @@
 package com.pyamsoft.fridge.db.item
 
 import androidx.annotation.CheckResult
-import com.pyamsoft.cachify.Cached1
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent.Delete
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent.Insert
@@ -30,7 +29,7 @@ import kotlin.math.min
 
 internal class FridgeItemDbImpl internal constructor(
     private val db: FridgeItemDb,
-    private val cache: Cached1<Sequence<FridgeItem>, Boolean>
+    private val dbQuery: suspend (force: Boolean) -> Sequence<FridgeItem>
 ) : FridgeItemDb {
 
     private val mutex = Mutex()
@@ -41,7 +40,7 @@ internal class FridgeItemDbImpl internal constructor(
     }
 
     override fun invalidate() {
-        cache.clear()
+        db.invalidate()
     }
 
     override suspend fun publish(event: FridgeItemChangeEvent) {
@@ -58,10 +57,10 @@ internal class FridgeItemDbImpl internal constructor(
             @CheckResult
             private suspend fun queryAsSequence(force: Boolean): Sequence<FridgeItem> {
                 if (force) {
-                    cache.clear()
+                    invalidate()
                 }
 
-                return cache.call(force)
+                return dbQuery(force)
             }
 
             override suspend fun query(force: Boolean): List<FridgeItem> {

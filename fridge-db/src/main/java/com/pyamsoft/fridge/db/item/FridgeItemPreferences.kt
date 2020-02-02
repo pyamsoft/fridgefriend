@@ -15,7 +15,7 @@
  *
  */
 
-package com.pyamsoft.fridge.db
+package com.pyamsoft.fridge.db.item
 
 import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.core.PreferenceUnregister

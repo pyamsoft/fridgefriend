@@ -26,7 +26,7 @@ import timber.log.Timber
 import java.util.Calendar
 import javax.inject.Inject
 
-internal class RoomPersistentEntries @Inject internal constructor(
+internal class PersistentEntriesImpl @Inject internal constructor(
     private val enforcer: Enforcer,
     private val queryDao: FridgeEntryQueryDao,
     private val insertDao: FridgeEntryInsertDao,
@@ -48,11 +48,8 @@ internal class RoomPersistentEntries @Inject internal constructor(
     }
 
     @CheckResult
-    private suspend fun guaranteeEntryExists(
-        key: String,
-        name: String
-    ): FridgeEntry {
-        val entryId = preferences.getPersistentId(key)
+    private suspend fun guaranteeEntryExists(name: String): FridgeEntry {
+        val entryId = preferences.getPersistentEntryId()
         val entry = getEntryForId(entryId, false)
         return if (entry != null) entry else {
             val createdTime = Calendar.getInstance()
@@ -60,18 +57,13 @@ internal class RoomPersistentEntries @Inject internal constructor(
             Timber.d("Create entry: $entryId at $createdTime")
             val newEntry = FridgeEntry.create(entryId, name, createdTime, isReal = true)
             insertDao.insert(newEntry)
-            preferences.savePersistentId(key, entryId)
+            preferences.savePersistentEntryId(entryId)
             newEntry
         }
     }
 
     override suspend fun getPersistentEntry(): FridgeEntry {
         enforcer.assertNotOnMainThread()
-        return guaranteeEntryExists(PERSIST_ENTRY_KEY, "My Fridge")
-    }
-
-    companion object {
-
-        private const val PERSIST_ENTRY_KEY = "persistent_entry"
+        return guaranteeEntryExists("My Fridge")
     }
 }

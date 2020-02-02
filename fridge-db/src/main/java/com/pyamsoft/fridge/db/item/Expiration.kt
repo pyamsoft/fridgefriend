@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Peter Kenji Yamanaka
+ * Copyright 2020 Peter Kenji Yamanaka
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,14 +15,26 @@
  *
  */
 
-package com.pyamsoft.fridge.db.persist
+package com.pyamsoft.fridge.db.item
 
 import androidx.annotation.CheckResult
+import java.util.Calendar
 
-interface PersistentEntryPreferences {
-
-    @CheckResult
-    suspend fun getPersistentEntryId(): String
-
-    suspend fun savePersistentEntryId(id: String)
+@CheckResult
+fun Calendar.cleanMidnight(): Calendar {
+    return this.apply {
+        set(Calendar.HOUR, 0)
+        set(Calendar.MINUTE, 0)
+        set(Calendar.SECOND, 0)
+        set(Calendar.MILLISECOND, 0)
+    }
 }
+
+@CheckResult
+fun Calendar.daysLaterMidnight(later: Int): Calendar {
+    return this.apply {
+        add(Calendar.DAY_OF_MONTH, later)
+    }
+        .cleanMidnight()
+}
+

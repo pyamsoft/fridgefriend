@@ -17,7 +17,6 @@
 
 package com.pyamsoft.fridge.db.entry
 
-import com.pyamsoft.cachify.Cached1
 import com.pyamsoft.fridge.db.entry.FridgeEntryChangeEvent.Delete
 import com.pyamsoft.fridge.db.entry.FridgeEntryChangeEvent.DeleteAll
 import com.pyamsoft.fridge.db.entry.FridgeEntryChangeEvent.Insert
@@ -27,7 +26,7 @@ import kotlinx.coroutines.sync.withLock
 
 internal class FridgeEntryDbImpl internal constructor(
     private val db: FridgeEntryDb,
-    private val cache: Cached1<Sequence<FridgeEntry>, Boolean>
+    private val dbQuery: suspend (force: Boolean) -> Sequence<FridgeEntry>
 ) : FridgeEntryDb {
 
     private val mutex = Mutex()
@@ -38,7 +37,7 @@ internal class FridgeEntryDbImpl internal constructor(
     }
 
     override fun invalidate() {
-        cache.clear()
+        db.invalidate()
     }
 
     override suspend fun publish(event: FridgeEntryChangeEvent) {
@@ -55,11 +54,10 @@ internal class FridgeEntryDbImpl internal constructor(
             override suspend fun query(force: Boolean): List<FridgeEntry> {
                 mutex.withLock {
                     if (force) {
-                        cache.clear()
+                        invalidate()
                     }
 
-                    return cache.call(force)
-                        .toList()
+                    return dbQuery(force).toList()
                 }
             }
         }

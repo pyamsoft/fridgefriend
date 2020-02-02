@@ -19,7 +19,7 @@ package com.pyamsoft.fridge.detail
 
 import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.core.PreferenceUnregister
-import com.pyamsoft.fridge.db.FridgeItemPreferences
+import com.pyamsoft.fridge.db.item.FridgeItemPreferences
 
 abstract class DetailPreferenceInteractor protected constructor(
     private val preferences: FridgeItemPreferences

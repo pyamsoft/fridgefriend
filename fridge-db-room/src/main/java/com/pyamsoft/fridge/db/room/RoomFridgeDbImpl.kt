@@ -161,6 +161,10 @@ internal abstract class RoomFridgeDbImpl internal constructor() : RoomDatabase()
                 itemRealtimeChangeBus.send(event)
             }
 
+            override fun invalidate() {
+                requireNotNull(itemCache).clear()
+            }
+
             override fun realtime(): FridgeItemRealtime {
                 return realtime
             }
@@ -213,6 +217,10 @@ internal abstract class RoomFridgeDbImpl internal constructor() : RoomDatabase()
 
             override suspend fun publish(event: FridgeEntryChangeEvent) {
                 entryRealtimeChangeBus.send(event)
+            }
+
+            override fun invalidate() {
+                requireNotNull(entryCache).clear()
             }
 
             override fun realtime(): FridgeEntryRealtime {
@@ -273,6 +281,10 @@ internal abstract class RoomFridgeDbImpl internal constructor() : RoomDatabase()
                 return realtime
             }
 
+            override fun invalidate() {
+                requireNotNull(storeCache).clear()
+            }
+
             override fun queryDao(): NearbyStoreQueryDao {
                 return roomStoreQueryDao()
             }
@@ -325,6 +337,10 @@ internal abstract class RoomFridgeDbImpl internal constructor() : RoomDatabase()
 
             override fun realtime(): NearbyZoneRealtime {
                 return realtime
+            }
+
+            override fun invalidate() {
+                requireNotNull(zoneCache).clear()
             }
 
             override fun queryDao(): NearbyZoneQueryDao {

@@ -37,7 +37,7 @@ interface NearbyStoreDb : BaseDb<
             db: NearbyStoreDb,
             cache: Cached1<Sequence<NearbyStore>, Boolean>
         ): NearbyStoreDb {
-            return NearbyStoreDbImpl(db, cache)
+            return NearbyStoreDbImpl(db) { force -> cache.call(force) }
         }
     }
 }

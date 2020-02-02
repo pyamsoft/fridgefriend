@@ -37,7 +37,7 @@ interface NearbyZoneDb : BaseDb<
             db: NearbyZoneDb,
             cache: Cached1<Sequence<NearbyZone>, Boolean>
         ): NearbyZoneDb {
-            return NearbyZoneDbImpl(db, cache)
+            return NearbyZoneDbImpl(db) { force -> cache.call(force) }
         }
     }
 }
