@@ -38,8 +38,8 @@ import com.pyamsoft.pydroid.ui.util.Snackbreak
 import com.pyamsoft.pydroid.ui.util.refreshing
 import com.pyamsoft.pydroid.ui.widget.scroll.HideOnScrollListener
 import com.pyamsoft.pydroid.util.tintWith
-import javax.inject.Inject
 import timber.log.Timber
+import javax.inject.Inject
 
 class DetailList @Inject internal constructor(
     parent: ViewGroup,
@@ -151,18 +151,20 @@ class DetailList @Inject internal constructor(
                 }
             }
         }
-        val leftBehindDrawable = imageLoader.immediate(
+        val leftBehindDrawable = imageLoader.load(
             when {
                 swipeAwayDeletes -> R.drawable.ic_delete_24dp
                 swipeAwayRestores -> R.drawable.ic_delete_24dp
                 else -> R.drawable.ic_spoiled_24dp
             }
-        ).tintWith(layoutRoot.context, R.color.white)
+        )
+            .mutate { it.tintWith(layoutRoot.context, R.color.white) }
+            .immediate()
 
         val directions = consumeSwipeDirection or spoilSwipeDirection
         val swipeCallback = object : SimpleSwipeCallback(
             itemSwipeCallback,
-            leftBehindDrawable,
+            requireNotNull(leftBehindDrawable),
             directions,
             Color.TRANSPARENT
         ) {
@@ -175,15 +177,17 @@ class DetailList @Inject internal constructor(
                 return if (viewHolder is DetailItemViewHolder) directions else 0
             }
         }.apply {
-            val rightBehindDrawable = imageLoader.immediate(
+            val rightBehindDrawable = imageLoader.load(
                 when {
                     swipeAwayDeletes -> R.drawable.ic_delete_24dp
                     swipeAwayRestores -> R.drawable.ic_code_24dp
                     else -> R.drawable.ic_consumed_24dp
                 }
-            ).tintWith(layoutRoot.context, R.color.white)
+            )
+                .mutate { it.tintWith(layoutRoot.context, R.color.white) }
+                .immediate()
             withBackgroundSwipeRight(Color.TRANSPARENT)
-            withLeaveBehindSwipeRight(rightBehindDrawable)
+            withLeaveBehindSwipeRight(requireNotNull(rightBehindDrawable))
         }
 
         // Detach any existing helper from the recyclerview
