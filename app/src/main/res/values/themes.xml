@@ -17,7 +17,7 @@
 
 <resources>
 
-    <style name="Theme.Fridge.Normal" parent="@style/Base.Theme.Fridge" />
+    <style name="Theme.Fridge.Normal" parent="@style/Base.Theme.Fridge.Normal" />
 
     <style name="Theme.Fridge.Dialog" parent="@style/Base.Theme.Fridge.Dialog" />
 

@@ -17,10 +17,12 @@
 
 <resources>
 
-    <style name="Base.Theme.Fridge" parent="@style/Parent.Theme.Fridge">
-        <item name="colorPrimary">@color/colorPrimary</item>
-        <item name="colorSecondary">@color/colorSecondary</item>
-        <item name="colorAccent">@color/colorAccent</item>
+    <style name="Base.Theme.Fridge.Normal" parent="@style/MC.Theme.Fridge">
+        <item name="android:windowBackground">@color/windowBackground</item>
+
+        <item name="preferenceTheme">@style/PreferenceThemeOverlay</item>
+        <item name="dialogTheme">@style/Theme.Fridge.Dialog</item>
+        <item name="alertDialogTheme">@style/Theme.Fridge.Dialog.Alert</item>
 
         <item name="android:navigationBarColor">@color/navigationBarColor</item>
         <item name="android:statusBarColor">@color/statusBarColor</item>
@@ -28,42 +30,31 @@
     </style>
 
     <!-- Dialogs -->
-    <style name="Base.Theme.Fridge.Dialog" parent="@style/Parent.Theme.Fridge.Dialog">
-        <item name="colorPrimary">@color/colorPrimary</item>
-        <item name="colorSecondary">@color/colorSecondary</item>
-        <item name="colorAccent">@color/colorAccent</item>
+    <style name="Base.Theme.Fridge.Dialog" parent="@style/MC.Theme.Fridge.Dialog">
+        <item name="dialogCornerRadius">16dp</item>
+        <item name="android:windowBackground">@drawable/dialog_background</item>
 
         <item name="android:navigationBarColor">@color/navigationBarColor</item>
         <item name="android:statusBarColor">@color/statusBarColor</item>
         <item name="android:windowLightStatusBar">false</item>
-
-        <item name="dialogCornerRadius">16dp</item>
-        <item name="android:windowBackground">@drawable/dialog_background</item>
     </style>
 
-    <style name="Base.Theme.Fridge.Dialog.Alert" parent="@style/Parent.Theme.Fridge.Dialog.Alert">
-        <item name="colorPrimary">@color/colorPrimary</item>
-        <item name="colorSecondary">@color/colorSecondary</item>
-        <item name="colorAccent">@color/colorAccent</item>
+    <style name="Base.Theme.Fridge.Dialog.Alert" parent="@style/MC.Theme.Fridge.Dialog.Alert">
+        <item name="dialogCornerRadius">16dp</item>
+        <item name="android:windowBackground">@drawable/dialog_background</item>
 
         <item name="android:navigationBarColor">@color/navigationBarColor</item>
         <item name="android:statusBarColor">@color/statusBarColor</item>
         <item name="android:windowLightStatusBar">false</item>
-
-        <item name="dialogCornerRadius">16dp</item>
-        <item name="android:windowBackground">@drawable/dialog_background</item>
     </style>
 
-    <style name="Base.Theme.Fridge.Normal" parent="@style/Base.Theme.Fridge">
-        <item name="android:windowBackground">@color/windowBackground</item>
 
-        <item name="preferenceTheme">@style/PreferenceThemeOverlay</item>
-        <item name="dialogTheme">@style/Theme.Fridge.Dialog</item>
-        <item name="alertDialogTheme">@style/Theme.Fridge.Dialog.Alert</item>
-    </style>
-
-    <style name="Base.Theme.Fridge.Splash" parent="@style/Base.Theme.Fridge">
+    <style name="Base.Theme.Fridge.Splash" parent="@style/MC.Theme.Fridge">
         <item name="android:windowBackground">@drawable/splash_screen</item>
+
+        <item name="android:navigationBarColor">@color/navigationBarColor</item>
+        <item name="android:statusBarColor">@color/statusBarColor</item>
+        <item name="android:windowLightStatusBar">false</item>
     </style>
 
 </resources>

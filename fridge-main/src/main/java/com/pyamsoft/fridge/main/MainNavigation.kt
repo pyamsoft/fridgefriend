@@ -17,14 +17,17 @@
 
 package com.pyamsoft.fridge.main
 
+import android.content.res.ColorStateList
+import android.graphics.Color
 import android.view.ViewGroup
 import androidx.annotation.CheckResult
+import androidx.core.graphics.ColorUtils
 import androidx.core.view.updatePadding
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.util.doOnApplyWindowInsets
-import javax.inject.Inject
 import timber.log.Timber
+import javax.inject.Inject
 
 class MainNavigation @Inject internal constructor(
     parent: ViewGroup
@@ -39,6 +42,13 @@ class MainNavigation @Inject internal constructor(
             layoutRoot.doOnApplyWindowInsets { v, insets, padding ->
                 v.updatePadding(bottom = padding.bottom + insets.systemWindowInsetBottom)
             }
+        }
+
+        // Set the background color as slightly lighter than the listBackground
+        doOnInflate {
+            val listBackground = layoutRoot.context.getColor(R.color.listBackground)
+            val darkerListBackground = ColorUtils.blendARGB(listBackground, Color.WHITE, 0.2F)
+            layoutRoot.backgroundTintList = ColorStateList.valueOf(darkerListBackground)
         }
 
         doOnInflate {
