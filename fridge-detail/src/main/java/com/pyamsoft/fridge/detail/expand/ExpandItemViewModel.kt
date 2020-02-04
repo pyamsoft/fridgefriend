@@ -34,16 +34,15 @@ import com.pyamsoft.fridge.detail.base.BaseUpdaterViewModel
 import com.pyamsoft.fridge.detail.expand.date.DateSelectPayload
 import com.pyamsoft.fridge.detail.item.isNameValid
 import com.pyamsoft.pydroid.arch.EventBus
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import timber.log.Timber
 import java.util.Calendar
 import java.util.Date
 import javax.inject.Inject
 import javax.inject.Named
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import timber.log.Timber
 
 class ExpandItemViewModel @Inject internal constructor(
-    private val fakeRealtime: EventBus<FridgeItemChangeEvent>,
     private val itemExpandBus: EventBus<ItemExpandPayload>,
     private val interactor: DetailInteractor,
     defaultPresence: Presence,
@@ -113,10 +112,6 @@ class ExpandItemViewModel @Inject internal constructor(
             realtime.listenForChanges(itemEntryId).scopedEvent(context = Dispatchers.Default) {
                 handleRealtimeEvent(it)
             }
-        }
-
-        doOnInit {
-            fakeRealtime.scopedEvent(context = Dispatchers.Default) { handleRealtimeEvent(it) }
         }
 
         doOnInit {
@@ -355,8 +350,7 @@ class ExpandItemViewModel @Inject internal constructor(
     private fun updateItem(oldItem: FridgeItem) {
         val real = oldItem.isReal() || isReadyToBeReal(oldItem)
         if (!real) {
-            Timber.w("Commit called on a non-real item: $oldItem, fake callback")
-            handleFakeCommit(oldItem)
+            Timber.w("Commit called on a non-real item: $oldItem, do nothing")
             return
         }
 
@@ -379,13 +373,6 @@ class ExpandItemViewModel @Inject internal constructor(
         }
 
         update(item, doUpdate = { interactor.commit(it) }, onError = { handleError(it) })
-    }
-
-    private fun handleFakeCommit(item: FridgeItem) {
-        viewModelScope.launch {
-            Timber.w("Not ready to commit item yet: $item")
-            fakeRealtime.send(Insert(item))
-        }
     }
 
     private fun handleInvalidName(name: String) {

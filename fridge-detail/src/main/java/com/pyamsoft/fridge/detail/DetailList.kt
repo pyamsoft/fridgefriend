@@ -160,7 +160,6 @@ class DetailList @Inject internal constructor(
                 else -> R.drawable.ic_spoiled_24dp
             }
         )
-            .mutate { it.tintWith(layoutRoot.context, R.color.white) }
             .immediate()
 
         val directions = consumeSwipeDirection or spoilSwipeDirection
@@ -186,7 +185,6 @@ class DetailList @Inject internal constructor(
                     else -> R.drawable.ic_consumed_24dp
                 }
             )
-                .mutate { it.tintWith(layoutRoot.context, R.color.white) }
                 .immediate()
             withBackgroundSwipeRight(Color.TRANSPARENT)
             withLeaveBehindSwipeRight(requireNotNull(rightBehindDrawable))

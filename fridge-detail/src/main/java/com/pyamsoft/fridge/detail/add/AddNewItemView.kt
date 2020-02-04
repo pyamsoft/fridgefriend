@@ -34,8 +34,8 @@ import com.pyamsoft.pydroid.ui.util.popHide
 import com.pyamsoft.pydroid.ui.util.popShow
 import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
 import com.pyamsoft.pydroid.util.tintWith
-import javax.inject.Inject
 import timber.log.Timber
+import javax.inject.Inject
 
 class AddNewItemView @Inject internal constructor(
     private val imageLoader: ImageLoader,
@@ -63,7 +63,6 @@ class AddNewItemView @Inject internal constructor(
         doOnInflate {
             addNewIconLoaded = imageLoader
                 .load(R.drawable.ic_add_24dp)
-                .mutate { it.tintWith(expandButton.context, R.color.white) }
                 .into(expandButton)
 
             expandButton.setOnDebouncedClickListener { expandItem() }
@@ -141,7 +140,6 @@ class AddNewItemView @Inject internal constructor(
                         DetailViewState.Showing.SPOILED -> R.drawable.ic_spoiled_24dp
                     }
                 )
-                .mutate { it.tintWith(filterButton.context, R.color.white) }
                 .into(filterButton)
         }
 
