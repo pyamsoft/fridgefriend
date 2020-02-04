@@ -43,7 +43,11 @@ class ExpandItemCategoryList @Inject internal constructor(
 
     init {
         doOnInflate {
-            layoutRoot.layoutManager = LinearLayoutManager(layoutRoot.context).apply {
+            layoutRoot.layoutManager = LinearLayoutManager(
+                layoutRoot.context,
+                LinearLayoutManager.HORIZONTAL,
+                false
+            ).apply {
                 isItemPrefetchEnabled = true
                 initialPrefetchItemCount = 3
             }
