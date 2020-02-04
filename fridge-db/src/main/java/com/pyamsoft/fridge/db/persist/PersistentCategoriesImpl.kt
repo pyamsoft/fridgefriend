@@ -20,8 +20,8 @@ package com.pyamsoft.fridge.db.persist
 import com.pyamsoft.fridge.db.category.FridgeCategory
 import com.pyamsoft.fridge.db.category.FridgeCategoryInsertDao
 import com.pyamsoft.pydroid.core.Enforcer
-import timber.log.Timber
 import javax.inject.Inject
+import timber.log.Timber
 
 internal class PersistentCategoriesImpl @Inject internal constructor(
     private val enforcer: Enforcer,

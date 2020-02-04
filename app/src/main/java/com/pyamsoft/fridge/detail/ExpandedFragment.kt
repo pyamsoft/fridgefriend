@@ -232,8 +232,8 @@ internal class ExpandedFragment : DialogFragment() {
 
             categories.also {
                 connect(it.id(), ConstraintSet.TOP, count.id(), ConstraintSet.BOTTOM)
-                connect(it.id(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.END)
-                connect(it.id(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.START)
+                connect(it.id(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
+                connect(it.id(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
                 connect(
                     it.id(),
                     ConstraintSet.BOTTOM,
