@@ -27,22 +27,26 @@ import com.pyamsoft.fridge.butler.ButlerPreferences
 import com.pyamsoft.fridge.core.IdGenerator
 import com.pyamsoft.fridge.core.PreferenceUnregister
 import com.pyamsoft.fridge.db.item.FridgeItemPreferences
+import com.pyamsoft.fridge.db.persist.PersistentCategoryPreferences
 import com.pyamsoft.fridge.db.persist.PersistentEntryPreferences
 import com.pyamsoft.fridge.setting.SettingsPreferences
 import com.pyamsoft.pydroid.core.Enforcer
-import java.util.Calendar
-import javax.inject.Inject
-import javax.inject.Singleton
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.util.Calendar
+import javax.inject.Inject
+import javax.inject.Singleton
 
 @Singleton
 internal class PreferencesImpl @Inject internal constructor(
     private val enforcer: Enforcer,
     context: Context
-) : ButlerPreferences, FridgeItemPreferences,
-    PersistentEntryPreferences, SettingsPreferences {
+) : ButlerPreferences,
+    FridgeItemPreferences,
+    PersistentEntryPreferences,
+    PersistentCategoryPreferences,
+    SettingsPreferences {
 
     private val preferences by lazy {
         PreferenceManager.getDefaultSharedPreferences(context.applicationContext)
@@ -165,8 +169,17 @@ internal class PreferencesImpl @Inject internal constructor(
         }
     }
 
+    override suspend fun isPersistentCategoriesInserted(): Boolean {
+        return preferences.getBoolean(KEY_PERSISTENT_CATEGORIES, false)
+    }
+
+    override suspend fun setPersistentCategoriesInserted() {
+        preferences.edit { putBoolean(KEY_PERSISTENT_CATEGORIES, true) }
+    }
+
     companion object {
 
+        private const val KEY_PERSISTENT_CATEGORIES = "persistent_categories_v1"
         private const val KEY_PERSISTENT_ENTRIES = "persistent_entries_v1"
         private const val KEY_LAST_NOTIFICATION_TIME_NEARBY = "last_notification_nearby_v1"
         private const val KEY_LAST_NOTIFICATION_TIME_EXPIRING_SOON =
