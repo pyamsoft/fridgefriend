@@ -147,7 +147,7 @@ data class JsonMappableFridgeItem internal constructor(
     }
 
     override fun categoryId(id: String): FridgeItem {
-        return this.copy(categoryId = categoryId)
+        return this.copy(categoryId = id)
     }
 
     companion object {

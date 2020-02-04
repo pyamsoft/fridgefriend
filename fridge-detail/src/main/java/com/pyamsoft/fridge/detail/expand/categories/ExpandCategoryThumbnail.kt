@@ -29,7 +29,7 @@ import javax.inject.Inject
 class ExpandCategoryThumbnail @Inject internal constructor(
     parent: ViewGroup,
     private val imageLoader: ImageLoader
-) : BaseUiView<ExpandedCategoryViewState, ExpandedCategoryViewEvent>(parent) {
+) : ExpandCategoryClickable(parent) {
 
     override val layout: Int = R.layout.expand_category_thumbnail
 

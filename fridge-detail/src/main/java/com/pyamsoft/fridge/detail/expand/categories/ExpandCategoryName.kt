@@ -21,12 +21,11 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.core.view.isVisible
 import com.pyamsoft.fridge.detail.R
-import com.pyamsoft.pydroid.arch.BaseUiView
 import javax.inject.Inject
 
 class ExpandCategoryName @Inject internal constructor(
     parent: ViewGroup
-) : BaseUiView<ExpandedCategoryViewState, ExpandedCategoryViewEvent>(parent) {
+) : ExpandCategoryClickable(parent) {
 
     override val layout: Int = R.layout.expand_category_name
 
