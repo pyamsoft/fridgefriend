@@ -116,6 +116,7 @@ internal class PreferencesImpl @Inject internal constructor(
     }
 
     override suspend fun watchForExpiringSoonChange(onChange: (newRange: Int) -> Unit): PreferenceUnregister {
+        enforcer.assertNotOnMainThread()
         return withContext(context = Dispatchers.Default) {
             registerPreferenceListener(OnSharedPreferenceChangeListener { _, key ->
                 if (key == expiringSoonKey) {
@@ -128,6 +129,7 @@ internal class PreferencesImpl @Inject internal constructor(
     }
 
     override suspend fun watchForSameDayExpiredChange(onChange: (newSameDay: Boolean) -> Unit): PreferenceUnregister {
+        enforcer.assertNotOnMainThread()
         return withContext(context = Dispatchers.Default) {
             registerPreferenceListener(OnSharedPreferenceChangeListener { _, key ->
                 if (key == isSameDayExpiredKey) {
@@ -170,10 +172,12 @@ internal class PreferencesImpl @Inject internal constructor(
     }
 
     override suspend fun isPersistentCategoriesInserted(): Boolean {
+        enforcer.assertNotOnMainThread()
         return preferences.getBoolean(KEY_PERSISTENT_CATEGORIES, false)
     }
 
     override suspend fun setPersistentCategoriesInserted() {
+        enforcer.assertNotOnMainThread()
         preferences.edit { putBoolean(KEY_PERSISTENT_CATEGORIES, true) }
     }
 
