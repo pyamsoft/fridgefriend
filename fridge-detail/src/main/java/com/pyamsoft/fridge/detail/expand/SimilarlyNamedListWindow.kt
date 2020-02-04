@@ -91,7 +91,7 @@ internal class SimilarlyNamedListWindow internal constructor(context: Context) {
 
     private abstract class FridgeItemListAdapter protected constructor() : BaseAdapter() {
 
-        private val fridgeItems: MutableList<FridgeItem> = arrayListOf()
+        private val fridgeItems = mutableListOf<FridgeItem>()
 
         @CheckResult
         internal fun getFridgeItem(position: Int): FridgeItem {
