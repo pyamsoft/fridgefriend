@@ -19,12 +19,14 @@ package com.pyamsoft.fridge.detail.expand.categories
 
 import android.view.View
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.constraintlayout.widget.ConstraintSet
 import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.RecyclerView
 import com.pyamsoft.fridge.detail.R
 import com.pyamsoft.fridge.detail.expand.ExpandCategoryComponentCreator
 import com.pyamsoft.pydroid.arch.ViewBinder
 import com.pyamsoft.pydroid.arch.bindViews
+import com.pyamsoft.pydroid.ui.util.layout
 import javax.inject.Inject
 
 internal class ExpandedCategoryViewHolder internal constructor(
@@ -44,12 +46,38 @@ internal class ExpandedCategoryViewHolder internal constructor(
         val parent = itemView.findViewById<ConstraintLayout>(R.id.expand_category_item)
         componentCreator.create(parent).inject(this)
 
+        val thumbnail = requireNotNull(thumbnail)
         viewBinder = bindViews(
             owner,
-            requireNotNull(thumbnail)
+            thumbnail
         ) {
             return@bindViews when (it) {
                 is ExpandedCategoryViewEvent.Select -> callback.onCategorySelected(adapterPosition)
+            }
+        }
+
+        parent.layout {
+            thumbnail.also {
+                connect(
+                    it.id(), ConstraintSet.TOP,
+                    ConstraintSet.PARENT_ID,
+                    ConstraintSet.TOP
+                )
+                connect(
+                    it.id(), ConstraintSet.BOTTOM,
+                    ConstraintSet.PARENT_ID,
+                    ConstraintSet.BOTTOM
+                )
+                connect(
+                    it.id(), ConstraintSet.START,
+                    ConstraintSet.PARENT_ID,
+                    ConstraintSet.START
+                )
+                connect(
+                    it.id(), ConstraintSet.END,
+                    ConstraintSet.PARENT_ID,
+                    ConstraintSet.END
+                )
             }
         }
     }
