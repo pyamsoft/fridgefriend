@@ -33,13 +33,13 @@ import com.pyamsoft.fridge.detail.base.BaseUpdaterViewModel
 import com.pyamsoft.fridge.detail.expand.date.DateSelectPayload
 import com.pyamsoft.fridge.detail.item.isNameValid
 import com.pyamsoft.pydroid.arch.EventBus
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import timber.log.Timber
 import java.util.Calendar
 import java.util.Date
 import javax.inject.Inject
 import javax.inject.Named
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import timber.log.Timber
 
 class ExpandItemViewModel @Inject internal constructor(
     private val fakeRealtime: EventBus<FridgeItemChangeEvent>,
@@ -55,7 +55,8 @@ class ExpandItemViewModel @Inject internal constructor(
         item = null,
         throwable = null,
         sameNamedItems = emptyList(),
-        similarItems = emptyList()
+        similarItems = emptyList(),
+        categories = emptyList()
     )
 ) {
 
@@ -211,7 +212,8 @@ class ExpandItemViewModel @Inject internal constructor(
 
     private fun pickDate() {
         withState {
-            val expireTime = requireNotNull(item).expireTime()
+            val item = requireNotNull(item)
+            val expireTime = item.expireTime()
             val month: Int
             val day: Int
             val year: Int

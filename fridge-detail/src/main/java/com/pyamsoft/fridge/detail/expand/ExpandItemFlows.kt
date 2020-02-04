@@ -17,6 +17,7 @@
 
 package com.pyamsoft.fridge.detail.expand
 
+import com.pyamsoft.fridge.db.category.FridgeCategory
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.pydroid.arch.UiControllerEvent
 import com.pyamsoft.pydroid.arch.UiViewEvent
@@ -26,7 +27,8 @@ data class ExpandItemViewState internal constructor(
     val item: FridgeItem?,
     val throwable: Throwable?,
     val sameNamedItems: Collection<FridgeItem>,
-    val similarItems: Collection<FridgeItem>
+    val similarItems: Collection<FridgeItem>,
+    val categories: Collection<FridgeCategory>
 ) : UiViewState
 
 sealed class ExpandedItemViewEvent : UiViewEvent {
