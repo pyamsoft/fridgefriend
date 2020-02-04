@@ -17,10 +17,10 @@
 
 <resources>
 
-    <style name="Parent.Theme.Fridge" parent="@style/Theme.MaterialComponents.Light.NoActionBar" />
+    <style name="Parent.Theme.Fridge" parent="@style/Theme.MaterialComponents.DayNight.NoActionBar" />
 
-    <style name="Parent.Theme.Fridge.Dialog" parent="@style/Theme.MaterialComponents.Light.Dialog" />
+    <style name="Parent.Theme.Fridge.Dialog" parent="@style/Theme.MaterialComponents.DayNight.Dialog" />
 
-    <style name="Parent.Theme.Fridge.Dialog.Alert" parent="@style/Theme.MaterialComponents.Light.Dialog.Alert" />
+    <style name="Parent.Theme.Fridge.Dialog.Alert" parent="@style/Theme.MaterialComponents.DayNight.Dialog.Alert" />
 
 </resources>

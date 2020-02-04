@@ -242,7 +242,6 @@ internal class ExpandedFragment : DialogFragment() {
                 )
 
                 constrainWidth(it.id(), ConstraintSet.MATCH_CONSTRAINT)
-                constrainHeight(it.id(), ConstraintSet.WRAP_CONTENT)
             }
         }
     }

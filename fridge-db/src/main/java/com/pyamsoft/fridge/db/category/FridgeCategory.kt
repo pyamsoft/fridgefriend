@@ -75,7 +75,7 @@ interface FridgeCategory : BaseModel<FridgeCategory> {
 
         @CheckResult
         fun empty(): FridgeCategory {
-            return create("", "")
+            return JsonMappableFridgeCategory("", "", Date(), null, isDefault = true)
         }
 
         @CheckResult

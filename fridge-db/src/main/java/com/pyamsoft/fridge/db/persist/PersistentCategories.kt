@@ -17,11 +17,7 @@
 
 package com.pyamsoft.fridge.db.persist
 
-import androidx.annotation.CheckResult
-import com.pyamsoft.fridge.db.category.FridgeCategory
-
 interface PersistentCategories {
 
-    @CheckResult
-    suspend fun getPersistentCategories(): List<FridgeCategory>
+    suspend fun guaranteePersistentCategoriesCreated()
 }

@@ -42,14 +42,20 @@ internal class ExpandedCategoryViewHolder internal constructor(
     @Inject
     internal var thumbnail: ExpandCategoryThumbnail? = null
 
+    @JvmField
+    @Inject
+    internal var name: ExpandCategoryName? = null
+
     init {
         val parent = itemView.findViewById<ConstraintLayout>(R.id.expand_category_item)
         componentCreator.create(parent).inject(this)
 
         val thumbnail = requireNotNull(thumbnail)
+        val name = requireNotNull(name)
         viewBinder = bindViews(
             owner,
-            thumbnail
+            thumbnail,
+            name
         ) {
             return@bindViews when (it) {
                 is ExpandedCategoryViewEvent.Select -> callback.onCategorySelected(adapterPosition)
@@ -63,6 +69,24 @@ internal class ExpandedCategoryViewHolder internal constructor(
                     ConstraintSet.PARENT_ID,
                     ConstraintSet.TOP
                 )
+                connect(
+                    it.id(), ConstraintSet.BOTTOM,
+                    ConstraintSet.PARENT_ID,
+                    ConstraintSet.BOTTOM
+                )
+                connect(
+                    it.id(), ConstraintSet.START,
+                    ConstraintSet.PARENT_ID,
+                    ConstraintSet.START
+                )
+                connect(
+                    it.id(), ConstraintSet.END,
+                    ConstraintSet.PARENT_ID,
+                    ConstraintSet.END
+                )
+            }
+
+            name.also {
                 connect(
                     it.id(), ConstraintSet.BOTTOM,
                     ConstraintSet.PARENT_ID,

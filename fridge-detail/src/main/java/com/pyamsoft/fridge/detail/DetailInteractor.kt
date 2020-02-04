@@ -32,14 +32,15 @@ import com.pyamsoft.fridge.db.item.FridgeItemPreferences
 import com.pyamsoft.fridge.db.item.FridgeItemQueryDao
 import com.pyamsoft.fridge.db.item.FridgeItemRealtime
 import com.pyamsoft.fridge.db.item.FridgeItemUpdateDao
+import com.pyamsoft.fridge.db.persist.PersistentCategories
 import com.pyamsoft.pydroid.arch.EventConsumer
 import com.pyamsoft.pydroid.core.Enforcer
-import java.util.Calendar
-import java.util.Date
-import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import timber.log.Timber
+import java.util.Calendar
+import java.util.Date
+import javax.inject.Inject
 
 internal class DetailInteractor @Inject internal constructor(
     private val enforcer: Enforcer,
@@ -50,6 +51,7 @@ internal class DetailInteractor @Inject internal constructor(
     private val itemRealtime: FridgeItemRealtime,
     private val entryQueryDao: FridgeEntryQueryDao,
     private val entryInsertDao: FridgeEntryInsertDao,
+    private val persistentCategories: PersistentCategories,
     private val categoryQueryDao: FridgeCategoryQueryDao,
     preferences: FridgeItemPreferences
 ) : DetailPreferenceInteractor(preferences) {
@@ -66,6 +68,7 @@ internal class DetailInteractor @Inject internal constructor(
 
     @CheckResult
     suspend fun loadAllCategories(): List<FridgeCategory> {
+        persistentCategories.guaranteePersistentCategoriesCreated()
         return categoryQueryDao.query(false)
     }
 

@@ -17,23 +17,19 @@
 
 package com.pyamsoft.fridge.db.persist
 
-import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.db.category.FridgeCategory
 import com.pyamsoft.fridge.db.category.FridgeCategoryInsertDao
-import com.pyamsoft.fridge.db.category.FridgeCategoryQueryDao
 import com.pyamsoft.pydroid.core.Enforcer
-import javax.inject.Inject
 import timber.log.Timber
+import javax.inject.Inject
 
 internal class PersistentCategoriesImpl @Inject internal constructor(
     private val enforcer: Enforcer,
-    private val queryDao: FridgeCategoryQueryDao,
     private val insertDao: FridgeCategoryInsertDao,
     private val preferences: PersistentCategoryPreferences
 ) : PersistentCategories {
 
-    @CheckResult
-    private suspend fun guaranteeCategoriesInserted(): List<FridgeCategory> {
+    private suspend fun guaranteeCategoriesInserted() {
         val inserted = preferences.isPersistentCategoriesInserted()
         if (!inserted) {
             Timber.d("Insert default categories")
@@ -43,10 +39,9 @@ internal class PersistentCategoriesImpl @Inject internal constructor(
 
             preferences.setPersistentCategoriesInserted()
         }
-        return queryDao.query(false).filter { it.isDefault() }
     }
 
-    override suspend fun getPersistentCategories(): List<FridgeCategory> {
+    override suspend fun guaranteePersistentCategoriesCreated() {
         enforcer.assertNotOnMainThread()
         return guaranteeCategoriesInserted()
     }
