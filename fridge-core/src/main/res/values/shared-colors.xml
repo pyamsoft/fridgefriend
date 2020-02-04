@@ -18,6 +18,7 @@
 <resources>
     <color name="colorPrimary">@color/red500</color>
     <color name="colorPrimaryDark">@color/red700</color>
+    <color name="colorSecondary">@color/red700</color>
     <color name="colorAccent">@color/red500</color>
 
     <color name="transparent">#00000000</color>
