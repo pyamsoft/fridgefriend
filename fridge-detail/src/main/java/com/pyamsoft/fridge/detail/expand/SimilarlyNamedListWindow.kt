@@ -138,9 +138,7 @@ internal class SimilarlyNamedListWindow internal constructor(context: Context) {
             if (scrap == null) {
                 val inflater = LayoutInflater.from(parent.context)
                 view = inflater.inflate(R.layout.similarly_named_list_item, parent, false)
-
-                val nameView = view.findViewById<TextView>(R.id.similarly_named_item_name)
-                view.tag = ViewHolder(nameView)
+                view.tag = ViewHolder(view)
             } else {
                 view = scrap
             }
@@ -159,5 +157,8 @@ internal class SimilarlyNamedListWindow internal constructor(context: Context) {
         }
     }
 
-    private data class ViewHolder internal constructor(val name: TextView)
+    private class ViewHolder internal constructor(view: View) {
+
+        internal val name = view.findViewById<TextView>(R.id.similarly_named_item_name)
+    }
 }
