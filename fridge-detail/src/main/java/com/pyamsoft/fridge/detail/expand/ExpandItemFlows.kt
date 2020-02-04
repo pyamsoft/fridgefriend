@@ -33,6 +33,10 @@ data class ExpandItemViewState internal constructor(
 
 sealed class ExpandedItemViewEvent : UiViewEvent {
 
+    data class CommitCategory internal constructor(val categoryId: String) : ExpandedItemViewEvent()
+
+    object ClearCategory : ExpandedItemViewEvent()
+
     data class CommitName internal constructor(val name: String) : ExpandedItemViewEvent()
 
     data class CommitCount internal constructor(val count: Int) : ExpandedItemViewEvent()

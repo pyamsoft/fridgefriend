@@ -139,6 +139,7 @@ class ExpandItemViewModel @Inject internal constructor(
 
     override fun handleViewEvent(event: ExpandedItemViewEvent) {
         return when (event) {
+            is ExpandedItemViewEvent.CommitCategory -> commitCategory(event.categoryId)
             is ExpandedItemViewEvent.CommitName -> commitName(event.name)
             is ExpandedItemViewEvent.CommitCount -> commitCount(event.count)
             is ExpandedItemViewEvent.CommitPresence -> commitPresence()
@@ -147,6 +148,7 @@ class ExpandItemViewModel @Inject internal constructor(
             is ExpandedItemViewEvent.DeleteItem -> deleteSelf()
             is ExpandedItemViewEvent.ConsumeItem -> consumeSelf()
             is ExpandedItemViewEvent.SpoilItem -> spoilSelf()
+            is ExpandedItemViewEvent.ClearCategory -> eraseCategory()
         }
     }
 
@@ -273,6 +275,29 @@ class ExpandItemViewModel @Inject internal constructor(
                     Timber.w("Invalid name: $name")
                     handleInvalidName(name)
                 }
+            }
+        }
+    }
+
+    private fun commitCategory(categoryId: String) {
+        withState {
+            requireNotNull(item).let { item ->
+                if (categories.any { it.id() == categoryId }) {
+                    Timber.d("Attempt save category: $categoryId")
+                    commitItem(item.categoryId(categoryId), item.presence())
+                } else {
+                    Timber.w("No category id which matches")
+                    commitItem(item.invalidateCategoryId(), item.presence())
+                }
+            }
+        }
+    }
+
+    private fun eraseCategory() {
+        withState {
+            requireNotNull(item).let { item ->
+                Timber.d("Clearing category id")
+                commitItem(item.invalidateCategoryId(), item.presence())
             }
         }
     }
