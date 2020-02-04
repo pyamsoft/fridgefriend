@@ -38,7 +38,7 @@ buildscript {
         maxSdk = 29
 
         // Us
-        pydroid = "20.8.3"
+        pydroid = "20.8.4"
 
         // Room
         room = "2.2.3"
