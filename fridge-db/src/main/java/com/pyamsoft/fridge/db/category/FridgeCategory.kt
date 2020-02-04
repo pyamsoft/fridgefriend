@@ -18,6 +18,7 @@
 package com.pyamsoft.fridge.db.category
 
 import androidx.annotation.CheckResult
+import com.pyamsoft.fridge.core.IdGenerator
 import com.pyamsoft.fridge.db.BaseModel
 import java.util.Date
 
@@ -81,11 +82,14 @@ interface FridgeCategory : BaseModel<FridgeCategory> {
         }
 
         @CheckResult
-        fun createDefault(
-            id: String,
-            name: String
-        ): FridgeCategory {
-            return JsonMappableFridgeCategory(id, name, Date(), null, isDefault = true)
+        fun createDefault(name: String): FridgeCategory {
+            return JsonMappableFridgeCategory(
+                IdGenerator.generate(),
+                name,
+                Date(),
+                null,
+                isDefault = true
+            )
         }
 
         @CheckResult

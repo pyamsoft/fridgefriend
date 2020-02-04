@@ -18,6 +18,12 @@
 package com.pyamsoft.fridge.db
 
 import androidx.annotation.CheckResult
+import com.pyamsoft.fridge.db.category.FridgeCategoryDb
+import com.pyamsoft.fridge.db.category.FridgeCategoryDeleteDao
+import com.pyamsoft.fridge.db.category.FridgeCategoryInsertDao
+import com.pyamsoft.fridge.db.category.FridgeCategoryQueryDao
+import com.pyamsoft.fridge.db.category.FridgeCategoryRealtime
+import com.pyamsoft.fridge.db.category.FridgeCategoryUpdateDao
 import com.pyamsoft.fridge.db.entry.FridgeEntryDb
 import com.pyamsoft.fridge.db.entry.FridgeEntryDeleteDao
 import com.pyamsoft.fridge.db.entry.FridgeEntryInsertDao
@@ -30,6 +36,8 @@ import com.pyamsoft.fridge.db.item.FridgeItemInsertDao
 import com.pyamsoft.fridge.db.item.FridgeItemQueryDao
 import com.pyamsoft.fridge.db.item.FridgeItemRealtime
 import com.pyamsoft.fridge.db.item.FridgeItemUpdateDao
+import com.pyamsoft.fridge.db.persist.PersistentCategories
+import com.pyamsoft.fridge.db.persist.PersistentCategoriesImpl
 import com.pyamsoft.fridge.db.persist.PersistentEntries
 import com.pyamsoft.fridge.db.persist.PersistentEntriesImpl
 import com.pyamsoft.fridge.db.store.NearbyStoreDb
@@ -55,13 +63,17 @@ abstract class DbModule {
     @CheckResult
     internal abstract fun providePersistentEntries(impl: PersistentEntriesImpl): PersistentEntries
 
+    @Binds
+    @CheckResult
+    internal abstract fun providePersistentCategories(impl: PersistentCategoriesImpl): PersistentCategories
+
     @Module
     companion object {
 
         @JvmStatic
         @Provides
         @CheckResult
-        internal fun provideFridgeItemDb(db: FridgeDb): FridgeItemDb {
+        internal fun provideItemDb(db: FridgeDb): FridgeItemDb {
             return db.items()
         }
 
@@ -103,7 +115,7 @@ abstract class DbModule {
         @JvmStatic
         @Provides
         @CheckResult
-        internal fun provideFridgeEntryDb(db: FridgeDb): FridgeEntryDb {
+        internal fun provideEntryDb(db: FridgeDb): FridgeEntryDb {
             return db.entries()
         }
 
@@ -145,84 +157,126 @@ abstract class DbModule {
         @JvmStatic
         @Provides
         @CheckResult
-        internal fun provideNearbyStoreDb(db: FridgeDb): NearbyStoreDb {
+        internal fun provideStoreDb(db: FridgeDb): NearbyStoreDb {
             return db.stores()
         }
 
         @JvmStatic
         @Provides
         @CheckResult
-        internal fun provideNearbyStoreRealtimeDao(db: NearbyStoreDb): NearbyStoreRealtime {
+        internal fun provideStoreRealtimeDao(db: NearbyStoreDb): NearbyStoreRealtime {
             return db.realtime()
         }
 
         @JvmStatic
         @Provides
         @CheckResult
-        internal fun provideNearbyStoreQueryDao(db: NearbyStoreDb): NearbyStoreQueryDao {
+        internal fun provideStoreQueryDao(db: NearbyStoreDb): NearbyStoreQueryDao {
             return db.queryDao()
         }
 
         @JvmStatic
         @Provides
         @CheckResult
-        internal fun provideNearbyStoreInsertDao(db: NearbyStoreDb): NearbyStoreInsertDao {
+        internal fun provideStoreInsertDao(db: NearbyStoreDb): NearbyStoreInsertDao {
             return db.insertDao()
         }
 
         @JvmStatic
         @Provides
         @CheckResult
-        internal fun provideNearbyStoreUpdateDao(db: NearbyStoreDb): NearbyStoreUpdateDao {
+        internal fun provideStoreUpdateDao(db: NearbyStoreDb): NearbyStoreUpdateDao {
             return db.updateDao()
         }
 
         @JvmStatic
         @Provides
         @CheckResult
-        internal fun provideNearbyStoreDeleteDao(db: NearbyStoreDb): NearbyStoreDeleteDao {
+        internal fun provideStoreDeleteDao(db: NearbyStoreDb): NearbyStoreDeleteDao {
             return db.deleteDao()
         }
 
         @JvmStatic
         @Provides
         @CheckResult
-        internal fun provideNearbyZoneDb(db: FridgeDb): NearbyZoneDb {
+        internal fun provideZoneDb(db: FridgeDb): NearbyZoneDb {
             return db.zones()
         }
 
         @JvmStatic
         @Provides
         @CheckResult
-        internal fun provideNearbyZoneRealtimeDao(db: NearbyZoneDb): NearbyZoneRealtime {
+        internal fun provideZoneRealtimeDao(db: NearbyZoneDb): NearbyZoneRealtime {
             return db.realtime()
         }
 
         @JvmStatic
         @Provides
         @CheckResult
-        internal fun provideNearbyZoneQueryDao(db: NearbyZoneDb): NearbyZoneQueryDao {
+        internal fun provideZoneQueryDao(db: NearbyZoneDb): NearbyZoneQueryDao {
             return db.queryDao()
         }
 
         @JvmStatic
         @Provides
         @CheckResult
-        internal fun provideNearbyZoneInsertDao(db: NearbyZoneDb): NearbyZoneInsertDao {
+        internal fun provideZoneInsertDao(db: NearbyZoneDb): NearbyZoneInsertDao {
             return db.insertDao()
         }
 
         @JvmStatic
         @Provides
         @CheckResult
-        internal fun provideNearbyZoneUpdateDao(db: NearbyZoneDb): NearbyZoneUpdateDao {
+        internal fun provideZoneUpdateDao(db: NearbyZoneDb): NearbyZoneUpdateDao {
             return db.updateDao()
         }
 
         @JvmStatic
         @Provides
         @CheckResult
-        internal fun provideNearbyZoneDeleteDao(db: NearbyZoneDb): NearbyZoneDeleteDao {
+        internal fun provideZoneDeleteDao(db: NearbyZoneDb): NearbyZoneDeleteDao {
+            return db.deleteDao()
+        }
+
+        @JvmStatic
+        @Provides
+        @CheckResult
+        internal fun provideCategoryDb(db: FridgeDb): FridgeCategoryDb {
+            return db.categories()
+        }
+
+        @JvmStatic
+        @Provides
+        @CheckResult
+        internal fun provideCategoryRealtimeDao(db: FridgeCategoryDb): FridgeCategoryRealtime {
+            return db.realtime()
+        }
+
+        @JvmStatic
+        @Provides
+        @CheckResult
+        internal fun provideCategoryQueryDao(db: FridgeCategoryDb): FridgeCategoryQueryDao {
+            return db.queryDao()
+        }
+
+        @JvmStatic
+        @Provides
+        @CheckResult
+        internal fun provideCategoryInsertDao(db: FridgeCategoryDb): FridgeCategoryInsertDao {
+            return db.insertDao()
+        }
+
+        @JvmStatic
+        @Provides
+        @CheckResult
+        internal fun provideCategoryUpdateDao(db: FridgeCategoryDb): FridgeCategoryUpdateDao {
+            return db.updateDao()
+        }
+
+        @JvmStatic
+        @Provides
+        @CheckResult
+        internal fun provideCategoryDeleteDao(db: FridgeCategoryDb): FridgeCategoryDeleteDao {
             return db.deleteDao()
         }
     }
