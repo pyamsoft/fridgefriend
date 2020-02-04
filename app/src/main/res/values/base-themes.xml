@@ -19,7 +19,6 @@
 
     <style name="Base.Theme.Fridge" parent="@style/Parent.Theme.Fridge">
         <item name="colorPrimary">@color/colorPrimary</item>
-        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorSecondary">@color/colorSecondary</item>
         <item name="colorAccent">@color/colorAccent</item>
 
@@ -31,7 +30,6 @@
     <!-- Dialogs -->
     <style name="Base.Theme.Fridge.Dialog" parent="@style/Parent.Theme.Fridge.Dialog">
         <item name="colorPrimary">@color/colorPrimary</item>
-        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorSecondary">@color/colorSecondary</item>
         <item name="colorAccent">@color/colorAccent</item>
 
@@ -45,7 +43,6 @@
 
     <style name="Base.Theme.Fridge.Dialog.Alert" parent="@style/Parent.Theme.Fridge.Dialog.Alert">
         <item name="colorPrimary">@color/colorPrimary</item>
-        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorSecondary">@color/colorSecondary</item>
         <item name="colorAccent">@color/colorAccent</item>
 
