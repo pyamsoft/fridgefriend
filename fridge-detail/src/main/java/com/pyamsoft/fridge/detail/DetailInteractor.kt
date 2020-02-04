@@ -18,6 +18,8 @@
 package com.pyamsoft.fridge.detail
 
 import androidx.annotation.CheckResult
+import com.pyamsoft.fridge.db.category.FridgeCategory
+import com.pyamsoft.fridge.db.category.FridgeCategoryQueryDao
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.entry.FridgeEntryInsertDao
 import com.pyamsoft.fridge.db.entry.FridgeEntryQueryDao
@@ -32,22 +34,23 @@ import com.pyamsoft.fridge.db.item.FridgeItemRealtime
 import com.pyamsoft.fridge.db.item.FridgeItemUpdateDao
 import com.pyamsoft.pydroid.arch.EventConsumer
 import com.pyamsoft.pydroid.core.Enforcer
-import java.util.Calendar
-import java.util.Date
-import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import timber.log.Timber
+import java.util.Calendar
+import java.util.Date
+import javax.inject.Inject
 
 internal class DetailInteractor @Inject internal constructor(
+    private val enforcer: Enforcer,
     private val itemQueryDao: FridgeItemQueryDao,
     private val itemInsertDao: FridgeItemInsertDao,
     private val itemUpdateDao: FridgeItemUpdateDao,
     private val itemDeleteDao: FridgeItemDeleteDao,
     private val itemRealtime: FridgeItemRealtime,
-    private val enforcer: Enforcer,
-    private val queryDao: FridgeEntryQueryDao,
-    private val insertDao: FridgeEntryInsertDao,
+    private val entryQueryDao: FridgeEntryQueryDao,
+    private val entryInsertDao: FridgeEntryInsertDao,
+    private val categoryQueryDao: FridgeCategoryQueryDao,
     preferences: FridgeItemPreferences
 ) : DetailPreferenceInteractor(preferences) {
 
@@ -62,11 +65,16 @@ internal class DetailInteractor @Inject internal constructor(
     }
 
     @CheckResult
+    suspend fun loadAllCategories(): Collection<FridgeCategory> {
+        return categoryQueryDao.query(false)
+    }
+
+    @CheckResult
     private suspend fun getEntryForId(
         entryId: String,
         force: Boolean
     ): FridgeEntry? {
-        return queryDao.query(force)
+        return entryQueryDao.query(force)
             .singleOrNull { it.id() == entryId }
     }
 
@@ -82,7 +90,7 @@ internal class DetailInteractor @Inject internal constructor(
         } else {
             Timber.d("Create entry: $entryId")
             val newEntry = FridgeEntry.create(entryId, name)
-            insertDao.insert(newEntry)
+            entryInsertDao.insert(newEntry)
             newEntry
         }
     }

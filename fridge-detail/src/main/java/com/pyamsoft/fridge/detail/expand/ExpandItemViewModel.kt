@@ -67,6 +67,13 @@ class ExpandItemViewModel @Inject internal constructor(
             }
         }
 
+        doOnInit {
+            viewModelScope.launch(context = Dispatchers.Default) {
+                val categories = interactor.loadAllCategories()
+                setState { copy(categories = categories) }
+            }
+        }
+
         doOnTeardown {
             // Must do this without using viewModelScope since we are tearing down
             // so send() would instantly cancel
