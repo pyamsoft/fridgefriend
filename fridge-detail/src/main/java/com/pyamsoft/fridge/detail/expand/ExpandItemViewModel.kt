@@ -19,6 +19,7 @@ package com.pyamsoft.fridge.detail.expand
 
 import androidx.annotation.CheckResult
 import androidx.lifecycle.viewModelScope
+import com.pyamsoft.fridge.db.category.FridgeCategory
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence.HAVE
@@ -70,7 +71,7 @@ class ExpandItemViewModel @Inject internal constructor(
         doOnInit {
             viewModelScope.launch(context = Dispatchers.Default) {
                 val categories = interactor.loadAllCategories()
-                setState { copy(categories = categories) }
+                setState { copy(categories = listOf(FridgeCategory.empty()) + categories) }
             }
         }
 
@@ -139,7 +140,7 @@ class ExpandItemViewModel @Inject internal constructor(
 
     override fun handleViewEvent(event: ExpandedItemViewEvent) {
         return when (event) {
-            is ExpandedItemViewEvent.CommitCategory -> commitCategory(event.categoryId)
+            is ExpandedItemViewEvent.CommitCategory -> commitCategory(event.index)
             is ExpandedItemViewEvent.CommitName -> commitName(event.name)
             is ExpandedItemViewEvent.CommitCount -> commitCount(event.count)
             is ExpandedItemViewEvent.CommitPresence -> commitPresence()
@@ -148,7 +149,6 @@ class ExpandItemViewModel @Inject internal constructor(
             is ExpandedItemViewEvent.DeleteItem -> deleteSelf()
             is ExpandedItemViewEvent.ConsumeItem -> consumeSelf()
             is ExpandedItemViewEvent.SpoilItem -> spoilSelf()
-            is ExpandedItemViewEvent.ClearCategory -> eraseCategory()
         }
     }
 
@@ -279,25 +279,20 @@ class ExpandItemViewModel @Inject internal constructor(
         }
     }
 
-    private fun commitCategory(categoryId: String) {
+    private fun commitCategory(index: Int) {
         withState {
             requireNotNull(item).let { item ->
-                if (categories.any { it.id() == categoryId }) {
-                    Timber.d("Attempt save category: $categoryId")
-                    commitItem(item.categoryId(categoryId), item.presence())
-                } else {
-                    Timber.w("No category id which matches")
-                    commitItem(item.invalidateCategoryId(), item.presence())
+                val category = categories.getOrNull(index)
+                if (category != null) {
+                    val existingCategoryId = item.categoryId()
+                    if (existingCategoryId != null && existingCategoryId == category.id()) {
+                        Timber.d("Clearing category id")
+                        commitItem(item.invalidateCategoryId(), item.presence())
+                    } else {
+                        Timber.d("Attempt save category: $category")
+                        commitItem(item.categoryId(category.id()), item.presence())
+                    }
                 }
-            }
-        }
-    }
-
-    private fun eraseCategory() {
-        withState {
-            requireNotNull(item).let { item ->
-                Timber.d("Clearing category id")
-                commitItem(item.invalidateCategoryId(), item.presence())
             }
         }
     }

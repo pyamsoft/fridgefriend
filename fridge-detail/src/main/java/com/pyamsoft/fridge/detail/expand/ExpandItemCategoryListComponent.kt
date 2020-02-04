@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Peter Kenji Yamanaka
+ * Copyright 2020 Peter Kenji Yamanaka
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,29 +15,24 @@
  *
  */
 
-package com.pyamsoft.fridge.detail.item
+package com.pyamsoft.fridge.detail.expand
 
-import android.view.ViewGroup
 import androidx.annotation.CheckResult
-import com.pyamsoft.fridge.core.tooltip.TooltipCreator
+import com.pyamsoft.fridge.detail.expand.categories.ExpandCategoryComponent
+import com.pyamsoft.pydroid.loader.ImageLoader
 import dagger.BindsInstance
-import dagger.Subcomponent
-import javax.inject.Named
+import dagger.Component
 
-@DetailItemScope
-@Subcomponent
-internal interface DetailItemComponent {
+@Component
+internal interface ExpandItemCategoryListComponent {
 
-    fun inject(holder: DetailItemViewHolder)
+    @CheckResult
+    fun plusCategoryComponent(): ExpandCategoryComponent.Factory
 
-    @Subcomponent.Factory
+    @Component.Factory
     interface Factory {
 
         @CheckResult
-        fun create(
-            @BindsInstance tooltipCreator: TooltipCreator,
-            @BindsInstance parent: ViewGroup,
-            @BindsInstance @Named("item_editable") editable: Boolean
-        ): DetailItemComponent
+        fun create(@BindsInstance imageLoader: ImageLoader): ExpandItemCategoryListComponent
     }
 }

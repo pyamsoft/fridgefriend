@@ -27,7 +27,7 @@ import com.pyamsoft.pydroid.ui.util.DebouncedOnClickListener
 import com.pyamsoft.pydroid.ui.util.setUpEnabled
 import javax.inject.Inject
 
-class ExpandedToolbar @Inject internal constructor(
+class ExpandItemToolbar @Inject internal constructor(
     parent: ViewGroup
 ) : BaseUiView<ExpandItemViewState, ExpandedItemViewEvent>(parent) {
 

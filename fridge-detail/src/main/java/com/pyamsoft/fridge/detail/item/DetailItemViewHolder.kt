@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Peter Kenji Yamanaka
+ * Copyright 2020 Peter Kenji Yamanaka
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,19 +15,15 @@
  *
  */
 
-package com.pyamsoft.fridge.detail
+package com.pyamsoft.fridge.detail.item
 
 import android.view.View
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.lifecycle.LifecycleOwner
-import com.pyamsoft.fridge.detail.DetailListAdapter.DetailViewHolder
-import com.pyamsoft.fridge.detail.item.DetailItemViewEvent
-import com.pyamsoft.fridge.detail.item.DetailListItemDate
-import com.pyamsoft.fridge.detail.item.DetailListItemGlances
-import com.pyamsoft.fridge.detail.item.DetailListItemName
-import com.pyamsoft.fridge.detail.item.DetailListItemPresence
-import com.pyamsoft.fridge.detail.item.DetailListItemViewState
+import com.pyamsoft.fridge.detail.item.DetailListAdapter.DetailViewHolder
+import com.pyamsoft.fridge.detail.DetailItemComponentCreator
+import com.pyamsoft.fridge.detail.R
 import com.pyamsoft.pydroid.arch.ViewBinder
 import com.pyamsoft.pydroid.arch.bindViews
 import com.pyamsoft.pydroid.arch.doOnDestroy
@@ -39,7 +35,7 @@ internal class DetailItemViewHolder internal constructor(
     owner: LifecycleOwner,
     editable: Boolean,
     callback: DetailListAdapter.Callback,
-    componentCreator: DetailListItemComponentCreator
+    componentCreator: DetailItemComponentCreator
 ) : DetailViewHolder(itemView) {
 
     @JvmField

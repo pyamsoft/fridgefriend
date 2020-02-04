@@ -30,7 +30,9 @@ import com.mikepenz.fastadapter_extensions.swipe.SimpleSwipeCallback
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence.HAVE
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence.NEED
-import com.pyamsoft.fridge.detail.DetailListAdapter.Callback
+import com.pyamsoft.fridge.detail.item.DetailListAdapter.Callback
+import com.pyamsoft.fridge.detail.item.DetailItemViewHolder
+import com.pyamsoft.fridge.detail.item.DetailListAdapter
 import com.pyamsoft.fridge.detail.item.DetailListItemViewState
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.loader.ImageLoader
@@ -45,7 +47,7 @@ class DetailList @Inject internal constructor(
     parent: ViewGroup,
     private val imageLoader: ImageLoader,
     private val owner: LifecycleOwner,
-    componentCreator: DetailListItemComponentCreator
+    componentCreator: DetailItemComponentCreator
 ) : BaseUiView<DetailViewState, DetailViewEvent>(parent) {
 
     override val layout: Int = R.layout.detail_list

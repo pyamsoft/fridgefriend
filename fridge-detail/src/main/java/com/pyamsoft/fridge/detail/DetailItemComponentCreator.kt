@@ -15,29 +15,14 @@
  *
  */
 
-package com.pyamsoft.fridge.detail.item
+package com.pyamsoft.fridge.detail
 
 import android.view.ViewGroup
 import androidx.annotation.CheckResult
-import com.pyamsoft.fridge.core.tooltip.TooltipCreator
-import dagger.BindsInstance
-import dagger.Subcomponent
-import javax.inject.Named
+import com.pyamsoft.fridge.detail.item.DetailItemComponent
 
-@DetailItemScope
-@Subcomponent
-internal interface DetailItemComponent {
+internal interface DetailItemComponentCreator {
 
-    fun inject(holder: DetailItemViewHolder)
-
-    @Subcomponent.Factory
-    interface Factory {
-
-        @CheckResult
-        fun create(
-            @BindsInstance tooltipCreator: TooltipCreator,
-            @BindsInstance parent: ViewGroup,
-            @BindsInstance @Named("item_editable") editable: Boolean
-        ): DetailItemComponent
-    }
+    @CheckResult
+    fun create(parent: ViewGroup, editable: Boolean): DetailItemComponent
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Peter Kenji Yamanaka
+ * Copyright 2020 Peter Kenji Yamanaka
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,13 +15,13 @@
  *
  */
 
-package com.pyamsoft.fridge.detail
+package com.pyamsoft.fridge.detail.item
 
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.view.updatePadding
-import com.pyamsoft.fridge.detail.DetailListAdapter.DetailViewHolder
-import com.pyamsoft.fridge.detail.item.DetailListItemViewState
+import com.pyamsoft.fridge.detail.item.DetailListAdapter.DetailViewHolder
+import com.pyamsoft.fridge.detail.R
 import com.pyamsoft.pydroid.util.toDp
 
 internal class SpacerItemViewHolder internal constructor(

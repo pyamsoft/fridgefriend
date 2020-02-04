@@ -34,6 +34,7 @@ import com.pyamsoft.fridge.FridgeComponent
 import com.pyamsoft.fridge.R
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence
+import com.pyamsoft.fridge.detail.expand.ExpandItemCategoryList
 import com.pyamsoft.fridge.detail.expand.ExpandItemControllerEvent
 import com.pyamsoft.fridge.detail.expand.ExpandItemCount
 import com.pyamsoft.fridge.detail.expand.ExpandItemDate
@@ -41,10 +42,10 @@ import com.pyamsoft.fridge.detail.expand.ExpandItemError
 import com.pyamsoft.fridge.detail.expand.ExpandItemName
 import com.pyamsoft.fridge.detail.expand.ExpandItemPresence
 import com.pyamsoft.fridge.detail.expand.ExpandItemSimilar
+import com.pyamsoft.fridge.detail.expand.ExpandItemToolbar
 import com.pyamsoft.fridge.detail.expand.ExpandItemViewModel
 import com.pyamsoft.fridge.detail.expand.ExpandItemViewState
 import com.pyamsoft.fridge.detail.expand.ExpandedItemViewEvent
-import com.pyamsoft.fridge.detail.expand.ExpandedToolbar
 import com.pyamsoft.pydroid.arch.StateSaver
 import com.pyamsoft.pydroid.arch.createComponent
 import com.pyamsoft.pydroid.ui.Injector
@@ -84,7 +85,11 @@ internal class ExpandedFragment : DialogFragment() {
 
     @JvmField
     @Inject
-    internal var toolbar: ExpandedToolbar? = null
+    internal var toolbar: ExpandItemToolbar? = null
+
+    @JvmField
+    @Inject
+    internal var categories: ExpandItemCategoryList? = null
 
     @JvmField
     @Inject
@@ -121,7 +126,7 @@ internal class ExpandedFragment : DialogFragment() {
             .plusExpandComponent()
             .create(
                 ThemeProvider { requireNotNull(theming).isDarkTheme(requireActivity()) },
-                parent, itemId, entryId, presenceArgument
+                parent, viewLifecycleOwner, itemId, entryId, presenceArgument
             )
             .inject(this)
 
@@ -132,6 +137,7 @@ internal class ExpandedFragment : DialogFragment() {
         val sameNamedItems = requireNotNull(sameNamedItems)
         val errorDisplay = requireNotNull(errorDisplay)
         val toolbar = requireNotNull(toolbar)
+        val categories = requireNotNull(categories)
         val shadow = DropshadowView.createTyped<ExpandItemViewState, ExpandedItemViewEvent>(parent)
         stateSaver = createComponent(
             null, viewLifecycleOwner,
@@ -142,6 +148,7 @@ internal class ExpandedFragment : DialogFragment() {
             count,
             sameNamedItems,
             errorDisplay,
+            categories,
             toolbar,
             shadow
         ) {
@@ -216,15 +223,26 @@ internal class ExpandedFragment : DialogFragment() {
 
             count.also {
                 connect(it.id(), ConstraintSet.TOP, name.id(), ConstraintSet.BOTTOM)
+                connect(it.id(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
+                connect(it.id(), ConstraintSet.START, name.id(), ConstraintSet.START)
+
+                constrainWidth(it.id(), ConstraintSet.MATCH_CONSTRAINT)
+                constrainHeight(it.id(), ConstraintSet.WRAP_CONTENT)
+            }
+
+            categories.also {
+                connect(it.id(), ConstraintSet.TOP, count.id(), ConstraintSet.BOTTOM)
+                connect(it.id(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.END)
+                connect(it.id(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.START)
                 connect(
                     it.id(),
                     ConstraintSet.BOTTOM,
                     ConstraintSet.PARENT_ID,
                     ConstraintSet.BOTTOM
                 )
-                connect(it.id(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
-                connect(it.id(), ConstraintSet.START, name.id(), ConstraintSet.START)
+
                 constrainWidth(it.id(), ConstraintSet.MATCH_CONSTRAINT)
+                constrainHeight(it.id(), ConstraintSet.WRAP_CONTENT)
             }
         }
     }

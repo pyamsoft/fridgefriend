@@ -65,7 +65,7 @@ internal class DetailInteractor @Inject internal constructor(
     }
 
     @CheckResult
-    suspend fun loadAllCategories(): Collection<FridgeCategory> {
+    suspend fun loadAllCategories(): List<FridgeCategory> {
         return categoryQueryDao.query(false)
     }
 

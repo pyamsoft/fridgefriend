@@ -49,7 +49,7 @@ abstract class DetailListModule {
             fakeRealtime: EventBus<FridgeItemChangeEvent>,
             dateSelectBus: EventBus<DateSelectPayload>,
             listItemPresence: FridgeItem.Presence
-        ): DetailListItemComponentCreator {
+        ): DetailItemComponentCreator {
             val component = DaggerDetailListComponent.factory()
                 .create(
                     imageLoader, theming, interactor,
@@ -58,7 +58,7 @@ abstract class DetailListModule {
                 ).plusItemComponent()
 
             return object :
-                DetailListItemComponentCreator {
+                DetailItemComponentCreator {
 
                 override fun create(parent: ViewGroup, editable: Boolean): DetailItemComponent {
                     return component.create(tooltipCreator, parent, editable)

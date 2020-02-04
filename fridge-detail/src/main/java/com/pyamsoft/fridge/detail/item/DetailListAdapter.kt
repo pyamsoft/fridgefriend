@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Peter Kenji Yamanaka
+ * Copyright 2020 Peter Kenji Yamanaka
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
  *
  */
 
-package com.pyamsoft.fridge.detail
+package com.pyamsoft.fridge.detail.item
 
 import android.view.LayoutInflater
 import android.view.View
@@ -26,15 +26,16 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.pyamsoft.fridge.db.item.JsonMappableFridgeItem
-import com.pyamsoft.fridge.detail.DetailListAdapter.DetailViewHolder
-import com.pyamsoft.fridge.detail.item.DetailListItemViewState
+import com.pyamsoft.fridge.detail.DetailItemComponentCreator
+import com.pyamsoft.fridge.detail.R
+import com.pyamsoft.fridge.detail.item.DetailListAdapter.DetailViewHolder
 import com.pyamsoft.pydroid.arch.ViewBinder
 
 internal class DetailListAdapter constructor(
     private val owner: LifecycleOwner,
     private val editable: Boolean,
     private val callback: Callback,
-    private val componentCreator: DetailListItemComponentCreator
+    private val componentCreator: DetailItemComponentCreator
 ) : ListAdapter<DetailListItemViewState, DetailViewHolder>(DIFFER) {
 
     override fun getItemViewType(position: Int): Int {
@@ -65,7 +66,13 @@ internal class DetailListAdapter constructor(
             SpacerItemViewHolder(v)
         } else {
             val v = inflater.inflate(R.layout.detail_list_item_holder, parent, false)
-            DetailItemViewHolder(v, owner, editable, callback, componentCreator)
+            DetailItemViewHolder(
+                v,
+                owner,
+                editable,
+                callback,
+                componentCreator
+            )
         }
     }
 

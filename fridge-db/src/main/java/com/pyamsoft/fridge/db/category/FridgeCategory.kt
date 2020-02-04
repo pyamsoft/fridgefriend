@@ -74,6 +74,11 @@ interface FridgeCategory : BaseModel<FridgeCategory> {
     companion object {
 
         @CheckResult
+        fun empty(): FridgeCategory {
+            return create("", "")
+        }
+
+        @CheckResult
         fun create(
             id: String,
             name: String

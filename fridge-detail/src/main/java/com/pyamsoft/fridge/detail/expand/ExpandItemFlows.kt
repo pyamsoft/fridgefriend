@@ -28,14 +28,12 @@ data class ExpandItemViewState internal constructor(
     val throwable: Throwable?,
     val sameNamedItems: Collection<FridgeItem>,
     val similarItems: Collection<FridgeItem>,
-    val categories: Collection<FridgeCategory>
+    val categories: List<FridgeCategory>
 ) : UiViewState
 
 sealed class ExpandedItemViewEvent : UiViewEvent {
 
-    data class CommitCategory internal constructor(val categoryId: String) : ExpandedItemViewEvent()
-
-    object ClearCategory : ExpandedItemViewEvent()
+    data class CommitCategory internal constructor(val index: Int) : ExpandedItemViewEvent()
 
     data class CommitName internal constructor(val name: String) : ExpandedItemViewEvent()
 
