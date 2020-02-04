@@ -30,9 +30,9 @@ import com.mikepenz.fastadapter_extensions.swipe.SimpleSwipeCallback
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence.HAVE
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence.NEED
-import com.pyamsoft.fridge.detail.item.DetailListAdapter.Callback
 import com.pyamsoft.fridge.detail.item.DetailItemViewHolder
 import com.pyamsoft.fridge.detail.item.DetailListAdapter
+import com.pyamsoft.fridge.detail.item.DetailListAdapter.Callback
 import com.pyamsoft.fridge.detail.item.DetailListItemViewState
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.loader.ImageLoader

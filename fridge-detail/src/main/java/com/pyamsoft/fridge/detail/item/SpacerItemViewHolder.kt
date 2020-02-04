@@ -20,8 +20,8 @@ package com.pyamsoft.fridge.detail.item
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.view.updatePadding
-import com.pyamsoft.fridge.detail.item.DetailListAdapter.DetailViewHolder
 import com.pyamsoft.fridge.detail.R
+import com.pyamsoft.fridge.detail.item.DetailListAdapter.DetailViewHolder
 import com.pyamsoft.pydroid.util.toDp
 
 internal class SpacerItemViewHolder internal constructor(

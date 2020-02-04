@@ -31,7 +31,7 @@ import javax.inject.Inject
 
 class ExpandItemCategoryList @Inject internal constructor(
     parent: ViewGroup,
-    private val owner: LifecycleOwner,
+    owner: LifecycleOwner,
     componentCreator: ExpandCategoryComponentCreator
 ) : BaseUiView<ExpandItemViewState, ExpandedItemViewEvent>(parent) {
 
