@@ -23,8 +23,9 @@ import com.pyamsoft.fridge.db.entry.FridgeEntryInsertDao
 import com.pyamsoft.fridge.db.entry.FridgeEntryQueryDao
 import com.pyamsoft.pydroid.core.Enforcer
 import timber.log.Timber
+import javax.inject.Inject
 
-abstract class EntryGuarantee protected constructor(
+class EntryGuarantee @Inject internal constructor(
     private val enforcer: Enforcer,
     private val queryDao: FridgeEntryQueryDao,
     private val insertDao: FridgeEntryInsertDao
@@ -42,7 +43,7 @@ abstract class EntryGuarantee protected constructor(
     }
 
     @CheckResult
-    suspend fun guaranteeEntryExists(entryId: String, name: String): FridgeEntry {
+    suspend fun guaranteeExists(entryId: String, name: String): FridgeEntry {
         enforcer.assertNotOnMainThread()
         val entry = getEntryForId(entryId)
         return if (entry != null) entry else {

@@ -21,8 +21,6 @@ import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.db.category.FridgeCategory
 import com.pyamsoft.fridge.db.category.FridgeCategoryQueryDao
 import com.pyamsoft.fridge.db.entry.FridgeEntry
-import com.pyamsoft.fridge.db.entry.FridgeEntryInsertDao
-import com.pyamsoft.fridge.db.entry.FridgeEntryQueryDao
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent
@@ -32,6 +30,7 @@ import com.pyamsoft.fridge.db.item.FridgeItemPreferences
 import com.pyamsoft.fridge.db.item.FridgeItemQueryDao
 import com.pyamsoft.fridge.db.item.FridgeItemRealtime
 import com.pyamsoft.fridge.db.item.FridgeItemUpdateDao
+import com.pyamsoft.fridge.db.persist.EntryGuarantee
 import com.pyamsoft.fridge.db.persist.PersistentCategories
 import com.pyamsoft.pydroid.arch.EventConsumer
 import com.pyamsoft.pydroid.core.Enforcer
@@ -43,9 +42,8 @@ import java.util.Date
 import javax.inject.Inject
 
 internal class DetailInteractor @Inject internal constructor(
-    entryQueryDao: FridgeEntryQueryDao,
-    entryInsertDao: FridgeEntryInsertDao,
     private val enforcer: Enforcer,
+    private val entryGuarantee: EntryGuarantee,
     private val itemQueryDao: FridgeItemQueryDao,
     private val itemInsertDao: FridgeItemInsertDao,
     private val itemUpdateDao: FridgeItemUpdateDao,
@@ -54,7 +52,7 @@ internal class DetailInteractor @Inject internal constructor(
     private val persistentCategories: PersistentCategories,
     private val categoryQueryDao: FridgeCategoryQueryDao,
     preferences: FridgeItemPreferences
-) : DetailPreferenceInteractor(enforcer, entryQueryDao, entryInsertDao, preferences) {
+) : DetailPreferenceInteractor(preferences) {
 
     @CheckResult
     suspend fun findSameNamedItems(name: String, presence: Presence): Collection<FridgeItem> {
@@ -125,7 +123,8 @@ internal class DetailInteractor @Inject internal constructor(
         if (item.name().isBlank()) {
             Timber.w("Do not commit empty name FridgeItem: $item")
         } else {
-            val entry = guaranteeEntryExists(item.entryId(), FridgeEntry.DEFAULT_NAME)
+            val entry =
+                entryGuarantee.guaranteeExists(item.entryId(), FridgeEntry.DEFAULT_NAME)
             Timber.d("Guarantee entry exists: $entry")
             commitItem(item)
         }

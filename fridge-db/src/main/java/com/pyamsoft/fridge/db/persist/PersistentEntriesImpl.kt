@@ -18,21 +18,16 @@
 package com.pyamsoft.fridge.db.persist
 
 import com.pyamsoft.fridge.db.entry.FridgeEntry
-import com.pyamsoft.fridge.db.entry.FridgeEntryInsertDao
-import com.pyamsoft.fridge.db.entry.FridgeEntryQueryDao
-import com.pyamsoft.pydroid.core.Enforcer
 import javax.inject.Inject
 
 internal class PersistentEntriesImpl @Inject internal constructor(
-    queryDao: FridgeEntryQueryDao,
-    insertDao: FridgeEntryInsertDao,
-    enforcer: Enforcer,
+    private val guarantee: EntryGuarantee,
     private val preferences: PersistentEntryPreferences
-) : EntryGuarantee(enforcer, queryDao, insertDao), PersistentEntries {
+) : PersistentEntries {
 
     override suspend fun getPersistentEntry(): FridgeEntry {
         val possibleId = preferences.getPersistentEntryId()
-        val entry = guaranteeEntryExists(possibleId, FridgeEntry.DEFAULT_NAME)
+        val entry = guarantee.guaranteeExists(possibleId, FridgeEntry.DEFAULT_NAME)
 
         // If it did not previously exist, it was newly created above
         if (possibleId.isBlank()) {
