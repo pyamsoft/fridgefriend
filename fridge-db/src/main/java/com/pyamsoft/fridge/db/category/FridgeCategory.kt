@@ -61,6 +61,11 @@ interface FridgeCategory : BaseModel<FridgeCategory> {
             return data.contentHashCode()
         }
 
+        // Don't output the data in the array or else logs will be super slow
+        override fun toString(): String {
+            return "Thumbnail(data=[${data.size}])"
+        }
+
         companion object {
 
             @JvmStatic

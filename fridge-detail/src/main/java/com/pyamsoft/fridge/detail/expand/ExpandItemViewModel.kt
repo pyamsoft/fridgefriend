@@ -351,6 +351,9 @@ class ExpandItemViewModel @Inject internal constructor(
         val real = oldItem.isReal() || isReadyToBeReal(oldItem)
         if (!real) {
             Timber.w("Commit called on a non-real item: $oldItem, do nothing")
+            // Don't beacon the update anywhere since we don't want the UI to respond
+            // But, commit the changes as a potential update
+            handleModelUpdate(oldItem)
             return
         }
 
