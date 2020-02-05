@@ -52,10 +52,16 @@ internal class PersistentCategoriesImpl @Inject internal constructor(
                     "Fruits",
                     loadImage(R.drawable.category_thumbnail_fruits)
                 ),
-                FridgeCategory.createDefault("Vegetables", loadImage(0)),
-                FridgeCategory.createDefault("Meat", loadImage(0)),
-                FridgeCategory.createDefault("Fish", loadImage(0)),
-                FridgeCategory.createDefault("Dairy", loadImage(0)),
+                FridgeCategory.createDefault(
+                    "Vegetables",
+                    loadImage(R.drawable.category_thumbnail_vegetables)
+                ),
+                FridgeCategory.createDefault("Meat", loadImage(R.drawable.category_thumbnail_meat)),
+                FridgeCategory.createDefault("Fish", loadImage(R.drawable.category_thumbnail_fish)),
+                FridgeCategory.createDefault(
+                    "Dairy",
+                    loadImage(R.drawable.category_thumbnail_dairy)
+                ),
                 FridgeCategory.createDefault("Spices", loadImage(0)),
                 FridgeCategory.createDefault("Bread", loadImage(0)),
                 FridgeCategory.createDefault("Sweets", loadImage(0)),

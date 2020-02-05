@@ -87,11 +87,6 @@ interface FridgeCategory : BaseModel<FridgeCategory> {
         }
 
         @CheckResult
-        fun createDefault(name: String, data: ByteArray): FridgeCategory {
-            return createDefault(name, data.toThumbnail())
-        }
-
-        @CheckResult
         fun createDefault(name: String, thumbnail: Thumbnail?): FridgeCategory {
             return JsonMappableFridgeCategory(
                 IdGenerator.generate(),
