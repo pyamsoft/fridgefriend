@@ -23,7 +23,7 @@
         android:id="@+id/expand_category_scrim"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@drawable/shadow_scrim_up" />
+        android:background="@drawable/category_scrim" />
 
 </merge>
 
