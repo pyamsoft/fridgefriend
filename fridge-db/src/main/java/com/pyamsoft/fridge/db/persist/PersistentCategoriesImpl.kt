@@ -62,11 +62,26 @@ internal class PersistentCategoriesImpl @Inject internal constructor(
                     "Dairy",
                     loadImage(R.drawable.category_thumbnail_dairy)
                 ),
-                FridgeCategory.createDefault("Spices", loadImage(0)),
-                FridgeCategory.createDefault("Bread", loadImage(0)),
-                FridgeCategory.createDefault("Sweets", loadImage(0)),
-                FridgeCategory.createDefault("Drinks", loadImage(0)),
-                FridgeCategory.createDefault("Alcohol", loadImage(0))
+                FridgeCategory.createDefault(
+                    "Spices",
+                    loadImage(R.drawable.category_thumbnail_spices)
+                ),
+                FridgeCategory.createDefault(
+                    "Bread",
+                    loadImage(R.drawable.category_thumbnail_bread)
+                ),
+                FridgeCategory.createDefault(
+                    "Sweets",
+                    loadImage(R.drawable.category_thumbnail_sweets)
+                ),
+                FridgeCategory.createDefault(
+                    "Drinks",
+                    loadImage(R.drawable.category_thumbnail_drinks)
+                ),
+                FridgeCategory.createDefault(
+                    "Alcohol",
+                    loadImage(R.drawable.category_thumbnail_alcohol)
+                )
             )
 
             // Parallel collection iteration one day?
