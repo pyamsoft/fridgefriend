@@ -1,6 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ Copyright 2020 Peter Kenji Yamanaka
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,17 +15,8 @@
   ~
   -->
 
-<merge>
-
-    <com.google.android.material.bottomnavigation.BottomNavigationView xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
-        android:id="@+id/main_bottom_navigation_menu"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:backgroundTint="?attr/colorPrimary"
-        app:itemIconTint="@color/navigation_item_tint"
-        app:itemTextColor="@color/navigation_item_tint"
-        app:menu="@menu/navigation_menu" />
-
-</merge>
-
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:color="@color/white" android:state_checked="true" />
+    <item android:color="@color/disabledColor" android:state_checked="false" />
+    <item android:color="@color/disabledColor" />
+</selector>
