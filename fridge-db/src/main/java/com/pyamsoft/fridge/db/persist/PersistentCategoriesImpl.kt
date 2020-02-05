@@ -17,14 +17,27 @@
 
 package com.pyamsoft.fridge.db.persist
 
+import android.graphics.Bitmap
+import android.graphics.drawable.BitmapDrawable
+import android.graphics.drawable.Drawable
+import androidx.annotation.CheckResult
+import androidx.annotation.DrawableRes
+import com.pyamsoft.fridge.db.R
 import com.pyamsoft.fridge.db.category.FridgeCategory
 import com.pyamsoft.fridge.db.category.FridgeCategoryInsertDao
+import com.pyamsoft.fridge.db.category.toThumbnail
 import com.pyamsoft.pydroid.core.Enforcer
-import javax.inject.Inject
+import com.pyamsoft.pydroid.loader.ImageLoader
+import com.pyamsoft.pydroid.loader.ImageTarget
+import kotlinx.coroutines.suspendCancellableCoroutine
 import timber.log.Timber
+import java.io.ByteArrayOutputStream
+import javax.inject.Inject
+import kotlin.coroutines.resume
 
 internal class PersistentCategoriesImpl @Inject internal constructor(
     private val enforcer: Enforcer,
+    private val imageLoader: ImageLoader,
     private val insertDao: FridgeCategoryInsertDao,
     private val preferences: PersistentCategoryPreferences
 ) : PersistentCategories {
@@ -34,8 +47,24 @@ internal class PersistentCategoriesImpl @Inject internal constructor(
         if (!inserted) {
             Timber.d("Insert default categories")
 
+            val defaultCategories = listOf(
+                FridgeCategory.createDefault(
+                    "Fruits",
+                    loadImage(R.drawable.category_thumbnail_fruits)
+                ),
+                FridgeCategory.createDefault("Vegetables", loadImage(0)),
+                FridgeCategory.createDefault("Meat", loadImage(0)),
+                FridgeCategory.createDefault("Fish", loadImage(0)),
+                FridgeCategory.createDefault("Dairy", loadImage(0)),
+                FridgeCategory.createDefault("Spices", loadImage(0)),
+                FridgeCategory.createDefault("Bread", loadImage(0)),
+                FridgeCategory.createDefault("Sweets", loadImage(0)),
+                FridgeCategory.createDefault("Drinks", loadImage(0)),
+                FridgeCategory.createDefault("Alcohol", loadImage(0))
+            )
+
             // Parallel collection iteration one day?
-            DEFAULT_CATEGORIES.forEach { insertDao.insert(it) }
+            defaultCategories.forEach { insertDao.insert(it) }
 
             preferences.setPersistentCategoriesInserted()
         }
@@ -46,19 +75,42 @@ internal class PersistentCategoriesImpl @Inject internal constructor(
         return guaranteeCategoriesInserted()
     }
 
-    companion object {
+    @CheckResult
+    private suspend fun coroutineGlide(@DrawableRes res: Int): Drawable? {
+        enforcer.assertNotOnMainThread()
+        return suspendCancellableCoroutine { continuation ->
+            enforcer.assertNotOnMainThread()
+            imageLoader.load(res)
+                .onError {
+                    Timber.e("Error occurred while loading image thumbnail for default category")
+                    continuation.resume(null)
+                }
+                .into(object : ImageTarget<Drawable> {
 
-        private val DEFAULT_CATEGORIES = listOf(
-            FridgeCategory.createDefault("Fruits"),
-            FridgeCategory.createDefault("Vegetables"),
-            FridgeCategory.createDefault("Meat"),
-            FridgeCategory.createDefault("Fish"),
-            FridgeCategory.createDefault("Dairy"),
-            FridgeCategory.createDefault("Spices"),
-            FridgeCategory.createDefault("Bread"),
-            FridgeCategory.createDefault("Sweets"),
-            FridgeCategory.createDefault("Drinks"),
-            FridgeCategory.createDefault("Alcohol")
-        )
+                    override fun clear() {
+                    }
+
+                    override fun setImage(image: Drawable) {
+                        continuation.resume(image)
+                    }
+                })
+        }
+    }
+
+    @CheckResult
+    private suspend fun loadImage(@DrawableRes res: Int): FridgeCategory.Thumbnail? {
+        enforcer.assertNotOnMainThread()
+        val image: Drawable? = coroutineGlide(res)
+        return if (image is BitmapDrawable) {
+            Timber.d("Compress bitmap drawable to PNG for blob storage")
+            val data = ByteArrayOutputStream().run {
+                image.bitmap.compress(Bitmap.CompressFormat.PNG, 100, this)
+                toByteArray()
+            }
+            data.toThumbnail()
+        } else {
+            Timber.w("Image loaded a drawable but could not convert it to bytes")
+            null
+        }
     }
 }

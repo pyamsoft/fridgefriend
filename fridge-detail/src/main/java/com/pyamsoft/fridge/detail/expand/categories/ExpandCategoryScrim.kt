@@ -17,34 +17,36 @@
 
 package com.pyamsoft.fridge.detail.expand.categories
 
+import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import androidx.core.view.isVisible
 import com.pyamsoft.fridge.detail.R
 import javax.inject.Inject
 
-class ExpandCategoryName @Inject internal constructor(
+class ExpandCategoryScrim @Inject internal constructor(
     parent: ViewGroup
 ) : ExpandCategoryClickable(parent) {
 
-    override val layout: Int = R.layout.expand_category_name
+    override val layout: Int = R.layout.expand_category_scrim
 
-    override val layoutRoot by boundView<TextView>(R.id.expand_category_name)
+    override val layoutRoot by boundView<View>(R.id.expand_category_scrim)
 
     init {
         doOnTeardown {
-            layoutRoot.isVisible = false
-            layoutRoot.text = null
+            clear()
         }
+    }
+
+    private fun clear() {
+        layoutRoot.isVisible = false
     }
 
     override fun onRender(state: ExpandedCategoryViewState) {
         state.category.let { category ->
-            layoutRoot.isVisible = true
             if (category == null || category.name.isBlank()) {
-                layoutRoot.text = "None"
+                clear()
             } else {
-                layoutRoot.text = category.name
+                layoutRoot.isVisible = true
             }
         }
     }

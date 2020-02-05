@@ -46,15 +46,21 @@ internal class ExpandedCategoryViewHolder internal constructor(
     @Inject
     internal var name: ExpandCategoryName? = null
 
+    @JvmField
+    @Inject
+    internal var scrim: ExpandCategoryScrim? = null
+
     init {
         val parent = itemView.findViewById<ConstraintLayout>(R.id.expand_category_item)
         componentCreator.create(parent).inject(this)
 
         val thumbnail = requireNotNull(thumbnail)
+        val scrim = requireNotNull(scrim)
         val name = requireNotNull(name)
         viewBinder = bindViews(
             owner,
             thumbnail,
+            scrim,
             name
         ) {
             return@bindViews when (it) {
@@ -64,6 +70,29 @@ internal class ExpandedCategoryViewHolder internal constructor(
 
         parent.layout {
             thumbnail.also {
+                connect(
+                    it.id(), ConstraintSet.TOP,
+                    ConstraintSet.PARENT_ID,
+                    ConstraintSet.TOP
+                )
+                connect(
+                    it.id(), ConstraintSet.BOTTOM,
+                    ConstraintSet.PARENT_ID,
+                    ConstraintSet.BOTTOM
+                )
+                connect(
+                    it.id(), ConstraintSet.START,
+                    ConstraintSet.PARENT_ID,
+                    ConstraintSet.START
+                )
+                connect(
+                    it.id(), ConstraintSet.END,
+                    ConstraintSet.PARENT_ID,
+                    ConstraintSet.END
+                )
+            }
+
+            scrim.also {
                 connect(
                     it.id(), ConstraintSet.TOP,
                     ConstraintSet.PARENT_ID,
