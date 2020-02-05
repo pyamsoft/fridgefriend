@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Peter Kenji Yamanaka
+ * Copyright 2020 Peter Kenji Yamanaka
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
  *
  */
 
-package com.pyamsoft.fridge.detail
+package com.pyamsoft.fridge.detail.expand
 
 import android.app.Dialog
 import android.os.Bundle
@@ -34,18 +34,7 @@ import com.pyamsoft.fridge.FridgeComponent
 import com.pyamsoft.fridge.R
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence
-import com.pyamsoft.fridge.detail.expand.ExpandItemCategoryList
-import com.pyamsoft.fridge.detail.expand.ExpandItemControllerEvent
-import com.pyamsoft.fridge.detail.expand.ExpandItemCount
-import com.pyamsoft.fridge.detail.expand.ExpandItemDate
-import com.pyamsoft.fridge.detail.expand.ExpandItemError
-import com.pyamsoft.fridge.detail.expand.ExpandItemName
-import com.pyamsoft.fridge.detail.expand.ExpandItemPresence
-import com.pyamsoft.fridge.detail.expand.ExpandItemSimilar
-import com.pyamsoft.fridge.detail.expand.ExpandItemToolbar
-import com.pyamsoft.fridge.detail.expand.ExpandItemViewModel
-import com.pyamsoft.fridge.detail.expand.ExpandItemViewState
-import com.pyamsoft.fridge.detail.expand.ExpandedItemViewEvent
+import com.pyamsoft.fridge.detail.expand.date.DateSelectDialogFragment
 import com.pyamsoft.pydroid.arch.StateSaver
 import com.pyamsoft.pydroid.arch.createComponent
 import com.pyamsoft.pydroid.ui.Injector

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Peter Kenji Yamanaka
+ * Copyright 2020 Peter Kenji Yamanaka
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
  *
  */
 
-package com.pyamsoft.fridge.detail
+package com.pyamsoft.fridge.detail.expand.date
 
 import android.app.DatePickerDialog
 import android.app.Dialog
@@ -27,8 +27,6 @@ import androidx.lifecycle.ViewModelProvider
 import com.pyamsoft.fridge.FridgeComponent
 import com.pyamsoft.fridge.R
 import com.pyamsoft.fridge.db.item.FridgeItem
-import com.pyamsoft.fridge.detail.expand.date.DateSelectControllerEvent
-import com.pyamsoft.fridge.detail.expand.date.DateSelectViewModel
 import com.pyamsoft.pydroid.arch.StateSaver
 import com.pyamsoft.pydroid.arch.createComponent
 import com.pyamsoft.pydroid.ui.Injector
@@ -110,7 +108,8 @@ internal class DateSelectDialogFragment : DialogFragment() {
             month: Int,
             day: Int
         ): DialogFragment {
-            return DateSelectDialogFragment().apply {
+            return DateSelectDialogFragment()
+                .apply {
                 arguments = Bundle().apply {
                     putString(ITEM, item.id())
                     putString(ENTRY, item.entryId())

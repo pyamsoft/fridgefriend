@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Peter Kenji Yamanaka
+ * Copyright 2020 Peter Kenji Yamanaka
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
  *
  */
 
-package com.pyamsoft.fridge.detail
+package com.pyamsoft.fridge.detail.expand
 
 import android.view.ViewGroup
 import androidx.annotation.CheckResult
@@ -24,9 +24,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.pyamsoft.fridge.FridgeViewModelFactory
 import com.pyamsoft.fridge.ViewModelKey
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence
-import com.pyamsoft.fridge.detail.ExpandComponent.ViewModelModule
-import com.pyamsoft.fridge.detail.expand.ExpandItemModule
-import com.pyamsoft.fridge.detail.expand.ExpandItemViewModel
+import com.pyamsoft.fridge.detail.expand.ExpandComponent.ViewModelModule
 import com.pyamsoft.pydroid.arch.UiViewModel
 import com.pyamsoft.pydroid.ui.theme.ThemeProvider
 import dagger.Binds

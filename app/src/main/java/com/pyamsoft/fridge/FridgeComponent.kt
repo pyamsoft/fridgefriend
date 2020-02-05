@@ -34,9 +34,9 @@ import com.pyamsoft.fridge.db.item.FridgeItemPreferences
 import com.pyamsoft.fridge.db.persist.PersistentCategoryPreferences
 import com.pyamsoft.fridge.db.persist.PersistentEntryPreferences
 import com.pyamsoft.fridge.db.room.RoomModule
-import com.pyamsoft.fridge.detail.DateSelectComponent
+import com.pyamsoft.fridge.detail.expand.date.DateSelectComponent
 import com.pyamsoft.fridge.detail.DetailComponent
-import com.pyamsoft.fridge.detail.ExpandComponent
+import com.pyamsoft.fridge.detail.expand.ExpandComponent
 import com.pyamsoft.fridge.detail.expand.ItemExpandPayload
 import com.pyamsoft.fridge.detail.expand.date.DateSelectPayload
 import com.pyamsoft.fridge.entry.EntryComponent

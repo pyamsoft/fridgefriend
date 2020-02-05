@@ -31,6 +31,7 @@ import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence
 import com.pyamsoft.fridge.detail.add.AddNewItemView
+import com.pyamsoft.fridge.detail.expand.ExpandedFragment
 import com.pyamsoft.fridge.main.SnackbarContainer
 import com.pyamsoft.fridge.main.VersionChecker
 import com.pyamsoft.pydroid.arch.StateSaver
