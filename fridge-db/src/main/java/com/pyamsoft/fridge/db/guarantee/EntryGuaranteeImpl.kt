@@ -15,7 +15,7 @@
  *
  */
 
-package com.pyamsoft.fridge.db.persist
+package com.pyamsoft.fridge.db.guarantee
 
 import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.db.entry.FridgeEntry
@@ -25,11 +25,11 @@ import com.pyamsoft.pydroid.core.Enforcer
 import timber.log.Timber
 import javax.inject.Inject
 
-class EntryGuarantee @Inject internal constructor(
+internal class EntryGuaranteeImpl @Inject internal constructor(
     private val enforcer: Enforcer,
     private val queryDao: FridgeEntryQueryDao,
     private val insertDao: FridgeEntryInsertDao
-) {
+) : EntryGuarantee {
 
     @CheckResult
     private suspend fun getEntryForId(entryId: String): FridgeEntry? {
@@ -42,8 +42,7 @@ class EntryGuarantee @Inject internal constructor(
         return entries.singleOrNull { it.id() == entryId }
     }
 
-    @CheckResult
-    suspend fun guaranteeExists(entryId: String, name: String): FridgeEntry {
+    override suspend fun guaranteeExists(entryId: String, name: String): FridgeEntry {
         enforcer.assertNotOnMainThread()
         val entry = getEntryForId(entryId)
         return if (entry != null) entry else {

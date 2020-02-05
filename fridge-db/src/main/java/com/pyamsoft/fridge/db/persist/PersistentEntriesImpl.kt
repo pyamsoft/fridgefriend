@@ -18,6 +18,7 @@
 package com.pyamsoft.fridge.db.persist
 
 import com.pyamsoft.fridge.db.entry.FridgeEntry
+import com.pyamsoft.fridge.db.guarantee.EntryGuarantee
 import javax.inject.Inject
 
 internal class PersistentEntriesImpl @Inject internal constructor(
@@ -30,7 +31,7 @@ internal class PersistentEntriesImpl @Inject internal constructor(
         val entry = guarantee.guaranteeExists(possibleId, FridgeEntry.DEFAULT_NAME)
 
         // If it did not previously exist, it was newly created above
-        if (possibleId.isBlank()) {
+        if (possibleId != entry.id()) {
             preferences.savePersistentEntryId(entry.id())
         }
         return entry
