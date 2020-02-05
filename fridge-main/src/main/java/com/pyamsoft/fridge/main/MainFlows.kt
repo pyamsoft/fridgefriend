@@ -34,6 +34,8 @@ sealed class MainViewEvent : UiViewEvent {
 
     object OpenNeed : MainViewEvent()
 
+    object OpenCategory : MainViewEvent()
+
     object OpenNearby : MainViewEvent()
 
     object SettingsNavigate : MainViewEvent()
@@ -44,6 +46,8 @@ sealed class MainControllerEvent : UiControllerEvent {
     object PushHave : MainControllerEvent()
 
     object PushNeed : MainControllerEvent()
+
+    object PushCategory : MainControllerEvent()
 
     object PushNearby : MainControllerEvent()
 

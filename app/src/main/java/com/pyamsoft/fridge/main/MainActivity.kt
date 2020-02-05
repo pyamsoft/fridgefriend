@@ -31,6 +31,7 @@ import com.pyamsoft.fridge.R
 import com.pyamsoft.fridge.butler.Butler
 import com.pyamsoft.fridge.butler.NotificationHandler
 import com.pyamsoft.fridge.butler.Notifications
+import com.pyamsoft.fridge.category.CategoryFragment
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.entry.EntryFragment
 import com.pyamsoft.fridge.map.MapFragment
@@ -49,8 +50,8 @@ import com.pyamsoft.pydroid.ui.util.commitNow
 import com.pyamsoft.pydroid.ui.util.layout
 import com.pyamsoft.pydroid.ui.util.show
 import com.pyamsoft.pydroid.util.makeWindowSexy
-import javax.inject.Inject
 import timber.log.Timber
+import javax.inject.Inject
 
 internal class MainActivity : RatingActivity(), VersionChecker {
 
@@ -181,6 +182,7 @@ internal class MainActivity : RatingActivity(), VersionChecker {
             return@createComponent when (it) {
                 is MainControllerEvent.PushHave -> pushHave()
                 is MainControllerEvent.PushNeed -> pushNeed()
+                is MainControllerEvent.PushCategory -> pushCategory()
                 is MainControllerEvent.PushNearby -> pushNearby()
                 is MainControllerEvent.NavigateToSettings -> showSettingsDialog()
                 is MainControllerEvent.VersionCheck -> checkForUpdate()
@@ -221,11 +223,20 @@ internal class MainActivity : RatingActivity(), VersionChecker {
     }
 
     private fun pushHave() {
-        pushFragment(FridgeItem.Presence.HAVE)
+        pushPresenceFragment(FridgeItem.Presence.HAVE)
     }
 
     private fun pushNeed() {
-        pushFragment(FridgeItem.Presence.NEED)
+        pushPresenceFragment(FridgeItem.Presence.NEED)
+    }
+
+    private fun pushCategory() {
+        val fm = supportFragmentManager
+
+        Timber.d("Pushing category fragment")
+        fm.commitNow(this) {
+            replace(fragmentContainerId, CategoryFragment.newInstance(), CategoryFragment.TAG)
+        }
     }
 
     private fun pushNearby() {
@@ -272,7 +283,7 @@ internal class MainActivity : RatingActivity(), VersionChecker {
         SettingsDialog().show(this, SettingsDialog.TAG)
     }
 
-    private fun pushFragment(presence: FridgeItem.Presence) {
+    private fun pushPresenceFragment(presence: FridgeItem.Presence) {
         val fm = supportFragmentManager
 
         Timber.d("Pushing fragment: $presence")

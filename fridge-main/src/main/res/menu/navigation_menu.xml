@@ -31,10 +31,15 @@
         app:showAsAction="ifRoom" />
 
     <item
+        android:id="@+id/menu_item_nav_category"
+        android:icon="@drawable/ic_settings_24dp"
+        android:title="Categories"
+        app:showAsAction="ifRoom" />
+
+    <item
         android:id="@+id/menu_item_nav_nearby"
         android:icon="@drawable/ic_settings_24dp"
         android:title="Nearby"
         app:showAsAction="ifRoom" />
-
 
 </menu>

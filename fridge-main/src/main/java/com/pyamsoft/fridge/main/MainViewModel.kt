@@ -20,9 +20,9 @@ package com.pyamsoft.fridge.main
 import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.locator.MapPermission
 import com.pyamsoft.pydroid.arch.UiViewModel
+import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Named
-import timber.log.Timber
 
 class MainViewModel @Inject internal constructor(
     private val mapPermission: MapPermission,
@@ -58,6 +58,7 @@ class MainViewModel @Inject internal constructor(
         return when (event) {
             is MainViewEvent.OpenHave -> selectPage(MainPage.HAVE)
             is MainViewEvent.OpenNeed -> selectPage(MainPage.NEED)
+            is MainViewEvent.OpenCategory -> selectPage(MainPage.CATEGORY)
             is MainViewEvent.OpenNearby -> selectPage(MainPage.NEARBY)
             is MainViewEvent.SettingsNavigate -> publish(MainControllerEvent.NavigateToSettings)
         }
@@ -72,6 +73,10 @@ class MainViewModel @Inject internal constructor(
             MainPage.HAVE -> select(
                 MainPage.HAVE,
                 MainControllerEvent.PushHave
+            )
+            MainPage.CATEGORY -> select(
+                MainPage.CATEGORY,
+                MainControllerEvent.PushCategory
             )
             MainPage.NEARBY -> select(
                 MainPage.NEARBY,

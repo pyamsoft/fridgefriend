@@ -47,6 +47,7 @@ class MainNavigation @Inject internal constructor(
                 return@setOnNavigationItemSelectedListener when (item.itemId) {
                     R.id.menu_item_nav_need -> select(MainViewEvent.OpenNeed)
                     R.id.menu_item_nav_have -> select(MainViewEvent.OpenHave)
+                    R.id.menu_item_nav_category -> select(MainViewEvent.OpenCategory)
                     R.id.menu_item_nav_nearby -> select(MainViewEvent.OpenNearby)
                     else -> false
                 }
@@ -74,6 +75,7 @@ class MainNavigation @Inject internal constructor(
             when (page) {
                 MainPage.NEED -> R.id.menu_item_nav_need
                 MainPage.HAVE -> R.id.menu_item_nav_have
+                MainPage.CATEGORY -> R.id.menu_item_nav_category
                 MainPage.NEARBY -> R.id.menu_item_nav_nearby
             }
         }
