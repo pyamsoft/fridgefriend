@@ -35,26 +35,26 @@ import com.pyamsoft.fridge.db.item.FridgeItemUpdateDao
 import com.pyamsoft.fridge.db.persist.PersistentCategories
 import com.pyamsoft.pydroid.arch.EventConsumer
 import com.pyamsoft.pydroid.core.Enforcer
-import java.util.Calendar
-import java.util.Date
-import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import timber.log.Timber
+import java.util.Calendar
+import java.util.Date
+import javax.inject.Inject
 
 internal class DetailInteractor @Inject internal constructor(
+    entryQueryDao: FridgeEntryQueryDao,
+    entryInsertDao: FridgeEntryInsertDao,
     private val enforcer: Enforcer,
     private val itemQueryDao: FridgeItemQueryDao,
     private val itemInsertDao: FridgeItemInsertDao,
     private val itemUpdateDao: FridgeItemUpdateDao,
     private val itemDeleteDao: FridgeItemDeleteDao,
     private val itemRealtime: FridgeItemRealtime,
-    private val entryQueryDao: FridgeEntryQueryDao,
-    private val entryInsertDao: FridgeEntryInsertDao,
     private val persistentCategories: PersistentCategories,
     private val categoryQueryDao: FridgeCategoryQueryDao,
     preferences: FridgeItemPreferences
-) : DetailPreferenceInteractor(preferences) {
+) : DetailPreferenceInteractor(enforcer, entryQueryDao, entryInsertDao, preferences) {
 
     @CheckResult
     suspend fun findSameNamedItems(name: String, presence: Presence): Collection<FridgeItem> {
@@ -70,32 +70,6 @@ internal class DetailInteractor @Inject internal constructor(
     suspend fun loadAllCategories(): List<FridgeCategory> {
         persistentCategories.guaranteePersistentCategoriesCreated()
         return categoryQueryDao.query(false)
-    }
-
-    @CheckResult
-    private suspend fun getEntryForId(
-        entryId: String,
-        force: Boolean
-    ): FridgeEntry? {
-        return entryQueryDao.query(force)
-            .singleOrNull { it.id() == entryId }
-    }
-
-    @CheckResult
-    private suspend fun guaranteeEntryExists(
-        entryId: String,
-        name: String
-    ): FridgeEntry {
-        val valid = getEntryForId(entryId, false)
-        return if (valid != null) {
-            Timber.d("Entry exists, ignore: ${valid.id()}")
-            valid
-        } else {
-            Timber.d("Create entry: $entryId")
-            val newEntry = FridgeEntry.create(entryId, name)
-            entryInsertDao.insert(newEntry)
-            newEntry
-        }
     }
 
     @CheckResult

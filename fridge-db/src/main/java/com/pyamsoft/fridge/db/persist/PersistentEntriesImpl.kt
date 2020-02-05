@@ -17,50 +17,27 @@
 
 package com.pyamsoft.fridge.db.persist
 
-import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.entry.FridgeEntryInsertDao
 import com.pyamsoft.fridge.db.entry.FridgeEntryQueryDao
 import com.pyamsoft.pydroid.core.Enforcer
 import javax.inject.Inject
-import timber.log.Timber
 
 internal class PersistentEntriesImpl @Inject internal constructor(
-    private val enforcer: Enforcer,
-    private val queryDao: FridgeEntryQueryDao,
-    private val insertDao: FridgeEntryInsertDao,
+    queryDao: FridgeEntryQueryDao,
+    insertDao: FridgeEntryInsertDao,
+    enforcer: Enforcer,
     private val preferences: PersistentEntryPreferences
-) : PersistentEntries {
-
-    @CheckResult
-    private suspend fun getEntryForId(
-        entryId: String,
-        force: Boolean
-    ): FridgeEntry? {
-        if (entryId.isBlank()) {
-            Timber.w("Cannot find an entry with a blank id")
-            return null
-        }
-
-        val entries = queryDao.query(force)
-        return entries.singleOrNull { it.id() == entryId }
-    }
-
-    @CheckResult
-    private suspend fun guaranteeEntryExists(name: String): FridgeEntry {
-        val entryId = preferences.getPersistentEntryId()
-        val entry = getEntryForId(entryId, false)
-        return if (entry != null) entry else {
-            Timber.d("Create entry: $entryId")
-            val newEntry = FridgeEntry.create(entryId, name)
-            insertDao.insert(newEntry)
-            preferences.savePersistentEntryId(entryId)
-            newEntry
-        }
-    }
+) : EntryGuarantee(enforcer, queryDao, insertDao), PersistentEntries {
 
     override suspend fun getPersistentEntry(): FridgeEntry {
-        enforcer.assertNotOnMainThread()
-        return guaranteeEntryExists(FridgeEntry.DEFAULT_NAME)
+        val possibleId = preferences.getPersistentEntryId()
+        val entry = guaranteeEntryExists(possibleId, FridgeEntry.DEFAULT_NAME)
+
+        // If it did not previously exist, it was newly created above
+        if (possibleId.isBlank()) {
+            preferences.savePersistentEntryId(entry.id())
+        }
+        return entry
     }
 }

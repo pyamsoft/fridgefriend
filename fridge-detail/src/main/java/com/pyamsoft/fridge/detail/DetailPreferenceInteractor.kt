@@ -19,11 +19,18 @@ package com.pyamsoft.fridge.detail
 
 import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.core.PreferenceUnregister
+import com.pyamsoft.fridge.db.entry.FridgeEntryInsertDao
+import com.pyamsoft.fridge.db.entry.FridgeEntryQueryDao
 import com.pyamsoft.fridge.db.item.FridgeItemPreferences
+import com.pyamsoft.fridge.db.persist.EntryGuarantee
+import com.pyamsoft.pydroid.core.Enforcer
 
 abstract class DetailPreferenceInteractor protected constructor(
+    enforcer: Enforcer,
+    queryDao: FridgeEntryQueryDao,
+    insertDao: FridgeEntryInsertDao,
     private val preferences: FridgeItemPreferences
-) {
+) : EntryGuarantee(enforcer, queryDao, insertDao) {
 
     @CheckResult
     suspend fun getExpiringSoonRange(): Int {
