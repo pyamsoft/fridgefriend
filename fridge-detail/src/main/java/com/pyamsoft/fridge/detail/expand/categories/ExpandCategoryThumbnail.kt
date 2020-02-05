@@ -21,7 +21,6 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import com.pyamsoft.fridge.db.category.FridgeCategory
 import com.pyamsoft.fridge.detail.R
-import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.loader.Loaded
 import javax.inject.Inject

@@ -39,7 +39,6 @@ import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.ui.util.Snackbreak
 import com.pyamsoft.pydroid.ui.util.refreshing
 import com.pyamsoft.pydroid.ui.widget.scroll.HideOnScrollListener
-import com.pyamsoft.pydroid.util.tintWith
 import javax.inject.Inject
 import timber.log.Timber
 
