@@ -21,6 +21,7 @@ import android.view.ViewGroup
 import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.detail.expand.categories.ExpandCategoryComponent
 import com.pyamsoft.pydroid.loader.ImageLoader
+import com.pyamsoft.pydroid.ui.theme.ThemeProvider
 import dagger.Module
 import dagger.Provides
 
@@ -34,10 +35,11 @@ abstract class ExpandItemModule {
         @Provides
         @CheckResult
         internal fun provideExpandCategoryComponentCreator(
-            imageLoader: ImageLoader
+            imageLoader: ImageLoader,
+            themeProvider: ThemeProvider
         ): ExpandCategoryComponentCreator {
             val component = DaggerExpandItemCategoryListComponent.factory()
-                .create(imageLoader)
+                .create(imageLoader, themeProvider)
                 .plusCategoryComponent()
 
             return object : ExpandCategoryComponentCreator {

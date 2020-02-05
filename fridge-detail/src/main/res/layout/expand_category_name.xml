@@ -27,8 +27,7 @@
         android:paddingTop="4dp"
         android:paddingEnd="8dp"
         android:paddingBottom="4dp"
-        android:textAppearance="?attr/textAppearanceBody2"
-        android:textColor="@color/white" />
+        android:textAppearance="?attr/textAppearanceBody2" />
 
 </merge>
 

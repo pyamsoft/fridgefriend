@@ -17,13 +17,16 @@
 
 package com.pyamsoft.fridge.detail.expand.categories
 
+import android.graphics.Color
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.core.view.isVisible
 import com.pyamsoft.fridge.detail.R
+import com.pyamsoft.pydroid.ui.theme.ThemeProvider
 import javax.inject.Inject
 
 class ExpandCategoryName @Inject internal constructor(
+    private val themeProvider: ThemeProvider,
     parent: ViewGroup
 ) : ExpandCategoryClickable(parent) {
 
@@ -43,8 +46,10 @@ class ExpandCategoryName @Inject internal constructor(
             layoutRoot.isVisible = true
             if (category == null || category.name.isBlank()) {
                 layoutRoot.text = "None"
+                layoutRoot.setTextColor(if (themeProvider.isDarkTheme()) Color.WHITE else Color.BLACK)
             } else {
                 layoutRoot.text = category.name
+                layoutRoot.setTextColor(Color.WHITE)
             }
         }
     }

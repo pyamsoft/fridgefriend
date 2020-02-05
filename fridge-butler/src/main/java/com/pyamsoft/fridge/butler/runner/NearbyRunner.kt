@@ -28,6 +28,7 @@ import com.pyamsoft.fridge.db.store.NearbyStoreQueryDao
 import com.pyamsoft.fridge.db.zone.NearbyZone
 import com.pyamsoft.fridge.db.zone.NearbyZoneQueryDao
 import com.pyamsoft.pydroid.core.Enforcer
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 
@@ -53,8 +54,8 @@ internal abstract class NearbyRunner protected constructor(
 
     protected suspend fun withNearbyData(func: suspend (stores: List<NearbyStore>, zones: List<NearbyZone>) -> Unit) =
         coroutineScope {
-            val storeJob = async { storeDb.query(false) }
-            val zoneJob = async { zoneDb.query(false) }
+            val storeJob = async(context = Dispatchers.Default) { storeDb.query(false) }
+            val zoneJob = async(context = Dispatchers.Default) { zoneDb.query(false) }
             val nearbyStores = storeJob.await()
             val nearbyZones = zoneJob.await()
             func(nearbyStores, nearbyZones)

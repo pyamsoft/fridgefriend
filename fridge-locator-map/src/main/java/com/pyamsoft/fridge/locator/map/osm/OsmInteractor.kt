@@ -26,12 +26,12 @@ import com.pyamsoft.fridge.locator.map.osm.api.NearbyLocationApi
 import com.pyamsoft.fridge.locator.map.osm.api.OsmNodeOrWay.Node
 import com.pyamsoft.fridge.locator.map.osm.api.OsmNodeOrWay.Way
 import com.pyamsoft.pydroid.core.Enforcer
-import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.withContext
 import timber.log.Timber
+import javax.inject.Inject
 
 internal class OsmInteractor @Inject internal constructor(
     private val nearbyStores: NearbyStoreQueryDao,
@@ -41,18 +41,18 @@ internal class OsmInteractor @Inject internal constructor(
 ) {
 
     @CheckResult
-    suspend fun fromCache(): OsmMarkers = withContext(context = Dispatchers.IO) {
+    suspend fun fromCache(): OsmMarkers = withContext(context = Dispatchers.Default) {
         enforcer.assertNotOnMainThread()
 
         coroutineScope {
-            val storeJob = async { nearbyStores.query(false) }
-            val zoneJob = async { nearbyZones.query(false) }
+            val storeJob = async(context = Dispatchers.Default) { nearbyStores.query(false) }
+            val zoneJob = async(context = Dispatchers.Default) { nearbyZones.query(false) }
             return@coroutineScope OsmMarkers(storeJob.await(), zoneJob.await())
         }
     }
 
     @CheckResult
-    suspend fun nearbyLocations(box: BBox): OsmMarkers = withContext(context = Dispatchers.IO) {
+    suspend fun nearbyLocations(box: BBox): OsmMarkers = withContext(context = Dispatchers.Default) {
         enforcer.assertNotOnMainThread()
 
         Timber.d("Query overpass with bounding box: ${box.south} ${box.west} ${box.north} ${box.east}")

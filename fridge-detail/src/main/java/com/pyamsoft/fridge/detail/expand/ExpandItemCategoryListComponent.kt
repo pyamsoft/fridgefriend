@@ -20,6 +20,7 @@ package com.pyamsoft.fridge.detail.expand
 import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.detail.expand.categories.ExpandCategoryComponent
 import com.pyamsoft.pydroid.loader.ImageLoader
+import com.pyamsoft.pydroid.ui.theme.ThemeProvider
 import dagger.BindsInstance
 import dagger.Component
 
@@ -33,6 +34,9 @@ internal interface ExpandItemCategoryListComponent {
     interface Factory {
 
         @CheckResult
-        fun create(@BindsInstance imageLoader: ImageLoader): ExpandItemCategoryListComponent
+        fun create(
+            @BindsInstance imageLoader: ImageLoader,
+            @BindsInstance themeProvider: ThemeProvider
+        ): ExpandItemCategoryListComponent
     }
 }
