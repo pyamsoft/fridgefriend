@@ -67,9 +67,9 @@ dependencies {
 
     kapt "com.google.dagger:dagger-compiler:$dagger"
 
-    // FastAdapter (extensions just for Swipe leave behind)
-    implementation "com.mikepenz:fastadapter-extensions:$fastAdapter@aar"
-
     api project(':fridge-core')
     api project(':fridge-db')
 }
+
+
+

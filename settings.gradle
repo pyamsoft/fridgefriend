@@ -1,4 +1,4 @@
-include ':app', ':fridge-entry', ':fridge-core', ':fridge-main', ':fridge-setting', ':fridge-db',
+include ':app', ':fridge-entry', ':fridge-core', ':fridge-main', ':fridge-setting', ':fridge-db', ':fridge-category',
         ':fridge-locator-map',
         ':fridge-locator',
         ':fridge-butler-workmanager',

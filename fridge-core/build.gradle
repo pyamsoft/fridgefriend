@@ -68,9 +68,6 @@ dependencies {
     // PYDroid
     api "com.pyamsoft.pydroid:ui:$pydroid"
 
-    // FastAdapter (extensions just for Swipe leave behind)
-    api "com.mikepenz:fastadapter-extensions:$fastAdapter@aar"
-
     api "com.github.skydoves:balloon:$balloon"
 
     // Dagger

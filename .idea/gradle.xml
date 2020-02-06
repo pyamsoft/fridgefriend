@@ -11,6 +11,7 @@
             <option value="$PROJECT_DIR$/app" />
             <option value="$PROJECT_DIR$/fridge-butler" />
             <option value="$PROJECT_DIR$/fridge-butler-workmanager" />
+            <option value="$PROJECT_DIR$/fridge-category" />
             <option value="$PROJECT_DIR$/fridge-core" />
             <option value="$PROJECT_DIR$/fridge-db" />
             <option value="$PROJECT_DIR$/fridge-db-room" />

@@ -96,6 +96,7 @@ dependencies {
 
     api project(':fridge-butler-workmanager')
     api project(':fridge-db-room')
+    api project(':fridge-category')
     api project(':fridge-core')
     api project(':fridge-detail')
     api project(':fridge-entry')
