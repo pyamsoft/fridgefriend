@@ -19,14 +19,12 @@ package com.pyamsoft.fridge.detail
 
 import android.view.ViewGroup
 import android.widget.ImageView
-import androidx.core.content.withStyledAttributes
-import androidx.core.view.updatePadding
 import com.google.android.material.appbar.CollapsingToolbarLayout
+import com.pyamsoft.fridge.core.applyTopToolbarOffset
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence.NEED
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.loader.Loaded
-import com.pyamsoft.pydroid.util.doOnApplyWindowInsets
 import javax.inject.Inject
 
 class DetailBackground @Inject internal constructor(
@@ -44,19 +42,7 @@ class DetailBackground @Inject internal constructor(
 
     init {
         doOnInflate {
-            collapse.doOnApplyWindowInsets { v, insets, padding ->
-                val toolbarTopMargin = padding.top + insets.systemWindowInsetTop
-                v.context.withStyledAttributes(
-                    com.pyamsoft.fridge.core.R.attr.toolbarStyle,
-                    intArrayOf(com.pyamsoft.fridge.core.R.attr.actionBarSize)
-                ) {
-                    val sizeId = getResourceId(0, 0)
-                    if (sizeId != 0) {
-                        val toolbarHeight = v.context.resources.getDimensionPixelSize(sizeId)
-                        v.updatePadding(top = toolbarTopMargin + toolbarHeight)
-                    }
-                }
-            }
+            collapse.applyTopToolbarOffset()
         }
 
         doOnTeardown {
