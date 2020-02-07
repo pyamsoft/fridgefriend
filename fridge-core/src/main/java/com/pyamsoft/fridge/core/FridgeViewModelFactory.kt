@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Peter Kenji Yamanaka
+ * Copyright 2020 Peter Kenji Yamanaka
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
  *
  */
 
-package com.pyamsoft.fridge.locator.map.osm.popup
+package com.pyamsoft.fridge.core
 
 import com.pyamsoft.pydroid.arch.UiViewModel
 import com.pyamsoft.pydroid.arch.UiViewModelFactory
@@ -24,7 +24,7 @@ import javax.inject.Inject
 import javax.inject.Provider
 import kotlin.reflect.KClass
 
-internal class PopupViewModelFactory @Inject internal constructor(
+class FridgeViewModelFactory @Inject internal constructor(
     private val viewModels: MutableMap<Class<out UiViewModel<*, *, *>>, Provider<UiViewModel<*, *, *>>>
 ) : UiViewModelFactory() {
 
@@ -41,4 +41,4 @@ internal class PopupViewModelFactory @Inject internal constructor(
     AnnotationTarget.PROPERTY_SETTER
 )
 @Retention(AnnotationRetention.RUNTIME)
-internal annotation class ViewModelKey(val value: KClass<out UiViewModel<*, *, *>>)
+annotation class ViewModelKey(val value: KClass<out UiViewModel<*, *, *>>)

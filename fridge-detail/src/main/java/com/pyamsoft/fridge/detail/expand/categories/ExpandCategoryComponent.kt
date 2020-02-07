@@ -22,9 +22,8 @@ import androidx.annotation.CheckResult
 import dagger.BindsInstance
 import dagger.Subcomponent
 
-@ExpandCategoryScope
 @Subcomponent
-internal interface ExpandCategoryComponent {
+interface ExpandCategoryComponent {
 
     fun inject(holder: ExpandedCategoryViewHolder)
 

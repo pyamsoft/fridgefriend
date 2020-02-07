@@ -15,16 +15,13 @@
  *
  */
 
-package com.pyamsoft.fridge.detail.expand
+package com.pyamsoft.fridge.category
 
 import android.view.ViewGroup
 import androidx.annotation.CheckResult
-import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModelProvider
 import com.pyamsoft.fridge.core.FridgeViewModelFactory
 import com.pyamsoft.fridge.core.ViewModelKey
-import com.pyamsoft.fridge.db.item.FridgeItem.Presence
-import com.pyamsoft.fridge.detail.expand.ExpandComponent.ViewModelModule
 import com.pyamsoft.pydroid.arch.UiViewModel
 import com.pyamsoft.pydroid.ui.theme.ThemeProvider
 import dagger.Binds
@@ -32,25 +29,20 @@ import dagger.BindsInstance
 import dagger.Module
 import dagger.Subcomponent
 import dagger.multibindings.IntoMap
-import javax.inject.Named
 
-@Subcomponent(modules = [ViewModelModule::class, ExpandItemModule::class])
-internal interface ExpandComponent {
+@Subcomponent(modules = [CategoryComponent.ViewModelModule::class, CategoryModule::class])
+internal interface CategoryComponent {
 
-    fun inject(fragment: ExpandedFragment)
+    fun inject(fragment: CategoryFragment)
 
     @Subcomponent.Factory
     interface Factory {
 
         @CheckResult
         fun create(
-            @BindsInstance theming: ThemeProvider,
             @BindsInstance parent: ViewGroup,
-            @BindsInstance owner: LifecycleOwner,
-            @BindsInstance @Named("item_id") itemId: String,
-            @BindsInstance @Named("item_entry_id") itemEntryId: String,
-            @BindsInstance defaultPresence: Presence
-        ): ExpandComponent
+            @BindsInstance themeProvider: ThemeProvider
+        ): CategoryComponent
     }
 
     @Module
@@ -61,7 +53,7 @@ internal interface ExpandComponent {
 
         @Binds
         @IntoMap
-        @ViewModelKey(ExpandItemViewModel::class)
-        internal abstract fun expandViewModel(viewModel: ExpandItemViewModel): UiViewModel<*, *, *>
+        @ViewModelKey(CategoryViewModel::class)
+        internal abstract fun categoryViewModel(viewModel: CategoryViewModel): UiViewModel<*, *, *>
     }
 }

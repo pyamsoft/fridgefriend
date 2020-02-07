@@ -19,7 +19,7 @@ package com.pyamsoft.fridge.locator.map.osm.updatemanager
 
 import android.location.Location
 
-internal interface LocationUpdateReceiver {
+interface LocationUpdateReceiver {
 
     fun register(listener: Listener)
 

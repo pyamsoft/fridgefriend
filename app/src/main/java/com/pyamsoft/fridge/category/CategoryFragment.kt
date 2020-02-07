@@ -24,12 +24,33 @@ import android.view.ViewGroup
 import androidx.annotation.CheckResult
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
+import com.pyamsoft.fridge.FridgeComponent
 import com.pyamsoft.fridge.R
 import com.pyamsoft.fridge.main.SnackbarContainer
 import com.pyamsoft.fridge.main.VersionChecker
 import com.pyamsoft.pydroid.arch.StateSaver
+import com.pyamsoft.pydroid.arch.createComponent
+import com.pyamsoft.pydroid.ui.Injector
+import com.pyamsoft.pydroid.ui.arch.factory
+import com.pyamsoft.pydroid.ui.theme.ThemeProvider
+import com.pyamsoft.pydroid.ui.theme.Theming
+import javax.inject.Inject
 
 internal class CategoryFragment : Fragment(), SnackbarContainer {
+
+    @JvmField
+    @Inject
+    internal var theming: Theming? = null
+
+    @JvmField
+    @Inject
+    internal var list: CategoryListView? = null
+
+    @JvmField
+    @Inject
+    internal var factory: ViewModelProvider.Factory? = null
+    private val viewModel by factory<CategoryViewModel> { factory }
 
     private var stateSaver: StateSaver? = null
 
@@ -55,6 +76,24 @@ internal class CategoryFragment : Fragment(), SnackbarContainer {
 
         val parent = view.findViewById<CoordinatorLayout>(R.id.layout_coordinator)
         rootView = parent
+
+        Injector.obtain<FridgeComponent>(view.context.applicationContext)
+            .plusCategoryComponent()
+            .create(
+                parent,
+                ThemeProvider { requireNotNull(theming).isDarkTheme(requireActivity()) })
+            .inject(this)
+
+        val list = requireNotNull(list)
+        stateSaver = createComponent(
+            savedInstanceState,
+            viewLifecycleOwner,
+            viewModel,
+            list
+        ) {
+            // TODO
+        }
+
         initializeApp()
     }
 
@@ -75,6 +114,7 @@ internal class CategoryFragment : Fragment(), SnackbarContainer {
 
         rootView = null
         stateSaver = null
+        factory = null
     }
 
     companion object {

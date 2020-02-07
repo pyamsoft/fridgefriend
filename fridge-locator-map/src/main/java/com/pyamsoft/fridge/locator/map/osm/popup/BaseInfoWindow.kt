@@ -25,7 +25,7 @@ import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
 import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.infowindow.InfoWindow
 
-internal abstract class BaseInfoWindow protected constructor(
+abstract class BaseInfoWindow protected constructor(
     private val receiver: LocationUpdateReceiver,
     map: MapView
 ) : InfoWindow(R.layout.popup_info_layout, map), LifecycleOwner, LocationUpdateReceiver.Listener {

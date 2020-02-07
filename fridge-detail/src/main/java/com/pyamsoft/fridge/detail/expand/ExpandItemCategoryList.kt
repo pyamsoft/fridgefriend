@@ -24,6 +24,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.pyamsoft.fridge.db.category.FridgeCategory
 import com.pyamsoft.fridge.detail.R
+import com.pyamsoft.fridge.detail.expand.categories.ExpandCategoryComponent
 import com.pyamsoft.fridge.detail.expand.categories.ExpandItemCategoryListAdapter
 import com.pyamsoft.fridge.detail.expand.categories.ExpandedCategoryViewState
 import com.pyamsoft.pydroid.arch.BaseUiView
@@ -32,7 +33,7 @@ import javax.inject.Inject
 class ExpandItemCategoryList @Inject internal constructor(
     parent: ViewGroup,
     owner: LifecycleOwner,
-    componentCreator: ExpandCategoryComponentCreator
+    factory: ExpandCategoryComponent.Factory
 ) : BaseUiView<ExpandItemViewState, ExpandedItemViewEvent>(parent) {
 
     override val layout: Int = R.layout.expand_categories
@@ -56,7 +57,7 @@ class ExpandItemCategoryList @Inject internal constructor(
         doOnInflate {
             modelAdapter = ExpandItemCategoryListAdapter(
                 owner = owner,
-                componentCreator = componentCreator,
+                factory = factory,
                 callback = object : ExpandItemCategoryListAdapter.Callback {
 
                     override fun onCategorySelected(index: Int) {

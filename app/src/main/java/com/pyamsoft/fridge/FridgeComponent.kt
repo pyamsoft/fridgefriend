@@ -27,6 +27,8 @@ import com.pyamsoft.fridge.butler.ButlerPreferences
 import com.pyamsoft.fridge.butler.injector.component.ButlerComponent
 import com.pyamsoft.fridge.butler.injector.component.InputButlerComponent
 import com.pyamsoft.fridge.butler.workmanager.WorkManagerModule
+import com.pyamsoft.fridge.category.CategoryComponent
+import com.pyamsoft.fridge.category.CategoryListComponent
 import com.pyamsoft.fridge.core.CoreModule
 import com.pyamsoft.fridge.db.DbModule
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent
@@ -34,10 +36,12 @@ import com.pyamsoft.fridge.db.item.FridgeItemPreferences
 import com.pyamsoft.fridge.db.persist.PersistentCategoryPreferences
 import com.pyamsoft.fridge.db.persist.PersistentEntryPreferences
 import com.pyamsoft.fridge.db.room.RoomModule
-import com.pyamsoft.fridge.detail.expand.date.DateSelectComponent
 import com.pyamsoft.fridge.detail.DetailComponent
+import com.pyamsoft.fridge.detail.DetailListComponent
 import com.pyamsoft.fridge.detail.expand.ExpandComponent
+import com.pyamsoft.fridge.detail.expand.ExpandItemCategoryListComponent
 import com.pyamsoft.fridge.detail.expand.ItemExpandPayload
+import com.pyamsoft.fridge.detail.expand.date.DateSelectComponent
 import com.pyamsoft.fridge.detail.expand.date.DateSelectPayload
 import com.pyamsoft.fridge.entry.EntryComponent
 import com.pyamsoft.fridge.locator.GeofenceBroadcastReceiver
@@ -45,6 +49,8 @@ import com.pyamsoft.fridge.locator.GeofenceUpdateReceiver
 import com.pyamsoft.fridge.locator.LocationProviderChangeReceiver
 import com.pyamsoft.fridge.locator.LocatorModule
 import com.pyamsoft.fridge.locator.map.MapModule
+import com.pyamsoft.fridge.locator.map.osm.popup.store.StoreInfoComponent
+import com.pyamsoft.fridge.locator.map.osm.popup.zone.ZoneInfoComponent
 import com.pyamsoft.fridge.main.MainComponent
 import com.pyamsoft.fridge.map.MapComponent
 import com.pyamsoft.fridge.permission.PermissionComponent
@@ -82,11 +88,41 @@ internal interface FridgeComponent {
     //  @CheckResult
     //  fun plusScannerComponent(): OcrComponent.Factory
 
+    // ===============================================
+    // HACKY INJECTORS
+
+    /* FROM inside CategoryListView */
+    @CheckResult
+    fun plusCategoryListComponent(): CategoryListComponent.Factory
+
+    /* FROM inside DetailList */
+    @CheckResult
+    fun plusDetailListComponent(): DetailListComponent.Factory
+
+    /* FROM inside ExpandItemCategoryList */
+    @CheckResult
+    fun plusExpandCategoryListComponent(): ExpandItemCategoryListComponent.Factory
+
+    /* FROM inside OsmMap */
+    @CheckResult
+    fun plusStoreComponent(): StoreInfoComponent.Factory
+
+    /* FROM inside OsmMap */
+    @CheckResult
+    fun plusZoneComponent(): ZoneInfoComponent.Factory
+
+    /* FROM inside GeofenceRegistrationInjector, LocationInjector, ExpirationInjector */
     @CheckResult
     fun plusButlerComponent(): ButlerComponent
 
+    /* FROM inside GeofenceNotifyInjector */
     @CheckResult
     fun plusInputButlerComponent(): InputButlerComponent.Factory
+
+    // ===============================================
+
+    @CheckResult
+    fun plusCategoryComponent(): CategoryComponent.Factory
 
     @CheckResult
     fun plusExpandComponent(): ExpandComponent.Factory

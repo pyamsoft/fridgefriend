@@ -23,17 +23,16 @@ import androidx.constraintlayout.widget.ConstraintSet
 import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.RecyclerView
 import com.pyamsoft.fridge.detail.R
-import com.pyamsoft.fridge.detail.expand.ExpandCategoryComponentCreator
 import com.pyamsoft.pydroid.arch.ViewBinder
 import com.pyamsoft.pydroid.arch.bindViews
 import com.pyamsoft.pydroid.ui.util.layout
 import javax.inject.Inject
 
-internal class ExpandedCategoryViewHolder internal constructor(
+class ExpandedCategoryViewHolder internal constructor(
     itemView: View,
     owner: LifecycleOwner,
     callback: ExpandItemCategoryListAdapter.Callback,
-    componentCreator: ExpandCategoryComponentCreator
+    factory: ExpandCategoryComponent.Factory
 ) : RecyclerView.ViewHolder(itemView) {
 
     private val viewBinder: ViewBinder<ExpandedCategoryViewState>
@@ -52,7 +51,7 @@ internal class ExpandedCategoryViewHolder internal constructor(
 
     init {
         val parent = itemView.findViewById<ConstraintLayout>(R.id.expand_category_item)
-        componentCreator.create(parent).inject(this)
+        factory.create(parent).inject(this)
 
         val thumbnail = requireNotNull(thumbnail)
         val scrim = requireNotNull(scrim)

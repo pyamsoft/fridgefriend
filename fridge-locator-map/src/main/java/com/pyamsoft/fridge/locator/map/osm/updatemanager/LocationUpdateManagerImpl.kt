@@ -18,13 +18,14 @@
 package com.pyamsoft.fridge.locator.map.osm.updatemanager
 
 import android.location.Location
-import com.pyamsoft.fridge.locator.map.osm.MapScope
 import com.pyamsoft.fridge.locator.map.osm.updatemanager.LocationUpdateReceiver.Listener
 import javax.inject.Inject
+import javax.inject.Singleton
 import kotlin.LazyThreadSafetyMode.NONE
 
-@MapScope
-internal class LocationUpdateManagerImpl @Inject internal constructor() : LocationUpdateReceiver, LocationUpdatePublisher {
+@Singleton
+internal class LocationUpdateManagerImpl @Inject internal constructor() : LocationUpdateReceiver,
+    LocationUpdatePublisher {
 
     private val listeners by lazy(NONE) { mutableSetOf<Listener>() }
 

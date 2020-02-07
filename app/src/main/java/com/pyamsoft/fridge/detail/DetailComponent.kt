@@ -21,8 +21,8 @@ import android.view.ViewGroup
 import androidx.annotation.CheckResult
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModelProvider
-import com.pyamsoft.fridge.FridgeViewModelFactory
-import com.pyamsoft.fridge.ViewModelKey
+import com.pyamsoft.fridge.core.FridgeViewModelFactory
+import com.pyamsoft.fridge.core.ViewModelKey
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence
 import com.pyamsoft.fridge.detail.DetailComponent.ViewModelModule
 import com.pyamsoft.pydroid.arch.UiViewModel

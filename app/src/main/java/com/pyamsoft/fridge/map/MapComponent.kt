@@ -21,10 +21,9 @@ import android.view.ViewGroup
 import androidx.annotation.CheckResult
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModelProvider
-import com.pyamsoft.fridge.FridgeViewModelFactory
-import com.pyamsoft.fridge.ViewModelKey
+import com.pyamsoft.fridge.core.FridgeViewModelFactory
+import com.pyamsoft.fridge.core.ViewModelKey
 import com.pyamsoft.fridge.locator.map.osm.MapModule
-import com.pyamsoft.fridge.locator.map.osm.MapScope
 import com.pyamsoft.fridge.locator.map.osm.OsmViewModel
 import com.pyamsoft.fridge.map.MapComponent.ViewModelModule
 import com.pyamsoft.pydroid.arch.UiViewModel
@@ -35,7 +34,6 @@ import dagger.Module
 import dagger.Subcomponent
 import dagger.multibindings.IntoMap
 
-@MapScope
 @Subcomponent(modules = [ViewModelModule::class, MapModule::class])
 internal interface MapComponent {
 

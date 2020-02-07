@@ -26,37 +26,26 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleRegistry
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStore
-import com.pyamsoft.fridge.butler.Butler
 import com.pyamsoft.fridge.db.zone.NearbyZone
-import com.pyamsoft.fridge.db.zone.NearbyZoneDeleteDao
-import com.pyamsoft.fridge.db.zone.NearbyZoneInsertDao
-import com.pyamsoft.fridge.db.zone.NearbyZoneQueryDao
-import com.pyamsoft.fridge.db.zone.NearbyZoneRealtime
 import com.pyamsoft.fridge.locator.map.osm.popup.BaseInfoWindow
 import com.pyamsoft.fridge.locator.map.osm.updatemanager.LocationUpdateReceiver
 import com.pyamsoft.pydroid.arch.StateSaver
 import com.pyamsoft.pydroid.arch.createComponent
-import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.ui.arch.factory
 import com.pyamsoft.pydroid.ui.util.layout
 import com.pyamsoft.pydroid.util.fakeBind
 import com.pyamsoft.pydroid.util.fakeUnbind
-import javax.inject.Inject
 import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.Polygon
 import org.osmdroid.views.overlay.infowindow.InfoWindow
 import timber.log.Timber
+import javax.inject.Inject
 
-internal class ZoneInfoWindow private constructor(
+class ZoneInfoWindow private constructor(
     receiver: LocationUpdateReceiver,
     zone: NearbyZone,
     map: MapView,
-    butler: Butler,
-    imageLoader: ImageLoader,
-    nearbyZoneRealtime: NearbyZoneRealtime,
-    nearbyZoneQueryDao: NearbyZoneQueryDao,
-    nearbyZoneInsertDao: NearbyZoneInsertDao,
-    nearbyZoneDeleteDao: NearbyZoneDeleteDao
+    componentFactory: ZoneInfoComponent.Factory
 ) : BaseInfoWindow(receiver, map), LifecycleOwner {
 
     private var stateSaver: StateSaver? = null
@@ -64,13 +53,13 @@ internal class ZoneInfoWindow private constructor(
 
     @JvmField
     @Inject
-    internal var factory: ViewModelProvider.Factory? = null
-    @JvmField
-    @Inject
     internal var infoTitle: ZoneInfoTitle? = null
     @JvmField
     @Inject
     internal var infoLocation: ZoneInfoLocation? = null
+    @JvmField
+    @Inject
+    internal var factory: ViewModelProvider.Factory? = null
     private val viewModel by factory<ZoneInfoViewModel>(ViewModelStore()) { factory }
 
     override fun getLifecycle(): Lifecycle {
@@ -78,18 +67,7 @@ internal class ZoneInfoWindow private constructor(
     }
 
     init {
-        DaggerZoneInfoComponent.factory()
-            .create(
-                parent,
-                imageLoader,
-                zone,
-                butler,
-                nearbyZoneRealtime,
-                nearbyZoneQueryDao,
-                nearbyZoneInsertDao,
-                nearbyZoneDeleteDao
-            )
-            .inject(this)
+        componentFactory.create(parent, zone).inject(this)
 
         val title = requireNotNull(infoTitle)
         val location = requireNotNull(infoLocation)
@@ -163,24 +141,9 @@ internal class ZoneInfoWindow private constructor(
             receiver: LocationUpdateReceiver,
             zone: NearbyZone,
             map: MapView,
-            butler: Butler,
-            imageLoader: ImageLoader,
-            nearbyZoneRealtime: NearbyZoneRealtime,
-            nearbyZoneQueryDao: NearbyZoneQueryDao,
-            nearbyZoneInsertDao: NearbyZoneInsertDao,
-            nearbyZoneDeleteDao: NearbyZoneDeleteDao
+            factory: ZoneInfoComponent.Factory
         ): InfoWindow {
-            return ZoneInfoWindow(
-                receiver,
-                zone,
-                map,
-                butler,
-                imageLoader,
-                nearbyZoneRealtime,
-                nearbyZoneQueryDao,
-                nearbyZoneInsertDao,
-                nearbyZoneDeleteDao
-            )
+            return ZoneInfoWindow(receiver, zone, map, factory)
         }
     }
 }

@@ -26,37 +26,26 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleRegistry
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStore
-import com.pyamsoft.fridge.butler.Butler
 import com.pyamsoft.fridge.db.store.NearbyStore
-import com.pyamsoft.fridge.db.store.NearbyStoreDeleteDao
-import com.pyamsoft.fridge.db.store.NearbyStoreInsertDao
-import com.pyamsoft.fridge.db.store.NearbyStoreQueryDao
-import com.pyamsoft.fridge.db.store.NearbyStoreRealtime
 import com.pyamsoft.fridge.locator.map.osm.popup.BaseInfoWindow
 import com.pyamsoft.fridge.locator.map.osm.updatemanager.LocationUpdateReceiver
 import com.pyamsoft.pydroid.arch.StateSaver
 import com.pyamsoft.pydroid.arch.createComponent
-import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.ui.arch.factory
 import com.pyamsoft.pydroid.ui.util.layout
 import com.pyamsoft.pydroid.util.fakeBind
 import com.pyamsoft.pydroid.util.fakeUnbind
-import javax.inject.Inject
 import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.Marker
 import org.osmdroid.views.overlay.infowindow.InfoWindow
 import timber.log.Timber
+import javax.inject.Inject
 
-internal class StoreInfoWindow private constructor(
+class StoreInfoWindow private constructor(
     receiver: LocationUpdateReceiver,
     store: NearbyStore,
     map: MapView,
-    butler: Butler,
-    imageLoader: ImageLoader,
-    nearbyStoreRealtime: NearbyStoreRealtime,
-    nearbyStoreQueryDao: NearbyStoreQueryDao,
-    nearbyStoreInsertDao: NearbyStoreInsertDao,
-    nearbyStoreDeleteDao: NearbyStoreDeleteDao
+    componentFactory: StoreInfoComponent.Factory
 ) : BaseInfoWindow(receiver, map), LifecycleOwner {
 
     private var stateSaver: StateSaver? = null
@@ -78,18 +67,7 @@ internal class StoreInfoWindow private constructor(
     }
 
     init {
-        DaggerStoreInfoComponent.factory()
-            .create(
-                parent,
-                imageLoader,
-                store,
-                butler,
-                nearbyStoreRealtime,
-                nearbyStoreQueryDao,
-                nearbyStoreInsertDao,
-                nearbyStoreDeleteDao
-            )
-            .inject(this)
+        componentFactory.create(store, parent).inject(this)
 
         val title = requireNotNull(infoTitle)
         val location = requireNotNull(infoLocation)
@@ -162,24 +140,9 @@ internal class StoreInfoWindow private constructor(
             receiver: LocationUpdateReceiver,
             store: NearbyStore,
             map: MapView,
-            butler: Butler,
-            imageLoader: ImageLoader,
-            nearbyStoreRealtime: NearbyStoreRealtime,
-            nearbyStoreQueryDao: NearbyStoreQueryDao,
-            nearbyStoreInsertDao: NearbyStoreInsertDao,
-            nearbyStoreDeleteDao: NearbyStoreDeleteDao
+            factory: StoreInfoComponent.Factory
         ): InfoWindow {
-            return StoreInfoWindow(
-                receiver,
-                store,
-                map,
-                butler,
-                imageLoader,
-                nearbyStoreRealtime,
-                nearbyStoreQueryDao,
-                nearbyStoreInsertDao,
-                nearbyStoreDeleteDao
-            )
+            return StoreInfoWindow(receiver, store, map, factory)
         }
     }
 }

@@ -15,14 +15,18 @@
  *
  */
 
-package com.pyamsoft.fridge.detail.expand
+package com.pyamsoft.fridge.category
 
-import android.view.ViewGroup
-import androidx.annotation.CheckResult
-import com.pyamsoft.fridge.detail.expand.categories.ExpandCategoryComponent
+import com.pyamsoft.fridge.db.category.FridgeCategory
+import com.pyamsoft.pydroid.arch.UiControllerEvent
+import com.pyamsoft.pydroid.arch.UiViewEvent
+import com.pyamsoft.pydroid.arch.UiViewState
 
-internal interface ExpandCategoryComponentCreator {
+data class CategoryViewState(
+    val largeCategories: List<FridgeCategory>,
+    val smallCategories: List<FridgeCategory>
+) : UiViewState
 
-    @CheckResult
-    fun create(parent: ViewGroup): ExpandCategoryComponent
-}
+sealed class CategoryViewEvent : UiViewEvent
+
+sealed class CategoryControllerEvent : UiControllerEvent

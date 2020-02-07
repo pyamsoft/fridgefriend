@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Peter Kenji Yamanaka
+ * Copyright 2020 Peter Kenji Yamanaka
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,26 +15,31 @@
  *
  */
 
-package com.pyamsoft.fridge.detail
+package com.pyamsoft.fridge.category
 
+import android.content.Context
 import androidx.annotation.CheckResult
-import com.pyamsoft.fridge.detail.item.DetailItemComponent
+import com.pyamsoft.fridge.category.item.CategoryItemComponent
+import com.pyamsoft.pydroid.ui.Injector
 import com.pyamsoft.pydroid.ui.theme.ThemeProvider
-import dagger.BindsInstance
-import dagger.Subcomponent
+import dagger.Module
+import dagger.Provides
 
-@Subcomponent
-interface DetailListComponent {
+@Module
+abstract class CategoryModule {
 
-    @CheckResult
-    fun plusItemComponent(): DetailItemComponent.Factory
+    @Module
+    companion object {
 
-    @Subcomponent.Factory
-    interface Factory {
-
+        @JvmStatic
+        @Provides
         @CheckResult
-        fun create(
-            @BindsInstance themeProvider: ThemeProvider
-        ): DetailListComponent
+        internal fun provideCategoryFactory(
+            context: Context,
+            themeProvider: ThemeProvider
+        ): CategoryItemComponent.Factory {
+            return Injector.obtain<CategoryListComponent.Factory>(context.applicationContext)
+                .create(themeProvider).plusItemComponent()
+        }
     }
 }

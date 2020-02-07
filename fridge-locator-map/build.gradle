@@ -70,7 +70,8 @@ dependencies {
     implementation "com.squareup.moshi:moshi-adapters:$moshi"
     kapt "com.squareup.moshi:moshi-kotlin-codegen:$moshi"
 
-    implementation "org.osmdroid:osmdroid-android:$osmdroid"
+    // Need to be API instead of implementation so that Dagger can build.
+    api "org.osmdroid:osmdroid-android:$osmdroid"
 
     implementation "com.google.android.gms:play-services-location:$gmsLocation"
 

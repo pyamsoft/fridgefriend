@@ -21,7 +21,6 @@ import android.view.View
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.lifecycle.LifecycleOwner
-import com.pyamsoft.fridge.detail.DetailItemComponentCreator
 import com.pyamsoft.fridge.detail.R
 import com.pyamsoft.fridge.detail.item.DetailListAdapter.DetailViewHolder
 import com.pyamsoft.pydroid.arch.ViewBinder
@@ -30,12 +29,12 @@ import com.pyamsoft.pydroid.arch.doOnDestroy
 import com.pyamsoft.pydroid.ui.util.layout
 import javax.inject.Inject
 
-internal class DetailItemViewHolder internal constructor(
+class DetailItemViewHolder internal constructor(
     itemView: View,
     owner: LifecycleOwner,
     editable: Boolean,
     callback: DetailListAdapter.Callback,
-    componentCreator: DetailItemComponentCreator
+    factory: DetailItemComponent.Factory
 ) : DetailViewHolder(itemView) {
 
     @JvmField
@@ -55,7 +54,7 @@ internal class DetailItemViewHolder internal constructor(
 
     init {
         val parent = itemView.findViewById<ConstraintLayout>(R.id.detail_list_item)
-        componentCreator.create(parent, editable).inject(this)
+        factory.create(parent, editable).inject(this)
 
         val name = requireNotNull(nameView)
         val date = requireNotNull(dateView)

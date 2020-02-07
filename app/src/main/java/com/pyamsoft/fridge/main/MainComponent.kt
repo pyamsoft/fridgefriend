@@ -20,8 +20,8 @@ package com.pyamsoft.fridge.main
 import android.view.ViewGroup
 import androidx.annotation.CheckResult
 import androidx.lifecycle.ViewModelProvider
-import com.pyamsoft.fridge.FridgeViewModelFactory
-import com.pyamsoft.fridge.ViewModelKey
+import com.pyamsoft.fridge.core.FridgeViewModelFactory
+import com.pyamsoft.fridge.core.ViewModelKey
 import com.pyamsoft.pydroid.arch.UiViewModel
 import com.pyamsoft.pydroid.ui.app.ToolbarActivityProvider
 import com.pyamsoft.pydroid.ui.theme.ThemeProvider

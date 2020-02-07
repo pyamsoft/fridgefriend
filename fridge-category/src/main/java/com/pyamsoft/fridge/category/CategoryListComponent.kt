@@ -15,9 +15,24 @@
  *
  */
 
-package com.pyamsoft.fridge.detail.expand.categories
+package com.pyamsoft.fridge.category
 
-import javax.inject.Scope
+import androidx.annotation.CheckResult
+import com.pyamsoft.fridge.category.item.CategoryItemComponent
+import com.pyamsoft.pydroid.ui.theme.ThemeProvider
+import dagger.BindsInstance
+import dagger.Subcomponent
 
-@Scope
-internal annotation class ExpandCategoryScope
+@Subcomponent
+interface CategoryListComponent {
+
+    @CheckResult
+    fun plusItemComponent(): CategoryItemComponent.Factory
+
+    @Subcomponent.Factory
+    interface Factory {
+
+        @CheckResult
+        fun create(@BindsInstance themeProvider: ThemeProvider): CategoryListComponent
+    }
+}

@@ -30,6 +30,7 @@ import com.mikepenz.fastadapter_extensions.swipe.SimpleSwipeCallback
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence.HAVE
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence.NEED
+import com.pyamsoft.fridge.detail.item.DetailItemComponent
 import com.pyamsoft.fridge.detail.item.DetailItemViewHolder
 import com.pyamsoft.fridge.detail.item.DetailListAdapter
 import com.pyamsoft.fridge.detail.item.DetailListAdapter.Callback
@@ -39,14 +40,14 @@ import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.ui.util.Snackbreak
 import com.pyamsoft.pydroid.ui.util.refreshing
 import com.pyamsoft.pydroid.ui.widget.scroll.HideOnScrollListener
-import javax.inject.Inject
 import timber.log.Timber
+import javax.inject.Inject
 
 class DetailList @Inject internal constructor(
     parent: ViewGroup,
     private val imageLoader: ImageLoader,
     private val owner: LifecycleOwner,
-    componentCreator: DetailItemComponentCreator
+    factory: DetailItemComponent.Factory
 ) : BaseUiView<DetailViewState, DetailViewEvent>(parent) {
 
     override val layout: Int = R.layout.detail_list
@@ -70,7 +71,7 @@ class DetailList @Inject internal constructor(
             modelAdapter = DetailListAdapter(
                 editable = false,
                 owner = owner,
-                componentCreator = componentCreator,
+                factory = factory,
                 callback = object : Callback {
                     override fun onItemExpanded(index: Int) {
                         publish(DetailViewEvent.ExpandItem(index))

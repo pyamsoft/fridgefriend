@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Peter Kenji Yamanaka
+ * Copyright 2020 Peter Kenji Yamanaka
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,14 +15,24 @@
  *
  */
 
-package com.pyamsoft.fridge.detail
+package com.pyamsoft.fridge.category.item
 
 import android.view.ViewGroup
 import androidx.annotation.CheckResult
-import com.pyamsoft.fridge.detail.item.DetailItemComponent
+import dagger.BindsInstance
+import dagger.Subcomponent
 
-internal interface DetailItemComponentCreator {
+@Subcomponent
+interface CategoryItemComponent {
 
-    @CheckResult
-    fun create(parent: ViewGroup, editable: Boolean): DetailItemComponent
+    fun inject(holder: LargeCategoryAdapter.LargeViewHolder)
+
+    fun inject(holder: SmallCategoryAdapter.SmallViewHolder)
+
+    @Subcomponent.Factory
+    interface Factory {
+
+        @CheckResult
+        fun create(@BindsInstance parent: ViewGroup): CategoryItemComponent
+    }
 }

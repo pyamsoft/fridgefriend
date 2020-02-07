@@ -20,43 +20,29 @@ package com.pyamsoft.fridge.locator.map.osm.popup.zone
 import android.view.ViewGroup
 import androidx.annotation.CheckResult
 import androidx.lifecycle.ViewModelProvider
-import com.pyamsoft.fridge.butler.Butler
+import com.pyamsoft.fridge.core.FridgeViewModelFactory
+import com.pyamsoft.fridge.core.ViewModelKey
 import com.pyamsoft.fridge.db.zone.NearbyZone
-import com.pyamsoft.fridge.db.zone.NearbyZoneDeleteDao
-import com.pyamsoft.fridge.db.zone.NearbyZoneInsertDao
-import com.pyamsoft.fridge.db.zone.NearbyZoneQueryDao
-import com.pyamsoft.fridge.db.zone.NearbyZoneRealtime
-import com.pyamsoft.fridge.locator.map.osm.popup.PopupInfoScope
-import com.pyamsoft.fridge.locator.map.osm.popup.PopupViewModelFactory
-import com.pyamsoft.fridge.locator.map.osm.popup.ViewModelKey
 import com.pyamsoft.fridge.locator.map.osm.popup.zone.ZoneInfoComponent.ViewModelModule
 import com.pyamsoft.pydroid.arch.UiViewModel
-import com.pyamsoft.pydroid.loader.ImageLoader
 import dagger.Binds
 import dagger.BindsInstance
-import dagger.Component
 import dagger.Module
+import dagger.Subcomponent
 import dagger.multibindings.IntoMap
 
-@PopupInfoScope
-@Component(modules = [ViewModelModule::class])
-internal interface ZoneInfoComponent {
+@Subcomponent(modules = [ViewModelModule::class])
+interface ZoneInfoComponent {
 
     fun inject(infoWindow: ZoneInfoWindow)
 
-    @Component.Factory
+    @Subcomponent.Factory
     interface Factory {
 
         @CheckResult
         fun create(
             @BindsInstance parent: ViewGroup,
-            @BindsInstance imageLoader: ImageLoader,
-            @BindsInstance zone: NearbyZone,
-            @BindsInstance butler: Butler,
-            @BindsInstance nearbyZoneRealtime: NearbyZoneRealtime,
-            @BindsInstance nearbyZoneQueryDao: NearbyZoneQueryDao,
-            @BindsInstance nearbyZoneInsertDao: NearbyZoneInsertDao,
-            @BindsInstance nearbyZoneDeleteDao: NearbyZoneDeleteDao
+            @BindsInstance zone: NearbyZone
         ): ZoneInfoComponent
     }
 
@@ -64,7 +50,7 @@ internal interface ZoneInfoComponent {
     abstract class ViewModelModule {
 
         @Binds
-        internal abstract fun bindViewModelFactory(factory: PopupViewModelFactory): ViewModelProvider.Factory
+        internal abstract fun bindViewModelFactory(factory: FridgeViewModelFactory): ViewModelProvider.Factory
 
         @Binds
         @IntoMap

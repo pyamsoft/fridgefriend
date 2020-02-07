@@ -27,27 +27,18 @@ import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.OnLifecycleEvent
 import androidx.preference.PreferenceManager
-import com.pyamsoft.fridge.butler.Butler
 import com.pyamsoft.fridge.db.store.NearbyStore
-import com.pyamsoft.fridge.db.store.NearbyStoreDeleteDao
-import com.pyamsoft.fridge.db.store.NearbyStoreInsertDao
-import com.pyamsoft.fridge.db.store.NearbyStoreQueryDao
-import com.pyamsoft.fridge.db.store.NearbyStoreRealtime
 import com.pyamsoft.fridge.db.zone.NearbyZone
-import com.pyamsoft.fridge.db.zone.NearbyZoneDeleteDao
-import com.pyamsoft.fridge.db.zone.NearbyZoneInsertDao
-import com.pyamsoft.fridge.db.zone.NearbyZoneQueryDao
-import com.pyamsoft.fridge.db.zone.NearbyZoneRealtime
 import com.pyamsoft.fridge.locator.map.R
+import com.pyamsoft.fridge.locator.map.osm.popup.store.StoreInfoComponent
 import com.pyamsoft.fridge.locator.map.osm.popup.store.StoreInfoWindow
+import com.pyamsoft.fridge.locator.map.osm.popup.zone.ZoneInfoComponent
 import com.pyamsoft.fridge.locator.map.osm.popup.zone.ZoneInfoWindow
 import com.pyamsoft.fridge.locator.map.osm.updatemanager.LocationUpdatePublisher
 import com.pyamsoft.fridge.locator.map.osm.updatemanager.LocationUpdateReceiver
 import com.pyamsoft.pydroid.arch.BaseUiView
-import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.ui.theme.ThemeProvider
 import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
-import javax.inject.Inject
 import org.osmdroid.config.Configuration
 import org.osmdroid.events.MapListener
 import org.osmdroid.events.ScrollEvent
@@ -64,25 +55,15 @@ import org.osmdroid.views.overlay.infowindow.InfoWindow
 import org.osmdroid.views.overlay.mylocation.GpsMyLocationProvider
 import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay
 import timber.log.Timber
+import javax.inject.Inject
 
 class OsmMap @Inject internal constructor(
     private val theming: ThemeProvider,
     private val owner: LifecycleOwner,
-    private val imageLoader: ImageLoader,
-    private val butler: Butler,
-
-    private val nearbyStoreRealtime: NearbyStoreRealtime,
-    private val nearbyStoreQueryDao: NearbyStoreQueryDao,
-    private val nearbyStoreInsertDao: NearbyStoreInsertDao,
-    private val nearbyStoreDeleteDao: NearbyStoreDeleteDao,
-
-    private val nearbyZoneRealtime: NearbyZoneRealtime,
-    private val nearbyZoneQueryDao: NearbyZoneQueryDao,
-    private val nearbyZoneInsertDao: NearbyZoneInsertDao,
-    private val nearbyZoneDeleteDao: NearbyZoneDeleteDao,
-
     private val locationUpdateReceiver: LocationUpdateReceiver,
     private val locationUpdatePublisher: LocationUpdatePublisher,
+    private val storeFactory: StoreInfoComponent.Factory,
+    private val zoneFactory: ZoneInfoComponent.Factory,
     parent: ViewGroup
 ) : BaseUiView<OsmViewState, OsmViewEvent>(parent), LifecycleObserver {
 
@@ -199,12 +180,7 @@ class OsmMap @Inject internal constructor(
                     locationUpdateReceiver,
                     zone,
                     map,
-                    butler,
-                    imageLoader,
-                    nearbyZoneRealtime,
-                    nearbyZoneQueryDao,
-                    nearbyZoneInsertDao,
-                    nearbyZoneDeleteDao
+                    zoneFactory
                 )
                 id = uid
                 title = zone.name()
@@ -251,12 +227,7 @@ class OsmMap @Inject internal constructor(
                     locationUpdateReceiver,
                     mark,
                     map,
-                    butler,
-                    imageLoader,
-                    nearbyStoreRealtime,
-                    nearbyStoreQueryDao,
-                    nearbyStoreInsertDao,
-                    nearbyStoreDeleteDao
+                    storeFactory
                 )
                 id = uid
                 position = GeoPoint(mark.latitude(), mark.longitude())

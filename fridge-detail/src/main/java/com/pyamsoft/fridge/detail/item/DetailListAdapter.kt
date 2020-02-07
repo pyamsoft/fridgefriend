@@ -26,16 +26,15 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.pyamsoft.fridge.db.item.JsonMappableFridgeItem
-import com.pyamsoft.fridge.detail.DetailItemComponentCreator
 import com.pyamsoft.fridge.detail.R
 import com.pyamsoft.fridge.detail.item.DetailListAdapter.DetailViewHolder
 import com.pyamsoft.pydroid.arch.ViewBinder
 
-internal class DetailListAdapter constructor(
+class DetailListAdapter constructor(
     private val owner: LifecycleOwner,
     private val editable: Boolean,
     private val callback: Callback,
-    private val componentCreator: DetailItemComponentCreator
+    private val factory: DetailItemComponent.Factory
 ) : ListAdapter<DetailListItemViewState, DetailViewHolder>(DIFFER) {
 
     override fun getItemViewType(position: Int): Int {
@@ -71,7 +70,7 @@ internal class DetailListAdapter constructor(
                 owner,
                 editable,
                 callback,
-                componentCreator
+                factory
             )
         }
     }
@@ -84,7 +83,7 @@ internal class DetailListAdapter constructor(
         holder.bind(item)
     }
 
-    internal abstract class DetailViewHolder protected constructor(
+    abstract class DetailViewHolder protected constructor(
         view: View
     ) : RecyclerView.ViewHolder(view), ViewBinder<DetailListItemViewState>
 

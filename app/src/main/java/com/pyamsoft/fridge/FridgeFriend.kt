@@ -22,8 +22,13 @@ import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.butler.Butler
 import com.pyamsoft.fridge.butler.injector.component.ButlerComponent
 import com.pyamsoft.fridge.butler.injector.component.InputButlerComponent
+import com.pyamsoft.fridge.category.CategoryListComponent
 import com.pyamsoft.fridge.core.Core
+import com.pyamsoft.fridge.detail.DetailListComponent
+import com.pyamsoft.fridge.detail.expand.ExpandItemCategoryListComponent
 import com.pyamsoft.fridge.locator.GeofenceUpdateReceiver
+import com.pyamsoft.fridge.locator.map.osm.popup.store.StoreInfoComponent
+import com.pyamsoft.fridge.locator.map.osm.popup.zone.ZoneInfoComponent
 import com.pyamsoft.fridge.main.MainActivity
 import com.pyamsoft.pydroid.bootstrap.libraries.OssLibraries
 import com.pyamsoft.pydroid.ui.PYDroid
@@ -121,7 +126,7 @@ class FridgeFriend : Application() {
 
     @CheckResult
     private fun getServiceFromComponent(name: String): Any? {
-        val dependency = provideWorkerDependencies(name)
+        val dependency = provideModuleDependencies(name)
         if (dependency != null) {
             return dependency
         }
@@ -130,10 +135,17 @@ class FridgeFriend : Application() {
     }
 
     @CheckResult
-    private fun provideWorkerDependencies(name: String): Any? {
+    private fun provideModuleDependencies(name: String): Any? {
+        // ===============================================
+        // HACKY INJECTORS see FridgeComponent
         return when (name) {
             ButlerComponent::class.java.name -> requireNotNull(component).plusButlerComponent()
             InputButlerComponent.Factory::class.java.name -> requireNotNull(component).plusInputButlerComponent()
+            CategoryListComponent.Factory::class.java.name -> requireNotNull(component).plusCategoryListComponent()
+            DetailListComponent.Factory::class.java.name -> requireNotNull(component).plusDetailListComponent()
+            ExpandItemCategoryListComponent.Factory::class.java.name -> requireNotNull(component).plusExpandCategoryListComponent()
+            StoreInfoComponent.Factory::class.java.name -> requireNotNull(component).plusStoreComponent()
+            ZoneInfoComponent.Factory::class.java.name -> requireNotNull(component).plusZoneComponent()
             else -> null
         }
     }

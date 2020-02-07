@@ -20,43 +20,28 @@ package com.pyamsoft.fridge.locator.map.osm.popup.store
 import android.view.ViewGroup
 import androidx.annotation.CheckResult
 import androidx.lifecycle.ViewModelProvider
-import com.pyamsoft.fridge.butler.Butler
+import com.pyamsoft.fridge.core.FridgeViewModelFactory
+import com.pyamsoft.fridge.core.ViewModelKey
 import com.pyamsoft.fridge.db.store.NearbyStore
-import com.pyamsoft.fridge.db.store.NearbyStoreDeleteDao
-import com.pyamsoft.fridge.db.store.NearbyStoreInsertDao
-import com.pyamsoft.fridge.db.store.NearbyStoreQueryDao
-import com.pyamsoft.fridge.db.store.NearbyStoreRealtime
-import com.pyamsoft.fridge.locator.map.osm.popup.PopupInfoScope
-import com.pyamsoft.fridge.locator.map.osm.popup.PopupViewModelFactory
-import com.pyamsoft.fridge.locator.map.osm.popup.ViewModelKey
-import com.pyamsoft.fridge.locator.map.osm.popup.store.StoreInfoComponent.ViewModelModule
 import com.pyamsoft.pydroid.arch.UiViewModel
-import com.pyamsoft.pydroid.loader.ImageLoader
 import dagger.Binds
 import dagger.BindsInstance
-import dagger.Component
 import dagger.Module
+import dagger.Subcomponent
 import dagger.multibindings.IntoMap
 
-@PopupInfoScope
-@Component(modules = [ViewModelModule::class])
-internal interface StoreInfoComponent {
+@Subcomponent(modules = [StoreInfoComponent.ViewModelModule::class])
+interface StoreInfoComponent {
 
     fun inject(infoWindow: StoreInfoWindow)
 
-    @Component.Factory
+    @Subcomponent.Factory
     interface Factory {
 
         @CheckResult
         fun create(
-            @BindsInstance parent: ViewGroup,
-            @BindsInstance imageLoader: ImageLoader,
             @BindsInstance store: NearbyStore,
-            @BindsInstance butler: Butler,
-            @BindsInstance nearbyStoreRealtime: NearbyStoreRealtime,
-            @BindsInstance nearbyStoreQueryDao: NearbyStoreQueryDao,
-            @BindsInstance nearbyStoreInsertDao: NearbyStoreInsertDao,
-            @BindsInstance nearbyStoreDeleteDao: NearbyStoreDeleteDao
+            @BindsInstance parent: ViewGroup
         ): StoreInfoComponent
     }
 
@@ -64,7 +49,7 @@ internal interface StoreInfoComponent {
     abstract class ViewModelModule {
 
         @Binds
-        internal abstract fun bindViewModelFactory(factory: PopupViewModelFactory): ViewModelProvider.Factory
+        internal abstract fun bindViewModelFactory(factory: FridgeViewModelFactory): ViewModelProvider.Factory
 
         @Binds
         @IntoMap
