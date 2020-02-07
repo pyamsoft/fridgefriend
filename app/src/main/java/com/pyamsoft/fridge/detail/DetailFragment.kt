@@ -56,7 +56,7 @@ internal class DetailFragment : Fragment(), SnackbarContainer {
 
     @JvmField
     @Inject
-    internal var background: DetailBackground? = null
+    internal var heroImage: DetailHeroImage? = null
 
     @JvmField
     @Inject
@@ -112,12 +112,12 @@ internal class DetailFragment : Fragment(), SnackbarContainer {
 
         val container = requireNotNull(container)
         val addNew = requireNotNull(addNew)
-        val background = requireNotNull(background)
+        val heroImage = requireNotNull(heroImage)
 
         stateSaver = createComponent(
             savedInstanceState, viewLifecycleOwner,
             viewModel,
-            background,
+            heroImage,
             container,
             addNew
         ) {
@@ -148,7 +148,7 @@ internal class DetailFragment : Fragment(), SnackbarContainer {
 
         rootView = null
         factory = null
-        background = null
+        heroImage = null
         container = null
         addNew = null
         stateSaver = null

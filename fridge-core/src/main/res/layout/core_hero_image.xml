@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <!--
-  ~ Copyright 2019 Peter Kenji Yamanaka
+  ~ Copyright 2020 Peter Kenji Yamanaka
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -20,20 +20,20 @@
 <merge xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <com.google.android.material.appbar.AppBarLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        android:id="@+id/detail_background_root"
+        android:id="@+id/core_hero_root"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="?android:attr/windowBackground">
 
         <com.google.android.material.appbar.CollapsingToolbarLayout
-            android:id="@+id/detail_background_collapse"
+            android:id="@+id/core_hero_collapse"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             app:contentScrim="?android:attr/windowBackground"
             app:layout_scrollFlags="scroll|enterAlwaysCollapsed">
 
             <ImageView
-                android:id="@+id/detail_background_image"
+                android:id="@+id/core_hero_image"
                 android:layout_width="160dp"
                 android:layout_height="160dp"
                 android:layout_gravity="center"
@@ -44,7 +44,6 @@
         </com.google.android.material.appbar.CollapsingToolbarLayout>
 
     </com.google.android.material.appbar.AppBarLayout>
-
 
 </merge>
 

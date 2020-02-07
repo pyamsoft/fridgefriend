@@ -41,16 +41,20 @@ internal class CategoryFragment : Fragment(), SnackbarContainer {
 
     @JvmField
     @Inject
-    internal var theming: Theming? = null
+    internal var list: CategoryListView? = null
 
     @JvmField
     @Inject
-    internal var list: CategoryListView? = null
+    internal var heroImage: CategoryHeroImage? = null
 
     @JvmField
     @Inject
     internal var factory: ViewModelProvider.Factory? = null
     private val viewModel by factory<CategoryViewModel> { factory }
+
+    @JvmField
+    @Inject
+    internal var theming: Theming? = null
 
     private var stateSaver: StateSaver? = null
 
@@ -86,10 +90,12 @@ internal class CategoryFragment : Fragment(), SnackbarContainer {
             .inject(this)
 
         val list = requireNotNull(list)
+        val heroImage = requireNotNull(heroImage)
         stateSaver = createComponent(
             savedInstanceState,
             viewLifecycleOwner,
             viewModel,
+            heroImage,
             list
         ) {
             // TODO
