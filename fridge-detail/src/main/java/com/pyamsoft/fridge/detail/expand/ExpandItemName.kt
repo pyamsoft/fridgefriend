@@ -21,10 +21,9 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.view.ViewGroup
 import androidx.annotation.CheckResult
-import androidx.core.view.isVisible
 import com.pyamsoft.fridge.detail.base.BaseItemName
-import javax.inject.Inject
 import timber.log.Timber
+import javax.inject.Inject
 
 class ExpandItemName @Inject internal constructor(
     parent: ViewGroup
@@ -61,9 +60,7 @@ class ExpandItemName @Inject internal constructor(
         popupWindow.set(if (nameView.isFocused) state.similarItems else emptyList())
 
         state.item.let { item ->
-            if (item == null) {
-                nameView.isVisible = false
-            } else {
+            if (item != null) {
                 if (firstRender) {
                     firstRender = false
                     setName(item)

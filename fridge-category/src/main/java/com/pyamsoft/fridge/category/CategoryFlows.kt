@@ -18,19 +18,21 @@
 package com.pyamsoft.fridge.category
 
 import com.pyamsoft.fridge.db.category.FridgeCategory
+import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.pydroid.arch.UiControllerEvent
 import com.pyamsoft.pydroid.arch.UiViewEvent
 import com.pyamsoft.pydroid.arch.UiViewState
 
 data class CategoryViewState(
-    val largeCategories: List<FridgeCategory>,
-    val smallCategories: List<FridgeCategory>
-) : UiViewState
+    val categories: List<CategoryItemsPairing>
+) : UiViewState {
 
-sealed class CategoryViewEvent : UiViewEvent {
-
-    // Because we must post to small adapter, we need to delay data fetch
-    object ViewReadyForData : CategoryViewEvent()
+    data class CategoryItemsPairing internal constructor(
+        val category: FridgeCategory,
+        val items: List<FridgeItem>
+    )
 }
+
+sealed class CategoryViewEvent : UiViewEvent
 
 sealed class CategoryControllerEvent : UiControllerEvent

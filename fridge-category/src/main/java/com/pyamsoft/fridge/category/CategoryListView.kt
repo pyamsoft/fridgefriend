@@ -20,12 +20,11 @@ package com.pyamsoft.fridge.category
 import android.view.ViewGroup
 import androidx.annotation.CheckResult
 import androidx.lifecycle.LifecycleOwner
-import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.StaggeredGridLayoutManager
+import com.pyamsoft.fridge.category.item.CategoryAdapter
 import com.pyamsoft.fridge.category.item.CategoryItemComponent
 import com.pyamsoft.fridge.category.item.CategoryItemViewState
-import com.pyamsoft.fridge.category.item.LargeCategoryAdapter
-import com.pyamsoft.fridge.category.item.SmallCategoryAdapter
 import com.pyamsoft.pydroid.arch.BaseUiView
 import javax.inject.Inject
 
@@ -37,170 +36,49 @@ class CategoryListView @Inject internal constructor(
 
     override val layout: Int = R.layout.category_list_view
 
-    override val layoutRoot by boundView<ViewGroup>(R.id.category_list_root)
-    private val largeList by boundView<RecyclerView>(R.id.category_list_large)
-    private val smallList by boundView<RecyclerView>(R.id.category_list_small)
+    override val layoutRoot by boundView<RecyclerView>(R.id.category_list)
 
-    private val scrollRatio by lazy(LazyThreadSafetyMode.NONE) {
-        val resources = parent.context.applicationContext.resources
-        val largeSize = resources.getDimension(R.dimen.list_item_large)
-        val smallSize = resources.getDimension(R.dimen.list_item_small)
-        largeSize / smallSize
-    }
-
-    private var largeAdapter: LargeCategoryAdapter? = null
-    private var smallAdapter: SmallCategoryAdapter? = null
-
-    private var isLargeListScrollRegistered = false
-    private var isSmallListScrollRegistered = false
-
-    private val largeListScrollListener = object : RecyclerView.OnScrollListener() {
-
-        override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
-            // Once the scroll on the large state is done, re-register the small listener
-            if (newState == RecyclerView.SCROLL_STATE_IDLE) {
-                registerSmallListScrollListener()
-            } else {
-                // Otherwise, unregister the small listener
-                unregisterSmallListScrollListener()
-            }
-        }
-
-        override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-            // Scale scrolls on the large list down to the small ratio
-            val smallDy = (dy.toFloat() / scrollRatio).toInt()
-            smallList.scrollBy(0, smallDy)
-        }
-    }
-
-    private val smallListScrollListener = object : RecyclerView.OnScrollListener() {
-
-        override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
-            // Once the scroll on the small state is done, re-register the large listener
-            if (newState == RecyclerView.SCROLL_STATE_IDLE) {
-                registerLargeListScrollListener()
-            } else {
-                // Otherwise, unregister the large listener
-                unregisterLargeListScrollListener()
-            }
-        }
-
-        override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-            // Scale scrolls on the large list down to the small ratio
-            val smallDy = (dy.toFloat() * scrollRatio).toInt()
-            largeList.scrollBy(0, smallDy)
-        }
-    }
+    private var modelAdapter: CategoryAdapter? = null
 
     init {
         doOnInflate {
-            largeList.layoutManager = LinearLayoutManager(largeList.context).apply {
-                isItemPrefetchEnabled = true
-                initialPrefetchItemCount = 3
-            }
+            layoutRoot.layoutManager =
+                StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL).apply {
+                    isItemPrefetchEnabled = true
+                }
 
-            val a = LargeCategoryAdapter(owner, factory)
-            largeAdapter = a
-            largeList.adapter = a
-
-            registerLargeListScrollListener()
-        }
-
-        doOnInflate {
-            smallList.layoutManager = LinearLayoutManager(smallList.context).apply {
-                isItemPrefetchEnabled = true
-                initialPrefetchItemCount = 3
-            }
-
-            // Wait for post() to finish so that we are guaranteed the smallList view is measured.
-            smallList.post {
-                val a = SmallCategoryAdapter(smallList.height, owner, factory)
-                smallAdapter = a
-                smallList.adapter = a
-
-                registerSmallListScrollListener()
-                publish(CategoryViewEvent.ViewReadyForData)
-            }
+            modelAdapter = CategoryAdapter(owner, factory)
+            layoutRoot.adapter = usingAdapter().apply { setHasStableIds(true) }
+            layoutRoot.setHasFixedSize(true)
         }
 
         doOnTeardown {
-            unregisterLargeListScrollListener()
-            unregisterSmallListScrollListener()
-        }
+            clearList()
 
-        doOnTeardown {
-            clearLists()
-
-            largeAdapter = null
-            smallAdapter = null
+            modelAdapter = null
         }
     }
 
-    private fun clearLists() {
-        clearLargeList()
-        clearSmallList()
-    }
-
-    private fun clearLargeList() {
-        largeAdapter?.submitList(null)
-    }
-
-    private fun clearSmallList() {
-        smallAdapter?.submitList(null)
+    private fun clearList() {
+        modelAdapter?.submitList(null)
     }
 
     @CheckResult
-    private fun usingLargeAdapter(): LargeCategoryAdapter {
-        return requireNotNull(largeAdapter)
-    }
-
-    @CheckResult
-    private fun usingSmallAdapter(): SmallCategoryAdapter {
-        return requireNotNull(smallAdapter)
-    }
-
-    private fun registerLargeListScrollListener() {
-        if (!isLargeListScrollRegistered) {
-            isLargeListScrollRegistered = true
-            largeList.addOnScrollListener(largeListScrollListener)
-        }
-    }
-
-    private fun unregisterLargeListScrollListener() {
-        if (isLargeListScrollRegistered) {
-            isLargeListScrollRegistered = false
-            largeList.removeOnScrollListener(largeListScrollListener)
-        }
-    }
-
-    private fun registerSmallListScrollListener() {
-        if (!isSmallListScrollRegistered) {
-            isSmallListScrollRegistered = true
-            smallList.addOnScrollListener(smallListScrollListener)
-        }
-    }
-
-    private fun unregisterSmallListScrollListener() {
-        if (isSmallListScrollRegistered) {
-            isSmallListScrollRegistered = false
-            smallList.removeOnScrollListener(smallListScrollListener)
-        }
+    private fun usingAdapter(): CategoryAdapter {
+        return requireNotNull(modelAdapter)
     }
 
     override fun onRender(state: CategoryViewState) {
-        state.largeCategories.let { categories ->
+        state.categories.let { categories ->
             if (categories.isEmpty()) {
-                clearLargeList()
+                clearList()
             } else {
-                usingLargeAdapter().submitList(categories.map { CategoryItemViewState(it) })
-            }
-        }
-
-        state.smallCategories.let { categories ->
-            if (categories.isEmpty()) {
-                clearSmallList()
-            } else {
-                usingSmallAdapter().submitList(categories.map { CategoryItemViewState(it) })
+                usingAdapter().submitList(categories.map { pairing ->
+                    CategoryItemViewState(
+                        pairing.category,
+                        pairing.items.asSequence().map { it.count() }.sum()
+                    )
+                })
             }
         }
     }

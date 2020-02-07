@@ -25,9 +25,7 @@ import dagger.Subcomponent
 @Subcomponent
 interface CategoryItemComponent {
 
-    fun inject(holder: LargeCategoryAdapter.LargeViewHolder)
-
-    fun inject(holder: SmallCategoryAdapter.SmallViewHolder)
+    fun inject(holder: CategoryViewHolder)
 
     @Subcomponent.Factory
     interface Factory {

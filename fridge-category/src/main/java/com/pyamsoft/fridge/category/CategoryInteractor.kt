@@ -20,6 +20,8 @@ package com.pyamsoft.fridge.category
 import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.db.category.FridgeCategory
 import com.pyamsoft.fridge.db.category.FridgeCategoryQueryDao
+import com.pyamsoft.fridge.db.item.FridgeItem
+import com.pyamsoft.fridge.db.item.FridgeItemQueryDao
 import com.pyamsoft.fridge.db.persist.PersistentCategories
 import com.pyamsoft.pydroid.core.Enforcer
 import javax.inject.Inject
@@ -27,32 +29,35 @@ import javax.inject.Inject
 class CategoryInteractor @Inject internal constructor(
     private val enforcer: Enforcer,
     private val persistentCategories: PersistentCategories,
-    private val categoryQueryDao: FridgeCategoryQueryDao
+    private val categoryQueryDao: FridgeCategoryQueryDao,
+    private val itemQueryDao: FridgeItemQueryDao
 ) {
 
     @CheckResult
-    private suspend fun loadAllCategories(): List<FridgeCategory> {
+    private suspend fun loadFridgeCategories(): List<FridgeCategory> {
         enforcer.assertNotOnMainThread()
         persistentCategories.guaranteePersistentCategoriesCreated()
         return categoryQueryDao.query(false)
     }
 
-    // Large categories gets all list items
     @CheckResult
-    suspend fun loadLargeCategories(): List<FridgeCategory> {
-        // Empty map just so that we duplicate the list to avoid another function
-        // tainting the backing data
-        return loadAllCategories().map { it }
+    private suspend fun loadFridgeItems(): List<FridgeItem> {
+        enforcer.assertNotOnMainThread()
+        return itemQueryDao.query(false)
     }
 
-    // Small categories gets all list items, except the first one
-    // which is large only
-    // AND
-    // we add a fake placeholder item to the end of the list
     @CheckResult
-    suspend fun loadSmallCategories(): List<FridgeCategory> {
-        val allCategories = loadAllCategories()
-        val withoutFirstIndex = allCategories.filterIndexed { index, _ -> index > 0 }
-        return withoutFirstIndex + listOf(FridgeCategory.empty())
+    suspend fun loadCategories(): List<CategoryViewState.CategoryItemsPairing> {
+        val categories = loadFridgeCategories()
+        val items = loadFridgeItems()
+        return categories.map { category ->
+            CategoryViewState.CategoryItemsPairing(
+                category,
+                items.asSequence()
+                    .filterNot { it.categoryId() == null }
+                    .filter { it.categoryId() == category.id() }
+                    .toList()
+            )
+        }
     }
 }

@@ -46,7 +46,7 @@ class ExpandItemSimilar @Inject internal constructor(
 
     private fun clear() {
         message.isVisible = false
-        message.text = ""
+        message.text = null
     }
 
     override fun onRender(state: ExpandItemViewState) {
@@ -55,9 +55,7 @@ class ExpandItemSimilar @Inject internal constructor(
                 clear()
             } else {
                 state.item.let { item ->
-                    if (item == null) {
-                        message.isVisible = false
-                    } else {
+                    if (item != null) {
                         val name = item.name().trim()
                         message.isVisible = true
                         message.text = "You already have at least one '$name', do you need another?"

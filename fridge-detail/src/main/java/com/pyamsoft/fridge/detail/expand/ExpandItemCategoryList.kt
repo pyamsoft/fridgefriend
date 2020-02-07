@@ -65,6 +65,7 @@ class ExpandItemCategoryList @Inject internal constructor(
                     }
                 })
             layoutRoot.adapter = usingAdapter().apply { setHasStableIds(true) }
+            layoutRoot.setHasFixedSize(true)
         }
 
         doOnTeardown {

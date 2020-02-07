@@ -17,13 +17,43 @@
 
 package com.pyamsoft.fridge.category.item
 
+import android.view.LayoutInflater
+import android.view.ViewGroup
+import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
+import com.pyamsoft.fridge.category.R
 
-abstract class CategoryAdapter<VH : CategoryViewHolder> protected constructor() :
-    ListAdapter<CategoryItemViewState, VH>(DIFFER) {
+class CategoryAdapter internal constructor(
+    private val owner: LifecycleOwner,
+    private val factory: CategoryItemComponent.Factory
+) : ListAdapter<CategoryItemViewState, CategoryViewHolder>(DIFFER) {
 
-    final override fun onBindViewHolder(holder: VH, position: Int) {
+    override fun getItemViewType(position: Int): Int {
+        val item = getItem(position)
+        return when {
+            item.itemCount <= 0 -> VIEW_TYPE_SMALL
+            item.itemCount <= 5 -> VIEW_TYPE_MEDIUM
+            else -> VIEW_TYPE_LARGE
+        }
+    }
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CategoryViewHolder {
+        val inflater = LayoutInflater.from(parent.context)
+        val layoutId = when (viewType) {
+            VIEW_TYPE_SMALL -> R.layout.category_item_holder_small
+            VIEW_TYPE_MEDIUM -> R.layout.category_item_holder_medium
+            else -> R.layout.category_item_holder_large
+        }
+        val view = inflater.inflate(layoutId, parent, false)
+        return CategoryViewHolder(
+            view,
+            owner,
+            factory
+        )
+    }
+
+    override fun onBindViewHolder(holder: CategoryViewHolder, position: Int) {
         val state = getItem(position)
         holder.bind(state)
     }
@@ -45,5 +75,9 @@ abstract class CategoryAdapter<VH : CategoryViewHolder> protected constructor() 
                 return oldItem == newItem
             }
         }
+
+        private const val VIEW_TYPE_LARGE = 0
+        private const val VIEW_TYPE_MEDIUM = 1
+        private const val VIEW_TYPE_SMALL = 2
     }
 }

@@ -21,7 +21,6 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.view.ViewGroup
 import androidx.annotation.CheckResult
-import androidx.core.view.isVisible
 import com.pyamsoft.fridge.detail.base.BaseItemCount
 import javax.inject.Inject
 
@@ -39,9 +38,7 @@ class ExpandItemCount @Inject internal constructor(
 
     override fun onRender(state: ExpandItemViewState) {
         state.item.let { item ->
-            if (item == null) {
-                countView.isVisible = false
-            } else {
+            if (item != null) {
                 if (firstRender) {
                     firstRender = false
                     setCount(item)

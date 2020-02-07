@@ -18,11 +18,73 @@
 package com.pyamsoft.fridge.category.item
 
 import android.view.View
+import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.constraintlayout.widget.ConstraintSet
+import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.RecyclerView
+import com.pyamsoft.fridge.category.R
+import com.pyamsoft.pydroid.arch.ViewBinder
+import com.pyamsoft.pydroid.arch.bindViews
+import com.pyamsoft.pydroid.ui.util.layout
+import javax.inject.Inject
 
-abstract class CategoryViewHolder protected constructor(
-    itemView: View
+class CategoryViewHolder internal constructor(
+    itemView: View,
+    owner: LifecycleOwner,
+    factory: CategoryItemComponent.Factory
 ) : RecyclerView.ViewHolder(itemView) {
 
-    abstract fun bind(state: CategoryItemViewState)
+    private var viewBinder: ViewBinder<CategoryItemViewState>
+
+    @Inject
+    @JvmField
+    internal var background: CategoryBackground? = null
+
+    init {
+        val parent = itemView.findViewById<ConstraintLayout>(R.id.category_holder)
+
+        // Needs a small amount of margin so the staggered grid effect works
+        factory.create(parent).inject(this)
+
+        val background = requireNotNull(background)
+        viewBinder = bindViews(
+            owner,
+            background
+        ) {
+            // TODO
+        }
+
+        parent.layout {
+            background.also {
+                connect(
+                    it.id(),
+                    ConstraintSet.TOP,
+                    ConstraintSet.PARENT_ID,
+                    ConstraintSet.TOP
+                )
+                connect(
+                    it.id(),
+                    ConstraintSet.START,
+                    ConstraintSet.PARENT_ID,
+                    ConstraintSet.START
+                )
+                connect(
+                    it.id(),
+                    ConstraintSet.END,
+                    ConstraintSet.PARENT_ID,
+                    ConstraintSet.END
+                )
+                connect(
+                    it.id(),
+                    ConstraintSet.BOTTOM,
+                    ConstraintSet.PARENT_ID,
+                    ConstraintSet.BOTTOM
+                )
+            }
+        }
+    }
+
+    fun bind(state: CategoryItemViewState) {
+        viewBinder.bind(state)
+    }
 }

@@ -51,7 +51,6 @@ abstract class BaseItemCount<S : UiViewState, V : UiViewEvent> protected constru
     protected fun setCount(item: FridgeItem) {
         val count = item.count()
         val countText = if (count > 0) "$count" else ""
-        countView.isVisible = true
         countView.setTextKeepState(countText)
     }
 }

@@ -82,6 +82,7 @@ class DetailList @Inject internal constructor(
                     }
                 })
             recyclerView.adapter = usingAdapter().apply { setHasStableIds(true) }
+            recyclerView.setHasFixedSize(true)
         }
 
         doOnInflate {

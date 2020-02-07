@@ -22,7 +22,8 @@ import com.pyamsoft.pydroid.arch.UiViewEvent
 import com.pyamsoft.pydroid.arch.UiViewState
 
 data class CategoryItemViewState(
-    val category: FridgeCategory
+    val category: FridgeCategory,
+    val itemCount: Int
 ) : UiViewState
 
 sealed class CategoryItemViewEvent : UiViewEvent

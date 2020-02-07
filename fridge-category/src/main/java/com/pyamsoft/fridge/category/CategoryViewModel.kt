@@ -27,26 +27,19 @@ class CategoryViewModel @Inject internal constructor(
     private val interactor: CategoryInteractor
 ) : UiViewModel<CategoryViewState, CategoryViewEvent, CategoryControllerEvent>(
     initialState = CategoryViewState(
-        largeCategories = emptyList(),
-        smallCategories = emptyList()
+        categories = emptyList()
     )
 ) {
 
-    override fun handleViewEvent(event: CategoryViewEvent) {
-        return when (event) {
-            is CategoryViewEvent.ViewReadyForData -> fetchData()
+    init {
+        doOnInit {
+            viewModelScope.launch(context = Dispatchers.Default) {
+                val categories = interactor.loadCategories()
+                setState { copy(categories = categories) }
+            }
         }
     }
 
-    private fun fetchData() {
-        viewModelScope.launch(context = Dispatchers.Default) {
-            val largeList = interactor.loadLargeCategories()
-            setState { copy(largeCategories = largeList) }
-        }
-
-        viewModelScope.launch(context = Dispatchers.Default) {
-            val smallList = interactor.loadSmallCategories()
-            setState { copy(smallCategories = smallList) }
-        }
+    override fun handleViewEvent(event: CategoryViewEvent) {
     }
 }

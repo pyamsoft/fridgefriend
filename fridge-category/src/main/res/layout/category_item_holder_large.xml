@@ -16,6 +16,6 @@
   -->
 
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/category_small_holder"
+    android:id="@+id/category_holder"
     android:layout_width="match_parent"
-    android:layout_height="@dimen/list_item_small" />
+    android:layout_height="360dp" />

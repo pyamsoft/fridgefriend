@@ -158,7 +158,6 @@ internal class ExpandedFragment : DialogFragment() {
                 connect(it.id(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
                 connect(it.id(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
                 constrainWidth(it.id(), ConstraintSet.MATCH_CONSTRAINT)
-                constrainHeight(it.id(), ConstraintSet.WRAP_CONTENT)
             }
 
             shadow.also {
@@ -184,26 +183,24 @@ internal class ExpandedFragment : DialogFragment() {
                 constrainHeight(it.id(), ConstraintSet.WRAP_CONTENT)
             }
 
-            val topId = sameNamedItems.id()
-            val nameId = name.id()
             presence.also {
-                connect(it.id(), ConstraintSet.TOP, topId, ConstraintSet.BOTTOM)
-                connect(it.id(), ConstraintSet.BOTTOM, nameId, ConstraintSet.BOTTOM)
+                connect(it.id(), ConstraintSet.TOP, sameNamedItems.id(), ConstraintSet.BOTTOM)
+                connect(it.id(), ConstraintSet.BOTTOM, name.id(), ConstraintSet.BOTTOM)
                 connect(it.id(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
                 constrainWidth(it.id(), ConstraintSet.WRAP_CONTENT)
                 constrainHeight(it.id(), ConstraintSet.WRAP_CONTENT)
             }
 
             date.also {
-                connect(it.id(), ConstraintSet.TOP, topId, ConstraintSet.BOTTOM)
-                connect(it.id(), ConstraintSet.BOTTOM, nameId, ConstraintSet.BOTTOM)
+                connect(it.id(), ConstraintSet.TOP, sameNamedItems.id(), ConstraintSet.BOTTOM)
+                connect(it.id(), ConstraintSet.BOTTOM, name.id(), ConstraintSet.BOTTOM)
                 connect(it.id(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
                 constrainWidth(it.id(), ConstraintSet.WRAP_CONTENT)
                 constrainHeight(it.id(), ConstraintSet.WRAP_CONTENT)
             }
 
             name.also {
-                connect(it.id(), ConstraintSet.TOP, topId, ConstraintSet.BOTTOM)
+                connect(it.id(), ConstraintSet.TOP, sameNamedItems.id(), ConstraintSet.BOTTOM)
                 connect(it.id(), ConstraintSet.START, presence.id(), ConstraintSet.END)
                 connect(it.id(), ConstraintSet.END, date.id(), ConstraintSet.START)
                 constrainWidth(it.id(), ConstraintSet.MATCH_CONSTRAINT)
@@ -223,12 +220,6 @@ internal class ExpandedFragment : DialogFragment() {
                 connect(it.id(), ConstraintSet.TOP, count.id(), ConstraintSet.BOTTOM)
                 connect(it.id(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
                 connect(it.id(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
-                connect(
-                    it.id(),
-                    ConstraintSet.BOTTOM,
-                    ConstraintSet.PARENT_ID,
-                    ConstraintSet.BOTTOM
-                )
 
                 constrainWidth(it.id(), ConstraintSet.MATCH_CONSTRAINT)
             }
