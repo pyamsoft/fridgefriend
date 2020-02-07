@@ -47,8 +47,8 @@ class DetailBackground @Inject internal constructor(
             collapse.doOnApplyWindowInsets { v, insets, padding ->
                 val toolbarTopMargin = padding.top + insets.systemWindowInsetTop
                 v.context.withStyledAttributes(
-                    R.attr.toolbarStyle,
-                    intArrayOf(R.attr.actionBarSize)
+                    com.pyamsoft.fridge.core.R.attr.toolbarStyle,
+                    intArrayOf(com.pyamsoft.fridge.core.R.attr.actionBarSize)
                 ) {
                     val sizeId = getResourceId(0, 0)
                     if (sizeId != 0) {

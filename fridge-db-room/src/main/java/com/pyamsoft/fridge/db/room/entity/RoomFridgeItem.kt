@@ -37,37 +37,49 @@ import java.util.Date
     )]
 )
 internal data class RoomFridgeItem internal constructor(
-    @field:[PrimaryKey ColumnInfo(name = COLUMN_ID)]
+    @JvmField
+    @PrimaryKey
+    @ColumnInfo(name = COLUMN_ID)
     val id: String,
 
-    @field:ColumnInfo(name = COLUMN_ENTRY_ID, index = true)
+    @JvmField
+    @ColumnInfo(name = COLUMN_ENTRY_ID, index = true)
     val entryId: String,
 
-    @field:ColumnInfo(name = COLUMN_NAME)
+    @JvmField
+    @ColumnInfo(name = COLUMN_NAME)
     val name: String,
 
-    @field:ColumnInfo(name = COLUMN_COUNT)
+    @JvmField
+    @ColumnInfo(name = COLUMN_COUNT)
     val count: Int,
 
-    @field:ColumnInfo(name = COLUMN_CREATED_TIME)
+    @JvmField
+    @ColumnInfo(name = COLUMN_CREATED_TIME)
     val createdTime: Date,
 
-    @field:ColumnInfo(name = COLUMN_PURCHASE_TIME)
+    @JvmField
+    @ColumnInfo(name = COLUMN_PURCHASE_TIME)
     val purchaseTime: Date?,
 
-    @field:ColumnInfo(name = COLUMN_EXPIRE_TIME)
+    @JvmField
+    @ColumnInfo(name = COLUMN_EXPIRE_TIME)
     val expireTime: Date?,
 
-    @field:ColumnInfo(name = COLUMN_PRESENCE)
+    @JvmField
+    @ColumnInfo(name = COLUMN_PRESENCE)
     val presence: Presence,
 
-    @field:ColumnInfo(name = COLUMN_CONSUMED)
+    @JvmField
+    @ColumnInfo(name = COLUMN_CONSUMED)
     val consumedTime: Date?,
 
-    @field:ColumnInfo(name = COLUMN_SPOILED)
+    @JvmField
+    @ColumnInfo(name = COLUMN_SPOILED)
     val spoiledTime: Date?,
 
-    @field:ColumnInfo(name = COLUMN_CATEGORY)
+    @JvmField
+    @ColumnInfo(name = COLUMN_CATEGORY)
     val categoryId: String?
 ) : FridgeItem {
 

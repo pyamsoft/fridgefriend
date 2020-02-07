@@ -1,4 +1,6 @@
-<?xml version="1.0" encoding="utf-8"?><!--
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
   ~ Copyright 2020 Peter Kenji Yamanaka
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,7 +17,14 @@
   ~
   -->
 
-<resources>
-    <dimen name="list_item_large">240dp</dimen>
-    <dimen name="list_item_small">80dp</dimen>
-</resources>
+<merge>
+
+    <ImageView xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/category_background_image"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:contentDescription="@string/blank"
+        android:scaleType="centerCrop" />
+
+</merge>
+

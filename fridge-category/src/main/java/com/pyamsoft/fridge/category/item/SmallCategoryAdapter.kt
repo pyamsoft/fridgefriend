@@ -21,53 +21,94 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.view.updateLayoutParams
+import androidx.lifecycle.LifecycleOwner
 import com.pyamsoft.fridge.category.R
+import com.pyamsoft.pydroid.arch.ViewBinder
+import com.pyamsoft.pydroid.arch.bindViews
+import com.pyamsoft.pydroid.ui.util.layout
+import javax.inject.Inject
 
 class SmallCategoryAdapter internal constructor(
     private val containerHeight: Int,
+    private val owner: LifecycleOwner,
     private val factory: CategoryItemComponent.Factory
-) : CategoryAdapter<SmallCategoryAdapter.SmallViewHolder>() {
+) : CategoryAdapter<SmallCategoryAdapter.BaseViewHolder>() {
 
     override fun getItemViewType(position: Int): Int {
         // Final item in the list is a placeholder
         return if (position >= itemCount - 1) VIEW_TYPE_PLACEHOLDER else VIEW_TYPE_ITEM
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SmallViewHolder {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BaseViewHolder {
         val inflater = LayoutInflater.from(parent.context)
         return if (viewType == VIEW_TYPE_PLACEHOLDER) {
             val view = inflater.inflate(R.layout.category_placeholder_holder, parent, false)
             PlaceholderViewHolder(view, containerHeight)
         } else {
             val view = inflater.inflate(R.layout.category_small_holder, parent, false)
-            ContentViewHolder(view, factory)
+            SmallViewHolder(view, owner, factory)
         }
     }
 
-    abstract class SmallViewHolder protected constructor(
+    abstract class BaseViewHolder protected constructor(
         itemView: View
     ) : CategoryViewHolder(itemView)
 
-    private class ContentViewHolder internal constructor(
+    class SmallViewHolder internal constructor(
         itemView: View,
+        owner: LifecycleOwner,
         factory: CategoryItemComponent.Factory
-    ) : SmallViewHolder(itemView) {
+    ) : BaseViewHolder(itemView) {
+
+        private var viewBinder: ViewBinder<CategoryItemViewState>
+
+        @Inject
+        @JvmField
+        internal var background: CategoryBackground? = null
 
         init {
             val parent = itemView.findViewById<ConstraintLayout>(R.id.category_small_holder)
             factory.create(parent).inject(this)
+
+            val background = requireNotNull(background)
+            viewBinder = bindViews(
+                owner,
+                background
+            ) {
+                // TODO
+            }
+
+            parent.layout {
+                background.also {
+                    connect(it.id(), ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP)
+                    connect(
+                        it.id(),
+                        ConstraintSet.START,
+                        ConstraintSet.PARENT_ID,
+                        ConstraintSet.START
+                    )
+                    connect(it.id(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
+                    connect(
+                        it.id(),
+                        ConstraintSet.BOTTOM,
+                        ConstraintSet.PARENT_ID,
+                        ConstraintSet.BOTTOM
+                    )
+                }
+            }
         }
 
         override fun bind(state: CategoryItemViewState) {
-            TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+            viewBinder.bind(state)
         }
     }
 
     private class PlaceholderViewHolder internal constructor(
         itemView: View,
         containerHeight: Int
-    ) : SmallViewHolder(itemView) {
+    ) : BaseViewHolder(itemView) {
 
         init {
             // Set the placeholder to be the size of the container

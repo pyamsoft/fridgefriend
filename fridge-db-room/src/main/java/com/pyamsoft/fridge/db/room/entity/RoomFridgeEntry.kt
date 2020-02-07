@@ -27,13 +27,17 @@ import java.util.Date
 
 @Entity(tableName = RoomFridgeEntry.TABLE_NAME)
 internal data class RoomFridgeEntry internal constructor(
-    @field:[PrimaryKey ColumnInfo(name = COLUMN_ID)]
+    @JvmField
+    @PrimaryKey
+    @ColumnInfo(name = COLUMN_ID)
     val id: String,
 
-    @field:ColumnInfo(name = COLUMN_NAME)
+    @JvmField
+    @ColumnInfo(name = COLUMN_NAME)
     val name: String,
 
-    @field:ColumnInfo(name = COLUMN_CREATED_TIME)
+    @JvmField
+    @ColumnInfo(name = COLUMN_CREATED_TIME)
     val createdTime: Date
 ) : FridgeEntry {
 

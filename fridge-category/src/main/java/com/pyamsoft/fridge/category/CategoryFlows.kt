@@ -27,6 +27,10 @@ data class CategoryViewState(
     val smallCategories: List<FridgeCategory>
 ) : UiViewState
 
-sealed class CategoryViewEvent : UiViewEvent
+sealed class CategoryViewEvent : UiViewEvent {
+
+    // Because we must post to small adapter, we need to delay data fetch
+    object ViewReadyForData : CategoryViewEvent()
+}
 
 sealed class CategoryControllerEvent : UiControllerEvent

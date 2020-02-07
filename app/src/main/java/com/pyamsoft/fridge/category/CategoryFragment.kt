@@ -81,6 +81,7 @@ internal class CategoryFragment : Fragment(), SnackbarContainer {
             .plusCategoryComponent()
             .create(
                 parent,
+                viewLifecycleOwner,
                 ThemeProvider { requireNotNull(theming).isDarkTheme(requireActivity()) })
             .inject(this)
 

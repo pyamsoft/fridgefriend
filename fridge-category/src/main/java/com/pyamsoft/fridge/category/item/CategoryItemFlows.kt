@@ -18,7 +18,11 @@
 package com.pyamsoft.fridge.category.item
 
 import com.pyamsoft.fridge.db.category.FridgeCategory
+import com.pyamsoft.pydroid.arch.UiViewEvent
+import com.pyamsoft.pydroid.arch.UiViewState
 
 data class CategoryItemViewState(
     val category: FridgeCategory
-)
+) : UiViewState
+
+sealed class CategoryItemViewEvent : UiViewEvent

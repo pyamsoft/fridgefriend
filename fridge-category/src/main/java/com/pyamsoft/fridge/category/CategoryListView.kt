@@ -19,6 +19,7 @@ package com.pyamsoft.fridge.category
 
 import android.view.ViewGroup
 import androidx.annotation.CheckResult
+import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.pyamsoft.fridge.category.item.CategoryItemComponent
@@ -29,7 +30,8 @@ import com.pyamsoft.pydroid.arch.BaseUiView
 import javax.inject.Inject
 
 class CategoryListView @Inject internal constructor(
-    private val factory: CategoryItemComponent.Factory,
+    factory: CategoryItemComponent.Factory,
+    owner: LifecycleOwner,
     parent: ViewGroup
 ) : BaseUiView<CategoryViewState, CategoryViewEvent>(parent) {
 
@@ -97,7 +99,7 @@ class CategoryListView @Inject internal constructor(
                 initialPrefetchItemCount = 3
             }
 
-            val a = LargeCategoryAdapter(factory)
+            val a = LargeCategoryAdapter(owner, factory)
             largeAdapter = a
             largeList.adapter = a
 
@@ -112,11 +114,12 @@ class CategoryListView @Inject internal constructor(
 
             // Wait for post() to finish so that we are guaranteed the smallList view is measured.
             smallList.post {
-                val a = SmallCategoryAdapter(smallList.height, factory)
+                val a = SmallCategoryAdapter(smallList.height, owner, factory)
                 smallAdapter = a
                 smallList.adapter = a
 
                 registerSmallListScrollListener()
+                publish(CategoryViewEvent.ViewReadyForData)
             }
         }
 
@@ -143,7 +146,7 @@ class CategoryListView @Inject internal constructor(
     }
 
     private fun clearSmallList() {
-        largeAdapter?.submitList(null)
+        smallAdapter?.submitList(null)
     }
 
     @CheckResult

@@ -21,30 +21,71 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.constraintlayout.widget.ConstraintSet
+import androidx.lifecycle.LifecycleOwner
 import com.pyamsoft.fridge.category.R
+import com.pyamsoft.pydroid.arch.ViewBinder
+import com.pyamsoft.pydroid.arch.bindViews
+import com.pyamsoft.pydroid.ui.util.layout
+import javax.inject.Inject
 
 class LargeCategoryAdapter internal constructor(
+    private val owner: LifecycleOwner,
     private val factory: CategoryItemComponent.Factory
 ) : CategoryAdapter<LargeCategoryAdapter.LargeViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): LargeViewHolder {
         val inflater = LayoutInflater.from(parent.context)
         val view = inflater.inflate(R.layout.category_large_holder, parent, false)
-        return LargeViewHolder(view, factory)
+        return LargeViewHolder(view, owner, factory)
     }
 
     class LargeViewHolder internal constructor(
         itemView: View,
+        owner: LifecycleOwner,
         factory: CategoryItemComponent.Factory
     ) : CategoryViewHolder(itemView) {
+
+        private var viewBinder: ViewBinder<CategoryItemViewState>
+
+        @Inject
+        @JvmField
+        internal var background: CategoryBackground? = null
 
         init {
             val parent = itemView.findViewById<ConstraintLayout>(R.id.category_large_holder)
             factory.create(parent).inject(this)
+
+            val background = requireNotNull(background)
+            viewBinder = bindViews(
+                owner,
+                background
+            ) {
+                // TODO
+            }
+
+            parent.layout {
+                background.also {
+                    connect(it.id(), ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP)
+                    connect(
+                        it.id(),
+                        ConstraintSet.START,
+                        ConstraintSet.PARENT_ID,
+                        ConstraintSet.START
+                    )
+                    connect(it.id(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
+                    connect(
+                        it.id(),
+                        ConstraintSet.BOTTOM,
+                        ConstraintSet.PARENT_ID,
+                        ConstraintSet.BOTTOM
+                    )
+                }
+            }
         }
 
         override fun bind(state: CategoryItemViewState) {
-            TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+            viewBinder.bind(state)
         }
     }
 }

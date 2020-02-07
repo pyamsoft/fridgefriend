@@ -19,6 +19,7 @@ package com.pyamsoft.fridge.category
 
 import android.view.ViewGroup
 import androidx.annotation.CheckResult
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModelProvider
 import com.pyamsoft.fridge.core.FridgeViewModelFactory
 import com.pyamsoft.fridge.core.ViewModelKey
@@ -41,6 +42,7 @@ internal interface CategoryComponent {
         @CheckResult
         fun create(
             @BindsInstance parent: ViewGroup,
+            @BindsInstance owner: LifecycleOwner,
             @BindsInstance themeProvider: ThemeProvider
         ): CategoryComponent
     }

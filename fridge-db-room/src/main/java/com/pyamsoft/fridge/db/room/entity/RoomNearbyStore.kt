@@ -27,19 +27,25 @@ import java.util.Date
 
 @Entity(tableName = RoomNearbyStore.TABLE_NAME)
 internal data class RoomNearbyStore internal constructor(
-    @field:[PrimaryKey ColumnInfo(name = COLUMN_ID)]
+    @JvmField
+    @PrimaryKey
+    @ColumnInfo(name = COLUMN_ID)
     val id: Long,
 
-    @field:ColumnInfo(name = COLUMN_NAME)
+    @JvmField
+    @ColumnInfo(name = COLUMN_NAME)
     val name: String,
 
-    @field:ColumnInfo(name = COLUMN_CREATED_TIME)
+    @JvmField
+    @ColumnInfo(name = COLUMN_CREATED_TIME)
     val createdTime: Date,
 
-    @field:ColumnInfo(name = COLUMN_LATITUDE)
+    @JvmField
+    @ColumnInfo(name = COLUMN_LATITUDE)
     val latitude: Double,
 
-    @field:ColumnInfo(name = COLUMN_LONGITUDE)
+    @JvmField
+    @ColumnInfo(name = COLUMN_LONGITUDE)
     val longitude: Double
 ) : NearbyStore {
 
