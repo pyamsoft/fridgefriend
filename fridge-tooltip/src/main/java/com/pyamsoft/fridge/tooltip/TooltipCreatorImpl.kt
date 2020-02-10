@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Peter Kenji Yamanaka
+ * Copyright 2020 Peter Kenji Yamanaka
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,22 +15,21 @@
  *
  */
 
-package com.pyamsoft.fridge.core.tooltip
+package com.pyamsoft.fridge.tooltip
 
-import android.content.Context
+import android.app.Activity
 import android.view.MotionEvent
 import android.view.View
 import androidx.annotation.CheckResult
+import com.pyamsoft.fridge.core.R
 import com.skydoves.balloon.Balloon
 import com.skydoves.balloon.OnBalloonClickListener
 import com.skydoves.balloon.OnBalloonOutsideTouchListener
 import com.skydoves.balloon.createBalloon
 import javax.inject.Inject
-import javax.inject.Singleton
 
-@Singleton
 internal class TooltipCreatorImpl @Inject internal constructor(
-    private val context: Context
+    private val activity: Activity
 ) : TooltipCreator {
 
     @CheckResult
@@ -38,14 +37,18 @@ internal class TooltipCreatorImpl @Inject internal constructor(
         var dismissOnClick = false
         var dismissOnClickOutside = false
 
-        val balloon = createBalloon(context.applicationContext) {
+        val balloon = createBalloon(activity) {
             setArrowSize(12)
             setWidthRatio(0.85F)
             setHeight(65)
-            setCornerRadius(8F)
-            setAlpha(0.8F)
+            setCornerRadius(16F)
+            setAlpha(0.85F)
+            setBackgroundColorResource(R.color.tooltipBackground)
+            setTextColorResource(R.color.tooltipText)
 
-            val tooltipBuilder = TooltipBuilderImpl(this).apply {
+            val tooltipBuilder = TooltipBuilderImpl(
+                this
+            ).apply {
                 setArrowPosition(0.5F)
                 setAnimation(Tooltip.Animation.FADE)
                 setTextSize(16F)
@@ -80,7 +83,10 @@ internal class TooltipCreatorImpl @Inject internal constructor(
     }
 
     override fun center(builder: TooltipBuilder.() -> TooltipBuilder): Tooltip {
-        return TooltipImpl(create(builder), Tooltip.Direction.CENTER)
+        return TooltipImpl(
+            create(builder),
+            Tooltip.Direction.CENTER
+        )
     }
 
     override fun top(): Tooltip {
@@ -88,7 +94,10 @@ internal class TooltipCreatorImpl @Inject internal constructor(
     }
 
     override fun top(builder: TooltipBuilder.() -> TooltipBuilder): Tooltip {
-        return TooltipImpl(create(builder), Tooltip.Direction.TOP)
+        return TooltipImpl(
+            create(builder),
+            Tooltip.Direction.TOP
+        )
     }
 
     override fun left(): Tooltip {
@@ -96,7 +105,10 @@ internal class TooltipCreatorImpl @Inject internal constructor(
     }
 
     override fun left(builder: TooltipBuilder.() -> TooltipBuilder): Tooltip {
-        return TooltipImpl(create(builder), Tooltip.Direction.LEFT)
+        return TooltipImpl(
+            create(builder),
+            Tooltip.Direction.LEFT
+        )
     }
 
     override fun right(): Tooltip {
@@ -104,7 +116,10 @@ internal class TooltipCreatorImpl @Inject internal constructor(
     }
 
     override fun right(builder: TooltipBuilder.() -> TooltipBuilder): Tooltip {
-        return TooltipImpl(create(builder), Tooltip.Direction.RIGHT)
+        return TooltipImpl(
+            create(builder),
+            Tooltip.Direction.RIGHT
+        )
     }
 
     override fun bottom(): Tooltip {
@@ -112,7 +127,10 @@ internal class TooltipCreatorImpl @Inject internal constructor(
     }
 
     override fun bottom(builder: TooltipBuilder.() -> TooltipBuilder): Tooltip {
-        return TooltipImpl(create(builder), Tooltip.Direction.BOTTOM)
+        return TooltipImpl(
+            create(builder),
+            Tooltip.Direction.BOTTOM
+        )
     }
 
     companion object {

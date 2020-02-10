@@ -39,8 +39,6 @@ import com.pyamsoft.pydroid.arch.StateSaver
 import com.pyamsoft.pydroid.arch.createComponent
 import com.pyamsoft.pydroid.ui.Injector
 import com.pyamsoft.pydroid.ui.arch.factory
-import com.pyamsoft.pydroid.ui.theme.ThemeProvider
-import com.pyamsoft.pydroid.ui.theme.Theming
 import com.pyamsoft.pydroid.ui.util.layout
 import com.pyamsoft.pydroid.ui.util.show
 import com.pyamsoft.pydroid.ui.widget.shadow.DropshadowView
@@ -80,10 +78,6 @@ internal class ExpandedFragment : DialogFragment() {
     @Inject
     internal var categories: ExpandItemCategoryList? = null
 
-    @JvmField
-    @Inject
-    internal var theming: Theming? = null
-
     private var stateSaver: StateSaver? = null
 
     @JvmField
@@ -114,8 +108,12 @@ internal class ExpandedFragment : DialogFragment() {
         Injector.obtain<FridgeComponent>(view.context.applicationContext)
             .plusExpandComponent()
             .create(
-                ThemeProvider { requireNotNull(theming).isDarkTheme(requireActivity()) },
-                parent, viewLifecycleOwner, itemId, entryId, presenceArgument
+                requireActivity(),
+                parent,
+                viewLifecycleOwner,
+                itemId,
+                entryId,
+                presenceArgument
             )
             .inject(this)
 
@@ -286,13 +284,7 @@ internal class ExpandedFragment : DialogFragment() {
             entryId: String,
             presence: Presence
         ): DialogFragment {
-            return ExpandedFragment().apply {
-                arguments = Bundle().apply {
-                    putString(ITEM, "")
-                    putString(ENTRY, entryId)
-                    putString(PRESENCE, presence.name)
-                }
-            }
+            return newInstance("", entryId, presence)
         }
 
         @JvmStatic
@@ -302,25 +294,19 @@ internal class ExpandedFragment : DialogFragment() {
             item: FridgeItem,
             presence: Presence
         ): DialogFragment {
-            return ExpandedFragment().apply {
-                arguments = Bundle().apply {
-                    putString(ITEM, item.id())
-                    putString(ENTRY, entryId)
-                    putString(PRESENCE, presence.name)
-                }
-            }
+            return newInstance(item.id(), entryId, presence)
         }
 
         @JvmStatic
         @CheckResult
         private fun newInstance(
+            itemId: String,
             entryId: String,
-            item: FridgeItem,
             presence: Presence
         ): DialogFragment {
             return ExpandedFragment().apply {
                 arguments = Bundle().apply {
-                    putString(ITEM, item.id())
+                    putString(ITEM, itemId)
                     putString(ENTRY, entryId)
                     putString(PRESENCE, presence.name)
                 }

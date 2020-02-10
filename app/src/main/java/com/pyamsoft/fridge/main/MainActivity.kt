@@ -44,8 +44,6 @@ import com.pyamsoft.pydroid.ui.arch.factory
 import com.pyamsoft.pydroid.ui.rating.ChangeLogBuilder
 import com.pyamsoft.pydroid.ui.rating.RatingActivity
 import com.pyamsoft.pydroid.ui.rating.buildChangeLog
-import com.pyamsoft.pydroid.ui.theme.ThemeProvider
-import com.pyamsoft.pydroid.ui.theme.Theming
 import com.pyamsoft.pydroid.ui.util.commitNow
 import com.pyamsoft.pydroid.ui.util.layout
 import com.pyamsoft.pydroid.ui.util.show
@@ -105,9 +103,6 @@ internal class MainActivity : RatingActivity(), VersionChecker {
     @JvmField
     @Inject
     internal var butler: Butler? = null
-    @JvmField
-    @Inject
-    internal var theming: Theming? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         setTheme(R.style.Theme_Fridge_Normal)
@@ -119,10 +114,7 @@ internal class MainActivity : RatingActivity(), VersionChecker {
 
         Injector.obtain<FridgeComponent>(applicationContext)
             .plusMainComponent()
-            .create(view,
-                getPage(intent),
-                this,
-                ThemeProvider { requireNotNull(theming).isDarkTheme(this) })
+            .create(this, view, getPage(intent), this)
             .inject(this)
 
         view.makeWindowSexy()
@@ -309,6 +301,5 @@ internal class MainActivity : RatingActivity(), VersionChecker {
 
         factory = null
         butler = null
-        theming = null
     }
 }

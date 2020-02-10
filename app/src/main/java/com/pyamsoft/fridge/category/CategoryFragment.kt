@@ -33,8 +33,6 @@ import com.pyamsoft.pydroid.arch.StateSaver
 import com.pyamsoft.pydroid.arch.createComponent
 import com.pyamsoft.pydroid.ui.Injector
 import com.pyamsoft.pydroid.ui.arch.factory
-import com.pyamsoft.pydroid.ui.theme.ThemeProvider
-import com.pyamsoft.pydroid.ui.theme.Theming
 import javax.inject.Inject
 
 internal class CategoryFragment : Fragment(), SnackbarContainer {
@@ -51,10 +49,6 @@ internal class CategoryFragment : Fragment(), SnackbarContainer {
     @Inject
     internal var factory: ViewModelProvider.Factory? = null
     private val viewModel by factory<CategoryViewModel> { factory }
-
-    @JvmField
-    @Inject
-    internal var theming: Theming? = null
 
     private var stateSaver: StateSaver? = null
 
@@ -84,9 +78,10 @@ internal class CategoryFragment : Fragment(), SnackbarContainer {
         Injector.obtain<FridgeComponent>(view.context.applicationContext)
             .plusCategoryComponent()
             .create(
+                requireActivity(),
                 parent,
-                viewLifecycleOwner,
-                ThemeProvider { requireNotNull(theming).isDarkTheme(requireActivity()) })
+                viewLifecycleOwner
+            )
             .inject(this)
 
         val list = requireNotNull(list)

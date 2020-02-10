@@ -21,6 +21,7 @@
             <option value="$PROJECT_DIR$/fridge-locator-map" />
             <option value="$PROJECT_DIR$/fridge-main" />
             <option value="$PROJECT_DIR$/fridge-setting" />
+            <option value="$PROJECT_DIR$/fridge-tooltip" />
           </set>
         </option>
         <option name="resolveModulePerSourceSet" value="false" />

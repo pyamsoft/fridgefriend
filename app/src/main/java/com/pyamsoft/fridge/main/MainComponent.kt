@@ -17,21 +17,22 @@
 
 package com.pyamsoft.fridge.main
 
+import android.app.Activity
 import android.view.ViewGroup
 import androidx.annotation.CheckResult
 import androidx.lifecycle.ViewModelProvider
+import com.pyamsoft.fridge.ThemeProviderModule
 import com.pyamsoft.fridge.core.FridgeViewModelFactory
 import com.pyamsoft.fridge.core.ViewModelKey
 import com.pyamsoft.pydroid.arch.UiViewModel
 import com.pyamsoft.pydroid.ui.app.ToolbarActivityProvider
-import com.pyamsoft.pydroid.ui.theme.ThemeProvider
 import dagger.Binds
 import dagger.BindsInstance
 import dagger.Module
 import dagger.Subcomponent
 import dagger.multibindings.IntoMap
 
-@Subcomponent(modules = [MainComponent.ViewModelModule::class])
+@Subcomponent(modules = [MainComponent.ViewModelModule::class, ThemeProviderModule::class])
 internal interface MainComponent {
 
     fun inject(activity: MainActivity)
@@ -41,10 +42,10 @@ internal interface MainComponent {
 
         @CheckResult
         fun create(
+            @BindsInstance activity: Activity,
             @BindsInstance parent: ViewGroup,
             @BindsInstance page: MainPage,
-            @BindsInstance provider: ToolbarActivityProvider,
-            @BindsInstance themeProvider: ThemeProvider
+            @BindsInstance provider: ToolbarActivityProvider
         ): MainComponent
     }
 

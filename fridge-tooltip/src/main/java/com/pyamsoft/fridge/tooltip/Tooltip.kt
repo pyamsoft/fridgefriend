@@ -15,7 +15,7 @@
  *
  */
 
-package com.pyamsoft.fridge.core.tooltip
+package com.pyamsoft.fridge.tooltip
 
 import android.view.View
 import androidx.annotation.CheckResult

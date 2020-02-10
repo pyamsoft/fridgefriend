@@ -73,8 +73,6 @@ dependencies {
     // PYDroid
     api "com.pyamsoft.pydroid:ui:$pydroid"
 
-    api "com.github.skydoves:balloon:$balloon"
-
     // Dagger
     api "com.google.dagger:dagger:$dagger"
     kapt "com.google.dagger:dagger-compiler:$dagger"

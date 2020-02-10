@@ -22,8 +22,8 @@ import android.widget.ImageView
 import androidx.annotation.CheckResult
 import androidx.annotation.DrawableRes
 import androidx.core.view.isVisible
-import com.pyamsoft.fridge.core.tooltip.Tooltip
-import com.pyamsoft.fridge.core.tooltip.TooltipCreator
+import com.pyamsoft.fridge.tooltip.Tooltip
+import com.pyamsoft.fridge.tooltip.TooltipCreator
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence.HAVE
 import com.pyamsoft.fridge.db.item.cleanMidnight

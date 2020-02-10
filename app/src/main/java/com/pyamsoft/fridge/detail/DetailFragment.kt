@@ -39,8 +39,6 @@ import com.pyamsoft.pydroid.arch.createComponent
 import com.pyamsoft.pydroid.ui.Injector
 import com.pyamsoft.pydroid.ui.app.requireToolbarActivity
 import com.pyamsoft.pydroid.ui.arch.factory
-import com.pyamsoft.pydroid.ui.theme.ThemeProvider
-import com.pyamsoft.pydroid.ui.theme.Theming
 import com.pyamsoft.pydroid.ui.util.show
 import javax.inject.Inject
 
@@ -57,10 +55,6 @@ internal class DetailFragment : Fragment(), SnackbarContainer {
     @JvmField
     @Inject
     internal var heroImage: DetailHeroImage? = null
-
-    @JvmField
-    @Inject
-    internal var theming: Theming? = null
 
     @JvmField
     @Inject
@@ -104,7 +98,7 @@ internal class DetailFragment : Fragment(), SnackbarContainer {
         Injector.obtain<FridgeComponent>(view.context.applicationContext)
             .plusDetailComponent()
             .create(
-                ThemeProvider { requireNotNull(theming).isDarkTheme(requireActivity()) },
+                requireActivity(),
                 parent, requireToolbarActivity(), viewLifecycleOwner,
                 getEntryIdArgument(), getPresenceArgument()
             )

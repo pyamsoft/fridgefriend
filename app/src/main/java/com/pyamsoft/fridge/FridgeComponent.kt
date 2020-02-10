@@ -29,7 +29,6 @@ import com.pyamsoft.fridge.butler.injector.component.InputButlerComponent
 import com.pyamsoft.fridge.butler.workmanager.WorkManagerModule
 import com.pyamsoft.fridge.category.CategoryComponent
 import com.pyamsoft.fridge.category.CategoryListComponent
-import com.pyamsoft.fridge.core.CoreModule
 import com.pyamsoft.fridge.db.DbModule
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent
 import com.pyamsoft.fridge.db.item.FridgeItemPreferences
@@ -73,7 +72,6 @@ import javax.inject.Singleton
 @Singleton
 @Component(
     modules = [
-        CoreModule::class,
         FridgeProvider::class,
         DbModule::class,
         ButlerModule::class,

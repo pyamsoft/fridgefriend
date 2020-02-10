@@ -19,6 +19,7 @@ package com.pyamsoft.fridge.detail
 
 import android.content.Context
 import androidx.annotation.CheckResult
+import com.pyamsoft.fridge.tooltip.TooltipCreator
 import com.pyamsoft.fridge.detail.item.DetailItemComponent
 import com.pyamsoft.pydroid.ui.Injector
 import com.pyamsoft.pydroid.ui.theme.ThemeProvider
@@ -36,10 +37,11 @@ abstract class DetailListModule {
         @CheckResult
         internal fun provideDetailListItemComponentCreator(
             context: Context,
+            tooltipCreator: TooltipCreator,
             theming: ThemeProvider
         ): DetailItemComponent.Factory {
             return Injector.obtain<DetailListComponent.Factory>(context.applicationContext)
-                .create(theming).plusItemComponent()
+                .create(tooltipCreator, theming).plusItemComponent()
         }
     }
 }

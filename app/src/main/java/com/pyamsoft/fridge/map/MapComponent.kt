@@ -17,24 +17,25 @@
 
 package com.pyamsoft.fridge.map
 
+import android.app.Activity
 import android.view.ViewGroup
 import androidx.annotation.CheckResult
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModelProvider
+import com.pyamsoft.fridge.ThemeProviderModule
 import com.pyamsoft.fridge.core.FridgeViewModelFactory
 import com.pyamsoft.fridge.core.ViewModelKey
 import com.pyamsoft.fridge.locator.map.osm.MapModule
 import com.pyamsoft.fridge.locator.map.osm.OsmViewModel
 import com.pyamsoft.fridge.map.MapComponent.ViewModelModule
 import com.pyamsoft.pydroid.arch.UiViewModel
-import com.pyamsoft.pydroid.ui.theme.ThemeProvider
 import dagger.Binds
 import dagger.BindsInstance
 import dagger.Module
 import dagger.Subcomponent
 import dagger.multibindings.IntoMap
 
-@Subcomponent(modules = [ViewModelModule::class, MapModule::class])
+@Subcomponent(modules = [ViewModelModule::class, MapModule::class, ThemeProviderModule::class])
 internal interface MapComponent {
 
     fun inject(fragment: MapFragment)
@@ -44,9 +45,9 @@ internal interface MapComponent {
 
         @CheckResult
         fun create(
+            @BindsInstance activity: Activity,
             @BindsInstance parent: ViewGroup,
-            @BindsInstance owner: LifecycleOwner,
-            @BindsInstance themeProvider: ThemeProvider
+            @BindsInstance owner: LifecycleOwner
         ): MapComponent
     }
 

@@ -8,4 +8,7 @@
     <color name="colorOnSecondary">@color/colorOnPrimary</color>
 
     <color name="windowBackground">@color/material_light_background</color>
+
+    <color name="tooltipBackground">@color/material_dark_background</color>
+    <color name="tooltipText">@color/white</color>
 </resources>

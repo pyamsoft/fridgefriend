@@ -17,16 +17,17 @@
 
 package com.pyamsoft.fridge.detail.expand
 
+import android.app.Activity
 import android.view.ViewGroup
 import androidx.annotation.CheckResult
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModelProvider
+import com.pyamsoft.fridge.ThemeProviderModule
 import com.pyamsoft.fridge.core.FridgeViewModelFactory
 import com.pyamsoft.fridge.core.ViewModelKey
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence
 import com.pyamsoft.fridge.detail.expand.ExpandComponent.ViewModelModule
 import com.pyamsoft.pydroid.arch.UiViewModel
-import com.pyamsoft.pydroid.ui.theme.ThemeProvider
 import dagger.Binds
 import dagger.BindsInstance
 import dagger.Module
@@ -34,7 +35,7 @@ import dagger.Subcomponent
 import dagger.multibindings.IntoMap
 import javax.inject.Named
 
-@Subcomponent(modules = [ViewModelModule::class, ExpandItemModule::class])
+@Subcomponent(modules = [ViewModelModule::class, ExpandItemModule::class, ThemeProviderModule::class])
 internal interface ExpandComponent {
 
     fun inject(fragment: ExpandedFragment)
@@ -44,7 +45,7 @@ internal interface ExpandComponent {
 
         @CheckResult
         fun create(
-            @BindsInstance theming: ThemeProvider,
+            @BindsInstance activity: Activity,
             @BindsInstance parent: ViewGroup,
             @BindsInstance owner: LifecycleOwner,
             @BindsInstance @Named("item_id") itemId: String,

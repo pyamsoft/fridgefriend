@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Peter Kenji Yamanaka
+ * Copyright 2020 Peter Kenji Yamanaka
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,18 +15,20 @@
  *
  */
 
-package com.pyamsoft.fridge.core
+package com.pyamsoft.fridge
 
-import androidx.annotation.CheckResult
-import com.pyamsoft.fridge.core.tooltip.TooltipCreator
-import com.pyamsoft.fridge.core.tooltip.TooltipCreatorImpl
-import dagger.Binds
+import android.app.Activity
+import com.pyamsoft.pydroid.ui.theme.ThemeProvider
+import com.pyamsoft.pydroid.ui.theme.Theming
 import dagger.Module
+import dagger.Provides
 
 @Module
-abstract class CoreModule {
+object ThemeProviderModule {
 
-    @Binds
-    @CheckResult
-    internal abstract fun bindTooltipCreator(impl: TooltipCreatorImpl): TooltipCreator
+    @Provides
+    @JvmStatic
+    fun provideThemeProvider(activity: Activity, theming: Theming): ThemeProvider {
+        return ThemeProvider { theming.isDarkTheme(activity) }
+    }
 }

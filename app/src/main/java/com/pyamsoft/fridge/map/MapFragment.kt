@@ -41,10 +41,8 @@ import com.pyamsoft.pydroid.arch.StateSaver
 import com.pyamsoft.pydroid.arch.createComponent
 import com.pyamsoft.pydroid.ui.Injector
 import com.pyamsoft.pydroid.ui.arch.factory
-import com.pyamsoft.pydroid.ui.theme.ThemeProvider
-import com.pyamsoft.pydroid.ui.theme.Theming
-import javax.inject.Inject
 import timber.log.Timber
+import javax.inject.Inject
 
 internal class MapFragment : Fragment(), SnackbarContainer,
     PermissionConsumer<BackgroundLocationPermission> {
@@ -52,15 +50,15 @@ internal class MapFragment : Fragment(), SnackbarContainer,
     @JvmField
     @Inject
     internal var map: OsmMap? = null
+
     @JvmField
     @Inject
     internal var actions: OsmActions? = null
+
     @JvmField
     @Inject
     internal var deviceGps: DeviceGps? = null
-    @JvmField
-    @Inject
-    internal var theming: Theming? = null
+
     @JvmField
     @Inject
     internal var permissionHandler: PermissionHandler<BackgroundLocationPermission>? = null
@@ -97,9 +95,10 @@ internal class MapFragment : Fragment(), SnackbarContainer,
         Injector.obtain<FridgeComponent>(view.context.applicationContext)
             .plusMapComponent()
             .create(
+                requireActivity(),
                 parent,
-                viewLifecycleOwner,
-                ThemeProvider { requireNotNull(theming).isDarkTheme(requireActivity()) })
+                viewLifecycleOwner
+            )
             .inject(this)
 
         val map = requireNotNull(map)
