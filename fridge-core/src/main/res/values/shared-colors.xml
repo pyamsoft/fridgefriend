@@ -16,18 +16,10 @@
   -->
 
 <resources>
-    <!-- If primary and secondary are the same, so are their On colors -->
-    <color name="colorPrimary">@color/red500</color>
-    <color name="colorOnPrimary">@color/white</color>
-
-    <color name="colorSecondary">@color/red700</color>
-    <color name="colorOnSecondary">@color/white</color>
-
-    <color name="windowBackground">#12B0F5</color>
-
     <color name="transparent">#00000000</color>
+
     <color name="statusBarColor">@color/transparent</color>
-    <color name="navigationBarColor">@color/red500</color>
+    <color name="navigationBarColor">@color/colorPrimary</color>
 
     <color name="disabledColor">#ffaaaaaa</color>
 </resources>

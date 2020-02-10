@@ -1,5 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="listBackground">#795548</color>
-    <color name="cardBackground">@color/white</color>
+    <!-- If primary and secondary are the same, so are their On colors -->
+    <color name="colorPrimary">@color/red500</color>
+    <color name="colorOnPrimary">@color/white</color>
+
+    <color name="colorSecondary">@color/colorPrimary</color>
+    <color name="colorOnSecondary">@color/colorOnPrimary</color>
+
+    <color name="windowBackground">@color/material_light_background</color>
 </resources>

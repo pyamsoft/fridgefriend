@@ -297,7 +297,7 @@ class DetailListItemGlances @Inject internal constructor(
         ): Loaded? {
             if (isVisible) {
                 view.isVisible = true
-                val color = if (isColored) R.color.red500 else R.color.grey500
+                val color = if (isColored) R.color.colorSecondary else R.color.disabledColor
                 loaded?.dispose()
                 return imageLoader.load(drawable)
                     .mutate { it.tintWith(view.context, color) }

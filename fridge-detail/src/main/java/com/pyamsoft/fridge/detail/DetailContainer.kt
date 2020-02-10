@@ -18,7 +18,10 @@
 package com.pyamsoft.fridge.detail
 
 import android.content.Context
+import android.content.res.ColorStateList
+import android.graphics.Color
 import android.graphics.Point
+import android.graphics.drawable.GradientDrawable
 import android.view.ViewGroup
 import android.view.WindowManager
 import android.view.animation.OvershootInterpolator
@@ -26,14 +29,18 @@ import androidx.annotation.CheckResult
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.content.getSystemService
+import androidx.core.graphics.ColorUtils
 import androidx.core.view.ViewCompat
 import androidx.core.view.ViewPropertyAnimatorCompat
 import androidx.core.view.isVisible
 import com.pyamsoft.pydroid.arch.BaseUiView
+import com.pyamsoft.pydroid.ui.theme.ThemeProvider
 import com.pyamsoft.pydroid.ui.util.layout
+import com.pyamsoft.pydroid.util.toDp
 import javax.inject.Inject
 
 class DetailContainer @Inject internal constructor(
+    private val theming: ThemeProvider,
     private val emptyState: DetailEmptyState,
     private val list: DetailList,
     parent: ViewGroup
@@ -52,6 +59,23 @@ class DetailContainer @Inject internal constructor(
         doOnTeardown {
             animator?.cancel()
             animator = null
+        }
+
+        doOnInflate {
+            layoutRoot.background = GradientDrawable().apply {
+                val context = layoutRoot.context
+                shape = GradientDrawable.RECTANGLE
+                val radius = 16.toDp(context).toFloat()
+                cornerRadii = floatArrayOf(radius, radius, radius, radius, 0F, 0F, 0F, 0F)
+
+                val backgroundColor = context.getColor(R.color.windowBackground)
+                val listBackgroundColor = ColorUtils.blendARGB(
+                    backgroundColor,
+                    if (theming.isDarkTheme()) Color.WHITE else Color.BLACK,
+                    0.15F
+                )
+                color = ColorStateList.valueOf(listBackgroundColor)
+            }
         }
 
         doOnInflate {
