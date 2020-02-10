@@ -38,7 +38,6 @@ internal class TooltipCreatorImpl @Inject internal constructor(
 
         val balloon = createBalloon(activity) {
             setArrowSize(12)
-            setWidthRatio(0.85F)
             setHeight(65)
             setCornerRadius(16F)
             setAlpha(0.85F)
