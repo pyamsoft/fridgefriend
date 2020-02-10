@@ -1,5 +1,6 @@
-<?xml version="1.0" encoding="utf-8"?><!--
-  ~ Copyright 2019 Peter Kenji Yamanaka
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright 2020 Peter Kenji Yamanaka
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -16,12 +17,7 @@
   -->
 
 <resources>
-    <!-- If primary and secondary are the same, so are their On colors -->
-    <color name="colorPrimary">#FFE57373</color>
-    <color name="colorOnPrimary">@color/white</color>
 
-    <color name="colorSecondary">@color/colorPrimary</color>
-    <color name="colorOnSecondary">@color/colorOnPrimary</color>
-
-    <color name="windowBackground">@color/material_dark_background</color>
+    <color name="tooltipBackground">@color/material_dark_background</color>
+    <color name="tooltipText">@color/white</color>
 </resources>

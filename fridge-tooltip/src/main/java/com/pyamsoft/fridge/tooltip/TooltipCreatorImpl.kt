@@ -21,7 +21,6 @@ import android.app.Activity
 import android.view.MotionEvent
 import android.view.View
 import androidx.annotation.CheckResult
-import com.pyamsoft.fridge.core.R
 import com.skydoves.balloon.Balloon
 import com.skydoves.balloon.OnBalloonClickListener
 import com.skydoves.balloon.OnBalloonOutsideTouchListener
