@@ -44,9 +44,10 @@ import timber.log.Timber
 import javax.inject.Inject
 
 class DetailList @Inject internal constructor(
-    parent: ViewGroup,
     private val imageLoader: ImageLoader,
     private val owner: LifecycleOwner,
+    parent: ViewGroup,
+    defaultPresence: FridgeItem.Presence,
     factory: DetailItemComponent.Factory
 ) : BaseUiView<DetailViewState, DetailViewEvent>(parent) {
 
@@ -69,8 +70,9 @@ class DetailList @Inject internal constructor(
 
         doOnInflate {
             modelAdapter = DetailListAdapter(
-                editable = false,
                 owner = owner,
+                editable = false,
+                defaultPresence = defaultPresence,
                 factory = factory,
                 callback = object : Callback {
                     override fun onItemExpanded(index: Int) {

@@ -23,7 +23,6 @@
         android:id="@+id/detail_item_glances"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
         android:orientation="horizontal">
 
         <ImageView

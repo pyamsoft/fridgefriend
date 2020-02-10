@@ -26,7 +26,9 @@ import javax.inject.Named
 @Subcomponent
 interface DetailItemComponent {
 
-    fun inject(holder: DetailItemViewHolder)
+    fun inject(holder: DetailItemGlancesViewHolder)
+
+    fun inject(holder: DetailItemDateViewHolder)
 
     @Subcomponent.Factory
     interface Factory {

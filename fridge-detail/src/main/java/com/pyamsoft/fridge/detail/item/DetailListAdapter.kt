@@ -25,6 +25,7 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.JsonMappableFridgeItem
 import com.pyamsoft.fridge.detail.R
 import com.pyamsoft.fridge.detail.item.DetailListAdapter.DetailViewHolder
@@ -33,6 +34,7 @@ import com.pyamsoft.pydroid.arch.ViewBinder
 class DetailListAdapter constructor(
     private val owner: LifecycleOwner,
     private val editable: Boolean,
+    private val defaultPresence: FridgeItem.Presence,
     private val callback: Callback,
     private val factory: DetailItemComponent.Factory
 ) : ListAdapter<DetailListItemViewState, DetailViewHolder>(DIFFER) {
@@ -65,13 +67,12 @@ class DetailListAdapter constructor(
             SpacerItemViewHolder(v)
         } else {
             val v = inflater.inflate(R.layout.detail_list_item_holder, parent, false)
-            DetailItemViewHolder(
-                v,
-                owner,
-                editable,
-                callback,
-                factory
-            )
+            val showGlances = defaultPresence == FridgeItem.Presence.HAVE
+            if (showGlances) {
+                DetailItemGlancesViewHolder(v, owner, editable, callback, factory)
+            } else {
+                DetailItemDateViewHolder(v, owner, editable, callback, factory)
+            }
         }
     }
 

@@ -21,52 +21,41 @@ import android.view.View
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.lifecycle.LifecycleOwner
-import com.pyamsoft.fridge.detail.R
 import com.pyamsoft.fridge.detail.item.DetailListAdapter.DetailViewHolder
+import com.pyamsoft.pydroid.arch.UiView
 import com.pyamsoft.pydroid.arch.ViewBinder
 import com.pyamsoft.pydroid.arch.bindViews
 import com.pyamsoft.pydroid.arch.doOnDestroy
 import com.pyamsoft.pydroid.ui.util.layout
 import javax.inject.Inject
 
-class DetailItemViewHolder internal constructor(
+abstract class DetailItemViewHolder protected constructor(
     itemView: View,
-    owner: LifecycleOwner,
-    editable: Boolean,
-    callback: DetailListAdapter.Callback,
-    factory: DetailItemComponent.Factory
+    private val owner: LifecycleOwner,
+    private val callback: DetailListAdapter.Callback
 ) : DetailViewHolder(itemView) {
 
     @JvmField
     @Inject
     internal var nameView: DetailListItemName? = null
-    @JvmField
-    @Inject
-    internal var dateView: DetailListItemDate? = null
+
     @JvmField
     @Inject
     internal var presenceView: DetailListItemPresence? = null
-    @JvmField
-    @Inject
-    internal var glancesView: DetailListItemGlances? = null
 
-    private val viewBinder: ViewBinder<DetailListItemViewState>
+    private var viewBinder: ViewBinder<DetailListItemViewState>? = null
 
-    init {
-        val parent = itemView.findViewById<ConstraintLayout>(R.id.detail_list_item)
-        factory.create(parent, editable).inject(this)
-
+    protected fun create(
+        parent: ConstraintLayout,
+        extra: UiView<DetailListItemViewState, DetailItemViewEvent>
+    ) {
         val name = requireNotNull(nameView)
-        val date = requireNotNull(dateView)
         val presence = requireNotNull(presenceView)
-        val glances = requireNotNull(glancesView)
-
         viewBinder = bindViews(
             owner,
             name,
-            date,
-            presence,
-            glances
+            extra,
+            presence
         ) {
             return@bindViews when (it) {
                 is DetailItemViewEvent.ExpandItem -> callback.onItemExpanded(adapterPosition)
@@ -94,7 +83,7 @@ class DetailItemViewHolder internal constructor(
                 constrainWidth(it.id(), ConstraintSet.WRAP_CONTENT)
             }
 
-            date.also {
+            extra.also {
                 connect(
                     it.id(), ConstraintSet.TOP,
                     ConstraintSet.PARENT_ID,
@@ -104,6 +93,11 @@ class DetailItemViewHolder internal constructor(
                     it.id(), ConstraintSet.END,
                     ConstraintSet.PARENT_ID,
                     ConstraintSet.END
+                )
+                connect(
+                    it.id(), ConstraintSet.BOTTOM,
+                    ConstraintSet.PARENT_ID,
+                    ConstraintSet.BOTTOM
                 )
                 constrainWidth(it.id(), ConstraintSet.WRAP_CONTENT)
                 constrainHeight(it.id(), ConstraintSet.WRAP_CONTENT)
@@ -125,40 +119,20 @@ class DetailItemViewHolder internal constructor(
                     presence.id(),
                     ConstraintSet.END
                 )
-                connect(it.id(), ConstraintSet.END, date.id(), ConstraintSet.START)
+                connect(it.id(), ConstraintSet.END, extra.id(), ConstraintSet.START)
                 constrainWidth(it.id(), ConstraintSet.MATCH_CONSTRAINT)
-                constrainHeight(it.id(), ConstraintSet.WRAP_CONTENT)
-            }
-
-            glances.also {
-                connect(
-                    it.id(), ConstraintSet.TOP, date.id(),
-                    ConstraintSet.BOTTOM
-                )
-                connect(
-                    it.id(), ConstraintSet.BOTTOM,
-                    ConstraintSet.PARENT_ID,
-                    ConstraintSet.BOTTOM
-                )
-                connect(
-                    it.id(), ConstraintSet.END,
-                    ConstraintSet.PARENT_ID,
-                    ConstraintSet.END
-                )
-                constrainWidth(it.id(), ConstraintSet.WRAP_CONTENT)
                 constrainHeight(it.id(), ConstraintSet.WRAP_CONTENT)
             }
         }
 
         owner.doOnDestroy {
             nameView = null
-            glancesView = null
-            dateView = null
             presenceView = null
+            viewBinder = null
         }
     }
 
-    override fun bind(state: DetailListItemViewState) {
-        viewBinder.bind(state)
+    final override fun bind(state: DetailListItemViewState) {
+        requireNotNull(viewBinder).bind(state)
     }
 }
