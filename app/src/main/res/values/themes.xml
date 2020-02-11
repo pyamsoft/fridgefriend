@@ -25,4 +25,6 @@
 
     <style name="Theme.Fridge.Splash" parent="@style/Base.Theme.Fridge.Splash" />
 
+    <style name="Theme.Fridge.Preferences" parent="@style/Base.Theme.Fridge.Preferences" />
+
 </resources>

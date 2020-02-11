@@ -33,4 +33,8 @@
         <item name="android:windowLightNavigationBar">@bool/light_bars</item>
     </style>
 
+    <style name="Theme.Fridge.Preferences" parent="@style/Base.Theme.Fridge.Preferences">
+        <item name="android:windowLightNavigationBar">@bool/light_bars</item>
+    </style>
+
 </resources>

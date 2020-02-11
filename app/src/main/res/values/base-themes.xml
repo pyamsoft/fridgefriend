@@ -20,13 +20,13 @@
     <style name="Base.Theme.Fridge.Normal" parent="@style/MC.Theme.Fridge">
         <item name="android:windowBackground">@color/windowBackground</item>
 
-        <item name="preferenceTheme">@style/PreferenceThemeOverlay</item>
+        <item name="preferenceTheme">@style/Theme.Fridge.Preferences</item>
         <item name="dialogTheme">@style/Theme.Fridge.Dialog</item>
         <item name="alertDialogTheme">@style/Theme.Fridge.Dialog.Alert</item>
 
         <item name="android:navigationBarColor">@color/navigationBarColor</item>
         <item name="android:statusBarColor">@color/statusBarColor</item>
-        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:windowLightStatusBar">@bool/light_bars</item>
     </style>
 
     <!-- Dialogs -->
@@ -36,7 +36,7 @@
 
         <item name="android:navigationBarColor">@color/navigationBarColor</item>
         <item name="android:statusBarColor">@color/statusBarColor</item>
-        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:windowLightStatusBar">@bool/light_bars</item>
     </style>
 
     <style name="Base.Theme.Fridge.Dialog.Alert" parent="@style/MC.Theme.Fridge.Dialog.Alert">
@@ -45,7 +45,7 @@
 
         <item name="android:navigationBarColor">@color/navigationBarColor</item>
         <item name="android:statusBarColor">@color/statusBarColor</item>
-        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:windowLightStatusBar">@bool/light_bars</item>
     </style>
 
 
@@ -54,7 +54,18 @@
 
         <item name="android:navigationBarColor">@color/navigationBarColor</item>
         <item name="android:statusBarColor">@color/statusBarColor</item>
-        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:windowLightStatusBar">@bool/light_bars</item>
+    </style>
+
+    <style name="Base.Theme.Fridge.Preferences" parent="@style/MC.Theme.Fridge.Preferences">
+        <item name="android:windowBackground">@color/windowBackground</item>
+
+        <item name="dialogTheme">@style/Theme.Fridge.Dialog</item>
+        <item name="alertDialogTheme">@style/Theme.Fridge.Dialog.Alert</item>
+
+        <item name="android:navigationBarColor">@color/navigationBarColor</item>
+        <item name="android:statusBarColor">@color/statusBarColor</item>
+        <item name="android:windowLightStatusBar">@bool/light_bars</item>
     </style>
 
 </resources>
