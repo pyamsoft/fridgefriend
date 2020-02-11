@@ -49,9 +49,8 @@ abstract class HeroImage<S : UiViewState, V : UiViewEvent> protected constructor
             collapse.doOnApplyWindowInsets { v, insets, padding ->
                 val toolbarTopMargin = padding.top + insets.systemWindowInsetTop
                 v.context.withStyledAttributes(
-                    R.attr.toolbarStyle, intArrayOf(
-                        R.attr.actionBarSize
-                    )
+                    R.attr.toolbarStyle,
+                    intArrayOf(R.attr.actionBarSize)
                 ) {
                     val sizeId = getResourceId(0, 0)
                     if (sizeId != 0) {

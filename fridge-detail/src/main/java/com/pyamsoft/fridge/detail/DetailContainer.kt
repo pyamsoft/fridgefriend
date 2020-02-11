@@ -19,7 +19,6 @@ package com.pyamsoft.fridge.detail
 
 import android.content.Context
 import android.content.res.ColorStateList
-import android.graphics.Color
 import android.graphics.Point
 import android.graphics.drawable.GradientDrawable
 import android.view.ViewGroup
@@ -29,10 +28,11 @@ import androidx.annotation.CheckResult
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.content.getSystemService
-import androidx.core.graphics.ColorUtils
 import androidx.core.view.ViewCompat
 import androidx.core.view.ViewPropertyAnimatorCompat
 import androidx.core.view.isVisible
+import com.pyamsoft.fridge.core.view.darker
+import com.pyamsoft.fridge.core.view.lighter
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.ui.theme.ThemeProvider
 import com.pyamsoft.pydroid.ui.util.layout
@@ -69,11 +69,12 @@ class DetailContainer @Inject internal constructor(
                 cornerRadii = floatArrayOf(radius, radius, radius, radius, 0F, 0F, 0F, 0F)
 
                 val backgroundColor = context.getColor(R.color.windowBackground)
-                val listBackgroundColor = ColorUtils.blendARGB(
-                    backgroundColor,
-                    if (theming.isDarkTheme()) Color.WHITE else Color.BLACK,
-                    0.15F
-                )
+                val ratio = 0.15F
+                val listBackgroundColor = if (theming.isDarkTheme()) {
+                    backgroundColor.lighter(ratio)
+                } else {
+                    backgroundColor.darker(ratio)
+                }
                 color = ColorStateList.valueOf(listBackgroundColor)
             }
         }
