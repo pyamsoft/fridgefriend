@@ -30,9 +30,9 @@ internal object ButlerNotifications {
     @JvmStatic
     @CheckResult
     fun getExtraItems(items: List<FridgeItem>): String {
-        return when {
-            items.size == 1 -> ""
-            items.size == 2 -> "and '${items[1].name()}'"
+        return when (items.size) {
+            1 -> ""
+            2 -> "and '${items[1].name()}'"
             else -> "and ${items.size - 1} other items"
         }
     }

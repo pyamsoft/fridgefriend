@@ -109,11 +109,11 @@ object Notifications {
         manager: NotificationManagerCompat,
         notificationId: Int
     ) {
-        Timber.w("Cancel notification: $notificationId")
         manager.cancel(notificationId)
     }
 
     fun cancel(context: Context, notificationId: Int) {
+        Timber.w("Cancel notification: $notificationId")
         cancel(notificationManager(context), notificationId)
     }
 }

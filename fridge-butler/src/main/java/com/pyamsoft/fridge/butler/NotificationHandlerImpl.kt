@@ -37,12 +37,7 @@ internal class NotificationHandlerImpl @Inject internal constructor(
             putExtra(NotificationHandler.NOTIFICATION_ID_KEY, notificationId)
         }
 
-        return PendingIntent.getActivity(
-            context,
-            CONTENT_INTENT_RC,
-            intent,
-            PendingIntent.FLAG_UPDATE_CURRENT
-        )
+        return PendingIntent.getActivity(context, CONTENT_INTENT_RC, intent, PendingIntent.FLAG_CANCEL_CURRENT)
     }
 
     companion object {
