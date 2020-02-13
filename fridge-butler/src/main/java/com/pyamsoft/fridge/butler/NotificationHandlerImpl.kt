@@ -35,9 +35,16 @@ internal class NotificationHandlerImpl @Inject internal constructor(
         val intent = Intent(context, activityClass).apply {
             putExtra(FridgeItem.Presence.KEY, presence.name)
             putExtra(NotificationHandler.NOTIFICATION_ID_KEY, notificationId)
+            addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+            addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
         }
 
-        return PendingIntent.getActivity(context, CONTENT_INTENT_RC, intent, PendingIntent.FLAG_CANCEL_CURRENT)
+        return PendingIntent.getActivity(
+            context,
+            CONTENT_INTENT_RC,
+            intent,
+            PendingIntent.FLAG_UPDATE_CURRENT
+        )
     }
 
     companion object {
