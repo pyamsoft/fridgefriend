@@ -23,6 +23,7 @@ import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.butler.Butler
 import com.pyamsoft.fridge.butler.ButlerPreferences
 import com.pyamsoft.fridge.butler.NotificationHandler
+import com.pyamsoft.fridge.butler.NotificationPreferences
 import com.pyamsoft.fridge.butler.runner.geofence.GeofenceNotifications
 import com.pyamsoft.fridge.db.entry.FridgeEntryQueryDao
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence.NEED
@@ -34,13 +35,14 @@ import com.pyamsoft.fridge.db.store.NearbyStoreQueryDao
 import com.pyamsoft.fridge.db.zone.NearbyZone
 import com.pyamsoft.fridge.db.zone.NearbyZoneQueryDao
 import com.pyamsoft.pydroid.core.Enforcer
-import java.util.Calendar
 import timber.log.Timber
+import java.util.Calendar
 
 internal abstract class NearbyNotifyingRunner protected constructor(
     private val context: Context,
     handler: NotificationHandler,
     butler: Butler,
+    notificationPreferences: NotificationPreferences,
     butlerPreferences: ButlerPreferences,
     fridgeItemPreferences: FridgeItemPreferences,
     enforcer: Enforcer,
@@ -51,6 +53,7 @@ internal abstract class NearbyNotifyingRunner protected constructor(
 ) : NearbyRunner(
     handler,
     butler,
+    notificationPreferences,
     butlerPreferences,
     fridgeItemPreferences,
     enforcer,

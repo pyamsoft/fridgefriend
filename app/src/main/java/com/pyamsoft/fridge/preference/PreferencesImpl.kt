@@ -24,6 +24,7 @@ import androidx.core.content.edit
 import androidx.preference.PreferenceManager
 import com.pyamsoft.fridge.R
 import com.pyamsoft.fridge.butler.ButlerPreferences
+import com.pyamsoft.fridge.butler.NotificationPreferences
 import com.pyamsoft.fridge.core.IdGenerator
 import com.pyamsoft.fridge.core.PreferenceUnregister
 import com.pyamsoft.fridge.db.item.FridgeItemPreferences
@@ -31,12 +32,13 @@ import com.pyamsoft.fridge.db.persist.PersistentCategoryPreferences
 import com.pyamsoft.fridge.db.persist.PersistentEntryPreferences
 import com.pyamsoft.fridge.setting.SettingsPreferences
 import com.pyamsoft.pydroid.core.Enforcer
-import java.util.Calendar
-import javax.inject.Inject
-import javax.inject.Singleton
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.util.Calendar
+import java.util.concurrent.TimeUnit
+import javax.inject.Inject
+import javax.inject.Singleton
 
 @Singleton
 internal class PreferencesImpl @Inject internal constructor(
@@ -46,7 +48,8 @@ internal class PreferencesImpl @Inject internal constructor(
     FridgeItemPreferences,
     PersistentEntryPreferences,
     PersistentCategoryPreferences,
-    SettingsPreferences {
+    SettingsPreferences,
+    NotificationPreferences {
 
     private val preferences by lazy {
         PreferenceManager.getDefaultSharedPreferences(context.applicationContext)
@@ -162,6 +165,12 @@ internal class PreferencesImpl @Inject internal constructor(
     override suspend fun savePersistentEntryId(id: String) {
         enforcer.assertNotOnMainThread()
         preferences.edit { putString(KEY_PERSISTENT_ENTRIES, id) }
+    }
+
+    override suspend fun getNotificationPeriod(): Long {
+        enforcer.assertNotOnMainThread()
+        // TODO pull from preferences
+        return TimeUnit.HOURS.toMillis(2L)
     }
 
     override suspend fun clear() {

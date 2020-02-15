@@ -25,20 +25,21 @@ import androidx.work.ListenableWorker
 import androidx.work.OneTimeWorkRequest
 import androidx.work.WorkManager
 import com.pyamsoft.fridge.butler.Butler
+import com.pyamsoft.fridge.butler.NotificationPreferences
 import com.pyamsoft.fridge.butler.workmanager.worker.ExpirationWorker
 import com.pyamsoft.fridge.butler.workmanager.worker.GeofenceNotifierWorker
 import com.pyamsoft.fridge.butler.workmanager.worker.GeofenceRegistrationWorker
 import com.pyamsoft.fridge.butler.workmanager.worker.LocationWorker
-import com.pyamsoft.fridge.core.Core
 import com.pyamsoft.fridge.locator.GeofenceProcessor
+import timber.log.Timber
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import javax.inject.Singleton
-import timber.log.Timber
 
 @Singleton
 internal class WorkManagerButler @Inject internal constructor(
-    private val context: Context
+    private val context: Context,
+    private val preferences: NotificationPreferences
 ) : Butler, GeofenceProcessor {
 
     @CheckResult
@@ -86,8 +87,9 @@ internal class WorkManagerButler @Inject internal constructor(
         scheduleExpirationWork(WorkType.Instant)
     }
 
-    override fun scheduleRemindExpiration() {
-        scheduleExpirationWork(WorkType.Periodic(Core.RESCHEDULE_TIME))
+    override suspend fun scheduleRemindExpiration() {
+        val time = preferences.getNotificationPeriod()
+        scheduleExpirationWork(WorkType.Periodic(time))
     }
 
     override fun cancelExpirationReminder() {
@@ -103,8 +105,9 @@ internal class WorkManagerButler @Inject internal constructor(
         scheduleGeofenceWork(WorkType.Instant)
     }
 
-    override fun scheduleRegisterGeofences() {
-        scheduleGeofenceWork(WorkType.Periodic(Core.RESCHEDULE_TIME))
+    override suspend fun scheduleRegisterGeofences() {
+        val time = preferences.getNotificationPeriod()
+        scheduleGeofenceWork(WorkType.Periodic(time))
     }
 
     override fun unregisterGeofences() {
@@ -140,8 +143,9 @@ internal class WorkManagerButler @Inject internal constructor(
         scheduleLocation(WorkType.Instant)
     }
 
-    override fun scheduleRemindLocation() {
-        scheduleLocation(WorkType.Periodic(Core.RESCHEDULE_TIME))
+    override suspend fun scheduleRemindLocation() {
+        val time = preferences.getNotificationPeriod()
+        scheduleLocation(WorkType.Periodic(time))
     }
 
     override fun cancelLocationReminder() {

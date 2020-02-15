@@ -18,16 +18,15 @@
 package com.pyamsoft.fridge.butler.workmanager.worker
 
 import android.content.Context
-import androidx.work.CoroutineWorker
+import androidx.work.Data
 import androidx.work.WorkerParameters
+import com.pyamsoft.fridge.butler.injector.BaseInjector
 import com.pyamsoft.fridge.butler.injector.ExpirationInjector
-import com.pyamsoft.fridge.butler.runner.WorkResult
 
 internal class ExpirationWorker internal constructor(context: Context, params: WorkerParameters) :
-    CoroutineWorker(context.applicationContext, params) {
+    BaseWorker(context.applicationContext, params) {
 
-    override suspend fun doWork(): Result {
-        val injector = ExpirationInjector(applicationContext)
-        return if (injector.run() === WorkResult.Success) Result.success() else Result.failure()
+    override fun getInjector(context: Context, data: Data): BaseInjector {
+        return ExpirationInjector(context.applicationContext)
     }
 }

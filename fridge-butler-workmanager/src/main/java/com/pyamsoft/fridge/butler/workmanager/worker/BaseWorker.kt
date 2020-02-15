@@ -18,16 +18,25 @@
 package com.pyamsoft.fridge.butler.workmanager.worker
 
 import android.content.Context
+import androidx.annotation.CheckResult
+import androidx.work.CoroutineWorker
 import androidx.work.Data
 import androidx.work.WorkerParameters
 import com.pyamsoft.fridge.butler.injector.BaseInjector
-import com.pyamsoft.fridge.butler.injector.LocationInjector
+import com.pyamsoft.fridge.butler.runner.WorkResult
 
-internal class LocationWorker internal constructor(
+internal abstract class BaseWorker protected constructor(
     context: Context, params: WorkerParameters
-) : BaseWorker(context.applicationContext, params) {
+) : CoroutineWorker(context.applicationContext, params) {
 
-    override fun getInjector(context: Context, data: Data): BaseInjector {
-        return LocationInjector(context.applicationContext)
+    final override suspend fun doWork(): Result {
+        val injector = getInjector(applicationContext, inputData)
+        return if (injector.run() === WorkResult.Success) Result.success() else Result.failure()
     }
+
+    @CheckResult
+    protected abstract fun getInjector(
+        context: Context,
+        data: Data
+    ): BaseInjector
 }

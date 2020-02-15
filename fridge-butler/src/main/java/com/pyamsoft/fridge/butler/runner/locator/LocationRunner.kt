@@ -21,6 +21,7 @@ import android.content.Context
 import com.pyamsoft.fridge.butler.Butler
 import com.pyamsoft.fridge.butler.ButlerPreferences
 import com.pyamsoft.fridge.butler.NotificationHandler
+import com.pyamsoft.fridge.butler.NotificationPreferences
 import com.pyamsoft.fridge.butler.runner.NearbyNotifyingRunner
 import com.pyamsoft.fridge.db.entry.FridgeEntryQueryDao
 import com.pyamsoft.fridge.db.item.FridgeItemPreferences
@@ -32,14 +33,15 @@ import com.pyamsoft.fridge.db.zone.NearbyZoneQueryDao
 import com.pyamsoft.fridge.locator.Geofencer
 import com.pyamsoft.fridge.locator.Locator
 import com.pyamsoft.pydroid.core.Enforcer
-import javax.inject.Inject
 import kotlinx.coroutines.coroutineScope
 import timber.log.Timber
+import javax.inject.Inject
 
 internal class LocationRunner @Inject internal constructor(
     context: Context,
     handler: NotificationHandler,
     butler: Butler,
+    notificationPreferences: NotificationPreferences,
     butlerPreferences: ButlerPreferences,
     fridgeItemPreferences: FridgeItemPreferences,
     enforcer: Enforcer,
@@ -52,6 +54,7 @@ internal class LocationRunner @Inject internal constructor(
     context,
     handler,
     butler,
+    notificationPreferences,
     butlerPreferences,
     fridgeItemPreferences,
     enforcer,
@@ -61,7 +64,7 @@ internal class LocationRunner @Inject internal constructor(
     zoneDb
 ) {
 
-    override fun reschedule(butler: Butler) {
+    override suspend fun reschedule(butler: Butler) {
         butler.scheduleRemindLocation()
     }
 

@@ -20,6 +20,7 @@ package com.pyamsoft.fridge.butler.runner
 import com.pyamsoft.fridge.butler.Butler
 import com.pyamsoft.fridge.butler.ButlerPreferences
 import com.pyamsoft.fridge.butler.NotificationHandler
+import com.pyamsoft.fridge.butler.NotificationPreferences
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.entry.FridgeEntryQueryDao
 import com.pyamsoft.fridge.db.item.FridgeItem
@@ -32,12 +33,20 @@ import kotlinx.coroutines.coroutineScope
 internal abstract class FridgeRunner protected constructor(
     handler: NotificationHandler,
     butler: Butler,
+    notificationPreferences: NotificationPreferences,
     butlerPreferences: ButlerPreferences,
     fridgeItemPreferences: FridgeItemPreferences,
     enforcer: Enforcer,
     private val fridgeEntryQueryDao: FridgeEntryQueryDao,
     private val fridgeItemQueryDao: FridgeItemQueryDao
-) : BaseRunner(handler, butler, butlerPreferences, fridgeItemPreferences, enforcer) {
+) : BaseRunner(
+    handler,
+    butler,
+    notificationPreferences,
+    butlerPreferences,
+    fridgeItemPreferences,
+    enforcer
+) {
 
     protected suspend fun withFridgeData(func: suspend CoroutineScope.(entry: FridgeEntry, items: List<FridgeItem>) -> Unit) {
         coroutineScope {

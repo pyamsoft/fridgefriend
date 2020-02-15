@@ -24,6 +24,7 @@ import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.FridgeComponent.FridgeProvider
 import com.pyamsoft.fridge.butler.ButlerModule
 import com.pyamsoft.fridge.butler.ButlerPreferences
+import com.pyamsoft.fridge.butler.NotificationPreferences
 import com.pyamsoft.fridge.butler.injector.component.ButlerComponent
 import com.pyamsoft.fridge.butler.injector.component.InputButlerComponent
 import com.pyamsoft.fridge.butler.workmanager.WorkManagerModule
@@ -172,6 +173,9 @@ internal interface FridgeComponent {
 
         @Binds
         internal abstract fun bindButlerPreferences(impl: PreferencesImpl): ButlerPreferences
+
+        @Binds
+        internal abstract fun bindNotificationPreferences(impl: PreferencesImpl): NotificationPreferences
 
         @Binds
         internal abstract fun bindDetailPreferences(impl: PreferencesImpl): FridgeItemPreferences

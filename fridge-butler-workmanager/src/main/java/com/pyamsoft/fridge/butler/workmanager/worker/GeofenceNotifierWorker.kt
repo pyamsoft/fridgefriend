@@ -18,25 +18,23 @@
 package com.pyamsoft.fridge.butler.workmanager.worker
 
 import android.content.Context
-import androidx.work.CoroutineWorker
+import androidx.work.Data
 import androidx.work.WorkerParameters
+import com.pyamsoft.fridge.butler.injector.BaseInjector
 import com.pyamsoft.fridge.butler.injector.GeofenceNotifyInjector
-import com.pyamsoft.fridge.butler.runner.WorkResult
 
 internal class GeofenceNotifierWorker internal constructor(
     context: Context,
     params: WorkerParameters
-) :
-    CoroutineWorker(context.applicationContext, params) {
+) : BaseWorker(context.applicationContext, params) {
 
-    override suspend fun doWork(): Result {
-        val fenceIds = inputData.getStringArray(KEY_FENCES) ?: emptyArray()
-        val latitude = inputData.getDouble(KEY_CURRENT_LATITUDE, BAD_COORDINATE)
+    override fun getInjector(context: Context, data: Data): BaseInjector {
+        val fenceIds = data.getStringArray(KEY_FENCES) ?: emptyArray()
+        val latitude = data.getDouble(KEY_CURRENT_LATITUDE, BAD_COORDINATE)
         val currentLat = if (latitude == BAD_COORDINATE) null else latitude
-        val longitude = inputData.getDouble(KEY_CURRENT_LONGITUDE, BAD_COORDINATE)
+        val longitude = data.getDouble(KEY_CURRENT_LONGITUDE, BAD_COORDINATE)
         val currentLon = if (longitude == BAD_COORDINATE) null else longitude
-        val injector = GeofenceNotifyInjector(applicationContext, fenceIds, currentLat, currentLon)
-        return if (injector.run() === WorkResult.Success) Result.success() else Result.failure()
+        return GeofenceNotifyInjector(context.applicationContext, fenceIds, currentLat, currentLon)
     }
 
     companion object {

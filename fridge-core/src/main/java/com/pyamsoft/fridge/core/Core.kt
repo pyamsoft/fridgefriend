@@ -17,14 +17,10 @@
 
 package com.pyamsoft.fridge.core
 
-import java.util.concurrent.TimeUnit
-
 object Core {
 
     const val PRIVACY_POLICY_URL =
         "https://pyamsoft.blogspot.com/p/fridgefriend-privacy-policy.html"
     const val TERMS_CONDITIONS_URL =
         "https://pyamsoft.blogspot.com/p/fridgefriend-terms-and-conditions.html"
-
-    val RESCHEDULE_TIME = TimeUnit.HOURS.toMillis(2L)
 }

@@ -34,25 +34,26 @@ import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.LocationSettingsRequest
 import com.google.android.gms.location.LocationSettingsStatusCodes
-import com.pyamsoft.fridge.core.Core
+import com.pyamsoft.fridge.butler.NotificationPreferences
 import com.pyamsoft.fridge.locator.DeviceGps
 import com.pyamsoft.fridge.locator.GeofenceBroadcastReceiver
 import com.pyamsoft.fridge.locator.Geofencer
 import com.pyamsoft.fridge.locator.Locator
 import com.pyamsoft.fridge.locator.Locator.Fence
 import com.pyamsoft.fridge.locator.MapPermission
+import kotlinx.coroutines.suspendCancellableCoroutine
+import timber.log.Timber
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
-import kotlinx.coroutines.suspendCancellableCoroutine
-import timber.log.Timber
 
 @Singleton
 internal class GmsLocator @Inject internal constructor(
-    context: Context,
     private val permission: MapPermission,
+    private val notificationPreferences: NotificationPreferences,
+    context: Context,
     geofenceReceiverClass: Class<out GeofenceBroadcastReceiver>
 ) : Locator, DeviceGps, Geofencer {
 
@@ -180,19 +181,19 @@ internal class GmsLocator @Inject internal constructor(
     }
 
     @CheckResult
-    private fun createGeofence(fence: Fence): Geofence {
+    private suspend fun createGeofence(fence: Fence): Geofence {
         val triggers = Geofence.GEOFENCE_TRANSITION_DWELL or Geofence.GEOFENCE_TRANSITION_ENTER
         return Geofence.Builder()
             .setRequestId(fence.id)
             .setCircularRegion(fence.lat, fence.lon, Locator.RADIUS_IN_METERS)
-            .setExpirationDuration(Core.RESCHEDULE_TIME)
+            .setExpirationDuration(notificationPreferences.getNotificationPeriod())
             .setNotificationResponsiveness(NOTIFICATION_DELAY_IN_MILLIS)
             .setLoiteringDelay(LOITER_IN_MILLIS)
             .setTransitionTypes(triggers)
             .build()
     }
 
-    override fun registerGeofences(fences: List<Fence>) {
+    override suspend fun registerGeofences(fences: List<Fence>) {
         if (!permission.hasForegroundPermission()) {
             Timber.w("Cannot register Geofences, missing foreground location permissions")
             return

@@ -24,7 +24,7 @@ import com.pyamsoft.fridge.db.zone.NearbyZone
 interface Locator {
 
     // If fences is empty this will throw
-    fun registerGeofences(fences: List<Fence>)
+    suspend fun registerGeofences(fences: List<Fence>)
 
     fun unregisterGeofences()
 

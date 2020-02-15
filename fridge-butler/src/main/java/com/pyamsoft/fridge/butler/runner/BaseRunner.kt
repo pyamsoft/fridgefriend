@@ -21,22 +21,23 @@ import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.butler.Butler
 import com.pyamsoft.fridge.butler.ButlerPreferences
 import com.pyamsoft.fridge.butler.NotificationHandler
-import com.pyamsoft.fridge.core.Core
+import com.pyamsoft.fridge.butler.NotificationPreferences
 import com.pyamsoft.fridge.db.item.FridgeItemPreferences
 import com.pyamsoft.pydroid.core.Enforcer
-import java.util.Calendar
 import kotlinx.coroutines.CancellationException
 import timber.log.Timber
+import java.util.Calendar
 
 internal abstract class BaseRunner protected constructor(
     private val handler: NotificationHandler,
     private val butler: Butler,
+    private val notificationPreferences: NotificationPreferences,
     private val butlerPreferences: ButlerPreferences,
     private val fridgeItemPreferences: FridgeItemPreferences,
     private val enforcer: Enforcer
 ) {
 
-    private fun teardown() {
+    private suspend fun teardown() {
         reschedule(butler)
     }
 
@@ -44,7 +45,7 @@ internal abstract class BaseRunner protected constructor(
         func(handler)
     }
 
-    protected open fun reschedule(butler: Butler) {
+    protected open suspend fun reschedule(butler: Butler) {
     }
 
     @CheckResult
@@ -89,8 +90,8 @@ internal abstract class BaseRunner protected constructor(
     }
 
     @CheckResult
-    protected fun Calendar.isAllowedToNotify(lastNotified: Long): Boolean {
+    protected suspend fun Calendar.isAllowedToNotify(lastNotified: Long): Boolean {
         val nowInMillis = this.timeInMillis
-        return lastNotified + Core.RESCHEDULE_TIME < nowInMillis
+        return lastNotified + notificationPreferences.getNotificationPeriod() < nowInMillis
     }
 }

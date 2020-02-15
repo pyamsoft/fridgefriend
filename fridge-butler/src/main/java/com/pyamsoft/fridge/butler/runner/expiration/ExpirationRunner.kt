@@ -21,6 +21,7 @@ import android.content.Context
 import com.pyamsoft.fridge.butler.Butler
 import com.pyamsoft.fridge.butler.ButlerPreferences
 import com.pyamsoft.fridge.butler.NotificationHandler
+import com.pyamsoft.fridge.butler.NotificationPreferences
 import com.pyamsoft.fridge.butler.runner.FridgeRunner
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.entry.FridgeEntryQueryDao
@@ -34,15 +35,16 @@ import com.pyamsoft.fridge.db.item.isArchived
 import com.pyamsoft.fridge.db.item.isExpired
 import com.pyamsoft.fridge.db.item.isExpiringSoon
 import com.pyamsoft.pydroid.core.Enforcer
-import java.util.Calendar
-import javax.inject.Inject
 import kotlinx.coroutines.coroutineScope
 import timber.log.Timber
+import java.util.Calendar
+import javax.inject.Inject
 
 internal class ExpirationRunner @Inject internal constructor(
     private val context: Context,
     handler: NotificationHandler,
     butler: Butler,
+    notificationPreferences: NotificationPreferences,
     butlerPreferences: ButlerPreferences,
     fridgeItemPreferences: FridgeItemPreferences,
     enforcer: Enforcer,
@@ -51,6 +53,7 @@ internal class ExpirationRunner @Inject internal constructor(
 ) : FridgeRunner(
     handler,
     butler,
+    notificationPreferences,
     butlerPreferences,
     fridgeItemPreferences,
     enforcer,
@@ -132,7 +135,7 @@ internal class ExpirationRunner @Inject internal constructor(
         }
     }
 
-    override fun reschedule(butler: Butler) {
+    override suspend fun reschedule(butler: Butler) {
         butler.scheduleRemindExpiration()
     }
 

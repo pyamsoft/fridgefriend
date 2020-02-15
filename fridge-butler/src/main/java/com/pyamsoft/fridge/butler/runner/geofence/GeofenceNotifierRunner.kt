@@ -22,6 +22,7 @@ import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.butler.Butler
 import com.pyamsoft.fridge.butler.ButlerPreferences
 import com.pyamsoft.fridge.butler.NotificationHandler
+import com.pyamsoft.fridge.butler.NotificationPreferences
 import com.pyamsoft.fridge.butler.runner.NearbyNotifyingRunner
 import com.pyamsoft.fridge.db.entry.FridgeEntryQueryDao
 import com.pyamsoft.fridge.db.item.FridgeItemPreferences
@@ -41,6 +42,7 @@ internal class GeofenceNotifierRunner @Inject internal constructor(
     context: Context,
     handler: NotificationHandler,
     butler: Butler,
+    notificationPreferences: NotificationPreferences,
     butlerPreferences: ButlerPreferences,
     fridgeItemPreferences: FridgeItemPreferences,
     enforcer: Enforcer,
@@ -55,6 +57,7 @@ internal class GeofenceNotifierRunner @Inject internal constructor(
     context,
     handler,
     butler,
+    notificationPreferences,
     butlerPreferences,
     fridgeItemPreferences,
     enforcer,
