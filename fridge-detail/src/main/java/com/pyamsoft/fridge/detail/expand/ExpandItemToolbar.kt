@@ -31,9 +31,9 @@ class ExpandItemToolbar @Inject internal constructor(
     parent: ViewGroup
 ) : BaseUiView<ExpandItemViewState, ExpandedItemViewEvent>(parent) {
 
-    override val layout: Int = R.layout.detail_toolbar
+    override val layout: Int = R.layout.expand_toolbar
 
-    override val layoutRoot by boundView<Toolbar>(R.id.detail_toolbar)
+    override val layoutRoot by boundView<Toolbar>(R.id.expand_toolbar)
 
     private var deleteMenuItem: MenuItem? = null
     private var consumeMenuItem: MenuItem? = null

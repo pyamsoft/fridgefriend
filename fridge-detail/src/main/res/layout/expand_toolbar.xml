@@ -17,8 +17,8 @@
 
 <merge>
 
-    <androidx.appcompat.widget.Toolbar xmlns:android="http://schemas.android.com/apk/res/android"
-        android:id="@+id/detail_toolbar"
+    <com.google.android.material.appbar.MaterialToolbar xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/expand_toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
         android:background="@drawable/curved_toolbar"
