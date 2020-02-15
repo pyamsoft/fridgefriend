@@ -102,6 +102,10 @@ data class JsonMappableFridgeItem internal constructor(
         return spoiledDate != null
     }
 
+    override fun isEmpty(): Boolean {
+        return id().isBlank()
+    }
+
     override fun name(name: String): FridgeItem {
         return this.copy(name = name)
     }

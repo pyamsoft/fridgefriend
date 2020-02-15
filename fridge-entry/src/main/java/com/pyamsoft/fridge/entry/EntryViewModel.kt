@@ -21,17 +21,19 @@ import androidx.lifecycle.viewModelScope
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.persist.PersistentEntries
 import com.pyamsoft.pydroid.arch.UiViewModel
-import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import timber.log.Timber
+import javax.inject.Inject
+import javax.inject.Named
 
 class EntryViewModel @Inject internal constructor(
-    private val persistentEntries: PersistentEntries
+    private val persistentEntries: PersistentEntries,
+    @Named("debug") debug: Boolean
 ) : UiViewModel<EntryViewState, EntryViewEvent, EntryControllerEvent>(
     initialState = EntryViewState(
         entries = emptyList()
-    )
+    ), debug = debug
 ) {
 
     init {

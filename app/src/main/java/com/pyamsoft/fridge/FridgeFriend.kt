@@ -47,13 +47,15 @@ class FridgeFriend : Application() {
         super.onCreate()
         PYDroid.init(
             this,
-            getString(R.string.app_name),
-            "https://github.com/pyamsoft/fridgefriend",
-            "https://github.com/pyamsoft/fridgefriend/issues",
-            Core.PRIVACY_POLICY_URL,
-            Core.TERMS_CONDITIONS_URL,
-            BuildConfig.VERSION_CODE,
-            BuildConfig.DEBUG
+            PYDroid.Parameters(
+                getString(R.string.app_name),
+                "https://github.com/pyamsoft/fridgefriend",
+                "https://github.com/pyamsoft/fridgefriend/issues",
+                Core.PRIVACY_POLICY_URL,
+                Core.TERMS_CONDITIONS_URL,
+                BuildConfig.VERSION_CODE,
+                BuildConfig.DEBUG
+            )
         ) { provider ->
             val moshi = Moshi.Builder()
                 .build()

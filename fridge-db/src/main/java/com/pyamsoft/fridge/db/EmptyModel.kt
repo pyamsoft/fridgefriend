@@ -15,27 +15,12 @@
  *
  */
 
-package com.pyamsoft.fridge.core.view
+package com.pyamsoft.fridge.db
 
-import android.graphics.Color
 import androidx.annotation.CheckResult
-import androidx.annotation.ColorInt
-import androidx.core.graphics.ColorUtils
 
-@ColorInt
-@CheckResult
-fun @receiver:ColorInt Int.darker(ratio: Float): Int {
-    return blend(Color.BLACK, ratio)
-}
+interface EmptyModel<T : Any> : BaseModel<T> {
 
-@ColorInt
-@CheckResult
-fun @receiver:ColorInt Int.lighter(ratio: Float): Int {
-    return blend(Color.WHITE, ratio)
-}
-
-@ColorInt
-@CheckResult
-fun @receiver:ColorInt Int.blend(@ColorInt color: Int, ratio: Float): Int {
-    return ColorUtils.blendARGB(this, color, ratio)
+    @CheckResult
+    fun isEmpty(): Boolean
 }

@@ -96,7 +96,7 @@ class ExpandItemCategoryList @Inject internal constructor(
         selectedCategoryId: String?
     ) {
         val itemList = categories.map { category ->
-            val catView = if (category.id().isBlank()) null else {
+            val catView = if (category.isEmpty()) null else {
                 ExpandedCategoryViewState.Category(
                     category.id(),
                     category.name(),
@@ -104,7 +104,7 @@ class ExpandItemCategoryList @Inject internal constructor(
                 )
             }
 
-            val isSelected = if (category.id().isBlank()) {
+            val isSelected = if (category.isEmpty()) {
                 selectedCategoryId == null
             } else {
                 category.id() == selectedCategoryId

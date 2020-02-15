@@ -19,10 +19,10 @@ package com.pyamsoft.fridge.db.category
 
 import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.core.IdGenerator
-import com.pyamsoft.fridge.db.BaseModel
+import com.pyamsoft.fridge.db.EmptyModel
 import java.util.Date
 
-interface FridgeCategory : BaseModel<FridgeCategory> {
+interface FridgeCategory : EmptyModel<FridgeCategory> {
 
     @CheckResult
     fun id(): String

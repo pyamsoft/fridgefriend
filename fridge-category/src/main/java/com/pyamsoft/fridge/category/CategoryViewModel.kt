@@ -22,13 +22,15 @@ import com.pyamsoft.pydroid.arch.UiViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import javax.inject.Named
 
 class CategoryViewModel @Inject internal constructor(
-    private val interactor: CategoryInteractor
+    private val interactor: CategoryInteractor,
+    @Named("debug") debug: Boolean
 ) : UiViewModel<CategoryViewState, CategoryViewEvent, CategoryControllerEvent>(
     initialState = CategoryViewState(
         categories = emptyList()
-    )
+    ), debug = debug
 ) {
 
     init {

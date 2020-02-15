@@ -31,11 +31,11 @@ import androidx.core.content.getSystemService
 import androidx.core.view.ViewCompat
 import androidx.core.view.ViewPropertyAnimatorCompat
 import androidx.core.view.isVisible
-import com.pyamsoft.fridge.core.view.darker
-import com.pyamsoft.fridge.core.view.lighter
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.ui.theme.ThemeProvider
 import com.pyamsoft.pydroid.ui.util.layout
+import com.pyamsoft.pydroid.util.darker
+import com.pyamsoft.pydroid.util.lighter
 import com.pyamsoft.pydroid.util.toDp
 import javax.inject.Inject
 

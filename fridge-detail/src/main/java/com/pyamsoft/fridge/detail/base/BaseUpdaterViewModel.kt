@@ -28,8 +28,9 @@ import kotlinx.coroutines.launch
 import timber.log.Timber
 
 abstract class BaseUpdaterViewModel<S : UiViewState, V : UiViewEvent, C : UiControllerEvent> protected constructor(
-    initialState: S
-) : UiViewModel<S, V, C>(initialState = initialState) {
+    initialState: S,
+    debug: Boolean
+) : UiViewModel<S, V, C>(initialState = initialState, debug = debug) {
 
     private val updateRunner = highlander<
         Unit,

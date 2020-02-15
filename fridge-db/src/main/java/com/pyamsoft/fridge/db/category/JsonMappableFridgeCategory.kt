@@ -50,6 +50,10 @@ data class JsonMappableFridgeCategory internal constructor(
         return isDefault
     }
 
+    override fun isEmpty(): Boolean {
+        return id().isBlank()
+    }
+
     override fun name(name: String): FridgeCategory {
         return this.copy(name = name)
     }

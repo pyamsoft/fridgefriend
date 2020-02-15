@@ -21,6 +21,7 @@ import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.db.category.FridgeCategory
 import com.pyamsoft.fridge.db.category.FridgeCategoryQueryDao
 import com.pyamsoft.fridge.db.entry.FridgeEntry
+import com.pyamsoft.fridge.db.guarantee.EntryGuarantee
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent
@@ -30,7 +31,6 @@ import com.pyamsoft.fridge.db.item.FridgeItemPreferences
 import com.pyamsoft.fridge.db.item.FridgeItemQueryDao
 import com.pyamsoft.fridge.db.item.FridgeItemRealtime
 import com.pyamsoft.fridge.db.item.FridgeItemUpdateDao
-import com.pyamsoft.fridge.db.guarantee.EntryGuarantee
 import com.pyamsoft.fridge.db.persist.PersistentCategories
 import com.pyamsoft.pydroid.arch.EventConsumer
 import com.pyamsoft.pydroid.core.Enforcer
@@ -120,13 +120,13 @@ internal class DetailInteractor @Inject internal constructor(
 
     suspend fun commit(item: FridgeItem) = withContext(context = Dispatchers.Default) {
         enforcer.assertNotOnMainThread()
-        if (item.name().isBlank()) {
-            Timber.w("Do not commit empty name FridgeItem: $item")
-        } else {
+        if (FridgeItem.isValidName(item.name())) {
             val entry =
                 entryGuarantee.guaranteeExists(item.entryId(), FridgeEntry.DEFAULT_NAME)
             Timber.d("Guarantee entry exists: $entry")
             commitItem(item)
+        } else {
+            Timber.w("Do not commit invalid name FridgeItem: $item")
         }
     }
 

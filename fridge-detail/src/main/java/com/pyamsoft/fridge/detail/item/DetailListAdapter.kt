@@ -20,7 +20,6 @@ package com.pyamsoft.fridge.detail.item
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.annotation.CheckResult
 import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
@@ -40,7 +39,8 @@ class DetailListAdapter constructor(
 ) : ListAdapter<DetailListItemViewState, DetailViewHolder>(DIFFER) {
 
     override fun getItemViewType(position: Int): Int {
-        return if (isEmptyItem(position, itemCount)) {
+        val item = getItem(position)
+        return if (item.item.isEmpty()) {
             R.id.id_item_empty_item
         } else {
             R.id.id_item_list_item
@@ -48,7 +48,8 @@ class DetailListAdapter constructor(
     }
 
     override fun getItemId(position: Int): Long {
-        return if (isEmptyItem(position, itemCount)) {
+        val item = getItem(position)
+        return if (item.item.isEmpty()) {
             if (position == 0) 0 else itemCount - 1L
         } else {
             getItem(position).item.id()
@@ -114,12 +115,6 @@ class DetailListAdapter constructor(
                     newItem.item
                 )
             }
-        }
-
-        @JvmStatic
-        @CheckResult
-        private fun isEmptyItem(position: Int, maxItems: Int): Boolean {
-            return position == 0 || position >= maxItems - 1
         }
     }
 }

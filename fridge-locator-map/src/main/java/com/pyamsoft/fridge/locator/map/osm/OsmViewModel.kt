@@ -23,15 +23,17 @@ import com.pyamsoft.fridge.locator.permission.BackgroundLocationPermission
 import com.pyamsoft.fridge.locator.permission.PermissionConsumer
 import com.pyamsoft.highlander.highlander
 import com.pyamsoft.pydroid.arch.UiViewModel
-import javax.inject.Inject
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import timber.log.Timber
+import javax.inject.Inject
+import javax.inject.Named
 
 class OsmViewModel @Inject internal constructor(
     private val mapPermission: MapPermission,
-    private val interactor: OsmInteractor
+    private val interactor: OsmInteractor,
+    @Named("debug") debug: Boolean
 ) : UiViewModel<OsmViewState, OsmViewEvent, OsmControllerEvent>(
     initialState = OsmViewState(
         boundingBox = null,
@@ -42,7 +44,7 @@ class OsmViewModel @Inject internal constructor(
         cachedFetchError = null,
         centerMyLocation = null,
         hasBackgroundPermission = mapPermission.hasBackgroundPermission()
-    )
+    ), debug = debug
 ) {
 
     private val mutex = Mutex()

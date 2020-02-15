@@ -164,6 +164,11 @@ internal data class RoomFridgeItem internal constructor(
     }
 
     @Ignore
+    override fun isEmpty(): Boolean {
+        return id().isBlank()
+    }
+
+    @Ignore
     override fun name(name: String): FridgeItem {
         return FridgeItem.create(this, name = name, isReal = isReal())
     }

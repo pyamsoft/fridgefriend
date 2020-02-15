@@ -21,12 +21,14 @@ import com.pyamsoft.pydroid.arch.UiViewModel
 import com.pyamsoft.pydroid.arch.UiViewModelFactory
 import dagger.MapKey
 import javax.inject.Inject
+import javax.inject.Named
 import javax.inject.Provider
 import kotlin.reflect.KClass
 
 class FridgeViewModelFactory @Inject internal constructor(
+    @Named("debug") debug: Boolean,
     private val viewModels: MutableMap<Class<out UiViewModel<*, *, *>>, Provider<UiViewModel<*, *, *>>>
-) : UiViewModelFactory() {
+) : UiViewModelFactory(debug) {
 
     override fun <T : UiViewModel<*, *, *>> viewModel(modelClass: KClass<T>): UiViewModel<*, *, *> {
         @Suppress("UNCHECKED_CAST")

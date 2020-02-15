@@ -36,20 +36,21 @@ import com.pyamsoft.fridge.detail.base.BaseUpdaterViewModel
 import com.pyamsoft.fridge.detail.expand.ItemExpandPayload
 import com.pyamsoft.highlander.highlander
 import com.pyamsoft.pydroid.arch.EventBus
-import java.util.Date
-import javax.inject.Inject
-import javax.inject.Named
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import timber.log.Timber
+import java.util.Date
+import javax.inject.Inject
+import javax.inject.Named
 
 class DetailViewModel @Inject internal constructor(
     private val interactor: DetailInteractor,
     private val fakeRealtime: EventBus<FridgeItemChangeEvent>,
     private val itemExpandedBus: EventBus<ItemExpandPayload>,
     @Named("entry_id") private val entryId: String,
+    @Named("debug") debug: Boolean,
     listItemPresence: FridgeItem.Presence
 ) : BaseUpdaterViewModel<DetailViewState, DetailViewEvent, DetailControllerEvent>(
     initialState = DetailViewState(
@@ -63,7 +64,7 @@ class DetailViewModel @Inject internal constructor(
         isSameDayExpired = null,
         listItemPresence = listItemPresence,
         isItemExpanded = false
-    )
+    ), debug = debug
 ) {
 
     private val undoRunner = highlander<Unit, FridgeItem> { item ->
@@ -218,7 +219,7 @@ class DetailViewModel @Inject internal constructor(
         val listItems = items
             .asSequence()
             // Remove the placeholder items here
-            .filter { it.id().isNotBlank() }
+            .filterNot { it.isEmpty() }
             // Filter by archived and presence
             .filter { item ->
                 when (showing) {
@@ -239,16 +240,12 @@ class DetailViewModel @Inject internal constructor(
             })
             .toList()
 
-        return when {
-            listItems.isEmpty() -> listItems
+        return if (listItems.isEmpty()) emptyList() else listItems.boundary()
+    }
 
-            // Add them back here
-            else -> listOf(
-                FridgeItem.empty(entryId, defaultPresence),
-                *listItems.toTypedArray(),
-                FridgeItem.empty(entryId, defaultPresence)
-            )
-        }
+    @CheckResult
+    private fun List<FridgeItem>.boundary(): List<FridgeItem> {
+        return listOf(FridgeItem.empty()) + this + listOf(FridgeItem.empty())
     }
 
     private fun refreshList(force: Boolean) {
@@ -355,10 +352,7 @@ class DetailViewModel @Inject internal constructor(
 
     private fun handleListRefreshed(items: List<FridgeItem>) {
         setState {
-            copy(
-                items = getListItems(showing, items, listItemPresence),
-                listError = null
-            )
+            copy(items = getListItems(showing, items, listItemPresence), listError = null)
         }
     }
 

@@ -21,9 +21,12 @@ import com.pyamsoft.fridge.setting.SettingsControllerEvent.NavigateUp
 import com.pyamsoft.fridge.setting.SettingsViewEvent.Navigate
 import com.pyamsoft.pydroid.arch.UiViewModel
 import javax.inject.Inject
+import javax.inject.Named
 
-class SettingsViewModel @Inject internal constructor() : UiViewModel<SettingsViewState, SettingsViewEvent, SettingsControllerEvent>(
-    initialState = SettingsViewState(name = "Settings")
+class SettingsViewModel @Inject internal constructor(
+    @Named("debug") debug: Boolean
+) : UiViewModel<SettingsViewState, SettingsViewEvent, SettingsControllerEvent>(
+    initialState = SettingsViewState(name = "Settings"), debug = debug
 ) {
 
     override fun handleViewEvent(event: SettingsViewEvent) {

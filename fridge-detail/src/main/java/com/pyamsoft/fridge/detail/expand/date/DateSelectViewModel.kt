@@ -24,11 +24,13 @@ import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import javax.inject.Named
 
 class DateSelectViewModel @Inject internal constructor(
-    private val dateSelectBus: EventBus<DateSelectPayload>
+    private val dateSelectBus: EventBus<DateSelectPayload>,
+    @Named("debug") debug: Boolean
 ) : BaseUpdaterViewModel<DateSelectViewState, DateSelectViewEvent, DateSelectControllerEvent>(
-    initialState = DateSelectViewState
+    initialState = DateSelectViewState, debug = debug
 ) {
 
     override fun handleViewEvent(event: DateSelectViewEvent) {

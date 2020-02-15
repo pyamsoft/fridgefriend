@@ -19,11 +19,11 @@ package com.pyamsoft.fridge.db.item
 
 import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.core.IdGenerator
-import com.pyamsoft.fridge.db.BaseModel
+import com.pyamsoft.fridge.db.EmptyModel
 import java.util.Calendar
 import java.util.Date
 
-interface FridgeItem : BaseModel<FridgeItem> {
+interface FridgeItem : EmptyModel<FridgeItem> {
 
     @CheckResult
     fun id(): String
@@ -117,17 +117,16 @@ interface FridgeItem : BaseModel<FridgeItem> {
 
     companion object {
 
-        private const val EMPTY_NAME = ""
-        private const val DEFAULT_COUNT = 1
+        private val EMPTY_ITEM = create("", "", Presence.NEED)
 
         @CheckResult
         fun isValidName(name: String): Boolean {
-            return name.isNotBlank() && name != EMPTY_NAME
+            return name.isNotBlank()
         }
 
         @CheckResult
-        fun empty(entryId: String, presence: Presence): FridgeItem {
-            return create("", entryId, presence)
+        fun empty(): FridgeItem {
+            return EMPTY_ITEM
         }
 
         @CheckResult
@@ -140,8 +139,8 @@ interface FridgeItem : BaseModel<FridgeItem> {
             return JsonMappableFridgeItem(
                 id = id,
                 entryId = entryId,
-                name = EMPTY_NAME,
-                count = DEFAULT_COUNT,
+                name = "",
+                count = 1,
                 createdTime = Date(),
                 purchasedTime = null,
                 expireTime = null,

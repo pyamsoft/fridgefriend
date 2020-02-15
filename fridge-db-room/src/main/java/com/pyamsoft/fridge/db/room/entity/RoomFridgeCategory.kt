@@ -75,6 +75,11 @@ internal data class RoomFridgeCategory internal constructor(
     }
 
     @Ignore
+    override fun isEmpty(): Boolean {
+        return id().isBlank()
+    }
+
+    @Ignore
     override fun name(name: String): FridgeCategory {
         return FridgeCategory.create(this, name = name)
     }

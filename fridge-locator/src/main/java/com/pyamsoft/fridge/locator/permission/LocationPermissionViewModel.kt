@@ -21,11 +21,13 @@ import com.pyamsoft.fridge.locator.MapPermission
 import com.pyamsoft.pydroid.arch.UiViewModel
 import com.pyamsoft.pydroid.arch.UnitViewState
 import javax.inject.Inject
+import javax.inject.Named
 
 class LocationPermissionViewModel @Inject internal constructor(
-    private val mapPermission: MapPermission
+    private val mapPermission: MapPermission,
+    @Named("debug") debug: Boolean
 ) : UiViewModel<UnitViewState, PermissionViewEvent, PermissionControllerEvent>(
-    initialState = UnitViewState
+    initialState = UnitViewState, debug = debug
 ) {
 
     override fun handleViewEvent(event: PermissionViewEvent) {

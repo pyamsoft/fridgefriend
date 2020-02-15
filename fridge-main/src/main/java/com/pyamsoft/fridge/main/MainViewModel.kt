@@ -27,6 +27,7 @@ import javax.inject.Named
 class MainViewModel @Inject internal constructor(
     private val mapPermission: MapPermission,
     @Named("app_name") appNameRes: Int,
+    @Named("debug") debug: Boolean,
     defaultPage: MainPage
 ) : UiViewModel<MainViewState, MainViewEvent, MainControllerEvent>(
     initialState = MainViewState(
@@ -34,7 +35,7 @@ class MainViewModel @Inject internal constructor(
         page = null,
         isSettingsItemVisible = true,
         appNameRes = appNameRes
-    )
+    ), debug = debug
 ) {
 
     init {

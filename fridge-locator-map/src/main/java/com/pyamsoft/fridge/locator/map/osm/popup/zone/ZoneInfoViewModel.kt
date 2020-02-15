@@ -23,19 +23,21 @@ import com.pyamsoft.fridge.db.zone.NearbyZone
 import com.pyamsoft.fridge.locator.map.osm.popup.zone.ZoneInfoViewEvent.ZoneFavoriteAction
 import com.pyamsoft.fridge.locator.map.osm.popup.zone.ZoneInfoViewState.ZoneCached
 import com.pyamsoft.pydroid.arch.UiViewModel
-import javax.inject.Inject
 import kotlinx.coroutines.launch
 import org.osmdroid.views.overlay.Polygon
+import javax.inject.Inject
+import javax.inject.Named
 
 internal class ZoneInfoViewModel @Inject internal constructor(
     private val interactor: ZoneInfoInteractor,
-    zone: NearbyZone
+    zone: NearbyZone,
+    @Named("debug") debug: Boolean
 ) : UiViewModel<ZoneInfoViewState, ZoneInfoViewEvent, ZoneInfoControllerEvent>(
     initialState = ZoneInfoViewState(
         myLocation = null,
         polygon = null,
         cached = null
-    )
+    ), debug = debug
 ) {
 
     private val zoneId = zone.id()

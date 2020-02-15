@@ -34,13 +34,13 @@ import com.pyamsoft.fridge.detail.base.BaseUpdaterViewModel
 import com.pyamsoft.fridge.detail.expand.date.DateSelectPayload
 import com.pyamsoft.fridge.detail.item.isNameValid
 import com.pyamsoft.pydroid.arch.EventBus
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import timber.log.Timber
 import java.util.Calendar
 import java.util.Date
 import javax.inject.Inject
 import javax.inject.Named
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import timber.log.Timber
 
 class ExpandItemViewModel @Inject internal constructor(
     private val itemExpandBus: EventBus<ItemExpandPayload>,
@@ -49,7 +49,8 @@ class ExpandItemViewModel @Inject internal constructor(
     dateSelectBus: EventBus<DateSelectPayload>,
     realtime: FridgeItemRealtime,
     @Named("item_id") possibleItemId: String,
-    @Named("item_entry_id") itemEntryId: String
+    @Named("item_entry_id") itemEntryId: String,
+    @Named("debug") debug: Boolean
 ) : BaseUpdaterViewModel<ExpandItemViewState, ExpandedItemViewEvent, ExpandItemControllerEvent>(
     initialState = ExpandItemViewState(
         item = null,
@@ -57,7 +58,7 @@ class ExpandItemViewModel @Inject internal constructor(
         sameNamedItems = emptyList(),
         similarItems = emptyList(),
         categories = emptyList()
-    )
+    ), debug = debug
 ) {
 
     init {
