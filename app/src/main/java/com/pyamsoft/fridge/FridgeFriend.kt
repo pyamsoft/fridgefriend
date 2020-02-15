@@ -61,26 +61,23 @@ class FridgeFriend : Application() {
         ) { provider ->
             val moshi = Moshi.Builder()
                 .build()
-            component = DaggerFridgeComponent.factory()
-                .create(
-                    this,
-                    debug,
-                    moshi,
-                    provider.theming(),
-                    provider.enforcer(),
-                    provider.imageLoader(),
-                    MainActivity::class.java,
-                    GeofenceUpdateReceiver::class.java
-                )
-                .also { onInitialized(it) }
+            component = DaggerFridgeComponent.factory().create(
+                this,
+                debug,
+                moshi,
+                provider.theming(),
+                provider.enforcer(),
+                provider.imageLoader(),
+                MainActivity::class.java,
+                GeofenceUpdateReceiver::class.java
+            )
+            onInitialized()
         }
     }
 
-    private fun onInitialized(component: FridgeComponent) {
+    private fun onInitialized() {
         addLibraries()
-
-        component.inject(this)
-
+        requireNotNull(component).inject(this)
         beginWork()
     }
 
@@ -122,9 +119,7 @@ class FridgeFriend : Application() {
             return service
         }
 
-        return if (name == FridgeComponent::class.java.name) {
-            requireNotNull(component)
-        } else {
+        return if (name == FridgeComponent::class.java.name) component else {
             getServiceFromComponent(name) ?: super.getSystemService(name)
         }
     }
@@ -141,17 +136,17 @@ class FridgeFriend : Application() {
 
     @CheckResult
     private fun provideModuleDependencies(name: String): Any? {
-        // ===============================================
-        // HACKY INJECTORS see FridgeComponent
-        return when (name) {
-            ButlerComponent::class.java.name -> requireNotNull(component).plusButlerComponent()
-            InputButlerComponent.Factory::class.java.name -> requireNotNull(component).plusInputButlerComponent()
-            CategoryListComponent.Factory::class.java.name -> requireNotNull(component).plusCategoryListComponent()
-            DetailListComponent.Factory::class.java.name -> requireNotNull(component).plusDetailListComponent()
-            ExpandItemCategoryListComponent.Factory::class.java.name -> requireNotNull(component).plusExpandCategoryListComponent()
-            StoreInfoComponent.Factory::class.java.name -> requireNotNull(component).plusStoreComponent()
-            ZoneInfoComponent.Factory::class.java.name -> requireNotNull(component).plusZoneComponent()
-            else -> null
+        return component?.run {
+            when (name) {
+                ButlerComponent::class.java.name -> plusButlerComponent()
+                InputButlerComponent.Factory::class.java.name -> plusInputButlerComponent()
+                CategoryListComponent.Factory::class.java.name -> plusCategoryListComponent()
+                DetailListComponent.Factory::class.java.name -> plusDetailListComponent()
+                ExpandItemCategoryListComponent.Factory::class.java.name -> plusExpandCategoryListComponent()
+                StoreInfoComponent.Factory::class.java.name -> plusStoreComponent()
+                ZoneInfoComponent.Factory::class.java.name -> plusZoneComponent()
+                else -> null
+            }
         }
     }
 }
