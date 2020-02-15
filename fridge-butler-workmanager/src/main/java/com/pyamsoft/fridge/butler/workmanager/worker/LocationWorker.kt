@@ -24,7 +24,8 @@ import com.pyamsoft.fridge.butler.injector.BaseInjector
 import com.pyamsoft.fridge.butler.injector.LocationInjector
 
 internal class LocationWorker internal constructor(
-    context: Context, params: WorkerParameters
+    context: Context,
+    params: WorkerParameters
 ) : BaseWorker(context.applicationContext, params) {
 
     override fun getInjector(context: Context, data: Data): BaseInjector {

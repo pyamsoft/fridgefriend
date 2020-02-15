@@ -22,8 +22,6 @@ import android.widget.ImageView
 import androidx.annotation.CheckResult
 import androidx.annotation.DrawableRes
 import androidx.core.view.isVisible
-import com.pyamsoft.fridge.tooltip.Tooltip
-import com.pyamsoft.fridge.tooltip.TooltipCreator
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence.HAVE
 import com.pyamsoft.fridge.db.item.cleanMidnight
@@ -33,6 +31,8 @@ import com.pyamsoft.fridge.db.item.isExpired
 import com.pyamsoft.fridge.db.item.isExpiringSoon
 import com.pyamsoft.fridge.detail.R
 import com.pyamsoft.fridge.detail.item.DetailItemViewEvent.ExpandItem
+import com.pyamsoft.fridge.tooltip.Tooltip
+import com.pyamsoft.fridge.tooltip.TooltipCreator
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.loader.Loaded

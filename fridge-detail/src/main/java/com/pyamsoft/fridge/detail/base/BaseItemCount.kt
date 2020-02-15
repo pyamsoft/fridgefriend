@@ -19,7 +19,6 @@ package com.pyamsoft.fridge.detail.base
 
 import android.view.ViewGroup
 import android.widget.EditText
-import androidx.core.view.isVisible
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.detail.R
 import com.pyamsoft.pydroid.arch.BaseUiView

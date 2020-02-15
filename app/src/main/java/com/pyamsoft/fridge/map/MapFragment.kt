@@ -41,8 +41,8 @@ import com.pyamsoft.pydroid.arch.StateSaver
 import com.pyamsoft.pydroid.arch.createComponent
 import com.pyamsoft.pydroid.ui.Injector
 import com.pyamsoft.pydroid.ui.arch.factory
-import timber.log.Timber
 import javax.inject.Inject
+import timber.log.Timber
 
 internal class MapFragment : Fragment(), SnackbarContainer,
     PermissionConsumer<BackgroundLocationPermission> {

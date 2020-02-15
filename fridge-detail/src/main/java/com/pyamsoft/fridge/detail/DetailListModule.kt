@@ -19,8 +19,8 @@ package com.pyamsoft.fridge.detail
 
 import android.content.Context
 import androidx.annotation.CheckResult
-import com.pyamsoft.fridge.tooltip.TooltipCreator
 import com.pyamsoft.fridge.detail.item.DetailItemComponent
+import com.pyamsoft.fridge.tooltip.TooltipCreator
 import com.pyamsoft.pydroid.ui.Injector
 import com.pyamsoft.pydroid.ui.theme.ThemeProvider
 import dagger.Module

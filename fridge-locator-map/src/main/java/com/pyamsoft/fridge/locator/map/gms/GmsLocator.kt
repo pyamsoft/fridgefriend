@@ -41,13 +41,13 @@ import com.pyamsoft.fridge.locator.Geofencer
 import com.pyamsoft.fridge.locator.Locator
 import com.pyamsoft.fridge.locator.Locator.Fence
 import com.pyamsoft.fridge.locator.MapPermission
-import kotlinx.coroutines.suspendCancellableCoroutine
-import timber.log.Timber
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
+import kotlinx.coroutines.suspendCancellableCoroutine
+import timber.log.Timber
 
 @Singleton
 internal class GmsLocator @Inject internal constructor(

@@ -21,10 +21,10 @@ import androidx.lifecycle.viewModelScope
 import com.pyamsoft.fridge.detail.base.BaseUpdaterViewModel
 import com.pyamsoft.pydroid.arch.EventBus
 import javax.inject.Inject
+import javax.inject.Named
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import javax.inject.Named
 
 class DateSelectViewModel @Inject internal constructor(
     private val dateSelectBus: EventBus<DateSelectPayload>,

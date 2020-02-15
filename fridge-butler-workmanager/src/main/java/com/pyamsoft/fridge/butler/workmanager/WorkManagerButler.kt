@@ -31,10 +31,10 @@ import com.pyamsoft.fridge.butler.workmanager.worker.GeofenceNotifierWorker
 import com.pyamsoft.fridge.butler.workmanager.worker.GeofenceRegistrationWorker
 import com.pyamsoft.fridge.butler.workmanager.worker.LocationWorker
 import com.pyamsoft.fridge.locator.GeofenceProcessor
-import timber.log.Timber
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import javax.inject.Singleton
+import timber.log.Timber
 
 @Singleton
 internal class WorkManagerButler @Inject internal constructor(

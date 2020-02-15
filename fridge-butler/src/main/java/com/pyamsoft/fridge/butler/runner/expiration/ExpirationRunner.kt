@@ -35,10 +35,10 @@ import com.pyamsoft.fridge.db.item.isArchived
 import com.pyamsoft.fridge.db.item.isExpired
 import com.pyamsoft.fridge.db.item.isExpiringSoon
 import com.pyamsoft.pydroid.core.Enforcer
-import kotlinx.coroutines.coroutineScope
-import timber.log.Timber
 import java.util.Calendar
 import javax.inject.Inject
+import kotlinx.coroutines.coroutineScope
+import timber.log.Timber
 
 internal class ExpirationRunner @Inject internal constructor(
     private val context: Context,

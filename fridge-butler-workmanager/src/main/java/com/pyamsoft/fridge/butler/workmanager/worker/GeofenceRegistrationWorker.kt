@@ -32,4 +32,3 @@ internal class GeofenceRegistrationWorker internal constructor(
         return GeofenceRegistrationInjector(context.applicationContext)
     }
 }
-

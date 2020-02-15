@@ -26,7 +26,8 @@ import com.pyamsoft.fridge.butler.injector.BaseInjector
 import com.pyamsoft.fridge.butler.runner.WorkResult
 
 internal abstract class BaseWorker protected constructor(
-    context: Context, params: WorkerParameters
+    context: Context,
+    params: WorkerParameters
 ) : CoroutineWorker(context.applicationContext, params) {
 
     final override suspend fun doWork(): Result {
