@@ -158,10 +158,11 @@ internal interface FridgeComponent {
 
         @CheckResult
         fun create(
-            @BindsInstance theming: Theming,
-            @BindsInstance moshi: Moshi,
-            @BindsInstance enforcer: Enforcer,
             @BindsInstance application: Application,
+            @Named("debug") @BindsInstance debug: Boolean,
+            @BindsInstance moshi: Moshi,
+            @BindsInstance theming: Theming,
+            @BindsInstance enforcer: Enforcer,
             @BindsInstance imageLoader: ImageLoader,
             @BindsInstance activityClass: Class<out Activity>,
             @BindsInstance geofenceReceiverClass: Class<out GeofenceBroadcastReceiver>
@@ -191,14 +192,6 @@ internal interface FridgeComponent {
 
         @Module
         companion object {
-
-            @Provides
-            @JvmStatic
-            @Singleton
-            @Named("debug")
-            internal fun provideDebug(): Boolean {
-                return BuildConfig.DEBUG
-            }
 
             @Provides
             @JvmStatic

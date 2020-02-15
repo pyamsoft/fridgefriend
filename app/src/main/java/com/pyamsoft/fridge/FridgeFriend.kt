@@ -45,6 +45,7 @@ class FridgeFriend : Application() {
 
     override fun onCreate() {
         super.onCreate()
+        val debug = BuildConfig.DEBUG
         PYDroid.init(
             this,
             PYDroid.Parameters(
@@ -54,17 +55,18 @@ class FridgeFriend : Application() {
                 Core.PRIVACY_POLICY_URL,
                 Core.TERMS_CONDITIONS_URL,
                 BuildConfig.VERSION_CODE,
-                BuildConfig.DEBUG
+                debug
             )
         ) { provider ->
             val moshi = Moshi.Builder()
                 .build()
             component = DaggerFridgeComponent.factory()
                 .create(
-                    provider.theming(),
-                    moshi,
-                    provider.enforcer(),
                     this,
+                    debug,
+                    moshi,
+                    provider.theming(),
+                    provider.enforcer(),
                     provider.imageLoader(),
                     MainActivity::class.java,
                     GeofenceUpdateReceiver::class.java
