@@ -26,7 +26,7 @@ import javax.inject.Inject
 
 class GeofenceNotifyInjector(
     context: Context,
-    private val fenceIds: Array<out String>,
+    private val fenceIds: List<String>,
     private val latitude: Double?,
     private val longitude: Double?
 ) : BaseInjector(context) {

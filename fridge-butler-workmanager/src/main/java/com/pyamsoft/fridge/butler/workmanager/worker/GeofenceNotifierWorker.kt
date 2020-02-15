@@ -34,7 +34,12 @@ internal class GeofenceNotifierWorker internal constructor(
         val currentLat = if (latitude == BAD_COORDINATE) null else latitude
         val longitude = data.getDouble(KEY_CURRENT_LONGITUDE, BAD_COORDINATE)
         val currentLon = if (longitude == BAD_COORDINATE) null else longitude
-        return GeofenceNotifyInjector(context.applicationContext, fenceIds, currentLat, currentLon)
+        return GeofenceNotifyInjector(
+            context.applicationContext,
+            fenceIds.toList(),
+            currentLat,
+            currentLon
+        )
     }
 
     companion object {

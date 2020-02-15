@@ -50,7 +50,7 @@ internal class GeofenceNotifierRunner @Inject internal constructor(
     fridgeItemQueryDao: FridgeItemQueryDao,
     storeDb: NearbyStoreQueryDao,
     zoneDb: NearbyZoneQueryDao,
-    private val fenceIds: Array<out String>,
+    private val fenceIds: List<String>,
     @Named("latitude") private val latitude: Double?,
     @Named("longitude") private val longitude: Double?
 ) : NearbyNotifyingRunner(

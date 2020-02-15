@@ -33,7 +33,7 @@ interface InputButlerComponent {
 
         @CheckResult
         fun create(
-            @BindsInstance fenceIds: Array<out String>,
+            @BindsInstance fenceIds: List<String>,
             @BindsInstance @Named("latitude") latitude: Double?,
             @BindsInstance @Named("longitude") longitude: Double?
         ): InputButlerComponent
