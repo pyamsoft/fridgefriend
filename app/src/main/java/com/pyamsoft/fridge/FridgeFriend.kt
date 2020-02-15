@@ -46,12 +46,13 @@ class FridgeFriend : Application() {
     override fun onCreate() {
         super.onCreate()
         val debug = BuildConfig.DEBUG
+        val url = "https://github.com/pyamsoft/fridgefriend"
         PYDroid.init(
             this,
             PYDroid.Parameters(
                 getString(R.string.app_name),
-                "https://github.com/pyamsoft/fridgefriend",
-                "https://github.com/pyamsoft/fridgefriend/issues",
+                url,
+                "$url/issues",
                 Core.PRIVACY_POLICY_URL,
                 Core.TERMS_CONDITIONS_URL,
                 BuildConfig.VERSION_CODE,
