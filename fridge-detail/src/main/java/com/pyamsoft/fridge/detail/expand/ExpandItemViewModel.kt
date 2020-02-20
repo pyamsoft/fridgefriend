@@ -72,10 +72,7 @@ class ExpandItemViewModel @Inject internal constructor(
             viewModelScope.launch(context = Dispatchers.Default) {
                 val categories = interactor.loadAllCategories()
                 setState {
-                    copy(
-                        categories = listOf(FridgeCategory.empty()) + categories,
-                        throwable = throwable
-                    )
+                    copy(categories = listOf(FridgeCategory.empty()) + categories)
                 }
             }
         }
@@ -110,7 +107,7 @@ class ExpandItemViewModel @Inject internal constructor(
                     defaultPresence,
                     force = false
                 )
-                setState { copy(item = item, throwable = throwable) }
+                setState { copy(item = item) }
             }
         }
 
@@ -214,7 +211,7 @@ class ExpandItemViewModel @Inject internal constructor(
         withState {
             requireNotNull(item).let { item ->
                 if (item.id() == newItem.id() && item.entryId() == newItem.entryId()) {
-                    setState { copy(item = newItem, throwable = throwable) }
+                    setState { copy(item = newItem) }
                 }
             }
         }
@@ -342,14 +339,14 @@ class ExpandItemViewModel @Inject internal constructor(
 
         viewModelScope.launch(context = Dispatchers.Main) {
             val sameNamedItems = interactor.findSameNamedItems(item.name(), HAVE)
-            setState { copy(sameNamedItems = sameNamedItems, throwable = throwable) }
+            setState { copy(sameNamedItems = sameNamedItems) }
         }
     }
 
     private fun findSimilarItems(item: FridgeItem) {
         viewModelScope.launch(context = Dispatchers.Main) {
             val similarItems = interactor.findSimilarNamedItems(item)
-            setState { copy(similarItems = similarItems, throwable = throwable) }
+            setState { copy(similarItems = similarItems) }
         }
     }
 
