@@ -78,9 +78,11 @@ interface FridgeCategory : EmptyModel<FridgeCategory> {
 
     companion object {
 
+        private val EMPTY_CATEGORY = JsonMappableFridgeCategory("", "", Date(), null, isDefault = true)
+
         @CheckResult
         fun empty(): FridgeCategory {
-            return JsonMappableFridgeCategory("", "", Date(), null, isDefault = true)
+            return EMPTY_CATEGORY
         }
 
         @CheckResult
