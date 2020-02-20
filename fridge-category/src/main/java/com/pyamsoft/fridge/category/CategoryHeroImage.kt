@@ -19,7 +19,7 @@ package com.pyamsoft.fridge.category
 
 import android.view.ViewGroup
 import android.widget.ImageView
-import com.pyamsoft.fridge.core.view.HeroImage
+import com.pyamsoft.fridge.core.HeroImage
 import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.loader.Loaded
 import javax.inject.Inject

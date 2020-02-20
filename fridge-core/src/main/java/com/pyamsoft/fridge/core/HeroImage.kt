@@ -15,7 +15,7 @@
  *
  */
 
-package com.pyamsoft.fridge.core.view
+package com.pyamsoft.fridge.core
 
 import android.view.ViewGroup
 import android.widget.ImageView
@@ -23,7 +23,6 @@ import androidx.annotation.CheckResult
 import androidx.core.content.withStyledAttributes
 import androidx.core.view.updatePadding
 import com.google.android.material.appbar.CollapsingToolbarLayout
-import com.pyamsoft.fridge.core.R
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.arch.UiViewEvent
 import com.pyamsoft.pydroid.arch.UiViewState

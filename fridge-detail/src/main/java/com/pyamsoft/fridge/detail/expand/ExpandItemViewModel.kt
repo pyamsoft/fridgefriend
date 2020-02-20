@@ -34,13 +34,13 @@ import com.pyamsoft.fridge.detail.base.BaseUpdaterViewModel
 import com.pyamsoft.fridge.detail.expand.date.DateSelectPayload
 import com.pyamsoft.fridge.detail.item.isNameValid
 import com.pyamsoft.pydroid.arch.EventBus
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import timber.log.Timber
 import java.util.Calendar
 import java.util.Date
 import javax.inject.Inject
 import javax.inject.Named
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import timber.log.Timber
 
 class ExpandItemViewModel @Inject internal constructor(
     private val itemExpandBus: EventBus<ItemExpandPayload>,
@@ -71,7 +71,12 @@ class ExpandItemViewModel @Inject internal constructor(
         doOnInit {
             viewModelScope.launch(context = Dispatchers.Default) {
                 val categories = interactor.loadAllCategories()
-                setState { copy(categories = listOf(FridgeCategory.empty()) + categories) }
+                setState {
+                    copy(
+                        categories = listOf(FridgeCategory.empty()) + categories,
+                        throwable = throwable
+                    )
+                }
             }
         }
 
@@ -105,7 +110,7 @@ class ExpandItemViewModel @Inject internal constructor(
                     defaultPresence,
                     force = false
                 )
-                setState { copy(item = item) }
+                setState { copy(item = item, throwable = throwable) }
             }
         }
 
@@ -209,7 +214,7 @@ class ExpandItemViewModel @Inject internal constructor(
         withState {
             requireNotNull(item).let { item ->
                 if (item.id() == newItem.id() && item.entryId() == newItem.entryId()) {
-                    setState { copy(item = newItem) }
+                    setState { copy(item = newItem, throwable = throwable) }
                 }
             }
         }
@@ -337,14 +342,14 @@ class ExpandItemViewModel @Inject internal constructor(
 
         viewModelScope.launch(context = Dispatchers.Main) {
             val sameNamedItems = interactor.findSameNamedItems(item.name(), HAVE)
-            setState { copy(sameNamedItems = sameNamedItems) }
+            setState { copy(sameNamedItems = sameNamedItems, throwable = throwable) }
         }
     }
 
     private fun findSimilarItems(item: FridgeItem) {
         viewModelScope.launch(context = Dispatchers.Main) {
             val similarItems = interactor.findSimilarNamedItems(item)
-            setState { copy(similarItems = similarItems) }
+            setState { copy(similarItems = similarItems, throwable = throwable) }
         }
     }
 
@@ -393,7 +398,7 @@ class ExpandItemViewModel @Inject internal constructor(
 
     private fun setFixMessage(message: String) {
         setState {
-            copy(throwable = if (message.isBlank()) null else IllegalArgumentException(message))
+            copy(throwable = if (message.isBlank()) null else FixMessageThrowable(message))
         }
     }
 
@@ -403,4 +408,8 @@ class ExpandItemViewModel @Inject internal constructor(
         // Instead of reloading a new item when the app loads, reload the current newly created item
         private const val CREATED_ITEM_ID = "created_item_id"
     }
+
+    private data class FixMessageThrowable internal constructor(
+        override val message: String
+    ) : IllegalStateException(message)
 }
