@@ -18,7 +18,6 @@
 package com.pyamsoft.fridge.butler.injector.component
 
 import com.pyamsoft.fridge.butler.injector.ExpirationInjector
-import com.pyamsoft.fridge.butler.injector.GeofenceRegistrationInjector
 import com.pyamsoft.fridge.butler.injector.LocationInjector
 import dagger.Subcomponent
 
@@ -28,6 +27,4 @@ interface ButlerComponent {
     fun inject(injector: ExpirationInjector)
 
     fun inject(injector: LocationInjector)
-
-    fun inject(injector: GeofenceRegistrationInjector)
 }

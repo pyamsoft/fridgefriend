@@ -15,7 +15,7 @@
  *
  */
 
-package com.pyamsoft.fridge.butler.runner.geofence
+package com.pyamsoft.fridge.butler.runner.locator
 
 import android.content.Context
 import androidx.annotation.CheckResult
@@ -26,7 +26,7 @@ import com.pyamsoft.fridge.db.store.NearbyStore
 import com.pyamsoft.fridge.db.zone.NearbyZone
 import java.util.Calendar
 
-internal object GeofenceNotifications {
+internal object NearbyNotifications {
 
     private const val NEEDED_NOTIFICATION_ID = 1234
 

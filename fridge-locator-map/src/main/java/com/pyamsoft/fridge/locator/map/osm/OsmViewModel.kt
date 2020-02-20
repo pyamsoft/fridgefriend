@@ -18,20 +18,16 @@
 package com.pyamsoft.fridge.locator.map.osm
 
 import androidx.lifecycle.viewModelScope
-import com.pyamsoft.fridge.locator.MapPermission
-import com.pyamsoft.fridge.locator.permission.BackgroundLocationPermission
-import com.pyamsoft.fridge.locator.permission.PermissionConsumer
 import com.pyamsoft.highlander.highlander
 import com.pyamsoft.pydroid.arch.UiViewModel
-import javax.inject.Inject
-import javax.inject.Named
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import timber.log.Timber
+import javax.inject.Inject
+import javax.inject.Named
 
 class OsmViewModel @Inject internal constructor(
-    private val mapPermission: MapPermission,
     private val interactor: OsmInteractor,
     @Named("debug") debug: Boolean
 ) : UiViewModel<OsmViewState, OsmViewEvent, OsmControllerEvent>(
@@ -42,8 +38,7 @@ class OsmViewModel @Inject internal constructor(
         zones = emptyList(),
         nearbyError = null,
         cachedFetchError = null,
-        centerMyLocation = null,
-        hasBackgroundPermission = mapPermission.hasBackgroundPermission()
+        centerMyLocation = null
     ), debug = debug
 ) {
 
@@ -151,7 +146,6 @@ class OsmViewModel @Inject internal constructor(
     override fun handleViewEvent(event: OsmViewEvent) {
         return when (event) {
             is OsmViewEvent.UpdateBoundingBox -> setState { copy(boundingBox = event.box) }
-            is OsmViewEvent.RequestBackgroundPermission -> publish(OsmControllerEvent.BackgroundPermissionRequest)
             is OsmViewEvent.RequestMyLocation -> findMyLocation(event.firstTime)
             is OsmViewEvent.DoneFindingMyLocation -> doneFindingMyLocation()
             is OsmViewEvent.RequestFindNearby -> nearbySupermarkets()
@@ -174,15 +168,5 @@ class OsmViewModel @Inject internal constructor(
                 viewModelScope.launch { nearbyRunner.call(box) }
             }
         }
-    }
-
-    fun refreshMapPermissions() {
-        setState {
-            copy(hasBackgroundPermission = mapPermission.hasBackgroundPermission())
-        }
-    }
-
-    fun requestBackgroundPermissions(consumer: PermissionConsumer<BackgroundLocationPermission>) {
-        mapPermission.requestBackgroundPermission(consumer)
     }
 }

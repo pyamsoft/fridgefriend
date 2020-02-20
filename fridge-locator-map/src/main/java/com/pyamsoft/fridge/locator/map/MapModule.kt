@@ -20,7 +20,6 @@ package com.pyamsoft.fridge.locator.map
 import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.locator.DeviceGps
 import com.pyamsoft.fridge.locator.Geofencer
-import com.pyamsoft.fridge.locator.Locator
 import com.pyamsoft.fridge.locator.map.gms.GmsLocator
 import com.pyamsoft.fridge.locator.map.osm.api.NearbyLocationApi
 import com.pyamsoft.fridge.locator.map.osm.api.OsmNodeOrWay
@@ -28,20 +27,16 @@ import com.squareup.moshi.Moshi
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
-import javax.inject.Named
-import javax.inject.Singleton
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import okhttp3.logging.HttpLoggingInterceptor.Level.BODY
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
+import javax.inject.Named
+import javax.inject.Singleton
 
 @Module
 abstract class MapModule {
-
-    @Binds
-    @CheckResult
-    internal abstract fun bindLocator(impl: GmsLocator): Locator
 
     @Binds
     @CheckResult

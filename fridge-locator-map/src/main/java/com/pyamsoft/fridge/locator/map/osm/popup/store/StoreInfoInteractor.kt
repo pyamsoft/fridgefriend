@@ -78,9 +78,6 @@ internal class StoreInfoInteractor @Inject internal constructor(
     }
 
     private fun restartLocationWorker() {
-        butler.unregisterGeofences()
-        butler.registerGeofences()
-
         butler.cancelLocationReminder()
         butler.remindLocation()
     }

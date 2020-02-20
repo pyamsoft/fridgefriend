@@ -29,23 +29,17 @@ import com.pyamsoft.fridge.FridgeComponent
 import com.pyamsoft.fridge.locator.DeviceGps
 import com.pyamsoft.fridge.locator.R
 import com.pyamsoft.fridge.locator.map.osm.OsmActions
-import com.pyamsoft.fridge.locator.map.osm.OsmControllerEvent
 import com.pyamsoft.fridge.locator.map.osm.OsmMap
 import com.pyamsoft.fridge.locator.map.osm.OsmViewModel
-import com.pyamsoft.fridge.locator.permission.BackgroundLocationPermission
-import com.pyamsoft.fridge.locator.permission.PermissionConsumer
-import com.pyamsoft.fridge.locator.permission.PermissionGrant
-import com.pyamsoft.fridge.locator.permission.PermissionHandler
 import com.pyamsoft.fridge.main.SnackbarContainer
 import com.pyamsoft.pydroid.arch.StateSaver
 import com.pyamsoft.pydroid.arch.createComponent
 import com.pyamsoft.pydroid.ui.Injector
 import com.pyamsoft.pydroid.ui.arch.factory
-import javax.inject.Inject
 import timber.log.Timber
+import javax.inject.Inject
 
-internal class MapFragment : Fragment(), SnackbarContainer,
-    PermissionConsumer<BackgroundLocationPermission> {
+internal class MapFragment : Fragment(), SnackbarContainer {
 
     @JvmField
     @Inject
@@ -58,10 +52,6 @@ internal class MapFragment : Fragment(), SnackbarContainer,
     @JvmField
     @Inject
     internal var deviceGps: DeviceGps? = null
-
-    @JvmField
-    @Inject
-    internal var permissionHandler: PermissionHandler<BackgroundLocationPermission>? = null
 
     @JvmField
     @Inject
@@ -109,10 +99,8 @@ internal class MapFragment : Fragment(), SnackbarContainer,
             viewModel,
             map,
             actions
-        ) { event ->
-            return@createComponent when (event) {
-                is OsmControllerEvent.BackgroundPermissionRequest -> requestBackgroundLocationPermission()
-            }
+        ) {
+            // TODO handle
         }
 
         requireNotNull(deviceGps).enableGps(requireActivity()) {
@@ -120,37 +108,9 @@ internal class MapFragment : Fragment(), SnackbarContainer,
         }
     }
 
-    private fun requestBackgroundLocationPermission() {
-        viewModel.requestBackgroundPermissions(this)
-    }
-
     override fun onSaveInstanceState(outState: Bundle) {
         stateSaver?.saveState(outState)
         super.onSaveInstanceState(outState)
-    }
-
-    override fun onPermissionResponse(grant: PermissionGrant<BackgroundLocationPermission>) {
-        if (grant.granted()) {
-            Timber.d("Permissions granted: ${grant.permission().permissions()}")
-            viewModel.refreshMapPermissions()
-        } else {
-            Timber.e("Permissions rejected: ${grant.permission().permissions()}")
-        }
-    }
-
-    override fun onRequestPermissions(permissions: Array<out String>, requestCode: Int) {
-        requestPermissions(permissions, requestCode)
-    }
-
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        requireNotNull(permissionHandler).handlePermissionResponse(
-            this, requestCode, permissions, grantResults
-        )
     }
 
     override fun onDestroyView() {

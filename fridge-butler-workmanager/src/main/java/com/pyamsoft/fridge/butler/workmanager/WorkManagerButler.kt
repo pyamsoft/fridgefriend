@@ -20,27 +20,23 @@ package com.pyamsoft.fridge.butler.workmanager
 import android.content.Context
 import androidx.annotation.CheckResult
 import androidx.work.Constraints
-import androidx.work.Data
 import androidx.work.ListenableWorker
 import androidx.work.OneTimeWorkRequest
 import androidx.work.WorkManager
 import com.pyamsoft.fridge.butler.Butler
 import com.pyamsoft.fridge.butler.NotificationPreferences
 import com.pyamsoft.fridge.butler.workmanager.worker.ExpirationWorker
-import com.pyamsoft.fridge.butler.workmanager.worker.GeofenceNotifierWorker
-import com.pyamsoft.fridge.butler.workmanager.worker.GeofenceRegistrationWorker
 import com.pyamsoft.fridge.butler.workmanager.worker.LocationWorker
-import com.pyamsoft.fridge.locator.GeofenceProcessor
+import timber.log.Timber
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import javax.inject.Singleton
-import timber.log.Timber
 
 @Singleton
 internal class WorkManagerButler @Inject internal constructor(
     private val context: Context,
     private val preferences: NotificationPreferences
-) : Butler, GeofenceProcessor {
+) : Butler {
 
     @CheckResult
     private fun workManager(): WorkManager {
@@ -57,8 +53,7 @@ internal class WorkManagerButler @Inject internal constructor(
     private fun <T : ListenableWorker> schedule(
         worker: Class<T>,
         tag: String,
-        type: WorkType,
-        data: Map<String, Any?>?
+        type: WorkType
     ) {
         val request = OneTimeWorkRequest.Builder(worker)
             .addTag(tag)
@@ -67,9 +62,6 @@ internal class WorkManagerButler @Inject internal constructor(
                 // We must manually reschedule since PeriodicWork jobs do not repeat on Samsung...
                 if (type is WorkType.Periodic) {
                     setInitialDelay(type.time, TimeUnit.MILLISECONDS)
-                }
-                if (data != null) {
-                    setInputData(Data.Builder().putAll(data).build())
                 }
             }
             .build()
@@ -80,7 +72,7 @@ internal class WorkManagerButler @Inject internal constructor(
 
     private fun scheduleExpirationWork(type: WorkType) {
         cancelExpirationReminder()
-        schedule(ExpirationWorker::class.java, EXPIRATION_TAG, type, null)
+        schedule(ExpirationWorker::class.java, EXPIRATION_TAG, type)
     }
 
     override fun remindExpiration() {
@@ -96,47 +88,9 @@ internal class WorkManagerButler @Inject internal constructor(
         workManager().cancelAllWorkByTag(EXPIRATION_TAG)
     }
 
-    private fun scheduleGeofenceWork(type: WorkType) {
-        unregisterGeofences()
-        schedule(GeofenceRegistrationWorker::class.java, GEOFENCE_REGISTRATION_TAG, type, null)
-    }
-
-    override fun registerGeofences() {
-        scheduleGeofenceWork(WorkType.Instant)
-    }
-
-    override suspend fun scheduleRegisterGeofences() {
-        val time = preferences.getNotificationPeriod()
-        scheduleGeofenceWork(WorkType.Periodic(time))
-    }
-
-    override fun unregisterGeofences() {
-        workManager().cancelAllWorkByTag(GEOFENCE_REGISTRATION_TAG)
-    }
-
-    override fun processGeofences(
-        currentLatitude: Double,
-        currentLongitude: Double,
-        fences: List<String>
-    ) {
-        cancelGeofenceProcessing()
-        schedule(
-            GeofenceNotifierWorker::class.java, GEOFENCE_NOTIFY_TAG, WorkType.Instant,
-            mapOf(
-                GeofenceNotifierWorker.KEY_FENCES to fences.toTypedArray(),
-                GeofenceNotifierWorker.KEY_CURRENT_LATITUDE to currentLatitude,
-                GeofenceNotifierWorker.KEY_CURRENT_LONGITUDE to currentLongitude
-            )
-        )
-    }
-
-    override fun cancelGeofenceProcessing() {
-        workManager().cancelAllWorkByTag(GEOFENCE_NOTIFY_TAG)
-    }
-
     private fun scheduleLocation(type: WorkType) {
         cancelLocationReminder()
-        schedule(LocationWorker::class.java, LOCATION_TAG, type, null)
+        schedule(LocationWorker::class.java, LOCATION_TAG, type)
     }
 
     override fun remindLocation() {
@@ -164,8 +118,6 @@ internal class WorkManagerButler @Inject internal constructor(
     companion object {
 
         private const val EXPIRATION_TAG = "Expiration Reminder 1"
-        private const val GEOFENCE_REGISTRATION_TAG = "Geofence Registration Reminder 1"
-        private const val GEOFENCE_NOTIFY_TAG = "Geofence Notifier Reminder 1"
         private const val LOCATION_TAG = "Location Reminder 1"
     }
 }

@@ -25,7 +25,4 @@ fun Butler.initOnAppStart() {
 
     cancelLocationReminder()
     remindLocation()
-
-    unregisterGeofences()
-    registerGeofences()
 }

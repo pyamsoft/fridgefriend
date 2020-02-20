@@ -19,8 +19,6 @@ package com.pyamsoft.fridge.locator.permission
 
 import android.content.Context
 import android.content.pm.PackageManager
-import android.os.Build.VERSION
-import android.os.Build.VERSION_CODES
 import androidx.annotation.CheckResult
 import androidx.core.content.ContextCompat
 import com.pyamsoft.fridge.locator.MapPermission
@@ -48,26 +46,6 @@ internal class PermissionGranter @Inject internal constructor(
         consumer.onRequestPermissions(
             ForegroundLocationPermission.permissions(),
             ForegroundLocationPermission.requestCode()
-        )
-    }
-
-    override fun hasBackgroundPermission(): Boolean {
-        if (VERSION.SDK_INT < VERSION_CODES.Q) {
-            return true
-        }
-
-        return checkPermissions(BackgroundLocationPermission.permissions())
-    }
-
-    override fun requestBackgroundPermission(consumer: PermissionConsumer<BackgroundLocationPermission>) {
-        if (VERSION.SDK_INT < VERSION_CODES.Q) {
-            consumer.onPermissionResponse(BackgroundLocationPermission.asGrant(true))
-            return
-        }
-
-        consumer.onRequestPermissions(
-            BackgroundLocationPermission.permissions(),
-            BackgroundLocationPermission.requestCode()
         )
     }
 }

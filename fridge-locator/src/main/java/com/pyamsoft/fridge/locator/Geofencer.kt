@@ -17,14 +17,10 @@
 
 package com.pyamsoft.fridge.locator
 
-import android.content.Intent
 import android.location.Location
 import androidx.annotation.CheckResult
 
 interface Geofencer {
-
-    @CheckResult
-    fun getTriggeredFenceIds(intent: Intent): List<String>
 
     @CheckResult
     suspend fun getLastKnownLocation(): Location?

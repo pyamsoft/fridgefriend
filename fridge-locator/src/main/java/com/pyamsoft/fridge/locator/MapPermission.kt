@@ -18,16 +18,10 @@
 package com.pyamsoft.fridge.locator
 
 import androidx.annotation.CheckResult
-import com.pyamsoft.fridge.locator.permission.BackgroundLocationPermission
 import com.pyamsoft.fridge.locator.permission.ForegroundLocationPermission
 import com.pyamsoft.fridge.locator.permission.PermissionConsumer
 
 interface MapPermission {
-
-    @CheckResult
-    fun hasBackgroundPermission(): Boolean
-
-    fun requestBackgroundPermission(consumer: PermissionConsumer<BackgroundLocationPermission>)
 
     @CheckResult
     fun hasForegroundPermission(): Boolean

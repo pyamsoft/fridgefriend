@@ -43,14 +43,11 @@ class OsmActions @Inject internal constructor(
 
     private var boundFindMeImage: Loaded? = null
     private var boundNearbyImage: Loaded? = null
-    private var boundBackgroundImage: Loaded? = null
 
     private val findMe by boundView<FloatingActionButton>(R.id.osm_find_me)
-    private val backgroundPermission by boundView<FloatingActionButton>(R.id.osm_background_perm)
 
     private var nearbyAnimator: ViewPropertyAnimatorCompat? = null
     private var meAnimator: ViewPropertyAnimatorCompat? = null
-    private var backgroundAnimator: ViewPropertyAnimatorCompat? = null
 
     init {
         doOnInflate {
@@ -62,19 +59,11 @@ class OsmActions @Inject internal constructor(
             boundFindMeImage = imageLoader.load(R.drawable.ic_location_search_24dp)
                 .into(findMe)
 
-            boundBackgroundImage?.dispose()
-            boundBackgroundImage = imageLoader.load(R.drawable.ic_location_24dp)
-                .into(backgroundPermission)
-
             layoutRoot.isVisible = false
             findMe.isVisible = false
-            backgroundPermission.isVisible = false
 
             findMe.setOnDebouncedClickListener {
                 publish(OsmViewEvent.RequestMyLocation(firstTime = false))
-            }
-            backgroundPermission.setOnDebouncedClickListener {
-                publish(OsmViewEvent.RequestBackgroundPermission)
             }
             layoutRoot.setOnDebouncedClickListener {
                 publish(OsmViewEvent.RequestFindNearby)
@@ -84,24 +73,15 @@ class OsmActions @Inject internal constructor(
         doOnTeardown {
             findMe.setOnDebouncedClickListener(null)
             layoutRoot.setOnDebouncedClickListener(null)
-            backgroundPermission.setOnDebouncedClickListener(null)
 
             boundFindMeImage?.dispose()
             boundNearbyImage?.dispose()
-            boundBackgroundImage?.dispose()
             boundFindMeImage = null
             boundNearbyImage = null
-            boundBackgroundImage = null
 
-            dismissBackgroundAnimator()
             dismissNearbyAnimator()
             dismissMeAnimator()
         }
-    }
-
-    private fun dismissBackgroundAnimator() {
-        backgroundAnimator?.cancel()
-        backgroundAnimator = null
     }
 
     private fun dismissNearbyAnimator() {
@@ -133,14 +113,7 @@ class OsmActions @Inject internal constructor(
 
         state.centerMyLocation?.let { event ->
             if (event.firstTime) {
-                revealButtons(state.hasBackgroundPermission)
-            }
-        }
-
-        state.hasBackgroundPermission.let { hasPermission ->
-            if (hasPermission) {
-                dismissBackgroundAnimator()
-                backgroundPermission.isVisible = false
+                revealButtons()
             }
         }
     }
@@ -169,36 +142,22 @@ class OsmActions @Inject internal constructor(
         }
     }
 
-    private fun revealButtons(hasBackgroundPermission: Boolean) {
+    private fun revealButtons() {
         if (nearbyAnimator != null) {
             return
         }
         nearbyAnimator = layoutRoot.popShow(startDelay = 700L).withEndAction {
-            revealFindMeButton(hasBackgroundPermission)
+            revealFindMeButton()
         }
     }
 
-    private fun revealFindMeButton(hasBackgroundPermission: Boolean) {
+    private fun revealFindMeButton() {
         dismissNearbyAnimator()
         if (meAnimator != null) {
             return
         }
         meAnimator = findMe.popShow(startDelay = 0L).withEndAction {
             dismissMeAnimator()
-            if (!hasBackgroundPermission) {
-                revealBackgroundPermissionButton()
-            }
         }
-    }
-
-    private fun revealBackgroundPermissionButton() {
-        if (backgroundAnimator != null) {
-            return
-        }
-
-        backgroundAnimator =
-            backgroundPermission.popShow(startDelay = 0).withEndAction {
-                dismissBackgroundAnimator()
-            }
     }
 }

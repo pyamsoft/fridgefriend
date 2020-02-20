@@ -18,7 +18,6 @@
 package com.pyamsoft.fridge.locator
 
 import androidx.annotation.CheckResult
-import com.pyamsoft.fridge.locator.permission.BackgroundLocationPermission
 import com.pyamsoft.fridge.locator.permission.ForegroundLocationPermission
 import com.pyamsoft.fridge.locator.permission.PermissionGranter
 import com.pyamsoft.fridge.locator.permission.PermissionHandler
@@ -44,15 +43,6 @@ abstract class LocatorModule {
         internal fun provideForegroundHandler(): PermissionHandler<ForegroundLocationPermission> {
             return PermissionHandlerImpl(
                 ForegroundLocationPermission
-            )
-        }
-
-        @Provides
-        @JvmStatic
-        @Singleton
-        internal fun provideBackgroundHandler(): PermissionHandler<BackgroundLocationPermission> {
-            return PermissionHandlerImpl(
-                BackgroundLocationPermission
             )
         }
     }

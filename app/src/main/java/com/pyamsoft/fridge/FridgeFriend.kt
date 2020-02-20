@@ -21,12 +21,10 @@ import android.app.Application
 import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.butler.Butler
 import com.pyamsoft.fridge.butler.injector.component.ButlerComponent
-import com.pyamsoft.fridge.butler.injector.component.InputButlerComponent
 import com.pyamsoft.fridge.category.CategoryListComponent
 import com.pyamsoft.fridge.core.Core
 import com.pyamsoft.fridge.detail.DetailListComponent
 import com.pyamsoft.fridge.detail.expand.ExpandItemCategoryListComponent
-import com.pyamsoft.fridge.locator.GeofenceUpdateReceiver
 import com.pyamsoft.fridge.locator.map.osm.popup.store.StoreInfoComponent
 import com.pyamsoft.fridge.locator.map.osm.popup.zone.ZoneInfoComponent
 import com.pyamsoft.fridge.main.MainActivity
@@ -68,8 +66,7 @@ class FridgeFriend : Application() {
                 provider.theming(),
                 provider.enforcer(),
                 provider.imageLoader(),
-                MainActivity::class.java,
-                GeofenceUpdateReceiver::class.java
+                MainActivity::class.java
             )
             onInitialized()
         }
@@ -139,7 +136,6 @@ class FridgeFriend : Application() {
         return component?.run {
             when (name) {
                 ButlerComponent::class.java.name -> plusButlerComponent()
-                InputButlerComponent.Factory::class.java.name -> plusInputButlerComponent()
                 CategoryListComponent.Factory::class.java.name -> plusCategoryListComponent()
                 DetailListComponent.Factory::class.java.name -> plusDetailListComponent()
                 ExpandItemCategoryListComponent.Factory::class.java.name -> plusExpandCategoryListComponent()

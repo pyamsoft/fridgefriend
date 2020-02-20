@@ -26,7 +26,6 @@ import com.pyamsoft.fridge.butler.ButlerModule
 import com.pyamsoft.fridge.butler.ButlerPreferences
 import com.pyamsoft.fridge.butler.NotificationPreferences
 import com.pyamsoft.fridge.butler.injector.component.ButlerComponent
-import com.pyamsoft.fridge.butler.injector.component.InputButlerComponent
 import com.pyamsoft.fridge.butler.workmanager.WorkManagerModule
 import com.pyamsoft.fridge.category.CategoryComponent
 import com.pyamsoft.fridge.category.CategoryListComponent
@@ -44,9 +43,6 @@ import com.pyamsoft.fridge.detail.expand.ItemExpandPayload
 import com.pyamsoft.fridge.detail.expand.date.DateSelectComponent
 import com.pyamsoft.fridge.detail.expand.date.DateSelectPayload
 import com.pyamsoft.fridge.entry.EntryComponent
-import com.pyamsoft.fridge.locator.GeofenceBroadcastReceiver
-import com.pyamsoft.fridge.locator.GeofenceUpdateReceiver
-import com.pyamsoft.fridge.locator.LocationProviderChangeReceiver
 import com.pyamsoft.fridge.locator.LocatorModule
 import com.pyamsoft.fridge.locator.map.MapModule
 import com.pyamsoft.fridge.locator.map.osm.popup.store.StoreInfoComponent
@@ -110,13 +106,9 @@ internal interface FridgeComponent {
     @CheckResult
     fun plusZoneComponent(): ZoneInfoComponent.Factory
 
-    /* FROM inside GeofenceRegistrationInjector, LocationInjector, ExpirationInjector */
+    /* FROM inside LocationInjector, ExpirationInjector */
     @CheckResult
     fun plusButlerComponent(): ButlerComponent
-
-    /* FROM inside GeofenceNotifyInjector */
-    @CheckResult
-    fun plusInputButlerComponent(): InputButlerComponent.Factory
 
     // ===============================================
 
@@ -147,10 +139,6 @@ internal interface FridgeComponent {
     @CheckResult
     fun plusDateSelectComponent(): DateSelectComponent
 
-    fun inject(receiver: LocationProviderChangeReceiver)
-
-    fun inject(receiver: GeofenceUpdateReceiver)
-
     fun inject(application: FridgeFriend)
 
     @Component.Factory
@@ -164,8 +152,7 @@ internal interface FridgeComponent {
             @BindsInstance theming: Theming,
             @BindsInstance enforcer: Enforcer,
             @BindsInstance imageLoader: ImageLoader,
-            @BindsInstance activityClass: Class<out Activity>,
-            @BindsInstance geofenceReceiverClass: Class<out GeofenceBroadcastReceiver>
+            @BindsInstance activityClass: Class<out Activity>
         ): FridgeComponent
     }
 

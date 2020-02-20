@@ -24,7 +24,7 @@ import com.pyamsoft.fridge.butler.Butler
 import com.pyamsoft.fridge.butler.ButlerPreferences
 import com.pyamsoft.fridge.butler.NotificationHandler
 import com.pyamsoft.fridge.butler.NotificationPreferences
-import com.pyamsoft.fridge.butler.runner.geofence.GeofenceNotifications
+import com.pyamsoft.fridge.butler.runner.locator.NearbyNotifications
 import com.pyamsoft.fridge.db.entry.FridgeEntryQueryDao
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence.NEED
 import com.pyamsoft.fridge.db.item.FridgeItemPreferences
@@ -35,8 +35,8 @@ import com.pyamsoft.fridge.db.store.NearbyStoreQueryDao
 import com.pyamsoft.fridge.db.zone.NearbyZone
 import com.pyamsoft.fridge.db.zone.NearbyZoneQueryDao
 import com.pyamsoft.pydroid.core.Enforcer
-import java.util.Calendar
 import timber.log.Timber
+import java.util.Calendar
 
 internal abstract class NearbyNotifyingRunner protected constructor(
     private val context: Context,
@@ -92,7 +92,7 @@ internal abstract class NearbyNotifyingRunner protected constructor(
                 if (storeNotification != null) {
                     notification { handler ->
                         Timber.d("Fire notification for: $storeNotification")
-                        val notified = GeofenceNotifications.notifyNeeded(
+                        val notified = NearbyNotifications.notifyNeeded(
                             handler,
                             context.applicationContext,
                             storeNotification,
@@ -108,7 +108,7 @@ internal abstract class NearbyNotifyingRunner protected constructor(
                 if (zoneNotification != null) {
                     notification { handler ->
                         Timber.d("Fire notification for: $zoneNotification")
-                        val notified = GeofenceNotifications.notifyNeeded(
+                        val notified = NearbyNotifications.notifyNeeded(
                             handler,
                             context.applicationContext,
                             zoneNotification,

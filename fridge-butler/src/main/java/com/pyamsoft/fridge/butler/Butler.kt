@@ -31,11 +31,5 @@ interface Butler {
 
     fun cancelLocationReminder()
 
-    fun registerGeofences()
-
-    suspend fun scheduleRegisterGeofences()
-
-    fun unregisterGeofences()
-
     fun cancel()
 }

@@ -31,11 +31,10 @@ import com.pyamsoft.fridge.db.store.NearbyStoreQueryDao
 import com.pyamsoft.fridge.db.zone.NearbyZone
 import com.pyamsoft.fridge.db.zone.NearbyZoneQueryDao
 import com.pyamsoft.fridge.locator.Geofencer
-import com.pyamsoft.fridge.locator.Locator
 import com.pyamsoft.pydroid.core.Enforcer
-import javax.inject.Inject
 import kotlinx.coroutines.coroutineScope
 import timber.log.Timber
+import javax.inject.Inject
 
 internal class LocationRunner @Inject internal constructor(
     context: Context,
@@ -75,7 +74,7 @@ internal class LocationRunner @Inject internal constructor(
         val location = try {
             geofencer.getLastKnownLocation()
         } catch (e: Exception) {
-            Timber.w("Could not get last known location - permission_button issue perhaps?")
+            Timber.w("Could not get last known location - permission issue perhaps?")
             null
         }
 
@@ -97,7 +96,7 @@ internal class LocationRunner @Inject internal constructor(
             for (store in stores) {
                 val storeDistance =
                     store.getDistanceTo(currentLatitude, currentLongitude)
-                if (storeDistance > Locator.RADIUS_IN_METERS) {
+                if (storeDistance > RADIUS_IN_METERS) {
                     // Out of range
                     continue
                 }
@@ -118,7 +117,7 @@ internal class LocationRunner @Inject internal constructor(
                 val zoneDistance =
                     zone.getDistanceTo(currentLatitude, currentLongitude)
 
-                if (zoneDistance > Locator.RADIUS_IN_METERS) {
+                if (zoneDistance > RADIUS_IN_METERS) {
                     // Out of range
                     continue
                 }
@@ -146,5 +145,10 @@ internal class LocationRunner @Inject internal constructor(
 
             fireNotification(false, preferences, closestStore, closestZone)
         }
+    }
+
+    companion object {
+
+        private const val RADIUS_IN_METERS = 1600F
     }
 }
