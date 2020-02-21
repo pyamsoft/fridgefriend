@@ -31,6 +31,7 @@ import com.pyamsoft.fridge.locator.DeviceGps
 import com.pyamsoft.fridge.locator.Geofencer
 import com.pyamsoft.fridge.locator.MapPermission
 import com.pyamsoft.pydroid.core.Enforcer
+import kotlinx.coroutines.CancellableContinuation
 import kotlinx.coroutines.suspendCancellableCoroutine
 import timber.log.Timber
 import javax.inject.Inject
@@ -45,8 +46,8 @@ internal class GmsLocator @Inject internal constructor(
     context: Context
 ) : DeviceGps, Geofencer {
 
-    private val locationClient = FusedLocationProviderClient(context)
-    private val settingsClient = LocationServices.getSettingsClient(context)
+    private val locationClient by lazy { FusedLocationProviderClient(context.applicationContext) }
+    private val settingsClient by lazy { LocationServices.getSettingsClient(context.applicationContext) }
 
     override suspend fun getLastKnownLocation(): Location? {
         enforcer.assertNotOnMainThread()
@@ -61,22 +62,11 @@ internal class GmsLocator @Inject internal constructor(
                 Timber.w("getLastKnownLocation coroutine cancelled: $it")
             }
 
-            if (!permission.hasForegroundPermission()) {
-                Timber.w("Cannot get last location, missing foreground location permissions")
-                continuation.resumeWithException(MISSING_PERMISSION)
-            } else {
+            continuation.withPermission("Cannot get last known location") {
                 locationClient.lastLocation
-                    .addOnSuccessListener { location ->
-                        Timber.d("Last known location: $location")
-                        continuation.resume(location)
-                    }
-                    .addOnFailureListener { throwable ->
-                        Timber.e(throwable, "Error getting last known location")
-                        continuation.resumeWithException(throwable)
-                    }.addOnCanceledListener {
-                        Timber.w("Last known location cancelled")
-                        continuation.resume(null)
-                    }
+                    .addOnSuccessListener { resume(it) }
+                    .addOnFailureListener { resumeWithException(it) }
+                    .addOnCanceledListener { resume(null) }
             }
         }
     }
@@ -89,35 +79,18 @@ internal class GmsLocator @Inject internal constructor(
                 Timber.w("isGpsEnabled coroutine cancelled: $it")
             }
 
-            locationClient.locationAvailability
-                .addOnSuccessListener { available ->
-                    val enabled = available.isLocationAvailable
-                    Timber.d("Is gps enabled: $enabled")
-                    continuation.resume(enabled)
-
-                }
-                .addOnFailureListener { throwable ->
-                    Timber.e(throwable, "Error getting isGpsEnabled")
-                    continuation.resumeWithException(throwable)
-                }
-                .addOnCanceledListener {
-                    Timber.w("isGpsEnabled cancelled")
-                    continuation.resume(false)
-                }
+            continuation.withPermission("Cannot get GPS enabled state") {
+                locationClient.locationAvailability
+                    .addOnSuccessListener { resume(it.isLocationAvailable) }
+                    .addOnFailureListener { resumeWithException(it) }
+                    .addOnCanceledListener { resume(false) }
+            }
         }
     }
 
     override suspend fun enableGps() {
         enforcer.assertNotOnMainThread()
 
-        try {
-            requestEnableGps()
-        } catch (e: Throwable) {
-            throw if (e.isResolvable()) GmsResolvableError(e) else e
-        }
-    }
-
-    private suspend inline fun requestEnableGps() {
         return suspendCancellableCoroutine { continuation ->
             val request = LocationRequest.create()
                 .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
@@ -126,12 +99,30 @@ internal class GmsLocator @Inject internal constructor(
                 .addLocationRequest(request)
                 .build()
 
-            settingsClient.checkLocationSettings(settingsRequest)
-                .addOnSuccessListener { continuation.resume(Unit) }
-                .addOnFailureListener { continuation.resumeWithException(it) }
-                .addOnCanceledListener { continuation.resume(Unit) }
-
+            continuation.withPermission("Cannot enable GPS") {
+                settingsClient.checkLocationSettings(settingsRequest)
+                    .addOnSuccessListener { resume(Unit) }
+                    .addOnFailureListener { resumeWithException(it.wrapResolvable()) }
+                    .addOnCanceledListener { resume(Unit) }
+            }
         }
+    }
+
+    private inline fun <T> CancellableContinuation<T>.withPermission(
+        message: String,
+        func: CancellableContinuation<T>.() -> Unit
+    ) {
+        if (!permission.hasForegroundPermission()) {
+            Timber.w("${message}, $MISSING_PERMISSION")
+            this.resumeWithException(MISSING_PERMISSION)
+        } else {
+            this.func()
+        }
+    }
+
+    @CheckResult
+    private fun Throwable.wrapResolvable(): Throwable {
+        return if (this.isResolvable()) GmsResolvableError(this) else this
     }
 
     @CheckResult
@@ -155,7 +146,6 @@ internal class GmsLocator @Inject internal constructor(
     }
 
     companion object {
-        private val MISSING_PERMISSION =
-            IllegalStateException("Missing ACCESS_FOREGROUND_LOCATION permission_button")
+        private val MISSING_PERMISSION = IllegalStateException("Missing LOCATION permissions")
     }
 }
