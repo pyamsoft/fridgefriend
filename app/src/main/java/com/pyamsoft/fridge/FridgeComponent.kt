@@ -43,6 +43,7 @@ import com.pyamsoft.fridge.detail.expand.ItemExpandPayload
 import com.pyamsoft.fridge.detail.expand.date.DateSelectComponent
 import com.pyamsoft.fridge.detail.expand.date.DateSelectPayload
 import com.pyamsoft.fridge.entry.EntryComponent
+import com.pyamsoft.fridge.locator.GpsChangeEvent
 import com.pyamsoft.fridge.locator.LocatorModule
 import com.pyamsoft.fridge.locator.map.MapModule
 import com.pyamsoft.fridge.locator.map.osm.popup.store.StoreInfoComponent
@@ -179,6 +180,13 @@ internal interface FridgeComponent {
 
         @Module
         companion object {
+
+            @Provides
+            @JvmStatic
+            @Singleton
+            internal fun provideGpsStateBus(): EventBus<GpsChangeEvent> {
+                return EventBus.create()
+            }
 
             @Provides
             @JvmStatic

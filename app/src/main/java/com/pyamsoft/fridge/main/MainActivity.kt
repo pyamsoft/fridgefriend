@@ -17,6 +17,7 @@
 
 package com.pyamsoft.fridge.main
 
+import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.view.ViewGroup
@@ -28,12 +29,12 @@ import androidx.lifecycle.ViewModelProvider
 import com.pyamsoft.fridge.BuildConfig
 import com.pyamsoft.fridge.FridgeComponent
 import com.pyamsoft.fridge.R
-import com.pyamsoft.fridge.butler.Butler
 import com.pyamsoft.fridge.butler.NotificationHandler
 import com.pyamsoft.fridge.butler.Notifications
 import com.pyamsoft.fridge.category.CategoryFragment
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.entry.EntryFragment
+import com.pyamsoft.fridge.locator.DeviceGps
 import com.pyamsoft.fridge.map.MapFragment
 import com.pyamsoft.fridge.permission.PermissionFragment
 import com.pyamsoft.fridge.setting.SettingsDialog
@@ -48,8 +49,8 @@ import com.pyamsoft.pydroid.ui.util.commitNow
 import com.pyamsoft.pydroid.ui.util.layout
 import com.pyamsoft.pydroid.ui.util.show
 import com.pyamsoft.pydroid.util.makeWindowSexy
-import javax.inject.Inject
 import timber.log.Timber
+import javax.inject.Inject
 
 internal class MainActivity : RatingActivity(), VersionChecker {
 
@@ -99,10 +100,6 @@ internal class MainActivity : RatingActivity(), VersionChecker {
     @Inject
     internal var factory: ViewModelProvider.Factory? = null
     private val viewModel by factory<MainViewModel> { factory }
-
-    @JvmField
-    @Inject
-    internal var butler: Butler? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         setTheme(R.style.Theme_Fridge_Normal)
@@ -290,6 +287,17 @@ internal class MainActivity : RatingActivity(), VersionChecker {
         super.onSaveInstanceState(outState)
     }
 
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == DeviceGps.ENABLE_GPS_REQUEST_CODE) {
+            handleGpsRequest(resultCode)
+        }
+    }
+
+    private fun handleGpsRequest(resultCode: Int) {
+        viewModel.publishGpsChange(resultCode == Activity.RESULT_OK)
+    }
+
     override fun onDestroy() {
         super.onDestroy()
         rootView = null
@@ -300,6 +308,5 @@ internal class MainActivity : RatingActivity(), VersionChecker {
         navigation = null
 
         factory = null
-        butler = null
     }
 }

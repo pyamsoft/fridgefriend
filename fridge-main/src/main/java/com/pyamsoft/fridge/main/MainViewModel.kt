@@ -18,14 +18,22 @@
 package com.pyamsoft.fridge.main
 
 import androidx.annotation.CheckResult
+import androidx.lifecycle.viewModelScope
+import com.pyamsoft.fridge.locator.GpsChangeEvent
 import com.pyamsoft.fridge.locator.MapPermission
+import com.pyamsoft.pydroid.arch.EventBus
 import com.pyamsoft.pydroid.arch.UiViewModel
+import com.pyamsoft.pydroid.core.Enforcer
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Named
-import timber.log.Timber
 
 class MainViewModel @Inject internal constructor(
     private val mapPermission: MapPermission,
+    private val gpsChangeBus: EventBus<GpsChangeEvent>,
+    private val enforcer: Enforcer,
     @Named("app_name") appNameRes: Int,
     @Named("debug") debug: Boolean,
     defaultPage: MainPage
@@ -116,6 +124,15 @@ class MainViewModel @Inject internal constructor(
                 setState { copy(versionChecked = true) }
                 publish(MainControllerEvent.VersionCheck)
             }
+        }
+    }
+
+    fun publishGpsChange(isEnabled: Boolean) {
+        viewModelScope.launch(context = Dispatchers.Default) {
+            enforcer.assertNotOnMainThread()
+
+            Timber.d("Publish GPS state change: $isEnabled")
+            gpsChangeBus.send(GpsChangeEvent(isEnabled))
         }
     }
 
