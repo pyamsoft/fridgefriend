@@ -92,6 +92,11 @@ internal class GmsLocator @Inject internal constructor(
         enforcer.assertNotOnMainThread()
 
         return suspendCancellableCoroutine { continuation ->
+            enforcer.assertNotOnMainThread()
+            continuation.invokeOnCancellation {
+                Timber.w("enableGps coroutine cancelled: $it")
+            }
+
             val request = LocationRequest.create()
                 .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
 
