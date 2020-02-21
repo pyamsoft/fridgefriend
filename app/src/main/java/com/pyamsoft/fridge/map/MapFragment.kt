@@ -26,7 +26,6 @@ import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.pyamsoft.fridge.FridgeComponent
-import com.pyamsoft.fridge.locator.DeviceGps
 import com.pyamsoft.fridge.locator.R
 import com.pyamsoft.fridge.locator.map.osm.OsmActions
 import com.pyamsoft.fridge.locator.map.osm.OsmMap
@@ -36,7 +35,6 @@ import com.pyamsoft.pydroid.arch.StateSaver
 import com.pyamsoft.pydroid.arch.createComponent
 import com.pyamsoft.pydroid.ui.Injector
 import com.pyamsoft.pydroid.ui.arch.factory
-import timber.log.Timber
 import javax.inject.Inject
 
 internal class MapFragment : Fragment(), SnackbarContainer {
@@ -48,10 +46,6 @@ internal class MapFragment : Fragment(), SnackbarContainer {
     @JvmField
     @Inject
     internal var actions: OsmActions? = null
-
-    @JvmField
-    @Inject
-    internal var deviceGps: DeviceGps? = null
 
     @JvmField
     @Inject
@@ -103,9 +97,7 @@ internal class MapFragment : Fragment(), SnackbarContainer {
             // TODO handle
         }
 
-        requireNotNull(deviceGps).enableGps(requireActivity()) {
-            Timber.e(it, "Error enabling GPS")
-        }
+        viewModel.enableGps(requireActivity())
     }
 
     override fun onSaveInstanceState(outState: Bundle) {

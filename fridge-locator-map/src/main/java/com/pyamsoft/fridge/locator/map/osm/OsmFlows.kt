@@ -29,6 +29,7 @@ data class OsmViewState internal constructor(
     val points: List<NearbyStore>,
     val zones: List<NearbyZone>,
     val nearbyError: Throwable?,
+    val gpsError: Throwable?,
     val cachedFetchError: Throwable?,
     val centerMyLocation: CenterMyLocation?
 ) : UiViewState {

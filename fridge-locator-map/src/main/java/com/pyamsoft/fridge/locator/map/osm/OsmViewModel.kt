@@ -17,18 +17,23 @@
 
 package com.pyamsoft.fridge.locator.map.osm
 
+import android.app.Activity
 import androidx.lifecycle.viewModelScope
+import com.pyamsoft.fridge.locator.DeviceGps
 import com.pyamsoft.highlander.highlander
 import com.pyamsoft.pydroid.arch.UiViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.withContext
 import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Named
 
 class OsmViewModel @Inject internal constructor(
     private val interactor: OsmInteractor,
+    private val deviceGps: DeviceGps,
     @Named("debug") debug: Boolean
 ) : UiViewModel<OsmViewState, OsmViewEvent, OsmControllerEvent>(
     initialState = OsmViewState(
@@ -36,9 +41,10 @@ class OsmViewModel @Inject internal constructor(
         loading = false,
         points = emptyList(),
         zones = emptyList(),
+        centerMyLocation = null,
         nearbyError = null,
         cachedFetchError = null,
-        centerMyLocation = null
+        gpsError = null
     ), debug = debug
 ) {
 
@@ -166,6 +172,35 @@ class OsmViewModel @Inject internal constructor(
         withState {
             boundingBox?.let { box ->
                 viewModelScope.launch { nearbyRunner.call(box) }
+            }
+        }
+    }
+
+    fun enableGps(activity: Activity) {
+        viewModelScope.launch(context = Dispatchers.Default) {
+            if (!deviceGps.isGpsEnabled()) {
+                try {
+                    deviceGps.enableGps()
+                } catch (e: Throwable) {
+                    if (e is DeviceGps.ResolvableError) {
+                        resolveError(e, activity)
+                    } else {
+                        Timber.e(e, "Error during enable GPS")
+                        setState { copy(gpsError = e) }
+                    }
+                }
+            }
+        }
+    }
+
+    private suspend fun resolveError(resolution: DeviceGps.ResolvableError, activity: Activity) {
+        withContext(context = Dispatchers.Main) {
+            try {
+                Timber.w("Resolvable error when enabling GPS, try resolve")
+                resolution.resolve(activity)
+            } catch (e: Throwable) {
+                Timber.e(e, "Error during resolution of enable GPS error")
+                setState { copy(gpsError = e) }
             }
         }
     }
