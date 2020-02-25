@@ -96,37 +96,33 @@ internal class ExpirationRunner @Inject internal constructor(
         val now = Calendar.getInstance()
         if (expiringItems.isNotEmpty()) {
             val lastTime = preferences.getLastNotificationTimeExpiringSoon()
-            if (now.isAllowedToNotify(lastTime) || params.forceNotification) {
+            if (now.isAllowedToNotify(params.forceNotification, lastTime)) {
                 Timber.d("Notify user about items expiring soon")
                 notification { handler ->
                     val notified =
                         ExpirationNotifications.notifyExpiring(
-                            handler, context.applicationContext, entry, now, expiringItems
+                            handler, context.applicationContext, entry, expiringItems
                         )
                     if (notified) {
                         preferences.markNotificationExpiringSoon(now)
                     }
                 }
-            } else {
-                Timber.w("Do not notify user about expiring since last notification time too recent: $lastTime :: ${now.timeInMillis}")
             }
         }
 
         if (expiredItems.isNotEmpty()) {
             val lastTime = preferences.getLastNotificationTimeExpired()
-            if (now.isAllowedToNotify(lastTime) || params.forceNotification) {
+            if (now.isAllowedToNotify(params.forceNotification, lastTime)) {
                 Timber.d("Notify user about items expired")
                 notification { handler ->
                     val notified =
                         ExpirationNotifications.notifyExpired(
-                            handler, context.applicationContext, entry, now, expiredItems
+                            handler, context.applicationContext, entry, expiredItems
                         )
                     if (notified) {
                         preferences.markNotificationExpired(now)
                     }
                 }
-            } else {
-                Timber.w("Do not notify user about expired since last notification time too recent: $lastTime :: ${now.timeInMillis}")
             }
         }
 

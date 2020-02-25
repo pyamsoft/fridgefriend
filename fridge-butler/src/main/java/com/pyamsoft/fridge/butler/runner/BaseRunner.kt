@@ -88,9 +88,27 @@ internal abstract class BaseRunner protected constructor(
     }
 
     @CheckResult
-    protected suspend fun Calendar.isAllowedToNotify(lastNotified: Long): Boolean {
+    protected suspend fun Calendar.isAllowedToNotify(force: Boolean, lastNotified: Long): Boolean {
+        if (force) {
+            Timber.d("Force notification post")
+            return true
+        }
+        val currentHour = this.get(Calendar.HOUR_OF_DAY)
+        val isEvening = currentHour < 7 || currentHour >= 22
+        if (isEvening) {
+            Timber.w("Do not send notification before 7AM and after 10PM")
+            return false
+        }
+
         val nowInMillis = this.timeInMillis
-        return lastNotified + notificationPreferences.getNotificationPeriod() < nowInMillis
+        val isPeriodValid =
+            lastNotified + notificationPreferences.getNotificationPeriod() < nowInMillis
+        if (!isPeriodValid) {
+            Timber.w("Do not send notification since last one was sent so recently")
+            return false
+        }
+
+        return true
     }
 
     data class Parameters(val forceNotification: Boolean)

@@ -18,25 +18,30 @@
 package com.pyamsoft.fridge.butler.runner.locator
 
 import android.content.Context
+import android.location.Location
+import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.butler.Butler
 import com.pyamsoft.fridge.butler.ButlerPreferences
 import com.pyamsoft.fridge.butler.NotificationHandler
 import com.pyamsoft.fridge.butler.NotificationPreferences
-import com.pyamsoft.fridge.butler.runner.NearbyNotifyingRunner
+import com.pyamsoft.fridge.butler.runner.NearbyRunner
 import com.pyamsoft.fridge.db.entry.FridgeEntryQueryDao
+import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItemQueryDao
+import com.pyamsoft.fridge.db.item.isArchived
 import com.pyamsoft.fridge.db.store.NearbyStore
 import com.pyamsoft.fridge.db.store.NearbyStoreQueryDao
 import com.pyamsoft.fridge.db.zone.NearbyZone
 import com.pyamsoft.fridge.db.zone.NearbyZoneQueryDao
 import com.pyamsoft.fridge.locator.Geofencer
 import com.pyamsoft.pydroid.core.Enforcer
+import java.util.Calendar
 import javax.inject.Inject
 import kotlinx.coroutines.coroutineScope
 import timber.log.Timber
 
 internal class LocationRunner @Inject internal constructor(
-    context: Context,
+    private val context: Context,
     handler: NotificationHandler,
     butler: Butler,
     notificationPreferences: NotificationPreferences,
@@ -47,8 +52,7 @@ internal class LocationRunner @Inject internal constructor(
     storeDb: NearbyStoreQueryDao,
     zoneDb: NearbyZoneQueryDao,
     private val geofencer: Geofencer
-) : NearbyNotifyingRunner(
-    context,
+) : NearbyRunner(
     handler,
     butler,
     notificationPreferences,
@@ -144,6 +148,99 @@ internal class LocationRunner @Inject internal constructor(
 
             fireNotification(params, preferences, closestStore, closestZone)
         }
+    }
+
+    private suspend fun fireNotification(
+        params: Parameters,
+        preferences: ButlerPreferences,
+        storeNotification: NearbyStore?,
+        zoneNotification: NearbyZone?
+    ) {
+        if (storeNotification == null && zoneNotification == null) {
+            Timber.w("Cannot process a completely empty event")
+            return
+        } else if (storeNotification != null && zoneNotification != null) {
+            Timber.w("Cannot process an event with both Store and Zone")
+            return
+        }
+
+        withFridgeData { _, items ->
+            val neededItems = items.filterNot { it.isArchived() }
+                .filter { it.presence() == FridgeItem.Presence.NEED }
+            if (neededItems.isEmpty()) {
+                Timber.w("There are nearby's but nothing is needed")
+                return@withFridgeData
+            }
+
+            val now = Calendar.getInstance()
+            val lastTime = preferences.getLastNotificationTimeNearby()
+            if (now.isAllowedToNotify(params.forceNotification, lastTime)) {
+                if (storeNotification != null) {
+                    notification { handler ->
+                        Timber.d("Fire notification for: $storeNotification")
+                        val notified = NearbyNotifications.notifyNeeded(
+                            handler,
+                            context.applicationContext,
+                            storeNotification,
+                            neededItems
+                        )
+                        if (notified) {
+                            preferences.markNotificationNearby(now)
+                        }
+                    }
+                }
+
+                if (zoneNotification != null) {
+                    notification { handler ->
+                        Timber.d("Fire notification for: $zoneNotification")
+                        val notified = NearbyNotifications.notifyNeeded(
+                            handler,
+                            context.applicationContext,
+                            zoneNotification,
+                            neededItems
+                        )
+                        if (notified) {
+                            preferences.markNotificationNearby(now)
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // Get the closest point in the zone to the lat lon
+    @CheckResult
+    private fun NearbyZone.getDistanceTo(lat: Double, lon: Double): Float {
+        var closestDistance = Float.MAX_VALUE
+        for (point in this.points()) {
+            val distance = getDistance(point.lat, point.lon, lat, lon)
+            if (distance < closestDistance) {
+                closestDistance = distance
+            }
+        }
+
+        return closestDistance
+    }
+
+    @CheckResult
+    private fun NearbyStore.getDistanceTo(lat: Double, lon: Double): Float {
+        return getDistance(this.latitude(), this.longitude(), lat, lon)
+    }
+
+    @CheckResult
+    private fun getDistance(lat1: Double, lon1: Double, lat2: Double, lon2: Double): Float {
+        val resultArray = FloatArray(1)
+        Location.distanceBetween(
+            lat1,
+            lon1,
+            lat2,
+            lon2,
+            resultArray
+        )
+
+        // Arbitrary Android magic number
+        // https://developer.android.com/reference/android/location/Location.html#distanceBetween(double,%20double,%20double,%20double,%20float%5B%5D)
+        return resultArray[0]
     }
 
     companion object {

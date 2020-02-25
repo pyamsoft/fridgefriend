@@ -24,7 +24,6 @@ import com.pyamsoft.fridge.butler.NotificationHandler
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.store.NearbyStore
 import com.pyamsoft.fridge.db.zone.NearbyZone
-import java.util.Calendar
 
 internal object NearbyNotifications {
 
@@ -37,7 +36,6 @@ internal object NearbyNotifications {
         handler: NotificationHandler,
         context: Context,
         storeName: String,
-        now: Calendar,
         items: List<FridgeItem>
     ): Boolean {
         return ButlerNotifications.notify(
@@ -47,8 +45,7 @@ internal object NearbyNotifications {
             NEEDED_CHANNEL_ID,
             "Needed Reminders",
             "Reminders for items that you still need to purchase.",
-            FridgeItem.Presence.NEED,
-            now
+            FridgeItem.Presence.NEED
         ) { builder ->
             val extra = ButlerNotifications.getExtraItems(items)
             return@notify builder
@@ -64,14 +61,12 @@ internal object NearbyNotifications {
         handler: NotificationHandler,
         context: Context,
         store: NearbyStore,
-        now: Calendar,
         items: List<FridgeItem>
     ): Boolean {
         return notifyNeeded(
             handler,
             context,
             store.name(),
-            now,
             items
         )
     }
@@ -82,14 +77,12 @@ internal object NearbyNotifications {
         handler: NotificationHandler,
         context: Context,
         zone: NearbyZone,
-        now: Calendar,
         items: List<FridgeItem>
     ): Boolean {
         return notifyNeeded(
             handler,
             context,
             zone.name(),
-            now,
             items
         )
     }

@@ -22,8 +22,6 @@ import android.content.Context
 import androidx.annotation.CheckResult
 import androidx.core.app.NotificationCompat
 import com.pyamsoft.fridge.db.item.FridgeItem
-import java.util.Calendar
-import timber.log.Timber
 
 internal object ButlerNotifications {
 
@@ -47,15 +45,8 @@ internal object ButlerNotifications {
         channelTitle: String,
         channelDescription: String,
         presence: FridgeItem.Presence,
-        now: Calendar,
         createNotification: (builder: NotificationCompat.Builder) -> Notification
     ): Boolean {
-        val currentHour = now.get(Calendar.HOUR_OF_DAY)
-        if (currentHour < 7 || currentHour >= 22) {
-            Timber.w("Do not send notification before 7AM and after 10PM")
-            return false
-        }
-
         Notifications.notify(
             notificationId,
             handler,

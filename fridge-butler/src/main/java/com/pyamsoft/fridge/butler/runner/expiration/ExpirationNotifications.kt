@@ -23,7 +23,6 @@ import com.pyamsoft.fridge.butler.ButlerNotifications
 import com.pyamsoft.fridge.butler.NotificationHandler
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItem
-import java.util.Calendar
 
 internal object ExpirationNotifications {
 
@@ -39,7 +38,6 @@ internal object ExpirationNotifications {
         handler: NotificationHandler,
         context: Context,
         entry: FridgeEntry,
-        now: Calendar,
         items: List<FridgeItem>
     ): Boolean {
         return ButlerNotifications.notify(
@@ -49,8 +47,7 @@ internal object ExpirationNotifications {
             EXPIRING_CHANNEL_ID,
             "Expiring Reminders",
             "Reminders for items that are going to expire soon",
-            FridgeItem.Presence.HAVE,
-            now
+            FridgeItem.Presence.HAVE
         ) { builder ->
             val extra =
                 "${ButlerNotifications.getExtraItems(
@@ -69,7 +66,6 @@ internal object ExpirationNotifications {
         handler: NotificationHandler,
         context: Context,
         entry: FridgeEntry,
-        now: Calendar,
         items: List<FridgeItem>
     ): Boolean {
         return ButlerNotifications.notify(
@@ -79,8 +75,7 @@ internal object ExpirationNotifications {
             EXPIRED_CHANNEL_ID,
             "Expired Reminders",
             "Reminders for items that have expired",
-            FridgeItem.Presence.HAVE,
-            now
+            FridgeItem.Presence.HAVE
         ) { builder ->
             return@notify builder
                 .setContentTitle("Expired warning for '${entry.name()}'")
