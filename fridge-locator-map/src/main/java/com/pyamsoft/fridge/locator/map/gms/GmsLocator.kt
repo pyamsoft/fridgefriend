@@ -31,13 +31,13 @@ import com.pyamsoft.fridge.locator.DeviceGps
 import com.pyamsoft.fridge.locator.Geofencer
 import com.pyamsoft.fridge.locator.MapPermission
 import com.pyamsoft.pydroid.core.Enforcer
-import kotlinx.coroutines.CancellableContinuation
-import kotlinx.coroutines.suspendCancellableCoroutine
-import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
+import kotlinx.coroutines.CancellableContinuation
+import kotlinx.coroutines.suspendCancellableCoroutine
+import timber.log.Timber
 
 @Singleton
 internal class GmsLocator @Inject internal constructor(
@@ -118,7 +118,7 @@ internal class GmsLocator @Inject internal constructor(
         func: CancellableContinuation<T>.() -> Unit
     ) {
         if (!permission.hasForegroundPermission()) {
-            Timber.w("${message}, $MISSING_PERMISSION")
+            Timber.w("$message, $MISSING_PERMISSION")
             this.resumeWithException(MISSING_PERMISSION)
         } else {
             this.func()

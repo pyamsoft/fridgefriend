@@ -46,7 +46,7 @@ internal class ExpirationRunner @Inject internal constructor(
     butler: Butler,
     notificationPreferences: NotificationPreferences,
     butlerPreferences: ButlerPreferences,
-    fridgeItemPreferences: FridgeItemPreferences,
+    private val fridgeItemPreferences: FridgeItemPreferences,
     enforcer: Enforcer,
     fridgeEntryQueryDao: FridgeEntryQueryDao,
     fridgeItemQueryDao: FridgeItemQueryDao
@@ -55,13 +55,13 @@ internal class ExpirationRunner @Inject internal constructor(
     butler,
     notificationPreferences,
     butlerPreferences,
-    fridgeItemPreferences,
     enforcer,
     fridgeEntryQueryDao,
     fridgeItemQueryDao
 ) {
 
     private suspend fun notifyForEntry(
+        params: Parameters,
         preferences: ButlerPreferences,
         today: Calendar,
         later: Calendar,
@@ -96,7 +96,7 @@ internal class ExpirationRunner @Inject internal constructor(
         val now = Calendar.getInstance()
         if (expiringItems.isNotEmpty()) {
             val lastTime = preferences.getLastNotificationTimeExpiringSoon()
-            if (now.isAllowedToNotify(lastTime)) {
+            if (now.isAllowedToNotify(lastTime) || params.forceNotification) {
                 Timber.d("Notify user about items expiring soon")
                 notification { handler ->
                     val notified =
@@ -114,7 +114,7 @@ internal class ExpirationRunner @Inject internal constructor(
 
         if (expiredItems.isNotEmpty()) {
             val lastTime = preferences.getLastNotificationTimeExpired()
-            if (now.isAllowedToNotify(lastTime)) {
+            if (now.isAllowedToNotify(lastTime) || params.forceNotification) {
                 Timber.d("Notify user about items expired")
                 notification { handler ->
                     val notified =
@@ -135,13 +135,16 @@ internal class ExpirationRunner @Inject internal constructor(
         }
     }
 
-    override suspend fun reschedule(butler: Butler) {
-        butler.scheduleRemindExpiration()
+    override suspend fun reschedule(butler: Butler, params: Parameters) {
+        val p = Butler.Parameters(
+            forceNotification = params.forceNotification
+        )
+        butler.scheduleRemindExpiration(p)
     }
 
     override suspend fun performWork(
         preferences: ButlerPreferences,
-        fridgeItemPreferences: FridgeItemPreferences
+        params: Parameters
     ) = coroutineScope {
         val today = Calendar.getInstance()
             .cleanMidnight()
@@ -150,7 +153,7 @@ internal class ExpirationRunner @Inject internal constructor(
         val isSameDayExpired = fridgeItemPreferences.isSameDayExpired()
 
         withFridgeData { entry, items ->
-            notifyForEntry(preferences, today, later, isSameDayExpired, entry, items)
+            notifyForEntry(params, preferences, today, later, isSameDayExpired, entry, items)
         }
     }
 }

@@ -19,10 +19,10 @@ package com.pyamsoft.fridge
 
 import com.pyamsoft.fridge.butler.Butler
 
-fun Butler.initOnAppStart() {
+fun Butler.initOnAppStart(parameters: Butler.Parameters) {
     cancelExpirationReminder()
-    remindExpiration()
+    remindExpiration(parameters)
 
     cancelLocationReminder()
-    remindLocation()
+    remindLocation(parameters)
 }

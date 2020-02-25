@@ -79,7 +79,11 @@ class FridgeFriend : Application() {
     }
 
     private fun beginWork() {
-        requireNotNull(butler).initOnAppStart()
+        requireNotNull(butler).initOnAppStart(
+            Butler.Parameters(
+                forceNotification = false
+            )
+        )
     }
 
     private fun addLibraries() {

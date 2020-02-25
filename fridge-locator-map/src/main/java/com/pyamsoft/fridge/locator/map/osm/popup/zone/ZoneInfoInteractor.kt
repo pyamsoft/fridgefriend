@@ -79,6 +79,8 @@ internal class ZoneInfoInteractor @Inject internal constructor(
 
     private fun restartLocationWorker() {
         butler.cancelLocationReminder()
-        butler.remindLocation()
+        butler.remindLocation(
+            Butler.Parameters(forceNotification = true)
+        )
     }
 }

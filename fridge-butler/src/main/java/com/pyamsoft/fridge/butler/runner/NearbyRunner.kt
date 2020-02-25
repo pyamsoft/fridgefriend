@@ -22,7 +22,6 @@ import com.pyamsoft.fridge.butler.ButlerPreferences
 import com.pyamsoft.fridge.butler.NotificationHandler
 import com.pyamsoft.fridge.butler.NotificationPreferences
 import com.pyamsoft.fridge.db.entry.FridgeEntryQueryDao
-import com.pyamsoft.fridge.db.item.FridgeItemPreferences
 import com.pyamsoft.fridge.db.item.FridgeItemQueryDao
 import com.pyamsoft.fridge.db.store.NearbyStore
 import com.pyamsoft.fridge.db.store.NearbyStoreQueryDao
@@ -38,7 +37,6 @@ internal abstract class NearbyRunner protected constructor(
     butler: Butler,
     notificationPreferences: NotificationPreferences,
     butlerPreferences: ButlerPreferences,
-    fridgeItemPreferences: FridgeItemPreferences,
     enforcer: Enforcer,
     fridgeEntryQueryDao: FridgeEntryQueryDao,
     fridgeItemQueryDao: FridgeItemQueryDao,
@@ -49,7 +47,6 @@ internal abstract class NearbyRunner protected constructor(
     butler,
     notificationPreferences,
     butlerPreferences,
-    fridgeItemPreferences,
     enforcer,
     fridgeEntryQueryDao,
     fridgeItemQueryDao

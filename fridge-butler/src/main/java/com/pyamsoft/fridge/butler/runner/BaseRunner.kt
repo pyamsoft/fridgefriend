@@ -22,7 +22,6 @@ import com.pyamsoft.fridge.butler.Butler
 import com.pyamsoft.fridge.butler.ButlerPreferences
 import com.pyamsoft.fridge.butler.NotificationHandler
 import com.pyamsoft.fridge.butler.NotificationPreferences
-import com.pyamsoft.fridge.db.item.FridgeItemPreferences
 import com.pyamsoft.pydroid.core.Enforcer
 import java.util.Calendar
 import kotlinx.coroutines.CancellationException
@@ -33,27 +32,26 @@ internal abstract class BaseRunner protected constructor(
     private val butler: Butler,
     private val notificationPreferences: NotificationPreferences,
     private val butlerPreferences: ButlerPreferences,
-    private val fridgeItemPreferences: FridgeItemPreferences,
     private val enforcer: Enforcer
 ) {
 
-    private suspend fun teardown() {
-        reschedule(butler)
+    private suspend fun teardown(params: Parameters) {
+        reschedule(butler, params)
     }
 
     protected suspend fun notification(func: suspend (handler: NotificationHandler) -> Unit) {
         func(handler)
     }
 
-    protected open suspend fun reschedule(butler: Butler) {
+    protected open suspend fun reschedule(butler: Butler, params: Parameters) {
     }
 
     @CheckResult
-    suspend fun doWork(): WorkResult {
+    suspend fun doWork(params: Parameters): WorkResult {
         enforcer.assertNotOnMainThread()
 
         return try {
-            performWork(butlerPreferences, fridgeItemPreferences)
+            performWork(butlerPreferences, params)
             success()
         } catch (e: Throwable) {
             if (e is CancellationException) {
@@ -62,13 +60,13 @@ internal abstract class BaseRunner protected constructor(
                 fail(e)
             }
         } finally {
-            teardown()
+            teardown(params)
         }
     }
 
     protected abstract suspend fun performWork(
         preferences: ButlerPreferences,
-        fridgeItemPreferences: FridgeItemPreferences
+        params: Parameters
     )
 
     @CheckResult
@@ -94,4 +92,6 @@ internal abstract class BaseRunner protected constructor(
         val nowInMillis = this.timeInMillis
         return lastNotified + notificationPreferences.getNotificationPeriod() < nowInMillis
     }
+
+    data class Parameters(val forceNotification: Boolean)
 }

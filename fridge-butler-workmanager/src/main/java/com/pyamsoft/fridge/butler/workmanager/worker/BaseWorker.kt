@@ -31,13 +31,18 @@ internal abstract class BaseWorker protected constructor(
 ) : CoroutineWorker(context.applicationContext, params) {
 
     final override suspend fun doWork(): Result {
-        val injector = getInjector(applicationContext, inputData)
-        return if (injector.run() === WorkResult.Success) Result.success() else Result.failure()
+        val data = inputData
+        val forceNotification = data.getBoolean(FORCE_NOTIFICATION, false)
+        val injector = getInjector(applicationContext, data)
+        val result = injector.run(BaseInjector.Parameters(forceNotification = forceNotification))
+        return if (result == WorkResult.Success) Result.success() else Result.failure()
     }
 
     @CheckResult
-    protected abstract fun getInjector(
-        context: Context,
-        data: Data
-    ): BaseInjector
+    protected abstract fun getInjector(context: Context, data: Data): BaseInjector
+
+    companion object {
+
+        internal const val FORCE_NOTIFICATION = "force_notifications_v1"
+    }
 }

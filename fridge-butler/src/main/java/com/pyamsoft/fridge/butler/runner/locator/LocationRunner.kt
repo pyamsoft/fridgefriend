@@ -24,7 +24,6 @@ import com.pyamsoft.fridge.butler.NotificationHandler
 import com.pyamsoft.fridge.butler.NotificationPreferences
 import com.pyamsoft.fridge.butler.runner.NearbyNotifyingRunner
 import com.pyamsoft.fridge.db.entry.FridgeEntryQueryDao
-import com.pyamsoft.fridge.db.item.FridgeItemPreferences
 import com.pyamsoft.fridge.db.item.FridgeItemQueryDao
 import com.pyamsoft.fridge.db.store.NearbyStore
 import com.pyamsoft.fridge.db.store.NearbyStoreQueryDao
@@ -32,9 +31,9 @@ import com.pyamsoft.fridge.db.zone.NearbyZone
 import com.pyamsoft.fridge.db.zone.NearbyZoneQueryDao
 import com.pyamsoft.fridge.locator.Geofencer
 import com.pyamsoft.pydroid.core.Enforcer
+import javax.inject.Inject
 import kotlinx.coroutines.coroutineScope
 import timber.log.Timber
-import javax.inject.Inject
 
 internal class LocationRunner @Inject internal constructor(
     context: Context,
@@ -42,7 +41,6 @@ internal class LocationRunner @Inject internal constructor(
     butler: Butler,
     notificationPreferences: NotificationPreferences,
     butlerPreferences: ButlerPreferences,
-    fridgeItemPreferences: FridgeItemPreferences,
     enforcer: Enforcer,
     fridgeEntryQueryDao: FridgeEntryQueryDao,
     fridgeItemQueryDao: FridgeItemQueryDao,
@@ -55,21 +53,22 @@ internal class LocationRunner @Inject internal constructor(
     butler,
     notificationPreferences,
     butlerPreferences,
-    fridgeItemPreferences,
     enforcer,
     fridgeEntryQueryDao,
     fridgeItemQueryDao,
     storeDb,
     zoneDb
 ) {
-
-    override suspend fun reschedule(butler: Butler) {
-        butler.scheduleRemindLocation()
+    override suspend fun reschedule(butler: Butler, params: Parameters) {
+        val p = Butler.Parameters(
+            forceNotification = params.forceNotification
+        )
+        butler.scheduleRemindLocation(p)
     }
 
     override suspend fun performWork(
         preferences: ButlerPreferences,
-        fridgeItemPreferences: FridgeItemPreferences
+        params: Parameters
     ) = coroutineScope {
         val location = try {
             geofencer.getLastKnownLocation()
@@ -143,7 +142,7 @@ internal class LocationRunner @Inject internal constructor(
                 }
             }
 
-            fireNotification(false, preferences, closestStore, closestZone)
+            fireNotification(params, preferences, closestStore, closestZone)
         }
     }
 

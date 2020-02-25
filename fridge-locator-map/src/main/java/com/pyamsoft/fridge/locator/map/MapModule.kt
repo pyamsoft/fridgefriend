@@ -27,13 +27,13 @@ import com.squareup.moshi.Moshi
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
+import javax.inject.Named
+import javax.inject.Singleton
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import okhttp3.logging.HttpLoggingInterceptor.Level.BODY
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
-import javax.inject.Named
-import javax.inject.Singleton
 
 @Module
 abstract class MapModule {

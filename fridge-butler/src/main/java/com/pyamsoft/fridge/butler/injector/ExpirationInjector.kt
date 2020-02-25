@@ -19,6 +19,7 @@ package com.pyamsoft.fridge.butler.injector
 
 import android.content.Context
 import com.pyamsoft.fridge.butler.injector.component.ButlerComponent
+import com.pyamsoft.fridge.butler.runner.BaseRunner
 import com.pyamsoft.fridge.butler.runner.WorkResult
 import com.pyamsoft.fridge.butler.runner.expiration.ExpirationRunner
 import com.pyamsoft.pydroid.ui.Injector
@@ -30,9 +31,13 @@ class ExpirationInjector(context: Context) : BaseInjector(context) {
     @Inject
     internal var delegate: ExpirationRunner? = null
 
-    override suspend fun onRun(context: Context): WorkResult {
+    override suspend fun onRun(context: Context, params: Parameters): WorkResult {
         Injector.obtain<ButlerComponent>(context).inject(this)
-        val result = requireNotNull(delegate).doWork()
+        val result = requireNotNull(delegate).doWork(
+            params = BaseRunner.Parameters(
+                forceNotification = params.forceNotification
+            )
+        )
         delegate = null
         return result
     }

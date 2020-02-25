@@ -20,17 +20,19 @@ package com.pyamsoft.fridge.butler.workmanager
 import android.content.Context
 import androidx.annotation.CheckResult
 import androidx.work.Constraints
+import androidx.work.Data
 import androidx.work.ListenableWorker
 import androidx.work.OneTimeWorkRequest
 import androidx.work.WorkManager
 import com.pyamsoft.fridge.butler.Butler
 import com.pyamsoft.fridge.butler.NotificationPreferences
+import com.pyamsoft.fridge.butler.workmanager.worker.BaseWorker
 import com.pyamsoft.fridge.butler.workmanager.worker.ExpirationWorker
 import com.pyamsoft.fridge.butler.workmanager.worker.LocationWorker
-import timber.log.Timber
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import javax.inject.Singleton
+import timber.log.Timber
 
 @Singleton
 internal class WorkManagerButler @Inject internal constructor(
@@ -53,7 +55,8 @@ internal class WorkManagerButler @Inject internal constructor(
     private fun <T : ListenableWorker> schedule(
         worker: Class<T>,
         tag: String,
-        type: WorkType
+        type: WorkType,
+        params: Butler.Parameters
     ) {
         val request = OneTimeWorkRequest.Builder(worker)
             .addTag(tag)
@@ -63,6 +66,7 @@ internal class WorkManagerButler @Inject internal constructor(
                 if (type is WorkType.Periodic) {
                     setInitialDelay(type.time, TimeUnit.MILLISECONDS)
                 }
+                setInputData(params.toInputData())
             }
             .build()
 
@@ -70,36 +74,36 @@ internal class WorkManagerButler @Inject internal constructor(
         Timber.d("Queue work [$tag]: ${request.id}")
     }
 
-    private fun scheduleExpirationWork(type: WorkType) {
+    private fun scheduleExpirationWork(params: Butler.Parameters, type: WorkType) {
         cancelExpirationReminder()
-        schedule(ExpirationWorker::class.java, EXPIRATION_TAG, type)
+        schedule(ExpirationWorker::class.java, EXPIRATION_TAG, type, params)
     }
 
-    override fun remindExpiration() {
-        scheduleExpirationWork(WorkType.Instant)
+    override fun remindExpiration(params: Butler.Parameters) {
+        scheduleExpirationWork(params, WorkType.Instant)
     }
 
-    override suspend fun scheduleRemindExpiration() {
+    override suspend fun scheduleRemindExpiration(params: Butler.Parameters) {
         val time = preferences.getNotificationPeriod()
-        scheduleExpirationWork(WorkType.Periodic(time))
+        scheduleExpirationWork(params, WorkType.Periodic(time))
     }
 
     override fun cancelExpirationReminder() {
         workManager().cancelAllWorkByTag(EXPIRATION_TAG)
     }
 
-    private fun scheduleLocation(type: WorkType) {
+    private fun scheduleLocation(params: Butler.Parameters, type: WorkType) {
         cancelLocationReminder()
-        schedule(LocationWorker::class.java, LOCATION_TAG, type)
+        schedule(LocationWorker::class.java, LOCATION_TAG, type, params)
     }
 
-    override fun remindLocation() {
-        scheduleLocation(WorkType.Instant)
+    override fun remindLocation(params: Butler.Parameters) {
+        scheduleLocation(params, WorkType.Instant)
     }
 
-    override suspend fun scheduleRemindLocation() {
+    override suspend fun scheduleRemindLocation(params: Butler.Parameters) {
         val time = preferences.getNotificationPeriod()
-        scheduleLocation(WorkType.Periodic(time))
+        scheduleLocation(params, WorkType.Periodic(time))
     }
 
     override fun cancelLocationReminder() {
@@ -119,5 +123,13 @@ internal class WorkManagerButler @Inject internal constructor(
 
         private const val EXPIRATION_TAG = "Expiration Reminder 1"
         private const val LOCATION_TAG = "Location Reminder 1"
+    }
+
+    @CheckResult
+    private fun Butler.Parameters.toInputData(): Data {
+        return Data.Builder().putBoolean(
+            BaseWorker.FORCE_NOTIFICATION,
+            this.forceNotification
+        ).build()
     }
 }

@@ -27,7 +27,6 @@ import com.pyamsoft.fridge.butler.NotificationPreferences
 import com.pyamsoft.fridge.butler.runner.locator.NearbyNotifications
 import com.pyamsoft.fridge.db.entry.FridgeEntryQueryDao
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence.NEED
-import com.pyamsoft.fridge.db.item.FridgeItemPreferences
 import com.pyamsoft.fridge.db.item.FridgeItemQueryDao
 import com.pyamsoft.fridge.db.item.isArchived
 import com.pyamsoft.fridge.db.store.NearbyStore
@@ -35,8 +34,8 @@ import com.pyamsoft.fridge.db.store.NearbyStoreQueryDao
 import com.pyamsoft.fridge.db.zone.NearbyZone
 import com.pyamsoft.fridge.db.zone.NearbyZoneQueryDao
 import com.pyamsoft.pydroid.core.Enforcer
-import timber.log.Timber
 import java.util.Calendar
+import timber.log.Timber
 
 internal abstract class NearbyNotifyingRunner protected constructor(
     private val context: Context,
@@ -44,7 +43,6 @@ internal abstract class NearbyNotifyingRunner protected constructor(
     butler: Butler,
     notificationPreferences: NotificationPreferences,
     butlerPreferences: ButlerPreferences,
-    fridgeItemPreferences: FridgeItemPreferences,
     enforcer: Enforcer,
     fridgeEntryQueryDao: FridgeEntryQueryDao,
     fridgeItemQueryDao: FridgeItemQueryDao,
@@ -55,7 +53,6 @@ internal abstract class NearbyNotifyingRunner protected constructor(
     butler,
     notificationPreferences,
     butlerPreferences,
-    fridgeItemPreferences,
     enforcer,
     fridgeEntryQueryDao,
     fridgeItemQueryDao,
@@ -64,7 +61,7 @@ internal abstract class NearbyNotifyingRunner protected constructor(
 ) {
 
     protected suspend fun fireNotification(
-        forceNotify: Boolean,
+        params: Parameters,
         preferences: ButlerPreferences,
         storeNotification: NearbyStore?,
         zoneNotification: NearbyZone?
@@ -87,8 +84,7 @@ internal abstract class NearbyNotifyingRunner protected constructor(
 
             val now = Calendar.getInstance()
             val lastTime = preferences.getLastNotificationTimeNearby()
-            val allowed = forceNotify || now.isAllowedToNotify(lastTime)
-            if (allowed) {
+            if (params.forceNotification || now.isAllowedToNotify(lastTime)) {
                 if (storeNotification != null) {
                     notification { handler ->
                         Timber.d("Fire notification for: $storeNotification")

@@ -29,11 +29,13 @@ import androidx.lifecycle.ViewModelProvider
 import com.pyamsoft.fridge.BuildConfig
 import com.pyamsoft.fridge.FridgeComponent
 import com.pyamsoft.fridge.R
+import com.pyamsoft.fridge.butler.Butler
 import com.pyamsoft.fridge.butler.NotificationHandler
 import com.pyamsoft.fridge.butler.Notifications
 import com.pyamsoft.fridge.category.CategoryFragment
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.entry.EntryFragment
+import com.pyamsoft.fridge.initOnAppStart
 import com.pyamsoft.fridge.locator.DeviceGps
 import com.pyamsoft.fridge.map.MapFragment
 import com.pyamsoft.fridge.permission.PermissionFragment
@@ -49,8 +51,8 @@ import com.pyamsoft.pydroid.ui.util.commitNow
 import com.pyamsoft.pydroid.ui.util.layout
 import com.pyamsoft.pydroid.ui.util.show
 import com.pyamsoft.pydroid.util.makeWindowSexy
-import timber.log.Timber
 import javax.inject.Inject
+import timber.log.Timber
 
 internal class MainActivity : RatingActivity(), VersionChecker {
 
@@ -85,6 +87,10 @@ internal class MainActivity : RatingActivity(), VersionChecker {
 
     private var rootView: ConstraintLayout? = null
     private var stateSaver: StateSaver? = null
+
+    @JvmField
+    @Inject
+    internal var butler: Butler? = null
 
     @JvmField
     @Inject
@@ -141,6 +147,15 @@ internal class MainActivity : RatingActivity(), VersionChecker {
     override fun onStart() {
         super.onStart()
         checkNearbyFragmentPermissions()
+        beginWork()
+    }
+
+    private fun beginWork() {
+        requireNotNull(butler).initOnAppStart(
+            Butler.Parameters(
+                forceNotification = true
+            )
+        )
     }
 
     override fun onResume() {

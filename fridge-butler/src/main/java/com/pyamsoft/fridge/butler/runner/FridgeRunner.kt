@@ -24,7 +24,6 @@ import com.pyamsoft.fridge.butler.NotificationPreferences
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.entry.FridgeEntryQueryDao
 import com.pyamsoft.fridge.db.item.FridgeItem
-import com.pyamsoft.fridge.db.item.FridgeItemPreferences
 import com.pyamsoft.fridge.db.item.FridgeItemQueryDao
 import com.pyamsoft.pydroid.core.Enforcer
 import kotlinx.coroutines.CoroutineScope
@@ -35,7 +34,6 @@ internal abstract class FridgeRunner protected constructor(
     butler: Butler,
     notificationPreferences: NotificationPreferences,
     butlerPreferences: ButlerPreferences,
-    fridgeItemPreferences: FridgeItemPreferences,
     enforcer: Enforcer,
     private val fridgeEntryQueryDao: FridgeEntryQueryDao,
     private val fridgeItemQueryDao: FridgeItemQueryDao
@@ -44,7 +42,6 @@ internal abstract class FridgeRunner protected constructor(
     butler,
     notificationPreferences,
     butlerPreferences,
-    fridgeItemPreferences,
     enforcer
 ) {
 
