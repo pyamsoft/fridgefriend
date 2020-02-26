@@ -23,31 +23,42 @@ import androidx.work.Constraints
 import androidx.work.Data
 import androidx.work.ListenableWorker
 import androidx.work.OneTimeWorkRequest
+import androidx.work.Operation
 import androidx.work.WorkManager
+import com.google.common.util.concurrent.ListenableFuture
 import com.pyamsoft.fridge.butler.Butler
 import com.pyamsoft.fridge.butler.NotificationPreferences
 import com.pyamsoft.fridge.butler.workmanager.worker.BaseWorker
-import com.pyamsoft.fridge.butler.workmanager.worker.ExpirationWorker
+import com.pyamsoft.fridge.butler.workmanager.worker.ItemWorker
 import com.pyamsoft.fridge.butler.workmanager.worker.LocationWorker
-import com.pyamsoft.fridge.butler.workmanager.worker.NeededWorker
+import com.pyamsoft.pydroid.core.Enforcer
+import kotlinx.coroutines.suspendCancellableCoroutine
 import timber.log.Timber
+import java.util.concurrent.CancellationException
+import java.util.concurrent.ExecutionException
+import java.util.concurrent.Executor
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
 
 @Singleton
 internal class WorkManagerButler @Inject internal constructor(
     private val context: Context,
+    private val enforcer: Enforcer,
     private val preferences: NotificationPreferences
 ) : Butler {
 
     @CheckResult
     private fun workManager(): WorkManager {
+        enforcer.assertNotOnMainThread()
         return WorkManager.getInstance(context)
     }
 
     @CheckResult
     private fun generateConstraints(): Constraints {
+        enforcer.assertNotOnMainThread()
         return Constraints.Builder()
             .setRequiresBatteryNotLow(true)
             .build()
@@ -59,6 +70,7 @@ internal class WorkManagerButler @Inject internal constructor(
         type: WorkType,
         params: Butler.Parameters
     ) {
+        enforcer.assertNotOnMainThread()
         val request = OneTimeWorkRequest.Builder(worker)
             .addTag(tag)
             .setConstraints(generateConstraints())
@@ -75,62 +87,97 @@ internal class WorkManagerButler @Inject internal constructor(
         Timber.d("Queue work [$tag]: ${request.id}")
     }
 
-    private fun scheduleExpirationWork(params: Butler.Parameters, type: WorkType) {
-        cancelExpirationReminder()
-        schedule(ExpirationWorker::class.java, EXPIRATION_TAG, type, params)
+    private suspend fun scheduleItemWork(params: Butler.Parameters, type: WorkType) {
+        enforcer.assertNotOnMainThread()
+        cancelItemsReminder()
+        schedule(ItemWorker::class.java, ITEM_TAG, type, params)
     }
 
-    override fun remindExpiration(params: Butler.Parameters) {
-        scheduleExpirationWork(params, WorkType.Instant)
+    override suspend fun remindItems(params: Butler.Parameters) {
+        enforcer.assertNotOnMainThread()
+        scheduleItemWork(params, WorkType.Instant)
     }
 
-    override suspend fun scheduleRemindExpiration(params: Butler.Parameters) {
+    override suspend fun scheduleRemindItems(params: Butler.Parameters) {
+        enforcer.assertNotOnMainThread()
         val time = preferences.getNotificationPeriod()
-        scheduleExpirationWork(params, WorkType.Periodic(time))
+        scheduleItemWork(params, WorkType.Periodic(time))
     }
 
-    override fun cancelExpirationReminder() {
-        workManager().cancelAllWorkByTag(EXPIRATION_TAG)
+    override suspend fun cancelItemsReminder() {
+        enforcer.assertNotOnMainThread()
+        workManager().cancelAllWorkByTag(ITEM_TAG).await()
     }
 
-    private fun scheduleNeeded(params: Butler.Parameters, type: WorkType) {
-        cancelLocationReminder()
-        schedule(NeededWorker::class.java, LOCATION_TAG, type, params)
-    }
-
-    override fun remindNeeded(params: Butler.Parameters) {
-        scheduleNeeded(params, WorkType.Instant)
-    }
-
-    override suspend fun scheduleRemindNeeded(params: Butler.Parameters) {
-        val time = preferences.getNotificationPeriod()
-        scheduleNeeded(params, WorkType.Periodic(time))
-    }
-
-    override fun cancelNeededReminder() {
-        workManager().cancelAllWorkByTag(NEEDED_TAG)
-    }
-
-    private fun scheduleLocation(params: Butler.Parameters, type: WorkType) {
+    private suspend fun scheduleLocation(params: Butler.Parameters, type: WorkType) {
+        enforcer.assertNotOnMainThread()
         cancelLocationReminder()
         schedule(LocationWorker::class.java, LOCATION_TAG, type, params)
     }
 
-    override fun remindLocation(params: Butler.Parameters) {
+    override suspend fun remindLocation(params: Butler.Parameters) {
+        enforcer.assertNotOnMainThread()
         scheduleLocation(params, WorkType.Instant)
     }
 
     override suspend fun scheduleRemindLocation(params: Butler.Parameters) {
+        enforcer.assertNotOnMainThread()
         val time = preferences.getNotificationPeriod()
         scheduleLocation(params, WorkType.Periodic(time))
     }
 
-    override fun cancelLocationReminder() {
-        workManager().cancelAllWorkByTag(LOCATION_TAG)
+    override suspend fun cancelLocationReminder() {
+        enforcer.assertNotOnMainThread()
+        workManager().cancelAllWorkByTag(LOCATION_TAG).await()
     }
 
-    override fun cancel() {
-        workManager().cancelAllWork()
+    override suspend fun cancel() {
+        enforcer.assertNotOnMainThread()
+        workManager().cancelAllWork().await()
+    }
+
+    private suspend fun Operation.await() {
+        enforcer.assertNotOnMainThread()
+        this.result.await()
+    }
+
+    // Copied out of androidx.work.ListenableFuture
+    // since this extension is library private otherwise...
+    @Suppress("BlockingMethodInNonBlockingContext")
+    private suspend fun <R> ListenableFuture<R>.await(): R {
+        enforcer.assertNotOnMainThread()
+
+        // Fast path
+        if (this.isDone) {
+            try {
+                return this.get()
+            } catch (e: ExecutionException) {
+                throw e.cause ?: e
+            }
+        }
+
+        return suspendCancellableCoroutine { continuation ->
+            enforcer.assertNotOnMainThread()
+            this.addListener(Runnable {
+                enforcer.assertNotOnMainThread()
+                try {
+                    continuation.resume(this.get())
+                } catch (throwable: Throwable) {
+                    val cause = throwable.cause ?: throwable
+                    when (throwable) {
+                        is CancellationException -> continuation.cancel(cause)
+                        else -> continuation.resumeWithException(cause)
+                    }
+                }
+            }, ButlerExecutor)
+        }
+    }
+
+    private object ButlerExecutor : Executor {
+
+        override fun execute(command: Runnable) {
+            command.run()
+        }
     }
 
     private sealed class WorkType {
@@ -140,8 +187,7 @@ internal class WorkManagerButler @Inject internal constructor(
 
     companion object {
 
-        private const val EXPIRATION_TAG = "Expiration Reminder 1"
-        private const val NEEDED_TAG = "Needed Reminder 1"
+        private const val ITEM_TAG = "Items Reminder 1"
         private const val LOCATION_TAG = "Location Reminder 1"
     }
 

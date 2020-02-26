@@ -19,25 +19,19 @@ package com.pyamsoft.fridge.butler
 
 interface Butler {
 
-    fun remindExpiration(params: Parameters)
+    suspend fun remindItems(params: Parameters)
 
-    suspend fun scheduleRemindExpiration(params: Parameters)
+    suspend fun scheduleRemindItems(params: Parameters)
 
-    fun cancelExpirationReminder()
+    suspend fun cancelItemsReminder()
 
-    fun remindNeeded(params: Parameters)
-
-    suspend fun scheduleRemindNeeded(params: Parameters)
-
-    fun cancelNeededReminder()
-
-    fun remindLocation(params: Parameters)
+    suspend fun remindLocation(params: Parameters)
 
     suspend fun scheduleRemindLocation(params: Parameters)
 
-    fun cancelLocationReminder()
+    suspend fun cancelLocationReminder()
 
-    fun cancel()
+    suspend fun cancel()
 
     data class Parameters(val forceNotification: Boolean)
 }

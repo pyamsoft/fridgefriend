@@ -77,7 +77,7 @@ internal class StoreInfoInteractor @Inject internal constructor(
         restartLocationWorker()
     }
 
-    private fun restartLocationWorker() {
+    private suspend fun restartLocationWorker() {
         butler.cancelLocationReminder()
         butler.remindLocation(
             Butler.Parameters(

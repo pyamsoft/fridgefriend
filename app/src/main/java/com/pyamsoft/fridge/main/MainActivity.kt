@@ -26,6 +26,7 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import com.pyamsoft.fridge.BuildConfig
 import com.pyamsoft.fridge.FridgeComponent
 import com.pyamsoft.fridge.R
@@ -51,8 +52,10 @@ import com.pyamsoft.pydroid.ui.util.commitNow
 import com.pyamsoft.pydroid.ui.util.layout
 import com.pyamsoft.pydroid.ui.util.show
 import com.pyamsoft.pydroid.util.makeWindowSexy
-import javax.inject.Inject
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import timber.log.Timber
+import javax.inject.Inject
 
 internal class MainActivity : RatingActivity(), VersionChecker {
 
@@ -151,11 +154,13 @@ internal class MainActivity : RatingActivity(), VersionChecker {
     }
 
     private fun beginWork() {
-        requireNotNull(butler).initOnAppStart(
-            Butler.Parameters(
-                forceNotification = true
+        this.lifecycleScope.launch(context = Dispatchers.Default) {
+            requireNotNull(butler).initOnAppStart(
+                Butler.Parameters(
+                    forceNotification = true
+                )
             )
-        )
+        }
     }
 
     override fun onResume() {

@@ -15,7 +15,7 @@
  *
  */
 
-package com.pyamsoft.fridge.butler.runner.expiration
+package com.pyamsoft.fridge.butler.runner.item
 
 import android.content.Context
 import androidx.annotation.CheckResult
@@ -24,13 +24,41 @@ import com.pyamsoft.fridge.butler.NotificationHandler
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItem
 
-internal object ExpirationNotifications {
+internal object ItemNotifications {
 
     private const val EXPIRING_NOTIFICATION_ID = 2345
-    private const val EXPIRED_NOTIFICATION_ID = 3456
-
     private const val EXPIRING_CHANNEL_ID = "fridge_expiring_reminders_channel_v1"
+
+    private const val EXPIRED_NOTIFICATION_ID = 3456
     private const val EXPIRED_CHANNEL_ID = "fridge_expiration_reminders_channel_v1"
+
+    internal const val NEEDED_NOTIFICATION_ID = 1948
+    private const val NEEDED_CHANNEL_ID = "fridge_needed_reminders_channel_v1"
+
+    @CheckResult
+    @JvmStatic
+    fun notifyNeeded(
+        handler: NotificationHandler,
+        context: Context,
+        entry: FridgeEntry,
+        items: List<FridgeItem>
+    ): Boolean {
+        return ButlerNotifications.notify(
+            NEEDED_NOTIFICATION_ID,
+            handler,
+            context,
+            NEEDED_CHANNEL_ID,
+            "Needed Reminders",
+            "Reminders for items that you still need.",
+            FridgeItem.Presence.NEED
+        ) { builder ->
+            val extra = ButlerNotifications.getExtraItems(items)
+            return@notify builder
+                .setContentTitle("Needed reminder for ${entry.name()}")
+                .setContentText("You still need '${items.first().name()}' $extra")
+                .build()
+        }
+    }
 
     @CheckResult
     @JvmStatic

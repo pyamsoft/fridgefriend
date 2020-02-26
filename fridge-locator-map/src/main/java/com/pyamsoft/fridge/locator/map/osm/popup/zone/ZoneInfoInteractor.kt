@@ -27,9 +27,9 @@ import com.pyamsoft.fridge.db.zone.NearbyZoneDeleteDao
 import com.pyamsoft.fridge.db.zone.NearbyZoneInsertDao
 import com.pyamsoft.fridge.db.zone.NearbyZoneQueryDao
 import com.pyamsoft.fridge.db.zone.NearbyZoneRealtime
-import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import javax.inject.Inject
 
 internal class ZoneInfoInteractor @Inject internal constructor(
     private val butler: Butler,
@@ -77,7 +77,7 @@ internal class ZoneInfoInteractor @Inject internal constructor(
         restartLocationWorker()
     }
 
-    private fun restartLocationWorker() {
+    private suspend fun restartLocationWorker() {
         butler.cancelLocationReminder()
         butler.remindLocation(
             Butler.Parameters(forceNotification = true)

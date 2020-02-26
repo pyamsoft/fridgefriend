@@ -22,7 +22,7 @@ import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.butler.ButlerNotifications
 import com.pyamsoft.fridge.butler.NotificationHandler
 import com.pyamsoft.fridge.butler.Notifications
-import com.pyamsoft.fridge.butler.runner.needed.NeededNotifications
+import com.pyamsoft.fridge.butler.runner.item.ItemNotifications
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.store.NearbyStore
 import com.pyamsoft.fridge.db.zone.NearbyZone
@@ -41,7 +41,7 @@ internal object NearbyNotifications {
         items: List<FridgeItem>
     ): Boolean {
         // Plain needed notifications are overruled by location aware Nearby notifications
-        Notifications.cancel(context.applicationContext, NeededNotifications.NEEDED_NOTIFICATION_ID)
+        Notifications.cancel(context.applicationContext, ItemNotifications.NEEDED_NOTIFICATION_ID)
 
         return ButlerNotifications.notify(
             NEARBY_NOTIFICATION_ID,
