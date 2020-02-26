@@ -20,7 +20,7 @@ package com.pyamsoft.fridge
 import android.app.Application
 import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.butler.Butler
-import com.pyamsoft.fridge.butler.injector.component.ButlerComponent
+import com.pyamsoft.fridge.butler.injector.ButlerComponent
 import com.pyamsoft.fridge.category.CategoryListComponent
 import com.pyamsoft.fridge.core.Core
 import com.pyamsoft.fridge.detail.DetailListComponent

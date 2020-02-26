@@ -25,7 +25,7 @@ import com.pyamsoft.fridge.FridgeComponent.FridgeProvider
 import com.pyamsoft.fridge.butler.ButlerModule
 import com.pyamsoft.fridge.butler.ButlerPreferences
 import com.pyamsoft.fridge.butler.NotificationPreferences
-import com.pyamsoft.fridge.butler.injector.component.ButlerComponent
+import com.pyamsoft.fridge.butler.injector.ButlerComponent
 import com.pyamsoft.fridge.butler.workmanager.WorkManagerModule
 import com.pyamsoft.fridge.category.CategoryComponent
 import com.pyamsoft.fridge.category.CategoryListComponent

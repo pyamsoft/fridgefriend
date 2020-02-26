@@ -25,6 +25,12 @@ interface Butler {
 
     fun cancelExpirationReminder()
 
+    fun remindNeeded(params: Parameters)
+
+    suspend fun scheduleRemindNeeded(params: Parameters)
+
+    fun cancelNeededReminder()
+
     fun remindLocation(params: Parameters)
 
     suspend fun scheduleRemindLocation(params: Parameters)

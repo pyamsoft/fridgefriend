@@ -23,6 +23,9 @@ fun Butler.initOnAppStart(parameters: Butler.Parameters) {
     cancelExpirationReminder()
     remindExpiration(parameters)
 
+    cancelNeededReminder()
+    remindNeeded(parameters)
+
     cancelLocationReminder()
     remindLocation(parameters)
 }

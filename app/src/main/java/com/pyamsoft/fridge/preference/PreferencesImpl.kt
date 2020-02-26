@@ -32,13 +32,13 @@ import com.pyamsoft.fridge.db.persist.PersistentCategoryPreferences
 import com.pyamsoft.fridge.db.persist.PersistentEntryPreferences
 import com.pyamsoft.fridge.setting.SettingsPreferences
 import com.pyamsoft.pydroid.core.Enforcer
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.util.Calendar
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import javax.inject.Singleton
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 @Singleton
 internal class PreferencesImpl @Inject internal constructor(
@@ -104,6 +104,18 @@ internal class PreferencesImpl @Inject internal constructor(
         enforcer.assertNotOnMainThread()
         preferences.edit {
             putLong(KEY_LAST_NOTIFICATION_TIME_EXPIRED, calendar.timeInMillis)
+        }
+    }
+
+    override suspend fun getLastNotificationTimeNeeded(): Long {
+        enforcer.assertNotOnMainThread()
+        return preferences.getLong(KEY_LAST_NOTIFICATION_TIME_NEEDED, 0)
+    }
+
+    override suspend fun markNotificationNeeded(calendar: Calendar) {
+        enforcer.assertNotOnMainThread()
+        preferences.edit {
+            putLong(KEY_LAST_NOTIFICATION_TIME_NEEDED, calendar.timeInMillis)
         }
     }
 
@@ -198,5 +210,6 @@ internal class PreferencesImpl @Inject internal constructor(
         private const val KEY_LAST_NOTIFICATION_TIME_EXPIRING_SOON =
             "last_notification_expiring_soon_v1"
         private const val KEY_LAST_NOTIFICATION_TIME_EXPIRED = "last_notification_expired_v1"
+        private const val KEY_LAST_NOTIFICATION_TIME_NEEDED = "last_notification_needed_v1"
     }
 }

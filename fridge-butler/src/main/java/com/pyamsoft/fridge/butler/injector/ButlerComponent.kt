@@ -15,14 +15,17 @@
  *
  */
 
-package com.pyamsoft.fridge.butler.injector.component
+package com.pyamsoft.fridge.butler.injector
 
 import com.pyamsoft.fridge.butler.injector.ExpirationInjector
 import com.pyamsoft.fridge.butler.injector.LocationInjector
+import com.pyamsoft.fridge.butler.injector.NeededInjector
 import dagger.Subcomponent
 
 @Subcomponent
 interface ButlerComponent {
+
+    fun inject(injector: NeededInjector)
 
     fun inject(injector: ExpirationInjector)
 

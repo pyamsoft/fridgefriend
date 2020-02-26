@@ -20,15 +20,15 @@ package com.pyamsoft.fridge.butler.injector
 import android.content.Context
 import com.pyamsoft.fridge.butler.runner.BaseRunner
 import com.pyamsoft.fridge.butler.runner.WorkResult
-import com.pyamsoft.fridge.butler.runner.expiration.ExpirationRunner
+import com.pyamsoft.fridge.butler.runner.needed.NeededRunner
 import com.pyamsoft.pydroid.ui.Injector
 import javax.inject.Inject
 
-class ExpirationInjector(context: Context) : BaseInjector(context) {
+class NeededInjector(context: Context) : BaseInjector(context) {
 
     @JvmField
     @Inject
-    internal var delegate: ExpirationRunner? = null
+    internal var delegate: NeededRunner? = null
 
     override suspend fun onRun(context: Context, params: Parameters): WorkResult {
         Injector.obtain<ButlerComponent>(context).inject(this)

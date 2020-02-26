@@ -35,10 +35,10 @@ import com.pyamsoft.fridge.db.zone.NearbyZone
 import com.pyamsoft.fridge.db.zone.NearbyZoneQueryDao
 import com.pyamsoft.fridge.locator.Geofencer
 import com.pyamsoft.pydroid.core.Enforcer
-import java.util.Calendar
-import javax.inject.Inject
 import kotlinx.coroutines.coroutineScope
 import timber.log.Timber
+import java.util.Calendar
+import javax.inject.Inject
 
 internal class LocationRunner @Inject internal constructor(
     private val context: Context,
@@ -178,7 +178,7 @@ internal class LocationRunner @Inject internal constructor(
                 if (storeNotification != null) {
                     notification { handler ->
                         Timber.d("Fire notification for: $storeNotification")
-                        val notified = NearbyNotifications.notifyNeeded(
+                        val notified = NearbyNotifications.notifyNearby(
                             handler,
                             context.applicationContext,
                             storeNotification,
@@ -193,7 +193,7 @@ internal class LocationRunner @Inject internal constructor(
                 if (zoneNotification != null) {
                     notification { handler ->
                         Timber.d("Fire notification for: $zoneNotification")
-                        val notified = NearbyNotifications.notifyNeeded(
+                        val notified = NearbyNotifications.notifyNearby(
                             handler,
                             context.applicationContext,
                             zoneNotification,

@@ -21,30 +21,35 @@ import android.content.Context
 import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.butler.ButlerNotifications
 import com.pyamsoft.fridge.butler.NotificationHandler
+import com.pyamsoft.fridge.butler.Notifications
+import com.pyamsoft.fridge.butler.runner.needed.NeededNotifications
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.store.NearbyStore
 import com.pyamsoft.fridge.db.zone.NearbyZone
 
 internal object NearbyNotifications {
 
-    private const val NEEDED_NOTIFICATION_ID = 1234
+    private const val NEARBY_NOTIFICATION_ID = 1234
 
-    private const val NEEDED_CHANNEL_ID = "fridge_needed_reminders_channel_v1"
+    private const val NEARBY_CHANNEL_ID = "fridge_nearby_reminders_channel_v1"
 
     @CheckResult
-    private fun notifyNeeded(
+    private fun notifyNearby(
         handler: NotificationHandler,
         context: Context,
         storeName: String,
         items: List<FridgeItem>
     ): Boolean {
+        // Plain needed notifications are overruled by location aware Nearby notifications
+        Notifications.cancel(context.applicationContext, NeededNotifications.NEEDED_NOTIFICATION_ID)
+
         return ButlerNotifications.notify(
-            NEEDED_NOTIFICATION_ID,
+            NEARBY_NOTIFICATION_ID,
             handler,
             context,
-            NEEDED_CHANNEL_ID,
-            "Needed Reminders",
-            "Reminders for items that you still need to purchase.",
+            NEARBY_CHANNEL_ID,
+            "Nearby Reminders",
+            "Reminders for items that may be at locations nearby.",
             FridgeItem.Presence.NEED
         ) { builder ->
             val extra = ButlerNotifications.getExtraItems(items)
@@ -57,13 +62,13 @@ internal object NearbyNotifications {
 
     @CheckResult
     @JvmStatic
-    fun notifyNeeded(
+    fun notifyNearby(
         handler: NotificationHandler,
         context: Context,
         store: NearbyStore,
         items: List<FridgeItem>
     ): Boolean {
-        return notifyNeeded(
+        return notifyNearby(
             handler,
             context,
             store.name(),
@@ -73,13 +78,13 @@ internal object NearbyNotifications {
 
     @CheckResult
     @JvmStatic
-    fun notifyNeeded(
+    fun notifyNearby(
         handler: NotificationHandler,
         context: Context,
         zone: NearbyZone,
         items: List<FridgeItem>
     ): Boolean {
-        return notifyNeeded(
+        return notifyNearby(
             handler,
             context,
             zone.name(),

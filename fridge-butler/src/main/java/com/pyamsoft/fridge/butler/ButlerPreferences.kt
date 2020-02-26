@@ -28,6 +28,11 @@ interface ButlerPreferences {
     suspend fun markNotificationNearby(calendar: Calendar)
 
     @CheckResult
+    suspend fun getLastNotificationTimeNeeded(): Long
+
+    suspend fun markNotificationNeeded(calendar: Calendar)
+
+    @CheckResult
     suspend fun getLastNotificationTimeExpiringSoon(): Long
 
     suspend fun markNotificationExpiringSoon(calendar: Calendar)

@@ -29,10 +29,11 @@ import com.pyamsoft.fridge.butler.NotificationPreferences
 import com.pyamsoft.fridge.butler.workmanager.worker.BaseWorker
 import com.pyamsoft.fridge.butler.workmanager.worker.ExpirationWorker
 import com.pyamsoft.fridge.butler.workmanager.worker.LocationWorker
+import com.pyamsoft.fridge.butler.workmanager.worker.NeededWorker
+import timber.log.Timber
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import javax.inject.Singleton
-import timber.log.Timber
 
 @Singleton
 internal class WorkManagerButler @Inject internal constructor(
@@ -92,6 +93,24 @@ internal class WorkManagerButler @Inject internal constructor(
         workManager().cancelAllWorkByTag(EXPIRATION_TAG)
     }
 
+    private fun scheduleNeeded(params: Butler.Parameters, type: WorkType) {
+        cancelLocationReminder()
+        schedule(NeededWorker::class.java, LOCATION_TAG, type, params)
+    }
+
+    override fun remindNeeded(params: Butler.Parameters) {
+        scheduleNeeded(params, WorkType.Instant)
+    }
+
+    override suspend fun scheduleRemindNeeded(params: Butler.Parameters) {
+        val time = preferences.getNotificationPeriod()
+        scheduleNeeded(params, WorkType.Periodic(time))
+    }
+
+    override fun cancelNeededReminder() {
+        workManager().cancelAllWorkByTag(NEEDED_TAG)
+    }
+
     private fun scheduleLocation(params: Butler.Parameters, type: WorkType) {
         cancelLocationReminder()
         schedule(LocationWorker::class.java, LOCATION_TAG, type, params)
@@ -122,6 +141,7 @@ internal class WorkManagerButler @Inject internal constructor(
     companion object {
 
         private const val EXPIRATION_TAG = "Expiration Reminder 1"
+        private const val NEEDED_TAG = "Needed Reminder 1"
         private const val LOCATION_TAG = "Location Reminder 1"
     }
 
