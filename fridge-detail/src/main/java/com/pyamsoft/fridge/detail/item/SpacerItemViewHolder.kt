@@ -25,12 +25,13 @@ import com.pyamsoft.fridge.detail.item.DetailListAdapter.DetailViewHolder
 import com.pyamsoft.pydroid.util.toDp
 
 internal class SpacerItemViewHolder internal constructor(
-    itemView: View
+    itemView: View,
+    space: Int
 ) : DetailViewHolder(itemView) {
 
     init {
         val frame = itemView.findViewById<ViewGroup>(R.id.listitem_frame)
-        val offset = 12.toDp(frame.context)
+        val offset = space.toDp(frame.context)
         frame.updatePadding(top = offset)
     }
 

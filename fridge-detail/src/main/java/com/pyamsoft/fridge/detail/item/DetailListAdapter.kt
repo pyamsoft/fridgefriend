@@ -41,7 +41,7 @@ class DetailListAdapter constructor(
     override fun getItemViewType(position: Int): Int {
         val item = getItem(position)
         return if (item.item.isEmpty()) {
-            R.id.id_item_empty_item
+            if (position == 0) R.id.id_item_top_space else R.id.id_item_bottom_space
         } else {
             R.id.id_item_list_item
         }
@@ -63,16 +63,19 @@ class DetailListAdapter constructor(
         viewType: Int
     ): DetailViewHolder {
         val inflater = LayoutInflater.from(parent.context)
-        return if (viewType == R.id.id_item_empty_item) {
-            val v = inflater.inflate(R.layout.listitem_frame, parent, false)
-            SpacerItemViewHolder(v)
-        } else {
-            val v = inflater.inflate(R.layout.detail_list_item_holder, parent, false)
-            val showGlances = defaultPresence == FridgeItem.Presence.HAVE
-            if (showGlances) {
-                DetailItemGlancesViewHolder(v, owner, editable, callback, factory)
-            } else {
-                DetailItemDateViewHolder(v, owner, editable, callback, factory)
+        return when (viewType) {
+            R.id.id_item_bottom_space, R.id.id_item_top_space -> {
+                val v = inflater.inflate(R.layout.listitem_frame, parent, false)
+                SpacerItemViewHolder(v, if (viewType == R.id.id_item_top_space) 12 else 48)
+            }
+            else -> {
+                val v = inflater.inflate(R.layout.detail_list_item_holder, parent, false)
+                val showGlances = defaultPresence == FridgeItem.Presence.HAVE
+                if (showGlances) {
+                    DetailItemGlancesViewHolder(v, owner, editable, callback, factory)
+                } else {
+                    DetailItemDateViewHolder(v, owner, editable, callback, factory)
+                }
             }
         }
     }

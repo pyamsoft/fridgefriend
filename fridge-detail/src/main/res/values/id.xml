@@ -17,5 +17,6 @@
 
 <resources>
     <item name="id_item_list_item" type="id" />
-    <item name="id_item_empty_item" type="id" />
+    <item name="id_item_top_space" type="id" />
+    <item name="id_item_bottom_space" type="id" />
 </resources>
