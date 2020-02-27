@@ -48,18 +48,16 @@ class FridgeFriend : Application() {
         super.onCreate()
         val debug = BuildConfig.DEBUG
         val url = "https://github.com/pyamsoft/fridgefriend"
-        PYDroid.init(
-            this,
-            PYDroid.Parameters(
-                getString(R.string.app_name),
-                url,
-                "$url/issues",
-                Core.PRIVACY_POLICY_URL,
-                Core.TERMS_CONDITIONS_URL,
-                BuildConfig.VERSION_CODE,
-                debug
-            )
-        ) { provider ->
+        val parameters = PYDroid.Parameters(
+            getString(R.string.app_name),
+            url,
+            "$url/issues",
+            Core.PRIVACY_POLICY_URL,
+            Core.TERMS_CONDITIONS_URL,
+            BuildConfig.VERSION_CODE,
+            debug
+        )
+        PYDroid.init(this, parameters) { provider ->
             val moshi = Moshi.Builder()
                 .build()
             component = DaggerFridgeComponent.factory().create(
