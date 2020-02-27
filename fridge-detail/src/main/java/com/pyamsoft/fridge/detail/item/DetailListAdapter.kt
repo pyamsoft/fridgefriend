@@ -66,7 +66,10 @@ class DetailListAdapter constructor(
         return when (viewType) {
             R.id.id_item_bottom_space, R.id.id_item_top_space -> {
                 val v = inflater.inflate(R.layout.listitem_frame, parent, false)
-                SpacerItemViewHolder(v, if (viewType == R.id.id_item_top_space) 12 else 48)
+                SpacerItemViewHolder(
+                    v,
+                    if (viewType == R.id.id_item_top_space) TOP_SPACE else BOTTOM_SPACE
+                )
             }
             else -> {
                 val v = inflater.inflate(R.layout.detail_list_item_holder, parent, false)
@@ -100,6 +103,9 @@ class DetailListAdapter constructor(
     }
 
     companion object {
+
+        private const val TOP_SPACE = 12
+        private const val BOTTOM_SPACE = 80
 
         private val DIFFER = object : DiffUtil.ItemCallback<DetailListItemViewState>() {
 

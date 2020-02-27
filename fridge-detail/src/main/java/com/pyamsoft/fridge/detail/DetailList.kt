@@ -39,9 +39,8 @@ import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.ui.util.Snackbreak
 import com.pyamsoft.pydroid.ui.util.refreshing
-import com.pyamsoft.pydroid.ui.widget.scroll.HideOnScrollListener
-import javax.inject.Inject
 import timber.log.Timber
+import javax.inject.Inject
 
 class DetailList @Inject internal constructor(
     private val imageLoader: ImageLoader,
@@ -85,17 +84,6 @@ class DetailList @Inject internal constructor(
                 })
             recyclerView.adapter = usingAdapter().apply { setHasStableIds(true) }
             recyclerView.setHasFixedSize(true)
-        }
-
-        doOnInflate {
-            val scrollListener = HideOnScrollListener.create(startVisible = true, distance = 24) {
-                publish(DetailViewEvent.ScrollActionVisibilityChange(it))
-            }
-            recyclerView.addOnScrollListener(scrollListener)
-
-            doOnTeardown {
-                recyclerView.removeOnScrollListener(scrollListener)
-            }
         }
 
         doOnInflate {

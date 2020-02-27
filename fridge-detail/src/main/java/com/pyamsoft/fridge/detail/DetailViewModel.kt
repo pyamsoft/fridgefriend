@@ -36,14 +36,14 @@ import com.pyamsoft.fridge.detail.base.BaseUpdaterViewModel
 import com.pyamsoft.fridge.detail.expand.ItemExpandPayload
 import com.pyamsoft.highlander.highlander
 import com.pyamsoft.pydroid.arch.EventBus
-import java.util.Date
-import javax.inject.Inject
-import javax.inject.Named
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import timber.log.Timber
+import java.util.Date
+import javax.inject.Inject
+import javax.inject.Named
 
 class DetailViewModel @Inject internal constructor(
     private val interactor: DetailInteractor,
@@ -59,7 +59,6 @@ class DetailViewModel @Inject internal constructor(
         showing = DetailViewState.Showing.FRESH,
         listError = null,
         undoableItem = null,
-        actionVisible = null,
         expirationRange = null,
         isSameDayExpired = null,
         listItemPresence = listItemPresence,
@@ -165,9 +164,7 @@ class DetailViewModel @Inject internal constructor(
             is ToggleArchiveVisibility -> toggleArchived()
             is ReallyDeleteNoUndo -> setState { copy(undoableItem = null) }
             is UndoDelete -> handleUndoDelete(event.item)
-            is DetailViewEvent.ScrollActionVisibilityChange -> changeActionVisibility(event.visible)
             is DetailViewEvent.AddNewItemEvent -> publish(DetailControllerEvent.AddNew(entryId))
-            is DetailViewEvent.DoneScrollActionVisibilityChange -> doneChangingActionVisibility()
             is DetailViewEvent.ChangePresence -> commitPresence(event.index)
             is DetailViewEvent.Consume -> consume(event.index)
             is DetailViewEvent.Delete -> delete(event.index)
@@ -184,14 +181,6 @@ class DetailViewModel @Inject internal constructor(
                 }
             }
         }
-    }
-
-    private fun changeActionVisibility(visible: Boolean) {
-        setState { copy(actionVisible = DetailViewState.ActionVisible(visible)) }
-    }
-
-    private fun doneChangingActionVisibility() {
-        setState { copy(actionVisible = null) }
     }
 
     private fun handleUndoDelete(item: FridgeItem) {

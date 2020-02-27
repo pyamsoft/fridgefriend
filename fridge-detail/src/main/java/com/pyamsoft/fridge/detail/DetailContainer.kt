@@ -150,9 +150,6 @@ class DetailContainer @Inject internal constructor(
                     .translationY(0F)
                     .setDuration(600)
                     .setInterpolator(interpolator)
-                    .withEndAction {
-                        publish(DetailViewEvent.ScrollActionVisibilityChange(true))
-                    }
             }
         }
     }

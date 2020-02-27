@@ -28,7 +28,6 @@ data class DetailViewState(
     val showing: Showing,
     val listError: Throwable?,
     val undoableItem: FridgeItem?,
-    val actionVisible: ActionVisible?,
     val expirationRange: ExpirationRange?,
     val isSameDayExpired: IsSameDayExpired?,
     val listItemPresence: FridgeItem.Presence,
@@ -44,8 +43,6 @@ data class DetailViewState(
     data class ExpirationRange internal constructor(val range: Int)
 
     data class IsSameDayExpired internal constructor(val isSame: Boolean)
-
-    data class ActionVisible internal constructor(val visible: Boolean)
 
     data class Loading internal constructor(val isLoading: Boolean)
 }
@@ -65,12 +62,6 @@ sealed class DetailViewEvent : UiViewEvent {
     data class UndoDelete internal constructor(val item: FridgeItem) : DetailViewEvent()
 
     data class ReallyDeleteNoUndo internal constructor(val item: FridgeItem) : DetailViewEvent()
-
-    data class ScrollActionVisibilityChange internal constructor(
-        val visible: Boolean
-    ) : DetailViewEvent()
-
-    object DoneScrollActionVisibilityChange : DetailViewEvent()
 
     data class Consume internal constructor(val index: Int) : DetailViewEvent()
 

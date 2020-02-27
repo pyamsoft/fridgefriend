@@ -30,15 +30,15 @@ import com.pyamsoft.fridge.detail.R
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.loader.Loaded
-import com.pyamsoft.pydroid.ui.util.popHide
 import com.pyamsoft.pydroid.ui.util.popShow
 import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
-import javax.inject.Inject
 import timber.log.Timber
+import javax.inject.Inject
 
 class AddNewItemView @Inject internal constructor(
     private val imageLoader: ImageLoader,
-    parent: ViewGroup
+    parent: ViewGroup,
+    listItemPresence: FridgeItem.Presence
 ) : BaseUiView<DetailViewState, DetailViewEvent>(parent) {
 
     override val layout: Int = R.layout.add_new
@@ -55,7 +55,6 @@ class AddNewItemView @Inject internal constructor(
     private var filterIconAnimator: ViewPropertyAnimatorCompat? = null
     private var rotateIconAnimator: ViewPropertyAnimatorCompat? = null
 
-    private var previousVisible: DetailViewState.ActionVisible? = null
     private var previousRotated = false
 
     init {
@@ -76,6 +75,22 @@ class AddNewItemView @Inject internal constructor(
             filterButton.setOnDebouncedClickListener { toggleArchived() }
         }
 
+        doOnInflate {
+            val expandAnimator = expandButton.popShow().withEndAction {
+                if (listItemPresence == FridgeItem.Presence.HAVE) {
+                    val filterAnimator = filterButton.popShow()
+                    doOnTeardown {
+                        filterAnimator.cancel()
+                    }
+                } else {
+                    filterButton.isVisible = false
+                }
+            }
+            doOnTeardown {
+                expandAnimator.cancel()
+            }
+        }
+
         doOnTeardown {
             disposeFilterLoaded()
             filterButton.setOnClickListener(null)
@@ -85,10 +100,6 @@ class AddNewItemView @Inject internal constructor(
             disposeAddNewAnimator()
             disposeFilterAnimator()
             disposeRotate()
-        }
-
-        doOnTeardown {
-            previousVisible = null
         }
     }
 
@@ -142,34 +153,6 @@ class AddNewItemView @Inject internal constructor(
                 .into(filterButton)
         }
 
-        state.actionVisible?.let { action ->
-            val previous = previousVisible
-            previousVisible = action
-
-            // If the visibility state has not changed, do nothing
-            if (previous != null && previous.visible == action.visible) {
-                Timber.w("Same action visible: $action")
-                return@let
-            }
-
-            Timber.d("Run action visible: $action")
-            if (action.visible) {
-                disposeAddNewAnimator()
-                addNewIconAnimator = expandButton.popShow().withEndAction {
-                    if (!hideFilter) {
-                        showFilterButton()
-                    }
-                }
-            } else {
-                disposeFilterAnimator()
-                if (hideFilter) {
-                    hideExpandButton()
-                } else {
-                    filterIconAnimator = filterButton.popHide().withEndAction { hideExpandButton() }
-                }
-            }
-        }
-
         state.isItemExpanded.let { expanded ->
             Timber.d("Item expanded: $expanded")
             val previous = previousRotated
@@ -197,22 +180,6 @@ class AddNewItemView @Inject internal constructor(
         if (hideFilter) {
             disposeFilterAnimator()
             filterButton.isVisible = false
-        }
-    }
-
-    // Extracted because this action is conditional
-    private fun showFilterButton() {
-        disposeFilterAnimator()
-        filterIconAnimator = filterButton.popShow(startDelay = 0).withEndAction {
-            publish(DetailViewEvent.DoneScrollActionVisibilityChange)
-        }
-    }
-
-    // Extracted because this action is conditional
-    private fun hideExpandButton() {
-        disposeAddNewAnimator()
-        addNewIconAnimator = expandButton.popHide(startDelay = 0).withEndAction {
-            publish(DetailViewEvent.DoneScrollActionVisibilityChange)
         }
     }
 
