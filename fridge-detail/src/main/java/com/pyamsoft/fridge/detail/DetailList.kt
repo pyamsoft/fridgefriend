@@ -39,8 +39,8 @@ import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.ui.util.Snackbreak
 import com.pyamsoft.pydroid.ui.util.refreshing
-import timber.log.Timber
 import javax.inject.Inject
+import timber.log.Timber
 
 class DetailList @Inject internal constructor(
     private val imageLoader: ImageLoader,
