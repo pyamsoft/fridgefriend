@@ -24,11 +24,11 @@ import com.pyamsoft.fridge.locator.MapPermission
 import com.pyamsoft.pydroid.arch.EventBus
 import com.pyamsoft.pydroid.arch.UiViewModel
 import com.pyamsoft.pydroid.core.Enforcer
-import javax.inject.Inject
-import javax.inject.Named
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import timber.log.Timber
+import javax.inject.Inject
+import javax.inject.Named
 
 class MainViewModel @Inject internal constructor(
     private val mapPermission: MapPermission,
@@ -73,40 +73,30 @@ class MainViewModel @Inject internal constructor(
         }
     }
 
-    fun selectPage(page: MainPage) {
-        return when (page) {
-            MainPage.NEED -> select(
-                MainPage.NEED,
-                MainControllerEvent.PushNeed
-            )
-            MainPage.HAVE -> select(
-                MainPage.HAVE,
-                MainControllerEvent.PushHave
-            )
-            MainPage.CATEGORY -> select(
-                MainPage.CATEGORY,
-                MainControllerEvent.PushCategory
-            )
-            MainPage.NEARBY -> select(
-                MainPage.NEARBY,
-                MainControllerEvent.PushNearby
-            )
+    fun selectPage(newPage: MainPage) {
+        when (newPage) {
+            MainPage.NEED -> select(MainPage.NEED) { MainControllerEvent.PushNeed(it) }
+            MainPage.HAVE -> select(MainPage.HAVE) { MainControllerEvent.PushHave(it) }
+            MainPage.NEARBY -> select(MainPage.NEARBY) { MainControllerEvent.PushNearby(it) }
+            MainPage.CATEGORY -> select(MainPage.CATEGORY) { MainControllerEvent.PushCategory(it) }
         }
     }
 
     private fun select(
-        page: MainPage,
-        event: MainControllerEvent
+        newPage: MainPage,
+        event: (page: MainPage?) -> (MainControllerEvent)
     ) {
         withState {
-            if (this.page != page) {
-                Timber.d("Select entry: $page")
-                setState { copy(page = page) }
-
-                Timber.d("Publish selection: $event")
-                publish(event)
+            val oldPage = this.page
+            if (oldPage != newPage) {
+                Timber.d("Select entry: $newPage")
+                setState { copy(page = newPage) }
+                withState {
+                    Timber.d("Publish selection: $oldPage -> $newPage")
+                    publish(event(oldPage))
+                }
             } else {
-                Timber.w("Selected entry is same page: $page")
+                Timber.w("Selected entry is same page: $newPage")
             }
         }
     }

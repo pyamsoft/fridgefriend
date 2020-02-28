@@ -148,7 +148,8 @@ class DetailContainer @Inject internal constructor(
 
                 animator = ViewCompat.animate(root)
                     .translationY(0F)
-                    .setDuration(600)
+                    .setDuration(700)
+                    .setStartDelay(300)
                     .setInterpolator(interpolator)
             }
         }

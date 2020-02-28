@@ -43,13 +43,14 @@ sealed class MainViewEvent : UiViewEvent {
 
 sealed class MainControllerEvent : UiControllerEvent {
 
-    object PushHave : MainControllerEvent()
+    data class PushHave internal constructor(val previousPage: MainPage?) : MainControllerEvent()
 
-    object PushNeed : MainControllerEvent()
+    data class PushNeed internal constructor(val previousPage: MainPage?) : MainControllerEvent()
 
-    object PushCategory : MainControllerEvent()
+    data class PushCategory internal constructor(val previousPage: MainPage?) :
+        MainControllerEvent()
 
-    object PushNearby : MainControllerEvent()
+    data class PushNearby internal constructor(val previousPage: MainPage?) : MainControllerEvent()
 
     object NavigateToSettings : MainControllerEvent()
 
