@@ -21,9 +21,11 @@ import android.view.View
 import com.skydoves.balloon.Balloon
 
 internal class TooltipImpl internal constructor(
-    private val balloon: Balloon,
+    balloonBuilder: Lazy<Balloon>,
     private val direction: Tooltip.Direction
 ) : Tooltip {
+
+    private val balloon by balloonBuilder
 
     override fun isShowing(): Boolean {
         return balloon.isShowing

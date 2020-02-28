@@ -32,48 +32,50 @@ internal class TooltipCreatorImpl @Inject internal constructor(
 ) : TooltipCreator {
 
     @CheckResult
-    private inline fun create(builder: TooltipBuilder.() -> TooltipBuilder): Balloon {
-        var dismissOnClick = false
-        var dismissOnClickOutside = false
+    private inline fun create(crossinline builder: TooltipBuilder.() -> TooltipBuilder): Lazy<Balloon> {
+        return lazy(LazyThreadSafetyMode.NONE) {
+            var dismissOnClick = false
+            var dismissOnClickOutside = false
 
-        val balloon = createBalloon(activity) {
-            setArrowSize(12)
-            setHeight(65)
-            setCornerRadius(16F)
-            setAlpha(0.85F)
-            setBackgroundColorResource(R.color.tooltipBackground)
-            setTextColorResource(R.color.tooltipText)
+            val balloon = createBalloon(activity) {
+                setArrowSize(12)
+                setHeight(65)
+                setCornerRadius(16F)
+                setAlpha(0.85F)
+                setBackgroundColorResource(R.color.tooltipBackground)
+                setTextColorResource(R.color.tooltipText)
 
-            val tooltipBuilder = TooltipBuilderImpl(
-                this
-            ).apply {
-                setArrowPosition(0.5F)
-                setAnimation(Tooltip.Animation.FADE)
-                setTextSize(16F)
-                builder()
+                val tooltipBuilder = TooltipBuilderImpl(
+                    this
+                ).apply {
+                    setArrowPosition(0.5F)
+                    setAnimation(Tooltip.Animation.FADE)
+                    setTextSize(16F)
+                    builder()
+                }
+
+                dismissOnClick = tooltipBuilder.dismissOnClick
+                dismissOnClickOutside = tooltipBuilder.dismissOnClickOutside
             }
 
-            dismissOnClick = tooltipBuilder.dismissOnClick
-            dismissOnClickOutside = tooltipBuilder.dismissOnClickOutside
-        }
-
-        if (dismissOnClick) {
-            balloon.onBalloonClickListener = object : OnBalloonClickListener {
-                override fun onBalloonClick(view: View) {
-                    balloon.dismiss()
+            if (dismissOnClick) {
+                balloon.onBalloonClickListener = object : OnBalloonClickListener {
+                    override fun onBalloonClick(view: View) {
+                        balloon.dismiss()
+                    }
                 }
             }
-        }
 
-        if (dismissOnClickOutside) {
-            balloon.onBalloonOutsideTouchListener = object : OnBalloonOutsideTouchListener {
-                override fun onBalloonOutsideTouch(view: View, event: MotionEvent) {
-                    balloon.dismiss()
+            if (dismissOnClickOutside) {
+                balloon.onBalloonOutsideTouchListener = object : OnBalloonOutsideTouchListener {
+                    override fun onBalloonOutsideTouch(view: View, event: MotionEvent) {
+                        balloon.dismiss()
+                    }
                 }
             }
-        }
 
-        return balloon
+            balloon
+        }
     }
 
     override fun center(): Tooltip {
