@@ -18,7 +18,6 @@
 package com.pyamsoft.fridge.main
 
 import android.view.ViewGroup
-import android.widget.FrameLayout
 import com.pyamsoft.pydroid.arch.BaseUiView
 import javax.inject.Inject
 
@@ -26,9 +25,9 @@ class MainContainer @Inject internal constructor(
     parent: ViewGroup
 ) : BaseUiView<MainViewState, MainViewEvent>(parent) {
 
-    override val layout: Int = R.layout.layout_frame
+    override val layout: Int = R.layout.main_container
 
-    override val layoutRoot by boundView<FrameLayout>(R.id.layout_frame)
+    override val layoutRoot by boundView<ViewGroup>(R.id.main_container)
 
     override fun onRender(state: MainViewState) {
     }
