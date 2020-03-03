@@ -30,7 +30,7 @@ internal data class RoomFridgeCategory internal constructor(
     @JvmField
     @PrimaryKey
     @ColumnInfo(name = COLUMN_ID)
-    val id: String,
+    val id: FridgeCategory.Id,
 
     @JvmField
     @ColumnInfo(name = COLUMN_NAME)
@@ -50,7 +50,7 @@ internal data class RoomFridgeCategory internal constructor(
 ) : FridgeCategory {
 
     @Ignore
-    override fun id(): String {
+    override fun id(): FridgeCategory.Id {
         return id
     }
 
@@ -76,7 +76,7 @@ internal data class RoomFridgeCategory internal constructor(
 
     @Ignore
     override fun isEmpty(): Boolean {
-        return id().isBlank()
+        return id().isEmpty()
     }
 
     @Ignore

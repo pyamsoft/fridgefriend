@@ -23,13 +23,13 @@ import java.util.Date
 
 @JsonClass(generateAdapter = true)
 data class JsonMappableFridgeEntry internal constructor(
-    internal val id: String,
+    internal val id: FridgeEntry.Id,
     internal val name: String,
     internal val createdTime: Date,
     internal val isReal: Boolean
 ) : FridgeEntry {
 
-    override fun id(): String {
+    override fun id(): FridgeEntry.Id {
         return id
     }
 

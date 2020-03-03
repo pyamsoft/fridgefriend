@@ -37,8 +37,8 @@ import com.pyamsoft.pydroid.ui.Injector
 import com.pyamsoft.pydroid.ui.app.requireToolbarActivity
 import com.pyamsoft.pydroid.ui.arch.factory
 import com.pyamsoft.pydroid.ui.util.commitNow
-import javax.inject.Inject
 import timber.log.Timber
+import javax.inject.Inject
 
 internal class EntryFragment : Fragment(), SnackbarContainer {
 
@@ -109,16 +109,17 @@ internal class EntryFragment : Fragment(), SnackbarContainer {
     }
 
     private fun pushPage(entry: FridgeEntry) {
-        Timber.d("Push new entry page: ${entry.id()}")
+        val tag = entry.id().id
+        Timber.d("Push new entry page: $tag")
         val fm = childFragmentManager
-        if (fm.findFragmentByTag(entry.id()) == null) {
+        if (fm.findFragmentByTag(tag) == null) {
             val presenceString = requireNotNull(requireArguments().getString(EXTRA_PRESENCE))
             val presence = Presence.valueOf(presenceString)
             fm.commitNow(viewLifecycleOwner) {
                 replace(
                     requireNotNull(container).id,
                     DetailFragment.newInstance(entry, presence),
-                    entry.id()
+                    tag
                 )
             }
         }

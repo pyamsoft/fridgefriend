@@ -23,14 +23,14 @@ import java.util.Date
 
 @JsonClass(generateAdapter = true)
 data class JsonMappableFridgeCategory internal constructor(
-    internal val id: String,
+    internal val id: FridgeCategory.Id,
     internal val name: String,
     internal val createdTime: Date,
     internal val thumbnail: FridgeCategory.Thumbnail?,
     internal val isDefault: Boolean
 ) : FridgeCategory {
 
-    override fun id(): String {
+    override fun id(): FridgeCategory.Id {
         return id
     }
 
@@ -51,7 +51,7 @@ data class JsonMappableFridgeCategory internal constructor(
     }
 
     override fun isEmpty(): Boolean {
-        return id().isBlank()
+        return id().isEmpty()
     }
 
     override fun name(name: String): FridgeCategory {

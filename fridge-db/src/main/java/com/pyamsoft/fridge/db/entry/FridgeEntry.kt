@@ -24,7 +24,7 @@ import java.util.Date
 interface FridgeEntry : BaseModel<FridgeEntry> {
 
     @CheckResult
-    fun id(): String
+    fun id(): Id
 
     @CheckResult
     fun isReal(): Boolean
@@ -32,13 +32,27 @@ interface FridgeEntry : BaseModel<FridgeEntry> {
     @CheckResult
     fun makeReal(): FridgeEntry
 
+    data class Id(val id: String) {
+
+        @CheckResult
+        fun isEmpty(): Boolean {
+            return id.isBlank()
+        }
+
+        companion object {
+
+            @JvmField
+            val EMPTY = Id("")
+        }
+    }
+
     companion object {
 
         const val DEFAULT_NAME = "My Fridge"
 
         @CheckResult
         fun create(
-            id: String,
+            id: Id,
             name: String
         ): FridgeEntry {
             return JsonMappableFridgeEntry(id, name, Date(), isReal = true)

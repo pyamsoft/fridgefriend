@@ -19,15 +19,20 @@ package com.pyamsoft.fridge.db.item
 
 import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.db.BaseDb
+import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence
 
 interface FridgeItemQueryDao : BaseDb.Query<FridgeItem> {
 
     @CheckResult
-    suspend fun query(force: Boolean, entryId: String): List<FridgeItem>
+    suspend fun query(force: Boolean, id: FridgeEntry.Id): List<FridgeItem>
 
     @CheckResult
-    suspend fun querySameNameDifferentPresence(force: Boolean, name: String, presence: Presence): List<FridgeItem>
+    suspend fun querySameNameDifferentPresence(
+        force: Boolean,
+        name: String,
+        presence: Presence
+    ): List<FridgeItem>
 
     @CheckResult
     suspend fun querySimilarNamedItems(force: Boolean, item: FridgeItem): List<FridgeItem>

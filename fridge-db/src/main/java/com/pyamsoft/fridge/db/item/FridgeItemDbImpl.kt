@@ -18,14 +18,15 @@
 package com.pyamsoft.fridge.db.item
 
 import androidx.annotation.CheckResult
+import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent.Delete
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent.Insert
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent.Update
-import java.util.Locale
-import kotlin.math.min
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import java.util.Locale
+import kotlin.math.min
 
 internal class FridgeItemDbImpl internal constructor(
     private val db: FridgeItemDb,
@@ -69,13 +70,10 @@ internal class FridgeItemDbImpl internal constructor(
                 }
             }
 
-            override suspend fun query(
-                force: Boolean,
-                entryId: String
-            ): List<FridgeItem> {
+            override suspend fun query(force: Boolean, id: FridgeEntry.Id): List<FridgeItem> {
                 mutex.withLock {
                     return queryAsSequence(force)
-                        .filter { it.entryId() == entryId }
+                        .filter { it.entryId() == id }
                         .toList()
                 }
             }

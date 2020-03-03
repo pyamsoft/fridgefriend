@@ -17,7 +17,9 @@
 
 package com.pyamsoft.fridge.db.item
 
-sealed class FridgeItemChangeEvent(val entryId: String) {
+import com.pyamsoft.fridge.db.entry.FridgeEntry
+
+sealed class FridgeItemChangeEvent(val entryId: FridgeEntry.Id) {
 
     data class Insert(val item: FridgeItem) : FridgeItemChangeEvent(item.entryId())
 

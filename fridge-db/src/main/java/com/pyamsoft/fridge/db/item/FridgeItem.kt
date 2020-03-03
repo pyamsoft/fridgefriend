@@ -20,16 +20,18 @@ package com.pyamsoft.fridge.db.item
 import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.core.IdGenerator
 import com.pyamsoft.fridge.db.EmptyModel
+import com.pyamsoft.fridge.db.category.FridgeCategory
+import com.pyamsoft.fridge.db.entry.FridgeEntry
 import java.util.Calendar
 import java.util.Date
 
 interface FridgeItem : EmptyModel<FridgeItem> {
 
     @CheckResult
-    fun id(): String
+    fun id(): Id
 
     @CheckResult
-    fun entryId(): String
+    fun entryId(): FridgeEntry.Id
 
     @CheckResult
     fun count(): Int
@@ -44,7 +46,7 @@ interface FridgeItem : EmptyModel<FridgeItem> {
     fun presence(): Presence
 
     @CheckResult
-    fun categoryId(): String?
+    fun categoryId(): FridgeCategory.Id?
 
     @CheckResult
     fun isReal(): Boolean
@@ -95,10 +97,24 @@ interface FridgeItem : EmptyModel<FridgeItem> {
     fun invalidateCategoryId(): FridgeItem
 
     @CheckResult
-    fun categoryId(id: String): FridgeItem
+    fun categoryId(id: FridgeCategory.Id): FridgeItem
 
     @CheckResult
     fun makeReal(): FridgeItem
+
+    data class Id(val id: String) {
+
+        @CheckResult
+        fun isEmpty(): Boolean {
+            return id.isBlank()
+        }
+
+        companion object {
+
+            @JvmField
+            val EMPTY = Id("")
+        }
+    }
 
     enum class Presence {
         HAVE,
@@ -117,7 +133,7 @@ interface FridgeItem : EmptyModel<FridgeItem> {
 
     companion object {
 
-        private val EMPTY_ITEM = create("", "", Presence.NEED)
+        private val EMPTY_ITEM = create(Id.EMPTY, FridgeEntry.Id.EMPTY, Presence.NEED)
 
         @CheckResult
         fun isValidName(name: String): Boolean {
@@ -132,8 +148,8 @@ interface FridgeItem : EmptyModel<FridgeItem> {
         @CheckResult
         @JvmOverloads
         fun create(
-            id: String = IdGenerator.generate(),
-            entryId: String,
+            id: Id = Id(IdGenerator.generate()),
+            entryId: FridgeEntry.Id,
             presence: Presence
         ): FridgeItem {
             return JsonMappableFridgeItem(
@@ -164,7 +180,7 @@ interface FridgeItem : EmptyModel<FridgeItem> {
             presence: Presence = item.presence(),
             consumptionDate: Date? = item.consumptionDate(),
             spoiledDate: Date? = item.spoiledDate(),
-            categoryId: String? = item.categoryId(),
+            categoryId: FridgeCategory.Id? = item.categoryId(),
             isReal: Boolean
         ): FridgeItem {
             return JsonMappableFridgeItem(

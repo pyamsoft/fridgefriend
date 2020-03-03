@@ -78,8 +78,8 @@ internal class DetailFragment : Fragment(), SnackbarContainer {
     }
 
     @CheckResult
-    private fun getEntryIdArgument(): String {
-        return requireNotNull(requireArguments().getString(ENTRY))
+    private fun getEntryIdArgument(): FridgeEntry.Id {
+        return FridgeEntry.Id(requireNotNull(requireArguments().getString(ENTRY)))
     }
 
     @CheckResult
@@ -183,7 +183,7 @@ internal class DetailFragment : Fragment(), SnackbarContainer {
         ): Fragment {
             return DetailFragment().apply {
                 arguments = Bundle().apply {
-                    putString(ENTRY, entry.id())
+                    putString(ENTRY, entry.id().id)
                     putString(PRESENCE, filterPresence.name)
                 }
             }

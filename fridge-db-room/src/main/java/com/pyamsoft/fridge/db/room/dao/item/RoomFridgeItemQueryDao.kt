@@ -20,6 +20,7 @@ package com.pyamsoft.fridge.db.room.dao.item
 import androidx.annotation.CheckResult
 import androidx.room.Dao
 import androidx.room.Query
+import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence
 import com.pyamsoft.fridge.db.item.FridgeItemQueryDao
@@ -40,7 +41,7 @@ internal abstract class RoomFridgeItemQueryDao internal constructor() : FridgeIt
 
     final override suspend fun query(
         force: Boolean,
-        entryId: String
+        id: FridgeEntry.Id
     ): List<FridgeItem> {
         throw IllegalStateException("This method should not be called")
     }
@@ -53,7 +54,10 @@ internal abstract class RoomFridgeItemQueryDao internal constructor() : FridgeIt
         throw IllegalStateException("This method should not be called")
     }
 
-    final override suspend fun querySimilarNamedItems(force: Boolean, item: FridgeItem): List<FridgeItem> {
+    final override suspend fun querySimilarNamedItems(
+        force: Boolean,
+        item: FridgeItem
+    ): List<FridgeItem> {
         throw IllegalStateException("This method should not be called")
     }
 }

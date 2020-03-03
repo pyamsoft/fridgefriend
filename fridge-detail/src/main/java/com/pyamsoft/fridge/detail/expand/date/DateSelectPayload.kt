@@ -17,9 +17,12 @@
 
 package com.pyamsoft.fridge.detail.expand.date
 
+import com.pyamsoft.fridge.db.entry.FridgeEntry
+import com.pyamsoft.fridge.db.item.FridgeItem
+
 data class DateSelectPayload(
-    val itemId: String,
-    val entryId: String,
+    val itemId: FridgeItem.Id,
+    val entryId: FridgeEntry.Id,
     val year: Int,
     val month: Int,
     val day: Int

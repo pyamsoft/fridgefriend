@@ -27,7 +27,7 @@ data class ExpandedCategoryViewState internal constructor(
 ) : UiViewState {
 
     data class Category internal constructor(
-        val id: String,
+        val id: FridgeCategory.Id,
         val name: String,
         val thumbnail: FridgeCategory.Thumbnail?
     )

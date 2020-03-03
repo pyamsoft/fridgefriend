@@ -93,7 +93,7 @@ class ExpandItemCategoryList @Inject internal constructor(
 
     private fun setList(
         categories: List<FridgeCategory>,
-        selectedCategoryId: String?
+        selectedCategoryId: FridgeCategory.Id?
     ) {
         val itemList = categories.map { category ->
             val catView = if (category.isEmpty()) null else {

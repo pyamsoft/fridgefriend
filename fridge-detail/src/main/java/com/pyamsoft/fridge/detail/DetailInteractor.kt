@@ -34,12 +34,12 @@ import com.pyamsoft.fridge.db.item.FridgeItemUpdateDao
 import com.pyamsoft.fridge.db.persist.PersistentCategories
 import com.pyamsoft.pydroid.arch.EventConsumer
 import com.pyamsoft.pydroid.core.Enforcer
-import java.util.Calendar
-import java.util.Date
-import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import timber.log.Timber
+import java.util.Calendar
+import java.util.Date
+import javax.inject.Inject
 
 internal class DetailInteractor @Inject internal constructor(
     private val enforcer: Enforcer,
@@ -72,12 +72,12 @@ internal class DetailInteractor @Inject internal constructor(
 
     @CheckResult
     suspend fun resolveItem(
-        itemId: String,
-        entryId: String,
+        itemId: FridgeItem.Id,
+        entryId: FridgeEntry.Id,
         presence: Presence,
         force: Boolean
     ): FridgeItem {
-        return if (itemId.isBlank()) {
+        return if (itemId.isEmpty()) {
             createNewItem(entryId, presence)
         } else {
             loadItem(itemId, entryId, force)
@@ -88,7 +88,7 @@ internal class DetailInteractor @Inject internal constructor(
      * Create a new FridgeItem
      */
     @CheckResult
-    private fun createNewItem(entryId: String, presence: Presence): FridgeItem {
+    private fun createNewItem(entryId: FridgeEntry.Id, presence: Presence): FridgeItem {
         return FridgeItem.create(entryId = entryId, presence = presence)
     }
 
@@ -99,14 +99,14 @@ internal class DetailInteractor @Inject internal constructor(
      */
     @CheckResult
     private suspend fun loadItem(
-        itemId: String,
-        entryId: String,
+        itemId: FridgeItem.Id,
+        entryId: FridgeEntry.Id,
         force: Boolean
     ): FridgeItem = getItems(entryId, force).first { it.id() == itemId }
 
     @CheckResult
     suspend fun getItems(
-        entryId: String,
+        entryId: FridgeEntry.Id,
         force: Boolean
     ): List<FridgeItem> = withContext(context = Dispatchers.Default) {
         enforcer.assertNotOnMainThread()
@@ -114,8 +114,8 @@ internal class DetailInteractor @Inject internal constructor(
     }
 
     @CheckResult
-    fun listenForChanges(entryId: String): EventConsumer<FridgeItemChangeEvent> {
-        return itemRealtime.listenForChanges(entryId)
+    fun listenForChanges(id: FridgeEntry.Id): EventConsumer<FridgeItemChangeEvent> {
+        return itemRealtime.listenForChanges(id)
     }
 
     suspend fun commit(item: FridgeItem) = withContext(context = Dispatchers.Default) {

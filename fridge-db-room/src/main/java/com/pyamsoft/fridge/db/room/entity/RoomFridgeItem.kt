@@ -23,6 +23,8 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Ignore
 import androidx.room.PrimaryKey
+import com.pyamsoft.fridge.db.category.FridgeCategory
+import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence
 import java.util.Date
@@ -40,11 +42,11 @@ internal data class RoomFridgeItem internal constructor(
     @JvmField
     @PrimaryKey
     @ColumnInfo(name = COLUMN_ID)
-    val id: String,
+    val id: FridgeItem.Id,
 
     @JvmField
     @ColumnInfo(name = COLUMN_ENTRY_ID, index = true)
-    val entryId: String,
+    val entryId: FridgeEntry.Id,
 
     @JvmField
     @ColumnInfo(name = COLUMN_NAME)
@@ -80,16 +82,16 @@ internal data class RoomFridgeItem internal constructor(
 
     @JvmField
     @ColumnInfo(name = COLUMN_CATEGORY)
-    val categoryId: String?
+    val categoryId: FridgeCategory.Id?
 ) : FridgeItem {
 
     @Ignore
-    override fun id(): String {
+    override fun id(): FridgeItem.Id {
         return id
     }
 
     @Ignore
-    override fun entryId(): String {
+    override fun entryId(): FridgeEntry.Id {
         return entryId
     }
 
@@ -124,7 +126,7 @@ internal data class RoomFridgeItem internal constructor(
     }
 
     @Ignore
-    override fun categoryId(): String? {
+    override fun categoryId(): FridgeCategory.Id? {
         return categoryId
     }
 
@@ -165,7 +167,7 @@ internal data class RoomFridgeItem internal constructor(
 
     @Ignore
     override fun isEmpty(): Boolean {
-        return id().isBlank()
+        return id().isEmpty()
     }
 
     @Ignore
@@ -224,7 +226,7 @@ internal data class RoomFridgeItem internal constructor(
     }
 
     @Ignore
-    override fun categoryId(id: String): FridgeItem {
+    override fun categoryId(id: FridgeCategory.Id): FridgeItem {
         return FridgeItem.create(this, categoryId = categoryId, isReal = isReal())
     }
 
@@ -232,26 +234,37 @@ internal data class RoomFridgeItem internal constructor(
 
         @Ignore
         internal const val TABLE_NAME = "room_fridge_item_table"
+
         @Ignore
         internal const val COLUMN_ID = "_id"
+
         @Ignore
         internal const val COLUMN_ENTRY_ID = "entry_id"
+
         @Ignore
         internal const val COLUMN_NAME = "name"
+
         @Ignore
         internal const val COLUMN_COUNT = "count"
+
         @Ignore
         internal const val COLUMN_CREATED_TIME = "created_time"
+
         @Ignore
         internal const val COLUMN_PURCHASE_TIME = "purchase_time"
+
         @Ignore
         internal const val COLUMN_EXPIRE_TIME = "expire_time"
+
         @Ignore
         internal const val COLUMN_PRESENCE = "presence"
+
         @Ignore
         internal const val COLUMN_CONSUMED = "consumed"
+
         @Ignore
         internal const val COLUMN_SPOILED = "spoiled"
+
         @Ignore
         internal const val COLUMN_CATEGORY = "category"
 

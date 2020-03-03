@@ -19,6 +19,7 @@ package com.pyamsoft.fridge.detail
 
 import androidx.annotation.CheckResult
 import androidx.lifecycle.viewModelScope
+import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent.Delete
@@ -49,7 +50,7 @@ class DetailViewModel @Inject internal constructor(
     private val interactor: DetailInteractor,
     private val fakeRealtime: EventBus<FridgeItemChangeEvent>,
     private val itemExpandedBus: EventBus<ItemExpandPayload>,
-    @Named("entry_id") private val entryId: String,
+    @Named("entry_id") private val entryId: FridgeEntry.Id,
     @Named("debug") debug: Boolean,
     listItemPresence: FridgeItem.Presence
 ) : BaseUpdaterViewModel<DetailViewState, DetailViewEvent, DetailControllerEvent>(

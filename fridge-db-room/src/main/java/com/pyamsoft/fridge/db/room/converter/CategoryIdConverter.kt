@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Peter Kenji Yamanaka
+ * Copyright 2020 Peter Kenji Yamanaka
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,15 +15,25 @@
  *
  */
 
-package com.pyamsoft.fridge.db.persist
+package com.pyamsoft.fridge.db.room.converter
 
 import androidx.annotation.CheckResult
-import com.pyamsoft.fridge.db.entry.FridgeEntry
+import androidx.room.TypeConverter
+import com.pyamsoft.fridge.db.category.FridgeCategory
 
-interface PersistentEntryPreferences {
+internal object CategoryIdConverter {
 
+    @JvmStatic
+    @TypeConverter
     @CheckResult
-    suspend fun getPersistentEntryId(): FridgeEntry.Id
+    fun toId(id: String?): FridgeCategory.Id? {
+        return if (id == null) null else FridgeCategory.Id(id)
+    }
 
-    suspend fun savePersistentEntryId(id: FridgeEntry.Id)
+    @JvmStatic
+    @TypeConverter
+    @CheckResult
+    fun fromId(id: FridgeCategory.Id?): String? {
+        return id?.id
+    }
 }

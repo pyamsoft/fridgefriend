@@ -30,7 +30,7 @@ internal data class RoomFridgeEntry internal constructor(
     @JvmField
     @PrimaryKey
     @ColumnInfo(name = COLUMN_ID)
-    val id: String,
+    val id: FridgeEntry.Id,
 
     @JvmField
     @ColumnInfo(name = COLUMN_NAME)
@@ -42,7 +42,7 @@ internal data class RoomFridgeEntry internal constructor(
 ) : FridgeEntry {
 
     @Ignore
-    override fun id(): String {
+    override fun id(): FridgeEntry.Id {
         return id
     }
 

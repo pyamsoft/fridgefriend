@@ -25,6 +25,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.pyamsoft.fridge.ThemeProviderModule
 import com.pyamsoft.fridge.core.FridgeViewModelFactory
 import com.pyamsoft.fridge.core.ViewModelKey
+import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence
 import com.pyamsoft.fridge.detail.DetailComponent.ViewModelModule
 import com.pyamsoft.fridge.tooltip.TooltipModule
@@ -51,7 +52,7 @@ internal interface DetailComponent {
             @BindsInstance parent: ViewGroup,
             @BindsInstance toolbarActivity: ToolbarActivity,
             @BindsInstance owner: LifecycleOwner,
-            @BindsInstance @Named("entry_id") entryId: String,
+            @BindsInstance @Named("entry_id") entryId: FridgeEntry.Id,
             @BindsInstance filterPresence: Presence
         ): DetailComponent
     }

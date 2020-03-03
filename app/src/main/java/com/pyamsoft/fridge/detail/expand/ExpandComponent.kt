@@ -25,6 +25,8 @@ import androidx.lifecycle.ViewModelProvider
 import com.pyamsoft.fridge.ThemeProviderModule
 import com.pyamsoft.fridge.core.FridgeViewModelFactory
 import com.pyamsoft.fridge.core.ViewModelKey
+import com.pyamsoft.fridge.db.entry.FridgeEntry
+import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence
 import com.pyamsoft.fridge.detail.expand.ExpandComponent.ViewModelModule
 import com.pyamsoft.pydroid.arch.UiViewModel
@@ -48,8 +50,8 @@ internal interface ExpandComponent {
             @BindsInstance activity: Activity,
             @BindsInstance parent: ViewGroup,
             @BindsInstance owner: LifecycleOwner,
-            @BindsInstance @Named("item_id") itemId: String,
-            @BindsInstance @Named("item_entry_id") itemEntryId: String,
+            @BindsInstance @Named("item_id") itemId: FridgeItem.Id,
+            @BindsInstance @Named("item_entry_id") itemEntryId: FridgeEntry.Id,
             @BindsInstance defaultPresence: Presence
         ): ExpandComponent
     }

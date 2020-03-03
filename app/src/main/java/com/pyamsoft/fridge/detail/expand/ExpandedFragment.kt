@@ -32,6 +32,7 @@ import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.ViewModelProvider
 import com.pyamsoft.fridge.FridgeComponent
 import com.pyamsoft.fridge.R
+import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence
 import com.pyamsoft.fridge.detail.expand.date.DateSelectDialogFragment
@@ -100,8 +101,8 @@ internal class ExpandedFragment : DialogFragment() {
         super.onViewCreated(view, savedInstanceState)
 
         val parent = view.findViewById<ConstraintLayout>(R.id.layout_constraint)
-        val itemId = requireNotNull(requireArguments().getString(ITEM))
-        val entryId = requireNotNull(requireArguments().getString(ENTRY))
+        val itemId = FridgeItem.Id(requireNotNull(requireArguments().getString(ITEM)))
+        val entryId = FridgeEntry.Id(requireNotNull(requireArguments().getString(ENTRY)))
         val presenceArgument =
             Presence.valueOf(requireNotNull(requireArguments().getString(PRESENCE)))
 
@@ -281,16 +282,16 @@ internal class ExpandedFragment : DialogFragment() {
         @JvmStatic
         @CheckResult
         fun createNew(
-            entryId: String,
+            entryId: FridgeEntry.Id,
             presence: Presence
         ): DialogFragment {
-            return newInstance("", entryId, presence)
+            return newInstance(FridgeItem.Id.EMPTY, entryId, presence)
         }
 
         @JvmStatic
         @CheckResult
         fun openExisting(
-            entryId: String,
+            entryId: FridgeEntry.Id,
             item: FridgeItem,
             presence: Presence
         ): DialogFragment {
@@ -300,14 +301,14 @@ internal class ExpandedFragment : DialogFragment() {
         @JvmStatic
         @CheckResult
         private fun newInstance(
-            itemId: String,
-            entryId: String,
+            itemId: FridgeItem.Id,
+            entryId: FridgeEntry.Id,
             presence: Presence
         ): DialogFragment {
             return ExpandedFragment().apply {
                 arguments = Bundle().apply {
-                    putString(ITEM, itemId)
-                    putString(ENTRY, entryId)
+                    putString(ITEM, itemId.id)
+                    putString(ENTRY, entryId.id)
                     putString(PRESENCE, presence.name)
                 }
             }

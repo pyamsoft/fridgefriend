@@ -22,8 +22,8 @@ import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.entry.FridgeEntryInsertDao
 import com.pyamsoft.fridge.db.entry.FridgeEntryQueryDao
 import com.pyamsoft.pydroid.core.Enforcer
-import javax.inject.Inject
 import timber.log.Timber
+import javax.inject.Inject
 
 internal class EntryGuaranteeImpl @Inject internal constructor(
     private val enforcer: Enforcer,
@@ -32,22 +32,22 @@ internal class EntryGuaranteeImpl @Inject internal constructor(
 ) : EntryGuarantee {
 
     @CheckResult
-    private suspend fun getEntryForId(entryId: String): FridgeEntry? {
-        if (entryId.isBlank()) {
+    private suspend fun getEntryForId(id: FridgeEntry.Id): FridgeEntry? {
+        if (id.isEmpty()) {
             Timber.w("Cannot find an entry with a blank id")
             return null
         }
 
         val entries = queryDao.query(false)
-        return entries.singleOrNull { it.id() == entryId }
+        return entries.singleOrNull { it.id() == id }
     }
 
-    override suspend fun guaranteeExists(entryId: String, name: String): FridgeEntry {
+    override suspend fun guaranteeExists(id: FridgeEntry.Id, name: String): FridgeEntry {
         enforcer.assertNotOnMainThread()
-        val entry = getEntryForId(entryId)
+        val entry = getEntryForId(id)
         return if (entry != null) entry else {
-            Timber.d("Create entry: $entryId")
-            val newEntry = FridgeEntry.create(entryId, name)
+            Timber.d("Create entry: $id")
+            val newEntry = FridgeEntry.create(id, name)
             insertDao.insert(newEntry)
             newEntry
         }

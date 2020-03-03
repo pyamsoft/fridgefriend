@@ -19,10 +19,11 @@ package com.pyamsoft.fridge.db.item
 
 import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.db.BaseDb
+import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.pydroid.arch.EventConsumer
 
 interface FridgeItemRealtime : BaseDb.Realtime<FridgeItemChangeEvent> {
 
     @CheckResult
-    fun listenForChanges(entryId: String): EventConsumer<FridgeItemChangeEvent>
+    fun listenForChanges(id: FridgeEntry.Id): EventConsumer<FridgeItemChangeEvent>
 }

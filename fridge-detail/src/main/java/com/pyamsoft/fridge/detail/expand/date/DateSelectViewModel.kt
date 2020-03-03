@@ -18,13 +18,15 @@
 package com.pyamsoft.fridge.detail.expand.date
 
 import androidx.lifecycle.viewModelScope
+import com.pyamsoft.fridge.db.entry.FridgeEntry
+import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.detail.base.BaseUpdaterViewModel
 import com.pyamsoft.pydroid.arch.EventBus
-import javax.inject.Inject
-import javax.inject.Named
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import javax.inject.Inject
+import javax.inject.Named
 
 class DateSelectViewModel @Inject internal constructor(
     private val dateSelectBus: EventBus<DateSelectPayload>,
@@ -37,22 +39,14 @@ class DateSelectViewModel @Inject internal constructor(
     }
 
     fun publish(
-        itemId: String,
-        entryId: String,
+        itemId: FridgeItem.Id,
+        entryId: FridgeEntry.Id,
         year: Int,
         month: Int,
         day: Int
     ) {
         viewModelScope.launch(context = Dispatchers.Default) {
-            dateSelectBus.send(
-                DateSelectPayload(
-                    itemId,
-                    entryId,
-                    year,
-                    month,
-                    day
-                )
-            )
+            dateSelectBus.send(DateSelectPayload(itemId, entryId, year, month, day))
             withContext(context = Dispatchers.Main) { publish(DateSelectControllerEvent.Close) }
         }
     }

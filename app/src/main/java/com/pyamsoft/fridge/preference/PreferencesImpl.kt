@@ -27,18 +27,19 @@ import com.pyamsoft.fridge.butler.ButlerPreferences
 import com.pyamsoft.fridge.butler.NotificationPreferences
 import com.pyamsoft.fridge.core.IdGenerator
 import com.pyamsoft.fridge.core.PreferenceUnregister
+import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItemPreferences
 import com.pyamsoft.fridge.db.persist.PersistentCategoryPreferences
 import com.pyamsoft.fridge.db.persist.PersistentEntryPreferences
 import com.pyamsoft.fridge.setting.SettingsPreferences
 import com.pyamsoft.pydroid.core.Enforcer
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.util.Calendar
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import javax.inject.Singleton
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 @Singleton
 internal class PreferencesImpl @Inject internal constructor(
@@ -169,14 +170,16 @@ internal class PreferencesImpl @Inject internal constructor(
         }
     }
 
-    override suspend fun getPersistentEntryId(): String {
+    override suspend fun getPersistentEntryId(): FridgeEntry.Id {
         enforcer.assertNotOnMainThread()
-        return requireNotNull(preferences.getString(KEY_PERSISTENT_ENTRIES, IdGenerator.generate()))
+        return FridgeEntry.Id(
+            requireNotNull(preferences.getString(KEY_PERSISTENT_ENTRIES, IdGenerator.generate()))
+        )
     }
 
-    override suspend fun savePersistentEntryId(id: String) {
+    override suspend fun savePersistentEntryId(id: FridgeEntry.Id) {
         enforcer.assertNotOnMainThread()
-        preferences.edit { putString(KEY_PERSISTENT_ENTRIES, id) }
+        preferences.edit { putString(KEY_PERSISTENT_ENTRIES, id.id) }
     }
 
     override suspend fun getNotificationPeriod(): Long {

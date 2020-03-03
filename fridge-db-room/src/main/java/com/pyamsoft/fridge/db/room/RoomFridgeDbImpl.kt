@@ -47,7 +47,10 @@ import com.pyamsoft.fridge.db.item.FridgeItemInsertDao
 import com.pyamsoft.fridge.db.item.FridgeItemQueryDao
 import com.pyamsoft.fridge.db.item.FridgeItemRealtime
 import com.pyamsoft.fridge.db.item.FridgeItemUpdateDao
+import com.pyamsoft.fridge.db.room.converter.CategoryIdConverter
 import com.pyamsoft.fridge.db.room.converter.DateTypeConverter
+import com.pyamsoft.fridge.db.room.converter.EntryIdConverter
+import com.pyamsoft.fridge.db.room.converter.ItemIdConverter
 import com.pyamsoft.fridge.db.room.converter.NearbyZonePointListConverter
 import com.pyamsoft.fridge.db.room.converter.PresenceTypeConverter
 import com.pyamsoft.fridge.db.room.converter.ThumbnailTypeConverter
@@ -109,7 +112,10 @@ import com.pyamsoft.pydroid.arch.EventConsumer
     PresenceTypeConverter::class,
     DateTypeConverter::class,
     NearbyZonePointListConverter::class,
-    ThumbnailTypeConverter::class
+    ThumbnailTypeConverter::class,
+    EntryIdConverter::class,
+    ItemIdConverter::class,
+    CategoryIdConverter::class
 )
 internal abstract class RoomFridgeDbImpl internal constructor() : RoomDatabase(),
     FridgeDb {
@@ -162,12 +168,12 @@ internal abstract class RoomFridgeDbImpl internal constructor() : RoomDatabase()
                         return itemRealtimeChangeBus
                     }
 
-                    override fun listenForChanges(entryId: String): EventConsumer<FridgeItemChangeEvent> {
+                    override fun listenForChanges(id: FridgeEntry.Id): EventConsumer<FridgeItemChangeEvent> {
                         return object : EventConsumer<FridgeItemChangeEvent> {
 
                             override suspend fun onEvent(emitter: suspend (event: FridgeItemChangeEvent) -> Unit) {
                                 itemRealtimeChangeBus.onEvent { event ->
-                                    if (event.entryId == entryId) {
+                                    if (event.entryId == id) {
                                         emitter(event)
                                     }
                                 }

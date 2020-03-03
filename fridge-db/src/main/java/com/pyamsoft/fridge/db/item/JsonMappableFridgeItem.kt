@@ -18,14 +18,16 @@
 package com.pyamsoft.fridge.db.item
 
 import androidx.annotation.CheckResult
+import com.pyamsoft.fridge.db.category.FridgeCategory
+import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence
 import com.squareup.moshi.JsonClass
 import java.util.Date
 
 @JsonClass(generateAdapter = true)
 data class JsonMappableFridgeItem internal constructor(
-    internal val id: String,
-    internal val entryId: String,
+    internal val id: FridgeItem.Id,
+    internal val entryId: FridgeEntry.Id,
     internal val name: String,
     internal val count: Int,
     internal val createdTime: Date,
@@ -34,15 +36,15 @@ data class JsonMappableFridgeItem internal constructor(
     internal val presence: Presence,
     internal val consumptionDate: Date?,
     internal val spoiledDate: Date?,
-    internal val categoryId: String?,
+    internal val categoryId: FridgeCategory.Id?,
     internal val isReal: Boolean
 ) : FridgeItem {
 
-    override fun id(): String {
+    override fun id(): FridgeItem.Id {
         return id
     }
 
-    override fun entryId(): String {
+    override fun entryId(): FridgeEntry.Id {
         return entryId
     }
 
@@ -70,7 +72,7 @@ data class JsonMappableFridgeItem internal constructor(
         return presence
     }
 
-    override fun categoryId(): String? {
+    override fun categoryId(): FridgeCategory.Id? {
         return categoryId
     }
 
@@ -103,7 +105,7 @@ data class JsonMappableFridgeItem internal constructor(
     }
 
     override fun isEmpty(): Boolean {
-        return id().isBlank()
+        return id().isEmpty()
     }
 
     override fun name(name: String): FridgeItem {
@@ -150,7 +152,7 @@ data class JsonMappableFridgeItem internal constructor(
         return this.copy(categoryId = null)
     }
 
-    override fun categoryId(id: String): FridgeItem {
+    override fun categoryId(id: FridgeCategory.Id): FridgeItem {
         return this.copy(categoryId = id)
     }
 

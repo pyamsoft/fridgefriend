@@ -20,6 +20,7 @@ package com.pyamsoft.fridge.detail.expand
 import androidx.annotation.CheckResult
 import androidx.lifecycle.viewModelScope
 import com.pyamsoft.fridge.db.category.FridgeCategory
+import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence.HAVE
@@ -34,13 +35,13 @@ import com.pyamsoft.fridge.detail.base.BaseUpdaterViewModel
 import com.pyamsoft.fridge.detail.expand.date.DateSelectPayload
 import com.pyamsoft.fridge.detail.item.isNameValid
 import com.pyamsoft.pydroid.arch.EventBus
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import timber.log.Timber
 import java.util.Calendar
 import java.util.Date
 import javax.inject.Inject
 import javax.inject.Named
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import timber.log.Timber
 
 class ExpandItemViewModel @Inject internal constructor(
     private val itemExpandBus: EventBus<ItemExpandPayload>,
@@ -48,8 +49,8 @@ class ExpandItemViewModel @Inject internal constructor(
     defaultPresence: Presence,
     dateSelectBus: EventBus<DateSelectPayload>,
     realtime: FridgeItemRealtime,
-    @Named("item_id") possibleItemId: String,
-    @Named("item_entry_id") itemEntryId: String,
+    @Named("item_id") possibleItemId: FridgeItem.Id,
+    @Named("item_entry_id") itemEntryId: FridgeEntry.Id,
     @Named("debug") debug: Boolean
 ) : BaseUpdaterViewModel<ExpandItemViewState, ExpandedItemViewEvent, ExpandItemControllerEvent>(
     initialState = ExpandItemViewState(
@@ -85,11 +86,11 @@ class ExpandItemViewModel @Inject internal constructor(
 
         doOnSaveState { state ->
             // If this viewmodel lives on a "new" item which has since been created
-            if (possibleItemId.isBlank()) {
+            if (possibleItemId.isEmpty()) {
                 // Save the newly created item id if possible
                 state.item?.let { item ->
                     if (item.isReal()) {
-                        put(CREATED_ITEM_ID, item.id())
+                        put(CREATED_ITEM_ID, item.id().id)
                     } else {
                         remove(CREATED_ITEM_ID)
                     }
@@ -99,7 +100,8 @@ class ExpandItemViewModel @Inject internal constructor(
 
         doOnInit { savedInstanceState ->
             // Resolve the existing item id
-            val resolveItemId = savedInstanceState.getOrDefault(CREATED_ITEM_ID, possibleItemId)
+            val resolveItemId =
+                FridgeItem.Id(savedInstanceState.getOrDefault(CREATED_ITEM_ID, possibleItemId.id))
             viewModelScope.launch(context = Dispatchers.Default) {
                 val item = interactor.resolveItem(
                     resolveItemId,

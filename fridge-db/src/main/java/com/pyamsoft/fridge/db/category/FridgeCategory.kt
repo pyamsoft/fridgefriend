@@ -25,7 +25,7 @@ import java.util.Date
 interface FridgeCategory : EmptyModel<FridgeCategory> {
 
     @CheckResult
-    fun id(): String
+    fun id(): Id
 
     @CheckResult
     fun isDefault(): Boolean
@@ -38,6 +38,20 @@ interface FridgeCategory : EmptyModel<FridgeCategory> {
 
     @CheckResult
     fun thumbnail(thumbnail: Thumbnail): FridgeCategory
+
+    data class Id(val id: String) {
+
+        @CheckResult
+        fun isEmpty(): Boolean {
+            return id.isBlank()
+        }
+
+        companion object {
+
+            @JvmField
+            val EMPTY = Id("")
+        }
+    }
 
     data class Thumbnail internal constructor(val data: ByteArray) {
 
@@ -78,7 +92,8 @@ interface FridgeCategory : EmptyModel<FridgeCategory> {
 
     companion object {
 
-        private val EMPTY_CATEGORY = JsonMappableFridgeCategory("", "", Date(), null, isDefault = true)
+        private val EMPTY_CATEGORY =
+            JsonMappableFridgeCategory(Id.EMPTY, "", Date(), null, isDefault = true)
 
         @CheckResult
         fun empty(): FridgeCategory {
@@ -87,7 +102,7 @@ interface FridgeCategory : EmptyModel<FridgeCategory> {
 
         @CheckResult
         fun create(
-            id: String,
+            id: Id,
             name: String
         ): FridgeCategory {
             return JsonMappableFridgeCategory(id, name, Date(), null, isDefault = false)
@@ -96,7 +111,7 @@ interface FridgeCategory : EmptyModel<FridgeCategory> {
         @CheckResult
         fun createDefault(name: String, thumbnail: Thumbnail?): FridgeCategory {
             return JsonMappableFridgeCategory(
-                IdGenerator.generate(),
+                Id(IdGenerator.generate()),
                 name,
                 Date(),
                 thumbnail,

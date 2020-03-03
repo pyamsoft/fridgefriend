@@ -26,6 +26,7 @@ import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.ViewModelProvider
 import com.pyamsoft.fridge.FridgeComponent
 import com.pyamsoft.fridge.R
+import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.pydroid.arch.StateSaver
 import com.pyamsoft.pydroid.arch.createComponent
@@ -55,8 +56,8 @@ internal class DateSelectDialogFragment : DialogFragment() {
         }
 
         val today = Calendar.getInstance()
-        val itemId = requireNotNull(requireArguments().getString(ITEM))
-        val entryId = requireNotNull(requireArguments().getString(ENTRY))
+        val itemId = FridgeItem.Id(requireNotNull(requireArguments().getString(ITEM)))
+        val entryId = FridgeEntry.Id(requireNotNull(requireArguments().getString(ENTRY)))
         var initialYear = requireArguments().getInt(YEAR, 0)
         var initialMonth = requireArguments().getInt(MONTH, 0)
         var initialDay = requireArguments().getInt(DAY, 0)
@@ -110,14 +111,14 @@ internal class DateSelectDialogFragment : DialogFragment() {
         ): DialogFragment {
             return DateSelectDialogFragment()
                 .apply {
-                arguments = Bundle().apply {
-                    putString(ITEM, item.id())
-                    putString(ENTRY, item.entryId())
-                    putInt(YEAR, year)
-                    putInt(MONTH, month)
-                    putInt(DAY, day)
+                    arguments = Bundle().apply {
+                        putString(ITEM, item.id().id)
+                        putString(ENTRY, item.entryId().id)
+                        putInt(YEAR, year)
+                        putInt(MONTH, month)
+                        putInt(DAY, day)
+                    }
                 }
-            }
         }
     }
 }
