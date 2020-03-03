@@ -30,7 +30,7 @@ internal data class RoomNearbyStore internal constructor(
     @JvmField
     @PrimaryKey
     @ColumnInfo(name = COLUMN_ID)
-    val id: Long,
+    val id: NearbyStore.Id,
 
     @JvmField
     @ColumnInfo(name = COLUMN_NAME)
@@ -50,7 +50,7 @@ internal data class RoomNearbyStore internal constructor(
 ) : NearbyStore {
 
     @Ignore
-    override fun id(): Long {
+    override fun id(): NearbyStore.Id {
         return id
     }
 
@@ -93,14 +93,19 @@ internal data class RoomNearbyStore internal constructor(
 
         @Ignore
         internal const val TABLE_NAME = "room_nearby_store_table"
+
         @Ignore
         internal const val COLUMN_ID = "_id"
+
         @Ignore
         internal const val COLUMN_NAME = "name"
+
         @Ignore
         internal const val COLUMN_CREATED_TIME = "created_time"
+
         @Ignore
         internal const val COLUMN_LATITUDE = "latitude"
+
         @Ignore
         internal const val COLUMN_LONGITUDE = "longitude"
 

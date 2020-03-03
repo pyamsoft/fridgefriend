@@ -27,7 +27,7 @@ import java.util.Date
 
 @CheckResult
 internal fun NearbyStore.Companion.create(node: Node): NearbyStore {
-    return create(node.id, node.tags.name(), Date(), node.lat, node.lon)
+    return create(NearbyStore.Id(node.id), node.tags.name(), Date(), node.lat, node.lon)
 }
 
 @CheckResult
@@ -38,12 +38,6 @@ internal fun NearbyStore.Companion.getMarkerUidPrefix(): String {
 @CheckResult
 internal fun NearbyStore.getMarkerUid(): String {
     return "${NearbyStore.getMarkerUidPrefix()}${id()}"
-}
-
-@CheckResult
-internal fun NearbyStore.Companion.getIdFromUid(uid: String): Long {
-    return uid.replace(NearbyStore.getMarkerUidPrefix(), "")
-        .toLong()
 }
 
 @CheckResult
@@ -60,6 +54,7 @@ private fun findName(
             val nodeName = node.tags.name()
             if (nodeName.isNotBlank()) {
                 name = nodeName
+                break
             }
         }
     }
@@ -73,10 +68,10 @@ internal fun NearbyZone.Companion.create(
     nodes: List<Node>
 ): NearbyZone {
     return create(
-        way.id,
+        NearbyZone.Id(way.id),
         findName(way, nodes),
         Date(),
-        nodes.map { Point(it.id, it.lat, it.lon) }
+        nodes.map { Point(Point.Id(it.id), it.lat, it.lon) }
     )
 }
 
@@ -88,12 +83,6 @@ internal fun NearbyZone.Companion.getPolygonUidPrefix(): String {
 @CheckResult
 internal fun NearbyZone.getPolygonUid(): String {
     return "${NearbyZone.getPolygonUidPrefix()}${id()}"
-}
-
-@CheckResult
-internal fun NearbyZone.Companion.getIdFromUid(uid: String): Long {
-    return uid.replace(NearbyZone.getPolygonUidPrefix(), "")
-        .toLong()
 }
 
 data class OsmMarkers internal constructor(

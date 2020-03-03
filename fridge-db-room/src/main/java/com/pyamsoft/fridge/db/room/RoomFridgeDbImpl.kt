@@ -53,7 +53,9 @@ import com.pyamsoft.fridge.db.room.converter.EntryIdConverter
 import com.pyamsoft.fridge.db.room.converter.ItemIdConverter
 import com.pyamsoft.fridge.db.room.converter.NearbyZonePointListConverter
 import com.pyamsoft.fridge.db.room.converter.PresenceTypeConverter
+import com.pyamsoft.fridge.db.room.converter.StoreIdConverter
 import com.pyamsoft.fridge.db.room.converter.ThumbnailTypeConverter
+import com.pyamsoft.fridge.db.room.converter.ZoneIdConverter
 import com.pyamsoft.fridge.db.room.dao.category.RoomFridgeCategoryDeleteDao
 import com.pyamsoft.fridge.db.room.dao.category.RoomFridgeCategoryInsertDao
 import com.pyamsoft.fridge.db.room.dao.category.RoomFridgeCategoryQueryDao
@@ -115,7 +117,9 @@ import com.pyamsoft.pydroid.arch.EventConsumer
     ThumbnailTypeConverter::class,
     EntryIdConverter::class,
     ItemIdConverter::class,
-    CategoryIdConverter::class
+    CategoryIdConverter::class,
+    ZoneIdConverter::class,
+    StoreIdConverter::class
 )
 internal abstract class RoomFridgeDbImpl internal constructor() : RoomDatabase(),
     FridgeDb {

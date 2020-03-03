@@ -24,13 +24,13 @@ import java.util.Date
 
 @JsonClass(generateAdapter = true)
 data class JsonMappableNearbyZone internal constructor(
-    internal val id: Long,
+    internal val id: NearbyZone.Id,
     internal val name: String,
     internal val createdTime: Date,
     internal val points: List<Point>
 ) : NearbyZone {
 
-    override fun id(): Long {
+    override fun id(): NearbyZone.Id {
         return id
     }
 

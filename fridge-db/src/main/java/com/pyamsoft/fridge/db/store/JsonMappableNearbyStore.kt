@@ -23,14 +23,14 @@ import java.util.Date
 
 @JsonClass(generateAdapter = true)
 data class JsonMappableNearbyStore internal constructor(
-    internal val id: Long,
+    internal val id: NearbyStore.Id,
     internal val name: String,
     internal val createdTime: Date,
     internal val latitude: Double,
     internal val longitude: Double
 ) : NearbyStore {
 
-    override fun id(): Long {
+    override fun id(): NearbyStore.Id {
         return id
     }
 

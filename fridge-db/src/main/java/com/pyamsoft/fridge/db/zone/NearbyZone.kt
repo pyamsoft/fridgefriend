@@ -25,7 +25,7 @@ import java.util.Date
 interface NearbyZone : BaseModel<NearbyZone> {
 
     @CheckResult
-    fun id(): Long
+    fun id(): Id
 
     @CheckResult
     fun points(): List<Point>
@@ -35,16 +35,45 @@ interface NearbyZone : BaseModel<NearbyZone> {
 
     @JsonClass(generateAdapter = true)
     data class Point(
-        val id: Long,
+        val id: Id,
         val lat: Double,
         val lon: Double
-    )
+    ) {
+
+        data class Id(val id: Long) {
+
+            @CheckResult
+            fun isEmpty(): Boolean {
+                return id == 0L
+            }
+
+            companion object {
+
+                @JvmField
+                val EMPTY = Id(0)
+            }
+        }
+    }
+
+    data class Id(val id: Long) {
+
+        @CheckResult
+        fun isEmpty(): Boolean {
+            return id == 0L
+        }
+
+        companion object {
+
+            @JvmField
+            val EMPTY = Id(0)
+        }
+    }
 
     companion object {
 
         @CheckResult
         fun create(
-            id: Long,
+            id: Id,
             name: String,
             createdTime: Date,
             points: List<Point>

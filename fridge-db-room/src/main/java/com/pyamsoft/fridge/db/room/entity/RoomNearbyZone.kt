@@ -31,7 +31,7 @@ internal data class RoomNearbyZone internal constructor(
     @JvmField
     @PrimaryKey
     @ColumnInfo(name = COLUMN_ID)
-    val id: Long,
+    val id: NearbyZone.Id,
 
     @JvmField
     @ColumnInfo(name = COLUMN_NAME)
@@ -47,7 +47,7 @@ internal data class RoomNearbyZone internal constructor(
 ) : NearbyZone {
 
     @Ignore
-    override fun id(): Long {
+    override fun id(): NearbyZone.Id {
         return id
     }
 

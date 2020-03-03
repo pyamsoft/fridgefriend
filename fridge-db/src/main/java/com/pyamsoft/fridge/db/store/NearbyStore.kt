@@ -24,7 +24,7 @@ import java.util.Date
 interface NearbyStore : BaseModel<NearbyStore> {
 
     @CheckResult
-    fun id(): Long
+    fun id(): Id
 
     @CheckResult
     fun latitude(): Double
@@ -38,11 +38,25 @@ interface NearbyStore : BaseModel<NearbyStore> {
     @CheckResult
     fun longitude(lon: Double): NearbyStore
 
+    data class Id(val id: Long) {
+
+        @CheckResult
+        fun isEmpty(): Boolean {
+            return id == 0L
+        }
+
+        companion object {
+
+            @JvmField
+            val EMPTY = Id(0)
+        }
+    }
+
     companion object {
 
         @CheckResult
         fun create(
-            id: Long,
+            id: Id,
             name: String,
             createdTime: Date,
             latitude: Double,

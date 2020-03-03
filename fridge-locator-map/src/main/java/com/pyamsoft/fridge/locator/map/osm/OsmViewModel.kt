@@ -112,10 +112,10 @@ class OsmViewModel @Inject internal constructor(
         }
     }
 
-    private inline fun <T : Any> merge(
+    private inline fun <T : Any, ID: Any> merge(
         oldList: List<T>,
         newList: List<T>,
-        id: (item: T) -> Long
+        id: (item: T) -> ID
     ): List<T> {
         val result = ArrayList(newList)
         for (oldItem in oldList) {
