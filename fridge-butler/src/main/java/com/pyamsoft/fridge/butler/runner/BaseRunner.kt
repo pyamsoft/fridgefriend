@@ -22,12 +22,13 @@ import com.pyamsoft.fridge.butler.Butler
 import com.pyamsoft.fridge.butler.ButlerPreferences
 import com.pyamsoft.fridge.butler.NotificationHandler
 import com.pyamsoft.fridge.butler.NotificationPreferences
+import com.pyamsoft.fridge.butler.params.BaseParameters
 import com.pyamsoft.pydroid.core.Enforcer
-import java.util.Calendar
 import kotlinx.coroutines.CancellationException
 import timber.log.Timber
+import java.util.Calendar
 
-internal abstract class BaseRunner protected constructor(
+internal abstract class BaseRunner<P : BaseParameters> protected constructor(
     private val handler: NotificationHandler,
     private val butler: Butler,
     private val notificationPreferences: NotificationPreferences,
@@ -35,7 +36,7 @@ internal abstract class BaseRunner protected constructor(
     private val enforcer: Enforcer
 ) {
 
-    private suspend fun teardown(params: Parameters) {
+    private suspend fun teardown(params: P) {
         reschedule(butler, params)
     }
 
@@ -43,11 +44,11 @@ internal abstract class BaseRunner protected constructor(
         func(handler)
     }
 
-    protected open suspend fun reschedule(butler: Butler, params: Parameters) {
+    protected open suspend fun reschedule(butler: Butler, params: P) {
     }
 
     @CheckResult
-    suspend fun doWork(params: Parameters): WorkResult {
+    suspend fun doWork(params: P): WorkResult {
         enforcer.assertNotOnMainThread()
 
         return try {
@@ -66,7 +67,7 @@ internal abstract class BaseRunner protected constructor(
 
     protected abstract suspend fun performWork(
         preferences: ButlerPreferences,
-        params: Parameters
+        params: P
     )
 
     @CheckResult
@@ -110,6 +111,4 @@ internal abstract class BaseRunner protected constructor(
 
         return true
     }
-
-    data class Parameters(val forceNotification: Boolean)
 }

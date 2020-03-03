@@ -24,6 +24,7 @@ import com.pyamsoft.fridge.butler.Butler
 import com.pyamsoft.fridge.butler.ButlerPreferences
 import com.pyamsoft.fridge.butler.NotificationHandler
 import com.pyamsoft.fridge.butler.NotificationPreferences
+import com.pyamsoft.fridge.butler.params.LocationParameters
 import com.pyamsoft.fridge.butler.runner.NearbyRunner
 import com.pyamsoft.fridge.db.entry.FridgeEntryQueryDao
 import com.pyamsoft.fridge.db.item.FridgeItem
@@ -35,10 +36,10 @@ import com.pyamsoft.fridge.db.zone.NearbyZone
 import com.pyamsoft.fridge.db.zone.NearbyZoneQueryDao
 import com.pyamsoft.fridge.locator.Geofencer
 import com.pyamsoft.pydroid.core.Enforcer
-import java.util.Calendar
-import javax.inject.Inject
 import kotlinx.coroutines.coroutineScope
 import timber.log.Timber
+import java.util.Calendar
+import javax.inject.Inject
 
 internal class LocationRunner @Inject internal constructor(
     private val context: Context,
@@ -52,7 +53,7 @@ internal class LocationRunner @Inject internal constructor(
     storeDb: NearbyStoreQueryDao,
     zoneDb: NearbyZoneQueryDao,
     private val geofencer: Geofencer
-) : NearbyRunner(
+) : NearbyRunner<LocationParameters>(
     handler,
     butler,
     notificationPreferences,
@@ -63,16 +64,13 @@ internal class LocationRunner @Inject internal constructor(
     storeDb,
     zoneDb
 ) {
-    override suspend fun reschedule(butler: Butler, params: Parameters) {
-        val p = Butler.Parameters(
-            forceNotification = params.forceNotification
-        )
-        butler.scheduleRemindLocation(p)
+    override suspend fun reschedule(butler: Butler, params: LocationParameters) {
+        butler.scheduleRemindLocation(params)
     }
 
     override suspend fun performWork(
         preferences: ButlerPreferences,
-        params: Parameters
+        params: LocationParameters
     ) = coroutineScope {
         val location = try {
             geofencer.getLastKnownLocation()
@@ -151,7 +149,7 @@ internal class LocationRunner @Inject internal constructor(
     }
 
     private suspend fun fireNotification(
-        params: Parameters,
+        params: LocationParameters,
         preferences: ButlerPreferences,
         storeNotification: NearbyStore?,
         zoneNotification: NearbyZone?
@@ -174,7 +172,7 @@ internal class LocationRunner @Inject internal constructor(
 
             val now = Calendar.getInstance()
             val lastTime = preferences.getLastNotificationTimeNearby()
-            if (now.isAllowedToNotify(params.forceNotification, lastTime)) {
+            if (now.isAllowedToNotify(params.forceNotifyNeeded, lastTime)) {
                 if (storeNotification != null) {
                     notification { handler ->
                         Timber.d("Fire notification for: $storeNotification")

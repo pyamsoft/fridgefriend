@@ -29,6 +29,7 @@ import androidx.fragment.app.FragmentTransaction
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.pyamsoft.fridge.BuildConfig
+import com.pyamsoft.fridge.ButlerParameters
 import com.pyamsoft.fridge.FridgeComponent
 import com.pyamsoft.fridge.R
 import com.pyamsoft.fridge.butler.Butler
@@ -99,9 +100,11 @@ internal class MainActivity : RatingActivity(), VersionChecker {
     @JvmField
     @Inject
     internal var toolbar: MainToolbar? = null
+
     @JvmField
     @Inject
     internal var navigation: MainNavigation? = null
+
     @JvmField
     @Inject
     internal var container: MainContainer? = null
@@ -156,9 +159,13 @@ internal class MainActivity : RatingActivity(), VersionChecker {
 
     private fun beginWork() {
         this.lifecycleScope.launch(context = Dispatchers.Default) {
+            val presenceString: String? = intent.getStringExtra(FridgeItem.Presence.KEY)
+            val presence =
+                if (presenceString == null) null else FridgeItem.Presence.valueOf(presenceString)
             requireNotNull(butler).initOnAppStart(
-                Butler.Parameters(
-                    forceNotification = true
+                ButlerParameters(
+                    forceNotifyNeeded = presence != FridgeItem.Presence.NEED,
+                    forceNotifyExpiring = presence != FridgeItem.Presence.HAVE
                 )
             )
         }
@@ -170,9 +177,9 @@ internal class MainActivity : RatingActivity(), VersionChecker {
     }
 
     private fun clearLaunchNotification() {
-        val notificationId = intent.getIntExtra(NotificationHandler.NOTIFICATION_ID_KEY, 0)
-        if (notificationId != 0) {
-            Notifications.cancel(this, notificationId)
+        val id = intent.getIntExtra(NotificationHandler.NOTIFICATION_ID_KEY, 0)
+        if (id != 0) {
+            Notifications.cancel(this, id)
         }
     }
 

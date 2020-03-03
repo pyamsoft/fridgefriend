@@ -19,6 +19,7 @@ package com.pyamsoft.fridge.locator.map.osm.popup.store
 
 import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.butler.Butler
+import com.pyamsoft.fridge.butler.params.LocationParameters
 import com.pyamsoft.fridge.db.store.NearbyStore
 import com.pyamsoft.fridge.db.store.NearbyStoreChangeEvent.Delete
 import com.pyamsoft.fridge.db.store.NearbyStoreChangeEvent.Insert
@@ -27,9 +28,9 @@ import com.pyamsoft.fridge.db.store.NearbyStoreDeleteDao
 import com.pyamsoft.fridge.db.store.NearbyStoreInsertDao
 import com.pyamsoft.fridge.db.store.NearbyStoreQueryDao
 import com.pyamsoft.fridge.db.store.NearbyStoreRealtime
-import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import javax.inject.Inject
 
 internal class StoreInfoInteractor @Inject internal constructor(
     private val butler: Butler,
@@ -79,10 +80,6 @@ internal class StoreInfoInteractor @Inject internal constructor(
 
     private suspend fun restartLocationWorker() {
         butler.cancelLocationReminder()
-        butler.remindLocation(
-            Butler.Parameters(
-                forceNotification = true
-            )
-        )
+        butler.remindLocation(LocationParameters(forceNotifyNeeded = true))
     }
 }

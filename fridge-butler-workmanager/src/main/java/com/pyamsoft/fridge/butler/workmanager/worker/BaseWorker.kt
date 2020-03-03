@@ -23,26 +23,29 @@ import androidx.work.CoroutineWorker
 import androidx.work.Data
 import androidx.work.WorkerParameters
 import com.pyamsoft.fridge.butler.injector.BaseInjector
+import com.pyamsoft.fridge.butler.params.BaseParameters
 import com.pyamsoft.fridge.butler.runner.WorkResult
 
-internal abstract class BaseWorker protected constructor(
+internal abstract class BaseWorker<I : BaseInjector<P>, P : BaseParameters> protected constructor(
     context: Context,
     params: WorkerParameters
 ) : CoroutineWorker(context.applicationContext, params) {
 
     final override suspend fun doWork(): Result {
-        val data = inputData
-        val forceNotification = data.getBoolean(FORCE_NOTIFICATION, false)
-        val injector = getInjector(applicationContext, data)
-        val result = injector.run(BaseInjector.Parameters(forceNotification = forceNotification))
+        val injector = getInjector(applicationContext)
+        val result = injector.run(getParams(inputData))
         return if (result == WorkResult.Success) Result.success() else Result.failure()
     }
 
     @CheckResult
-    protected abstract fun getInjector(context: Context, data: Data): BaseInjector
+    protected abstract fun getInjector(context: Context): I
+
+    @CheckResult
+    protected abstract fun getParams(data: Data): P
 
     companion object {
 
-        internal const val FORCE_NOTIFICATION = "force_notifications_v1"
+        internal const val FORCE_NEEDED_NOTIFICATION = "force_needed_notifications_v1"
+        internal const val FORCE_EXPIRING_NOTIFICATION = "force_expiring_notifications_v1"
     }
 }

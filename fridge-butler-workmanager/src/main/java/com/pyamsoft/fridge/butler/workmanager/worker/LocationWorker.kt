@@ -20,15 +20,21 @@ package com.pyamsoft.fridge.butler.workmanager.worker
 import android.content.Context
 import androidx.work.Data
 import androidx.work.WorkerParameters
-import com.pyamsoft.fridge.butler.injector.BaseInjector
 import com.pyamsoft.fridge.butler.injector.LocationInjector
+import com.pyamsoft.fridge.butler.params.LocationParameters
 
 internal class LocationWorker internal constructor(
     context: Context,
     params: WorkerParameters
-) : BaseWorker(context.applicationContext, params) {
+) : BaseWorker<LocationInjector, LocationParameters>(context.applicationContext, params) {
 
-    override fun getInjector(context: Context, data: Data): BaseInjector {
+    override fun getInjector(context: Context): LocationInjector {
         return LocationInjector(context.applicationContext)
+    }
+
+    override fun getParams(data: Data): LocationParameters {
+        return LocationParameters(
+            forceNotifyNeeded = data.getBoolean(FORCE_NEEDED_NOTIFICATION, false)
+        )
     }
 }

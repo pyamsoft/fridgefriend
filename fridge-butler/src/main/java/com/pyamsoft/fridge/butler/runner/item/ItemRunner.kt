@@ -22,6 +22,7 @@ import com.pyamsoft.fridge.butler.Butler
 import com.pyamsoft.fridge.butler.ButlerPreferences
 import com.pyamsoft.fridge.butler.NotificationHandler
 import com.pyamsoft.fridge.butler.NotificationPreferences
+import com.pyamsoft.fridge.butler.params.ItemParameters
 import com.pyamsoft.fridge.butler.runner.FridgeRunner
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.entry.FridgeEntryQueryDao
@@ -36,10 +37,10 @@ import com.pyamsoft.fridge.db.item.isArchived
 import com.pyamsoft.fridge.db.item.isExpired
 import com.pyamsoft.fridge.db.item.isExpiringSoon
 import com.pyamsoft.pydroid.core.Enforcer
-import java.util.Calendar
-import javax.inject.Inject
 import kotlinx.coroutines.coroutineScope
 import timber.log.Timber
+import java.util.Calendar
+import javax.inject.Inject
 
 internal class ItemRunner @Inject internal constructor(
     private val context: Context,
@@ -51,7 +52,7 @@ internal class ItemRunner @Inject internal constructor(
     enforcer: Enforcer,
     fridgeEntryQueryDao: FridgeEntryQueryDao,
     fridgeItemQueryDao: FridgeItemQueryDao
-) : FridgeRunner(
+) : FridgeRunner<ItemParameters>(
     handler,
     butler,
     notificationPreferences,
@@ -66,11 +67,11 @@ internal class ItemRunner @Inject internal constructor(
         entry: FridgeEntry,
         now: Calendar,
         preferences: ButlerPreferences,
-        params: Parameters
+        params: ItemParameters
     ) {
         if (items.isNotEmpty()) {
             val lastTime = preferences.getLastNotificationTimeNeeded()
-            if (now.isAllowedToNotify(params.forceNotification, lastTime)) {
+            if (now.isAllowedToNotify(params.forceNotifyNeeded, lastTime)) {
                 Timber.d("Notify user about items still needed")
                 notification { handler ->
                     val notified = ItemNotifications.notifyNeeded(
@@ -92,11 +93,11 @@ internal class ItemRunner @Inject internal constructor(
         entry: FridgeEntry,
         now: Calendar,
         preferences: ButlerPreferences,
-        params: Parameters
+        params: ItemParameters
     ) {
         if (items.isNotEmpty()) {
             val lastTime = preferences.getLastNotificationTimeExpiringSoon()
-            if (now.isAllowedToNotify(params.forceNotification, lastTime)) {
+            if (now.isAllowedToNotify(params.forceNotifyExpiring, lastTime)) {
                 Timber.d("Notify user about items expiring soon")
                 notification { handler ->
                     val notified = ItemNotifications.notifyExpiring(
@@ -118,11 +119,11 @@ internal class ItemRunner @Inject internal constructor(
         entry: FridgeEntry,
         now: Calendar,
         preferences: ButlerPreferences,
-        params: Parameters
+        params: ItemParameters
     ) {
         if (items.isNotEmpty()) {
             val lastTime = preferences.getLastNotificationTimeExpired()
-            if (now.isAllowedToNotify(params.forceNotification, lastTime)) {
+            if (now.isAllowedToNotify(params.forceNotifyExpiring, lastTime)) {
                 Timber.d("Notify user about items expired")
                 notification { handler ->
                     val notified = ItemNotifications.notifyExpired(
@@ -140,7 +141,7 @@ internal class ItemRunner @Inject internal constructor(
     }
 
     private suspend fun notifyForEntry(
-        params: Parameters,
+        params: ItemParameters,
         preferences: ButlerPreferences,
         today: Calendar,
         later: Calendar,
@@ -178,16 +179,13 @@ internal class ItemRunner @Inject internal constructor(
         notifyExpired(expiredItems, entry, now, preferences, params)
     }
 
-    override suspend fun reschedule(butler: Butler, params: Parameters) {
-        val p = Butler.Parameters(
-            forceNotification = params.forceNotification
-        )
-        butler.scheduleRemindItems(p)
+    override suspend fun reschedule(butler: Butler, params: ItemParameters) {
+        butler.scheduleRemindItems(params)
     }
 
     override suspend fun performWork(
         preferences: ButlerPreferences,
-        params: Parameters
+        params: ItemParameters
     ) = coroutineScope {
         val today = Calendar.getInstance()
             .cleanMidnight()

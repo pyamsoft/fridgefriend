@@ -18,13 +18,26 @@
 package com.pyamsoft.fridge
 
 import com.pyamsoft.fridge.butler.Butler
+import com.pyamsoft.fridge.butler.params.ItemParameters
+import com.pyamsoft.fridge.butler.params.LocationParameters
 
-suspend fun Butler.initOnAppStart(parameters: Butler.Parameters) {
+suspend fun Butler.initOnAppStart(params: ButlerParameters) {
     cancel()
 
     cancelItemsReminder()
-    remindItems(parameters)
+    remindItems(
+        ItemParameters(
+            forceNotifyNeeded = params.forceNotifyNeeded,
+            forceNotifyExpiring = params.forceNotifyExpiring
+        )
+    )
 
     cancelLocationReminder()
-    remindLocation(parameters)
+    remindLocation(
+        LocationParameters(
+            forceNotifyNeeded = params.forceNotifyNeeded
+        )
+    )
 }
+
+data class ButlerParameters(val forceNotifyNeeded: Boolean, val forceNotifyExpiring: Boolean)

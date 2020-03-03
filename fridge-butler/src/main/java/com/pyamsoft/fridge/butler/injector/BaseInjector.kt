@@ -19,21 +19,20 @@ package com.pyamsoft.fridge.butler.injector
 
 import android.content.Context
 import androidx.annotation.CheckResult
+import com.pyamsoft.fridge.butler.params.BaseParameters
 import com.pyamsoft.fridge.butler.runner.WorkResult
 
-abstract class BaseInjector protected constructor(context: Context) {
+abstract class BaseInjector<P : BaseParameters> protected constructor(context: Context) {
 
     private var applicationContext: Context? = context.applicationContext
 
     @CheckResult
-    suspend fun run(params: Parameters): WorkResult {
+    suspend fun run(params: P): WorkResult {
         val result = onRun(requireNotNull(applicationContext), params)
         applicationContext = null
         return result
     }
 
     @CheckResult
-    protected abstract suspend fun onRun(context: Context, params: Parameters): WorkResult
-
-    data class Parameters(val forceNotification: Boolean)
+    protected abstract suspend fun onRun(context: Context, params: P): WorkResult
 }

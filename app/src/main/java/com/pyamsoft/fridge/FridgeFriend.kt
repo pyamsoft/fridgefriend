@@ -31,10 +31,10 @@ import com.pyamsoft.fridge.main.MainActivity
 import com.pyamsoft.pydroid.bootstrap.libraries.OssLibraries
 import com.pyamsoft.pydroid.ui.PYDroid
 import com.squareup.moshi.Moshi
-import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 class FridgeFriend : Application() {
 
@@ -82,8 +82,9 @@ class FridgeFriend : Application() {
     private fun beginWork() {
         GlobalScope.launch(context = Dispatchers.Default) {
             requireNotNull(butler).initOnAppStart(
-                Butler.Parameters(
-                    forceNotification = false
+                ButlerParameters(
+                    forceNotifyExpiring = false,
+                    forceNotifyNeeded = false
                 )
             )
         }

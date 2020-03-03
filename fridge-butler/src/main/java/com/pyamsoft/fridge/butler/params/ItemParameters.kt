@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Peter Kenji Yamanaka
+ * Copyright 2020 Peter Kenji Yamanaka
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,24 +15,9 @@
  *
  */
 
-package com.pyamsoft.fridge.butler
+package com.pyamsoft.fridge.butler.params
 
-import com.pyamsoft.fridge.butler.params.ItemParameters
-import com.pyamsoft.fridge.butler.params.LocationParameters
-
-interface Butler {
-
-    suspend fun remindItems(params: ItemParameters)
-
-    suspend fun scheduleRemindItems(params: ItemParameters)
-
-    suspend fun cancelItemsReminder()
-
-    suspend fun remindLocation(params: LocationParameters)
-
-    suspend fun scheduleRemindLocation(params: LocationParameters)
-
-    suspend fun cancelLocationReminder()
-
-    suspend fun cancel()
-}
+data class ItemParameters(
+    val forceNotifyNeeded: Boolean,
+    val forceNotifyExpiring: Boolean
+) : BaseParameters

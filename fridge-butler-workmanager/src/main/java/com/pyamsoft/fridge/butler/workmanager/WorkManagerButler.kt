@@ -28,10 +28,14 @@ import androidx.work.WorkManager
 import com.google.common.util.concurrent.ListenableFuture
 import com.pyamsoft.fridge.butler.Butler
 import com.pyamsoft.fridge.butler.NotificationPreferences
+import com.pyamsoft.fridge.butler.params.ItemParameters
+import com.pyamsoft.fridge.butler.params.LocationParameters
 import com.pyamsoft.fridge.butler.workmanager.worker.BaseWorker
 import com.pyamsoft.fridge.butler.workmanager.worker.ItemWorker
 import com.pyamsoft.fridge.butler.workmanager.worker.LocationWorker
 import com.pyamsoft.pydroid.core.Enforcer
+import kotlinx.coroutines.suspendCancellableCoroutine
+import timber.log.Timber
 import java.util.concurrent.CancellationException
 import java.util.concurrent.ExecutionException
 import java.util.concurrent.Executor
@@ -40,8 +44,6 @@ import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
-import kotlinx.coroutines.suspendCancellableCoroutine
-import timber.log.Timber
 
 @Singleton
 internal class WorkManagerButler @Inject internal constructor(
@@ -68,7 +70,7 @@ internal class WorkManagerButler @Inject internal constructor(
         worker: Class<T>,
         tag: String,
         type: WorkType,
-        params: Butler.Parameters
+        inputData: Data
     ) {
         enforcer.assertNotOnMainThread()
         val request = OneTimeWorkRequest.Builder(worker)
@@ -79,7 +81,7 @@ internal class WorkManagerButler @Inject internal constructor(
                 if (type is WorkType.Periodic) {
                     setInitialDelay(type.time, TimeUnit.MILLISECONDS)
                 }
-                setInputData(params.toInputData())
+                setInputData(inputData)
             }
             .build()
 
@@ -87,18 +89,18 @@ internal class WorkManagerButler @Inject internal constructor(
         Timber.d("Queue work [$tag]: ${request.id}")
     }
 
-    private suspend fun scheduleItemWork(params: Butler.Parameters, type: WorkType) {
+    private suspend fun scheduleItemWork(params: ItemParameters, type: WorkType) {
         enforcer.assertNotOnMainThread()
         cancelItemsReminder()
-        schedule(ItemWorker::class.java, ITEM_TAG, type, params)
+        schedule(ItemWorker::class.java, ITEM_TAG, type, params.toInputData())
     }
 
-    override suspend fun remindItems(params: Butler.Parameters) {
+    override suspend fun remindItems(params: ItemParameters) {
         enforcer.assertNotOnMainThread()
         scheduleItemWork(params, WorkType.Instant)
     }
 
-    override suspend fun scheduleRemindItems(params: Butler.Parameters) {
+    override suspend fun scheduleRemindItems(params: ItemParameters) {
         enforcer.assertNotOnMainThread()
         val time = preferences.getNotificationPeriod()
         scheduleItemWork(params, WorkType.Periodic(time))
@@ -109,18 +111,18 @@ internal class WorkManagerButler @Inject internal constructor(
         workManager().cancelAllWorkByTag(ITEM_TAG).await()
     }
 
-    private suspend fun scheduleLocation(params: Butler.Parameters, type: WorkType) {
+    private suspend fun scheduleLocation(params: LocationParameters, type: WorkType) {
         enforcer.assertNotOnMainThread()
         cancelLocationReminder()
-        schedule(LocationWorker::class.java, LOCATION_TAG, type, params)
+        schedule(LocationWorker::class.java, LOCATION_TAG, type, params.toInputData())
     }
 
-    override suspend fun remindLocation(params: Butler.Parameters) {
+    override suspend fun remindLocation(params: LocationParameters) {
         enforcer.assertNotOnMainThread()
         scheduleLocation(params, WorkType.Instant)
     }
 
-    override suspend fun scheduleRemindLocation(params: Butler.Parameters) {
+    override suspend fun scheduleRemindLocation(params: LocationParameters) {
         enforcer.assertNotOnMainThread()
         val time = preferences.getNotificationPeriod()
         scheduleLocation(params, WorkType.Periodic(time))
@@ -192,10 +194,17 @@ internal class WorkManagerButler @Inject internal constructor(
     }
 
     @CheckResult
-    private fun Butler.Parameters.toInputData(): Data {
-        return Data.Builder().putBoolean(
-            BaseWorker.FORCE_NOTIFICATION,
-            this.forceNotification
-        ).build()
+    private fun LocationParameters.toInputData(): Data {
+        return Data.Builder()
+            .putBoolean(BaseWorker.FORCE_NEEDED_NOTIFICATION, this.forceNotifyNeeded)
+            .build()
+    }
+
+    @CheckResult
+    private fun ItemParameters.toInputData(): Data {
+        return Data.Builder()
+            .putBoolean(BaseWorker.FORCE_NEEDED_NOTIFICATION, this.forceNotifyNeeded)
+            .putBoolean(BaseWorker.FORCE_EXPIRING_NOTIFICATION, this.forceNotifyExpiring)
+            .build()
     }
 }
