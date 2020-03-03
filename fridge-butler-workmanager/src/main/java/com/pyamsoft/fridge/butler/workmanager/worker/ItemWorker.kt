@@ -20,14 +20,16 @@ package com.pyamsoft.fridge.butler.workmanager.worker
 import android.content.Context
 import androidx.work.Data
 import androidx.work.WorkerParameters
+import com.pyamsoft.fridge.butler.injector.BaseInjector
 import com.pyamsoft.fridge.butler.injector.ItemInjector
 import com.pyamsoft.fridge.butler.params.ItemParameters
 
 internal class ItemWorker internal constructor(
-    context: Context, params: WorkerParameters
-) : BaseWorker<ItemInjector, ItemParameters>(context.applicationContext, params) {
+    context: Context,
+    params: WorkerParameters
+) : BaseWorker<ItemParameters>(context.applicationContext, params) {
 
-    override fun getInjector(context: Context): ItemInjector {
+    override fun getInjector(context: Context): BaseInjector<ItemParameters> {
         return ItemInjector(context.applicationContext)
     }
 

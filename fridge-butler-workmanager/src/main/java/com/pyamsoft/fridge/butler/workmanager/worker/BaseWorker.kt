@@ -26,7 +26,7 @@ import com.pyamsoft.fridge.butler.injector.BaseInjector
 import com.pyamsoft.fridge.butler.params.BaseParameters
 import com.pyamsoft.fridge.butler.runner.WorkResult
 
-internal abstract class BaseWorker<I : BaseInjector<P>, P : BaseParameters> protected constructor(
+internal abstract class BaseWorker<P : BaseParameters> protected constructor(
     context: Context,
     params: WorkerParameters
 ) : CoroutineWorker(context.applicationContext, params) {
@@ -38,7 +38,7 @@ internal abstract class BaseWorker<I : BaseInjector<P>, P : BaseParameters> prot
     }
 
     @CheckResult
-    protected abstract fun getInjector(context: Context): I
+    protected abstract fun getInjector(context: Context): BaseInjector<P>
 
     @CheckResult
     protected abstract fun getParams(data: Data): P

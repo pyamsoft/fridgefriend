@@ -112,7 +112,7 @@ class OsmViewModel @Inject internal constructor(
         }
     }
 
-    private inline fun <T : Any, ID: Any> merge(
+    private inline fun <T : Any, ID : Any> merge(
         oldList: List<T>,
         newList: List<T>,
         id: (item: T) -> ID
