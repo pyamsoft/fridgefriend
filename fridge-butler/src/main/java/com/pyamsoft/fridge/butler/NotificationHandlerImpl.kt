@@ -41,14 +41,9 @@ internal class NotificationHandlerImpl @Inject internal constructor(
 
         return PendingIntent.getActivity(
             context,
-            CONTENT_INTENT_RC,
+            notificationId,
             intent,
             PendingIntent.FLAG_UPDATE_CURRENT
         )
-    }
-
-    companion object {
-
-        private const val CONTENT_INTENT_RC = 1589
     }
 }

@@ -54,10 +54,10 @@ import com.pyamsoft.pydroid.ui.util.commitNow
 import com.pyamsoft.pydroid.ui.util.layout
 import com.pyamsoft.pydroid.ui.util.show
 import com.pyamsoft.pydroid.util.makeWindowSexy
-import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import timber.log.Timber
+import javax.inject.Inject
 
 internal class MainActivity : RatingActivity(), VersionChecker {
 
@@ -124,7 +124,7 @@ internal class MainActivity : RatingActivity(), VersionChecker {
 
         Injector.obtain<FridgeComponent>(applicationContext)
             .plusMainComponent()
-            .create(this, view, getPage(intent), this)
+            .create(this, view, guaranteePage(intent), this)
             .inject(this)
 
         view.makeWindowSexy()
@@ -133,12 +133,16 @@ internal class MainActivity : RatingActivity(), VersionChecker {
     }
 
     @CheckResult
-    private fun getPage(intent: Intent): MainPage {
-        val presenceString =
-            intent.getStringExtra(FridgeItem.Presence.KEY) ?: FridgeItem.Presence.NEED.name
-        return when (FridgeItem.Presence.valueOf(presenceString)) {
+    private fun guaranteePage(intent: Intent): MainPage {
+        return getPage(intent) ?: MainPage.NEED
+    }
+
+    @CheckResult
+    private fun getPage(intent: Intent): MainPage? {
+        return when (getPresenceFromIntent(intent)) {
             FridgeItem.Presence.HAVE -> MainPage.HAVE
             FridgeItem.Presence.NEED -> MainPage.NEED
+            else -> null
         }
     }
 
@@ -149,7 +153,11 @@ internal class MainActivity : RatingActivity(), VersionChecker {
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         setIntent(intent)
-        viewModel.selectPage(getPage(intent))
+
+        val page = getPage(intent)
+        if (page != null) {
+            viewModel.selectPage(page)
+        }
     }
 
     override fun onStart() {
@@ -159,9 +167,7 @@ internal class MainActivity : RatingActivity(), VersionChecker {
 
     private fun beginWork() {
         this.lifecycleScope.launch(context = Dispatchers.Default) {
-            val presenceString: String? = intent.getStringExtra(FridgeItem.Presence.KEY)
-            val presence =
-                if (presenceString == null) null else FridgeItem.Presence.valueOf(presenceString)
+            val presence = getPresenceFromIntent(intent)
             requireNotNull(butler).initOnAppStart(
                 ButlerParameters(
                     forceNotifyNeeded = presence != FridgeItem.Presence.NEED,
@@ -370,5 +376,15 @@ internal class MainActivity : RatingActivity(), VersionChecker {
         navigation = null
 
         factory = null
+    }
+
+    companion object {
+
+        @JvmStatic
+        @CheckResult
+        private fun getPresenceFromIntent(intent: Intent): FridgeItem.Presence? {
+            val presenceString: String? = intent.getStringExtra(FridgeItem.Presence.KEY)
+            return if (presenceString == null) null else FridgeItem.Presence.valueOf(presenceString)
+        }
     }
 }
