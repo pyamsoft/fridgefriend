@@ -37,10 +37,10 @@ import com.pyamsoft.fridge.db.item.isArchived
 import com.pyamsoft.fridge.db.item.isExpired
 import com.pyamsoft.fridge.db.item.isExpiringSoon
 import com.pyamsoft.pydroid.core.Enforcer
-import java.util.Calendar
-import javax.inject.Inject
 import kotlinx.coroutines.coroutineScope
 import timber.log.Timber
+import java.util.Calendar
+import javax.inject.Inject
 
 internal class ItemRunner @Inject internal constructor(
     private val context: Context,
@@ -180,7 +180,12 @@ internal class ItemRunner @Inject internal constructor(
     }
 
     override suspend fun reschedule(butler: Butler, params: ItemParameters) {
-        butler.scheduleRemindItems(params)
+        butler.scheduleRemindItems(
+            ItemParameters(
+                forceNotifyNeeded = false,
+                forceNotifyExpiring = false
+            )
+        )
     }
 
     override suspend fun performWork(

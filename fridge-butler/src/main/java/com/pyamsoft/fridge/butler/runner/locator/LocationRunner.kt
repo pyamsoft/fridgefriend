@@ -36,10 +36,10 @@ import com.pyamsoft.fridge.db.zone.NearbyZone
 import com.pyamsoft.fridge.db.zone.NearbyZoneQueryDao
 import com.pyamsoft.fridge.locator.Geofencer
 import com.pyamsoft.pydroid.core.Enforcer
-import java.util.Calendar
-import javax.inject.Inject
 import kotlinx.coroutines.coroutineScope
 import timber.log.Timber
+import java.util.Calendar
+import javax.inject.Inject
 
 internal class LocationRunner @Inject internal constructor(
     private val context: Context,
@@ -65,7 +65,11 @@ internal class LocationRunner @Inject internal constructor(
     zoneDb
 ) {
     override suspend fun reschedule(butler: Butler, params: LocationParameters) {
-        butler.scheduleRemindLocation(params)
+        butler.scheduleRemindLocation(
+            LocationParameters(
+                forceNotifyNeeded = false
+            )
+        )
     }
 
     override suspend fun performWork(
