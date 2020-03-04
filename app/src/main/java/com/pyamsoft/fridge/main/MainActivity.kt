@@ -129,6 +129,7 @@ internal class MainActivity : RatingActivity(), VersionChecker {
 
         view.makeWindowSexy()
         inflateComponents(view, savedInstanceState)
+        beginWork()
     }
 
     @CheckResult
@@ -154,7 +155,6 @@ internal class MainActivity : RatingActivity(), VersionChecker {
     override fun onStart() {
         super.onStart()
         checkNearbyFragmentPermissions()
-        beginWork()
     }
 
     private fun beginWork() {
