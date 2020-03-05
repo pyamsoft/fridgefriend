@@ -15,7 +15,7 @@
  *
  */
 
-package com.pyamsoft.fridge.locator.map.osm.popup
+package com.pyamsoft.fridge.locator.map.osm.popup.base
 
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.lifecycle.LifecycleOwner

@@ -18,46 +18,15 @@
 package com.pyamsoft.fridge.locator.map.osm.popup.store
 
 import android.view.ViewGroup
-import android.widget.TextView
-import com.pyamsoft.fridge.locator.map.R
-import com.pyamsoft.fridge.locator.map.osm.popup.calculateKmDistanceTo
-import com.pyamsoft.pydroid.arch.BaseUiView
+import com.pyamsoft.fridge.locator.map.osm.popup.base.BaseInfoLocation
 import javax.inject.Inject
 
 internal class StoreInfoLocation @Inject internal constructor(
     parent: ViewGroup
-) : BaseUiView<StoreInfoViewState, StoreInfoViewEvent>(parent) {
-
-    override val layout: Int = R.layout.popup_info_location
-    override val layoutRoot by boundView<ViewGroup>(R.id.popup_info_root)
-
-    private val coordinates by boundView<TextView>(R.id.popup_info_coords)
-    private val distanceToMe by boundView<TextView>(R.id.popup_info_distance_to_me)
-
-    init {
-        doOnTeardown {
-            coordinates.text = ""
-        }
-    }
+) : BaseInfoLocation<StoreInfoViewState, StoreInfoViewEvent>(parent) {
 
     override fun onRender(state: StoreInfoViewState) {
-        state.marker.let { marker ->
-            if (marker == null) {
-                coordinates.text = ""
-            } else {
-                val lat = "%.5f".format(marker.position.latitude)
-                val lon = "%.5f".format(marker.position.longitude)
-                val coords = "($lat, $lon)"
-                coordinates.text = "Located at: $coords"
-
-                val location = state.myLocation
-                if (location == null) {
-                    distanceToMe.text = ""
-                } else {
-                    val distance = "%.2f".format(location.calculateKmDistanceTo(marker.position))
-                    distanceToMe.text = "${distance}km away"
-                }
-            }
-        }
+        val position = state.marker?.position
+        displayLocation(position?.latitude, position?.longitude, state.myLocation, position)
     }
 }

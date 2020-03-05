@@ -21,24 +21,23 @@ import android.view.ViewGroup
 import androidx.annotation.CheckResult
 import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.pyamsoft.fridge.db.category.FridgeCategory
-import com.pyamsoft.fridge.detail.R
+import com.pyamsoft.fridge.detail.databinding.ExpandCategoriesBinding
 import com.pyamsoft.fridge.detail.expand.categories.ExpandCategoryComponent
 import com.pyamsoft.fridge.detail.expand.categories.ExpandItemCategoryListAdapter
 import com.pyamsoft.fridge.detail.expand.categories.ExpandedCategoryViewState
-import com.pyamsoft.pydroid.arch.BaseUiView
+import com.pyamsoft.pydroid.arch.BindingUiView
 import javax.inject.Inject
 
 class ExpandItemCategoryList @Inject internal constructor(
     parent: ViewGroup,
     owner: LifecycleOwner,
     factory: ExpandCategoryComponent.Factory
-) : BaseUiView<ExpandItemViewState, ExpandedItemViewEvent>(parent) {
+) : BindingUiView<ExpandItemViewState, ExpandedItemViewEvent, ExpandCategoriesBinding>(parent) {
 
-    override val layout: Int = R.layout.expand_categories
+    override val viewBinding by viewBinding(ExpandCategoriesBinding::inflate)
 
-    override val layoutRoot by boundView<RecyclerView>(R.id.expand_item_categories)
+    override val layoutRoot by boundView { expandItemCategories }
 
     private var modelAdapter: ExpandItemCategoryListAdapter? = null
 

@@ -18,61 +18,23 @@
 package com.pyamsoft.fridge.locator.map.osm.popup.store
 
 import android.view.ViewGroup
-import android.widget.ImageView
-import android.widget.TextView
 import com.pyamsoft.fridge.db.store.NearbyStore
-import com.pyamsoft.fridge.locator.map.R
+import com.pyamsoft.fridge.locator.map.osm.popup.base.BaseInfoTitle
 import com.pyamsoft.fridge.locator.map.osm.popup.store.StoreInfoViewEvent.StoreFavoriteAction
-import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.loader.ImageLoader
-import com.pyamsoft.pydroid.loader.Loaded
-import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
 import javax.inject.Inject
 
 internal class StoreInfoTitle @Inject internal constructor(
     private val store: NearbyStore,
-    private val imageLoader: ImageLoader,
+    imageLoader: ImageLoader,
     parent: ViewGroup
-) : BaseUiView<StoreInfoViewState, StoreInfoViewEvent>(parent) {
-
-    override val layout: Int = R.layout.popup_info_title
-    override val layoutRoot by boundView<ViewGroup>(R.id.popup_info_title_root)
-    private val title by boundView<TextView>(R.id.popup_info_title)
-    private val favorite by boundView<ImageView>(R.id.popup_info_favorite)
-
-    private var favoriteBinder: Loaded? = null
-
-    init {
-        doOnInflate {
-            title.text = store.name()
-        }
-
-        doOnTeardown {
-            title.text = ""
-            favorite.setOnDebouncedClickListener(null)
-            clearFavoriteIcon()
-        }
-    }
-
-    private fun clearFavoriteIcon() {
-        favoriteBinder?.dispose()
-        favoriteBinder = null
-    }
+) : BaseInfoTitle<StoreInfoViewState, StoreInfoViewEvent>(imageLoader, parent, { store.name() }) {
 
     override fun onRender(state: StoreInfoViewState) {
-        state.cached.let { cached ->
-            if (cached == null) {
-                favorite.setOnDebouncedClickListener(null)
-            } else {
-                val icon =
-                    if (cached.cached) R.drawable.ic_star_24dp else R.drawable.ic_star_empty_24dp
-                clearFavoriteIcon()
-                favoriteBinder = imageLoader.load(icon)
-                    .into(favorite)
-                favorite.setOnDebouncedClickListener {
-                    publish(StoreFavoriteAction(store, !cached.cached))
-                }
-            }
-        }
+        applyFavoriteFromCached(state.cached?.cached)
+    }
+
+    override fun publishFavorite(add: Boolean) {
+        publish(StoreFavoriteAction(store, add))
     }
 }

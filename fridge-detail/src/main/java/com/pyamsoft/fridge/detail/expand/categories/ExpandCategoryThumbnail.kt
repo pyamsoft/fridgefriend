@@ -18,9 +18,8 @@
 package com.pyamsoft.fridge.detail.expand.categories
 
 import android.view.ViewGroup
-import android.widget.ImageView
 import com.pyamsoft.fridge.db.category.FridgeCategory
-import com.pyamsoft.fridge.detail.R
+import com.pyamsoft.fridge.detail.databinding.ExpandCategoryThumbnailBinding
 import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.loader.Loaded
 import javax.inject.Inject
@@ -28,11 +27,11 @@ import javax.inject.Inject
 class ExpandCategoryThumbnail @Inject internal constructor(
     parent: ViewGroup,
     private val imageLoader: ImageLoader
-) : ExpandCategoryClickable(parent) {
+) : ExpandCategoryClickable<ExpandCategoryThumbnailBinding>(parent) {
 
-    override val layout: Int = R.layout.expand_category_thumbnail
+    override val viewBinding by viewBinding(ExpandCategoryThumbnailBinding::inflate)
 
-    override val layoutRoot by boundView<ImageView>(R.id.expand_category_thumbnail)
+    override val layoutRoot by boundView { expandCategoryThumbnail }
 
     private var loaded: Loaded? = null
 

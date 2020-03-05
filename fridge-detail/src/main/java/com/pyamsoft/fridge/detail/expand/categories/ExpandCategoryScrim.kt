@@ -17,19 +17,18 @@
 
 package com.pyamsoft.fridge.detail.expand.categories
 
-import android.view.View
 import android.view.ViewGroup
 import androidx.core.view.isVisible
-import com.pyamsoft.fridge.detail.R
+import com.pyamsoft.fridge.detail.databinding.ExpandCategoryScrimBinding
 import javax.inject.Inject
 
 class ExpandCategoryScrim @Inject internal constructor(
     parent: ViewGroup
-) : ExpandCategoryClickable(parent) {
+) : ExpandCategoryClickable<ExpandCategoryScrimBinding>(parent) {
 
-    override val layout: Int = R.layout.expand_category_scrim
+    override val viewBinding by viewBinding(ExpandCategoryScrimBinding::inflate)
 
-    override val layoutRoot by boundView<View>(R.id.expand_category_scrim)
+    override val layoutRoot by boundView { expandCategoryScrim }
 
     init {
         doOnTeardown {

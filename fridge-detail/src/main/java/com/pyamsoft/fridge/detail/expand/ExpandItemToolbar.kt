@@ -19,21 +19,21 @@ package com.pyamsoft.fridge.detail.expand
 
 import android.view.MenuItem
 import android.view.ViewGroup
-import androidx.appcompat.widget.Toolbar
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence.HAVE
 import com.pyamsoft.fridge.detail.R
-import com.pyamsoft.pydroid.arch.BaseUiView
+import com.pyamsoft.fridge.detail.databinding.ExpandToolbarBinding
+import com.pyamsoft.pydroid.arch.BindingUiView
 import com.pyamsoft.pydroid.ui.util.DebouncedOnClickListener
 import com.pyamsoft.pydroid.ui.util.setUpEnabled
 import javax.inject.Inject
 
 class ExpandItemToolbar @Inject internal constructor(
     parent: ViewGroup
-) : BaseUiView<ExpandItemViewState, ExpandedItemViewEvent>(parent) {
+) : BindingUiView<ExpandItemViewState, ExpandedItemViewEvent, ExpandToolbarBinding>(parent) {
 
-    override val layout: Int = R.layout.expand_toolbar
+    override val viewBinding by viewBinding(ExpandToolbarBinding::inflate)
 
-    override val layoutRoot by boundView<Toolbar>(R.id.expand_toolbar)
+    override val layoutRoot by boundView { expandToolbar }
 
     private var deleteMenuItem: MenuItem? = null
     private var consumeMenuItem: MenuItem? = null

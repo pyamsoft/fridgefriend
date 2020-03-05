@@ -18,25 +18,23 @@
 package com.pyamsoft.fridge.detail.expand
 
 import android.view.ViewGroup
-import android.widget.TextView
 import androidx.core.view.isVisible
-import com.pyamsoft.fridge.detail.R
-import com.pyamsoft.pydroid.arch.BaseUiView
+import com.pyamsoft.fridge.detail.databinding.ExpandErrorBinding
+import com.pyamsoft.pydroid.arch.BindingUiView
 import javax.inject.Inject
 
 class ExpandItemError @Inject internal constructor(
     parent: ViewGroup
-) : BaseUiView<ExpandItemViewState, ExpandedItemViewEvent>(parent) {
+) : BindingUiView<ExpandItemViewState, ExpandedItemViewEvent, ExpandErrorBinding>(parent) {
 
-    override val layout: Int = R.layout.expand_error
+    override val viewBinding by viewBinding(ExpandErrorBinding::inflate)
 
-    override val layoutRoot by boundView<ViewGroup>(R.id.expand_item_error_root)
-    private val message by boundView<TextView>(R.id.expand_item_error_msg)
+    override val layoutRoot by boundView { expandItemErrorRoot }
 
     init {
         doOnInflate {
             // No errors initially right
-            message.isVisible = false
+            binding.expandItemErrorMsg.isVisible = false
         }
 
         doOnTeardown {
@@ -45,8 +43,8 @@ class ExpandItemError @Inject internal constructor(
     }
 
     private fun clear() {
-        message.isVisible = false
-        message.text = ""
+        binding.expandItemErrorMsg.isVisible = false
+        binding.expandItemErrorMsg.text = ""
     }
 
     override fun onRender(state: ExpandItemViewState) {
@@ -54,8 +52,8 @@ class ExpandItemError @Inject internal constructor(
             if (throwable == null) {
                 clear()
             } else {
-                message.isVisible = true
-                message.text = throwable.message ?: "An unknown error occurred"
+                binding.expandItemErrorMsg.isVisible = true
+                binding.expandItemErrorMsg.text = throwable.message ?: "An unknown error occurred"
             }
         }
     }

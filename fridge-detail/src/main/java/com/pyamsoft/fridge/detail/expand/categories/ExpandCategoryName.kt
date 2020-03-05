@@ -19,20 +19,19 @@ package com.pyamsoft.fridge.detail.expand.categories
 
 import android.graphics.Color
 import android.view.ViewGroup
-import android.widget.TextView
 import androidx.core.view.isVisible
-import com.pyamsoft.fridge.detail.R
+import com.pyamsoft.fridge.detail.databinding.ExpandCategoryNameBinding
 import com.pyamsoft.pydroid.ui.theme.ThemeProvider
 import javax.inject.Inject
 
 class ExpandCategoryName @Inject internal constructor(
     private val themeProvider: ThemeProvider,
     parent: ViewGroup
-) : ExpandCategoryClickable(parent) {
+) : ExpandCategoryClickable<ExpandCategoryNameBinding>(parent) {
 
-    override val layout: Int = R.layout.expand_category_name
+    override val viewBinding by viewBinding(ExpandCategoryNameBinding::inflate)
 
-    override val layoutRoot by boundView<TextView>(R.id.expand_category_name)
+    override val layoutRoot by boundView { expandCategoryName }
 
     init {
         doOnTeardown {

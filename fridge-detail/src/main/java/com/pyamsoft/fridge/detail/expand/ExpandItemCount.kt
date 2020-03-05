@@ -75,16 +75,16 @@ class ExpandItemCount @Inject internal constructor(
             ) {
             }
         }
-        countView.addTextChangedListener(watcher)
+        binding.detailItemCountEditable.addTextChangedListener(watcher)
         return watcher
     }
 
     private fun removeWatcher(watcher: TextWatcher) {
-        countView.removeTextChangedListener(watcher)
+        binding.detailItemCountEditable.removeTextChangedListener(watcher)
     }
 
     private fun commit() {
-        val count = countView.text.toString().toIntOrNull() ?: 0
+        val count = binding.detailItemCountEditable.text.toString().toIntOrNull() ?: 0
         publish(ExpandedItemViewEvent.CommitCount(count))
     }
 }

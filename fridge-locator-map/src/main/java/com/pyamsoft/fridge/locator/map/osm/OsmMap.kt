@@ -29,17 +29,16 @@ import androidx.lifecycle.OnLifecycleEvent
 import androidx.preference.PreferenceManager
 import com.pyamsoft.fridge.db.store.NearbyStore
 import com.pyamsoft.fridge.db.zone.NearbyZone
-import com.pyamsoft.fridge.locator.map.R
+import com.pyamsoft.fridge.locator.map.databinding.OsmMapBinding
 import com.pyamsoft.fridge.locator.map.osm.popup.store.StoreInfoComponent
 import com.pyamsoft.fridge.locator.map.osm.popup.store.StoreInfoWindow
 import com.pyamsoft.fridge.locator.map.osm.popup.zone.ZoneInfoComponent
 import com.pyamsoft.fridge.locator.map.osm.popup.zone.ZoneInfoWindow
 import com.pyamsoft.fridge.locator.map.osm.updatemanager.LocationUpdatePublisher
 import com.pyamsoft.fridge.locator.map.osm.updatemanager.LocationUpdateReceiver
-import com.pyamsoft.pydroid.arch.BaseUiView
+import com.pyamsoft.pydroid.arch.BindingUiView
 import com.pyamsoft.pydroid.ui.theme.ThemeProvider
 import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
-import javax.inject.Inject
 import org.osmdroid.config.Configuration
 import org.osmdroid.events.MapListener
 import org.osmdroid.events.ScrollEvent
@@ -56,6 +55,7 @@ import org.osmdroid.views.overlay.infowindow.InfoWindow
 import org.osmdroid.views.overlay.mylocation.GpsMyLocationProvider
 import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay
 import timber.log.Timber
+import javax.inject.Inject
 
 class OsmMap @Inject internal constructor(
     private val theming: ThemeProvider,
@@ -65,11 +65,11 @@ class OsmMap @Inject internal constructor(
     private val storeFactory: StoreInfoComponent.Factory,
     private val zoneFactory: ZoneInfoComponent.Factory,
     parent: ViewGroup
-) : BaseUiView<OsmViewState, OsmViewEvent>(parent), LifecycleObserver {
+) : BindingUiView<OsmViewState, OsmViewEvent, OsmMapBinding>(parent), LifecycleObserver {
 
-    override val layout: Int = R.layout.osm_map
+    override val viewBinding by viewBinding(OsmMapBinding::inflate)
 
-    override val layoutRoot by boundView<MapView>(R.id.osm_map)
+    override val layoutRoot by boundView { osmMap }
 
     private var locationOverlay: MyLocationNewOverlay? = null
     private var centeringLocation = false
@@ -107,7 +107,7 @@ class OsmMap @Inject internal constructor(
 
         doOnInflate {
             layoutRoot.setOnDebouncedClickListener { closeAllMapPopups() }
-            layoutRoot.addMapListener(mapListener)
+            binding.osmMap.addMapListener(mapListener)
             publishCurrentBoundingBox()
         }
 
@@ -116,14 +116,14 @@ class OsmMap @Inject internal constructor(
         }
 
         doOnTeardown {
-            locationOverlay?.let { layoutRoot.overlayManager.remove(it) }
+            locationOverlay?.let { binding.osmMap.overlayManager.remove(it) }
             locationOverlay = null
         }
 
         doOnTeardown {
-            layoutRoot.removeMapListener(mapListener)
             layoutRoot.setOnDebouncedClickListener(null)
-            layoutRoot.onDetach()
+            binding.osmMap.removeMapListener(mapListener)
+            binding.osmMap.onDetach()
         }
     }
 
@@ -147,7 +147,7 @@ class OsmMap @Inject internal constructor(
         }
 
         if (invalidate) {
-            layoutRoot.invalidate()
+            binding.osmMap.invalidate()
         }
     }
 
@@ -158,12 +158,11 @@ class OsmMap @Inject internal constructor(
             return false
         }
 
-        val map = layoutRoot
         var changed = false
         val color = Color.argb(75, 255, 255, 0)
         for (zone in zones) {
             val uid = zone.getPolygonUid()
-            val oldPolygon = map.overlayManager.filterIsInstance<Polygon>()
+            val oldPolygon = binding.osmMap.overlayManager.filterIsInstance<Polygon>()
                 .find { it.id == uid }
             if (oldPolygon != null) {
                 // Already have this polygon, avoid extra work
@@ -175,11 +174,11 @@ class OsmMap @Inject internal constructor(
             // Add the first point again to close the polygon
             points.add(points[0])
 
-            val polygon = Polygon(map).apply {
+            val polygon = Polygon(binding.osmMap).apply {
                 infoWindow = ZoneInfoWindow.fromMap(
                     locationUpdateReceiver,
                     zone,
-                    map,
+                    binding.osmMap,
                     zoneFactory
                 )
                 id = uid
@@ -197,7 +196,7 @@ class OsmMap @Inject internal constructor(
                 return@setOnClickListener true
             }
 
-            map.overlayManager.add(polygon)
+            binding.osmMap.overlayManager.add(polygon)
             changed = true
         }
 
@@ -211,22 +210,21 @@ class OsmMap @Inject internal constructor(
             return false
         }
 
-        val map = layoutRoot
         var changed = false
         for (mark in marks) {
             val uid = mark.getMarkerUid()
-            val oldMarker = map.overlayManager.filterIsInstance<Marker>()
+            val oldMarker = binding.osmMap.overlayManager.filterIsInstance<Marker>()
                 .find { it.id == uid }
             if (oldMarker != null) {
                 // Already have this marker, avoid extra work
                 continue
             }
 
-            val marker = Marker(map).apply {
+            val marker = Marker(binding.osmMap).apply {
                 infoWindow = StoreInfoWindow.fromMap(
                     locationUpdateReceiver,
                     mark,
-                    map,
+                    binding.osmMap,
                     storeFactory
                 )
                 id = uid
@@ -240,7 +238,7 @@ class OsmMap @Inject internal constructor(
                 return@setOnMarkerClickListener true
             }
 
-            map.overlayManager.add(marker)
+            binding.osmMap.overlayManager.add(marker)
             changed = true
         }
 
@@ -253,22 +251,25 @@ class OsmMap @Inject internal constructor(
 
     @CheckResult
     private fun getBoundingBoxOfCurrentScreen(): BBox {
-        val mapView = layoutRoot
         val bbox = Projection(
-            mapView.zoomLevelDouble, mapView.getIntrinsicScreenRect(null),
-            GeoPoint(mapView.mapCenter),
-            mapView.mapScrollX, mapView.mapScrollY,
-            mapView.mapOrientation,
-            mapView.isHorizontalMapRepetitionEnabled, mapView.isVerticalMapRepetitionEnabled,
+            binding.osmMap.zoomLevelDouble,
+            binding.osmMap.getIntrinsicScreenRect(null),
+            GeoPoint(binding.osmMap.mapCenter),
+            binding.osmMap.mapScrollX,
+            binding.osmMap.mapScrollY,
+            binding.osmMap.mapOrientation,
+            binding.osmMap.isHorizontalMapRepetitionEnabled,
+            binding.osmMap.isVerticalMapRepetitionEnabled,
             MapView.getTileSystem(),
-            mapView.mapCenterOffsetX, mapView.mapCenterOffsetY
+            binding.osmMap.mapCenterOffsetX,
+            binding.osmMap.mapCenterOffsetY
         ).boundingBox
         return BBox(bbox.latSouth, bbox.lonWest, bbox.latNorth, bbox.lonEast)
     }
 
     private fun closeAllMapPopups() {
         Timber.d("Closing all open map popups")
-        InfoWindow.closeAllInfoWindowsOn(layoutRoot)
+        InfoWindow.closeAllInfoWindowsOn(binding.osmMap)
     }
 
     @Suppress("unused")
@@ -282,7 +283,7 @@ class OsmMap @Inject internal constructor(
                 PreferenceManager.getDefaultSharedPreferences(layoutRoot.context.applicationContext)
             )
 
-        layoutRoot.onResume()
+        binding.osmMap.onResume()
     }
 
     @Suppress("unused")
@@ -296,11 +297,11 @@ class OsmMap @Inject internal constructor(
                 PreferenceManager.getDefaultSharedPreferences(layoutRoot.context.applicationContext)
             )
 
-        layoutRoot.onPause()
+        binding.osmMap.onPause()
     }
 
     private fun initMap(context: Context) {
-        layoutRoot.apply {
+        binding.osmMap.apply {
             setMultiTouchControls(true)
             isTilesScaledToDpi = true
             setTileSource(TileSourceFactory.MAPNIK)
@@ -321,14 +322,13 @@ class OsmMap @Inject internal constructor(
             return
         }
 
-        val mapView = layoutRoot
         val point = GeoPoint(latitude, longitude)
-        mapView.post {
+        binding.osmMap.post {
             centeringLocation = true
-            mapView.controller.setZoom(DEFAULT_ZOOM)
-            mapView.controller.animateTo(point)
-            mapView.controller.setCenter(point)
-            mapView.post {
+            binding.osmMap.controller.setZoom(DEFAULT_ZOOM)
+            binding.osmMap.controller.animateTo(point)
+            binding.osmMap.controller.setCenter(point)
+            binding.osmMap.post {
                 onCentered(point)
                 centeringLocation = false
             }
@@ -336,15 +336,14 @@ class OsmMap @Inject internal constructor(
     }
 
     private fun addMapOverlays(context: Context) {
-        val mapView = layoutRoot
 
         val overlay = UpdateAwareLocationOverlay(
             GpsMyLocationProvider(context),
-            mapView,
+            binding.osmMap,
             onLocationChanged = { locationUpdatePublisher.publish(it) }
         )
         overlay.enableMyLocation()
-        mapView.overlayManager.add(overlay)
+        binding.osmMap.overlayManager.add(overlay)
         locationOverlay = overlay
 
         overlay.runOnFirstFix {

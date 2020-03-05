@@ -21,9 +21,9 @@ import android.view.ViewGroup
 import androidx.core.view.ViewPropertyAnimatorCompat
 import androidx.core.view.isVisible
 import androidx.lifecycle.LifecycleOwner
-import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.pyamsoft.fridge.locator.map.R
-import com.pyamsoft.pydroid.arch.BaseUiView
+import com.pyamsoft.fridge.locator.map.databinding.OsmActionsBinding
+import com.pyamsoft.pydroid.arch.BindingUiView
 import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.loader.Loaded
 import com.pyamsoft.pydroid.ui.util.Snackbreak
@@ -35,16 +35,14 @@ class OsmActions @Inject internal constructor(
     private val owner: LifecycleOwner,
     private val imageLoader: ImageLoader,
     parent: ViewGroup
-) : BaseUiView<OsmViewState, OsmViewEvent>(parent) {
+) : BindingUiView<OsmViewState, OsmViewEvent, OsmActionsBinding>(parent) {
 
-    override val layout: Int = R.layout.osm_actions
+    override val viewBinding by viewBinding(OsmActionsBinding::inflate)
 
-    override val layoutRoot by boundView<FloatingActionButton>(R.id.osm_find_nearby)
+    override val layoutRoot by boundView { osmFindNearby }
 
     private var boundFindMeImage: Loaded? = null
     private var boundNearbyImage: Loaded? = null
-
-    private val findMe by boundView<FloatingActionButton>(R.id.osm_find_me)
 
     private var nearbyAnimator: ViewPropertyAnimatorCompat? = null
     private var meAnimator: ViewPropertyAnimatorCompat? = null
@@ -53,26 +51,26 @@ class OsmActions @Inject internal constructor(
         doOnInflate {
             boundNearbyImage?.dispose()
             boundNearbyImage = imageLoader.load(R.drawable.ic_shopping_cart_24dp)
-                .into(layoutRoot)
+                .into(binding.osmFindNearby)
 
             boundFindMeImage?.dispose()
             boundFindMeImage = imageLoader.load(R.drawable.ic_location_search_24dp)
-                .into(findMe)
+                .into(binding.osmFindMe)
 
-            layoutRoot.isVisible = false
-            findMe.isVisible = false
+            binding.osmFindNearby.isVisible = false
+            binding.osmFindMe.isVisible = false
 
-            findMe.setOnDebouncedClickListener {
+            binding.osmFindMe.setOnDebouncedClickListener {
                 publish(OsmViewEvent.RequestMyLocation(firstTime = false))
             }
-            layoutRoot.setOnDebouncedClickListener {
+            binding.osmFindNearby.setOnDebouncedClickListener {
                 publish(OsmViewEvent.RequestFindNearby)
             }
         }
 
         doOnTeardown {
-            findMe.setOnDebouncedClickListener(null)
-            layoutRoot.setOnDebouncedClickListener(null)
+            binding.osmFindMe.setOnDebouncedClickListener(null)
+            binding.osmFindNearby.setOnDebouncedClickListener(null)
 
             boundFindMeImage?.dispose()
             boundNearbyImage?.dispose()
@@ -146,7 +144,7 @@ class OsmActions @Inject internal constructor(
         if (nearbyAnimator != null) {
             return
         }
-        nearbyAnimator = layoutRoot.popShow(startDelay = 700L).withEndAction {
+        nearbyAnimator = binding.osmFindNearby.popShow(startDelay = 700L).withEndAction {
             revealFindMeButton()
         }
     }
@@ -156,7 +154,7 @@ class OsmActions @Inject internal constructor(
         if (meAnimator != null) {
             return
         }
-        meAnimator = findMe.popShow(startDelay = 0L).withEndAction {
+        meAnimator = binding.osmFindMe.popShow(startDelay = 0L).withEndAction {
             dismissMeAnimator()
         }
     }

@@ -18,25 +18,23 @@
 package com.pyamsoft.fridge.detail.expand
 
 import android.view.ViewGroup
-import android.widget.TextView
 import androidx.core.view.isVisible
-import com.pyamsoft.fridge.detail.R
-import com.pyamsoft.pydroid.arch.BaseUiView
+import com.pyamsoft.fridge.detail.databinding.ExpandSimilarBinding
+import com.pyamsoft.pydroid.arch.BindingUiView
 import javax.inject.Inject
 
 class ExpandItemSimilar @Inject internal constructor(
     parent: ViewGroup
-) : BaseUiView<ExpandItemViewState, ExpandedItemViewEvent>(parent) {
+) : BindingUiView<ExpandItemViewState, ExpandedItemViewEvent, ExpandSimilarBinding>(parent) {
 
-    override val layout: Int = R.layout.expand_similar
+    override val viewBinding by viewBinding(ExpandSimilarBinding::inflate)
 
-    override val layoutRoot by boundView<ViewGroup>(R.id.expand_item_similar)
-    private val message by boundView<TextView>(R.id.expand_item_similar_msg)
+    override val layoutRoot by boundView { expandItemSimilar }
 
     init {
         doOnInflate {
             // No similar by default
-            message.isVisible = false
+            binding.expandItemSimilarMsg.isVisible = false
         }
 
         doOnTeardown {
@@ -45,8 +43,8 @@ class ExpandItemSimilar @Inject internal constructor(
     }
 
     private fun clear() {
-        message.isVisible = false
-        message.text = null
+        binding.expandItemSimilarMsg.isVisible = false
+        binding.expandItemSimilarMsg.text = null
     }
 
     override fun onRender(state: ExpandItemViewState) {
@@ -57,8 +55,9 @@ class ExpandItemSimilar @Inject internal constructor(
                 state.item.let { item ->
                     if (item != null) {
                         val name = item.name().trim()
-                        message.isVisible = true
-                        message.text = "You already have at least one '$name', do you need another?"
+                        binding.expandItemSimilarMsg.isVisible = true
+                        binding.expandItemSimilarMsg.text =
+                            "You already have at least ${similar.size} '$name', do you need another?"
                     }
                 }
             }

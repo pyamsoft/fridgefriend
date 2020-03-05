@@ -18,23 +18,20 @@
 package com.pyamsoft.fridge.detail.base
 
 import android.view.ViewGroup
-import android.widget.EditText
 import com.pyamsoft.fridge.db.item.FridgeItem
-import com.pyamsoft.fridge.detail.R
-import com.pyamsoft.pydroid.arch.BaseUiView
+import com.pyamsoft.fridge.detail.databinding.DetailListItemCountBinding
+import com.pyamsoft.pydroid.arch.BindingUiView
 import com.pyamsoft.pydroid.arch.UiViewEvent
 import com.pyamsoft.pydroid.arch.UiViewState
 import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
 
 abstract class BaseItemCount<S : UiViewState, V : UiViewEvent> protected constructor(
     parent: ViewGroup
-) : BaseUiView<S, V>(parent) {
+) : BindingUiView<S, V, DetailListItemCountBinding>(parent) {
 
-    final override val layout: Int = R.layout.detail_list_item_count
+    final override val viewBinding by viewBinding(DetailListItemCountBinding::inflate)
 
-    final override val layoutRoot by boundView<ViewGroup>(R.id.detail_item_count)
-
-    protected val countView by boundView<EditText>(R.id.detail_item_count_editable)
+    final override val layoutRoot by boundView { detailItemCount }
 
     init {
         doOnTeardown {
@@ -43,13 +40,13 @@ abstract class BaseItemCount<S : UiViewState, V : UiViewEvent> protected constru
     }
 
     private fun clear() {
-        countView.text.clear()
-        countView.setOnDebouncedClickListener(null)
+        binding.detailItemCountEditable.text.clear()
+        binding.detailItemCountEditable.setOnDebouncedClickListener(null)
     }
 
     protected fun setCount(item: FridgeItem) {
         val count = item.count()
         val countText = if (count > 0) "$count" else ""
-        countView.setTextKeepState(countText)
+        binding.detailItemCountEditable.setTextKeepState(countText)
     }
 }

@@ -30,10 +30,11 @@ import com.pyamsoft.fridge.db.item.isArchived
 import com.pyamsoft.fridge.db.item.isExpired
 import com.pyamsoft.fridge.db.item.isExpiringSoon
 import com.pyamsoft.fridge.detail.R
+import com.pyamsoft.fridge.detail.databinding.DetailListItemGlancesBinding
 import com.pyamsoft.fridge.detail.item.DetailItemViewEvent.ExpandItem
 import com.pyamsoft.fridge.tooltip.Tooltip
 import com.pyamsoft.fridge.tooltip.TooltipCreator
-import com.pyamsoft.pydroid.arch.BaseUiView
+import com.pyamsoft.pydroid.arch.BindingUiView
 import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.loader.Loaded
 import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
@@ -47,15 +48,11 @@ class DetailListItemGlances @Inject internal constructor(
     private val tooltipCreator: TooltipCreator,
     private val imageLoader: ImageLoader,
     parent: ViewGroup
-) : BaseUiView<DetailListItemViewState, DetailItemViewEvent>(parent) {
+) : BindingUiView<DetailListItemViewState, DetailItemViewEvent, DetailListItemGlancesBinding>(parent) {
 
-    override val layout: Int = R.layout.detail_list_item_glances
+    override val viewBinding by viewBinding(DetailListItemGlancesBinding::inflate)
 
-    override val layoutRoot by boundView<ViewGroup>(R.id.detail_item_glances)
-
-    private val validExpirationDate by boundView<ImageView>(R.id.detail_item_glances_date)
-    private val itemExpiringSoon by boundView<ImageView>(R.id.detail_item_glances_expiring)
-    private val itemExpired by boundView<ImageView>(R.id.detail_item_glances_expired)
+    override val layoutRoot by boundView { detailItemGlances }
 
     private var dateRangeLoader: Loaded? = null
     private var expiringLoader: Loaded? = null
@@ -68,16 +65,16 @@ class DetailListItemGlances @Inject internal constructor(
     init {
         doOnInflate {
             layoutRoot.setOnDebouncedClickListener { publish(ExpandItem) }
-            validExpirationDate.setOnDebouncedClickListener { dateRangeTooltip?.show(it) }
-            itemExpiringSoon.setOnDebouncedClickListener { expiringTooltip?.show(it) }
-            itemExpired.setOnDebouncedClickListener { expiredTooltip?.show(it) }
+            binding.detailItemGlancesDate.setOnDebouncedClickListener { dateRangeTooltip?.show(it) }
+            binding.detailItemGlancesExpiring.setOnDebouncedClickListener { expiringTooltip?.show(it) }
+            binding.detailItemGlancesExpired.setOnDebouncedClickListener { expiredTooltip?.show(it) }
         }
 
         doOnTeardown {
             layoutRoot.setOnDebouncedClickListener(null)
-            validExpirationDate.setOnDebouncedClickListener(null)
-            itemExpiringSoon.setOnDebouncedClickListener(null)
-            itemExpired.setOnDebouncedClickListener(null)
+            binding.detailItemGlancesDate.setOnDebouncedClickListener(null)
+            binding.detailItemGlancesExpiring.setOnDebouncedClickListener(null)
+            binding.detailItemGlancesExpired.setOnDebouncedClickListener(null)
             clear()
         }
     }
@@ -134,7 +131,7 @@ class DetailListItemGlances @Inject internal constructor(
     ) {
         dateRangeLoader = setViewColor(
             imageLoader,
-            validExpirationDate,
+            binding.detailItemGlancesDate,
             R.drawable.ic_date_range_24dp,
             dateRangeLoader,
             hasTime,
@@ -170,7 +167,7 @@ class DetailListItemGlances @Inject internal constructor(
 
         expiringLoader = setViewColor(
             imageLoader,
-            itemExpiringSoon,
+            binding.detailItemGlancesExpiring,
             R.drawable.ic_consumed_24dp,
             expiringLoader,
             isExpiringSoon,
@@ -231,7 +228,7 @@ class DetailListItemGlances @Inject internal constructor(
 
         expiredLoader = setViewColor(
             imageLoader,
-            itemExpired,
+            binding.detailItemGlancesExpired,
             R.drawable.ic_spoiled_24dp,
             expiredLoader,
             isExpired,

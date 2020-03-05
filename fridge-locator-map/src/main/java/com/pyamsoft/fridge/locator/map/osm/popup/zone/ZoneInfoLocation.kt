@@ -18,48 +18,21 @@
 package com.pyamsoft.fridge.locator.map.osm.popup.zone
 
 import android.view.ViewGroup
-import android.widget.TextView
-import com.pyamsoft.fridge.locator.map.R
-import com.pyamsoft.fridge.locator.map.osm.popup.calculateKmDistanceTo
-import com.pyamsoft.pydroid.arch.BaseUiView
+import com.pyamsoft.fridge.locator.map.osm.popup.base.BaseInfoLocation
 import javax.inject.Inject
 
 internal class ZoneInfoLocation @Inject internal constructor(
     parent: ViewGroup
-) : BaseUiView<ZoneInfoViewState, ZoneInfoViewEvent>(parent) {
-
-    override val layout: Int = R.layout.popup_info_location
-    override val layoutRoot by boundView<ViewGroup>(R.id.popup_info_root)
-
-    private val coordinates by boundView<TextView>(R.id.popup_info_coords)
-    private val distanceToMe by boundView<TextView>(R.id.popup_info_distance_to_me)
-
-    init {
-        doOnTeardown {
-            coordinates.text = ""
-            distanceToMe.text = ""
-        }
-    }
+) : BaseInfoLocation<ZoneInfoViewState, ZoneInfoViewEvent>(parent) {
 
     override fun onRender(state: ZoneInfoViewState) {
-        state.polygon.let { polygon ->
-            if (polygon == null) {
-                coordinates.text = ""
-            } else {
-                val centerPoint = requireNotNull(polygon.infoWindowLocation)
-                val lat = "%.5f".format(centerPoint.latitude)
-                val lon = "%.5f".format(centerPoint.longitude)
-                val coords = "($lat, $lon)"
-                coordinates.text = "Located at: $coords"
-
-                val location = state.myLocation
-                if (location == null) {
-                    distanceToMe.text = ""
-                } else {
-                    val distance = "%.2f".format(location.calculateKmDistanceTo(centerPoint))
-                    distanceToMe.text = "${distance}km away"
-                }
-            }
-        }
+        val polygon = state.polygon
+        val centerPoint = polygon?.infoWindowLocation
+        displayLocation(
+            centerPoint?.latitude,
+            centerPoint?.longitude,
+            state.myLocation,
+            centerPoint
+        )
     }
 }
