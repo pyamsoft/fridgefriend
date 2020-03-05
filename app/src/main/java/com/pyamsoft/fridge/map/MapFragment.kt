@@ -35,6 +35,7 @@ import com.pyamsoft.pydroid.arch.StateSaver
 import com.pyamsoft.pydroid.arch.createComponent
 import com.pyamsoft.pydroid.ui.Injector
 import com.pyamsoft.pydroid.ui.arch.factory
+import com.pyamsoft.pydroid.ui.databinding.LayoutCoordinatorBinding
 import javax.inject.Inject
 
 internal class MapFragment : Fragment(), SnackbarContainer {
@@ -74,13 +75,13 @@ internal class MapFragment : Fragment(), SnackbarContainer {
     ) {
         super.onViewCreated(view, savedInstanceState)
 
-        val parent = view.findViewById<CoordinatorLayout>(R.id.layout_coordinator)
-        rootView = parent
+        val binding = LayoutCoordinatorBinding.bind(view)
+        rootView = binding.layoutCoordinator
         Injector.obtain<FridgeComponent>(view.context.applicationContext)
             .plusMapComponent()
             .create(
                 requireActivity(),
-                parent,
+                binding.layoutCoordinator,
                 viewLifecycleOwner
             )
             .inject(this)

@@ -26,7 +26,6 @@ import android.view.ViewGroup
 import android.view.WindowManager
 import androidx.annotation.CheckResult
 import androidx.appcompat.view.ContextThemeWrapper
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.ViewModelProvider
@@ -40,6 +39,7 @@ import com.pyamsoft.pydroid.arch.StateSaver
 import com.pyamsoft.pydroid.arch.createComponent
 import com.pyamsoft.pydroid.ui.Injector
 import com.pyamsoft.pydroid.ui.arch.factory
+import com.pyamsoft.pydroid.ui.databinding.LayoutConstraintBinding
 import com.pyamsoft.pydroid.ui.util.layout
 import com.pyamsoft.pydroid.ui.util.show
 import com.pyamsoft.pydroid.ui.widget.shadow.DropshadowView
@@ -100,7 +100,7 @@ internal class ExpandedFragment : DialogFragment() {
     ) {
         super.onViewCreated(view, savedInstanceState)
 
-        val parent = view.findViewById<ConstraintLayout>(R.id.layout_constraint)
+        val binding = LayoutConstraintBinding.bind(view)
         val itemId = FridgeItem.Id(requireNotNull(requireArguments().getString(ITEM)))
         val entryId = FridgeEntry.Id(requireNotNull(requireArguments().getString(ENTRY)))
         val presenceArgument =
@@ -110,7 +110,7 @@ internal class ExpandedFragment : DialogFragment() {
             .plusExpandComponent()
             .create(
                 requireActivity(),
-                parent,
+                binding.layoutConstraint,
                 viewLifecycleOwner,
                 itemId,
                 entryId,
@@ -126,7 +126,8 @@ internal class ExpandedFragment : DialogFragment() {
         val errorDisplay = requireNotNull(errorDisplay)
         val toolbar = requireNotNull(toolbar)
         val categories = requireNotNull(categories)
-        val shadow = DropshadowView.createTyped<ExpandItemViewState, ExpandedItemViewEvent>(parent)
+        val shadow =
+            DropshadowView.createTyped<ExpandItemViewState, ExpandedItemViewEvent>(binding.layoutConstraint)
         stateSaver = createComponent(
             null, viewLifecycleOwner,
             viewModel,
@@ -151,7 +152,7 @@ internal class ExpandedFragment : DialogFragment() {
             }
         }
 
-        parent.layout {
+        binding.layoutConstraint.layout {
             toolbar.also {
                 connect(it.id(), ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP)
                 connect(it.id(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)

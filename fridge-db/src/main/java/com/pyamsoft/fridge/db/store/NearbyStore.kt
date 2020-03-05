@@ -44,12 +44,6 @@ interface NearbyStore : BaseModel<NearbyStore> {
         fun isEmpty(): Boolean {
             return id == 0L
         }
-
-        companion object {
-
-            @JvmField
-            val EMPTY = Id(0)
-        }
     }
 
     companion object {

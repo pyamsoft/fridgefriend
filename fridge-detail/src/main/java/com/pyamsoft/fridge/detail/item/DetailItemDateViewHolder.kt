@@ -21,25 +21,25 @@ import android.view.View
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.lifecycle.LifecycleOwner
 import com.pyamsoft.fridge.detail.R
+import com.pyamsoft.fridge.detail.databinding.DetailListItemHolderBinding
 import javax.inject.Inject
 
 class DetailItemDateViewHolder internal constructor(
-    itemView: View,
+    binding: DetailListItemHolderBinding,
     owner: LifecycleOwner,
     editable: Boolean,
     callback: DetailListAdapter.Callback,
     factory: DetailItemComponent.Factory
-) : DetailItemViewHolder(itemView, owner, callback) {
+) : DetailItemViewHolder(binding, owner, callback) {
 
     @JvmField
     @Inject
     internal var dateView: DetailListItemDate? = null
 
     init {
-        val parent = itemView.findViewById<ConstraintLayout>(R.id.detail_list_item)
-        factory.create(parent, editable).inject(this)
+        factory.create(binding.detailListItem, editable).inject(this)
 
         val date = requireNotNull(dateView)
-        create(parent, date)
+        create(binding.detailListItem, date)
     }
 }

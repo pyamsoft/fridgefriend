@@ -22,7 +22,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.CheckResult
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
@@ -41,11 +40,12 @@ import com.pyamsoft.pydroid.arch.StateSaver
 import com.pyamsoft.pydroid.arch.createComponent
 import com.pyamsoft.pydroid.ui.Injector
 import com.pyamsoft.pydroid.ui.arch.factory
+import com.pyamsoft.pydroid.ui.databinding.LayoutConstraintBinding
 import com.pyamsoft.pydroid.ui.util.commit
 import com.pyamsoft.pydroid.ui.util.layout
 import com.pyamsoft.pydroid.util.toDp
-import javax.inject.Inject
 import timber.log.Timber
+import javax.inject.Inject
 
 internal class PermissionFragment : Fragment(), PermissionConsumer<ForegroundLocationPermission> {
 
@@ -82,10 +82,10 @@ internal class PermissionFragment : Fragment(), PermissionConsumer<ForegroundLoc
     ) {
         super.onViewCreated(view, savedInstanceState)
 
-        val parent = view.findViewById<ConstraintLayout>(R.id.layout_constraint)
+        val binding = LayoutConstraintBinding.bind(view)
         Injector.obtain<FridgeComponent>(view.context.applicationContext)
             .plusPermissionComponent()
-            .create(parent)
+            .create(binding.layoutConstraint)
             .inject(this)
 
         val requestButton = requireNotNull(requestButton)
@@ -101,7 +101,7 @@ internal class PermissionFragment : Fragment(), PermissionConsumer<ForegroundLoc
             }
         }
 
-        parent.layout {
+        binding.layoutConstraint.layout {
             requestButton.let {
                 connect(it.id(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
                 connect(it.id(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
@@ -125,8 +125,8 @@ internal class PermissionFragment : Fragment(), PermissionConsumer<ForegroundLoc
                 constrainWidth(it.id(), ConstraintSet.MATCH_CONSTRAINT)
                 constrainHeight(it.id(), ConstraintSet.WRAP_CONTENT)
 
-                val hMargin = 16.toDp(parent.context)
-                val vMargin = 32.toDp(parent.context)
+                val hMargin = 16.toDp(view.context)
+                val vMargin = 32.toDp(view.context)
                 setMargin(it.id(), ConstraintSet.TOP, vMargin)
                 setMargin(it.id(), ConstraintSet.BOTTOM, vMargin)
                 setMargin(it.id(), ConstraintSet.START, hMargin)

@@ -34,38 +34,18 @@ interface NearbyZone : BaseModel<NearbyZone> {
     fun points(points: List<Point>): NearbyZone
 
     @JsonClass(generateAdapter = true)
+    // This id needs to be a Long so Moshi can serialize it
     data class Point(
-        val id: Id,
+        val id: Long,
         val lat: Double,
         val lon: Double
-    ) {
-
-        data class Id(val id: Long) {
-
-            @CheckResult
-            fun isEmpty(): Boolean {
-                return id == 0L
-            }
-
-            companion object {
-
-                @JvmField
-                val EMPTY = Id(0)
-            }
-        }
-    }
+    )
 
     data class Id(val id: Long) {
 
         @CheckResult
         fun isEmpty(): Boolean {
             return id == 0L
-        }
-
-        companion object {
-
-            @JvmField
-            val EMPTY = Id(0)
         }
     }
 

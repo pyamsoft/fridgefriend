@@ -17,20 +17,10 @@
 
 package com.pyamsoft.fridge.detail.item
 
-import androidx.core.view.updatePadding
-import com.pyamsoft.pydroid.ui.databinding.ListitemFrameBinding
-import com.pyamsoft.pydroid.util.toDp
+import androidx.recyclerview.widget.RecyclerView
+import androidx.viewbinding.ViewBinding
+import com.pyamsoft.pydroid.arch.ViewBinder
 
-internal class SpacerItemViewHolder internal constructor(
-    binding: ListitemFrameBinding,
-    space: Int
-) : DetailViewHolder<ListitemFrameBinding>(binding) {
-
-    init {
-        val offset = space.toDp(binding.listitemFrame.context)
-        binding.listitemFrame.updatePadding(top = offset)
-    }
-
-    override fun bind(state: DetailListItemViewState) {
-    }
-}
+abstract class DetailViewHolder<B : ViewBinding> protected constructor(
+    binding: B
+) : RecyclerView.ViewHolder(binding.root), ViewBinder<DetailListItemViewState>

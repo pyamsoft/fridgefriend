@@ -20,6 +20,7 @@ package com.pyamsoft.fridge.locator.map.osm.popup
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.lifecycle.LifecycleOwner
 import com.pyamsoft.fridge.locator.map.R
+import com.pyamsoft.fridge.locator.map.databinding.PopupInfoLayoutBinding
 import com.pyamsoft.fridge.locator.map.osm.updatemanager.LocationUpdateReceiver
 import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
 import org.osmdroid.views.MapView
@@ -30,9 +31,12 @@ abstract class BaseInfoWindow protected constructor(
     map: MapView
 ) : InfoWindow(R.layout.popup_info_layout, map), LifecycleOwner, LocationUpdateReceiver.Listener {
 
-    protected val parent: ConstraintLayout = view.findViewById(R.id.popup_info_root)
+    protected val parent: ConstraintLayout
 
     init {
+        val binding = PopupInfoLayoutBinding.bind(view)
+        parent = binding.popupInfoRoot
+
         // A click anywhere but a triggering view will close the popup
         parent.setOnDebouncedClickListener {
             close()

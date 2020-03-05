@@ -22,11 +22,10 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.BaseAdapter
-import android.widget.TextView
 import androidx.annotation.CheckResult
 import androidx.appcompat.widget.ListPopupWindow
 import com.pyamsoft.fridge.db.item.FridgeItem
-import com.pyamsoft.fridge.detail.R
+import com.pyamsoft.fridge.detail.databinding.SimilarlyNamedListItemBinding
 import timber.log.Timber
 
 internal class SimilarlyNamedListWindow internal constructor(context: Context) {
@@ -127,7 +126,7 @@ internal class SimilarlyNamedListWindow internal constructor(context: Context) {
             val view = inflateView(convertView, parent)
             val holder = view.getViewHolder()
             val item = getFridgeItem(position)
-            holder.name.text = item.name()
+            holder.binding.similarlyNamedItemName.text = item.name()
             Timber.d("Get View: $holder ${item.name()}")
             return view
         }
@@ -137,8 +136,9 @@ internal class SimilarlyNamedListWindow internal constructor(context: Context) {
             val view: View
             if (scrap == null) {
                 val inflater = LayoutInflater.from(parent.context)
-                view = inflater.inflate(R.layout.similarly_named_list_item, parent, false)
-                view.tag = ViewHolder(view)
+                val binding = SimilarlyNamedListItemBinding.inflate(inflater, parent, false)
+                view = binding.root
+                view.tag = ViewHolder(binding)
             } else {
                 view = scrap
             }
@@ -157,8 +157,7 @@ internal class SimilarlyNamedListWindow internal constructor(context: Context) {
         }
     }
 
-    private class ViewHolder internal constructor(view: View) {
-
-        internal val name = view.findViewById<TextView>(R.id.similarly_named_item_name)
-    }
+    private class ViewHolder internal constructor(
+        internal val binding: SimilarlyNamedListItemBinding
+    )
 }

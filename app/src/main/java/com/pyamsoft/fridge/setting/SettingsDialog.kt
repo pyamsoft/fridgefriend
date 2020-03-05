@@ -26,7 +26,6 @@ import android.view.ViewGroup
 import android.view.ViewGroup.MarginLayoutParams
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.view.ContextThemeWrapper
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.view.updateLayoutParams
 import androidx.fragment.app.DialogFragment
@@ -40,18 +39,20 @@ import com.pyamsoft.pydroid.arch.createComponent
 import com.pyamsoft.pydroid.ui.Injector
 import com.pyamsoft.pydroid.ui.about.AboutFragment
 import com.pyamsoft.pydroid.ui.arch.factory
+import com.pyamsoft.pydroid.ui.databinding.LayoutConstraintBinding
 import com.pyamsoft.pydroid.ui.util.commit
 import com.pyamsoft.pydroid.ui.util.layout
 import com.pyamsoft.pydroid.ui.widget.shadow.DropshadowView
 import com.pyamsoft.pydroid.util.toDp
-import javax.inject.Inject
 import timber.log.Timber
+import javax.inject.Inject
 
 internal class SettingsDialog : DialogFragment() {
 
     @JvmField
     @Inject
     internal var toolbar: SettingToolbar? = null
+
     @JvmField
     @Inject
     internal var frame: SettingFrame? = null
@@ -127,14 +128,15 @@ internal class SettingsDialog : DialogFragment() {
                 }
             })
 
-        val parent = view.findViewById<ConstraintLayout>(R.id.layout_constraint)
+        val binding = LayoutConstraintBinding.bind(view)
         Injector.obtain<FridgeComponent>(view.context.applicationContext)
             .plusSettingComponent()
-            .create(parent)
+            .create(binding.layoutConstraint)
             .inject(this)
 
         val toolbar = requireNotNull(toolbar)
-        val dropshadow = DropshadowView.createTyped<SettingsViewState, SettingsViewEvent>(parent)
+        val dropshadow =
+            DropshadowView.createTyped<SettingsViewState, SettingsViewEvent>(binding.layoutConstraint)
         val frame = requireNotNull(frame)
         stateSaver = createComponent(
             savedInstanceState, viewLifecycleOwner,
@@ -148,7 +150,7 @@ internal class SettingsDialog : DialogFragment() {
             }
         }
 
-        parent.layout {
+        binding.layoutConstraint.layout {
             toolbar.also {
                 connect(it.id(), ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP)
                 connect(it.id(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)

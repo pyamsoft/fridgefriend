@@ -18,17 +18,15 @@
 package com.pyamsoft.fridge.detail.item
 
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
-import androidx.recyclerview.widget.RecyclerView
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.JsonMappableFridgeItem
 import com.pyamsoft.fridge.detail.R
-import com.pyamsoft.fridge.detail.item.DetailListAdapter.DetailViewHolder
-import com.pyamsoft.pydroid.arch.ViewBinder
+import com.pyamsoft.fridge.detail.databinding.DetailListItemHolderBinding
+import com.pyamsoft.pydroid.ui.databinding.ListitemFrameBinding
 
 class DetailListAdapter constructor(
     private val owner: LifecycleOwner,
@@ -36,7 +34,7 @@ class DetailListAdapter constructor(
     private val defaultPresence: FridgeItem.Presence,
     private val callback: Callback,
     private val factory: DetailItemComponent.Factory
-) : ListAdapter<DetailListItemViewState, DetailViewHolder>(DIFFER) {
+) : ListAdapter<DetailListItemViewState, DetailViewHolder<*>>(DIFFER) {
 
     override fun getItemViewType(position: Int): Int {
         val item = getItem(position)
@@ -61,39 +59,35 @@ class DetailListAdapter constructor(
     override fun onCreateViewHolder(
         parent: ViewGroup,
         viewType: Int
-    ): DetailViewHolder {
+    ): DetailViewHolder<*> {
         val inflater = LayoutInflater.from(parent.context)
         return when (viewType) {
             R.id.id_item_bottom_space, R.id.id_item_top_space -> {
-                val v = inflater.inflate(R.layout.listitem_frame, parent, false)
+                val binding = ListitemFrameBinding.inflate(inflater, parent, false)
                 SpacerItemViewHolder(
-                    v,
+                    binding,
                     if (viewType == R.id.id_item_top_space) TOP_SPACE else BOTTOM_SPACE
                 )
             }
             else -> {
-                val v = inflater.inflate(R.layout.detail_list_item_holder, parent, false)
+                val binding = DetailListItemHolderBinding.inflate(inflater, parent, false)
                 val showGlances = defaultPresence == FridgeItem.Presence.HAVE
                 if (showGlances) {
-                    DetailItemGlancesViewHolder(v, owner, editable, callback, factory)
+                    DetailItemGlancesViewHolder(binding, owner, editable, callback, factory)
                 } else {
-                    DetailItemDateViewHolder(v, owner, editable, callback, factory)
+                    DetailItemDateViewHolder(binding, owner, editable, callback, factory)
                 }
             }
         }
     }
 
     override fun onBindViewHolder(
-        holder: DetailViewHolder,
+        holder: DetailViewHolder<*>,
         position: Int
     ) {
         val item = getItem(position)
         holder.bind(item)
     }
-
-    abstract class DetailViewHolder protected constructor(
-        view: View
-    ) : RecyclerView.ViewHolder(view), ViewBinder<DetailListItemViewState>
 
     interface Callback {
 

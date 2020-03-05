@@ -71,7 +71,7 @@ internal fun NearbyZone.Companion.create(
         NearbyZone.Id(way.id),
         findName(way, nodes),
         Date(),
-        nodes.map { Point(Point.Id(it.id), it.lat, it.lon) }
+        nodes.map { Point(it.id, it.lat, it.lon) }
     )
 }
 

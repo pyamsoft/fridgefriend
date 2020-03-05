@@ -22,7 +22,9 @@ import android.view.ViewGroup
 import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
-import com.pyamsoft.fridge.category.R
+import com.pyamsoft.fridge.category.databinding.CategoryItemHolderLargeBinding
+import com.pyamsoft.fridge.category.databinding.CategoryItemHolderMediumBinding
+import com.pyamsoft.fridge.category.databinding.CategoryItemHolderSmallBinding
 
 class CategoryAdapter internal constructor(
     private val owner: LifecycleOwner,
@@ -40,12 +42,14 @@ class CategoryAdapter internal constructor(
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CategoryViewHolder {
         val inflater = LayoutInflater.from(parent.context)
-        val layoutId = when (viewType) {
-            VIEW_TYPE_SMALL -> R.layout.category_item_holder_small
-            VIEW_TYPE_MEDIUM -> R.layout.category_item_holder_medium
-            else -> R.layout.category_item_holder_large
+        val view = when (viewType) {
+            VIEW_TYPE_SMALL -> CategoryItemHolderSmallBinding
+                .inflate(inflater, parent, false).categoryHolder
+            VIEW_TYPE_MEDIUM -> CategoryItemHolderMediumBinding
+                .inflate(inflater, parent, false).categoryHolder
+            else -> CategoryItemHolderLargeBinding
+                .inflate(inflater, parent, false).categoryHolder
         }
-        val view = inflater.inflate(layoutId, parent, false)
         return CategoryViewHolder(
             view,
             owner,

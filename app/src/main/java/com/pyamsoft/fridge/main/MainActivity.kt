@@ -47,6 +47,7 @@ import com.pyamsoft.pydroid.arch.StateSaver
 import com.pyamsoft.pydroid.arch.createComponent
 import com.pyamsoft.pydroid.ui.Injector
 import com.pyamsoft.pydroid.ui.arch.factory
+import com.pyamsoft.pydroid.ui.databinding.LayoutConstraintBinding
 import com.pyamsoft.pydroid.ui.rating.ChangeLogBuilder
 import com.pyamsoft.pydroid.ui.rating.RatingActivity
 import com.pyamsoft.pydroid.ui.rating.buildChangeLog
@@ -117,18 +118,17 @@ internal class MainActivity : RatingActivity(), VersionChecker {
     override fun onCreate(savedInstanceState: Bundle?) {
         setTheme(R.style.Theme_Fridge_Normal)
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.layout_constraint)
+        val binding = LayoutConstraintBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
-        val view = findViewById<ConstraintLayout>(R.id.layout_constraint)
-        rootView = view
-
+        rootView = binding.layoutConstraint
         Injector.obtain<FridgeComponent>(applicationContext)
             .plusMainComponent()
-            .create(this, view, guaranteePage(intent), this)
+            .create(this, binding.layoutConstraint, guaranteePage(intent), this)
             .inject(this)
 
-        view.makeWindowSexy()
-        inflateComponents(view, savedInstanceState)
+        binding.layoutConstraint.makeWindowSexy()
+        inflateComponents(binding.layoutConstraint, savedInstanceState)
         beginWork()
     }
 

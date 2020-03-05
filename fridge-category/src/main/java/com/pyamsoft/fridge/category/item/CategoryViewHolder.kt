@@ -17,22 +17,20 @@
 
 package com.pyamsoft.fridge.category.item
 
-import android.view.View
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.RecyclerView
-import com.pyamsoft.fridge.category.R
 import com.pyamsoft.pydroid.arch.ViewBinder
 import com.pyamsoft.pydroid.arch.bindViews
 import com.pyamsoft.pydroid.ui.util.layout
 import javax.inject.Inject
 
 class CategoryViewHolder internal constructor(
-    itemView: View,
+    constraintLayout: ConstraintLayout,
     owner: LifecycleOwner,
     factory: CategoryItemComponent.Factory
-) : RecyclerView.ViewHolder(itemView) {
+) : RecyclerView.ViewHolder(constraintLayout) {
 
     private var viewBinder: ViewBinder<CategoryItemViewState>
 
@@ -41,10 +39,8 @@ class CategoryViewHolder internal constructor(
     internal var background: CategoryBackground? = null
 
     init {
-        val parent = itemView.findViewById<ConstraintLayout>(R.id.category_holder)
-
         // Needs a small amount of margin so the staggered grid effect works
-        factory.create(parent).inject(this)
+        factory.create(constraintLayout).inject(this)
 
         val background = requireNotNull(background)
         viewBinder = bindViews(
@@ -54,7 +50,7 @@ class CategoryViewHolder internal constructor(
             // TODO
         }
 
-        parent.layout {
+        constraintLayout.layout {
             background.also {
                 connect(
                     it.id(),

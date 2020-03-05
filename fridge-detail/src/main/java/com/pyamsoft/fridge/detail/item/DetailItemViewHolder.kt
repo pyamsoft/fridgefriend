@@ -17,11 +17,10 @@
 
 package com.pyamsoft.fridge.detail.item
 
-import android.view.View
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.lifecycle.LifecycleOwner
-import com.pyamsoft.fridge.detail.item.DetailListAdapter.DetailViewHolder
+import com.pyamsoft.fridge.detail.databinding.DetailListItemHolderBinding
 import com.pyamsoft.pydroid.arch.UiView
 import com.pyamsoft.pydroid.arch.ViewBinder
 import com.pyamsoft.pydroid.arch.bindViews
@@ -30,10 +29,10 @@ import com.pyamsoft.pydroid.ui.util.layout
 import javax.inject.Inject
 
 abstract class DetailItemViewHolder protected constructor(
-    itemView: View,
+    binding: DetailListItemHolderBinding,
     private val owner: LifecycleOwner,
     private val callback: DetailListAdapter.Callback
-) : DetailViewHolder(itemView) {
+) : DetailViewHolder<DetailListItemHolderBinding>(binding) {
 
     @JvmField
     @Inject

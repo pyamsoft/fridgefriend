@@ -39,8 +39,8 @@ import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.ui.util.Snackbreak
 import com.pyamsoft.pydroid.ui.util.refreshing
-import javax.inject.Inject
 import timber.log.Timber
+import javax.inject.Inject
 
 class DetailList @Inject internal constructor(
     private val imageLoader: ImageLoader,
@@ -145,12 +145,12 @@ class DetailList @Inject internal constructor(
             }
         }
         val leftBehindDrawable = imageLoader.load(
-            when {
-                swipeAwayDeletes -> R.drawable.ic_delete_24dp
-                swipeAwayRestores -> R.drawable.ic_delete_24dp
-                else -> R.drawable.ic_spoiled_24dp
-            }
-        )
+                when {
+                    swipeAwayDeletes -> R.drawable.ic_delete_24dp
+                    swipeAwayRestores -> R.drawable.ic_delete_24dp
+                    else -> R.drawable.ic_spoiled_24dp
+                }
+            )
             .immediate()
 
         val directions = consumeSwipeDirection or spoilSwipeDirection
@@ -170,12 +170,12 @@ class DetailList @Inject internal constructor(
             }
         }.apply {
             val rightBehindDrawable = imageLoader.load(
-                when {
-                    swipeAwayDeletes -> R.drawable.ic_delete_24dp
-                    swipeAwayRestores -> R.drawable.ic_code_24dp
-                    else -> R.drawable.ic_consumed_24dp
-                }
-            )
+                    when {
+                        swipeAwayDeletes -> R.drawable.ic_delete_24dp
+                        swipeAwayRestores -> R.drawable.ic_code_24dp
+                        else -> R.drawable.ic_consumed_24dp
+                    }
+                )
                 .immediate()
             withBackgroundSwipeRight(Color.TRANSPARENT)
             withLeaveBehindSwipeRight(requireNotNull(rightBehindDrawable))
