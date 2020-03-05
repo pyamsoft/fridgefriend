@@ -22,8 +22,8 @@ import android.text.TextWatcher
 import android.view.ViewGroup
 import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.detail.base.BaseItemName
-import javax.inject.Inject
 import timber.log.Timber
+import javax.inject.Inject
 
 class ExpandItemName @Inject internal constructor(
     parent: ViewGroup
@@ -57,7 +57,7 @@ class ExpandItemName @Inject internal constructor(
     }
 
     override fun onRender(state: ExpandItemViewState) {
-        popupWindow.set(if (nameView.isFocused) state.similarItems else emptyList())
+        popupWindow.set(if (binding.detailItemNameEditable.isFocused) state.similarItems else emptyList())
 
         state.item.let { item ->
             if (item != null) {
@@ -97,12 +97,12 @@ class ExpandItemName @Inject internal constructor(
             ) {
             }
         }
-        nameView.addTextChangedListener(watcher)
+        binding.detailItemNameEditable.addTextChangedListener(watcher)
         return watcher
     }
 
     private fun removeListeners(watcher: TextWatcher) {
-        watcher.let { nameView.removeTextChangedListener(it) }
+        watcher.let { binding.detailItemNameEditable.removeTextChangedListener(it) }
     }
 
     private fun commit(name: String) {

@@ -18,16 +18,17 @@
 package com.pyamsoft.fridge.setting
 
 import android.view.ViewGroup
-import com.pyamsoft.pydroid.arch.BaseUiView
+import com.pyamsoft.fridge.setting.databinding.SettingFrameBinding
+import com.pyamsoft.pydroid.arch.BindingUiView
 import javax.inject.Inject
 
 class SettingFrame @Inject internal constructor(
     parent: ViewGroup
-) : BaseUiView<SettingsViewState, SettingsViewEvent>(parent) {
+) : BindingUiView<SettingsViewState, SettingsViewEvent, SettingFrameBinding>(parent) {
 
-    override val layout: Int = R.layout.setting_frame
+    override val viewBinding by viewBinding(SettingFrameBinding::inflate)
 
-    override val layoutRoot by boundView<ViewGroup>(R.id.setting_frame)
+    override val layoutRoot by boundView { settingFrame }
 
     override fun onRender(state: SettingsViewState) {
     }

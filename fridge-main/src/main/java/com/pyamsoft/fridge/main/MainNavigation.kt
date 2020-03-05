@@ -20,19 +20,19 @@ package com.pyamsoft.fridge.main
 import android.view.ViewGroup
 import androidx.annotation.CheckResult
 import androidx.core.view.updatePadding
-import com.google.android.material.bottomnavigation.BottomNavigationView
-import com.pyamsoft.pydroid.arch.BaseUiView
+import com.pyamsoft.fridge.main.databinding.MainNavigationBinding
+import com.pyamsoft.pydroid.arch.BindingUiView
 import com.pyamsoft.pydroid.util.doOnApplyWindowInsets
-import javax.inject.Inject
 import timber.log.Timber
+import javax.inject.Inject
 
 class MainNavigation @Inject internal constructor(
     parent: ViewGroup
-) : BaseUiView<MainViewState, MainViewEvent>(parent) {
+) : BindingUiView<MainViewState, MainViewEvent, MainNavigationBinding>(parent) {
 
-    override val layout: Int = R.layout.main_navigation
+    override val viewBinding by viewBinding(MainNavigationBinding::inflate)
 
-    override val layoutRoot by boundView<BottomNavigationView>(R.id.main_bottom_navigation_menu)
+    override val layoutRoot by boundView { mainBottomNavigationMenu }
 
     init {
         doOnInflate {
@@ -42,7 +42,7 @@ class MainNavigation @Inject internal constructor(
         }
 
         doOnInflate {
-            layoutRoot.setOnNavigationItemSelectedListener { item ->
+            binding.mainBottomNavigationMenu.setOnNavigationItemSelectedListener { item ->
                 Timber.d("Click nav item: $item")
                 return@setOnNavigationItemSelectedListener when (item.itemId) {
                     R.id.menu_item_nav_need -> select(MainViewEvent.OpenNeed)
@@ -55,7 +55,7 @@ class MainNavigation @Inject internal constructor(
         }
 
         doOnTeardown {
-            layoutRoot.setOnNavigationItemSelectedListener(null)
+            binding.mainBottomNavigationMenu.setOnNavigationItemSelectedListener(null)
         }
     }
 
@@ -63,8 +63,8 @@ class MainNavigation @Inject internal constructor(
         state.page.let { page ->
             val pageId = getIdForPage(page)
             if (pageId != 0) {
-                layoutRoot.selectedItemId = pageId
-                layoutRoot.menu.findItem(pageId).isChecked = true
+                binding.mainBottomNavigationMenu.selectedItemId = pageId
+                binding.mainBottomNavigationMenu.menu.findItem(pageId).isChecked = true
             }
         }
     }

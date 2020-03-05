@@ -23,34 +23,32 @@ import androidx.core.view.isInvisible
 import androidx.core.view.isVisible
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.isArchived
-import com.pyamsoft.fridge.detail.R
-import com.pyamsoft.pydroid.arch.BaseUiView
+import com.pyamsoft.fridge.detail.databinding.DetailListItemPresenceBinding
+import com.pyamsoft.pydroid.arch.BindingUiView
 import com.pyamsoft.pydroid.arch.UiViewEvent
 import com.pyamsoft.pydroid.arch.UiViewState
 
 abstract class BaseItemPresence<S : UiViewState, V : UiViewEvent> protected constructor(
     parent: ViewGroup
-) : BaseUiView<S, V>(parent) {
+) : BindingUiView<S, V, DetailListItemPresenceBinding>(parent) {
 
-    final override val layout: Int = R.layout.detail_list_item_presence
+    final override val viewBinding by viewBinding(DetailListItemPresenceBinding::inflate)
 
-    final override val layoutRoot by boundView<ViewGroup>(R.id.detail_item_presence)
-
-    private val presenceSwitch by boundView<CompoundButton>(R.id.detail_item_presence_switch)
+    final override val layoutRoot by boundView { detailItemPresence }
 
     private val listener = CompoundButton.OnCheckedChangeListener { _, _ ->
         publishChangePresence()
     }
 
     protected fun render(item: FridgeItem?) {
-        presenceSwitch.setOnCheckedChangeListener(null)
-        presenceSwitch.isEnabled = item != null && !item.isArchived()
+        binding.detailItemPresenceSwitch.setOnCheckedChangeListener(null)
+        binding.detailItemPresenceSwitch.isEnabled = item != null && !item.isArchived()
         if (item != null) {
-            presenceSwitch.isVisible = true
-            presenceSwitch.isChecked = item.presence() == FridgeItem.Presence.HAVE
-            presenceSwitch.setOnCheckedChangeListener(listener)
+            binding.detailItemPresenceSwitch.isVisible = true
+            binding.detailItemPresenceSwitch.isChecked = item.presence() == FridgeItem.Presence.HAVE
+            binding.detailItemPresenceSwitch.setOnCheckedChangeListener(listener)
         } else {
-            presenceSwitch.isInvisible = true
+            binding.detailItemPresenceSwitch.isInvisible = true
         }
     }
 

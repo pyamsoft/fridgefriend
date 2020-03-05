@@ -22,31 +22,28 @@ import android.view.animation.AccelerateInterpolator
 import androidx.core.view.ViewCompat
 import androidx.core.view.ViewPropertyAnimatorCompat
 import androidx.core.view.isVisible
-import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.detail.DetailViewEvent
 import com.pyamsoft.fridge.detail.DetailViewState
 import com.pyamsoft.fridge.detail.R
-import com.pyamsoft.pydroid.arch.BaseUiView
+import com.pyamsoft.fridge.detail.databinding.AddNewBinding
+import com.pyamsoft.pydroid.arch.BindingUiView
 import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.loader.Loaded
 import com.pyamsoft.pydroid.ui.util.popShow
 import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
-import javax.inject.Inject
 import timber.log.Timber
+import javax.inject.Inject
 
 class AddNewItemView @Inject internal constructor(
     private val imageLoader: ImageLoader,
     parent: ViewGroup,
     listItemPresence: FridgeItem.Presence
-) : BaseUiView<DetailViewState, DetailViewEvent>(parent) {
+) : BindingUiView<DetailViewState, DetailViewEvent, AddNewBinding>(parent) {
 
-    override val layout: Int = R.layout.add_new
+    override val viewBinding by viewBinding(AddNewBinding::inflate)
 
-    override val layoutRoot by boundView<FloatingActionButton>(R.id.detail_add_new_item)
-
-    private val expandButton by boundView<FloatingActionButton>(R.id.detail_add_new_item)
-    private val filterButton by boundView<FloatingActionButton>(R.id.detail_filter_item)
+    override val layoutRoot by boundView { detailAddNewItem }
 
     private var addNewIconLoaded: Loaded? = null
     private var filterIconLoaded: Loaded? = null
@@ -61,29 +58,29 @@ class AddNewItemView @Inject internal constructor(
         doOnInflate {
             addNewIconLoaded = imageLoader
                 .load(R.drawable.ic_add_24dp)
-                .into(expandButton)
+                .into(binding.detailAddNewItem)
 
-            expandButton.setOnDebouncedClickListener { expandItem() }
+            binding.detailAddNewItem.setOnDebouncedClickListener { expandItem() }
         }
 
         doOnTeardown {
             disposeAddNewLoaded()
-            expandButton.setOnClickListener(null)
+            binding.detailAddNewItem.setOnClickListener(null)
         }
 
         doOnInflate {
-            filterButton.setOnDebouncedClickListener { toggleArchived() }
+            binding.detailFilterItem.setOnDebouncedClickListener { toggleArchived() }
         }
 
         doOnInflate {
-            val expandAnimator = expandButton.popShow().withEndAction {
+            val expandAnimator = binding.detailAddNewItem.popShow().withEndAction {
                 if (listItemPresence == FridgeItem.Presence.HAVE) {
-                    val filterAnimator = filterButton.popShow()
+                    val filterAnimator = binding.detailFilterItem.popShow()
                     doOnTeardown {
                         filterAnimator.cancel()
                     }
                 } else {
-                    filterButton.isVisible = false
+                    binding.detailFilterItem.isVisible = false
                 }
             }
             doOnTeardown {
@@ -93,7 +90,7 @@ class AddNewItemView @Inject internal constructor(
 
         doOnTeardown {
             disposeFilterLoaded()
-            filterButton.setOnClickListener(null)
+            binding.detailFilterItem.setOnClickListener(null)
         }
 
         doOnTeardown {
@@ -150,7 +147,7 @@ class AddNewItemView @Inject internal constructor(
                         DetailViewState.Showing.SPOILED -> R.drawable.ic_spoiled_24dp
                     }
                 )
-                .into(filterButton)
+                .into(binding.detailFilterItem)
         }
 
         state.isItemExpanded.let { expanded ->
@@ -159,7 +156,7 @@ class AddNewItemView @Inject internal constructor(
             previousRotated = expanded
             if (previous != expanded) {
                 disposeRotate()
-                rotateIconAnimator = ViewCompat.animate(expandButton).apply {
+                rotateIconAnimator = ViewCompat.animate(binding.detailAddNewItem).apply {
                     startDelay = 0
                     duration = 200
                     interpolator = ROTATE_INTERPOLATOR
@@ -179,7 +176,7 @@ class AddNewItemView @Inject internal constructor(
         // Hide filter button for NEED
         if (hideFilter) {
             disposeFilterAnimator()
-            filterButton.isVisible = false
+            binding.detailFilterItem.isVisible = false
         }
     }
 

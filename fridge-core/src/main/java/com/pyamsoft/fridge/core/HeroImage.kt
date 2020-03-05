@@ -22,8 +22,8 @@ import android.widget.ImageView
 import androidx.annotation.CheckResult
 import androidx.core.content.withStyledAttributes
 import androidx.core.view.updatePadding
-import com.google.android.material.appbar.CollapsingToolbarLayout
-import com.pyamsoft.pydroid.arch.BaseUiView
+import com.pyamsoft.fridge.core.databinding.CoreHeroImageBinding
+import com.pyamsoft.pydroid.arch.BindingUiView
 import com.pyamsoft.pydroid.arch.UiViewEvent
 import com.pyamsoft.pydroid.arch.UiViewState
 import com.pyamsoft.pydroid.loader.ImageLoader
@@ -33,19 +33,17 @@ import com.pyamsoft.pydroid.util.doOnApplyWindowInsets
 abstract class HeroImage<S : UiViewState, V : UiViewEvent> protected constructor(
     parent: ViewGroup,
     private val imageLoader: ImageLoader
-) : BaseUiView<S, V>(parent) {
+) : BindingUiView<S, V, CoreHeroImageBinding>(parent) {
 
-    override val layout: Int = R.layout.core_hero_image
+    override val viewBinding by viewBinding(CoreHeroImageBinding::inflate)
 
-    override val layoutRoot by boundView<ViewGroup>(R.id.core_hero_root)
-    private val collapse by boundView<CollapsingToolbarLayout>(R.id.core_hero_collapse)
-    private val image by boundView<ImageView>(R.id.core_hero_image)
+    override val layoutRoot by boundView { coreHeroRoot }
 
     private var loaded: Loaded? = null
 
     init {
         doOnInflate {
-            collapse.doOnApplyWindowInsets { v, insets, padding ->
+            binding.coreHeroCollapse.doOnApplyWindowInsets { v, insets, padding ->
                 val toolbarTopMargin = padding.top + insets.systemWindowInsetTop
                 v.context.withStyledAttributes(
                     R.attr.toolbarStyle,
@@ -76,7 +74,7 @@ abstract class HeroImage<S : UiViewState, V : UiViewEvent> protected constructor
 
     private fun loadImage(state: S) {
         clear()
-        loaded = onLoadImage(image, imageLoader, state)
+        loaded = onLoadImage(binding.coreHeroImage, imageLoader, state)
     }
 
     @CheckResult

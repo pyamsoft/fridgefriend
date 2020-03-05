@@ -18,9 +18,9 @@
 package com.pyamsoft.fridge.detail
 
 import android.view.ViewGroup
-import android.widget.ImageView
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence.NEED
-import com.pyamsoft.pydroid.arch.BaseUiView
+import com.pyamsoft.fridge.detail.databinding.DetailEmptyBinding
+import com.pyamsoft.pydroid.arch.BindingUiView
 import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.loader.Loaded
 import javax.inject.Inject
@@ -28,12 +28,11 @@ import javax.inject.Inject
 class DetailEmptyState @Inject internal constructor(
     parent: ViewGroup,
     private val imageLoader: ImageLoader
-) : BaseUiView<DetailViewState, DetailViewEvent>(parent) {
+) : BindingUiView<DetailViewState, DetailViewEvent, DetailEmptyBinding>(parent) {
 
-    override val layout: Int = R.layout.detail_empty
+    override val viewBinding by viewBinding(DetailEmptyBinding::inflate)
 
-    override val layoutRoot by boundView<ViewGroup>(R.id.detail_empty_root)
-    private val image by boundView<ImageView>(R.id.detail_empty_image)
+    override val layoutRoot by boundView { detailEmptyRoot }
 
     private var loaded: Loaded? = null
 
@@ -72,6 +71,6 @@ class DetailEmptyState @Inject internal constructor(
 
         val icon = if (need) R.drawable.bg_item_need else R.drawable.bg_item_have
         loaded = imageLoader.load(icon)
-            .into(image)
+            .into(binding.detailEmptyImage)
     }
 }

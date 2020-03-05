@@ -18,10 +18,9 @@
 package com.pyamsoft.fridge.category.item
 
 import android.view.ViewGroup
-import android.widget.ImageView
-import com.pyamsoft.fridge.category.R
+import com.pyamsoft.fridge.category.databinding.CategoryBackgroundBinding
 import com.pyamsoft.fridge.db.category.FridgeCategory
-import com.pyamsoft.pydroid.arch.BaseUiView
+import com.pyamsoft.pydroid.arch.BindingUiView
 import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.loader.Loaded
 import javax.inject.Inject
@@ -29,11 +28,12 @@ import javax.inject.Inject
 class CategoryBackground @Inject internal constructor(
     parent: ViewGroup,
     private val imageLoader: ImageLoader
-) : BaseUiView<CategoryItemViewState, CategoryItemViewEvent>(parent) {
+) : BindingUiView<CategoryItemViewState, CategoryItemViewEvent, CategoryBackgroundBinding>(parent) {
 
-    override val layout: Int = R.layout.category_background
+    override val viewBinding by viewBinding(CategoryBackgroundBinding::inflate)
 
-    override val layoutRoot by boundView<ImageView>(R.id.category_background_image)
+    override val layoutRoot by boundView { categoryBackgroundImage }
+
     private var loaded: Loaded? = null
 
     init {
@@ -59,6 +59,6 @@ class CategoryBackground @Inject internal constructor(
     }
 
     private fun loadImage(image: FridgeCategory.Thumbnail) {
-        loaded = imageLoader.load(image.data).into(layoutRoot)
+        loaded = imageLoader.load(image.data).into(binding.categoryBackgroundImage)
     }
 }

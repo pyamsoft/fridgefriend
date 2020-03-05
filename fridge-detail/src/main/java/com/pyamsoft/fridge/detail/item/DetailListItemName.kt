@@ -28,8 +28,8 @@ class DetailListItemName @Inject internal constructor(
 
     init {
         doOnInflate {
-            nameView.setNotEditable()
-            nameView.setOnDebouncedClickListener { publish(DetailItemViewEvent.ExpandItem) }
+            binding.detailItemNameEditable.setNotEditable()
+            binding.detailItemNameEditable.setOnDebouncedClickListener { publish(DetailItemViewEvent.ExpandItem) }
         }
     }
 

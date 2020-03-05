@@ -17,14 +17,15 @@
 
 package com.pyamsoft.fridge.main
 
+import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.ViewGroup
 import android.view.ViewGroup.MarginLayoutParams
-import androidx.appcompat.widget.Toolbar
 import androidx.core.view.ViewCompat
 import androidx.core.view.updateLayoutParams
 import com.pyamsoft.fridge.core.Core
-import com.pyamsoft.pydroid.arch.BaseUiView
+import com.pyamsoft.fridge.main.databinding.MainToolbarBinding
+import com.pyamsoft.pydroid.arch.BindingUiView
 import com.pyamsoft.pydroid.ui.app.ToolbarActivityProvider
 import com.pyamsoft.pydroid.ui.privacy.addPrivacy
 import com.pyamsoft.pydroid.ui.privacy.removePrivacy
@@ -40,11 +41,11 @@ class MainToolbar @Inject internal constructor(
     toolbarActivityProvider: ToolbarActivityProvider,
     theming: ThemeProvider,
     parent: ViewGroup
-) : BaseUiView<MainViewState, MainViewEvent>(parent) {
+) : BindingUiView<MainViewState, MainViewEvent, MainToolbarBinding>(parent) {
 
-    override val layout: Int = R.layout.main_toolbar
+    override val viewBinding by viewBinding(MainToolbarBinding::inflate)
 
-    override val layoutRoot by boundView<Toolbar>(R.id.main_toolbar)
+    override val layoutRoot by boundView { mainToolbar }
 
     private var settingsItem: MenuItem? = null
 
@@ -58,11 +59,11 @@ class MainToolbar @Inject internal constructor(
                 }
             }
 
-            layoutRoot.addPrivacy(Core.PRIVACY_POLICY_URL, Core.TERMS_CONDITIONS_URL)
+            binding.mainToolbar.addPrivacy(Core.PRIVACY_POLICY_URL, Core.TERMS_CONDITIONS_URL)
         }
 
         doOnTeardown {
-            layoutRoot.removePrivacy()
+            binding.mainToolbar.removePrivacy()
             toolbarActivityProvider.setToolbar(null)
         }
 
@@ -82,9 +83,9 @@ class MainToolbar @Inject internal constructor(
 
         state.appNameRes.let { name ->
             if (name == 0) {
-                layoutRoot.title = null
+                binding.mainToolbar.title = null
             } else {
-                layoutRoot.setTitle(name)
+                binding.mainToolbar.setTitle(name)
             }
         }
     }
@@ -92,11 +93,11 @@ class MainToolbar @Inject internal constructor(
     private fun teardownMenu() {
         settingsItem?.setOnMenuItemClickListener(null)
         settingsItem = null
-        layoutRoot.menu.removeItem(R.id.menu_item_settings)
+        binding.mainToolbar.menu.removeItem(R.id.menu_item_settings)
     }
 
     private fun inflateMenu() {
-        layoutRoot.let { toolbar ->
+        binding.mainToolbar.let { toolbar ->
             toolbar.setUpEnabled(false)
             toolbar.inflateMenu(R.menu.toolbar_menu)
             toolbar.menu.findItem(R.id.menu_item_settings)
@@ -121,7 +122,7 @@ class MainToolbar @Inject internal constructor(
             R.style.ThemeOverlay_MaterialComponents_Light
         }
 
-        layoutRoot.apply {
+        binding.mainToolbar.apply {
             popupTheme = theme
             setTitle(appNameRes)
             ViewCompat.setElevation(this, 8f.toDp(context).toFloat())

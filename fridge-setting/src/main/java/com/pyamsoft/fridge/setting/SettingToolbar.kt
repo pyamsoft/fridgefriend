@@ -18,36 +18,36 @@
 package com.pyamsoft.fridge.setting
 
 import android.view.ViewGroup
-import androidx.appcompat.widget.Toolbar
 import com.pyamsoft.fridge.setting.SettingsViewEvent.Navigate
-import com.pyamsoft.pydroid.arch.BaseUiView
+import com.pyamsoft.fridge.setting.databinding.SettingToolbarBinding
+import com.pyamsoft.pydroid.arch.BindingUiView
 import com.pyamsoft.pydroid.ui.util.DebouncedOnClickListener
 import com.pyamsoft.pydroid.ui.util.setUpEnabled
 import javax.inject.Inject
 
 class SettingToolbar @Inject internal constructor(
     parent: ViewGroup
-) : BaseUiView<SettingsViewState, SettingsViewEvent>(parent) {
+) : BindingUiView<SettingsViewState, SettingsViewEvent, SettingToolbarBinding>(parent) {
 
-    override val layout: Int = R.layout.setting_toolbar
+    override val viewBinding by viewBinding(SettingToolbarBinding::inflate)
 
-    override val layoutRoot by boundView<Toolbar>(R.id.setting_toolbar)
+    override val layoutRoot by boundView { settingToolbar }
 
     init {
         doOnInflate {
-            layoutRoot.setUpEnabled(true)
-            layoutRoot.setNavigationOnClickListener(DebouncedOnClickListener.create {
+            binding.settingToolbar.setUpEnabled(true)
+            binding.settingToolbar.setNavigationOnClickListener(DebouncedOnClickListener.create {
                 publish(Navigate)
             })
         }
 
         doOnTeardown {
-            layoutRoot.setUpEnabled(false)
-            layoutRoot.setNavigationOnClickListener(null)
+            binding.settingToolbar.setUpEnabled(false)
+            binding.settingToolbar.setNavigationOnClickListener(null)
         }
     }
 
     override fun onRender(state: SettingsViewState) {
-        layoutRoot.title = state.name
+        binding.settingToolbar.title = state.name
     }
 }

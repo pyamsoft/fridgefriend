@@ -25,17 +25,17 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.mikepenz.fastadapter_extensions.swipe.SimpleSwipeCallback
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence.HAVE
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence.NEED
+import com.pyamsoft.fridge.detail.databinding.DetailListBinding
 import com.pyamsoft.fridge.detail.item.DetailItemComponent
 import com.pyamsoft.fridge.detail.item.DetailItemViewHolder
 import com.pyamsoft.fridge.detail.item.DetailListAdapter
 import com.pyamsoft.fridge.detail.item.DetailListAdapter.Callback
 import com.pyamsoft.fridge.detail.item.DetailListItemViewState
-import com.pyamsoft.pydroid.arch.BaseUiView
+import com.pyamsoft.pydroid.arch.BindingUiView
 import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.ui.util.Snackbreak
 import com.pyamsoft.pydroid.ui.util.refreshing
@@ -48,23 +48,22 @@ class DetailList @Inject internal constructor(
     parent: ViewGroup,
     defaultPresence: FridgeItem.Presence,
     factory: DetailItemComponent.Factory
-) : BaseUiView<DetailViewState, DetailViewEvent>(parent) {
+) : BindingUiView<DetailViewState, DetailViewEvent, DetailListBinding>(parent) {
 
-    override val layout: Int = R.layout.detail_list
+    override val viewBinding by viewBinding(DetailListBinding::inflate)
 
-    override val layoutRoot by boundView<SwipeRefreshLayout>(R.id.detail_swipe_refresh)
-
-    private val recyclerView by boundView<RecyclerView>(R.id.detail_list)
+    override val layoutRoot by boundView { detailSwipeRefresh }
 
     private var touchHelper: ItemTouchHelper? = null
     private var modelAdapter: DetailListAdapter? = null
 
     init {
         doOnInflate {
-            recyclerView.layoutManager = LinearLayoutManager(recyclerView.context).apply {
-                isItemPrefetchEnabled = true
-                initialPrefetchItemCount = 3
-            }
+            binding.detailList.layoutManager =
+                LinearLayoutManager(binding.detailList.context).apply {
+                    isItemPrefetchEnabled = true
+                    initialPrefetchItemCount = 3
+                }
         }
 
         doOnInflate {
@@ -82,12 +81,12 @@ class DetailList @Inject internal constructor(
                         publish(DetailViewEvent.ChangePresence(index))
                     }
                 })
-            recyclerView.adapter = usingAdapter().apply { setHasStableIds(true) }
-            recyclerView.setHasFixedSize(true)
+            binding.detailList.adapter = usingAdapter().apply { setHasStableIds(true) }
+            binding.detailList.setHasFixedSize(true)
         }
 
         doOnInflate {
-            layoutRoot.setOnRefreshListener { publish(DetailViewEvent.ForceRefresh) }
+            binding.detailSwipeRefresh.setOnRefreshListener { publish(DetailViewEvent.ForceRefresh) }
         }
 
         doOnTeardown {
@@ -96,7 +95,7 @@ class DetailList @Inject internal constructor(
             clearList()
 
             touchHelper?.attachToRecyclerView(null)
-            layoutRoot.setOnRefreshListener(null)
+            binding.detailSwipeRefresh.setOnRefreshListener(null)
 
             modelAdapter = null
             touchHelper = null
@@ -114,7 +113,7 @@ class DetailList @Inject internal constructor(
         val consumeSwipeDirection = ItemTouchHelper.RIGHT
         val spoilSwipeDirection = ItemTouchHelper.LEFT
         val itemSwipeCallback = SimpleSwipeCallback.ItemSwipeCallback { position, direction ->
-            val holder = recyclerView.findViewHolderForAdapterPosition(position)
+            val holder = binding.detailList.findViewHolderForAdapterPosition(position)
             if (holder == null) {
                 Timber.w("ViewHolder is null, cannot respond to swipe")
                 return@ItemSwipeCallback
@@ -186,7 +185,7 @@ class DetailList @Inject internal constructor(
 
         // Attach new helper
         val helper = ItemTouchHelper(swipeCallback)
-        helper.attachToRecyclerView(recyclerView)
+        helper.attachToRecyclerView(binding.detailList)
         touchHelper = helper
     }
 
@@ -264,7 +263,7 @@ class DetailList @Inject internal constructor(
     override fun onRender(state: DetailViewState) {
         state.isLoading.let { loading ->
             if (loading != null) {
-                layoutRoot.refreshing(loading.isLoading)
+                binding.detailSwipeRefresh.refreshing(loading.isLoading)
 
                 // Done loading
                 if (!loading.isLoading) {

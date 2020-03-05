@@ -18,28 +18,29 @@
 package com.pyamsoft.fridge.locator.permission
 
 import android.view.ViewGroup
-import android.widget.Button
-import com.pyamsoft.fridge.locator.R
-import com.pyamsoft.pydroid.arch.BaseUiView
+import com.pyamsoft.fridge.locator.databinding.PermissionButtonBinding
+import com.pyamsoft.pydroid.arch.BindingUiView
 import com.pyamsoft.pydroid.arch.UnitViewState
 import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
 import javax.inject.Inject
 
 class LocationRequestButton @Inject internal constructor(
     parent: ViewGroup
-) : BaseUiView<UnitViewState, PermissionViewEvent>(parent) {
+) : BindingUiView<UnitViewState, PermissionViewEvent, PermissionButtonBinding>(parent) {
 
-    override val layout: Int = R.layout.permission_button
+    override val viewBinding by viewBinding(PermissionButtonBinding::inflate)
 
-    override val layoutRoot by boundView<Button>(R.id.location_permission_button)
+    override val layoutRoot by boundView { locationPermissionButton }
 
     init {
         doOnInflate {
-            layoutRoot.setOnDebouncedClickListener { publish(PermissionViewEvent.FireLocationPermission) }
+            binding.locationPermissionButton.setOnDebouncedClickListener {
+                publish(PermissionViewEvent.FireLocationPermission)
+            }
         }
 
         doOnTeardown {
-            layoutRoot.setOnDebouncedClickListener(null)
+            binding.locationPermissionButton.setOnDebouncedClickListener(null)
         }
     }
 

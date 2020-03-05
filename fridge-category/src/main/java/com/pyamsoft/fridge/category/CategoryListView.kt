@@ -20,36 +20,36 @@ package com.pyamsoft.fridge.category
 import android.view.ViewGroup
 import androidx.annotation.CheckResult
 import androidx.lifecycle.LifecycleOwner
-import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
+import com.pyamsoft.fridge.category.databinding.CategoryListViewBinding
 import com.pyamsoft.fridge.category.item.CategoryAdapter
 import com.pyamsoft.fridge.category.item.CategoryItemComponent
 import com.pyamsoft.fridge.category.item.CategoryItemViewState
-import com.pyamsoft.pydroid.arch.BaseUiView
+import com.pyamsoft.pydroid.arch.BindingUiView
 import javax.inject.Inject
 
 class CategoryListView @Inject internal constructor(
     factory: CategoryItemComponent.Factory,
     owner: LifecycleOwner,
     parent: ViewGroup
-) : BaseUiView<CategoryViewState, CategoryViewEvent>(parent) {
+) : BindingUiView<CategoryViewState, CategoryViewEvent, CategoryListViewBinding>(parent) {
 
-    override val layout: Int = R.layout.category_list_view
+    override val viewBinding by viewBinding(CategoryListViewBinding::inflate)
 
-    override val layoutRoot by boundView<RecyclerView>(R.id.category_list)
+    override val layoutRoot by boundView { categoryList }
 
     private var modelAdapter: CategoryAdapter? = null
 
     init {
         doOnInflate {
-            layoutRoot.layoutManager =
+            binding.categoryList.layoutManager =
                 StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL).apply {
                     isItemPrefetchEnabled = true
                 }
 
             modelAdapter = CategoryAdapter(owner, factory)
-            layoutRoot.adapter = usingAdapter().apply { setHasStableIds(true) }
-            layoutRoot.setHasFixedSize(true)
+            binding.categoryList.adapter = usingAdapter().apply { setHasStableIds(true) }
+            binding.categoryList.setHasFixedSize(true)
         }
 
         doOnTeardown {

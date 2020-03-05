@@ -25,13 +25,13 @@ import android.view.ViewGroup
 import android.view.WindowManager
 import android.view.animation.OvershootInterpolator
 import androidx.annotation.CheckResult
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.content.getSystemService
 import androidx.core.view.ViewCompat
 import androidx.core.view.ViewPropertyAnimatorCompat
 import androidx.core.view.isVisible
-import com.pyamsoft.pydroid.arch.BaseUiView
+import com.pyamsoft.fridge.detail.databinding.DetailContainerBinding
+import com.pyamsoft.pydroid.arch.BindingUiView
 import com.pyamsoft.pydroid.ui.theme.ThemeProvider
 import com.pyamsoft.pydroid.ui.util.layout
 import com.pyamsoft.pydroid.util.darker
@@ -44,11 +44,11 @@ class DetailContainer @Inject internal constructor(
     private val emptyState: DetailEmptyState,
     private val list: DetailList,
     parent: ViewGroup
-) : BaseUiView<DetailViewState, DetailViewEvent>(parent) {
+) : BindingUiView<DetailViewState, DetailViewEvent, DetailContainerBinding>(parent) {
 
-    override val layout: Int = R.layout.detail_container
+    override val viewBinding by viewBinding(DetailContainerBinding::inflate)
 
-    override val layoutRoot by boundView<ConstraintLayout>(R.id.detail_container)
+    override val layoutRoot by boundView { detailContainer }
 
     private var animator: ViewPropertyAnimatorCompat? = null
 
@@ -80,7 +80,7 @@ class DetailContainer @Inject internal constructor(
         }
 
         doOnInflate {
-            layoutRoot.layout {
+            binding.detailContainer.layout {
                 emptyState.let {
                     connect(
                         it.id(),

@@ -18,24 +18,21 @@
 package com.pyamsoft.fridge.detail.base
 
 import android.view.ViewGroup
-import android.widget.EditText
 import androidx.annotation.CallSuper
 import com.pyamsoft.fridge.db.item.FridgeItem
-import com.pyamsoft.fridge.detail.R
-import com.pyamsoft.pydroid.arch.BaseUiView
+import com.pyamsoft.fridge.detail.databinding.DetailListItemNameBinding
+import com.pyamsoft.pydroid.arch.BindingUiView
 import com.pyamsoft.pydroid.arch.UiViewEvent
 import com.pyamsoft.pydroid.arch.UiViewState
 import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
 
 abstract class BaseItemName<S : UiViewState, V : UiViewEvent> protected constructor(
     parent: ViewGroup
-) : BaseUiView<S, V>(parent) {
+) : BindingUiView<S, V, DetailListItemNameBinding>(parent) {
 
-    final override val layout: Int = R.layout.detail_list_item_name
+    final override val viewBinding by viewBinding(DetailListItemNameBinding::inflate)
 
-    final override val layoutRoot by boundView<ViewGroup>(R.id.detail_item_name)
-
-    protected val nameView by boundView<EditText>(R.id.detail_item_name_editable)
+    final override val layoutRoot by boundView { detailItemName }
 
     init {
         doOnTeardown {
@@ -44,12 +41,12 @@ abstract class BaseItemName<S : UiViewState, V : UiViewEvent> protected construc
     }
 
     protected fun setName(item: FridgeItem) {
-        nameView.setTextKeepState(item.name())
+        binding.detailItemNameEditable.setTextKeepState(item.name())
     }
 
     @CallSuper
     protected open fun clear() {
-        nameView.text.clear()
-        nameView.setOnDebouncedClickListener(null)
+        binding.detailItemNameEditable.text.clear()
+        binding.detailItemNameEditable.setOnDebouncedClickListener(null)
     }
 }

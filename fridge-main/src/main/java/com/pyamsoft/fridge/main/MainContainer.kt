@@ -18,16 +18,17 @@
 package com.pyamsoft.fridge.main
 
 import android.view.ViewGroup
-import com.pyamsoft.pydroid.arch.BaseUiView
+import com.pyamsoft.fridge.main.databinding.MainContainerBinding
+import com.pyamsoft.pydroid.arch.BindingUiView
 import javax.inject.Inject
 
 class MainContainer @Inject internal constructor(
     parent: ViewGroup
-) : BaseUiView<MainViewState, MainViewEvent>(parent) {
+) : BindingUiView<MainViewState, MainViewEvent, MainContainerBinding>(parent) {
 
-    override val layout: Int = R.layout.main_container
+    override val viewBinding by viewBinding(MainContainerBinding::inflate)
 
-    override val layoutRoot by boundView<ViewGroup>(R.id.main_container)
+    override val layoutRoot by boundView { mainContainer }
 
     override fun onRender(state: MainViewState) {
     }
