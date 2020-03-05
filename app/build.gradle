@@ -76,6 +76,10 @@ android {
             versionNameSuffix "-dev"
         }
     }
+
+    viewBinding {
+        enabled true
+    }
 }
 
 // Kapt flags
