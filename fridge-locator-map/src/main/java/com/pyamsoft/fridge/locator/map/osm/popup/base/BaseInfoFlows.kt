@@ -15,12 +15,16 @@
  *
  */
 
-package com.pyamsoft.fridge.detail.item
+package com.pyamsoft.fridge.locator.map.osm.popup.base
 
-import androidx.recyclerview.widget.RecyclerView
-import androidx.viewbinding.ViewBinding
-import com.pyamsoft.pydroid.arch.ViewBinder
+import android.location.Location
+import com.pyamsoft.pydroid.arch.UiViewState
 
-abstract class DetailViewHolder<B : ViewBinding> protected constructor(
-    binding: B
-) : RecyclerView.ViewHolder(binding.root), ViewBinder<DetailListItemViewState>
+data class BaseInfoViewState<T : Any> internal constructor(
+    val myLocation: Location?,
+    val cached: Cached?,
+    val data: T?
+) : UiViewState {
+
+    data class Cached internal constructor(val cached: Boolean)
+}

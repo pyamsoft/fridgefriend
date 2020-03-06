@@ -17,7 +17,6 @@
 
 package com.pyamsoft.fridge.main
 
-import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.ViewGroup
 import android.view.ViewGroup.MarginLayoutParams

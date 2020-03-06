@@ -20,9 +20,8 @@ package com.pyamsoft.fridge.locator.map.osm.popup.store
 import android.location.Location
 import androidx.lifecycle.viewModelScope
 import com.pyamsoft.fridge.db.store.NearbyStore
+import com.pyamsoft.fridge.locator.map.osm.popup.base.BaseInfoViewModel
 import com.pyamsoft.fridge.locator.map.osm.popup.store.StoreInfoViewEvent.StoreFavoriteAction
-import com.pyamsoft.fridge.locator.map.osm.popup.store.StoreInfoViewState.StoreCached
-import com.pyamsoft.pydroid.arch.UiViewModel
 import javax.inject.Inject
 import javax.inject.Named
 import kotlinx.coroutines.launch
@@ -32,70 +31,49 @@ internal class StoreInfoViewModel @Inject internal constructor(
     private val interactor: StoreInfoInteractor,
     store: NearbyStore,
     @Named("debug") debug: Boolean
-) : UiViewModel<StoreInfoViewState, StoreInfoViewEvent, StoreInfoControllerEvent>(
+) : BaseInfoViewModel<NearbyStore, StoreInfoViewState, StoreInfoViewEvent, StoreInfoControllerEvent>(
+    interactor,
     initialState = StoreInfoViewState(
         myLocation = null,
         marker = null,
         cached = null
-    ), debug = debug
+    ),
+    debug = debug
 ) {
 
     private val storeId = store.id()
 
-    init {
-        doOnInit {
-            findCachedStoreIfExists()
-            listenForRealtime()
-        }
-    }
-
-    private fun listenForRealtime() {
+    override fun listenForRealtime() {
         viewModelScope.launch {
             interactor.listenForNearbyCacheChanges(
                 onInsert = { store ->
                     if (store.id() == storeId) {
-                        setState { copy(cached = StoreCached(true)) }
+                        setState { copy(cached = StoreInfoViewState.StoreCached(true)) }
                     }
                 },
                 onDelete = { store ->
                     if (store.id() == storeId) {
-                        setState { copy(cached = StoreCached(false)) }
+                        setState { copy(cached = StoreInfoViewState.StoreCached(false)) }
                     }
                 })
         }
     }
 
-    private fun findCachedStoreIfExists() {
-        viewModelScope.launch {
-            val cachedStores = interactor.getAllCachedStores()
-            setState { copy(cached = StoreCached(cached = cachedStores.any { it.id() == storeId })) }
-        }
+    override fun restoreStateFromCachedData(cached: List<NearbyStore>) {
+        setState { copy(cached = StoreInfoViewState.StoreCached(cached = cached.any { it.id() == storeId })) }
     }
 
     override fun handleViewEvent(event: StoreInfoViewEvent) {
         return when (event) {
-            is StoreFavoriteAction -> handleStoreFavoriteAction(event.store, event.add)
+            is StoreFavoriteAction -> handleFavoriteAction(event.store, event.add)
         }
     }
 
-    private fun handleStoreFavoriteAction(
-        zone: NearbyStore,
-        add: Boolean
-    ) {
-        viewModelScope.launch {
-            if (add) {
-                interactor.insertStoreIntoDb(zone)
-            } else {
-                interactor.deleteStoreFromDb(zone)
-            }
-        }
+    override fun handleLocationUpdate(location: Location?) {
+        setState { copy(myLocation = location) }
     }
 
     fun updateMarker(marker: Marker) {
         setState { copy(marker = marker) }
-    }
-
-    fun handleLocationUpdate(location: Location?) {
-        setState { copy(myLocation = location) }
     }
 }

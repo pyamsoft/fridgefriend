@@ -17,10 +17,7 @@
 
 package com.pyamsoft.fridge.detail.item
 
-import android.view.View
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.lifecycle.LifecycleOwner
-import com.pyamsoft.fridge.detail.R
 import com.pyamsoft.fridge.detail.databinding.DetailListItemHolderBinding
 import javax.inject.Inject
 

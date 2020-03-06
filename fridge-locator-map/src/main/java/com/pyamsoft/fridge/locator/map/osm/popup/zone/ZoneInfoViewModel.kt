@@ -20,9 +20,8 @@ package com.pyamsoft.fridge.locator.map.osm.popup.zone
 import android.location.Location
 import androidx.lifecycle.viewModelScope
 import com.pyamsoft.fridge.db.zone.NearbyZone
+import com.pyamsoft.fridge.locator.map.osm.popup.base.BaseInfoViewModel
 import com.pyamsoft.fridge.locator.map.osm.popup.zone.ZoneInfoViewEvent.ZoneFavoriteAction
-import com.pyamsoft.fridge.locator.map.osm.popup.zone.ZoneInfoViewState.ZoneCached
-import com.pyamsoft.pydroid.arch.UiViewModel
 import javax.inject.Inject
 import javax.inject.Named
 import kotlinx.coroutines.launch
@@ -32,44 +31,36 @@ internal class ZoneInfoViewModel @Inject internal constructor(
     private val interactor: ZoneInfoInteractor,
     zone: NearbyZone,
     @Named("debug") debug: Boolean
-) : UiViewModel<ZoneInfoViewState, ZoneInfoViewEvent, ZoneInfoControllerEvent>(
+) : BaseInfoViewModel<NearbyZone, ZoneInfoViewState, ZoneInfoViewEvent, ZoneInfoControllerEvent>(
+    interactor,
     initialState = ZoneInfoViewState(
         myLocation = null,
         polygon = null,
         cached = null
-    ), debug = debug
+    ),
+    debug = debug
 ) {
 
     private val zoneId = zone.id()
 
-    init {
-        doOnInit {
-            findCachedZoneIfExists()
-            listenForRealtime()
-        }
-    }
-
-    private fun listenForRealtime() {
+    override fun listenForRealtime() {
         viewModelScope.launch {
             interactor.listenForNearbyCacheChanges(
                 onInsert = { zone ->
                     if (zone.id() == zoneId) {
-                        setState { copy(cached = ZoneCached(true)) }
+                        setState { copy(cached = ZoneInfoViewState.ZoneCached(true)) }
                     }
                 },
                 onDelete = { zone ->
                     if (zone.id() == zoneId) {
-                        setState { copy(cached = ZoneCached(false)) }
+                        setState { copy(cached = ZoneInfoViewState.ZoneCached(false)) }
                     }
                 })
         }
     }
 
-    private fun findCachedZoneIfExists() {
-        viewModelScope.launch {
-            val cachedZones = interactor.getAllCachedZones()
-            setState { copy(cached = ZoneCached(cached = cachedZones.any { it.id() == zoneId })) }
-        }
+    override fun restoreStateFromCachedData(cached: List<NearbyZone>) {
+        setState { copy(cached = ZoneInfoViewState.ZoneCached(cached = cached.any { it.id() == zoneId })) }
     }
 
     override fun handleViewEvent(event: ZoneInfoViewEvent) {
@@ -84,18 +75,18 @@ internal class ZoneInfoViewModel @Inject internal constructor(
     ) {
         viewModelScope.launch {
             if (add) {
-                interactor.insertZoneIntoDb(zone)
+                interactor.insertIntoDb(zone)
             } else {
-                interactor.deleteZoneFromDb(zone)
+                interactor.deleteFromDb(zone)
             }
         }
     }
 
-    fun updatePolygon(polygon: Polygon) {
-        setState { copy(polygon = polygon) }
+    override fun handleLocationUpdate(location: Location?) {
+        setState { copy(myLocation = location) }
     }
 
-    fun handleLocationUpdate(location: Location?) {
-        setState { copy(myLocation = location) }
+    fun updatePolygon(polygon: Polygon) {
+        setState { copy(polygon = polygon) }
     }
 }

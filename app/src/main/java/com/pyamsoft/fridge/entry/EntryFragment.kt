@@ -38,8 +38,8 @@ import com.pyamsoft.pydroid.ui.app.requireToolbarActivity
 import com.pyamsoft.pydroid.ui.arch.factory
 import com.pyamsoft.pydroid.ui.databinding.LayoutCoordinatorBinding
 import com.pyamsoft.pydroid.ui.util.commitNow
-import timber.log.Timber
 import javax.inject.Inject
+import timber.log.Timber
 
 internal class EntryFragment : Fragment(), SnackbarContainer {
 

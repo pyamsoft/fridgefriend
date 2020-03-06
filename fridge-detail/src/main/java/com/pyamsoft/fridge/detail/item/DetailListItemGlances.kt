@@ -279,7 +279,6 @@ class DetailListItemGlances @Inject internal constructor(
 
     companion object {
 
-        // TODO: Make preference
         private const val WEEK_LIMIT = 10
 
         @JvmStatic

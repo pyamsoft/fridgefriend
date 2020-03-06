@@ -17,10 +17,9 @@
 
 package com.pyamsoft.fridge.locator.map.osm.popup.zone
 
-import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.butler.Butler
-import com.pyamsoft.fridge.butler.params.LocationParameters
 import com.pyamsoft.fridge.db.zone.NearbyZone
+import com.pyamsoft.fridge.db.zone.NearbyZoneChangeEvent
 import com.pyamsoft.fridge.db.zone.NearbyZoneChangeEvent.Delete
 import com.pyamsoft.fridge.db.zone.NearbyZoneChangeEvent.Insert
 import com.pyamsoft.fridge.db.zone.NearbyZoneChangeEvent.Update
@@ -28,58 +27,35 @@ import com.pyamsoft.fridge.db.zone.NearbyZoneDeleteDao
 import com.pyamsoft.fridge.db.zone.NearbyZoneInsertDao
 import com.pyamsoft.fridge.db.zone.NearbyZoneQueryDao
 import com.pyamsoft.fridge.db.zone.NearbyZoneRealtime
+import com.pyamsoft.fridge.locator.map.osm.popup.base.BaseInfoInteractor
 import javax.inject.Inject
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 
 internal class ZoneInfoInteractor @Inject internal constructor(
-    private val butler: Butler,
-    private val realtime: NearbyZoneRealtime,
-    private val queryDao: NearbyZoneQueryDao,
-    private val insertDao: NearbyZoneInsertDao,
-    private val deleteDao: NearbyZoneDeleteDao
-) {
+    butler: Butler,
+    realtime: NearbyZoneRealtime,
+    queryDao: NearbyZoneQueryDao,
+    insertDao: NearbyZoneInsertDao,
+    deleteDao: NearbyZoneDeleteDao
+) : BaseInfoInteractor<
+    NearbyZone,
+    NearbyZoneChangeEvent,
+    NearbyZoneRealtime,
+    NearbyZoneQueryDao,
+    NearbyZoneInsertDao,
+    NearbyZoneDeleteDao
+    >(butler, realtime, queryDao, insertDao, deleteDao) {
 
-    /**
-     * TODO Move out into the parent level MapInteractor
-     */
-    @CheckResult
-    suspend fun getAllCachedZones(): List<NearbyZone> {
-        return withContext(context = Dispatchers.Default) { queryDao.query(false) }
-    }
-
-    /**
-     * TODO Move out into the parent level MapInteractor
-     */
     suspend inline fun listenForNearbyCacheChanges(
         crossinline onInsert: (zone: NearbyZone) -> Unit,
         crossinline onDelete: (zone: NearbyZone) -> Unit
-    ) = withContext(context = Dispatchers.Default) {
-        realtime.listenForChanges()
-            .onEvent { event ->
-                return@onEvent when (event) {
-                    is Insert -> onInsert(event.zone)
-                    is Delete -> onDelete(event.zone)
-                    is Update -> {
-                        // Ignore Update events
-                        Unit
-                    }
-                }
+    ) = listenChanges { event ->
+        return@listenChanges when (event) {
+            is Insert -> onInsert(event.zone)
+            is Delete -> onDelete(event.zone)
+            is Update -> {
+                // Ignore Update events
+                Unit
             }
-    }
-
-    suspend fun deleteZoneFromDb(zone: NearbyZone) = withContext(context = Dispatchers.Default) {
-        deleteDao.delete(zone)
-        restartLocationWorker()
-    }
-
-    suspend fun insertZoneIntoDb(zone: NearbyZone) = withContext(context = Dispatchers.Default) {
-        insertDao.insert(zone)
-        restartLocationWorker()
-    }
-
-    private suspend fun restartLocationWorker() {
-        butler.cancelLocationReminder()
-        butler.remindLocation(LocationParameters(forceNotifyNeeded = true))
+        }
     }
 }

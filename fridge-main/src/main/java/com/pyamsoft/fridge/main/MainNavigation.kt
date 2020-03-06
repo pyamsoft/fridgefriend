@@ -23,8 +23,8 @@ import androidx.core.view.updatePadding
 import com.pyamsoft.fridge.main.databinding.MainNavigationBinding
 import com.pyamsoft.pydroid.arch.BindingUiView
 import com.pyamsoft.pydroid.util.doOnApplyWindowInsets
-import timber.log.Timber
 import javax.inject.Inject
+import timber.log.Timber
 
 class MainNavigation @Inject internal constructor(
     parent: ViewGroup
