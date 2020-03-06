@@ -23,4 +23,7 @@ interface NotificationPreferences {
 
     @CheckResult
     suspend fun getNotificationPeriod(): Long
+
+    @CheckResult
+    suspend fun isDoNotDisturb(): Boolean
 }

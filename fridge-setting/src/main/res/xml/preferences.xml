@@ -39,4 +39,23 @@
 
     </androidx.preference.PreferenceCategory>
 
+    <androidx.preference.PreferenceCategory android:title="Notification Settings">
+
+        <com.pyamsoft.pydroid.ui.preference.SwitchPreferenceCompat
+            android:defaultValue="@bool/do_not_disturb_default"
+            android:key="@string/do_not_disturb_key"
+            android:summary="@string/do_not_disturb_summary"
+            android:title="@string/do_not_disturb_title" />
+
+        <com.pyamsoft.pydroid.ui.preference.ListPreferenceCompat
+            android:defaultValue="@string/notification_period_range_default"
+            android:dialogTitle="@string/notification_period_range_title"
+            android:entries="@array/notification_period_range_names"
+            android:entryValues="@array/notification_period_range_values"
+            android:key="@string/notification_period_range_key"
+            android:summary="@string/notification_period_range_summary"
+            android:title="@string/notification_period_range_title" />
+
+    </androidx.preference.PreferenceCategory>
+
 </androidx.preference.PreferenceScreen>

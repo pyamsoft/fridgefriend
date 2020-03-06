@@ -17,11 +17,11 @@
 
 <resources>
 
+    <!-- Values are strings because ListPreference only handles strings -_- -->
     <string name="expiring_soon_range_key">expiring_soon_range_v1</string>
     <string name="expiring_soon_range_title">Consider item expiring soon:</string>
     <string name="expiring_soon_range_summary">Consider an item expiring soon when it is within this date range</string>
     <string name="expiring_soon_range_default">3</string>
-
     <string-array name="expiring_soon_range_names">
         <item name="value_1">Within 1 day</item>
         <item name="value_2">Within 2 days</item>
@@ -29,7 +29,6 @@
         <item name="value_5">Within 5 days</item>
         <item name="value_7">Within 1 week</item>
     </string-array>
-
     <string-array name="expiring_soon_range_values">
         <item name="value_1">1</item>
         <item name="value_2">2</item>
@@ -38,19 +37,43 @@
         <item name="value_7">7</item>
     </string-array>
 
+    <!-- Values are strings because ListPreference only handles strings -_- -->
     <string name="expired_same_day_key">expired_same_day_v1</string>
     <string name="expired_same_day_title">Consider item expired:</string>
     <string name="expired_same_day_summary">Consider an item expired on or after the expiration date</string>
     <string name="expired_same_day_default">false</string>
-
     <string-array name="expired_same_day_names">
         <item name="value_false">After the expiration date</item>
         <item name="value_true">On the expiration date</item>
     </string-array>
-
     <string-array name="expired_same_day_values">
         <item name="value_false">false</item>
         <item name="value_true">true</item>
+    </string-array>
+
+    <string name="do_not_disturb_key">do_not_disturb_v1</string>
+    <string name="do_not_disturb_title">Do Not Disturb:</string>
+    <string name="do_not_disturb_summary">Do not send notifications between the hours of 10PM and 7AM</string>
+    <bool name="do_not_disturb_default">true</bool>
+
+    <!-- Values are strings because ListPreference only handles strings -_- -->
+    <string name="notification_period_range_key">notification_period_range_v1</string>
+    <string name="notification_period_range_title">Notification Period:</string>
+    <string name="notification_period_range_summary">Time period in hours to send notifications</string>
+    <string name="notification_period_range_default">2</string>
+    <string-array name="notification_period_range_names">
+        <item name="value_1">Every hour</item>
+        <item name="value_2">Every 2 hours</item>
+        <item name="value_3">Every 3 hours</item>
+        <item name="value_6">Every 6 hours</item>
+        <item name="value_8">Every 8 hours</item>
+    </string-array>
+    <string-array name="notification_period_range_values">
+        <item name="value_1">1</item>
+        <item name="value_2">2</item>
+        <item name="value_3">3</item>
+        <item name="value_6">6</item>
+        <item name="value_8">8</item>
     </string-array>
 
 </resources>

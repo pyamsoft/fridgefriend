@@ -33,13 +33,13 @@ import com.pyamsoft.fridge.db.persist.PersistentCategoryPreferences
 import com.pyamsoft.fridge.db.persist.PersistentEntryPreferences
 import com.pyamsoft.fridge.setting.SettingsPreferences
 import com.pyamsoft.pydroid.core.Enforcer
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.util.Calendar
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import javax.inject.Singleton
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 @Singleton
 internal class PreferencesImpl @Inject internal constructor(
@@ -57,10 +57,22 @@ internal class PreferencesImpl @Inject internal constructor(
     }
 
     private val expiringSoonKey: String
+
+    // String instead of Int because ListPreference only holds Strings -_-
     private val expiringSoonDefault: String
 
     private val isSameDayExpiredKey: String
+
+    // String instead of Boolean because ListPreference only holds Strings -_-
     private val isSameDayExpiredDefault: String
+
+    private val notificationPeriodKey: String
+
+    // String instead of Int because ListPreference only holds Strings -_-
+    private val notificationPeriodDefault: String
+
+    private val doNotDisturbKey: String
+    private val doNotDisturbDefault: Boolean
 
     init {
         context.applicationContext.resources.apply {
@@ -69,6 +81,12 @@ internal class PreferencesImpl @Inject internal constructor(
 
             isSameDayExpiredKey = getString(R.string.expired_same_day_key)
             isSameDayExpiredDefault = getString(R.string.expired_same_day_default)
+
+            doNotDisturbKey = getString(R.string.do_not_disturb_key)
+            doNotDisturbDefault = getBoolean(R.bool.do_not_disturb_default)
+
+            notificationPeriodKey = getString(R.string.notification_period_range_key)
+            notificationPeriodDefault = getString(R.string.notification_period_range_default)
         }
     }
 
@@ -122,13 +140,14 @@ internal class PreferencesImpl @Inject internal constructor(
 
     override suspend fun getExpiringSoonRange(): Int {
         enforcer.assertNotOnMainThread()
-        return preferences.getString(expiringSoonKey, expiringSoonDefault).orEmpty().toInt()
+        return preferences.getString(expiringSoonKey, expiringSoonDefault)?.toIntOrNull()
+            ?: FALLBACK_EXPIRING_SOON
     }
 
     override suspend fun isSameDayExpired(): Boolean {
         enforcer.assertNotOnMainThread()
-        return preferences.getString(isSameDayExpiredKey, isSameDayExpiredDefault).orEmpty()
-            .toBoolean()
+        return preferences.getString(isSameDayExpiredKey, isSameDayExpiredDefault)?.toBoolean()
+            ?: FALLBACK_SAME_DAY_EXPIRED
     }
 
     override suspend fun watchForExpiringSoonChange(onChange: (newRange: Int) -> Unit): PreferenceUnregister {
@@ -184,8 +203,14 @@ internal class PreferencesImpl @Inject internal constructor(
 
     override suspend fun getNotificationPeriod(): Long {
         enforcer.assertNotOnMainThread()
-        // TODO pull from preferences
-        return TimeUnit.HOURS.toMillis(2L)
+        val hours = preferences.getString(notificationPeriodKey, notificationPeriodDefault)
+            ?.toLongOrNull() ?: FALLBACK_NOTIFICATION_PERIOD
+        return TimeUnit.HOURS.toMillis(hours)
+    }
+
+    override suspend fun isDoNotDisturb(): Boolean {
+        enforcer.assertNotOnMainThread()
+        return preferences.getBoolean(doNotDisturbKey, doNotDisturbDefault)
     }
 
     override suspend fun clear() {
@@ -206,6 +231,10 @@ internal class PreferencesImpl @Inject internal constructor(
     }
 
     companion object {
+
+        private const val FALLBACK_EXPIRING_SOON = 1
+        private const val FALLBACK_SAME_DAY_EXPIRED = false
+        private const val FALLBACK_NOTIFICATION_PERIOD = 2L
 
         private const val KEY_PERSISTENT_CATEGORIES = "persistent_categories_v1"
         private const val KEY_PERSISTENT_ENTRIES = "persistent_entries_v1"
