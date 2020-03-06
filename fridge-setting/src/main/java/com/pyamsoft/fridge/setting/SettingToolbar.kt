@@ -29,7 +29,7 @@ class SettingToolbar @Inject internal constructor(
     parent: ViewGroup
 ) : BindingUiView<SettingsViewState, SettingsViewEvent, SettingToolbarBinding>(parent) {
 
-    override val viewBinding by viewBinding(SettingToolbarBinding::inflate)
+    override val viewBinding = SettingToolbarBinding::inflate
 
     override val layoutRoot by boundView { settingToolbar }
 

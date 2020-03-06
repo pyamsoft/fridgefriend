@@ -29,7 +29,7 @@ abstract class BaseItemCount<S : UiViewState, V : UiViewEvent> protected constru
     parent: ViewGroup
 ) : BindingUiView<S, V, DetailListItemCountBinding>(parent) {
 
-    final override val viewBinding by viewBinding(DetailListItemCountBinding::inflate)
+    final override val viewBinding = DetailListItemCountBinding::inflate
 
     final override val layoutRoot by boundView { detailItemCount }
 

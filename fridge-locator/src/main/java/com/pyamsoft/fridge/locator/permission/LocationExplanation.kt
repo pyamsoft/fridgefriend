@@ -27,7 +27,7 @@ class LocationExplanation @Inject internal constructor(
     parent: ViewGroup
 ) : BindingUiView<UnitViewState, PermissionViewEvent, PermissionExplanationBinding>(parent) {
 
-    override val viewBinding by viewBinding(PermissionExplanationBinding::inflate)
+    override val viewBinding = PermissionExplanationBinding::inflate
 
     override val layoutRoot by boundView { locationPermissionExplanation }
 

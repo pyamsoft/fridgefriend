@@ -30,7 +30,7 @@ class CategoryBackground @Inject internal constructor(
     private val imageLoader: ImageLoader
 ) : BindingUiView<CategoryItemViewState, CategoryItemViewEvent, CategoryBackgroundBinding>(parent) {
 
-    override val viewBinding by viewBinding(CategoryBackgroundBinding::inflate)
+    override val viewBinding = CategoryBackgroundBinding::inflate
 
     override val layoutRoot by boundView { categoryBackgroundImage }
 

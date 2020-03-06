@@ -26,7 +26,7 @@ class ExpandCategoryScrim @Inject internal constructor(
     parent: ViewGroup
 ) : ExpandCategoryClickable<ExpandCategoryScrimBinding>(parent) {
 
-    override val viewBinding by viewBinding(ExpandCategoryScrimBinding::inflate)
+    override val viewBinding = ExpandCategoryScrimBinding::inflate
 
     override val layoutRoot by boundView { expandCategoryScrim }
 

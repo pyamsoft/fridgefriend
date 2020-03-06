@@ -38,7 +38,7 @@ abstract class BaseItemDate<S : UiViewState, V : UiViewEvent> protected construc
     parent: ViewGroup
 ) : BindingUiView<S, V, DetailListItemDateBinding>(parent) {
 
-    final override val viewBinding by viewBinding(DetailListItemDateBinding::inflate)
+    final override val viewBinding = DetailListItemDateBinding::inflate
 
     final override val layoutRoot by boundView { detailItemDate }
 

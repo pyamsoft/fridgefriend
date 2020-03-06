@@ -37,7 +37,7 @@ class OsmActions @Inject internal constructor(
     parent: ViewGroup
 ) : BindingUiView<OsmViewState, OsmViewEvent, OsmActionsBinding>(parent) {
 
-    override val viewBinding by viewBinding(OsmActionsBinding::inflate)
+    override val viewBinding = OsmActionsBinding::inflate
 
     override val layoutRoot by boundView { osmFindNearby }
 

@@ -34,7 +34,7 @@ class CategoryListView @Inject internal constructor(
     parent: ViewGroup
 ) : BindingUiView<CategoryViewState, CategoryViewEvent, CategoryListViewBinding>(parent) {
 
-    override val viewBinding by viewBinding(CategoryListViewBinding::inflate)
+    override val viewBinding = CategoryListViewBinding::inflate
 
     override val layoutRoot by boundView { categoryList }
 

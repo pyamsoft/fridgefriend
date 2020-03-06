@@ -33,7 +33,7 @@ internal abstract class BaseInfoTitle<S : UiViewState, E : UiViewEvent> protecte
     name: () -> String
 ) : BindingUiView<S, E, PopupInfoTitleBinding>(parent) {
 
-    final override val viewBinding by viewBinding(PopupInfoTitleBinding::inflate)
+    final override val viewBinding = PopupInfoTitleBinding::inflate
 
     final override val layoutRoot by boundView { popupInfoTitleRoot }
 

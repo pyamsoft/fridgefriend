@@ -27,7 +27,7 @@ class ExpandItemSimilar @Inject internal constructor(
     parent: ViewGroup
 ) : BindingUiView<ExpandItemViewState, ExpandedItemViewEvent, ExpandSimilarBinding>(parent) {
 
-    override val viewBinding by viewBinding(ExpandSimilarBinding::inflate)
+    override val viewBinding = ExpandSimilarBinding::inflate
 
     override val layoutRoot by boundView { expandItemSimilar }
 

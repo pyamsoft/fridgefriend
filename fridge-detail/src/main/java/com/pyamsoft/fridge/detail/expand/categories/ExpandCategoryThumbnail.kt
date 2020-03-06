@@ -29,7 +29,7 @@ class ExpandCategoryThumbnail @Inject internal constructor(
     private val imageLoader: ImageLoader
 ) : ExpandCategoryClickable<ExpandCategoryThumbnailBinding>(parent) {
 
-    override val viewBinding by viewBinding(ExpandCategoryThumbnailBinding::inflate)
+    override val viewBinding = ExpandCategoryThumbnailBinding::inflate
 
     override val layoutRoot by boundView { expandCategoryThumbnail }
 

@@ -46,7 +46,7 @@ class DetailContainer @Inject internal constructor(
     parent: ViewGroup
 ) : BindingUiView<DetailViewState, DetailViewEvent, DetailContainerBinding>(parent) {
 
-    override val viewBinding by viewBinding(DetailContainerBinding::inflate)
+    override val viewBinding = DetailContainerBinding::inflate
 
     override val layoutRoot by boundView { detailContainer }
 

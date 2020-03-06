@@ -35,7 +35,7 @@ abstract class HeroImage<S : UiViewState, V : UiViewEvent> protected constructor
     private val imageLoader: ImageLoader
 ) : BindingUiView<S, V, CoreHeroImageBinding>(parent) {
 
-    override val viewBinding by viewBinding(CoreHeroImageBinding::inflate)
+    override val viewBinding = CoreHeroImageBinding::inflate
 
     override val layoutRoot by boundView { coreHeroRoot }
 

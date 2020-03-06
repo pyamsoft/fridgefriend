@@ -30,7 +30,7 @@ internal abstract class BaseInfoLocation<S : UiViewState, E : UiViewEvent> prote
     parent: ViewGroup
 ) : BindingUiView<S, E, PopupInfoLocationBinding>(parent) {
 
-    final override val viewBinding by viewBinding(PopupInfoLocationBinding::inflate)
+    final override val viewBinding = PopupInfoLocationBinding::inflate
 
     final override val layoutRoot by boundView { popupInfoLocation }
 

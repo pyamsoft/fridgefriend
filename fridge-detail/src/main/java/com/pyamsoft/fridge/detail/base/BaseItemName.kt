@@ -30,7 +30,7 @@ abstract class BaseItemName<S : UiViewState, V : UiViewEvent> protected construc
     parent: ViewGroup
 ) : BindingUiView<S, V, DetailListItemNameBinding>(parent) {
 
-    final override val viewBinding by viewBinding(DetailListItemNameBinding::inflate)
+    final override val viewBinding = DetailListItemNameBinding::inflate
 
     final override val layoutRoot by boundView { detailItemName }
 

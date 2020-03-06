@@ -32,7 +32,7 @@ abstract class BaseItemPresence<S : UiViewState, V : UiViewEvent> protected cons
     parent: ViewGroup
 ) : BindingUiView<S, V, DetailListItemPresenceBinding>(parent) {
 
-    final override val viewBinding by viewBinding(DetailListItemPresenceBinding::inflate)
+    final override val viewBinding = DetailListItemPresenceBinding::inflate
 
     final override val layoutRoot by boundView { detailItemPresence }
 

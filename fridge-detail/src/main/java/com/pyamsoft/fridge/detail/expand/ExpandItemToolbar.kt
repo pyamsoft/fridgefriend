@@ -31,7 +31,7 @@ class ExpandItemToolbar @Inject internal constructor(
     parent: ViewGroup
 ) : BindingUiView<ExpandItemViewState, ExpandedItemViewEvent, ExpandToolbarBinding>(parent) {
 
-    override val viewBinding by viewBinding(ExpandToolbarBinding::inflate)
+    override val viewBinding = ExpandToolbarBinding::inflate
 
     override val layoutRoot by boundView { expandToolbar }
 

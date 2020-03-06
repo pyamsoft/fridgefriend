@@ -29,7 +29,7 @@ class ExpandCategoryName @Inject internal constructor(
     parent: ViewGroup
 ) : ExpandCategoryClickable<ExpandCategoryNameBinding>(parent) {
 
-    override val viewBinding by viewBinding(ExpandCategoryNameBinding::inflate)
+    override val viewBinding = ExpandCategoryNameBinding::inflate
 
     override val layoutRoot by boundView { expandCategoryName }
 

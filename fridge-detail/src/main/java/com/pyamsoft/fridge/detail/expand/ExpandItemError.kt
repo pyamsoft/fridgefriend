@@ -27,7 +27,7 @@ class ExpandItemError @Inject internal constructor(
     parent: ViewGroup
 ) : BindingUiView<ExpandItemViewState, ExpandedItemViewEvent, ExpandErrorBinding>(parent) {
 
-    override val viewBinding by viewBinding(ExpandErrorBinding::inflate)
+    override val viewBinding = ExpandErrorBinding::inflate
 
     override val layoutRoot by boundView { expandItemErrorRoot }
 

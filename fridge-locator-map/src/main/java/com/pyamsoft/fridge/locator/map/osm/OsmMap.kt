@@ -67,7 +67,7 @@ class OsmMap @Inject internal constructor(
     parent: ViewGroup
 ) : BindingUiView<OsmViewState, OsmViewEvent, OsmMapBinding>(parent), LifecycleObserver {
 
-    override val viewBinding by viewBinding(OsmMapBinding::inflate)
+    override val viewBinding = OsmMapBinding::inflate
 
     override val layoutRoot by boundView { osmMap }
 

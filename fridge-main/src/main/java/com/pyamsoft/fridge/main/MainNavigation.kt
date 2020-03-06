@@ -30,7 +30,7 @@ class MainNavigation @Inject internal constructor(
     parent: ViewGroup
 ) : BindingUiView<MainViewState, MainViewEvent, MainNavigationBinding>(parent) {
 
-    override val viewBinding by viewBinding(MainNavigationBinding::inflate)
+    override val viewBinding = MainNavigationBinding::inflate
 
     override val layoutRoot by boundView { mainBottomNavigationMenu }
 

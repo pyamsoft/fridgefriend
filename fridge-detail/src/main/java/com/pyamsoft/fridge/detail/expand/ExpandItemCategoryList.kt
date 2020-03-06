@@ -35,7 +35,7 @@ class ExpandItemCategoryList @Inject internal constructor(
     factory: ExpandCategoryComponent.Factory
 ) : BindingUiView<ExpandItemViewState, ExpandedItemViewEvent, ExpandCategoriesBinding>(parent) {
 
-    override val viewBinding by viewBinding(ExpandCategoriesBinding::inflate)
+    override val viewBinding = ExpandCategoriesBinding::inflate
 
     override val layoutRoot by boundView { expandItemCategories }
 

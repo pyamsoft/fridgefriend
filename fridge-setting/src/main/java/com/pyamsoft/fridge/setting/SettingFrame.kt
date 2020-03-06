@@ -26,7 +26,7 @@ class SettingFrame @Inject internal constructor(
     parent: ViewGroup
 ) : BindingUiView<SettingsViewState, SettingsViewEvent, SettingFrameBinding>(parent) {
 
-    override val viewBinding by viewBinding(SettingFrameBinding::inflate)
+    override val viewBinding = SettingFrameBinding::inflate
 
     override val layoutRoot by boundView { settingFrame }
 

@@ -50,7 +50,7 @@ class DetailListItemGlances @Inject internal constructor(
     parent: ViewGroup
 ) : BindingUiView<DetailListItemViewState, DetailItemViewEvent, DetailListItemGlancesBinding>(parent) {
 
-    override val viewBinding by viewBinding(DetailListItemGlancesBinding::inflate)
+    override val viewBinding = DetailListItemGlancesBinding::inflate
 
     override val layoutRoot by boundView { detailItemGlances }
 

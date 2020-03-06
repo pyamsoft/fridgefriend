@@ -26,7 +26,7 @@ class MainContainer @Inject internal constructor(
     parent: ViewGroup
 ) : BindingUiView<MainViewState, MainViewEvent, MainContainerBinding>(parent) {
 
-    override val viewBinding by viewBinding(MainContainerBinding::inflate)
+    override val viewBinding = MainContainerBinding::inflate
 
     override val layoutRoot by boundView { mainContainer }
 

@@ -28,7 +28,7 @@ class LocationRequestButton @Inject internal constructor(
     parent: ViewGroup
 ) : BindingUiView<UnitViewState, PermissionViewEvent, PermissionButtonBinding>(parent) {
 
-    override val viewBinding by viewBinding(PermissionButtonBinding::inflate)
+    override val viewBinding = PermissionButtonBinding::inflate
 
     override val layoutRoot by boundView { locationPermissionButton }
 

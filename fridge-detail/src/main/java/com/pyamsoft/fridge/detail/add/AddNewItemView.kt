@@ -41,7 +41,7 @@ class AddNewItemView @Inject internal constructor(
     listItemPresence: FridgeItem.Presence
 ) : BindingUiView<DetailViewState, DetailViewEvent, AddNewBinding>(parent) {
 
-    override val viewBinding by viewBinding(AddNewBinding::inflate)
+    override val viewBinding = AddNewBinding::inflate
 
     override val layoutRoot by boundView { detailAddNewItem }
 

@@ -50,7 +50,7 @@ class DetailList @Inject internal constructor(
     factory: DetailItemComponent.Factory
 ) : BindingUiView<DetailViewState, DetailViewEvent, DetailListBinding>(parent) {
 
-    override val viewBinding by viewBinding(DetailListBinding::inflate)
+    override val viewBinding = DetailListBinding::inflate
 
     override val layoutRoot by boundView { detailSwipeRefresh }
 

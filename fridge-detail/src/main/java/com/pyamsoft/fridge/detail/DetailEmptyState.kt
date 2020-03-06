@@ -30,7 +30,7 @@ class DetailEmptyState @Inject internal constructor(
     private val imageLoader: ImageLoader
 ) : BindingUiView<DetailViewState, DetailViewEvent, DetailEmptyBinding>(parent) {
 
-    override val viewBinding by viewBinding(DetailEmptyBinding::inflate)
+    override val viewBinding = DetailEmptyBinding::inflate
 
     override val layoutRoot by boundView { detailEmptyRoot }
 

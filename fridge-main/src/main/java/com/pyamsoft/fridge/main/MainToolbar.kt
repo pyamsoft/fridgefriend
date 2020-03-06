@@ -42,7 +42,7 @@ class MainToolbar @Inject internal constructor(
     parent: ViewGroup
 ) : BindingUiView<MainViewState, MainViewEvent, MainToolbarBinding>(parent) {
 
-    override val viewBinding by viewBinding(MainToolbarBinding::inflate)
+    override val viewBinding = MainToolbarBinding::inflate
 
     override val layoutRoot by boundView { mainToolbar }
 
