@@ -24,9 +24,9 @@ import com.pyamsoft.fridge.butler.NotificationHandler
 import com.pyamsoft.fridge.butler.NotificationPreferences
 import com.pyamsoft.fridge.butler.params.BaseParameters
 import com.pyamsoft.pydroid.core.Enforcer
-import java.util.Calendar
 import kotlinx.coroutines.CancellationException
 import timber.log.Timber
+import java.util.Calendar
 
 internal abstract class BaseRunner<P : BaseParameters> protected constructor(
     private val handler: NotificationHandler,
@@ -90,28 +90,19 @@ internal abstract class BaseRunner<P : BaseParameters> protected constructor(
 
     @CheckResult
     protected suspend fun Calendar.isAllowedToNotify(force: Boolean, lastNotified: Long): Boolean {
-        if (force) {
-            Timber.d("Force notification post")
-            return true
-        }
-
-        val currentHour = this.get(Calendar.HOUR_OF_DAY)
-        if (notificationPreferences.isDoNotDisturb()) {
-            val isEvening = currentHour < 7 || currentHour >= 22
-            if (isEvening) {
-                Timber.w("Do not send notification before 7AM and after 10PM")
-                return false
-            }
-        }
-
-        val nowInMillis = this.timeInMillis
-        val isPeriodValid =
-            lastNotified + notificationPreferences.getNotificationPeriod() < nowInMillis
-        if (!isPeriodValid) {
-            Timber.w("Do not send notification since last one was sent so recently")
+        if (notificationPreferences.isDoNotDisturb(this)) {
+            Timber.w("Do not send notification before 7AM and after 10PM")
             return false
         }
 
-        return true
+        return if (force || notificationPreferences.canNotify(this, lastNotified)) {
+            if (force) {
+                Timber.d("Force notification post")
+            }
+            true
+        } else {
+            Timber.w("Do not send notification since last one was sent so recently")
+            false
+        }
     }
 }

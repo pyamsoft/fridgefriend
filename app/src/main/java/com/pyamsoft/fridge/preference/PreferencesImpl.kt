@@ -33,13 +33,13 @@ import com.pyamsoft.fridge.db.persist.PersistentCategoryPreferences
 import com.pyamsoft.fridge.db.persist.PersistentEntryPreferences
 import com.pyamsoft.fridge.setting.SettingsPreferences
 import com.pyamsoft.pydroid.core.Enforcer
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.util.Calendar
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import javax.inject.Singleton
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 @Singleton
 internal class PreferencesImpl @Inject internal constructor(
@@ -208,9 +208,16 @@ internal class PreferencesImpl @Inject internal constructor(
         return TimeUnit.HOURS.toMillis(hours)
     }
 
-    override suspend fun isDoNotDisturb(): Boolean {
+    override suspend fun canNotify(now: Calendar, lastNotificationTime: Long): Boolean {
+        return lastNotificationTime + getNotificationPeriod() < now.timeInMillis
+    }
+
+    override suspend fun isDoNotDisturb(now: Calendar): Boolean {
         enforcer.assertNotOnMainThread()
-        return preferences.getBoolean(doNotDisturbKey, doNotDisturbDefault)
+        return if (!preferences.getBoolean(doNotDisturbKey, doNotDisturbDefault)) false else {
+            val currentHour = now.get(Calendar.HOUR_OF_DAY)
+            currentHour < 7 || currentHour >= 22
+        }
     }
 
     override suspend fun clear() {

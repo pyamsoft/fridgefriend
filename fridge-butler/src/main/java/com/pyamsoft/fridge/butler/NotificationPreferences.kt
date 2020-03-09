@@ -18,12 +18,17 @@
 package com.pyamsoft.fridge.butler
 
 import androidx.annotation.CheckResult
+import java.util.Calendar
 
 interface NotificationPreferences {
+
+    @CheckResult
+    suspend fun canNotify(now: Calendar, lastNotificationTime: Long): Boolean
 
     @CheckResult
     suspend fun getNotificationPeriod(): Long
 
     @CheckResult
-    suspend fun isDoNotDisturb(): Boolean
+    suspend fun isDoNotDisturb(now: Calendar): Boolean
 }
+
