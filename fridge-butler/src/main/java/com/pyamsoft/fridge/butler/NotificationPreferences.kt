@@ -31,4 +31,3 @@ interface NotificationPreferences {
     @CheckResult
     suspend fun isDoNotDisturb(now: Calendar): Boolean
 }
-

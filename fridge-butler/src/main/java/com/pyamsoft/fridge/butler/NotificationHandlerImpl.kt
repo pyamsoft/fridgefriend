@@ -35,15 +35,17 @@ import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.store.NearbyStore
 import com.pyamsoft.fridge.db.zone.NearbyZone
-import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Singleton
+import timber.log.Timber
 
 @Singleton
 internal class NotificationHandlerImpl @Inject internal constructor(
     private val context: Context,
     private val activityClass: Class<out Activity>
 ) : NotificationHandler {
+
+    private val manager by lazy { requireNotNull(context.getSystemService<NotificationManager>()) }
 
     private val nearbyNotificationIdMap by lazy { mutableMapOf<Long, Int>() }
     private val needNotificationIdMap by lazy { mutableMapOf<FridgeEntry.Id, Int>() }
@@ -155,7 +157,6 @@ internal class NotificationHandlerImpl @Inject internal constructor(
     }
 
     private fun guaranteeNotificationChannelExists(
-        context: Context,
         channelId: String,
         channelTitle: String,
         channelDescription: String
@@ -176,9 +177,9 @@ internal class NotificationHandlerImpl @Inject internal constructor(
                 }
 
             Timber.d("Create notification channel and group with id: $channelId")
-            requireNotNull(context.getSystemService<NotificationManager>()).let { manager ->
-                manager.createNotificationChannelGroup(notificationGroup)
-                manager.createNotificationChannel(notificationChannel)
+            manager.apply {
+                createNotificationChannelGroup(notificationGroup)
+                createNotificationChannel(notificationChannel)
             }
         }
     }
@@ -198,10 +199,7 @@ internal class NotificationHandlerImpl @Inject internal constructor(
         require(channelTitle.isNotBlank())
         require(channelDescription.isNotBlank())
 
-        guaranteeNotificationChannelExists(
-            context, channelId, channelTitle, channelDescription
-        )
-
+        guaranteeNotificationChannelExists(channelId, channelTitle, channelDescription)
         val builder = NotificationCompat.Builder(context, channelId)
             .setSmallIcon(icon)
             .setAutoCancel(false)
