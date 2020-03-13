@@ -22,10 +22,12 @@ import com.pyamsoft.pydroid.arch.UiViewEvent
 import com.pyamsoft.pydroid.arch.UiViewState
 
 data class MainViewState(
-    val versionChecked: Boolean,
     val page: MainPage?,
     val appNameRes: Int,
-    val isSettingsItemVisible: Boolean
+    val isSettingsItemVisible: Boolean,
+    val countNeeded: Int,
+    val countExpiringOrExpired: Int,
+    val hasNearby: Boolean
 ) : UiViewState
 
 sealed class MainViewEvent : UiViewEvent {

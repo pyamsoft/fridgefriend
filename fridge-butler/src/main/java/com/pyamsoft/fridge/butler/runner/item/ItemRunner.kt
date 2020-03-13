@@ -36,10 +36,10 @@ import com.pyamsoft.fridge.db.item.isArchived
 import com.pyamsoft.fridge.db.item.isExpired
 import com.pyamsoft.fridge.db.item.isExpiringSoon
 import com.pyamsoft.pydroid.core.Enforcer
-import java.util.Calendar
-import javax.inject.Inject
 import kotlinx.coroutines.coroutineScope
 import timber.log.Timber
+import java.util.Calendar
+import javax.inject.Inject
 
 internal class ItemRunner @Inject internal constructor(
     handler: NotificationHandler,
@@ -175,7 +175,7 @@ internal class ItemRunner @Inject internal constructor(
         val today = Calendar.getInstance()
             .cleanMidnight()
         val later = Calendar.getInstance()
-            .daysLaterMidnight(2)
+            .daysLaterMidnight(fridgeItemPreferences.getExpiringSoonRange())
         val isSameDayExpired = fridgeItemPreferences.isSameDayExpired()
 
         withFridgeData { entry, items ->

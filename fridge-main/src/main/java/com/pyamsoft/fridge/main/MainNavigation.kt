@@ -19,12 +19,14 @@ package com.pyamsoft.fridge.main
 
 import android.view.ViewGroup
 import androidx.annotation.CheckResult
+import androidx.annotation.IdRes
 import androidx.core.view.updatePadding
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.pyamsoft.fridge.main.databinding.MainNavigationBinding
 import com.pyamsoft.pydroid.arch.BindingUiView
 import com.pyamsoft.pydroid.util.doOnApplyWindowInsets
-import javax.inject.Inject
 import timber.log.Timber
+import javax.inject.Inject
 
 class MainNavigation @Inject internal constructor(
     parent: ViewGroup
@@ -56,6 +58,8 @@ class MainNavigation @Inject internal constructor(
 
         doOnTeardown {
             binding.mainBottomNavigationMenu.setOnNavigationItemSelectedListener(null)
+            binding.mainBottomNavigationMenu.removeBadge(R.id.menu_item_nav_need)
+            binding.mainBottomNavigationMenu.removeBadge(R.id.menu_item_nav_have)
         }
     }
 
@@ -66,6 +70,17 @@ class MainNavigation @Inject internal constructor(
                 binding.mainBottomNavigationMenu.selectedItemId = pageId
                 binding.mainBottomNavigationMenu.menu.findItem(pageId).isChecked = true
             }
+        }
+
+        binding.mainBottomNavigationMenu.applyBadge(R.id.menu_item_nav_need, state.countNeeded)
+        binding.mainBottomNavigationMenu.applyBadge(R.id.menu_item_nav_have, state.countExpiringOrExpired)
+    }
+
+    private fun BottomNavigationView.applyBadge(@IdRes id: Int, count: Int) {
+        if (count <= 0) {
+            this.removeBadge(id)
+        } else {
+            requireNotNull(this.getOrCreateBadge(id)).number = count
         }
     }
 
