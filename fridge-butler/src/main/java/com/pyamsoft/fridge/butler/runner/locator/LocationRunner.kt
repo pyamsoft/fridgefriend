@@ -17,7 +17,6 @@
 
 package com.pyamsoft.fridge.butler.runner.locator
 
-import android.content.Context
 import android.location.Location
 import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.butler.Butler
@@ -36,13 +35,12 @@ import com.pyamsoft.fridge.db.zone.NearbyZone
 import com.pyamsoft.fridge.db.zone.NearbyZoneQueryDao
 import com.pyamsoft.fridge.locator.Geofencer
 import com.pyamsoft.pydroid.core.Enforcer
-import java.util.Calendar
-import javax.inject.Inject
 import kotlinx.coroutines.coroutineScope
 import timber.log.Timber
+import java.util.Calendar
+import javax.inject.Inject
 
 internal class LocationRunner @Inject internal constructor(
-    private val context: Context,
     handler: NotificationHandler,
     butler: Butler,
     notificationPreferences: NotificationPreferences,
@@ -179,14 +177,7 @@ internal class LocationRunner @Inject internal constructor(
             if (now.isAllowedToNotify(params.forceNotifyNeeded, lastTime)) {
                 if (storeNotification != null) {
                     notification { handler ->
-                        Timber.d("Fire notification for: $storeNotification")
-                        val notified = NearbyNotifications.notifyNearby(
-                            handler,
-                            context.applicationContext,
-                            storeNotification,
-                            neededItems
-                        )
-                        if (notified) {
+                        if (handler.notifyNearby(storeNotification, neededItems)) {
                             preferences.markNotificationNearby(now)
                         }
                     }
@@ -194,14 +185,7 @@ internal class LocationRunner @Inject internal constructor(
 
                 if (zoneNotification != null) {
                     notification { handler ->
-                        Timber.d("Fire notification for: $zoneNotification")
-                        val notified = NearbyNotifications.notifyNearby(
-                            handler,
-                            context.applicationContext,
-                            zoneNotification,
-                            neededItems
-                        )
-                        if (notified) {
+                        if (handler.notifyNearby(zoneNotification, neededItems)) {
                             preferences.markNotificationNearby(now)
                         }
                     }

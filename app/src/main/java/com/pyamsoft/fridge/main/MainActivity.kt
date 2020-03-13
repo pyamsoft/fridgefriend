@@ -34,7 +34,6 @@ import com.pyamsoft.fridge.FridgeComponent
 import com.pyamsoft.fridge.R
 import com.pyamsoft.fridge.butler.Butler
 import com.pyamsoft.fridge.butler.NotificationHandler
-import com.pyamsoft.fridge.butler.Notifications
 import com.pyamsoft.fridge.category.CategoryFragment
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.entry.EntryFragment
@@ -55,10 +54,10 @@ import com.pyamsoft.pydroid.ui.util.commitNow
 import com.pyamsoft.pydroid.ui.util.layout
 import com.pyamsoft.pydroid.ui.util.show
 import com.pyamsoft.pydroid.util.makeWindowSexy
-import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import timber.log.Timber
+import javax.inject.Inject
 
 internal class MainActivity : RatingActivity(), VersionChecker {
 
@@ -97,6 +96,10 @@ internal class MainActivity : RatingActivity(), VersionChecker {
     @JvmField
     @Inject
     internal var butler: Butler? = null
+
+    @JvmField
+    @Inject
+    internal var notificationHandler: NotificationHandler? = null
 
     @JvmField
     @Inject
@@ -185,7 +188,7 @@ internal class MainActivity : RatingActivity(), VersionChecker {
     private fun clearLaunchNotification() {
         val id = intent.getIntExtra(NotificationHandler.NOTIFICATION_ID_KEY, 0)
         if (id != 0) {
-            Notifications.cancel(this, id)
+            requireNotNull(notificationHandler).cancel(id)
         }
     }
 

@@ -17,14 +17,30 @@
 
 package com.pyamsoft.fridge.butler
 
-import android.app.PendingIntent
 import androidx.annotation.CheckResult
+import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItem
+import com.pyamsoft.fridge.db.store.NearbyStore
+import com.pyamsoft.fridge.db.zone.NearbyZone
 
 interface NotificationHandler {
 
+    fun cancel(notificationId: Int)
+
     @CheckResult
-    fun contentIntent(notificationId: Int, presence: FridgeItem.Presence): PendingIntent
+    fun notifyNearby(store: NearbyStore, items: List<FridgeItem>): Boolean
+
+    @CheckResult
+    fun notifyNearby(zone: NearbyZone, items: List<FridgeItem>): Boolean
+
+    @CheckResult
+    fun notifyNeeded(entry: FridgeEntry, items: List<FridgeItem>): Boolean
+
+    @CheckResult
+    fun notifyExpiring(entry: FridgeEntry, items: List<FridgeItem>): Boolean
+
+    @CheckResult
+    fun notifyExpired(entry: FridgeEntry, items: List<FridgeItem>): Boolean
 
     companion object {
 

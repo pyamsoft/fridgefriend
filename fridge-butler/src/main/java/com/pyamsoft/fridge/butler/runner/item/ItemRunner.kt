@@ -17,7 +17,6 @@
 
 package com.pyamsoft.fridge.butler.runner.item
 
-import android.content.Context
 import com.pyamsoft.fridge.butler.Butler
 import com.pyamsoft.fridge.butler.ButlerPreferences
 import com.pyamsoft.fridge.butler.NotificationHandler
@@ -37,13 +36,12 @@ import com.pyamsoft.fridge.db.item.isArchived
 import com.pyamsoft.fridge.db.item.isExpired
 import com.pyamsoft.fridge.db.item.isExpiringSoon
 import com.pyamsoft.pydroid.core.Enforcer
-import java.util.Calendar
-import javax.inject.Inject
 import kotlinx.coroutines.coroutineScope
 import timber.log.Timber
+import java.util.Calendar
+import javax.inject.Inject
 
 internal class ItemRunner @Inject internal constructor(
-    private val context: Context,
     handler: NotificationHandler,
     butler: Butler,
     notificationPreferences: NotificationPreferences,
@@ -74,13 +72,7 @@ internal class ItemRunner @Inject internal constructor(
             if (now.isAllowedToNotify(params.forceNotifyNeeded, lastTime)) {
                 Timber.d("Notify user about items still needed")
                 notification { handler ->
-                    val notified = ItemNotifications.notifyNeeded(
-                        handler,
-                        context.applicationContext,
-                        entry,
-                        items
-                    )
-                    if (notified) {
+                    if (handler.notifyNeeded(entry, items)) {
                         preferences.markNotificationNeeded(now)
                     }
                 }
@@ -100,13 +92,7 @@ internal class ItemRunner @Inject internal constructor(
             if (now.isAllowedToNotify(params.forceNotifyExpiring, lastTime)) {
                 Timber.d("Notify user about items expiring soon")
                 notification { handler ->
-                    val notified = ItemNotifications.notifyExpiring(
-                        handler,
-                        context.applicationContext,
-                        entry,
-                        items
-                    )
-                    if (notified) {
+                    if (handler.notifyExpiring(entry, items)) {
                         preferences.markNotificationExpiringSoon(now)
                     }
                 }
@@ -126,13 +112,7 @@ internal class ItemRunner @Inject internal constructor(
             if (now.isAllowedToNotify(params.forceNotifyExpiring, lastTime)) {
                 Timber.d("Notify user about items expired")
                 notification { handler ->
-                    val notified = ItemNotifications.notifyExpired(
-                        handler,
-                        context.applicationContext,
-                        entry,
-                        items
-                    )
-                    if (notified) {
+                    if (handler.notifyExpired(entry, items)) {
                         preferences.markNotificationExpired(now)
                     }
                 }
