@@ -20,6 +20,7 @@ package com.pyamsoft.fridge.detail
 import android.view.ViewGroup
 import android.widget.ImageView
 import com.pyamsoft.fridge.core.HeroImage
+import com.pyamsoft.fridge.detail.R
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence.NEED
 import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.loader.Loaded
@@ -38,5 +39,11 @@ class DetailHeroImage @Inject internal constructor(
         val need = state.listItemPresence == NEED
         val icon = if (need) R.drawable.bg_item_need else R.drawable.bg_item_have
         return imageLoader.load(icon).into(imageView)
+    }
+
+    override fun onAdditionalRender(state: DetailViewState) {
+        binding.coreHeroItemLabel.setText(R.string.total_number_of_items)
+        binding.coreHeroItemValue.text = "${state.items.size}"
+        binding.coreHeroTitle.text = state.entry?.name().orEmpty()
     }
 }

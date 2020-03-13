@@ -37,14 +37,14 @@ import com.pyamsoft.fridge.detail.base.BaseUpdaterViewModel
 import com.pyamsoft.fridge.detail.expand.ItemExpandPayload
 import com.pyamsoft.highlander.highlander
 import com.pyamsoft.pydroid.arch.EventBus
-import java.util.Date
-import javax.inject.Inject
-import javax.inject.Named
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import timber.log.Timber
+import java.util.Date
+import javax.inject.Inject
+import javax.inject.Named
 
 class DetailViewModel @Inject internal constructor(
     private val interactor: DetailInteractor,
@@ -55,6 +55,7 @@ class DetailViewModel @Inject internal constructor(
     listItemPresence: FridgeItem.Presence
 ) : BaseUpdaterViewModel<DetailViewState, DetailViewEvent, DetailControllerEvent>(
     initialState = DetailViewState(
+        entry = null,
         isLoading = null,
         items = emptyList(),
         showing = DetailViewState.Showing.FRESH,
@@ -113,6 +114,13 @@ class DetailViewModel @Inject internal constructor(
     init {
         doOnInit {
             refreshList(false)
+        }
+
+        doOnInit {
+            viewModelScope.launch(context = Dispatchers.Default) {
+                val entry = interactor.loadEntry(entryId)
+                setState { copy(entry = entry) }
+            }
         }
 
         doOnInit {

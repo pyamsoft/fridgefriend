@@ -25,6 +25,7 @@ import com.pyamsoft.pydroid.arch.UiViewState
 
 data class DetailViewState(
     val isLoading: Loading?,
+    val entry: FridgeEntry?,
     val items: List<FridgeItem>,
     val showing: Showing,
     val listError: Throwable?,

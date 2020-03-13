@@ -70,11 +70,15 @@ abstract class HeroImage<S : UiViewState, V : UiViewEvent> protected constructor
 
     final override fun onRender(state: S) {
         loadImage(state)
+        onAdditionalRender(state)
     }
 
     private fun loadImage(state: S) {
         clear()
         loaded = onLoadImage(binding.coreHeroImage, imageLoader, state)
+    }
+
+    protected open fun onAdditionalRender(state: S) {
     }
 
     @CheckResult

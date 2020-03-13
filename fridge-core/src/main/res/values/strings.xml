@@ -1,5 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright 2019 Peter Kenji Yamanaka
+  ~ Copyright 2020 Peter Kenji Yamanaka
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -16,11 +17,4 @@
   -->
 
 <resources>
-    <string name="delete">Delete</string>
-    <string name="item_name_hint">Item Name</string>
-    <string name="spoiled">Spoiled</string>
-    <string name="consumed">Consumed</string>
-    <string name="count">Count</string>
-
-    <string name="total_number_of_items">Total number of items</string>
 </resources>

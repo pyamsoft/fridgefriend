@@ -21,6 +21,7 @@ import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.db.category.FridgeCategory
 import com.pyamsoft.fridge.db.category.FridgeCategoryQueryDao
 import com.pyamsoft.fridge.db.entry.FridgeEntry
+import com.pyamsoft.fridge.db.entry.FridgeEntryQueryDao
 import com.pyamsoft.fridge.db.guarantee.EntryGuarantee
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence
@@ -34,12 +35,12 @@ import com.pyamsoft.fridge.db.item.FridgeItemUpdateDao
 import com.pyamsoft.fridge.db.persist.PersistentCategories
 import com.pyamsoft.pydroid.arch.EventConsumer
 import com.pyamsoft.pydroid.core.Enforcer
-import java.util.Calendar
-import java.util.Date
-import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import timber.log.Timber
+import java.util.Calendar
+import java.util.Date
+import javax.inject.Inject
 
 internal class DetailInteractor @Inject internal constructor(
     private val enforcer: Enforcer,
@@ -49,6 +50,7 @@ internal class DetailInteractor @Inject internal constructor(
     private val itemUpdateDao: FridgeItemUpdateDao,
     private val itemDeleteDao: FridgeItemDeleteDao,
     private val itemRealtime: FridgeItemRealtime,
+    private val entryQueryDao: FridgeEntryQueryDao,
     private val persistentCategories: PersistentCategories,
     private val categoryQueryDao: FridgeCategoryQueryDao,
     preferences: FridgeItemPreferences
@@ -56,18 +58,27 @@ internal class DetailInteractor @Inject internal constructor(
 
     @CheckResult
     suspend fun findSameNamedItems(name: String, presence: Presence): Collection<FridgeItem> {
+        enforcer.assertNotOnMainThread()
         return itemQueryDao.querySameNameDifferentPresence(false, name, presence)
     }
 
     @CheckResult
     suspend fun findSimilarNamedItems(item: FridgeItem): Collection<FridgeItem> {
+        enforcer.assertNotOnMainThread()
         return itemQueryDao.querySimilarNamedItems(false, item)
     }
 
     @CheckResult
     suspend fun loadAllCategories(): List<FridgeCategory> {
+        enforcer.assertNotOnMainThread()
         persistentCategories.guaranteePersistentCategoriesCreated()
         return categoryQueryDao.query(false)
+    }
+
+    @CheckResult
+    suspend fun loadEntry(entryId: FridgeEntry.Id): FridgeEntry {
+        enforcer.assertNotOnMainThread()
+        return entryQueryDao.query(false).first { it.id() == entryId }
     }
 
     @CheckResult
@@ -77,6 +88,7 @@ internal class DetailInteractor @Inject internal constructor(
         presence: Presence,
         force: Boolean
     ): FridgeItem {
+        enforcer.assertNotOnMainThread()
         return if (itemId.isEmpty()) {
             createNewItem(entryId, presence)
         } else {
@@ -89,6 +101,7 @@ internal class DetailInteractor @Inject internal constructor(
      */
     @CheckResult
     private fun createNewItem(entryId: FridgeEntry.Id, presence: Presence): FridgeItem {
+        enforcer.assertNotOnMainThread()
         return FridgeItem.create(entryId = entryId, presence = presence)
     }
 
@@ -115,6 +128,7 @@ internal class DetailInteractor @Inject internal constructor(
 
     @CheckResult
     fun listenForChanges(id: FridgeEntry.Id): EventConsumer<FridgeItemChangeEvent> {
+        enforcer.assertNotOnMainThread()
         return itemRealtime.listenForChanges(id)
     }
 
@@ -132,11 +146,13 @@ internal class DetailInteractor @Inject internal constructor(
 
     @CheckResult
     private suspend fun getValidItem(item: FridgeItem): FridgeItem? {
+        enforcer.assertNotOnMainThread()
         return getItems(item.entryId(), false)
             .singleOrNull { it.id() == item.id() }
     }
 
     private suspend fun commitItem(item: FridgeItem) {
+        enforcer.assertNotOnMainThread()
         val valid = getValidItem(item)
         if (valid != null) {
             Timber.d("Update existing item [${item.id()}]: $item")
@@ -149,6 +165,7 @@ internal class DetailInteractor @Inject internal constructor(
 
     @CheckResult
     private fun now(): Date {
+        enforcer.assertNotOnMainThread()
         return Calendar.getInstance()
             .time
     }
