@@ -68,15 +68,19 @@ class MainViewModel @Inject internal constructor(
         }
 
         doOnInit {
-            viewModelScope.launch(context = Dispatchers.Default) {
-                val neededCount = interactor.getNeededCount()
-                setState { copy(countNeeded = neededCount) }
-            }
+            refreshBadgeCounts()
+        }
+    }
 
-            viewModelScope.launch(context = Dispatchers.Default) {
-                val expiredExpiringCount = interactor.getExpiredOrExpiringCount()
-                setState { copy(countExpiringOrExpired = expiredExpiringCount) }
-            }
+    private fun refreshBadgeCounts() {
+        viewModelScope.launch(context = Dispatchers.Default) {
+            val neededCount = interactor.getNeededCount()
+            setState { copy(countNeeded = neededCount) }
+        }
+
+        viewModelScope.launch(context = Dispatchers.Default) {
+            val expiredExpiringCount = interactor.getExpiredOrExpiringCount()
+            setState { copy(countExpiringOrExpired = expiredExpiringCount) }
         }
     }
 
@@ -104,6 +108,8 @@ class MainViewModel @Inject internal constructor(
         event: (page: MainPage?) -> (MainControllerEvent)
     ) {
         withState {
+            refreshBadgeCounts()
+
             val oldPage = this.page
             if (oldPage != newPage) {
                 Timber.d("Select entry: $newPage")

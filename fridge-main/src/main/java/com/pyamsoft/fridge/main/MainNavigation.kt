@@ -73,7 +73,10 @@ class MainNavigation @Inject internal constructor(
         }
 
         binding.mainBottomNavigationMenu.applyBadge(R.id.menu_item_nav_need, state.countNeeded)
-        binding.mainBottomNavigationMenu.applyBadge(R.id.menu_item_nav_have, state.countExpiringOrExpired)
+        binding.mainBottomNavigationMenu.applyBadge(
+            R.id.menu_item_nav_have,
+            state.countExpiringOrExpired
+        )
     }
 
     private fun BottomNavigationView.applyBadge(@IdRes id: Int, count: Int) {
