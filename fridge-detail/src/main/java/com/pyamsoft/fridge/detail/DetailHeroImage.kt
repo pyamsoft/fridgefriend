@@ -20,7 +20,6 @@ package com.pyamsoft.fridge.detail
 import android.view.ViewGroup
 import android.widget.ImageView
 import com.pyamsoft.fridge.core.HeroImage
-import com.pyamsoft.fridge.detail.R
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence.NEED
 import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.loader.Loaded
