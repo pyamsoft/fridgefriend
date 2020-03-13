@@ -47,16 +47,22 @@ class ExpandedCategoryViewHolder internal constructor(
     @Inject
     internal var scrim: ExpandCategoryScrim? = null
 
+    @JvmField
+    @Inject
+    internal var selectOverlay: ExpandCategorySelectOverlay? = null
+
     init {
         factory.create(binding.expandCategoryItem).inject(this)
 
         val thumbnail = requireNotNull(thumbnail)
         val scrim = requireNotNull(scrim)
         val name = requireNotNull(name)
+        val selectOverlay = requireNotNull(selectOverlay)
         viewBinder = bindViews(
             owner,
             thumbnail,
             scrim,
+            selectOverlay,
             name
         ) {
             return@bindViews when (it) {

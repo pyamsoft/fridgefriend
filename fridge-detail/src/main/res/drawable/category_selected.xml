@@ -1,6 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ Copyright 2020 Peter Kenji Yamanaka
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,18 +14,19 @@
   ~ limitations under the License.
   ~
   -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
 
-<merge>
+    <stroke
+        android:width="@dimen/selected_overlay_border_thickness"
+        android:color="@color/blue500" />
 
-    <TextView xmlns:android="http://schemas.android.com/apk/res/android"
-        android:id="@+id/expand_category_name"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:paddingStart="8dp"
-        android:paddingTop="4dp"
-        android:paddingEnd="8dp"
-        android:paddingBottom="@dimen/selected_overlay_border_thickness"
-        android:textAppearance="?attr/textAppearanceBody2" />
+    <padding
+        android:bottom="@dimen/selected_overlay_border_thickness"
+        android:left="@dimen/selected_overlay_border_thickness"
+        android:right="@dimen/selected_overlay_border_thickness"
+        android:top="@dimen/selected_overlay_border_thickness" />
 
-</merge>
+    <corners android:radius="@dimen/corner_radius" />
+</shape>
 

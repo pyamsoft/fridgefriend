@@ -19,15 +19,11 @@
 
 <merge>
 
-    <TextView xmlns:android="http://schemas.android.com/apk/res/android"
-        android:id="@+id/expand_category_name"
+    <View xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/expand_category_select_overlay"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:paddingStart="8dp"
-        android:paddingTop="4dp"
-        android:paddingEnd="8dp"
-        android:paddingBottom="@dimen/selected_overlay_border_thickness"
-        android:textAppearance="?attr/textAppearanceBody2" />
+        android:layout_height="match_parent"
+        android:background="@drawable/category_selected" />
 
 </merge>
 
