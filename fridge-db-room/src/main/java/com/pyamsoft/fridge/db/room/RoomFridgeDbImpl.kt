@@ -99,6 +99,7 @@ import com.pyamsoft.fridge.db.zone.NearbyZoneRealtime
 import com.pyamsoft.fridge.db.zone.NearbyZoneUpdateDao
 import com.pyamsoft.pydroid.arch.EventBus
 import com.pyamsoft.pydroid.arch.EventConsumer
+import com.pyamsoft.pydroid.core.Enforcer
 
 @Database(
     version = 1,
@@ -130,56 +131,30 @@ internal abstract class RoomFridgeDbImpl internal constructor() : RoomDatabase()
     private val zoneRealtimeChangeBus = EventBus.create<NearbyZoneChangeEvent>()
     private val categoryRealtimeChangeBus = EventBus.create<FridgeCategoryChangeEvent>()
 
+    private var enforcer: Enforcer? = null
+
     private var entryCache: Cached1<Sequence<FridgeEntry>, Boolean>? = null
     private var itemCache: Cached1<Sequence<FridgeItem>, Boolean>? = null
     private var storeCache: Cached1<Sequence<NearbyStore>, Boolean>? = null
     private var zoneCache: Cached1<Sequence<NearbyZone>, Boolean>? = null
     private var categoryCache: Cached1<Sequence<FridgeCategory>, Boolean>? = null
 
-    internal fun applyCaches(
-        entryCache: Cached1<Sequence<FridgeEntry>, Boolean>,
-        itemCache: Cached1<Sequence<FridgeItem>, Boolean>,
-        storeCache: Cached1<Sequence<NearbyStore>, Boolean>,
-        zoneCache: Cached1<Sequence<NearbyZone>, Boolean>,
-        categoryCache: Cached1<Sequence<FridgeCategory>, Boolean>
-    ) {
-        this.entryCache = entryCache
-        this.itemCache = itemCache
-        this.storeCache = storeCache
-        this.zoneCache = zoneCache
-        this.categoryCache = categoryCache
-    }
-
-    @CheckResult
-    internal abstract fun roomItemQueryDao(): RoomFridgeItemQueryDao
-
-    @CheckResult
-    internal abstract fun roomItemInsertDao(): RoomFridgeItemInsertDao
-
-    @CheckResult
-    internal abstract fun roomItemUpdateDao(): RoomFridgeItemUpdateDao
-
-    @CheckResult
-    internal abstract fun roomItemDeleteDao(): RoomFridgeItemDeleteDao
-
     private val itemDb by lazy {
-        FridgeItemDb.wrap(object : FridgeItemDb {
+        FridgeItemDb.wrap(requireNotNull(enforcer), object : FridgeItemDb {
 
-            private val realtime by lazy {
-                object : FridgeItemRealtime {
+            private val realtime = object : FridgeItemRealtime {
 
-                    override fun listenForChanges(): EventConsumer<FridgeItemChangeEvent> {
-                        return itemRealtimeChangeBus
-                    }
+                override fun listenForChanges(): EventConsumer<FridgeItemChangeEvent> {
+                    return itemRealtimeChangeBus
+                }
 
-                    override fun listenForChanges(id: FridgeEntry.Id): EventConsumer<FridgeItemChangeEvent> {
-                        return object : EventConsumer<FridgeItemChangeEvent> {
+                override fun listenForChanges(id: FridgeEntry.Id): EventConsumer<FridgeItemChangeEvent> {
+                    return object : EventConsumer<FridgeItemChangeEvent> {
 
-                            override suspend fun onEvent(emitter: suspend (event: FridgeItemChangeEvent) -> Unit) {
-                                itemRealtimeChangeBus.onEvent { event ->
-                                    if (event.entryId == id) {
-                                        emitter(event)
-                                    }
+                        override suspend fun onEvent(emitter: suspend (event: FridgeItemChangeEvent) -> Unit) {
+                            itemRealtimeChangeBus.onEvent { event ->
+                                if (event.entryId == id) {
+                                    emitter(event)
                                 }
                             }
                         }
@@ -217,31 +192,12 @@ internal abstract class RoomFridgeDbImpl internal constructor() : RoomDatabase()
         }, requireNotNull(itemCache))
     }
 
-    @CheckResult
-    override fun items(): FridgeItemDb {
-        return itemDb
-    }
-
-    @CheckResult
-    internal abstract fun roomEntryQueryDao(): RoomFridgeEntryQueryDao
-
-    @CheckResult
-    internal abstract fun roomEntryInsertDao(): RoomFridgeEntryInsertDao
-
-    @CheckResult
-    internal abstract fun roomEntryUpdateDao(): RoomFridgeEntryUpdateDao
-
-    @CheckResult
-    internal abstract fun roomEntryDeleteDao(): RoomFridgeEntryDeleteDao
-
     private val entryDb by lazy {
-        FridgeEntryDb.wrap(object : FridgeEntryDb {
+        FridgeEntryDb.wrap(requireNotNull(enforcer), object : FridgeEntryDb {
 
-            private val realtime by lazy {
-                object : FridgeEntryRealtime {
-                    override fun listenForChanges(): EventConsumer<FridgeEntryChangeEvent> {
-                        return entryRealtimeChangeBus
-                    }
+            private val realtime = object : FridgeEntryRealtime {
+                override fun listenForChanges(): EventConsumer<FridgeEntryChangeEvent> {
+                    return entryRealtimeChangeBus
                 }
             }
 
@@ -275,31 +231,12 @@ internal abstract class RoomFridgeDbImpl internal constructor() : RoomDatabase()
         }, requireNotNull(entryCache))
     }
 
-    @CheckResult
-    override fun entries(): FridgeEntryDb {
-        return entryDb
-    }
-
-    @CheckResult
-    internal abstract fun roomStoreQueryDao(): RoomNearbyStoreQueryDao
-
-    @CheckResult
-    internal abstract fun roomStoreInsertDao(): RoomNearbyStoreInsertDao
-
-    @CheckResult
-    internal abstract fun roomStoreUpdateDao(): RoomNearbyStoreUpdateDao
-
-    @CheckResult
-    internal abstract fun roomStoreDeleteDao(): RoomNearbyStoreDeleteDao
-
     private val storeDb by lazy {
-        NearbyStoreDb.wrap(object : NearbyStoreDb {
+        NearbyStoreDb.wrap(requireNotNull(enforcer), object : NearbyStoreDb {
 
-            private val realtime by lazy {
-                object : NearbyStoreRealtime {
-                    override fun listenForChanges(): EventConsumer<NearbyStoreChangeEvent> {
-                        return storeRealtimeChangeBus
-                    }
+            private val realtime = object : NearbyStoreRealtime {
+                override fun listenForChanges(): EventConsumer<NearbyStoreChangeEvent> {
+                    return storeRealtimeChangeBus
                 }
             }
 
@@ -333,31 +270,12 @@ internal abstract class RoomFridgeDbImpl internal constructor() : RoomDatabase()
         }, requireNotNull(storeCache))
     }
 
-    @CheckResult
-    override fun stores(): NearbyStoreDb {
-        return storeDb
-    }
-
-    @CheckResult
-    internal abstract fun roomZoneQueryDao(): RoomNearbyZoneQueryDao
-
-    @CheckResult
-    internal abstract fun roomZoneInsertDao(): RoomNearbyZoneInsertDao
-
-    @CheckResult
-    internal abstract fun roomZoneUpdateDao(): RoomNearbyZoneUpdateDao
-
-    @CheckResult
-    internal abstract fun roomZoneDeleteDao(): RoomNearbyZoneDeleteDao
-
     private val zoneDb by lazy {
-        NearbyZoneDb.wrap(object : NearbyZoneDb {
+        NearbyZoneDb.wrap(requireNotNull(enforcer), object : NearbyZoneDb {
 
-            private val realtime by lazy {
-                object : NearbyZoneRealtime {
-                    override fun listenForChanges(): EventConsumer<NearbyZoneChangeEvent> {
-                        return zoneRealtimeChangeBus
-                    }
+            private val realtime = object : NearbyZoneRealtime {
+                override fun listenForChanges(): EventConsumer<NearbyZoneChangeEvent> {
+                    return zoneRealtimeChangeBus
                 }
             }
 
@@ -391,31 +309,12 @@ internal abstract class RoomFridgeDbImpl internal constructor() : RoomDatabase()
         }, requireNotNull(zoneCache))
     }
 
-    @CheckResult
-    override fun zones(): NearbyZoneDb {
-        return zoneDb
-    }
-
-    @CheckResult
-    internal abstract fun roomCategoryQueryDao(): RoomFridgeCategoryQueryDao
-
-    @CheckResult
-    internal abstract fun roomCategoryInsertDao(): RoomFridgeCategoryInsertDao
-
-    @CheckResult
-    internal abstract fun roomCategoryUpdateDao(): RoomFridgeCategoryUpdateDao
-
-    @CheckResult
-    internal abstract fun roomCategoryDeleteDao(): RoomFridgeCategoryDeleteDao
-
     private val categoryDb by lazy {
-        FridgeCategoryDb.wrap(object : FridgeCategoryDb {
+        FridgeCategoryDb.wrap(requireNotNull(enforcer), object : FridgeCategoryDb {
 
-            private val realtime by lazy {
-                object : FridgeCategoryRealtime {
-                    override fun listenForChanges(): EventConsumer<FridgeCategoryChangeEvent> {
-                        return categoryRealtimeChangeBus
-                    }
+            private val realtime = object : FridgeCategoryRealtime {
+                override fun listenForChanges(): EventConsumer<FridgeCategoryChangeEvent> {
+                    return categoryRealtimeChangeBus
                 }
             }
 
@@ -448,6 +347,102 @@ internal abstract class RoomFridgeDbImpl internal constructor() : RoomDatabase()
             }
         }, requireNotNull(categoryCache))
     }
+
+    internal fun bind(
+        enforcer: Enforcer,
+        entryCache: Cached1<Sequence<FridgeEntry>, Boolean>,
+        itemCache: Cached1<Sequence<FridgeItem>, Boolean>,
+        storeCache: Cached1<Sequence<NearbyStore>, Boolean>,
+        zoneCache: Cached1<Sequence<NearbyZone>, Boolean>,
+        categoryCache: Cached1<Sequence<FridgeCategory>, Boolean>
+    ) {
+        this.enforcer = enforcer
+        this.entryCache = entryCache
+        this.itemCache = itemCache
+        this.storeCache = storeCache
+        this.zoneCache = zoneCache
+        this.categoryCache = categoryCache
+    }
+
+    @CheckResult
+    internal abstract fun roomItemQueryDao(): RoomFridgeItemQueryDao
+
+    @CheckResult
+    internal abstract fun roomItemInsertDao(): RoomFridgeItemInsertDao
+
+    @CheckResult
+    internal abstract fun roomItemUpdateDao(): RoomFridgeItemUpdateDao
+
+    @CheckResult
+    internal abstract fun roomItemDeleteDao(): RoomFridgeItemDeleteDao
+
+    @CheckResult
+    override fun items(): FridgeItemDb {
+        return itemDb
+    }
+
+    @CheckResult
+    internal abstract fun roomEntryQueryDao(): RoomFridgeEntryQueryDao
+
+    @CheckResult
+    internal abstract fun roomEntryInsertDao(): RoomFridgeEntryInsertDao
+
+    @CheckResult
+    internal abstract fun roomEntryUpdateDao(): RoomFridgeEntryUpdateDao
+
+    @CheckResult
+    internal abstract fun roomEntryDeleteDao(): RoomFridgeEntryDeleteDao
+
+    @CheckResult
+    override fun entries(): FridgeEntryDb {
+        return entryDb
+    }
+
+    @CheckResult
+    internal abstract fun roomStoreQueryDao(): RoomNearbyStoreQueryDao
+
+    @CheckResult
+    internal abstract fun roomStoreInsertDao(): RoomNearbyStoreInsertDao
+
+    @CheckResult
+    internal abstract fun roomStoreUpdateDao(): RoomNearbyStoreUpdateDao
+
+    @CheckResult
+    internal abstract fun roomStoreDeleteDao(): RoomNearbyStoreDeleteDao
+
+    @CheckResult
+    override fun stores(): NearbyStoreDb {
+        return storeDb
+    }
+
+    @CheckResult
+    internal abstract fun roomZoneQueryDao(): RoomNearbyZoneQueryDao
+
+    @CheckResult
+    internal abstract fun roomZoneInsertDao(): RoomNearbyZoneInsertDao
+
+    @CheckResult
+    internal abstract fun roomZoneUpdateDao(): RoomNearbyZoneUpdateDao
+
+    @CheckResult
+    internal abstract fun roomZoneDeleteDao(): RoomNearbyZoneDeleteDao
+
+    @CheckResult
+    override fun zones(): NearbyZoneDb {
+        return zoneDb
+    }
+
+    @CheckResult
+    internal abstract fun roomCategoryQueryDao(): RoomFridgeCategoryQueryDao
+
+    @CheckResult
+    internal abstract fun roomCategoryInsertDao(): RoomFridgeCategoryInsertDao
+
+    @CheckResult
+    internal abstract fun roomCategoryUpdateDao(): RoomFridgeCategoryUpdateDao
+
+    @CheckResult
+    internal abstract fun roomCategoryDeleteDao(): RoomFridgeCategoryDeleteDao
 
     @CheckResult
     override fun categories(): FridgeCategoryDb {

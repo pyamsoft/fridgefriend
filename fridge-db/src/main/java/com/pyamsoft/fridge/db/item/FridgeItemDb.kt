@@ -20,6 +20,7 @@ package com.pyamsoft.fridge.db.item
 import androidx.annotation.CheckResult
 import com.pyamsoft.cachify.Cached1
 import com.pyamsoft.fridge.db.BaseDb
+import com.pyamsoft.pydroid.core.Enforcer
 
 interface FridgeItemDb : BaseDb<
     FridgeItemChangeEvent,
@@ -34,10 +35,11 @@ interface FridgeItemDb : BaseDb<
 
         @CheckResult
         fun wrap(
+            enforcer: Enforcer,
             db: FridgeItemDb,
             cache: Cached1<Sequence<FridgeItem>, Boolean>
         ): FridgeItemDb {
-            return FridgeItemDbImpl(db) { force -> cache.call(force) }
+            return FridgeItemDbImpl(enforcer, db) { force -> cache.call(force) }
         }
     }
 }

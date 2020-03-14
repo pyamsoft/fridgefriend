@@ -23,19 +23,182 @@ import com.pyamsoft.fridge.db.item.FridgeItem.Presence
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent.Delete
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent.Insert
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent.Update
-import java.util.Locale
-import kotlin.math.min
+import com.pyamsoft.pydroid.core.Enforcer
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import java.util.Locale
+import kotlin.math.min
 
 internal class FridgeItemDbImpl internal constructor(
+    private val enforcer: Enforcer,
     private val db: FridgeItemDb,
     private val dbQuery: suspend (force: Boolean) -> Sequence<FridgeItem>
 ) : FridgeItemDb {
 
     private val mutex = Mutex()
 
+    private val queryDao = object : FridgeItemQueryDao {
+
+        @CheckResult
+        private suspend fun queryAsSequence(force: Boolean): Sequence<FridgeItem> {
+            enforcer.assertNotOnMainThread()
+            if (force) {
+                invalidate()
+            }
+
+            return dbQuery(force)
+        }
+
+        override suspend fun query(force: Boolean): List<FridgeItem> {
+            enforcer.assertNotOnMainThread()
+            mutex.withLock {
+                return queryAsSequence(force).toList()
+            }
+        }
+
+        override suspend fun query(force: Boolean, id: FridgeEntry.Id): List<FridgeItem> {
+            enforcer.assertNotOnMainThread()
+            mutex.withLock {
+                return queryAsSequence(force)
+                    .filter { it.entryId() == id }
+                    .toList()
+            }
+        }
+
+        override suspend fun querySameNameDifferentPresence(
+            force: Boolean,
+            name: String,
+            presence: Presence
+        ): List<FridgeItem> {
+            enforcer.assertNotOnMainThread()
+            mutex.withLock {
+                return queryAsSequence(force)
+                    .filter { it.isReal() }
+                    .filterNot { it.isArchived() }
+                    .filter { it.presence() == presence }
+                    .filter { item ->
+                        val cleanName = name.toLowerCase(Locale.getDefault()).trim()
+                        val itemName = item.name().toLowerCase(Locale.getDefault()).trim()
+                        return@filter itemName == cleanName
+                    }
+                    .toList()
+            }
+        }
+
+        override suspend fun querySimilarNamedItems(
+            force: Boolean,
+            item: FridgeItem
+        ): List<FridgeItem> {
+            enforcer.assertNotOnMainThread()
+            mutex.withLock {
+                val sequence = queryAsSequence(force)
+                    .filter { it.isReal() }
+                    .filterNot { it.id() == item.id() }
+                    .map { fridgeItem ->
+                        val name = item.name().toLowerCase(Locale.getDefault()).trim()
+                        val itemName = fridgeItem.name().toLowerCase(Locale.getDefault()).trim()
+
+                        val score = when {
+                            itemName == name -> 1.0F
+                            itemName.startsWith(name) -> 0.75F
+                            itemName.endsWith(name) -> 0.5F
+                            else -> itemName.withDistanceRatio(name)
+                        }
+                        return@map SimilarityScore(fridgeItem, score)
+                    }
+                    .filterNot { it.score < SIMILARITY_MIN_SCORE_CUTOFF }
+                    .sortedBy { it.score }
+
+                if (sequence.none()) {
+                    return emptyList()
+                }
+
+                return sequence
+                    .chunked(SIMILARITY_MAX_ITEM_COUNT)
+                    .first()
+                    .map { it.item }
+                    .toList()
+            }
+        }
+
+        @CheckResult
+        private fun String.withDistanceRatio(str: String): Float {
+            // Initialize a zero-matrix
+            val s1Len = this.length
+            val s2Len = str.length
+            val rows = s1Len + 1
+            val columns = s2Len + 1
+            val matrix = Array(rows) { IntArray(columns) { 0 } }
+
+            // Populate matrix with indices of each character in strings
+            for (i in 1 until rows) {
+                matrix[i][0] = i
+            }
+
+            for (j in 1 until columns) {
+                matrix[0][j] = j
+            }
+
+            // Calculate the cost of deletes, inserts, and subs
+            for (col in 1 until columns) {
+                for (row in 1 until rows) {
+                    // If the character is the same in a given position, cost is 0, else cost is 2
+                    val cost = if (this[row - 1] == str[col - 1]) 0 else 2
+
+                    // The cost of a deletion, insertion, and substitution
+                    val deleteCost = matrix[row - 1][col] + 1
+                    val insertCost = matrix[row][col - 1] + 1
+                    val substitutionCost = matrix[row - 1][col - 1] + cost
+
+                    // Populate the matrix
+                    matrix[row][col] = min(deleteCost, min(insertCost, substitutionCost))
+                }
+            }
+
+            // Calculate distance ratio
+            val totalLength = (s1Len + s2Len)
+            return (totalLength - matrix[s1Len][s2Len]).toFloat() / totalLength
+        }
+    }
+
+    private val insertDao = object : FridgeItemInsertDao {
+
+        override suspend fun insert(o: FridgeItem) {
+            enforcer.assertNotOnMainThread()
+            mutex.withLock {
+                db.insertDao()
+                    .insert(o)
+                publishRealtime(Insert(o.makeReal()))
+            }
+        }
+    }
+
+    private val updateDao = object : FridgeItemUpdateDao {
+
+        override suspend fun update(o: FridgeItem) {
+            enforcer.assertNotOnMainThread()
+            mutex.withLock {
+                db.updateDao()
+                    .update(o)
+                publishRealtime(Update(o.makeReal()))
+            }
+        }
+    }
+
+    private val deleteDao = object : FridgeItemDeleteDao {
+
+        override suspend fun delete(o: FridgeItem) {
+            enforcer.assertNotOnMainThread()
+            mutex.withLock {
+                db.deleteDao()
+                    .delete(o)
+                publishRealtime(Delete(o.makeReal()))
+            }
+        }
+    }
+
     private suspend fun publishRealtime(event: FridgeItemChangeEvent) {
+        enforcer.assertNotOnMainThread()
         invalidate()
         publish(event)
     }
@@ -45,6 +208,7 @@ internal class FridgeItemDbImpl internal constructor(
     }
 
     override suspend fun publish(event: FridgeItemChangeEvent) {
+        enforcer.assertNotOnMainThread()
         db.publish(event)
     }
 
@@ -53,163 +217,19 @@ internal class FridgeItemDbImpl internal constructor(
     }
 
     override fun queryDao(): FridgeItemQueryDao {
-        return object : FridgeItemQueryDao {
-
-            @CheckResult
-            private suspend fun queryAsSequence(force: Boolean): Sequence<FridgeItem> {
-                if (force) {
-                    invalidate()
-                }
-
-                return dbQuery(force)
-            }
-
-            override suspend fun query(force: Boolean): List<FridgeItem> {
-                mutex.withLock {
-                    return queryAsSequence(force).toList()
-                }
-            }
-
-            override suspend fun query(force: Boolean, id: FridgeEntry.Id): List<FridgeItem> {
-                mutex.withLock {
-                    return queryAsSequence(force)
-                        .filter { it.entryId() == id }
-                        .toList()
-                }
-            }
-
-            override suspend fun querySameNameDifferentPresence(
-                force: Boolean,
-                name: String,
-                presence: Presence
-            ): List<FridgeItem> {
-                mutex.withLock {
-                    return queryAsSequence(force)
-                        .filter { it.isReal() }
-                        .filterNot { it.isArchived() }
-                        .filter { it.presence() == presence }
-                        .filter { item ->
-                            val cleanName = name.toLowerCase(Locale.getDefault()).trim()
-                            val itemName = item.name().toLowerCase(Locale.getDefault()).trim()
-                            return@filter itemName == cleanName
-                        }
-                        .toList()
-                }
-            }
-
-            override suspend fun querySimilarNamedItems(
-                force: Boolean,
-                item: FridgeItem
-            ): List<FridgeItem> {
-                mutex.withLock {
-                    val sequence = queryAsSequence(force)
-                        .filter { it.isReal() }
-                        .filterNot { it.id() == item.id() }
-                        .map { fridgeItem ->
-                            val name = item.name().toLowerCase(Locale.getDefault()).trim()
-                            val itemName = fridgeItem.name().toLowerCase(Locale.getDefault()).trim()
-
-                            val score = when {
-                                itemName == name -> 1.0F
-                                itemName.startsWith(name) -> 0.75F
-                                itemName.endsWith(name) -> 0.5F
-                                else -> itemName.withDistanceRatio(name)
-                            }
-                            return@map SimilarityScore(fridgeItem, score)
-                        }
-                        .filterNot { it.score < SIMILARITY_MIN_SCORE_CUTOFF }
-                        .sortedBy { it.score }
-
-                    if (sequence.none()) {
-                        return emptyList()
-                    }
-
-                    return sequence
-                        .chunked(SIMILARITY_MAX_ITEM_COUNT)
-                        .first()
-                        .map { it.item }
-                        .toList()
-                }
-            }
-
-            @CheckResult
-            private fun String.withDistanceRatio(str: String): Float {
-                // Initialize a zero-matrix
-                val s1Len = this.length
-                val s2Len = str.length
-                val rows = s1Len + 1
-                val columns = s2Len + 1
-                val matrix = Array(rows) { IntArray(columns) { 0 } }
-
-                // Populate matrix with indices of each character in strings
-                for (i in 1 until rows) {
-                    matrix[i][0] = i
-                }
-
-                for (j in 1 until columns) {
-                    matrix[0][j] = j
-                }
-
-                // Calculate the cost of deletes, inserts, and subs
-                for (col in 1 until columns) {
-                    for (row in 1 until rows) {
-                        // If the character is the same in a given position, cost is 0, else cost is 2
-                        val cost = if (this[row - 1] == str[col - 1]) 0 else 2
-
-                        // The cost of a deletion, insertion, and substitution
-                        val deleteCost = matrix[row - 1][col] + 1
-                        val insertCost = matrix[row][col - 1] + 1
-                        val substitutionCost = matrix[row - 1][col - 1] + cost
-
-                        // Populate the matrix
-                        matrix[row][col] = min(deleteCost, min(insertCost, substitutionCost))
-                    }
-                }
-
-                // Calculate distance ratio
-                val totalLength = (s1Len + s2Len)
-                return (totalLength - matrix[s1Len][s2Len]).toFloat() / totalLength
-            }
-        }
+        return queryDao
     }
 
     override fun insertDao(): FridgeItemInsertDao {
-        return object : FridgeItemInsertDao {
-
-            override suspend fun insert(o: FridgeItem) {
-                mutex.withLock {
-                    db.insertDao()
-                        .insert(o)
-                    publishRealtime(Insert(o.makeReal()))
-                }
-            }
-        }
+        return insertDao
     }
 
     override fun updateDao(): FridgeItemUpdateDao {
-        return object : FridgeItemUpdateDao {
-
-            override suspend fun update(o: FridgeItem) {
-                mutex.withLock {
-                    db.updateDao()
-                        .update(o)
-                    publishRealtime(Update(o.makeReal()))
-                }
-            }
-        }
+        return updateDao
     }
 
     override fun deleteDao(): FridgeItemDeleteDao {
-        return object : FridgeItemDeleteDao {
-
-            override suspend fun delete(o: FridgeItem) {
-                mutex.withLock {
-                    db.deleteDao()
-                        .delete(o)
-                    publishRealtime(Delete(o.makeReal()))
-                }
-            }
-        }
+        return deleteDao
     }
 
     private data class SimilarityScore internal constructor(val item: FridgeItem, val score: Float)

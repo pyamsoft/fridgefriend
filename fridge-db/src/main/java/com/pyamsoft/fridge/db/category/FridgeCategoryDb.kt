@@ -20,6 +20,7 @@ package com.pyamsoft.fridge.db.category
 import androidx.annotation.CheckResult
 import com.pyamsoft.cachify.Cached1
 import com.pyamsoft.fridge.db.BaseDb
+import com.pyamsoft.pydroid.core.Enforcer
 
 interface FridgeCategoryDb : BaseDb<
     FridgeCategoryChangeEvent,
@@ -34,10 +35,11 @@ interface FridgeCategoryDb : BaseDb<
 
         @CheckResult
         fun wrap(
+            enforcer: Enforcer,
             db: FridgeCategoryDb,
             cache: Cached1<Sequence<FridgeCategory>, Boolean>
         ): FridgeCategoryDb {
-            return FridgeCategoryDbImpl(db) { force -> cache.call(force) }
+            return FridgeCategoryDbImpl(enforcer, db) { force -> cache.call(force) }
         }
     }
 }

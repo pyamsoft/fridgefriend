@@ -20,17 +20,70 @@ package com.pyamsoft.fridge.db.zone
 import com.pyamsoft.fridge.db.zone.NearbyZoneChangeEvent.Delete
 import com.pyamsoft.fridge.db.zone.NearbyZoneChangeEvent.Insert
 import com.pyamsoft.fridge.db.zone.NearbyZoneChangeEvent.Update
+import com.pyamsoft.pydroid.core.Enforcer
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 
 internal class NearbyZoneDbImpl internal constructor(
+    private val enforcer: Enforcer,
     private val db: NearbyZoneDb,
     private val dbQuery: suspend (force: Boolean) -> Sequence<NearbyZone>
 ) : NearbyZoneDb {
 
     private val mutex = Mutex()
 
+    private val queryDao = object : NearbyZoneQueryDao {
+
+        override suspend fun query(force: Boolean): List<NearbyZone> {
+            enforcer.assertNotOnMainThread()
+            mutex.withLock {
+                if (force) {
+                    invalidate()
+                }
+
+                return dbQuery(force).toList()
+            }
+        }
+    }
+
+    private val insertDao = object : NearbyZoneInsertDao {
+
+        override suspend fun insert(o: NearbyZone) {
+            enforcer.assertNotOnMainThread()
+            mutex.withLock {
+                db.insertDao()
+                    .insert(o)
+            }
+            publishRealtime(Insert(o))
+        }
+    }
+
+    private val updateDao = object : NearbyZoneUpdateDao {
+
+        override suspend fun update(o: NearbyZone) {
+            enforcer.assertNotOnMainThread()
+            mutex.withLock {
+                db.updateDao()
+                    .update(o)
+            }
+            publishRealtime(Update(o))
+        }
+    }
+
+    private val deleteDao = object : NearbyZoneDeleteDao {
+
+        override suspend fun delete(o: NearbyZone) {
+            enforcer.assertNotOnMainThread()
+            mutex.withLock {
+                db.deleteDao()
+                    .delete(o)
+            }
+            publishRealtime(Delete(o))
+        }
+    }
+
     private suspend fun publishRealtime(event: NearbyZoneChangeEvent) {
+        enforcer.assertNotOnMainThread()
         invalidate()
         publish(event)
     }
@@ -40,6 +93,7 @@ internal class NearbyZoneDbImpl internal constructor(
     }
 
     override suspend fun publish(event: NearbyZoneChangeEvent) {
+        enforcer.assertNotOnMainThread()
         db.publish(event)
     }
 
@@ -48,56 +102,18 @@ internal class NearbyZoneDbImpl internal constructor(
     }
 
     override fun queryDao(): NearbyZoneQueryDao {
-        return object : NearbyZoneQueryDao {
-
-            override suspend fun query(force: Boolean): List<NearbyZone> {
-                mutex.withLock {
-                    if (force) {
-                        invalidate()
-                    }
-
-                    return dbQuery(force).toList()
-                }
-            }
-        }
+        return queryDao
     }
 
     override fun insertDao(): NearbyZoneInsertDao {
-        return object : NearbyZoneInsertDao {
-
-            override suspend fun insert(o: NearbyZone) {
-                mutex.withLock {
-                    db.insertDao()
-                        .insert(o)
-                }
-                publishRealtime(Insert(o))
-            }
-        }
+        return insertDao
     }
 
     override fun updateDao(): NearbyZoneUpdateDao {
-        return object : NearbyZoneUpdateDao {
-
-            override suspend fun update(o: NearbyZone) {
-                mutex.withLock {
-                    db.updateDao()
-                        .update(o)
-                }
-                publishRealtime(Update(o))
-            }
-        }
+        return updateDao
     }
 
     override fun deleteDao(): NearbyZoneDeleteDao {
-        return object : NearbyZoneDeleteDao {
-
-            override suspend fun delete(o: NearbyZone) {
-                mutex.withLock {
-                    db.deleteDao()
-                        .delete(o)
-                }
-                publishRealtime(Delete(o))
-            }
-        }
+        return deleteDao
     }
 }

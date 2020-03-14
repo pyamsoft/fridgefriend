@@ -23,17 +23,15 @@ import androidx.room.Query
 import com.pyamsoft.fridge.db.room.entity.RoomNearbyZone
 import com.pyamsoft.fridge.db.zone.NearbyZone
 import com.pyamsoft.fridge.db.zone.NearbyZoneQueryDao
-import timber.log.Timber
 
 @Dao
 internal abstract class RoomNearbyZoneQueryDao internal constructor() : NearbyZoneQueryDao {
 
     override suspend fun query(force: Boolean): List<NearbyZone> {
-        Timber.d("ROOM: NearbyZone Query: $force")
         return daoQuery()
     }
 
-    @Query("SELECT * FROM ${RoomNearbyZone.TABLE_NAME}")
     @CheckResult
+    @Query("SELECT * FROM ${RoomNearbyZone.TABLE_NAME}")
     internal abstract suspend fun daoQuery(): List<RoomNearbyZone>
 }

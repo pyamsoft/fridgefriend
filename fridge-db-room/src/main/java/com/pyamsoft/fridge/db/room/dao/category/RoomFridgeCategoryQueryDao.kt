@@ -23,17 +23,15 @@ import androidx.room.Query
 import com.pyamsoft.fridge.db.category.FridgeCategory
 import com.pyamsoft.fridge.db.category.FridgeCategoryQueryDao
 import com.pyamsoft.fridge.db.room.entity.RoomFridgeCategory
-import timber.log.Timber
 
 @Dao
 internal abstract class RoomFridgeCategoryQueryDao internal constructor() : FridgeCategoryQueryDao {
 
     final override suspend fun query(force: Boolean): List<FridgeCategory> {
-        Timber.d("ROOM: Category Query: $force")
         return daoQuery()
     }
 
-    @Query("SELECT * FROM ${RoomFridgeCategory.TABLE_NAME}")
     @CheckResult
+    @Query("SELECT * FROM ${RoomFridgeCategory.TABLE_NAME}")
     internal abstract suspend fun daoQuery(): List<RoomFridgeCategory>
 }

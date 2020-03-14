@@ -35,13 +35,13 @@ import com.pyamsoft.fridge.detail.base.BaseUpdaterViewModel
 import com.pyamsoft.fridge.detail.expand.date.DateSelectPayload
 import com.pyamsoft.fridge.detail.item.isNameValid
 import com.pyamsoft.pydroid.arch.EventBus
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import timber.log.Timber
 import java.util.Calendar
 import java.util.Date
 import javax.inject.Inject
 import javax.inject.Named
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import timber.log.Timber
 
 class ExpandItemViewModel @Inject internal constructor(
     private val itemExpandBus: EventBus<ItemExpandPayload>,
@@ -339,14 +339,14 @@ class ExpandItemViewModel @Inject internal constructor(
             return
         }
 
-        viewModelScope.launch(context = Dispatchers.Main) {
+        viewModelScope.launch(context = Dispatchers.Default) {
             val sameNamedItems = interactor.findSameNamedItems(item.name(), HAVE)
             setState { copy(sameNamedItems = sameNamedItems) }
         }
     }
 
     private fun findSimilarItems(item: FridgeItem) {
-        viewModelScope.launch(context = Dispatchers.Main) {
+        viewModelScope.launch(context = Dispatchers.Default) {
             val similarItems = interactor.findSimilarNamedItems(item)
             setState { copy(similarItems = similarItems) }
         }

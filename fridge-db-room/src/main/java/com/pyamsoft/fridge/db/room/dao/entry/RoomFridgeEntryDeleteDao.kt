@@ -23,13 +23,11 @@ import androidx.room.Query
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.entry.FridgeEntryDeleteDao
 import com.pyamsoft.fridge.db.room.entity.RoomFridgeEntry
-import timber.log.Timber
 
 @Dao
 internal abstract class RoomFridgeEntryDeleteDao internal constructor() : FridgeEntryDeleteDao {
 
     final override suspend fun delete(o: FridgeEntry) {
-        Timber.d("ROOM: Entry Delete: $o")
         val roomEntry = RoomFridgeEntry.create(o)
         daoDelete(roomEntry)
     }
@@ -38,7 +36,6 @@ internal abstract class RoomFridgeEntryDeleteDao internal constructor() : Fridge
     internal abstract fun daoDelete(entry: RoomFridgeEntry)
 
     final override suspend fun deleteAll() {
-        Timber.d("ROOM: Entry DeleteAll")
         daoDeleteAll()
     }
 

@@ -22,13 +22,11 @@ import androidx.room.Delete
 import com.pyamsoft.fridge.db.room.entity.RoomNearbyZone
 import com.pyamsoft.fridge.db.zone.NearbyZone
 import com.pyamsoft.fridge.db.zone.NearbyZoneDeleteDao
-import timber.log.Timber
 
 @Dao
 internal abstract class RoomNearbyZoneDeleteDao internal constructor() : NearbyZoneDeleteDao {
 
     override suspend fun delete(o: NearbyZone) {
-        Timber.d("ROOM: NearbyZone Delete: $o")
         val roomNearbyZone = RoomNearbyZone.create(o)
         daoDelete(roomNearbyZone)
     }

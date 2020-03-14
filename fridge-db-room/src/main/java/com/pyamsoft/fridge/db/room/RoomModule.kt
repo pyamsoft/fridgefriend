@@ -33,6 +33,7 @@ import com.pyamsoft.fridge.db.store.JsonMappableNearbyStore
 import com.pyamsoft.fridge.db.store.NearbyStore
 import com.pyamsoft.fridge.db.zone.JsonMappableNearbyZone
 import com.pyamsoft.fridge.db.zone.NearbyZone
+import com.pyamsoft.pydroid.core.Enforcer
 import dagger.Module
 import dagger.Provides
 import java.util.concurrent.TimeUnit.MINUTES
@@ -48,10 +49,10 @@ abstract class RoomModule {
         @CheckResult
         private fun provideRoom(context: Context): RoomFridgeDbImpl {
             return Room.databaseBuilder(
-                context.applicationContext,
-                RoomFridgeDbImpl::class.java,
-                "fridge_room_db.db"
-            ).fallbackToDestructiveMigration()
+                    context.applicationContext,
+                    RoomFridgeDbImpl::class.java,
+                    "fridge_room_db.db"
+                ).fallbackToDestructiveMigration()
                 .build()
         }
 
@@ -59,7 +60,7 @@ abstract class RoomModule {
         @JvmStatic
         @Provides
         @CheckResult
-        internal fun provideDb(context: Context): FridgeDb {
+        internal fun provideDb(context: Context, enforcer: Enforcer): FridgeDb {
             return provideRoom(context.applicationContext).apply {
                 val cacheTime = 10L
                 val cacheUnit = MINUTES
@@ -108,7 +109,7 @@ abstract class RoomModule {
                         .map { JsonMappableFridgeCategory.from(it) }
                 }
 
-                applyCaches(entryCache, itemCache, storeCache, zoneCache, categoryCache)
+                bind(enforcer, entryCache, itemCache, storeCache, zoneCache, categoryCache)
             }
         }
     }

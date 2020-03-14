@@ -24,26 +24,25 @@ import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence
 import com.pyamsoft.fridge.db.item.FridgeItemQueryDao
+import com.pyamsoft.fridge.db.room.dao.RoomIsLameException
 import com.pyamsoft.fridge.db.room.entity.RoomFridgeItem
-import timber.log.Timber
 
 @Dao
 internal abstract class RoomFridgeItemQueryDao internal constructor() : FridgeItemQueryDao {
 
     final override suspend fun query(force: Boolean): List<FridgeItem> {
-        Timber.d("ROOM: All Items Query: $force")
         return daoQuery()
     }
 
-    @Query("SELECT * FROM ${RoomFridgeItem.TABLE_NAME}")
     @CheckResult
+    @Query("SELECT * FROM ${RoomFridgeItem.TABLE_NAME}")
     internal abstract suspend fun daoQuery(): List<RoomFridgeItem>
 
     final override suspend fun query(
         force: Boolean,
         id: FridgeEntry.Id
     ): List<FridgeItem> {
-        throw IllegalStateException("This method should not be called")
+        throw RoomIsLameException
     }
 
     final override suspend fun querySameNameDifferentPresence(
@@ -51,13 +50,13 @@ internal abstract class RoomFridgeItemQueryDao internal constructor() : FridgeIt
         name: String,
         presence: Presence
     ): List<FridgeItem> {
-        throw IllegalStateException("This method should not be called")
+        throw RoomIsLameException
     }
 
     final override suspend fun querySimilarNamedItems(
         force: Boolean,
         item: FridgeItem
     ): List<FridgeItem> {
-        throw IllegalStateException("This method should not be called")
+        throw RoomIsLameException
     }
 }

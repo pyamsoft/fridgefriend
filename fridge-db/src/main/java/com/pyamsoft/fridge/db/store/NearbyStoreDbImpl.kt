@@ -20,17 +20,71 @@ package com.pyamsoft.fridge.db.store
 import com.pyamsoft.fridge.db.store.NearbyStoreChangeEvent.Delete
 import com.pyamsoft.fridge.db.store.NearbyStoreChangeEvent.Insert
 import com.pyamsoft.fridge.db.store.NearbyStoreChangeEvent.Update
+import com.pyamsoft.pydroid.core.Enforcer
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 
 internal class NearbyStoreDbImpl internal constructor(
+    private val enforcer: Enforcer,
     private val db: NearbyStoreDb,
     private val dbQuery: suspend (force: Boolean) -> Sequence<NearbyStore>
 ) : NearbyStoreDb {
 
     private val mutex = Mutex()
 
+    private val queryDao = object : NearbyStoreQueryDao {
+
+        override suspend fun query(force: Boolean): List<NearbyStore> {
+            enforcer.assertNotOnMainThread()
+            mutex.withLock {
+                if (force) {
+                    invalidate()
+                }
+
+                return dbQuery(force)
+                    .toList()
+            }
+        }
+    }
+
+    private val insertDao = object : NearbyStoreInsertDao {
+
+        override suspend fun insert(o: NearbyStore) {
+            enforcer.assertNotOnMainThread()
+            mutex.withLock {
+                db.insertDao()
+                    .insert(o)
+            }
+            publishRealtime(Insert(o))
+        }
+    }
+
+    private val updateDao = object : NearbyStoreUpdateDao {
+
+        override suspend fun update(o: NearbyStore) {
+            enforcer.assertNotOnMainThread()
+            mutex.withLock {
+                db.updateDao()
+                    .update(o)
+            }
+            publishRealtime(Update(o))
+        }
+    }
+
+    private val deleteDao = object : NearbyStoreDeleteDao {
+
+        override suspend fun delete(o: NearbyStore) {
+            enforcer.assertNotOnMainThread()
+            mutex.withLock {
+                db.deleteDao()
+                    .delete(o)
+            }
+            publishRealtime(Delete(o))
+        }
+    }
+
     private suspend fun publishRealtime(event: NearbyStoreChangeEvent) {
+        enforcer.assertNotOnMainThread()
         invalidate()
         publish(event)
     }
@@ -40,6 +94,7 @@ internal class NearbyStoreDbImpl internal constructor(
     }
 
     override suspend fun publish(event: NearbyStoreChangeEvent) {
+        enforcer.assertNotOnMainThread()
         db.publish(event)
     }
 
@@ -48,57 +103,18 @@ internal class NearbyStoreDbImpl internal constructor(
     }
 
     override fun queryDao(): NearbyStoreQueryDao {
-        return object : NearbyStoreQueryDao {
-
-            override suspend fun query(force: Boolean): List<NearbyStore> {
-                mutex.withLock {
-                    if (force) {
-                        invalidate()
-                    }
-
-                    return dbQuery(force)
-                        .toList()
-                }
-            }
-        }
+        return queryDao
     }
 
     override fun insertDao(): NearbyStoreInsertDao {
-        return object : NearbyStoreInsertDao {
-
-            override suspend fun insert(o: NearbyStore) {
-                mutex.withLock {
-                    db.insertDao()
-                        .insert(o)
-                }
-                publishRealtime(Insert(o))
-            }
-        }
+        return insertDao
     }
 
     override fun updateDao(): NearbyStoreUpdateDao {
-        return object : NearbyStoreUpdateDao {
-
-            override suspend fun update(o: NearbyStore) {
-                mutex.withLock {
-                    db.updateDao()
-                        .update(o)
-                }
-                publishRealtime(Update(o))
-            }
-        }
+        return updateDao
     }
 
     override fun deleteDao(): NearbyStoreDeleteDao {
-        return object : NearbyStoreDeleteDao {
-
-            override suspend fun delete(o: NearbyStore) {
-                mutex.withLock {
-                    db.deleteDao()
-                        .delete(o)
-                }
-                publishRealtime(Delete(o))
-            }
-        }
+        return deleteDao
     }
 }

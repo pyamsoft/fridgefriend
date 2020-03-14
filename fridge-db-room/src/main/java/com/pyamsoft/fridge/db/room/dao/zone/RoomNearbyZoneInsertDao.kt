@@ -23,13 +23,11 @@ import androidx.room.OnConflictStrategy
 import com.pyamsoft.fridge.db.room.entity.RoomNearbyZone
 import com.pyamsoft.fridge.db.zone.NearbyZone
 import com.pyamsoft.fridge.db.zone.NearbyZoneInsertDao
-import timber.log.Timber
 
 @Dao
 internal abstract class RoomNearbyZoneInsertDao internal constructor() : NearbyZoneInsertDao {
 
     override suspend fun insert(o: NearbyZone) {
-        Timber.d("ROOM: NearbyZone Insert: $o")
         val roomNearbyZone = RoomNearbyZone.create(o)
         daoInsert(roomNearbyZone)
     }

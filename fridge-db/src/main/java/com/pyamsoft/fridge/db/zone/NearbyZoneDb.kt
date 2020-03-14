@@ -20,6 +20,7 @@ package com.pyamsoft.fridge.db.zone
 import androidx.annotation.CheckResult
 import com.pyamsoft.cachify.Cached1
 import com.pyamsoft.fridge.db.BaseDb
+import com.pyamsoft.pydroid.core.Enforcer
 
 interface NearbyZoneDb : BaseDb<
     NearbyZoneChangeEvent,
@@ -34,10 +35,11 @@ interface NearbyZoneDb : BaseDb<
 
         @CheckResult
         fun wrap(
+            enforcer: Enforcer,
             db: NearbyZoneDb,
             cache: Cached1<Sequence<NearbyZone>, Boolean>
         ): NearbyZoneDb {
-            return NearbyZoneDbImpl(db) { force -> cache.call(force) }
+            return NearbyZoneDbImpl(enforcer, db) { force -> cache.call(force) }
         }
     }
 }

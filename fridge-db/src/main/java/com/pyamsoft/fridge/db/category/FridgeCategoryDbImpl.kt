@@ -20,17 +20,70 @@ package com.pyamsoft.fridge.db.category
 import com.pyamsoft.fridge.db.category.FridgeCategoryChangeEvent.Delete
 import com.pyamsoft.fridge.db.category.FridgeCategoryChangeEvent.Insert
 import com.pyamsoft.fridge.db.category.FridgeCategoryChangeEvent.Update
+import com.pyamsoft.pydroid.core.Enforcer
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 
 internal class FridgeCategoryDbImpl internal constructor(
+    private val enforcer: Enforcer,
     private val db: FridgeCategoryDb,
     private val dbQuery: suspend (force: Boolean) -> Sequence<FridgeCategory>
 ) : FridgeCategoryDb {
 
     private val mutex = Mutex()
 
+    private val queryDao = object : FridgeCategoryQueryDao {
+
+        override suspend fun query(force: Boolean): List<FridgeCategory> {
+            enforcer.assertNotOnMainThread()
+            mutex.withLock {
+                if (force) {
+                    invalidate()
+                }
+
+                return dbQuery(force).toList()
+            }
+        }
+    }
+
+    private val insertDao = object : FridgeCategoryInsertDao {
+
+        override suspend fun insert(o: FridgeCategory) {
+            enforcer.assertNotOnMainThread()
+            mutex.withLock {
+                db.insertDao()
+                    .insert(o)
+                publishRealtime(Insert(o))
+            }
+        }
+    }
+
+    private val updateDao = object : FridgeCategoryUpdateDao {
+
+        override suspend fun update(o: FridgeCategory) {
+            enforcer.assertNotOnMainThread()
+            mutex.withLock {
+                db.updateDao()
+                    .update(o)
+                publishRealtime(Update(o))
+            }
+        }
+    }
+
+    private val deleteDao = object : FridgeCategoryDeleteDao {
+
+        override suspend fun delete(o: FridgeCategory) {
+            enforcer.assertNotOnMainThread()
+            mutex.withLock {
+                db.deleteDao()
+                    .delete(o)
+                publishRealtime(Delete(o))
+            }
+        }
+    }
+
     private suspend fun publishRealtime(event: FridgeCategoryChangeEvent) {
+        enforcer.assertNotOnMainThread()
         invalidate()
         publish(event)
     }
@@ -40,6 +93,7 @@ internal class FridgeCategoryDbImpl internal constructor(
     }
 
     override suspend fun publish(event: FridgeCategoryChangeEvent) {
+        enforcer.assertNotOnMainThread()
         db.publish(event)
     }
 
@@ -48,56 +102,18 @@ internal class FridgeCategoryDbImpl internal constructor(
     }
 
     override fun queryDao(): FridgeCategoryQueryDao {
-        return object : FridgeCategoryQueryDao {
-
-            override suspend fun query(force: Boolean): List<FridgeCategory> {
-                mutex.withLock {
-                    if (force) {
-                        invalidate()
-                    }
-
-                    return dbQuery(force).toList()
-                }
-            }
-        }
+        return queryDao
     }
 
     override fun insertDao(): FridgeCategoryInsertDao {
-        return object : FridgeCategoryInsertDao {
-
-            override suspend fun insert(o: FridgeCategory) {
-                mutex.withLock {
-                    db.insertDao()
-                        .insert(o)
-                    publishRealtime(Insert(o))
-                }
-            }
-        }
+        return insertDao
     }
 
     override fun updateDao(): FridgeCategoryUpdateDao {
-        return object : FridgeCategoryUpdateDao {
-
-            override suspend fun update(o: FridgeCategory) {
-                mutex.withLock {
-                    db.updateDao()
-                        .update(o)
-                    publishRealtime(Update(o))
-                }
-            }
-        }
+        return updateDao
     }
 
     override fun deleteDao(): FridgeCategoryDeleteDao {
-        return object : FridgeCategoryDeleteDao {
-
-            override suspend fun delete(o: FridgeCategory) {
-                mutex.withLock {
-                    db.deleteDao()
-                        .delete(o)
-                    publishRealtime(Delete(o))
-                }
-            }
-        }
+        return deleteDao
     }
 }

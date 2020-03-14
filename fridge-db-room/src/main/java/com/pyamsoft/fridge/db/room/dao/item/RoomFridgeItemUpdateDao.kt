@@ -23,13 +23,11 @@ import androidx.room.Update
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItemUpdateDao
 import com.pyamsoft.fridge.db.room.entity.RoomFridgeItem
-import timber.log.Timber
 
 @Dao
 internal abstract class RoomFridgeItemUpdateDao internal constructor() : FridgeItemUpdateDao {
 
     final override suspend fun update(o: FridgeItem) {
-        Timber.d("ROOM: Item Update: $o")
         val roomItem = RoomFridgeItem.create(o)
         daoUpdate(roomItem)
     }
