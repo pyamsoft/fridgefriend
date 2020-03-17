@@ -24,11 +24,13 @@ import com.pyamsoft.fridge.db.item.isArchived
 import com.pyamsoft.pydroid.arch.UiControllerEvent
 import com.pyamsoft.pydroid.arch.UiViewEvent
 import com.pyamsoft.pydroid.arch.UiViewState
+import java.util.Date
 
 data class DetailViewState(
-    val items: List<FridgeItem>,
+    internal val items: List<FridgeItem>,
     val isLoading: Loading?,
     val entry: FridgeEntry?,
+    val sort: Sorts,
     val showing: Showing,
     val listError: Throwable?,
     val undoableItem: FridgeItem?,
@@ -38,10 +40,35 @@ data class DetailViewState(
     val isItemExpanded: Boolean
 ) : UiViewState {
 
+    internal val dateSorter = Comparator<FridgeItem> { o1, o2 ->
+        when (sort) {
+            Sorts.CREATED -> o1.createdTime().compareTo(o2.createdTime())
+            Sorts.NAME -> o1.name().compareTo(o2.name(), ignoreCase = true)
+            Sorts.PURCHASED -> o1.purchaseTime().compareTo(o2.purchaseTime())
+            Sorts.EXPIRATION -> o1.expireTime().compareTo(o2.expireTime())
+        }
+    }
+
+    // Compare dates which may be null
+    // Null dates come after non-null dates
+    @CheckResult
+    private fun Date?.compareTo(other: Date?): Int {
+        return if (this == null && other == null) 0 else {
+            if (other == null) -1 else this?.compareTo(other) ?: 1
+        }
+    }
+
     enum class Showing {
         FRESH,
         CONSUMED,
         SPOILED
+    }
+
+    enum class Sorts {
+        CREATED,
+        NAME,
+        PURCHASED,
+        EXPIRATION
     }
 
     @CheckResult

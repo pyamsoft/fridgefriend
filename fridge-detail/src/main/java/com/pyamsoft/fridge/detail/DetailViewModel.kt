@@ -58,6 +58,7 @@ class DetailViewModel @Inject internal constructor(
         entry = null,
         isLoading = null,
         showing = DetailViewState.Showing.FRESH,
+        sort = DetailViewState.Sorts.CREATED,
         listError = null,
         undoableItem = null,
         expirationRange = null,
@@ -405,14 +406,7 @@ class DetailViewModel @Inject internal constructor(
             .filterNot { it.isEmpty() }
             .filter { it.presence() == listItemPresence }
             // Sort
-            .sortedWith(Comparator { o1, o2 ->
-                return@Comparator when {
-                    o1.isArchived() && o2.isArchived() -> 0
-                    o1.isArchived() -> 1
-                    o2.isArchived() -> -1
-                    else -> 0
-                }
-            })
+            .sortedWith(dateSorter)
             .toList()
 
         return if (listItems.isEmpty()) emptyList() else listItems.boundary()
