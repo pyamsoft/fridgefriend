@@ -37,4 +37,10 @@ class CategoryHeroImage @Inject internal constructor(
         // TODO
         return null
     }
+
+    override fun onAdditionalRender(state: CategoryViewState) {
+        binding.coreHeroTitle.text = "Categories"
+        binding.coreHeroItemLabel.setText(R.string.total_number_of_items)
+        binding.coreHeroItemValue.text = "${state.items.size}"
+    }
 }
