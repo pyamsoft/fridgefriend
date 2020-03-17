@@ -30,11 +30,12 @@ import com.pyamsoft.fridge.locator.map.osm.popup.zone.ZoneInfoComponent
 import com.pyamsoft.fridge.main.MainActivity
 import com.pyamsoft.pydroid.bootstrap.libraries.OssLibraries
 import com.pyamsoft.pydroid.ui.PYDroid
+import com.pyamsoft.pydroid.util.isDebugMode
 import com.squareup.moshi.Moshi
-import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 class FridgeFriend : Application() {
 
@@ -46,23 +47,20 @@ class FridgeFriend : Application() {
 
     override fun onCreate() {
         super.onCreate()
-        val debug = BuildConfig.DEBUG
         val url = "https://github.com/pyamsoft/fridgefriend"
         val parameters = PYDroid.Parameters(
-            getString(R.string.app_name),
             url,
             "$url/issues",
             Core.PRIVACY_POLICY_URL,
             Core.TERMS_CONDITIONS_URL,
-            BuildConfig.VERSION_CODE,
-            debug
+            BuildConfig.VERSION_CODE
         )
         PYDroid.init(this, parameters) { provider ->
             val moshi = Moshi.Builder()
                 .build()
             component = DaggerFridgeComponent.factory().create(
                 this,
-                debug,
+                isDebugMode(),
                 moshi,
                 provider.theming(),
                 provider.enforcer(),
