@@ -32,8 +32,8 @@ import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.loader.Loaded
 import com.pyamsoft.pydroid.ui.util.popShow
 import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
-import javax.inject.Inject
 import timber.log.Timber
+import javax.inject.Inject
 
 class AddNewItemView @Inject internal constructor(
     private val imageLoader: ImageLoader,
@@ -46,10 +46,10 @@ class AddNewItemView @Inject internal constructor(
     override val layoutRoot by boundView { detailAddNewItem }
 
     private var addNewIconLoaded: Loaded? = null
+    private var sortIconLoaded: Loaded? = null
     private var filterIconLoaded: Loaded? = null
 
     private var addNewIconAnimator: ViewPropertyAnimatorCompat? = null
-    private var filterIconAnimator: ViewPropertyAnimatorCompat? = null
     private var rotateIconAnimator: ViewPropertyAnimatorCompat? = null
 
     private var previousRotated = false
@@ -60,7 +60,9 @@ class AddNewItemView @Inject internal constructor(
                 .load(R.drawable.ic_add_24dp)
                 .into(binding.detailAddNewItem)
 
-            binding.detailAddNewItem.setOnDebouncedClickListener { expandItem() }
+            binding.detailAddNewItem.setOnDebouncedClickListener {
+                publish(DetailViewEvent.AddNewItemEvent)
+            }
         }
 
         doOnTeardown {
@@ -69,22 +71,19 @@ class AddNewItemView @Inject internal constructor(
         }
 
         doOnInflate {
-            binding.detailFilterItem.setOnDebouncedClickListener { toggleArchived() }
+            binding.detailSortItem.setOnDebouncedClickListener {
+                publish(DetailViewEvent.ToggleSort)
+            }
+        }
+
+        doOnTeardown {
+            disposeSortLoaded()
+            binding.detailSortItem.setOnClickListener(null)
         }
 
         doOnInflate {
-            val expandAnimator = binding.detailAddNewItem.popShow().withEndAction {
-                if (listItemPresence == FridgeItem.Presence.HAVE) {
-                    val filterAnimator = binding.detailFilterItem.popShow()
-                    doOnTeardown {
-                        filterAnimator.cancel()
-                    }
-                } else {
-                    binding.detailFilterItem.isVisible = false
-                }
-            }
-            doOnTeardown {
-                expandAnimator.cancel()
+            binding.detailFilterItem.setOnDebouncedClickListener {
+                publish(DetailViewEvent.ToggleArchiveVisibility)
             }
         }
 
@@ -93,16 +92,28 @@ class AddNewItemView @Inject internal constructor(
             binding.detailFilterItem.setOnClickListener(null)
         }
 
+        doOnInflate {
+            binding.detailAddNewItem.popShow().withEndAction {
+                binding.detailSortItem.popShow().withEndAction {
+                    if (listItemPresence == FridgeItem.Presence.HAVE) {
+                        binding.detailFilterItem.popShow().apply { doOnTeardown { cancel() } }
+                    } else {
+                        binding.detailFilterItem.isVisible = false
+                    }
+                }.apply { doOnTeardown { cancel() } }
+
+            }.apply { doOnTeardown { cancel() } }
+        }
+
         doOnTeardown {
             disposeAddNewAnimator()
-            disposeFilterAnimator()
             disposeRotate()
         }
     }
 
-    private fun disposeFilterAnimator() {
-        filterIconAnimator?.cancel()
-        filterIconAnimator = null
+    private fun disposeSortLoaded() {
+        sortIconLoaded?.dispose()
+        sortIconLoaded = null
     }
 
     private fun disposeFilterLoaded() {
@@ -125,17 +136,8 @@ class AddNewItemView @Inject internal constructor(
         rotateIconAnimator = null
     }
 
-    private fun expandItem() {
-        publish(DetailViewEvent.AddNewItemEvent)
-    }
-
-    private fun toggleArchived() {
-        publish(DetailViewEvent.ToggleArchiveVisibility)
-    }
-
     override fun onRender(state: DetailViewState) {
         val presence = state.listItemPresence
-        val hideFilter = presence == FridgeItem.Presence.NEED
 
         state.showing.let { showing ->
             disposeFilterLoaded()
@@ -148,6 +150,20 @@ class AddNewItemView @Inject internal constructor(
                     }
                 )
                 .into(binding.detailFilterItem)
+        }
+
+        state.sort.let { sort ->
+            disposeSortLoaded()
+            sortIconLoaded = imageLoader
+                .load(
+                    when (sort) {
+                        DetailViewState.Sorts.CREATED -> R.drawable.ic_open_in_browser_24dp
+                        DetailViewState.Sorts.NAME -> R.drawable.ic_consumed_24dp
+                        DetailViewState.Sorts.EXPIRATION -> R.drawable.ic_spoiled_24dp
+                        DetailViewState.Sorts.PURCHASED -> R.drawable.ic_bug_report_24dp
+                    }
+                )
+                .into(binding.detailSortItem)
         }
 
         state.isItemExpanded.let { expanded ->
@@ -174,8 +190,7 @@ class AddNewItemView @Inject internal constructor(
         }
 
         // Hide filter button for NEED
-        if (hideFilter) {
-            disposeFilterAnimator()
+        if (presence == FridgeItem.Presence.NEED) {
             binding.detailFilterItem.isVisible = false
         }
     }

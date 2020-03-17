@@ -33,12 +33,27 @@
         app:pressedTranslationZ="12dp" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/detail_filter_item"
+        android:id="@+id/detail_sort_item"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="end|bottom"
         android:layout_marginStart="16dp"
         android:layout_marginEnd="88dp"
+        android:layout_marginBottom="24dp"
+        android:contentDescription="@string/blank"
+        android:visibility="invisible"
+        app:backgroundTint="@color/grey500"
+        app:elevation="6dp"
+        app:fabSize="mini"
+        app:pressedTranslationZ="12dp" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/detail_filter_item"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end|bottom"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="144dp"
         android:layout_marginBottom="24dp"
         android:contentDescription="@string/blank"
         android:visibility="invisible"

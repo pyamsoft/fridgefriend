@@ -27,12 +27,6 @@ import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent.Insert
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent.Update
 import com.pyamsoft.fridge.db.item.isArchived
 import com.pyamsoft.fridge.detail.DetailControllerEvent.ExpandForEditing
-import com.pyamsoft.fridge.detail.DetailViewEvent.ExpandItem
-import com.pyamsoft.fridge.detail.DetailViewEvent.ForceRefresh
-import com.pyamsoft.fridge.detail.DetailViewEvent.ReallyDeleteNoUndo
-import com.pyamsoft.fridge.detail.DetailViewEvent.ToggleArchiveVisibility
-import com.pyamsoft.fridge.detail.DetailViewEvent.UndoDelete
-import com.pyamsoft.fridge.detail.DetailViewState.Loading
 import com.pyamsoft.fridge.detail.base.BaseUpdaterViewModel
 import com.pyamsoft.fridge.detail.expand.ItemExpandPayload
 import com.pyamsoft.highlander.highlander
@@ -169,11 +163,12 @@ class DetailViewModel @Inject internal constructor(
 
     override fun handleViewEvent(event: DetailViewEvent) {
         return when (event) {
-            is ForceRefresh -> refreshList(true)
-            is ExpandItem -> expand(event.item)
-            is ToggleArchiveVisibility -> toggleArchived()
-            is ReallyDeleteNoUndo -> setState { copy(undoableItem = null) }
-            is UndoDelete -> handleUndoDelete(event.item)
+            is DetailViewEvent.ForceRefresh -> refreshList(true)
+            is DetailViewEvent.ExpandItem -> expand(event.item)
+            is DetailViewEvent.ToggleSort -> toggleSort()
+            is DetailViewEvent.ToggleArchiveVisibility -> toggleArchived()
+            is DetailViewEvent.ReallyDeleteNoUndo -> setState { copy(undoableItem = null) }
+            is DetailViewEvent.UndoDelete -> handleUndoDelete(event.item)
             is DetailViewEvent.AddNewItemEvent -> publish(DetailControllerEvent.AddNew(entryId))
             is DetailViewEvent.ChangePresence -> commitPresence(event.item)
             is DetailViewEvent.Consume -> consume(event.item)
@@ -204,7 +199,30 @@ class DetailViewModel @Inject internal constructor(
             }
             copy(showing = newShowing)
         }
-        refreshList(false)
+        withState {
+            refreshList(false)
+        }
+    }
+
+    private fun toggleSort() {
+        setState {
+            val expirationSortResult = if (listItemPresence == FridgeItem.Presence.HAVE) {
+                DetailViewState.Sorts.PURCHASED
+            } else {
+                DetailViewState.Sorts.CREATED
+            }
+
+            val newSort = when (sort) {
+                DetailViewState.Sorts.CREATED -> DetailViewState.Sorts.NAME
+                DetailViewState.Sorts.NAME -> DetailViewState.Sorts.EXPIRATION
+                DetailViewState.Sorts.EXPIRATION -> expirationSortResult
+                DetailViewState.Sorts.PURCHASED -> DetailViewState.Sorts.CREATED
+            }
+            copy(sort = newSort)
+        }
+        withState {
+            refreshList(false)
+        }
     }
 
     private fun refreshList(force: Boolean) {
@@ -291,7 +309,7 @@ class DetailViewModel @Inject internal constructor(
     }
 
     private fun handleListRefreshBegin() {
-        setState { copy(isLoading = Loading(true)) }
+        setState { copy(isLoading = DetailViewState.Loading(true)) }
     }
 
     private fun handleListRefreshed(items: List<FridgeItem>) {
@@ -313,7 +331,7 @@ class DetailViewModel @Inject internal constructor(
     }
 
     private fun handleListRefreshComplete() {
-        setState { copy(isLoading = Loading(false)) }
+        setState { copy(isLoading = DetailViewState.Loading(false)) }
     }
 
     private fun handleFakeDelete(item: FridgeItem) {
