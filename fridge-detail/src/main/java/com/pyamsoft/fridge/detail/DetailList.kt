@@ -74,11 +74,11 @@ class DetailList @Inject internal constructor(
                 factory = factory,
                 callback = object : Callback {
                     override fun onItemExpanded(index: Int) {
-                        publish(DetailViewEvent.ExpandItem(index))
+                        publish(DetailViewEvent.ExpandItem(itemAtIndex(index)))
                     }
 
                     override fun onPresenceChange(index: Int) {
-                        publish(DetailViewEvent.ChangePresence(index))
+                        publish(DetailViewEvent.ChangePresence(itemAtIndex(index)))
                     }
                 })
             binding.detailList.adapter = usingAdapter().apply { setHasStableIds(true) }
@@ -100,6 +100,11 @@ class DetailList @Inject internal constructor(
             modelAdapter = null
             touchHelper = null
         }
+    }
+
+    @CheckResult
+    private fun itemAtIndex(index: Int): FridgeItem {
+        return usingAdapter().currentList[index].item
     }
 
     private fun setupSwipeCallback(
@@ -195,19 +200,19 @@ class DetailList @Inject internal constructor(
     }
 
     private fun restoreListItem(position: Int) {
-        publish(DetailViewEvent.Restore(position))
+        publish(DetailViewEvent.Restore(itemAtIndex(position)))
     }
 
     private fun deleteListItem(position: Int) {
-        publish(DetailViewEvent.Delete(position))
+        publish(DetailViewEvent.Delete(itemAtIndex(position)))
     }
 
     private fun consumeListItem(position: Int) {
-        publish(DetailViewEvent.Consume(position))
+        publish(DetailViewEvent.Consume(itemAtIndex(position)))
     }
 
     private fun spoilListItem(position: Int) {
-        publish(DetailViewEvent.Spoil(position))
+        publish(DetailViewEvent.Spoil(itemAtIndex(position)))
     }
 
     private fun setList(

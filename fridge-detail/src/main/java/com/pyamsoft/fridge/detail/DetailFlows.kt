@@ -20,14 +20,13 @@ package com.pyamsoft.fridge.detail
 import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItem
+import com.pyamsoft.fridge.db.item.isArchived
 import com.pyamsoft.pydroid.arch.UiControllerEvent
 import com.pyamsoft.pydroid.arch.UiViewEvent
 import com.pyamsoft.pydroid.arch.UiViewState
 
 data class DetailViewState(
-    val freshItems: List<FridgeItem>,
-    val spoiledItems: List<FridgeItem>,
-    val consumedItems: List<FridgeItem>,
+    val items: List<FridgeItem>,
     val isLoading: Loading?,
     val entry: FridgeEntry?,
     val showing: Showing,
@@ -47,10 +46,12 @@ data class DetailViewState(
 
     @CheckResult
     fun getShowingItems(): List<FridgeItem> {
-        return when (showing) {
-            Showing.FRESH -> freshItems
-            Showing.CONSUMED -> consumedItems
-            Showing.SPOILED -> spoiledItems
+        return items.filter {
+            when (showing) {
+                Showing.FRESH -> !it.isArchived()
+                Showing.CONSUMED -> it.isConsumed()
+                Showing.SPOILED -> it.isSpoiled()
+            }
         }
     }
 
@@ -61,17 +62,17 @@ data class DetailViewState(
 
     @CheckResult
     fun getFreshItemCount(): Int {
-        return filterValid { freshItems }.size
+        return filterValid { items.filterNot { it.isArchived() } }.size
     }
 
     @CheckResult
     fun getSpoiledItemCount(): Int {
-        return filterValid { spoiledItems }.size
+        return filterValid { items.filter { it.isSpoiled() } }.size
     }
 
     @CheckResult
     fun getConsumedItemCount(): Int {
-        return filterValid { consumedItems }.size
+        return filterValid { items.filter { it.isConsumed() } }.size
     }
 
     @CheckResult
@@ -92,23 +93,23 @@ sealed class DetailViewEvent : UiViewEvent {
 
     object ForceRefresh : DetailViewEvent()
 
-    data class ExpandItem internal constructor(val index: Int) : DetailViewEvent()
-
-    data class ChangePresence internal constructor(val index: Int) : DetailViewEvent()
-
     object ToggleArchiveVisibility : DetailViewEvent()
 
     data class UndoDelete internal constructor(val item: FridgeItem) : DetailViewEvent()
 
     data class ReallyDeleteNoUndo internal constructor(val item: FridgeItem) : DetailViewEvent()
 
-    data class Consume internal constructor(val index: Int) : DetailViewEvent()
+    data class Consume internal constructor(val item: FridgeItem) : DetailViewEvent()
 
-    data class Delete internal constructor(val index: Int) : DetailViewEvent()
+    data class Delete internal constructor(val item: FridgeItem) : DetailViewEvent()
 
-    data class Restore internal constructor(val index: Int) : DetailViewEvent()
+    data class Restore internal constructor(val item: FridgeItem) : DetailViewEvent()
 
-    data class Spoil internal constructor(val index: Int) : DetailViewEvent()
+    data class Spoil internal constructor(val item: FridgeItem) : DetailViewEvent()
+
+    data class ExpandItem internal constructor(val item: FridgeItem) : DetailViewEvent()
+
+    data class ChangePresence internal constructor(val item: FridgeItem) : DetailViewEvent()
 }
 
 sealed class DetailControllerEvent : UiControllerEvent {

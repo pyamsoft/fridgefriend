@@ -64,9 +64,7 @@ class DetailViewModel @Inject internal constructor(
         isSameDayExpired = null,
         listItemPresence = listItemPresence,
         isItemExpanded = false,
-        freshItems = emptyList(),
-        spoiledItems = emptyList(),
-        consumedItems = emptyList()
+        items = emptyList()
     ), debug = debug
 ) {
 
@@ -171,25 +169,23 @@ class DetailViewModel @Inject internal constructor(
     override fun handleViewEvent(event: DetailViewEvent) {
         return when (event) {
             is ForceRefresh -> refreshList(true)
-            is ExpandItem -> expand(event.index)
+            is ExpandItem -> expand(event.item)
             is ToggleArchiveVisibility -> toggleArchived()
             is ReallyDeleteNoUndo -> setState { copy(undoableItem = null) }
             is UndoDelete -> handleUndoDelete(event.item)
             is DetailViewEvent.AddNewItemEvent -> publish(DetailControllerEvent.AddNew(entryId))
-            is DetailViewEvent.ChangePresence -> commitPresence(event.index)
-            is DetailViewEvent.Consume -> consume(event.index)
-            is DetailViewEvent.Delete -> delete(event.index)
-            is DetailViewEvent.Restore -> restore(event.index)
-            is DetailViewEvent.Spoil -> spoil(event.index)
+            is DetailViewEvent.ChangePresence -> commitPresence(event.item)
+            is DetailViewEvent.Consume -> consume(event.item)
+            is DetailViewEvent.Delete -> delete(event.item)
+            is DetailViewEvent.Restore -> restore(event.item)
+            is DetailViewEvent.Spoil -> spoil(event.item)
         }
     }
 
-    private fun expand(index: Int) {
+    private fun expand(item: FridgeItem) {
         withState {
             if (showing == DetailViewState.Showing.FRESH) {
-                withShowingItem(index) { item ->
-                    publish(ExpandForEditing(item))
-                }
+                publish(ExpandForEditing(item))
             }
         }
     }
@@ -251,83 +247,43 @@ class DetailViewModel @Inject internal constructor(
         return items.any { item.id() == it.id() && item.entryId() == it.entryId() }
     }
 
-    @CheckResult
-    private fun DetailViewState.insert(
-        items: List<FridgeItem>,
-        item: FridgeItem,
-        showing: DetailViewState.Showing
-    ): List<FridgeItem> {
-        val newItems = items.toMutableList()
-        insertOrUpdate(newItems, item)
-        return getListItems(newItems, showing)
-    }
-
     private fun handleRealtimeInsert(item: FridgeItem) {
         setState {
             copy(
-                freshItems = insert(freshItems, item, DetailViewState.Showing.FRESH),
-                spoiledItems = insert(spoiledItems, item, DetailViewState.Showing.SPOILED),
-                consumedItems = insert(consumedItems, item, DetailViewState.Showing.CONSUMED)
+                items = items.let { items ->
+                    val newItems = items.toMutableList()
+                    insertOrUpdate(newItems, item)
+                    prepareListItems(newItems)
+                }
             )
         }
     }
 
-    @CheckResult
-    private fun DetailViewState.delete(
-        items: List<FridgeItem>,
-        item: FridgeItem,
-        showing: DetailViewState.Showing
-    ): List<FridgeItem> {
-        return getListItems(items.filterNot { it.id() == item.id() }, showing)
-    }
-
-    @CheckResult
-    private fun DetailViewState.update(
-        items: List<FridgeItem>,
-        item: FridgeItem,
-        showing: DetailViewState.Showing
-    ): List<FridgeItem> {
-        return getListItems(if (items.map { it.id() }.contains(item.id())) {
-            items.map { old ->
-                if (old.id() == item.id()) {
-                    return@map item
-                } else {
-                    return@map old
-                }
-            }
-        } else {
-            items + item
-        }, showing)
-    }
-
     private fun handleRealtimeUpdate(item: FridgeItem) {
-        // Remove Archived items
-        if (item.isArchived()) {
-            setState {
-                copy(
-                    freshItems = delete(freshItems, item, DetailViewState.Showing.FRESH),
-                    spoiledItems = delete(spoiledItems, item, DetailViewState.Showing.SPOILED),
-                    consumedItems = delete(consumedItems, item, DetailViewState.Showing.CONSUMED),
-                    undoableItem = item
-                )
-            }
-        } else {
-            setState {
-                copy(
-                    freshItems = update(freshItems, item, DetailViewState.Showing.FRESH),
-                    spoiledItems = update(spoiledItems, item, DetailViewState.Showing.SPOILED),
-                    consumedItems = update(consumedItems, item, DetailViewState.Showing.CONSUMED)
-                )
-            }
+        setState {
+            copy(
+                items = prepareListItems(if (items.map { it.id() }.contains(item.id())) {
+                    items.map { old ->
+                        if (old.id() == item.id()) {
+                            return@map item
+                        } else {
+                            return@map old
+                        }
+                    }
+                } else {
+                    items + item
+                }),
+
+                // Show undo banner if we are archiving this item, otherwise no-op
+                undoableItem = if (item.isArchived()) item else undoableItem
+            )
         }
     }
 
     private fun handleRealtimeDelete(item: FridgeItem) {
         setState {
             copy(
-                freshItems = delete(freshItems, item, DetailViewState.Showing.FRESH),
-                spoiledItems = delete(spoiledItems, item, DetailViewState.Showing.SPOILED),
-                consumedItems = delete(consumedItems, item, DetailViewState.Showing.CONSUMED),
+                items = prepareListItems(items.filterNot { it.id() == item.id() }),
                 undoableItem = item
             )
         }
@@ -340,9 +296,7 @@ class DetailViewModel @Inject internal constructor(
     private fun handleListRefreshed(items: List<FridgeItem>) {
         setState {
             copy(
-                freshItems = getListItems(items, DetailViewState.Showing.FRESH),
-                spoiledItems = getListItems(items, DetailViewState.Showing.SPOILED),
-                consumedItems = getListItems(items, DetailViewState.Showing.CONSUMED),
+                items = prepareListItems(items),
                 listError = null
             )
         }
@@ -351,9 +305,7 @@ class DetailViewModel @Inject internal constructor(
     private fun handleListRefreshError(throwable: Throwable) {
         setState {
             copy(
-                freshItems = emptyList(),
-                spoiledItems = emptyList(),
-                consumedItems = emptyList(),
+                items = emptyList(),
                 listError = throwable
             )
         }
@@ -374,11 +326,9 @@ class DetailViewModel @Inject internal constructor(
         setState { copy(listError = throwable) }
     }
 
-    private fun commitPresence(index: Int) {
-        withShowingItem(index) { item ->
-            if (item.isReal()) {
-                changePresence(item, item.presence().flip())
-            }
+    private fun commitPresence(item: FridgeItem) {
+        if (item.isReal()) {
+            changePresence(item, item.presence().flip())
         }
     }
 
@@ -412,72 +362,47 @@ class DetailViewModel @Inject internal constructor(
         }
     }
 
-    private inline fun withShowingItem(index: Int, crossinline func: (item: FridgeItem) -> Unit) {
-        withState {
-            getShowingItems().getOrNull(index)?.let { func(it) }
+    private fun consume(item: FridgeItem) {
+        if (item.isReal()) {
+            update(
+                item,
+                doUpdate = { interactor.consume(it) },
+                onError = { handleError(it) })
         }
     }
 
-    private fun consume(index: Int) {
-        withShowingItem(index) { item ->
-            if (item.isReal()) {
-                update(
-                    item,
-                    doUpdate = { interactor.consume(it) },
-                    onError = { handleError(it) })
-            }
+    private fun restore(item: FridgeItem) {
+        if (item.isReal()) {
+            update(
+                item,
+                doUpdate = { interactor.restore(it) },
+                onError = { handleError(it) })
         }
     }
 
-    private fun restore(index: Int) {
-        withShowingItem(index) { item ->
-            if (item.isReal()) {
-                update(
-                    item,
-                    doUpdate = { interactor.restore(it) },
-                    onError = { handleError(it) })
-            }
+    private fun spoil(item: FridgeItem) {
+        if (item.isReal()) {
+            update(item, doUpdate = { interactor.spoil(it) }, onError = { handleError(it) })
         }
     }
 
-    private fun spoil(index: Int) {
-        withShowingItem(index) { item ->
-            if (item.isReal()) {
-                update(item, doUpdate = { interactor.spoil(it) }, onError = { handleError(it) })
-            }
-        }
-    }
-
-    private fun delete(index: Int) {
-        withShowingItem(index) { item ->
-            if (item.isReal()) {
-                update(
-                    item,
-                    doUpdate = { interactor.delete(it) },
-                    onError = { handleError(it) })
-            } else {
-                handleFakeDelete(item)
-            }
+    private fun delete(item: FridgeItem) {
+        if (item.isReal()) {
+            update(
+                item,
+                doUpdate = { interactor.delete(it) },
+                onError = { handleError(it) })
+        } else {
+            handleFakeDelete(item)
         }
     }
 
     @CheckResult
-    private fun DetailViewState.getListItems(
-        items: List<FridgeItem>,
-        showing: DetailViewState.Showing
-    ): List<FridgeItem> {
+    private fun DetailViewState.prepareListItems(items: List<FridgeItem>): List<FridgeItem> {
         val listItems = items
             .asSequence()
             // Remove the placeholder items here
             .filterNot { it.isEmpty() }
-            // Filter by archived and presence
-            .filter { item ->
-                when (showing) {
-                    DetailViewState.Showing.FRESH -> !item.isArchived()
-                    DetailViewState.Showing.CONSUMED -> item.isConsumed()
-                    DetailViewState.Showing.SPOILED -> item.isSpoiled()
-                }
-            }
             .filter { it.presence() == listItemPresence }
             // Sort
             .sortedWith(Comparator { o1, o2 ->
