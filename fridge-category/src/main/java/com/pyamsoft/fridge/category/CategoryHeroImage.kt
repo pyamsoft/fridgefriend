@@ -19,6 +19,7 @@ package com.pyamsoft.fridge.category
 
 import android.view.ViewGroup
 import android.widget.ImageView
+import androidx.core.view.isVisible
 import com.pyamsoft.fridge.core.HeroImage
 import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.loader.Loaded
@@ -28,6 +29,17 @@ class CategoryHeroImage @Inject internal constructor(
     parent: ViewGroup,
     imageLoader: ImageLoader
 ) : HeroImage<CategoryViewState, CategoryViewEvent>(parent, imageLoader) {
+
+    init {
+        doOnInflate {
+            binding.coreHeroSecondLineLabel.isVisible = false
+            binding.coreHeroSecondLineValue.isVisible = false
+            binding.coreHeroThirdLineLabel.isVisible = false
+            binding.coreHeroThirdLineValue.isVisible = false
+            binding.coreHeroFourthLineLabel.isVisible = false
+            binding.coreHeroFourthLineValue.isVisible = false
+        }
+    }
 
     override fun onLoadImage(
         imageView: ImageView,
@@ -39,8 +51,9 @@ class CategoryHeroImage @Inject internal constructor(
     }
 
     override fun onAdditionalRender(state: CategoryViewState) {
-        binding.coreHeroTitle.text = "Categories"
-        binding.coreHeroItemLabel.setText(R.string.total_number_of_items)
-        binding.coreHeroItemValue.text = "${state.items.size}"
+        binding.coreHeroTitle.setText(R.string.categories)
+
+        binding.coreHeroFirstLineLabel.setText(R.string.total_number_of_categories)
+        binding.coreHeroFirstLineValue.text = "${state.categories.size}"
     }
 }

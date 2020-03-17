@@ -55,7 +55,7 @@ class DetailEmptyState @Inject internal constructor(
                 if (loading.isLoading) {
                     clear()
                 } else {
-                    if (state.items.isNotEmpty()) {
+                    if (state.getShowingItems().isNotEmpty()) {
                         clear()
                     } else {
                         val need = state.listItemPresence == NEED

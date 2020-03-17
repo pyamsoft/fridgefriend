@@ -17,10 +17,12 @@
 
 package com.pyamsoft.fridge.detail
 
+import android.annotation.SuppressLint
 import android.view.ViewGroup
 import android.widget.ImageView
+import androidx.core.view.isVisible
 import com.pyamsoft.fridge.core.HeroImage
-import com.pyamsoft.fridge.db.item.FridgeItem.Presence.NEED
+import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.loader.Loaded
 import javax.inject.Inject
@@ -30,19 +32,67 @@ class DetailHeroImage @Inject internal constructor(
     imageLoader: ImageLoader
 ) : HeroImage<DetailViewState, DetailViewEvent>(parent, imageLoader) {
 
+    init {
+        doOnTeardown {
+            clearExtras()
+        }
+    }
+
     override fun onLoadImage(
         imageView: ImageView,
         imageLoader: ImageLoader,
         state: DetailViewState
     ): Loaded? {
-        val need = state.listItemPresence == NEED
+        val need = state.listItemPresence == FridgeItem.Presence.NEED
         val icon = if (need) R.drawable.bg_item_need else R.drawable.bg_item_have
         return imageLoader.load(icon).into(imageView)
     }
 
+    @SuppressLint("SetTextI18n")
+    private fun setTitle(state: DetailViewState) {
+        val type = when (state.listItemPresence) {
+            FridgeItem.Presence.HAVE -> "current"
+            FridgeItem.Presence.NEED -> "needed"
+        }
+        binding.coreHeroTitle.text = "${state.entry?.name().orEmpty()}: $type items"
+    }
+
     override fun onAdditionalRender(state: DetailViewState) {
-        binding.coreHeroItemLabel.setText(R.string.total_number_of_items)
-        binding.coreHeroItemValue.text = "${state.items.size}"
-        binding.coreHeroTitle.text = state.entry?.name().orEmpty()
+        setTitle(state)
+
+        binding.coreHeroFirstLineLabel.setText(R.string.total_number_of_items)
+        binding.coreHeroFirstLineValue.text = "${state.getTotalItemCount()}"
+
+        val showExtras = state.listItemPresence == FridgeItem.Presence.HAVE
+        binding.coreHeroSecondLineLabel.isVisible = showExtras
+        binding.coreHeroSecondLineValue.isVisible = showExtras
+        binding.coreHeroThirdLineLabel.isVisible = showExtras
+        binding.coreHeroThirdLineValue.isVisible = showExtras
+        binding.coreHeroFourthLineLabel.isVisible = showExtras
+        binding.coreHeroFourthLineValue.isVisible = showExtras
+
+        if (showExtras) {
+            binding.coreHeroSecondLineLabel.setText(R.string.number_of_fresh_items)
+            binding.coreHeroSecondLineValue.text = "${state.getFreshItemCount()}"
+
+            binding.coreHeroThirdLineLabel.setText(R.string.number_of_consumed_items)
+            binding.coreHeroThirdLineValue.text = "${state.getConsumedItemCount()}"
+
+            binding.coreHeroFourthLineLabel.setText(R.string.number_of_spoiled_items)
+            binding.coreHeroFourthLineValue.text = "${state.getSpoiledItemCount()}"
+        } else {
+            clearExtras()
+        }
+    }
+
+    private fun clearExtras() {
+        binding.coreHeroSecondLineLabel.text = null
+        binding.coreHeroSecondLineValue.text = null
+
+        binding.coreHeroThirdLineLabel.text = null
+        binding.coreHeroThirdLineValue.text = null
+
+        binding.coreHeroFourthLineLabel.text = null
+        binding.coreHeroFourthLineValue.text = null
     }
 }
