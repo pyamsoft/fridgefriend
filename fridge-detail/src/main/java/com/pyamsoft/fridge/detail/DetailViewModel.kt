@@ -64,9 +64,8 @@ class DetailViewModel @Inject internal constructor(
 
     private val undoRunner = highlander<Unit, FridgeItem> { item ->
         try {
-            val undoneItem = item.invalidateSpoiled().invalidateConsumption()
-            if (undoneItem.isReal()) {
-                interactor.commit(undoneItem)
+            if (item.isReal()) {
+                interactor.commit(item.invalidateSpoiled().invalidateConsumption())
             }
         } catch (error: Throwable) {
             error.onActualError { e ->
@@ -189,9 +188,7 @@ class DetailViewModel @Inject internal constructor(
     }
 
     private fun updateCount(item: FridgeItem) {
-        if (item.isReal()) {
-            update(item, doUpdate = { interactor.commit(it) }, onError = { handleError(it) })
-        }
+        updateItem(item, doUpdate = { interactor.commit(it) }, onError = { handleError(it) })
     }
 
     private fun expand(item: FridgeItem) {
@@ -355,17 +352,10 @@ class DetailViewModel @Inject internal constructor(
     }
 
     private fun commitPresence(item: FridgeItem) {
-        if (item.isReal()) {
-            changePresence(item, item.presence().flip())
-        }
+        changePresence(item, item.presence().flip())
     }
 
     private fun changePresence(oldItem: FridgeItem, newPresence: FridgeItem.Presence) {
-        if (!oldItem.isReal()) {
-            Timber.w("Cannot commit change for not-real item: $oldItem")
-            return
-        }
-
         val item = oldItem.presence(newPresence)
         val updated = item.run {
             val dateOfPurchase = purchaseTime()
@@ -386,41 +376,51 @@ class DetailViewModel @Inject internal constructor(
         }
 
         viewModelScope.launch {
-            update(updated, doUpdate = { interactor.commit(it) }, onError = { handleError(it) })
+            updateItem(updated, doUpdate = { interactor.commit(it) }, onError = { handleError(it) })
         }
+    }
+
+    private fun updateItem(
+        item: FridgeItem,
+        doUpdate: suspend (item: FridgeItem) -> Unit,
+        onError: (throwable: Throwable) -> Unit
+    ) {
+        // Not sure if this state is actually even possible anymore since we don't allow editing
+        // fake items on the list view
+        if (!item.isReal()) {
+            Timber.w("Commit called on a non-real item: $item")
+            // Don't beacon the update anywhere since we don't want the UI to respond
+            // But, commit the changes as a potential update
+            handleRealtimeUpdate(item)
+            return
+        }
+
+        update(item, doUpdate = doUpdate, onError = onError)
     }
 
     private fun consume(item: FridgeItem) {
-        if (item.isReal()) {
-            update(
-                item,
-                doUpdate = { interactor.consume(it) },
-                onError = { handleError(it) })
-        }
+        updateItem(
+            item,
+            doUpdate = { interactor.consume(it) },
+            onError = { handleError(it) })
     }
 
     private fun restore(item: FridgeItem) {
-        if (item.isReal()) {
-            update(
-                item,
-                doUpdate = { interactor.restore(it) },
-                onError = { handleError(it) })
-        }
+        updateItem(
+            item,
+            doUpdate = { interactor.restore(it) },
+            onError = { handleError(it) })
     }
 
     private fun spoil(item: FridgeItem) {
-        if (item.isReal()) {
-            update(item, doUpdate = { interactor.spoil(it) }, onError = { handleError(it) })
-        }
+        updateItem(item, doUpdate = { interactor.spoil(it) }, onError = { handleError(it) })
     }
 
     private fun delete(item: FridgeItem) {
-        if (item.isReal()) {
-            update(
-                item,
-                doUpdate = { interactor.delete(it) },
-                onError = { handleError(it) })
-        }
+        updateItem(
+            item,
+            doUpdate = { interactor.delete(it) },
+            onError = { handleError(it) })
     }
 
     @CheckResult
