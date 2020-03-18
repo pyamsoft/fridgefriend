@@ -34,7 +34,6 @@ import com.pyamsoft.pydroid.arch.EventBus
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import timber.log.Timber
 import java.util.Date
 import javax.inject.Inject
@@ -43,7 +42,6 @@ import kotlin.math.max
 
 class DetailViewModel @Inject internal constructor(
     private val interactor: DetailInteractor,
-    private val fakeRealtime: EventBus<FridgeItemChangeEvent>,
     private val itemExpandedBus: EventBus<ItemExpandPayload>,
     @Named("entry_id") private val entryId: FridgeEntry.Id,
     @Named("debug") debug: Boolean,
@@ -69,8 +67,6 @@ class DetailViewModel @Inject internal constructor(
             val undoneItem = item.invalidateSpoiled().invalidateConsumption()
             if (undoneItem.isReal()) {
                 interactor.commit(undoneItem)
-            } else {
-                fakeRealtime.send(Insert(undoneItem))
             }
         } catch (error: Throwable) {
             error.onActualError { e ->
@@ -97,14 +93,8 @@ class DetailViewModel @Inject internal constructor(
     }
 
     private val realtimeRunner = highlander<Unit> {
-        withContext(context = Dispatchers.Default) {
-            launch {
-                interactor.listenForChanges(entryId)
-                    .onEvent { handleRealtime(it) }
-            }
-
-            fakeRealtime.scopedEvent { handleRealtime(it) }
-        }
+        interactor.listenForChanges(entryId)
+            .onEvent { handleRealtime(it) }
     }
 
     init {
@@ -360,13 +350,6 @@ class DetailViewModel @Inject internal constructor(
         setState { copy(isLoading = DetailViewState.Loading(false)) }
     }
 
-    private fun handleFakeDelete(item: FridgeItem) {
-        viewModelScope.launch {
-            Timber.w("Remove called on a non-real item: $item, fake callback")
-            fakeRealtime.send(Delete(item))
-        }
-    }
-
     private fun handleError(throwable: Throwable) {
         setState { copy(listError = throwable) }
     }
@@ -437,8 +420,6 @@ class DetailViewModel @Inject internal constructor(
                 item,
                 doUpdate = { interactor.delete(it) },
                 onError = { handleError(it) })
-        } else {
-            handleFakeDelete(item)
         }
     }
 

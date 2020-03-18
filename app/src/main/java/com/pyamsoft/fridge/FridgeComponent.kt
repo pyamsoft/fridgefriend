@@ -30,7 +30,6 @@ import com.pyamsoft.fridge.butler.workmanager.WorkManagerModule
 import com.pyamsoft.fridge.category.CategoryComponent
 import com.pyamsoft.fridge.category.CategoryListComponent
 import com.pyamsoft.fridge.db.DbModule
-import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent
 import com.pyamsoft.fridge.db.item.FridgeItemPreferences
 import com.pyamsoft.fridge.db.persist.PersistentCategoryPreferences
 import com.pyamsoft.fridge.db.persist.PersistentEntryPreferences
@@ -185,13 +184,6 @@ internal interface FridgeComponent {
             @JvmStatic
             @Singleton
             internal fun provideGpsStateBus(): EventBus<GpsChangeEvent> {
-                return EventBus.create()
-            }
-
-            @Provides
-            @JvmStatic
-            @Singleton
-            internal fun provideFakeItemRealtime(): EventBus<FridgeItemChangeEvent> {
                 return EventBus.create()
             }
 
