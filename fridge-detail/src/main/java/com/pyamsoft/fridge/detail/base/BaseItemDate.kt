@@ -83,9 +83,9 @@ abstract class BaseItemDate<S : UiViewState, V : UiViewEvent> protected construc
 
                 dateLoaded?.dispose()
                 dateLoaded = imageLoader.load(R.drawable.ic_date_range_24dp)
-                    .mutate {
+                    .mutate { icon ->
                         val color = if (theming.isDarkTheme()) R.color.white else R.color.black
-                        it.tintWith(layoutRoot.context, color)
+                        icon.tintWith(layoutRoot.context, color)
                     }
                     .into(binding.detailItemDateIcon)
             }

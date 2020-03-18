@@ -18,12 +18,18 @@
 package com.pyamsoft.fridge.detail.item
 
 import android.view.ViewGroup
+import com.pyamsoft.fridge.detail.R
 import com.pyamsoft.fridge.detail.databinding.DetailListItemCountBinding
 import com.pyamsoft.pydroid.arch.BindingUiView
+import com.pyamsoft.pydroid.loader.ImageLoader
+import com.pyamsoft.pydroid.ui.theme.ThemeProvider
 import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
+import com.pyamsoft.pydroid.util.tintWith
 import javax.inject.Inject
 
 class DetailListItemCount @Inject internal constructor(
+    theming: ThemeProvider,
+    imageLoader: ImageLoader,
     parent: ViewGroup
 ) : BindingUiView<DetailListItemViewState, DetailItemViewEvent, DetailListItemCountBinding>(parent) {
 
@@ -32,6 +38,22 @@ class DetailListItemCount @Inject internal constructor(
     override val layoutRoot by boundView { detailItemCount }
 
     init {
+        doOnInflate {
+            imageLoader.load(R.drawable.ic_arrow_drop_down_24dp)
+                .mutate { icon ->
+                    val color = if (theming.isDarkTheme()) R.color.white else R.color.black
+                    icon.tintWith(layoutRoot.context, color)
+                }.into(binding.detailItemCountDown)
+                .apply { doOnTeardown { dispose() } }
+
+            imageLoader.load(R.drawable.ic_arrow_drop_up_24dp)
+                .mutate { icon ->
+                    val color = if (theming.isDarkTheme()) R.color.white else R.color.black
+                    icon.tintWith(layoutRoot.context, color)
+                }.into(binding.detailItemCountUp)
+                .apply { doOnTeardown { dispose() } }
+        }
+
         doOnInflate {
             binding.detailItemCountUp.setOnDebouncedClickListener {
                 publish(DetailItemViewEvent.IncreaseCount)

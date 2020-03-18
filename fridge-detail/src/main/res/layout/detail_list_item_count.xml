@@ -28,21 +28,25 @@
             android:id="@+id/detail_item_count_up"
             android:layout_width="20dp"
             android:layout_height="20dp"
-            android:layout_marginBottom="4dp"
-            android:contentDescription="@string/blank" />
+            android:layout_gravity="center"
+            android:contentDescription="@string/blank"
+            android:gravity="center" />
 
         <TextView
             android:id="@+id/detail_item_count_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center"
             android:textAppearance="?attr/textAppearanceBody1" />
 
         <ImageView
             android:id="@+id/detail_item_count_down"
             android:layout_width="20dp"
             android:layout_height="20dp"
-            android:layout_marginTop="4dp"
-            android:contentDescription="@string/blank" />
+            android:layout_gravity="center"
+            android:contentDescription="@string/blank"
+            android:gravity="center" />
 
     </LinearLayout>
 
