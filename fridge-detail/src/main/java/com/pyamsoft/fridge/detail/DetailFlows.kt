@@ -89,22 +89,22 @@ data class DetailViewState(
 
     @CheckResult
     fun getFreshItemCount(): Int {
-        return filterValid { items.filterNot { it.isArchived() } }.size
+        return filterValid { items.filterNot { it.isArchived() } }.sumBy { it.count() }
     }
 
     @CheckResult
     fun getSpoiledItemCount(): Int {
-        return filterValid { items.filter { it.isSpoiled() } }.size
+        return filterValid { items.filter { it.isSpoiled() } }.sumBy { it.count() }
     }
 
     @CheckResult
     fun getConsumedItemCount(): Int {
-        return filterValid { items.filter { it.isConsumed() } }.size
+        return filterValid { items.filter { it.isConsumed() } }.sumBy { it.count() }
     }
 
     @CheckResult
-    private inline fun filterValid(func: DetailViewState.() -> List<FridgeItem>): List<FridgeItem> {
-        return this.func().filterNot { it.isEmpty() }
+    internal inline fun filterValid(func: DetailViewState.() -> List<FridgeItem>): Sequence<FridgeItem> {
+        return this.func().asSequence().filterNot { it.isEmpty() }
     }
 
     data class ExpirationRange internal constructor(val range: Int)

@@ -444,12 +444,8 @@ class DetailViewModel @Inject internal constructor(
 
     @CheckResult
     private fun DetailViewState.prepareListItems(items: List<FridgeItem>): List<FridgeItem> {
-        val listItems = items
-            .asSequence()
-            // Remove the placeholder items here
-            .filterNot { it.isEmpty() }
+        val listItems = filterValid { items }
             .filter { it.presence() == listItemPresence }
-            // Sort
             .sortedWith(dateSorter)
             .toList()
 
