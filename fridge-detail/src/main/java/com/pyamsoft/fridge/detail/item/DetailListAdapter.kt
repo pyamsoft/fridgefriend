@@ -73,9 +73,9 @@ class DetailListAdapter constructor(
                 val binding = DetailListItemHolderBinding.inflate(inflater, parent, false)
                 val showGlances = defaultPresence == FridgeItem.Presence.HAVE
                 if (showGlances) {
-                    DetailItemGlancesViewHolder(binding, owner, editable, callback, factory)
+                    DetailItemHaveViewHolder(binding, owner, editable, callback, factory)
                 } else {
-                    DetailItemDateViewHolder(binding, owner, editable, callback, factory)
+                    DetailItemNeedViewHolder(binding, owner, editable, callback, factory)
                 }
             }
         }

@@ -21,7 +21,7 @@ import androidx.lifecycle.LifecycleOwner
 import com.pyamsoft.fridge.detail.databinding.DetailListItemHolderBinding
 import javax.inject.Inject
 
-class DetailItemDateViewHolder internal constructor(
+class DetailItemHaveViewHolder internal constructor(
     binding: DetailListItemHolderBinding,
     owner: LifecycleOwner,
     editable: Boolean,
@@ -31,12 +31,12 @@ class DetailItemDateViewHolder internal constructor(
 
     @JvmField
     @Inject
-    internal var dateView: DetailListItemDate? = null
+    internal var glancesView: DetailListItemGlances? = null
 
     init {
         factory.create(binding.detailListItem, editable).inject(this)
 
-        val date = requireNotNull(dateView)
-        create(binding.detailListItem, date)
+        val glances = requireNotNull(glancesView)
+        create(binding.detailListItem, glances)
     }
 }

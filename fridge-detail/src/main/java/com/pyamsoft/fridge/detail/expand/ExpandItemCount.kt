@@ -21,12 +21,19 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.view.ViewGroup
 import androidx.annotation.CheckResult
-import com.pyamsoft.fridge.detail.base.BaseItemCount
+import com.pyamsoft.fridge.db.item.FridgeItem
+import com.pyamsoft.fridge.detail.databinding.ExpandCountBinding
+import com.pyamsoft.pydroid.arch.BindingUiView
+import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
 import javax.inject.Inject
 
 class ExpandItemCount @Inject internal constructor(
     parent: ViewGroup
-) : BaseItemCount<ExpandItemViewState, ExpandedItemViewEvent>(parent) {
+) : BindingUiView<ExpandItemViewState, ExpandedItemViewEvent, ExpandCountBinding>(parent) {
+
+    override val viewBinding = ExpandCountBinding::inflate
+
+    override val layoutRoot by boundView { expandItemCount }
 
     private var firstRender = true
 
@@ -34,6 +41,21 @@ class ExpandItemCount @Inject internal constructor(
         doOnTeardown {
             firstRender = false
         }
+
+        doOnTeardown {
+            clear()
+        }
+    }
+
+    private fun clear() {
+        binding.expandItemCountEditable.text.clear()
+        binding.expandItemCountEditable.setOnDebouncedClickListener(null)
+    }
+
+    private fun setCount(item: FridgeItem) {
+        val count = item.count()
+        val countText = if (count > 0) "$count" else ""
+        binding.expandItemCountEditable.setTextKeepState(countText)
     }
 
     override fun onRender(state: ExpandItemViewState) {
@@ -75,16 +97,16 @@ class ExpandItemCount @Inject internal constructor(
             ) {
             }
         }
-        binding.detailItemCountEditable.addTextChangedListener(watcher)
+        binding.expandItemCountEditable.addTextChangedListener(watcher)
         return watcher
     }
 
     private fun removeWatcher(watcher: TextWatcher) {
-        binding.detailItemCountEditable.removeTextChangedListener(watcher)
+        binding.expandItemCountEditable.removeTextChangedListener(watcher)
     }
 
     private fun commit() {
-        val count = binding.detailItemCountEditable.text.toString().toIntOrNull() ?: 0
+        val count = binding.expandItemCountEditable.text.toString().toIntOrNull() ?: 0
         publish(ExpandedItemViewEvent.CommitCount(count))
     }
 }
