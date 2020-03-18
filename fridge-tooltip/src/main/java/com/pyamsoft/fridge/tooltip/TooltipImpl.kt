@@ -18,40 +18,27 @@
 package com.pyamsoft.fridge.tooltip
 
 import android.view.View
-import com.skydoves.balloon.Balloon
 
 internal class TooltipImpl internal constructor(
-    balloonBuilder: Lazy<Balloon>,
-    private val direction: Tooltip.Direction
-) : Tooltip {
+    composite: BalloonAndBuilder,
+    direction: TipDirection
+) : Tooltip(composite, direction) {
 
-    private val balloon by balloonBuilder
+    private val delegate: Tip = TipImpl(composite.balloon, direction)
 
     override fun isShowing(): Boolean {
-        return balloon.isShowing
+        return delegate.isShowing()
     }
 
     override fun show(anchor: View) {
-        return when (direction) {
-            Tooltip.Direction.CENTER -> balloon.show(anchor)
-            Tooltip.Direction.TOP -> balloon.showAlignTop(anchor)
-            Tooltip.Direction.BOTTOM -> balloon.showAlignBottom(anchor)
-            Tooltip.Direction.LEFT -> balloon.showAlignLeft(anchor)
-            Tooltip.Direction.RIGHT -> balloon.showAlignRight(anchor)
-        }
+        return delegate.show(anchor)
     }
 
     override fun show(anchor: View, xOff: Int, yOff: Int) {
-        return when (direction) {
-            Tooltip.Direction.CENTER -> balloon.show(anchor, xOff, yOff)
-            Tooltip.Direction.TOP -> balloon.showAlignTop(anchor, xOff, yOff)
-            Tooltip.Direction.BOTTOM -> balloon.showAlignBottom(anchor, xOff, yOff)
-            Tooltip.Direction.LEFT -> balloon.showAlignLeft(anchor, xOff, yOff)
-            Tooltip.Direction.RIGHT -> balloon.showAlignRight(anchor, xOff, yOff)
-        }
+        return delegate.show(anchor, xOff, yOff)
     }
 
     override fun hide() {
-        return balloon.dismiss()
+        return delegate.hide()
     }
 }

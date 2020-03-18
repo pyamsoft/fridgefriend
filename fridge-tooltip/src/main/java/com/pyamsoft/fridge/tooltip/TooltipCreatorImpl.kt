@@ -18,13 +18,8 @@
 package com.pyamsoft.fridge.tooltip
 
 import android.app.Activity
-import android.view.MotionEvent
-import android.view.View
 import androidx.annotation.CheckResult
 import com.skydoves.balloon.Balloon
-import com.skydoves.balloon.OnBalloonClickListener
-import com.skydoves.balloon.OnBalloonOutsideTouchListener
-import com.skydoves.balloon.createBalloon
 import javax.inject.Inject
 
 internal class TooltipCreatorImpl @Inject internal constructor(
@@ -32,50 +27,34 @@ internal class TooltipCreatorImpl @Inject internal constructor(
 ) : TooltipCreator {
 
     @CheckResult
-    private inline fun create(crossinline builder: TooltipBuilder.() -> TooltipBuilder): Lazy<Balloon> {
-        return lazy(LazyThreadSafetyMode.NONE) {
-            var dismissOnClick = false
-            var dismissOnClickOutside = false
+    private inline fun create(crossinline builder: TooltipBuilder.() -> TooltipBuilder): BalloonAndBuilder {
+        val dismissOnClick: Boolean
+        val dismissOnClickOutside: Boolean
 
-            val balloon = createBalloon(activity) {
-                setArrowSize(12)
-                setHeight(65)
-                setCornerRadius(16F)
-                setAlpha(0.85F)
-                setBackgroundColorResource(R.color.tooltipBackground)
-                setTextColorResource(R.color.tooltipText)
+        val balloonBuilder = Balloon.Builder(activity).apply {
+            setArrowSize(12)
+            setHeight(65)
+            setCornerRadius(16F)
+            setAlpha(0.85F)
+            setBackgroundColorResource(R.color.tooltipBackground)
+            setTextColorResource(R.color.tooltipText)
 
-                val tooltipBuilder = TooltipBuilderImpl(
-                    this
-                ).apply {
-                    setArrowPosition(0.5F)
-                    setAnimation(Tooltip.Animation.FADE)
-                    setTextSize(16F)
-                    builder()
-                }
-
-                dismissOnClick = tooltipBuilder.dismissOnClick
-                dismissOnClickOutside = tooltipBuilder.dismissOnClickOutside
+            val tooltipBuilder = TooltipBuilderImpl(this).apply {
+                setArrowPosition(0.5F)
+                setAnimation(Tip.Animation.FADE)
+                setTextSize(16F)
+                builder()
             }
 
-            if (dismissOnClick) {
-                balloon.onBalloonClickListener = object : OnBalloonClickListener {
-                    override fun onBalloonClick(view: View) {
-                        balloon.dismiss()
-                    }
-                }
-            }
-
-            if (dismissOnClickOutside) {
-                balloon.onBalloonOutsideTouchListener = object : OnBalloonOutsideTouchListener {
-                    override fun onBalloonOutsideTouch(view: View, event: MotionEvent) {
-                        balloon.dismiss()
-                    }
-                }
-            }
-
-            balloon
+            dismissOnClick = tooltipBuilder.dismissOnClick
+            dismissOnClickOutside = tooltipBuilder.dismissOnClickOutside
         }
+
+        val params = BalloonParameters(
+            dismissOnClick = dismissOnClick,
+            dismissOnClickOutside = dismissOnClickOutside
+        )
+        return BalloonAndBuilder(balloonBuilder, params)
     }
 
     override fun center(): Tooltip {
@@ -83,10 +62,7 @@ internal class TooltipCreatorImpl @Inject internal constructor(
     }
 
     override fun center(builder: TooltipBuilder.() -> TooltipBuilder): Tooltip {
-        return TooltipImpl(
-            create(builder),
-            Tooltip.Direction.CENTER
-        )
+        return TooltipImpl(create(builder), TipDirection.CENTER)
     }
 
     override fun top(): Tooltip {
@@ -94,10 +70,7 @@ internal class TooltipCreatorImpl @Inject internal constructor(
     }
 
     override fun top(builder: TooltipBuilder.() -> TooltipBuilder): Tooltip {
-        return TooltipImpl(
-            create(builder),
-            Tooltip.Direction.TOP
-        )
+        return TooltipImpl(create(builder), TipDirection.TOP)
     }
 
     override fun left(): Tooltip {
@@ -105,10 +78,7 @@ internal class TooltipCreatorImpl @Inject internal constructor(
     }
 
     override fun left(builder: TooltipBuilder.() -> TooltipBuilder): Tooltip {
-        return TooltipImpl(
-            create(builder),
-            Tooltip.Direction.LEFT
-        )
+        return TooltipImpl(create(builder), TipDirection.LEFT)
     }
 
     override fun right(): Tooltip {
@@ -116,10 +86,7 @@ internal class TooltipCreatorImpl @Inject internal constructor(
     }
 
     override fun right(builder: TooltipBuilder.() -> TooltipBuilder): Tooltip {
-        return TooltipImpl(
-            create(builder),
-            Tooltip.Direction.RIGHT
-        )
+        return TooltipImpl(create(builder), TipDirection.RIGHT)
     }
 
     override fun bottom(): Tooltip {
@@ -127,10 +94,7 @@ internal class TooltipCreatorImpl @Inject internal constructor(
     }
 
     override fun bottom(builder: TooltipBuilder.() -> TooltipBuilder): Tooltip {
-        return TooltipImpl(
-            create(builder),
-            Tooltip.Direction.BOTTOM
-        )
+        return TooltipImpl(create(builder), TipDirection.BOTTOM)
     }
 
     companion object {

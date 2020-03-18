@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Peter Kenji Yamanaka
+ * Copyright 2020 Peter Kenji Yamanaka
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,17 +17,7 @@
 
 package com.pyamsoft.fridge.tooltip
 
-import android.view.View
-import androidx.annotation.CheckResult
-import androidx.annotation.LayoutRes
+interface Hideable {
 
-abstract class Tooltip internal constructor(
-    private val composite: BalloonAndBuilder,
-    private val direction: TipDirection
-) : Tip {
-
-    @CheckResult
-    fun asPopup(@LayoutRes layout: Int, configure: (hide: Hideable, view: View) -> Unit): Popup {
-        return PopupImpl(composite, direction, layout, configure)
-    }
+    fun hide()
 }

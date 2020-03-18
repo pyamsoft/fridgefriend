@@ -60,5 +60,5 @@ interface TooltipBuilder {
     fun setTextSize(value: Float): TooltipBuilder
 
     @CheckResult
-    fun setAnimation(animation: Tooltip.Animation?): TooltipBuilder
+    fun setAnimation(animation: Tip.Animation?): TooltipBuilder
 }

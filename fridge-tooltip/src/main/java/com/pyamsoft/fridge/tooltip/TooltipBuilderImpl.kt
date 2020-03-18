@@ -73,10 +73,10 @@ internal class TooltipBuilderImpl internal constructor(
         return this
     }
 
-    override fun setAnimation(animation: Tooltip.Animation?): TooltipBuilder {
+    override fun setAnimation(animation: Tip.Animation?): TooltipBuilder {
         val anim = if (animation == null) BalloonAnimation.NONE else when (animation) {
-            Tooltip.Animation.FADE -> BalloonAnimation.FADE
-            Tooltip.Animation.CIRCLE -> BalloonAnimation.CIRCULAR
+            Tip.Animation.FADE -> BalloonAnimation.FADE
+            Tip.Animation.CIRCLE -> BalloonAnimation.CIRCULAR
         }
         builder.setBalloonAnimation(anim)
         return this
