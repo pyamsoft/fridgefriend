@@ -139,6 +139,10 @@ sealed class DetailViewEvent : UiViewEvent {
     data class ExpandItem internal constructor(val item: FridgeItem) : DetailViewEvent()
 
     data class ChangePresence internal constructor(val item: FridgeItem) : DetailViewEvent()
+
+    data class IncreaseCount internal constructor(val item: FridgeItem) : DetailViewEvent()
+
+    data class DecreaseCount internal constructor(val item: FridgeItem) : DetailViewEvent()
 }
 
 sealed class DetailControllerEvent : UiControllerEvent {

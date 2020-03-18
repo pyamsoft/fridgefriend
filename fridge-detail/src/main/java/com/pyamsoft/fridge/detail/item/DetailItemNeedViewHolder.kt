@@ -33,10 +33,15 @@ class DetailItemNeedViewHolder internal constructor(
     @Inject
     internal var dateView: DetailListItemDate? = null
 
+    @JvmField
+    @Inject
+    internal var countView: DetailListItemCount? = null
+
     init {
         factory.create(binding.detailListItem, editable).inject(this)
 
+        val count = requireNotNull(countView)
         val date = requireNotNull(dateView)
-        create(binding.detailListItem, date)
+        create(binding.detailListItem, count, date)
     }
 }

@@ -39,8 +39,8 @@ import com.pyamsoft.pydroid.arch.BindingUiView
 import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.ui.util.Snackbreak
 import com.pyamsoft.pydroid.ui.util.refreshing
-import javax.inject.Inject
 import timber.log.Timber
+import javax.inject.Inject
 
 class DetailList @Inject internal constructor(
     private val imageLoader: ImageLoader,
@@ -73,6 +73,15 @@ class DetailList @Inject internal constructor(
                 defaultPresence = defaultPresence,
                 factory = factory,
                 callback = object : Callback {
+
+                    override fun onIncreaseCount(index: Int) {
+                        publish(DetailViewEvent.IncreaseCount(itemAtIndex(index)))
+                    }
+
+                    override fun onDecreaseCount(index: Int) {
+                        publish(DetailViewEvent.DecreaseCount(itemAtIndex(index)))
+                    }
+
                     override fun onItemExpanded(index: Int) {
                         publish(DetailViewEvent.ExpandItem(itemAtIndex(index)))
                     }

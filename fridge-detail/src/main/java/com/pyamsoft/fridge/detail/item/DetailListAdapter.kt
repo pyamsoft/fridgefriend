@@ -91,6 +91,10 @@ class DetailListAdapter constructor(
 
     interface Callback {
 
+        fun onIncreaseCount(index: Int)
+
+        fun onDecreaseCount(index: Int)
+
         fun onItemExpanded(index: Int)
 
         fun onPresenceChange(index: Int)

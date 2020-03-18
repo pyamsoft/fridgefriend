@@ -46,6 +46,7 @@ abstract class DetailItemViewHolder protected constructor(
 
     protected fun create(
         parent: ConstraintLayout,
+        count: DetailListItemCount,
         extra: UiView<DetailListItemViewState, DetailItemViewEvent>
     ) {
         val name = requireNotNull(nameView)
@@ -54,11 +55,14 @@ abstract class DetailItemViewHolder protected constructor(
             owner,
             name,
             extra,
+            count,
             presence
         ) {
             return@bindViews when (it) {
                 is DetailItemViewEvent.ExpandItem -> callback.onItemExpanded(adapterPosition)
                 is DetailItemViewEvent.CommitPresence -> callback.onPresenceChange(adapterPosition)
+                is DetailItemViewEvent.IncreaseCount -> callback.onIncreaseCount(adapterPosition)
+                is DetailItemViewEvent.DecreaseCount -> callback.onDecreaseCount(adapterPosition)
             }
         }
 
@@ -102,6 +106,26 @@ abstract class DetailItemViewHolder protected constructor(
                 constrainHeight(it.id(), ConstraintSet.WRAP_CONTENT)
             }
 
+            count.also {
+                connect(
+                    it.id(), ConstraintSet.TOP,
+                    ConstraintSet.PARENT_ID,
+                    ConstraintSet.TOP
+                )
+                connect(
+                    it.id(), ConstraintSet.END,
+                    extra.id(),
+                    ConstraintSet.START
+                )
+                connect(
+                    it.id(), ConstraintSet.BOTTOM,
+                    ConstraintSet.PARENT_ID,
+                    ConstraintSet.BOTTOM
+                )
+                constrainWidth(it.id(), ConstraintSet.WRAP_CONTENT)
+                constrainHeight(it.id(), ConstraintSet.WRAP_CONTENT)
+            }
+
             name.also {
                 connect(
                     it.id(), ConstraintSet.TOP,
@@ -118,7 +142,7 @@ abstract class DetailItemViewHolder protected constructor(
                     presence.id(),
                     ConstraintSet.END
                 )
-                connect(it.id(), ConstraintSet.END, extra.id(), ConstraintSet.START)
+                connect(it.id(), ConstraintSet.END, count.id(), ConstraintSet.START)
                 constrainWidth(it.id(), ConstraintSet.MATCH_CONSTRAINT)
                 constrainHeight(it.id(), ConstraintSet.WRAP_CONTENT)
             }

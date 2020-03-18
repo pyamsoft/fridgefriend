@@ -31,14 +31,15 @@ import com.pyamsoft.fridge.detail.base.BaseUpdaterViewModel
 import com.pyamsoft.fridge.detail.expand.ItemExpandPayload
 import com.pyamsoft.highlander.highlander
 import com.pyamsoft.pydroid.arch.EventBus
-import java.util.Date
-import javax.inject.Inject
-import javax.inject.Named
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import timber.log.Timber
+import java.util.Date
+import javax.inject.Inject
+import javax.inject.Named
+import kotlin.math.max
 
 class DetailViewModel @Inject internal constructor(
     private val interactor: DetailInteractor,
@@ -175,6 +176,22 @@ class DetailViewModel @Inject internal constructor(
             is DetailViewEvent.Delete -> delete(event.item)
             is DetailViewEvent.Restore -> restore(event.item)
             is DetailViewEvent.Spoil -> spoil(event.item)
+            is DetailViewEvent.IncreaseCount -> increaseCount(event.item)
+            is DetailViewEvent.DecreaseCount -> decreaseCount(event.item)
+        }
+    }
+
+    private fun decreaseCount(item: FridgeItem) {
+        updateCount(item.count(max(1, item.count() - 1)))
+    }
+
+    private fun increaseCount(item: FridgeItem) {
+        updateCount(item.count(item.count() + 1))
+    }
+
+    private fun updateCount(item: FridgeItem) {
+        if (item.isReal()) {
+            update(item, doUpdate = { interactor.commit(it) }, onError = { handleError(it) })
         }
     }
 

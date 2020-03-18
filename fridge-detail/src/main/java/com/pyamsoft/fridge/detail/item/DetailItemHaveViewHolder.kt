@@ -33,10 +33,15 @@ class DetailItemHaveViewHolder internal constructor(
     @Inject
     internal var glancesView: DetailListItemGlances? = null
 
+    @JvmField
+    @Inject
+    internal var countView: DetailListItemCount? = null
+
     init {
         factory.create(binding.detailListItem, editable).inject(this)
 
+        val count = requireNotNull(countView)
         val glances = requireNotNull(glancesView)
-        create(binding.detailListItem, glances)
+        create(binding.detailListItem, count, glances)
     }
 }

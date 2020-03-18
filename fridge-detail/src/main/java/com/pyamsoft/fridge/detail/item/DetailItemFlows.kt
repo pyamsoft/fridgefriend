@@ -30,6 +30,10 @@ data class DetailListItemViewState internal constructor(
 
 sealed class DetailItemViewEvent : UiViewEvent {
 
+    object IncreaseCount : DetailItemViewEvent()
+
+    object DecreaseCount : DetailItemViewEvent()
+
     object ExpandItem : DetailItemViewEvent()
 
     object CommitPresence : DetailItemViewEvent()
