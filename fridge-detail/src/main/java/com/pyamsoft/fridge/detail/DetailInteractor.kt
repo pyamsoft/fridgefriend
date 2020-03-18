@@ -18,6 +18,7 @@
 package com.pyamsoft.fridge.detail
 
 import androidx.annotation.CheckResult
+import com.pyamsoft.fridge.core.PreferenceUnregister
 import com.pyamsoft.fridge.db.category.FridgeCategory
 import com.pyamsoft.fridge.db.category.FridgeCategoryQueryDao
 import com.pyamsoft.fridge.db.entry.FridgeEntry
@@ -35,12 +36,12 @@ import com.pyamsoft.fridge.db.item.FridgeItemUpdateDao
 import com.pyamsoft.fridge.db.persist.PersistentCategories
 import com.pyamsoft.pydroid.arch.EventConsumer
 import com.pyamsoft.pydroid.core.Enforcer
-import java.util.Calendar
-import java.util.Date
-import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import timber.log.Timber
+import java.util.Calendar
+import java.util.Date
+import javax.inject.Inject
 
 internal class DetailInteractor @Inject internal constructor(
     private val enforcer: Enforcer,
@@ -53,8 +54,33 @@ internal class DetailInteractor @Inject internal constructor(
     private val entryQueryDao: FridgeEntryQueryDao,
     private val persistentCategories: PersistentCategories,
     private val categoryQueryDao: FridgeCategoryQueryDao,
-    preferences: FridgeItemPreferences
-) : DetailPreferenceInteractor(preferences) {
+    private val preferences: FridgeItemPreferences
+) {
+
+    @CheckResult
+    suspend fun isZeroCountConsideredConsumed(): Boolean {
+        return preferences.isZeroCountConsideredConsumed()
+    }
+
+    @CheckResult
+    suspend fun getExpiringSoonRange(): Int {
+        return preferences.getExpiringSoonRange()
+    }
+
+    @CheckResult
+    suspend fun isSameDayExpired(): Boolean {
+        return preferences.isSameDayExpired()
+    }
+
+    @CheckResult
+    suspend fun watchForExpiringSoonChanges(onChange: (newRange: Int) -> Unit): PreferenceUnregister {
+        return preferences.watchForExpiringSoonChange(onChange)
+    }
+
+    @CheckResult
+    suspend fun watchForSameDayExpiredChange(onChange: (newSameDayExpired: Boolean) -> Unit): PreferenceUnregister {
+        return preferences.watchForSameDayExpiredChange(onChange)
+    }
 
     @CheckResult
     suspend fun findSameNamedItems(name: String, presence: Presence): Collection<FridgeItem> {
@@ -172,8 +198,8 @@ internal class DetailInteractor @Inject internal constructor(
 
     suspend fun consume(item: FridgeItem) = withContext(context = Dispatchers.Default) {
         enforcer.assertNotOnMainThread()
-        if (!item.isReal()) {
-            Timber.w("Cannot consume item that is not real: [${item.id()}]: $item")
+        if (!item.isReal() || item.presence() != Presence.HAVE) {
+            Timber.w("Cannot consume item: $item")
         } else {
             Timber.d("Consuming item [${item.id()}]: $item")
             itemUpdateDao.update(item.consume(now()))
@@ -182,8 +208,8 @@ internal class DetailInteractor @Inject internal constructor(
 
     suspend fun restore(item: FridgeItem) = withContext(context = Dispatchers.Default) {
         enforcer.assertNotOnMainThread()
-        if (!item.isReal()) {
-            Timber.w("Cannot restore item that is not real: [${item.id()}]: $item")
+        if (!item.isReal() || item.presence() != Presence.HAVE) {
+            Timber.w("Cannot restore item: $item")
         } else {
             Timber.d("Restoring item [${item.id()}]: $item")
             itemUpdateDao.update(item.invalidateConsumption().invalidateSpoiled())
@@ -192,8 +218,8 @@ internal class DetailInteractor @Inject internal constructor(
 
     suspend fun spoil(item: FridgeItem) = withContext(context = Dispatchers.Default) {
         enforcer.assertNotOnMainThread()
-        if (!item.isReal()) {
-            Timber.w("Cannot spoil item that is not real: [${item.id()}]: $item")
+        if (!item.isReal() || item.presence() != Presence.HAVE) {
+            Timber.w("Cannot spoil item: $item")
         } else {
             Timber.d("Spoiling item [${item.id()}]: $item")
             itemUpdateDao.update(item.spoil(now()))

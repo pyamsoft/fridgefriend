@@ -182,7 +182,16 @@ class DetailViewModel @Inject internal constructor(
     }
 
     private fun decreaseCount(item: FridgeItem) {
-        updateCount(item.count(max(1, item.count() - 1)))
+        val newCount = item.count() - 1
+        val newItem = item.count(max(1, newCount))
+        updateCount(newItem)
+        if (newCount <= 0 && newItem.presence() == FridgeItem.Presence.HAVE) {
+            viewModelScope.launch(context = Dispatchers.Default) {
+                if (interactor.isZeroCountConsideredConsumed()) {
+                    consume(newItem)
+                }
+            }
+        }
     }
 
     private fun increaseCount(item: FridgeItem) {

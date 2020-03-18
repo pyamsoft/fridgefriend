@@ -37,6 +37,13 @@
             android:summary="@string/expired_same_day_summary"
             android:title="@string/expired_same_day_title" />
 
+        <com.pyamsoft.pydroid.ui.preference.CheckBoxPreferenceCompat
+            android:defaultValue="@bool/zero_count_consumed_default"
+            android:key="@string/zero_count_consumed_key"
+            android:summaryOff="@string/zero_count_consumed_summary_off"
+            android:summaryOn="@string/zero_count_consumed_summary_on"
+            android:title="@string/zero_count_consumed_title" />
+
     </androidx.preference.PreferenceCategory>
 
     <androidx.preference.PreferenceCategory android:title="Notification Settings">

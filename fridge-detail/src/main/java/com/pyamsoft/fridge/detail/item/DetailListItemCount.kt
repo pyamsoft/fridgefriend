@@ -18,6 +18,7 @@
 package com.pyamsoft.fridge.detail.item
 
 import android.view.ViewGroup
+import androidx.core.view.isInvisible
 import com.pyamsoft.fridge.detail.R
 import com.pyamsoft.fridge.detail.databinding.DetailListItemCountBinding
 import com.pyamsoft.pydroid.arch.BindingUiView

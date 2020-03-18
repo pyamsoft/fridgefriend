@@ -23,6 +23,9 @@ import com.pyamsoft.fridge.core.PreferenceUnregister
 interface FridgeItemPreferences {
 
     @CheckResult
+    suspend fun isZeroCountConsideredConsumed(): Boolean
+
+    @CheckResult
     suspend fun getExpiringSoonRange(): Int
 
     @CheckResult
