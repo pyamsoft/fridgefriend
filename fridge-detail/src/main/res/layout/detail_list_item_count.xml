@@ -26,8 +26,8 @@
 
         <ImageView
             android:id="@+id/detail_item_count_up"
-            android:layout_width="20dp"
-            android:layout_height="20dp"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
             android:layout_gravity="center"
             android:contentDescription="@string/blank"
             android:gravity="center" />
@@ -42,8 +42,8 @@
 
         <ImageView
             android:id="@+id/detail_item_count_down"
-            android:layout_width="20dp"
-            android:layout_height="20dp"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
             android:layout_gravity="center"
             android:contentDescription="@string/blank"
             android:gravity="center" />
