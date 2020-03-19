@@ -25,6 +25,7 @@ import com.pyamsoft.fridge.butler.NotificationHandler
 import com.pyamsoft.fridge.butler.NotificationPreferences
 import com.pyamsoft.fridge.butler.params.LocationParameters
 import com.pyamsoft.fridge.butler.runner.NearbyRunner
+import com.pyamsoft.fridge.core.today
 import com.pyamsoft.fridge.db.entry.FridgeEntryQueryDao
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItemQueryDao
@@ -172,7 +173,7 @@ internal class LocationRunner @Inject internal constructor(
                 return@withFridgeData
             }
 
-            val now = Calendar.getInstance()
+            val now = today()
             val lastTime = preferences.getLastNotificationTimeNearby()
             if (now.isAllowedToNotify(params.forceNotifyNeeded, lastTime)) {
                 if (storeNotification != null) {

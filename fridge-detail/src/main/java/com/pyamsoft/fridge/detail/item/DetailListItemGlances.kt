@@ -22,6 +22,7 @@ import android.widget.ImageView
 import androidx.annotation.CheckResult
 import androidx.annotation.DrawableRes
 import androidx.core.view.isVisible
+import com.pyamsoft.fridge.core.today
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence.HAVE
 import com.pyamsoft.fridge.db.item.cleanMidnight
@@ -113,16 +114,16 @@ class DetailListItemGlances @Inject internal constructor(
                 val dateRange = requireNotNull(range).range
                 val isSameDay = requireNotNull(isSameDayExpired).isSame
 
-                val today = Calendar.getInstance().cleanMidnight()
-                val soonDate = Calendar.getInstance().daysLaterMidnight(dateRange)
+                val now = today().cleanMidnight()
+                val soonDate = today().daysLaterMidnight(dateRange)
                 val expireTime = item.expireTime()
                 val hasTime = expireTime != null
-                val isExpiringSoon = item.isExpiringSoon(today, soonDate, isSameDay)
-                val isExpired = item.isExpired(today, isSameDay)
+                val isExpiringSoon = item.isExpiringSoon(now, soonDate, isSameDay)
+                val isExpired = item.isExpired(now, isSameDay)
 
                 setDateRangeView(item, expireTime, hasTime)
-                setExpiringView(item, expireTime, today, isExpiringSoon, isExpired, hasTime)
-                setExpiredView(item, expireTime, today, isExpired, hasTime)
+                setExpiringView(item, expireTime, now, isExpiringSoon, isExpired, hasTime)
+                setExpiredView(item, expireTime, now, isExpired, hasTime)
             }
         }
     }
@@ -161,7 +162,7 @@ class DetailListItemGlances @Inject internal constructor(
     private fun setExpiringView(
         item: FridgeItem,
         expireTime: Date?,
-        today: Calendar,
+        now: Calendar,
         isExpiringSoon: Boolean,
         isExpired: Boolean,
         hasTime: Boolean
@@ -185,16 +186,17 @@ class DetailListItemGlances @Inject internal constructor(
             return
         }
 
-        val expireCalendar = Calendar.getInstance()
+        val expireCalendar = today()
             .apply { time = requireNotNull(expireTime) }
             .cleanMidnight()
+
         expiringTooltip = tooltipCreator.top {
             dismissOnClick()
             dismissOnClickOutside()
             setArrowPosition(0.90F)
 
             // shitty old time format parser for very basic expiration estimate
-            val todayTime = today.timeInMillis
+            val todayTime = now.timeInMillis
             val expiringTime = expireCalendar.timeInMillis
             val days = getDaysToTime(todayTime, expiringTime)
 
@@ -219,7 +221,7 @@ class DetailListItemGlances @Inject internal constructor(
     private fun setExpiredView(
         item: FridgeItem,
         expireTime: Date?,
-        today: Calendar,
+        now: Calendar,
         isExpired: Boolean,
         hasTime: Boolean
     ) {
@@ -242,7 +244,7 @@ class DetailListItemGlances @Inject internal constructor(
             return
         }
 
-        val expireCalendar = Calendar.getInstance()
+        val expireCalendar = today()
             .apply { time = requireNotNull(expireTime) }
             .cleanMidnight()
         expiredTooltip = tooltipCreator.top {
@@ -251,7 +253,7 @@ class DetailListItemGlances @Inject internal constructor(
             setArrowPosition(0.89F)
 
             // shitty old time format parser for very basic expiration estimate
-            val todayTime = today.timeInMillis
+            val todayTime = now.timeInMillis
             val expiringTime = expireCalendar.timeInMillis
             val days = getDaysToTime(expiringTime, todayTime)
 

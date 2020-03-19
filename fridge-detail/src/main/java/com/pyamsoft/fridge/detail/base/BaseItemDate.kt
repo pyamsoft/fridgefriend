@@ -19,6 +19,7 @@ package com.pyamsoft.fridge.detail.base
 
 import android.view.ViewGroup
 import androidx.core.view.isVisible
+import com.pyamsoft.fridge.core.today
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.detail.R
 import com.pyamsoft.fridge.detail.databinding.DetailListItemDateBinding
@@ -29,8 +30,8 @@ import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.loader.Loaded
 import com.pyamsoft.pydroid.ui.theme.ThemeProvider
 import com.pyamsoft.pydroid.util.tintWith
-import java.util.Calendar
 import timber.log.Timber
+import java.util.Calendar
 
 abstract class BaseItemDate<S : UiViewState, V : UiViewEvent> protected constructor(
     private val imageLoader: ImageLoader,
@@ -62,8 +63,7 @@ abstract class BaseItemDate<S : UiViewState, V : UiViewEvent> protected construc
         } else {
             val expireTime = item.expireTime()
             if (expireTime != null) {
-                val date = Calendar.getInstance()
-                    .apply { time = expireTime }
+                val date = today().apply { time = expireTime }
                 Timber.d("Expire time is: $date")
 
                 // Month is zero indexed in storage

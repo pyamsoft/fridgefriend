@@ -23,6 +23,7 @@ import com.pyamsoft.fridge.butler.NotificationHandler
 import com.pyamsoft.fridge.butler.NotificationPreferences
 import com.pyamsoft.fridge.butler.params.ItemParameters
 import com.pyamsoft.fridge.butler.runner.FridgeRunner
+import com.pyamsoft.fridge.core.today
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.entry.FridgeEntryQueryDao
 import com.pyamsoft.fridge.db.item.FridgeItem
@@ -36,10 +37,10 @@ import com.pyamsoft.fridge.db.item.isArchived
 import com.pyamsoft.fridge.db.item.isExpired
 import com.pyamsoft.fridge.db.item.isExpiringSoon
 import com.pyamsoft.pydroid.core.Enforcer
-import java.util.Calendar
-import javax.inject.Inject
 import kotlinx.coroutines.coroutineScope
 import timber.log.Timber
+import java.util.Calendar
+import javax.inject.Inject
 
 internal class ItemRunner @Inject internal constructor(
     handler: NotificationHandler,
@@ -123,7 +124,7 @@ internal class ItemRunner @Inject internal constructor(
     private suspend fun notifyForEntry(
         params: ItemParameters,
         preferences: ButlerPreferences,
-        today: Calendar,
+        current: Calendar,
         later: Calendar,
         isSameDayExpired: Boolean,
         entry: FridgeEntry,
@@ -136,11 +137,11 @@ internal class ItemRunner @Inject internal constructor(
         items.filterNot { it.isArchived() }.forEach { item ->
             when (item.presence()) {
                 HAVE -> {
-                    if (item.isExpired(today, isSameDayExpired)) {
+                    if (item.isExpired(current, isSameDayExpired)) {
                         Timber.w("${item.name()} expired!")
                         expiredItems.add(item)
                     } else {
-                        if (item.isExpiringSoon(today, later, isSameDayExpired)) {
+                        if (item.isExpiringSoon(current, later, isSameDayExpired)) {
                             Timber.w("${item.name()} is expiring soon!")
                             expiringItems.add(item)
                         }
@@ -153,7 +154,7 @@ internal class ItemRunner @Inject internal constructor(
             }
         }
 
-        val now = Calendar.getInstance()
+        val now = today()
         notifyNeeded(neededItems, entry, now, preferences, params)
         notifyExpiringSoon(expiringItems, entry, now, preferences, params)
         notifyExpired(expiredItems, entry, now, preferences, params)
@@ -172,10 +173,8 @@ internal class ItemRunner @Inject internal constructor(
         preferences: ButlerPreferences,
         params: ItemParameters
     ) = coroutineScope {
-        val today = Calendar.getInstance()
-            .cleanMidnight()
-        val later = Calendar.getInstance()
-            .daysLaterMidnight(fridgeItemPreferences.getExpiringSoonRange())
+        val today = today().cleanMidnight()
+        val later = today().daysLaterMidnight(fridgeItemPreferences.getExpiringSoonRange())
         val isSameDayExpired = fridgeItemPreferences.isSameDayExpired()
 
         withFridgeData { entry, items ->

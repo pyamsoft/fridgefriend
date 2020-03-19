@@ -42,7 +42,7 @@ internal class EntryGuaranteeImpl @Inject internal constructor(
         return entries.singleOrNull { it.id() == id }
     }
 
-    override suspend fun guaranteeExists(id: FridgeEntry.Id, name: String): FridgeEntry {
+    override suspend fun existing(id: FridgeEntry.Id, name: String): FridgeEntry {
         enforcer.assertNotOnMainThread()
         val entry = getEntryForId(id)
         return if (entry != null) entry else {

@@ -28,5 +28,10 @@ const val TERMS_CONDITIONS_URL =
 
 @CheckResult
 fun currentDate(): Date {
-    return Calendar.getInstance().time
+    return today().time
+}
+
+@CheckResult
+fun today(): Calendar {
+    return Calendar.getInstance()
 }

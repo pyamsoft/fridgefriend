@@ -23,5 +23,5 @@ import com.pyamsoft.fridge.db.entry.FridgeEntry
 interface EntryGuarantee {
 
     @CheckResult
-    suspend fun guaranteeExists(id: FridgeEntry.Id, name: String): FridgeEntry
+    suspend fun existing(id: FridgeEntry.Id, name: String): FridgeEntry
 }

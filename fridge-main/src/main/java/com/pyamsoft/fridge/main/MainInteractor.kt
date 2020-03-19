@@ -18,6 +18,7 @@
 package com.pyamsoft.fridge.main
 
 import androidx.annotation.CheckResult
+import com.pyamsoft.fridge.core.today
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItemPreferences
 import com.pyamsoft.fridge.db.item.FridgeItemQueryDao
@@ -26,7 +27,6 @@ import com.pyamsoft.fridge.db.item.daysLaterMidnight
 import com.pyamsoft.fridge.db.item.isArchived
 import com.pyamsoft.fridge.db.item.isExpired
 import com.pyamsoft.fridge.db.item.isExpiringSoon
-import java.util.Calendar
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -46,14 +46,13 @@ internal class MainInteractor @Inject internal constructor(
 
     @CheckResult
     suspend fun getExpiredOrExpiringCount(): Int {
-        val today = Calendar.getInstance().cleanMidnight()
-        val later =
-            Calendar.getInstance().daysLaterMidnight(fridgeItemPreferences.getExpiringSoonRange())
+        val now = today().cleanMidnight()
+        val later = today().daysLaterMidnight(fridgeItemPreferences.getExpiringSoonRange())
         val isSameDayExpired = fridgeItemPreferences.isSameDayExpired()
         return itemQueryDao.query(false).byPresence(FridgeItem.Presence.HAVE)
             .filter {
-                it.isExpired(today, isSameDayExpired) || it.isExpiringSoon(
-                    today,
+                it.isExpired(now, isSameDayExpired) || it.isExpiringSoon(
+                    now,
                     later,
                     isSameDayExpired
                 )

@@ -39,8 +39,6 @@ import com.pyamsoft.pydroid.core.Enforcer
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import timber.log.Timber
-import java.util.Calendar
-import java.util.Date
 import javax.inject.Inject
 
 internal class DetailInteractor @Inject internal constructor(
@@ -161,8 +159,7 @@ internal class DetailInteractor @Inject internal constructor(
     suspend fun commit(item: FridgeItem) = withContext(context = Dispatchers.Default) {
         enforcer.assertNotOnMainThread()
         if (FridgeItem.isValidName(item.name())) {
-            val entry =
-                entryGuarantee.guaranteeExists(item.entryId(), FridgeEntry.DEFAULT_NAME)
+            val entry = entryGuarantee.existing(item.entryId(), FridgeEntry.DEFAULT_NAME)
             Timber.d("Guarantee entry exists: $entry")
             commitItem(item)
         } else {
@@ -186,43 +183,6 @@ internal class DetailInteractor @Inject internal constructor(
         } else {
             Timber.d("Create new item [${item.id()}]: $item")
             itemInsertDao.insert(item)
-        }
-    }
-
-    @CheckResult
-    private fun now(): Date {
-        enforcer.assertNotOnMainThread()
-        return Calendar.getInstance()
-            .time
-    }
-
-    suspend fun consume(item: FridgeItem) = withContext(context = Dispatchers.Default) {
-        enforcer.assertNotOnMainThread()
-        if (!item.isReal() || item.presence() != Presence.HAVE) {
-            Timber.w("Cannot consume item: $item")
-        } else {
-            Timber.d("Consuming item [${item.id()}]: $item")
-            itemUpdateDao.update(item.consume(now()))
-        }
-    }
-
-    suspend fun restore(item: FridgeItem) = withContext(context = Dispatchers.Default) {
-        enforcer.assertNotOnMainThread()
-        if (!item.isReal() || item.presence() != Presence.HAVE) {
-            Timber.w("Cannot restore item: $item")
-        } else {
-            Timber.d("Restoring item [${item.id()}]: $item")
-            itemUpdateDao.update(item.invalidateConsumption().invalidateSpoiled())
-        }
-    }
-
-    suspend fun spoil(item: FridgeItem) = withContext(context = Dispatchers.Default) {
-        enforcer.assertNotOnMainThread()
-        if (!item.isReal() || item.presence() != Presence.HAVE) {
-            Timber.w("Cannot spoil item: $item")
-        } else {
-            Timber.d("Spoiling item [${item.id()}]: $item")
-            itemUpdateDao.update(item.spoil(now()))
         }
     }
 

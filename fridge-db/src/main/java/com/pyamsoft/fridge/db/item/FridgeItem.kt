@@ -20,6 +20,7 @@ package com.pyamsoft.fridge.db.item
 import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.core.IdGenerator
 import com.pyamsoft.fridge.core.currentDate
+import com.pyamsoft.fridge.core.today
 import com.pyamsoft.fridge.db.EmptyModel
 import com.pyamsoft.fridge.db.category.FridgeCategory
 import com.pyamsoft.fridge.db.entry.FridgeEntry
@@ -208,15 +209,15 @@ fun FridgeItem.isArchived(): Boolean {
 }
 
 @CheckResult
-fun FridgeItem.isExpired(today: Calendar, countSameDayAsExpired: Boolean): Boolean {
+fun FridgeItem.isExpired(date: Calendar, countSameDayAsExpired: Boolean): Boolean {
     val expireTime = this.expireTime() ?: return false
 
     // Clean Y/M/D only
-    val expiration = Calendar.getInstance()
+    val expiration = today()
         .also { it.time = expireTime }
         .cleanMidnight()
 
-    val midnightToday = today.cleanMidnight()
+    val midnightToday = date.cleanMidnight()
     if (expiration.before(midnightToday)) {
         return true
     }
@@ -230,22 +231,22 @@ fun FridgeItem.isExpired(today: Calendar, countSameDayAsExpired: Boolean): Boole
 
 @CheckResult
 fun FridgeItem.isExpiringSoon(
-    today: Calendar,
+    date: Calendar,
     later: Calendar,
     countSameDayAsExpired: Boolean
 ): Boolean {
     val expireTime = this.expireTime() ?: return false
 
-    if (this.isExpired(today, countSameDayAsExpired)) {
+    if (this.isExpired(date, countSameDayAsExpired)) {
         return false
     }
 
     // Clean Y/M/D only
-    val expiration = Calendar.getInstance()
+    val expiration = today()
         .also { it.time = expireTime }
         .cleanMidnight()
 
-    val midnightToday = today.cleanMidnight()
+    val midnightToday = date.cleanMidnight()
     val midnightLater = later.cleanMidnight()
     return expiration.before(midnightLater) || expiration == midnightLater || expiration == midnightToday
 }

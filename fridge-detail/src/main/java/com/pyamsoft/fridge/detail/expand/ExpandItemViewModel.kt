@@ -20,6 +20,7 @@ package com.pyamsoft.fridge.detail.expand
 import androidx.annotation.CheckResult
 import androidx.lifecycle.viewModelScope
 import com.pyamsoft.fridge.core.currentDate
+import com.pyamsoft.fridge.core.today
 import com.pyamsoft.fridge.db.category.FridgeCategory
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItem
@@ -36,13 +37,12 @@ import com.pyamsoft.fridge.detail.base.BaseUpdaterViewModel
 import com.pyamsoft.fridge.detail.expand.date.DateSelectPayload
 import com.pyamsoft.fridge.detail.item.isNameValid
 import com.pyamsoft.pydroid.arch.EventBus
-import java.util.Calendar
-import java.util.Date
-import javax.inject.Inject
-import javax.inject.Named
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import timber.log.Timber
+import java.util.Calendar
+import javax.inject.Inject
+import javax.inject.Named
 
 class ExpandItemViewModel @Inject internal constructor(
     private val itemExpandBus: EventBus<ItemExpandPayload>,
@@ -157,7 +157,7 @@ class ExpandItemViewModel @Inject internal constructor(
         withState {
             update(
                 requireNotNull(item),
-                doUpdate = { interactor.consume(it) },
+                doUpdate = { interactor.commit(it.consume(currentDate())) },
                 onError = { handleError(it) }) {
                 closeItem(it)
             }
@@ -168,7 +168,7 @@ class ExpandItemViewModel @Inject internal constructor(
         withState {
             update(
                 requireNotNull(item),
-                doUpdate = { interactor.spoil(it) },
+                doUpdate = { interactor.commit(it.spoil(currentDate())) },
                 onError = { handleError(it) }) {
                 closeItem(it)
             }
@@ -229,8 +229,7 @@ class ExpandItemViewModel @Inject internal constructor(
             val year: Int
 
             if (expireTime != null) {
-                val date = Calendar.getInstance()
-                    .apply { time = expireTime }
+                val date = today().apply { time = expireTime }
 
                 // Month is zero indexed in storage
                 month = date.get(Calendar.MONTH)
@@ -306,7 +305,7 @@ class ExpandItemViewModel @Inject internal constructor(
         withState {
             requireNotNull(item).let { item ->
                 Timber.d("Attempt save time: $year/${month + 1}/$day")
-                val newTime = Calendar.getInstance()
+                val newTime = today()
                     .apply {
                         set(Calendar.YEAR, year)
                         set(Calendar.MONTH, month)

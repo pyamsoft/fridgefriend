@@ -26,6 +26,7 @@ import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.ViewModelProvider
 import com.pyamsoft.fridge.FridgeComponent
 import com.pyamsoft.fridge.R
+import com.pyamsoft.fridge.core.today
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.pydroid.arch.StateSaver
@@ -55,7 +56,7 @@ internal class DateSelectDialogFragment : DialogFragment() {
             }
         }
 
-        val today = Calendar.getInstance()
+        val today = today()
         val itemId = FridgeItem.Id(requireNotNull(requireArguments().getString(ITEM)))
         val entryId = FridgeEntry.Id(requireNotNull(requireArguments().getString(ENTRY)))
         var initialYear = requireArguments().getInt(YEAR, 0)

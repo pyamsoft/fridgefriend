@@ -36,7 +36,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import timber.log.Timber
-import java.util.Date
 import javax.inject.Inject
 import javax.inject.Named
 import kotlin.math.max
@@ -189,14 +188,14 @@ class DetailViewModel @Inject internal constructor(
     }
 
     private fun updateCount(item: FridgeItem) {
-        updateItem(item, doUpdate = { interactor.commit(it) }, onError = { handleError(it) })
+        if (!item.isArchived()) {
+            updateItem(item, doUpdate = { interactor.commit(it) }, onError = { handleError(it) })
+        }
     }
 
     private fun expand(item: FridgeItem) {
-        withState {
-            if (showing == DetailViewState.Showing.FRESH) {
-                publish(ExpandForEditing(item))
-            }
+        if (!item.isArchived()) {
+            publish(ExpandForEditing(item))
         }
     }
 
@@ -402,19 +401,22 @@ class DetailViewModel @Inject internal constructor(
     private fun consume(item: FridgeItem) {
         updateItem(
             item,
-            doUpdate = { interactor.consume(it) },
+            doUpdate = { interactor.commit(it.consume(currentDate())) },
             onError = { handleError(it) })
     }
 
     private fun restore(item: FridgeItem) {
         updateItem(
             item,
-            doUpdate = { interactor.restore(it) },
+            doUpdate = { interactor.commit(it.invalidateConsumption().invalidateSpoiled()) },
             onError = { handleError(it) })
     }
 
     private fun spoil(item: FridgeItem) {
-        updateItem(item, doUpdate = { interactor.spoil(it) }, onError = { handleError(it) })
+        updateItem(
+            item,
+            doUpdate = { interactor.commit(it.spoil(currentDate())) },
+            onError = { handleError(it) })
     }
 
     private fun delete(item: FridgeItem) {

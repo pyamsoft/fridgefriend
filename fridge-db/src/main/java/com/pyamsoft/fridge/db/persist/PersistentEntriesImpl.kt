@@ -28,7 +28,7 @@ internal class PersistentEntriesImpl @Inject internal constructor(
 
     override suspend fun getPersistentEntry(): FridgeEntry {
         val possibleId = preferences.getPersistentEntryId()
-        val entry = guarantee.guaranteeExists(possibleId, FridgeEntry.DEFAULT_NAME)
+        val entry = guarantee.existing(possibleId, FridgeEntry.DEFAULT_NAME)
 
         // If it did not previously exist, it was newly created above
         if (possibleId != entry.id()) {
