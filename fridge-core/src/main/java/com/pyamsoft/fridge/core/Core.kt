@@ -17,7 +17,16 @@
 
 package com.pyamsoft.fridge.core
 
+import androidx.annotation.CheckResult
+import java.util.Calendar
+import java.util.Date
+
 const val PRIVACY_POLICY_URL =
     "https://pyamsoft.blogspot.com/p/fridgefriend-privacy-policy.html"
 const val TERMS_CONDITIONS_URL =
     "https://pyamsoft.blogspot.com/p/fridgefriend-terms-and-conditions.html"
+
+@CheckResult
+fun currentDate(): Date {
+    return Calendar.getInstance().time
+}

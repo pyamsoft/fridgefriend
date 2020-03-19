@@ -19,6 +19,7 @@ package com.pyamsoft.fridge.db.room.converter
 
 import androidx.annotation.CheckResult
 import androidx.room.TypeConverter
+import com.pyamsoft.fridge.core.currentDate
 import java.util.Date
 
 internal object DateTypeConverter {
@@ -27,7 +28,7 @@ internal object DateTypeConverter {
     @TypeConverter
     @CheckResult
     fun toDate(time: Long?): Date? {
-        return if (time == null) null else Date().apply { this.time = time }
+        return if (time == null) null else currentDate().apply { this.time = time }
     }
 
     @JvmStatic

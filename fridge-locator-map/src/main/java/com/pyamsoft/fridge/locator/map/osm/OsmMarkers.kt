@@ -18,16 +18,16 @@
 package com.pyamsoft.fridge.locator.map.osm
 
 import androidx.annotation.CheckResult
+import com.pyamsoft.fridge.core.currentDate
 import com.pyamsoft.fridge.db.store.NearbyStore
 import com.pyamsoft.fridge.db.zone.NearbyZone
 import com.pyamsoft.fridge.db.zone.NearbyZone.Point
 import com.pyamsoft.fridge.locator.map.osm.api.OsmNodeOrWay.Node
 import com.pyamsoft.fridge.locator.map.osm.api.OsmNodeOrWay.Way
-import java.util.Date
 
 @CheckResult
 internal fun NearbyStore.Companion.create(node: Node): NearbyStore {
-    return create(NearbyStore.Id(node.id), node.tags.name(), Date(), node.lat, node.lon)
+    return create(NearbyStore.Id(node.id), node.tags.name(), currentDate(), node.lat, node.lon)
 }
 
 @CheckResult
@@ -70,7 +70,7 @@ internal fun NearbyZone.Companion.create(
     return create(
         NearbyZone.Id(way.id),
         findName(way, nodes),
-        Date(),
+        currentDate(),
         nodes.map { Point(it.id, it.lat, it.lon) }
     )
 }

@@ -19,6 +19,7 @@ package com.pyamsoft.fridge.db.category
 
 import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.core.IdGenerator
+import com.pyamsoft.fridge.core.currentDate
 import com.pyamsoft.fridge.db.EmptyModel
 import java.util.Date
 
@@ -93,7 +94,7 @@ interface FridgeCategory : EmptyModel<FridgeCategory> {
     companion object {
 
         private val EMPTY_CATEGORY =
-            JsonMappableFridgeCategory(Id.EMPTY, "", Date(), null, isDefault = true)
+            JsonMappableFridgeCategory(Id.EMPTY, "", currentDate(), null, isDefault = true)
 
         @CheckResult
         fun empty(): FridgeCategory {
@@ -105,7 +106,7 @@ interface FridgeCategory : EmptyModel<FridgeCategory> {
             id: Id,
             name: String
         ): FridgeCategory {
-            return JsonMappableFridgeCategory(id, name, Date(), null, isDefault = false)
+            return JsonMappableFridgeCategory(id, name, currentDate(), null, isDefault = false)
         }
 
         @CheckResult
@@ -113,7 +114,7 @@ interface FridgeCategory : EmptyModel<FridgeCategory> {
             return JsonMappableFridgeCategory(
                 Id(IdGenerator.generate()),
                 name,
-                Date(),
+               currentDate(),
                 thumbnail,
                 isDefault = true
             )

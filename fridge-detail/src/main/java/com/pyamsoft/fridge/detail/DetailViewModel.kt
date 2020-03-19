@@ -19,6 +19,7 @@ package com.pyamsoft.fridge.detail
 
 import androidx.annotation.CheckResult
 import androidx.lifecycle.viewModelScope
+import com.pyamsoft.fridge.core.currentDate
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent
@@ -361,7 +362,7 @@ class DetailViewModel @Inject internal constructor(
             val dateOfPurchase = purchaseTime()
             if (newPresence == FridgeItem.Presence.HAVE) {
                 if (dateOfPurchase == null) {
-                    val now = Date()
+                    val now = currentDate()
                     Timber.d("${item.name()} purchased! $now")
                     return@run purchaseTime(now)
                 }

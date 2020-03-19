@@ -19,6 +19,7 @@ package com.pyamsoft.fridge.db.item
 
 import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.core.IdGenerator
+import com.pyamsoft.fridge.core.currentDate
 import com.pyamsoft.fridge.db.EmptyModel
 import com.pyamsoft.fridge.db.category.FridgeCategory
 import com.pyamsoft.fridge.db.entry.FridgeEntry
@@ -157,7 +158,7 @@ interface FridgeItem : EmptyModel<FridgeItem> {
                 entryId = entryId,
                 name = "",
                 count = 1,
-                createdTime = Date(),
+                createdTime = currentDate(),
                 purchasedTime = null,
                 expireTime = null,
                 presence = presence,

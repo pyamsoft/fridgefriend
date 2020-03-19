@@ -43,6 +43,7 @@ import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
 import javax.inject.Inject
+import kotlin.math.roundToLong
 
 class DetailListItemGlances @Inject internal constructor(
     private val tooltipCreator: TooltipCreator,
@@ -191,12 +192,7 @@ class DetailListItemGlances @Inject internal constructor(
             // shitty old time format parser for very basic expiration estimate
             val todayTime = today.timeInMillis
             val expiringTime = expireCalendar.timeInMillis
-
-            val difference = expiringTime - todayTime
-            val seconds = difference / 1000L
-            val minutes = seconds / 60L
-            val hours = minutes / 60L
-            val days = hours / 24L
+            val days = getDaysToTime(todayTime, expiringTime)
 
             require(days >= 0)
             val expirationRange = if (days == 0L) "will expire today" else {
@@ -252,12 +248,7 @@ class DetailListItemGlances @Inject internal constructor(
             // shitty old time format parser for very basic expiration estimate
             val todayTime = today.timeInMillis
             val expiringTime = expireCalendar.timeInMillis
-
-            val difference = todayTime - expiringTime
-            val seconds = difference / 1000L
-            val minutes = seconds / 60L
-            val hours = minutes / 60L
-            val days = hours / 24L
+            val days = getDaysToTime(expiringTime, todayTime)
 
             require(days >= 0)
             val expirationRange = if (days == 0L) "today" else {
@@ -302,6 +293,16 @@ class DetailListItemGlances @Inject internal constructor(
 
             view.isVisible = false
             return loaded
+        }
+
+        @JvmStatic
+        @CheckResult
+        private fun getDaysToTime(nowTime: Long, expireTime: Long): Long {
+            val difference = expireTime - nowTime
+            val seconds = (difference.toFloat() / 1000L).roundToLong()
+            val minutes = (seconds.toFloat() / 60L).roundToLong()
+            val hours = (minutes.toFloat() / 60L).roundToLong()
+            return (hours.toFloat() / 24L).roundToLong()
         }
     }
 }

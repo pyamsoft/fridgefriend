@@ -18,6 +18,7 @@
 package com.pyamsoft.fridge.db.entry
 
 import androidx.annotation.CheckResult
+import com.pyamsoft.fridge.core.currentDate
 import com.pyamsoft.fridge.db.BaseModel
 import java.util.Date
 
@@ -55,7 +56,7 @@ interface FridgeEntry : BaseModel<FridgeEntry> {
             id: Id,
             name: String
         ): FridgeEntry {
-            return JsonMappableFridgeEntry(id, name, Date(), isReal = true)
+            return JsonMappableFridgeEntry(id, name, currentDate(), isReal = true)
         }
 
         @CheckResult
