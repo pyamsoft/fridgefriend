@@ -35,9 +35,9 @@ import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.store.NearbyStore
 import com.pyamsoft.fridge.db.zone.NearbyZone
+import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Singleton
-import timber.log.Timber
 
 @Singleton
 internal class NotificationHandlerImpl @Inject internal constructor(
@@ -129,6 +129,19 @@ internal class NotificationHandlerImpl @Inject internal constructor(
         return notifyNearby(id, store.name(), items)
     }
 
+    private fun cancelAllNeededNotifications() {
+        val ids = needNotificationIdMap.values
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            for (id in ids.parallelStream()) {
+                cancel(id)
+            }
+        } else {
+            for (id in ids) {
+                cancel(id)
+            }
+        }
+    }
+
     @CheckResult
     private fun notifyNearby(
         notificationId: Int,
@@ -136,7 +149,7 @@ internal class NotificationHandlerImpl @Inject internal constructor(
         items: List<FridgeItem>
     ): Boolean {
         // Plain needed notifications are overruled by location aware Nearby notifications
-        cancel(notificationId)
+        cancelAllNeededNotifications()
 
         return notify(
             notificationId,
@@ -232,17 +245,26 @@ internal class NotificationHandlerImpl @Inject internal constructor(
         private const val EXPIRED_CHANNEL_ID = "fridge_expiration_reminders_channel_v1"
         private const val NEEDED_CHANNEL_ID = "fridge_needed_reminders_channel_v1"
         private const val NEARBY_CHANNEL_ID = "fridge_nearby_reminders_channel_v1"
+        private val RANDOM_RANGE = (1000 until Int.MAX_VALUE)
+        private val alreadyGeneratedIds by lazy { mutableSetOf<Int>() }
 
         @JvmStatic
         @CheckResult
         private fun <S : Any> MutableMap<S, Int>.getNotificationId(key: S): Int {
-            return this.getOrPut(key) { generateNewNotificationId() }
+            return this.getOrPut(key) {
+                var id: Int
+                do {
+                    id = generateNewNotificationId()
+                } while (alreadyGeneratedIds.contains(id))
+                alreadyGeneratedIds.add(id)
+                return@getOrPut id
+            }
         }
 
         @JvmStatic
         @CheckResult
         private fun generateNewNotificationId(): Int {
-            return (1000..5000).random()
+            return RANDOM_RANGE.random()
         }
 
         @JvmStatic
