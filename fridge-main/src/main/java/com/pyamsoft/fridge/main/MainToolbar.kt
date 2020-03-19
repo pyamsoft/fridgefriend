@@ -22,7 +22,8 @@ import android.view.ViewGroup
 import android.view.ViewGroup.MarginLayoutParams
 import androidx.core.view.ViewCompat
 import androidx.core.view.updateLayoutParams
-import com.pyamsoft.fridge.core.Core
+import com.pyamsoft.fridge.core.PRIVACY_POLICY_URL
+import com.pyamsoft.fridge.core.TERMS_CONDITIONS_URL
 import com.pyamsoft.fridge.main.databinding.MainToolbarBinding
 import com.pyamsoft.pydroid.arch.BindingUiView
 import com.pyamsoft.pydroid.ui.app.ToolbarActivityProvider
@@ -58,7 +59,7 @@ class MainToolbar @Inject internal constructor(
                 }
             }
 
-            binding.mainToolbar.addPrivacy(Core.PRIVACY_POLICY_URL, Core.TERMS_CONDITIONS_URL)
+            binding.mainToolbar.addPrivacy(PRIVACY_POLICY_URL, TERMS_CONDITIONS_URL)
         }
 
         doOnTeardown {

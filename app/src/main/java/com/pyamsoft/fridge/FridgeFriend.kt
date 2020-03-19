@@ -22,7 +22,8 @@ import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.butler.Butler
 import com.pyamsoft.fridge.butler.injector.ButlerComponent
 import com.pyamsoft.fridge.category.CategoryListComponent
-import com.pyamsoft.fridge.core.Core
+import com.pyamsoft.fridge.core.PRIVACY_POLICY_URL
+import com.pyamsoft.fridge.core.TERMS_CONDITIONS_URL
 import com.pyamsoft.fridge.detail.DetailListComponent
 import com.pyamsoft.fridge.detail.expand.ExpandItemCategoryListComponent
 import com.pyamsoft.fridge.locator.map.osm.popup.store.StoreInfoComponent
@@ -51,8 +52,8 @@ class FridgeFriend : Application() {
         val parameters = PYDroid.Parameters(
             url,
             "$url/issues",
-            Core.PRIVACY_POLICY_URL,
-            Core.TERMS_CONDITIONS_URL,
+            PRIVACY_POLICY_URL,
+            TERMS_CONDITIONS_URL,
             BuildConfig.VERSION_CODE
         )
         PYDroid.init(this, parameters) { provider ->
