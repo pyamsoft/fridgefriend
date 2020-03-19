@@ -37,6 +37,7 @@ import com.pyamsoft.fridge.tooltip.TooltipCreator
 import com.pyamsoft.pydroid.arch.BindingUiView
 import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.loader.Loaded
+import com.pyamsoft.pydroid.ui.theme.ThemeProvider
 import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
 import com.pyamsoft.pydroid.util.tintWith
 import java.text.SimpleDateFormat
@@ -47,6 +48,7 @@ import kotlin.math.roundToLong
 
 class DetailListItemGlances @Inject internal constructor(
     private val tooltipCreator: TooltipCreator,
+    private val theming: ThemeProvider,
     private val imageLoader: ImageLoader,
     parent: ViewGroup
 ) : BindingUiView<DetailListItemViewState, DetailItemViewEvent, DetailListItemGlancesBinding>(parent) {
@@ -131,6 +133,7 @@ class DetailListItemGlances @Inject internal constructor(
         hasTime: Boolean
     ) {
         dateRangeLoader = setViewColor(
+            theming,
             imageLoader,
             binding.detailItemGlancesDate,
             R.drawable.ic_date_range_24dp,
@@ -167,6 +170,7 @@ class DetailListItemGlances @Inject internal constructor(
         val isVisible = hasTime && !isExpired
 
         expiringLoader = setViewColor(
+            theming,
             imageLoader,
             binding.detailItemGlancesExpiring,
             R.drawable.ic_consumed_24dp,
@@ -223,6 +227,7 @@ class DetailListItemGlances @Inject internal constructor(
         val isVisible = hasTime && isExpired
 
         expiredLoader = setViewColor(
+            theming,
             imageLoader,
             binding.detailItemGlancesExpired,
             R.drawable.ic_spoiled_24dp,
@@ -275,6 +280,7 @@ class DetailListItemGlances @Inject internal constructor(
         @JvmStatic
         @CheckResult
         private fun setViewColor(
+            theming: ThemeProvider,
             imageLoader: ImageLoader,
             view: ImageView,
             @DrawableRes drawable: Int,
@@ -284,7 +290,8 @@ class DetailListItemGlances @Inject internal constructor(
         ): Loaded? {
             if (isVisible) {
                 view.isVisible = true
-                val color = if (isColored) R.color.colorSecondary else R.color.disabledColor
+                val color =
+                    if (isColored) R.color.colorSecondary else if (theming.isDarkTheme()) R.color.white else R.color.black
                 loaded?.dispose()
                 return imageLoader.load(drawable)
                     .mutate { it.tintWith(view.context, color) }
