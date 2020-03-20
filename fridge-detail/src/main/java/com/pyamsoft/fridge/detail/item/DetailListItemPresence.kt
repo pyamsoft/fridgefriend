@@ -27,7 +27,10 @@ class DetailListItemPresence @Inject internal constructor(
 ) : BaseItemPresence<DetailListItemViewState, DetailItemViewEvent>(parent) {
 
     override fun onRender(state: DetailListItemViewState) {
-        render(state.item)
+        state.item.let { item ->
+            assert(item.isReal()) { "Cannot render non-real item: $item" }
+            render(item)
+        }
     }
 
     override fun publishChangePresence() {

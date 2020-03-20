@@ -73,6 +73,7 @@ class DetailListItemCount @Inject internal constructor(
 
     override fun onRender(state: DetailListItemViewState) {
         state.item.let { item ->
+            assert(item.isReal()) {"Cannot render non-real item: $item"}
             binding.detailItemCountText.text = "${item.count()}"
         }
     }

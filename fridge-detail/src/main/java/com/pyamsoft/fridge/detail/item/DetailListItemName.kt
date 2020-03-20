@@ -34,6 +34,9 @@ class DetailListItemName @Inject internal constructor(
     }
 
     override fun onRender(state: DetailListItemViewState) {
-        setName(state.item)
+        state.item.let { item ->
+            assert(item.isReal()) {"Cannot render non-real item: $item"}
+            setName(item)
+        }
     }
 }

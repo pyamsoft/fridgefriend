@@ -137,31 +137,37 @@ internal data class RoomFridgeItem internal constructor(
 
     @Ignore
     override fun consumptionDate(): Date? {
+        assert(isReal()) { "Cannot query consumedDate on non-real item: $this" }
         return consumedTime
     }
 
     @Ignore
     override fun invalidateConsumption(): FridgeItem {
+        assert(isReal()) { "Cannot invalidate consumedDate on non-real item: $this" }
         return FridgeItem.create(this, consumptionDate = null, isReal = isReal())
     }
 
     @Ignore
     override fun isConsumed(): Boolean {
+        assert(isReal()) { "Cannot query consumedDate on non-real item: $this" }
         return consumedTime != null
     }
 
     @Ignore
     override fun spoiledDate(): Date? {
+        assert(isReal()) { "Cannot query spoiledDate on non-real item: $this" }
         return spoiledTime
     }
 
     @Ignore
     override fun invalidateSpoiled(): FridgeItem {
+        assert(isReal()) { "Cannot invalidate spoiledDate on non-real item: $this" }
         return FridgeItem.create(this, spoiledDate = null, isReal = isReal())
     }
 
     @Ignore
     override fun isSpoiled(): Boolean {
+        assert(isReal()) { "Cannot query spoiledDate on non-real item: $this" }
         return spoiledTime != null
     }
 
@@ -212,11 +218,13 @@ internal data class RoomFridgeItem internal constructor(
 
     @Ignore
     override fun consume(date: Date): FridgeItem {
+        assert(isReal()) { "Cannot consume non-real item: $this" }
         return FridgeItem.create(this, consumptionDate = date, isReal = isReal())
     }
 
     @Ignore
     override fun spoil(date: Date): FridgeItem {
+        assert(isReal()) { "Cannot spoil non-real item: $this" }
         return FridgeItem.create(this, spoiledDate = date, isReal = isReal())
     }
 

@@ -188,11 +188,8 @@ internal class DetailInteractor @Inject internal constructor(
 
     suspend fun delete(item: FridgeItem) = withContext(context = Dispatchers.Default) {
         enforcer.assertNotOnMainThread()
-        if (!item.isReal()) {
-            Timber.w("Cannot delete item that is not real: [${item.id()}]: $item")
-        } else {
-            Timber.d("Deleting item [${item.id()}]: $item")
-            itemDeleteDao.delete(item)
-        }
+        assert(item.isReal()) { "Cannot delete item that is not real: $item" }
+        Timber.d("Deleting item [${item.id()}]: $item")
+        itemDeleteDao.delete(item)
     }
 }

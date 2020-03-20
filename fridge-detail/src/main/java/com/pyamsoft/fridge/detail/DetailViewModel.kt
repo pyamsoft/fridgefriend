@@ -64,9 +64,8 @@ class DetailViewModel @Inject internal constructor(
 
     private val undoRunner = highlander<Unit, FridgeItem> { item ->
         try {
-            if (item.isReal()) {
-                interactor.commit(item.invalidateSpoiled().invalidateConsumption())
-            }
+            assert(item.isReal()) { "Cannot undo for non-real item: $item" }
+            interactor.commit(item.invalidateSpoiled().invalidateConsumption())
         } catch (error: Throwable) {
             error.onActualError { e ->
                 Timber.e(e, "Error undoing item: ${item.id()}")
@@ -385,16 +384,7 @@ class DetailViewModel @Inject internal constructor(
         doUpdate: suspend (item: FridgeItem) -> Unit,
         onError: (throwable: Throwable) -> Unit
     ) {
-        // Not sure if this state is actually even possible anymore since we don't allow editing
-        // fake items on the list view
-        if (!item.isReal()) {
-            Timber.w("Commit called on a non-real item: $item")
-            // Don't beacon the update anywhere since we don't want the UI to respond
-            // But, commit the changes as a potential update
-            handleRealtimeUpdate(item)
-            return
-        }
-
+        assert(item.isReal()) { "Commit called on a non-real item: $item" }
         update(item, doUpdate = doUpdate, onError = onError)
     }
 

@@ -102,11 +102,12 @@ class DetailListItemGlances @Inject internal constructor(
 
     override fun onRender(state: DetailListItemViewState) {
         state.item.let { item ->
+            assert(item.isReal()) { "Cannot render non-real item: $item" }
             val range = state.expirationRange
             val isSameDayExpired = state.isSameDayExpired
 
             val isVisible =
-                item.isReal() && !item.isArchived() && item.presence() == HAVE && range != null && isSameDayExpired != null
+                !item.isArchived() && item.presence() == HAVE && range != null && isSameDayExpired != null
             layoutRoot.isVisible = isVisible
 
             if (isVisible) {
