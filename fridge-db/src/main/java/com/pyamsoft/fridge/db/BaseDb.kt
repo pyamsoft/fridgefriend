@@ -23,7 +23,6 @@ import com.pyamsoft.fridge.db.BaseDb.Insert
 import com.pyamsoft.fridge.db.BaseDb.Query
 import com.pyamsoft.fridge.db.BaseDb.Realtime
 import com.pyamsoft.fridge.db.BaseDb.Update
-import com.pyamsoft.pydroid.arch.EventConsumer
 
 interface BaseDb<ChangeEvent : Any, R : Realtime<*>, Q : Query<*>, I : Insert<*>, U : Update<*>, D : Delete<*>> {
 
@@ -48,8 +47,7 @@ interface BaseDb<ChangeEvent : Any, R : Realtime<*>, Q : Query<*>, I : Insert<*>
 
     interface Realtime<T : Any> {
 
-        @CheckResult
-        fun listenForChanges(): EventConsumer<T>
+        suspend fun listenForChanges(onChange: suspend (event: T) -> Unit)
     }
 
     interface Delete<T : Any> {

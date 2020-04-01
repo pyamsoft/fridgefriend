@@ -31,13 +31,15 @@ import com.pyamsoft.fridge.locator.DeviceGps
 import com.pyamsoft.fridge.locator.Geofencer
 import com.pyamsoft.fridge.locator.MapPermission
 import com.pyamsoft.pydroid.core.Enforcer
+import kotlinx.coroutines.CancellableContinuation
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.withContext
+import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
-import kotlinx.coroutines.CancellableContinuation
-import kotlinx.coroutines.suspendCancellableCoroutine
-import timber.log.Timber
 
 @Singleton
 internal class GmsLocator @Inject internal constructor(
@@ -49,31 +51,32 @@ internal class GmsLocator @Inject internal constructor(
     private val locationClient by lazy { FusedLocationProviderClient(context.applicationContext) }
     private val settingsClient by lazy { LocationServices.getSettingsClient(context.applicationContext) }
 
-    override suspend fun getLastKnownLocation(): Location? {
-        enforcer.assertNotOnMainThread()
-        if (!isGpsEnabled()) {
-            Timber.w("Cannot get last location, GPS is not enabled")
-            return null
-        }
-
-        return suspendCancellableCoroutine { continuation ->
+    override suspend fun getLastKnownLocation(): Location? =
+        withContext(context = Dispatchers.Default) {
             enforcer.assertNotOnMainThread()
-            continuation.invokeOnCancellation {
-                Timber.w("getLastKnownLocation coroutine cancelled: $it")
+            if (!isGpsEnabled()) {
+                Timber.w("Cannot get last location, GPS is not enabled")
+                return@withContext null
             }
 
-            continuation.withPermission("Cannot get last known location") {
-                locationClient.lastLocation
-                    .addOnSuccessListener { resume(it) }
-                    .addOnFailureListener { resumeWithException(it) }
-                    .addOnCanceledListener { resume(null) }
+            return@withContext suspendCancellableCoroutine<Location?> { continuation ->
+                enforcer.assertNotOnMainThread()
+                continuation.invokeOnCancellation {
+                    Timber.w("getLastKnownLocation coroutine cancelled: $it")
+                }
+
+                continuation.withPermission("Cannot get last known location") {
+                    locationClient.lastLocation
+                        .addOnSuccessListener { resume(it) }
+                        .addOnFailureListener { resumeWithException(it) }
+                        .addOnCanceledListener { resume(null) }
+                }
             }
         }
-    }
 
-    override suspend fun isGpsEnabled(): Boolean {
+    override suspend fun isGpsEnabled(): Boolean = withContext(context = Dispatchers.Default) {
         enforcer.assertNotOnMainThread()
-        return suspendCancellableCoroutine { continuation ->
+        return@withContext suspendCancellableCoroutine<Boolean> { continuation ->
             enforcer.assertNotOnMainThread()
             continuation.invokeOnCancellation {
                 Timber.w("isGpsEnabled coroutine cancelled: $it")
@@ -88,10 +91,9 @@ internal class GmsLocator @Inject internal constructor(
         }
     }
 
-    override suspend fun enableGps() {
+    override suspend fun enableGps() = withContext(context = Dispatchers.Default) {
         enforcer.assertNotOnMainThread()
-
-        return suspendCancellableCoroutine { continuation ->
+        suspendCancellableCoroutine<Unit> { continuation ->
             enforcer.assertNotOnMainThread()
             continuation.invokeOnCancellation {
                 Timber.w("enableGps coroutine cancelled: $it")

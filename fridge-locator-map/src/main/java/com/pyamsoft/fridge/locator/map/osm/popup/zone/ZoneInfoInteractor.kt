@@ -28,9 +28,11 @@ import com.pyamsoft.fridge.db.zone.NearbyZoneInsertDao
 import com.pyamsoft.fridge.db.zone.NearbyZoneQueryDao
 import com.pyamsoft.fridge.db.zone.NearbyZoneRealtime
 import com.pyamsoft.fridge.locator.map.osm.popup.base.BaseInfoInteractor
+import com.pyamsoft.pydroid.core.Enforcer
 import javax.inject.Inject
 
 internal class ZoneInfoInteractor @Inject internal constructor(
+    enforcer: Enforcer,
     butler: Butler,
     realtime: NearbyZoneRealtime,
     queryDao: NearbyZoneQueryDao,
@@ -43,7 +45,7 @@ internal class ZoneInfoInteractor @Inject internal constructor(
     NearbyZoneQueryDao,
     NearbyZoneInsertDao,
     NearbyZoneDeleteDao
-    >(butler, realtime, queryDao, insertDao, deleteDao) {
+    >(enforcer, butler, realtime, queryDao, insertDao, deleteDao) {
 
     suspend inline fun listenForNearbyCacheChanges(
         crossinline onInsert: (zone: NearbyZone) -> Unit,

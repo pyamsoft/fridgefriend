@@ -21,6 +21,7 @@ import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.butler.Butler
 import com.pyamsoft.fridge.butler.params.LocationParameters
 import com.pyamsoft.fridge.db.BaseDb
+import com.pyamsoft.pydroid.core.Enforcer
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -32,35 +33,41 @@ internal abstract class BaseInfoInteractor<
     I : BaseDb.Insert<T>,
     D : BaseDb.Delete<T>
     > protected constructor(
-        private val butler: Butler,
-        private val realtime: R,
-        private val queryDao: Q,
-        private val insertDao: I,
-        private val deleteDao: D
-    ) {
+    private val enforcer: Enforcer,
+    private val butler: Butler,
+    private val realtime: R,
+    private val queryDao: Q,
+    private val insertDao: I,
+    private val deleteDao: D
+) {
 
     @CheckResult
-    suspend fun getAllCached(): List<T> {
-        return withContext(context = Dispatchers.Default) { queryDao.query(false) }
+    suspend fun getAllCached(): List<T> = withContext(context = Dispatchers.Default) {
+        enforcer.assertNotOnMainThread()
+        queryDao.query(false)
     }
 
     protected suspend inline fun listenChanges(
         crossinline onEvent: (event: RE) -> Unit
     ) = withContext(context = Dispatchers.Default) {
-        realtime.listenForChanges().onEvent { onEvent(it) }
+        enforcer.assertNotOnMainThread()
+        realtime.listenForChanges { onEvent(it) }
     }
 
     suspend fun deleteFromDb(data: T) = withContext(context = Dispatchers.Default) {
+        enforcer.assertNotOnMainThread()
         deleteDao.delete(data)
         restartLocationWorker()
     }
 
     suspend fun insertIntoDb(data: T) = withContext(context = Dispatchers.Default) {
+        enforcer.assertNotOnMainThread()
         insertDao.insert(data)
         restartLocationWorker()
     }
 
     private suspend fun restartLocationWorker() {
+        enforcer.assertNotOnMainThread()
         butler.cancelLocationReminder()
         butler.remindLocation(LocationParameters(forceNotifyNeeded = true))
     }

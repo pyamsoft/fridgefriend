@@ -32,7 +32,9 @@ import com.pyamsoft.fridge.db.persist.PersistentEntryPreferences
 import com.pyamsoft.fridge.setting.SettingsPreferences
 import com.pyamsoft.pydroid.arch.EventBus
 import com.pyamsoft.pydroid.core.Enforcer
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.withContext
 import java.util.Calendar
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
@@ -90,96 +92,117 @@ internal class PreferencesImpl @Inject internal constructor(
         }
     }
 
-    override suspend fun getLastNotificationTimeNearby(): Long {
-        enforcer.assertNotOnMainThread()
-        return preferences.getLong(KEY_LAST_NOTIFICATION_TIME_NEARBY, 0)
-    }
-
-    override suspend fun markNotificationNearby(calendar: Calendar) {
-        enforcer.assertNotOnMainThread()
-        preferences.edit {
-            putLong(KEY_LAST_NOTIFICATION_TIME_NEARBY, calendar.timeInMillis)
+    override suspend fun getLastNotificationTimeNearby(): Long =
+        withContext(context = Dispatchers.Default) {
+            enforcer.assertNotOnMainThread()
+            return@withContext preferences.getLong(KEY_LAST_NOTIFICATION_TIME_NEARBY, 0)
         }
-    }
 
-    override suspend fun getLastNotificationTimeExpiringSoon(): Long {
-        enforcer.assertNotOnMainThread()
-        return preferences.getLong(KEY_LAST_NOTIFICATION_TIME_EXPIRING_SOON, 0)
-    }
-
-    override suspend fun markNotificationExpiringSoon(calendar: Calendar) {
-        enforcer.assertNotOnMainThread()
-        preferences.edit {
-            putLong(KEY_LAST_NOTIFICATION_TIME_EXPIRING_SOON, calendar.timeInMillis)
+    override suspend fun markNotificationNearby(calendar: Calendar) =
+        withContext(context = Dispatchers.Default) {
+            enforcer.assertNotOnMainThread()
+            preferences.edit {
+                putLong(KEY_LAST_NOTIFICATION_TIME_NEARBY, calendar.timeInMillis)
+            }
         }
-    }
 
-    override suspend fun getLastNotificationTimeExpired(): Long {
-        enforcer.assertNotOnMainThread()
-        return preferences.getLong(KEY_LAST_NOTIFICATION_TIME_EXPIRED, 0)
-    }
-
-    override suspend fun markNotificationExpired(calendar: Calendar) {
-        enforcer.assertNotOnMainThread()
-        preferences.edit {
-            putLong(KEY_LAST_NOTIFICATION_TIME_EXPIRED, calendar.timeInMillis)
+    override suspend fun getLastNotificationTimeExpiringSoon(): Long =
+        withContext(context = Dispatchers.Default) {
+            enforcer.assertNotOnMainThread()
+            return@withContext preferences.getLong(KEY_LAST_NOTIFICATION_TIME_EXPIRING_SOON, 0)
         }
-    }
 
-    override suspend fun getLastNotificationTimeNeeded(): Long {
-        enforcer.assertNotOnMainThread()
-        return preferences.getLong(KEY_LAST_NOTIFICATION_TIME_NEEDED, 0)
-    }
-
-    override suspend fun markNotificationNeeded(calendar: Calendar) {
-        enforcer.assertNotOnMainThread()
-        preferences.edit {
-            putLong(KEY_LAST_NOTIFICATION_TIME_NEEDED, calendar.timeInMillis)
+    override suspend fun markNotificationExpiringSoon(calendar: Calendar) =
+        withContext(context = Dispatchers.Default) {
+            enforcer.assertNotOnMainThread()
+            preferences.edit {
+                putLong(KEY_LAST_NOTIFICATION_TIME_EXPIRING_SOON, calendar.timeInMillis)
+            }
         }
-    }
 
-    override suspend fun getExpiringSoonRange(): Int {
+    override suspend fun getLastNotificationTimeExpired(): Long =
+        withContext(context = Dispatchers.Default) {
+            enforcer.assertNotOnMainThread()
+            return@withContext preferences.getLong(KEY_LAST_NOTIFICATION_TIME_EXPIRED, 0)
+        }
+
+    override suspend fun markNotificationExpired(calendar: Calendar) =
+        withContext(context = Dispatchers.Default) {
+            enforcer.assertNotOnMainThread()
+            preferences.edit {
+                putLong(KEY_LAST_NOTIFICATION_TIME_EXPIRED, calendar.timeInMillis)
+            }
+        }
+
+    override suspend fun getLastNotificationTimeNeeded(): Long =
+        withContext(context = Dispatchers.Default) {
+            enforcer.assertNotOnMainThread()
+            return@withContext preferences.getLong(KEY_LAST_NOTIFICATION_TIME_NEEDED, 0)
+        }
+
+    override suspend fun markNotificationNeeded(calendar: Calendar) =
+        withContext(context = Dispatchers.Default) {
+            enforcer.assertNotOnMainThread()
+            preferences.edit {
+                putLong(KEY_LAST_NOTIFICATION_TIME_NEEDED, calendar.timeInMillis)
+            }
+        }
+
+    override suspend fun getExpiringSoonRange(): Int = withContext(context = Dispatchers.Default) {
         enforcer.assertNotOnMainThread()
-        return preferences.getString(expiringSoonKey, expiringSoonDefault)?.toIntOrNull()
+        return@withContext preferences.getString(expiringSoonKey, expiringSoonDefault)
+            ?.toIntOrNull()
             ?: FALLBACK_EXPIRING_SOON
     }
 
-    override suspend fun isSameDayExpired(): Boolean {
+    override suspend fun isSameDayExpired(): Boolean = withContext(context = Dispatchers.Default) {
         enforcer.assertNotOnMainThread()
-        return preferences.getString(isSameDayExpiredKey, isSameDayExpiredDefault)?.toBoolean()
+        return@withContext preferences.getString(isSameDayExpiredKey, isSameDayExpiredDefault)
+            ?.toBoolean()
             ?: FALLBACK_SAME_DAY_EXPIRED
     }
 
-    override suspend fun isZeroCountConsideredConsumed(): Boolean {
-        enforcer.assertNotOnMainThread()
-        return preferences.getBoolean(isZeroCountConsumedKey, isZeroCountConsumedDefault)
-    }
-
-    override suspend fun isDoNotDisturb(now: Calendar): Boolean {
-        enforcer.assertNotOnMainThread()
-        return if (!preferences.getBoolean(doNotDisturbKey, doNotDisturbDefault)) false else {
-            val currentHour = now.get(Calendar.HOUR_OF_DAY)
-            currentHour < 7 || currentHour >= 22
+    override suspend fun isZeroCountConsideredConsumed(): Boolean =
+        withContext(context = Dispatchers.Default) {
+            enforcer.assertNotOnMainThread()
+            return@withContext preferences.getBoolean(
+                isZeroCountConsumedKey,
+                isZeroCountConsumedDefault
+            )
         }
-    }
 
-    override suspend fun watchForExpiringSoonChange(onChange: (newRange: Int) -> Unit) {
-        enforcer.assertNotOnMainThread()
-        return registerPreferenceListener { key ->
-            if (key == expiringSoonKey) {
-                onChange(getExpiringSoonRange())
+    override suspend fun isDoNotDisturb(now: Calendar): Boolean =
+        withContext(context = Dispatchers.Default) {
+            enforcer.assertNotOnMainThread()
+            return@withContext if (!preferences.getBoolean(
+                    doNotDisturbKey,
+                    doNotDisturbDefault
+                )
+            ) false else {
+                val currentHour = now.get(Calendar.HOUR_OF_DAY)
+                currentHour < 7 || currentHour >= 22
             }
         }
-    }
 
-    override suspend fun watchForSameDayExpiredChange(onChange: (newSameDay: Boolean) -> Unit) {
-        enforcer.assertNotOnMainThread()
-        return registerPreferenceListener { key ->
-            if (key == isSameDayExpiredKey) {
-                onChange(isSameDayExpired())
+    override suspend fun watchForExpiringSoonChange(onChange: (newRange: Int) -> Unit) =
+        withContext(context = Dispatchers.IO) {
+            enforcer.assertNotOnMainThread()
+            return@withContext registerPreferenceListener { key ->
+                if (key == expiringSoonKey) {
+                    onChange(getExpiringSoonRange())
+                }
             }
         }
-    }
+
+    override suspend fun watchForSameDayExpiredChange(onChange: (newSameDay: Boolean) -> Unit) =
+        withContext(context = Dispatchers.IO) {
+            enforcer.assertNotOnMainThread()
+            return@withContext registerPreferenceListener { key ->
+                if (key == isSameDayExpiredKey) {
+                    onChange(isSameDayExpired())
+                }
+            }
+        }
 
     private suspend fun registerPreferenceListener(onChange: suspend (key: String) -> Unit) {
         enforcer.assertNotOnMainThread()
@@ -193,45 +216,56 @@ internal class PreferencesImpl @Inject internal constructor(
         }
     }
 
-    override suspend fun getPersistentEntryId(): FridgeEntry.Id {
-        enforcer.assertNotOnMainThread()
-        return FridgeEntry.Id(
-            requireNotNull(preferences.getString(KEY_PERSISTENT_ENTRIES, IdGenerator.generate()))
-        )
-    }
+    override suspend fun getPersistentEntryId(): FridgeEntry.Id =
+        withContext(context = Dispatchers.Default) {
+            enforcer.assertNotOnMainThread()
+            return@withContext FridgeEntry.Id(
+                requireNotNull(
+                    preferences.getString(
+                        KEY_PERSISTENT_ENTRIES,
+                        IdGenerator.generate()
+                    )
+                )
+            )
+        }
 
-    override suspend fun savePersistentEntryId(id: FridgeEntry.Id) {
-        enforcer.assertNotOnMainThread()
-        preferences.edit { putString(KEY_PERSISTENT_ENTRIES, id.id) }
-    }
+    override suspend fun savePersistentEntryId(id: FridgeEntry.Id) =
+        withContext(context = Dispatchers.Default) {
+            enforcer.assertNotOnMainThread()
+            preferences.edit { putString(KEY_PERSISTENT_ENTRIES, id.id) }
+        }
 
-    override suspend fun getNotificationPeriod(): Long {
-        enforcer.assertNotOnMainThread()
-        val hours = preferences.getString(notificationPeriodKey, notificationPeriodDefault)
-            ?.toLongOrNull() ?: FALLBACK_NOTIFICATION_PERIOD
-        return TimeUnit.HOURS.toMillis(hours)
-    }
+    override suspend fun getNotificationPeriod(): Long =
+        withContext(context = Dispatchers.Default) {
+            enforcer.assertNotOnMainThread()
+            val hours = preferences.getString(notificationPeriodKey, notificationPeriodDefault)
+                ?.toLongOrNull() ?: FALLBACK_NOTIFICATION_PERIOD
+            return@withContext TimeUnit.HOURS.toMillis(hours)
+        }
 
-    override suspend fun canNotify(now: Calendar, lastNotificationTime: Long): Boolean {
-        return lastNotificationTime + getNotificationPeriod() < now.timeInMillis
-    }
+    override suspend fun canNotify(now: Calendar, lastNotificationTime: Long): Boolean =
+        withContext(context = Dispatchers.Default) {
+            return@withContext lastNotificationTime + getNotificationPeriod() < now.timeInMillis
+        }
 
-    override suspend fun clear() {
+    override suspend fun clear() = withContext(context = Dispatchers.Default) {
         enforcer.assertNotOnMainThread()
         preferences.edit(commit = true) {
             clear()
         }
     }
 
-    override suspend fun isPersistentCategoriesInserted(): Boolean {
-        enforcer.assertNotOnMainThread()
-        return preferences.getBoolean(KEY_PERSISTENT_CATEGORIES, false)
-    }
+    override suspend fun isPersistentCategoriesInserted(): Boolean =
+        withContext(context = Dispatchers.Default) {
+            enforcer.assertNotOnMainThread()
+            return@withContext preferences.getBoolean(KEY_PERSISTENT_CATEGORIES, false)
+        }
 
-    override suspend fun setPersistentCategoriesInserted() {
-        enforcer.assertNotOnMainThread()
-        preferences.edit { putBoolean(KEY_PERSISTENT_CATEGORIES, true) }
-    }
+    override suspend fun setPersistentCategoriesInserted() =
+        withContext(context = Dispatchers.Default) {
+            enforcer.assertNotOnMainThread()
+            preferences.edit { putBoolean(KEY_PERSISTENT_CATEGORIES, true) }
+        }
 
     companion object {
 

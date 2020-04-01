@@ -23,8 +23,8 @@ import com.pyamsoft.pydroid.arch.UiControllerEvent
 import com.pyamsoft.pydroid.arch.UiViewEvent
 import com.pyamsoft.pydroid.arch.UiViewModel
 import com.pyamsoft.pydroid.arch.UiViewState
-import javax.inject.Named
 import kotlinx.coroutines.launch
+import javax.inject.Named
 
 internal abstract class BaseInfoViewModel<T : Any, S : UiViewState, V : UiViewEvent, C : UiControllerEvent> protected constructor(
     private val interactor: BaseInfoInteractor<T, *, *, *, *, *>,

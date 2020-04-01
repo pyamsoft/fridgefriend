@@ -23,18 +23,15 @@ import com.pyamsoft.fridge.locator.GpsChangeEvent
 import com.pyamsoft.fridge.locator.MapPermission
 import com.pyamsoft.pydroid.arch.EventBus
 import com.pyamsoft.pydroid.arch.UiViewModel
-import com.pyamsoft.pydroid.core.Enforcer
-import javax.inject.Inject
-import javax.inject.Named
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import timber.log.Timber
+import javax.inject.Inject
+import javax.inject.Named
 
 class MainViewModel @Inject internal constructor(
     private val interactor: MainInteractor,
     private val mapPermission: MapPermission,
     private val gpsChangeBus: EventBus<GpsChangeEvent>,
-    private val enforcer: Enforcer,
     @Named("app_name") appNameRes: Int,
     @Named("debug") debug: Boolean,
     defaultPage: MainPage
@@ -73,12 +70,12 @@ class MainViewModel @Inject internal constructor(
     }
 
     private fun refreshBadgeCounts() {
-        viewModelScope.launch(context = Dispatchers.Default) {
+        viewModelScope.launch {
             val neededCount = interactor.getNeededCount()
             setState { copy(countNeeded = neededCount) }
         }
 
-        viewModelScope.launch(context = Dispatchers.Default) {
+        viewModelScope.launch {
             val expiredExpiringCount = interactor.getExpiredOrExpiringCount()
             setState { copy(countExpiringOrExpired = expiredExpiringCount) }
         }
@@ -141,9 +138,7 @@ class MainViewModel @Inject internal constructor(
     }
 
     fun publishGpsChange(isEnabled: Boolean) {
-        viewModelScope.launch(context = Dispatchers.Default) {
-            enforcer.assertNotOnMainThread()
-
+        viewModelScope.launch {
             Timber.d("Publish GPS state change: $isEnabled")
             gpsChangeBus.send(GpsChangeEvent(isEnabled))
         }

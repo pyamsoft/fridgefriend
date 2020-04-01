@@ -97,8 +97,7 @@ class DetailViewModel @Inject internal constructor(
     }
 
     private val realtimeRunner = highlander<Unit> {
-        interactor.listenForChanges(entryId)
-            .onEvent { handleRealtime(it) }
+        interactor.listenForChanges(entryId) { handleRealtime(it) }
     }
 
     init {

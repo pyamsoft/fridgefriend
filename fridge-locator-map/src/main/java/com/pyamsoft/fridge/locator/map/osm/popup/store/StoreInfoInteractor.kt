@@ -25,9 +25,11 @@ import com.pyamsoft.fridge.db.store.NearbyStoreInsertDao
 import com.pyamsoft.fridge.db.store.NearbyStoreQueryDao
 import com.pyamsoft.fridge.db.store.NearbyStoreRealtime
 import com.pyamsoft.fridge.locator.map.osm.popup.base.BaseInfoInteractor
+import com.pyamsoft.pydroid.core.Enforcer
 import javax.inject.Inject
 
 internal class StoreInfoInteractor @Inject internal constructor(
+    enforcer: Enforcer,
     butler: Butler,
     realtime: NearbyStoreRealtime,
     queryDao: NearbyStoreQueryDao,
@@ -40,7 +42,7 @@ internal class StoreInfoInteractor @Inject internal constructor(
     NearbyStoreQueryDao,
     NearbyStoreInsertDao,
     NearbyStoreDeleteDao
-    >(butler, realtime, queryDao, insertDao, deleteDao) {
+    >(enforcer, butler, realtime, queryDao, insertDao, deleteDao) {
 
     suspend inline fun listenForNearbyCacheChanges(
         crossinline onInsert: (store: NearbyStore) -> Unit,

@@ -33,7 +33,6 @@ import com.pyamsoft.fridge.db.item.FridgeItemQueryDao
 import com.pyamsoft.fridge.db.item.FridgeItemRealtime
 import com.pyamsoft.fridge.db.item.FridgeItemUpdateDao
 import com.pyamsoft.fridge.db.persist.PersistentCategories
-import com.pyamsoft.pydroid.arch.EventConsumer
 import com.pyamsoft.pydroid.core.Enforcer
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -156,11 +155,13 @@ internal class DetailInteractor @Inject internal constructor(
         return@withContext itemQueryDao.query(force, entryId)
     }
 
-    @CheckResult
-    suspend fun listenForChanges(id: FridgeEntry.Id): EventConsumer<FridgeItemChangeEvent> =
+    suspend fun listenForChanges(
+        id: FridgeEntry.Id,
+        onChange: suspend (event: FridgeItemChangeEvent) -> Unit
+    ) =
         withContext(context = Dispatchers.Default) {
             enforcer.assertNotOnMainThread()
-            return@withContext itemRealtime.listenForChanges(id)
+            return@withContext itemRealtime.listenForChanges(id, onChange)
         }
 
     suspend fun commit(item: FridgeItem) = withContext(context = Dispatchers.Default) {

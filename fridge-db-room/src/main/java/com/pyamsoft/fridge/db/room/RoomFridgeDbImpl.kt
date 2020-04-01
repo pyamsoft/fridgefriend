@@ -98,8 +98,9 @@ import com.pyamsoft.fridge.db.zone.NearbyZoneQueryDao
 import com.pyamsoft.fridge.db.zone.NearbyZoneRealtime
 import com.pyamsoft.fridge.db.zone.NearbyZoneUpdateDao
 import com.pyamsoft.pydroid.arch.EventBus
-import com.pyamsoft.pydroid.arch.EventConsumer
 import com.pyamsoft.pydroid.core.Enforcer
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 @Database(
     version = 1,
@@ -144,27 +145,25 @@ internal abstract class RoomFridgeDbImpl internal constructor() : RoomDatabase()
 
             private val realtime = object : FridgeItemRealtime {
 
-                override fun listenForChanges(): EventConsumer<FridgeItemChangeEvent> {
-                    return itemRealtimeChangeBus
-                }
+                override suspend fun listenForChanges(onChange: suspend (event: FridgeItemChangeEvent) -> Unit) =
+                    withContext(context = Dispatchers.IO) { itemRealtimeChangeBus.onEvent(onChange) }
 
-                override fun listenForChanges(id: FridgeEntry.Id): EventConsumer<FridgeItemChangeEvent> {
-                    return object : EventConsumer<FridgeItemChangeEvent> {
-
-                        override suspend fun onEvent(emitter: suspend (event: FridgeItemChangeEvent) -> Unit) {
-                            itemRealtimeChangeBus.onEvent { event ->
-                                if (event.entryId == id) {
-                                    emitter(event)
-                                }
-                            }
+                override suspend fun listenForChanges(
+                    id: FridgeEntry.Id,
+                    onChange: suspend (event: FridgeItemChangeEvent) -> Unit
+                ) = withContext(context = Dispatchers.IO) {
+                    itemRealtimeChangeBus.onEvent { event ->
+                        if (event.entryId == id) {
+                            onChange(event)
                         }
                     }
                 }
             }
 
-            override suspend fun publish(event: FridgeItemChangeEvent) {
-                itemRealtimeChangeBus.send(event)
-            }
+            override suspend fun publish(event: FridgeItemChangeEvent) =
+                withContext(context = Dispatchers.Default) {
+                    itemRealtimeChangeBus.send(event)
+                }
 
             override fun invalidate() {
                 requireNotNull(itemCache).clear()
@@ -196,14 +195,14 @@ internal abstract class RoomFridgeDbImpl internal constructor() : RoomDatabase()
         FridgeEntryDb.wrap(requireNotNull(enforcer), object : FridgeEntryDb {
 
             private val realtime = object : FridgeEntryRealtime {
-                override fun listenForChanges(): EventConsumer<FridgeEntryChangeEvent> {
-                    return entryRealtimeChangeBus
-                }
+                override suspend fun listenForChanges(onChange: suspend (event: FridgeEntryChangeEvent) -> Unit) =
+                    withContext(context = Dispatchers.IO) { entryRealtimeChangeBus.onEvent(onChange) }
             }
 
-            override suspend fun publish(event: FridgeEntryChangeEvent) {
-                entryRealtimeChangeBus.send(event)
-            }
+            override suspend fun publish(event: FridgeEntryChangeEvent) =
+                withContext(context = Dispatchers.Default) {
+                    entryRealtimeChangeBus.send(event)
+                }
 
             override fun invalidate() {
                 requireNotNull(entryCache).clear()
@@ -235,14 +234,14 @@ internal abstract class RoomFridgeDbImpl internal constructor() : RoomDatabase()
         NearbyStoreDb.wrap(requireNotNull(enforcer), object : NearbyStoreDb {
 
             private val realtime = object : NearbyStoreRealtime {
-                override fun listenForChanges(): EventConsumer<NearbyStoreChangeEvent> {
-                    return storeRealtimeChangeBus
-                }
+                override suspend fun listenForChanges(onChange: suspend (event: NearbyStoreChangeEvent) -> Unit) =
+                    withContext(context = Dispatchers.IO) { storeRealtimeChangeBus.onEvent(onChange) }
             }
 
-            override suspend fun publish(event: NearbyStoreChangeEvent) {
-                storeRealtimeChangeBus.send(event)
-            }
+            override suspend fun publish(event: NearbyStoreChangeEvent) =
+                withContext(context = Dispatchers.Default) {
+                    storeRealtimeChangeBus.send(event)
+                }
 
             override fun realtime(): NearbyStoreRealtime {
                 return realtime
@@ -274,14 +273,14 @@ internal abstract class RoomFridgeDbImpl internal constructor() : RoomDatabase()
         NearbyZoneDb.wrap(requireNotNull(enforcer), object : NearbyZoneDb {
 
             private val realtime = object : NearbyZoneRealtime {
-                override fun listenForChanges(): EventConsumer<NearbyZoneChangeEvent> {
-                    return zoneRealtimeChangeBus
-                }
+                override suspend fun listenForChanges(onChange: suspend (event: NearbyZoneChangeEvent) -> Unit) =
+                    withContext(context = Dispatchers.IO) { zoneRealtimeChangeBus.onEvent(onChange) }
             }
 
-            override suspend fun publish(event: NearbyZoneChangeEvent) {
-                zoneRealtimeChangeBus.send(event)
-            }
+            override suspend fun publish(event: NearbyZoneChangeEvent) =
+                withContext(context = Dispatchers.Default) {
+                    zoneRealtimeChangeBus.send(event)
+                }
 
             override fun realtime(): NearbyZoneRealtime {
                 return realtime
@@ -313,14 +312,16 @@ internal abstract class RoomFridgeDbImpl internal constructor() : RoomDatabase()
         FridgeCategoryDb.wrap(requireNotNull(enforcer), object : FridgeCategoryDb {
 
             private val realtime = object : FridgeCategoryRealtime {
-                override fun listenForChanges(): EventConsumer<FridgeCategoryChangeEvent> {
-                    return categoryRealtimeChangeBus
-                }
+                override suspend fun listenForChanges(onChange: suspend (event: FridgeCategoryChangeEvent) -> Unit) =
+                    withContext(context = Dispatchers.IO) {
+                        categoryRealtimeChangeBus.onEvent(onChange)
+                    }
             }
 
-            override suspend fun publish(event: FridgeCategoryChangeEvent) {
-                categoryRealtimeChangeBus.send(event)
-            }
+            override suspend fun publish(event: FridgeCategoryChangeEvent) =
+                withContext(context = Dispatchers.Default) {
+                    categoryRealtimeChangeBus.send(event)
+                }
 
             override fun invalidate() {
                 requireNotNull(categoryCache).clear()
