@@ -17,6 +17,7 @@
 
 package com.pyamsoft.fridge.detail
 
+import android.graphics.Canvas
 import android.graphics.Color
 import android.view.ViewGroup
 import androidx.annotation.CheckResult
@@ -24,8 +25,7 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import androidx.recyclerview.widget.RecyclerView.ViewHolder
-import com.mikepenz.fastadapter_extensions.swipe.SimpleSwipeCallback
+import com.mikepenz.fastadapter.swipe.SimpleSwipeCallback
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence.HAVE
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence.NEED
@@ -126,69 +126,62 @@ class DetailList @Inject internal constructor(
 
         val consumeSwipeDirection = ItemTouchHelper.RIGHT
         val spoilSwipeDirection = ItemTouchHelper.LEFT
-        val itemSwipeCallback = SimpleSwipeCallback.ItemSwipeCallback { position, direction ->
-            val holder = binding.detailList.findViewHolderForAdapterPosition(position)
-            if (holder == null) {
-                Timber.w("ViewHolder is null, cannot respond to swipe")
-                return@ItemSwipeCallback
-            }
-            if (holder !is DetailItemViewHolder) {
-                Timber.w("ViewHolder is not DetailItemViewHolder, cannot respond to swipe")
-                return@ItemSwipeCallback
-            }
+        val itemSwipeCallback = object : SimpleSwipeCallback.ItemSwipeCallback {
+            override fun itemSwiped(position: Int, direction: Int) {
+                val holder = binding.detailList.findViewHolderForAdapterPosition(position)
+                if (holder == null) {
+                    Timber.w("ViewHolder is null, cannot respond to swipe")
+                    return
+                }
+                if (holder !is DetailItemViewHolder) {
+                    Timber.w("ViewHolder is not DetailItemViewHolder, cannot respond to swipe")
+                    return
+                }
 
-            if (direction == consumeSwipeDirection || direction == spoilSwipeDirection) {
-                if (swipeAwayDeletes) {
-                    deleteListItem(position)
-                } else if (swipeAwayRestores) {
-                    if (direction == consumeSwipeDirection) {
-                        // Restore from archive
-                        restoreListItem(position)
-                    } else {
-                        // Delete forever
+                if (direction == consumeSwipeDirection || direction == spoilSwipeDirection) {
+                    if (swipeAwayDeletes) {
                         deleteListItem(position)
-                    }
-                } else {
-                    if (direction == consumeSwipeDirection) {
-                        consumeListItem(position)
+                    } else if (swipeAwayRestores) {
+                        if (direction == consumeSwipeDirection) {
+                            // Restore from archive
+                            restoreListItem(position)
+                        } else {
+                            // Delete forever
+                            deleteListItem(position)
+                        }
                     } else {
-                        spoilListItem(position)
+                        if (direction == consumeSwipeDirection) {
+                            consumeListItem(position)
+                        } else {
+                            spoilListItem(position)
+                        }
                     }
                 }
             }
         }
         val leftBehindDrawable = imageLoader.load(
-                when {
-                    swipeAwayDeletes -> R.drawable.ic_delete_24dp
-                    swipeAwayRestores -> R.drawable.ic_delete_24dp
-                    else -> R.drawable.ic_spoiled_24dp
-                }
-            )
+            when {
+                swipeAwayDeletes -> R.drawable.ic_delete_24dp
+                swipeAwayRestores -> R.drawable.ic_delete_24dp
+                else -> R.drawable.ic_spoiled_24dp
+            }
+        )
             .immediate()
 
         val directions = consumeSwipeDirection or spoilSwipeDirection
-        val swipeCallback = object : SimpleSwipeCallback(
+        val swipeCallback = SimpleSwipeCallback(
             itemSwipeCallback,
             requireNotNull(leftBehindDrawable),
             directions,
             Color.TRANSPARENT
-        ) {
-
-            override fun getSwipeDirs(
-                recyclerView: RecyclerView,
-                viewHolder: ViewHolder
-            ): Int {
-                // Can't swipe non item view holders
-                return if (viewHolder is DetailItemViewHolder) directions else 0
-            }
-        }.apply {
+        ).apply {
             val rightBehindDrawable = imageLoader.load(
-                    when {
-                        swipeAwayDeletes -> R.drawable.ic_delete_24dp
-                        swipeAwayRestores -> R.drawable.ic_code_24dp
-                        else -> R.drawable.ic_consumed_24dp
-                    }
-                )
+                when {
+                    swipeAwayDeletes -> R.drawable.ic_delete_24dp
+                    swipeAwayRestores -> R.drawable.ic_code_24dp
+                    else -> R.drawable.ic_consumed_24dp
+                }
+            )
                 .immediate()
             withBackgroundSwipeRight(Color.TRANSPARENT)
             withLeaveBehindSwipeRight(requireNotNull(rightBehindDrawable))
@@ -198,9 +191,59 @@ class DetailList @Inject internal constructor(
         touchHelper?.attachToRecyclerView(null)
 
         // Attach new helper
-        val helper = ItemTouchHelper(swipeCallback)
+        val helper = ItemTouchHelper(createNewCustomSwipeTouchHelper(swipeCallback, directions))
+
         helper.attachToRecyclerView(binding.detailList)
         touchHelper = helper
+    }
+
+    @CheckResult
+    private fun createNewCustomSwipeTouchHelper(
+        swipeCallback: SimpleSwipeCallback,
+        @Suppress("SameParameterValue") directions: Int
+    ): ItemTouchHelper.Callback {
+        return object : ItemTouchHelper.SimpleCallback(0, directions) {
+
+            override fun onMove(
+                recyclerView: RecyclerView,
+                viewHolder: RecyclerView.ViewHolder,
+                target: RecyclerView.ViewHolder
+            ): Boolean {
+                return swipeCallback.onMove(recyclerView, viewHolder, target)
+            }
+
+            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                return swipeCallback.onSwiped(viewHolder, direction)
+            }
+
+            override fun getSwipeDirs(
+                recyclerView: RecyclerView,
+                viewHolder: RecyclerView.ViewHolder
+            ): Int {
+                // Can't swipe non item view holders
+                return if (viewHolder is DetailItemViewHolder) directions else 0
+            }
+
+            override fun onChildDraw(
+                c: Canvas,
+                recyclerView: RecyclerView,
+                viewHolder: RecyclerView.ViewHolder,
+                dX: Float,
+                dY: Float,
+                actionState: Int,
+                isCurrentlyActive: Boolean
+            ) {
+                swipeCallback.onChildDraw(
+                    c,
+                    recyclerView,
+                    viewHolder,
+                    dX,
+                    dY,
+                    actionState,
+                    isCurrentlyActive
+                )
+            }
+        }
     }
 
     @CheckResult

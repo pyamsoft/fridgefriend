@@ -52,7 +52,7 @@ buildscript {
         moshi = "1.9.2"
 
         // Fast Adapter
-        fastAdapter = "3.3.1"
+        fastAdapter = "5.0.0"
 
         // FotoApparat
         fotoapparat = "2.7.0"
