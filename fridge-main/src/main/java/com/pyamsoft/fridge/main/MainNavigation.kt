@@ -67,7 +67,8 @@ class MainNavigation @Inject internal constructor(
         state.page.let { page ->
             val pageId = getIdForPage(page)
             if (pageId != 0) {
-                binding.mainBottomNavigationMenu.selectedItemId = pageId
+                // Don't mark it selected since this will re-fire the click event
+                // binding.mainBottomNavigationMenu.selectedItemId = pageId
                 binding.mainBottomNavigationMenu.menu.findItem(pageId).isChecked = true
             }
         }
