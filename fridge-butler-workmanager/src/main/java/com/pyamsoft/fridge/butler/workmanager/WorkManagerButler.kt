@@ -34,10 +34,6 @@ import com.pyamsoft.fridge.butler.workmanager.worker.BaseWorker
 import com.pyamsoft.fridge.butler.workmanager.worker.ItemWorker
 import com.pyamsoft.fridge.butler.workmanager.worker.LocationWorker
 import com.pyamsoft.pydroid.core.Enforcer
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.suspendCancellableCoroutine
-import kotlinx.coroutines.withContext
-import timber.log.Timber
 import java.util.concurrent.CancellationException
 import java.util.concurrent.ExecutionException
 import java.util.concurrent.Executor
@@ -46,6 +42,10 @@ import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.withContext
+import timber.log.Timber
 
 @Singleton
 internal class WorkManagerButler @Inject internal constructor(

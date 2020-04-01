@@ -114,7 +114,7 @@ interface FridgeCategory : EmptyModel<FridgeCategory> {
             return JsonMappableFridgeCategory(
                 Id(IdGenerator.generate()),
                 name,
-               currentDate(),
+                currentDate(),
                 thumbnail,
                 isDefault = true
             )

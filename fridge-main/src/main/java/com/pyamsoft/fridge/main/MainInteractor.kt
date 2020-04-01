@@ -28,10 +28,10 @@ import com.pyamsoft.fridge.db.item.isArchived
 import com.pyamsoft.fridge.db.item.isExpired
 import com.pyamsoft.fridge.db.item.isExpiringSoon
 import com.pyamsoft.pydroid.core.Enforcer
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 @Singleton
 internal class MainInteractor @Inject internal constructor(

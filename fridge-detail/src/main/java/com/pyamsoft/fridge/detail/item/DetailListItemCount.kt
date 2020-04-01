@@ -18,7 +18,6 @@
 package com.pyamsoft.fridge.detail.item
 
 import android.view.ViewGroup
-import androidx.core.view.isInvisible
 import com.pyamsoft.fridge.detail.R
 import com.pyamsoft.fridge.detail.databinding.DetailListItemCountBinding
 import com.pyamsoft.pydroid.arch.BindingUiView
@@ -73,7 +72,7 @@ class DetailListItemCount @Inject internal constructor(
 
     override fun onRender(state: DetailListItemViewState) {
         state.item.let { item ->
-            assert(item.isReal()) {"Cannot render non-real item: $item"}
+            assert(item.isReal()) { "Cannot render non-real item: $item" }
             binding.detailItemCountText.text = "${item.count()}"
         }
     }

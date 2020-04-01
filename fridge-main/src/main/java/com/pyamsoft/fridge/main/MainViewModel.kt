@@ -23,10 +23,10 @@ import com.pyamsoft.fridge.locator.GpsChangeEvent
 import com.pyamsoft.fridge.locator.MapPermission
 import com.pyamsoft.pydroid.arch.EventBus
 import com.pyamsoft.pydroid.arch.UiViewModel
-import kotlinx.coroutines.launch
-import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Named
+import kotlinx.coroutines.launch
+import timber.log.Timber
 
 class MainViewModel @Inject internal constructor(
     private val interactor: MainInteractor,

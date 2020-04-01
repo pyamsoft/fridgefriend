@@ -30,8 +30,8 @@ import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.loader.Loaded
 import com.pyamsoft.pydroid.ui.theme.ThemeProvider
 import com.pyamsoft.pydroid.util.tintWith
-import timber.log.Timber
 import java.util.Calendar
+import timber.log.Timber
 
 abstract class BaseItemDate<S : UiViewState, V : UiViewEvent> protected constructor(
     private val imageLoader: ImageLoader,

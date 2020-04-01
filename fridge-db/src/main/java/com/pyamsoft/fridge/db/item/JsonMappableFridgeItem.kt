@@ -81,32 +81,32 @@ data class JsonMappableFridgeItem internal constructor(
     }
 
     override fun consumptionDate(): Date? {
-        assert(isReal()) { "Cannot query consumptionDate on non-real item: $this"}
+        assert(isReal()) { "Cannot query consumptionDate on non-real item: $this" }
         return consumptionDate
     }
 
     override fun invalidateConsumption(): FridgeItem {
-        assert(isReal()) { "Cannot invalidate consumptionDate on non-real item: $this"}
+        assert(isReal()) { "Cannot invalidate consumptionDate on non-real item: $this" }
         return this.copy(consumptionDate = null)
     }
 
     override fun isConsumed(): Boolean {
-        assert(isReal()) { "Cannot query consumptionDate on non-real item: $this"}
+        assert(isReal()) { "Cannot query consumptionDate on non-real item: $this" }
         return consumptionDate != null
     }
 
     override fun spoiledDate(): Date? {
-        assert(isReal()) { "Cannot query spoiledDate on non-real item: $this"}
+        assert(isReal()) { "Cannot query spoiledDate on non-real item: $this" }
         return spoiledDate
     }
 
     override fun invalidateSpoiled(): FridgeItem {
-        assert(isReal()) { "Cannot invalidate spoiledDate on non-real item: $this"}
+        assert(isReal()) { "Cannot invalidate spoiledDate on non-real item: $this" }
         return this.copy(spoiledDate = null)
     }
 
     override fun isSpoiled(): Boolean {
-        assert(isReal()) { "Cannot query spoiledDate on non-real item: $this"}
+        assert(isReal()) { "Cannot query spoiledDate on non-real item: $this" }
         return spoiledDate != null
     }
 
@@ -147,12 +147,12 @@ data class JsonMappableFridgeItem internal constructor(
     }
 
     override fun consume(date: Date): FridgeItem {
-        assert(isReal()) { "Cannot consume non-real item: $this"}
+        assert(isReal()) { "Cannot consume non-real item: $this" }
         return this.copy(consumptionDate = date)
     }
 
     override fun spoil(date: Date): FridgeItem {
-        assert(isReal()) { "Cannot spoil non-real item: $this"}
+        assert(isReal()) { "Cannot spoil non-real item: $this" }
         return this.copy(spoiledDate = date)
     }
 

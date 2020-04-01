@@ -19,9 +19,9 @@ package com.pyamsoft.fridge.db.persist
 
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.guarantee.EntryGuarantee
+import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import javax.inject.Inject
 
 internal class PersistentEntriesImpl @Inject internal constructor(
     private val guarantee: EntryGuarantee,

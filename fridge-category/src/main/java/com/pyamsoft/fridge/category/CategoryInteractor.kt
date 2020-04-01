@@ -24,9 +24,9 @@ import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItemQueryDao
 import com.pyamsoft.fridge.db.persist.PersistentCategories
 import com.pyamsoft.pydroid.core.Enforcer
+import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import javax.inject.Inject
 
 class CategoryInteractor @Inject internal constructor(
     private val enforcer: Enforcer,

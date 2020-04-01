@@ -29,13 +29,13 @@ import com.pyamsoft.fridge.db.category.toThumbnail
 import com.pyamsoft.pydroid.core.Enforcer
 import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.loader.ImageTarget
+import java.io.ByteArrayOutputStream
+import javax.inject.Inject
+import kotlin.coroutines.resume
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
 import timber.log.Timber
-import java.io.ByteArrayOutputStream
-import javax.inject.Inject
-import kotlin.coroutines.resume
 
 internal class PersistentCategoriesImpl @Inject internal constructor(
     private val enforcer: Enforcer,

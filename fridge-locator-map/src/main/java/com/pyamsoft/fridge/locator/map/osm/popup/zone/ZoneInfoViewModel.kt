@@ -22,10 +22,10 @@ import androidx.lifecycle.viewModelScope
 import com.pyamsoft.fridge.db.zone.NearbyZone
 import com.pyamsoft.fridge.locator.map.osm.popup.base.BaseInfoViewModel
 import com.pyamsoft.fridge.locator.map.osm.popup.zone.ZoneInfoViewEvent.ZoneFavoriteAction
-import kotlinx.coroutines.launch
-import org.osmdroid.views.overlay.Polygon
 import javax.inject.Inject
 import javax.inject.Named
+import kotlinx.coroutines.launch
+import org.osmdroid.views.overlay.Polygon
 
 internal class ZoneInfoViewModel @Inject internal constructor(
     private val interactor: ZoneInfoInteractor,

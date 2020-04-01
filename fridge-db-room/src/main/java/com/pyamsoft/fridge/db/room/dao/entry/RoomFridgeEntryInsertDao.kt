@@ -29,7 +29,7 @@ import kotlinx.coroutines.withContext
 @Dao
 internal abstract class RoomFridgeEntryInsertDao internal constructor() : FridgeEntryInsertDao {
 
-    final override suspend fun insert(o: FridgeEntry) = withContext(context = Dispatchers.IO){
+    final override suspend fun insert(o: FridgeEntry) = withContext(context = Dispatchers.IO) {
         val roomEntry = RoomFridgeEntry.create(o)
         daoInsert(roomEntry)
     }
