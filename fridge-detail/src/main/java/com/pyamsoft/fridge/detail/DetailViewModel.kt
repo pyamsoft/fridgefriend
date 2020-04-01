@@ -117,14 +117,21 @@ class DetailViewModel @Inject internal constructor(
         doOnInit {
             viewModelScope.launch(context = Dispatchers.Default) {
                 val range = interactor.getExpiringSoonRange()
-                setState { copy(expirationRange = DetailViewState.ExpirationRange(range)) }
+                setState {
+                    copy(expirationRange = DetailViewState.ExpirationRange(range))
+                }
             }
         }
 
         doOnInit {
             viewModelScope.launch(context = Dispatchers.Default) {
                 val expiringSoonUnregister = interactor.watchForExpiringSoonChanges { range ->
-                    setState { copy(expirationRange = DetailViewState.ExpirationRange(range)) }
+                    setState {
+                        copy(
+                            expirationRange = DetailViewState.ExpirationRange(range),
+                            counts = calculateCounts(items)
+                        )
+                    }
                 }
                 doOnTeardown {
                     expiringSoonUnregister.unregister()
@@ -142,7 +149,12 @@ class DetailViewModel @Inject internal constructor(
         doOnInit {
             viewModelScope.launch(context = Dispatchers.Default) {
                 val isSameDayExpiredUnregister = interactor.watchForSameDayExpiredChange { same ->
-                    setState { copy(isSameDayExpired = DetailViewState.IsSameDayExpired(same)) }
+                    setState {
+                        copy(
+                            isSameDayExpired = DetailViewState.IsSameDayExpired(same),
+                            counts = calculateCounts(items)
+                        )
+                    }
                 }
                 doOnTeardown {
                     isSameDayExpiredUnregister.unregister()
