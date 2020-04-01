@@ -23,11 +23,13 @@ import androidx.room.OnConflictStrategy
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.entry.FridgeEntryInsertDao
 import com.pyamsoft.fridge.db.room.entity.RoomFridgeEntry
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 @Dao
 internal abstract class RoomFridgeEntryInsertDao internal constructor() : FridgeEntryInsertDao {
 
-    final override suspend fun insert(o: FridgeEntry) {
+    final override suspend fun insert(o: FridgeEntry) = withContext(context = Dispatchers.IO){
         val roomEntry = RoomFridgeEntry.create(o)
         daoInsert(roomEntry)
     }

@@ -23,11 +23,13 @@ import androidx.room.Update
 import com.pyamsoft.fridge.db.room.entity.RoomNearbyZone
 import com.pyamsoft.fridge.db.zone.NearbyZone
 import com.pyamsoft.fridge.db.zone.NearbyZoneUpdateDao
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 @Dao
 internal abstract class RoomNearbyZoneUpdateDao internal constructor() : NearbyZoneUpdateDao {
 
-    override suspend fun update(o: NearbyZone) {
+    override suspend fun update(o: NearbyZone) = withContext(context = Dispatchers.IO) {
         val roomNearbyZone = RoomNearbyZone.create(o)
         daoUpdate(roomNearbyZone)
     }

@@ -24,9 +24,11 @@ import com.pyamsoft.fridge.butler.NotificationHandler
 import com.pyamsoft.fridge.butler.NotificationPreferences
 import com.pyamsoft.fridge.butler.params.BaseParameters
 import com.pyamsoft.pydroid.core.Enforcer
-import java.util.Calendar
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import timber.log.Timber
+import java.util.Calendar
 
 internal abstract class BaseRunner<P : BaseParameters> protected constructor(
     private val handler: NotificationHandler,
@@ -48,10 +50,9 @@ internal abstract class BaseRunner<P : BaseParameters> protected constructor(
     }
 
     @CheckResult
-    suspend fun doWork(params: P): WorkResult {
+    suspend fun doWork(params: P): WorkResult = withContext(context = Dispatchers.Default) {
         enforcer.assertNotOnMainThread()
-
-        return try {
+        try {
             performWork(butlerPreferences, params)
             success()
         } catch (e: Throwable) {

@@ -22,11 +22,13 @@ import androidx.room.Delete
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItemDeleteDao
 import com.pyamsoft.fridge.db.room.entity.RoomFridgeItem
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 @Dao
 internal abstract class RoomFridgeItemDeleteDao internal constructor() : FridgeItemDeleteDao {
 
-    final override suspend fun delete(o: FridgeItem) {
+    final override suspend fun delete(o: FridgeItem) = withContext(context = Dispatchers.IO) {
         val roomItem = RoomFridgeItem.create(o)
         daoDelete(roomItem)
     }

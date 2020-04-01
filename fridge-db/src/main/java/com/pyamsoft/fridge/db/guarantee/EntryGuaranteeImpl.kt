@@ -22,8 +22,10 @@ import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.entry.FridgeEntryInsertDao
 import com.pyamsoft.fridge.db.entry.FridgeEntryQueryDao
 import com.pyamsoft.pydroid.core.Enforcer
-import javax.inject.Inject
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import timber.log.Timber
+import javax.inject.Inject
 
 internal class EntryGuaranteeImpl @Inject internal constructor(
     private val enforcer: Enforcer,
@@ -42,14 +44,15 @@ internal class EntryGuaranteeImpl @Inject internal constructor(
         return entries.singleOrNull { it.id() == id }
     }
 
-    override suspend fun existing(id: FridgeEntry.Id, name: String): FridgeEntry {
-        enforcer.assertNotOnMainThread()
-        val entry = getEntryForId(id)
-        return if (entry != null) entry else {
-            Timber.d("Create entry: $id")
-            val newEntry = FridgeEntry.create(id, name)
-            insertDao.insert(newEntry)
-            newEntry
+    override suspend fun existing(id: FridgeEntry.Id, name: String): FridgeEntry =
+        withContext(context = Dispatchers.Default) {
+            enforcer.assertNotOnMainThread()
+            val entry = getEntryForId(id)
+            return@withContext if (entry != null) entry else {
+                Timber.d("Create entry: $id")
+                val newEntry = FridgeEntry.create(id, name)
+                insertDao.insert(newEntry)
+                newEntry
+            }
         }
-    }
 }

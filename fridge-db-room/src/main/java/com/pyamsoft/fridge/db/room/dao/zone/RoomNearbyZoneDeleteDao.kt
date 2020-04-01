@@ -22,11 +22,13 @@ import androidx.room.Delete
 import com.pyamsoft.fridge.db.room.entity.RoomNearbyZone
 import com.pyamsoft.fridge.db.zone.NearbyZone
 import com.pyamsoft.fridge.db.zone.NearbyZoneDeleteDao
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 @Dao
 internal abstract class RoomNearbyZoneDeleteDao internal constructor() : NearbyZoneDeleteDao {
 
-    override suspend fun delete(o: NearbyZone) {
+    override suspend fun delete(o: NearbyZone) = withContext(context = Dispatchers.IO) {
         val roomNearbyZone = RoomNearbyZone.create(o)
         daoDelete(roomNearbyZone)
     }

@@ -21,6 +21,8 @@ import android.content.Context
 import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.butler.params.BaseParameters
 import com.pyamsoft.fridge.butler.runner.WorkResult
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 abstract class BaseInjector<P : BaseParameters> protected constructor(context: Context) {
 
@@ -28,7 +30,9 @@ abstract class BaseInjector<P : BaseParameters> protected constructor(context: C
 
     @CheckResult
     suspend fun run(params: P): WorkResult {
-        val result = onRun(requireNotNull(applicationContext), params)
+        val result = withContext(context = Dispatchers.Default) {
+            onRun(requireNotNull(applicationContext), params)
+        }
         applicationContext = null
         return result
     }

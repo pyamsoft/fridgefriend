@@ -23,12 +23,14 @@ import androidx.room.Update
 import com.pyamsoft.fridge.db.category.FridgeCategory
 import com.pyamsoft.fridge.db.category.FridgeCategoryUpdateDao
 import com.pyamsoft.fridge.db.room.entity.RoomFridgeCategory
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 @Dao
 internal abstract class RoomFridgeCategoryUpdateDao internal constructor() :
     FridgeCategoryUpdateDao {
 
-    final override suspend fun update(o: FridgeCategory) {
+    final override suspend fun update(o: FridgeCategory) = withContext(context = Dispatchers.IO) {
         val roomCategory = RoomFridgeCategory.create(o)
         daoUpdate(roomCategory)
     }

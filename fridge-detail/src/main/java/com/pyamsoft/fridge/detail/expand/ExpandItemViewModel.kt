@@ -37,7 +37,6 @@ import com.pyamsoft.fridge.detail.base.BaseUpdaterViewModel
 import com.pyamsoft.fridge.detail.expand.date.DateSelectPayload
 import com.pyamsoft.fridge.detail.item.isNameValid
 import com.pyamsoft.pydroid.arch.EventBus
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.util.Calendar
@@ -65,13 +64,13 @@ class ExpandItemViewModel @Inject internal constructor(
 
     init {
         doOnInit {
-            viewModelScope.launch(context = Dispatchers.Default) {
+            viewModelScope.launch {
                 itemExpandBus.send(ItemExpandPayload(true))
             }
         }
 
         doOnInit {
-            viewModelScope.launch(context = Dispatchers.Default) {
+            viewModelScope.launch {
                 val categories = interactor.loadAllCategories()
                 setState {
                     copy(categories = listOf(FridgeCategory.empty()) + categories)
@@ -103,7 +102,7 @@ class ExpandItemViewModel @Inject internal constructor(
             // Resolve the existing item id
             val resolveItemId =
                 FridgeItem.Id(savedInstanceState.getOrDefault(CREATED_ITEM_ID, possibleItemId.id))
-            viewModelScope.launch(context = Dispatchers.Default) {
+            viewModelScope.launch {
                 val item = interactor.resolveItem(
                     resolveItemId,
                     itemEntryId,
@@ -115,13 +114,13 @@ class ExpandItemViewModel @Inject internal constructor(
         }
 
         doOnInit {
-            realtime.listenForChanges(itemEntryId).scopedEvent(context = Dispatchers.Default) {
+            realtime.listenForChanges(itemEntryId).scopedEvent {
                 handleRealtimeEvent(it)
             }
         }
 
         doOnInit {
-            dateSelectBus.scopedEvent(context = Dispatchers.Default) { event ->
+            dateSelectBus.scopedEvent { event ->
                 withState {
                     requireNotNull(item).let { item ->
                         if (event.entryId != item.entryId()) {
@@ -339,14 +338,14 @@ class ExpandItemViewModel @Inject internal constructor(
             return
         }
 
-        viewModelScope.launch(context = Dispatchers.Default) {
+        viewModelScope.launch {
             val sameNamedItems = interactor.findSameNamedItems(item.name(), HAVE)
             setState { copy(sameNamedItems = sameNamedItems) }
         }
     }
 
     private fun findSimilarItems(item: FridgeItem) {
-        viewModelScope.launch(context = Dispatchers.Default) {
+        viewModelScope.launch {
             val similarItems = interactor.findSimilarNamedItems(item)
             setState { copy(similarItems = similarItems) }
         }

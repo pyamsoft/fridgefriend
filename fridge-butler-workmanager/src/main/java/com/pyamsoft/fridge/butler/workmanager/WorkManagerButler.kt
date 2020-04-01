@@ -34,6 +34,10 @@ import com.pyamsoft.fridge.butler.workmanager.worker.BaseWorker
 import com.pyamsoft.fridge.butler.workmanager.worker.ItemWorker
 import com.pyamsoft.fridge.butler.workmanager.worker.LocationWorker
 import com.pyamsoft.pydroid.core.Enforcer
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.withContext
+import timber.log.Timber
 import java.util.concurrent.CancellationException
 import java.util.concurrent.ExecutionException
 import java.util.concurrent.Executor
@@ -42,8 +46,6 @@ import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
-import kotlinx.coroutines.suspendCancellableCoroutine
-import timber.log.Timber
 
 @Singleton
 internal class WorkManagerButler @Inject internal constructor(
@@ -89,51 +91,57 @@ internal class WorkManagerButler @Inject internal constructor(
         Timber.d("Queue work [$tag]: ${request.id}")
     }
 
-    private suspend fun scheduleItemWork(params: ItemParameters, type: WorkType) {
-        enforcer.assertNotOnMainThread()
-        cancelItemsReminder()
-        schedule(ItemWorker::class.java, ITEM_TAG, type, params.toInputData())
-    }
+    private suspend fun scheduleItemWork(params: ItemParameters, type: WorkType) =
+        withContext(context = Dispatchers.Default) {
+            enforcer.assertNotOnMainThread()
+            cancelItemsReminder()
+            schedule(ItemWorker::class.java, ITEM_TAG, type, params.toInputData())
+        }
 
-    override suspend fun remindItems(params: ItemParameters) {
-        enforcer.assertNotOnMainThread()
-        scheduleItemWork(params, WorkType.Instant)
-    }
+    override suspend fun remindItems(params: ItemParameters) =
+        withContext(context = Dispatchers.Default) {
+            enforcer.assertNotOnMainThread()
+            scheduleItemWork(params, WorkType.Instant)
+        }
 
-    override suspend fun scheduleRemindItems(params: ItemParameters) {
-        enforcer.assertNotOnMainThread()
-        val time = preferences.getNotificationPeriod()
-        scheduleItemWork(params, WorkType.Periodic(time))
-    }
+    override suspend fun scheduleRemindItems(params: ItemParameters) =
+        withContext(context = Dispatchers.Default) {
+            enforcer.assertNotOnMainThread()
+            val time = preferences.getNotificationPeriod()
+            scheduleItemWork(params, WorkType.Periodic(time))
+        }
 
-    override suspend fun cancelItemsReminder() {
+    override suspend fun cancelItemsReminder() = withContext(context = Dispatchers.Default) {
         enforcer.assertNotOnMainThread()
         workManager().cancelAllWorkByTag(ITEM_TAG).await()
     }
 
-    private suspend fun scheduleLocation(params: LocationParameters, type: WorkType) {
-        enforcer.assertNotOnMainThread()
-        cancelLocationReminder()
-        schedule(LocationWorker::class.java, LOCATION_TAG, type, params.toInputData())
-    }
+    private suspend fun scheduleLocation(params: LocationParameters, type: WorkType) =
+        withContext(context = Dispatchers.Default) {
+            enforcer.assertNotOnMainThread()
+            cancelLocationReminder()
+            schedule(LocationWorker::class.java, LOCATION_TAG, type, params.toInputData())
+        }
 
-    override suspend fun remindLocation(params: LocationParameters) {
-        enforcer.assertNotOnMainThread()
-        scheduleLocation(params, WorkType.Instant)
-    }
+    override suspend fun remindLocation(params: LocationParameters) =
+        withContext(context = Dispatchers.Default) {
+            enforcer.assertNotOnMainThread()
+            scheduleLocation(params, WorkType.Instant)
+        }
 
-    override suspend fun scheduleRemindLocation(params: LocationParameters) {
-        enforcer.assertNotOnMainThread()
-        val time = preferences.getNotificationPeriod()
-        scheduleLocation(params, WorkType.Periodic(time))
-    }
+    override suspend fun scheduleRemindLocation(params: LocationParameters) =
+        withContext(context = Dispatchers.Default) {
+            enforcer.assertNotOnMainThread()
+            val time = preferences.getNotificationPeriod()
+            scheduleLocation(params, WorkType.Periodic(time))
+        }
 
-    override suspend fun cancelLocationReminder() {
+    override suspend fun cancelLocationReminder() = withContext(context = Dispatchers.Default) {
         enforcer.assertNotOnMainThread()
         workManager().cancelAllWorkByTag(LOCATION_TAG).await()
     }
 
-    override suspend fun cancel() {
+    override suspend fun cancel() = withContext(context = Dispatchers.Default) {
         enforcer.assertNotOnMainThread()
         workManager().cancelAllWork().await()
     }

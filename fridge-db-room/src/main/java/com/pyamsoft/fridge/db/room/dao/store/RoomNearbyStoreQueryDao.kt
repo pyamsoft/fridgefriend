@@ -23,13 +23,14 @@ import androidx.room.Query
 import com.pyamsoft.fridge.db.room.entity.RoomNearbyStore
 import com.pyamsoft.fridge.db.store.NearbyStore
 import com.pyamsoft.fridge.db.store.NearbyStoreQueryDao
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 @Dao
 internal abstract class RoomNearbyStoreQueryDao internal constructor() : NearbyStoreQueryDao {
 
-    override suspend fun query(force: Boolean): List<NearbyStore> {
-        return daoQuery()
-    }
+    override suspend fun query(force: Boolean): List<NearbyStore> =
+        withContext(context = Dispatchers.IO) { daoQuery() }
 
     @CheckResult
     @Query("SELECT * FROM ${RoomNearbyStore.TABLE_NAME}")

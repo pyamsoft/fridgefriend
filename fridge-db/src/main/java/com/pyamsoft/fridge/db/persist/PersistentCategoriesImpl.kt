@@ -29,11 +29,13 @@ import com.pyamsoft.fridge.db.category.toThumbnail
 import com.pyamsoft.pydroid.core.Enforcer
 import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.loader.ImageTarget
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.withContext
+import timber.log.Timber
 import java.io.ByteArrayOutputStream
 import javax.inject.Inject
 import kotlin.coroutines.resume
-import kotlinx.coroutines.suspendCancellableCoroutine
-import timber.log.Timber
 
 internal class PersistentCategoriesImpl @Inject internal constructor(
     private val enforcer: Enforcer,
@@ -91,10 +93,11 @@ internal class PersistentCategoriesImpl @Inject internal constructor(
         }
     }
 
-    override suspend fun guaranteePersistentCategoriesCreated() {
-        enforcer.assertNotOnMainThread()
-        return guaranteeCategoriesInserted()
-    }
+    override suspend fun guaranteePersistentCategoriesCreated() =
+        withContext(context = Dispatchers.Default) {
+            enforcer.assertNotOnMainThread()
+            return@withContext guaranteeCategoriesInserted()
+        }
 
     @CheckResult
     private suspend fun coroutineGlide(@DrawableRes res: Int): Drawable? {

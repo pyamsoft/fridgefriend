@@ -26,13 +26,14 @@ import com.pyamsoft.fridge.db.item.FridgeItem.Presence
 import com.pyamsoft.fridge.db.item.FridgeItemQueryDao
 import com.pyamsoft.fridge.db.room.dao.RoomIsLameException
 import com.pyamsoft.fridge.db.room.entity.RoomFridgeItem
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 @Dao
 internal abstract class RoomFridgeItemQueryDao internal constructor() : FridgeItemQueryDao {
 
-    final override suspend fun query(force: Boolean): List<FridgeItem> {
-        return daoQuery()
-    }
+    final override suspend fun query(force: Boolean): List<FridgeItem> =
+        withContext(context = Dispatchers.IO) { daoQuery() }
 
     @CheckResult
     @Query("SELECT * FROM ${RoomFridgeItem.TABLE_NAME}")

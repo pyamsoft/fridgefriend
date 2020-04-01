@@ -19,6 +19,8 @@ package com.pyamsoft.fridge.db.persist
 
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.guarantee.EntryGuarantee
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 internal class PersistentEntriesImpl @Inject internal constructor(
@@ -26,14 +28,15 @@ internal class PersistentEntriesImpl @Inject internal constructor(
     private val preferences: PersistentEntryPreferences
 ) : PersistentEntries {
 
-    override suspend fun getPersistentEntry(): FridgeEntry {
-        val possibleId = preferences.getPersistentEntryId()
-        val entry = guarantee.existing(possibleId, FridgeEntry.DEFAULT_NAME)
+    override suspend fun getPersistentEntry(): FridgeEntry =
+        withContext(context = Dispatchers.Default) {
+            val possibleId = preferences.getPersistentEntryId()
+            val entry = guarantee.existing(possibleId, FridgeEntry.DEFAULT_NAME)
 
-        // If it did not previously exist, it was newly created above
-        if (possibleId != entry.id()) {
-            preferences.savePersistentEntryId(entry.id())
+            // If it did not previously exist, it was newly created above
+            if (possibleId != entry.id()) {
+                preferences.savePersistentEntryId(entry.id())
+            }
+            return@withContext entry
         }
-        return entry
-    }
 }

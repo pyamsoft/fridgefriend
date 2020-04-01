@@ -23,13 +23,14 @@ import androidx.room.Query
 import com.pyamsoft.fridge.db.category.FridgeCategory
 import com.pyamsoft.fridge.db.category.FridgeCategoryQueryDao
 import com.pyamsoft.fridge.db.room.entity.RoomFridgeCategory
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 @Dao
 internal abstract class RoomFridgeCategoryQueryDao internal constructor() : FridgeCategoryQueryDao {
 
-    final override suspend fun query(force: Boolean): List<FridgeCategory> {
-        return daoQuery()
-    }
+    final override suspend fun query(force: Boolean): List<FridgeCategory> =
+        withContext(context = Dispatchers.IO) { daoQuery() }
 
     @CheckResult
     @Query("SELECT * FROM ${RoomFridgeCategory.TABLE_NAME}")

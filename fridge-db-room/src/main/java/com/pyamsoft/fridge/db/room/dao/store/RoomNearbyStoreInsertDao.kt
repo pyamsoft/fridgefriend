@@ -23,11 +23,13 @@ import androidx.room.OnConflictStrategy
 import com.pyamsoft.fridge.db.room.entity.RoomNearbyStore
 import com.pyamsoft.fridge.db.store.NearbyStore
 import com.pyamsoft.fridge.db.store.NearbyStoreInsertDao
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 @Dao
 internal abstract class RoomNearbyStoreInsertDao internal constructor() : NearbyStoreInsertDao {
 
-    override suspend fun insert(o: NearbyStore) {
+    override suspend fun insert(o: NearbyStore) = withContext(context = Dispatchers.IO) {
         val roomNearbyStore = RoomNearbyStore.create(o)
         daoInsert(roomNearbyStore)
     }

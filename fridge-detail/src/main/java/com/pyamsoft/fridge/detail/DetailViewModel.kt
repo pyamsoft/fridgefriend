@@ -38,9 +38,7 @@ import com.pyamsoft.fridge.detail.expand.ItemExpandPayload
 import com.pyamsoft.highlander.highlander
 import com.pyamsoft.pydroid.arch.EventBus
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import timber.log.Timber
 import java.util.Calendar
 import javax.inject.Inject
@@ -85,11 +83,9 @@ class DetailViewModel @Inject internal constructor(
         handleListRefreshBegin()
 
         try {
-            withContext(context = Dispatchers.Default) {
-                val items = interactor.getItems(entryId, force)
-                handleListRefreshed(items)
-            }
-            beginListeningForChanges()
+            val items = interactor.getItems(entryId, force)
+            handleListRefreshed(items)
+            beginListeningForRealtime()
         } catch (error: Throwable) {
             error.onActualError { e ->
                 Timber.e(e, "Error refreshing item list")
@@ -101,10 +97,8 @@ class DetailViewModel @Inject internal constructor(
     }
 
     private val realtimeRunner = highlander<Unit> {
-        withContext(context = Dispatchers.Default) {
-            interactor.listenForChanges(entryId)
-                .onEvent { handleRealtime(it) }
-        }
+        interactor.listenForChanges(entryId)
+            .onEvent { handleRealtime(it) }
     }
 
     init {
@@ -113,21 +107,21 @@ class DetailViewModel @Inject internal constructor(
         }
 
         doOnInit {
-            viewModelScope.launch(context = Dispatchers.Default) {
+            viewModelScope.launch {
                 val entry = interactor.loadEntry(entryId)
                 setState { copy(entry = entry) }
             }
         }
 
         doOnInit {
-            viewModelScope.launch(context = Dispatchers.Default) {
+            viewModelScope.launch {
                 val range = interactor.getExpiringSoonRange()
                 setState { copy(expirationRange = DetailViewState.ExpirationRange(range)) }
             }
         }
 
         doOnInit {
-            viewModelScope.launch(context = Dispatchers.Default) {
+            viewModelScope.launch {
                 interactor.watchForExpiringSoonChanges { range ->
                     setState { copy(expirationRange = DetailViewState.ExpirationRange(range)) }
                     withState { refreshList(false) }
@@ -136,14 +130,14 @@ class DetailViewModel @Inject internal constructor(
         }
 
         doOnInit {
-            viewModelScope.launch(context = Dispatchers.Default) {
+            viewModelScope.launch {
                 val isSame = interactor.isSameDayExpired()
                 setState { copy(isSameDayExpired = DetailViewState.IsSameDayExpired(isSame)) }
             }
         }
 
         doOnInit {
-            viewModelScope.launch(context = Dispatchers.Default) {
+            viewModelScope.launch {
                 interactor.watchForSameDayExpiredChange { same ->
                     setState { copy(isSameDayExpired = DetailViewState.IsSameDayExpired(same)) }
                     withState { refreshList(false) }
@@ -152,7 +146,7 @@ class DetailViewModel @Inject internal constructor(
         }
 
         doOnInit {
-            itemExpandedBus.scopedEvent(Dispatchers.Default) {
+            itemExpandedBus.scopedEvent {
                 setState { copy(isItemExpanded = it.expanded) }
             }
         }
@@ -182,7 +176,7 @@ class DetailViewModel @Inject internal constructor(
         val newItem = item.count(max(1, newCount))
         updateCount(newItem)
         if (newCount <= 0 && newItem.presence() == FridgeItem.Presence.HAVE) {
-            viewModelScope.launch(context = Dispatchers.Default) {
+            viewModelScope.launch {
                 if (interactor.isZeroCountConsideredConsumed()) {
                     consume(newItem)
                 }
@@ -196,7 +190,10 @@ class DetailViewModel @Inject internal constructor(
 
     private fun updateCount(item: FridgeItem) {
         if (!item.isArchived()) {
-            updateItem(item, doUpdate = { interactor.commit(it) }, onError = { handleError(it) })
+            updateItem(
+                item,
+                doUpdate = { interactor.commit(it) },
+                onError = { handleError(it) })
         }
     }
 
@@ -207,7 +204,7 @@ class DetailViewModel @Inject internal constructor(
     }
 
     private fun handleUndoDelete(item: FridgeItem) {
-        viewModelScope.launch(context = Dispatchers.Default) { undoRunner.call(item) }
+        viewModelScope.launch { undoRunner.call(item) }
     }
 
     private fun toggleArchived() {
@@ -247,7 +244,7 @@ class DetailViewModel @Inject internal constructor(
 
     private fun refreshList(force: Boolean) {
         // Keep this on the main thread or weird UI stuff happens
-        viewModelScope.launch(context = Dispatchers.Main) {
+        viewModelScope.launch {
             refreshRunner.call(force)
         }
     }
@@ -261,7 +258,7 @@ class DetailViewModel @Inject internal constructor(
     }
 
     @CheckResult
-    private fun CoroutineScope.beginListeningForChanges() = launch(context = Dispatchers.Main) {
+    private fun CoroutineScope.beginListeningForRealtime() = launch {
         realtimeRunner.call()
     }
 

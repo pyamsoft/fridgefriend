@@ -21,8 +21,10 @@ import com.pyamsoft.fridge.db.category.FridgeCategoryChangeEvent.Delete
 import com.pyamsoft.fridge.db.category.FridgeCategoryChangeEvent.Insert
 import com.pyamsoft.fridge.db.category.FridgeCategoryChangeEvent.Update
 import com.pyamsoft.pydroid.core.Enforcer
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.withContext
 
 internal class FridgeCategoryDbImpl internal constructor(
     private val enforcer: Enforcer,
@@ -34,21 +36,22 @@ internal class FridgeCategoryDbImpl internal constructor(
 
     private val queryDao = object : FridgeCategoryQueryDao {
 
-        override suspend fun query(force: Boolean): List<FridgeCategory> {
-            enforcer.assertNotOnMainThread()
-            mutex.withLock {
-                if (force) {
-                    invalidate()
-                }
+        override suspend fun query(force: Boolean): List<FridgeCategory> =
+            withContext(context = Dispatchers.IO) {
+                enforcer.assertNotOnMainThread()
+                mutex.withLock {
+                    if (force) {
+                        invalidate()
+                    }
 
-                return dbQuery(force).toList()
+                    return@withContext dbQuery(force).toList()
+                }
             }
-        }
     }
 
     private val insertDao = object : FridgeCategoryInsertDao {
 
-        override suspend fun insert(o: FridgeCategory) {
+        override suspend fun insert(o: FridgeCategory) = withContext(context = Dispatchers.IO) {
             enforcer.assertNotOnMainThread()
             mutex.withLock {
                 db.insertDao()
@@ -60,7 +63,7 @@ internal class FridgeCategoryDbImpl internal constructor(
 
     private val updateDao = object : FridgeCategoryUpdateDao {
 
-        override suspend fun update(o: FridgeCategory) {
+        override suspend fun update(o: FridgeCategory) = withContext(context = Dispatchers.IO) {
             enforcer.assertNotOnMainThread()
             mutex.withLock {
                 db.updateDao()
@@ -72,7 +75,7 @@ internal class FridgeCategoryDbImpl internal constructor(
 
     private val deleteDao = object : FridgeCategoryDeleteDao {
 
-        override suspend fun delete(o: FridgeCategory) {
+        override suspend fun delete(o: FridgeCategory) = withContext(context = Dispatchers.IO) {
             enforcer.assertNotOnMainThread()
             mutex.withLock {
                 db.deleteDao()
@@ -92,10 +95,11 @@ internal class FridgeCategoryDbImpl internal constructor(
         db.invalidate()
     }
 
-    override suspend fun publish(event: FridgeCategoryChangeEvent) {
-        enforcer.assertNotOnMainThread()
-        db.publish(event)
-    }
+    override suspend fun publish(event: FridgeCategoryChangeEvent) =
+        withContext(context = Dispatchers.IO) {
+            enforcer.assertNotOnMainThread()
+            db.publish(event)
+        }
 
     override fun realtime(): FridgeCategoryRealtime {
         return db.realtime()

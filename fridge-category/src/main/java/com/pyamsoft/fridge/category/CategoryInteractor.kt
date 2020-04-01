@@ -24,6 +24,8 @@ import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItemQueryDao
 import com.pyamsoft.fridge.db.persist.PersistentCategories
 import com.pyamsoft.pydroid.core.Enforcer
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 class CategoryInteractor @Inject internal constructor(
@@ -47,17 +49,18 @@ class CategoryInteractor @Inject internal constructor(
     }
 
     @CheckResult
-    suspend fun loadCategories(): List<CategoryViewState.CategoryItemsPairing> {
-        val categories = loadFridgeCategories()
-        val items = loadFridgeItems()
-        return categories.map { category ->
-            CategoryViewState.CategoryItemsPairing(
-                category,
-                items.asSequence()
-                    .filterNot { it.categoryId() == null }
-                    .filter { it.categoryId() == category.id() }
-                    .toList()
-            )
+    suspend fun loadCategories(): List<CategoryViewState.CategoryItemsPairing> =
+        withContext(context = Dispatchers.Default) {
+            val categories = loadFridgeCategories()
+            val items = loadFridgeItems()
+            return@withContext categories.map { category ->
+                CategoryViewState.CategoryItemsPairing(
+                    category,
+                    items.asSequence()
+                        .filterNot { it.categoryId() == null }
+                        .filter { it.categoryId() == category.id() }
+                        .toList()
+                )
+            }
         }
-    }
 }

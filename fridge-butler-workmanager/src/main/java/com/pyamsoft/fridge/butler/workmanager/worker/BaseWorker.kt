@@ -25,16 +25,18 @@ import androidx.work.WorkerParameters
 import com.pyamsoft.fridge.butler.injector.BaseInjector
 import com.pyamsoft.fridge.butler.params.BaseParameters
 import com.pyamsoft.fridge.butler.runner.WorkResult
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 internal abstract class BaseWorker<P : BaseParameters> protected constructor(
     context: Context,
     params: WorkerParameters
 ) : CoroutineWorker(context.applicationContext, params) {
 
-    final override suspend fun doWork(): Result {
+    final override suspend fun doWork(): Result = withContext(context = Dispatchers.Default) {
         val injector = getInjector(applicationContext)
         val result = injector.run(getParams(inputData))
-        return if (result == WorkResult.Success) Result.success() else Result.failure()
+        if (result == WorkResult.Success) Result.success() else Result.failure()
     }
 
     @CheckResult

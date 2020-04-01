@@ -23,13 +23,14 @@ import androidx.room.Query
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.entry.FridgeEntryQueryDao
 import com.pyamsoft.fridge.db.room.entity.RoomFridgeEntry
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 @Dao
 internal abstract class RoomFridgeEntryQueryDao internal constructor() : FridgeEntryQueryDao {
 
-    final override suspend fun query(force: Boolean): List<FridgeEntry> {
-        return daoQuery()
-    }
+    final override suspend fun query(force: Boolean): List<FridgeEntry> =
+        withContext(context = Dispatchers.IO) { daoQuery() }
 
     @CheckResult
     @Query("SELECT * FROM ${RoomFridgeEntry.TABLE_NAME}")
