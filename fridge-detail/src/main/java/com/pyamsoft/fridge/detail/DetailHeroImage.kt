@@ -50,9 +50,13 @@ class DetailHeroImage @Inject internal constructor(
 
     @SuppressLint("SetTextI18n")
     private fun setTitle(state: DetailViewState) {
-        val type = when (state.listItemPresence) {
-            FridgeItem.Presence.HAVE -> "current"
-            FridgeItem.Presence.NEED -> "needed"
+        val type = when (state.showing) {
+            DetailViewState.Showing.FRESH -> when (state.listItemPresence) {
+                FridgeItem.Presence.HAVE -> "current"
+                FridgeItem.Presence.NEED -> "needed"
+            }
+            DetailViewState.Showing.CONSUMED -> "consumed"
+            DetailViewState.Showing.SPOILED -> "spoiled"
         }
         binding.coreHeroTitle.text = "${state.entry?.name().orEmpty()}: $type items"
     }
@@ -60,7 +64,39 @@ class DetailHeroImage @Inject internal constructor(
     override fun onAdditionalRender(state: DetailViewState) {
         setTitle(state)
 
+        when (state.showing) {
+            DetailViewState.Showing.FRESH -> renderFresh(state)
+            DetailViewState.Showing.CONSUMED -> renderConsumed(state)
+            DetailViewState.Showing.SPOILED -> renderSpoiled(state)
+        }
+    }
+
+    private fun renderSpoiled(state: DetailViewState) {
+        binding.coreHeroFirstLineLabel.isVisible = false
+        binding.coreHeroFirstLineValue.isVisible = false
+        binding.coreHeroSecondLineLabel.isVisible = false
+        binding.coreHeroSecondLineValue.isVisible = false
+        binding.coreHeroThirdLineLabel.isVisible = false
+        binding.coreHeroThirdLineValue.isVisible = false
+        binding.coreHeroFourthLineLabel.isVisible = false
+        binding.coreHeroFourthLineValue.isVisible = false
+    }
+
+    private fun renderConsumed(state: DetailViewState) {
+        binding.coreHeroFirstLineLabel.isVisible = false
+        binding.coreHeroFirstLineValue.isVisible = false
+        binding.coreHeroSecondLineLabel.isVisible = false
+        binding.coreHeroSecondLineValue.isVisible = false
+        binding.coreHeroThirdLineLabel.isVisible = false
+        binding.coreHeroThirdLineValue.isVisible = false
+        binding.coreHeroFourthLineLabel.isVisible = false
+        binding.coreHeroFourthLineValue.isVisible = false
+    }
+
+    private fun renderFresh(state: DetailViewState) {
         binding.coreHeroFirstLineLabel.setText(R.string.total_number_of_items)
+        binding.coreHeroFirstLineLabel.isVisible = true
+        binding.coreHeroFirstLineValue.isVisible = true
 
         val showExtras = state.listItemPresence == FridgeItem.Presence.HAVE
         binding.coreHeroSecondLineLabel.isVisible = showExtras
@@ -79,16 +115,16 @@ class DetailHeroImage @Inject internal constructor(
         }
 
         state.counts.let { counts ->
-            val visible = counts != null
-            binding.coreHeroFirstLineValue.isVisible = visible
-            binding.coreHeroSecondLineValue.isVisible = visible
-            binding.coreHeroThirdLineValue.isVisible = visible
-            binding.coreHeroFourthLineValue.isVisible = visible
             if (counts != null) {
                 binding.coreHeroFirstLineValue.text = "${counts.totalCount}"
                 binding.coreHeroSecondLineValue.text = "${counts.firstCount}"
                 binding.coreHeroThirdLineValue.text = "${counts.secondCount}"
                 binding.coreHeroFourthLineValue.text = "${counts.thirdCount}"
+            } else {
+                binding.coreHeroFirstLineValue.text = null
+                binding.coreHeroSecondLineValue.text = null
+                binding.coreHeroThirdLineValue.text = null
+                binding.coreHeroFourthLineValue.text = null
             }
         }
     }

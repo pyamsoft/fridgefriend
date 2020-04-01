@@ -41,6 +41,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import timber.log.Timber
+import java.util.Calendar
 import javax.inject.Inject
 import javax.inject.Named
 import kotlin.math.max
@@ -443,35 +444,68 @@ class DetailViewModel @Inject internal constructor(
 
     @CheckResult
     private fun DetailViewState.calculateCounts(items: List<FridgeItem>): DetailViewState.Counts? {
-        val expiringSoonRange = this.expirationRange?.range ?: return null
-        val isSameDayExpired = this.isSameDayExpired?.isSame ?: return null
-
-        if (showing == DetailViewState.Showing.FRESH) {
-            val today = today().cleanMidnight()
-            val later = today().daysLaterMidnight(expiringSoonRange)
-
-            val validItems = filterValid(items).filterNot { it.isArchived() }
-
-            val totalCount = validItems.sumBy { it.count() }
-
-            val expiringSoonItemCount = validItems
-                .filter { it.isExpiringSoon(today, later, isSameDayExpired) }
-                .sumBy { it.count() }
-
-            val expiredItemCount = validItems
-                .filter { it.isExpired(today, isSameDayExpired) }
-                .sumBy { it.count() }
-
-            val freshItemCount = totalCount - expiringSoonItemCount - expiredItemCount
-
-            return DetailViewState.Counts(
-                totalCount = totalCount,
-                firstCount = freshItemCount,
-                secondCount = expiringSoonItemCount,
-                thirdCount = expiredItemCount
-            )
+        return when (showing) {
+            DetailViewState.Showing.FRESH -> calculateFreshCounts(items)
+            DetailViewState.Showing.CONSUMED -> null
+            DetailViewState.Showing.SPOILED -> null
         }
+    }
 
-        return null
+    @CheckResult
+    private fun DetailViewState.calculateFreshCounts(items: List<FridgeItem>): DetailViewState.Counts? {
+        return when (listItemPresence) {
+            FridgeItem.Presence.HAVE -> {
+                val expiringSoonRange = this.expirationRange?.range ?: return null
+                val isSameDayExpired = this.isSameDayExpired?.isSame ?: return null
+                val today = today().cleanMidnight()
+                val later = today().daysLaterMidnight(expiringSoonRange)
+                generateHaveFreshCount(items, today, later, isSameDayExpired)
+            }
+            FridgeItem.Presence.NEED -> generateNeedFreshCount(items)
+        }
+    }
+
+    @CheckResult
+    private fun DetailViewState.generateNeedFreshCount(
+        items: List<FridgeItem>
+    ): DetailViewState.Counts {
+        val validItems = filterValid(items).filterNot { it.isArchived() }
+
+        val totalCount = validItems.sumBy { it.count() }
+        return DetailViewState.Counts(
+            totalCount = totalCount,
+            firstCount = 0,
+            secondCount = 0,
+            thirdCount = 0
+        )
+    }
+
+    @CheckResult
+    private fun DetailViewState.generateHaveFreshCount(
+        items: List<FridgeItem>,
+        today: Calendar,
+        later: Calendar,
+        isSameDayExpired: Boolean
+    ): DetailViewState.Counts {
+        val validItems = filterValid(items).filterNot { it.isArchived() }
+
+        val totalCount = validItems.sumBy { it.count() }
+
+        val expiringSoonItemCount = validItems
+            .filter { it.isExpiringSoon(today, later, isSameDayExpired) }
+            .sumBy { it.count() }
+
+        val expiredItemCount = validItems
+            .filter { it.isExpired(today, isSameDayExpired) }
+            .sumBy { it.count() }
+
+        val freshItemCount = totalCount - expiringSoonItemCount - expiredItemCount
+
+        return DetailViewState.Counts(
+            totalCount = totalCount,
+            firstCount = freshItemCount,
+            secondCount = expiringSoonItemCount,
+            thirdCount = expiredItemCount
+        )
     }
 }
