@@ -68,7 +68,7 @@ internal class ExpandItemCategoryListAdapter internal constructor(
                 oldItem: ExpandedCategoryViewState,
                 newItem: ExpandedCategoryViewState
             ): Boolean {
-                return oldItem == newItem
+                return oldItem.category == newItem.category && oldItem.isSelected == newItem.isSelected
             }
         }
     }

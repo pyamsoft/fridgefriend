@@ -74,8 +74,7 @@ abstract class RoomModule {
                 }
 
                 val itemCache = cachify<Sequence<FridgeItem>, Boolean>(
-                    storage = MemoryCacheStorage.create(cacheTime, cacheUnit),
-                    debug = true
+                    storage = MemoryCacheStorage.create(cacheTime, cacheUnit)
                 ) { force ->
                     roomItemQueryDao()
                         .query(force)

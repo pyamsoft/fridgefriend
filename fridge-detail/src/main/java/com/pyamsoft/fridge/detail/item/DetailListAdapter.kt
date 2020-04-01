@@ -120,7 +120,7 @@ class DetailListAdapter constructor(
             ): Boolean {
                 return JsonMappableFridgeItem.from(oldItem.item) == JsonMappableFridgeItem.from(
                     newItem.item
-                )
+                ) && oldItem.expirationRange == newItem.expirationRange && oldItem.isSameDayExpired == newItem.isSameDayExpired
             }
         }
     }

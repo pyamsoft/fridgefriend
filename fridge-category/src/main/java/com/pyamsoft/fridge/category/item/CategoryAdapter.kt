@@ -25,6 +25,7 @@ import androidx.recyclerview.widget.ListAdapter
 import com.pyamsoft.fridge.category.databinding.CategoryItemHolderLargeBinding
 import com.pyamsoft.fridge.category.databinding.CategoryItemHolderMediumBinding
 import com.pyamsoft.fridge.category.databinding.CategoryItemHolderSmallBinding
+import com.pyamsoft.fridge.db.category.JsonMappableFridgeCategory
 
 class CategoryAdapter internal constructor(
     private val owner: LifecycleOwner,
@@ -76,7 +77,9 @@ class CategoryAdapter internal constructor(
                 oldItem: CategoryItemViewState,
                 newItem: CategoryItemViewState
             ): Boolean {
-                return oldItem == newItem
+                return JsonMappableFridgeCategory.from(oldItem.category) == JsonMappableFridgeCategory.from(
+                    newItem.category
+                ) && oldItem.itemCount == newItem.itemCount
             }
         }
 

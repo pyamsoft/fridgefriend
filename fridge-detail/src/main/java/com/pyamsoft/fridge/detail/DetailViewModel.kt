@@ -40,6 +40,7 @@ import com.pyamsoft.pydroid.arch.EventBus
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import timber.log.Timber
 import java.util.Calendar
 import javax.inject.Inject
@@ -84,8 +85,10 @@ class DetailViewModel @Inject internal constructor(
         handleListRefreshBegin()
 
         try {
-            val items = interactor.getItems(entryId, force)
-            handleListRefreshed(items)
+            withContext(context = Dispatchers.Default) {
+                val items = interactor.getItems(entryId, force)
+                handleListRefreshed(items)
+            }
             beginListeningForChanges()
         } catch (error: Throwable) {
             error.onActualError { e ->
@@ -98,8 +101,10 @@ class DetailViewModel @Inject internal constructor(
     }
 
     private val realtimeRunner = highlander<Unit> {
-        interactor.listenForChanges(entryId)
-            .onEvent { handleRealtime(it) }
+        withContext(context = Dispatchers.Default) {
+            interactor.listenForChanges(entryId)
+                .onEvent { handleRealtime(it) }
+        }
     }
 
     init {
@@ -241,8 +246,8 @@ class DetailViewModel @Inject internal constructor(
     }
 
     private fun refreshList(force: Boolean) {
-        viewModelScope.launch(context = Dispatchers.Default) {
-            Timber.d("Refresh list: $force")
+        // Keep this on the main thread or weird UI stuff happens
+        viewModelScope.launch(context = Dispatchers.Main) {
             refreshRunner.call(force)
         }
     }
@@ -256,7 +261,7 @@ class DetailViewModel @Inject internal constructor(
     }
 
     @CheckResult
-    private fun CoroutineScope.beginListeningForChanges() = launch(context = Dispatchers.Default) {
+    private fun CoroutineScope.beginListeningForChanges() = launch(context = Dispatchers.Main) {
         realtimeRunner.call()
     }
 
@@ -384,9 +389,7 @@ class DetailViewModel @Inject internal constructor(
             return@run this
         }
 
-        viewModelScope.launch(context = Dispatchers.Default) {
-            updateItem(updated, doUpdate = { interactor.commit(it) }, onError = { handleError(it) })
-        }
+        updateItem(updated, doUpdate = { interactor.commit(it) }, onError = { handleError(it) })
     }
 
     private fun updateItem(

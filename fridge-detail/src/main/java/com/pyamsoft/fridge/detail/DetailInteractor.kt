@@ -35,8 +35,6 @@ import com.pyamsoft.fridge.db.item.FridgeItemUpdateDao
 import com.pyamsoft.fridge.db.persist.PersistentCategories
 import com.pyamsoft.pydroid.arch.EventConsumer
 import com.pyamsoft.pydroid.core.Enforcer
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -144,9 +142,9 @@ internal class DetailInteractor @Inject internal constructor(
     suspend fun getItems(
         entryId: FridgeEntry.Id,
         force: Boolean
-    ): List<FridgeItem> = withContext(context = Dispatchers.Default) {
+    ): List<FridgeItem> {
         enforcer.assertNotOnMainThread()
-        return@withContext itemQueryDao.query(force, entryId)
+        return itemQueryDao.query(force, entryId)
     }
 
     @CheckResult
@@ -155,7 +153,7 @@ internal class DetailInteractor @Inject internal constructor(
         return itemRealtime.listenForChanges(id)
     }
 
-    suspend fun commit(item: FridgeItem) = withContext(context = Dispatchers.Default) {
+    suspend fun commit(item: FridgeItem) {
         enforcer.assertNotOnMainThread()
         if (FridgeItem.isValidName(item.name())) {
             val entry = entryGuarantee.existing(item.entryId(), FridgeEntry.DEFAULT_NAME)
@@ -185,7 +183,7 @@ internal class DetailInteractor @Inject internal constructor(
         }
     }
 
-    suspend fun delete(item: FridgeItem) = withContext(context = Dispatchers.Default) {
+    suspend fun delete(item: FridgeItem) {
         enforcer.assertNotOnMainThread()
         assert(item.isReal()) { "Cannot delete item that is not real: $item" }
         Timber.d("Deleting item [${item.id()}]: $item")

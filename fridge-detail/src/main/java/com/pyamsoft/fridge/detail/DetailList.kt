@@ -229,13 +229,8 @@ class DetailList @Inject internal constructor(
         expirationRange: DetailViewState.ExpirationRange?,
         sameDayExpired: DetailViewState.IsSameDayExpired?
     ) {
-        usingAdapter().submitList(list.map {
-            DetailListItemViewState(
-                it,
-                expirationRange,
-                sameDayExpired
-            )
-        })
+        val data = list.map { DetailListItemViewState(it, expirationRange, sameDayExpired) }
+        usingAdapter().submitList(data)
     }
 
     private fun clearList() {
