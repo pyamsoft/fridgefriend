@@ -37,8 +37,16 @@ data class DetailViewState(
     val expirationRange: ExpirationRange?,
     val isSameDayExpired: IsSameDayExpired?,
     val listItemPresence: FridgeItem.Presence,
-    val isItemExpanded: Boolean
+    val isItemExpanded: Boolean,
+    val counts: Counts?
 ) : UiViewState {
+
+    data class Counts internal constructor(
+        val totalCount: Int,
+        val firstCount: Int,
+        val secondCount: Int,
+        val thirdCount: Int
+    )
 
     internal val dateSorter = Comparator<FridgeItem> { o1, o2 ->
         when (sort) {
@@ -83,28 +91,8 @@ data class DetailViewState(
     }
 
     @CheckResult
-    fun getTotalItemCount(): Int {
-        return getFreshItemCount() + getSpoiledItemCount() + getConsumedItemCount()
-    }
-
-    @CheckResult
-    fun getFreshItemCount(): Int {
-        return filterValid { items.filterNot { it.isArchived() } }.sumBy { it.count() }
-    }
-
-    @CheckResult
-    fun getSpoiledItemCount(): Int {
-        return filterValid { items.filter { it.isSpoiled() } }.sumBy { it.count() }
-    }
-
-    @CheckResult
-    fun getConsumedItemCount(): Int {
-        return filterValid { items.filter { it.isConsumed() } }.sumBy { it.count() }
-    }
-
-    @CheckResult
-    internal inline fun filterValid(func: DetailViewState.() -> List<FridgeItem>): Sequence<FridgeItem> {
-        return this.func().asSequence().filterNot { it.isEmpty() }
+    internal fun filterValid(items: List<FridgeItem>): Sequence<FridgeItem> {
+        return items.asSequence().filterNot { it.isEmpty() }
     }
 
     data class ExpirationRange internal constructor(val range: Int)

@@ -20,13 +20,18 @@ package com.pyamsoft.fridge.detail
 import androidx.annotation.CheckResult
 import androidx.lifecycle.viewModelScope
 import com.pyamsoft.fridge.core.currentDate
+import com.pyamsoft.fridge.core.today
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent.Delete
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent.Insert
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent.Update
+import com.pyamsoft.fridge.db.item.cleanMidnight
+import com.pyamsoft.fridge.db.item.daysLaterMidnight
 import com.pyamsoft.fridge.db.item.isArchived
+import com.pyamsoft.fridge.db.item.isExpired
+import com.pyamsoft.fridge.db.item.isExpiringSoon
 import com.pyamsoft.fridge.detail.DetailControllerEvent.ExpandForEditing
 import com.pyamsoft.fridge.detail.base.BaseUpdaterViewModel
 import com.pyamsoft.fridge.detail.expand.ItemExpandPayload
@@ -58,7 +63,8 @@ class DetailViewModel @Inject internal constructor(
         isSameDayExpired = null,
         listItemPresence = listItemPresence,
         isItemExpanded = false,
-        items = emptyList()
+        items = emptyList(),
+        counts = null
     ), debug = debug
 ) {
 
@@ -280,31 +286,30 @@ class DetailViewModel @Inject internal constructor(
 
     private fun handleRealtimeInsert(item: FridgeItem) {
         setState {
+            val newItems = items.let { items ->
+                val mutableItems = items.toMutableList()
+                insertOrUpdate(mutableItems, item)
+                prepareListItems(mutableItems)
+            }
+
             copy(
-                items = items.let { items ->
-                    val newItems = items.toMutableList()
-                    insertOrUpdate(newItems, item)
-                    prepareListItems(newItems)
-                }
+                items = newItems,
+                counts = calculateCounts(newItems)
             )
         }
     }
 
     private fun handleRealtimeUpdate(item: FridgeItem) {
         setState {
-            copy(
-                items = prepareListItems(if (items.map { it.id() }.contains(item.id())) {
-                    items.map { old ->
-                        if (old.id() == item.id()) {
-                            return@map item
-                        } else {
-                            return@map old
-                        }
-                    }
-                } else {
-                    items + item
-                }),
+            val newItems = prepareListItems(
+                if (items.none { it.id() == item.id() }) items + item else {
+                    items.map { if (it.id() == item.id()) item else it }
+                }
+            )
 
+            copy(
+                items = newItems,
+                counts = calculateCounts(newItems),
                 // Show undo banner if we are archiving this item, otherwise no-op
                 undoableItem = if (item.isArchived()) item else undoableItem
             )
@@ -313,8 +318,11 @@ class DetailViewModel @Inject internal constructor(
 
     private fun handleRealtimeDelete(item: FridgeItem) {
         setState {
+            val newItems = prepareListItems(items.filterNot { it.id() == item.id() })
             copy(
-                items = prepareListItems(items.filterNot { it.id() == item.id() }),
+                items = newItems,
+                counts = calculateCounts(newItems),
+                // Show undo banner
                 undoableItem = item
             )
         }
@@ -326,8 +334,10 @@ class DetailViewModel @Inject internal constructor(
 
     private fun handleListRefreshed(items: List<FridgeItem>) {
         setState {
+            val newItems = prepareListItems(items)
             copy(
-                items = prepareListItems(items),
+                items = newItems,
+                counts = calculateCounts(newItems),
                 listError = null
             )
         }
@@ -418,7 +428,7 @@ class DetailViewModel @Inject internal constructor(
 
     @CheckResult
     private fun DetailViewState.prepareListItems(items: List<FridgeItem>): List<FridgeItem> {
-        val listItems = filterValid { items }
+        val listItems = filterValid(items)
             .filter { it.presence() == listItemPresence }
             .sortedWith(dateSorter)
             .toList()
@@ -429,5 +439,39 @@ class DetailViewModel @Inject internal constructor(
     @CheckResult
     private fun List<FridgeItem>.boundary(): List<FridgeItem> {
         return listOf(FridgeItem.empty()) + this + listOf(FridgeItem.empty())
+    }
+
+    @CheckResult
+    private fun DetailViewState.calculateCounts(items: List<FridgeItem>): DetailViewState.Counts? {
+        val expiringSoonRange = this.expirationRange?.range ?: return null
+        val isSameDayExpired = this.isSameDayExpired?.isSame ?: return null
+
+        if (showing == DetailViewState.Showing.FRESH) {
+            val today = today().cleanMidnight()
+            val later = today().daysLaterMidnight(expiringSoonRange)
+
+            val validItems = filterValid(items).filterNot { it.isArchived() }
+
+            val totalCount = validItems.sumBy { it.count() }
+
+            val expiringSoonItemCount = validItems
+                .filter { it.isExpiringSoon(today, later, isSameDayExpired) }
+                .sumBy { it.count() }
+
+            val expiredItemCount = validItems
+                .filter { it.isExpired(today, isSameDayExpired) }
+                .sumBy { it.count() }
+
+            val freshItemCount = totalCount - expiringSoonItemCount - expiredItemCount
+
+            return DetailViewState.Counts(
+                totalCount = totalCount,
+                firstCount = freshItemCount,
+                secondCount = expiringSoonItemCount,
+                thirdCount = expiredItemCount
+            )
+        }
+
+        return null
     }
 }

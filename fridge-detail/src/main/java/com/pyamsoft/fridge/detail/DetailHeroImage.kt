@@ -61,7 +61,6 @@ class DetailHeroImage @Inject internal constructor(
         setTitle(state)
 
         binding.coreHeroFirstLineLabel.setText(R.string.total_number_of_items)
-        binding.coreHeroFirstLineValue.text = "${state.getTotalItemCount()}"
 
         val showExtras = state.listItemPresence == FridgeItem.Presence.HAVE
         binding.coreHeroSecondLineLabel.isVisible = showExtras
@@ -73,15 +72,24 @@ class DetailHeroImage @Inject internal constructor(
 
         if (showExtras) {
             binding.coreHeroSecondLineLabel.setText(R.string.number_of_fresh_items)
-            binding.coreHeroSecondLineValue.text = "${state.getFreshItemCount()}"
-
-            binding.coreHeroThirdLineLabel.setText(R.string.number_of_consumed_items)
-            binding.coreHeroThirdLineValue.text = "${state.getConsumedItemCount()}"
-
-            binding.coreHeroFourthLineLabel.setText(R.string.number_of_spoiled_items)
-            binding.coreHeroFourthLineValue.text = "${state.getSpoiledItemCount()}"
+            binding.coreHeroThirdLineLabel.setText(R.string.number_of_expiring_items)
+            binding.coreHeroFourthLineLabel.setText(R.string.number_of_expired_items)
         } else {
             clearExtras()
+        }
+
+        state.counts.let { counts ->
+            val visible = counts != null
+            binding.coreHeroFirstLineValue.isVisible = visible
+            binding.coreHeroSecondLineValue.isVisible = visible
+            binding.coreHeroThirdLineValue.isVisible = visible
+            binding.coreHeroFourthLineValue.isVisible = visible
+            if (counts != null) {
+                binding.coreHeroFirstLineValue.text = "${counts.totalCount}"
+                binding.coreHeroSecondLineValue.text = "${counts.firstCount}"
+                binding.coreHeroThirdLineValue.text = "${counts.secondCount}"
+                binding.coreHeroFourthLineValue.text = "${counts.thirdCount}"
+            }
         }
     }
 

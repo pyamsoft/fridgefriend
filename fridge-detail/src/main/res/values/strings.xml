@@ -23,7 +23,7 @@
     <string name="count">Count</string>
 
     <string name="total_number_of_items">Total number of items</string>
-    <string name="number_of_fresh_items">Number of fresh items</string>
-    <string name="number_of_consumed_items">Number of consumed items</string>
-    <string name="number_of_spoiled_items">Number of spoiled items</string>
+    <string name="number_of_fresh_items">Fresh items</string>
+    <string name="number_of_expiring_items">Items expiring soon</string>
+    <string name="number_of_expired_items">Expired items</string>
 </resources>
