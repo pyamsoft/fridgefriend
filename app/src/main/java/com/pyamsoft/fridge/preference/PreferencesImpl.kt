@@ -19,23 +19,20 @@ package com.pyamsoft.fridge.preference
 
 import android.content.Context
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener
-import androidx.annotation.CheckResult
 import androidx.core.content.edit
 import androidx.preference.PreferenceManager
 import com.pyamsoft.fridge.R
 import com.pyamsoft.fridge.butler.ButlerPreferences
 import com.pyamsoft.fridge.butler.NotificationPreferences
 import com.pyamsoft.fridge.core.IdGenerator
-import com.pyamsoft.fridge.core.PreferenceUnregister
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItemPreferences
 import com.pyamsoft.fridge.db.persist.PersistentCategoryPreferences
 import com.pyamsoft.fridge.db.persist.PersistentEntryPreferences
 import com.pyamsoft.fridge.setting.SettingsPreferences
+import com.pyamsoft.pydroid.arch.EventBus
 import com.pyamsoft.pydroid.core.Enforcer
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.coroutineScope
 import java.util.Calendar
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
@@ -166,42 +163,33 @@ internal class PreferencesImpl @Inject internal constructor(
         }
     }
 
-    override suspend fun watchForExpiringSoonChange(onChange: (newRange: Int) -> Unit): PreferenceUnregister {
+    override suspend fun watchForExpiringSoonChange(onChange: (newRange: Int) -> Unit) {
         enforcer.assertNotOnMainThread()
-        return withContext(context = Dispatchers.Default) {
-            registerPreferenceListener(OnSharedPreferenceChangeListener { _, key ->
-                if (key == expiringSoonKey) {
-                    launch(context = Dispatchers.Default) {
-                        onChange(getExpiringSoonRange())
-                    }
-                }
-            })
-        }
-    }
-
-    override suspend fun watchForSameDayExpiredChange(onChange: (newSameDay: Boolean) -> Unit): PreferenceUnregister {
-        enforcer.assertNotOnMainThread()
-        return withContext(context = Dispatchers.Default) {
-            registerPreferenceListener(OnSharedPreferenceChangeListener { _, key ->
-                if (key == isSameDayExpiredKey) {
-                    launch(context = Dispatchers.Default) {
-                        onChange(isSameDayExpired())
-                    }
-                }
-            })
-        }
-    }
-
-    @CheckResult
-    private fun registerPreferenceListener(l: OnSharedPreferenceChangeListener): PreferenceUnregister {
-        enforcer.assertNotOnMainThread()
-        preferences.registerOnSharedPreferenceChangeListener(l)
-
-        return object : PreferenceUnregister {
-
-            override fun unregister() {
-                preferences.unregisterOnSharedPreferenceChangeListener(l)
+        return registerPreferenceListener { key ->
+            if (key == expiringSoonKey) {
+                onChange(getExpiringSoonRange())
             }
+        }
+    }
+
+    override suspend fun watchForSameDayExpiredChange(onChange: (newSameDay: Boolean) -> Unit) {
+        enforcer.assertNotOnMainThread()
+        return registerPreferenceListener { key ->
+            if (key == isSameDayExpiredKey) {
+                onChange(isSameDayExpired())
+            }
+        }
+    }
+
+    private suspend fun registerPreferenceListener(onChange: suspend (key: String) -> Unit) {
+        enforcer.assertNotOnMainThread()
+        val bus = EventBus.create<String>()
+        val listener = OnSharedPreferenceChangeListener { _, key -> bus.publish(key) }
+
+        return coroutineScope {
+            preferences.registerOnSharedPreferenceChangeListener(listener)
+            bus.onEvent { onChange(it) }
+            preferences.unregisterOnSharedPreferenceChangeListener(listener)
         }
     }
 

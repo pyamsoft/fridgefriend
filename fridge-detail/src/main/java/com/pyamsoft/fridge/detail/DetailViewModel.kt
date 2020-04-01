@@ -117,24 +117,15 @@ class DetailViewModel @Inject internal constructor(
         doOnInit {
             viewModelScope.launch(context = Dispatchers.Default) {
                 val range = interactor.getExpiringSoonRange()
-                setState {
-                    copy(expirationRange = DetailViewState.ExpirationRange(range))
-                }
+                setState { copy(expirationRange = DetailViewState.ExpirationRange(range)) }
             }
         }
 
         doOnInit {
             viewModelScope.launch(context = Dispatchers.Default) {
-                val expiringSoonUnregister = interactor.watchForExpiringSoonChanges { range ->
-                    setState {
-                        copy(
-                            expirationRange = DetailViewState.ExpirationRange(range),
-                            counts = calculateCounts(items)
-                        )
-                    }
-                }
-                doOnTeardown {
-                    expiringSoonUnregister.unregister()
+                interactor.watchForExpiringSoonChanges { range ->
+                    setState { copy(expirationRange = DetailViewState.ExpirationRange(range)) }
+                    withState { refreshList(false) }
                 }
             }
         }
@@ -148,16 +139,9 @@ class DetailViewModel @Inject internal constructor(
 
         doOnInit {
             viewModelScope.launch(context = Dispatchers.Default) {
-                val isSameDayExpiredUnregister = interactor.watchForSameDayExpiredChange { same ->
-                    setState {
-                        copy(
-                            isSameDayExpired = DetailViewState.IsSameDayExpired(same),
-                            counts = calculateCounts(items)
-                        )
-                    }
-                }
-                doOnTeardown {
-                    isSameDayExpiredUnregister.unregister()
+                interactor.watchForSameDayExpiredChange { same ->
+                    setState { copy(isSameDayExpired = DetailViewState.IsSameDayExpired(same)) }
+                    withState { refreshList(false) }
                 }
             }
         }
@@ -257,7 +241,10 @@ class DetailViewModel @Inject internal constructor(
     }
 
     private fun refreshList(force: Boolean) {
-        viewModelScope.launch { refreshRunner.call(force) }
+        viewModelScope.launch(context = Dispatchers.Default) {
+            Timber.d("Refresh list: $force")
+            refreshRunner.call(force)
+        }
     }
 
     private fun handleRealtime(event: FridgeItemChangeEvent) {
@@ -397,7 +384,7 @@ class DetailViewModel @Inject internal constructor(
             return@run this
         }
 
-        viewModelScope.launch {
+        viewModelScope.launch(context = Dispatchers.Default) {
             updateItem(updated, doUpdate = { interactor.commit(it) }, onError = { handleError(it) })
         }
     }
