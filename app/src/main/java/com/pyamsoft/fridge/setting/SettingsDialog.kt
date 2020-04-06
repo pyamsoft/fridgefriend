@@ -38,6 +38,7 @@ import com.pyamsoft.pydroid.arch.UiView
 import com.pyamsoft.pydroid.arch.createComponent
 import com.pyamsoft.pydroid.ui.Injector
 import com.pyamsoft.pydroid.ui.about.AboutFragment
+import com.pyamsoft.pydroid.ui.otherapps.OtherAppsFragment
 import com.pyamsoft.pydroid.ui.arch.factory
 import com.pyamsoft.pydroid.ui.databinding.LayoutConstraintBinding
 import com.pyamsoft.pydroid.ui.util.commit
@@ -92,7 +93,13 @@ internal class SettingsDialog : DialogFragment() {
         if (settingsFragment != null) {
             val fm = settingsFragment.childFragmentManager
             if (AboutFragment.isPresent(fm)) {
-                Timber.d("Handle back pressed")
+                Timber.d("Handle back pressed for About fragment")
+                fm.popBackStack()
+                return
+            }
+
+            if (OtherAppsFragment.isPresent(fm)) {
+                Timber.d("Handle back pressed for OtherApps fragment")
                 fm.popBackStack()
                 return
             }
