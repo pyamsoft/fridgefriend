@@ -39,11 +39,26 @@ class SettingsViewModel @Inject internal constructor(
                 titleBus.scopedEvent { setState { copy(name = it.title) } }
             }
         }
+
+        doOnInit { savedInstanceState ->
+            savedInstanceState.useIfAvailable<String>(KEY_TITLE) { name ->
+                setState { copy(name = name) }
+            }
+        }
+
+        doOnSaveState { state ->
+            put(KEY_TITLE, state.name)
+        }
     }
 
     override fun handleViewEvent(event: SettingsViewEvent) {
         return when (event) {
             is Navigate -> publish(NavigateUp)
         }
+    }
+
+    companion object {
+
+        private const val KEY_TITLE = "key_title"
     }
 }
