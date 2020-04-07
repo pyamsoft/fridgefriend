@@ -52,7 +52,9 @@ import com.pyamsoft.fridge.map.MapComponent
 import com.pyamsoft.fridge.permission.PermissionComponent
 import com.pyamsoft.fridge.preference.PreferencesImpl
 import com.pyamsoft.fridge.setting.SettingComponent
+import com.pyamsoft.fridge.setting.SettingsFragment
 import com.pyamsoft.fridge.setting.SettingsPreferences
+import com.pyamsoft.fridge.setting.SettingsTitleChange
 import com.pyamsoft.pydroid.arch.EventBus
 import com.pyamsoft.pydroid.core.Enforcer
 import com.pyamsoft.pydroid.loader.ImageLoader
@@ -141,6 +143,8 @@ internal interface FridgeComponent {
 
     fun inject(application: FridgeFriend)
 
+    fun inject(application: SettingsFragment.SettingsPreferenceFragment)
+
     @Component.Factory
     interface Factory {
 
@@ -198,6 +202,13 @@ internal interface FridgeComponent {
             @JvmStatic
             @Singleton
             internal fun provideItemExpandedBus(): EventBus<ItemExpandPayload> {
+                return EventBus.create()
+            }
+
+            @Provides
+            @JvmStatic
+            @Singleton
+            internal fun provideSettingsTitleBus(): EventBus<SettingsTitleChange> {
                 return EventBus.create()
             }
 

@@ -17,17 +17,29 @@
 
 package com.pyamsoft.fridge.setting
 
+import androidx.lifecycle.viewModelScope
 import com.pyamsoft.fridge.setting.SettingsControllerEvent.NavigateUp
 import com.pyamsoft.fridge.setting.SettingsViewEvent.Navigate
+import com.pyamsoft.pydroid.arch.EventBus
 import com.pyamsoft.pydroid.arch.UiViewModel
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 import javax.inject.Named
 
 class SettingsViewModel @Inject internal constructor(
-    @Named("debug") debug: Boolean
+    @Named("debug") debug: Boolean,
+    titleBus: EventBus<SettingsTitleChange>
 ) : UiViewModel<SettingsViewState, SettingsViewEvent, SettingsControllerEvent>(
     initialState = SettingsViewState(name = "Settings"), debug = debug
 ) {
+
+    init {
+        doOnInit {
+            viewModelScope.launch {
+                titleBus.scopedEvent { setState { copy(name = it.title) } }
+            }
+        }
+    }
 
     override fun handleViewEvent(event: SettingsViewEvent) {
         return when (event) {

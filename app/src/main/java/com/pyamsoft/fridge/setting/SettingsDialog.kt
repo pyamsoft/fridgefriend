@@ -33,20 +33,21 @@ import androidx.lifecycle.ViewModelProvider
 import com.pyamsoft.fridge.FridgeComponent
 import com.pyamsoft.fridge.R
 import com.pyamsoft.fridge.setting.SettingsControllerEvent.NavigateUp
+import com.pyamsoft.pydroid.arch.EventBus
 import com.pyamsoft.pydroid.arch.StateSaver
 import com.pyamsoft.pydroid.arch.UiView
 import com.pyamsoft.pydroid.arch.createComponent
 import com.pyamsoft.pydroid.ui.Injector
 import com.pyamsoft.pydroid.ui.about.AboutFragment
-import com.pyamsoft.pydroid.ui.otherapps.OtherAppsFragment
 import com.pyamsoft.pydroid.ui.arch.factory
 import com.pyamsoft.pydroid.ui.databinding.LayoutConstraintBinding
+import com.pyamsoft.pydroid.ui.otherapps.OtherAppsFragment
 import com.pyamsoft.pydroid.ui.util.commit
 import com.pyamsoft.pydroid.ui.util.layout
 import com.pyamsoft.pydroid.ui.widget.shadow.DropshadowView
 import com.pyamsoft.pydroid.util.toDp
-import javax.inject.Inject
 import timber.log.Timber
+import javax.inject.Inject
 
 internal class SettingsDialog : DialogFragment() {
 
@@ -57,6 +58,11 @@ internal class SettingsDialog : DialogFragment() {
     @JvmField
     @Inject
     internal var frame: SettingFrame? = null
+
+    // TODO(Peter) Can we clean this up somehow so we aren't just passing a bus around
+    @JvmField
+    @Inject
+    internal var titleBus: EventBus<SettingsTitleChange>? = null
 
     @JvmField
     @Inject
@@ -95,12 +101,14 @@ internal class SettingsDialog : DialogFragment() {
             if (AboutFragment.isPresent(fm)) {
                 Timber.d("Handle back pressed for About fragment")
                 fm.popBackStack()
+                requireNotNull(titleBus).publish(SettingsTitleChange("Settings"))
                 return
             }
 
             if (OtherAppsFragment.isPresent(fm)) {
                 Timber.d("Handle back pressed for OtherApps fragment")
                 fm.popBackStack()
+                requireNotNull(titleBus).publish(SettingsTitleChange("Settings"))
                 return
             }
         }

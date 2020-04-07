@@ -18,10 +18,15 @@
 package com.pyamsoft.fridge.setting
 
 import android.os.Bundle
+import android.view.View
 import androidx.annotation.CheckResult
 import androidx.fragment.app.Fragment
+import com.pyamsoft.fridge.FridgeComponent
+import com.pyamsoft.pydroid.arch.EventBus
+import com.pyamsoft.pydroid.ui.Injector
 import com.pyamsoft.pydroid.ui.settings.AppSettingsFragment
 import com.pyamsoft.pydroid.ui.settings.AppSettingsPreferenceFragment
+import javax.inject.Inject
 
 internal class SettingsFragment : AppSettingsFragment() {
 
@@ -50,6 +55,28 @@ internal class SettingsFragment : AppSettingsFragment() {
     internal class SettingsPreferenceFragment : AppSettingsPreferenceFragment() {
 
         override val preferenceXmlResId: Int = R.xml.preferences
+
+        // TODO(Peter) Can we clean this up somehow so we aren't just passing a bus around
+        @JvmField
+        @Inject
+        internal var titleBus: EventBus<SettingsTitleChange>? = null
+
+        override fun onLicenseItemClicked() {
+            requireNotNull(titleBus).publish(SettingsTitleChange("Open Source Licenses"))
+            super.onLicenseItemClicked()
+        }
+
+        override fun onViewMorePyamsoftAppsClicked(navigatingAway: Boolean) {
+            if (!navigatingAway) {
+                requireNotNull(titleBus).publish(SettingsTitleChange("pyamsoft apps"))
+            }
+        }
+
+        override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+            super.onViewCreated(view, savedInstanceState)
+            Injector.obtain<FridgeComponent>(view.context.applicationContext)
+                .inject(this)
+        }
 
         companion object {
 
