@@ -37,13 +37,13 @@ import com.pyamsoft.fridge.detail.base.BaseUpdaterViewModel
 import com.pyamsoft.fridge.detail.expand.ItemExpandPayload
 import com.pyamsoft.highlander.highlander
 import com.pyamsoft.pydroid.arch.EventBus
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
+import timber.log.Timber
 import java.util.Calendar
 import javax.inject.Inject
 import javax.inject.Named
 import kotlin.math.max
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
-import timber.log.Timber
 
 class DetailViewModel @Inject internal constructor(
     private val interactor: DetailInteractor,
@@ -54,6 +54,7 @@ class DetailViewModel @Inject internal constructor(
 ) : BaseUpdaterViewModel<DetailViewState, DetailViewEvent, DetailControllerEvent>(
     initialState = DetailViewState(
         entry = null,
+        search = "",
         isLoading = null,
         showing = DetailViewState.Showing.FRESH,
         sort = DetailViewState.Sorts.CREATED,
@@ -63,6 +64,7 @@ class DetailViewModel @Inject internal constructor(
         isSameDayExpired = null,
         listItemPresence = listItemPresence,
         isItemExpanded = false,
+        allItems = emptyList(),
         items = emptyList(),
         counts = null
     ), debug = debug
@@ -167,6 +169,21 @@ class DetailViewModel @Inject internal constructor(
             is DetailViewEvent.Spoil -> spoil(event.item)
             is DetailViewEvent.IncreaseCount -> increaseCount(event.item)
             is DetailViewEvent.DecreaseCount -> decreaseCount(event.item)
+            is DetailViewEvent.SearchQuery -> updateSearch(event.search)
+        }
+    }
+
+    private fun updateSearch(search: String) {
+        setState {
+            val cleanSearch = if (search.isNotBlank()) search.trim() else ""
+            val newItems = prepareListItems(allItems)
+            val visibleItems = getOnlyVisibleItems(newItems, search = cleanSearch)
+            copy(
+                allItems = newItems,
+                items = visibleItems,
+                counts = calculateCounts(visibleItems),
+                search = cleanSearch
+            )
         }
     }
 
@@ -287,30 +304,33 @@ class DetailViewModel @Inject internal constructor(
 
     private fun handleRealtimeInsert(item: FridgeItem) {
         setState {
-            val newItems = items.let { items ->
+            val newItems = allItems.let { items ->
                 val mutableItems = items.toMutableList()
                 insertOrUpdate(mutableItems, item)
                 prepareListItems(mutableItems)
             }
 
+            val visibleItems = getOnlyVisibleItems(newItems)
             copy(
-                items = newItems,
-                counts = calculateCounts(newItems)
+                allItems = newItems,
+                items = visibleItems,
+                counts = calculateCounts(visibleItems)
             )
         }
     }
 
     private fun handleRealtimeUpdate(item: FridgeItem) {
         setState {
-            val newItems = prepareListItems(
-                if (items.none { it.id() == item.id() }) items + item else {
-                    items.map { if (it.id() == item.id()) item else it }
-                }
-            )
-
+            val list = allItems
+            val updatedItems = if (list.none { it.id() == item.id() }) list + item else {
+                list.map { if (it.id() == item.id()) item else it }
+            }
+            val newItems = prepareListItems(updatedItems)
+            val visibleItems = getOnlyVisibleItems(newItems)
             copy(
-                items = newItems,
-                counts = calculateCounts(newItems),
+                allItems = newItems,
+                items = visibleItems,
+                counts = calculateCounts(visibleItems),
                 // Show undo banner if we are archiving this item, otherwise no-op
                 undoableItem = if (item.isArchived()) item else undoableItem
             )
@@ -319,10 +339,12 @@ class DetailViewModel @Inject internal constructor(
 
     private fun handleRealtimeDelete(item: FridgeItem) {
         setState {
-            val newItems = prepareListItems(items.filterNot { it.id() == item.id() })
+            val newItems = prepareListItems(allItems.filterNot { it.id() == item.id() })
+            val visibleItems = getOnlyVisibleItems(newItems)
             copy(
-                items = newItems,
-                counts = calculateCounts(newItems),
+                allItems = newItems,
+                items = visibleItems,
+                counts = calculateCounts(visibleItems),
                 // Show undo banner
                 undoableItem = item
             )
@@ -336,9 +358,11 @@ class DetailViewModel @Inject internal constructor(
     private fun handleListRefreshed(items: List<FridgeItem>) {
         setState {
             val newItems = prepareListItems(items)
+            val visibleItems = getOnlyVisibleItems(newItems)
             copy(
-                items = newItems,
-                counts = calculateCounts(newItems),
+                allItems = newItems,
+                items = visibleItems,
+                counts = calculateCounts(visibleItems),
                 listError = null
             )
         }
@@ -347,7 +371,9 @@ class DetailViewModel @Inject internal constructor(
     private fun handleListRefreshError(throwable: Throwable) {
         setState {
             copy(
+                allItems = emptyList(),
                 items = emptyList(),
+                counts = null,
                 listError = throwable
             )
         }
@@ -464,10 +490,9 @@ class DetailViewModel @Inject internal constructor(
     }
 
     @CheckResult
-    private fun DetailViewState.generateNeedFreshCount(
-        items: List<FridgeItem>
-    ): DetailViewState.Counts {
-        val validItems = filterValid(items).filterNot { it.isArchived() }
+    private fun DetailViewState.generateNeedFreshCount(items: List<FridgeItem>): DetailViewState.Counts {
+        val validItems = filterValid(items)
+            .filterNot { it.isArchived() }
 
         val totalCount = validItems.sumBy { it.count() }
         return DetailViewState.Counts(
@@ -485,7 +510,8 @@ class DetailViewModel @Inject internal constructor(
         later: Calendar,
         isSameDayExpired: Boolean
     ): DetailViewState.Counts {
-        val validItems = filterValid(items).filterNot { it.isArchived() }
+        val validItems = filterValid(items)
+            .filterNot { it.isArchived() }
 
         val totalCount = validItems.sumBy { it.count() }
 
@@ -505,5 +531,22 @@ class DetailViewModel @Inject internal constructor(
             secondCount = expiringSoonItemCount,
             thirdCount = expiredItemCount
         )
+    }
+
+    @CheckResult
+    private fun DetailViewState.getOnlyVisibleItems(
+        items: List<FridgeItem> = this.allItems,
+        search: String = this.search
+    ): List<FridgeItem> {
+        return items
+            .asSequence()
+            .filter {
+                return@filter when (showing) {
+                    DetailViewState.Showing.FRESH -> !it.isArchived()
+                    DetailViewState.Showing.CONSUMED -> it.isConsumed()
+                    DetailViewState.Showing.SPOILED -> it.isSpoiled()
+                }
+            }.filter { it.matchesQuery(search) }
+            .toList()
     }
 }

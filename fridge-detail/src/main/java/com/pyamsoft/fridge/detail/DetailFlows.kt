@@ -27,7 +27,9 @@ import com.pyamsoft.pydroid.arch.UiViewState
 import java.util.Date
 
 data class DetailViewState(
-    internal val items: List<FridgeItem>,
+    internal val allItems: List<FridgeItem>,
+    val items: List<FridgeItem>,
+    val search: String,
     val isLoading: Loading?,
     val entry: FridgeEntry?,
     val sort: Sorts,
@@ -47,6 +49,14 @@ data class DetailViewState(
         val secondCount: Int,
         val thirdCount: Int
     )
+
+    @CheckResult
+    internal fun FridgeItem.matchesQuery(query: String): Boolean {
+        // Empty query always matches
+        return if (query.isBlank()) true else {
+            this.name().contains(query, ignoreCase = true)
+        }
+    }
 
     internal val dateSorter = Comparator<FridgeItem> { o1, o2 ->
         when (sort) {
@@ -79,16 +89,6 @@ data class DetailViewState(
         EXPIRATION
     }
 
-    @CheckResult
-    fun getShowingItems(): List<FridgeItem> {
-        return items.filter {
-            when (showing) {
-                Showing.FRESH -> !it.isArchived()
-                Showing.CONSUMED -> it.isConsumed()
-                Showing.SPOILED -> it.isSpoiled()
-            }
-        }
-    }
 
     @CheckResult
     internal fun filterValid(items: List<FridgeItem>): Sequence<FridgeItem> {
@@ -105,6 +105,8 @@ data class DetailViewState(
 sealed class DetailViewEvent : UiViewEvent {
 
     object AddNewItemEvent : DetailViewEvent()
+
+    data class SearchQuery internal constructor(val search: String) : DetailViewEvent()
 
     object ForceRefresh : DetailViewEvent()
 

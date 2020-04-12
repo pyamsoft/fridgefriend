@@ -59,6 +59,10 @@ internal class DetailFragment : Fragment(), SnackbarContainer {
 
     @JvmField
     @Inject
+    internal var toolbar: DetailToolbar? = null
+
+    @JvmField
+    @Inject
     internal var factory: ViewModelProvider.Factory? = null
     private val viewModel by factory<DetailViewModel> { factory }
 
@@ -108,13 +112,15 @@ internal class DetailFragment : Fragment(), SnackbarContainer {
         val container = requireNotNull(container)
         val addNew = requireNotNull(addNew)
         val heroImage = requireNotNull(heroImage)
+        val toolbar = requireNotNull(toolbar)
 
         stateSaver = createComponent(
             savedInstanceState, viewLifecycleOwner,
             viewModel,
             heroImage,
             container,
-            addNew
+            addNew,
+            toolbar
         ) {
             return@createComponent when (it) {
                 is DetailControllerEvent.ExpandForEditing -> openExisting(it.item)
@@ -146,6 +152,7 @@ internal class DetailFragment : Fragment(), SnackbarContainer {
         heroImage = null
         container = null
         addNew = null
+        toolbar = null
         stateSaver = null
     }
 

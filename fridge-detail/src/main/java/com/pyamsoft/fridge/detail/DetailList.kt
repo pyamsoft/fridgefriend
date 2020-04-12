@@ -334,7 +334,7 @@ class DetailList @Inject internal constructor(
 
                 // Done loading
                 if (!loading.isLoading) {
-                    state.getShowingItems().let { items ->
+                    state.items.let { items ->
                         when {
                             items.isEmpty() -> clearList()
                             else -> setList(items, state.expirationRange, state.isSameDayExpired)
