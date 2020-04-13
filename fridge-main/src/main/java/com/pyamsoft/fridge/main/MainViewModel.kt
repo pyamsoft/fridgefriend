@@ -19,14 +19,16 @@ package com.pyamsoft.fridge.main
 
 import androidx.annotation.CheckResult
 import androidx.lifecycle.viewModelScope
+import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent
 import com.pyamsoft.fridge.locator.GpsChangeEvent
 import com.pyamsoft.fridge.locator.MapPermission
+import com.pyamsoft.highlander.highlander
 import com.pyamsoft.pydroid.arch.EventBus
 import com.pyamsoft.pydroid.arch.UiViewModel
-import javax.inject.Inject
-import javax.inject.Named
 import kotlinx.coroutines.launch
 import timber.log.Timber
+import javax.inject.Inject
+import javax.inject.Named
 
 class MainViewModel @Inject internal constructor(
     private val interactor: MainInteractor,
@@ -48,6 +50,18 @@ class MainViewModel @Inject internal constructor(
 
     private var versionChecked: Boolean = false
 
+    private val realtimeRunner = highlander<Unit> {
+        interactor.listenForItemChanges { handleRealtime(it) }
+    }
+
+    private fun handleRealtime(event: FridgeItemChangeEvent) {
+        return when (event) {
+            is FridgeItemChangeEvent.Insert -> refreshBadgeCounts()
+            is FridgeItemChangeEvent.Update -> refreshBadgeCounts()
+            is FridgeItemChangeEvent.Delete -> refreshBadgeCounts()
+        }
+    }
+
     init {
         doOnSaveState { state ->
             state.page?.let { p ->
@@ -66,6 +80,10 @@ class MainViewModel @Inject internal constructor(
 
         doOnInit {
             refreshBadgeCounts()
+
+            viewModelScope.launch {
+                realtimeRunner.call()
+            }
         }
     }
 

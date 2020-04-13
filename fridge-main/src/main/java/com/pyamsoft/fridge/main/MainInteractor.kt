@@ -20,26 +20,29 @@ package com.pyamsoft.fridge.main
 import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.core.today
 import com.pyamsoft.fridge.db.item.FridgeItem
+import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent
 import com.pyamsoft.fridge.db.item.FridgeItemPreferences
 import com.pyamsoft.fridge.db.item.FridgeItemQueryDao
+import com.pyamsoft.fridge.db.item.FridgeItemRealtime
 import com.pyamsoft.fridge.db.item.cleanMidnight
 import com.pyamsoft.fridge.db.item.daysLaterMidnight
 import com.pyamsoft.fridge.db.item.isArchived
 import com.pyamsoft.fridge.db.item.isExpired
 import com.pyamsoft.fridge.db.item.isExpiringSoon
 import com.pyamsoft.pydroid.core.Enforcer
-import javax.inject.Inject
-import javax.inject.Singleton
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import javax.inject.Inject
+import javax.inject.Singleton
 
 @Singleton
 internal class MainInteractor @Inject internal constructor(
     // NOTE(Peter): For now, since we only display one entry, this will fetch items for item count badges
     // but in the future we should change this to entry and display entry count badges
-    // of entrys that have items which meet count condition
+    // of entries that have items which meet count condition
     private val enforcer: Enforcer,
     private val itemQueryDao: FridgeItemQueryDao,
+    private val itemRealtime: FridgeItemRealtime,
     private val fridgeItemPreferences: FridgeItemPreferences
 ) {
 
@@ -65,6 +68,12 @@ internal class MainInteractor @Inject internal constructor(
             }
             .count()
     }
+
+    suspend fun listenForItemChanges(onEvent: suspend (FridgeItemChangeEvent) -> Unit) =
+        withContext(context = Dispatchers.Default) {
+            enforcer.assertNotOnMainThread()
+            return@withContext itemRealtime.listenForChanges(onEvent)
+        }
 
     companion object {
 
