@@ -453,12 +453,10 @@ class DetailViewModel @Inject internal constructor(
 
     @CheckResult
     private fun DetailViewState.prepareListItems(items: List<FridgeItem>): List<FridgeItem> {
-        val listItems = filterValid(items)
+        return filterValid(items)
             .filter { it.presence() == listItemPresence }
             .sortedWith(dateSorter)
             .toList()
-
-        return if (listItems.isEmpty()) emptyList() else listItems.boundary()
     }
 
     @CheckResult
@@ -538,7 +536,7 @@ class DetailViewModel @Inject internal constructor(
         items: List<FridgeItem> = this.allItems,
         search: String = this.search
     ): List<FridgeItem> {
-        return items
+        val listItems = items
             .asSequence()
             .filter {
                 return@filter when (showing) {
@@ -548,5 +546,7 @@ class DetailViewModel @Inject internal constructor(
                 }
             }.filter { it.matchesQuery(search) }
             .toList()
+
+        return if (listItems.isEmpty()) emptyList() else listItems.boundary()
     }
 }
