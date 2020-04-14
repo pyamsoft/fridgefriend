@@ -49,48 +49,7 @@ class DetailToolbar @Inject internal constructor(
     init {
         doOnInflate { savedInstanceState ->
             toolbarActivity.requireToolbar { toolbar ->
-                val toolbarData = toolbar.initSearchView(presence)
-                searchView = toolbarData.searchView.apply {
-
-                    setOnQueryTextListener(object : SearchView.OnQueryTextListener {
-                        override fun onQueryTextSubmit(query: String): Boolean {
-                            Timber.d("Query submit: $query")
-                            debouncedPublish { DetailViewEvent.SearchQuery(query) }
-                            return true
-                        }
-
-                        override fun onQueryTextChange(newText: String): Boolean {
-                            Timber.d("Query change: $newText")
-                            debouncedPublish { DetailViewEvent.SearchQuery(newText) }
-                            return true
-                        }
-                    })
-
-                    savedInstanceState.useIfAvailable<CharSequence>(savedInstanceQueryKey) { query ->
-                        if (query.isNotBlank()) {
-                            isIconified = false
-                            setQuery(query, true)
-                        }
-                    }
-                }
-
-                searchItem = toolbarData.item.apply {
-                    setOnActionExpandListener(object : MenuItem.OnActionExpandListener {
-
-                        override fun onMenuItemActionExpand(item: MenuItem): Boolean {
-                            toolbar.post { toolbar.setVisibilityOfOtherItems(item, false) }
-                            return true
-                        }
-
-                        override fun onMenuItemActionCollapse(item: MenuItem): Boolean {
-                            toolbar.post {
-                                toolbar.setVisibilityOfOtherItems(item, true)
-                                debouncedPublish { DetailViewEvent.SearchQuery("") }
-                            }
-                            return true
-                        }
-                    })
-                }
+                initializeMenuItems(toolbar, savedInstanceState, presence)
             }
         }
 
@@ -129,6 +88,55 @@ class DetailToolbar @Inject internal constructor(
             if (lazyHandler.isInitialized()) {
                 handler.removeCallbacksAndMessages(null)
             }
+        }
+    }
+
+    private fun initializeMenuItems(
+        toolbar: Toolbar,
+        savedInstanceState: UiBundleReader,
+        presence: FridgeItem.Presence
+    ) {
+        val toolbarData = toolbar.initSearchView(presence)
+        searchView = toolbarData.searchView.apply {
+
+            setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+                override fun onQueryTextSubmit(query: String): Boolean {
+                    Timber.d("Query submit: $query")
+                    debouncedPublish { DetailViewEvent.SearchQuery(query) }
+                    return true
+                }
+
+                override fun onQueryTextChange(newText: String): Boolean {
+                    Timber.d("Query change: $newText")
+                    debouncedPublish { DetailViewEvent.SearchQuery(newText) }
+                    return true
+                }
+            })
+
+            savedInstanceState.useIfAvailable<CharSequence>(savedInstanceQueryKey) { query ->
+                if (query.isNotBlank()) {
+                    isIconified = false
+                    setQuery(query, true)
+                }
+            }
+        }
+
+        searchItem = toolbarData.item.apply {
+            setOnActionExpandListener(object : MenuItem.OnActionExpandListener {
+
+                override fun onMenuItemActionExpand(item: MenuItem): Boolean {
+                    toolbar.post { toolbar.setVisibilityOfOtherItems(item, false) }
+                    return true
+                }
+
+                override fun onMenuItemActionCollapse(item: MenuItem): Boolean {
+                    toolbar.post {
+                        toolbar.setVisibilityOfOtherItems(item, true)
+                        debouncedPublish { DetailViewEvent.SearchQuery("") }
+                    }
+                    return true
+                }
+            })
         }
     }
 
