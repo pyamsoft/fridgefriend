@@ -80,7 +80,7 @@ class DetailToolbar @Inject internal constructor(
 
         doOnTeardown {
             toolbarActivity.withToolbar { toolbar ->
-                toolbar.removeSearch(presence)
+                toolbar.teardown(presence)
             }
         }
 
@@ -178,9 +178,12 @@ class DetailToolbar @Inject internal constructor(
         return ToolbarData(searchItem, searchView)
     }
 
-    private fun Toolbar.removeSearch(presence: FridgeItem.Presence) {
+    private fun Toolbar.teardown(presence: FridgeItem.Presence) {
         val menuData = getMenuForPresence(presence)
-        this.menu.removeItem(menuData.item)
+        this.menu.apply {
+            removeItem(menuData.item)
+            forEach { it.isVisible = true }
+        }
     }
 
     private data class ToolbarData internal constructor(
