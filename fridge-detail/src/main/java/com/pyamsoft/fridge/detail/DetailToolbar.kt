@@ -39,6 +39,8 @@ class DetailToolbar @Inject internal constructor(
     private val lazyHandler = lazy(LazyThreadSafetyMode.NONE) { Handler(Looper.getMainLooper()) }
     private val handler by lazyHandler
 
+    private val savedInstanceQueryKey = "${KEY_QUERY_PREFIX}_${presence.name}"
+
     private var searchView: SearchView? = null
 
     init {
@@ -65,7 +67,7 @@ class DetailToolbar @Inject internal constructor(
                         return@setOnCloseListener false
                     }
 
-                    savedInstanceState.useIfAvailable<CharSequence>(KEY_QUERY) { query ->
+                    savedInstanceState.useIfAvailable<CharSequence>(savedInstanceQueryKey) { query ->
                         if (query.isNotBlank()) {
                             isIconified = false
                             setQuery(query, true)
@@ -79,9 +81,9 @@ class DetailToolbar @Inject internal constructor(
             searchView?.apply {
                 val query = this.query
                 if (query.isNotBlank()) {
-                    outState.put(KEY_QUERY, query)
+                    outState.put(savedInstanceQueryKey, query)
                 } else {
-                    outState.remove(KEY_QUERY)
+                    outState.remove(savedInstanceQueryKey)
                 }
             }
         }
@@ -145,6 +147,6 @@ class DetailToolbar @Inject internal constructor(
     )
 
     companion object {
-        private const val KEY_QUERY = "key_query"
+        private const val KEY_QUERY_PREFIX = "key_query"
     }
 }
