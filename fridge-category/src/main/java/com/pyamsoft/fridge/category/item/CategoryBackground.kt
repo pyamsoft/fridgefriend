@@ -20,7 +20,7 @@ package com.pyamsoft.fridge.category.item
 import android.view.ViewGroup
 import com.pyamsoft.fridge.category.databinding.CategoryBackgroundBinding
 import com.pyamsoft.fridge.db.category.FridgeCategory
-import com.pyamsoft.pydroid.arch.BindingUiView
+import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.loader.Loaded
 import javax.inject.Inject
@@ -28,7 +28,7 @@ import javax.inject.Inject
 class CategoryBackground @Inject internal constructor(
     parent: ViewGroup,
     private val imageLoader: ImageLoader
-) : BindingUiView<CategoryItemViewState, CategoryItemViewEvent, CategoryBackgroundBinding>(parent) {
+) : BaseUiView<CategoryItemViewState, CategoryItemViewEvent, CategoryBackgroundBinding>(parent) {
 
     override val viewBinding = CategoryBackgroundBinding::inflate
 

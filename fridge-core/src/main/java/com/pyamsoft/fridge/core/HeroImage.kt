@@ -23,7 +23,7 @@ import androidx.annotation.CheckResult
 import androidx.core.content.withStyledAttributes
 import androidx.core.view.updatePadding
 import com.pyamsoft.fridge.core.databinding.CoreHeroImageBinding
-import com.pyamsoft.pydroid.arch.BindingUiView
+import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.arch.UiViewEvent
 import com.pyamsoft.pydroid.arch.UiViewState
 import com.pyamsoft.pydroid.loader.ImageLoader
@@ -33,7 +33,7 @@ import com.pyamsoft.pydroid.util.doOnApplyWindowInsets
 abstract class HeroImage<S : UiViewState, V : UiViewEvent> protected constructor(
     parent: ViewGroup,
     private val imageLoader: ImageLoader
-) : BindingUiView<S, V, CoreHeroImageBinding>(parent) {
+) : BaseUiView<S, V, CoreHeroImageBinding>(parent) {
 
     override val viewBinding = CoreHeroImageBinding::inflate
 

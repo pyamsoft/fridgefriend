@@ -27,7 +27,7 @@ import com.pyamsoft.fridge.detail.DetailViewEvent
 import com.pyamsoft.fridge.detail.DetailViewState
 import com.pyamsoft.fridge.detail.R
 import com.pyamsoft.fridge.detail.databinding.AddNewBinding
-import com.pyamsoft.pydroid.arch.BindingUiView
+import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.loader.Loaded
 import com.pyamsoft.pydroid.ui.util.popShow
@@ -39,7 +39,7 @@ class AddNewItemView @Inject internal constructor(
     private val imageLoader: ImageLoader,
     parent: ViewGroup,
     listItemPresence: FridgeItem.Presence
-) : BindingUiView<DetailViewState, DetailViewEvent, AddNewBinding>(parent) {
+) : BaseUiView<DetailViewState, DetailViewEvent, AddNewBinding>(parent) {
 
     override val viewBinding = AddNewBinding::inflate
 

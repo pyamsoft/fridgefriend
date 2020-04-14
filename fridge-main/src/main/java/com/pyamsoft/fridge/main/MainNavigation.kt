@@ -23,14 +23,14 @@ import androidx.annotation.IdRes
 import androidx.core.view.updatePadding
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.pyamsoft.fridge.main.databinding.MainNavigationBinding
-import com.pyamsoft.pydroid.arch.BindingUiView
+import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.util.doOnApplyWindowInsets
 import javax.inject.Inject
 import timber.log.Timber
 
 class MainNavigation @Inject internal constructor(
     parent: ViewGroup
-) : BindingUiView<MainViewState, MainViewEvent, MainNavigationBinding>(parent) {
+) : BaseUiView<MainViewState, MainViewEvent, MainNavigationBinding>(parent) {
 
     override val viewBinding = MainNavigationBinding::inflate
 

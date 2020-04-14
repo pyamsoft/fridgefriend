@@ -20,12 +20,12 @@ package com.pyamsoft.fridge.detail.expand
 import android.view.ViewGroup
 import androidx.core.view.isVisible
 import com.pyamsoft.fridge.detail.databinding.ExpandErrorBinding
-import com.pyamsoft.pydroid.arch.BindingUiView
+import com.pyamsoft.pydroid.arch.BaseUiView
 import javax.inject.Inject
 
 class ExpandItemError @Inject internal constructor(
     parent: ViewGroup
-) : BindingUiView<ExpandItemViewState, ExpandedItemViewEvent, ExpandErrorBinding>(parent) {
+) : BaseUiView<ExpandItemViewState, ExpandedItemViewEvent, ExpandErrorBinding>(parent) {
 
     override val viewBinding = ExpandErrorBinding::inflate
 

@@ -19,12 +19,12 @@ package com.pyamsoft.fridge.setting
 
 import android.view.ViewGroup
 import com.pyamsoft.fridge.setting.databinding.SettingFrameBinding
-import com.pyamsoft.pydroid.arch.BindingUiView
+import com.pyamsoft.pydroid.arch.BaseUiView
 import javax.inject.Inject
 
 class SettingFrame @Inject internal constructor(
     parent: ViewGroup
-) : BindingUiView<SettingsViewState, SettingsViewEvent, SettingFrameBinding>(parent) {
+) : BaseUiView<SettingsViewState, SettingsViewEvent, SettingFrameBinding>(parent) {
 
     override val viewBinding = SettingFrameBinding::inflate
 

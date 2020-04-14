@@ -25,7 +25,7 @@ import androidx.core.view.updateLayoutParams
 import com.pyamsoft.fridge.core.PRIVACY_POLICY_URL
 import com.pyamsoft.fridge.core.TERMS_CONDITIONS_URL
 import com.pyamsoft.fridge.main.databinding.MainToolbarBinding
-import com.pyamsoft.pydroid.arch.BindingUiView
+import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.ui.app.ToolbarActivityProvider
 import com.pyamsoft.pydroid.ui.privacy.addPrivacy
 import com.pyamsoft.pydroid.ui.privacy.removePrivacy
@@ -41,7 +41,7 @@ class MainToolbar @Inject internal constructor(
     toolbarActivityProvider: ToolbarActivityProvider,
     theming: ThemeProvider,
     parent: ViewGroup
-) : BindingUiView<MainViewState, MainViewEvent, MainToolbarBinding>(parent) {
+) : BaseUiView<MainViewState, MainViewEvent, MainToolbarBinding>(parent) {
 
     override val viewBinding = MainToolbarBinding::inflate
 

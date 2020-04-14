@@ -23,7 +23,7 @@ import com.pyamsoft.fridge.core.today
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.detail.R
 import com.pyamsoft.fridge.detail.databinding.DetailListItemDateBinding
-import com.pyamsoft.pydroid.arch.BindingUiView
+import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.arch.UiViewEvent
 import com.pyamsoft.pydroid.arch.UiViewState
 import com.pyamsoft.pydroid.loader.ImageLoader
@@ -37,7 +37,7 @@ abstract class BaseItemDate<S : UiViewState, V : UiViewEvent> protected construc
     private val imageLoader: ImageLoader,
     private val theming: ThemeProvider,
     parent: ViewGroup
-) : BindingUiView<S, V, DetailListItemDateBinding>(parent) {
+) : BaseUiView<S, V, DetailListItemDateBinding>(parent) {
 
     final override val viewBinding = DetailListItemDateBinding::inflate
 

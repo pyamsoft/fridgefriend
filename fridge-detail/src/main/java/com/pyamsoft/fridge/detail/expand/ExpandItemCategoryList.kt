@@ -26,14 +26,14 @@ import com.pyamsoft.fridge.detail.databinding.ExpandCategoriesBinding
 import com.pyamsoft.fridge.detail.expand.categories.ExpandCategoryComponent
 import com.pyamsoft.fridge.detail.expand.categories.ExpandItemCategoryListAdapter
 import com.pyamsoft.fridge.detail.expand.categories.ExpandedCategoryViewState
-import com.pyamsoft.pydroid.arch.BindingUiView
+import com.pyamsoft.pydroid.arch.BaseUiView
 import javax.inject.Inject
 
 class ExpandItemCategoryList @Inject internal constructor(
     parent: ViewGroup,
     owner: LifecycleOwner,
     factory: ExpandCategoryComponent.Factory
-) : BindingUiView<ExpandItemViewState, ExpandedItemViewEvent, ExpandCategoriesBinding>(parent) {
+) : BaseUiView<ExpandItemViewState, ExpandedItemViewEvent, ExpandCategoriesBinding>(parent) {
 
     override val viewBinding = ExpandCategoriesBinding::inflate
 

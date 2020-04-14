@@ -20,14 +20,14 @@ package com.pyamsoft.fridge.setting
 import android.view.ViewGroup
 import com.pyamsoft.fridge.setting.SettingsViewEvent.Navigate
 import com.pyamsoft.fridge.setting.databinding.SettingToolbarBinding
-import com.pyamsoft.pydroid.arch.BindingUiView
+import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.ui.util.DebouncedOnClickListener
 import com.pyamsoft.pydroid.ui.util.setUpEnabled
 import javax.inject.Inject
 
 class SettingToolbar @Inject internal constructor(
     parent: ViewGroup
-) : BindingUiView<SettingsViewState, SettingsViewEvent, SettingToolbarBinding>(parent) {
+) : BaseUiView<SettingsViewState, SettingsViewEvent, SettingToolbarBinding>(parent) {
 
     override val viewBinding = SettingToolbarBinding::inflate
 

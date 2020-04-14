@@ -20,17 +20,20 @@ package com.pyamsoft.fridge.detail
 import android.os.Handler
 import android.os.Looper
 import androidx.annotation.CheckResult
+import androidx.annotation.IdRes
+import androidx.annotation.MenuRes
 import androidx.appcompat.widget.SearchView
 import androidx.appcompat.widget.Toolbar
+import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.pydroid.arch.UiBundleReader
 import com.pyamsoft.pydroid.arch.UiView
 import com.pyamsoft.pydroid.ui.app.ToolbarActivity
-import com.pyamsoft.pydroid.ui.arch.InvalidIdException
 import timber.log.Timber
 import javax.inject.Inject
 
 class DetailToolbar @Inject internal constructor(
-    toolbarActivity: ToolbarActivity
+    toolbarActivity: ToolbarActivity,
+    presence: FridgeItem.Presence
 ) : UiView<DetailViewState, DetailViewEvent>() {
 
     private val lazyHandler = lazy(LazyThreadSafetyMode.NONE) { Handler(Looper.getMainLooper()) }
@@ -41,7 +44,7 @@ class DetailToolbar @Inject internal constructor(
     init {
         doOnInflate { savedInstanceState ->
             toolbarActivity.requireToolbar { toolbar ->
-                searchView = toolbar.initSearchView().apply {
+                searchView = toolbar.initSearchView(presence).apply {
                     setOnQueryTextListener(object : SearchView.OnQueryTextListener {
                         override fun onQueryTextSubmit(query: String): Boolean {
                             Timber.d("Query submit: $query")
@@ -86,7 +89,7 @@ class DetailToolbar @Inject internal constructor(
                 setOnSuggestionListener(null)
             }
             searchView = null
-            toolbarActivity.withToolbar { it.removeSearch() }
+            toolbarActivity.withToolbar { it.removeSearch(presence) }
         }
 
         doOnTeardown {
@@ -103,10 +106,6 @@ class DetailToolbar @Inject internal constructor(
         handler.postDelayed({ publish(event()) }, 300)
     }
 
-    override fun id(): Int {
-        throw InvalidIdException
-    }
-
     override fun onInit(savedInstanceState: UiBundleReader) {
     }
 
@@ -114,15 +113,30 @@ class DetailToolbar @Inject internal constructor(
     }
 
     @CheckResult
-    private fun Toolbar.initSearchView(): SearchView {
-        this.inflateMenu(R.menu.menu_search)
-        val searchItem = this.menu.findItem(R.id.menu_search)
+    private fun getMenuForPresence(presence: FridgeItem.Presence): MenuData {
+        return when (presence) {
+            FridgeItem.Presence.HAVE -> MenuData(R.menu.menu_search_have, R.id.menu_search_have)
+            FridgeItem.Presence.NEED -> MenuData(R.menu.menu_search_need, R.id.menu_search_need)
+        }
+    }
+
+    @CheckResult
+    private fun Toolbar.initSearchView(presence: FridgeItem.Presence): SearchView {
+        val menuData = getMenuForPresence(presence)
+        this.inflateMenu(menuData.menu)
+        val searchItem = this.menu.findItem(menuData.item)
         return searchItem.actionView as SearchView
     }
 
-    private fun Toolbar.removeSearch() {
-        this.menu.removeItem(R.id.menu_search)
+    private fun Toolbar.removeSearch(presence: FridgeItem.Presence) {
+        val menuData = getMenuForPresence(presence)
+        this.menu.removeItem(menuData.item)
     }
+
+    private data class MenuData internal constructor(
+        @MenuRes val menu: Int,
+        @IdRes val item: Int
+    )
 
     companion object {
         private const val KEY_QUERY = "key_query"

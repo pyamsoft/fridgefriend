@@ -31,7 +31,7 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.ViewPropertyAnimatorCompat
 import androidx.core.view.isVisible
 import com.pyamsoft.fridge.detail.databinding.DetailContainerBinding
-import com.pyamsoft.pydroid.arch.BindingUiView
+import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.ui.theme.ThemeProvider
 import com.pyamsoft.pydroid.ui.util.layout
 import com.pyamsoft.pydroid.util.darker
@@ -44,7 +44,7 @@ class DetailContainer @Inject internal constructor(
     private val emptyState: DetailEmptyState,
     private val list: DetailList,
     parent: ViewGroup
-) : BindingUiView<DetailViewState, DetailViewEvent, DetailContainerBinding>(parent) {
+) : BaseUiView<DetailViewState, DetailViewEvent, DetailContainerBinding>(parent) {
 
     override val viewBinding = DetailContainerBinding::inflate
 

@@ -20,7 +20,7 @@ package com.pyamsoft.fridge.detail.item
 import android.view.ViewGroup
 import com.pyamsoft.fridge.detail.R
 import com.pyamsoft.fridge.detail.databinding.DetailListItemCountBinding
-import com.pyamsoft.pydroid.arch.BindingUiView
+import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.ui.theme.ThemeProvider
 import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
@@ -31,7 +31,7 @@ class DetailListItemCount @Inject internal constructor(
     theming: ThemeProvider,
     imageLoader: ImageLoader,
     parent: ViewGroup
-) : BindingUiView<DetailListItemViewState, DetailItemViewEvent, DetailListItemCountBinding>(parent) {
+) : BaseUiView<DetailListItemViewState, DetailItemViewEvent, DetailListItemCountBinding>(parent) {
 
     override val viewBinding = DetailListItemCountBinding::inflate
 

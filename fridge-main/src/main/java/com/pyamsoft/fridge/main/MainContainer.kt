@@ -19,12 +19,12 @@ package com.pyamsoft.fridge.main
 
 import android.view.ViewGroup
 import com.pyamsoft.fridge.main.databinding.MainContainerBinding
-import com.pyamsoft.pydroid.arch.BindingUiView
+import com.pyamsoft.pydroid.arch.BaseUiView
 import javax.inject.Inject
 
 class MainContainer @Inject internal constructor(
     parent: ViewGroup
-) : BindingUiView<MainViewState, MainViewEvent, MainContainerBinding>(parent) {
+) : BaseUiView<MainViewState, MainViewEvent, MainContainerBinding>(parent) {
 
     override val viewBinding = MainContainerBinding::inflate
 

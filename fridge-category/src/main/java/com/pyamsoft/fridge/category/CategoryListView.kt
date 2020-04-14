@@ -25,14 +25,14 @@ import com.pyamsoft.fridge.category.databinding.CategoryListViewBinding
 import com.pyamsoft.fridge.category.item.CategoryAdapter
 import com.pyamsoft.fridge.category.item.CategoryItemComponent
 import com.pyamsoft.fridge.category.item.CategoryItemViewState
-import com.pyamsoft.pydroid.arch.BindingUiView
+import com.pyamsoft.pydroid.arch.BaseUiView
 import javax.inject.Inject
 
 class CategoryListView @Inject internal constructor(
     factory: CategoryItemComponent.Factory,
     owner: LifecycleOwner,
     parent: ViewGroup
-) : BindingUiView<CategoryViewState, CategoryViewEvent, CategoryListViewBinding>(parent) {
+) : BaseUiView<CategoryViewState, CategoryViewEvent, CategoryListViewBinding>(parent) {
 
     override val viewBinding = CategoryListViewBinding::inflate
 

@@ -23,13 +23,13 @@ import android.view.ViewGroup
 import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.detail.databinding.ExpandCountBinding
-import com.pyamsoft.pydroid.arch.BindingUiView
+import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
 import javax.inject.Inject
 
 class ExpandItemCount @Inject internal constructor(
     parent: ViewGroup
-) : BindingUiView<ExpandItemViewState, ExpandedItemViewEvent, ExpandCountBinding>(parent) {
+) : BaseUiView<ExpandItemViewState, ExpandedItemViewEvent, ExpandCountBinding>(parent) {
 
     override val viewBinding = ExpandCountBinding::inflate
 

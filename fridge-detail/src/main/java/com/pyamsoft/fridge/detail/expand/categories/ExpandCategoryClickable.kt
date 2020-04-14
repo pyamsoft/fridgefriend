@@ -19,12 +19,12 @@ package com.pyamsoft.fridge.detail.expand.categories
 
 import android.view.ViewGroup
 import androidx.viewbinding.ViewBinding
-import com.pyamsoft.pydroid.arch.BindingUiView
+import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
 
 abstract class ExpandCategoryClickable<B : ViewBinding> protected constructor(
     parent: ViewGroup
-) : BindingUiView<ExpandedCategoryViewState, ExpandedCategoryViewEvent, B>(parent) {
+) : BaseUiView<ExpandedCategoryViewState, ExpandedCategoryViewEvent, B>(parent) {
 
     init {
         doOnInflate {

@@ -21,14 +21,14 @@ import android.location.Location
 import android.view.ViewGroup
 import com.pyamsoft.fridge.locator.map.databinding.PopupInfoLocationBinding
 import com.pyamsoft.fridge.locator.map.osm.popup.calculateKmDistanceTo
-import com.pyamsoft.pydroid.arch.BindingUiView
+import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.arch.UiViewEvent
 import com.pyamsoft.pydroid.arch.UiViewState
 import org.osmdroid.util.GeoPoint
 
 internal abstract class BaseInfoLocation<S : UiViewState, E : UiViewEvent> protected constructor(
     parent: ViewGroup
-) : BindingUiView<S, E, PopupInfoLocationBinding>(parent) {
+) : BaseUiView<S, E, PopupInfoLocationBinding>(parent) {
 
     final override val viewBinding = PopupInfoLocationBinding::inflate
 

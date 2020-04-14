@@ -21,7 +21,7 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.lifecycle.LifecycleOwner
 import com.pyamsoft.fridge.detail.databinding.DetailListItemHolderBinding
-import com.pyamsoft.pydroid.arch.UiView
+import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.arch.ViewBinder
 import com.pyamsoft.pydroid.arch.bindViews
 import com.pyamsoft.pydroid.arch.doOnDestroy
@@ -47,7 +47,7 @@ abstract class DetailItemViewHolder protected constructor(
     protected fun create(
         parent: ConstraintLayout,
         count: DetailListItemCount,
-        extra: UiView<DetailListItemViewState, DetailItemViewEvent>
+        extra: BaseUiView<DetailListItemViewState, DetailItemViewEvent, *>
     ) {
         val name = requireNotNull(nameView)
         val presence = requireNotNull(presenceView)

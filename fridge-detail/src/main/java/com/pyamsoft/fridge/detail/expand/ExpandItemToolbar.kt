@@ -22,14 +22,14 @@ import android.view.ViewGroup
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence.HAVE
 import com.pyamsoft.fridge.detail.R
 import com.pyamsoft.fridge.detail.databinding.ExpandToolbarBinding
-import com.pyamsoft.pydroid.arch.BindingUiView
+import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.ui.util.DebouncedOnClickListener
 import com.pyamsoft.pydroid.ui.util.setUpEnabled
 import javax.inject.Inject
 
 class ExpandItemToolbar @Inject internal constructor(
     parent: ViewGroup
-) : BindingUiView<ExpandItemViewState, ExpandedItemViewEvent, ExpandToolbarBinding>(parent) {
+) : BaseUiView<ExpandItemViewState, ExpandedItemViewEvent, ExpandToolbarBinding>(parent) {
 
     override val viewBinding = ExpandToolbarBinding::inflate
 

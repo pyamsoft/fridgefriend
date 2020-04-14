@@ -33,9 +33,9 @@ import androidx.lifecycle.ViewModelProvider
 import com.pyamsoft.fridge.FridgeComponent
 import com.pyamsoft.fridge.R
 import com.pyamsoft.fridge.setting.SettingsControllerEvent.NavigateUp
+import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.arch.EventBus
 import com.pyamsoft.pydroid.arch.StateSaver
-import com.pyamsoft.pydroid.arch.UiView
 import com.pyamsoft.pydroid.arch.createComponent
 import com.pyamsoft.pydroid.ui.Injector
 import com.pyamsoft.pydroid.ui.about.AboutFragment
@@ -206,7 +206,7 @@ internal class SettingsDialog : DialogFragment() {
         }
     }
 
-    private fun pushSettings(container: UiView<*, *>) {
+    private fun pushSettings(container: BaseUiView<*, *, *>) {
         val fm = childFragmentManager
         if (fm.findFragmentByTag(SettingsFragment.TAG) == null) {
             fm.commit(viewLifecycleOwner) {

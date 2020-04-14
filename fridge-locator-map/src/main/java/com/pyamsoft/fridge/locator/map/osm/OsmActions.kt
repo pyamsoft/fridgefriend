@@ -23,7 +23,7 @@ import androidx.core.view.isVisible
 import androidx.lifecycle.LifecycleOwner
 import com.pyamsoft.fridge.locator.map.R
 import com.pyamsoft.fridge.locator.map.databinding.OsmActionsBinding
-import com.pyamsoft.pydroid.arch.BindingUiView
+import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.loader.Loaded
 import com.pyamsoft.pydroid.ui.util.Snackbreak
@@ -35,7 +35,7 @@ class OsmActions @Inject internal constructor(
     private val owner: LifecycleOwner,
     private val imageLoader: ImageLoader,
     parent: ViewGroup
-) : BindingUiView<OsmViewState, OsmViewEvent, OsmActionsBinding>(parent) {
+) : BaseUiView<OsmViewState, OsmViewEvent, OsmActionsBinding>(parent) {
 
     override val viewBinding = OsmActionsBinding::inflate
 

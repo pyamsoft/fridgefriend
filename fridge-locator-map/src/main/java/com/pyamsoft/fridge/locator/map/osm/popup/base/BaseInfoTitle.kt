@@ -20,7 +20,7 @@ package com.pyamsoft.fridge.locator.map.osm.popup.base
 import android.view.ViewGroup
 import com.pyamsoft.fridge.locator.map.R
 import com.pyamsoft.fridge.locator.map.databinding.PopupInfoTitleBinding
-import com.pyamsoft.pydroid.arch.BindingUiView
+import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.arch.UiViewEvent
 import com.pyamsoft.pydroid.arch.UiViewState
 import com.pyamsoft.pydroid.loader.ImageLoader
@@ -31,7 +31,7 @@ internal abstract class BaseInfoTitle<S : UiViewState, E : UiViewEvent> protecte
     private val imageLoader: ImageLoader,
     parent: ViewGroup,
     name: () -> String
-) : BindingUiView<S, E, PopupInfoTitleBinding>(parent) {
+) : BaseUiView<S, E, PopupInfoTitleBinding>(parent) {
 
     final override val viewBinding = PopupInfoTitleBinding::inflate
 

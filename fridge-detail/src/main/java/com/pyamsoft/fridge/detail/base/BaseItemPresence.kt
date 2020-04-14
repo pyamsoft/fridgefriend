@@ -24,13 +24,13 @@ import androidx.core.view.isVisible
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.isArchived
 import com.pyamsoft.fridge.detail.databinding.DetailListItemPresenceBinding
-import com.pyamsoft.pydroid.arch.BindingUiView
+import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.arch.UiViewEvent
 import com.pyamsoft.pydroid.arch.UiViewState
 
 abstract class BaseItemPresence<S : UiViewState, V : UiViewEvent> protected constructor(
     parent: ViewGroup
-) : BindingUiView<S, V, DetailListItemPresenceBinding>(parent) {
+) : BaseUiView<S, V, DetailListItemPresenceBinding>(parent) {
 
     final override val viewBinding = DetailListItemPresenceBinding::inflate
 

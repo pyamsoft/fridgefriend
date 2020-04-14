@@ -35,7 +35,7 @@ import com.pyamsoft.fridge.detail.databinding.DetailListItemGlancesBinding
 import com.pyamsoft.fridge.detail.item.DetailItemViewEvent.ExpandItem
 import com.pyamsoft.fridge.tooltip.Tooltip
 import com.pyamsoft.fridge.tooltip.TooltipCreator
-import com.pyamsoft.pydroid.arch.BindingUiView
+import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.loader.Loaded
 import com.pyamsoft.pydroid.ui.theme.ThemeProvider
@@ -52,7 +52,7 @@ class DetailListItemGlances @Inject internal constructor(
     private val theming: ThemeProvider,
     private val imageLoader: ImageLoader,
     parent: ViewGroup
-) : BindingUiView<DetailListItemViewState, DetailItemViewEvent, DetailListItemGlancesBinding>(parent) {
+) : BaseUiView<DetailListItemViewState, DetailItemViewEvent, DetailListItemGlancesBinding>(parent) {
 
     override val viewBinding = DetailListItemGlancesBinding::inflate
 

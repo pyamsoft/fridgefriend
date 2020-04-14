@@ -21,14 +21,14 @@ import android.view.ViewGroup
 import androidx.annotation.CallSuper
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.detail.databinding.DetailListItemNameBinding
-import com.pyamsoft.pydroid.arch.BindingUiView
+import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.arch.UiViewEvent
 import com.pyamsoft.pydroid.arch.UiViewState
 import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
 
 abstract class BaseItemName<S : UiViewState, V : UiViewEvent> protected constructor(
     parent: ViewGroup
-) : BindingUiView<S, V, DetailListItemNameBinding>(parent) {
+) : BaseUiView<S, V, DetailListItemNameBinding>(parent) {
 
     final override val viewBinding = DetailListItemNameBinding::inflate
 

@@ -19,13 +19,13 @@ package com.pyamsoft.fridge.locator.permission
 
 import android.view.ViewGroup
 import com.pyamsoft.fridge.locator.databinding.PermissionExplanationBinding
-import com.pyamsoft.pydroid.arch.BindingUiView
+import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.arch.UnitViewState
 import javax.inject.Inject
 
 class LocationExplanation @Inject internal constructor(
     parent: ViewGroup
-) : BindingUiView<UnitViewState, PermissionViewEvent, PermissionExplanationBinding>(parent) {
+) : BaseUiView<UnitViewState, PermissionViewEvent, PermissionExplanationBinding>(parent) {
 
     override val viewBinding = PermissionExplanationBinding::inflate
 

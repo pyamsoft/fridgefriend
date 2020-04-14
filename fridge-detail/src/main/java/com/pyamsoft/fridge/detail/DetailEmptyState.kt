@@ -20,7 +20,7 @@ package com.pyamsoft.fridge.detail
 import android.view.ViewGroup
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence.NEED
 import com.pyamsoft.fridge.detail.databinding.DetailEmptyBinding
-import com.pyamsoft.pydroid.arch.BindingUiView
+import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.loader.Loaded
 import javax.inject.Inject
@@ -28,7 +28,7 @@ import javax.inject.Inject
 class DetailEmptyState @Inject internal constructor(
     parent: ViewGroup,
     private val imageLoader: ImageLoader
-) : BindingUiView<DetailViewState, DetailViewEvent, DetailEmptyBinding>(parent) {
+) : BaseUiView<DetailViewState, DetailViewEvent, DetailEmptyBinding>(parent) {
 
     override val viewBinding = DetailEmptyBinding::inflate
 

@@ -36,7 +36,7 @@ import com.pyamsoft.fridge.locator.map.osm.popup.zone.ZoneInfoComponent
 import com.pyamsoft.fridge.locator.map.osm.popup.zone.ZoneInfoWindow
 import com.pyamsoft.fridge.locator.map.osm.updatemanager.LocationUpdatePublisher
 import com.pyamsoft.fridge.locator.map.osm.updatemanager.LocationUpdateReceiver
-import com.pyamsoft.pydroid.arch.BindingUiView
+import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.ui.theme.ThemeProvider
 import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
 import javax.inject.Inject
@@ -65,7 +65,7 @@ class OsmMap @Inject internal constructor(
     private val storeFactory: StoreInfoComponent.Factory,
     private val zoneFactory: ZoneInfoComponent.Factory,
     parent: ViewGroup
-) : BindingUiView<OsmViewState, OsmViewEvent, OsmMapBinding>(parent), LifecycleObserver {
+) : BaseUiView<OsmViewState, OsmViewEvent, OsmMapBinding>(parent), LifecycleObserver {
 
     override val viewBinding = OsmMapBinding::inflate
 

@@ -35,7 +35,7 @@ import com.pyamsoft.fridge.detail.item.DetailItemViewHolder
 import com.pyamsoft.fridge.detail.item.DetailListAdapter
 import com.pyamsoft.fridge.detail.item.DetailListAdapter.Callback
 import com.pyamsoft.fridge.detail.item.DetailListItemViewState
-import com.pyamsoft.pydroid.arch.BindingUiView
+import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.ui.util.Snackbreak
 import com.pyamsoft.pydroid.ui.util.refreshing
@@ -48,7 +48,7 @@ class DetailList @Inject internal constructor(
     parent: ViewGroup,
     defaultPresence: FridgeItem.Presence,
     factory: DetailItemComponent.Factory
-) : BindingUiView<DetailViewState, DetailViewEvent, DetailListBinding>(parent) {
+) : BaseUiView<DetailViewState, DetailViewEvent, DetailListBinding>(parent) {
 
     override val viewBinding = DetailListBinding::inflate
 

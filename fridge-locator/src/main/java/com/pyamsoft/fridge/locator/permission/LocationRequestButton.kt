@@ -19,14 +19,14 @@ package com.pyamsoft.fridge.locator.permission
 
 import android.view.ViewGroup
 import com.pyamsoft.fridge.locator.databinding.PermissionButtonBinding
-import com.pyamsoft.pydroid.arch.BindingUiView
+import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.arch.UnitViewState
 import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
 import javax.inject.Inject
 
 class LocationRequestButton @Inject internal constructor(
     parent: ViewGroup
-) : BindingUiView<UnitViewState, PermissionViewEvent, PermissionButtonBinding>(parent) {
+) : BaseUiView<UnitViewState, PermissionViewEvent, PermissionButtonBinding>(parent) {
 
     override val viewBinding = PermissionButtonBinding::inflate
 

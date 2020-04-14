@@ -20,12 +20,12 @@ package com.pyamsoft.fridge.detail.expand
 import android.view.ViewGroup
 import androidx.core.view.isVisible
 import com.pyamsoft.fridge.detail.databinding.ExpandSimilarBinding
-import com.pyamsoft.pydroid.arch.BindingUiView
+import com.pyamsoft.pydroid.arch.BaseUiView
 import javax.inject.Inject
 
 class ExpandItemSimilar @Inject internal constructor(
     parent: ViewGroup
-) : BindingUiView<ExpandItemViewState, ExpandedItemViewEvent, ExpandSimilarBinding>(parent) {
+) : BaseUiView<ExpandItemViewState, ExpandedItemViewEvent, ExpandSimilarBinding>(parent) {
 
     override val viewBinding = ExpandSimilarBinding::inflate
 
