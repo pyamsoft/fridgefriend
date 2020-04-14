@@ -19,11 +19,13 @@ package com.pyamsoft.fridge.detail
 
 import android.os.Handler
 import android.os.Looper
+import android.view.MenuItem
 import androidx.annotation.CheckResult
 import androidx.annotation.IdRes
 import androidx.annotation.MenuRes
 import androidx.appcompat.widget.SearchView
 import androidx.appcompat.widget.Toolbar
+import androidx.core.view.forEach
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.pydroid.arch.UiBundleReader
 import com.pyamsoft.pydroid.arch.UiView
@@ -41,12 +43,15 @@ class DetailToolbar @Inject internal constructor(
 
     private val savedInstanceQueryKey = "${KEY_QUERY_PREFIX}_${presence.name}"
 
+    private var searchItem: MenuItem? = null
     private var searchView: SearchView? = null
 
     init {
         doOnInflate { savedInstanceState ->
             toolbarActivity.requireToolbar { toolbar ->
-                searchView = toolbar.initSearchView(presence).apply {
+                val toolbarData = toolbar.initSearchView(presence)
+                searchView = toolbarData.searchView.apply {
+
                     setOnQueryTextListener(object : SearchView.OnQueryTextListener {
                         override fun onQueryTextSubmit(query: String): Boolean {
                             Timber.d("Query submit: $query")
@@ -61,18 +66,30 @@ class DetailToolbar @Inject internal constructor(
                         }
                     })
 
-                    setOnCloseListener {
-                        Timber.d("Query cleared on close")
-                        debouncedPublish { DetailViewEvent.SearchQuery("") }
-                        return@setOnCloseListener false
-                    }
-
                     savedInstanceState.useIfAvailable<CharSequence>(savedInstanceQueryKey) { query ->
                         if (query.isNotBlank()) {
                             isIconified = false
                             setQuery(query, true)
                         }
                     }
+                }
+
+                searchItem = toolbarData.item.apply {
+                    setOnActionExpandListener(object : MenuItem.OnActionExpandListener {
+
+                        override fun onMenuItemActionExpand(item: MenuItem): Boolean {
+                            toolbar.post { toolbar.setVisibilityOfOtherItems(item, false) }
+                            return true
+                        }
+
+                        override fun onMenuItemActionCollapse(item: MenuItem): Boolean {
+                            toolbar.post {
+                                toolbar.setVisibilityOfOtherItems(item, true)
+                                debouncedPublish { DetailViewEvent.SearchQuery("") }
+                            }
+                            return true
+                        }
+                    })
                 }
             }
         }
@@ -91,10 +108,18 @@ class DetailToolbar @Inject internal constructor(
         doOnTeardown {
             searchView?.apply {
                 setOnQueryTextListener(null)
-                setOnCloseListener(null)
             }
             searchView = null
+        }
 
+        doOnTeardown {
+            searchItem?.apply {
+                setOnActionExpandListener(null)
+            }
+            searchItem = null
+        }
+
+        doOnTeardown {
             toolbarActivity.withToolbar { toolbar ->
                 toolbar.removeSearch(presence)
             }
@@ -103,6 +128,14 @@ class DetailToolbar @Inject internal constructor(
         doOnTeardown {
             if (lazyHandler.isInitialized()) {
                 handler.removeCallbacksAndMessages(null)
+            }
+        }
+    }
+
+    private fun Toolbar.setVisibilityOfOtherItems(exception: MenuItem, show: Boolean) {
+        this.menu.forEach { item ->
+            if (item.itemId != exception.itemId) {
+                item.isVisible = show
             }
         }
     }
@@ -129,17 +162,23 @@ class DetailToolbar @Inject internal constructor(
     }
 
     @CheckResult
-    private fun Toolbar.initSearchView(presence: FridgeItem.Presence): SearchView {
+    private fun Toolbar.initSearchView(presence: FridgeItem.Presence): ToolbarData {
         val menuData = getMenuForPresence(presence)
         this.inflateMenu(menuData.menu)
         val searchItem = this.menu.findItem(menuData.item)
-        return searchItem.actionView as SearchView
+        val searchView = searchItem.actionView as SearchView
+        return ToolbarData(searchItem, searchView)
     }
 
     private fun Toolbar.removeSearch(presence: FridgeItem.Presence) {
         val menuData = getMenuForPresence(presence)
         this.menu.removeItem(menuData.item)
     }
+
+    private data class ToolbarData internal constructor(
+        val item: MenuItem,
+        val searchView: SearchView
+    )
 
     private data class MenuData internal constructor(
         @MenuRes val menu: Int,
