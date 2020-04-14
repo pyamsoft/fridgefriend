@@ -45,7 +45,6 @@ class DetailToolbar @Inject internal constructor(
         doOnInflate { savedInstanceState ->
             toolbarActivity.requireToolbar { toolbar ->
                 searchView = toolbar.initSearchView(presence).apply {
-                    Timber.d("Apply listener: ${this.id} $presence")
                     setOnQueryTextListener(object : SearchView.OnQueryTextListener {
                         override fun onQueryTextSubmit(query: String): Boolean {
                             Timber.d("Query submit: $query")
@@ -59,6 +58,12 @@ class DetailToolbar @Inject internal constructor(
                             return true
                         }
                     })
+
+                    setOnCloseListener {
+                        Timber.d("Query cleared on close")
+                        debouncedPublish { DetailViewEvent.SearchQuery("") }
+                        return@setOnCloseListener false
+                    }
 
                     savedInstanceState.useIfAvailable<CharSequence>(KEY_QUERY) { query ->
                         if (query.isNotBlank()) {
@@ -83,8 +88,8 @@ class DetailToolbar @Inject internal constructor(
 
         doOnTeardown {
             searchView?.apply {
-                Timber.d("Clear listener: ${this.id} $presence")
                 setOnQueryTextListener(null)
+                setOnCloseListener(null)
             }
             searchView = null
 

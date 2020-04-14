@@ -24,6 +24,6 @@
         android:icon="@drawable/ic_search_24dp"
         android:title="@string/search"
         app:actionViewClass="androidx.appcompat.widget.SearchView"
-        app:showAsAction="collapseActionView" />
+        app:showAsAction="ifRoom|collapseActionView" />
 
 </menu>
