@@ -125,12 +125,12 @@ class DetailToolbar @Inject internal constructor(
             setOnActionExpandListener(object : MenuItem.OnActionExpandListener {
 
                 override fun onMenuItemActionExpand(item: MenuItem): Boolean {
-                    toolbar.post { toolbar.setVisibilityOfOtherItems(item, false) }
+                    handler.post { toolbar.setVisibilityOfOtherItems(item, false) }
                     return true
                 }
 
                 override fun onMenuItemActionCollapse(item: MenuItem): Boolean {
-                    toolbar.post {
+                    handler.post {
                         toolbar.setVisibilityOfOtherItems(item, true)
                         debouncedPublish { DetailViewEvent.SearchQuery("") }
                     }
