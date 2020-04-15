@@ -45,6 +45,7 @@ class DetailEmptyState @Inject internal constructor(
     private fun clear() {
         loaded?.dispose()
         loaded = null
+        binding.detailEmptyMessage.text = null
     }
 
     override fun onRender(state: DetailViewState) {
@@ -55,21 +56,26 @@ class DetailEmptyState @Inject internal constructor(
                 if (loading.isLoading) {
                     clear()
                 } else {
-                    if (state.items.isNotEmpty()) {
-                        clear()
-                    } else {
-                        val need = state.listItemPresence == NEED
-                        loadImage(need)
+                    clear()
+                    if (state.items.isEmpty()) {
+                        val isNeed = state.listItemPresence == NEED
+                        loadText(isNeed)
+                        loadImage(isNeed)
                     }
                 }
             }
         }
     }
 
-    private fun loadImage(need: Boolean) {
-        clear()
+    private fun loadText(isNeed: Boolean) {
+        val text =
+            if (isNeed) "Your shopping list is empty, make a note about anything you need to buy!"
+            else "Your fridge is empty, add items to your shopping list and go to the store!"
+        binding.detailEmptyMessage.text = text
+    }
 
-        val icon = if (need) R.drawable.bg_item_need else R.drawable.bg_item_have
+    private fun loadImage(isNeed: Boolean) {
+        val icon = if (isNeed) R.drawable.bg_item_need else R.drawable.bg_item_have
         loaded = imageLoader.load(icon)
             .into(binding.detailEmptyImage)
     }

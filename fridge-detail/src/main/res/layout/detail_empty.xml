@@ -19,20 +19,32 @@
 
 <merge>
 
-    <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/detail_empty_root"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:gravity="center_horizontal"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <TextView
+            android:id="@+id/detail_empty_message"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="128dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginBottom="32dp"
+            android:textAppearance="?attr/textAppearanceBody1" />
 
         <ImageView
             android:id="@+id/detail_empty_image"
             android:layout_width="160dp"
             android:layout_height="160dp"
-            android:layout_gravity="center"
             android:contentDescription="@string/blank"
             android:scaleType="fitXY" />
 
-    </FrameLayout>
+    </LinearLayout>
 
 </merge>
 
