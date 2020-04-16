@@ -35,9 +35,9 @@ import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.store.NearbyStore
 import com.pyamsoft.fridge.db.zone.NearbyZone
+import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Singleton
-import timber.log.Timber
 
 @Singleton
 internal class NotificationHandlerImpl @Inject internal constructor(
@@ -132,13 +132,9 @@ internal class NotificationHandlerImpl @Inject internal constructor(
     private fun cancelAllNeededNotifications() {
         val ids = needNotificationIdMap.values
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            for (id in ids.parallelStream()) {
-                cancel(id)
-            }
+            ids.parallelStream().forEach { cancel(it) }
         } else {
-            for (id in ids) {
-                cancel(id)
-            }
+            ids.forEach { cancel(it) }
         }
     }
 

@@ -17,7 +17,16 @@
 
 package com.pyamsoft.fridge.core
 
+import android.content.Context
+import android.graphics.Point
+import android.view.View
+import android.view.WindowManager
+import android.view.animation.OvershootInterpolator
 import androidx.annotation.CheckResult
+import androidx.core.content.getSystemService
+import androidx.core.view.ViewCompat
+import androidx.core.view.ViewPropertyAnimatorCompat
+import androidx.core.view.isVisible
 import java.util.Calendar
 import java.util.Date
 
@@ -35,3 +44,25 @@ fun currentDate(): Date {
 fun today(): Calendar {
     return Calendar.getInstance()
 }
+
+@CheckResult
+fun animatePopInFromBottom(view: View): ViewPropertyAnimatorCompat {
+    view.translationY = animatingHeight(view.context.applicationContext)
+    view.isVisible = true
+    return ViewCompat.animate(view)
+        .translationY(0F)
+        .setDuration(700)
+        .setStartDelay(300)
+        .setInterpolator(interpolator)
+}
+
+private val interpolator by lazy(LazyThreadSafetyMode.NONE) { OvershootInterpolator(1.4F) }
+
+private fun animatingHeight(context: Context): Float {
+    val point = Point()
+    val app = context.applicationContext
+    val window = requireNotNull(app.getSystemService<WindowManager>())
+    window.defaultDisplay.getSize(point)
+    return point.y.toFloat()
+}
+

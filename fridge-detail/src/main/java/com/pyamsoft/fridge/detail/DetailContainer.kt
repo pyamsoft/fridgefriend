@@ -17,19 +17,13 @@
 
 package com.pyamsoft.fridge.detail
 
-import android.content.Context
 import android.content.res.ColorStateList
-import android.graphics.Point
 import android.graphics.drawable.GradientDrawable
 import android.view.ViewGroup
-import android.view.WindowManager
-import android.view.animation.OvershootInterpolator
-import androidx.annotation.CheckResult
 import androidx.constraintlayout.widget.ConstraintSet
-import androidx.core.content.getSystemService
-import androidx.core.view.ViewCompat
 import androidx.core.view.ViewPropertyAnimatorCompat
 import androidx.core.view.isVisible
+import com.pyamsoft.fridge.core.animatePopInFromBottom
 import com.pyamsoft.fridge.detail.databinding.DetailContainerBinding
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.ui.theme.ThemeProvider
@@ -129,45 +123,16 @@ class DetailContainer @Inject internal constructor(
                 if (!loading.isLoading) {
                     // If root is currently hidden, show it
                     if (!layoutRoot.isVisible) {
-                        animateRootIn()
+                        if (animator == null) {
+                            layoutRoot.post {
+                                animator = animatePopInFromBottom(layoutRoot)
+                            }
+                        }
                     }
                 }
             }
         }
         emptyState.render(state)
         list.render(state)
-    }
-
-    private fun animateRootIn() {
-        val root = layoutRoot
-        val context = root.context.applicationContext
-        if (animator == null) {
-            root.post {
-                root.translationY = animatingHeight(context)
-                root.isVisible = true
-
-                animator = ViewCompat.animate(root)
-                    .translationY(0F)
-                    .setDuration(700)
-                    .setStartDelay(300)
-                    .setInterpolator(interpolator)
-            }
-        }
-    }
-
-    companion object {
-
-        private val interpolator by lazy(LazyThreadSafetyMode.NONE) { OvershootInterpolator(1.4F) }
-
-        @JvmStatic
-        @CheckResult
-        private fun animatingHeight(context: Context): Float {
-            val point = Point()
-
-            val window =
-                requireNotNull(context.applicationContext.getSystemService<WindowManager>())
-            window.defaultDisplay.getSize(point)
-            return point.y.toFloat()
-        }
     }
 }

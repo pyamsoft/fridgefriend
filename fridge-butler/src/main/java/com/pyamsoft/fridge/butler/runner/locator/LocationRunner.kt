@@ -36,9 +36,9 @@ import com.pyamsoft.fridge.db.zone.NearbyZone
 import com.pyamsoft.fridge.db.zone.NearbyZoneQueryDao
 import com.pyamsoft.fridge.locator.Geofencer
 import com.pyamsoft.pydroid.core.Enforcer
-import javax.inject.Inject
 import kotlinx.coroutines.coroutineScope
 import timber.log.Timber
+import javax.inject.Inject
 
 internal class LocationRunner @Inject internal constructor(
     handler: NotificationHandler,
@@ -96,12 +96,12 @@ internal class LocationRunner @Inject internal constructor(
             val currentLatitude = location.latitude
             val currentLongitude = location.longitude
 
-            for (store in stores) {
+            stores.forEach { store ->
                 val storeDistance =
                     store.getDistanceTo(currentLatitude, currentLongitude)
                 if (storeDistance > RADIUS_IN_METERS) {
                     // Out of range
-                    continue
+                    return@forEach
                 }
 
                 Timber.d("Process nearby store: $store")
@@ -116,13 +116,13 @@ internal class LocationRunner @Inject internal constructor(
                 }
             }
 
-            for (zone in zones) {
+            zones.forEach { zone ->
                 val zoneDistance =
                     zone.getDistanceTo(currentLatitude, currentLongitude)
 
                 if (zoneDistance > RADIUS_IN_METERS) {
                     // Out of range
-                    continue
+                    return@forEach
                 }
 
                 Timber.d("Process nearby zone: $zone")
@@ -198,7 +198,7 @@ internal class LocationRunner @Inject internal constructor(
     @CheckResult
     private fun NearbyZone.getDistanceTo(lat: Double, lon: Double): Float {
         var closestDistance = Float.MAX_VALUE
-        for (point in this.points()) {
+        this.points().forEach { point ->
             val distance = getDistance(point.lat, point.lon, lat, lon)
             if (distance < closestDistance) {
                 closestDistance = distance

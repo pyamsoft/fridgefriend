@@ -39,7 +39,6 @@ import com.pyamsoft.fridge.locator.map.osm.updatemanager.LocationUpdateReceiver
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.ui.theme.ThemeProvider
 import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
-import javax.inject.Inject
 import org.osmdroid.config.Configuration
 import org.osmdroid.events.MapListener
 import org.osmdroid.events.ScrollEvent
@@ -56,6 +55,7 @@ import org.osmdroid.views.overlay.infowindow.InfoWindow
 import org.osmdroid.views.overlay.mylocation.GpsMyLocationProvider
 import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay
 import timber.log.Timber
+import javax.inject.Inject
 
 class OsmMap @Inject internal constructor(
     private val theming: ThemeProvider,
@@ -160,13 +160,13 @@ class OsmMap @Inject internal constructor(
 
         var changed = false
         val color = Color.argb(75, 255, 255, 0)
-        for (zone in zones) {
+        zones.forEach { zone ->
             val uid = zone.getPolygonUid()
             val oldPolygon = binding.osmMap.overlayManager.filterIsInstance<Polygon>()
                 .find { it.id == uid }
             if (oldPolygon != null) {
                 // Already have this polygon, avoid extra work
-                continue
+                return@forEach
             }
 
             // Convert list of nodes to geo points
@@ -211,13 +211,13 @@ class OsmMap @Inject internal constructor(
         }
 
         var changed = false
-        for (mark in marks) {
+        marks.forEach { mark ->
             val uid = mark.getMarkerUid()
             val oldMarker = binding.osmMap.overlayManager.filterIsInstance<Marker>()
                 .find { it.id == uid }
             if (oldMarker != null) {
                 // Already have this marker, avoid extra work
-                continue
+                return@forEach
             }
 
             val marker = Marker(binding.osmMap).apply {

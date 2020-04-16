@@ -18,8 +18,8 @@
 package com.pyamsoft.fridge.locator.permission
 
 import android.content.pm.PackageManager
-import javax.inject.Inject
 import timber.log.Timber
+import javax.inject.Inject
 
 internal class PermissionHandlerImpl<T : Permission> @Inject internal constructor(
     private val permission: T
@@ -36,7 +36,7 @@ internal class PermissionHandlerImpl<T : Permission> @Inject internal constructo
         }
 
         val permissionArray = permission.permissions()
-        for (p in permissions) {
+        permissions.forEach { p ->
             if (p !in permissionArray) {
                 Timber.w("Unknown permission_button found in response: $p")
                 return consumer.onPermissionResponse(permission.asGrant(granted = false))
