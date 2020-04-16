@@ -19,12 +19,15 @@ package com.pyamsoft.fridge.category
 
 import android.view.ViewGroup
 import androidx.annotation.CheckResult
+import androidx.core.view.ViewPropertyAnimatorCompat
+import androidx.core.view.isVisible
 import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.pyamsoft.fridge.category.databinding.CategoryListViewBinding
 import com.pyamsoft.fridge.category.item.CategoryAdapter
 import com.pyamsoft.fridge.category.item.CategoryItemComponent
 import com.pyamsoft.fridge.category.item.CategoryItemViewState
+import com.pyamsoft.fridge.core.animatePopInFromBottom
 import com.pyamsoft.pydroid.arch.BaseUiView
 import javax.inject.Inject
 
@@ -39,6 +42,7 @@ class CategoryListView @Inject internal constructor(
     override val layoutRoot by boundView { categoryList }
 
     private var modelAdapter: CategoryAdapter? = null
+    private var animator: ViewPropertyAnimatorCompat? = null
 
     init {
         doOnInflate {
@@ -57,6 +61,11 @@ class CategoryListView @Inject internal constructor(
 
             modelAdapter = null
         }
+
+        doOnTeardown {
+            animator?.cancel()
+            animator = null
+        }
     }
 
     private fun clearList() {
@@ -70,9 +79,19 @@ class CategoryListView @Inject internal constructor(
 
     override fun onRender(state: CategoryViewState) {
         state.categories.let { categories ->
+
             if (categories.isEmpty()) {
                 clearList()
             } else {
+                // If root is currently hidden, show it
+                if (!layoutRoot.isVisible) {
+                    if (animator == null) {
+                        layoutRoot.post {
+                            animator = animatePopInFromBottom(layoutRoot)
+                        }
+                    }
+                }
+
                 usingAdapter().submitList(categories.map { pairing ->
                     CategoryItemViewState(
                         pairing.category,

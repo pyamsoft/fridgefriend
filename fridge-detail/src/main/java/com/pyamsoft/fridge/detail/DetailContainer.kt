@@ -35,8 +35,8 @@ import javax.inject.Inject
 
 class DetailContainer @Inject internal constructor(
     private val theming: ThemeProvider,
-    private val emptyState: DetailEmptyState,
-    private val list: DetailList,
+    emptyState: DetailEmptyState,
+    list: DetailList,
     parent: ViewGroup
 ) : BaseUiView<DetailViewState, DetailViewEvent, DetailContainerBinding>(parent) {
 
@@ -132,7 +132,5 @@ class DetailContainer @Inject internal constructor(
                 }
             }
         }
-        emptyState.render(state)
-        list.render(state)
     }
 }
