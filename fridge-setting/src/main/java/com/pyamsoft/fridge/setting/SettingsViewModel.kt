@@ -22,9 +22,9 @@ import com.pyamsoft.fridge.setting.SettingsControllerEvent.NavigateUp
 import com.pyamsoft.fridge.setting.SettingsViewEvent.Navigate
 import com.pyamsoft.pydroid.arch.EventBus
 import com.pyamsoft.pydroid.arch.UiViewModel
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 import javax.inject.Named
+import kotlinx.coroutines.launch
 
 class SettingsViewModel @Inject internal constructor(
     @Named("debug") debug: Boolean,

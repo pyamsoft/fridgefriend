@@ -65,4 +65,3 @@ private fun animatingHeight(context: Context): Float {
     window.defaultDisplay.getSize(point)
     return point.y.toFloat()
 }
-

@@ -18,8 +18,8 @@
 package com.pyamsoft.fridge.locator.permission
 
 import android.content.pm.PackageManager
-import timber.log.Timber
 import javax.inject.Inject
+import timber.log.Timber
 
 internal class PermissionHandlerImpl<T : Permission> @Inject internal constructor(
     private val permission: T

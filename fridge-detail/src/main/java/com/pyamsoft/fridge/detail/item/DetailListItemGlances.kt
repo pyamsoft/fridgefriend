@@ -244,7 +244,7 @@ class DetailListItemGlances @Inject internal constructor(
             .cleanMidnight()
         expiredTooltip = tooltipCreator.top {
             setArrowPosition(0.88F)
-            
+
             // shitty old time format parser for very basic expiration estimate
             val todayTime = now.timeInMillis
             val expiringTime = expireCalendar.timeInMillis
