@@ -28,9 +28,4 @@ interface Tip : Hideable {
     fun show(anchor: View)
 
     fun show(anchor: View, xOff: Int, yOff: Int)
-
-    enum class Animation {
-        FADE,
-        CIRCLE
-    }
 }

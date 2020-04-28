@@ -38,16 +38,17 @@ internal fun lazyBalloon(
                     balloon.dismiss()
                 }
             }
-        }
 
-        if (params.dismissOnClickOutside) {
             balloon.onBalloonOutsideTouchListener = object : OnBalloonOutsideTouchListener {
                 override fun onBalloonOutsideTouch(view: View, event: MotionEvent) {
                     balloon.dismiss()
                 }
             }
+        } else {
+            balloon.onBalloonClickListener = null
+            balloon.onBalloonOutsideTouchListener = null
         }
 
-        balloon
+        return@lazy balloon
     }
 }

@@ -151,10 +151,7 @@ class DetailListItemGlances @Inject internal constructor(
         }
 
         dateRangeTooltip = tooltipCreator.top {
-            dismissOnClick()
-            dismissOnClickOutside()
-            setArrowPosition(0.81F)
-
+            setArrowPosition(0.745F)
             val dateFormatted = SimpleDateFormat.getDateInstance().format(expireTime)
             setText("${item.name().trim()} will expire on $dateFormatted")
         }
@@ -192,10 +189,7 @@ class DetailListItemGlances @Inject internal constructor(
             .cleanMidnight()
 
         expiringTooltip = tooltipCreator.top {
-            dismissOnClick()
-            dismissOnClickOutside()
-            setArrowPosition(0.90F)
-
+            setArrowPosition(0.88F)
             // shitty old time format parser for very basic expiration estimate
             val todayTime = now.timeInMillis
             val expiringTime = expireCalendar.timeInMillis
@@ -249,10 +243,8 @@ class DetailListItemGlances @Inject internal constructor(
             .apply { time = requireNotNull(expireTime) }
             .cleanMidnight()
         expiredTooltip = tooltipCreator.top {
-            dismissOnClick()
-            dismissOnClickOutside()
-            setArrowPosition(0.89F)
-
+            setArrowPosition(0.88F)
+            
             // shitty old time format parser for very basic expiration estimate
             val todayTime = now.timeInMillis
             val expiringTime = expireCalendar.timeInMillis

@@ -20,6 +20,7 @@ package com.pyamsoft.fridge.tooltip
 import android.app.Activity
 import androidx.annotation.CheckResult
 import com.skydoves.balloon.Balloon
+import com.skydoves.balloon.BalloonAnimation
 import javax.inject.Inject
 
 internal class TooltipCreatorImpl @Inject internal constructor(
@@ -28,32 +29,22 @@ internal class TooltipCreatorImpl @Inject internal constructor(
 
     @CheckResult
     private inline fun create(crossinline builder: TooltipBuilder.() -> TooltipBuilder): BalloonAndBuilder {
-        val dismissOnClick: Boolean
-        val dismissOnClickOutside: Boolean
-
         val balloonBuilder = Balloon.Builder(activity).apply {
             setArrowSize(12)
             setHeight(65)
             setCornerRadius(16F)
             setAlpha(0.85F)
+            setPadding(4)
             setBackgroundColorResource(R.color.tooltipBackground)
             setTextColorResource(R.color.tooltipText)
+            setBalloonAnimation(BalloonAnimation.FADE)
+            setArrowPosition(0.5F)
+            setTextSize(16F)
 
-            val tooltipBuilder = TooltipBuilderImpl(this).apply {
-                setArrowPosition(0.5F)
-                setAnimation(Tip.Animation.FADE)
-                setTextSize(16F)
-                builder()
-            }
-
-            dismissOnClick = tooltipBuilder.dismissOnClick
-            dismissOnClickOutside = tooltipBuilder.dismissOnClickOutside
+            TooltipBuilderImpl(this).apply { builder() }
         }
 
-        val params = BalloonParameters(
-            dismissOnClick = dismissOnClick,
-            dismissOnClickOutside = dismissOnClickOutside
-        )
+        val params = BalloonParameters(dismissOnClick = true)
         return BalloonAndBuilder(balloonBuilder, params)
     }
 

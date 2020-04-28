@@ -19,18 +19,10 @@ package com.pyamsoft.fridge.tooltip
 
 import android.graphics.drawable.Drawable
 import androidx.annotation.CheckResult
-import androidx.annotation.ColorInt
-import androidx.annotation.ColorRes
 import androidx.annotation.DrawableRes
 import androidx.annotation.FloatRange
 
 interface TooltipBuilder {
-
-    @CheckResult
-    fun dismissOnClick(): TooltipBuilder
-
-    @CheckResult
-    fun dismissOnClickOutside(): TooltipBuilder
 
     @CheckResult
     fun setText(text: String): TooltipBuilder
@@ -42,23 +34,5 @@ interface TooltipBuilder {
     fun setIconRes(@DrawableRes icon: Int): TooltipBuilder
 
     @CheckResult
-    fun setBackground(@ColorInt color: Int): TooltipBuilder
-
-    @CheckResult
-    fun setBackgroundRes(@ColorRes color: Int): TooltipBuilder
-
-    @CheckResult
-    fun setTextColor(@ColorInt color: Int): TooltipBuilder
-
-    @CheckResult
-    fun setTextColorRes(@ColorRes color: Int): TooltipBuilder
-
-    @CheckResult
     fun setArrowPosition(@FloatRange(from = 0.0, to = 1.0) value: Float): TooltipBuilder
-
-    @CheckResult
-    fun setTextSize(value: Float): TooltipBuilder
-
-    @CheckResult
-    fun setAnimation(animation: Tip.Animation?): TooltipBuilder
 }
