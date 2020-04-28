@@ -20,7 +20,6 @@ package com.pyamsoft.fridge.detail
 import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItem
-import com.pyamsoft.fridge.db.item.isArchived
 import com.pyamsoft.pydroid.arch.UiControllerEvent
 import com.pyamsoft.pydroid.arch.UiViewEvent
 import com.pyamsoft.pydroid.arch.UiViewState
@@ -89,7 +88,6 @@ data class DetailViewState(
         EXPIRATION
     }
 
-
     @CheckResult
     internal fun filterValid(items: List<FridgeItem>): Sequence<FridgeItem> {
         return items.asSequence().filterNot { it.isEmpty() }
@@ -112,7 +110,7 @@ sealed class DetailViewEvent : UiViewEvent {
 
     object ToggleArchiveVisibility : DetailViewEvent()
 
-    object ToggleSort : DetailViewEvent()
+    data class ChangeSort internal constructor(val sort: DetailViewState.Sorts) : DetailViewEvent()
 
     data class UndoDelete internal constructor(val item: FridgeItem) : DetailViewEvent()
 

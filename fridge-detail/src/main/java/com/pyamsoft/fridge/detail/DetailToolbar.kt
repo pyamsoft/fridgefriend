@@ -17,14 +17,13 @@
 
 package com.pyamsoft.fridge.detail
 
-import android.os.Handler
-import android.os.Looper
+import android.view.Menu
 import android.view.MenuItem
+import android.view.SubMenu
 import androidx.annotation.CheckResult
-import androidx.annotation.IdRes
-import androidx.annotation.MenuRes
-import androidx.appcompat.widget.SearchView
 import androidx.appcompat.widget.Toolbar
+import androidx.core.text.bold
+import androidx.core.text.buildSpannedString
 import androidx.core.view.forEach
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.pydroid.arch.UiBundleReader
@@ -37,163 +36,108 @@ class DetailToolbar @Inject internal constructor(
     presence: FridgeItem.Presence
 ) : UiView<DetailViewState, DetailViewEvent>() {
 
-    private val lazyHandler = lazy(LazyThreadSafetyMode.NONE) { Handler(Looper.getMainLooper()) }
-    private val handler by lazyHandler
-
-    private val savedInstanceQueryKey = "${KEY_QUERY_PREFIX}_${presence.name}"
-
-    private var searchItem: MenuItem? = null
-    private var searchView: SearchView? = null
+    private var subMenu: SubMenu? = null
 
     init {
-        doOnInflate { savedInstanceState ->
+        doOnInflate {
             toolbarActivity.requireToolbar { toolbar ->
-                initializeMenuItems(toolbar, savedInstanceState, presence)
+                initializeMenuItems(toolbar, presence)
             }
-        }
-
-        doOnSaveState { outState ->
-            searchView?.apply {
-                val query = this.query
-                if (query.isNotBlank()) {
-                    outState.put(savedInstanceQueryKey, query)
-                } else {
-                    outState.remove(savedInstanceQueryKey)
-                }
-            }
-        }
-
-        doOnTeardown {
-            searchView?.apply {
-                setOnQueryTextListener(null)
-            }
-            searchView = null
-        }
-
-        doOnTeardown {
-            searchItem?.apply {
-                setOnActionExpandListener(null)
-            }
-            searchItem = null
         }
 
         doOnTeardown {
             toolbarActivity.withToolbar { toolbar ->
-                toolbar.teardown(presence)
-            }
-        }
-
-        doOnTeardown {
-            if (lazyHandler.isInitialized()) {
-                handler.removeCallbacksAndMessages(null)
+                toolbar.teardown()
             }
         }
     }
 
     private fun initializeMenuItems(
         toolbar: Toolbar,
-        savedInstanceState: UiBundleReader,
         presence: FridgeItem.Presence
     ) {
-        val toolbarData = toolbar.initSearchView(presence)
-        searchView = toolbarData.searchView.apply {
-
-            setOnQueryTextListener(object : SearchView.OnQueryTextListener {
-                override fun onQueryTextSubmit(query: String): Boolean {
-                    debouncedPublish { DetailViewEvent.SearchQuery(query) }
-                    return true
-                }
-
-                override fun onQueryTextChange(newText: String): Boolean {
-                    debouncedPublish { DetailViewEvent.SearchQuery(newText) }
-                    return true
-                }
-            })
-
-            savedInstanceState.useIfAvailable<CharSequence>(savedInstanceQueryKey) { query ->
-                if (query.isNotBlank()) {
-                    isIconified = false
-                    setQuery(query, true)
-                }
-            }
-        }
-
-        searchItem = toolbarData.item.apply {
-            setOnActionExpandListener(object : MenuItem.OnActionExpandListener {
-
-                override fun onMenuItemActionExpand(item: MenuItem): Boolean {
-                    toolbar.post { toolbar.setVisibilityOfOtherItems(item, false) }
-                    return true
-                }
-
-                override fun onMenuItemActionCollapse(item: MenuItem): Boolean {
-                    toolbar.post {
-                        toolbar.setVisibilityOfOtherItems(item, true)
-                        debouncedPublish { DetailViewEvent.SearchQuery("") }
-                    }
-                    return true
-                }
-            })
-        }
-    }
-
-    private fun Toolbar.setVisibilityOfOtherItems(exception: MenuItem, show: Boolean) {
-        this.menu.forEach { item ->
-            if (item.itemId != exception.itemId) {
-                item.isVisible = show
-            }
-        }
-    }
-
-    private inline fun debouncedPublish(crossinline event: () -> DetailViewEvent) {
-        if (lazyHandler.isInitialized()) {
-            handler.removeCallbacksAndMessages(null)
-        }
-        handler.postDelayed({ publish(event()) }, 300)
+        subMenu = toolbar.initMenu(presence)
     }
 
     override fun onInit(savedInstanceState: UiBundleReader) {
     }
 
     override fun render(state: DetailViewState) {
-    }
-
-    @CheckResult
-    private fun getMenuForPresence(presence: FridgeItem.Presence): MenuData {
-        return when (presence) {
-            FridgeItem.Presence.HAVE -> MenuData(R.menu.menu_search_have, R.id.menu_search_have)
-            FridgeItem.Presence.NEED -> MenuData(R.menu.menu_search_need, R.id.menu_search_need)
+        subMenu?.let { subMenu ->
+            val currentSort = state.sort
+            subMenu.forEach { item ->
+                val expectedSort = when (item.itemId) {
+                    ID_CREATED_DATE -> DetailViewState.Sorts.CREATED
+                    ID_NAME -> DetailViewState.Sorts.NAME
+                    ID_PURCHASED_DATE -> DetailViewState.Sorts.PURCHASED
+                    ID_EXPIRATION_DATE -> DetailViewState.Sorts.EXPIRATION
+                    else -> return@forEach
+                }
+                if (currentSort == expectedSort) {
+                    item.isChecked = true
+                }
+            }
         }
     }
 
     @CheckResult
-    private fun Toolbar.initSearchView(presence: FridgeItem.Presence): ToolbarData {
-        val menuData = getMenuForPresence(presence)
-        this.inflateMenu(menuData.menu)
-        val searchItem = this.menu.findItem(menuData.item)
-        val searchView = searchItem.actionView as SearchView
-        return ToolbarData(searchItem, searchView)
-    }
-
-    private fun Toolbar.teardown(presence: FridgeItem.Presence) {
-        val menuData = getMenuForPresence(presence)
-        this.menu.apply {
-            removeItem(menuData.item)
-            forEach { it.isVisible = true }
+    private fun Toolbar.initMenu(presence: FridgeItem.Presence): SubMenu {
+        return this.menu.addSubMenu(GROUP_ID, ID_SUBMENU, Menu.NONE, "Sorts").also { subMenu ->
+            subMenu.item.setIcon(R.drawable.ic_sort_24dp)
+            subMenu.item.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM)
+            subMenu.add(Menu.NONE, ID_TITLE, Menu.NONE, "").apply {
+                title = buildSpannedString { bold { append("Sorts") } }
+            }
+            subMenu.add(GROUP_ID, ID_CREATED_DATE, 1, "Created Date").apply {
+                isChecked = false
+                setOnMenuItemClickListener(clickListener(DetailViewState.Sorts.CREATED))
+            }
+            subMenu.add(GROUP_ID, ID_NAME, 2, "Name").apply {
+                isChecked = false
+                setOnMenuItemClickListener(clickListener(DetailViewState.Sorts.NAME))
+            }
+            if (presence == FridgeItem.Presence.HAVE) {
+                subMenu.add(GROUP_ID, ID_PURCHASED_DATE, 3, "Purchase Date").apply {
+                    isChecked = false
+                    setOnMenuItemClickListener(clickListener(DetailViewState.Sorts.PURCHASED))
+                }
+                subMenu.add(GROUP_ID, ID_EXPIRATION_DATE, 4, "Expiration Date").apply {
+                    isChecked = false
+                    setOnMenuItemClickListener(clickListener(DetailViewState.Sorts.EXPIRATION))
+                }
+            }
+            subMenu.setGroupCheckable(GROUP_ID, true, true)
         }
     }
 
-    private data class ToolbarData internal constructor(
-        val item: MenuItem,
-        val searchView: SearchView
-    )
+    private fun Toolbar.teardown() {
+        subMenu?.let { subMenu ->
+            // Go backwards to avoid index oob error
+            for (index in subMenu.size() until 0) {
+                val item = subMenu.getItem(index)
+                item.setOnMenuItemClickListener(null)
+                subMenu.removeItem(item.itemId)
+            }
+            menu.removeItem(subMenu.item.itemId)
+        }
+        subMenu = null
+    }
 
-    private data class MenuData internal constructor(
-        @MenuRes val menu: Int,
-        @IdRes val item: Int
-    )
+    @CheckResult
+    private fun clickListener(sort: DetailViewState.Sorts): MenuItem.OnMenuItemClickListener {
+        return MenuItem.OnMenuItemClickListener {
+            publish(DetailViewEvent.ChangeSort(sort))
+            return@OnMenuItemClickListener true
+        }
+    }
 
     companion object {
-        private const val KEY_QUERY_PREFIX = "key_query"
+        private const val GROUP_ID = 69
+        private const val ID_SUBMENU = 420
+        private const val ID_TITLE = 100
+        private const val ID_CREATED_DATE = 101
+        private const val ID_NAME = 102
+        private const val ID_PURCHASED_DATE = 103
+        private const val ID_EXPIRATION_DATE = 104
     }
 }

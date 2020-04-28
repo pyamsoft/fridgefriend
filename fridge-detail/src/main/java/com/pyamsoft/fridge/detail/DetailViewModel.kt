@@ -157,7 +157,6 @@ class DetailViewModel @Inject internal constructor(
         return when (event) {
             is DetailViewEvent.ForceRefresh -> refreshList(true)
             is DetailViewEvent.ExpandItem -> expand(event.item)
-            is DetailViewEvent.ToggleSort -> toggleSort()
             is DetailViewEvent.ToggleArchiveVisibility -> toggleArchived()
             is DetailViewEvent.ReallyDeleteNoUndo -> setState { copy(undoableItem = null) }
             is DetailViewEvent.UndoDelete -> handleUndoDelete(event.item)
@@ -170,6 +169,7 @@ class DetailViewModel @Inject internal constructor(
             is DetailViewEvent.IncreaseCount -> increaseCount(event.item)
             is DetailViewEvent.DecreaseCount -> decreaseCount(event.item)
             is DetailViewEvent.SearchQuery -> updateSearch(event.search)
+            is DetailViewEvent.ChangeSort -> updateSort(event.sort)
         }
     }
 
@@ -237,22 +237,8 @@ class DetailViewModel @Inject internal constructor(
         }
     }
 
-    private fun toggleSort() {
-        setState {
-            val expirationSortResult = if (listItemPresence == FridgeItem.Presence.HAVE) {
-                DetailViewState.Sorts.PURCHASED
-            } else {
-                DetailViewState.Sorts.CREATED
-            }
-
-            val newSort = when (sort) {
-                DetailViewState.Sorts.CREATED -> DetailViewState.Sorts.NAME
-                DetailViewState.Sorts.NAME -> DetailViewState.Sorts.EXPIRATION
-                DetailViewState.Sorts.EXPIRATION -> expirationSortResult
-                DetailViewState.Sorts.PURCHASED -> DetailViewState.Sorts.CREATED
-            }
-            copy(sort = newSort)
-        }
+    private fun updateSort(newSort: DetailViewState.Sorts) {
+        setState { copy(sort = newSort) }
         withState {
             refreshList(false)
         }

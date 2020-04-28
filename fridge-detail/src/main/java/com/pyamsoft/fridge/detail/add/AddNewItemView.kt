@@ -32,8 +32,8 @@ import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.loader.Loaded
 import com.pyamsoft.pydroid.ui.util.popShow
 import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
-import javax.inject.Inject
 import timber.log.Timber
+import javax.inject.Inject
 
 class AddNewItemView @Inject internal constructor(
     private val imageLoader: ImageLoader,
@@ -46,7 +46,7 @@ class AddNewItemView @Inject internal constructor(
     override val layoutRoot by boundView { detailAddNewItem }
 
     private var addNewIconLoaded: Loaded? = null
-    private var sortIconLoaded: Loaded? = null
+    private var searchIconLoaded: Loaded? = null
     private var filterIconLoaded: Loaded? = null
 
     private var addNewIconAnimator: ViewPropertyAnimatorCompat? = null
@@ -65,20 +65,20 @@ class AddNewItemView @Inject internal constructor(
             }
         }
 
+        doOnInflate {
+            searchIconLoaded = imageLoader
+                .load(R.drawable.ic_search_24dp)
+                .into(binding.detailSearchItem)
+        }
+
         doOnTeardown {
             disposeAddNewLoaded()
             binding.detailAddNewItem.setOnClickListener(null)
         }
 
-        doOnInflate {
-            binding.detailSortItem.setOnDebouncedClickListener {
-                publish(DetailViewEvent.ToggleSort)
-            }
-        }
-
         doOnTeardown {
             disposeSortLoaded()
-            binding.detailSortItem.setOnClickListener(null)
+            binding.detailSearchItem.setOnClickListener(null)
         }
 
         doOnInflate {
@@ -94,7 +94,7 @@ class AddNewItemView @Inject internal constructor(
 
         doOnInflate {
             binding.detailAddNewItem.popShow().withEndAction {
-                binding.detailSortItem.popShow().withEndAction {
+                binding.detailSearchItem.popShow().withEndAction {
                     if (listItemPresence == FridgeItem.Presence.HAVE) {
                         binding.detailFilterItem.popShow().apply { doOnTeardown { cancel() } }
                     } else {
@@ -111,8 +111,8 @@ class AddNewItemView @Inject internal constructor(
     }
 
     private fun disposeSortLoaded() {
-        sortIconLoaded?.dispose()
-        sortIconLoaded = null
+        searchIconLoaded?.dispose()
+        searchIconLoaded = null
     }
 
     private fun disposeFilterLoaded() {
@@ -149,20 +149,6 @@ class AddNewItemView @Inject internal constructor(
                     }
                 )
                 .into(binding.detailFilterItem)
-        }
-
-        state.sort.let { sort ->
-            disposeSortLoaded()
-            sortIconLoaded = imageLoader
-                .load(
-                    when (sort) {
-                        DetailViewState.Sorts.CREATED -> R.drawable.ic_open_in_browser_24dp
-                        DetailViewState.Sorts.NAME -> R.drawable.ic_consumed_24dp
-                        DetailViewState.Sorts.EXPIRATION -> R.drawable.ic_spoiled_24dp
-                        DetailViewState.Sorts.PURCHASED -> R.drawable.ic_bug_report_24dp
-                    }
-                )
-                .into(binding.detailSortItem)
         }
 
         state.isItemExpanded.let { expanded ->
