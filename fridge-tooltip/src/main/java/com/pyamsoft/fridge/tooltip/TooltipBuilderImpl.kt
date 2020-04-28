@@ -29,6 +29,11 @@ internal class TooltipBuilderImpl internal constructor(
         return this
     }
 
+    override fun setText(text: Int): TooltipBuilder {
+        builder.setTextResource(text)
+        return this
+    }
+
     override fun setIcon(icon: Drawable): TooltipBuilder {
         builder.setIconDrawable(icon)
         return this
@@ -36,11 +41,6 @@ internal class TooltipBuilderImpl internal constructor(
 
     override fun setIconRes(icon: Int): TooltipBuilder {
         builder.setIconDrawableResource(icon)
-        return this
-    }
-
-    override fun setArrowPosition(value: Float): TooltipBuilder {
-        builder.setArrowPosition(value)
         return this
     }
 }

@@ -30,7 +30,7 @@ internal class TooltipCreatorImpl @Inject internal constructor(
     @CheckResult
     private inline fun create(crossinline builder: TooltipBuilder.() -> TooltipBuilder): BalloonAndBuilder {
         val balloonBuilder = Balloon.Builder(activity).apply {
-            setArrowSize(12)
+            setArrowVisible(false)
             setHeight(65)
             setCornerRadius(16F)
             setAlpha(0.85F)

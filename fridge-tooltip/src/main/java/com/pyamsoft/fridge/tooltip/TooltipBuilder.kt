@@ -20,7 +20,7 @@ package com.pyamsoft.fridge.tooltip
 import android.graphics.drawable.Drawable
 import androidx.annotation.CheckResult
 import androidx.annotation.DrawableRes
-import androidx.annotation.FloatRange
+import androidx.annotation.StringRes
 
 interface TooltipBuilder {
 
@@ -28,11 +28,11 @@ interface TooltipBuilder {
     fun setText(text: String): TooltipBuilder
 
     @CheckResult
+    fun setText(@StringRes text: Int): TooltipBuilder
+
+    @CheckResult
     fun setIcon(icon: Drawable): TooltipBuilder
 
     @CheckResult
     fun setIconRes(@DrawableRes icon: Int): TooltipBuilder
-
-    @CheckResult
-    fun setArrowPosition(@FloatRange(from = 0.0, to = 1.0) value: Float): TooltipBuilder
 }
