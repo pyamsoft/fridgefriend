@@ -34,12 +34,17 @@ internal class TooltipCreatorImpl @Inject internal constructor(
             setHeight(65)
             setCornerRadius(16F)
             setAlpha(0.85F)
-            setPadding(4)
             setBackgroundColorResource(R.color.tooltipBackground)
             setTextColorResource(R.color.tooltipText)
             setBalloonAnimation(BalloonAnimation.FADE)
             setArrowPosition(0.5F)
-            setTextSize(16F)
+            setTextSize(14F)
+
+            val padding = 4
+            setPaddingTop(padding)
+            setPaddingBottom(padding)
+            setPaddingLeft(padding * 2)
+            setPaddingRight(padding * 2)
 
             TooltipBuilderImpl(this).apply { builder() }
         }
