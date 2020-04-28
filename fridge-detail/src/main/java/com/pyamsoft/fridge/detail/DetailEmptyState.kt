@@ -59,7 +59,7 @@ class DetailEmptyState @Inject internal constructor(
                     clear()
                     if (state.items.isEmpty()) {
                         val isNeed = state.listItemPresence == NEED
-                        loadText(isNeed)
+                        loadText(isNeed, state.search.isNotBlank())
                         loadImage(isNeed)
                     }
                 }
@@ -67,10 +67,12 @@ class DetailEmptyState @Inject internal constructor(
         }
     }
 
-    private fun loadText(isNeed: Boolean) {
-        val text =
-            if (isNeed) "Your shopping list is empty, make a note about anything you need to buy!"
-            else "Your fridge is empty, add items to your shopping list and go to the store!"
+    private fun loadText(isNeed: Boolean, isSearch: Boolean) {
+        val text = when {
+            isSearch -> "Your search returned no results."
+            isNeed -> "Your shopping list is empty, make a note about anything you need to buy!"
+            else -> "Your fridge is empty, add items to your shopping list and go to the store!"
+        }
         binding.detailEmptyMessage.text = text
     }
 
