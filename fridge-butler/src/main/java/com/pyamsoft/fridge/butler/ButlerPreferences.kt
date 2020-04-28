@@ -41,4 +41,9 @@ interface ButlerPreferences {
     suspend fun getLastNotificationTimeExpired(): Long
 
     suspend fun markNotificationExpired(calendar: Calendar)
+
+    @CheckResult
+    suspend fun getLastNotificationTimeNightly(): Long
+
+    suspend fun markNotificationNightly(calendar: Calendar)
 }

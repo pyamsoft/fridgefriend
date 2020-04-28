@@ -19,9 +19,10 @@ package com.pyamsoft.fridge.butler.injector
 
 import android.content.Context
 import com.pyamsoft.fridge.butler.params.ItemParameters
+import com.pyamsoft.fridge.butler.runner.ItemRunner
 import com.pyamsoft.fridge.butler.runner.WorkResult
-import com.pyamsoft.fridge.butler.runner.item.ItemRunner
 import com.pyamsoft.pydroid.ui.Injector
+import java.util.UUID
 import javax.inject.Inject
 
 class ItemInjector(context: Context) : BaseInjector<ItemParameters>(context) {
@@ -30,9 +31,14 @@ class ItemInjector(context: Context) : BaseInjector<ItemParameters>(context) {
     @Inject
     internal var delegate: ItemRunner? = null
 
-    override suspend fun onRun(context: Context, params: ItemParameters): WorkResult {
-        Injector.obtain<ButlerComponent>(context).inject(this)
-        val result = requireNotNull(delegate).doWork(params)
+    override suspend fun onRun(
+        context: Context,
+        id: UUID,
+        tags: Set<String>,
+        params: ItemParameters
+    ): WorkResult {
+        Injector.obtain<ButlerComponent>(context.applicationContext).inject(this)
+        val result = requireNotNull(delegate).doWork(id, tags, params)
         delegate = null
         return result
     }

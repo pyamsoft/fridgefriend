@@ -18,13 +18,13 @@
 package com.pyamsoft.fridge
 
 import com.pyamsoft.fridge.butler.Butler
+import com.pyamsoft.fridge.butler.params.EmptyParameters
 import com.pyamsoft.fridge.butler.params.ItemParameters
 import com.pyamsoft.fridge.butler.params.LocationParameters
 
 suspend fun Butler.initOnAppStart(params: ButlerParameters) {
     cancel()
 
-    cancelItemsReminder()
     remindItems(
         ItemParameters(
             forceNotifyNeeded = params.forceNotifyNeeded,
@@ -32,12 +32,14 @@ suspend fun Butler.initOnAppStart(params: ButlerParameters) {
         )
     )
 
-    cancelLocationReminder()
     remindLocation(
         LocationParameters(
             forceNotifyNeeded = params.forceNotifyNeeded
         )
     )
+
+    // Nightly notifications are always scheduled since they must fire at an exact time.
+    scheduleRemindNightly(EmptyParameters)
 }
 
 data class ButlerParameters(val forceNotifyNeeded: Boolean, val forceNotifyExpiring: Boolean)

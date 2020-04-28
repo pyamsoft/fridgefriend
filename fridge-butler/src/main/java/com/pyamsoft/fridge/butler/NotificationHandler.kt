@@ -42,6 +42,9 @@ interface NotificationHandler {
     @CheckResult
     fun notifyExpired(entry: FridgeEntry, items: List<FridgeItem>): Boolean
 
+    @CheckResult
+    fun notifyNightly(): Boolean
+
     companion object {
 
         const val NOTIFICATION_ID_KEY = "key_notification_id"

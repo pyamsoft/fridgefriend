@@ -70,7 +70,7 @@ internal class NotificationHandlerImpl @Inject internal constructor(
     }
 
     override fun notifyNeeded(entry: FridgeEntry, items: List<FridgeItem>): Boolean {
-        val id = needNotificationIdMap.getNotificationId(entry.id())
+        val id = needNotificationIdMap.getNotificationId(entry.id(), NotificationType.NEEDED)
         return notify(
             id,
             R.drawable.ic_get_app_24dp,
@@ -85,7 +85,7 @@ internal class NotificationHandlerImpl @Inject internal constructor(
     }
 
     override fun notifyExpiring(entry: FridgeEntry, items: List<FridgeItem>): Boolean {
-        val id = expiringNotificationIdMap.getNotificationId(entry.id())
+        val id = expiringNotificationIdMap.getNotificationId(entry.id(), NotificationType.EXPIRING)
         return notify(
             id,
             R.drawable.ic_get_app_24dp,
@@ -102,7 +102,7 @@ internal class NotificationHandlerImpl @Inject internal constructor(
     }
 
     override fun notifyExpired(entry: FridgeEntry, items: List<FridgeItem>): Boolean {
-        val id = expiredNotificationIdMap.getNotificationId(entry.id())
+        val id = expiredNotificationIdMap.getNotificationId(entry.id(), NotificationType.EXPIRED)
         return notify(
             id,
             R.drawable.ic_get_app_24dp,
@@ -119,13 +119,30 @@ internal class NotificationHandlerImpl @Inject internal constructor(
         }
     }
 
+    override fun notifyNightly(): Boolean {
+        val id = NIGHTLY_NOTIFICATION_ID
+        return notify(
+            id,
+            R.drawable.ic_get_app_24dp,
+            NIGHTLY_CHANNEL_ID,
+            "Nightly Reminders",
+            "Regular reminders each night to clean out your fridge",
+            contentIntent(id, FridgeItem.Presence.HAVE)
+        ) {
+            setContentTitle("Remember to clean the fridge!")
+
+            val appName = context.applicationContext.getString(R.string.app_name)
+            setContentText("Mark anything you ate tonight so that $appName can keep track!")
+        }
+    }
+
     override fun notifyNearby(zone: NearbyZone, items: List<FridgeItem>): Boolean {
-        val id = nearbyNotificationIdMap.getNotificationId(zone.id().id)
+        val id = nearbyNotificationIdMap.getNotificationId(zone.id().id, NotificationType.NEARBY)
         return notifyNearby(id, zone.name(), items)
     }
 
     override fun notifyNearby(store: NearbyStore, items: List<FridgeItem>): Boolean {
-        val id = nearbyNotificationIdMap.getNotificationId(store.id().id)
+        val id = nearbyNotificationIdMap.getNotificationId(store.id().id, NotificationType.NEARBY)
         return notifyNearby(id, store.name(), items)
     }
 
@@ -241,26 +258,23 @@ internal class NotificationHandlerImpl @Inject internal constructor(
         private const val EXPIRED_CHANNEL_ID = "fridge_expiration_reminders_channel_v1"
         private const val NEEDED_CHANNEL_ID = "fridge_needed_reminders_channel_v1"
         private const val NEARBY_CHANNEL_ID = "fridge_nearby_reminders_channel_v1"
-        private val RANDOM_RANGE = (1000 until Int.MAX_VALUE)
-        private val alreadyGeneratedIds by lazy { mutableSetOf<Int>() }
+        private const val NIGHTLY_CHANNEL_ID = "fridge_nightly_reminders_channel_v1"
+        private val NIGHTLY_NOTIFICATION_ID = 42069
 
-        @JvmStatic
-        @CheckResult
-        private fun <S : Any> MutableMap<S, Int>.getNotificationId(key: S): Int {
-            return this.getOrPut(key) {
-                var id: Int
-                do {
-                    id = generateNewNotificationId()
-                } while (alreadyGeneratedIds.contains(id))
-                alreadyGeneratedIds.add(id)
-                return@getOrPut id
-            }
+        private enum class NotificationType {
+            EXPIRING,
+            EXPIRED,
+            NEEDED,
+            NEARBY,
         }
 
         @JvmStatic
         @CheckResult
-        private fun generateNewNotificationId(): Int {
-            return RANDOM_RANGE.random()
+        private fun <S : Any> MutableMap<S, Int>.getNotificationId(
+            key: S,
+            type: NotificationType
+        ): Int {
+            return this.getOrPut(key) { key.hashCode() + type.ordinal }
         }
 
         @JvmStatic

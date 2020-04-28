@@ -15,7 +15,7 @@
  *
  */
 
-package com.pyamsoft.fridge.butler.runner.locator
+package com.pyamsoft.fridge.butler.runner
 
 import android.location.Location
 import androidx.annotation.CheckResult
@@ -24,7 +24,6 @@ import com.pyamsoft.fridge.butler.ButlerPreferences
 import com.pyamsoft.fridge.butler.NotificationHandler
 import com.pyamsoft.fridge.butler.NotificationPreferences
 import com.pyamsoft.fridge.butler.params.LocationParameters
-import com.pyamsoft.fridge.butler.runner.NearbyRunner
 import com.pyamsoft.fridge.core.today
 import com.pyamsoft.fridge.db.entry.FridgeEntryQueryDao
 import com.pyamsoft.fridge.db.item.FridgeItem

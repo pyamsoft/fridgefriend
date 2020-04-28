@@ -15,16 +15,6 @@
  *
  */
 
-package com.pyamsoft.fridge.butler.injector
+package com.pyamsoft.fridge.butler.params
 
-import dagger.Subcomponent
-
-@Subcomponent
-interface ButlerComponent {
-
-    fun inject(injector: ItemInjector)
-
-    fun inject(injector: LocationInjector)
-
-    fun inject(injector: NightlyInjector)
-}
+object EmptyParameters : BaseParameters

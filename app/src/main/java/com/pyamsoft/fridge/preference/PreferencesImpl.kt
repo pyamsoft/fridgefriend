@@ -148,6 +148,20 @@ internal class PreferencesImpl @Inject internal constructor(
             }
         }
 
+    override suspend fun getLastNotificationTimeNightly(): Long =
+        withContext(context = Dispatchers.Default) {
+            enforcer.assertNotOnMainThread()
+            return@withContext preferences.getLong(KEY_LAST_NOTIFICATION_TIME_NIGHTLY, 0)
+        }
+
+    override suspend fun markNotificationNightly(calendar: Calendar) =
+        withContext(context = Dispatchers.Default) {
+            enforcer.assertNotOnMainThread()
+            preferences.edit {
+                putLong(KEY_LAST_NOTIFICATION_TIME_NIGHTLY, calendar.timeInMillis)
+            }
+        }
+
     override suspend fun getExpiringSoonRange(): Int = withContext(context = Dispatchers.Default) {
         enforcer.assertNotOnMainThread()
         return@withContext preferences.getString(expiringSoonKey, expiringSoonDefault)
@@ -275,10 +289,12 @@ internal class PreferencesImpl @Inject internal constructor(
 
         private const val KEY_PERSISTENT_CATEGORIES = "persistent_categories_v1"
         private const val KEY_PERSISTENT_ENTRIES = "persistent_entries_v1"
+
         private const val KEY_LAST_NOTIFICATION_TIME_NEARBY = "last_notification_nearby_v1"
         private const val KEY_LAST_NOTIFICATION_TIME_EXPIRING_SOON =
             "last_notification_expiring_soon_v1"
         private const val KEY_LAST_NOTIFICATION_TIME_EXPIRED = "last_notification_expired_v1"
         private const val KEY_LAST_NOTIFICATION_TIME_NEEDED = "last_notification_needed_v1"
+        private const val KEY_LAST_NOTIFICATION_TIME_NIGHTLY = "last_notification_nightly_v1"
     }
 }

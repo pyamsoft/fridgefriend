@@ -17,6 +17,7 @@
 
 package com.pyamsoft.fridge.butler
 
+import com.pyamsoft.fridge.butler.params.EmptyParameters
 import com.pyamsoft.fridge.butler.params.ItemParameters
 import com.pyamsoft.fridge.butler.params.LocationParameters
 
@@ -33,6 +34,10 @@ interface Butler {
     suspend fun scheduleRemindLocation(params: LocationParameters)
 
     suspend fun cancelLocationReminder()
+
+    suspend fun scheduleRemindNightly(params: EmptyParameters)
+
+    suspend fun cancelNightlyReminder()
 
     suspend fun cancel()
 }

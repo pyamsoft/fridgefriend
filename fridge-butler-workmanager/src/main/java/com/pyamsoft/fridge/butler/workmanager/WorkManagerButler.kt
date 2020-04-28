@@ -28,12 +28,16 @@ import androidx.work.WorkManager
 import com.google.common.util.concurrent.ListenableFuture
 import com.pyamsoft.fridge.butler.Butler
 import com.pyamsoft.fridge.butler.NotificationPreferences
+import com.pyamsoft.fridge.butler.params.EmptyParameters
 import com.pyamsoft.fridge.butler.params.ItemParameters
 import com.pyamsoft.fridge.butler.params.LocationParameters
 import com.pyamsoft.fridge.butler.workmanager.worker.BaseWorker
 import com.pyamsoft.fridge.butler.workmanager.worker.ItemWorker
 import com.pyamsoft.fridge.butler.workmanager.worker.LocationWorker
+import com.pyamsoft.fridge.butler.workmanager.worker.NightlyWorker
+import com.pyamsoft.fridge.core.today
 import com.pyamsoft.pydroid.core.Enforcer
+import java.util.Calendar
 import java.util.concurrent.CancellationException
 import java.util.concurrent.ExecutionException
 import java.util.concurrent.Executor
@@ -141,9 +145,48 @@ internal class WorkManagerButler @Inject internal constructor(
         workManager().cancelAllWorkByTag(LOCATION_TAG).await()
     }
 
+    private suspend fun scheduleNightly(params: EmptyParameters, type: WorkType) =
+        withContext(context = Dispatchers.Default) {
+            enforcer.assertNotOnMainThread()
+            cancelNightlyReminder()
+            schedule(NightlyWorker::class.java, NIGHTLY_TAG, type, params.toInputData())
+        }
+
+    override suspend fun scheduleRemindNightly(params: EmptyParameters) =
+        withContext(context = Dispatchers.Default) {
+            enforcer.assertNotOnMainThread()
+
+            // Get the time now
+            val now = today { set(Calendar.MILLISECOND, 0) }
+
+            // Get the time in the evening at our notification hour
+            val evening = today {
+                set(Calendar.HOUR_OF_DAY, 8 + 12)
+                set(Calendar.MILLISECOND, 0)
+            }
+
+            // If it is after this evening, schedule for tomorrow evening
+            if (now.after(evening)) {
+                evening.add(Calendar.DAY_OF_MONTH, 1)
+            }
+
+            // Calculate the difference
+            val nowMillis = now.timeInMillis
+            val eveningMillis = evening.timeInMillis
+            val difference = eveningMillis - nowMillis
+            scheduleNightly(params, WorkType.Periodic(difference))
+        }
+
+    override suspend fun cancelNightlyReminder() = withContext(context = Dispatchers.Default) {
+        enforcer.assertNotOnMainThread()
+        workManager().cancelAllWorkByTag(NIGHTLY_TAG).await()
+    }
+
     override suspend fun cancel() = withContext(context = Dispatchers.Default) {
         enforcer.assertNotOnMainThread()
-        workManager().cancelAllWork().await()
+        cancelItemsReminder()
+        cancelLocationReminder()
+        cancelNightlyReminder()
     }
 
     private suspend fun Operation.await() {
@@ -199,6 +242,7 @@ internal class WorkManagerButler @Inject internal constructor(
 
         private const val ITEM_TAG = "Items Reminder 1"
         private const val LOCATION_TAG = "Location Reminder 1"
+        private const val NIGHTLY_TAG = "Nightly Reminder 1"
     }
 
     @CheckResult
@@ -214,5 +258,10 @@ internal class WorkManagerButler @Inject internal constructor(
             .putBoolean(BaseWorker.FORCE_NEEDED_NOTIFICATION, this.forceNotifyNeeded)
             .putBoolean(BaseWorker.FORCE_EXPIRING_NOTIFICATION, this.forceNotifyExpiring)
             .build()
+    }
+
+    @CheckResult
+    private fun EmptyParameters.toInputData(): Data {
+        return Data.EMPTY
     }
 }

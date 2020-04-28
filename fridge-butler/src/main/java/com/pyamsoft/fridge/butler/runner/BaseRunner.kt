@@ -25,6 +25,7 @@ import com.pyamsoft.fridge.butler.NotificationPreferences
 import com.pyamsoft.fridge.butler.params.BaseParameters
 import com.pyamsoft.pydroid.core.Enforcer
 import java.util.Calendar
+import java.util.UUID
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -50,16 +51,21 @@ internal abstract class BaseRunner<P : BaseParameters> protected constructor(
     }
 
     @CheckResult
-    suspend fun doWork(params: P): WorkResult = withContext(context = Dispatchers.Default) {
+    suspend fun doWork(
+        id: UUID,
+        tags: Set<String>,
+        params: P
+    ): WorkResult = withContext(context = Dispatchers.Default) {
         enforcer.assertNotOnMainThread()
+        val identifier = identifier(id, tags)
         try {
             performWork(butlerPreferences, params)
-            success()
+            success(identifier)
         } catch (e: Throwable) {
             if (e is CancellationException) {
-                cancelled(e)
+                cancelled(identifier, e)
             } else {
-                fail(e)
+                fail(identifier, e)
             }
         } finally {
             teardown(params)
@@ -72,21 +78,26 @@ internal abstract class BaseRunner<P : BaseParameters> protected constructor(
     )
 
     @CheckResult
-    private fun success(): WorkResult {
-        Timber.d("Worker completed successfully")
+    private fun success(identifier: String): WorkResult {
+        Timber.d("Worker completed successfully $identifier")
         return WorkResult.Success
     }
 
     @CheckResult
-    private fun fail(throwable: Throwable): WorkResult {
-        Timber.e(throwable, "Worker failed to complete")
+    private fun fail(identifier: String, throwable: Throwable): WorkResult {
+        Timber.e(throwable, "Worker failed to complete $identifier")
         return WorkResult.Failure
     }
 
     @CheckResult
-    private fun cancelled(throwable: CancellationException): WorkResult {
-        Timber.w(throwable, "Worker was cancelled")
+    private fun cancelled(identifier: String, throwable: CancellationException): WorkResult {
+        Timber.w(throwable, "Worker was cancelled $identifier")
         return WorkResult.Failure
+    }
+
+    @CheckResult
+    private fun identifier(id: UUID, tags: Set<String>): String {
+        return "[ id=$id, tags=$tags ]"
     }
 
     @CheckResult

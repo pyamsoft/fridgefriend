@@ -18,24 +18,23 @@
 package com.pyamsoft.fridge.butler.injector
 
 import android.content.Context
-import com.pyamsoft.fridge.butler.params.LocationParameters
-import com.pyamsoft.fridge.butler.runner.LocationRunner
+import com.pyamsoft.fridge.butler.params.EmptyParameters
+import com.pyamsoft.fridge.butler.runner.NightlyRunner
 import com.pyamsoft.fridge.butler.runner.WorkResult
 import com.pyamsoft.pydroid.ui.Injector
 import java.util.UUID
 import javax.inject.Inject
 
-class LocationInjector(context: Context) : BaseInjector<LocationParameters>(context) {
+class NightlyInjector(context: Context) : BaseInjector<EmptyParameters>(context) {
 
     @JvmField
     @Inject
-    internal var delegate: LocationRunner? = null
-
+    internal var delegate: NightlyRunner? = null
     override suspend fun onRun(
         context: Context,
         id: UUID,
         tags: Set<String>,
-        params: LocationParameters
+        params: EmptyParameters
     ): WorkResult {
         Injector.obtain<ButlerComponent>(context.applicationContext).inject(this)
         val result = requireNotNull(delegate).doWork(id, tags, params)

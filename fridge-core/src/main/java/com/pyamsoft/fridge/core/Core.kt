@@ -46,6 +46,11 @@ fun today(): Calendar {
 }
 
 @CheckResult
+inline fun today(func: Calendar.() -> Unit): Calendar {
+    return Calendar.getInstance().apply(func)
+}
+
+@CheckResult
 fun animatePopInFromBottom(view: View): ViewPropertyAnimatorCompat {
     view.translationY = animatingHeight(view.context.applicationContext)
     view.isVisible = true
