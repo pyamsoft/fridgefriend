@@ -17,12 +17,6 @@
 
 package com.pyamsoft.fridge.tooltip
 
-import com.skydoves.balloon.Balloon
-
-internal data class BalloonAndBuilder internal constructor(
-    val builder: Balloon.Builder,
-    val params: BalloonParameters
-) {
-
-    val balloon = lazyBalloon(builder, params)
-}
+internal data class BaloonParameters internal constructor(
+    val dismissOnClick: Boolean
+)

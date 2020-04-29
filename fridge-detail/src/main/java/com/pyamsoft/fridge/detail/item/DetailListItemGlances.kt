@@ -22,6 +22,7 @@ import android.widget.ImageView
 import androidx.annotation.CheckResult
 import androidx.annotation.DrawableRes
 import androidx.core.view.isVisible
+import androidx.lifecycle.LifecycleOwner
 import com.pyamsoft.fridge.core.today
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence.HAVE
@@ -51,6 +52,7 @@ class DetailListItemGlances @Inject internal constructor(
     private val tooltipCreator: TooltipCreator,
     private val theming: ThemeProvider,
     private val imageLoader: ImageLoader,
+    private val owner: LifecycleOwner,
     parent: ViewGroup
 ) : BaseUiView<DetailListItemViewState, DetailItemViewEvent, DetailListItemGlancesBinding>(parent) {
 
@@ -150,7 +152,7 @@ class DetailListItemGlances @Inject internal constructor(
             return
         }
 
-        dateRangeTooltip = tooltipCreator.top {
+        dateRangeTooltip = tooltipCreator.top(owner) {
             val dateFormatted = SimpleDateFormat.getDateInstance().format(expireTime)
             setText("${item.name().trim()} will expire on $dateFormatted")
         }
@@ -187,7 +189,7 @@ class DetailListItemGlances @Inject internal constructor(
             .apply { time = requireNotNull(expireTime) }
             .cleanMidnight()
 
-        expiringTooltip = tooltipCreator.top {
+        expiringTooltip = tooltipCreator.top(owner) {
             // shitty old time format parser for very basic expiration estimate
             val todayTime = now.timeInMillis
             val expiringTime = expireCalendar.timeInMillis
@@ -240,7 +242,7 @@ class DetailListItemGlances @Inject internal constructor(
         val expireCalendar = today()
             .apply { time = requireNotNull(expireTime) }
             .cleanMidnight()
-        expiredTooltip = tooltipCreator.top {
+        expiredTooltip = tooltipCreator.top(owner) {
 
             // shitty old time format parser for very basic expiration estimate
             val todayTime = now.timeInMillis

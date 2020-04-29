@@ -17,6 +17,19 @@
 
 package com.pyamsoft.fridge.tooltip
 
-internal data class BalloonParameters internal constructor(
-    val dismissOnClick: Boolean
-)
+import androidx.annotation.CheckResult
+import com.skydoves.balloon.Balloon
+
+internal data class BaloonCreator internal constructor(
+    private val builder: Balloon.Builder,
+    private val params: BaloonParameters
+) {
+
+    @CheckResult
+    fun create(): Balloon {
+        return builder
+            .setDismissWhenClicked(params.dismissOnClick)
+            .setDismissWhenTouchOutside(true)
+            .build()
+    }
+}

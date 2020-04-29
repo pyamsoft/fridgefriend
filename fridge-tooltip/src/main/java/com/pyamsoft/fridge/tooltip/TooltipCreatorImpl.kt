@@ -19,6 +19,7 @@ package com.pyamsoft.fridge.tooltip
 
 import android.app.Activity
 import androidx.annotation.CheckResult
+import androidx.lifecycle.LifecycleOwner
 import com.skydoves.balloon.Balloon
 import com.skydoves.balloon.BalloonAnimation
 import javax.inject.Inject
@@ -28,15 +29,19 @@ internal class TooltipCreatorImpl @Inject internal constructor(
 ) : TooltipCreator {
 
     @CheckResult
-    private inline fun create(crossinline builder: TooltipBuilder.() -> TooltipBuilder): BalloonAndBuilder {
+    private inline fun create(
+        owner: LifecycleOwner,
+        crossinline builder: TooltipBuilder.() -> TooltipBuilder
+    ): BaloonCreator {
         val balloonBuilder = Balloon.Builder(activity).apply {
+            setLifecycleOwner(owner)
             setArrowVisible(false)
             setHeight(65)
             setCornerRadius(16F)
             setAlpha(0.85F)
             setBackgroundColorResource(R.color.tooltipBackground)
             setTextColorResource(R.color.tooltipText)
-            setBalloonAnimation(BalloonAnimation.FADE)
+            setBalloonAnimation(BalloonAnimation.OVERSHOOT)
             setArrowPosition(0.5F)
             setTextSize(14F)
 
@@ -49,48 +54,60 @@ internal class TooltipCreatorImpl @Inject internal constructor(
             TooltipBuilderImpl(this).apply { builder() }
         }
 
-        val params = BalloonParameters(dismissOnClick = true)
-        return BalloonAndBuilder(balloonBuilder, params)
+        val params = BaloonParameters(dismissOnClick = true)
+        return BaloonCreator(balloonBuilder, params)
     }
 
-    override fun center(): Tooltip {
-        return center(EMPTY_BUILDER)
+    override fun center(owner: LifecycleOwner): Tooltip {
+        return center(owner, EMPTY_BUILDER)
     }
 
-    override fun center(builder: TooltipBuilder.() -> TooltipBuilder): Tooltip {
-        return TooltipImpl(create(builder), TipDirection.CENTER)
+    override fun center(
+        owner: LifecycleOwner,
+        builder: TooltipBuilder.() -> TooltipBuilder
+    ): Tooltip {
+        return Tooltip(create(owner, builder), TipDirection.CENTER)
     }
 
-    override fun top(): Tooltip {
-        return top(EMPTY_BUILDER)
+    override fun top(owner: LifecycleOwner): Tooltip {
+        return top(owner, EMPTY_BUILDER)
     }
 
-    override fun top(builder: TooltipBuilder.() -> TooltipBuilder): Tooltip {
-        return TooltipImpl(create(builder), TipDirection.TOP)
+    override fun top(owner: LifecycleOwner, builder: TooltipBuilder.() -> TooltipBuilder): Tooltip {
+        return Tooltip(create(owner, builder), TipDirection.TOP)
     }
 
-    override fun left(): Tooltip {
-        return left(EMPTY_BUILDER)
+    override fun left(owner: LifecycleOwner): Tooltip {
+        return left(owner, EMPTY_BUILDER)
     }
 
-    override fun left(builder: TooltipBuilder.() -> TooltipBuilder): Tooltip {
-        return TooltipImpl(create(builder), TipDirection.LEFT)
+    override fun left(
+        owner: LifecycleOwner,
+        builder: TooltipBuilder.() -> TooltipBuilder
+    ): Tooltip {
+        return Tooltip(create(owner, builder), TipDirection.LEFT)
     }
 
-    override fun right(): Tooltip {
-        return right(EMPTY_BUILDER)
+    override fun right(owner: LifecycleOwner): Tooltip {
+        return right(owner, EMPTY_BUILDER)
     }
 
-    override fun right(builder: TooltipBuilder.() -> TooltipBuilder): Tooltip {
-        return TooltipImpl(create(builder), TipDirection.RIGHT)
+    override fun right(
+        owner: LifecycleOwner,
+        builder: TooltipBuilder.() -> TooltipBuilder
+    ): Tooltip {
+        return Tooltip(create(owner, builder), TipDirection.RIGHT)
     }
 
-    override fun bottom(): Tooltip {
-        return bottom(EMPTY_BUILDER)
+    override fun bottom(owner: LifecycleOwner): Tooltip {
+        return bottom(owner, EMPTY_BUILDER)
     }
 
-    override fun bottom(builder: TooltipBuilder.() -> TooltipBuilder): Tooltip {
-        return TooltipImpl(create(builder), TipDirection.BOTTOM)
+    override fun bottom(
+        owner: LifecycleOwner,
+        builder: TooltipBuilder.() -> TooltipBuilder
+    ): Tooltip {
+        return Tooltip(create(owner, builder), TipDirection.BOTTOM)
     }
 
     companion object {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Peter Kenji Yamanaka
+ * Copyright 2020 Peter Kenji Yamanaka
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,15 +19,40 @@ package com.pyamsoft.fridge.tooltip
 
 import android.view.View
 import androidx.annotation.CheckResult
-import androidx.annotation.LayoutRes
 
-abstract class Tooltip internal constructor(
-    private val composite: BalloonAndBuilder,
+class Tooltip internal constructor(
+    creator: BaloonCreator,
     private val direction: TipDirection
-) : Tip {
+) : Hideable {
+
+    private val balloon by lazy(LazyThreadSafetyMode.NONE) { creator.create() }
 
     @CheckResult
-    fun asPopup(@LayoutRes layout: Int, configure: (hide: Hideable, view: View) -> Unit): Popup {
-        return PopupImpl(composite, direction, layout, configure)
+    fun isShowing(): Boolean {
+        return balloon.isShowing
+    }
+
+    fun show(anchor: View) {
+        return when (direction) {
+            TipDirection.CENTER -> balloon.show(anchor)
+            TipDirection.TOP -> balloon.showAlignTop(anchor)
+            TipDirection.BOTTOM -> balloon.showAlignBottom(anchor)
+            TipDirection.LEFT -> balloon.showAlignLeft(anchor)
+            TipDirection.RIGHT -> balloon.showAlignRight(anchor)
+        }
+    }
+
+    fun show(anchor: View, xOff: Int, yOff: Int) {
+        return when (direction) {
+            TipDirection.CENTER -> balloon.show(anchor, xOff, yOff)
+            TipDirection.TOP -> balloon.showAlignTop(anchor, xOff, yOff)
+            TipDirection.BOTTOM -> balloon.showAlignBottom(anchor, xOff, yOff)
+            TipDirection.LEFT -> balloon.showAlignLeft(anchor, xOff, yOff)
+            TipDirection.RIGHT -> balloon.showAlignRight(anchor, xOff, yOff)
+        }
+    }
+
+    override fun hide() {
+        return balloon.dismiss()
     }
 }

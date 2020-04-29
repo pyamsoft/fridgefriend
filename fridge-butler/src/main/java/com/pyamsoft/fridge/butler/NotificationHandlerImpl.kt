@@ -35,9 +35,9 @@ import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.store.NearbyStore
 import com.pyamsoft.fridge.db.zone.NearbyZone
+import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Singleton
-import timber.log.Timber
 
 @Singleton
 internal class NotificationHandlerImpl @Inject internal constructor(
@@ -130,9 +130,7 @@ internal class NotificationHandlerImpl @Inject internal constructor(
             contentIntent(id, FridgeItem.Presence.HAVE)
         ) {
             setContentTitle("Remember to clean the fridge!")
-
-            val appName = context.applicationContext.getString(R.string.app_name)
-            setContentText("Mark anything you ate tonight so that $appName can keep track!")
+            setContentText("Reminder to mark off anything you ate today!")
         }
     }
 

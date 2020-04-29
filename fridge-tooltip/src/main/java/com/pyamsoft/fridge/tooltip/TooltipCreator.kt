@@ -17,37 +17,4 @@
 
 package com.pyamsoft.fridge.tooltip
 
-import androidx.annotation.CheckResult
-
-interface TooltipCreator {
-
-    @CheckResult
-    fun center(): Tooltip
-
-    @CheckResult
-    fun center(builder: TooltipBuilder.() -> TooltipBuilder): Tooltip
-
-    @CheckResult
-    fun top(): Tooltip
-
-    @CheckResult
-    fun top(builder: TooltipBuilder.() -> TooltipBuilder): Tooltip
-
-    @CheckResult
-    fun left(): Tooltip
-
-    @CheckResult
-    fun left(builder: TooltipBuilder.() -> TooltipBuilder): Tooltip
-
-    @CheckResult
-    fun right(): Tooltip
-
-    @CheckResult
-    fun right(builder: TooltipBuilder.() -> TooltipBuilder): Tooltip
-
-    @CheckResult
-    fun bottom(): Tooltip
-
-    @CheckResult
-    fun bottom(builder: TooltipBuilder.() -> TooltipBuilder): Tooltip
-}
+interface TooltipCreator : TipCreator<TooltipBuilder>

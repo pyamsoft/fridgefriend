@@ -38,7 +38,7 @@ class DetailItemNeedViewHolder internal constructor(
     internal var countView: DetailListItemCount? = null
 
     init {
-        factory.create(binding.detailListItem, editable).inject(this)
+        factory.create(binding.detailListItem, owner, editable).inject(this)
 
         val count = requireNotNull(countView)
         val date = requireNotNull(dateView)
