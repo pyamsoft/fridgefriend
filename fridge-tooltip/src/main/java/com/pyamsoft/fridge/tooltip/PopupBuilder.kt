@@ -17,18 +17,15 @@
 
 package com.pyamsoft.fridge.tooltip
 
+import android.view.View
 import androidx.annotation.CheckResult
-import dagger.Binds
-import dagger.Module
+import androidx.annotation.LayoutRes
 
-@Module
-abstract class TooltipModule {
+interface PopupBuilder {
 
-    @Binds
     @CheckResult
-    internal abstract fun bindTooltipCreator(impl: TooltipCreatorImpl): TooltipCreator
+    fun setLayout(@LayoutRes layout: Int): PopupBuilder
 
-    @Binds
     @CheckResult
-    internal abstract fun bindPopupCreator(impl: PopupCreatorImpl): PopupCreator
+    fun configure(configure: (hideable: Hideable, view: View) -> Unit): PopupBuilder
 }

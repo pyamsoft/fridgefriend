@@ -17,18 +17,4 @@
 
 package com.pyamsoft.fridge.tooltip
 
-import androidx.annotation.CheckResult
-import dagger.Binds
-import dagger.Module
-
-@Module
-abstract class TooltipModule {
-
-    @Binds
-    @CheckResult
-    internal abstract fun bindTooltipCreator(impl: TooltipCreatorImpl): TooltipCreator
-
-    @Binds
-    @CheckResult
-    internal abstract fun bindPopupCreator(impl: PopupCreatorImpl): PopupCreator
-}
+interface PopupCreator : TipCreator<PopupBuilder, Popup>

@@ -17,42 +17,6 @@
 
 package com.pyamsoft.fridge.tooltip
 
-import android.view.View
-import androidx.annotation.CheckResult
-
 class Tooltip internal constructor(
-    creator: BaloonCreator,
-    private val direction: TipDirection
-) : Hideable {
-
-    private val balloon by lazy(LazyThreadSafetyMode.NONE) { creator.create() }
-
-    @CheckResult
-    fun isShowing(): Boolean {
-        return balloon.isShowing
-    }
-
-    fun show(anchor: View) {
-        return when (direction) {
-            TipDirection.CENTER -> balloon.show(anchor)
-            TipDirection.TOP -> balloon.showAlignTop(anchor)
-            TipDirection.BOTTOM -> balloon.showAlignBottom(anchor)
-            TipDirection.LEFT -> balloon.showAlignLeft(anchor)
-            TipDirection.RIGHT -> balloon.showAlignRight(anchor)
-        }
-    }
-
-    fun show(anchor: View, xOff: Int, yOff: Int) {
-        return when (direction) {
-            TipDirection.CENTER -> balloon.show(anchor, xOff, yOff)
-            TipDirection.TOP -> balloon.showAlignTop(anchor, xOff, yOff)
-            TipDirection.BOTTOM -> balloon.showAlignBottom(anchor, xOff, yOff)
-            TipDirection.LEFT -> balloon.showAlignLeft(anchor, xOff, yOff)
-            TipDirection.RIGHT -> balloon.showAlignRight(anchor, xOff, yOff)
-        }
-    }
-
-    override fun hide() {
-        return balloon.dismiss()
-    }
-}
+    creator: BalloonCreator, direction: TipDirection
+) : Tip(creator, direction)

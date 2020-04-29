@@ -17,18 +17,22 @@
 
 package com.pyamsoft.fridge.tooltip
 
-import androidx.annotation.CheckResult
-import dagger.Binds
-import dagger.Module
+import android.view.View
+import com.skydoves.balloon.Balloon
 
-@Module
-abstract class TooltipModule {
+internal class PopupBuilderImpl internal constructor(
+    private val builder: Balloon.Builder
+) : PopupBuilder {
 
-    @Binds
-    @CheckResult
-    internal abstract fun bindTooltipCreator(impl: TooltipCreatorImpl): TooltipCreator
+    internal var configure: ((Hideable, View) -> Unit)? = null
 
-    @Binds
-    @CheckResult
-    internal abstract fun bindPopupCreator(impl: PopupCreatorImpl): PopupCreator
+    override fun setLayout(layout: Int): PopupBuilder {
+        builder.setLayout(layout)
+        return this
+    }
+
+    override fun configure(configure: (hideable: Hideable, view: View) -> Unit): PopupBuilder {
+        this.configure = configure
+        return this
+    }
 }
