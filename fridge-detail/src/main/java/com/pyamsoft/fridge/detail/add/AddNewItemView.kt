@@ -17,27 +17,36 @@
 
 package com.pyamsoft.fridge.detail.add
 
+import android.os.Handler
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.ViewGroup
 import android.view.animation.AccelerateInterpolator
 import androidx.core.view.ViewCompat
 import androidx.core.view.ViewPropertyAnimatorCompat
 import androidx.core.view.isVisible
+import androidx.lifecycle.LifecycleOwner
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.detail.DetailViewEvent
 import com.pyamsoft.fridge.detail.DetailViewState
 import com.pyamsoft.fridge.detail.R
 import com.pyamsoft.fridge.detail.databinding.AddNewBinding
+import com.pyamsoft.fridge.detail.databinding.SearchBinding
+import com.pyamsoft.fridge.tooltip.Popup
+import com.pyamsoft.fridge.tooltip.PopupCreator
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.loader.Loaded
 import com.pyamsoft.pydroid.ui.util.popShow
 import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
-import javax.inject.Inject
 import timber.log.Timber
+import javax.inject.Inject
 
 class AddNewItemView @Inject internal constructor(
     private val imageLoader: ImageLoader,
+    owner: LifecycleOwner,
     parent: ViewGroup,
+    popupCreator: PopupCreator,
     listItemPresence: FridgeItem.Presence
 ) : BaseUiView<DetailViewState, DetailViewEvent, AddNewBinding>(parent) {
 
@@ -53,6 +62,10 @@ class AddNewItemView @Inject internal constructor(
     private var rotateIconAnimator: ViewPropertyAnimatorCompat? = null
 
     private var previousRotated = false
+
+    private val handler = Handler()
+
+    private var searchPopup: Popup? = null
 
     init {
         doOnInflate {
@@ -108,6 +121,78 @@ class AddNewItemView @Inject internal constructor(
             disposeAddNewAnimator()
             disposeRotate()
         }
+
+        doOnInflate { reader ->
+            val watcher = object : TextWatcher {
+                override fun afterTextChanged(s: Editable) {
+                }
+
+                override fun beforeTextChanged(
+                    s: CharSequence,
+                    start: Int,
+                    count: Int,
+                    after: Int
+                ) {
+                }
+
+                override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
+                    deboucedPublish(DetailViewEvent.SearchQuery(s.toString()))
+                }
+            }
+
+            val popup = popupCreator.left(owner) {
+                setLayout(R.layout.search)
+                configure { _, view ->
+                    SearchBinding.bind(view).apply {
+                        reader.useIfAvailable<CharSequence>(KEY_SEARCH) { search ->
+                            searchView.setText(search)
+                        }
+                        searchView.addTextChangedListener(watcher)
+                    }
+                }
+            }
+
+            doOnTeardown {
+                popup.withContentView { view ->
+                    SearchBinding.bind(view).apply {
+                        searchView.removeTextChangedListener(watcher)
+                    }
+                }
+                popup.hide()
+                handler.removeCallbacksAndMessages(null)
+            }
+            searchPopup = popup
+        }
+
+        doOnSaveState { writer ->
+            searchPopup?.withContentView { view ->
+                SearchBinding.bind(view).apply {
+                    writer.put(KEY_SEARCH, searchView.text)
+                }
+            }
+        }
+
+        doOnInflate {
+            binding.detailSearchItem.setOnDebouncedClickListener {
+                searchPopup?.let { popup ->
+                    if (popup.isShowing()) {
+                        popup.hide()
+                    } else {
+                        popup.show(binding.detailSearchItem)
+                        popup.withContentView { view ->
+                            SearchBinding.bind(view).apply {
+                                searchView.requestFocus()
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private fun deboucedPublish(event: DetailViewEvent) {
+        handler.removeCallbacksAndMessages(null)
+        handler.postDelayed({ publish(event) }, PUBLISH_DELAY)
     }
 
     private fun disposeSortLoaded() {
@@ -182,6 +267,8 @@ class AddNewItemView @Inject internal constructor(
 
     companion object {
 
+        private const val PUBLISH_DELAY = 400L
         private val ROTATE_INTERPOLATOR = AccelerateInterpolator()
+        private const val KEY_SEARCH = "key_search"
     }
 }

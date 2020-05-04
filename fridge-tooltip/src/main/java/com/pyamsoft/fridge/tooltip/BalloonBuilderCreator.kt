@@ -35,7 +35,6 @@ internal abstract class BalloonBuilderCreator protected constructor(
         return Balloon.Builder(activity).apply {
             setLifecycleOwner(owner)
             setArrowVisible(false)
-            setHeight(65)
             setCornerRadius(16F)
             setAlpha(0.85F)
             setBackgroundColorResource(R.color.tooltipBackground)

@@ -36,7 +36,7 @@ internal class PopupCreatorImpl @Inject internal constructor(
             configureHook = realBuilder.configure
         }
 
-        val params = BaloonParameters(dismissOnClick = false)
+        val params = BaloonParameters(dismissOnClick = false, dismissOnTouchOutside = false)
         return BalloonCreator(balloonBuilder, params, configureHook)
     }
 

@@ -30,10 +30,11 @@ internal class TooltipCreatorImpl @Inject internal constructor(
         builder: TooltipBuilder.() -> TooltipBuilder
     ): BalloonCreator {
         val balloonBuilder = newBuilder(owner) {
+            setHeight(65)
             TooltipBuilderImpl(this).apply { builder() }
         }
 
-        val params = BaloonParameters(dismissOnClick = true)
+        val params = BaloonParameters(dismissOnClick = true, dismissOnTouchOutside = true)
         return BalloonCreator(balloonBuilder, params, null)
     }
 

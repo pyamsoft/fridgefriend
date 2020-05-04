@@ -27,6 +27,10 @@ abstract class Tip internal constructor(
 
     private val balloon by lazy(LazyThreadSafetyMode.NONE) { creator.create() }
 
+    fun withContentView(func: (view: View) -> Unit) {
+        func(balloon.getContentView())
+    }
+
     @CheckResult
     fun isShowing(): Boolean {
         return balloon.isShowing

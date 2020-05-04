@@ -31,7 +31,7 @@ internal data class BalloonCreator internal constructor(
     fun create(): Balloon {
         return builder
             .setDismissWhenClicked(params.dismissOnClick)
-            .setDismissWhenTouchOutside(true)
+            .setDismissWhenTouchOutside(params.dismissOnTouchOutside)
             .build().also { b ->
                 configure?.let { hook ->
                     val view = b.getContentView()

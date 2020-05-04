@@ -18,5 +18,6 @@
 package com.pyamsoft.fridge.tooltip
 
 internal data class BaloonParameters internal constructor(
-    val dismissOnClick: Boolean
+    val dismissOnClick: Boolean,
+    val dismissOnTouchOutside: Boolean
 )
