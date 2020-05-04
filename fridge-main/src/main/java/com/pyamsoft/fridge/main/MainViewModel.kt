@@ -25,10 +25,10 @@ import com.pyamsoft.fridge.locator.MapPermission
 import com.pyamsoft.highlander.highlander
 import com.pyamsoft.pydroid.arch.EventBus
 import com.pyamsoft.pydroid.arch.UiViewModel
-import javax.inject.Inject
-import javax.inject.Named
 import kotlinx.coroutines.launch
 import timber.log.Timber
+import javax.inject.Inject
+import javax.inject.Named
 
 class MainViewModel @Inject internal constructor(
     private val interactor: MainInteractor,
@@ -40,7 +40,6 @@ class MainViewModel @Inject internal constructor(
 ) : UiViewModel<MainViewState, MainViewEvent, MainControllerEvent>(
     initialState = MainViewState(
         page = null,
-        isSettingsItemVisible = true,
         appNameRes = appNameRes,
         countNeeded = 0,
         countExpiringOrExpired = 0,
@@ -105,16 +104,17 @@ class MainViewModel @Inject internal constructor(
             is MainViewEvent.OpenNeed -> selectPage(MainPage.NEED)
             is MainViewEvent.OpenCategory -> selectPage(MainPage.CATEGORY)
             is MainViewEvent.OpenNearby -> selectPage(MainPage.NEARBY)
-            is MainViewEvent.SettingsNavigate -> publish(MainControllerEvent.NavigateToSettings)
+            is MainViewEvent.OpenSettings -> selectPage(MainPage.SETTINGS)
         }
     }
 
     fun selectPage(newPage: MainPage) {
         when (newPage) {
-            MainPage.NEED -> select(MainPage.NEED) { MainControllerEvent.PushNeed(it) }
-            MainPage.HAVE -> select(MainPage.HAVE) { MainControllerEvent.PushHave(it) }
-            MainPage.NEARBY -> select(MainPage.NEARBY) { MainControllerEvent.PushNearby(it) }
-            MainPage.CATEGORY -> select(MainPage.CATEGORY) { MainControllerEvent.PushCategory(it) }
+            MainPage.NEED -> select(newPage) { MainControllerEvent.PushNeed(it) }
+            MainPage.HAVE -> select(newPage) { MainControllerEvent.PushHave(it) }
+            MainPage.NEARBY -> select(newPage) { MainControllerEvent.PushNearby(it) }
+            MainPage.CATEGORY -> select(newPage) { MainControllerEvent.PushCategory(it) }
+            MainPage.SETTINGS -> select(newPage) { MainControllerEvent.PushSettings(it) }
         }
     }
 

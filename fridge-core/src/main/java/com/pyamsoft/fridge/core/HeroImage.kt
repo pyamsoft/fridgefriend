@@ -20,15 +20,12 @@ package com.pyamsoft.fridge.core
 import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.annotation.CheckResult
-import androidx.core.content.withStyledAttributes
-import androidx.core.view.updatePadding
 import com.pyamsoft.fridge.core.databinding.CoreHeroImageBinding
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.arch.UiViewEvent
 import com.pyamsoft.pydroid.arch.UiViewState
 import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.loader.Loaded
-import com.pyamsoft.pydroid.util.doOnApplyWindowInsets
 
 abstract class HeroImage<S : UiViewState, V : UiViewEvent> protected constructor(
     parent: ViewGroup,
@@ -43,19 +40,7 @@ abstract class HeroImage<S : UiViewState, V : UiViewEvent> protected constructor
 
     init {
         doOnInflate {
-            binding.coreHeroCollapse.doOnApplyWindowInsets { v, insets, padding ->
-                val toolbarTopMargin = padding.top + insets.systemWindowInsetTop
-                v.context.withStyledAttributes(
-                    R.attr.toolbarStyle,
-                    intArrayOf(R.attr.actionBarSize)
-                ) {
-                    val sizeId = getResourceId(0, 0)
-                    if (sizeId != 0) {
-                        val toolbarHeight = v.context.resources.getDimensionPixelSize(sizeId)
-                        v.updatePadding(top = toolbarTopMargin + toolbarHeight)
-                    }
-                }
-            }
+            binding.coreHeroCollapse.applyToolbarOffset()
         }
 
         doOnTeardown {

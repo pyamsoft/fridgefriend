@@ -24,7 +24,6 @@ import com.pyamsoft.pydroid.arch.UiViewState
 data class MainViewState(
     val page: MainPage?,
     val appNameRes: Int,
-    val isSettingsItemVisible: Boolean,
     val countNeeded: Int,
     val countExpiringOrExpired: Int,
     val hasNearby: Boolean
@@ -40,7 +39,7 @@ sealed class MainViewEvent : UiViewEvent {
 
     object OpenNearby : MainViewEvent()
 
-    object SettingsNavigate : MainViewEvent()
+    object OpenSettings : MainViewEvent()
 }
 
 sealed class MainControllerEvent : UiControllerEvent {
@@ -54,7 +53,8 @@ sealed class MainControllerEvent : UiControllerEvent {
 
     data class PushNearby internal constructor(val previousPage: MainPage?) : MainControllerEvent()
 
-    object NavigateToSettings : MainControllerEvent()
+    data class PushSettings internal constructor(val previousPage: MainPage?) :
+        MainControllerEvent()
 
     object VersionCheck : MainControllerEvent()
 }

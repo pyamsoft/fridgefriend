@@ -43,4 +43,10 @@
         android:title="Nearby"
         app:showAsAction="ifRoom" />
 
+    <item
+        android:id="@+id/menu_item_nav_settings"
+        android:icon="@drawable/ic_settings_24dp"
+        android:title="Settings"
+        app:showAsAction="ifRoom" />
+
 </menu>

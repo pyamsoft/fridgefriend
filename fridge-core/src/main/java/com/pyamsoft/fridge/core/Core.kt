@@ -24,9 +24,12 @@ import android.view.WindowManager
 import android.view.animation.OvershootInterpolator
 import androidx.annotation.CheckResult
 import androidx.core.content.getSystemService
+import androidx.core.content.withStyledAttributes
 import androidx.core.view.ViewCompat
 import androidx.core.view.ViewPropertyAnimatorCompat
 import androidx.core.view.isVisible
+import androidx.core.view.updatePadding
+import com.pyamsoft.pydroid.util.doOnApplyWindowInsets
 import java.util.Calendar
 import java.util.Date
 
@@ -69,4 +72,20 @@ private fun animatingHeight(context: Context): Float {
     val window = requireNotNull(app.getSystemService<WindowManager>())
     window.defaultDisplay.getSize(point)
     return point.y.toFloat()
+}
+
+fun View.applyToolbarOffset() {
+    this.doOnApplyWindowInsets { v, insets, padding ->
+        val toolbarTopMargin = padding.top + insets.systemWindowInsetTop
+        v.context.withStyledAttributes(
+            R.attr.toolbarStyle,
+            intArrayOf(R.attr.actionBarSize)
+        ) {
+            val sizeId = getResourceId(0, 0)
+            if (sizeId != 0) {
+                val toolbarHeight = v.context.resources.getDimensionPixelSize(sizeId)
+                v.updatePadding(top = toolbarTopMargin + toolbarHeight)
+            }
+        }
+    }
 }

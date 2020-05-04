@@ -17,7 +17,6 @@
 
 package com.pyamsoft.fridge.main
 
-import android.view.MenuItem
 import android.view.ViewGroup
 import android.view.ViewGroup.MarginLayoutParams
 import androidx.core.view.ViewCompat
@@ -30,7 +29,6 @@ import com.pyamsoft.pydroid.ui.app.ToolbarActivityProvider
 import com.pyamsoft.pydroid.ui.privacy.addPrivacy
 import com.pyamsoft.pydroid.ui.privacy.removePrivacy
 import com.pyamsoft.pydroid.ui.theme.ThemeProvider
-import com.pyamsoft.pydroid.ui.util.setUpEnabled
 import com.pyamsoft.pydroid.util.doOnApplyWindowInsets
 import com.pyamsoft.pydroid.util.toDp
 import javax.inject.Inject
@@ -46,8 +44,6 @@ class MainToolbar @Inject internal constructor(
     override val viewBinding = MainToolbarBinding::inflate
 
     override val layoutRoot by boundView { mainToolbar }
-
-    private var settingsItem: MenuItem? = null
 
     init {
         doOnInflate {
@@ -66,48 +62,15 @@ class MainToolbar @Inject internal constructor(
             binding.mainToolbar.removePrivacy()
             toolbarActivityProvider.setToolbar(null)
         }
-
-        doOnInflate {
-            inflateMenu()
-        }
-
-        doOnTeardown {
-            teardownMenu()
-        }
     }
 
     override fun onRender(state: MainViewState) {
-        state.isSettingsItemVisible.let { show ->
-            settingsItem?.isVisible = show
-        }
-
         state.appNameRes.let { name ->
             if (name == 0) {
                 binding.mainToolbar.title = null
             } else {
                 binding.mainToolbar.setTitle(name)
             }
-        }
-    }
-
-    private fun teardownMenu() {
-        settingsItem?.setOnMenuItemClickListener(null)
-        settingsItem = null
-        binding.mainToolbar.menu.removeItem(R.id.menu_item_settings)
-    }
-
-    private fun inflateMenu() {
-        binding.mainToolbar.let { toolbar ->
-            toolbar.setUpEnabled(false)
-            toolbar.inflateMenu(R.menu.toolbar_menu)
-            toolbar.menu.findItem(R.id.menu_item_settings)
-                .also { item ->
-                    item.setOnMenuItemClickListener {
-                        publish(MainViewEvent.SettingsNavigate)
-                        return@setOnMenuItemClickListener true
-                    }
-                    settingsItem = item
-                }
         }
     }
 

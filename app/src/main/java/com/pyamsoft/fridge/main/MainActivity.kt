@@ -24,7 +24,7 @@ import android.view.ViewGroup
 import androidx.annotation.CheckResult
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
-import androidx.fragment.app.FragmentManager
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentTransaction
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
@@ -41,7 +41,7 @@ import com.pyamsoft.fridge.initOnAppStart
 import com.pyamsoft.fridge.locator.DeviceGps
 import com.pyamsoft.fridge.map.MapFragment
 import com.pyamsoft.fridge.permission.PermissionFragment
-import com.pyamsoft.fridge.setting.SettingsDialog
+import com.pyamsoft.fridge.setting.SettingsFragment
 import com.pyamsoft.pydroid.arch.StateSaver
 import com.pyamsoft.pydroid.arch.createComponent
 import com.pyamsoft.pydroid.ui.Injector
@@ -52,12 +52,10 @@ import com.pyamsoft.pydroid.ui.rating.RatingActivity
 import com.pyamsoft.pydroid.ui.rating.buildChangeLog
 import com.pyamsoft.pydroid.ui.util.commitNow
 import com.pyamsoft.pydroid.ui.util.layout
-import com.pyamsoft.pydroid.ui.util.show
 import com.pyamsoft.pydroid.util.makeWindowSexy
-import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import timber.log.Timber
+import javax.inject.Inject
 
 internal class MainActivity : RatingActivity(), VersionChecker {
 
@@ -210,7 +208,7 @@ internal class MainActivity : RatingActivity(), VersionChecker {
                 is MainControllerEvent.PushNeed -> pushNeed(it.previousPage)
                 is MainControllerEvent.PushCategory -> pushCategory(it.previousPage)
                 is MainControllerEvent.PushNearby -> pushNearby(it.previousPage)
-                is MainControllerEvent.NavigateToSettings -> showSettingsDialog()
+                is MainControllerEvent.PushSettings -> pushSettings(it.previousPage)
                 is MainControllerEvent.VersionCheck -> checkForUpdate()
             }
         }
@@ -248,6 +246,15 @@ internal class MainActivity : RatingActivity(), VersionChecker {
         }
     }
 
+    private fun pushSettings(previousPage: MainPage?) {
+        commitPage(
+            SettingsFragment.newInstance(),
+            MainPage.SETTINGS,
+            previousPage,
+            SettingsFragment.TAG
+        )
+    }
+
     private fun pushHave(previousPage: MainPage?) {
         pushPresenceFragment(previousPage, FridgeItem.Presence.HAVE)
     }
@@ -257,13 +264,12 @@ internal class MainActivity : RatingActivity(), VersionChecker {
     }
 
     private fun pushCategory(previousPage: MainPage?) {
-        val fm = supportFragmentManager
-
-        Timber.d("Pushing category fragment")
-        fm.commitNow(this) {
-            decideAnimationForPage(previousPage, MainPage.CATEGORY)
-            replace(fragmentContainerId, CategoryFragment.newInstance(), CategoryFragment.TAG)
-        }
+        commitPage(
+            CategoryFragment.newInstance(),
+            MainPage.CATEGORY,
+            previousPage,
+            CategoryFragment.TAG
+        )
     }
 
     private fun pushNearby(previousPage: MainPage?) {
@@ -272,7 +278,7 @@ internal class MainActivity : RatingActivity(), VersionChecker {
             fm.findFragmentByTag(MapFragment.TAG) == null &&
             fm.findFragmentByTag(PermissionFragment.TAG) == null
         ) {
-            commitNearbyFragment(fm, previousPage)
+            commitNearbyFragment(previousPage)
         }
     }
 
@@ -282,46 +288,56 @@ internal class MainActivity : RatingActivity(), VersionChecker {
             if (viewModel.canShowMap()) {
                 // Replace permission with map
                 // Don't need animation because we are already on this page
-                commitNearbyFragment(fm, null)
+                commitNearbyFragment(null)
             }
         } else if (fm.findFragmentByTag(MapFragment.TAG) != null) {
             if (!viewModel.canShowMap()) {
                 // Replace map with permission
                 // Don't need animation because we are already on this page
-                commitNearbyFragment(fm, null)
+                commitNearbyFragment(null)
             }
         }
     }
 
-    private fun commitNearbyFragment(fragmentManager: FragmentManager, previousPage: MainPage?) {
-        fragmentManager.commitNow(this) {
-            val container = fragmentContainerId
-            decideAnimationForPage(previousPage, MainPage.NEARBY)
-            if (viewModel.canShowMap()) {
-                replace(container, MapFragment.newInstance(), MapFragment.TAG)
-            } else {
-                replace(
-                    container,
-                    PermissionFragment.newInstance(container),
-                    PermissionFragment.TAG
-                )
-            }
+    private fun commitNearbyFragment(previousPage: MainPage?) {
+        if (viewModel.canShowMap()) {
+            commitPage(MapFragment.newInstance(), MainPage.NEARBY, previousPage, MapFragment.TAG)
+        } else {
+            commitPage(
+                PermissionFragment.newInstance(fragmentContainerId),
+                MainPage.NEARBY,
+                previousPage,
+                PermissionFragment.TAG
+            )
         }
-    }
-
-    private fun showSettingsDialog() {
-        SettingsDialog().show(this, SettingsDialog.TAG)
     }
 
     private fun pushPresenceFragment(previousPage: MainPage?, presence: FridgeItem.Presence) {
-        val fm = supportFragmentManager
-
-        Timber.d("Pushing fragment: $presence")
         val tag = "${EntryFragment.TAG}|${presence.name}"
-        fm.commitNow(this) {
-            val newPage = if (presence == FridgeItem.Presence.HAVE) MainPage.HAVE else MainPage.NEED
-            decideAnimationForPage(previousPage, newPage)
-            replace(fragmentContainerId, EntryFragment.newInstance(presence), tag)
+        val newPage = if (presence == FridgeItem.Presence.HAVE) MainPage.HAVE else MainPage.NEED
+        commitPage(EntryFragment.newInstance(presence), newPage, previousPage, tag)
+    }
+
+    private fun commitPage(
+        fragment: Fragment,
+        newPage: MainPage,
+        previousPage: MainPage?,
+        tag: String
+    ) {
+        val fm = supportFragmentManager
+        val container = fragmentContainerId
+
+        val push = when {
+            previousPage != null -> true
+            fm.findFragmentById(container) == null -> true
+            else -> false
+        }
+
+        if (push) {
+            fm.commitNow(this) {
+                decideAnimationForPage(previousPage, newPage)
+                replace(container, fragment, tag)
+            }
         }
     }
 
@@ -329,25 +345,31 @@ internal class MainActivity : RatingActivity(), VersionChecker {
         val (enter, exit) = when (newPage) {
             MainPage.NEED -> when (oldPage) {
                 null -> R.anim.fragment_open_enter to R.anim.fragment_open_exit
-                MainPage.HAVE, MainPage.CATEGORY, MainPage.NEARBY -> R.anim.slide_in_left to R.anim.slide_out_right
+                MainPage.HAVE, MainPage.CATEGORY, MainPage.NEARBY, MainPage.SETTINGS -> R.anim.slide_in_left to R.anim.slide_out_right
                 MainPage.NEED -> throw IllegalStateException("Cannot move from $oldPage to $newPage")
             }
             MainPage.HAVE -> when (oldPage) {
                 null -> R.anim.fragment_open_enter to R.anim.fragment_open_exit
                 MainPage.NEED -> R.anim.slide_in_right to R.anim.slide_out_left
-                MainPage.CATEGORY, MainPage.NEARBY -> R.anim.slide_in_left to R.anim.slide_out_right
+                MainPage.CATEGORY, MainPage.NEARBY, MainPage.SETTINGS -> R.anim.slide_in_left to R.anim.slide_out_right
                 MainPage.HAVE -> throw IllegalStateException("Cannot move from $oldPage to $newPage")
             }
             MainPage.CATEGORY -> when (oldPage) {
                 null -> R.anim.fragment_open_enter to R.anim.fragment_open_exit
                 MainPage.NEED, MainPage.HAVE -> R.anim.slide_in_right to R.anim.slide_out_left
-                MainPage.NEARBY -> R.anim.slide_in_left to R.anim.slide_out_right
+                MainPage.NEARBY, MainPage.SETTINGS -> R.anim.slide_in_left to R.anim.slide_out_right
                 MainPage.CATEGORY -> throw IllegalStateException("Cannot move from $oldPage to $newPage")
             }
             MainPage.NEARBY -> when (oldPage) {
                 null -> R.anim.fragment_open_enter to R.anim.fragment_open_exit
                 MainPage.NEED, MainPage.HAVE, MainPage.CATEGORY -> R.anim.slide_in_right to R.anim.slide_out_left
+                MainPage.SETTINGS -> R.anim.slide_in_left to R.anim.slide_out_right
                 MainPage.NEARBY -> throw IllegalStateException("Cannot move from $oldPage to $newPage")
+            }
+            MainPage.SETTINGS -> when (oldPage) {
+                null -> R.anim.fragment_open_enter to R.anim.fragment_open_exit
+                MainPage.NEED, MainPage.HAVE, MainPage.CATEGORY, MainPage.NEARBY -> R.anim.slide_in_right to R.anim.slide_out_left
+                MainPage.SETTINGS -> throw IllegalStateException("Cannot move from $oldPage to $newPage")
             }
         }
         setCustomAnimations(enter, exit, enter, exit)

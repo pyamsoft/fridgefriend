@@ -18,5 +18,5 @@
 package com.pyamsoft.fridge.main
 
 enum class MainPage {
-    NEED, HAVE, CATEGORY, NEARBY
+    NEED, HAVE, CATEGORY, NEARBY, SETTINGS
 }
