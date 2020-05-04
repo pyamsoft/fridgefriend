@@ -34,6 +34,7 @@
         android:id="@+id/menu_item_nav_category"
         android:icon="@drawable/ic_settings_24dp"
         android:title="Categories"
+        android:visible="false"
         app:showAsAction="ifRoom" />
 
     <item
