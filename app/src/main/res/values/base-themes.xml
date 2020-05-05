@@ -49,12 +49,8 @@
     </style>
 
 
-    <style name="Base.Theme.Fridge.Splash" parent="@style/MC.Theme.Fridge">
+    <style name="Base.Theme.Fridge.Splash" parent="@style/Base.Theme.Fridge.Normal">
         <item name="android:windowBackground">@drawable/splash_screen</item>
-
-        <item name="android:navigationBarColor">@color/navigationBarColor</item>
-        <item name="android:statusBarColor">@color/statusBarColor</item>
-        <item name="android:windowLightStatusBar">@bool/light_bars</item>
     </style>
 
     <style name="Base.Theme.Fridge.Preferences" parent="@style/MC.Theme.Fridge.Preferences">

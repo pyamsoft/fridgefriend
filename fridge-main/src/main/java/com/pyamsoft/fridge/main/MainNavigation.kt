@@ -37,10 +37,20 @@ class MainNavigation @Inject internal constructor(
     override val layoutRoot by boundView { mainBottomNavigationMenu }
 
     init {
-        doOnInflate {
-            layoutRoot.doOnApplyWindowInsets { v, insets, padding ->
-                v.updatePadding(bottom = padding.bottom + insets.systemWindowInsetBottom)
+        doOnInflate { reader ->
+            val savedPadding = reader.get<Int>(KEY_PADDING)
+            if (savedPadding == null) {
+                layoutRoot.doOnApplyWindowInsets { v, insets, padding ->
+                    v.updatePadding(bottom = padding.bottom + insets.systemWindowInsetBottom)
+                }
+            } else {
+                layoutRoot.updatePadding(bottom = savedPadding)
             }
+        }
+
+        doOnSaveState { writer ->
+            // We must save the padding here otherwise the padding will constantly increase
+            writer.put(KEY_PADDING, layoutRoot.paddingBottom)
         }
 
         doOnInflate {
@@ -106,5 +116,9 @@ class MainNavigation @Inject internal constructor(
     private fun select(viewEvent: MainViewEvent): Boolean {
         publish(viewEvent)
         return false
+    }
+
+    companion object {
+        private const val KEY_PADDING = "key_padding"
     }
 }
