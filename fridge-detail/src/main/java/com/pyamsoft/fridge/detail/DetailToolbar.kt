@@ -17,14 +17,17 @@
 
 package com.pyamsoft.fridge.detail
 
+import android.os.Handler
 import android.view.Menu
 import android.view.MenuItem
 import android.view.SubMenu
 import androidx.annotation.CheckResult
+import androidx.appcompat.widget.SearchView
 import androidx.appcompat.widget.Toolbar
 import androidx.core.text.bold
 import androidx.core.text.buildSpannedString
 import androidx.core.view.forEach
+import androidx.core.view.iterator
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.pydroid.arch.UiBundleReader
 import com.pyamsoft.pydroid.arch.UiView
@@ -36,7 +39,11 @@ class DetailToolbar @Inject internal constructor(
     presence: FridgeItem.Presence
 ) : UiView<DetailViewState, DetailViewEvent>() {
 
+    private var searchItem: MenuItem? = null
+    private var searchView: SearchView? = null
     private var subMenu: SubMenu? = null
+
+    private val publishHandler = Handler()
 
     init {
         doOnInflate {
@@ -56,7 +63,8 @@ class DetailToolbar @Inject internal constructor(
         toolbar: Toolbar,
         presence: FridgeItem.Presence
     ) {
-        subMenu = toolbar.initMenu(presence)
+        subMenu = toolbar.initSubmenu(presence)
+        searchItem = toolbar.initSearchItem()
     }
 
     override fun onInit(savedInstanceState: UiBundleReader) {
@@ -80,37 +88,104 @@ class DetailToolbar @Inject internal constructor(
         }
     }
 
+    private fun debouncedPublish(event: DetailViewEvent) {
+        publishHandler.removeCallbacksAndMessages(null)
+        publishHandler.postDelayed({ publish(event) }, SEARCH_PUBLISH_TIMEOUT)
+    }
+
+    private fun Toolbar.setVisibilityOfNonSearchItems(visible: Boolean) {
+        for (item in this.menu) {
+            if (item.itemId != ID_SEARCH) {
+                item.isVisible = visible
+            }
+        }
+    }
+
     @CheckResult
-    private fun Toolbar.initMenu(presence: FridgeItem.Presence): SubMenu {
-        return this.menu.addSubMenu(GROUP_ID, ID_SUBMENU, Menu.NONE, "Sorts").also { subMenu ->
+    private fun Toolbar.initSearchItem(): MenuItem {
+        val toolbar = this
+        return this.menu.add(Menu.NONE, ID_SEARCH, Menu.NONE, "Search").apply {
+            setIcon(R.drawable.ic_search_24dp)
+            setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM or MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW)
+            setOnActionExpandListener(object : MenuItem.OnActionExpandListener {
+
+                override fun onMenuItemActionExpand(item: MenuItem?): Boolean {
+                    toolbar.post { setVisibilityOfNonSearchItems(false) }
+                    return true
+                }
+
+                override fun onMenuItemActionCollapse(item: MenuItem?): Boolean {
+                    toolbar.post { setVisibilityOfNonSearchItems(true) }
+                    return true
+                }
+            })
+            searchView = SearchView(toolbar.context).apply {
+                setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+                    override fun onQueryTextSubmit(query: String): Boolean {
+                        debouncedPublish(DetailViewEvent.SearchQuery(query))
+                        return true
+                    }
+
+                    override fun onQueryTextChange(newText: String): Boolean {
+                        debouncedPublish(DetailViewEvent.SearchQuery(newText))
+                        return true
+                    }
+                })
+            }
+            actionView = searchView
+        }
+    }
+
+    @CheckResult
+    private fun Toolbar.initSubmenu(presence: FridgeItem.Presence): SubMenu {
+        return this.menu.addSubMenu(GROUP_SUBMENU, ID_SUBMENU, Menu.NONE, "Sorts").also { subMenu ->
             subMenu.item.setIcon(R.drawable.ic_sort_24dp)
             subMenu.item.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM)
             subMenu.add(Menu.NONE, ID_TITLE, Menu.NONE, "").apply {
                 title = buildSpannedString { bold { append("Sorts") } }
             }
-            subMenu.add(GROUP_ID, ID_CREATED_DATE, 1, "Created Date").apply {
+            subMenu.add(GROUP_SUBMENU, ID_CREATED_DATE, 1, "Created Date").apply {
                 isChecked = false
                 setOnMenuItemClickListener(clickListener(DetailViewState.Sorts.CREATED))
             }
-            subMenu.add(GROUP_ID, ID_NAME, 2, "Name").apply {
+            subMenu.add(GROUP_SUBMENU, ID_NAME, 2, "Name").apply {
                 isChecked = false
                 setOnMenuItemClickListener(clickListener(DetailViewState.Sorts.NAME))
             }
             if (presence == FridgeItem.Presence.HAVE) {
-                subMenu.add(GROUP_ID, ID_PURCHASED_DATE, 3, "Purchase Date").apply {
+                subMenu.add(GROUP_SUBMENU, ID_PURCHASED_DATE, 3, "Purchase Date").apply {
                     isChecked = false
                     setOnMenuItemClickListener(clickListener(DetailViewState.Sorts.PURCHASED))
                 }
-                subMenu.add(GROUP_ID, ID_EXPIRATION_DATE, 4, "Expiration Date").apply {
+                subMenu.add(GROUP_SUBMENU, ID_EXPIRATION_DATE, 4, "Expiration Date").apply {
                     isChecked = false
                     setOnMenuItemClickListener(clickListener(DetailViewState.Sorts.EXPIRATION))
                 }
             }
-            subMenu.setGroupCheckable(GROUP_ID, true, true)
+            subMenu.setGroupCheckable(GROUP_SUBMENU, true, true)
         }
     }
 
     private fun Toolbar.teardown() {
+        setVisibilityOfNonSearchItems(true)
+        handler?.removeCallbacksAndMessages(null)
+        publishHandler.removeCallbacksAndMessages(null)
+        teardownSubmenu()
+        teardownSearch()
+    }
+
+    private fun Toolbar.teardownSearch() {
+        searchItem?.let { item ->
+            item.setOnActionExpandListener(null)
+            this.menu.removeItem(item.itemId)
+        }
+        searchItem = null
+
+        searchView?.setOnQueryTextListener(null)
+        searchView = null
+    }
+
+    private fun Toolbar.teardownSubmenu() {
         subMenu?.let { subMenu ->
             // Go backwards to avoid index oob error
             for (index in subMenu.size() until 0) {
@@ -118,7 +193,7 @@ class DetailToolbar @Inject internal constructor(
                 item.setOnMenuItemClickListener(null)
                 subMenu.removeItem(item.itemId)
             }
-            menu.removeItem(subMenu.item.itemId)
+            this.menu.removeItem(subMenu.item.itemId)
         }
         subMenu = null
     }
@@ -132,12 +207,14 @@ class DetailToolbar @Inject internal constructor(
     }
 
     companion object {
-        private const val GROUP_ID = 69
+        private const val GROUP_SUBMENU = 42069
+        private const val ID_SEARCH = 69
         private const val ID_SUBMENU = 420
         private const val ID_TITLE = 100
         private const val ID_CREATED_DATE = 101
         private const val ID_NAME = 102
         private const val ID_PURCHASED_DATE = 103
         private const val ID_EXPIRATION_DATE = 104
+        private const val SEARCH_PUBLISH_TIMEOUT = 400L
     }
 }
