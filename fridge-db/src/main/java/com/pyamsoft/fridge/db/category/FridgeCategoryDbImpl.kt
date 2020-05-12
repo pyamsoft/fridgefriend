@@ -22,7 +22,6 @@ import com.pyamsoft.fridge.db.BaseDbImpl
 import com.pyamsoft.fridge.db.category.FridgeCategoryChangeEvent.Delete
 import com.pyamsoft.fridge.db.category.FridgeCategoryChangeEvent.Insert
 import com.pyamsoft.fridge.db.category.FridgeCategoryChangeEvent.Update
-import com.pyamsoft.pydroid.arch.EventBus
 import com.pyamsoft.pydroid.core.Enforcer
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.sync.Mutex

@@ -20,5 +20,4 @@ package com.pyamsoft.fridge.tooltip
 class Popup internal constructor(
     creator: BalloonCreator,
     direction: TipDirection
-) : Tip(creator, direction) {
-}
+) : Tip(creator, direction)

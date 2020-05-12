@@ -18,5 +18,6 @@
 package com.pyamsoft.fridge.tooltip
 
 class Tooltip internal constructor(
-    creator: BalloonCreator, direction: TipDirection
+    creator: BalloonCreator,
+    direction: TipDirection
 ) : Tip(creator, direction)
