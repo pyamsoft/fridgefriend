@@ -44,7 +44,7 @@ buildscript {
         room = "2.2.5"
 
         // Leak Canary
-        leakCanary = "2.2"
+        leakCanary = "2.3"
 
         // Dagger
         dagger = "2.27"
@@ -52,7 +52,7 @@ buildscript {
         moshi = "1.9.2"
 
         // Fast Adapter
-        fastAdapter = "5.0.0"
+        fastAdapter = "5.0.1"
 
         // FotoApparat
         fotoapparat = "2.7.0"
@@ -73,9 +73,6 @@ buildscript {
 
     dependencies {
         classpath 'com.android.tools.build:gradle:3.6.3'
-//
-//        // Dex count
-//        classpath 'com.getkeepsafe.dexcount:dexcount-gradle-plugin:0.8.6'
 
         // Gradle version checker
         classpath 'com.github.ben-manes:gradle-versions-plugin:0.22.0'
