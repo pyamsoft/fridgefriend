@@ -18,6 +18,7 @@
 package com.pyamsoft.fridge.db.category
 
 import com.pyamsoft.cachify.Cached1
+import com.pyamsoft.fridge.db.BaseDbImpl
 import com.pyamsoft.fridge.db.category.FridgeCategoryChangeEvent.Delete
 import com.pyamsoft.fridge.db.category.FridgeCategoryChangeEvent.Insert
 import com.pyamsoft.fridge.db.category.FridgeCategoryChangeEvent.Update
@@ -29,21 +30,19 @@ import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 
 internal class FridgeCategoryDbImpl internal constructor(
-    private val enforcer: Enforcer,
-    private val cache: Cached1<Sequence<FridgeCategory>, Boolean>,
+    enforcer: Enforcer,
+    cache: Cached1<Sequence<FridgeCategory>, Boolean>,
     insertDao: FridgeCategoryInsertDao,
     updateDao: FridgeCategoryUpdateDao,
     deleteDao: FridgeCategoryDeleteDao
-) : FridgeCategoryDb {
+) : BaseDbImpl<FridgeCategory, FridgeCategoryChangeEvent>(enforcer, cache), FridgeCategoryDb {
 
     private val mutex = Mutex()
-
-    private val bus = EventBus.create<FridgeCategoryChangeEvent>()
 
     private val realtime = object : FridgeCategoryRealtime {
 
         override suspend fun listenForChanges(onChange: suspend (event: FridgeCategoryChangeEvent) -> Unit) {
-            withContext(context = Dispatchers.IO) { bus.onEvent(onChange) }
+            withContext(context = Dispatchers.IO) { onEvent(onChange) }
         }
     }
 
@@ -88,22 +87,6 @@ internal class FridgeCategoryDbImpl internal constructor(
             publishRealtime(Delete(o))
         }
     }
-
-    private suspend fun publishRealtime(event: FridgeCategoryChangeEvent) {
-        enforcer.assertNotOnMainThread()
-        invalidate()
-        publish(event)
-    }
-
-    override fun invalidate() {
-        cache.clear()
-    }
-
-    override suspend fun publish(event: FridgeCategoryChangeEvent) =
-        withContext(context = Dispatchers.IO) {
-            enforcer.assertNotOnMainThread()
-            bus.publish(event)
-        }
 
     override fun realtime(): FridgeCategoryRealtime {
         return realtime

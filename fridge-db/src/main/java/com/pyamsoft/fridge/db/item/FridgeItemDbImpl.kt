@@ -19,13 +19,12 @@ package com.pyamsoft.fridge.db.item
 
 import androidx.annotation.CheckResult
 import com.pyamsoft.cachify.Cached1
-import com.pyamsoft.fridge.db.BaseDb
+import com.pyamsoft.fridge.db.BaseDbImpl
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent.Delete
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent.Insert
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent.Update
-import com.pyamsoft.pydroid.arch.EventBus
 import com.pyamsoft.pydroid.core.Enforcer
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.sync.Mutex
@@ -35,27 +34,25 @@ import java.util.Locale
 import kotlin.math.min
 
 internal class FridgeItemDbImpl internal constructor(
-    private val enforcer: Enforcer,
-    private val cache: Cached1<Sequence<FridgeItem>, Boolean>,
+    enforcer: Enforcer,
+    cache: Cached1<Sequence<FridgeItem>, Boolean>,
     insertDao: FridgeItemInsertDao,
     updateDao: FridgeItemUpdateDao,
     deleteDao: FridgeItemDeleteDao
-) : FridgeItemDb {
+) : BaseDbImpl<FridgeItem, FridgeItemChangeEvent>(enforcer, cache), FridgeItemDb {
 
     private val mutex = Mutex()
-
-    private val bus = EventBus.create<FridgeItemChangeEvent>()
 
     private val realtime = object : FridgeItemRealtime {
 
         override suspend fun listenForChanges(onChange: suspend (event: FridgeItemChangeEvent) -> Unit) =
-            withContext(context = Dispatchers.IO) { bus.onEvent(onChange) }
+            withContext(context = Dispatchers.IO) { onEvent(onChange) }
 
         override suspend fun listenForChanges(
             id: FridgeEntry.Id,
             onChange: suspend (event: FridgeItemChangeEvent) -> Unit
         ) = withContext(context = Dispatchers.IO) {
-            bus.onEvent { event ->
+            onEvent { event ->
                 if (event.entryId == id) {
                     onChange(event)
                 }
@@ -215,22 +212,6 @@ internal class FridgeItemDbImpl internal constructor(
             publishRealtime(Delete(o.makeReal()))
         }
     }
-
-    private suspend fun publishRealtime(event: FridgeItemChangeEvent) {
-        enforcer.assertNotOnMainThread()
-        invalidate()
-        publish(event)
-    }
-
-    override fun invalidate() {
-        cache.clear()
-    }
-
-    override suspend fun publish(event: FridgeItemChangeEvent) =
-        withContext(context = Dispatchers.IO) {
-            enforcer.assertNotOnMainThread()
-            bus.send(event)
-        }
 
     override fun realtime(): FridgeItemRealtime {
         return realtime

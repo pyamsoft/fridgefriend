@@ -18,10 +18,10 @@
 package com.pyamsoft.fridge.db.zone
 
 import com.pyamsoft.cachify.Cached1
+import com.pyamsoft.fridge.db.BaseDbImpl
 import com.pyamsoft.fridge.db.zone.NearbyZoneChangeEvent.Delete
 import com.pyamsoft.fridge.db.zone.NearbyZoneChangeEvent.Insert
 import com.pyamsoft.fridge.db.zone.NearbyZoneChangeEvent.Update
-import com.pyamsoft.pydroid.arch.EventBus
 import com.pyamsoft.pydroid.core.Enforcer
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.sync.Mutex
@@ -29,21 +29,19 @@ import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 
 internal class NearbyZoneDbImpl internal constructor(
-    private val enforcer: Enforcer,
-    private val cache: Cached1<Sequence<NearbyZone>, Boolean>,
+    enforcer: Enforcer,
+    cache: Cached1<Sequence<NearbyZone>, Boolean>,
     insertDao: NearbyZoneInsertDao,
     updateDao: NearbyZoneUpdateDao,
     deleteDao: NearbyZoneDeleteDao
-) : NearbyZoneDb {
+) : BaseDbImpl<NearbyZone, NearbyZoneChangeEvent>(enforcer, cache), NearbyZoneDb {
 
     private val mutex = Mutex()
-
-    private val bus = EventBus.create<NearbyZoneChangeEvent>()
 
     private val realtime = object : NearbyZoneRealtime {
 
         override suspend fun listenForChanges(onChange: suspend (event: NearbyZoneChangeEvent) -> Unit) {
-            withContext(context = Dispatchers.IO) { bus.onEvent(onChange) }
+            withContext(context = Dispatchers.IO) { onEvent(onChange) }
         }
     }
 
@@ -86,21 +84,6 @@ internal class NearbyZoneDbImpl internal constructor(
             mutex.withLock { deleteDao.delete(o) }
             publishRealtime(Delete(o))
         }
-    }
-
-    private suspend fun publishRealtime(event: NearbyZoneChangeEvent) {
-        enforcer.assertNotOnMainThread()
-        invalidate()
-        publish(event)
-    }
-
-    override fun invalidate() {
-        cache.clear()
-    }
-
-    override suspend fun publish(event: NearbyZoneChangeEvent) {
-        enforcer.assertNotOnMainThread()
-        bus.publish(event)
     }
 
     override fun realtime(): NearbyZoneRealtime {

@@ -18,11 +18,11 @@
 package com.pyamsoft.fridge.db.entry
 
 import com.pyamsoft.cachify.Cached1
+import com.pyamsoft.fridge.db.BaseDbImpl
 import com.pyamsoft.fridge.db.entry.FridgeEntryChangeEvent.Delete
 import com.pyamsoft.fridge.db.entry.FridgeEntryChangeEvent.DeleteAll
 import com.pyamsoft.fridge.db.entry.FridgeEntryChangeEvent.Insert
 import com.pyamsoft.fridge.db.entry.FridgeEntryChangeEvent.Update
-import com.pyamsoft.pydroid.arch.EventBus
 import com.pyamsoft.pydroid.core.Enforcer
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.sync.Mutex
@@ -30,20 +30,18 @@ import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 
 internal class FridgeEntryDbImpl internal constructor(
-    private val enforcer: Enforcer,
-    private val cache: Cached1<Sequence<FridgeEntry>, Boolean>,
+    enforcer: Enforcer,
+    cache: Cached1<Sequence<FridgeEntry>, Boolean>,
     insertDao: FridgeEntryInsertDao,
     updateDao: FridgeEntryUpdateDao,
     deleteDao: FridgeEntryDeleteDao
-) : FridgeEntryDb {
+) : BaseDbImpl<FridgeEntry, FridgeEntryChangeEvent>(enforcer, cache), FridgeEntryDb {
 
     private val mutex = Mutex()
 
-    private val bus = EventBus.create<FridgeEntryChangeEvent>()
-
     private val realtime = object : FridgeEntryRealtime {
         override suspend fun listenForChanges(onChange: suspend (event: FridgeEntryChangeEvent) -> Unit) =
-            withContext(context = Dispatchers.IO) { bus.onEvent(onChange) }
+            withContext(context = Dispatchers.IO) { onEvent(onChange) }
     }
 
     private val queryDao = object : FridgeEntryQueryDao {
@@ -93,22 +91,6 @@ internal class FridgeEntryDbImpl internal constructor(
             publishRealtime(DeleteAll)
         }
     }
-
-    private suspend fun publishRealtime(event: FridgeEntryChangeEvent) {
-        enforcer.assertNotOnMainThread()
-        invalidate()
-        publish(event)
-    }
-
-    override fun invalidate() {
-        cache.clear()
-    }
-
-    override suspend fun publish(event: FridgeEntryChangeEvent) =
-        withContext(context = Dispatchers.IO) {
-            enforcer.assertNotOnMainThread()
-            bus.publish(event)
-        }
 
     override fun realtime(): FridgeEntryRealtime {
         return realtime

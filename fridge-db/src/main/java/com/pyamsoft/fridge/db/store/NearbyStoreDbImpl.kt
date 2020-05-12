@@ -18,10 +18,10 @@
 package com.pyamsoft.fridge.db.store
 
 import com.pyamsoft.cachify.Cached1
+import com.pyamsoft.fridge.db.BaseDbImpl
 import com.pyamsoft.fridge.db.store.NearbyStoreChangeEvent.Delete
 import com.pyamsoft.fridge.db.store.NearbyStoreChangeEvent.Insert
 import com.pyamsoft.fridge.db.store.NearbyStoreChangeEvent.Update
-import com.pyamsoft.pydroid.arch.EventBus
 import com.pyamsoft.pydroid.core.Enforcer
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.sync.Mutex
@@ -29,21 +29,19 @@ import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 
 internal class NearbyStoreDbImpl internal constructor(
-    private val enforcer: Enforcer,
-    private val cache: Cached1<Sequence<NearbyStore>, Boolean>,
+    enforcer: Enforcer,
+    cache: Cached1<Sequence<NearbyStore>, Boolean>,
     insertDao: NearbyStoreInsertDao,
     updateDao: NearbyStoreUpdateDao,
     deleteDao: NearbyStoreDeleteDao
-) : NearbyStoreDb {
+) : BaseDbImpl<NearbyStore, NearbyStoreChangeEvent>(enforcer, cache), NearbyStoreDb {
 
     private val mutex = Mutex()
-
-    private val bus = EventBus.create<NearbyStoreChangeEvent>()
 
     private val realtime = object : NearbyStoreRealtime {
 
         override suspend fun listenForChanges(onChange: suspend (event: NearbyStoreChangeEvent) -> Unit) {
-            withContext(context = Dispatchers.IO) { bus.onEvent(onChange) }
+            withContext(context = Dispatchers.IO) { onEvent(onChange) }
         }
     }
 
@@ -92,21 +90,6 @@ internal class NearbyStoreDbImpl internal constructor(
             }
             publishRealtime(Delete(o))
         }
-    }
-
-    private suspend fun publishRealtime(event: NearbyStoreChangeEvent) {
-        enforcer.assertNotOnMainThread()
-        invalidate()
-        publish(event)
-    }
-
-    override fun invalidate() {
-        cache.clear()
-    }
-
-    override suspend fun publish(event: NearbyStoreChangeEvent) {
-        enforcer.assertNotOnMainThread()
-        bus.publish(event)
     }
 
     override fun realtime(): NearbyStoreRealtime {
