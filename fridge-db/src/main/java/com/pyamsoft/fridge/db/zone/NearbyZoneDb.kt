@@ -36,10 +36,12 @@ interface NearbyZoneDb : BaseDb<
         @CheckResult
         fun wrap(
             enforcer: Enforcer,
-            db: NearbyZoneDb,
-            cache: Cached1<Sequence<NearbyZone>, Boolean>
+            cache: Cached1<Sequence<NearbyZone>, Boolean>,
+            insertDao: NearbyZoneInsertDao,
+            updateDao: NearbyZoneUpdateDao,
+            deleteDao: NearbyZoneDeleteDao
         ): NearbyZoneDb {
-            return NearbyZoneDbImpl(enforcer, db) { force -> cache.call(force) }
+            return NearbyZoneDbImpl(enforcer, cache, insertDao, updateDao, deleteDao)
         }
     }
 }

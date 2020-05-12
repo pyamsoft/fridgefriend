@@ -17,20 +17,35 @@
 
 package com.pyamsoft.fridge.db.zone
 
+import com.pyamsoft.cachify.Cached1
 import com.pyamsoft.fridge.db.zone.NearbyZoneChangeEvent.Delete
 import com.pyamsoft.fridge.db.zone.NearbyZoneChangeEvent.Insert
 import com.pyamsoft.fridge.db.zone.NearbyZoneChangeEvent.Update
+import com.pyamsoft.pydroid.arch.EventBus
 import com.pyamsoft.pydroid.core.Enforcer
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.withContext
 
 internal class NearbyZoneDbImpl internal constructor(
     private val enforcer: Enforcer,
-    private val db: NearbyZoneDb,
-    private val dbQuery: suspend (force: Boolean) -> Sequence<NearbyZone>
+    private val cache: Cached1<Sequence<NearbyZone>, Boolean>,
+    insertDao: NearbyZoneInsertDao,
+    updateDao: NearbyZoneUpdateDao,
+    deleteDao: NearbyZoneDeleteDao
 ) : NearbyZoneDb {
 
     private val mutex = Mutex()
+
+    private val bus = EventBus.create<NearbyZoneChangeEvent>()
+
+    private val realtime = object : NearbyZoneRealtime {
+
+        override suspend fun listenForChanges(onChange: suspend (event: NearbyZoneChangeEvent) -> Unit) {
+            withContext(context = Dispatchers.IO) { bus.onEvent(onChange) }
+        }
+    }
 
     private val queryDao = object : NearbyZoneQueryDao {
 
@@ -41,7 +56,7 @@ internal class NearbyZoneDbImpl internal constructor(
                     invalidate()
                 }
 
-                return dbQuery(force).toList()
+                return cache.call(force).toList()
             }
         }
     }
@@ -50,10 +65,7 @@ internal class NearbyZoneDbImpl internal constructor(
 
         override suspend fun insert(o: NearbyZone) {
             enforcer.assertNotOnMainThread()
-            mutex.withLock {
-                db.insertDao()
-                    .insert(o)
-            }
+            mutex.withLock { insertDao.insert(o) }
             publishRealtime(Insert(o))
         }
     }
@@ -62,10 +74,7 @@ internal class NearbyZoneDbImpl internal constructor(
 
         override suspend fun update(o: NearbyZone) {
             enforcer.assertNotOnMainThread()
-            mutex.withLock {
-                db.updateDao()
-                    .update(o)
-            }
+            mutex.withLock { updateDao.update(o) }
             publishRealtime(Update(o))
         }
     }
@@ -74,10 +83,7 @@ internal class NearbyZoneDbImpl internal constructor(
 
         override suspend fun delete(o: NearbyZone) {
             enforcer.assertNotOnMainThread()
-            mutex.withLock {
-                db.deleteDao()
-                    .delete(o)
-            }
+            mutex.withLock { deleteDao.delete(o) }
             publishRealtime(Delete(o))
         }
     }
@@ -89,16 +95,16 @@ internal class NearbyZoneDbImpl internal constructor(
     }
 
     override fun invalidate() {
-        db.invalidate()
+        cache.clear()
     }
 
     override suspend fun publish(event: NearbyZoneChangeEvent) {
         enforcer.assertNotOnMainThread()
-        db.publish(event)
+        bus.publish(event)
     }
 
     override fun realtime(): NearbyZoneRealtime {
-        return db.realtime()
+        return realtime
     }
 
     override fun queryDao(): NearbyZoneQueryDao {

@@ -17,9 +17,11 @@
 
 package com.pyamsoft.fridge.db.category
 
+import com.pyamsoft.cachify.Cached1
 import com.pyamsoft.fridge.db.category.FridgeCategoryChangeEvent.Delete
 import com.pyamsoft.fridge.db.category.FridgeCategoryChangeEvent.Insert
 import com.pyamsoft.fridge.db.category.FridgeCategoryChangeEvent.Update
+import com.pyamsoft.pydroid.arch.EventBus
 import com.pyamsoft.pydroid.core.Enforcer
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.sync.Mutex
@@ -28,11 +30,22 @@ import kotlinx.coroutines.withContext
 
 internal class FridgeCategoryDbImpl internal constructor(
     private val enforcer: Enforcer,
-    private val db: FridgeCategoryDb,
-    private val dbQuery: suspend (force: Boolean) -> Sequence<FridgeCategory>
+    private val cache: Cached1<Sequence<FridgeCategory>, Boolean>,
+    insertDao: FridgeCategoryInsertDao,
+    updateDao: FridgeCategoryUpdateDao,
+    deleteDao: FridgeCategoryDeleteDao
 ) : FridgeCategoryDb {
 
     private val mutex = Mutex()
+
+    private val bus = EventBus.create<FridgeCategoryChangeEvent>()
+
+    private val realtime = object : FridgeCategoryRealtime {
+
+        override suspend fun listenForChanges(onChange: suspend (event: FridgeCategoryChangeEvent) -> Unit) {
+            withContext(context = Dispatchers.IO) { bus.onEvent(onChange) }
+        }
+    }
 
     private val queryDao = object : FridgeCategoryQueryDao {
 
@@ -44,7 +57,7 @@ internal class FridgeCategoryDbImpl internal constructor(
                         invalidate()
                     }
 
-                    return@withContext dbQuery(force).toList()
+                    return@withContext cache.call(force).toList()
                 }
             }
     }
@@ -53,11 +66,8 @@ internal class FridgeCategoryDbImpl internal constructor(
 
         override suspend fun insert(o: FridgeCategory) = withContext(context = Dispatchers.IO) {
             enforcer.assertNotOnMainThread()
-            mutex.withLock {
-                db.insertDao()
-                    .insert(o)
-                publishRealtime(Insert(o))
-            }
+            mutex.withLock { insertDao.insert(o) }
+            publishRealtime(Insert(o))
         }
     }
 
@@ -65,11 +75,8 @@ internal class FridgeCategoryDbImpl internal constructor(
 
         override suspend fun update(o: FridgeCategory) = withContext(context = Dispatchers.IO) {
             enforcer.assertNotOnMainThread()
-            mutex.withLock {
-                db.updateDao()
-                    .update(o)
-                publishRealtime(Update(o))
-            }
+            mutex.withLock { updateDao.update(o) }
+            publishRealtime(Update(o))
         }
     }
 
@@ -77,11 +84,8 @@ internal class FridgeCategoryDbImpl internal constructor(
 
         override suspend fun delete(o: FridgeCategory) = withContext(context = Dispatchers.IO) {
             enforcer.assertNotOnMainThread()
-            mutex.withLock {
-                db.deleteDao()
-                    .delete(o)
-                publishRealtime(Delete(o))
-            }
+            mutex.withLock { deleteDao.delete(o) }
+            publishRealtime(Delete(o))
         }
     }
 
@@ -92,17 +96,17 @@ internal class FridgeCategoryDbImpl internal constructor(
     }
 
     override fun invalidate() {
-        db.invalidate()
+        cache.clear()
     }
 
     override suspend fun publish(event: FridgeCategoryChangeEvent) =
         withContext(context = Dispatchers.IO) {
             enforcer.assertNotOnMainThread()
-            db.publish(event)
+            bus.publish(event)
         }
 
     override fun realtime(): FridgeCategoryRealtime {
-        return db.realtime()
+        return realtime
     }
 
     override fun queryDao(): FridgeCategoryQueryDao {

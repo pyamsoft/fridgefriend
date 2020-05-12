@@ -36,10 +36,12 @@ interface FridgeItemDb : BaseDb<
         @CheckResult
         fun wrap(
             enforcer: Enforcer,
-            db: FridgeItemDb,
-            cache: Cached1<Sequence<FridgeItem>, Boolean>
+            cache: Cached1<Sequence<FridgeItem>, Boolean>,
+            insertDao: FridgeItemInsertDao,
+            updateDao: FridgeItemUpdateDao,
+            deleteDao: FridgeItemDeleteDao
         ): FridgeItemDb {
-            return FridgeItemDbImpl(enforcer, db) { force -> cache.call(force) }
+            return FridgeItemDbImpl(enforcer, cache, insertDao, updateDao, deleteDao)
         }
     }
 }

@@ -17,20 +17,35 @@
 
 package com.pyamsoft.fridge.db.store
 
+import com.pyamsoft.cachify.Cached1
 import com.pyamsoft.fridge.db.store.NearbyStoreChangeEvent.Delete
 import com.pyamsoft.fridge.db.store.NearbyStoreChangeEvent.Insert
 import com.pyamsoft.fridge.db.store.NearbyStoreChangeEvent.Update
+import com.pyamsoft.pydroid.arch.EventBus
 import com.pyamsoft.pydroid.core.Enforcer
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.withContext
 
 internal class NearbyStoreDbImpl internal constructor(
     private val enforcer: Enforcer,
-    private val db: NearbyStoreDb,
-    private val dbQuery: suspend (force: Boolean) -> Sequence<NearbyStore>
+    private val cache: Cached1<Sequence<NearbyStore>, Boolean>,
+    insertDao: NearbyStoreInsertDao,
+    updateDao: NearbyStoreUpdateDao,
+    deleteDao: NearbyStoreDeleteDao
 ) : NearbyStoreDb {
 
     private val mutex = Mutex()
+
+    private val bus = EventBus.create<NearbyStoreChangeEvent>()
+
+    private val realtime = object : NearbyStoreRealtime {
+
+        override suspend fun listenForChanges(onChange: suspend (event: NearbyStoreChangeEvent) -> Unit) {
+            withContext(context = Dispatchers.IO) { bus.onEvent(onChange) }
+        }
+    }
 
     private val queryDao = object : NearbyStoreQueryDao {
 
@@ -41,8 +56,7 @@ internal class NearbyStoreDbImpl internal constructor(
                     invalidate()
                 }
 
-                return dbQuery(force)
-                    .toList()
+                return cache.call(force).toList()
             }
         }
     }
@@ -52,10 +66,9 @@ internal class NearbyStoreDbImpl internal constructor(
         override suspend fun insert(o: NearbyStore) {
             enforcer.assertNotOnMainThread()
             mutex.withLock {
-                db.insertDao()
-                    .insert(o)
+                insertDao.insert(o)
+                publishRealtime(Insert(o))
             }
-            publishRealtime(Insert(o))
         }
     }
 
@@ -64,8 +77,7 @@ internal class NearbyStoreDbImpl internal constructor(
         override suspend fun update(o: NearbyStore) {
             enforcer.assertNotOnMainThread()
             mutex.withLock {
-                db.updateDao()
-                    .update(o)
+                updateDao.update(o)
             }
             publishRealtime(Update(o))
         }
@@ -76,8 +88,7 @@ internal class NearbyStoreDbImpl internal constructor(
         override suspend fun delete(o: NearbyStore) {
             enforcer.assertNotOnMainThread()
             mutex.withLock {
-                db.deleteDao()
-                    .delete(o)
+                deleteDao.delete(o)
             }
             publishRealtime(Delete(o))
         }
@@ -90,16 +101,16 @@ internal class NearbyStoreDbImpl internal constructor(
     }
 
     override fun invalidate() {
-        db.invalidate()
+        cache.clear()
     }
 
     override suspend fun publish(event: NearbyStoreChangeEvent) {
         enforcer.assertNotOnMainThread()
-        db.publish(event)
+        bus.publish(event)
     }
 
     override fun realtime(): NearbyStoreRealtime {
-        return db.realtime()
+        return realtime
     }
 
     override fun queryDao(): NearbyStoreQueryDao {

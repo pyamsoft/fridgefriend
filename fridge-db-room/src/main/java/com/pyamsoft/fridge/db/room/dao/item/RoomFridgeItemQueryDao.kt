@@ -20,17 +20,14 @@ package com.pyamsoft.fridge.db.room.dao.item
 import androidx.annotation.CheckResult
 import androidx.room.Dao
 import androidx.room.Query
-import com.pyamsoft.fridge.db.entry.FridgeEntry
+import com.pyamsoft.fridge.db.BaseDb
 import com.pyamsoft.fridge.db.item.FridgeItem
-import com.pyamsoft.fridge.db.item.FridgeItem.Presence
-import com.pyamsoft.fridge.db.item.FridgeItemQueryDao
-import com.pyamsoft.fridge.db.room.dao.RoomUnusedException
 import com.pyamsoft.fridge.db.room.entity.RoomFridgeItem
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 @Dao
-internal abstract class RoomFridgeItemQueryDao internal constructor() : FridgeItemQueryDao {
+internal abstract class RoomFridgeItemQueryDao internal constructor() : BaseDb.Query<FridgeItem> {
 
     final override suspend fun query(force: Boolean): List<FridgeItem> =
         withContext(context = Dispatchers.IO) { daoQuery() }
@@ -38,26 +35,4 @@ internal abstract class RoomFridgeItemQueryDao internal constructor() : FridgeIt
     @CheckResult
     @Query("SELECT * FROM ${RoomFridgeItem.TABLE_NAME}")
     internal abstract suspend fun daoQuery(): List<RoomFridgeItem>
-
-    final override suspend fun query(
-        force: Boolean,
-        id: FridgeEntry.Id
-    ): List<FridgeItem> {
-        throw RoomUnusedException
-    }
-
-    final override suspend fun querySameNameDifferentPresence(
-        force: Boolean,
-        name: String,
-        presence: Presence
-    ): List<FridgeItem> {
-        throw RoomUnusedException
-    }
-
-    final override suspend fun querySimilarNamedItems(
-        force: Boolean,
-        item: FridgeItem
-    ): List<FridgeItem> {
-        throw RoomUnusedException
-    }
 }

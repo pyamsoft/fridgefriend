@@ -20,6 +20,9 @@ package com.pyamsoft.fridge.db.category
 import androidx.annotation.CheckResult
 import com.pyamsoft.cachify.Cached1
 import com.pyamsoft.fridge.db.BaseDb
+import com.pyamsoft.fridge.db.zone.NearbyZoneDeleteDao
+import com.pyamsoft.fridge.db.zone.NearbyZoneInsertDao
+import com.pyamsoft.fridge.db.zone.NearbyZoneUpdateDao
 import com.pyamsoft.pydroid.core.Enforcer
 
 interface FridgeCategoryDb : BaseDb<
@@ -36,10 +39,12 @@ interface FridgeCategoryDb : BaseDb<
         @CheckResult
         fun wrap(
             enforcer: Enforcer,
-            db: FridgeCategoryDb,
-            cache: Cached1<Sequence<FridgeCategory>, Boolean>
+            cache: Cached1<Sequence<FridgeCategory>, Boolean>,
+            insertDao: FridgeCategoryInsertDao,
+            updateDao: FridgeCategoryUpdateDao,
+            deleteDao: FridgeCategoryDeleteDao
         ): FridgeCategoryDb {
-            return FridgeCategoryDbImpl(enforcer, db) { force -> cache.call(force) }
+            return FridgeCategoryDbImpl(enforcer, cache, insertDao, updateDao, deleteDao)
         }
     }
 }

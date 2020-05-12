@@ -18,26 +18,50 @@
 package com.pyamsoft.fridge.db.item
 
 import androidx.annotation.CheckResult
+import com.pyamsoft.cachify.Cached1
+import com.pyamsoft.fridge.db.BaseDb
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent.Delete
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent.Insert
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent.Update
+import com.pyamsoft.pydroid.arch.EventBus
 import com.pyamsoft.pydroid.core.Enforcer
-import java.util.Locale
-import kotlin.math.min
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
+import java.util.Locale
+import kotlin.math.min
 
 internal class FridgeItemDbImpl internal constructor(
     private val enforcer: Enforcer,
-    private val db: FridgeItemDb,
-    private val dbQuery: suspend (force: Boolean) -> Sequence<FridgeItem>
+    private val cache: Cached1<Sequence<FridgeItem>, Boolean>,
+    insertDao: FridgeItemInsertDao,
+    updateDao: FridgeItemUpdateDao,
+    deleteDao: FridgeItemDeleteDao
 ) : FridgeItemDb {
 
     private val mutex = Mutex()
+
+    private val bus = EventBus.create<FridgeItemChangeEvent>()
+
+    private val realtime = object : FridgeItemRealtime {
+
+        override suspend fun listenForChanges(onChange: suspend (event: FridgeItemChangeEvent) -> Unit) =
+            withContext(context = Dispatchers.IO) { bus.onEvent(onChange) }
+
+        override suspend fun listenForChanges(
+            id: FridgeEntry.Id,
+            onChange: suspend (event: FridgeItemChangeEvent) -> Unit
+        ) = withContext(context = Dispatchers.IO) {
+            bus.onEvent { event ->
+                if (event.entryId == id) {
+                    onChange(event)
+                }
+            }
+        }
+    }
 
     private val queryDao = object : FridgeItemQueryDao {
 
@@ -48,7 +72,7 @@ internal class FridgeItemDbImpl internal constructor(
                 invalidate()
             }
 
-            return dbQuery(force)
+            return cache.call(force)
         }
 
         override suspend fun query(force: Boolean): List<FridgeItem> =
@@ -169,11 +193,8 @@ internal class FridgeItemDbImpl internal constructor(
 
         override suspend fun insert(o: FridgeItem) = withContext(context = Dispatchers.IO) {
             enforcer.assertNotOnMainThread()
-            mutex.withLock {
-                db.insertDao()
-                    .insert(o)
-                publishRealtime(Insert(o.makeReal()))
-            }
+            mutex.withLock { insertDao.insert(o) }
+            publishRealtime(Insert(o.makeReal()))
         }
     }
 
@@ -181,11 +202,8 @@ internal class FridgeItemDbImpl internal constructor(
 
         override suspend fun update(o: FridgeItem) = withContext(context = Dispatchers.IO) {
             enforcer.assertNotOnMainThread()
-            mutex.withLock {
-                db.updateDao()
-                    .update(o)
-                publishRealtime(Update(o.makeReal()))
-            }
+            mutex.withLock { updateDao.update(o) }
+            publishRealtime(Update(o.makeReal()))
         }
     }
 
@@ -193,11 +211,8 @@ internal class FridgeItemDbImpl internal constructor(
 
         override suspend fun delete(o: FridgeItem) = withContext(context = Dispatchers.IO) {
             enforcer.assertNotOnMainThread()
-            mutex.withLock {
-                db.deleteDao()
-                    .delete(o)
-                publishRealtime(Delete(o.makeReal()))
-            }
+            mutex.withLock { deleteDao.delete(o) }
+            publishRealtime(Delete(o.makeReal()))
         }
     }
 
@@ -208,17 +223,17 @@ internal class FridgeItemDbImpl internal constructor(
     }
 
     override fun invalidate() {
-        db.invalidate()
+        cache.clear()
     }
 
     override suspend fun publish(event: FridgeItemChangeEvent) =
         withContext(context = Dispatchers.IO) {
             enforcer.assertNotOnMainThread()
-            db.publish(event)
+            bus.send(event)
         }
 
     override fun realtime(): FridgeItemRealtime {
-        return db.realtime()
+        return realtime
     }
 
     override fun queryDao(): FridgeItemQueryDao {
