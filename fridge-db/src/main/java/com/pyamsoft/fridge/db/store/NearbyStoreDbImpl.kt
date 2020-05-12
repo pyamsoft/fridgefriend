@@ -63,10 +63,8 @@ internal class NearbyStoreDbImpl internal constructor(
 
         override suspend fun insert(o: NearbyStore) {
             enforcer.assertNotOnMainThread()
-            mutex.withLock {
-                insertDao.insert(o)
-                publishRealtime(Insert(o))
-            }
+            mutex.withLock { insertDao.insert(o) }
+            publishRealtime(Insert(o))
         }
     }
 
@@ -74,9 +72,7 @@ internal class NearbyStoreDbImpl internal constructor(
 
         override suspend fun update(o: NearbyStore) {
             enforcer.assertNotOnMainThread()
-            mutex.withLock {
-                updateDao.update(o)
-            }
+            mutex.withLock { updateDao.update(o) }
             publishRealtime(Update(o))
         }
     }
@@ -85,9 +81,7 @@ internal class NearbyStoreDbImpl internal constructor(
 
         override suspend fun delete(o: NearbyStore) {
             enforcer.assertNotOnMainThread()
-            mutex.withLock {
-                deleteDao.delete(o)
-            }
+            mutex.withLock { deleteDao.delete(o) }
             publishRealtime(Delete(o))
         }
     }
