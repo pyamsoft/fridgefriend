@@ -47,70 +47,76 @@ abstract class RoomModule {
 
         @JvmStatic
         @CheckResult
-        private fun provideRoom(context: Context): RoomFridgeDbImpl {
+        private fun createRoom(context: Context): RoomFridgeDb {
             return Room.databaseBuilder(
-                    context.applicationContext,
-                    RoomFridgeDbImpl::class.java,
-                    "fridge_room_db.db"
-                ).fallbackToDestructiveMigration()
+                context.applicationContext,
+                RoomFridgeDb::class.java,
+                "fridge_room_db.db"
+            ).fallbackToDestructiveMigration()
                 .build()
         }
 
-        @Singleton
-        @JvmStatic
         @Provides
-        @CheckResult
+        @JvmStatic
+        @Singleton
         internal fun provideDb(context: Context, enforcer: Enforcer): FridgeDb {
-            return provideRoom(context.applicationContext).apply {
-                val cacheTime = 10L
-                val cacheUnit = MINUTES
-                val entryCache = cachify<Sequence<FridgeEntry>, Boolean>(
-                    storage = MemoryCacheStorage.create(cacheTime, cacheUnit)
-                ) { force ->
-                    roomEntryQueryDao()
-                        .query(force)
-                        .asSequence()
-                        .map { JsonMappableFridgeEntry.from(it.makeReal()) }
-                }
-
-                val itemCache = cachify<Sequence<FridgeItem>, Boolean>(
-                    storage = MemoryCacheStorage.create(cacheTime, cacheUnit)
-                ) { force ->
-                    roomItemQueryDao()
-                        .query(force)
-                        .asSequence()
-                        .map { JsonMappableFridgeItem.from(it.makeReal()) }
-                }
-
-                val storeCache = cachify<Sequence<NearbyStore>, Boolean>(
-                    storage = MemoryCacheStorage.create(cacheTime, cacheUnit)
-                ) { force ->
-                    roomStoreQueryDao()
-                        .query(force)
-                        .asSequence()
-                        .map { JsonMappableNearbyStore.from(it) }
-                }
-
-                val zoneCache = cachify<Sequence<NearbyZone>, Boolean>(
-                    storage = MemoryCacheStorage.create(cacheTime, cacheUnit)
-                ) { force ->
-                    roomZoneQueryDao()
-                        .query(force)
-                        .asSequence()
-                        .map { JsonMappableNearbyZone.from(it) }
-                }
-
-                val categoryCache = cachify<Sequence<FridgeCategory>, Boolean>(
-                    storage = MemoryCacheStorage.create(cacheTime, cacheUnit)
-                ) { force ->
-                    roomCategoryQueryDao()
-                        .query(force)
-                        .asSequence()
-                        .map { JsonMappableFridgeCategory.from(it) }
-                }
-
-                bind(enforcer, entryCache, itemCache, storeCache, zoneCache, categoryCache)
+            val db = createRoom(context.applicationContext)
+            val cacheTime = 10L
+            val cacheUnit = MINUTES
+            val entryCache = cachify<Sequence<FridgeEntry>, Boolean>(
+                storage = MemoryCacheStorage.create(cacheTime, cacheUnit)
+            ) { force ->
+                db.roomEntryQueryDao()
+                    .query(force)
+                    .asSequence()
+                    .map { JsonMappableFridgeEntry.from(it.makeReal()) }
             }
+
+            val itemCache = cachify<Sequence<FridgeItem>, Boolean>(
+                storage = MemoryCacheStorage.create(cacheTime, cacheUnit)
+            ) { force ->
+                db.roomItemQueryDao()
+                    .query(force)
+                    .asSequence()
+                    .map { JsonMappableFridgeItem.from(it.makeReal()) }
+            }
+
+            val storeCache = cachify<Sequence<NearbyStore>, Boolean>(
+                storage = MemoryCacheStorage.create(cacheTime, cacheUnit)
+            ) { force ->
+                db.roomStoreQueryDao()
+                    .query(force)
+                    .asSequence()
+                    .map { JsonMappableNearbyStore.from(it) }
+            }
+
+            val zoneCache = cachify<Sequence<NearbyZone>, Boolean>(
+                storage = MemoryCacheStorage.create(cacheTime, cacheUnit)
+            ) { force ->
+                db.roomZoneQueryDao()
+                    .query(force)
+                    .asSequence()
+                    .map { JsonMappableNearbyZone.from(it) }
+            }
+
+            val categoryCache = cachify<Sequence<FridgeCategory>, Boolean>(
+                storage = MemoryCacheStorage.create(cacheTime, cacheUnit)
+            ) { force ->
+                db.roomCategoryQueryDao()
+                    .query(force)
+                    .asSequence()
+                    .map { JsonMappableFridgeCategory.from(it) }
+            }
+
+            return RoomFridgeDbImpl(
+                db,
+                enforcer,
+                entryCache,
+                itemCache,
+                storeCache,
+                zoneCache,
+                categoryCache
+            )
         }
     }
 }
