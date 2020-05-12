@@ -17,6 +17,6 @@
 
 package com.pyamsoft.fridge.db.room.dao
 
-internal object RoomIsLameException : IllegalStateException(
-    "Room requires this method to exist but it should never be called."
+internal object RoomUnusedException : UnsupportedOperationException(
+    "OOP inheritance requires this method to exist but it should never be used."
 )

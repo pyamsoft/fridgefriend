@@ -24,7 +24,7 @@ import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence
 import com.pyamsoft.fridge.db.item.FridgeItemQueryDao
-import com.pyamsoft.fridge.db.room.dao.RoomIsLameException
+import com.pyamsoft.fridge.db.room.dao.RoomUnusedException
 import com.pyamsoft.fridge.db.room.entity.RoomFridgeItem
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -43,7 +43,7 @@ internal abstract class RoomFridgeItemQueryDao internal constructor() : FridgeIt
         force: Boolean,
         id: FridgeEntry.Id
     ): List<FridgeItem> {
-        throw RoomIsLameException
+        throw RoomUnusedException
     }
 
     final override suspend fun querySameNameDifferentPresence(
@@ -51,13 +51,13 @@ internal abstract class RoomFridgeItemQueryDao internal constructor() : FridgeIt
         name: String,
         presence: Presence
     ): List<FridgeItem> {
-        throw RoomIsLameException
+        throw RoomUnusedException
     }
 
     final override suspend fun querySimilarNamedItems(
         force: Boolean,
         item: FridgeItem
     ): List<FridgeItem> {
-        throw RoomIsLameException
+        throw RoomUnusedException
     }
 }
