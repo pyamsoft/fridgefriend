@@ -41,9 +41,7 @@ abstract class LocatorModule {
         @JvmStatic
         @Singleton
         internal fun provideForegroundHandler(): PermissionHandler<ForegroundLocationPermission> {
-            return PermissionHandlerImpl(
-                ForegroundLocationPermission
-            )
+            return PermissionHandlerImpl(ForegroundLocationPermission)
         }
     }
 }
