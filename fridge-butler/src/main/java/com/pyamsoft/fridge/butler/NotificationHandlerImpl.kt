@@ -31,7 +31,6 @@ import androidx.annotation.CheckResult
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.getSystemService
-import androidx.core.text.HtmlCompat
 import androidx.core.text.bold
 import androidx.core.text.buildSpannedString
 import com.pyamsoft.fridge.db.entry.FridgeEntry
@@ -55,16 +54,6 @@ internal class NotificationHandlerImpl @Inject internal constructor(
     private val expiringNotificationIdMap by lazy { mutableMapOf<FridgeEntry.Id, Int>() }
     private val expiredNotificationIdMap by lazy { mutableMapOf<FridgeEntry.Id, Int>() }
 
-    @CheckResult
-    private inline fun ul(list: () -> List<String>): String {
-        return "<ul>${list().joinToString(separator = "\n")}</ul>"
-    }
-
-    @CheckResult
-    private inline fun li(string: () -> String): String {
-        return "<li>${string()}</li>"
-    }
-
     override fun notifyNeeded(entry: FridgeEntry, items: List<FridgeItem>): Boolean {
         val id = needNotificationIdMap.getNotificationId(entry.id(), NotificationType.NEEDED)
         return notify(
@@ -80,30 +69,38 @@ internal class NotificationHandlerImpl @Inject internal constructor(
                 append(" for ")
                 bold { append(entry.name()) }
             })
-            setContentText(buildSpannedString {
+
+            val text = buildSpannedString {
                 append("You still ")
                 bold { append("need to shop") }
                 append(" for ")
                 bold { append("${items.size}") }
                 append(" items")
-            })
-
-            setStyle(createBigTextStyle(items))
+            }
+            setContentText(text)
+            setStyle(createBigTextStyle(text, items))
         }
     }
 
     @CheckResult
-    private fun createBigTextStyle(items: List<FridgeItem>): NotificationCompat.Style {
+    private fun createBigTextStyle(
+        topLine: CharSequence?,
+        items: List<FridgeItem>
+    ): NotificationCompat.Style {
         return NotificationCompat.BigTextStyle().bigText(
-            HtmlCompat.fromHtml(
-                ul {
-                    items
-                        .map { it.name() }
-                        .map { "  $it" }
-                        .map { name -> li { name } }
-                }, HtmlCompat.FROM_HTML_SEPARATOR_LINE_BREAK_LIST_ITEM
-            )
-        )
+            buildSpannedString {
+                topLine?.let { line ->
+                    appendln(line)
+                    appendln("-".repeat(40))
+                    appendln()
+                }
+                items
+                    .map { it.name() }
+                    .forEach { name ->
+                        bold { append("•") }
+                        appendln("  $name")
+                    }
+            })
     }
 
     override fun notifyExpiring(entry: FridgeEntry, items: List<FridgeItem>): Boolean {
@@ -121,13 +118,13 @@ internal class NotificationHandlerImpl @Inject internal constructor(
                 append(" for ")
                 bold { append(entry.name()) }
             })
-            setContentText(buildSpannedString {
+            val text = buildSpannedString {
                 bold { append("${items.size}") }
                 append(" items are ")
                 bold { append("about to expire!") }
-            })
-
-            setStyle(createBigTextStyle(items))
+            }
+            setContentText(text)
+            setStyle(createBigTextStyle(text, items))
         }
     }
 
@@ -146,13 +143,14 @@ internal class NotificationHandlerImpl @Inject internal constructor(
                 append(" for ")
                 bold { append(entry.name()) }
             })
-            setContentText(buildSpannedString {
+
+            val text = buildSpannedString {
                 bold { append("${items.size}") }
                 append(" items have ")
                 bold { append("passed expiration!") }
-            })
-
-            setStyle(createBigTextStyle(items))
+            }
+            setContentText(text)
+            setStyle(createBigTextStyle(text, items))
         }
     }
 
@@ -186,7 +184,7 @@ internal class NotificationHandlerImpl @Inject internal constructor(
                 append(" items")
             })
 
-            setStyle(createBigTextStyle(items))
+            setStyle(createBigTextStyle(null, items))
         }
     }
 
@@ -332,7 +330,7 @@ internal class NotificationHandlerImpl @Inject internal constructor(
         private const val NEEDED_CHANNEL_ID = "fridge_needed_reminders_channel_v1"
         private const val NEARBY_CHANNEL_ID = "fridge_nearby_reminders_channel_v1"
         private const val NIGHTLY_CHANNEL_ID = "fridge_nightly_reminders_channel_v1"
-        private val NIGHTLY_NOTIFICATION_ID = 42069
+        private const val NIGHTLY_NOTIFICATION_ID = 42069
 
         private enum class NotificationType {
             EXPIRING,
@@ -348,16 +346,6 @@ internal class NotificationHandlerImpl @Inject internal constructor(
             type: NotificationType
         ): Int {
             return this.getOrPut(key) { key.hashCode() + type.ordinal }
-        }
-
-        @JvmStatic
-        @CheckResult
-        private fun getExtraItems(items: List<FridgeItem>): String {
-            return when (items.size) {
-                1 -> ""
-                2 -> "and '${items[1].name()}'"
-                else -> "and ${items.size - 1} other items"
-            }
         }
     }
 }
