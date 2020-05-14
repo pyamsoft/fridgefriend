@@ -31,13 +31,15 @@ import androidx.annotation.CheckResult
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.getSystemService
+import androidx.core.text.bold
+import androidx.core.text.buildSpannedString
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.store.NearbyStore
 import com.pyamsoft.fridge.db.zone.NearbyZone
+import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Singleton
-import timber.log.Timber
 
 @Singleton
 internal class NotificationHandlerImpl @Inject internal constructor(
@@ -75,12 +77,22 @@ internal class NotificationHandlerImpl @Inject internal constructor(
             id,
             R.drawable.ic_get_app_24dp,
             NEEDED_CHANNEL_ID,
-            "Needed Reminders",
+            "Shopping Reminders",
             "Reminders for items that you still need.",
             contentIntent(id, FridgeItem.Presence.NEED)
         ) {
-            setContentTitle("Needed reminder for ${entry.name()}")
-            setContentText("You still need '${items.first().name()}' ${getExtraItems(items)}")
+            setContentTitle(buildSpannedString {
+                bold { append("Shopping reminder") }
+                append(" for ")
+                bold { append(entry.name()) }
+            })
+            setContentText(buildSpannedString {
+                append("You still ")
+                bold { append("need to shop") }
+                append(" for ")
+                bold { append("${items.size}") }
+                append(" items")
+            })
         }
     }
 
@@ -94,10 +106,16 @@ internal class NotificationHandlerImpl @Inject internal constructor(
             "Reminders for items that are going to expire soon",
             contentIntent(id, FridgeItem.Presence.HAVE)
         ) {
-            val extra =
-                "${getExtraItems(items)} ${if (items.size == 1) "is" else "are"} about to expire."
-            setContentTitle("Expiration reminder for '${entry.name()}'")
-            setContentText("'${items.first().name()}' $extra")
+            setContentTitle(buildSpannedString {
+                bold { append("Expiration reminder") }
+                append(" for ")
+                bold { append(entry.name()) }
+            })
+            setContentText(buildSpannedString {
+                bold { append("${items.size}") }
+                append(" items are ")
+                bold { append("about to expire!") }
+            })
         }
     }
 
@@ -111,11 +129,16 @@ internal class NotificationHandlerImpl @Inject internal constructor(
             "Reminders for items that have expired",
             contentIntent(id, FridgeItem.Presence.HAVE)
         ) {
-            setContentTitle("Expired warning for '${entry.name()}'")
-            setContentText(
-                "'${items.first()
-                    .name()}' ${getExtraItems(items)} ${if (items.size == 1) "has" else "have"} passed expiration!"
-            )
+            setContentTitle(buildSpannedString {
+                bold { append("Expiration warning") }
+                append(" for ")
+                bold { append(entry.name()) }
+            })
+            setContentText(buildSpannedString {
+                bold { append("${items.size}") }
+                append(" items have ")
+                bold { append("passed expiration!") }
+            })
         }
     }
 
@@ -129,8 +152,17 @@ internal class NotificationHandlerImpl @Inject internal constructor(
             "Regular reminders each night to clean out your fridge",
             contentIntent(id, FridgeItem.Presence.HAVE)
         ) {
-            setContentTitle("Remember to clean the fridge!")
-            setContentText("Reminder to mark off anything you ate today!")
+            setContentTitle(buildSpannedString {
+                bold { append("Nightly reminder") }
+                append(" to ")
+                bold { append("clean") }
+                append(" the fridge")
+            })
+            setContentText(buildSpannedString {
+                append("Reminder to")
+                bold { append("mark off") }
+                append(" anything you consumed today!")
+            })
         }
     }
 
@@ -170,8 +202,18 @@ internal class NotificationHandlerImpl @Inject internal constructor(
             "Reminders for items that may be at locations nearby.",
             contentIntent(notificationId, FridgeItem.Presence.NEED)
         ) {
-            setContentTitle("Nearby Reminder for $name")
-            setContentText("You still need '${items.first().name()}' ${getExtraItems(items)}")
+            setContentTitle(buildSpannedString {
+                bold { append("Nearby reminder") }
+                append(" for ")
+                bold { append(name) }
+            })
+            setContentText(buildSpannedString {
+                append("You still ")
+                bold { append("need to shop") }
+                append(" for ")
+                bold { append("${items.size}") }
+                append(" items")
+            })
         }
     }
 
