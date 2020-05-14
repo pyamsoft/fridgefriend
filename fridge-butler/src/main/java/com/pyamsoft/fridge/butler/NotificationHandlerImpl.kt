@@ -31,6 +31,7 @@ import androidx.annotation.CheckResult
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.getSystemService
+import androidx.core.text.HtmlCompat
 import androidx.core.text.bold
 import androidx.core.text.buildSpannedString
 import com.pyamsoft.fridge.db.entry.FridgeEntry
@@ -55,20 +56,13 @@ internal class NotificationHandlerImpl @Inject internal constructor(
     private val expiredNotificationIdMap by lazy { mutableMapOf<FridgeEntry.Id, Int>() }
 
     @CheckResult
-    private fun contentIntent(notificationId: Int, presence: FridgeItem.Presence): PendingIntent {
-        val intent = Intent(context, activityClass).apply {
-            putExtra(FridgeItem.Presence.KEY, presence.name)
-            putExtra(NotificationHandler.NOTIFICATION_ID_KEY, notificationId)
-            addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-            addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
-        }
+    private inline fun ul(list: () -> List<String>): String {
+        return "<ul>${list().joinToString(separator = "\n")}</ul>"
+    }
 
-        return PendingIntent.getActivity(
-            context,
-            notificationId,
-            intent,
-            PendingIntent.FLAG_UPDATE_CURRENT
-        )
+    @CheckResult
+    private inline fun li(string: () -> String): String {
+        return "<li>${string()}</li>"
     }
 
     override fun notifyNeeded(entry: FridgeEntry, items: List<FridgeItem>): Boolean {
@@ -93,7 +87,23 @@ internal class NotificationHandlerImpl @Inject internal constructor(
                 bold { append("${items.size}") }
                 append(" items")
             })
+
+            setStyle(createBigTextStyle(items))
         }
+    }
+
+    @CheckResult
+    private fun createBigTextStyle(items: List<FridgeItem>): NotificationCompat.Style {
+        return NotificationCompat.BigTextStyle().bigText(
+            HtmlCompat.fromHtml(
+                ul {
+                    items
+                        .map { it.name() }
+                        .map { "  $it" }
+                        .map { name -> li { name } }
+                }, HtmlCompat.FROM_HTML_SEPARATOR_LINE_BREAK_LIST_ITEM
+            )
+        )
     }
 
     override fun notifyExpiring(entry: FridgeEntry, items: List<FridgeItem>): Boolean {
@@ -116,6 +126,8 @@ internal class NotificationHandlerImpl @Inject internal constructor(
                 append(" items are ")
                 bold { append("about to expire!") }
             })
+
+            setStyle(createBigTextStyle(items))
         }
     }
 
@@ -139,49 +151,8 @@ internal class NotificationHandlerImpl @Inject internal constructor(
                 append(" items have ")
                 bold { append("passed expiration!") }
             })
-        }
-    }
 
-    override fun notifyNightly(): Boolean {
-        val id = NIGHTLY_NOTIFICATION_ID
-        return notify(
-            id,
-            R.drawable.ic_get_app_24dp,
-            NIGHTLY_CHANNEL_ID,
-            "Nightly Reminders",
-            "Regular reminders each night to clean out your fridge",
-            contentIntent(id, FridgeItem.Presence.HAVE)
-        ) {
-            setContentTitle(buildSpannedString {
-                bold { append("Nightly reminder") }
-                append(" to ")
-                bold { append("clean") }
-                append(" the fridge")
-            })
-            setContentText(buildSpannedString {
-                append("Reminder to")
-                bold { append("mark off") }
-                append(" anything you consumed today!")
-            })
-        }
-    }
-
-    override fun notifyNearby(zone: NearbyZone, items: List<FridgeItem>): Boolean {
-        val id = nearbyNotificationIdMap.getNotificationId(zone.id().id, NotificationType.NEARBY)
-        return notifyNearby(id, zone.name(), items)
-    }
-
-    override fun notifyNearby(store: NearbyStore, items: List<FridgeItem>): Boolean {
-        val id = nearbyNotificationIdMap.getNotificationId(store.id().id, NotificationType.NEARBY)
-        return notifyNearby(id, store.name(), items)
-    }
-
-    private fun cancelAllNeededNotifications() {
-        val ids = needNotificationIdMap.values
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            ids.parallelStream().forEach { cancel(it) }
-        } else {
-            ids.forEach { cancel(it) }
+            setStyle(createBigTextStyle(items))
         }
     }
 
@@ -214,6 +185,68 @@ internal class NotificationHandlerImpl @Inject internal constructor(
                 bold { append("${items.size}") }
                 append(" items")
             })
+
+            setStyle(createBigTextStyle(items))
+        }
+    }
+
+    override fun notifyNightly(): Boolean {
+        val id = NIGHTLY_NOTIFICATION_ID
+        return notify(
+            id,
+            R.drawable.ic_get_app_24dp,
+            NIGHTLY_CHANNEL_ID,
+            "Nightly Reminders",
+            "Regular reminders each night to clean out your fridge",
+            contentIntent(id, FridgeItem.Presence.HAVE)
+        ) {
+            setContentTitle(buildSpannedString {
+                bold { append("Nightly reminder") }
+                append(" to ")
+                bold { append("clean") }
+                append(" the fridge")
+            })
+            setContentText(buildSpannedString {
+                append("Reminder to")
+                bold { append("mark off") }
+                append(" anything you consumed today!")
+            })
+        }
+    }
+
+    @CheckResult
+    private fun contentIntent(notificationId: Int, presence: FridgeItem.Presence): PendingIntent {
+        val intent = Intent(context, activityClass).apply {
+            putExtra(FridgeItem.Presence.KEY, presence.name)
+            putExtra(NotificationHandler.NOTIFICATION_ID_KEY, notificationId)
+            addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+            addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
+        }
+
+        return PendingIntent.getActivity(
+            context,
+            notificationId,
+            intent,
+            PendingIntent.FLAG_UPDATE_CURRENT
+        )
+    }
+
+    override fun notifyNearby(zone: NearbyZone, items: List<FridgeItem>): Boolean {
+        val id = nearbyNotificationIdMap.getNotificationId(zone.id().id, NotificationType.NEARBY)
+        return notifyNearby(id, zone.name(), items)
+    }
+
+    override fun notifyNearby(store: NearbyStore, items: List<FridgeItem>): Boolean {
+        val id = nearbyNotificationIdMap.getNotificationId(store.id().id, NotificationType.NEARBY)
+        return notifyNearby(id, store.name(), items)
+    }
+
+    private fun cancelAllNeededNotifications() {
+        val ids = needNotificationIdMap.values
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            ids.parallelStream().forEach { cancel(it) }
+        } else {
+            ids.forEach { cancel(it) }
         }
     }
 
