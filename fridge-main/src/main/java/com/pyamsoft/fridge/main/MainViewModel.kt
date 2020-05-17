@@ -17,7 +17,6 @@
 
 package com.pyamsoft.fridge.main
 
-import androidx.annotation.CheckResult
 import androidx.lifecycle.viewModelScope
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent
 import com.pyamsoft.fridge.locator.GpsChangeEvent
@@ -25,10 +24,10 @@ import com.pyamsoft.fridge.locator.MapPermission
 import com.pyamsoft.highlander.highlander
 import com.pyamsoft.pydroid.arch.EventBus
 import com.pyamsoft.pydroid.arch.UiViewModel
-import javax.inject.Inject
-import javax.inject.Named
 import kotlinx.coroutines.launch
 import timber.log.Timber
+import javax.inject.Inject
+import javax.inject.Named
 
 class MainViewModel @Inject internal constructor(
     private val interactor: MainInteractor,
@@ -139,10 +138,18 @@ class MainViewModel @Inject internal constructor(
         }
     }
 
-    // TODO(Peter): Kind of an anti-pattern
-    @CheckResult
-    fun canShowMap(): Boolean {
-        return mapPermission.hasForegroundPermission()
+    @JvmOverloads
+    fun withForegroundPermission(
+        withPermission: () -> Unit = EMPTY,
+        withoutPermission: () -> Unit = EMPTY
+    ) {
+        viewModelScope.launch {
+            if (mapPermission.hasForegroundPermission()) {
+                withPermission()
+            } else {
+                withoutPermission()
+            }
+        }
     }
 
     // Called from DetailFragment upon initialization
@@ -165,5 +172,6 @@ class MainViewModel @Inject internal constructor(
     companion object {
 
         private const val PAGE = "page"
+        private val EMPTY = {}
     }
 }

@@ -37,11 +37,11 @@ import com.pyamsoft.fridge.detail.base.BaseUpdaterViewModel
 import com.pyamsoft.fridge.detail.expand.date.DateSelectPayload
 import com.pyamsoft.fridge.detail.item.isNameValid
 import com.pyamsoft.pydroid.arch.EventBus
+import kotlinx.coroutines.launch
+import timber.log.Timber
 import java.util.Calendar
 import javax.inject.Inject
 import javax.inject.Named
-import kotlinx.coroutines.launch
-import timber.log.Timber
 
 class ExpandItemViewModel @Inject internal constructor(
     private val itemExpandBus: EventBus<ItemExpandPayload>,
@@ -149,7 +149,12 @@ class ExpandItemViewModel @Inject internal constructor(
             is ExpandedItemViewEvent.DeleteItem -> deleteSelf()
             is ExpandedItemViewEvent.ConsumeItem -> consumeSelf()
             is ExpandedItemViewEvent.SpoilItem -> spoilSelf()
+            is ExpandedItemViewEvent.SelectSimilar -> similarSelected(event.item)
         }
+    }
+
+    private fun similarSelected(item: FridgeItem) {
+        // TODO handle similar selected event
     }
 
     private fun consumeSelf() {

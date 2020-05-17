@@ -39,6 +39,8 @@ sealed class ExpandedItemViewEvent : UiViewEvent {
 
     data class CommitCount internal constructor(val count: Int) : ExpandedItemViewEvent()
 
+    data class SelectSimilar internal constructor(val item: FridgeItem) : ExpandedItemViewEvent()
+
     object CommitPresence : ExpandedItemViewEvent()
 
     object PickDate : ExpandedItemViewEvent()

@@ -53,9 +53,9 @@ import com.pyamsoft.pydroid.ui.rating.buildChangeLog
 import com.pyamsoft.pydroid.ui.util.commitNow
 import com.pyamsoft.pydroid.ui.util.layout
 import com.pyamsoft.pydroid.util.makeWindowSexy
-import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 internal class MainActivity : RatingActivity(), VersionChecker {
 
@@ -285,24 +285,24 @@ internal class MainActivity : RatingActivity(), VersionChecker {
     private fun checkNearbyFragmentPermissions() {
         val fm = supportFragmentManager
         if (fm.findFragmentByTag(PermissionFragment.TAG) != null) {
-            if (viewModel.canShowMap()) {
+            viewModel.withForegroundPermission(withPermission = {
                 // Replace permission with map
                 // Don't need animation because we are already on this page
                 commitNearbyFragment(null)
-            }
+            })
         } else if (fm.findFragmentByTag(MapFragment.TAG) != null) {
-            if (!viewModel.canShowMap()) {
+            viewModel.withForegroundPermission(withoutPermission = {
                 // Replace map with permission
                 // Don't need animation because we are already on this page
                 commitNearbyFragment(null)
-            }
+            })
         }
     }
 
     private fun commitNearbyFragment(previousPage: MainPage?) {
-        if (viewModel.canShowMap()) {
+        viewModel.withForegroundPermission(withPermission = {
             commitPage(MapFragment.newInstance(), MainPage.NEARBY, previousPage, MapFragment.TAG)
-        } else {
+        }, withoutPermission = {
             commitPage(
                 PermissionFragment.newInstance(fragmentContainerId),
                 MainPage.NEARBY,
@@ -310,6 +310,7 @@ internal class MainActivity : RatingActivity(), VersionChecker {
                 PermissionFragment.TAG
             )
         }
+        )
     }
 
     private fun pushPresenceFragment(previousPage: MainPage?, presence: FridgeItem.Presence) {

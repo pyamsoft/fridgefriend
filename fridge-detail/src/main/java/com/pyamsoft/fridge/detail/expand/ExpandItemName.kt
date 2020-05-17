@@ -21,9 +21,10 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.view.ViewGroup
 import androidx.annotation.CheckResult
+import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.detail.base.BaseItemName
-import javax.inject.Inject
 import timber.log.Timber
+import javax.inject.Inject
 
 class ExpandItemName @Inject internal constructor(
     parent: ViewGroup
@@ -39,11 +40,7 @@ class ExpandItemName @Inject internal constructor(
                 setOnDismissListener {
                     Timber.d("Similar popup dismissed")
                 }
-                setOnItemClickListener { selectedItem ->
-                    Timber.d("Similar popup FridgeItem selected: $selectedItem")
-                    // TODO publish SELECT_SIMILAR event to VM
-                    setName(selectedItem)
-                }
+                setOnItemClickListener { selectSimilar(it) }
             }
         }
 
@@ -54,6 +51,12 @@ class ExpandItemName @Inject internal constructor(
         doOnTeardown {
             firstRender = false
         }
+    }
+
+    private fun selectSimilar(item: FridgeItem) {
+        Timber.d("Similar popup FridgeItem selected: $item")
+        setName(item)
+        publish(ExpandedItemViewEvent.SelectSimilar(item))
     }
 
     override fun onRender(state: ExpandItemViewState) {

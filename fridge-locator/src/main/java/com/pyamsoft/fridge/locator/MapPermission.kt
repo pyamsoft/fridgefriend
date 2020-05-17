@@ -24,7 +24,9 @@ import com.pyamsoft.fridge.locator.permission.PermissionConsumer
 interface MapPermission {
 
     @CheckResult
-    fun hasForegroundPermission(): Boolean
+    suspend fun hasForegroundPermission(): Boolean
 
-    fun requestForegroundPermission(consumer: PermissionConsumer<ForegroundLocationPermission>)
+    suspend fun requestForegroundPermission(
+        consumer: PermissionConsumer<ForegroundLocationPermission>
+    )
 }
