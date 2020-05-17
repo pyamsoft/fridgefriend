@@ -17,9 +17,11 @@
 
 package com.pyamsoft.fridge.locator.permission
 
+import androidx.lifecycle.viewModelScope
 import com.pyamsoft.fridge.locator.MapPermission
 import com.pyamsoft.pydroid.arch.UiViewModel
 import com.pyamsoft.pydroid.arch.UnitViewState
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 import javax.inject.Named
 
@@ -37,6 +39,8 @@ class LocationPermissionViewModel @Inject internal constructor(
     }
 
     fun requestForegroundPermission(consumer: PermissionConsumer<ForegroundLocationPermission>) {
-        mapPermission.requestForegroundPermission(consumer)
+        viewModelScope.launch {
+            mapPermission.requestForegroundPermission(consumer)
+        }
     }
 }

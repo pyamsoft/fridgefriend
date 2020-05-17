@@ -31,15 +31,14 @@ import com.pyamsoft.fridge.locator.DeviceGps
 import com.pyamsoft.fridge.locator.Geofencer
 import com.pyamsoft.fridge.locator.MapPermission
 import com.pyamsoft.pydroid.core.Enforcer
-import javax.inject.Inject
-import javax.inject.Singleton
-import kotlin.coroutines.resume
-import kotlin.coroutines.resumeWithException
-import kotlinx.coroutines.CancellableContinuation
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
 import timber.log.Timber
+import javax.inject.Inject
+import javax.inject.Singleton
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
 
 @Singleton
 internal class GmsLocator @Inject internal constructor(
@@ -59,40 +58,42 @@ internal class GmsLocator @Inject internal constructor(
                 return@withContext null
             }
 
+            throwIfMissingPermission("Cannot get last known location")
+
             return@withContext suspendCancellableCoroutine<Location?> { continuation ->
                 enforcer.assertNotOnMainThread()
                 continuation.invokeOnCancellation {
                     Timber.w("getLastKnownLocation coroutine cancelled: $it")
                 }
 
-                continuation.withPermission("Cannot get last known location") {
-                    locationClient.lastLocation
-                        .addOnSuccessListener { resume(it) }
-                        .addOnFailureListener { resumeWithException(it) }
-                        .addOnCanceledListener { resume(null) }
-                }
+                locationClient.lastLocation
+                    .addOnSuccessListener { continuation.resume(it) }
+                    .addOnFailureListener { continuation.resumeWithException(it) }
+                    .addOnCanceledListener { continuation.resume(null) }
             }
         }
 
     override suspend fun isGpsEnabled(): Boolean = withContext(context = Dispatchers.Default) {
         enforcer.assertNotOnMainThread()
+        throwIfMissingPermission("Cannot get gps state")
+
         return@withContext suspendCancellableCoroutine<Boolean> { continuation ->
             enforcer.assertNotOnMainThread()
             continuation.invokeOnCancellation {
                 Timber.w("isGpsEnabled coroutine cancelled: $it")
             }
 
-            continuation.withPermission("Cannot get GPS enabled state") {
-                locationClient.locationAvailability
-                    .addOnSuccessListener { resume(it.isLocationAvailable) }
-                    .addOnFailureListener { resumeWithException(it) }
-                    .addOnCanceledListener { resume(false) }
-            }
+            locationClient.locationAvailability
+                .addOnSuccessListener { continuation.resume(it.isLocationAvailable) }
+                .addOnFailureListener { continuation.resumeWithException(it) }
+                .addOnCanceledListener { continuation.resume(false) }
         }
     }
 
     override suspend fun enableGps() = withContext(context = Dispatchers.Default) {
         enforcer.assertNotOnMainThread()
+        throwIfMissingPermission("Cannot enable GPS")
+
         suspendCancellableCoroutine<Unit> { continuation ->
             enforcer.assertNotOnMainThread()
             continuation.invokeOnCancellation {
@@ -106,24 +107,18 @@ internal class GmsLocator @Inject internal constructor(
                 .addLocationRequest(request)
                 .build()
 
-            continuation.withPermission("Cannot enable GPS") {
-                settingsClient.checkLocationSettings(settingsRequest)
-                    .addOnSuccessListener { resume(Unit) }
-                    .addOnFailureListener { resumeWithException(it.wrapResolvable()) }
-                    .addOnCanceledListener { resume(Unit) }
-            }
+            settingsClient.checkLocationSettings(settingsRequest)
+                .addOnSuccessListener { continuation.resume(Unit) }
+                .addOnFailureListener { continuation.resumeWithException(it.wrapResolvable()) }
+                .addOnCanceledListener { continuation.resume(Unit) }
         }
     }
 
-    private inline fun <T> CancellableContinuation<T>.withPermission(
-        message: String,
-        func: CancellableContinuation<T>.() -> Unit
-    ) {
+    private suspend fun throwIfMissingPermission(message: String) {
         if (!permission.hasForegroundPermission()) {
-            Timber.w("$message, $MISSING_PERMISSION")
-            this.resumeWithException(MISSING_PERMISSION)
-        } else {
-            this.func()
+            val msg = "$message, $MISSING_PERMISSION"
+            Timber.w(msg)
+            throw IllegalStateException(msg)
         }
     }
 

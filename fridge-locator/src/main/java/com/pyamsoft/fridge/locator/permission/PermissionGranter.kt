@@ -22,6 +22,8 @@ import android.content.pm.PackageManager
 import androidx.annotation.CheckResult
 import androidx.core.content.ContextCompat
 import com.pyamsoft.fridge.locator.MapPermission
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -38,14 +40,16 @@ internal class PermissionGranter @Inject internal constructor(
         }
     }
 
-    override fun hasForegroundPermission(): Boolean {
-        return checkPermissions(ForegroundLocationPermission.permissions())
-    }
+    override suspend fun hasForegroundPermission(): Boolean =
+        withContext(context = Dispatchers.Default) {
+            checkPermissions(ForegroundLocationPermission.permissions())
+        }
 
-    override fun requestForegroundPermission(consumer: PermissionConsumer<ForegroundLocationPermission>) {
-        consumer.onRequestPermissions(
-            ForegroundLocationPermission.permissions(),
-            ForegroundLocationPermission.requestCode()
-        )
-    }
+    override suspend fun requestForegroundPermission(consumer: PermissionConsumer<ForegroundLocationPermission>) =
+        withContext(context = Dispatchers.Main) {
+            consumer.onRequestPermissions(
+                ForegroundLocationPermission.permissions(),
+                ForegroundLocationPermission.requestCode()
+            )
+        }
 }
