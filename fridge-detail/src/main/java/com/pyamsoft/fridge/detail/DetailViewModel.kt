@@ -123,6 +123,24 @@ class DetailViewModel @Inject internal constructor(
                 setState { copy(isSameDayExpired = DetailViewState.IsSameDayExpired(isSame)) }
             }
         }
+
+        doOnInit {
+            viewModelScope.launch {
+                val listener = interactor.listenForExpiringSoonRangeChanged { range ->
+                    setState { copy(expirationRange = DetailViewState.ExpirationRange(range)) }
+                }
+                doOnTeardown { listener.cancel() }
+            }
+        }
+
+        doOnInit {
+            viewModelScope.launch {
+                val listener = interactor.listenForSameDayExpiredChanged { same ->
+                    setState { copy(isSameDayExpired = DetailViewState.IsSameDayExpired(same)) }
+                }
+                doOnTeardown { listener.cancel() }
+            }
+        }
     }
 
     override fun handleViewEvent(event: DetailViewEvent) {

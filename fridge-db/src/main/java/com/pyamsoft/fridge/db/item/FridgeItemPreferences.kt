@@ -18,6 +18,7 @@
 package com.pyamsoft.fridge.db.item
 
 import androidx.annotation.CheckResult
+import com.pyamsoft.pydroid.util.PreferenceListener
 
 interface FridgeItemPreferences {
 
@@ -29,4 +30,10 @@ interface FridgeItemPreferences {
 
     @CheckResult
     suspend fun isSameDayExpired(): Boolean
+
+    @CheckResult
+    suspend fun watchForExpiringSoonChange(onChange: (newRange: Int) -> Unit): PreferenceListener
+
+    @CheckResult
+    suspend fun watchForSameDayExpiredChange(onChange: (newSameDay: Boolean) -> Unit): PreferenceListener
 }

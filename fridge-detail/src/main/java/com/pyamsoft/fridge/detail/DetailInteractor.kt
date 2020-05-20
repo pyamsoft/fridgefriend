@@ -34,6 +34,7 @@ import com.pyamsoft.fridge.db.item.FridgeItemRealtime
 import com.pyamsoft.fridge.db.item.FridgeItemUpdateDao
 import com.pyamsoft.fridge.db.persist.PersistentCategories
 import com.pyamsoft.pydroid.core.Enforcer
+import com.pyamsoft.pydroid.util.PreferenceListener
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import timber.log.Timber
@@ -68,6 +69,18 @@ internal class DetailInteractor @Inject internal constructor(
     suspend fun isSameDayExpired(): Boolean = withContext(context = Dispatchers.Default) {
         return@withContext preferences.isSameDayExpired()
     }
+
+    @CheckResult
+    suspend fun listenForExpiringSoonRangeChanged(onChange: (newRange: Int) -> Unit): PreferenceListener =
+        withContext(context = Dispatchers.Default) {
+            return@withContext preferences.watchForExpiringSoonChange(onChange)
+        }
+
+    @CheckResult
+    suspend fun listenForSameDayExpiredChanged(onChange: (newSameDay: Boolean) -> Unit): PreferenceListener =
+        withContext(context = Dispatchers.Default) {
+            return@withContext preferences.watchForSameDayExpiredChange(onChange)
+        }
 
     @CheckResult
     suspend fun findSameNamedItems(name: String, presence: Presence): Collection<FridgeItem> =
