@@ -18,9 +18,6 @@
 package com.pyamsoft.fridge.detail.add
 
 import android.view.ViewGroup
-import android.view.animation.AccelerateInterpolator
-import androidx.core.view.ViewCompat
-import androidx.core.view.ViewPropertyAnimatorCompat
 import androidx.core.view.isVisible
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.detail.DetailViewEvent
@@ -33,7 +30,6 @@ import com.pyamsoft.pydroid.loader.Loaded
 import com.pyamsoft.pydroid.ui.util.popShow
 import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
 import javax.inject.Inject
-import timber.log.Timber
 
 class AddNewItemView @Inject internal constructor(
     private val imageLoader: ImageLoader,
@@ -47,11 +43,6 @@ class AddNewItemView @Inject internal constructor(
 
     private var addNewIconLoaded: Loaded? = null
     private var filterIconLoaded: Loaded? = null
-
-    private var addNewIconAnimator: ViewPropertyAnimatorCompat? = null
-    private var rotateIconAnimator: ViewPropertyAnimatorCompat? = null
-
-    private var previousRotated = false
 
     init {
         doOnInflate {
@@ -89,11 +80,6 @@ class AddNewItemView @Inject internal constructor(
                 }
             }.apply { doOnTeardown { cancel() } }
         }
-
-        doOnTeardown {
-            disposeAddNewAnimator()
-            disposeRotate()
-        }
     }
 
     private fun disposeFilterLoaded() {
@@ -101,19 +87,9 @@ class AddNewItemView @Inject internal constructor(
         filterIconLoaded = null
     }
 
-    private fun disposeAddNewAnimator() {
-        addNewIconAnimator?.cancel()
-        addNewIconAnimator = null
-    }
-
     private fun disposeAddNewLoaded() {
         addNewIconLoaded?.dispose()
         addNewIconLoaded = null
-    }
-
-    private fun disposeRotate() {
-        rotateIconAnimator?.cancel()
-        rotateIconAnimator = null
     }
 
     override fun onRender(state: DetailViewState) {
@@ -132,37 +108,9 @@ class AddNewItemView @Inject internal constructor(
                 .into(binding.detailFilterItem)
         }
 
-        state.isItemExpanded.let { expanded ->
-            Timber.d("Item expanded: $expanded")
-            val previous = previousRotated
-            previousRotated = expanded
-            if (previous != expanded) {
-                disposeRotate()
-                rotateIconAnimator = ViewCompat.animate(binding.detailAddNewItem).apply {
-                    startDelay = 0
-                    duration = 200
-                    interpolator = ROTATE_INTERPOLATOR
-
-                    // Need to null out the listener here or it will react to above popShow and popHide
-                    setListener(null)
-
-                    if (expanded) {
-                        rotation(45F)
-                    } else {
-                        rotation(0F)
-                    }
-                }
-            }
-        }
-
         // Hide filter button for NEED
         if (presence == FridgeItem.Presence.NEED) {
             binding.detailFilterItem.isVisible = false
         }
-    }
-
-    companion object {
-
-        private val ROTATE_INTERPOLATOR = AccelerateInterpolator()
     }
 }

@@ -34,20 +34,17 @@ import com.pyamsoft.fridge.db.item.isExpired
 import com.pyamsoft.fridge.db.item.isExpiringSoon
 import com.pyamsoft.fridge.detail.DetailControllerEvent.ExpandForEditing
 import com.pyamsoft.fridge.detail.base.BaseUpdaterViewModel
-import com.pyamsoft.fridge.detail.expand.ItemExpandPayload
 import com.pyamsoft.highlander.highlander
-import com.pyamsoft.pydroid.arch.EventBus
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
+import timber.log.Timber
 import java.util.Calendar
 import javax.inject.Inject
 import javax.inject.Named
 import kotlin.math.max
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
-import timber.log.Timber
 
 class DetailViewModel @Inject internal constructor(
     private val interactor: DetailInteractor,
-    private val itemExpandedBus: EventBus<ItemExpandPayload>,
     @Named("entry_id") private val entryId: FridgeEntry.Id,
     @Named("debug") debug: Boolean,
     listItemPresence: FridgeItem.Presence
@@ -63,7 +60,6 @@ class DetailViewModel @Inject internal constructor(
         expirationRange = null,
         isSameDayExpired = null,
         listItemPresence = listItemPresence,
-        isItemExpanded = false,
         allItems = emptyList(),
         items = emptyList(),
         counts = null
@@ -123,32 +119,8 @@ class DetailViewModel @Inject internal constructor(
 
         doOnInit {
             viewModelScope.launch {
-                interactor.watchForExpiringSoonChanges { range ->
-                    setState { copy(expirationRange = DetailViewState.ExpirationRange(range)) }
-                    withState { refreshList(false) }
-                }
-            }
-        }
-
-        doOnInit {
-            viewModelScope.launch {
                 val isSame = interactor.isSameDayExpired()
                 setState { copy(isSameDayExpired = DetailViewState.IsSameDayExpired(isSame)) }
-            }
-        }
-
-        doOnInit {
-            viewModelScope.launch {
-                interactor.watchForSameDayExpiredChange { same ->
-                    setState { copy(isSameDayExpired = DetailViewState.IsSameDayExpired(same)) }
-                    withState { refreshList(false) }
-                }
-            }
-        }
-
-        doOnInit {
-            itemExpandedBus.scopedEvent {
-                setState { copy(isItemExpanded = it.expanded) }
             }
         }
     }

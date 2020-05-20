@@ -44,7 +44,6 @@ import javax.inject.Inject
 import javax.inject.Named
 
 class ExpandItemViewModel @Inject internal constructor(
-    private val itemExpandBus: EventBus<ItemExpandPayload>,
     private val interactor: DetailInteractor,
     defaultPresence: Presence,
     dateSelectBus: EventBus<DateSelectPayload>,
@@ -65,23 +64,11 @@ class ExpandItemViewModel @Inject internal constructor(
     init {
         doOnInit {
             viewModelScope.launch {
-                itemExpandBus.send(ItemExpandPayload(true))
-            }
-        }
-
-        doOnInit {
-            viewModelScope.launch {
                 val categories = interactor.loadAllCategories()
                 setState {
                     copy(categories = listOf(FridgeCategory.empty()) + categories)
                 }
             }
-        }
-
-        doOnTeardown {
-            // Must do this without using viewModelScope since we are tearing down
-            // so send() would instantly cancel
-            itemExpandBus.publish(ItemExpandPayload(false))
         }
 
         doOnSaveState { state ->
@@ -208,7 +195,9 @@ class ExpandItemViewModel @Inject internal constructor(
         withState {
             requireNotNull(item).let { item ->
                 if (closeMe.id() == item.id() && closeMe.entryId() == item.entryId()) {
-                    publish(ExpandItemControllerEvent.CloseExpand)
+                    viewModelScope.launch {
+                        publish(ExpandItemControllerEvent.CloseExpand)
+                    }
                 }
             }
         }

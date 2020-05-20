@@ -41,7 +41,7 @@ internal class FridgeEntryDbImpl internal constructor(
 
     private val realtime = object : FridgeEntryRealtime {
         override suspend fun listenForChanges(onChange: suspend (event: FridgeEntryChangeEvent) -> Unit) =
-            withContext(context = Dispatchers.IO) { onEvent(onChange) }
+            withContext(context = Dispatchers.IO) { subscribe(onChange) }
     }
 
     private val queryDao = object : FridgeEntryQueryDao {
@@ -64,7 +64,7 @@ internal class FridgeEntryDbImpl internal constructor(
         override suspend fun insert(o: FridgeEntry) = withContext(context = Dispatchers.IO) {
             enforcer.assertNotOnMainThread()
             mutex.withLock { insertDao.insert(o) }
-            publishRealtime(Insert(o.makeReal()))
+            publish(Insert(o.makeReal()))
         }
     }
 
@@ -73,7 +73,7 @@ internal class FridgeEntryDbImpl internal constructor(
         override suspend fun update(o: FridgeEntry) = withContext(context = Dispatchers.IO) {
             enforcer.assertNotOnMainThread()
             mutex.withLock { updateDao.update(o) }
-            publishRealtime(Update(o.makeReal()))
+            publish(Update(o.makeReal()))
         }
     }
 
@@ -82,13 +82,13 @@ internal class FridgeEntryDbImpl internal constructor(
         override suspend fun delete(o: FridgeEntry) = withContext(context = Dispatchers.IO) {
             enforcer.assertNotOnMainThread()
             mutex.withLock { deleteDao.delete(o) }
-            publishRealtime(Delete(o.makeReal()))
+            publish(Delete(o.makeReal()))
         }
 
         override suspend fun deleteAll() = withContext(context = Dispatchers.IO) {
             enforcer.assertNotOnMainThread()
             mutex.withLock { deleteDao.deleteAll() }
-            publishRealtime(DeleteAll)
+            publish(DeleteAll)
         }
     }
 

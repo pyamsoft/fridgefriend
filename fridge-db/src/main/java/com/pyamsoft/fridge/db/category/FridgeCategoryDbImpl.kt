@@ -41,7 +41,7 @@ internal class FridgeCategoryDbImpl internal constructor(
     private val realtime = object : FridgeCategoryRealtime {
 
         override suspend fun listenForChanges(onChange: suspend (event: FridgeCategoryChangeEvent) -> Unit) {
-            withContext(context = Dispatchers.IO) { onEvent(onChange) }
+            withContext(context = Dispatchers.IO) { subscribe(onChange) }
         }
     }
 
@@ -65,7 +65,7 @@ internal class FridgeCategoryDbImpl internal constructor(
         override suspend fun insert(o: FridgeCategory) = withContext(context = Dispatchers.IO) {
             enforcer.assertNotOnMainThread()
             mutex.withLock { insertDao.insert(o) }
-            publishRealtime(Insert(o))
+            publish(Insert(o))
         }
     }
 
@@ -74,7 +74,7 @@ internal class FridgeCategoryDbImpl internal constructor(
         override suspend fun update(o: FridgeCategory) = withContext(context = Dispatchers.IO) {
             enforcer.assertNotOnMainThread()
             mutex.withLock { updateDao.update(o) }
-            publishRealtime(Update(o))
+            publish(Update(o))
         }
     }
 
@@ -83,7 +83,7 @@ internal class FridgeCategoryDbImpl internal constructor(
         override suspend fun delete(o: FridgeCategory) = withContext(context = Dispatchers.IO) {
             enforcer.assertNotOnMainThread()
             mutex.withLock { deleteDao.delete(o) }
-            publishRealtime(Delete(o))
+            publish(Delete(o))
         }
     }
 

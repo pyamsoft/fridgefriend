@@ -38,7 +38,6 @@ import com.pyamsoft.fridge.detail.DetailComponent
 import com.pyamsoft.fridge.detail.DetailListComponent
 import com.pyamsoft.fridge.detail.expand.ExpandComponent
 import com.pyamsoft.fridge.detail.expand.ExpandItemCategoryListComponent
-import com.pyamsoft.fridge.detail.expand.ItemExpandPayload
 import com.pyamsoft.fridge.detail.expand.date.DateSelectComponent
 import com.pyamsoft.fridge.detail.expand.date.DateSelectPayload
 import com.pyamsoft.fridge.entry.EntryComponent
@@ -190,13 +189,6 @@ internal interface FridgeComponent {
             @JvmStatic
             @Singleton
             internal fun provideDateSelectBus(): EventBus<DateSelectPayload> {
-                return EventBus.create()
-            }
-
-            @Provides
-            @JvmStatic
-            @Singleton
-            internal fun provideItemExpandedBus(): EventBus<ItemExpandPayload> {
                 return EventBus.create()
             }
 

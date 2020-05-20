@@ -41,7 +41,7 @@ internal class NearbyStoreDbImpl internal constructor(
     private val realtime = object : NearbyStoreRealtime {
 
         override suspend fun listenForChanges(onChange: suspend (event: NearbyStoreChangeEvent) -> Unit) {
-            withContext(context = Dispatchers.IO) { onEvent(onChange) }
+            withContext(context = Dispatchers.IO) { subscribe(onChange) }
         }
     }
 
@@ -64,7 +64,7 @@ internal class NearbyStoreDbImpl internal constructor(
         override suspend fun insert(o: NearbyStore) {
             enforcer.assertNotOnMainThread()
             mutex.withLock { insertDao.insert(o) }
-            publishRealtime(Insert(o))
+            publish(Insert(o))
         }
     }
 
@@ -73,7 +73,7 @@ internal class NearbyStoreDbImpl internal constructor(
         override suspend fun update(o: NearbyStore) {
             enforcer.assertNotOnMainThread()
             mutex.withLock { updateDao.update(o) }
-            publishRealtime(Update(o))
+            publish(Update(o))
         }
     }
 
@@ -82,7 +82,7 @@ internal class NearbyStoreDbImpl internal constructor(
         override suspend fun delete(o: NearbyStore) {
             enforcer.assertNotOnMainThread()
             mutex.withLock { deleteDao.delete(o) }
-            publishRealtime(Delete(o))
+            publish(Delete(o))
         }
     }
 

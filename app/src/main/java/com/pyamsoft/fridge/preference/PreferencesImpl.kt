@@ -18,7 +18,6 @@
 package com.pyamsoft.fridge.preference
 
 import android.content.Context
-import android.content.SharedPreferences.OnSharedPreferenceChangeListener
 import androidx.core.content.edit
 import androidx.preference.PreferenceManager
 import com.pyamsoft.fridge.R
@@ -30,15 +29,13 @@ import com.pyamsoft.fridge.db.item.FridgeItemPreferences
 import com.pyamsoft.fridge.db.persist.PersistentCategoryPreferences
 import com.pyamsoft.fridge.db.persist.PersistentEntryPreferences
 import com.pyamsoft.fridge.setting.SettingsPreferences
-import com.pyamsoft.pydroid.arch.EventBus
 import com.pyamsoft.pydroid.core.Enforcer
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.util.Calendar
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import javax.inject.Singleton
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.withContext
 
 @Singleton
 internal class PreferencesImpl @Inject internal constructor(
@@ -197,38 +194,6 @@ internal class PreferencesImpl @Inject internal constructor(
                 currentHour < 7 || currentHour >= 22
             }
         }
-
-    override suspend fun watchForExpiringSoonChange(onChange: (newRange: Int) -> Unit) =
-        withContext(context = Dispatchers.IO) {
-            enforcer.assertNotOnMainThread()
-            return@withContext registerPreferenceListener { key ->
-                if (key == expiringSoonKey) {
-                    onChange(getExpiringSoonRange())
-                }
-            }
-        }
-
-    override suspend fun watchForSameDayExpiredChange(onChange: (newSameDay: Boolean) -> Unit) =
-        withContext(context = Dispatchers.IO) {
-            enforcer.assertNotOnMainThread()
-            return@withContext registerPreferenceListener { key ->
-                if (key == isSameDayExpiredKey) {
-                    onChange(isSameDayExpired())
-                }
-            }
-        }
-
-    private suspend fun registerPreferenceListener(onChange: suspend (key: String) -> Unit) {
-        enforcer.assertNotOnMainThread()
-        val bus = EventBus.create<String>()
-        val listener = OnSharedPreferenceChangeListener { _, key -> bus.publish(key) }
-
-        return coroutineScope {
-            preferences.registerOnSharedPreferenceChangeListener(listener)
-            bus.onEvent { onChange(it) }
-            preferences.unregisterOnSharedPreferenceChangeListener(listener)
-        }
-    }
 
     override suspend fun getPersistentEntryId(): FridgeEntry.Id =
         withContext(context = Dispatchers.Default) {

@@ -34,10 +34,10 @@ import com.pyamsoft.fridge.db.item.FridgeItemRealtime
 import com.pyamsoft.fridge.db.item.FridgeItemUpdateDao
 import com.pyamsoft.fridge.db.persist.PersistentCategories
 import com.pyamsoft.pydroid.core.Enforcer
-import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import timber.log.Timber
+import javax.inject.Inject
 
 internal class DetailInteractor @Inject internal constructor(
     private val enforcer: Enforcer,
@@ -68,18 +68,6 @@ internal class DetailInteractor @Inject internal constructor(
     suspend fun isSameDayExpired(): Boolean = withContext(context = Dispatchers.Default) {
         return@withContext preferences.isSameDayExpired()
     }
-
-    @CheckResult
-    suspend fun watchForExpiringSoonChanges(onChange: (newRange: Int) -> Unit) =
-        withContext(context = Dispatchers.Default) {
-            preferences.watchForExpiringSoonChange(onChange)
-        }
-
-    @CheckResult
-    suspend fun watchForSameDayExpiredChange(onChange: (newSameDayExpired: Boolean) -> Unit) =
-        withContext(context = Dispatchers.Default) {
-            preferences.watchForSameDayExpiredChange(onChange)
-        }
 
     @CheckResult
     suspend fun findSameNamedItems(name: String, presence: Presence): Collection<FridgeItem> =

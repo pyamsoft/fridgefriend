@@ -29,8 +29,4 @@ interface FridgeItemPreferences {
 
     @CheckResult
     suspend fun isSameDayExpired(): Boolean
-
-    suspend fun watchForExpiringSoonChange(onChange: (newRange: Int) -> Unit)
-
-    suspend fun watchForSameDayExpiredChange(onChange: (newSameDay: Boolean) -> Unit)
 }

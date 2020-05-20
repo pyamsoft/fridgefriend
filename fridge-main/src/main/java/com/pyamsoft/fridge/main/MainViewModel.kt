@@ -165,7 +165,7 @@ class MainViewModel @Inject internal constructor(
     fun publishGpsChange(isEnabled: Boolean) {
         viewModelScope.launch {
             Timber.d("Publish GPS state change: $isEnabled")
-            gpsChangeBus.send(GpsChangeEvent(isEnabled))
+            gpsChangeBus.publish(GpsChangeEvent(isEnabled))
         }
     }
 

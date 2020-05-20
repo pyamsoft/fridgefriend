@@ -55,7 +55,7 @@ class MainToolbar @Inject internal constructor(
                 }
             }
 
-            binding.mainToolbar.addPrivacy(PRIVACY_POLICY_URL, TERMS_CONDITIONS_URL)
+            viewScope.addPrivacy(binding.mainToolbar, PRIVACY_POLICY_URL, TERMS_CONDITIONS_URL)
         }
 
         doOnTeardown {

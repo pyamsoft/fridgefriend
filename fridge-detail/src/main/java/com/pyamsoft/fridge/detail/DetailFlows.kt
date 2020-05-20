@@ -38,7 +38,6 @@ data class DetailViewState(
     val expirationRange: ExpirationRange?,
     val isSameDayExpired: IsSameDayExpired?,
     val listItemPresence: FridgeItem.Presence,
-    val isItemExpanded: Boolean,
     val counts: Counts?
 ) : UiViewState {
 
