@@ -46,13 +46,13 @@ internal class FridgeItemDbImpl internal constructor(
     private val realtime = object : FridgeItemRealtime {
 
         override suspend fun listenForChanges(onChange: suspend (event: FridgeItemChangeEvent) -> Unit) =
-            withContext(context = Dispatchers.IO) { subscribe(onChange) }
+            withContext(context = Dispatchers.IO) { onEvent(onChange) }
 
         override suspend fun listenForChanges(
             id: FridgeEntry.Id,
             onChange: suspend (event: FridgeItemChangeEvent) -> Unit
         ) = withContext(context = Dispatchers.IO) {
-            subscribe { event ->
+            onEvent { event ->
                 if (event.entryId == id) {
                     onChange(event)
                 }

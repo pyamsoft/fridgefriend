@@ -41,7 +41,7 @@ internal class FridgeEntryDbImpl internal constructor(
 
     private val realtime = object : FridgeEntryRealtime {
         override suspend fun listenForChanges(onChange: suspend (event: FridgeEntryChangeEvent) -> Unit) =
-            withContext(context = Dispatchers.IO) { subscribe(onChange) }
+            withContext(context = Dispatchers.IO) { onEvent(onChange) }
     }
 
     private val queryDao = object : FridgeEntryQueryDao {

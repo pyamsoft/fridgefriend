@@ -30,15 +30,15 @@ internal abstract class BaseDbImpl<T : Any, ChangeEvent : Any> protected constru
 
     private val bus = EventBus.create<ChangeEvent>()
 
-    protected suspend fun subscribe(onEvent: suspend (event: ChangeEvent) -> Unit) {
-        return bus.subscribe(onEvent)
+    protected suspend fun onEvent(onEvent: suspend (event: ChangeEvent) -> Unit) {
+        return bus.onEvent(onEvent)
     }
 
     suspend fun publish(event: ChangeEvent) =
         withContext(context = Dispatchers.Default) {
             enforcer.assertNotOnMainThread()
             invalidate()
-            bus.publish(event)
+            bus.send(event)
         }
 
     fun invalidate() {

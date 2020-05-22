@@ -41,7 +41,7 @@ internal class FridgeCategoryDbImpl internal constructor(
     private val realtime = object : FridgeCategoryRealtime {
 
         override suspend fun listenForChanges(onChange: suspend (event: FridgeCategoryChangeEvent) -> Unit) {
-            withContext(context = Dispatchers.IO) { subscribe(onChange) }
+            withContext(context = Dispatchers.IO) { onEvent(onChange) }
         }
     }
 

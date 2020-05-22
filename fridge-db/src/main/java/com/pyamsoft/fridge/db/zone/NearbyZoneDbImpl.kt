@@ -41,7 +41,7 @@ internal class NearbyZoneDbImpl internal constructor(
     private val realtime = object : NearbyZoneRealtime {
 
         override suspend fun listenForChanges(onChange: suspend (event: NearbyZoneChangeEvent) -> Unit) {
-            withContext(context = Dispatchers.IO) { subscribe(onChange) }
+            withContext(context = Dispatchers.IO) { onEvent(onChange) }
         }
     }
 

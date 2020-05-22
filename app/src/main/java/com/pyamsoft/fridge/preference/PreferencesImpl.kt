@@ -31,7 +31,7 @@ import com.pyamsoft.fridge.db.persist.PersistentEntryPreferences
 import com.pyamsoft.fridge.setting.SettingsPreferences
 import com.pyamsoft.pydroid.core.Enforcer
 import com.pyamsoft.pydroid.util.PreferenceListener
-import com.pyamsoft.pydroid.util.listen
+import com.pyamsoft.pydroid.util.onChange
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.util.Calendar
@@ -200,20 +200,16 @@ internal class PreferencesImpl @Inject internal constructor(
     override suspend fun watchForExpiringSoonChange(onChange: (newRange: Int) -> Unit): PreferenceListener =
         withContext(context = Dispatchers.IO) {
             enforcer.assertNotOnMainThread()
-            return@withContext preferences.listen { key ->
-                if (key == expiringSoonKey) {
-                    onChange(getExpiringSoonRange())
-                }
+            return@withContext preferences.onChange(expiringSoonKey) {
+                onChange(getExpiringSoonRange())
             }
         }
 
     override suspend fun watchForSameDayExpiredChange(onChange: (newSameDay: Boolean) -> Unit): PreferenceListener =
         withContext(context = Dispatchers.IO) {
             enforcer.assertNotOnMainThread()
-            return@withContext preferences.listen { key ->
-                if (key == isSameDayExpiredKey) {
-                    onChange(isSameDayExpired())
-                }
+            return@withContext preferences.onChange(isSameDayExpiredKey) {
+                onChange(isSameDayExpired())
             }
         }
 

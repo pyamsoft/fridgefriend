@@ -44,7 +44,7 @@ class DateSelectViewModel @Inject internal constructor(
         day: Int
     ) {
         viewModelScope.launch {
-            dateSelectBus.publish(DateSelectPayload(itemId, entryId, year, month, day))
+            dateSelectBus.send(DateSelectPayload(itemId, entryId, year, month, day))
             publish(DateSelectControllerEvent.Close)
         }
     }
