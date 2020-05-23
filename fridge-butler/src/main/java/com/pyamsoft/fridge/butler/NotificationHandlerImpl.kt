@@ -37,9 +37,9 @@ import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.store.NearbyStore
 import com.pyamsoft.fridge.db.zone.NearbyZone
+import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Singleton
-import timber.log.Timber
 
 @Singleton
 internal class NotificationHandlerImpl @Inject internal constructor(
@@ -205,7 +205,7 @@ internal class NotificationHandlerImpl @Inject internal constructor(
                 append(" the fridge")
             })
             setContentText(buildSpannedString {
-                append("Reminder to")
+                append("Reminder to ")
                 bold { append("mark off") }
                 append(" anything you consumed today!")
             })
