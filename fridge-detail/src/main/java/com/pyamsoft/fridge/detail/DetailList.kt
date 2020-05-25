@@ -39,8 +39,11 @@ import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.ui.util.Snackbreak
 import com.pyamsoft.pydroid.ui.util.refreshing
-import javax.inject.Inject
+import com.pyamsoft.pydroid.util.toDp
+import io.cabriole.decorator.LinearBoundsMarginDecoration
+import io.cabriole.decorator.LinearMarginDecoration
 import timber.log.Timber
+import javax.inject.Inject
 
 class DetailList @Inject internal constructor(
     private val imageLoader: ImageLoader,
@@ -96,6 +99,22 @@ class DetailList @Inject internal constructor(
 
         doOnInflate {
             binding.detailSwipeRefresh.setOnRefreshListener { publish(DetailViewEvent.ForceRefresh) }
+        }
+
+        doOnInflate {
+            val margin = 16.toDp(binding.detailList.context)
+
+            // Standard margin on all items
+            LinearMarginDecoration.create(margin = margin).apply {
+                binding.detailList.addItemDecoration(this)
+                doOnTeardown { binding.detailList.removeItemDecoration(this) }
+            }
+
+            // The bottom has additional space to fit the FAB
+            LinearBoundsMarginDecoration(bottomMargin = 72.toDp(binding.detailList.context)).apply {
+                binding.detailList.addItemDecoration(this)
+                doOnTeardown { binding.detailList.removeItemDecoration(this) }
+            }
         }
 
         doOnTeardown {

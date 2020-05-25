@@ -69,6 +69,8 @@ buildscript {
         gmsLocation = "17.0.0"
 
         balloon = "1.1.7"
+
+        decorator = "1.1.0"
     }
 
     dependencies {

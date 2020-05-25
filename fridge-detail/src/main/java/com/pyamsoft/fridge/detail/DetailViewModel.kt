@@ -436,11 +436,6 @@ class DetailViewModel @Inject internal constructor(
     }
 
     @CheckResult
-    private fun List<FridgeItem>.boundary(): List<FridgeItem> {
-        return listOf(FridgeItem.empty()) + this + listOf(FridgeItem.empty())
-    }
-
-    @CheckResult
     private fun DetailViewState.calculateCounts(items: List<FridgeItem>): DetailViewState.Counts? {
         return when (showing) {
             DetailViewState.Showing.FRESH -> calculateFreshCounts(items)
@@ -512,7 +507,7 @@ class DetailViewModel @Inject internal constructor(
         items: List<FridgeItem> = this.allItems,
         search: String = this.search
     ): List<FridgeItem> {
-        val listItems = items
+        return items
             .asSequence()
             .filter {
                 return@filter when (showing) {
@@ -522,7 +517,5 @@ class DetailViewModel @Inject internal constructor(
                 }
             }.filter { it.matchesQuery(search) }
             .toList()
-
-        return if (listItems.isEmpty()) emptyList() else listItems.boundary()
     }
 }

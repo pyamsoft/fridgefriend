@@ -135,16 +135,9 @@ interface FridgeItem : EmptyModel<FridgeItem> {
 
     companion object {
 
-        private val EMPTY_ITEM = create(Id.EMPTY, FridgeEntry.Id.EMPTY, Presence.NEED)
-
         @CheckResult
         fun isValidName(name: String): Boolean {
             return name.isNotBlank()
-        }
-
-        @CheckResult
-        fun empty(): FridgeItem {
-            return EMPTY_ITEM
         }
 
         @CheckResult

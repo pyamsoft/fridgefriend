@@ -78,6 +78,9 @@ dependencies {
     // FastAdapter (extensions just for Swipe leave behind)
     implementation "com.mikepenz:fastadapter-extensions-swipe:$fastAdapter"
 
+    // RecyclerView decorations
+    implementation "io.cabriole:decorator:$decorator"
+
     api project(':fridge-core')
     api project(':fridge-db')
     api project(':fridge-tooltip')

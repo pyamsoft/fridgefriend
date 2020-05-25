@@ -20,6 +20,7 @@ package com.pyamsoft.fridge.detail.item
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.lifecycle.LifecycleOwner
+import androidx.recyclerview.widget.RecyclerView
 import com.pyamsoft.fridge.detail.databinding.DetailListItemHolderBinding
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.arch.ViewBinder
@@ -32,7 +33,7 @@ abstract class DetailItemViewHolder protected constructor(
     binding: DetailListItemHolderBinding,
     private val owner: LifecycleOwner,
     private val callback: DetailListAdapter.Callback
-) : DetailViewHolder<DetailListItemHolderBinding>(binding) {
+) : RecyclerView.ViewHolder(binding.root), ViewBinder<DetailListItemViewState> {
 
     @JvmField
     @Inject
