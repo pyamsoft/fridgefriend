@@ -39,7 +39,6 @@ import com.pyamsoft.fridge.locator.map.osm.updatemanager.LocationUpdateReceiver
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.ui.theme.ThemeProvider
 import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
-import javax.inject.Inject
 import org.osmdroid.config.Configuration
 import org.osmdroid.events.MapListener
 import org.osmdroid.events.ScrollEvent
@@ -56,6 +55,7 @@ import org.osmdroid.views.overlay.infowindow.InfoWindow
 import org.osmdroid.views.overlay.mylocation.GpsMyLocationProvider
 import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay
 import timber.log.Timber
+import javax.inject.Inject
 
 class OsmMap @Inject internal constructor(
     private val theming: ThemeProvider,
@@ -251,7 +251,7 @@ class OsmMap @Inject internal constructor(
 
     @CheckResult
     private fun getBoundingBoxOfCurrentScreen(): BBox {
-        val bbox = Projection(
+        val screenBox = Projection(
             binding.osmMap.zoomLevelDouble,
             binding.osmMap.getIntrinsicScreenRect(null),
             GeoPoint(binding.osmMap.mapCenter),
@@ -264,6 +264,14 @@ class OsmMap @Inject internal constructor(
             binding.osmMap.mapCenterOffsetX,
             binding.osmMap.mapCenterOffsetY
         ).boundingBox
+
+        // Always scale the bounding request box to be within screen size - or 20 miles of current location
+        // which ever is smaller
+        val size = screenBox.diagonalLengthInMeters
+        val bbox = if (size <= MAX_ALLOWED_DIAGONAL_LENGTH_METERS) screenBox else {
+            val scale = (MAX_ALLOWED_DIAGONAL_LENGTH_METERS / size).toFloat()
+            screenBox.increaseByScale(scale)
+        }
         return BBox(bbox.latSouth, bbox.lonWest, bbox.latNorth, bbox.lonEast)
     }
 
@@ -366,5 +374,8 @@ class OsmMap @Inject internal constructor(
     companion object {
 
         private const val DEFAULT_ZOOM = 14.8
+
+        // 20 miles
+        private const val MAX_ALLOWED_DIAGONAL_LENGTH_METERS = 32187
     }
 }
