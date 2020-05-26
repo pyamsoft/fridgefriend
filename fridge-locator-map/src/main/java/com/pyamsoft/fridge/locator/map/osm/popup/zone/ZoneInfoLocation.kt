@@ -26,7 +26,7 @@ internal class ZoneInfoLocation @Inject internal constructor(
 ) : BaseInfoLocation<ZoneInfoViewState, ZoneInfoViewEvent>(parent) {
 
     override fun onRender(state: ZoneInfoViewState) {
-        val polygon = state.polygon
+        val polygon = state.data
         val centerPoint = polygon?.infoWindowLocation
         displayLocation(
             centerPoint?.latitude,

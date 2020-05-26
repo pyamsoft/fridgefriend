@@ -21,11 +21,12 @@ import android.location.Location
 import androidx.lifecycle.viewModelScope
 import com.pyamsoft.fridge.db.store.NearbyStore
 import com.pyamsoft.fridge.locator.map.osm.popup.base.BaseInfoViewModel
+import com.pyamsoft.fridge.locator.map.osm.popup.base.BaseInfoViewState
 import com.pyamsoft.fridge.locator.map.osm.popup.store.StoreInfoViewEvent.StoreFavoriteAction
-import javax.inject.Inject
-import javax.inject.Named
 import kotlinx.coroutines.launch
 import org.osmdroid.views.overlay.Marker
+import javax.inject.Inject
+import javax.inject.Named
 
 internal class StoreInfoViewModel @Inject internal constructor(
     private val interactor: StoreInfoInteractor,
@@ -35,7 +36,7 @@ internal class StoreInfoViewModel @Inject internal constructor(
     interactor,
     initialState = StoreInfoViewState(
         myLocation = null,
-        marker = null,
+        data = null,
         cached = null
     ),
     debug = debug
@@ -48,19 +49,19 @@ internal class StoreInfoViewModel @Inject internal constructor(
             interactor.listenForNearbyCacheChanges(
                 onInsert = { store ->
                     if (store.id() == storeId) {
-                        setState { copy(cached = StoreInfoViewState.StoreCached(true)) }
+                        setState { copy(cached = BaseInfoViewState.Cached(true)) }
                     }
                 },
                 onDelete = { store ->
                     if (store.id() == storeId) {
-                        setState { copy(cached = StoreInfoViewState.StoreCached(false)) }
+                        setState { copy(cached = BaseInfoViewState.Cached(false)) }
                     }
                 })
         }
     }
 
     override fun restoreStateFromCachedData(cached: List<NearbyStore>) {
-        setState { copy(cached = StoreInfoViewState.StoreCached(cached = cached.any { it.id() == storeId })) }
+        setState { copy(cached = BaseInfoViewState.Cached(cached = cached.any { it.id() == storeId })) }
     }
 
     override fun handleViewEvent(event: StoreInfoViewEvent) {
@@ -70,10 +71,13 @@ internal class StoreInfoViewModel @Inject internal constructor(
     }
 
     override fun handleLocationUpdate(location: Location?) {
-        setState { copy(myLocation = location) }
+        setState {
+            val newLocation = processLocationUpdate(location)
+            return@setState if (newLocation == null) this else copy(myLocation = newLocation.location)
+        }
     }
 
     fun updateMarker(marker: Marker) {
-        setState { copy(marker = marker) }
+        setState { copy(data = marker) }
     }
 }

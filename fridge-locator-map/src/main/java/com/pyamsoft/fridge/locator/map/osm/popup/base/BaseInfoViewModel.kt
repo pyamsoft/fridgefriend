@@ -18,15 +18,15 @@
 package com.pyamsoft.fridge.locator.map.osm.popup.base
 
 import android.location.Location
+import androidx.annotation.CheckResult
 import androidx.lifecycle.viewModelScope
 import com.pyamsoft.pydroid.arch.UiControllerEvent
 import com.pyamsoft.pydroid.arch.UiViewEvent
 import com.pyamsoft.pydroid.arch.UiViewModel
-import com.pyamsoft.pydroid.arch.UiViewState
-import javax.inject.Named
 import kotlinx.coroutines.launch
+import javax.inject.Named
 
-internal abstract class BaseInfoViewModel<T : Any, S : UiViewState, V : UiViewEvent, C : UiControllerEvent> protected constructor(
+internal abstract class BaseInfoViewModel<T : Any, S : BaseInfoViewState<*>, V : UiViewEvent, C : UiControllerEvent> protected constructor(
     private val interactor: BaseInfoInteractor<T, *, *, *, *, *>,
     initialState: S,
     @Named("debug") debug: Boolean
@@ -59,9 +59,39 @@ internal abstract class BaseInfoViewModel<T : Any, S : UiViewState, V : UiViewEv
         }
     }
 
+    @CheckResult
+    protected fun S.processLocationUpdate(location: Location?): LocationUpdate? {
+        // If location hasn't changed, do nothing
+        val currentLocation = myLocation
+        if (currentLocation == null && location == null) {
+            return null
+        }
+
+        // If location is cleared, set
+        if (currentLocation != null && location == null) {
+            return LocationUpdate(location)
+        }
+
+        // If location is first fixed, set
+        if (currentLocation == null && location != null) {
+            return LocationUpdate(location)
+        }
+
+        // Require both to be non-null
+        requireNotNull(location)
+        requireNotNull(currentLocation)
+
+        // A bunch of things can change but we only care about renders around lat and lon
+        val latitudeMatch = currentLocation.longitude == location.longitude
+        val longitudeMatch = currentLocation.latitude == location.latitude
+        return if (latitudeMatch && longitudeMatch) null else LocationUpdate(location)
+    }
+
     abstract fun handleLocationUpdate(location: Location?)
 
     protected abstract fun listenForRealtime()
 
     protected abstract fun restoreStateFromCachedData(cached: List<T>)
+
+    protected data class LocationUpdate internal constructor(val location: Location?)
 }

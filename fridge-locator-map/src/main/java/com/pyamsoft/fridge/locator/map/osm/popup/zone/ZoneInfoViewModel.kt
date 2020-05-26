@@ -21,11 +21,12 @@ import android.location.Location
 import androidx.lifecycle.viewModelScope
 import com.pyamsoft.fridge.db.zone.NearbyZone
 import com.pyamsoft.fridge.locator.map.osm.popup.base.BaseInfoViewModel
+import com.pyamsoft.fridge.locator.map.osm.popup.base.BaseInfoViewState
 import com.pyamsoft.fridge.locator.map.osm.popup.zone.ZoneInfoViewEvent.ZoneFavoriteAction
-import javax.inject.Inject
-import javax.inject.Named
 import kotlinx.coroutines.launch
 import org.osmdroid.views.overlay.Polygon
+import javax.inject.Inject
+import javax.inject.Named
 
 internal class ZoneInfoViewModel @Inject internal constructor(
     private val interactor: ZoneInfoInteractor,
@@ -35,7 +36,7 @@ internal class ZoneInfoViewModel @Inject internal constructor(
     interactor,
     initialState = ZoneInfoViewState(
         myLocation = null,
-        polygon = null,
+        data = null,
         cached = null
     ),
     debug = debug
@@ -48,19 +49,19 @@ internal class ZoneInfoViewModel @Inject internal constructor(
             interactor.listenForNearbyCacheChanges(
                 onInsert = { zone ->
                     if (zone.id() == zoneId) {
-                        setState { copy(cached = ZoneInfoViewState.ZoneCached(true)) }
+                        setState { copy(cached = BaseInfoViewState.Cached(true)) }
                     }
                 },
                 onDelete = { zone ->
                     if (zone.id() == zoneId) {
-                        setState { copy(cached = ZoneInfoViewState.ZoneCached(false)) }
+                        setState { copy(cached = BaseInfoViewState.Cached(false)) }
                     }
                 })
         }
     }
 
     override fun restoreStateFromCachedData(cached: List<NearbyZone>) {
-        setState { copy(cached = ZoneInfoViewState.ZoneCached(cached = cached.any { it.id() == zoneId })) }
+        setState { copy(cached = BaseInfoViewState.Cached(cached = cached.any { it.id() == zoneId })) }
     }
 
     override fun handleViewEvent(event: ZoneInfoViewEvent) {
@@ -83,10 +84,13 @@ internal class ZoneInfoViewModel @Inject internal constructor(
     }
 
     override fun handleLocationUpdate(location: Location?) {
-        setState { copy(myLocation = location) }
+        setState {
+            val newLocation = processLocationUpdate(location)
+            return@setState if (newLocation == null) this else copy(myLocation = newLocation.location)
+        }
     }
 
     fun updatePolygon(polygon: Polygon) {
-        setState { copy(polygon = polygon) }
+        setState { copy(data = polygon) }
     }
 }

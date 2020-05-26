@@ -20,11 +20,12 @@ package com.pyamsoft.fridge.locator.map.osm.popup.base
 import android.location.Location
 import com.pyamsoft.pydroid.arch.UiViewState
 
-data class BaseInfoViewState<T : Any> internal constructor(
-    val myLocation: Location?,
-    val cached: Cached?,
+interface BaseInfoViewState<T : Any> : UiViewState {
+
+    val myLocation: Location?
+    val cached: Cached?
     val data: T?
-) : UiViewState {
 
     data class Cached internal constructor(val cached: Boolean)
 }
+

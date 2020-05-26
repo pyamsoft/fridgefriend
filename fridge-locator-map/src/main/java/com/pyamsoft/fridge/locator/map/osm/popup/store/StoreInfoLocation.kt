@@ -26,7 +26,7 @@ internal class StoreInfoLocation @Inject internal constructor(
 ) : BaseInfoLocation<StoreInfoViewState, StoreInfoViewEvent>(parent) {
 
     override fun onRender(state: StoreInfoViewState) {
-        val position = state.marker?.position
+        val position = state.data?.position
         displayLocation(position?.latitude, position?.longitude, state.myLocation, position)
     }
 }
