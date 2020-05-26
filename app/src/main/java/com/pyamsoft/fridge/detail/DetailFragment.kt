@@ -38,7 +38,7 @@ import com.pyamsoft.pydroid.arch.StateSaver
 import com.pyamsoft.pydroid.arch.createComponent
 import com.pyamsoft.pydroid.ui.Injector
 import com.pyamsoft.pydroid.ui.app.requireToolbarActivity
-import com.pyamsoft.pydroid.ui.arch.factory
+import com.pyamsoft.pydroid.ui.arch.viewModelFactory
 import com.pyamsoft.pydroid.ui.databinding.LayoutCoordinatorBinding
 import com.pyamsoft.pydroid.ui.util.show
 import javax.inject.Inject
@@ -64,7 +64,7 @@ internal class DetailFragment : Fragment(), SnackbarContainer {
     @JvmField
     @Inject
     internal var factory: ViewModelProvider.Factory? = null
-    private val viewModel by factory<DetailViewModel> { factory }
+    private val viewModel by viewModelFactory<DetailViewModel> { factory }
 
     private var stateSaver: StateSaver? = null
 

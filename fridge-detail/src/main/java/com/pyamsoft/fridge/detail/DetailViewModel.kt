@@ -35,13 +35,13 @@ import com.pyamsoft.fridge.db.item.isExpiringSoon
 import com.pyamsoft.fridge.detail.DetailControllerEvent.ExpandForEditing
 import com.pyamsoft.fridge.detail.base.BaseUpdaterViewModel
 import com.pyamsoft.highlander.highlander
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
-import timber.log.Timber
 import java.util.Calendar
 import javax.inject.Inject
 import javax.inject.Named
 import kotlin.math.max
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
+import timber.log.Timber
 
 class DetailViewModel @Inject internal constructor(
     private val interactor: DetailInteractor,

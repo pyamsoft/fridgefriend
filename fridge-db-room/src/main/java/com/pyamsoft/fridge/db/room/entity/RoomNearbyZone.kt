@@ -80,12 +80,16 @@ internal data class RoomNearbyZone internal constructor(
 
         @Ignore
         internal const val TABLE_NAME = "room_nearby_zone_table"
+
         @Ignore
         internal const val COLUMN_ID = "_id"
+
         @Ignore
         internal const val COLUMN_NAME = "name"
+
         @Ignore
         internal const val COLUMN_CREATED_TIME = "created_time"
+
         @Ignore
         internal const val COLUMN_POINTS = "points"
 

@@ -45,7 +45,7 @@ import com.pyamsoft.fridge.setting.SettingsFragment
 import com.pyamsoft.pydroid.arch.StateSaver
 import com.pyamsoft.pydroid.arch.createComponent
 import com.pyamsoft.pydroid.ui.Injector
-import com.pyamsoft.pydroid.ui.arch.factory
+import com.pyamsoft.pydroid.ui.arch.viewModelFactory
 import com.pyamsoft.pydroid.ui.databinding.LayoutConstraintBinding
 import com.pyamsoft.pydroid.ui.rating.ChangeLogBuilder
 import com.pyamsoft.pydroid.ui.rating.RatingActivity
@@ -53,9 +53,9 @@ import com.pyamsoft.pydroid.ui.rating.buildChangeLog
 import com.pyamsoft.pydroid.ui.util.commitNow
 import com.pyamsoft.pydroid.ui.util.layout
 import com.pyamsoft.pydroid.util.makeWindowSexy
+import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 internal class MainActivity : RatingActivity(), VersionChecker {
 
@@ -114,7 +114,7 @@ internal class MainActivity : RatingActivity(), VersionChecker {
     @JvmField
     @Inject
     internal var factory: ViewModelProvider.Factory? = null
-    private val viewModel by factory<MainViewModel> { factory }
+    private val viewModel by viewModelFactory<MainViewModel> { factory }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         setTheme(R.style.Theme_Fridge_Normal)

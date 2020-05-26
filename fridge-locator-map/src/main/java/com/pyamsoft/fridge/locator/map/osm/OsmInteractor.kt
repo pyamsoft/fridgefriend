@@ -52,44 +52,45 @@ internal class OsmInteractor @Inject internal constructor(
     }
 
     @CheckResult
-    suspend fun nearbyLocations(box: BBox): OsmMarkers = withContext(context = Dispatchers.Default) {
-        enforcer.assertNotOnMainThread()
+    suspend fun nearbyLocations(box: BBox): OsmMarkers =
+        withContext(context = Dispatchers.Default) {
+            enforcer.assertNotOnMainThread()
 
-        Timber.d("Query overpass with bounding box: ${box.south} ${box.west} ${box.north} ${box.east}")
-        val data = createOverpassData(box.south, box.west, box.north, box.east)
-        val response = api.queryNearby(data)
-        val elements = response.elements()
+            Timber.d("Query overpass with bounding box: ${box.south} ${box.west} ${box.north} ${box.east}")
+            val data = createOverpassData(box.south, box.west, box.north, box.east)
+            val response = api.queryNearby(data)
+            val elements = response.elements()
 
-        // First compile all the Way objects
-        val polygons = mutableListOf<NearbyZone>()
+            // First compile all the Way objects
+            val polygons = mutableListOf<NearbyZone>()
 
-        val allNodes = elements.filterIsInstance<Node>()
-            .toMutableList()
-        elements.filterIsInstance<Way>()
-            .forEach { way ->
-                val nodes = way.nodes.map { id ->
-                    val node: Node? = allNodes.find { it.id == id }
-                    if (node == null) {
-                        return@map null
-                    } else {
-                        allNodes.remove(node)
-                        return@map node
+            val allNodes = elements.filterIsInstance<Node>()
+                .toMutableList()
+            elements.filterIsInstance<Way>()
+                .forEach { way ->
+                    val nodes = way.nodes.map { id ->
+                        val node: Node? = allNodes.find { it.id == id }
+                        if (node == null) {
+                            return@map null
+                        } else {
+                            allNodes.remove(node)
+                            return@map node
+                        }
                     }
+                        .filterNot { it == null }
+                        .map { requireNotNull(it) }
+
+                    polygons.add(NearbyZone.create(way, nodes))
                 }
-                    .filterNot { it == null }
-                    .map { requireNotNull(it) }
 
-                polygons.add(NearbyZone.create(way, nodes))
+            val remainingNodes = allNodes.filter {
+                it.tags.name()
+                    .isNotBlank()
             }
+            val markers = remainingNodes.map { NearbyStore.create(it) }
 
-        val remainingNodes = allNodes.filter {
-            it.tags.name()
-                .isNotBlank()
+            return@withContext OsmMarkers(markers, polygons)
         }
-        val markers = remainingNodes.map { NearbyStore.create(it) }
-
-        return@withContext OsmMarkers(markers, polygons)
-    }
 
     companion object {
 

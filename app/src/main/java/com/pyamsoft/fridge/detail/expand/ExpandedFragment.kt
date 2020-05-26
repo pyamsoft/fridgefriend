@@ -38,7 +38,7 @@ import com.pyamsoft.fridge.detail.expand.date.DateSelectDialogFragment
 import com.pyamsoft.pydroid.arch.StateSaver
 import com.pyamsoft.pydroid.arch.createComponent
 import com.pyamsoft.pydroid.ui.Injector
-import com.pyamsoft.pydroid.ui.arch.factory
+import com.pyamsoft.pydroid.ui.arch.viewModelFactory
 import com.pyamsoft.pydroid.ui.databinding.LayoutConstraintBinding
 import com.pyamsoft.pydroid.ui.util.layout
 import com.pyamsoft.pydroid.ui.util.show
@@ -84,7 +84,7 @@ internal class ExpandedFragment : DialogFragment() {
     @JvmField
     @Inject
     internal var factory: ViewModelProvider.Factory? = null
-    private val viewModel by factory<ExpandItemViewModel> { factory }
+    private val viewModel by viewModelFactory<ExpandItemViewModel> { factory }
 
     override fun onCreateView(
         inflater: LayoutInflater,

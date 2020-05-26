@@ -32,7 +32,7 @@ import com.pyamsoft.fridge.main.VersionChecker
 import com.pyamsoft.pydroid.arch.StateSaver
 import com.pyamsoft.pydroid.arch.createComponent
 import com.pyamsoft.pydroid.ui.Injector
-import com.pyamsoft.pydroid.ui.arch.factory
+import com.pyamsoft.pydroid.ui.arch.viewModelFactory
 import com.pyamsoft.pydroid.ui.databinding.LayoutCoordinatorBinding
 import javax.inject.Inject
 
@@ -49,7 +49,7 @@ internal class CategoryFragment : Fragment(), SnackbarContainer {
     @JvmField
     @Inject
     internal var factory: ViewModelProvider.Factory? = null
-    private val viewModel by factory<CategoryViewModel> { factory }
+    private val viewModel by viewModelFactory<CategoryViewModel> { factory }
 
     private var stateSaver: StateSaver? = null
 

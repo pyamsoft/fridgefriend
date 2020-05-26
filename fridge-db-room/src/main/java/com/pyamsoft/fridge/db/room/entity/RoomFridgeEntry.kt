@@ -75,10 +75,13 @@ internal data class RoomFridgeEntry internal constructor(
 
         @Ignore
         internal const val TABLE_NAME = "room_fridge_entry_table"
+
         @Ignore
         internal const val COLUMN_ID = "_id"
+
         @Ignore
         internal const val COLUMN_NAME = "name"
+
         @Ignore
         internal const val COLUMN_CREATED_TIME = "created_time"
 

@@ -22,10 +22,10 @@ import android.content.pm.PackageManager
 import androidx.annotation.CheckResult
 import androidx.core.content.ContextCompat
 import com.pyamsoft.fridge.locator.MapPermission
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 @Singleton
 internal class PermissionGranter @Inject internal constructor(

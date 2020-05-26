@@ -31,7 +31,7 @@ import com.pyamsoft.fridge.locator.map.osm.popup.base.BaseInfoWindow
 import com.pyamsoft.fridge.locator.map.osm.updatemanager.LocationUpdateReceiver
 import com.pyamsoft.pydroid.arch.StateSaver
 import com.pyamsoft.pydroid.arch.createComponent
-import com.pyamsoft.pydroid.ui.arch.factory
+import com.pyamsoft.pydroid.ui.arch.viewModelFactory
 import com.pyamsoft.pydroid.ui.util.layout
 import com.pyamsoft.pydroid.util.fakeBind
 import com.pyamsoft.pydroid.util.fakeUnbind
@@ -54,13 +54,15 @@ class ZoneInfoWindow private constructor(
     @JvmField
     @Inject
     internal var infoTitle: ZoneInfoTitle? = null
+
     @JvmField
     @Inject
     internal var infoLocation: ZoneInfoLocation? = null
+
     @JvmField
     @Inject
     internal var factory: ViewModelProvider.Factory? = null
-    private val viewModel by factory<ZoneInfoViewModel>(ViewModelStore()) { factory }
+    private val viewModel by viewModelFactory<ZoneInfoViewModel>(ViewModelStore()) { factory }
 
     override fun getLifecycle(): Lifecycle {
         return registry

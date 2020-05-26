@@ -39,7 +39,7 @@ import com.pyamsoft.fridge.map.MapFragment
 import com.pyamsoft.pydroid.arch.StateSaver
 import com.pyamsoft.pydroid.arch.createComponent
 import com.pyamsoft.pydroid.ui.Injector
-import com.pyamsoft.pydroid.ui.arch.factory
+import com.pyamsoft.pydroid.ui.arch.viewModelFactory
 import com.pyamsoft.pydroid.ui.databinding.LayoutConstraintBinding
 import com.pyamsoft.pydroid.ui.util.commit
 import com.pyamsoft.pydroid.ui.util.layout
@@ -64,7 +64,7 @@ internal class PermissionFragment : Fragment(), PermissionConsumer<ForegroundLoc
     @JvmField
     @Inject
     internal var factory: ViewModelProvider.Factory? = null
-    private val viewModel by factory<LocationPermissionViewModel>(activity = true) { factory }
+    private val viewModel by viewModelFactory<LocationPermissionViewModel>(activity = true) { factory }
 
     private var stateSaver: StateSaver? = null
 
