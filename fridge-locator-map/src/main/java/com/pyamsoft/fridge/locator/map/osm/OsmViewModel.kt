@@ -22,14 +22,17 @@ import androidx.lifecycle.viewModelScope
 import com.pyamsoft.fridge.locator.DeviceGps
 import com.pyamsoft.highlander.highlander
 import com.pyamsoft.pydroid.arch.UiViewModel
-import javax.inject.Inject
-import javax.inject.Named
+import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import timber.log.Timber
+import javax.inject.Inject
+import javax.inject.Named
 
 class OsmViewModel @Inject internal constructor(
     private val interactor: OsmInteractor,
@@ -50,12 +53,13 @@ class OsmViewModel @Inject internal constructor(
 
     private val mutex = Mutex()
 
-    private val nearbyRunner = highlander<Unit, BBox> { box ->
+    private val nearbyRunner = highlander<Unit, BBox?> { box ->
         setState { copy(loading = true) }
 
         // Run jobs in parallel
+        val jobs = mutableListOf<Deferred<*>>()
         try {
-            launch {
+            jobs += async {
                 try {
                     updateMarkers(interactor.fromCache(), fromCached = true)
                 } catch (error: Throwable) {
@@ -66,23 +70,29 @@ class OsmViewModel @Inject internal constructor(
                 }
             }
 
-            launch {
-                try {
-                    updateMarkers(interactor.nearbyLocations(box), fromCached = false)
-                } catch (error: Throwable) {
-                    error.onActualError { e ->
-                        Timber.e(e, "Error fetching nearby supermarkets")
-                        nearbyError(e)
+            if (box != null) {
+                jobs += async {
+                    try {
+                        updateMarkers(interactor.nearbyLocations(box), fromCached = false)
+                    } catch (error: Throwable) {
+                        error.onActualError { e ->
+                            Timber.e(e, "Error fetching nearby supermarkets")
+                            nearbyError(e)
+                        }
                     }
                 }
             }
+
+            jobs.awaitAll()
         } finally {
             setState { copy(loading = false) }
         }
     }
 
     init {
-        initialFetchFromCache()
+        doOnInit {
+            initialFetchFromCache()
+        }
     }
 
     private fun nearbyError(throwable: Throwable) {
@@ -95,19 +105,12 @@ class OsmViewModel @Inject internal constructor(
     ) {
         mutex.withLock {
             setState {
-                if (fromCached) {
-                    copy(
-                        points = merge(points, markers.points) { it.id() },
-                        zones = merge(zones, markers.zones) { it.id() },
-                        cachedFetchError = null
-                    )
-                } else {
-                    copy(
-                        points = merge(points, markers.points) { it.id() },
-                        zones = merge(zones, markers.zones) { it.id() },
-                        nearbyError = null
-                    )
-                }
+                copy(
+                    points = merge(points, markers.points) { it.id() },
+                    zones = merge(zones, markers.zones) { it.id() },
+                    cachedFetchError = if (fromCached) null else cachedFetchError,
+                    nearbyError = if (!fromCached) null else nearbyError
+                )
             }
         }
     }
@@ -130,19 +133,7 @@ class OsmViewModel @Inject internal constructor(
     }
 
     private fun initialFetchFromCache() {
-        viewModelScope.launch {
-            setState { copy(loading = true) }
-            try {
-                updateMarkers(interactor.fromCache(), fromCached = true)
-            } catch (error: Throwable) {
-                error.onActualError { e ->
-                    Timber.e(e, "Error getting cached locations")
-                    cachedFetchError(e)
-                }
-            } finally {
-                setState { copy(loading = false) }
-            }
-        }
+        viewModelScope.launch { nearbyRunner.call(null) }
     }
 
     private fun cachedFetchError(throwable: Throwable) {
