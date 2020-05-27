@@ -39,10 +39,6 @@ class DetailListItemDate @Inject internal constructor(
         doOnTeardown {
             layoutRoot.setOnDebouncedClickListener(null)
         }
-
-        doOnTeardown {
-            layoutRoot.handler?.removeCallbacksAndMessages(null)
-        }
     }
 
     private fun handleItem(state: DetailListItemViewState) {

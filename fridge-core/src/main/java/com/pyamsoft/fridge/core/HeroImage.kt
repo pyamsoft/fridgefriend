@@ -46,10 +46,6 @@ abstract class HeroImage<S : UiViewState, V : UiViewEvent> protected constructor
         doOnTeardown {
             clear()
         }
-
-        doOnTeardown {
-            layoutRoot.handler?.removeCallbacksAndMessages(null)
-        }
     }
 
     private fun clear() {

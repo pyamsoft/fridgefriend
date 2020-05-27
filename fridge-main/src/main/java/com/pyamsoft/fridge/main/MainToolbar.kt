@@ -62,10 +62,6 @@ class MainToolbar @Inject internal constructor(
             binding.mainToolbar.removePrivacy()
             toolbarActivityProvider.setToolbar(null)
         }
-
-        doOnTeardown {
-            layoutRoot.handler?.removeCallbacksAndMessages(null)
-        }
     }
 
     private fun handleName(state: MainViewState) {

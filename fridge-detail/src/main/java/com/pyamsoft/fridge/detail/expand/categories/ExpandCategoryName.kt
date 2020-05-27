@@ -38,10 +38,6 @@ class ExpandCategoryName @Inject internal constructor(
             layoutRoot.isVisible = false
             layoutRoot.text = null
         }
-
-        doOnTeardown {
-            layoutRoot.handler?.removeCallbacksAndMessages(null)
-        }
     }
 
     override fun onRender(state: ExpandedCategoryViewState) {

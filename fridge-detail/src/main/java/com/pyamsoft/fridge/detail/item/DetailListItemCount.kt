@@ -68,10 +68,6 @@ class DetailListItemCount @Inject internal constructor(
             binding.detailItemCountUp.setOnDebouncedClickListener(null)
             binding.detailItemCountDown.setOnDebouncedClickListener(null)
         }
-
-        doOnTeardown {
-            layoutRoot.handler?.removeCallbacksAndMessages(null)
-        }
     }
 
     override fun onRender(state: DetailListItemViewState) {

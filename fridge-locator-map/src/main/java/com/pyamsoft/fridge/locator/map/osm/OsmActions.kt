@@ -80,10 +80,6 @@ class OsmActions @Inject internal constructor(
             dismissNearbyAnimator()
             dismissMeAnimator()
         }
-
-        doOnTeardown {
-            layoutRoot.handler?.removeCallbacksAndMessages(null)
-        }
     }
 
     private fun dismissNearbyAnimator() {

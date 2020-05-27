@@ -55,10 +55,6 @@ class DetailContainer @Inject internal constructor(
             animator = null
         }
 
-        doOnTeardown {
-            layoutRoot.handler?.removeCallbacksAndMessages(null)
-        }
-
         doOnInflate {
             layoutRoot.background = GradientDrawable().apply {
                 val context = layoutRoot.context

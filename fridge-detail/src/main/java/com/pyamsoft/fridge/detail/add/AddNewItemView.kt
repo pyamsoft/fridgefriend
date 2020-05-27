@@ -80,10 +80,6 @@ class AddNewItemView @Inject internal constructor(
                 }
             }.apply { doOnTeardown { cancel() } }
         }
-
-        doOnTeardown {
-            layoutRoot.handler?.removeCallbacksAndMessages(null)
-        }
     }
 
     private fun disposeFilterLoaded() {

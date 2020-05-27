@@ -26,12 +26,6 @@ class DetailListItemPresence @Inject internal constructor(
     parent: ViewGroup
 ) : BaseItemPresence<DetailListItemViewState, DetailItemViewEvent>(parent) {
 
-    init {
-        doOnTeardown {
-            layoutRoot.handler?.removeCallbacksAndMessages(null)
-        }
-    }
-
     override fun onRender(state: DetailListItemViewState) {
         layoutRoot.post { handleItem(state) }
     }

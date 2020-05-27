@@ -40,10 +40,6 @@ class ExpandItemDate @Inject internal constructor(
         doOnTeardown {
             layoutRoot.setOnDebouncedClickListener(null)
         }
-
-        doOnTeardown {
-            layoutRoot.handler?.removeCallbacksAndMessages(null)
-        }
     }
 
     override fun onRender(state: ExpandItemViewState) {

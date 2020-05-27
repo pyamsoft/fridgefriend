@@ -83,10 +83,6 @@ class DetailListItemGlances @Inject internal constructor(
             binding.detailItemGlancesExpired.setOnDebouncedClickListener(null)
             clear()
         }
-
-        doOnTeardown {
-            layoutRoot.handler?.removeCallbacksAndMessages(null)
-        }
     }
 
     private fun clear() {

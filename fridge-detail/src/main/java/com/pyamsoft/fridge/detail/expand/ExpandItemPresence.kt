@@ -25,12 +25,6 @@ class ExpandItemPresence @Inject internal constructor(
     parent: ViewGroup
 ) : BaseItemPresence<ExpandItemViewState, ExpandedItemViewEvent>(parent) {
 
-    init {
-        doOnTeardown {
-            layoutRoot.handler?.removeCallbacksAndMessages(null)
-        }
-    }
-
     override fun onRender(state: ExpandItemViewState) {
         layoutRoot.post { render(state.item) }
     }

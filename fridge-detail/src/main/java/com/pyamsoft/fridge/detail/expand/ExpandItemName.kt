@@ -23,8 +23,8 @@ import android.view.ViewGroup
 import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.detail.base.BaseItemName
-import timber.log.Timber
 import javax.inject.Inject
+import timber.log.Timber
 
 class ExpandItemName @Inject internal constructor(
     parent: ViewGroup
@@ -64,10 +64,6 @@ class ExpandItemName @Inject internal constructor(
 
         doOnTeardown {
             firstRender = false
-        }
-
-        doOnTeardown {
-            layoutRoot.handler?.removeCallbacksAndMessages(null)
         }
     }
 

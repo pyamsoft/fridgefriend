@@ -28,4 +28,3 @@ interface BaseInfoViewState<T : Any> : UiViewState {
 
     data class Cached internal constructor(val cached: Boolean)
 }
-

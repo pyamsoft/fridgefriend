@@ -74,10 +74,6 @@ class ExpandItemCategoryList @Inject internal constructor(
 
             modelAdapter = null
         }
-
-        doOnTeardown {
-            layoutRoot.handler?.removeCallbacksAndMessages(null)
-        }
     }
 
     @CheckResult

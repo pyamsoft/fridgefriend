@@ -25,12 +25,6 @@ internal class ZoneInfoLocation @Inject internal constructor(
     parent: ViewGroup
 ) : BaseInfoLocation<ZoneInfoViewState, ZoneInfoViewEvent>(parent) {
 
-    init {
-        doOnTeardown {
-            layoutRoot.handler.removeCallbacksAndMessages(null)
-        }
-    }
-
     private fun handleLocation(state: ZoneInfoViewState) {
         val polygon = state.data
         val centerPoint = polygon?.infoWindowLocation

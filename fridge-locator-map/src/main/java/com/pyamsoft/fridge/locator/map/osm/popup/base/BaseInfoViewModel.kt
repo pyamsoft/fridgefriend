@@ -23,10 +23,10 @@ import androidx.lifecycle.viewModelScope
 import com.pyamsoft.pydroid.arch.UiControllerEvent
 import com.pyamsoft.pydroid.arch.UiViewEvent
 import com.pyamsoft.pydroid.arch.UiViewModel
-import kotlinx.coroutines.launch
 import javax.inject.Named
 import kotlin.math.abs
 import kotlin.math.pow
+import kotlinx.coroutines.launch
 
 internal abstract class BaseInfoViewModel<T : Any, S : BaseInfoViewState<*>, V : UiViewEvent, C : UiControllerEvent> protected constructor(
     private val interactor: BaseInfoInteractor<T, *, *, *, *, *>,

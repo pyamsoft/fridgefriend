@@ -34,10 +34,6 @@ class ExpandCategoryScrim @Inject internal constructor(
         doOnTeardown {
             clear()
         }
-
-        doOnTeardown {
-            layoutRoot.handler?.removeCallbacksAndMessages(null)
-        }
     }
 
     private fun clear() {

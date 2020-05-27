@@ -23,10 +23,10 @@ import com.pyamsoft.fridge.db.store.NearbyStore
 import com.pyamsoft.fridge.locator.map.osm.popup.base.BaseInfoViewModel
 import com.pyamsoft.fridge.locator.map.osm.popup.base.BaseInfoViewState
 import com.pyamsoft.fridge.locator.map.osm.popup.store.StoreInfoViewEvent.StoreFavoriteAction
-import kotlinx.coroutines.launch
-import org.osmdroid.views.overlay.Marker
 import javax.inject.Inject
 import javax.inject.Named
+import kotlinx.coroutines.launch
+import org.osmdroid.views.overlay.Marker
 
 internal class StoreInfoViewModel @Inject internal constructor(
     private val interactor: StoreInfoInteractor,

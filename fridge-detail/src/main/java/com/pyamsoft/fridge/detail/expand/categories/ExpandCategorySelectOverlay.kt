@@ -30,12 +30,6 @@ class ExpandCategorySelectOverlay @Inject internal constructor(
 
     override val layoutRoot by boundView { expandCategorySelectOverlay }
 
-    init {
-        doOnTeardown {
-            layoutRoot.handler?.removeCallbacksAndMessages(null)
-        }
-    }
-
     private fun handleOverlay(state: ExpandedCategoryViewState) {
         binding.expandCategorySelectOverlay.isVisible = state.isSelected
     }

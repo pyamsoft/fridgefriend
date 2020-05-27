@@ -22,6 +22,8 @@ import androidx.lifecycle.viewModelScope
 import com.pyamsoft.fridge.locator.DeviceGps
 import com.pyamsoft.highlander.highlander
 import com.pyamsoft.pydroid.arch.UiViewModel
+import javax.inject.Inject
+import javax.inject.Named
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -31,8 +33,6 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import timber.log.Timber
-import javax.inject.Inject
-import javax.inject.Named
 
 class OsmViewModel @Inject internal constructor(
     private val interactor: OsmInteractor,

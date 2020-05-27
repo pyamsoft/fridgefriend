@@ -66,10 +66,6 @@ class CategoryListView @Inject internal constructor(
             animator?.cancel()
             animator = null
         }
-
-        doOnTeardown {
-            layoutRoot.handler?.removeCallbacksAndMessages(null)
-        }
     }
 
     private fun clearList() {

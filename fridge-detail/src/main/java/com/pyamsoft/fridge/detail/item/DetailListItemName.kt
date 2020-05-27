@@ -31,10 +31,6 @@ class DetailListItemName @Inject internal constructor(
             binding.detailItemNameEditable.setNotEditable()
             binding.detailItemNameEditable.setOnDebouncedClickListener { publish(DetailItemViewEvent.ExpandItem) }
         }
-
-        doOnTeardown {
-            layoutRoot.handler?.removeCallbacksAndMessages(null)
-        }
     }
 
     private fun handleItem(state: DetailListItemViewState) {
