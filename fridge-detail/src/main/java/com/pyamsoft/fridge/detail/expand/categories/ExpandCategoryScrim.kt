@@ -34,6 +34,10 @@ class ExpandCategoryScrim @Inject internal constructor(
         doOnTeardown {
             clear()
         }
+
+        doOnTeardown {
+            layoutRoot.handler?.removeCallbacksAndMessages(null)
+        }
     }
 
     private fun clear() {
@@ -41,6 +45,10 @@ class ExpandCategoryScrim @Inject internal constructor(
     }
 
     override fun onRender(state: ExpandedCategoryViewState) {
+        layoutRoot.post { handleCategory(state) }
+    }
+
+    private fun handleCategory(state: ExpandedCategoryViewState) {
         state.category.let { category ->
             if (category == null || category.name.isBlank()) {
                 clear()

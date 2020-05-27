@@ -66,6 +66,10 @@ class CategoryListView @Inject internal constructor(
             animator?.cancel()
             animator = null
         }
+
+        doOnTeardown {
+            layoutRoot.handler?.removeCallbacksAndMessages(null)
+        }
     }
 
     private fun clearList() {
@@ -78,6 +82,10 @@ class CategoryListView @Inject internal constructor(
     }
 
     override fun onRender(state: CategoryViewState) {
+        layoutRoot.post { handleCategories(state) }
+    }
+
+    private fun handleCategories(state: CategoryViewState) {
         state.categories.let { categories ->
 
             if (categories.isEmpty()) {

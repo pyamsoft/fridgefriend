@@ -80,6 +80,10 @@ class AddNewItemView @Inject internal constructor(
                 }
             }.apply { doOnTeardown { cancel() } }
         }
+
+        doOnTeardown {
+            layoutRoot.handler?.removeCallbacksAndMessages(null)
+        }
     }
 
     private fun disposeFilterLoaded() {
@@ -93,8 +97,18 @@ class AddNewItemView @Inject internal constructor(
     }
 
     override fun onRender(state: DetailViewState) {
-        val presence = state.listItemPresence
+        layoutRoot.post { handleShowing(state) }
+        layoutRoot.post { handlePresence(state) }
+    }
 
+    private fun handlePresence(state: DetailViewState) {
+        // Hide filter button for NEED
+        if (state.listItemPresence == FridgeItem.Presence.NEED) {
+            binding.detailFilterItem.isVisible = false
+        }
+    }
+
+    private fun handleShowing(state: DetailViewState) {
         state.showing.let { showing ->
             disposeFilterLoaded()
             filterIconLoaded = imageLoader
@@ -106,11 +120,6 @@ class AddNewItemView @Inject internal constructor(
                     }
                 )
                 .into(binding.detailFilterItem)
-        }
-
-        // Hide filter button for NEED
-        if (presence == FridgeItem.Presence.NEED) {
-            binding.detailFilterItem.isVisible = false
         }
     }
 }

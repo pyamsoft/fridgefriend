@@ -45,6 +45,10 @@ class ExpandItemCount @Inject internal constructor(
         doOnTeardown {
             clear()
         }
+
+        doOnTeardown {
+            layoutRoot.handler?.removeCallbacksAndMessages(null)
+        }
     }
 
     private fun clear() {
@@ -59,6 +63,10 @@ class ExpandItemCount @Inject internal constructor(
     }
 
     override fun onRender(state: ExpandItemViewState) {
+        layoutRoot.post { handleItem(state) }
+    }
+
+    private fun handleItem(state: ExpandItemViewState) {
         state.item.let { item ->
             if (item != null) {
                 if (firstRender) {

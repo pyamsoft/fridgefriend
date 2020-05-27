@@ -75,6 +75,10 @@ class ExpandItemToolbar @Inject internal constructor(
         doOnTeardown {
             clear()
         }
+
+        doOnTeardown {
+            layoutRoot.handler?.removeCallbacksAndMessages(null)
+        }
     }
 
     private fun clear() {
@@ -87,7 +91,7 @@ class ExpandItemToolbar @Inject internal constructor(
         layoutRoot.setOnMenuItemClickListener(null)
     }
 
-    override fun onRender(state: ExpandItemViewState) {
+    private fun handleItem(state: ExpandItemViewState) {
         state.item.let { item ->
             if (item == null) {
                 requireNotNull(deleteMenuItem).isVisible = false
@@ -99,5 +103,9 @@ class ExpandItemToolbar @Inject internal constructor(
                 requireNotNull(spoilMenuItem).isVisible = item.isReal() && item.presence() == HAVE
             }
         }
+    }
+
+    override fun onRender(state: ExpandItemViewState) {
+        layoutRoot.post { handleItem(state) }
     }
 }

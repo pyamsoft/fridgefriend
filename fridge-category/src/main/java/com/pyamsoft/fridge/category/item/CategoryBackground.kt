@@ -40,6 +40,10 @@ class CategoryBackground @Inject internal constructor(
         doOnTeardown {
             clear()
         }
+
+        doOnTeardown {
+            layoutRoot.handler?.removeCallbacksAndMessages(null)
+        }
     }
 
     private fun clear() {
@@ -48,6 +52,10 @@ class CategoryBackground @Inject internal constructor(
     }
 
     override fun onRender(state: CategoryItemViewState) {
+        layoutRoot.post { handleCategory(state) }
+    }
+
+    private fun handleCategory(state: CategoryItemViewState) {
         state.category.let { category ->
             val thumbnail = category.thumbnail()
             if (thumbnail == null) {

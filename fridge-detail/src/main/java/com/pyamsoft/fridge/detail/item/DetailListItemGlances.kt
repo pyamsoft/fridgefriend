@@ -83,6 +83,10 @@ class DetailListItemGlances @Inject internal constructor(
             binding.detailItemGlancesExpired.setOnDebouncedClickListener(null)
             clear()
         }
+
+        doOnTeardown {
+            layoutRoot.handler?.removeCallbacksAndMessages(null)
+        }
     }
 
     private fun clear() {
@@ -103,6 +107,10 @@ class DetailListItemGlances @Inject internal constructor(
     }
 
     override fun onRender(state: DetailListItemViewState) {
+        layoutRoot.post { handleItem(state) }
+    }
+
+    private fun handleItem(state: DetailListItemViewState) {
         state.item.let { item ->
             assert(item.isReal()) { "Cannot render non-real item: $item" }
             val range = state.expirationRange

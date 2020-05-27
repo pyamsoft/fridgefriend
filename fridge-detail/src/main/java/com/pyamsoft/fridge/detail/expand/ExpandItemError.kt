@@ -40,6 +40,10 @@ class ExpandItemError @Inject internal constructor(
         doOnTeardown {
             clear()
         }
+
+        doOnTeardown {
+            layoutRoot.handler?.removeCallbacksAndMessages(null)
+        }
     }
 
     private fun clear() {
@@ -47,7 +51,7 @@ class ExpandItemError @Inject internal constructor(
         binding.expandItemErrorMsg.text = ""
     }
 
-    override fun onRender(state: ExpandItemViewState) {
+    private fun handleError(state: ExpandItemViewState) {
         state.throwable.let { throwable ->
             if (throwable == null) {
                 clear()
@@ -56,5 +60,9 @@ class ExpandItemError @Inject internal constructor(
                 binding.expandItemErrorMsg.text = throwable.message ?: "An unknown error occurred"
             }
         }
+    }
+
+    override fun onRender(state: ExpandItemViewState) {
+        layoutRoot.post { handleError(state) }
     }
 }

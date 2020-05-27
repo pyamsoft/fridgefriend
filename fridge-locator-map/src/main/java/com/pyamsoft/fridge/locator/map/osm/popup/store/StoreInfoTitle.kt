@@ -30,8 +30,18 @@ internal class StoreInfoTitle @Inject internal constructor(
     parent: ViewGroup
 ) : BaseInfoTitle<StoreInfoViewState, StoreInfoViewEvent>(imageLoader, parent, { store.name() }) {
 
-    override fun onRender(state: StoreInfoViewState) {
+    init {
+        doOnTeardown {
+            layoutRoot.handler?.removeCallbacksAndMessages(null)
+        }
+    }
+
+    private fun handleCached(state: StoreInfoViewState) {
         applyFavoriteFromCached(state.cached?.cached)
+    }
+
+    override fun onRender(state: StoreInfoViewState) {
+        layoutRoot.post { handleCached(state) }
     }
 
     override fun publishFavorite(add: Boolean) {

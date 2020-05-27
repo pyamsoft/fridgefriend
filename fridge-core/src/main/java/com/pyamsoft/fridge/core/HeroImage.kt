@@ -46,6 +46,10 @@ abstract class HeroImage<S : UiViewState, V : UiViewEvent> protected constructor
         doOnTeardown {
             clear()
         }
+
+        doOnTeardown {
+            layoutRoot.handler?.removeCallbacksAndMessages(null)
+        }
     }
 
     private fun clear() {
@@ -54,8 +58,8 @@ abstract class HeroImage<S : UiViewState, V : UiViewEvent> protected constructor
     }
 
     final override fun onRender(state: S) {
-        loadImage(state)
-        onAdditionalRender(state)
+        layoutRoot.post { loadImage(state) }
+        layoutRoot.post { onAdditionalRender(state) }
     }
 
     private fun loadImage(state: S) {

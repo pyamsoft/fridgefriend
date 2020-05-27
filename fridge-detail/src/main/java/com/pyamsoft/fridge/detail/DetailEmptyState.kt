@@ -40,6 +40,10 @@ class DetailEmptyState @Inject internal constructor(
         doOnTeardown {
             clear()
         }
+
+        doOnTeardown {
+            layoutRoot.handler?.removeCallbacksAndMessages(null)
+        }
     }
 
     private fun clear() {
@@ -49,6 +53,10 @@ class DetailEmptyState @Inject internal constructor(
     }
 
     override fun onRender(state: DetailViewState) {
+        layoutRoot.post { handleLoading(state) }
+    }
+
+    private fun handleLoading(state: DetailViewState) {
         state.isLoading.let { loading ->
             if (loading == null) {
                 clear()

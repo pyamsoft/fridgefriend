@@ -25,8 +25,18 @@ internal class StoreInfoLocation @Inject internal constructor(
     parent: ViewGroup
 ) : BaseInfoLocation<StoreInfoViewState, StoreInfoViewEvent>(parent) {
 
-    override fun onRender(state: StoreInfoViewState) {
+    init {
+        doOnTeardown {
+            layoutRoot.handler?.removeCallbacksAndMessages(null)
+        }
+    }
+
+    private fun handlePosition(state: StoreInfoViewState) {
         val position = state.data?.position
         displayLocation(position?.latitude, position?.longitude, state.myLocation, position)
+    }
+
+    override fun onRender(state: StoreInfoViewState) {
+        layoutRoot.post { handlePosition(state) }
     }
 }

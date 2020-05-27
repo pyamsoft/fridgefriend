@@ -62,9 +62,13 @@ class MainToolbar @Inject internal constructor(
             binding.mainToolbar.removePrivacy()
             toolbarActivityProvider.setToolbar(null)
         }
+
+        doOnTeardown {
+            layoutRoot.handler?.removeCallbacksAndMessages(null)
+        }
     }
 
-    override fun onRender(state: MainViewState) {
+    private fun handleName(state: MainViewState) {
         state.appNameRes.let { name ->
             if (name == 0) {
                 binding.mainToolbar.title = null
@@ -72,6 +76,10 @@ class MainToolbar @Inject internal constructor(
                 binding.mainToolbar.setTitle(name)
             }
         }
+    }
+
+    override fun onRender(state: MainViewState) {
+        layoutRoot.post { handleName(state) }
     }
 
     private fun inflateToolbar(

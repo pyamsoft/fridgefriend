@@ -55,6 +55,10 @@ class DetailContainer @Inject internal constructor(
             animator = null
         }
 
+        doOnTeardown {
+            layoutRoot.handler?.removeCallbacksAndMessages(null)
+        }
+
         doOnInflate {
             layoutRoot.background = GradientDrawable().apply {
                 val context = layoutRoot.context
@@ -117,6 +121,10 @@ class DetailContainer @Inject internal constructor(
     }
 
     override fun onRender(state: DetailViewState) {
+        layoutRoot.post { handleLoading(state) }
+    }
+
+    private fun handleLoading(state: DetailViewState) {
         state.isLoading.let { loading ->
             if (loading != null) {
                 // Done loading

@@ -31,12 +31,20 @@ class DetailListItemName @Inject internal constructor(
             binding.detailItemNameEditable.setNotEditable()
             binding.detailItemNameEditable.setOnDebouncedClickListener { publish(DetailItemViewEvent.ExpandItem) }
         }
+
+        doOnTeardown {
+            layoutRoot.handler?.removeCallbacksAndMessages(null)
+        }
     }
 
-    override fun onRender(state: DetailListItemViewState) {
+    private fun handleItem(state: DetailListItemViewState) {
         state.item.let { item ->
             assert(item.isReal()) { "Cannot render non-real item: $item" }
             setName(item)
         }
+    }
+
+    override fun onRender(state: DetailListItemViewState) {
+        layoutRoot.post { handleItem(state) }
     }
 }

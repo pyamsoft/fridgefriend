@@ -40,6 +40,7 @@ import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.ui.theme.ThemeProvider
 import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
 import org.osmdroid.config.Configuration
+import org.osmdroid.config.DefaultConfigurationProvider
 import org.osmdroid.events.MapListener
 import org.osmdroid.events.ScrollEvent
 import org.osmdroid.events.ZoomEvent
@@ -76,22 +77,27 @@ class OsmMap @Inject internal constructor(
 
     init {
         // Must happen before inflate
-        Configuration.getInstance()
-            .load(
-                parent.context.applicationContext,
-                PreferenceManager.getDefaultSharedPreferences(parent.context.applicationContext)
-            )
+
+        // Set the osmdroid output path to our app private directory
+        // Apply our configuration as the configuration
+        DefaultConfigurationProvider().apply {
+            osmdroidBasePath = parent.context.applicationContext.getExternalFilesDir(null)
+            Configuration.setConfigurationProvider(this)
+        }
+
+        Configuration.getInstance().load(
+            parent.context.applicationContext,
+            PreferenceManager.getDefaultSharedPreferences(parent.context.applicationContext)
+        )
 
         val mapListener = object : MapListener {
 
             override fun onScroll(event: ScrollEvent): Boolean {
-                Timber.d("On map scrolled: $event")
                 publishCurrentBoundingBox()
                 return true
             }
 
             override fun onZoom(event: ZoomEvent): Boolean {
-                Timber.d("On map zoomed: $event")
                 publishCurrentBoundingBox()
                 return true
             }
@@ -125,11 +131,15 @@ class OsmMap @Inject internal constructor(
             binding.osmMap.removeMapListener(mapListener)
             binding.osmMap.onDetach()
         }
+
+        doOnTeardown {
+            layoutRoot.handler?.removeCallbacksAndMessages(null)
+        }
     }
 
     override fun onRender(state: OsmViewState) {
-        renderMap(state)
-        state.centerMyLocation?.let { findMyLocation() }
+        layoutRoot.post { renderMap(state) }
+        layoutRoot.post { state.centerMyLocation?.let { findMyLocation() } }
     }
 
     private fun renderMap(state: OsmViewState) {

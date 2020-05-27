@@ -25,8 +25,8 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.pyamsoft.fridge.main.databinding.MainNavigationBinding
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.util.doOnApplyWindowInsets
-import javax.inject.Inject
 import timber.log.Timber
+import javax.inject.Inject
 
 class MainNavigation @Inject internal constructor(
     parent: ViewGroup
@@ -72,9 +72,13 @@ class MainNavigation @Inject internal constructor(
             binding.mainBottomNavigationMenu.removeBadge(R.id.menu_item_nav_need)
             binding.mainBottomNavigationMenu.removeBadge(R.id.menu_item_nav_have)
         }
+
+        doOnTeardown {
+            layoutRoot.handler?.removeCallbacksAndMessages(null)
+        }
     }
 
-    override fun onRender(state: MainViewState) {
+    private fun handlePage(state: MainViewState) {
         state.page.let { page ->
             val pageId = getIdForPage(page)
             if (pageId != 0) {
@@ -83,12 +87,19 @@ class MainNavigation @Inject internal constructor(
                 binding.mainBottomNavigationMenu.menu.findItem(pageId).isChecked = true
             }
         }
+    }
 
+    private fun handleBadges(state: MainViewState) {
         binding.mainBottomNavigationMenu.applyBadge(R.id.menu_item_nav_need, state.countNeeded)
         binding.mainBottomNavigationMenu.applyBadge(
             R.id.menu_item_nav_have,
             state.countExpiringOrExpired
         )
+    }
+
+    override fun onRender(state: MainViewState) {
+        layoutRoot.post { handlePage(state) }
+        layoutRoot.post { handleBadges(state) }
     }
 
     private fun BottomNavigationView.applyBadge(@IdRes id: Int, count: Int) {

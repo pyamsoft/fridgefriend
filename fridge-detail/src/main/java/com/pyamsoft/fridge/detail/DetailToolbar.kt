@@ -44,6 +44,7 @@ class DetailToolbar @Inject internal constructor(
     private var subMenu: SubMenu? = null
 
     private val publishHandler = Handler()
+    private val handler = Handler()
 
     init {
         doOnInflate {
@@ -56,6 +57,10 @@ class DetailToolbar @Inject internal constructor(
             toolbarActivity.withToolbar { toolbar ->
                 toolbar.teardown()
             }
+        }
+
+        doOnTeardown {
+            handler.removeCallbacksAndMessages(null)
         }
     }
 
@@ -70,7 +75,7 @@ class DetailToolbar @Inject internal constructor(
     override fun onInit(savedInstanceState: UiBundleReader) {
     }
 
-    override fun render(state: DetailViewState) {
+    private fun handleSubmenu(state: DetailViewState) {
         subMenu?.let { subMenu ->
             val currentSort = state.sort
             subMenu.forEach { item ->
@@ -86,6 +91,10 @@ class DetailToolbar @Inject internal constructor(
                 }
             }
         }
+    }
+
+    override fun render(state: DetailViewState) {
+        handler.post { handleSubmenu(state) }
     }
 
     private fun debouncedPublish(event: DetailViewEvent) {

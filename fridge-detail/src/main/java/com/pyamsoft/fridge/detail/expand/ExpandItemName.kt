@@ -65,6 +65,10 @@ class ExpandItemName @Inject internal constructor(
         doOnTeardown {
             firstRender = false
         }
+
+        doOnTeardown {
+            layoutRoot.handler?.removeCallbacksAndMessages(null)
+        }
     }
 
     private fun selectSimilar(item: FridgeItem) {
@@ -74,8 +78,11 @@ class ExpandItemName @Inject internal constructor(
     }
 
     override fun onRender(state: ExpandItemViewState) {
-        popupWindow.set(state.similarItems, binding.detailItemNameEditable.isFocused)
+        layoutRoot.post { handlePopupWindow(state) }
+        layoutRoot.post { handleItem(state) }
+    }
 
+    private fun handleItem(state: ExpandItemViewState) {
         state.item.let { item ->
             if (item != null) {
                 if (firstRender) {
@@ -88,6 +95,10 @@ class ExpandItemName @Inject internal constructor(
                 }
             }
         }
+    }
+
+    private fun handlePopupWindow(state: ExpandItemViewState) {
+        popupWindow.set(state.similarItems, binding.detailItemNameEditable.isFocused)
     }
 
     @CheckResult

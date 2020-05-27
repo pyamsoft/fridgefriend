@@ -38,9 +38,17 @@ class ExpandCategoryName @Inject internal constructor(
             layoutRoot.isVisible = false
             layoutRoot.text = null
         }
+
+        doOnTeardown {
+            layoutRoot.handler?.removeCallbacksAndMessages(null)
+        }
     }
 
     override fun onRender(state: ExpandedCategoryViewState) {
+        layoutRoot.post { handleCategory(state) }
+    }
+
+    private fun handleCategory(state: ExpandedCategoryViewState) {
         state.category.let { category ->
             layoutRoot.isVisible = true
             if (category == null || category.name.isBlank()) {

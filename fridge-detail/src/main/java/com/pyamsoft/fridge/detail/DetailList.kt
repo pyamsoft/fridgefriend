@@ -42,8 +42,8 @@ import com.pyamsoft.pydroid.ui.util.refreshing
 import com.pyamsoft.pydroid.util.toDp
 import io.cabriole.decorator.LinearBoundsMarginDecoration
 import io.cabriole.decorator.LinearMarginDecoration
-import javax.inject.Inject
 import timber.log.Timber
+import javax.inject.Inject
 
 class DetailList @Inject internal constructor(
     private val imageLoader: ImageLoader,
@@ -127,6 +127,10 @@ class DetailList @Inject internal constructor(
 
             modelAdapter = null
             touchHelper = null
+        }
+
+        doOnTeardown {
+            layoutRoot.handler?.removeCallbacksAndMessages(null)
         }
     }
 
@@ -351,7 +355,7 @@ class DetailList @Inject internal constructor(
         }
     }
 
-    override fun onRender(state: DetailViewState) {
+    private fun handleLoading(state: DetailViewState) {
         state.isLoading.let { loading ->
             if (loading != null) {
                 binding.detailSwipeRefresh.refreshing(loading.isLoading)
@@ -367,7 +371,9 @@ class DetailList @Inject internal constructor(
                 }
             }
         }
+    }
 
+    private fun handleError(state: DetailViewState) {
         state.listError.let { throwable ->
             if (throwable == null) {
                 clearListError()
@@ -375,7 +381,9 @@ class DetailList @Inject internal constructor(
                 showListError(throwable)
             }
         }
+    }
 
+    private fun handleUndo(state: DetailViewState) {
         state.undoableItem.let { undoable ->
             if (undoable == null) {
                 clearUndoSnackbar()
@@ -383,7 +391,12 @@ class DetailList @Inject internal constructor(
                 showUndoSnackbar(undoable)
             }
         }
+    }
 
-        setupSwipeCallback(state.showing, state.listItemPresence)
+    override fun onRender(state: DetailViewState) {
+        layoutRoot.post { handleLoading(state) }
+        layoutRoot.post { handleError(state) }
+        layoutRoot.post { handleUndo(state) }
+        layoutRoot.post { setupSwipeCallback(state.showing, state.listItemPresence) }
     }
 }

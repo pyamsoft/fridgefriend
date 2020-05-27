@@ -30,8 +30,14 @@ internal class ZoneInfoTitle @Inject internal constructor(
     parent: ViewGroup
 ) : BaseInfoTitle<ZoneInfoViewState, ZoneInfoViewEvent>(imageLoader, parent, { zone.name() }) {
 
+    init {
+        doOnTeardown {
+            layoutRoot.handler?.removeCallbacksAndMessages(null)
+        }
+    }
+
     override fun onRender(state: ZoneInfoViewState) {
-        applyFavoriteFromCached(cached = state.cached?.cached)
+        layoutRoot.post { applyFavoriteFromCached(cached = state.cached?.cached) }
     }
 
     override fun publishFavorite(add: Boolean) {

@@ -68,9 +68,17 @@ class DetailListItemCount @Inject internal constructor(
             binding.detailItemCountUp.setOnDebouncedClickListener(null)
             binding.detailItemCountDown.setOnDebouncedClickListener(null)
         }
+
+        doOnTeardown {
+            layoutRoot.handler?.removeCallbacksAndMessages(null)
+        }
     }
 
     override fun onRender(state: DetailListItemViewState) {
+        layoutRoot.post { handleItem(state) }
+    }
+
+    private fun handleItem(state: DetailListItemViewState) {
         state.item.let { item ->
             assert(item.isReal()) { "Cannot render non-real item: $item" }
             binding.detailItemCountText.text = "${item.count()}"

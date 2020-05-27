@@ -40,6 +40,10 @@ class ExpandItemSimilar @Inject internal constructor(
         doOnTeardown {
             clear()
         }
+
+        doOnTeardown {
+            layoutRoot.handler?.removeCallbacksAndMessages(null)
+        }
     }
 
     private fun clear() {
@@ -48,6 +52,10 @@ class ExpandItemSimilar @Inject internal constructor(
     }
 
     override fun onRender(state: ExpandItemViewState) {
+        layoutRoot.post { handleSameNamedItems(state) }
+    }
+
+    private fun handleSameNamedItems(state: ExpandItemViewState) {
         state.sameNamedItems.let { similar ->
             if (similar.isEmpty()) {
                 clear()

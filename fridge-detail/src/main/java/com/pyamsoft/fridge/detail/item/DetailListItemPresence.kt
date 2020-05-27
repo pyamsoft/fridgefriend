@@ -26,7 +26,17 @@ class DetailListItemPresence @Inject internal constructor(
     parent: ViewGroup
 ) : BaseItemPresence<DetailListItemViewState, DetailItemViewEvent>(parent) {
 
+    init {
+        doOnTeardown {
+            layoutRoot.handler?.removeCallbacksAndMessages(null)
+        }
+    }
+
     override fun onRender(state: DetailListItemViewState) {
+        layoutRoot.post { handleItem(state) }
+    }
+
+    private fun handleItem(state: DetailListItemViewState) {
         state.item.let { item ->
             assert(item.isReal()) { "Cannot render non-real item: $item" }
             render(item)

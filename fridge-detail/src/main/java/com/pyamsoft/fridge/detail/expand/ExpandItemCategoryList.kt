@@ -74,6 +74,10 @@ class ExpandItemCategoryList @Inject internal constructor(
 
             modelAdapter = null
         }
+
+        doOnTeardown {
+            layoutRoot.handler?.removeCallbacksAndMessages(null)
+        }
     }
 
     @CheckResult
@@ -82,6 +86,10 @@ class ExpandItemCategoryList @Inject internal constructor(
     }
 
     override fun onRender(state: ExpandItemViewState) {
+        layoutRoot.post { handleCategories(state) }
+    }
+
+    private fun handleCategories(state: ExpandItemViewState) {
         state.categories.let { categories ->
             when {
                 categories.isEmpty() -> clearList()

@@ -80,6 +80,10 @@ class OsmActions @Inject internal constructor(
             dismissNearbyAnimator()
             dismissMeAnimator()
         }
+
+        doOnTeardown {
+            layoutRoot.handler?.removeCallbacksAndMessages(null)
+        }
     }
 
     private fun dismissNearbyAnimator() {
@@ -93,14 +97,20 @@ class OsmActions @Inject internal constructor(
     }
 
     override fun onRender(state: OsmViewState) {
-        state.nearbyError.let { throwable ->
-            if (throwable == null) {
-                clearError()
-            } else {
-                showError(throwable)
+        layoutRoot.post { handleNearbyError(state) }
+        layoutRoot.post { handleFetchError(state) }
+        layoutRoot.post { handleCenterLocation(state) }
+    }
+
+    private fun handleCenterLocation(state: OsmViewState) {
+        state.centerMyLocation?.let { event ->
+            if (event.firstTime) {
+                revealButtons()
             }
         }
+    }
 
+    private fun handleFetchError(state: OsmViewState) {
         state.cachedFetchError.let { throwable ->
             if (throwable == null) {
                 clearCacheError()
@@ -108,10 +118,14 @@ class OsmActions @Inject internal constructor(
                 showCacheError(throwable)
             }
         }
+    }
 
-        state.centerMyLocation?.let { event ->
-            if (event.firstTime) {
-                revealButtons()
+    private fun handleNearbyError(state: OsmViewState) {
+        state.nearbyError.let { throwable ->
+            if (throwable == null) {
+                clearError()
+            } else {
+                showError(throwable)
             }
         }
     }
