@@ -38,7 +38,7 @@ buildscript {
         maxSdk = 29
 
         // Us
-        pydroid = "21.0.1"
+        pydroid = "21.0.2"
 
         // Room
         room = "2.2.5"
@@ -54,13 +54,6 @@ buildscript {
         // Fast Adapter
         fastAdapter = "5.0.2"
 
-        // FotoApparat
-        fotoapparat = "2.7.0"
-
-        // Firebase
-        firebase = "16.0.9"
-        mlVision = "20.0.0"
-
         workmanager = "2.3.4"
 
         osmdroid = "6.1.6"
@@ -69,8 +62,6 @@ buildscript {
         gmsLocation = "17.0.0"
 
         balloon = "1.1.7"
-
-        decorator = "1.1.0"
     }
 
     dependencies {

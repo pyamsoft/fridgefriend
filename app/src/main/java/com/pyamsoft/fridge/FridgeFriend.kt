@@ -30,13 +30,14 @@ import com.pyamsoft.fridge.locator.map.osm.popup.store.StoreInfoComponent
 import com.pyamsoft.fridge.locator.map.osm.popup.zone.ZoneInfoComponent
 import com.pyamsoft.fridge.main.MainActivity
 import com.pyamsoft.pydroid.bootstrap.libraries.OssLibraries
+import com.pyamsoft.pydroid.bootstrap.libraries.OssLicenses
 import com.pyamsoft.pydroid.ui.PYDroid
 import com.pyamsoft.pydroid.util.isDebugMode
 import com.squareup.moshi.Moshi
-import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 class FridgeFriend : Application() {
 
@@ -114,6 +115,20 @@ class FridgeFriend : Application() {
             "OsmDroid",
             "https://github.com/osmdroid/osmdroid",
             "OpenStreetMap-Tools for Android"
+        )
+        OssLibraries.add(
+            "Balloon",
+            "https://github.com/skydoves/Balloon",
+            "A lightweight popup like tooltips, fully customizable with arrow and animations."
+        )
+        OssLibraries.add(
+            "Google Play Location Services",
+            "https://developers.google.com/android/",
+            "Google Play Services Location client for Android.",
+            license = OssLicenses.custom(
+                license = "Custom Google License",
+                location = "https://developer.android.com/distribute/play-services"
+            )
         )
     }
 
