@@ -21,14 +21,14 @@ import com.squareup.moshi.FromJson
 import com.squareup.moshi.JsonClass
 import com.squareup.moshi.ToJson
 
-internal sealed class OsmNodeOrWay {
+sealed class OsmNodeOrWay {
 
     @JsonClass(generateAdapter = true)
-    internal data class Node internal constructor(
-        internal val id: Long,
-        internal val lat: Double,
-        internal val lon: Double,
-        internal val tags: OsmTags
+    data class Node internal constructor(
+        val id: Long,
+        val lat: Double,
+        val lon: Double,
+        val tags: OsmTags
     ) : OsmNodeOrWay() {
 
         // Needed to generate static adapter
@@ -36,10 +36,10 @@ internal sealed class OsmNodeOrWay {
     }
 
     @JsonClass(generateAdapter = true)
-    internal data class Way internal constructor(
-        internal val id: Long,
-        internal val nodes: List<Long>,
-        internal val tags: OsmTags
+    data class Way internal constructor(
+        val id: Long,
+        val nodes: List<Long>,
+        val tags: OsmTags
     ) : OsmNodeOrWay() {
 
         // Needed to generate static adapter
@@ -47,19 +47,19 @@ internal sealed class OsmNodeOrWay {
     }
 
     @JsonClass(generateAdapter = true)
-    internal data class AsJson internal constructor(
-        internal val id: Long,
-        internal val nodes: List<Long>?,
-        internal val lat: Double?,
-        internal val lon: Double?,
-        internal val tags: OsmTags?
+    data class AsJson internal constructor(
+        val id: Long,
+        val nodes: List<Long>?,
+        val lat: Double?,
+        val lon: Double?,
+        val tags: OsmTags?
     ) : OsmNodeOrWay() {
 
         // Needed to generate static adapter
         companion object
     }
 
-    internal class Adapter {
+    class Adapter {
 
         @FromJson
         @Suppress("unused")

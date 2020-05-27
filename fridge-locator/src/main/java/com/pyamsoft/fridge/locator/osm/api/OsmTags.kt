@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Peter Kenji Yamanaka
+ * Copyright 2020 Peter Kenji Yamanaka
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,9 +21,7 @@ import androidx.annotation.CheckResult
 import com.squareup.moshi.JsonClass
 
 @JsonClass(generateAdapter = true)
-internal data class OsmTags internal constructor(
-    internal val name: String?
-) {
+data class OsmTags internal constructor(val name: String?) {
 
     @CheckResult
     fun name(): String {

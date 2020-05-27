@@ -32,7 +32,7 @@ internal fun NearbyStore.Companion.create(node: Node): NearbyStore {
 
 @CheckResult
 internal fun NearbyStore.Companion.getMarkerUidPrefix(): String {
-    return "OsmMarker: "
+    return requireNotNull(NearbyStore::class.simpleName)
 }
 
 @CheckResult
@@ -77,7 +77,7 @@ internal fun NearbyZone.Companion.create(
 
 @CheckResult
 internal fun NearbyZone.Companion.getPolygonUidPrefix(): String {
-    return "OsmPolygon: "
+    return requireNotNull(NearbyZone::class.simpleName)
 }
 
 @CheckResult

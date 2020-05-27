@@ -24,7 +24,7 @@ import com.squareup.moshi.JsonClass
 import java.util.Collections
 
 @JsonClass(generateAdapter = true)
-internal data class OverpassResponse internal constructor(
+data class OverpassResponse internal constructor(
     internal val elements: List<OsmNodeOrWay>?
 ) {
 

@@ -18,6 +18,9 @@
 package com.pyamsoft.fridge.locator
 
 import androidx.annotation.CheckResult
+import com.pyamsoft.fridge.locator.osm.updatemanager.LocationUpdateManagerImpl
+import com.pyamsoft.fridge.locator.osm.updatemanager.LocationUpdatePublisher
+import com.pyamsoft.fridge.locator.osm.updatemanager.LocationUpdateReceiver
 import com.pyamsoft.fridge.locator.permission.ForegroundLocationPermission
 import com.pyamsoft.fridge.locator.permission.PermissionGranter
 import com.pyamsoft.fridge.locator.permission.PermissionHandler
@@ -33,6 +36,14 @@ abstract class LocatorModule {
     @Binds
     @CheckResult
     internal abstract fun bindLocationPermissions(impl: PermissionGranter): MapPermission
+
+    @Binds
+    @CheckResult
+    internal abstract fun bindLocationUpdateReceiver(impl: LocationUpdateManagerImpl): LocationUpdateReceiver
+
+    @Binds
+    @CheckResult
+    internal abstract fun bindLocationUpdatePublisher(impl: LocationUpdateManagerImpl): LocationUpdatePublisher
 
     @Module
     companion object {
