@@ -37,11 +37,12 @@ import com.pyamsoft.fridge.detail.base.BaseUpdaterViewModel
 import com.pyamsoft.fridge.detail.expand.date.DateSelectPayload
 import com.pyamsoft.fridge.detail.item.isNameValid
 import com.pyamsoft.pydroid.arch.EventBus
-import java.util.Calendar
-import javax.inject.Inject
-import javax.inject.Named
 import kotlinx.coroutines.launch
 import timber.log.Timber
+import java.util.Calendar
+import java.util.Locale
+import javax.inject.Inject
+import javax.inject.Named
 
 class ExpandItemViewModel @Inject internal constructor(
     private val interactor: DetailInteractor,
@@ -141,7 +142,12 @@ class ExpandItemViewModel @Inject internal constructor(
     }
 
     private fun similarSelected(item: FridgeItem) {
-        // TODO handle similar selected event
+        Timber.d("Selected similar item: $item")
+        // TODO(Peter): Similar item selected response
+        //
+        // Upon selection, adopt the item.name() and figure out the difference between when the item
+        // was created and the expiration date if it exists. Apply this difference to the current time for this new item to resolve
+        // the expiration date
     }
 
     private fun consumeSelf() {
@@ -338,10 +344,20 @@ class ExpandItemViewModel @Inject internal constructor(
         }
     }
 
-    private fun findSimilarItems(item: FridgeItem) {
+    private fun findSimilarItems(rootItem: FridgeItem) {
         viewModelScope.launch {
-            val similarItems = interactor.findSimilarNamedItems(item)
-            setState { copy(similarItems = similarItems) }
+            val similarItems = interactor.findSimilarNamedItems(rootItem)
+            setState {
+                copy(similarItems = similarItems
+                    // For now since we do not have the full similar item support
+                    .distinctBy { it.name().toLowerCase(Locale.getDefault()).trim() }
+                    .map { item ->
+                        ExpandItemViewState.SimilarItem(
+                            item, item.name().toLowerCase(Locale.getDefault())
+                        )
+                    }
+                )
+            }
         }
     }
 

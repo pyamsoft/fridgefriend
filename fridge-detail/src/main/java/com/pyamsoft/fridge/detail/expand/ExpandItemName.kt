@@ -23,8 +23,8 @@ import android.view.ViewGroup
 import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.detail.base.BaseItemName
-import javax.inject.Inject
 import timber.log.Timber
+import javax.inject.Inject
 
 class ExpandItemName @Inject internal constructor(
     parent: ViewGroup
@@ -44,6 +44,20 @@ class ExpandItemName @Inject internal constructor(
             }
         }
 
+        doOnInflate {
+            binding.detailItemNameEditable.setOnFocusChangeListener { _, hasFocus ->
+                if (hasFocus) {
+                    popupWindow.show()
+                } else {
+                    popupWindow.dismiss()
+                }
+            }
+        }
+
+        doOnTeardown {
+            binding.detailItemNameEditable.onFocusChangeListener = null
+        }
+
         doOnTeardown {
             popupWindow.teardown()
         }
@@ -60,7 +74,7 @@ class ExpandItemName @Inject internal constructor(
     }
 
     override fun onRender(state: ExpandItemViewState) {
-        popupWindow.set(if (binding.detailItemNameEditable.isFocused) state.similarItems else emptyList())
+        popupWindow.set(state.similarItems, binding.detailItemNameEditable.isFocused)
 
         state.item.let { item ->
             if (item != null) {

@@ -27,9 +27,12 @@ data class ExpandItemViewState internal constructor(
     val item: FridgeItem?,
     val throwable: Throwable?,
     val sameNamedItems: Collection<FridgeItem>,
-    val similarItems: Collection<FridgeItem>,
+    val similarItems: Collection<SimilarItem>,
     val categories: List<FridgeCategory>
-) : UiViewState
+) : UiViewState {
+
+    data class SimilarItem internal constructor(val item: FridgeItem, val display: String)
+}
 
 sealed class ExpandedItemViewEvent : UiViewEvent {
 

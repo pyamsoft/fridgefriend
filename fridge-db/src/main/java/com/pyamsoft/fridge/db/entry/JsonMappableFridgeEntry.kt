@@ -46,7 +46,7 @@ data class JsonMappableFridgeEntry internal constructor(
     }
 
     override fun name(name: String): FridgeEntry {
-        return this.copy(name = name)
+        return this.copy(name = name.trim())
     }
 
     override fun makeReal(): FridgeEntry {

@@ -81,7 +81,7 @@ internal data class RoomFridgeCategory internal constructor(
 
     @Ignore
     override fun name(name: String): FridgeCategory {
-        return FridgeCategory.create(this, name = name)
+        return FridgeCategory.create(this, name = name.trim())
     }
 
     @Ignore

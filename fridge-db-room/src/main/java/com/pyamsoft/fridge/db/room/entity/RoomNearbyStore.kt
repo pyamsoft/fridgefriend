@@ -76,7 +76,7 @@ internal data class RoomNearbyStore internal constructor(
 
     @Ignore
     override fun name(name: String): NearbyStore {
-        return NearbyStore.create(this, name = name)
+        return NearbyStore.create(this, name = name.trim())
     }
 
     @Ignore

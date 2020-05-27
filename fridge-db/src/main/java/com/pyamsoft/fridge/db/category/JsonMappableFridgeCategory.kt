@@ -55,7 +55,7 @@ data class JsonMappableFridgeCategory internal constructor(
     }
 
     override fun name(name: String): FridgeCategory {
-        return this.copy(name = name)
+        return this.copy(name = name.trim())
     }
 
     override fun invalidateThumbnail(): FridgeCategory {

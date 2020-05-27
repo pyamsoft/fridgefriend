@@ -178,7 +178,7 @@ internal data class RoomFridgeItem internal constructor(
 
     @Ignore
     override fun name(name: String): FridgeItem {
-        return FridgeItem.create(this, name = name, isReal = isReal())
+        return FridgeItem.create(this, name = name.trim(), isReal = isReal())
     }
 
     @Ignore

@@ -25,6 +25,8 @@ import com.pyamsoft.pydroid.arch.UiViewEvent
 import com.pyamsoft.pydroid.arch.UiViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Named
+import kotlin.math.abs
+import kotlin.math.pow
 
 internal abstract class BaseInfoViewModel<T : Any, S : BaseInfoViewState<*>, V : UiViewEvent, C : UiControllerEvent> protected constructor(
     private val interactor: BaseInfoInteractor<T, *, *, *, *, *>,
@@ -82,9 +84,21 @@ internal abstract class BaseInfoViewModel<T : Any, S : BaseInfoViewState<*>, V :
         requireNotNull(currentLocation)
 
         // A bunch of things can change but we only care about renders around lat and lon
-        val latitudeMatch = currentLocation.longitude == location.longitude
-        val longitudeMatch = currentLocation.latitude == location.latitude
+        val latitudeMatch = abs(relax(currentLocation.longitude) - relax(location.longitude)) < 1
+        val longitudeMatch = abs(relax(currentLocation.latitude) - relax(location.latitude)) < 1
         return if (latitudeMatch && longitudeMatch) null else LocationUpdate(location)
+    }
+
+    @CheckResult
+    private fun relax(value: Double): Double {
+        // Lat and Lon are XXX.YYYYYY values
+        // When not moving, XXX.YYYYZZ is common where only the ZZ values are changing.
+        // As such, they may be non significant.
+        // Decimals out to 6 figures give us centimeter accuracy, we only really care for ~1 meter accuracy
+        // which is about 5 decimals out.
+        //
+        // Multiply the value by 5 decimal places to get the meter significant measurement and then cut it off
+        return (abs(value) * 10.0.pow(5))
     }
 
     abstract fun handleLocationUpdate(location: Location?)

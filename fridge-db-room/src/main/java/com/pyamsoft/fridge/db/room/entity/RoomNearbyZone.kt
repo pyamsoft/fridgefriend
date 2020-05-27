@@ -68,7 +68,7 @@ internal data class RoomNearbyZone internal constructor(
 
     @Ignore
     override fun name(name: String): NearbyZone {
-        return NearbyZone.create(this, name = name)
+        return NearbyZone.create(this, name = name.trim())
     }
 
     @Ignore

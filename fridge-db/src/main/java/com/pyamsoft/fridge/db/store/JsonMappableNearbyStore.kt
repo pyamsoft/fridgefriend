@@ -51,7 +51,7 @@ data class JsonMappableNearbyStore internal constructor(
     }
 
     override fun name(name: String): NearbyStore {
-        return this.copy(name = name)
+        return this.copy(name = name.trim())
     }
 
     override fun latitude(lat: Double): NearbyStore {

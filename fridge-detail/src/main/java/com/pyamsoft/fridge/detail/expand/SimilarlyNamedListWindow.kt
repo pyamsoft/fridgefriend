@@ -38,7 +38,7 @@ internal class SimilarlyNamedListWindow internal constructor(context: Context) {
         popupWindow.isModal = false
     }
 
-    private fun dismiss() {
+    fun dismiss() {
         try {
             if (popupWindow.isShowing) {
                 popupWindow.dismiss()
@@ -61,8 +61,8 @@ internal class SimilarlyNamedListWindow internal constructor(context: Context) {
 
     fun setOnItemClickListener(listener: (item: FridgeItem) -> Unit) {
         popupWindow.setOnItemClickListener { _, _, position, _ ->
-            val item = adapter.getFridgeItem(position)
-            listener(item)
+            val model = adapter.getModel(position)
+            listener(model.item)
             dismiss()
         }
     }
@@ -78,31 +78,39 @@ internal class SimilarlyNamedListWindow internal constructor(context: Context) {
         popupWindow.setOnDismissListener(null)
     }
 
-    fun set(items: Collection<FridgeItem>) {
+    fun set(items: Collection<ExpandItemViewState.SimilarItem>, isFocused: Boolean) {
         adapter.set(items)
 
-        if (items.isEmpty()) {
+        if (isFocused) {
+            show()
+        } else {
+            dismiss()
+        }
+    }
+
+    fun show() {
+        if (adapter.isEmpty) {
             dismiss()
         } else {
             popupWindow.show()
         }
     }
 
-    private abstract class FridgeItemListAdapter protected constructor() : BaseAdapter() {
+    private abstract class PopupWindowListAdapter protected constructor() : BaseAdapter() {
 
-        private val fridgeItems = mutableListOf<FridgeItem>()
+        private val fridgeItems = mutableListOf<ExpandItemViewState.SimilarItem>()
 
         @CheckResult
-        internal fun getFridgeItem(position: Int): FridgeItem {
+        internal fun getModel(position: Int): ExpandItemViewState.SimilarItem {
             return fridgeItems[position]
         }
 
         final override fun getItem(position: Int): Any {
-            return getFridgeItem(position)
+            return getModel(position)
         }
 
         final override fun getItemId(position: Int): Long {
-            return getFridgeItem(position).id().hashCode().toLong()
+            return getModel(position).item.id().hashCode().toLong()
         }
 
         final override fun getCount(): Int {
@@ -113,21 +121,20 @@ internal class SimilarlyNamedListWindow internal constructor(context: Context) {
             fridgeItems.clear()
         }
 
-        internal fun set(items: Collection<FridgeItem>) {
+        internal fun set(items: Collection<ExpandItemViewState.SimilarItem>) {
             clear()
             fridgeItems.addAll(items)
             notifyDataSetChanged()
         }
     }
 
-    private class SimilarlyNamedListAdapter internal constructor() : FridgeItemListAdapter() {
+    private class SimilarlyNamedListAdapter internal constructor() : PopupWindowListAdapter() {
 
         override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
             val view = inflateView(convertView, parent)
             val holder = view.getViewHolder()
-            val item = getFridgeItem(position)
-            holder.binding.similarlyNamedItemName.text = item.name()
-            Timber.d("Get View: $holder ${item.name()}")
+            val item = getModel(position)
+            holder.binding.similarlyNamedItemName.text = item.display
             return view
         }
 

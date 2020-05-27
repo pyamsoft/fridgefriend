@@ -47,7 +47,7 @@ data class JsonMappableNearbyZone internal constructor(
     }
 
     override fun name(name: String): NearbyZone {
-        return this.copy(name = name)
+        return this.copy(name = name.trim())
     }
 
     override fun points(points: List<Point>): NearbyZone {

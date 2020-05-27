@@ -34,6 +34,10 @@ class DetailListAdapter constructor(
     private val factory: DetailItemComponent.Factory
 ) : ListAdapter<DetailListItemViewState, DetailItemViewHolder>(DIFFER) {
 
+    override fun getItemId(position: Int): Long {
+        return getItem(position).item.id().hashCode().toLong()
+    }
+
     override fun onCreateViewHolder(
         parent: ViewGroup,
         viewType: Int

@@ -115,7 +115,7 @@ data class JsonMappableFridgeItem internal constructor(
     }
 
     override fun name(name: String): FridgeItem {
-        return this.copy(name = name)
+        return this.copy(name = name.trim())
     }
 
     override fun count(count: Int): FridgeItem {
