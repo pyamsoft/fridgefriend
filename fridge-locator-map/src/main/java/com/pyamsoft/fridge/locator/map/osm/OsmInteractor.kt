@@ -22,9 +22,9 @@ import com.pyamsoft.fridge.db.store.NearbyStore
 import com.pyamsoft.fridge.db.store.NearbyStoreQueryDao
 import com.pyamsoft.fridge.db.zone.NearbyZone
 import com.pyamsoft.fridge.db.zone.NearbyZoneQueryDao
-import com.pyamsoft.fridge.locator.map.osm.api.NearbyLocationApi
-import com.pyamsoft.fridge.locator.map.osm.api.OsmNodeOrWay.Node
-import com.pyamsoft.fridge.locator.map.osm.api.OsmNodeOrWay.Way
+import com.pyamsoft.fridge.locator.osm.api.NearbyLocationApi
+import com.pyamsoft.fridge.locator.osm.api.OsmNodeOrWay.Node
+import com.pyamsoft.fridge.locator.osm.api.OsmNodeOrWay.Way
 import com.pyamsoft.pydroid.core.Enforcer
 import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers

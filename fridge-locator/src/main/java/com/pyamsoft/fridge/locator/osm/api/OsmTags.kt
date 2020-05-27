@@ -15,18 +15,21 @@
  *
  */
 
-package com.pyamsoft.fridge.locator.map.osm.updatemanager
+package com.pyamsoft.fridge.locator.osm.api
 
-import android.location.Location
+import androidx.annotation.CheckResult
+import com.squareup.moshi.JsonClass
 
-interface LocationUpdateReceiver {
+@JsonClass(generateAdapter = true)
+internal data class OsmTags internal constructor(
+    internal val name: String?
+) {
 
-    fun register(listener: Listener)
-
-    fun unregister(listener: Listener)
-
-    interface Listener {
-
-        fun onLocationUpdate(location: Location?)
+    @CheckResult
+    fun name(): String {
+        return name.orEmpty()
     }
+
+    // Needed to generate static adapter
+    companion object
 }

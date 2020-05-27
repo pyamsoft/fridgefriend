@@ -28,7 +28,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStore
 import com.pyamsoft.fridge.db.zone.NearbyZone
 import com.pyamsoft.fridge.locator.map.osm.popup.base.BaseInfoWindow
-import com.pyamsoft.fridge.locator.map.osm.updatemanager.LocationUpdateReceiver
+import com.pyamsoft.fridge.locator.osm.updatemanager.LocationUpdateReceiver
 import com.pyamsoft.pydroid.arch.StateSaver
 import com.pyamsoft.pydroid.arch.createComponent
 import com.pyamsoft.pydroid.ui.arch.viewModelFactory

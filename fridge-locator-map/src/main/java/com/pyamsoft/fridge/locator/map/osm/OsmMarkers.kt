@@ -22,8 +22,8 @@ import com.pyamsoft.fridge.core.currentDate
 import com.pyamsoft.fridge.db.store.NearbyStore
 import com.pyamsoft.fridge.db.zone.NearbyZone
 import com.pyamsoft.fridge.db.zone.NearbyZone.Point
-import com.pyamsoft.fridge.locator.map.osm.api.OsmNodeOrWay.Node
-import com.pyamsoft.fridge.locator.map.osm.api.OsmNodeOrWay.Way
+import com.pyamsoft.fridge.locator.osm.api.OsmNodeOrWay.Node
+import com.pyamsoft.fridge.locator.osm.api.OsmNodeOrWay.Way
 
 @CheckResult
 internal fun NearbyStore.Companion.create(node: Node): NearbyStore {

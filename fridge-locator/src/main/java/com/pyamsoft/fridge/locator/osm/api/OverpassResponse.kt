@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Peter Kenji Yamanaka
+ * Copyright 2020 Peter Kenji Yamanaka
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,11 +15,11 @@
  *
  */
 
-package com.pyamsoft.fridge.locator.map.osm.api
+package com.pyamsoft.fridge.locator.osm.api
 
 import androidx.annotation.CheckResult
-import com.pyamsoft.fridge.locator.map.osm.api.OsmNodeOrWay.Node
-import com.pyamsoft.fridge.locator.map.osm.api.OsmNodeOrWay.Way
+import com.pyamsoft.fridge.locator.osm.api.OsmNodeOrWay.Node
+import com.pyamsoft.fridge.locator.osm.api.OsmNodeOrWay.Way
 import com.squareup.moshi.JsonClass
 import java.util.Collections
 

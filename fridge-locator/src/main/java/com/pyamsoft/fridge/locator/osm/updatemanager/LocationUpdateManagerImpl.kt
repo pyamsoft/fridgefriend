@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Peter Kenji Yamanaka
+ * Copyright 2020 Peter Kenji Yamanaka
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,17 +15,18 @@
  *
  */
 
-package com.pyamsoft.fridge.locator.map.osm.updatemanager
+package com.pyamsoft.fridge.locator.osm.updatemanager
 
 import android.location.Location
-import com.pyamsoft.fridge.locator.map.osm.updatemanager.LocationUpdateReceiver.Listener
+import android.os.Build
+import com.pyamsoft.fridge.locator.osm.updatemanager.LocationUpdateReceiver.Listener
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.LazyThreadSafetyMode.NONE
 
 @Singleton
-internal class LocationUpdateManagerImpl @Inject internal constructor() : LocationUpdateReceiver,
-    LocationUpdatePublisher {
+internal class LocationUpdateManagerImpl @Inject internal constructor(
+) : LocationUpdateReceiver, LocationUpdatePublisher {
 
     private val listeners by lazy(NONE) { mutableSetOf<Listener>() }
 
@@ -38,6 +39,10 @@ internal class LocationUpdateManagerImpl @Inject internal constructor() : Locati
     }
 
     override fun publish(location: Location?) {
-        listeners.forEach { it.onLocationUpdate(location) }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            listeners.parallelStream().forEach { it.onLocationUpdate(location) }
+        } else {
+            listeners.forEach { it.onLocationUpdate(location) }
+        }
     }
 }

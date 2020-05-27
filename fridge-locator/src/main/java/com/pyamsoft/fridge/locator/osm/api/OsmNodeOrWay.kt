@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Peter Kenji Yamanaka
+ * Copyright 2020 Peter Kenji Yamanaka
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
  *
  */
 
-package com.pyamsoft.fridge.locator.map.osm.api
+package com.pyamsoft.fridge.locator.osm.api
 
 import com.squareup.moshi.FromJson
 import com.squareup.moshi.JsonClass
@@ -70,9 +70,18 @@ internal sealed class OsmNodeOrWay {
             val lon = json.lon ?: 0.0
 
             return if (nodes.isNotEmpty()) {
-                Way(json.id, nodes, tags)
+                Way(
+                    json.id,
+                    nodes,
+                    tags
+                )
             } else {
-                Node(json.id, lat, lon, tags)
+                Node(
+                    json.id,
+                    lat,
+                    lon,
+                    tags
+                )
             }
         }
 
@@ -80,8 +89,20 @@ internal sealed class OsmNodeOrWay {
         @Suppress("unused")
         fun toJson(payload: OsmNodeOrWay): AsJson {
             return when (payload) {
-                is Node -> AsJson(payload.id, null, payload.lat, payload.lon, payload.tags)
-                is Way -> AsJson(payload.id, payload.nodes, 0.0, 0.0, payload.tags)
+                is Node -> AsJson(
+                    payload.id,
+                    null,
+                    payload.lat,
+                    payload.lon,
+                    payload.tags
+                )
+                is Way -> AsJson(
+                    payload.id,
+                    payload.nodes,
+                    0.0,
+                    0.0,
+                    payload.tags
+                )
                 else -> throw IllegalArgumentException("Can only convert Node or Way to AsJson")
             }
         }

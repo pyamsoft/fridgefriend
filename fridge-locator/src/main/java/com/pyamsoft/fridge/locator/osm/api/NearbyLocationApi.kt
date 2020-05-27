@@ -15,7 +15,7 @@
  *
  */
 
-package com.pyamsoft.fridge.locator.map.osm.api
+package com.pyamsoft.fridge.locator.osm.api
 
 import retrofit2.http.Field
 import retrofit2.http.FormUrlEncoded

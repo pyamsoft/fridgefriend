@@ -18,9 +18,9 @@
 package com.pyamsoft.fridge.locator.map.osm
 
 import androidx.annotation.CheckResult
-import com.pyamsoft.fridge.locator.map.osm.updatemanager.LocationUpdateManagerImpl
-import com.pyamsoft.fridge.locator.map.osm.updatemanager.LocationUpdatePublisher
-import com.pyamsoft.fridge.locator.map.osm.updatemanager.LocationUpdateReceiver
+import com.pyamsoft.fridge.locator.osm.updatemanager.LocationUpdateManagerImpl
+import com.pyamsoft.fridge.locator.osm.updatemanager.LocationUpdatePublisher
+import com.pyamsoft.fridge.locator.osm.updatemanager.LocationUpdateReceiver
 import dagger.Binds
 import dagger.Module
 

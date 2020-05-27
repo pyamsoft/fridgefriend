@@ -21,8 +21,8 @@ import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.locator.DeviceGps
 import com.pyamsoft.fridge.locator.Geofencer
 import com.pyamsoft.fridge.locator.map.gms.GmsLocator
-import com.pyamsoft.fridge.locator.map.osm.api.NearbyLocationApi
-import com.pyamsoft.fridge.locator.map.osm.api.OsmNodeOrWay
+import com.pyamsoft.fridge.locator.osm.api.NearbyLocationApi
+import com.pyamsoft.fridge.locator.osm.api.OsmNodeOrWay
 import com.squareup.moshi.Moshi
 import dagger.Binds
 import dagger.Module

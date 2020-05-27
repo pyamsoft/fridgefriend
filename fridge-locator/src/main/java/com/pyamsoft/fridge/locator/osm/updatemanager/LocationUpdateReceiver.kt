@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Peter Kenji Yamanaka
+ * Copyright 2020 Peter Kenji Yamanaka
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,21 +15,18 @@
  *
  */
 
-package com.pyamsoft.fridge.locator.map.osm.api
+package com.pyamsoft.fridge.locator.osm.updatemanager
 
-import androidx.annotation.CheckResult
-import com.squareup.moshi.JsonClass
+import android.location.Location
 
-@JsonClass(generateAdapter = true)
-internal data class OsmTags internal constructor(
-    internal val name: String?
-) {
+interface LocationUpdateReceiver {
 
-    @CheckResult
-    fun name(): String {
-        return name.orEmpty()
+    fun register(listener: Listener)
+
+    fun unregister(listener: Listener)
+
+    interface Listener {
+
+        fun onLocationUpdate(location: Location?)
     }
-
-    // Needed to generate static adapter
-    companion object
 }
