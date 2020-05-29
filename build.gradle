@@ -65,7 +65,7 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.6.3'
+        classpath 'com.android.tools.build:gradle:4.0.0'
 
         // Gradle version checker
         classpath 'com.github.ben-manes:gradle-versions-plugin:0.22.0'
@@ -123,11 +123,5 @@ allprojects {
     tasks.withType(JavaCompile) {
         options.compilerArgs << '-Xlint:unchecked' << '-Xlint:deprecation'
         options.deprecation = true
-    }
-
-    afterEvaluate {
-        extensions.findByName('kapt')?.arguments {
-            arg("dagger.formatGeneratedSource", "disabled")
-        }
     }
 }

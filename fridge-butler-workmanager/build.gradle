@@ -29,13 +29,6 @@ android {
         targetSdkVersion rootProject.ext.maxSdk
 
         resConfigs "en"
-
-        javaCompileOptions {
-            annotationProcessorOptions {
-                // Fix kapt
-                includeCompileClasspath = true
-            }
-        }
     }
 
     // TODO replace with https://issuetracker.google.com/issues/72050365 once released.
@@ -52,8 +45,8 @@ android {
         jvmTarget = "1.8"
     }
 
-    viewBinding {
-        enabled true
+    buildFeatures {
+        viewBinding true
     }
 }
 
@@ -67,7 +60,6 @@ kapt {
         option("-Xlint:unchecked")
         option("-Xlint:deprecation")
         option("-Xmaxerrs", 10000)
-        option("-Adagger.formatGeneratedSource=disabled")
     }
 }
 
