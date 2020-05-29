@@ -21,96 +21,96 @@ apply plugin: 'kotlin-kapt'
 
 //noinspection GroovyMissingReturnStatement
 android {
-    compileSdkVersion rootProject.ext.maxSdk
+	compileSdkVersion rootProject.ext.maxSdk
 
-    defaultConfig {
-        applicationId "com.pyamsoft.fridge"
-        minSdkVersion rootProject.ext.minSdk
-        targetSdkVersion rootProject.ext.maxSdk
-        versionCode 1
-        versionName "0.0.1"
+	defaultConfig {
+		applicationId "com.pyamsoft.fridge"
+		minSdkVersion rootProject.ext.minSdk
+		targetSdkVersion rootProject.ext.maxSdk
+		versionCode 1
+		versionName "0.0.1"
 
-        // For vector drawables
-        vectorDrawables.useSupportLibrary = true
+		// For vector drawables
+		vectorDrawables.useSupportLibrary = true
 
-        resConfigs "en"
-    }
+		resConfigs "en"
+	}
 
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
-    }
+	compileOptions {
+		sourceCompatibility JavaVersion.VERSION_1_8
+		targetCompatibility JavaVersion.VERSION_1_8
+	}
 
-    kotlinOptions {
-        jvmTarget = "1.8"
-    }
+	kotlinOptions {
+		jvmTarget = "1.8"
+	}
 
-    signingConfigs {
-        debug {
-            storeFile file("debug.keystore")
-            keyAlias "androiddebugkey"
-            keyPassword "android"
-            storePassword "android"
-        }
-        release {
-            storeFile new File(RELEASE_STORE_FILE)
-            keyAlias RELEASE_KEY_ALIAS
-            keyPassword RELEASE_KEY_PASSWD
-            storePassword RELEASE_STORE_PASSWD
-        }
-    }
+	signingConfigs {
+		debug {
+			storeFile file("debug.keystore")
+			keyAlias "androiddebugkey"
+			keyPassword "android"
+			storePassword "android"
+		}
+		release {
+			storeFile new File(RELEASE_STORE_FILE)
+			keyAlias RELEASE_KEY_ALIAS
+			keyPassword RELEASE_KEY_PASSWD
+			storePassword RELEASE_STORE_PASSWD
+		}
+	}
 
-    buildTypes {
-        release {
-            signingConfig signingConfigs.release
-            minifyEnabled true
-            shrinkResources true
-            proguardFiles getDefaultProguardFile("proguard-android-optimize.txt"),
-                    "proguard-rules.pro"
-        }
+	buildTypes {
+		release {
+			signingConfig signingConfigs.release
+			minifyEnabled true
+			shrinkResources true
+			proguardFiles getDefaultProguardFile("proguard-android-optimize.txt"),
+					"proguard-rules.pro"
+		}
 
-        debug {
-            signingConfig signingConfigs.debug
-            applicationIdSuffix ".dev"
-            versionNameSuffix "-dev"
-        }
-    }
+		debug {
+			signingConfig signingConfigs.debug
+			applicationIdSuffix ".dev"
+			versionNameSuffix "-dev"
+		}
+	}
 
-    buildFeatures {
-        viewBinding true
-    }
+	buildFeatures {
+		viewBinding true
+	}
 }
 
 // Kapt flags
 kapt {
-    correctErrorTypes = true
-    useBuildCache = true
-    mapDiagnosticLocations = true
+	correctErrorTypes = true
+	useBuildCache = true
+	mapDiagnosticLocations = true
 
-    javacOptions {
-        option("-Xlint:unchecked")
-        option("-Xlint:deprecation")
-        option("-Xmaxerrs", 10000)
-    }
+	javacOptions {
+		option("-Xlint:unchecked")
+		option("-Xlint:deprecation")
+		option("-Xmaxerrs", 10000)
+	}
 }
 
 dependencies {
-    // Leak Canary
-    debugImplementation "com.squareup.leakcanary:leakcanary-android:$leakCanary"
+	// Leak Canary
+	debugImplementation "com.squareup.leakcanary:leakcanary-android:$leakCanary"
 
-    // Dagger
-    kapt "com.google.dagger:dagger-compiler:$dagger"
+	// Dagger
+	kapt "com.google.dagger:dagger-compiler:$dagger"
 
-    api project(':fridge-butler-workmanager')
-    api project(':fridge-db-room')
-    api project(':fridge-category')
-    api project(':fridge-core')
-    api project(':fridge-detail')
-    api project(':fridge-entry')
-    api project(':fridge-locator-map')
-    api project(':fridge-main')
-    //  api project(':fridge-ocr')
-    api project(':fridge-setting')
+	api project(':fridge-butler-workmanager')
+	api project(':fridge-db-room')
+	api project(':fridge-category')
+	api project(':fridge-core')
+	api project(':fridge-detail')
+	api project(':fridge-entry')
+	api project(':fridge-locator-map')
+	api project(':fridge-main')
+	//  api project(':fridge-ocr')
+	api project(':fridge-setting')
 }
 
 // Leave at bottom

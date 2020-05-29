@@ -21,55 +21,55 @@ apply plugin: "kotlin-kapt"
 
 //noinspection GroovyMissingReturnStatement
 android {
-    compileSdkVersion rootProject.ext.maxSdk
+	compileSdkVersion rootProject.ext.maxSdk
 
-    //noinspection GroovyMissingReturnStatement
-    defaultConfig {
-        minSdkVersion rootProject.ext.minSdk
-        targetSdkVersion rootProject.ext.maxSdk
+	//noinspection GroovyMissingReturnStatement
+	defaultConfig {
+		minSdkVersion rootProject.ext.minSdk
+		targetSdkVersion rootProject.ext.maxSdk
 
-        resConfigs "en"
-    }
+		resConfigs "en"
+	}
 
-    // TODO replace with https://issuetracker.google.com/issues/72050365 once released.
-    libraryVariants.all {
-        it.generateBuildConfig.enabled = false
-    }
+	// TODO replace with https://issuetracker.google.com/issues/72050365 once released.
+	libraryVariants.all {
+		it.generateBuildConfig.enabled = false
+	}
 
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
-    }
+	compileOptions {
+		sourceCompatibility JavaVersion.VERSION_1_8
+		targetCompatibility JavaVersion.VERSION_1_8
+	}
 
-    kotlinOptions {
-        jvmTarget = "1.8"
-    }
+	kotlinOptions {
+		jvmTarget = "1.8"
+	}
 
-    buildFeatures {
-        viewBinding true
-    }
+	buildFeatures {
+		viewBinding true
+	}
 }
 
 // Kapt flags
 kapt {
-    correctErrorTypes = true
-    useBuildCache = true
-    mapDiagnosticLocations = true
+	correctErrorTypes = true
+	useBuildCache = true
+	mapDiagnosticLocations = true
 
-    javacOptions {
-        option("-Xlint:unchecked")
-        option("-Xlint:deprecation")
-        option("-Xmaxerrs", 10000)
-    }
+	javacOptions {
+		option("-Xlint:unchecked")
+		option("-Xlint:deprecation")
+		option("-Xmaxerrs", 10000)
+	}
 }
 
 dependencies {
 
-    kapt "com.google.dagger:dagger-compiler:$dagger"
+	kapt "com.google.dagger:dagger-compiler:$dagger"
 
-    api project(':fridge-core')
-    api project(':fridge-db')
-    api project(':fridge-locator')
+	api project(':fridge-core')
+	api project(':fridge-db')
+	api project(':fridge-locator')
 }
 
 

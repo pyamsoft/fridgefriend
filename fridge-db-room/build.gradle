@@ -21,66 +21,66 @@ apply plugin: "kotlin-kapt"
 
 //noinspection GroovyMissingReturnStatement
 android {
-    compileSdkVersion rootProject.ext.maxSdk
+	compileSdkVersion rootProject.ext.maxSdk
 
-    //noinspection GroovyMissingReturnStatement
-    defaultConfig {
-        minSdkVersion rootProject.ext.minSdk
-        targetSdkVersion rootProject.ext.maxSdk
+	//noinspection GroovyMissingReturnStatement
+	defaultConfig {
+		minSdkVersion rootProject.ext.minSdk
+		targetSdkVersion rootProject.ext.maxSdk
 
-        resConfigs "en"
+		resConfigs "en"
 
-        javaCompileOptions {
-            annotationProcessorOptions {
-                arguments = ["room.schemaLocation": "$projectDir/schemas".toString()]
-            }
-        }
-    }
+		javaCompileOptions {
+			annotationProcessorOptions {
+				arguments = ["room.schemaLocation": "$projectDir/schemas".toString()]
+			}
+		}
+	}
 
-    // TODO replace with https://issuetracker.google.com/issues/72050365 once released.
-    libraryVariants.all {
-        it.generateBuildConfig.enabled = false
-    }
+	// TODO replace with https://issuetracker.google.com/issues/72050365 once released.
+	libraryVariants.all {
+		it.generateBuildConfig.enabled = false
+	}
 
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
-    }
+	compileOptions {
+		sourceCompatibility JavaVersion.VERSION_1_8
+		targetCompatibility JavaVersion.VERSION_1_8
+	}
 
-    kotlinOptions {
-        jvmTarget = "1.8"
-    }
+	kotlinOptions {
+		jvmTarget = "1.8"
+	}
 
-    buildFeatures {
-        viewBinding true
-    }
+	buildFeatures {
+		viewBinding true
+	}
 }
 
 // Kapt flags
 kapt {
-    correctErrorTypes = true
-    useBuildCache = true
-    mapDiagnosticLocations = true
+	correctErrorTypes = true
+	useBuildCache = true
+	mapDiagnosticLocations = true
 
-    javacOptions {
-        option("-Xlint:unchecked")
-        option("-Xlint:deprecation")
-        option("-Xmaxerrs", 10000)
-    }
+	javacOptions {
+		option("-Xlint:unchecked")
+		option("-Xlint:deprecation")
+		option("-Xmaxerrs", 10000)
+	}
 }
 
 dependencies {
 
-    // Room
-    implementation "androidx.room:room-runtime:$room"
-    implementation "androidx.room:room-ktx:$room"
-    kapt "androidx.room:room-compiler:$room"
+	// Room
+	implementation "androidx.room:room-runtime:$room"
+	implementation "androidx.room:room-ktx:$room"
+	kapt "androidx.room:room-compiler:$room"
 
-    kapt "com.google.dagger:dagger-compiler:$dagger"
+	kapt "com.google.dagger:dagger-compiler:$dagger"
 
-    implementation project(':fridge-butler-workmanager')
-    api project(':fridge-core')
-    api project(':fridge-db')
+	implementation project(':fridge-butler-workmanager')
+	api project(':fridge-core')
+	api project(':fridge-db')
 }
 
 
