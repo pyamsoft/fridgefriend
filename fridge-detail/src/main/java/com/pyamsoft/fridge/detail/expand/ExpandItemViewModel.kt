@@ -37,12 +37,13 @@ import com.pyamsoft.fridge.detail.base.BaseUpdaterViewModel
 import com.pyamsoft.fridge.detail.expand.date.DateSelectPayload
 import com.pyamsoft.fridge.detail.item.isNameValid
 import com.pyamsoft.pydroid.arch.EventBus
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import timber.log.Timber
 import java.util.Calendar
 import java.util.Locale
 import javax.inject.Inject
 import javax.inject.Named
-import kotlinx.coroutines.launch
-import timber.log.Timber
 
 class ExpandItemViewModel @Inject internal constructor(
     private val interactor: DetailInteractor,
@@ -108,18 +109,20 @@ class ExpandItemViewModel @Inject internal constructor(
         }
 
         doOnInit {
-            dateSelectBus.scopedEvent { event ->
-                withState {
-                    requireNotNull(item).let { item ->
-                        if (event.entryId != item.entryId()) {
-                            return@let
-                        }
+            viewModelScope.launch(context = Dispatchers.Default) {
+                dateSelectBus.onEvent { event ->
+                    withState {
+                        requireNotNull(item).let { item ->
+                            if (event.entryId != item.entryId()) {
+                                return@let
+                            }
 
-                        if (event.itemId != item.id()) {
-                            return@let
-                        }
+                            if (event.itemId != item.id()) {
+                                return@let
+                            }
 
-                        commitDate(event.year, event.month, event.day)
+                            commitDate(event.year, event.month, event.day)
+                        }
                     }
                 }
             }
