@@ -41,7 +41,7 @@ internal abstract class BaseDbImpl<T : Any, ChangeEvent : Any> protected constru
             bus.send(event)
         }
 
-    fun invalidate() {
+    suspend fun invalidate() {
         cache.clear()
     }
 }

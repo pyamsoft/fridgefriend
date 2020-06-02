@@ -43,7 +43,7 @@ interface BaseDb<ChangeEvent : Any, R : Realtime<*>, Q : Query<*>, I : Insert<*>
     @CheckResult
     fun deleteDao(): D
 
-    fun invalidate()
+    suspend fun invalidate()
 
     interface Realtime<T : Any> {
 
