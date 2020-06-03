@@ -47,7 +47,7 @@ internal class FridgeEntryDbImpl internal constructor(
 
         override suspend fun query(force: Boolean): List<FridgeEntry> =
             withContext(context = Dispatchers.IO) {
-                Enforcer.assertNotOnMainThread()
+                Enforcer.assertOffMainThread()
                 mutex.withLock {
                     if (force) {
                         invalidate()
@@ -61,7 +61,7 @@ internal class FridgeEntryDbImpl internal constructor(
     private val insertDao = object : FridgeEntryInsertDao {
 
         override suspend fun insert(o: FridgeEntry) = withContext(context = Dispatchers.IO) {
-            Enforcer.assertNotOnMainThread()
+            Enforcer.assertOffMainThread()
             mutex.withLock { insertDao.insert(o) }
             publish(Insert(o.makeReal()))
         }
@@ -70,7 +70,7 @@ internal class FridgeEntryDbImpl internal constructor(
     private val updateDao = object : FridgeEntryUpdateDao {
 
         override suspend fun update(o: FridgeEntry) = withContext(context = Dispatchers.IO) {
-            Enforcer.assertNotOnMainThread()
+            Enforcer.assertOffMainThread()
             mutex.withLock { updateDao.update(o) }
             publish(Update(o.makeReal()))
         }
@@ -79,13 +79,13 @@ internal class FridgeEntryDbImpl internal constructor(
     private val deleteDao = object : FridgeEntryDeleteDao {
 
         override suspend fun delete(o: FridgeEntry) = withContext(context = Dispatchers.IO) {
-            Enforcer.assertNotOnMainThread()
+            Enforcer.assertOffMainThread()
             mutex.withLock { deleteDao.delete(o) }
             publish(Delete(o.makeReal()))
         }
 
         override suspend fun deleteAll() = withContext(context = Dispatchers.IO) {
-            Enforcer.assertNotOnMainThread()
+            Enforcer.assertOffMainThread()
             mutex.withLock { deleteDao.deleteAll() }
             publish(DeleteAll)
         }

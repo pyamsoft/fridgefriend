@@ -46,10 +46,10 @@ internal abstract class FridgeRunner<P : BaseParameters> protected constructor(
 
     protected suspend fun withFridgeData(func: suspend CoroutineScope.(entry: FridgeEntry, items: List<FridgeItem>) -> Unit) {
         coroutineScope {
-            Enforcer.assertNotOnMainThread()
+            Enforcer.assertOffMainThread()
             fridgeEntryQueryDao.query(true)
                 .forEach { entry ->
-                    Enforcer.assertNotOnMainThread()
+                    Enforcer.assertOffMainThread()
                     val items = fridgeItemQueryDao.query(true, entry.id())
                     func(entry, items)
                 }

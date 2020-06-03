@@ -35,13 +35,13 @@ internal abstract class BaseDbImpl<T : Any, ChangeEvent : Any> protected constru
 
     suspend fun publish(event: ChangeEvent) =
         withContext(context = Dispatchers.Default) {
-            Enforcer.assertNotOnMainThread()
+            Enforcer.assertOffMainThread()
             invalidate()
             bus.send(event)
         }
 
     suspend fun invalidate() {
-        Enforcer.assertNotOnMainThread()
+        Enforcer.assertOffMainThread()
         cache.clear()
     }
 }

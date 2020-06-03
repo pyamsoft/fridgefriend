@@ -47,7 +47,7 @@ internal class NearbyZoneDbImpl internal constructor(
     private val queryDao = object : NearbyZoneQueryDao {
 
         override suspend fun query(force: Boolean): List<NearbyZone> {
-            Enforcer.assertNotOnMainThread()
+            Enforcer.assertOffMainThread()
             mutex.withLock {
                 if (force) {
                     invalidate()
@@ -61,7 +61,7 @@ internal class NearbyZoneDbImpl internal constructor(
     private val insertDao = object : NearbyZoneInsertDao {
 
         override suspend fun insert(o: NearbyZone) {
-            Enforcer.assertNotOnMainThread()
+            Enforcer.assertOffMainThread()
             mutex.withLock { insertDao.insert(o) }
             publish(Insert(o))
         }
@@ -70,7 +70,7 @@ internal class NearbyZoneDbImpl internal constructor(
     private val updateDao = object : NearbyZoneUpdateDao {
 
         override suspend fun update(o: NearbyZone) {
-            Enforcer.assertNotOnMainThread()
+            Enforcer.assertOffMainThread()
             mutex.withLock { updateDao.update(o) }
             publish(Update(o))
         }
@@ -79,7 +79,7 @@ internal class NearbyZoneDbImpl internal constructor(
     private val deleteDao = object : NearbyZoneDeleteDao {
 
         override suspend fun delete(o: NearbyZone) {
-            Enforcer.assertNotOnMainThread()
+            Enforcer.assertOffMainThread()
             mutex.withLock { deleteDao.delete(o) }
             publish(Delete(o))
         }

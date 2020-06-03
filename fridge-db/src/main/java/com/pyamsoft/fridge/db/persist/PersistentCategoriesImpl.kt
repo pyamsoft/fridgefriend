@@ -94,15 +94,15 @@ internal class PersistentCategoriesImpl @Inject internal constructor(
 
     override suspend fun guaranteePersistentCategoriesCreated() =
         withContext(context = Dispatchers.Default) {
-            Enforcer.assertNotOnMainThread()
+            Enforcer.assertOffMainThread()
             return@withContext guaranteeCategoriesInserted()
         }
 
     @CheckResult
     private suspend fun coroutineGlide(@DrawableRes res: Int): Drawable? {
-        Enforcer.assertNotOnMainThread()
+        Enforcer.assertOffMainThread()
         return suspendCancellableCoroutine { continuation ->
-            Enforcer.assertNotOnMainThread()
+            Enforcer.assertOffMainThread()
             imageLoader.load(res)
                 .onError {
                     Timber.e("Error occurred while loading image thumbnail for default category")
@@ -122,7 +122,7 @@ internal class PersistentCategoriesImpl @Inject internal constructor(
 
     @CheckResult
     private suspend fun loadImage(@DrawableRes res: Int): FridgeCategory.Thumbnail? {
-        Enforcer.assertNotOnMainThread()
+        Enforcer.assertOffMainThread()
         val image: Drawable? = coroutineGlide(res)
         return if (image is BitmapDrawable) {
             Timber.d("Compress bitmap drawable to PNG for blob storage")

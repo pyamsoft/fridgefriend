@@ -47,13 +47,13 @@ internal class MainInteractor @Inject internal constructor(
 
     @CheckResult
     suspend fun getNeededCount(): Int = withContext(context = Dispatchers.Default) {
-        Enforcer.assertNotOnMainThread()
+        Enforcer.assertOffMainThread()
         return@withContext itemQueryDao.query(false).byPresence(FridgeItem.Presence.NEED).count()
     }
 
     @CheckResult
     suspend fun getExpiredOrExpiringCount(): Int = withContext(context = Dispatchers.Default) {
-        Enforcer.assertNotOnMainThread()
+        Enforcer.assertOffMainThread()
         val now = today().cleanMidnight()
         val later = today().daysLaterMidnight(fridgeItemPreferences.getExpiringSoonRange())
         val isSameDayExpired = fridgeItemPreferences.isSameDayExpired()
@@ -70,7 +70,7 @@ internal class MainInteractor @Inject internal constructor(
 
     suspend fun listenForItemChanges(onEvent: suspend (FridgeItemChangeEvent) -> Unit) =
         withContext(context = Dispatchers.Default) {
-            Enforcer.assertNotOnMainThread()
+            Enforcer.assertOffMainThread()
             return@withContext itemRealtime.listenForChanges(onEvent)
         }
 

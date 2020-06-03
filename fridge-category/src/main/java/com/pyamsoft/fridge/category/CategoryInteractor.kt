@@ -36,21 +36,21 @@ class CategoryInteractor @Inject internal constructor(
 
     @CheckResult
     private suspend fun loadFridgeCategories(): List<FridgeCategory> {
-        Enforcer.assertNotOnMainThread()
+        Enforcer.assertOffMainThread()
         persistentCategories.guaranteePersistentCategoriesCreated()
         return categoryQueryDao.query(false)
     }
 
     @CheckResult
     private suspend fun loadFridgeItems(): List<FridgeItem> {
-        Enforcer.assertNotOnMainThread()
+        Enforcer.assertOffMainThread()
         return itemQueryDao.query(false)
     }
 
     @CheckResult
     suspend fun loadCategories(): List<CategoryViewState.CategoryItemsPairing> =
         withContext(context = Dispatchers.Default) {
-            Enforcer.assertNotOnMainThread()
+            Enforcer.assertOffMainThread()
             val categories = loadFridgeCategories()
             val items = loadFridgeItems()
             return@withContext categories.map { category ->

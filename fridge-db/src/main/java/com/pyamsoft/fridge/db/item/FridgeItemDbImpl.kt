@@ -46,7 +46,7 @@ internal class FridgeItemDbImpl internal constructor(
 
         override suspend fun listenForChanges(onChange: suspend (event: FridgeItemChangeEvent) -> Unit) =
             withContext(context = Dispatchers.IO) {
-                Enforcer.assertNotOnMainThread()
+                Enforcer.assertOffMainThread()
                 onEvent(onChange)
             }
 
@@ -54,7 +54,7 @@ internal class FridgeItemDbImpl internal constructor(
             id: FridgeEntry.Id,
             onChange: suspend (event: FridgeItemChangeEvent) -> Unit
         ) = withContext(context = Dispatchers.IO) {
-            Enforcer.assertNotOnMainThread()
+            Enforcer.assertOffMainThread()
             onEvent { event ->
                 if (event.entryId == id) {
                     onChange(event)
@@ -67,7 +67,7 @@ internal class FridgeItemDbImpl internal constructor(
 
         @CheckResult
         private suspend fun queryAsSequence(force: Boolean): Sequence<FridgeItem> {
-            Enforcer.assertNotOnMainThread()
+            Enforcer.assertOffMainThread()
             if (force) {
                 invalidate()
             }
@@ -77,7 +77,7 @@ internal class FridgeItemDbImpl internal constructor(
 
         override suspend fun query(force: Boolean): List<FridgeItem> =
             withContext(context = Dispatchers.IO) {
-                Enforcer.assertNotOnMainThread()
+                Enforcer.assertOffMainThread()
                 mutex.withLock {
                     return@withContext queryAsSequence(force).toList()
                 }
@@ -85,7 +85,7 @@ internal class FridgeItemDbImpl internal constructor(
 
         override suspend fun query(force: Boolean, id: FridgeEntry.Id): List<FridgeItem> =
             withContext(context = Dispatchers.IO) {
-                Enforcer.assertNotOnMainThread()
+                Enforcer.assertOffMainThread()
                 mutex.withLock {
                     return@withContext queryAsSequence(force)
                         .filter { it.entryId() == id }
@@ -98,7 +98,7 @@ internal class FridgeItemDbImpl internal constructor(
             name: String,
             presence: Presence
         ): List<FridgeItem> = withContext(context = Dispatchers.IO) {
-            Enforcer.assertNotOnMainThread()
+            Enforcer.assertOffMainThread()
             mutex.withLock {
                 return@withContext queryAsSequence(force)
                     .filter { it.isReal() }
@@ -117,7 +117,7 @@ internal class FridgeItemDbImpl internal constructor(
             force: Boolean,
             item: FridgeItem
         ): List<FridgeItem> = withContext(context = Dispatchers.IO) {
-            Enforcer.assertNotOnMainThread()
+            Enforcer.assertOffMainThread()
             mutex.withLock {
                 val sequence = queryAsSequence(force)
                     .filter { it.isReal() }
@@ -192,7 +192,7 @@ internal class FridgeItemDbImpl internal constructor(
     private val insertDao = object : FridgeItemInsertDao {
 
         override suspend fun insert(o: FridgeItem) = withContext(context = Dispatchers.IO) {
-            Enforcer.assertNotOnMainThread()
+            Enforcer.assertOffMainThread()
             mutex.withLock { insertDao.insert(o) }
             publish(Insert(o.makeReal()))
         }
@@ -201,7 +201,7 @@ internal class FridgeItemDbImpl internal constructor(
     private val updateDao = object : FridgeItemUpdateDao {
 
         override suspend fun update(o: FridgeItem) = withContext(context = Dispatchers.IO) {
-            Enforcer.assertNotOnMainThread()
+            Enforcer.assertOffMainThread()
             mutex.withLock { updateDao.update(o) }
             publish(Update(o.makeReal()))
         }
@@ -210,7 +210,7 @@ internal class FridgeItemDbImpl internal constructor(
     private val deleteDao = object : FridgeItemDeleteDao {
 
         override suspend fun delete(o: FridgeItem) = withContext(context = Dispatchers.IO) {
-            Enforcer.assertNotOnMainThread()
+            Enforcer.assertOffMainThread()
             mutex.withLock { deleteDao.delete(o) }
             publish(Delete(o.makeReal()))
         }

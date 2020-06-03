@@ -41,7 +41,7 @@ internal class NearbyStoreDbImpl internal constructor(
 
         override suspend fun listenForChanges(onChange: suspend (event: NearbyStoreChangeEvent) -> Unit) {
             withContext(context = Dispatchers.IO) {
-                Enforcer.assertNotOnMainThread()
+                Enforcer.assertOffMainThread()
                 onEvent(onChange)
             }
         }
@@ -50,7 +50,7 @@ internal class NearbyStoreDbImpl internal constructor(
     private val queryDao = object : NearbyStoreQueryDao {
 
         override suspend fun query(force: Boolean): List<NearbyStore> {
-            Enforcer.assertNotOnMainThread()
+            Enforcer.assertOffMainThread()
             mutex.withLock {
                 if (force) {
                     invalidate()
@@ -64,7 +64,7 @@ internal class NearbyStoreDbImpl internal constructor(
     private val insertDao = object : NearbyStoreInsertDao {
 
         override suspend fun insert(o: NearbyStore) {
-            Enforcer.assertNotOnMainThread()
+            Enforcer.assertOffMainThread()
             mutex.withLock { insertDao.insert(o) }
             publish(Insert(o))
         }
@@ -73,7 +73,7 @@ internal class NearbyStoreDbImpl internal constructor(
     private val updateDao = object : NearbyStoreUpdateDao {
 
         override suspend fun update(o: NearbyStore) {
-            Enforcer.assertNotOnMainThread()
+            Enforcer.assertOffMainThread()
             mutex.withLock { updateDao.update(o) }
             publish(Update(o))
         }
@@ -82,7 +82,7 @@ internal class NearbyStoreDbImpl internal constructor(
     private val deleteDao = object : NearbyStoreDeleteDao {
 
         override suspend fun delete(o: NearbyStore) {
-            Enforcer.assertNotOnMainThread()
+            Enforcer.assertOffMainThread()
             mutex.withLock { deleteDao.delete(o) }
             publish(Delete(o))
         }

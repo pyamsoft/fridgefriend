@@ -55,7 +55,7 @@ internal abstract class BaseRunner<P : BaseParameters> protected constructor(
         tags: Set<String>,
         params: P
     ): WorkResult = withContext(context = Dispatchers.Default) {
-        Enforcer.assertNotOnMainThread()
+        Enforcer.assertOffMainThread()
         val identifier = identifier(id, tags)
         try {
             performWork(butlerPreferences, params)

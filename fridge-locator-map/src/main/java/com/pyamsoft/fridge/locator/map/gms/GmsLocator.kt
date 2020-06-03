@@ -53,7 +53,7 @@ internal class GmsLocator @Inject internal constructor(
     @SuppressLint("MissingPermission")
     override suspend fun getLastKnownLocation(): Location? =
         withContext(context = Dispatchers.Default) {
-            Enforcer.assertNotOnMainThread()
+            Enforcer.assertOffMainThread()
             if (!isGpsEnabled()) {
                 Timber.w("Cannot get last location, GPS is not enabled")
                 return@withContext null
@@ -62,7 +62,7 @@ internal class GmsLocator @Inject internal constructor(
             throwIfMissingPermission("Cannot get last known location")
 
             return@withContext suspendCancellableCoroutine<Location?> { continuation ->
-                Enforcer.assertNotOnMainThread()
+                Enforcer.assertOffMainThread()
                 continuation.invokeOnCancellation {
                     Timber.w("getLastKnownLocation coroutine cancelled: $it")
                 }
@@ -76,11 +76,11 @@ internal class GmsLocator @Inject internal constructor(
 
     @SuppressLint("MissingPermission")
     override suspend fun isGpsEnabled(): Boolean = withContext(context = Dispatchers.Default) {
-        Enforcer.assertNotOnMainThread()
+        Enforcer.assertOffMainThread()
         throwIfMissingPermission("Cannot get gps state")
 
         return@withContext suspendCancellableCoroutine<Boolean> { continuation ->
-            Enforcer.assertNotOnMainThread()
+            Enforcer.assertOffMainThread()
             continuation.invokeOnCancellation {
                 Timber.w("isGpsEnabled coroutine cancelled: $it")
             }
@@ -93,11 +93,11 @@ internal class GmsLocator @Inject internal constructor(
     }
 
     override suspend fun enableGps() = withContext(context = Dispatchers.Default) {
-        Enforcer.assertNotOnMainThread()
+        Enforcer.assertOffMainThread()
         throwIfMissingPermission("Cannot enable GPS")
 
         suspendCancellableCoroutine<Unit> { continuation ->
-            Enforcer.assertNotOnMainThread()
+            Enforcer.assertOffMainThread()
             continuation.invokeOnCancellation {
                 Timber.w("enableGps coroutine cancelled: $it")
             }

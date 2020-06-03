@@ -59,13 +59,13 @@ internal class WorkManagerButler @Inject internal constructor(
 
     @CheckResult
     private fun workManager(): WorkManager {
-        Enforcer.assertNotOnMainThread()
+        Enforcer.assertOffMainThread()
         return WorkManager.getInstance(context)
     }
 
     @CheckResult
     private fun generateConstraints(): Constraints {
-        Enforcer.assertNotOnMainThread()
+        Enforcer.assertOffMainThread()
         return Constraints.Builder()
             .setRequiresBatteryNotLow(true)
             .build()
@@ -77,7 +77,7 @@ internal class WorkManagerButler @Inject internal constructor(
         type: WorkType,
         inputData: Data
     ) {
-        Enforcer.assertNotOnMainThread()
+        Enforcer.assertOffMainThread()
         val request = OneTimeWorkRequest.Builder(worker)
             .addTag(tag)
             .setConstraints(generateConstraints())
@@ -96,64 +96,64 @@ internal class WorkManagerButler @Inject internal constructor(
 
     private suspend fun scheduleItemWork(params: ItemParameters, type: WorkType) =
         withContext(context = Dispatchers.Default) {
-            Enforcer.assertNotOnMainThread()
+            Enforcer.assertOffMainThread()
             cancelItemsReminder()
             schedule(ItemWorker::class.java, ITEM_TAG, type, params.toInputData())
         }
 
     override suspend fun remindItems(params: ItemParameters) =
         withContext(context = Dispatchers.Default) {
-            Enforcer.assertNotOnMainThread()
+            Enforcer.assertOffMainThread()
             scheduleItemWork(params, WorkType.Instant)
         }
 
     override suspend fun scheduleRemindItems(params: ItemParameters) =
         withContext(context = Dispatchers.Default) {
-            Enforcer.assertNotOnMainThread()
+            Enforcer.assertOffMainThread()
             val time = preferences.getNotificationPeriod()
             scheduleItemWork(params, WorkType.Periodic(time))
         }
 
     override suspend fun cancelItemsReminder() = withContext(context = Dispatchers.Default) {
-        Enforcer.assertNotOnMainThread()
+        Enforcer.assertOffMainThread()
         workManager().cancelAllWorkByTag(ITEM_TAG).await()
     }
 
     private suspend fun scheduleLocation(params: LocationParameters, type: WorkType) =
         withContext(context = Dispatchers.Default) {
-            Enforcer.assertNotOnMainThread()
+            Enforcer.assertOffMainThread()
             cancelLocationReminder()
             schedule(LocationWorker::class.java, LOCATION_TAG, type, params.toInputData())
         }
 
     override suspend fun remindLocation(params: LocationParameters) =
         withContext(context = Dispatchers.Default) {
-            Enforcer.assertNotOnMainThread()
+            Enforcer.assertOffMainThread()
             scheduleLocation(params, WorkType.Instant)
         }
 
     override suspend fun scheduleRemindLocation(params: LocationParameters) =
         withContext(context = Dispatchers.Default) {
-            Enforcer.assertNotOnMainThread()
+            Enforcer.assertOffMainThread()
             val time = preferences.getNotificationPeriod()
             scheduleLocation(params, WorkType.Periodic(time))
         }
 
     override suspend fun cancelLocationReminder() = withContext(context = Dispatchers.Default) {
-        Enforcer.assertNotOnMainThread()
+        Enforcer.assertOffMainThread()
         workManager().cancelAllWorkByTag(LOCATION_TAG).await()
     }
 
     private suspend fun scheduleNightly(params: EmptyParameters, type: WorkType) =
         withContext(context = Dispatchers.Default) {
-            Enforcer.assertNotOnMainThread()
+            Enforcer.assertOffMainThread()
             cancelNightlyReminder()
             schedule(NightlyWorker::class.java, NIGHTLY_TAG, type, params.toInputData())
         }
 
     override suspend fun scheduleRemindNightly(params: EmptyParameters) =
         withContext(context = Dispatchers.Default) {
-            Enforcer.assertNotOnMainThread()
+            Enforcer.assertOffMainThread()
 
             // Get the time now
             val now = today { set(Calendar.MILLISECOND, 0) }
@@ -177,19 +177,19 @@ internal class WorkManagerButler @Inject internal constructor(
         }
 
     override suspend fun cancelNightlyReminder() = withContext(context = Dispatchers.Default) {
-        Enforcer.assertNotOnMainThread()
+        Enforcer.assertOffMainThread()
         workManager().cancelAllWorkByTag(NIGHTLY_TAG).await()
     }
 
     override suspend fun cancel() = withContext(context = Dispatchers.Default) {
-        Enforcer.assertNotOnMainThread()
+        Enforcer.assertOffMainThread()
         cancelItemsReminder()
         cancelLocationReminder()
         cancelNightlyReminder()
     }
 
     private suspend fun Operation.await() {
-        Enforcer.assertNotOnMainThread()
+        Enforcer.assertOffMainThread()
         this.result.await()
     }
 
@@ -197,7 +197,7 @@ internal class WorkManagerButler @Inject internal constructor(
     // since this extension is library private otherwise...
     @Suppress("BlockingMethodInNonBlockingContext")
     private suspend fun <R> ListenableFuture<R>.await(): R {
-        Enforcer.assertNotOnMainThread()
+        Enforcer.assertOffMainThread()
 
         // Fast path
         if (this.isDone) {
@@ -209,9 +209,9 @@ internal class WorkManagerButler @Inject internal constructor(
         }
 
         return suspendCancellableCoroutine { continuation ->
-            Enforcer.assertNotOnMainThread()
+            Enforcer.assertOffMainThread()
             this.addListener(Runnable {
-                Enforcer.assertNotOnMainThread()
+                Enforcer.assertOffMainThread()
                 try {
                     continuation.resume(this.get())
                 } catch (throwable: Throwable) {

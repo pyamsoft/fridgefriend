@@ -34,7 +34,7 @@ internal class EntryGuaranteeImpl @Inject internal constructor(
 
     @CheckResult
     private suspend fun getEntryForId(id: FridgeEntry.Id): FridgeEntry? {
-        Enforcer.assertNotOnMainThread()
+        Enforcer.assertOffMainThread()
         if (id.isEmpty()) {
             Timber.w("Cannot find an entry with a blank id")
             return null
@@ -46,7 +46,7 @@ internal class EntryGuaranteeImpl @Inject internal constructor(
 
     override suspend fun existing(id: FridgeEntry.Id, name: String): FridgeEntry =
         withContext(context = Dispatchers.Default) {
-            Enforcer.assertNotOnMainThread()
+            Enforcer.assertOffMainThread()
             val entry = getEntryForId(id)
             return@withContext if (entry != null) entry else {
                 Timber.d("Create new persistent entry")

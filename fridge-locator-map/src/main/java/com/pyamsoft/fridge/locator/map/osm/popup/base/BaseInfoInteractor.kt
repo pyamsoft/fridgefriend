@@ -42,31 +42,31 @@ internal abstract class BaseInfoInteractor<
 
     @CheckResult
     suspend fun getAllCached(): List<T> = withContext(context = Dispatchers.Default) {
-        Enforcer.assertNotOnMainThread()
+        Enforcer.assertOffMainThread()
         queryDao.query(false)
     }
 
     protected suspend inline fun listenChanges(
         crossinline onEvent: (event: RE) -> Unit
     ) = withContext(context = Dispatchers.Default) {
-        Enforcer.assertNotOnMainThread()
+        Enforcer.assertOffMainThread()
         realtime.listenForChanges { onEvent(it) }
     }
 
     suspend fun deleteFromDb(data: T) = withContext(context = Dispatchers.Default) {
-        Enforcer.assertNotOnMainThread()
+        Enforcer.assertOffMainThread()
         deleteDao.delete(data)
         restartLocationWorker()
     }
 
     suspend fun insertIntoDb(data: T) = withContext(context = Dispatchers.Default) {
-        Enforcer.assertNotOnMainThread()
+        Enforcer.assertOffMainThread()
         insertDao.insert(data)
         restartLocationWorker()
     }
 
     private suspend fun restartLocationWorker() {
-        Enforcer.assertNotOnMainThread()
+        Enforcer.assertOffMainThread()
         butler.cancelLocationReminder()
         butler.remindLocation(LocationParameters(forceNotifyNeeded = true))
     }
