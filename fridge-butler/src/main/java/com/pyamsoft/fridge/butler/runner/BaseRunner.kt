@@ -24,19 +24,18 @@ import com.pyamsoft.fridge.butler.NotificationHandler
 import com.pyamsoft.fridge.butler.NotificationPreferences
 import com.pyamsoft.fridge.butler.params.BaseParameters
 import com.pyamsoft.pydroid.core.Enforcer
-import java.util.Calendar
-import java.util.UUID
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import timber.log.Timber
+import java.util.Calendar
+import java.util.UUID
 
 internal abstract class BaseRunner<P : BaseParameters> protected constructor(
     private val handler: NotificationHandler,
     private val butler: Butler,
     private val notificationPreferences: NotificationPreferences,
-    private val butlerPreferences: ButlerPreferences,
-    private val enforcer: Enforcer
+    private val butlerPreferences: ButlerPreferences
 ) {
 
     private suspend fun teardown(params: P) {
@@ -56,7 +55,7 @@ internal abstract class BaseRunner<P : BaseParameters> protected constructor(
         tags: Set<String>,
         params: P
     ): WorkResult = withContext(context = Dispatchers.Default) {
-        enforcer.assertNotOnMainThread()
+        Enforcer.assertNotOnMainThread()
         val identifier = identifier(id, tags)
         try {
             performWork(butlerPreferences, params)

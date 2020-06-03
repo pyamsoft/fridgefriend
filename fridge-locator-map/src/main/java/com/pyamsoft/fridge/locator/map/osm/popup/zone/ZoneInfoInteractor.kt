@@ -32,7 +32,6 @@ import com.pyamsoft.pydroid.core.Enforcer
 import javax.inject.Inject
 
 internal class ZoneInfoInteractor @Inject internal constructor(
-    enforcer: Enforcer,
     butler: Butler,
     realtime: NearbyZoneRealtime,
     queryDao: NearbyZoneQueryDao,
@@ -45,7 +44,7 @@ internal class ZoneInfoInteractor @Inject internal constructor(
     NearbyZoneQueryDao,
     NearbyZoneInsertDao,
     NearbyZoneDeleteDao
-    >(enforcer, butler, realtime, queryDao, insertDao, deleteDao) {
+    >(butler, realtime, queryDao, insertDao, deleteDao) {
 
     suspend inline fun listenForNearbyCacheChanges(
         crossinline onInsert: (zone: NearbyZone) -> Unit,

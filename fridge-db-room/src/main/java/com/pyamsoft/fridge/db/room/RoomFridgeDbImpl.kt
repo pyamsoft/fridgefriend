@@ -34,7 +34,6 @@ import com.pyamsoft.pydroid.core.Enforcer
 
 internal class RoomFridgeDbImpl internal constructor(
     db: RoomFridgeDb,
-    enforcer: Enforcer,
     entryCache: Cached1<Sequence<FridgeEntry>, Boolean>,
     itemCache: Cached1<Sequence<FridgeItem>, Boolean>,
     storeCache: Cached1<Sequence<NearbyStore>, Boolean>,
@@ -44,7 +43,6 @@ internal class RoomFridgeDbImpl internal constructor(
 
     private val itemDb by lazy {
         FridgeItemDb.wrap(
-            enforcer,
             itemCache,
             db.roomItemInsertDao(),
             db.roomItemUpdateDao(),
@@ -54,7 +52,6 @@ internal class RoomFridgeDbImpl internal constructor(
 
     private val entryDb by lazy {
         FridgeEntryDb.wrap(
-            enforcer,
             entryCache,
             db.roomEntryInsertDao(),
             db.roomEntryUpdateDao(),
@@ -64,7 +61,6 @@ internal class RoomFridgeDbImpl internal constructor(
 
     private val storeDb by lazy {
         NearbyStoreDb.wrap(
-            enforcer,
             storeCache,
             db.roomStoreInsertDao(),
             db.roomStoreUpdateDao(),
@@ -74,7 +70,6 @@ internal class RoomFridgeDbImpl internal constructor(
 
     private val zoneDb by lazy {
         NearbyZoneDb.wrap(
-            enforcer,
             zoneCache,
             db.roomZoneInsertDao(),
             db.roomZoneUpdateDao(),
@@ -84,7 +79,6 @@ internal class RoomFridgeDbImpl internal constructor(
 
     private val categoryDb by lazy {
         FridgeCategoryDb.wrap(
-            enforcer,
             categoryCache,
             db.roomCategoryInsertDao(),
             db.roomCategoryUpdateDao(),

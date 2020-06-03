@@ -35,21 +35,21 @@ internal abstract class FridgeRunner<P : BaseParameters> protected constructor(
     butler: Butler,
     notificationPreferences: NotificationPreferences,
     butlerPreferences: ButlerPreferences,
-    enforcer: Enforcer,
     private val fridgeEntryQueryDao: FridgeEntryQueryDao,
     private val fridgeItemQueryDao: FridgeItemQueryDao
 ) : BaseRunner<P>(
     handler,
     butler,
     notificationPreferences,
-    butlerPreferences,
-    enforcer
+    butlerPreferences
 ) {
 
     protected suspend fun withFridgeData(func: suspend CoroutineScope.(entry: FridgeEntry, items: List<FridgeItem>) -> Unit) {
         coroutineScope {
+            Enforcer.assertNotOnMainThread()
             fridgeEntryQueryDao.query(true)
                 .forEach { entry ->
+                    Enforcer.assertNotOnMainThread()
                     val items = fridgeItemQueryDao.query(true, entry.id())
                     func(entry, items)
                 }

@@ -23,6 +23,7 @@ import com.pyamsoft.fridge.db.store.NearbyStore
 import com.pyamsoft.fridge.locator.map.osm.popup.base.BaseInfoViewModel
 import com.pyamsoft.fridge.locator.map.osm.popup.base.BaseInfoViewState
 import com.pyamsoft.fridge.locator.map.osm.popup.store.StoreInfoViewEvent.StoreFavoriteAction
+import kotlinx.coroutines.Dispatchers
 import javax.inject.Inject
 import javax.inject.Named
 import kotlinx.coroutines.launch
@@ -45,7 +46,7 @@ internal class StoreInfoViewModel @Inject internal constructor(
     private val storeId = store.id()
 
     override fun listenForRealtime() {
-        viewModelScope.launch {
+        viewModelScope.launch(context = Dispatchers.Default) {
             interactor.listenForNearbyCacheChanges(
                 onInsert = { store ->
                     if (store.id() == storeId) {

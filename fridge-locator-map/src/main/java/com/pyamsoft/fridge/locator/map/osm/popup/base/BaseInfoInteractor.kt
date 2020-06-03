@@ -33,7 +33,6 @@ internal abstract class BaseInfoInteractor<
     I : BaseDb.Insert<T>,
     D : BaseDb.Delete<T>
     > protected constructor(
-        private val enforcer: Enforcer,
         private val butler: Butler,
         private val realtime: R,
         private val queryDao: Q,
@@ -43,31 +42,31 @@ internal abstract class BaseInfoInteractor<
 
     @CheckResult
     suspend fun getAllCached(): List<T> = withContext(context = Dispatchers.Default) {
-        enforcer.assertNotOnMainThread()
+        Enforcer.assertNotOnMainThread()
         queryDao.query(false)
     }
 
     protected suspend inline fun listenChanges(
         crossinline onEvent: (event: RE) -> Unit
     ) = withContext(context = Dispatchers.Default) {
-        enforcer.assertNotOnMainThread()
+        Enforcer.assertNotOnMainThread()
         realtime.listenForChanges { onEvent(it) }
     }
 
     suspend fun deleteFromDb(data: T) = withContext(context = Dispatchers.Default) {
-        enforcer.assertNotOnMainThread()
+        Enforcer.assertNotOnMainThread()
         deleteDao.delete(data)
         restartLocationWorker()
     }
 
     suspend fun insertIntoDb(data: T) = withContext(context = Dispatchers.Default) {
-        enforcer.assertNotOnMainThread()
+        Enforcer.assertNotOnMainThread()
         insertDao.insert(data)
         restartLocationWorker()
     }
 
     private suspend fun restartLocationWorker() {
-        enforcer.assertNotOnMainThread()
+        Enforcer.assertNotOnMainThread()
         butler.cancelLocationReminder()
         butler.remindLocation(LocationParameters(forceNotifyNeeded = true))
     }

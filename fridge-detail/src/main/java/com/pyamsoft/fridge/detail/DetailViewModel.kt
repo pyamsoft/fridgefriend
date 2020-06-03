@@ -35,13 +35,13 @@ import com.pyamsoft.fridge.db.item.isExpiringSoon
 import com.pyamsoft.fridge.detail.DetailControllerEvent.ExpandForEditing
 import com.pyamsoft.fridge.detail.base.BaseUpdaterViewModel
 import com.pyamsoft.highlander.highlander
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import timber.log.Timber
 import java.util.Calendar
 import javax.inject.Inject
 import javax.inject.Named
 import kotlin.math.max
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
-import timber.log.Timber
 
 class DetailViewModel @Inject internal constructor(
     private val interactor: DetailInteractor,
@@ -68,7 +68,7 @@ class DetailViewModel @Inject internal constructor(
 
     private val undoRunner = highlander<Unit, FridgeItem> { item ->
         try {
-            assert(item.isReal()) { "Cannot undo for non-real item: $item" }
+            require(item.isReal()) { "Cannot undo for non-real item: $item" }
             interactor.commit(item.invalidateSpoiled().invalidateConsumption())
         } catch (error: Throwable) {
             error.onActualError { e ->
@@ -104,28 +104,28 @@ class DetailViewModel @Inject internal constructor(
         }
 
         doOnInit {
-            viewModelScope.launch {
+            viewModelScope.launch(context = Dispatchers.Default) {
                 val entry = interactor.loadEntry(entryId)
                 setState { copy(entry = entry) }
             }
         }
 
         doOnInit {
-            viewModelScope.launch {
+            viewModelScope.launch(context = Dispatchers.Default) {
                 val range = interactor.getExpiringSoonRange()
                 setState { copy(expirationRange = DetailViewState.ExpirationRange(range)) }
             }
         }
 
         doOnInit {
-            viewModelScope.launch {
+            viewModelScope.launch(context = Dispatchers.Default) {
                 val isSame = interactor.isSameDayExpired()
                 setState { copy(isSameDayExpired = DetailViewState.IsSameDayExpired(isSame)) }
             }
         }
 
         doOnInit {
-            viewModelScope.launch {
+            viewModelScope.launch(context = Dispatchers.Default) {
                 val listener = interactor.listenForExpiringSoonRangeChanged { range ->
                     setState { copy(expirationRange = DetailViewState.ExpirationRange(range)) }
                 }
@@ -134,7 +134,7 @@ class DetailViewModel @Inject internal constructor(
         }
 
         doOnInit {
-            viewModelScope.launch {
+            viewModelScope.launch(context = Dispatchers.Default) {
                 val listener = interactor.listenForSameDayExpiredChanged { same ->
                     setState { copy(isSameDayExpired = DetailViewState.IsSameDayExpired(same)) }
                 }
@@ -182,7 +182,7 @@ class DetailViewModel @Inject internal constructor(
         val newItem = item.count(max(1, newCount))
         updateCount(newItem)
         if (newCount <= 0 && newItem.presence() == FridgeItem.Presence.HAVE) {
-            viewModelScope.launch {
+            viewModelScope.launch(context = Dispatchers.Default) {
                 if (interactor.isZeroCountConsideredConsumed()) {
                     consume(newItem)
                 }
@@ -210,7 +210,7 @@ class DetailViewModel @Inject internal constructor(
     }
 
     private fun handleUndoDelete(item: FridgeItem) {
-        viewModelScope.launch { undoRunner.call(item) }
+        viewModelScope.launch(context = Dispatchers.Default) { undoRunner.call(item) }
     }
 
     private fun toggleArchived() {
@@ -235,8 +235,7 @@ class DetailViewModel @Inject internal constructor(
     }
 
     private fun refreshList(force: Boolean) {
-        // Keep this on the main thread or weird UI stuff happens
-        viewModelScope.launch {
+        viewModelScope.launch(context = Dispatchers.Default) {
             refreshRunner.call(force)
         }
     }
@@ -250,8 +249,8 @@ class DetailViewModel @Inject internal constructor(
     }
 
     @CheckResult
-    private fun CoroutineScope.beginListeningForRealtime() = launch {
-        realtimeRunner.call()
+    private fun beginListeningForRealtime() {
+        viewModelScope.launch(context = Dispatchers.Default) { realtimeRunner.call() }
     }
 
     private fun insertOrUpdate(
@@ -395,7 +394,7 @@ class DetailViewModel @Inject internal constructor(
         doUpdate: suspend (item: FridgeItem) -> Unit,
         onError: (throwable: Throwable) -> Unit
     ) {
-        assert(item.isReal()) { "Commit called on a non-real item: $item" }
+        require(item.isReal()) { "Commit called on a non-real item: $item" }
         update(item, doUpdate = doUpdate, onError = onError)
     }
 

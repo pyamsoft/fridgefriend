@@ -29,26 +29,28 @@ import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 
 internal class NearbyStoreDbImpl internal constructor(
-    enforcer: Enforcer,
     cache: Cached1<Sequence<NearbyStore>, Boolean>,
     insertDao: NearbyStoreInsertDao,
     updateDao: NearbyStoreUpdateDao,
     deleteDao: NearbyStoreDeleteDao
-) : BaseDbImpl<NearbyStore, NearbyStoreChangeEvent>(enforcer, cache), NearbyStoreDb {
+) : BaseDbImpl<NearbyStore, NearbyStoreChangeEvent>(cache), NearbyStoreDb {
 
     private val mutex = Mutex()
 
     private val realtime = object : NearbyStoreRealtime {
 
         override suspend fun listenForChanges(onChange: suspend (event: NearbyStoreChangeEvent) -> Unit) {
-            withContext(context = Dispatchers.IO) { onEvent(onChange) }
+            withContext(context = Dispatchers.IO) {
+                Enforcer.assertNotOnMainThread()
+                onEvent(onChange)
+            }
         }
     }
 
     private val queryDao = object : NearbyStoreQueryDao {
 
         override suspend fun query(force: Boolean): List<NearbyStore> {
-            enforcer.assertNotOnMainThread()
+            Enforcer.assertNotOnMainThread()
             mutex.withLock {
                 if (force) {
                     invalidate()
@@ -62,7 +64,7 @@ internal class NearbyStoreDbImpl internal constructor(
     private val insertDao = object : NearbyStoreInsertDao {
 
         override suspend fun insert(o: NearbyStore) {
-            enforcer.assertNotOnMainThread()
+            Enforcer.assertNotOnMainThread()
             mutex.withLock { insertDao.insert(o) }
             publish(Insert(o))
         }
@@ -71,7 +73,7 @@ internal class NearbyStoreDbImpl internal constructor(
     private val updateDao = object : NearbyStoreUpdateDao {
 
         override suspend fun update(o: NearbyStore) {
-            enforcer.assertNotOnMainThread()
+            Enforcer.assertNotOnMainThread()
             mutex.withLock { updateDao.update(o) }
             publish(Update(o))
         }
@@ -80,7 +82,7 @@ internal class NearbyStoreDbImpl internal constructor(
     private val deleteDao = object : NearbyStoreDeleteDao {
 
         override suspend fun delete(o: NearbyStore) {
-            enforcer.assertNotOnMainThread()
+            Enforcer.assertNotOnMainThread()
             mutex.withLock { deleteDao.delete(o) }
             publish(Delete(o))
         }

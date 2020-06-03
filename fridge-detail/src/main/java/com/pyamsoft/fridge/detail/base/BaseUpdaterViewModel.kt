@@ -24,6 +24,7 @@ import com.pyamsoft.pydroid.arch.UiControllerEvent
 import com.pyamsoft.pydroid.arch.UiViewEvent
 import com.pyamsoft.pydroid.arch.UiViewModel
 import com.pyamsoft.pydroid.arch.UiViewState
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
@@ -58,7 +59,9 @@ abstract class BaseUpdaterViewModel<S : UiViewState, V : UiViewEvent, C : UiCont
         onError: (throwable: Throwable) -> Unit,
         afterUpdate: (item: FridgeItem) -> Unit = EMPTY_DONE
     ) {
-        viewModelScope.launch { updateRunner.call(item, doUpdate, onError, afterUpdate) }
+        viewModelScope.launch(context = Dispatchers.Default) {
+            updateRunner.call(item, doUpdate, onError, afterUpdate)
+        }
     }
 
     companion object {

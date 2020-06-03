@@ -22,8 +22,6 @@ import androidx.lifecycle.viewModelScope
 import com.pyamsoft.fridge.locator.DeviceGps
 import com.pyamsoft.highlander.highlander
 import com.pyamsoft.pydroid.arch.UiViewModel
-import javax.inject.Inject
-import javax.inject.Named
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -33,6 +31,8 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import timber.log.Timber
+import javax.inject.Inject
+import javax.inject.Named
 
 class OsmViewModel @Inject internal constructor(
     private val interactor: OsmInteractor,
@@ -59,7 +59,7 @@ class OsmViewModel @Inject internal constructor(
         // Run jobs in parallel
         val jobs = mutableListOf<Deferred<*>>()
         try {
-            jobs += async {
+            jobs += async(context = Dispatchers.Default) {
                 try {
                     updateMarkers(interactor.fromCache(), fromCached = true)
                 } catch (error: Throwable) {
@@ -71,7 +71,7 @@ class OsmViewModel @Inject internal constructor(
             }
 
             if (box != null) {
-                jobs += async {
+                jobs += async(context = Dispatchers.Default) {
                     try {
                         updateMarkers(interactor.nearbyLocations(box), fromCached = false)
                     } catch (error: Throwable) {
@@ -133,7 +133,7 @@ class OsmViewModel @Inject internal constructor(
     }
 
     private fun initialFetchFromCache() {
-        viewModelScope.launch { nearbyRunner.call(null) }
+        viewModelScope.launch(context = Dispatchers.Default) { nearbyRunner.call(null) }
     }
 
     private fun cachedFetchError(throwable: Throwable) {
@@ -162,13 +162,13 @@ class OsmViewModel @Inject internal constructor(
     private fun nearbySupermarkets() {
         withState {
             boundingBox?.let { box ->
-                viewModelScope.launch { nearbyRunner.call(box) }
+                viewModelScope.launch(context = Dispatchers.Default) { nearbyRunner.call(box) }
             }
         }
     }
 
     fun enableGps(activity: Activity) {
-        viewModelScope.launch {
+        viewModelScope.launch(context = Dispatchers.Default) {
             if (!deviceGps.isGpsEnabled()) {
                 try {
                     deviceGps.enableGps()

@@ -40,7 +40,6 @@ internal class MainInteractor @Inject internal constructor(
     // NOTE(Peter): For now, since we only display one entry, this will fetch items for item count badges
     // but in the future we should change this to entry and display entry count badges
     // of entries that have items which meet count condition
-    private val enforcer: Enforcer,
     private val itemQueryDao: FridgeItemQueryDao,
     private val itemRealtime: FridgeItemRealtime,
     private val fridgeItemPreferences: FridgeItemPreferences
@@ -48,13 +47,13 @@ internal class MainInteractor @Inject internal constructor(
 
     @CheckResult
     suspend fun getNeededCount(): Int = withContext(context = Dispatchers.Default) {
-        enforcer.assertNotOnMainThread()
+        Enforcer.assertNotOnMainThread()
         return@withContext itemQueryDao.query(false).byPresence(FridgeItem.Presence.NEED).count()
     }
 
     @CheckResult
     suspend fun getExpiredOrExpiringCount(): Int = withContext(context = Dispatchers.Default) {
-        enforcer.assertNotOnMainThread()
+        Enforcer.assertNotOnMainThread()
         val now = today().cleanMidnight()
         val later = today().daysLaterMidnight(fridgeItemPreferences.getExpiringSoonRange())
         val isSameDayExpired = fridgeItemPreferences.isSameDayExpired()
@@ -71,7 +70,7 @@ internal class MainInteractor @Inject internal constructor(
 
     suspend fun listenForItemChanges(onEvent: suspend (FridgeItemChangeEvent) -> Unit) =
         withContext(context = Dispatchers.Default) {
-            enforcer.assertNotOnMainThread()
+            Enforcer.assertNotOnMainThread()
             return@withContext itemRealtime.listenForChanges(onEvent)
         }
 

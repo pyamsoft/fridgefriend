@@ -34,17 +34,15 @@ import com.pyamsoft.fridge.db.store.NearbyStoreQueryDao
 import com.pyamsoft.fridge.db.zone.NearbyZone
 import com.pyamsoft.fridge.db.zone.NearbyZoneQueryDao
 import com.pyamsoft.fridge.locator.Geofencer
-import com.pyamsoft.pydroid.core.Enforcer
-import javax.inject.Inject
 import kotlinx.coroutines.coroutineScope
 import timber.log.Timber
+import javax.inject.Inject
 
 internal class LocationRunner @Inject internal constructor(
     handler: NotificationHandler,
     butler: Butler,
     notificationPreferences: NotificationPreferences,
     butlerPreferences: ButlerPreferences,
-    enforcer: Enforcer,
     fridgeEntryQueryDao: FridgeEntryQueryDao,
     fridgeItemQueryDao: FridgeItemQueryDao,
     storeDb: NearbyStoreQueryDao,
@@ -55,7 +53,6 @@ internal class LocationRunner @Inject internal constructor(
     butler,
     notificationPreferences,
     butlerPreferences,
-    enforcer,
     fridgeEntryQueryDao,
     fridgeItemQueryDao,
     storeDb,

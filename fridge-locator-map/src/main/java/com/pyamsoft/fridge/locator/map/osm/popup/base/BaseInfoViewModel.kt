@@ -23,6 +23,7 @@ import androidx.lifecycle.viewModelScope
 import com.pyamsoft.pydroid.arch.UiControllerEvent
 import com.pyamsoft.pydroid.arch.UiViewEvent
 import com.pyamsoft.pydroid.arch.UiViewModel
+import kotlinx.coroutines.Dispatchers
 import javax.inject.Named
 import kotlin.math.abs
 import kotlin.math.pow
@@ -42,7 +43,7 @@ internal abstract class BaseInfoViewModel<T : Any, S : BaseInfoViewState<*>, V :
     }
 
     private fun findCachedIfExists() {
-        viewModelScope.launch {
+        viewModelScope.launch(context = Dispatchers.Default) {
             val cached = interactor.getAllCached()
             restoreStateFromCachedData(cached)
         }
@@ -52,7 +53,7 @@ internal abstract class BaseInfoViewModel<T : Any, S : BaseInfoViewState<*>, V :
         data: T,
         add: Boolean
     ) {
-        viewModelScope.launch {
+        viewModelScope.launch(context = Dispatchers.Default) {
             if (add) {
                 interactor.insertIntoDb(data)
             } else {

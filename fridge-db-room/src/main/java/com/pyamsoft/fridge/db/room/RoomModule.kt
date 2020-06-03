@@ -59,7 +59,7 @@ abstract class RoomModule {
         @Provides
         @JvmStatic
         @Singleton
-        internal fun provideDb(context: Context, enforcer: Enforcer): FridgeDb {
+        internal fun provideDb(context: Context): FridgeDb {
             val db = createRoom(context.applicationContext)
             val cacheTime = 10L
             val cacheUnit = MINUTES
@@ -110,7 +110,6 @@ abstract class RoomModule {
 
             return RoomFridgeDbImpl(
                 db,
-                enforcer,
                 entryCache,
                 itemCache,
                 storeCache,

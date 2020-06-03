@@ -65,11 +65,9 @@ class ExpandItemViewModel @Inject internal constructor(
 
     init {
         doOnInit {
-            viewModelScope.launch {
+            viewModelScope.launch(context = Dispatchers.Default) {
                 val categories = interactor.loadAllCategories()
-                setState {
-                    copy(categories = listOf(FridgeCategory.empty()) + categories)
-                }
+                setState { copy(categories = listOf(FridgeCategory.empty()) + categories) }
             }
         }
 
@@ -91,7 +89,7 @@ class ExpandItemViewModel @Inject internal constructor(
             // Resolve the existing item id
             val resolveItemId =
                 FridgeItem.Id(savedInstanceState.getOrDefault(CREATED_ITEM_ID, possibleItemId.id))
-            viewModelScope.launch {
+            viewModelScope.launch(context = Dispatchers.Default) {
                 val item = interactor.resolveItem(
                     resolveItemId,
                     itemEntryId,
@@ -103,7 +101,7 @@ class ExpandItemViewModel @Inject internal constructor(
         }
 
         doOnInit {
-            viewModelScope.launch {
+            viewModelScope.launch(context = Dispatchers.Default) {
                 realtime.listenForChanges(itemEntryId) { handleRealtimeEvent(it) }
             }
         }
@@ -204,7 +202,7 @@ class ExpandItemViewModel @Inject internal constructor(
         withState {
             requireNotNull(item).let { item ->
                 if (closeMe.id() == item.id() && closeMe.entryId() == item.entryId()) {
-                    viewModelScope.launch {
+                    viewModelScope.launch(context = Dispatchers.Default) {
                         publish(ExpandItemControllerEvent.CloseExpand)
                     }
                 }
@@ -341,14 +339,14 @@ class ExpandItemViewModel @Inject internal constructor(
             return
         }
 
-        viewModelScope.launch {
+        viewModelScope.launch(context = Dispatchers.Default) {
             val sameNamedItems = interactor.findSameNamedItems(item.name(), HAVE)
             setState { copy(sameNamedItems = sameNamedItems) }
         }
     }
 
     private fun findSimilarItems(rootItem: FridgeItem) {
-        viewModelScope.launch {
+        viewModelScope.launch(context = Dispatchers.Default) {
             val similarItems = interactor.findSimilarNamedItems(rootItem)
             setState {
                 copy(similarItems = similarItems

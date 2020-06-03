@@ -36,13 +36,12 @@ import timber.log.Timber
 internal class OsmInteractor @Inject internal constructor(
     private val nearbyStores: NearbyStoreQueryDao,
     private val nearbyZones: NearbyZoneQueryDao,
-    private val enforcer: Enforcer,
     private val api: NearbyLocationApi
 ) {
 
     @CheckResult
     suspend fun fromCache(): OsmMarkers = withContext(context = Dispatchers.Default) {
-        enforcer.assertNotOnMainThread()
+        Enforcer.assertNotOnMainThread()
 
         coroutineScope {
             val storeJob = async(context = Dispatchers.Default) { nearbyStores.query(false) }
@@ -54,7 +53,7 @@ internal class OsmInteractor @Inject internal constructor(
     @CheckResult
     suspend fun nearbyLocations(box: BBox): OsmMarkers =
         withContext(context = Dispatchers.Default) {
-            enforcer.assertNotOnMainThread()
+            Enforcer.assertNotOnMainThread()
 
             Timber.d("Query overpass with bounding box: ${box.south} ${box.west} ${box.north} ${box.east}")
             val data = createOverpassData(box.south, box.west, box.north, box.east)

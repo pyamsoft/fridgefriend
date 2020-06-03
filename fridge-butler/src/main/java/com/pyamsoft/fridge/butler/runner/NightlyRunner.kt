@@ -21,14 +21,12 @@ internal class NightlyRunner @Inject internal constructor(
     butler: Butler,
     notificationPreferences: NotificationPreferences,
     butlerPreferences: ButlerPreferences,
-    enforcer: Enforcer,
     private val fridgeItemQueryDao: FridgeItemQueryDao
 ) : BaseRunner<EmptyParameters>(
     handler,
     butler,
     notificationPreferences,
-    butlerPreferences,
-    enforcer
+    butlerPreferences
 ) {
 
     private suspend fun notifyNightly(

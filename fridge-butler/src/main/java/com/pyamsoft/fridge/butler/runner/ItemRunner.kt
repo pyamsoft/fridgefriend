@@ -47,7 +47,6 @@ internal class ItemRunner @Inject internal constructor(
     notificationPreferences: NotificationPreferences,
     butlerPreferences: ButlerPreferences,
     private val fridgeItemPreferences: FridgeItemPreferences,
-    enforcer: Enforcer,
     fridgeEntryQueryDao: FridgeEntryQueryDao,
     fridgeItemQueryDao: FridgeItemQueryDao
 ) : FridgeRunner<ItemParameters>(
@@ -55,7 +54,6 @@ internal class ItemRunner @Inject internal constructor(
     butler,
     notificationPreferences,
     butlerPreferences,
-    enforcer,
     fridgeEntryQueryDao,
     fridgeItemQueryDao
 ) {

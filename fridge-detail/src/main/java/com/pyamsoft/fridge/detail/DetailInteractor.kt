@@ -41,7 +41,6 @@ import kotlinx.coroutines.withContext
 import timber.log.Timber
 
 internal class DetailInteractor @Inject internal constructor(
-    private val enforcer: Enforcer,
     private val entryGuarantee: EntryGuarantee,
     private val itemQueryDao: FridgeItemQueryDao,
     private val itemInsertDao: FridgeItemInsertDao,
@@ -57,49 +56,54 @@ internal class DetailInteractor @Inject internal constructor(
     @CheckResult
     suspend fun isZeroCountConsideredConsumed(): Boolean =
         withContext(context = Dispatchers.Default) {
+            Enforcer.assertNotOnMainThread()
             return@withContext preferences.isZeroCountConsideredConsumed()
         }
 
     @CheckResult
     suspend fun getExpiringSoonRange(): Int = withContext(context = Dispatchers.Default) {
+        Enforcer.assertNotOnMainThread()
         return@withContext preferences.getExpiringSoonRange()
     }
 
     @CheckResult
     suspend fun isSameDayExpired(): Boolean = withContext(context = Dispatchers.Default) {
+        Enforcer.assertNotOnMainThread()
         return@withContext preferences.isSameDayExpired()
     }
 
     @CheckResult
     suspend fun listenForExpiringSoonRangeChanged(onChange: (newRange: Int) -> Unit): PreferenceListener =
         withContext(context = Dispatchers.Default) {
+            Enforcer.assertNotOnMainThread()
             return@withContext preferences.watchForExpiringSoonChange(onChange)
         }
 
     @CheckResult
     suspend fun listenForSameDayExpiredChanged(onChange: (newSameDay: Boolean) -> Unit): PreferenceListener =
         withContext(context = Dispatchers.Default) {
+            Enforcer.assertNotOnMainThread()
             return@withContext preferences.watchForSameDayExpiredChange(onChange)
         }
 
     @CheckResult
     suspend fun findSameNamedItems(name: String, presence: Presence): Collection<FridgeItem> =
         withContext(context = Dispatchers.Default) {
-            enforcer.assertNotOnMainThread()
+            Enforcer.assertNotOnMainThread()
             return@withContext itemQueryDao.querySameNameDifferentPresence(false, name, presence)
         }
 
     @CheckResult
     suspend fun findSimilarNamedItems(item: FridgeItem): Collection<FridgeItem> =
         withContext(context = Dispatchers.Default) {
-            enforcer.assertNotOnMainThread()
+            Enforcer.assertNotOnMainThread()
             return@withContext itemQueryDao.querySimilarNamedItems(false, item)
         }
 
     @CheckResult
     suspend fun loadAllCategories(): List<FridgeCategory> =
         withContext(context = Dispatchers.Default) {
-            enforcer.assertNotOnMainThread()
+            Enforcer.assertNotOnMainThread()
             persistentCategories.guaranteePersistentCategoriesCreated()
             return@withContext categoryQueryDao.query(false)
         }
@@ -107,7 +111,7 @@ internal class DetailInteractor @Inject internal constructor(
     @CheckResult
     suspend fun loadEntry(entryId: FridgeEntry.Id): FridgeEntry =
         withContext(context = Dispatchers.Default) {
-            enforcer.assertNotOnMainThread()
+            Enforcer.assertNotOnMainThread()
             return@withContext entryQueryDao.query(false).first { it.id() == entryId }
         }
 
@@ -118,7 +122,7 @@ internal class DetailInteractor @Inject internal constructor(
         presence: Presence,
         force: Boolean
     ): FridgeItem = withContext(context = Dispatchers.Default) {
-        enforcer.assertNotOnMainThread()
+        Enforcer.assertNotOnMainThread()
         return@withContext if (itemId.isEmpty()) {
             createNewItem(entryId, presence)
         } else {
@@ -131,7 +135,7 @@ internal class DetailInteractor @Inject internal constructor(
      */
     @CheckResult
     private fun createNewItem(entryId: FridgeEntry.Id, presence: Presence): FridgeItem {
-        enforcer.assertNotOnMainThread()
+        Enforcer.assertNotOnMainThread()
         return FridgeItem.create(entryId = entryId, presence = presence)
     }
 
@@ -152,7 +156,7 @@ internal class DetailInteractor @Inject internal constructor(
         entryId: FridgeEntry.Id,
         force: Boolean
     ): List<FridgeItem> = withContext(context = Dispatchers.Default) {
-        enforcer.assertNotOnMainThread()
+        Enforcer.assertNotOnMainThread()
         return@withContext itemQueryDao.query(force, entryId)
     }
 
@@ -161,12 +165,12 @@ internal class DetailInteractor @Inject internal constructor(
         onChange: suspend (event: FridgeItemChangeEvent) -> Unit
     ) =
         withContext(context = Dispatchers.Default) {
-            enforcer.assertNotOnMainThread()
+            Enforcer.assertNotOnMainThread()
             return@withContext itemRealtime.listenForChanges(id, onChange)
         }
 
     suspend fun commit(item: FridgeItem) = withContext(context = Dispatchers.Default) {
-        enforcer.assertNotOnMainThread()
+        Enforcer.assertNotOnMainThread()
         if (FridgeItem.isValidName(item.name())) {
             val entry = entryGuarantee.existing(item.entryId(), FridgeEntry.DEFAULT_NAME)
             Timber.d("Guarantee entry exists: $entry")
@@ -178,13 +182,13 @@ internal class DetailInteractor @Inject internal constructor(
 
     @CheckResult
     private suspend fun getValidItem(item: FridgeItem): FridgeItem? {
-        enforcer.assertNotOnMainThread()
+        Enforcer.assertNotOnMainThread()
         return getItems(item.entryId(), false)
             .singleOrNull { it.id() == item.id() }
     }
 
     private suspend fun commitItem(item: FridgeItem) {
-        enforcer.assertNotOnMainThread()
+        Enforcer.assertNotOnMainThread()
         val valid = getValidItem(item)
         if (valid != null) {
             Timber.d("Update existing item [${item.id()}]: $item")
@@ -196,8 +200,8 @@ internal class DetailInteractor @Inject internal constructor(
     }
 
     suspend fun delete(item: FridgeItem) = withContext(context = Dispatchers.Default) {
-        enforcer.assertNotOnMainThread()
-        assert(item.isReal()) { "Cannot delete item that is not real: $item" }
+        Enforcer.assertNotOnMainThread()
+        require(item.isReal()) { "Cannot delete item that is not real: $item" }
         Timber.d("Deleting item [${item.id()}]: $item")
         itemDeleteDao.delete(item)
     }

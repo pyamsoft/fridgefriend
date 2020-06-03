@@ -108,7 +108,7 @@ class DetailListItemGlances @Inject internal constructor(
 
     private fun handleItem(state: DetailListItemViewState) {
         state.item.let { item ->
-            assert(item.isReal()) { "Cannot render non-real item: $item" }
+            require(item.isReal()) { "Cannot render non-real item: $item" }
             val range = state.expirationRange
             val isSameDayExpired = state.isSameDayExpired
 

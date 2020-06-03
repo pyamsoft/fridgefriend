@@ -19,6 +19,7 @@ package com.pyamsoft.fridge.category
 
 import androidx.lifecycle.viewModelScope
 import com.pyamsoft.pydroid.arch.UiViewModel
+import kotlinx.coroutines.Dispatchers
 import javax.inject.Inject
 import javax.inject.Named
 import kotlinx.coroutines.launch
@@ -32,7 +33,7 @@ class CategoryViewModel @Inject internal constructor(
 
     init {
         doOnInit {
-            viewModelScope.launch {
+            viewModelScope.launch(context = Dispatchers.Default) {
                 val categories = interactor.loadCategories()
                 setState { copy(categories = categories) }
             }

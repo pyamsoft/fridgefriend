@@ -30,12 +30,11 @@ import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 
 internal class FridgeEntryDbImpl internal constructor(
-    enforcer: Enforcer,
     cache: Cached1<Sequence<FridgeEntry>, Boolean>,
     insertDao: FridgeEntryInsertDao,
     updateDao: FridgeEntryUpdateDao,
     deleteDao: FridgeEntryDeleteDao
-) : BaseDbImpl<FridgeEntry, FridgeEntryChangeEvent>(enforcer, cache), FridgeEntryDb {
+) : BaseDbImpl<FridgeEntry, FridgeEntryChangeEvent>(cache), FridgeEntryDb {
 
     private val mutex = Mutex()
 
@@ -48,7 +47,7 @@ internal class FridgeEntryDbImpl internal constructor(
 
         override suspend fun query(force: Boolean): List<FridgeEntry> =
             withContext(context = Dispatchers.IO) {
-                enforcer.assertNotOnMainThread()
+                Enforcer.assertNotOnMainThread()
                 mutex.withLock {
                     if (force) {
                         invalidate()
@@ -62,7 +61,7 @@ internal class FridgeEntryDbImpl internal constructor(
     private val insertDao = object : FridgeEntryInsertDao {
 
         override suspend fun insert(o: FridgeEntry) = withContext(context = Dispatchers.IO) {
-            enforcer.assertNotOnMainThread()
+            Enforcer.assertNotOnMainThread()
             mutex.withLock { insertDao.insert(o) }
             publish(Insert(o.makeReal()))
         }
@@ -71,7 +70,7 @@ internal class FridgeEntryDbImpl internal constructor(
     private val updateDao = object : FridgeEntryUpdateDao {
 
         override suspend fun update(o: FridgeEntry) = withContext(context = Dispatchers.IO) {
-            enforcer.assertNotOnMainThread()
+            Enforcer.assertNotOnMainThread()
             mutex.withLock { updateDao.update(o) }
             publish(Update(o.makeReal()))
         }
@@ -80,13 +79,13 @@ internal class FridgeEntryDbImpl internal constructor(
     private val deleteDao = object : FridgeEntryDeleteDao {
 
         override suspend fun delete(o: FridgeEntry) = withContext(context = Dispatchers.IO) {
-            enforcer.assertNotOnMainThread()
+            Enforcer.assertNotOnMainThread()
             mutex.withLock { deleteDao.delete(o) }
             publish(Delete(o.makeReal()))
         }
 
         override suspend fun deleteAll() = withContext(context = Dispatchers.IO) {
-            enforcer.assertNotOnMainThread()
+            Enforcer.assertNotOnMainThread()
             mutex.withLock { deleteDao.deleteAll() }
             publish(DeleteAll)
         }

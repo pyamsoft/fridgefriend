@@ -38,7 +38,6 @@ import kotlinx.coroutines.withContext
 import timber.log.Timber
 
 internal class PersistentCategoriesImpl @Inject internal constructor(
-    private val enforcer: Enforcer,
     private val imageLoader: ImageLoader,
     private val insertDao: FridgeCategoryInsertDao,
     private val preferences: PersistentCategoryPreferences
@@ -95,15 +94,15 @@ internal class PersistentCategoriesImpl @Inject internal constructor(
 
     override suspend fun guaranteePersistentCategoriesCreated() =
         withContext(context = Dispatchers.Default) {
-            enforcer.assertNotOnMainThread()
+            Enforcer.assertNotOnMainThread()
             return@withContext guaranteeCategoriesInserted()
         }
 
     @CheckResult
     private suspend fun coroutineGlide(@DrawableRes res: Int): Drawable? {
-        enforcer.assertNotOnMainThread()
+        Enforcer.assertNotOnMainThread()
         return suspendCancellableCoroutine { continuation ->
-            enforcer.assertNotOnMainThread()
+            Enforcer.assertNotOnMainThread()
             imageLoader.load(res)
                 .onError {
                     Timber.e("Error occurred while loading image thumbnail for default category")
@@ -123,7 +122,7 @@ internal class PersistentCategoriesImpl @Inject internal constructor(
 
     @CheckResult
     private suspend fun loadImage(@DrawableRes res: Int): FridgeCategory.Thumbnail? {
-        enforcer.assertNotOnMainThread()
+        Enforcer.assertNotOnMainThread()
         val image: Drawable? = coroutineGlide(res)
         return if (image is BitmapDrawable) {
             Timber.d("Compress bitmap drawable to PNG for blob storage")

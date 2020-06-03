@@ -26,6 +26,7 @@ import com.pyamsoft.pydroid.arch.EventBus
 import com.pyamsoft.pydroid.arch.UiViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Named
@@ -80,19 +81,19 @@ class MainViewModel @Inject internal constructor(
         doOnInit {
             refreshBadgeCounts()
 
-            viewModelScope.launch {
+            viewModelScope.launch(context = Dispatchers.Default) {
                 realtimeRunner.call()
             }
         }
     }
 
     private fun refreshBadgeCounts() {
-        viewModelScope.launch {
+        viewModelScope.launch(context = Dispatchers.Default) {
             val neededCount = interactor.getNeededCount()
             setState { copy(countNeeded = neededCount) }
         }
 
-        viewModelScope.launch {
+        viewModelScope.launch(context = Dispatchers.Default) {
             val expiredExpiringCount = interactor.getExpiredOrExpiringCount()
             setState { copy(countExpiringOrExpired = expiredExpiringCount) }
         }
@@ -144,11 +145,11 @@ class MainViewModel @Inject internal constructor(
         withPermission: () -> Unit = EMPTY,
         withoutPermission: () -> Unit = EMPTY
     ) {
-        viewModelScope.launch {
+        viewModelScope.launch(context = Dispatchers.Default) {
             if (mapPermission.hasForegroundPermission()) {
-                withPermission()
+                withContext(context = Dispatchers.Main) { withPermission() }
             } else {
-                withoutPermission()
+                withContext(context = Dispatchers.Main) { withoutPermission() }
             }
         }
     }

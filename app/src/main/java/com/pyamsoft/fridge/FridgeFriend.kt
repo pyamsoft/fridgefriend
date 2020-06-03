@@ -65,7 +65,6 @@ class FridgeFriend : Application() {
                 isDebugMode(),
                 moshi,
                 provider.theming(),
-                provider.enforcer(),
                 provider.imageLoader(),
                 MainActivity::class.java
             )

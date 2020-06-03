@@ -35,13 +35,12 @@ interface NearbyStoreDb : BaseDb<
 
         @CheckResult
         fun wrap(
-            enforcer: Enforcer,
             cache: Cached1<Sequence<NearbyStore>, Boolean>,
             insertDao: NearbyStoreInsertDao,
             updateDao: NearbyStoreUpdateDao,
             deleteDao: NearbyStoreDeleteDao
         ): NearbyStoreDb {
-            return NearbyStoreDbImpl(enforcer, cache, insertDao, updateDao, deleteDao)
+            return NearbyStoreDbImpl(cache, insertDao, updateDao, deleteDao)
         }
     }
 }

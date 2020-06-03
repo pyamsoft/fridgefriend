@@ -35,13 +35,12 @@ interface FridgeCategoryDb : BaseDb<
 
         @CheckResult
         fun wrap(
-            enforcer: Enforcer,
             cache: Cached1<Sequence<FridgeCategory>, Boolean>,
             insertDao: FridgeCategoryInsertDao,
             updateDao: FridgeCategoryUpdateDao,
             deleteDao: FridgeCategoryDeleteDao
         ): FridgeCategoryDb {
-            return FridgeCategoryDbImpl(enforcer, cache, insertDao, updateDao, deleteDao)
+            return FridgeCategoryDbImpl(cache, insertDao, updateDao, deleteDao)
         }
     }
 }

@@ -38,7 +38,6 @@ internal abstract class NearbyRunner<P : BaseParameters> protected constructor(
     butler: Butler,
     notificationPreferences: NotificationPreferences,
     butlerPreferences: ButlerPreferences,
-    enforcer: Enforcer,
     fridgeEntryQueryDao: FridgeEntryQueryDao,
     fridgeItemQueryDao: FridgeItemQueryDao,
     private val storeDb: NearbyStoreQueryDao,
@@ -48,7 +47,6 @@ internal abstract class NearbyRunner<P : BaseParameters> protected constructor(
     butler,
     notificationPreferences,
     butlerPreferences,
-    enforcer,
     fridgeEntryQueryDao,
     fridgeItemQueryDao
 ) {

@@ -24,7 +24,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 internal abstract class BaseDbImpl<T : Any, ChangeEvent : Any> protected constructor(
-    private val enforcer: Enforcer,
     private val cache: Cached1<Sequence<T>, Boolean>
 ) {
 
@@ -36,12 +35,13 @@ internal abstract class BaseDbImpl<T : Any, ChangeEvent : Any> protected constru
 
     suspend fun publish(event: ChangeEvent) =
         withContext(context = Dispatchers.Default) {
-            enforcer.assertNotOnMainThread()
+            Enforcer.assertNotOnMainThread()
             invalidate()
             bus.send(event)
         }
 
     suspend fun invalidate() {
+        Enforcer.assertNotOnMainThread()
         cache.clear()
     }
 }

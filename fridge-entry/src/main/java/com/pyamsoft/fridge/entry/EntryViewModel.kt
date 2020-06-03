@@ -21,6 +21,7 @@ import androidx.lifecycle.viewModelScope
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.persist.PersistentEntries
 import com.pyamsoft.pydroid.arch.UiViewModel
+import kotlinx.coroutines.Dispatchers
 import javax.inject.Inject
 import javax.inject.Named
 import kotlinx.coroutines.launch
@@ -45,7 +46,7 @@ class EntryViewModel @Inject internal constructor(
     // When we support multiple entries, this can be removed
     private fun loadDefaultEntry() {
         Timber.d("Loading default entry page")
-        viewModelScope.launch {
+        viewModelScope.launch(context = Dispatchers.Default) {
             val entry = persistentEntries.getPersistentEntry()
             setState { copy(entries = listOf(entry)) }
             loadEntry(entry)

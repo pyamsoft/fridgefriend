@@ -29,7 +29,6 @@ import com.pyamsoft.pydroid.core.Enforcer
 import javax.inject.Inject
 
 internal class StoreInfoInteractor @Inject internal constructor(
-    enforcer: Enforcer,
     butler: Butler,
     realtime: NearbyStoreRealtime,
     queryDao: NearbyStoreQueryDao,
@@ -42,7 +41,7 @@ internal class StoreInfoInteractor @Inject internal constructor(
     NearbyStoreQueryDao,
     NearbyStoreInsertDao,
     NearbyStoreDeleteDao
-    >(enforcer, butler, realtime, queryDao, insertDao, deleteDao) {
+    >(butler, realtime, queryDao, insertDao, deleteDao) {
 
     suspend inline fun listenForNearbyCacheChanges(
         crossinline onInsert: (store: NearbyStore) -> Unit,

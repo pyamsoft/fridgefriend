@@ -53,7 +53,6 @@ import com.pyamsoft.fridge.preference.PreferencesImpl
 import com.pyamsoft.fridge.setting.SettingsFragment
 import com.pyamsoft.fridge.setting.SettingsPreferences
 import com.pyamsoft.pydroid.arch.EventBus
-import com.pyamsoft.pydroid.core.Enforcer
 import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.ui.theme.Theming
 import com.squareup.moshi.Moshi
@@ -148,7 +147,6 @@ internal interface FridgeComponent {
             @Named("debug") @BindsInstance debug: Boolean,
             @BindsInstance moshi: Moshi,
             @BindsInstance theming: Theming,
-            @BindsInstance enforcer: Enforcer,
             @BindsInstance imageLoader: ImageLoader,
             @BindsInstance activityClass: Class<out Activity>
         ): FridgeComponent

@@ -29,12 +29,11 @@ import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 
 internal class NearbyZoneDbImpl internal constructor(
-    enforcer: Enforcer,
     cache: Cached1<Sequence<NearbyZone>, Boolean>,
     insertDao: NearbyZoneInsertDao,
     updateDao: NearbyZoneUpdateDao,
     deleteDao: NearbyZoneDeleteDao
-) : BaseDbImpl<NearbyZone, NearbyZoneChangeEvent>(enforcer, cache), NearbyZoneDb {
+) : BaseDbImpl<NearbyZone, NearbyZoneChangeEvent>(cache), NearbyZoneDb {
 
     private val mutex = Mutex()
 
@@ -48,7 +47,7 @@ internal class NearbyZoneDbImpl internal constructor(
     private val queryDao = object : NearbyZoneQueryDao {
 
         override suspend fun query(force: Boolean): List<NearbyZone> {
-            enforcer.assertNotOnMainThread()
+            Enforcer.assertNotOnMainThread()
             mutex.withLock {
                 if (force) {
                     invalidate()
@@ -62,7 +61,7 @@ internal class NearbyZoneDbImpl internal constructor(
     private val insertDao = object : NearbyZoneInsertDao {
 
         override suspend fun insert(o: NearbyZone) {
-            enforcer.assertNotOnMainThread()
+            Enforcer.assertNotOnMainThread()
             mutex.withLock { insertDao.insert(o) }
             publish(Insert(o))
         }
@@ -71,7 +70,7 @@ internal class NearbyZoneDbImpl internal constructor(
     private val updateDao = object : NearbyZoneUpdateDao {
 
         override suspend fun update(o: NearbyZone) {
-            enforcer.assertNotOnMainThread()
+            Enforcer.assertNotOnMainThread()
             mutex.withLock { updateDao.update(o) }
             publish(Update(o))
         }
@@ -80,7 +79,7 @@ internal class NearbyZoneDbImpl internal constructor(
     private val deleteDao = object : NearbyZoneDeleteDao {
 
         override suspend fun delete(o: NearbyZone) {
-            enforcer.assertNotOnMainThread()
+            Enforcer.assertNotOnMainThread()
             mutex.withLock { deleteDao.delete(o) }
             publish(Delete(o))
         }

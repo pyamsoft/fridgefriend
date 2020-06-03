@@ -26,32 +26,35 @@ import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent.Delete
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent.Insert
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent.Update
 import com.pyamsoft.pydroid.core.Enforcer
-import java.util.Locale
-import kotlin.math.min
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
+import java.util.Locale
+import kotlin.math.min
 
 internal class FridgeItemDbImpl internal constructor(
-    enforcer: Enforcer,
     cache: Cached1<Sequence<FridgeItem>, Boolean>,
     insertDao: FridgeItemInsertDao,
     updateDao: FridgeItemUpdateDao,
     deleteDao: FridgeItemDeleteDao
-) : BaseDbImpl<FridgeItem, FridgeItemChangeEvent>(enforcer, cache), FridgeItemDb {
+) : BaseDbImpl<FridgeItem, FridgeItemChangeEvent>(cache), FridgeItemDb {
 
     private val mutex = Mutex()
 
     private val realtime = object : FridgeItemRealtime {
 
         override suspend fun listenForChanges(onChange: suspend (event: FridgeItemChangeEvent) -> Unit) =
-            withContext(context = Dispatchers.IO) { onEvent(onChange) }
+            withContext(context = Dispatchers.IO) {
+                Enforcer.assertNotOnMainThread()
+                onEvent(onChange)
+            }
 
         override suspend fun listenForChanges(
             id: FridgeEntry.Id,
             onChange: suspend (event: FridgeItemChangeEvent) -> Unit
         ) = withContext(context = Dispatchers.IO) {
+            Enforcer.assertNotOnMainThread()
             onEvent { event ->
                 if (event.entryId == id) {
                     onChange(event)
@@ -64,7 +67,7 @@ internal class FridgeItemDbImpl internal constructor(
 
         @CheckResult
         private suspend fun queryAsSequence(force: Boolean): Sequence<FridgeItem> {
-            enforcer.assertNotOnMainThread()
+            Enforcer.assertNotOnMainThread()
             if (force) {
                 invalidate()
             }
@@ -74,7 +77,7 @@ internal class FridgeItemDbImpl internal constructor(
 
         override suspend fun query(force: Boolean): List<FridgeItem> =
             withContext(context = Dispatchers.IO) {
-                enforcer.assertNotOnMainThread()
+                Enforcer.assertNotOnMainThread()
                 mutex.withLock {
                     return@withContext queryAsSequence(force).toList()
                 }
@@ -82,7 +85,7 @@ internal class FridgeItemDbImpl internal constructor(
 
         override suspend fun query(force: Boolean, id: FridgeEntry.Id): List<FridgeItem> =
             withContext(context = Dispatchers.IO) {
-                enforcer.assertNotOnMainThread()
+                Enforcer.assertNotOnMainThread()
                 mutex.withLock {
                     return@withContext queryAsSequence(force)
                         .filter { it.entryId() == id }
@@ -95,7 +98,7 @@ internal class FridgeItemDbImpl internal constructor(
             name: String,
             presence: Presence
         ): List<FridgeItem> = withContext(context = Dispatchers.IO) {
-            enforcer.assertNotOnMainThread()
+            Enforcer.assertNotOnMainThread()
             mutex.withLock {
                 return@withContext queryAsSequence(force)
                     .filter { it.isReal() }
@@ -114,7 +117,7 @@ internal class FridgeItemDbImpl internal constructor(
             force: Boolean,
             item: FridgeItem
         ): List<FridgeItem> = withContext(context = Dispatchers.IO) {
-            enforcer.assertNotOnMainThread()
+            Enforcer.assertNotOnMainThread()
             mutex.withLock {
                 val sequence = queryAsSequence(force)
                     .filter { it.isReal() }
@@ -189,7 +192,7 @@ internal class FridgeItemDbImpl internal constructor(
     private val insertDao = object : FridgeItemInsertDao {
 
         override suspend fun insert(o: FridgeItem) = withContext(context = Dispatchers.IO) {
-            enforcer.assertNotOnMainThread()
+            Enforcer.assertNotOnMainThread()
             mutex.withLock { insertDao.insert(o) }
             publish(Insert(o.makeReal()))
         }
@@ -198,7 +201,7 @@ internal class FridgeItemDbImpl internal constructor(
     private val updateDao = object : FridgeItemUpdateDao {
 
         override suspend fun update(o: FridgeItem) = withContext(context = Dispatchers.IO) {
-            enforcer.assertNotOnMainThread()
+            Enforcer.assertNotOnMainThread()
             mutex.withLock { updateDao.update(o) }
             publish(Update(o.makeReal()))
         }
@@ -207,7 +210,7 @@ internal class FridgeItemDbImpl internal constructor(
     private val deleteDao = object : FridgeItemDeleteDao {
 
         override suspend fun delete(o: FridgeItem) = withContext(context = Dispatchers.IO) {
-            enforcer.assertNotOnMainThread()
+            Enforcer.assertNotOnMainThread()
             mutex.withLock { deleteDao.delete(o) }
             publish(Delete(o.makeReal()))
         }

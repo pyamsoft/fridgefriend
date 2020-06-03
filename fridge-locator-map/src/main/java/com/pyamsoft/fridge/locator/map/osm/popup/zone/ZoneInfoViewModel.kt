@@ -23,6 +23,7 @@ import com.pyamsoft.fridge.db.zone.NearbyZone
 import com.pyamsoft.fridge.locator.map.osm.popup.base.BaseInfoViewModel
 import com.pyamsoft.fridge.locator.map.osm.popup.base.BaseInfoViewState
 import com.pyamsoft.fridge.locator.map.osm.popup.zone.ZoneInfoViewEvent.ZoneFavoriteAction
+import kotlinx.coroutines.Dispatchers
 import javax.inject.Inject
 import javax.inject.Named
 import kotlinx.coroutines.launch
@@ -45,7 +46,7 @@ internal class ZoneInfoViewModel @Inject internal constructor(
     private val zoneId = zone.id()
 
     override fun listenForRealtime() {
-        viewModelScope.launch {
+        viewModelScope.launch(context = Dispatchers.Default) {
             interactor.listenForNearbyCacheChanges(
                 onInsert = { zone ->
                     if (zone.id() == zoneId) {
@@ -74,7 +75,7 @@ internal class ZoneInfoViewModel @Inject internal constructor(
         zone: NearbyZone,
         add: Boolean
     ) {
-        viewModelScope.launch {
+        viewModelScope.launch(context = Dispatchers.Default) {
             if (add) {
                 interactor.insertIntoDb(zone)
             } else {
