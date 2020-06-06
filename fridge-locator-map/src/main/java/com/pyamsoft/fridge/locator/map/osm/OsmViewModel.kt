@@ -22,6 +22,7 @@ import androidx.lifecycle.viewModelScope
 import com.pyamsoft.fridge.locator.DeviceGps
 import com.pyamsoft.highlander.highlander
 import com.pyamsoft.pydroid.arch.UiViewModel
+import com.pyamsoft.pydroid.arch.onActualError
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async

@@ -136,8 +136,6 @@ internal interface FridgeComponent {
 
     fun inject(application: FridgeFriend)
 
-    fun inject(application: SettingsFragment.SettingsPreferenceFragment)
-
     @Component.Factory
     interface Factory {
 

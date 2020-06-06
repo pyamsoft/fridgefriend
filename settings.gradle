@@ -1,7 +1,7 @@
 include ':app', ':fridge-entry', ':fridge-core', ':fridge-main', ':fridge-setting', ':fridge-db', ':fridge-category', ':fridge-tooltip',
-        ':fridge-locator-map',
-        ':fridge-locator',
-        ':fridge-butler-workmanager',
-        ':fridge-butler',
-        ':fridge-db-room',
-        ':fridge-detail'
+		':fridge-locator-map',
+		':fridge-locator',
+		':fridge-butler-workmanager',
+		':fridge-butler',
+		':fridge-db-room',
+		':fridge-detail'

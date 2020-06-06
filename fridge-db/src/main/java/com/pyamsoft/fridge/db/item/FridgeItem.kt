@@ -198,7 +198,7 @@ interface FridgeItem : EmptyModel<FridgeItem> {
 
 @CheckResult
 fun FridgeItem.isArchived(): Boolean {
-    return this.isConsumed() || this.isSpoiled()
+    return if (this.isReal()) this.isConsumed() || this.isSpoiled() else false
 }
 
 @CheckResult

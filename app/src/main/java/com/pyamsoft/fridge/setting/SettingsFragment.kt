@@ -21,11 +21,10 @@ import android.os.Bundle
 import android.view.View
 import androidx.annotation.CheckResult
 import androidx.fragment.app.Fragment
-import com.pyamsoft.fridge.FridgeComponent
 import com.pyamsoft.fridge.core.applyToolbarOffset
-import com.pyamsoft.pydroid.ui.Injector
 import com.pyamsoft.pydroid.ui.settings.AppSettingsFragment
 import com.pyamsoft.pydroid.ui.settings.AppSettingsPreferenceFragment
+import timber.log.Timber
 
 internal class SettingsFragment : AppSettingsFragment() {
 
@@ -60,10 +59,14 @@ internal class SettingsFragment : AppSettingsFragment() {
 
         override val preferenceXmlResId: Int = R.xml.preferences
 
-        override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-            super.onViewCreated(view, savedInstanceState)
-            Injector.obtain<FridgeComponent>(view.context.applicationContext)
-                .inject(this)
+        override fun onDestroyView() {
+            super.onDestroyView()
+            Timber.d("OnDestroyView: $viewLifecycleOwner ${viewLifecycleOwner.lifecycle.currentState}")
+        }
+
+        override fun onDestroy() {
+            super.onDestroy()
+            Timber.d("OnDestroy: ${this.lifecycle} ${this.lifecycle.currentState}")
         }
 
         companion object {

@@ -35,6 +35,8 @@ import com.pyamsoft.fridge.db.item.isExpiringSoon
 import com.pyamsoft.fridge.detail.DetailControllerEvent.ExpandForEditing
 import com.pyamsoft.fridge.detail.base.BaseUpdaterViewModel
 import com.pyamsoft.highlander.highlander
+import com.pyamsoft.pydroid.arch.onActualError
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -248,9 +250,8 @@ class DetailViewModel @Inject internal constructor(
         }
     }
 
-    @CheckResult
-    private fun beginListeningForRealtime() {
-        viewModelScope.launch(context = Dispatchers.Default) { realtimeRunner.call() }
+    private fun CoroutineScope.beginListeningForRealtime() {
+        launch(context = Dispatchers.Default) { realtimeRunner.call() }
     }
 
     private fun insertOrUpdate(
