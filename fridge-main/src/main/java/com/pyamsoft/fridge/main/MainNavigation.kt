@@ -25,8 +25,8 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.pyamsoft.fridge.main.databinding.MainNavigationBinding
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.util.doOnApplyWindowInsets
-import javax.inject.Inject
 import timber.log.Timber
+import javax.inject.Inject
 
 class MainNavigation @Inject internal constructor(
     parent: ViewGroup
@@ -37,6 +37,14 @@ class MainNavigation @Inject internal constructor(
     override val layoutRoot by boundView { mainBottomNavigationMenu }
 
     init {
+        doOnInflate {
+            val nav = binding.mainBottomNavigationMenu
+            nav.post {
+                val barBackground = MainNavBackground(nav, 156)
+                nav.background = barBackground
+            }
+        }
+
         doOnInflate { reader ->
             val savedPadding = reader.get<Int>(KEY_PADDING)
             if (savedPadding == null) {
