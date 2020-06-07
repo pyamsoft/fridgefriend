@@ -82,4 +82,6 @@
     <string name="zero_count_consumed_summary_off">Counts must be at least 1 or more</string>
     <bool name="zero_count_consumed_default">false</bool>
 
+    <string name="preference_bottom_space">preference_bottom_space_v1</string>
+
 </resources>

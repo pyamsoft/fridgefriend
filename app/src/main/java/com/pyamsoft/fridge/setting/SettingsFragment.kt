@@ -21,10 +21,16 @@ import android.os.Bundle
 import android.view.View
 import androidx.annotation.CheckResult
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
+import com.pyamsoft.fridge.FridgeComponent
 import com.pyamsoft.fridge.core.applyToolbarOffset
+import com.pyamsoft.pydroid.arch.StateSaver
+import com.pyamsoft.pydroid.arch.createComponent
+import com.pyamsoft.pydroid.ui.Injector
+import com.pyamsoft.pydroid.ui.arch.viewModelFactory
 import com.pyamsoft.pydroid.ui.settings.AppSettingsFragment
 import com.pyamsoft.pydroid.ui.settings.AppSettingsPreferenceFragment
-import timber.log.Timber
+import javax.inject.Inject
 
 internal class SettingsFragment : AppSettingsFragment() {
 
@@ -59,14 +65,41 @@ internal class SettingsFragment : AppSettingsFragment() {
 
         override val preferenceXmlResId: Int = R.xml.preferences
 
-        override fun onDestroyView() {
-            super.onDestroyView()
-            Timber.d("OnDestroyView: $viewLifecycleOwner ${viewLifecycleOwner.lifecycle.currentState}")
+        @JvmField
+        @Inject
+        internal var factory: ViewModelProvider.Factory? = null
+        private val viewModel by viewModelFactory<SettingsViewModel> { factory }
+
+        @JvmField
+        @Inject
+        internal var spacer: SettingsSpacer? = null
+
+        private var stateSaver: StateSaver? = null
+
+        override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+            super.onViewCreated(view, savedInstanceState)
+            Injector.obtain<FridgeComponent>(view.context.applicationContext)
+                .plusSettingsComponent()
+                .create(preferenceScreen)
+                .inject(this)
+
+            stateSaver = createComponent(
+                savedInstanceState,
+                viewLifecycleOwner,
+                viewModel,
+                requireNotNull(spacer)
+            ) {}
         }
 
-        override fun onDestroy() {
-            super.onDestroy()
-            Timber.d("OnDestroy: ${this.lifecycle} ${this.lifecycle.currentState}")
+        override fun onSaveInstanceState(outState: Bundle) {
+            super.onSaveInstanceState(outState)
+            stateSaver?.saveState(outState)
+        }
+
+        override fun onDestroyView() {
+            super.onDestroyView()
+            factory = null
+            stateSaver = null
         }
 
         companion object {

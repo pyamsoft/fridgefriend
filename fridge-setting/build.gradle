@@ -68,5 +68,6 @@ dependencies {
 	kapt "com.google.dagger:dagger-compiler:$dagger"
 
 	api project(':fridge-core')
+	api project(':fridge-ui')
 }
 

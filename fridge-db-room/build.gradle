@@ -78,7 +78,7 @@ dependencies {
 
 	kapt "com.google.dagger:dagger-compiler:$dagger"
 
-	implementation project(':fridge-butler-workmanager')
+	api project(':fridge-butler-workmanager')
 	api project(':fridge-core')
 	api project(':fridge-db')
 }

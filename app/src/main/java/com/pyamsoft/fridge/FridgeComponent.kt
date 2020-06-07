@@ -47,11 +47,12 @@ import com.pyamsoft.fridge.locator.map.MapModule
 import com.pyamsoft.fridge.locator.map.osm.popup.store.StoreInfoComponent
 import com.pyamsoft.fridge.locator.map.osm.popup.zone.ZoneInfoComponent
 import com.pyamsoft.fridge.main.MainComponent
-import com.pyamsoft.fridge.ui.UiModule
 import com.pyamsoft.fridge.map.MapComponent
 import com.pyamsoft.fridge.permission.PermissionComponent
 import com.pyamsoft.fridge.preference.PreferencesImpl
+import com.pyamsoft.fridge.setting.SettingsComponent
 import com.pyamsoft.fridge.setting.SettingsPreferences
+import com.pyamsoft.fridge.ui.UiModule
 import com.pyamsoft.pydroid.arch.EventBus
 import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.ui.theme.Theming
@@ -110,6 +111,9 @@ internal interface FridgeComponent {
     fun plusButlerComponent(): ButlerComponent
 
     // ===============================================
+
+    @CheckResult
+    fun plusSettingsComponent(): SettingsComponent.Factory
 
     @CheckResult
     fun plusCategoryComponent(): CategoryComponent.Factory
