@@ -131,6 +131,18 @@ class MainNavigation @Inject internal constructor(
         }
     }
 
+    // TODO(Peter): Anti-pattern
+    fun onMeasured(ready: (width: Int, height: Int) -> Unit) {
+        val nav = binding.mainBottomNavigationMenu
+        nav.post { ready(nav.width, nav.height) }
+    }
+
+    // TODO(Peter): Anti-pattern
+    @CheckResult
+    fun getBottomOffset(): Int {
+        return binding.mainBottomNavigationMenu.height
+    }
+
     @CheckResult
     private fun getIdForPage(page: MainPage?): Int {
         return if (page == null) 0 else {

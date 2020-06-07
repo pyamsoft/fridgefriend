@@ -31,6 +31,7 @@ import com.pyamsoft.fridge.locator.map.osm.OsmActions
 import com.pyamsoft.fridge.locator.map.osm.OsmMap
 import com.pyamsoft.fridge.locator.map.osm.OsmViewModel
 import com.pyamsoft.fridge.main.SnackbarContainer
+import com.pyamsoft.fridge.main.VersionChecker
 import com.pyamsoft.pydroid.arch.StateSaver
 import com.pyamsoft.pydroid.arch.createComponent
 import com.pyamsoft.pydroid.ui.Injector
@@ -99,6 +100,15 @@ internal class MapFragment : Fragment(), SnackbarContainer {
         }
 
         viewModel.enableGps(requireActivity())
+
+        initializeApp()
+    }
+
+    private fun initializeApp() {
+        val act = requireActivity()
+        if (act is VersionChecker) {
+            act.checkVersionForUpdate()
+        }
     }
 
     override fun onSaveInstanceState(outState: Bundle) {

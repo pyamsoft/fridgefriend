@@ -24,10 +24,12 @@ import android.view.ViewGroup
 import androidx.annotation.CheckResult
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
+import androidx.core.view.updateLayoutParams
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentTransaction
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import com.google.android.material.snackbar.Snackbar
 import com.pyamsoft.fridge.BuildConfig
 import com.pyamsoft.fridge.ButlerParameters
 import com.pyamsoft.fridge.FridgeComponent
@@ -52,7 +54,9 @@ import com.pyamsoft.pydroid.ui.rating.RatingActivity
 import com.pyamsoft.pydroid.ui.rating.buildChangeLog
 import com.pyamsoft.pydroid.ui.util.commitNow
 import com.pyamsoft.pydroid.ui.util.layout
+import com.pyamsoft.pydroid.util.doOnApplyWindowInsets
 import com.pyamsoft.pydroid.util.makeWindowSexy
+import com.pyamsoft.pydroid.util.toDp
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -86,6 +90,24 @@ internal class MainActivity : RatingActivity(), VersionChecker {
             }
 
             return requireNotNull(rootView)
+        }
+
+    override val customizeSnackbar: Snackbar.() -> Snackbar
+        get() = {
+            this.apply {
+                val materialMargin = 8.toDp(view.context)
+                val offset = requireNotNull(navigation).getBottomOffset()
+                view.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+                    bottomMargin = materialMargin + offset
+                }
+
+                // MD library applies offsets
+                view.doOnApplyWindowInsets { v, _, _ ->
+                    v.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+                        bottomMargin = materialMargin + offset
+                    }
+                }
+            }
         }
 
     private var rootView: ConstraintLayout? = null
@@ -190,6 +212,12 @@ internal class MainActivity : RatingActivity(), VersionChecker {
         }
     }
 
+    private fun launchCheckUpdates() {
+        requireNotNull(navigation).onMeasured { _, _ ->
+            checkForUpdate()
+        }
+    }
+
     private fun inflateComponents(
         constraintLayout: ConstraintLayout,
         savedInstanceState: Bundle?
@@ -209,7 +237,7 @@ internal class MainActivity : RatingActivity(), VersionChecker {
                 is MainControllerEvent.PushCategory -> pushCategory(it.previousPage)
                 is MainControllerEvent.PushNearby -> pushNearby(it.previousPage)
                 is MainControllerEvent.PushSettings -> pushSettings(it.previousPage)
-                is MainControllerEvent.VersionCheck -> checkForUpdate()
+                is MainControllerEvent.VersionCheck -> launchCheckUpdates()
             }
         }
 

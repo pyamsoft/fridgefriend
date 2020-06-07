@@ -35,6 +35,7 @@ import com.pyamsoft.fridge.locator.permission.PermissionConsumer
 import com.pyamsoft.fridge.locator.permission.PermissionControllerEvent.LocationPermissionRequest
 import com.pyamsoft.fridge.locator.permission.PermissionGrant
 import com.pyamsoft.fridge.locator.permission.PermissionHandler
+import com.pyamsoft.fridge.main.VersionChecker
 import com.pyamsoft.fridge.map.MapFragment
 import com.pyamsoft.pydroid.arch.StateSaver
 import com.pyamsoft.pydroid.arch.createComponent
@@ -44,8 +45,8 @@ import com.pyamsoft.pydroid.ui.databinding.LayoutConstraintBinding
 import com.pyamsoft.pydroid.ui.util.commit
 import com.pyamsoft.pydroid.ui.util.layout
 import com.pyamsoft.pydroid.util.toDp
-import javax.inject.Inject
 import timber.log.Timber
+import javax.inject.Inject
 
 internal class PermissionFragment : Fragment(), PermissionConsumer<ForegroundLocationPermission> {
 
@@ -132,6 +133,15 @@ internal class PermissionFragment : Fragment(), PermissionConsumer<ForegroundLoc
                 setMargin(it.id(), ConstraintSet.START, hMargin)
                 setMargin(it.id(), ConstraintSet.END, hMargin)
             }
+        }
+
+        initializeApp()
+    }
+
+    private fun initializeApp() {
+        val act = requireActivity()
+        if (act is VersionChecker) {
+            act.checkVersionForUpdate()
         }
     }
 

@@ -24,6 +24,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.pyamsoft.fridge.FridgeComponent
 import com.pyamsoft.fridge.core.applyToolbarOffset
+import com.pyamsoft.fridge.main.VersionChecker
 import com.pyamsoft.pydroid.arch.StateSaver
 import com.pyamsoft.pydroid.arch.createComponent
 import com.pyamsoft.pydroid.ui.Injector
@@ -37,6 +38,15 @@ internal class SettingsFragment : AppSettingsFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         view.applyToolbarOffset()
+
+        initializeApp()
+    }
+
+    private fun initializeApp() {
+        val act = requireActivity()
+        if (act is VersionChecker) {
+            act.checkVersionForUpdate()
+        }
     }
 
     override fun provideSettingsFragment(): AppSettingsPreferenceFragment {
