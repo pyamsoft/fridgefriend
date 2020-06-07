@@ -21,6 +21,7 @@ import androidx.lifecycle.viewModelScope
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent
 import com.pyamsoft.fridge.locator.GpsChangeEvent
 import com.pyamsoft.fridge.locator.MapPermission
+import com.pyamsoft.fridge.ui.BottomOffset
 import com.pyamsoft.highlander.highlander
 import com.pyamsoft.pydroid.arch.EventBus
 import com.pyamsoft.pydroid.arch.UiViewModel
@@ -35,7 +36,7 @@ class MainViewModel @Inject internal constructor(
     private val interactor: MainInteractor,
     private val mapPermission: MapPermission,
     private val gpsChangeBus: EventBus<GpsChangeEvent>,
-    private val bottomBarHeightBus: EventBus<BottomBarHeight>,
+    private val bottomOffsetBus: EventBus<BottomOffset>,
     @Named("app_name") appNameRes: Int,
     @Named("debug") debug: Boolean,
     defaultPage: MainPage
@@ -113,7 +114,7 @@ class MainViewModel @Inject internal constructor(
 
     private fun consumeBottomBarHeight(height: Int) {
         viewModelScope.launch(context = Dispatchers.Default) {
-            bottomBarHeightBus.send(BottomBarHeight(height))
+            bottomOffsetBus.send(BottomOffset(height))
         }
     }
 

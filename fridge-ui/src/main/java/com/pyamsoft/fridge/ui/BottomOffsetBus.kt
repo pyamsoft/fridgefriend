@@ -15,7 +15,7 @@
  *
  */
 
-package com.pyamsoft.fridge.main
+package com.pyamsoft.fridge.ui
 
 import com.pyamsoft.pydroid.arch.EventBus
 import kotlinx.coroutines.sync.Mutex
@@ -24,24 +24,24 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-internal class BottomBarHeightBus @Inject internal constructor() : EventBus<BottomBarHeight> {
+internal class BottomOffsetBus @Inject internal constructor() : EventBus<BottomOffset> {
 
-    private val bus = EventBus.create<BottomBarHeight>()
+    private val bus = EventBus.create<BottomOffset>()
     private val mutex = Mutex()
-    private var mostRecentEvent: BottomBarHeight? = null
+    private var mostRecentEvent: BottomOffset? = null
 
-    override suspend fun onEvent(emitter: suspend (event: BottomBarHeight) -> Unit) {
+    override suspend fun onEvent(emitter: suspend (event: BottomOffset) -> Unit) {
         mutex.withLock {
             mostRecentEvent?.also { emitter(it) }
         }
         return bus.onEvent(emitter)
     }
 
-    override fun publish(event: BottomBarHeight) {
+    override fun publish(event: BottomOffset) {
         throw NotImplementedError("Do not use this, use send()")
     }
 
-    override suspend fun send(event: BottomBarHeight) {
+    override suspend fun send(event: BottomOffset) {
         mutex.withLock { mostRecentEvent = event }
         bus.send(event)
     }

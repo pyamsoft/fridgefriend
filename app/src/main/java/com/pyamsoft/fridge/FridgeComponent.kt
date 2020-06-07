@@ -47,7 +47,7 @@ import com.pyamsoft.fridge.locator.map.MapModule
 import com.pyamsoft.fridge.locator.map.osm.popup.store.StoreInfoComponent
 import com.pyamsoft.fridge.locator.map.osm.popup.zone.ZoneInfoComponent
 import com.pyamsoft.fridge.main.MainComponent
-import com.pyamsoft.fridge.main.MainModule
+import com.pyamsoft.fridge.ui.UiModule
 import com.pyamsoft.fridge.map.MapComponent
 import com.pyamsoft.fridge.permission.PermissionComponent
 import com.pyamsoft.fridge.preference.PreferencesImpl
@@ -74,7 +74,7 @@ import javax.inject.Singleton
         WorkManagerModule::class,
         RoomModule::class,
         MapModule::class,
-        MainModule::class
+        UiModule::class
     ]
 )
 internal interface FridgeComponent {

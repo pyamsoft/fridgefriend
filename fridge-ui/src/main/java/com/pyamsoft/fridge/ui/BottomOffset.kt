@@ -15,17 +15,6 @@
  *
  */
 
-package com.pyamsoft.fridge.main
+package com.pyamsoft.fridge.ui
 
-import androidx.annotation.CheckResult
-import com.pyamsoft.pydroid.arch.EventBus
-import dagger.Binds
-import dagger.Module
-
-@Module
-abstract class MainModule {
-
-    @Binds
-    @CheckResult
-    internal abstract fun bindBottomBarHeightBus(impl: BottomBarHeightBus) : EventBus<BottomBarHeight>
-}
+data class BottomOffset(val height: Int)

@@ -20,6 +20,8 @@ package com.pyamsoft.fridge.locator.map.osm
 import android.view.ViewGroup
 import androidx.core.view.ViewPropertyAnimatorCompat
 import androidx.core.view.isVisible
+import androidx.core.view.marginBottom
+import androidx.core.view.updateLayoutParams
 import androidx.lifecycle.LifecycleOwner
 import com.pyamsoft.fridge.locator.map.R
 import com.pyamsoft.fridge.locator.map.databinding.OsmActionsBinding
@@ -47,24 +49,46 @@ class OsmActions @Inject internal constructor(
     private var nearbyAnimator: ViewPropertyAnimatorCompat? = null
     private var meAnimator: ViewPropertyAnimatorCompat? = null
 
+    private var originalNearbyItemBottomMargin = 0
+    private var originalMeItemBottomMargin = 0
+
     init {
+        doOnInflate {
+            binding.osmFindNearby.isVisible = false
+            binding.osmFindMe.isVisible = false
+        }
+
         doOnInflate {
             boundNearbyImage?.dispose()
             boundNearbyImage = imageLoader.load(R.drawable.ic_shopping_cart_24dp)
                 .into(binding.osmFindNearby)
+        }
 
+        doOnInflate {
             boundFindMeImage?.dispose()
             boundFindMeImage = imageLoader.load(R.drawable.ic_location_search_24dp)
                 .into(binding.osmFindMe)
+        }
 
-            binding.osmFindNearby.isVisible = false
-            binding.osmFindMe.isVisible = false
-
+        doOnInflate {
             binding.osmFindMe.setOnDebouncedClickListener {
                 publish(OsmViewEvent.RequestMyLocation(firstTime = false))
             }
+        }
+
+        doOnInflate {
             binding.osmFindNearby.setOnDebouncedClickListener {
                 publish(OsmViewEvent.RequestFindNearby)
+            }
+        }
+
+        doOnInflate {
+            binding.osmFindNearby.post {
+                originalNearbyItemBottomMargin = binding.osmFindNearby.marginBottom
+            }
+
+            binding.osmFindMe.post {
+                originalMeItemBottomMargin = binding.osmFindMe.marginBottom
             }
         }
 
@@ -96,6 +120,25 @@ class OsmActions @Inject internal constructor(
         layoutRoot.post { handleNearbyError(state) }
         layoutRoot.post { handleFetchError(state) }
         layoutRoot.post { handleCenterLocation(state) }
+        layoutRoot.post { handleBottomMargin(state) }
+    }
+
+    private fun handleBottomMargin(state: OsmViewState) {
+        state.bottomOffset.let { height ->
+            if (height > 0) {
+                if (originalNearbyItemBottomMargin > 0) {
+                    binding.osmFindNearby.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+                        bottomMargin = originalNearbyItemBottomMargin + height
+                    }
+                }
+
+                if (originalMeItemBottomMargin > 0) {
+                    binding.osmFindMe.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+                        bottomMargin = originalMeItemBottomMargin + height
+                    }
+                }
+            }
+        }
     }
 
     private fun handleCenterLocation(state: OsmViewState) {

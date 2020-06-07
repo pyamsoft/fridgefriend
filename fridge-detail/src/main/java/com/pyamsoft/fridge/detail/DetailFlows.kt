@@ -39,7 +39,7 @@ data class DetailViewState(
     val isSameDayExpired: IsSameDayExpired?,
     val listItemPresence: FridgeItem.Presence,
     val counts: Counts?,
-    val bottomBarHeight: Int
+    val bottomOffset: Int
 ) : UiViewState {
 
     data class Counts internal constructor(

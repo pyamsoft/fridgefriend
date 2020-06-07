@@ -79,6 +79,7 @@ dependencies {
 
 	implementation project(':fridge-butler')
 	api project(':fridge-locator')
+	api project(':fridge-ui')
 }
 
 

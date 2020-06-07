@@ -34,9 +34,9 @@ import com.pyamsoft.fridge.db.item.isExpired
 import com.pyamsoft.fridge.db.item.isExpiringSoon
 import com.pyamsoft.fridge.detail.DetailControllerEvent.ExpandForEditing
 import com.pyamsoft.fridge.detail.base.BaseUpdaterViewModel
-import com.pyamsoft.fridge.main.BottomBarHeight
+import com.pyamsoft.fridge.ui.BottomOffset
 import com.pyamsoft.highlander.highlander
-import com.pyamsoft.pydroid.arch.EventBus
+import com.pyamsoft.pydroid.arch.EventConsumer
 import com.pyamsoft.pydroid.arch.onActualError
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -52,7 +52,7 @@ class DetailViewModel @Inject internal constructor(
     private val entryId: FridgeEntry.Id,
     @Named("debug") debug: Boolean,
     listItemPresence: FridgeItem.Presence,
-    bottomBarHeightBus: EventBus<BottomBarHeight>
+    bottomOffsetBus: EventConsumer<BottomOffset>
 ) : BaseUpdaterViewModel<DetailViewState, DetailViewEvent, DetailControllerEvent>(
     initialState = DetailViewState(
         entry = null,
@@ -68,7 +68,7 @@ class DetailViewModel @Inject internal constructor(
         allItems = emptyList(),
         items = emptyList(),
         counts = null,
-        bottomBarHeight = 0
+        bottomOffset = 0
     ), debug = debug
 ) {
 
@@ -107,7 +107,7 @@ class DetailViewModel @Inject internal constructor(
     init {
         doOnInit {
             viewModelScope.launch(context = Dispatchers.Default) {
-                bottomBarHeightBus.onEvent { setState { copy(bottomBarHeight = it.height) } }
+                bottomOffsetBus.onEvent { setState { copy(bottomOffset = it.height) } }
             }
         }
         doOnInit {

@@ -137,19 +137,17 @@ class AddNewItemView @Inject internal constructor(
     }
 
     private fun handleBottomMargin(state: DetailViewState) {
-        state.bottomBarHeight.let { height ->
+        state.bottomOffset.let { height ->
             if (height > 0) {
                 if (originalAddItemBottomMargin > 0) {
                     binding.detailAddNewItem.updateLayoutParams<ViewGroup.MarginLayoutParams> {
                         bottomMargin = originalAddItemBottomMargin + height
-                        Timber.d("Bottom margin for add item: $bottomMargin")
                     }
                 }
 
                 if (originalFilterItemBottomMargin > 0) {
                     binding.detailFilterItem.updateLayoutParams<ViewGroup.MarginLayoutParams> {
                         bottomMargin = originalFilterItemBottomMargin + height
-                        Timber.d("Bottom margin for filter item: $bottomMargin")
                     }
                 }
             }

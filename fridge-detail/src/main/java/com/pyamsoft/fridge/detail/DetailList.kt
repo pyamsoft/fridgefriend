@@ -396,7 +396,7 @@ class DetailList @Inject internal constructor(
 
     private fun handleBottomMargin(state: DetailViewState) {
         removeBottomMargin()
-        state.bottomBarHeight.let { height ->
+        state.bottomOffset.let { height ->
             if (height > 0) {
                 // The bottom has additional space to fit the FAB
                 val fabSpacing = 72.toDp(binding.detailList.context)

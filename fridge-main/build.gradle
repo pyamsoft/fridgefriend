@@ -69,4 +69,5 @@ dependencies {
 
 	api project(':fridge-core')
 	api project(':fridge-locator')
+	api project(':fridge-ui')
 }

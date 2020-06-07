@@ -31,7 +31,8 @@ data class OsmViewState internal constructor(
     val nearbyError: Throwable?,
     val gpsError: Throwable?,
     val cachedFetchError: Throwable?,
-    val centerMyLocation: CenterMyLocation?
+    val centerMyLocation: CenterMyLocation?,
+    val bottomOffset: Int
 ) : UiViewState {
 
     data class CenterMyLocation internal constructor(val firstTime: Boolean)

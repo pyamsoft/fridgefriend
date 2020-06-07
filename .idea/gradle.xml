@@ -25,6 +25,7 @@
             <option value="$PROJECT_DIR$/fridge-main" />
             <option value="$PROJECT_DIR$/fridge-setting" />
             <option value="$PROJECT_DIR$/fridge-tooltip" />
+            <option value="$PROJECT_DIR$/fridge-ui" />
           </set>
         </option>
         <option name="resolveModulePerSourceSet" value="false" />

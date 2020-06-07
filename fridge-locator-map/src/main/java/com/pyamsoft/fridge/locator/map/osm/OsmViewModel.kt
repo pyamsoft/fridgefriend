@@ -20,7 +20,9 @@ package com.pyamsoft.fridge.locator.map.osm
 import android.app.Activity
 import androidx.lifecycle.viewModelScope
 import com.pyamsoft.fridge.locator.DeviceGps
+import com.pyamsoft.fridge.ui.BottomOffset
 import com.pyamsoft.highlander.highlander
+import com.pyamsoft.pydroid.arch.EventConsumer
 import com.pyamsoft.pydroid.arch.UiViewModel
 import com.pyamsoft.pydroid.arch.onActualError
 import kotlinx.coroutines.Deferred
@@ -38,7 +40,8 @@ import javax.inject.Named
 class OsmViewModel @Inject internal constructor(
     private val interactor: OsmInteractor,
     private val deviceGps: DeviceGps,
-    @Named("debug") debug: Boolean
+    @Named("debug") debug: Boolean,
+    bottomOffsetBus: EventConsumer<BottomOffset>
 ) : UiViewModel<OsmViewState, OsmViewEvent, OsmControllerEvent>(
     initialState = OsmViewState(
         boundingBox = null,
@@ -48,7 +51,8 @@ class OsmViewModel @Inject internal constructor(
         centerMyLocation = null,
         nearbyError = null,
         cachedFetchError = null,
-        gpsError = null
+        gpsError = null,
+        bottomOffset = 0
     ), debug = debug
 ) {
 
@@ -93,6 +97,12 @@ class OsmViewModel @Inject internal constructor(
     init {
         doOnInit {
             initialFetchFromCache()
+        }
+
+        doOnInit {
+            viewModelScope.launch(context = Dispatchers.Default) {
+                bottomOffsetBus.onEvent { setState { copy(bottomOffset = it.height) } }
+            }
         }
     }
 
