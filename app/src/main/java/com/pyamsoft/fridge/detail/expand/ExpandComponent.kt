@@ -50,8 +50,8 @@ internal interface ExpandComponent {
             @BindsInstance activity: Activity,
             @BindsInstance parent: ViewGroup,
             @BindsInstance owner: LifecycleOwner,
-            @BindsInstance @Named("item_id") itemId: FridgeItem.Id,
-            @BindsInstance @Named("item_entry_id") itemEntryId: FridgeEntry.Id,
+            @BindsInstance itemId: FridgeItem.Id,
+            @BindsInstance itemEntryId: FridgeEntry.Id,
             @BindsInstance defaultPresence: Presence
         ): ExpandComponent
     }

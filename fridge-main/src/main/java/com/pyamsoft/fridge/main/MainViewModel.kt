@@ -35,6 +35,7 @@ class MainViewModel @Inject internal constructor(
     private val interactor: MainInteractor,
     private val mapPermission: MapPermission,
     private val gpsChangeBus: EventBus<GpsChangeEvent>,
+    private val bottomBarHeightBus: EventBus<BottomBarHeight>,
     @Named("app_name") appNameRes: Int,
     @Named("debug") debug: Boolean,
     defaultPage: MainPage
@@ -52,14 +53,6 @@ class MainViewModel @Inject internal constructor(
 
     private val realtimeRunner = highlander<Unit> {
         interactor.listenForItemChanges { handleRealtime(it) }
-    }
-
-    private fun handleRealtime(event: FridgeItemChangeEvent) {
-        return when (event) {
-            is FridgeItemChangeEvent.Insert -> refreshBadgeCounts()
-            is FridgeItemChangeEvent.Update -> refreshBadgeCounts()
-            is FridgeItemChangeEvent.Delete -> refreshBadgeCounts()
-        }
     }
 
     init {
@@ -87,6 +80,14 @@ class MainViewModel @Inject internal constructor(
         }
     }
 
+    private fun handleRealtime(event: FridgeItemChangeEvent) {
+        return when (event) {
+            is FridgeItemChangeEvent.Insert -> refreshBadgeCounts()
+            is FridgeItemChangeEvent.Update -> refreshBadgeCounts()
+            is FridgeItemChangeEvent.Delete -> refreshBadgeCounts()
+        }
+    }
+
     private fun refreshBadgeCounts() {
         viewModelScope.launch(context = Dispatchers.Default) {
             val neededCount = interactor.getNeededCount()
@@ -106,6 +107,13 @@ class MainViewModel @Inject internal constructor(
             is MainViewEvent.OpenCategory -> selectPage(MainPage.CATEGORY)
             is MainViewEvent.OpenNearby -> selectPage(MainPage.NEARBY)
             is MainViewEvent.OpenSettings -> selectPage(MainPage.SETTINGS)
+            is MainViewEvent.BottomBarMeasured -> consumeBottomBarHeight(event.height)
+        }
+    }
+
+    private fun consumeBottomBarHeight(height: Int) {
+        viewModelScope.launch(context = Dispatchers.Default) {
+            bottomBarHeightBus.send(BottomBarHeight(height))
         }
     }
 

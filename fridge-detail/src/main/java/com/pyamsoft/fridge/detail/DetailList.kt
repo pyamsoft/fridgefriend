@@ -42,8 +42,8 @@ import com.pyamsoft.pydroid.ui.util.refreshing
 import com.pyamsoft.pydroid.util.toDp
 import io.cabriole.decorator.LinearBoundsMarginDecoration
 import io.cabriole.decorator.LinearMarginDecoration
-import javax.inject.Inject
 import timber.log.Timber
+import javax.inject.Inject
 
 class DetailList @Inject internal constructor(
     private val imageLoader: ImageLoader,
@@ -59,6 +59,8 @@ class DetailList @Inject internal constructor(
 
     private var touchHelper: ItemTouchHelper? = null
     private var modelAdapter: DetailListAdapter? = null
+
+    private var bottomMarginDecoration: RecyclerView.ItemDecoration? = null
 
     init {
         doOnInflate {
@@ -109,12 +111,10 @@ class DetailList @Inject internal constructor(
                 binding.detailList.addItemDecoration(this)
                 doOnTeardown { binding.detailList.removeItemDecoration(this) }
             }
+        }
 
-            // The bottom has additional space to fit the FAB
-            LinearBoundsMarginDecoration(bottomMargin = 72.toDp(binding.detailList.context)).apply {
-                binding.detailList.addItemDecoration(this)
-                doOnTeardown { binding.detailList.removeItemDecoration(this) }
-            }
+        doOnTeardown {
+            removeBottomMargin()
         }
 
         doOnTeardown {
@@ -128,6 +128,11 @@ class DetailList @Inject internal constructor(
             modelAdapter = null
             touchHelper = null
         }
+    }
+
+    private fun removeBottomMargin() {
+        bottomMarginDecoration?.also { binding.detailList.removeItemDecoration(it) }
+        bottomMarginDecoration = null
     }
 
     @CheckResult
@@ -389,7 +394,22 @@ class DetailList @Inject internal constructor(
         }
     }
 
+    private fun handleBottomMargin(state: DetailViewState) {
+        removeBottomMargin()
+        state.bottomBarHeight.let { height ->
+            if (height > 0) {
+                // The bottom has additional space to fit the FAB
+                val fabSpacing = 72.toDp(binding.detailList.context)
+                LinearBoundsMarginDecoration(bottomMargin = fabSpacing + height).apply {
+                    binding.detailList.addItemDecoration(this)
+                    bottomMarginDecoration = this
+                }
+            }
+        }
+    }
+
     override fun onRender(state: DetailViewState) {
+        layoutRoot.post { handleBottomMargin(state) }
         layoutRoot.post { handleLoading(state) }
         layoutRoot.post { handleError(state) }
         layoutRoot.post { handleUndo(state) }

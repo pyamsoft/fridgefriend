@@ -36,13 +36,30 @@ class MainNavigation @Inject internal constructor(
 
     override val layoutRoot by boundView { mainBottomNavigationMenu }
 
+    private var navbarBackground: MainNavBackground? = null
+
     init {
         doOnInflate {
             val nav = binding.mainBottomNavigationMenu
             nav.post {
-                val barBackground = MainNavBackground(nav, 156)
-                nav.background = barBackground
+                // Publish the measured height
+                publish(MainViewEvent.BottomBarMeasured(nav.height))
             }
+        }
+
+        doOnInflate {
+            val nav = binding.mainBottomNavigationMenu
+            nav.post {
+                // Set the background with a hole
+                navbarBackground = MainNavBackground(nav, 156).also {
+                    nav.background = it
+                }
+            }
+        }
+
+        doOnTeardown {
+            binding.mainBottomNavigationMenu.background = null
+            navbarBackground = null
         }
 
         doOnInflate { reader ->

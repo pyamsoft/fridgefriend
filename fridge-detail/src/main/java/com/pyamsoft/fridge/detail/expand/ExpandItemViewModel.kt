@@ -50,8 +50,8 @@ class ExpandItemViewModel @Inject internal constructor(
     defaultPresence: Presence,
     dateSelectBus: EventBus<DateSelectPayload>,
     realtime: FridgeItemRealtime,
-    @Named("item_id") possibleItemId: FridgeItem.Id,
-    @Named("item_entry_id") itemEntryId: FridgeEntry.Id,
+    possibleItemId: FridgeItem.Id,
+    itemEntryId: FridgeEntry.Id,
     @Named("debug") debug: Boolean
 ) : BaseUpdaterViewModel<ExpandItemViewState, ExpandedItemViewEvent, ExpandItemControllerEvent>(
     initialState = ExpandItemViewState(

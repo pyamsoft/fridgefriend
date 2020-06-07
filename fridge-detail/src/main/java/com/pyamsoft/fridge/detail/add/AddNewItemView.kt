@@ -19,6 +19,8 @@ package com.pyamsoft.fridge.detail.add
 
 import android.view.ViewGroup
 import androidx.core.view.isVisible
+import androidx.core.view.marginBottom
+import androidx.core.view.updateLayoutParams
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.detail.DetailViewEvent
 import com.pyamsoft.fridge.detail.DetailViewState
@@ -29,6 +31,7 @@ import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.loader.Loaded
 import com.pyamsoft.pydroid.ui.util.popShow
 import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
+import timber.log.Timber
 import javax.inject.Inject
 
 class AddNewItemView @Inject internal constructor(
@@ -44,6 +47,9 @@ class AddNewItemView @Inject internal constructor(
     private var addNewIconLoaded: Loaded? = null
     private var filterIconLoaded: Loaded? = null
 
+    private var originalAddItemBottomMargin = 0
+    private var originalFilterItemBottomMargin = 0
+
     init {
         doOnInflate {
             addNewIconLoaded = imageLoader
@@ -52,6 +58,16 @@ class AddNewItemView @Inject internal constructor(
 
             binding.detailAddNewItem.setOnDebouncedClickListener {
                 publish(DetailViewEvent.AddNewItemEvent)
+            }
+        }
+
+        doOnInflate {
+            binding.detailAddNewItem.post {
+                originalAddItemBottomMargin = binding.detailAddNewItem.marginBottom
+            }
+
+            binding.detailFilterItem.post {
+                originalFilterItemBottomMargin = binding.detailFilterItem.marginBottom
             }
         }
 
@@ -95,6 +111,7 @@ class AddNewItemView @Inject internal constructor(
     override fun onRender(state: DetailViewState) {
         layoutRoot.post { handleShowing(state) }
         layoutRoot.post { handlePresence(state) }
+        layoutRoot.post { handleBottomMargin(state) }
     }
 
     private fun handlePresence(state: DetailViewState) {
@@ -116,6 +133,26 @@ class AddNewItemView @Inject internal constructor(
                     }
                 )
                 .into(binding.detailFilterItem)
+        }
+    }
+
+    private fun handleBottomMargin(state: DetailViewState) {
+        state.bottomBarHeight.let { height ->
+            if (height > 0) {
+                if (originalAddItemBottomMargin > 0) {
+                    binding.detailAddNewItem.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+                        bottomMargin = originalAddItemBottomMargin + height
+                        Timber.d("Bottom margin for add item: $bottomMargin")
+                    }
+                }
+
+                if (originalFilterItemBottomMargin > 0) {
+                    binding.detailFilterItem.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+                        bottomMargin = originalFilterItemBottomMargin + height
+                        Timber.d("Bottom margin for filter item: $bottomMargin")
+                    }
+                }
+            }
         }
     }
 }

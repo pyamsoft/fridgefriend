@@ -36,7 +36,6 @@ import dagger.BindsInstance
 import dagger.Module
 import dagger.Subcomponent
 import dagger.multibindings.IntoMap
-import javax.inject.Named
 
 @Subcomponent(modules = [ViewModelModule::class, DetailListModule::class, TooltipModule::class, ThemeProviderModule::class])
 internal interface DetailComponent {
@@ -52,7 +51,7 @@ internal interface DetailComponent {
             @BindsInstance parent: ViewGroup,
             @BindsInstance toolbarActivity: ToolbarActivity,
             @BindsInstance owner: LifecycleOwner,
-            @BindsInstance @Named("entry_id") entryId: FridgeEntry.Id,
+            @BindsInstance entryId: FridgeEntry.Id,
             @BindsInstance filterPresence: Presence
         ): DetailComponent
     }

@@ -32,6 +32,7 @@ import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence
 import com.pyamsoft.fridge.detail.add.AddNewItemView
 import com.pyamsoft.fridge.detail.expand.ExpandedFragment
+import com.pyamsoft.fridge.main.MainActivity
 import com.pyamsoft.fridge.main.SnackbarContainer
 import com.pyamsoft.fridge.main.VersionChecker
 import com.pyamsoft.pydroid.arch.StateSaver
@@ -104,8 +105,11 @@ internal class DetailFragment : Fragment(), SnackbarContainer {
             .plusDetailComponent()
             .create(
                 requireActivity(),
-                binding.layoutCoordinator, requireToolbarActivity(), viewLifecycleOwner,
-                getEntryIdArgument(), getPresenceArgument()
+                binding.layoutCoordinator,
+                requireToolbarActivity(),
+                viewLifecycleOwner,
+                getEntryIdArgument(),
+                getPresenceArgument()
             )
             .inject(this)
 
