@@ -71,7 +71,7 @@ class DetailSnackbarContainer @Inject internal constructor(
     }
 
     private fun showUndoSnackbar(undoable: FridgeItem) {
-        makeSnackbar("undo") {
+        withSnackbar("undo") {
             val message = when {
                 undoable.isConsumed() -> "Consumed ${undoable.name()}"
                 undoable.isSpoiled() -> "${undoable.name()} spoiled"

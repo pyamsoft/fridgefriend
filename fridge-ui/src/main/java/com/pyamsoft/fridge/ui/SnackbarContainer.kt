@@ -27,7 +27,7 @@ import com.pyamsoft.pydroid.arch.UiViewState
 import com.pyamsoft.pydroid.ui.util.Snackbreak
 
 abstract class SnackbarContainer<S : UiViewState, V : UiViewEvent> protected constructor(
-    private val owner: LifecycleOwner,
+    protected val owner: LifecycleOwner,
     parent: ViewGroup
 ) : BaseUiView<S, V, SnackbarLayoutBinding>(parent) {
 
@@ -41,17 +41,20 @@ abstract class SnackbarContainer<S : UiViewState, V : UiViewEvent> protected con
     }
 
     protected fun makeSnackbar(id: String, message: CharSequence) {
-        Snackbreak.bindTo(owner, id) {
+        withSnackbar(id) {
             make(binding.snackbarContainer, message)
         }
     }
 
-    protected fun makeSnackbar(id: String, block: Snackbreak.Instance.() -> Unit) {
+    protected inline fun withSnackbar(
+        id: String,
+        crossinline block: Snackbreak.Instance.() -> Unit
+    ) {
         Snackbreak.bindTo(owner, id, block)
     }
 
     protected fun dismissSnackbar(id: String) {
-        Snackbreak.bindTo(owner, id) {
+        withSnackbar(id) {
             dismiss()
         }
     }
