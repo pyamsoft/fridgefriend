@@ -20,6 +20,7 @@ package com.pyamsoft.fridge.main
 import android.view.ViewGroup
 import androidx.annotation.CheckResult
 import androidx.annotation.IdRes
+import androidx.core.view.doOnLayout
 import androidx.core.view.updatePadding
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.pyamsoft.fridge.main.databinding.MainNavigationBinding
@@ -36,46 +37,24 @@ class MainNavigation @Inject internal constructor(
 
     override val layoutRoot by boundView { mainBottomNavigationMenu }
 
-    private var navbarBackground: MainNavBackground? = null
-
     init {
         doOnInflate {
+            binding.mainBottomNavigationMenu.doOnLayout {
+                binding.mainBottomNavigationMenu.background = MainNavBackground(binding.mainBottomNavigationMenu, 156)
+            }
+        }
+        doOnInflate {
             val nav = binding.mainBottomNavigationMenu
-            nav.post {
+            nav.doOnLayout {
                 // Publish the measured height
                 publish(MainViewEvent.BottomBarMeasured(nav.height))
             }
         }
 
         doOnInflate {
-            val nav = binding.mainBottomNavigationMenu
-            nav.post {
-                // Set the background with a hole
-                navbarBackground = MainNavBackground(nav, 156).also {
-                    nav.background = it
-                }
+            layoutRoot.doOnApplyWindowInsets { v, insets, _ ->
+                v.updatePadding(bottom = insets.systemWindowInsetBottom)
             }
-        }
-
-        doOnTeardown {
-            binding.mainBottomNavigationMenu.background = null
-            navbarBackground = null
-        }
-
-        doOnInflate { reader ->
-            val savedPadding = reader.get<Int>(KEY_PADDING)
-            if (savedPadding == null) {
-                layoutRoot.doOnApplyWindowInsets { v, insets, padding ->
-                    v.updatePadding(bottom = padding.bottom + insets.systemWindowInsetBottom)
-                }
-            } else {
-                layoutRoot.updatePadding(bottom = savedPadding)
-            }
-        }
-
-        doOnSaveState { writer ->
-            // We must save the padding here otherwise the padding will constantly increase
-            writer.put(KEY_PADDING, layoutRoot.paddingBottom)
         }
 
         doOnInflate {
@@ -131,18 +110,6 @@ class MainNavigation @Inject internal constructor(
         }
     }
 
-    // TODO(Peter): Anti-pattern
-    fun onMeasured(ready: (width: Int, height: Int) -> Unit) {
-        val nav = binding.mainBottomNavigationMenu
-        nav.post { ready(nav.width, nav.height) }
-    }
-
-    // TODO(Peter): Anti-pattern
-    @CheckResult
-    fun getBottomOffset(): Int {
-        return binding.mainBottomNavigationMenu.height
-    }
-
     @CheckResult
     private fun getIdForPage(page: MainPage?): Int {
         return if (page == null) 0 else {
@@ -160,9 +127,5 @@ class MainNavigation @Inject internal constructor(
     private fun select(viewEvent: MainViewEvent): Boolean {
         publish(viewEvent)
         return false
-    }
-
-    companion object {
-        private const val KEY_PADDING = "key_padding"
     }
 }
