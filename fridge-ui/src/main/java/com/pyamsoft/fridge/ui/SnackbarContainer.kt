@@ -18,6 +18,7 @@
 package com.pyamsoft.fridge.ui
 
 import android.view.ViewGroup
+import androidx.core.view.updateLayoutParams
 import androidx.lifecycle.LifecycleOwner
 import com.pyamsoft.fridge.ui.databinding.SnackbarLayoutBinding
 import com.pyamsoft.pydroid.arch.BaseUiView
@@ -32,6 +33,12 @@ abstract class SnackbarContainer<S : UiViewState, V : UiViewEvent> protected con
 
     override val layoutRoot by boundView { root }
     override val viewBinding = SnackbarLayoutBinding::inflate
+
+    protected fun addBottomPadding(padding: Int) {
+        binding.snackbarPadding.updateLayoutParams<ViewGroup.LayoutParams> {
+            this.height = padding
+        }
+    }
 
     protected fun makeSnackbar(id: String, message: CharSequence) {
         Snackbreak.bindTo(owner, id) {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Peter Kenji Yamanaka
+ * Copyright 2020 Peter Kenji Yamanaka
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,26 +15,22 @@
  *
  */
 
-package com.pyamsoft.fridge.detail.add
+package com.pyamsoft.fridge.detail
 
 import android.view.ViewGroup
 import androidx.core.view.isVisible
 import androidx.core.view.marginBottom
 import androidx.core.view.updateLayoutParams
 import com.pyamsoft.fridge.db.item.FridgeItem
-import com.pyamsoft.fridge.detail.DetailViewEvent
-import com.pyamsoft.fridge.detail.DetailViewState
-import com.pyamsoft.fridge.detail.R
 import com.pyamsoft.fridge.detail.databinding.AddNewBinding
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.loader.Loaded
 import com.pyamsoft.pydroid.ui.util.popShow
 import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
-import timber.log.Timber
 import javax.inject.Inject
 
-class AddNewItemView @Inject internal constructor(
+class DetailAddItemView @Inject internal constructor(
     private val imageLoader: ImageLoader,
     parent: ViewGroup,
     listItemPresence: FridgeItem.Presence

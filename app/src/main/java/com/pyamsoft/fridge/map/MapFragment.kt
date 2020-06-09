@@ -22,15 +22,14 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.CheckResult
-import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.pyamsoft.fridge.FridgeComponent
 import com.pyamsoft.fridge.locator.R
 import com.pyamsoft.fridge.locator.map.osm.OsmActions
 import com.pyamsoft.fridge.locator.map.osm.OsmMap
+import com.pyamsoft.fridge.locator.map.osm.OsmSnackbarContainer
 import com.pyamsoft.fridge.locator.map.osm.OsmViewModel
-import com.pyamsoft.fridge.main.SnackbarContainer
 import com.pyamsoft.fridge.main.VersionChecker
 import com.pyamsoft.pydroid.arch.StateSaver
 import com.pyamsoft.pydroid.arch.createComponent
@@ -39,7 +38,7 @@ import com.pyamsoft.pydroid.ui.arch.viewModelFactory
 import com.pyamsoft.pydroid.ui.databinding.LayoutCoordinatorBinding
 import javax.inject.Inject
 
-internal class MapFragment : Fragment(), SnackbarContainer {
+internal class MapFragment : Fragment() {
 
     @JvmField
     @Inject
@@ -51,16 +50,14 @@ internal class MapFragment : Fragment(), SnackbarContainer {
 
     @JvmField
     @Inject
+    internal var snackbar: OsmSnackbarContainer? = null
+
+    @JvmField
+    @Inject
     internal var factory: ViewModelProvider.Factory? = null
     private val viewModel by viewModelFactory<OsmViewModel> { factory }
 
     private var stateSaver: StateSaver? = null
-
-    private var rootView: CoordinatorLayout? = null
-
-    override fun getSnackbarContainer(): CoordinatorLayout? {
-        return rootView
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -77,7 +74,6 @@ internal class MapFragment : Fragment(), SnackbarContainer {
         super.onViewCreated(view, savedInstanceState)
 
         val binding = LayoutCoordinatorBinding.bind(view)
-        rootView = binding.layoutCoordinator
         Injector.obtain<FridgeComponent>(view.context.applicationContext)
             .plusMapComponent()
             .create(
@@ -89,12 +85,14 @@ internal class MapFragment : Fragment(), SnackbarContainer {
 
         val map = requireNotNull(map)
         val actions = requireNotNull(actions)
+        val snackbar = requireNotNull(snackbar)
 
         stateSaver = createComponent(
             savedInstanceState, viewLifecycleOwner,
             viewModel,
             map,
-            actions
+            actions,
+            snackbar
         ) {
             // TODO handle
         }
@@ -119,8 +117,8 @@ internal class MapFragment : Fragment(), SnackbarContainer {
     override fun onDestroyView() {
         super.onDestroyView()
 
-        rootView = null
         factory = null
+        snackbar = null
         map = null
         actions = null
         stateSaver = null

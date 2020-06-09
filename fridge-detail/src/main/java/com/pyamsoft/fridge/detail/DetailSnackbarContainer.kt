@@ -18,7 +18,6 @@
 package com.pyamsoft.fridge.detail
 
 import android.view.ViewGroup
-import androidx.core.view.updatePadding
 import androidx.lifecycle.LifecycleOwner
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.ui.SnackbarContainer
@@ -38,7 +37,7 @@ class DetailSnackbarContainer @Inject internal constructor(
     private fun handleBottomMargin(state: DetailViewState) {
         state.bottomOffset.let { height ->
             if (height > 0) {
-                layoutRoot.updatePadding(bottom = height)
+                addBottomPadding(height)
             }
         }
     }

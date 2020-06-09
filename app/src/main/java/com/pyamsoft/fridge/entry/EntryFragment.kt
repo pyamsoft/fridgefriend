@@ -22,7 +22,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.CheckResult
-import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.pyamsoft.fridge.FridgeComponent
@@ -30,17 +29,17 @@ import com.pyamsoft.fridge.R
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence
 import com.pyamsoft.fridge.detail.DetailFragment
-import com.pyamsoft.fridge.main.SnackbarContainer
+import com.pyamsoft.fridge.main.VersionChecker
 import com.pyamsoft.pydroid.arch.StateSaver
 import com.pyamsoft.pydroid.arch.createComponent
 import com.pyamsoft.pydroid.ui.Injector
 import com.pyamsoft.pydroid.ui.arch.viewModelFactory
 import com.pyamsoft.pydroid.ui.databinding.LayoutCoordinatorBinding
 import com.pyamsoft.pydroid.ui.util.commitNow
-import javax.inject.Inject
 import timber.log.Timber
+import javax.inject.Inject
 
-internal class EntryFragment : Fragment(), SnackbarContainer {
+internal class EntryFragment : Fragment() {
 
     @JvmField
     @Inject
@@ -48,18 +47,8 @@ internal class EntryFragment : Fragment(), SnackbarContainer {
     private val viewModel by viewModelFactory<EntryViewModel> { factory }
 
     private var stateSaver: StateSaver? = null
-    private var container: CoordinatorLayout? = null
 
-    override fun getSnackbarContainer(): CoordinatorLayout? {
-        val frame = container ?: return null
-
-        val fragment = childFragmentManager.findFragmentById(frame.id)
-        if (fragment is SnackbarContainer) {
-            return fragment.getSnackbarContainer()
-        }
-
-        return null
-    }
+    private var fragmentContainerId = 0
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -75,7 +64,7 @@ internal class EntryFragment : Fragment(), SnackbarContainer {
     ) {
         super.onViewCreated(view, savedInstanceState)
         val binding = LayoutCoordinatorBinding.bind(view)
-        container = binding.layoutCoordinator
+        fragmentContainerId = binding.layoutCoordinator.id
         Injector.obtain<FridgeComponent>(view.context.applicationContext)
             .plusEntryComponent()
             .create(binding.layoutCoordinator)
@@ -89,6 +78,15 @@ internal class EntryFragment : Fragment(), SnackbarContainer {
                 is EntryControllerEvent.LoadEntry -> pushPage(it.entry)
             }
         }
+
+        initializeApp()
+    }
+
+    private fun initializeApp() {
+        val act = requireActivity()
+        if (act is VersionChecker) {
+            act.checkVersionForUpdate()
+        }
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -101,7 +99,6 @@ internal class EntryFragment : Fragment(), SnackbarContainer {
 
         factory = null
         stateSaver = null
-        container = null
     }
 
     private fun pushPage(entry: FridgeEntry) {
@@ -113,7 +110,7 @@ internal class EntryFragment : Fragment(), SnackbarContainer {
             val presence = Presence.valueOf(presenceString)
             fm.commitNow(viewLifecycleOwner) {
                 replace(
-                    requireNotNull(container).id,
+                    fragmentContainerId,
                     DetailFragment.newInstance(entry, presence),
                     tag
                 )

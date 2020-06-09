@@ -78,9 +78,7 @@ internal class MainActivity : RatingActivity(), VersionChecker {
         get() = requireNotNull(container).id()
 
     override val snackbarRoot: ViewGroup
-        get() {
-            return requireNotNull(snackbarContainer)
-        }
+        get() = requireNotNull(snackbarContainer)
 
     private var snackbarContainer: ViewGroup? = null
     private var stateSaver: StateSaver? = null
@@ -121,7 +119,7 @@ internal class MainActivity : RatingActivity(), VersionChecker {
             .create(this, binding.layoutConstraint, guaranteePage(intent), this)
             .inject(this)
 
-        binding.layoutConstraint.makeWindowSexy()
+        binding.root.makeWindowSexy()
         inflateComponents(binding.layoutConstraint, savedInstanceState)
         beginWork()
     }

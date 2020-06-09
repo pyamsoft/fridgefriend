@@ -22,19 +22,16 @@ import androidx.core.view.ViewPropertyAnimatorCompat
 import androidx.core.view.isVisible
 import androidx.core.view.marginBottom
 import androidx.core.view.updateLayoutParams
-import androidx.lifecycle.LifecycleOwner
 import com.pyamsoft.fridge.locator.map.R
 import com.pyamsoft.fridge.locator.map.databinding.OsmActionsBinding
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.loader.Loaded
-import com.pyamsoft.pydroid.ui.util.Snackbreak
 import com.pyamsoft.pydroid.ui.util.popShow
 import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
 import javax.inject.Inject
 
 class OsmActions @Inject internal constructor(
-    private val owner: LifecycleOwner,
     private val imageLoader: ImageLoader,
     parent: ViewGroup
 ) : BaseUiView<OsmViewState, OsmViewEvent, OsmActionsBinding>(parent) {
@@ -117,8 +114,6 @@ class OsmActions @Inject internal constructor(
     }
 
     override fun onRender(state: OsmViewState) {
-        layoutRoot.post { handleNearbyError(state) }
-        layoutRoot.post { handleFetchError(state) }
         layoutRoot.post { handleCenterLocation(state) }
         layoutRoot.post { handleBottomMargin(state) }
     }
@@ -146,50 +141,6 @@ class OsmActions @Inject internal constructor(
             if (event.firstTime) {
                 revealButtons()
             }
-        }
-    }
-
-    private fun handleFetchError(state: OsmViewState) {
-        state.cachedFetchError.let { throwable ->
-            if (throwable == null) {
-                clearCacheError()
-            } else {
-                showCacheError(throwable)
-            }
-        }
-    }
-
-    private fun handleNearbyError(state: OsmViewState) {
-        state.nearbyError.let { throwable ->
-            if (throwable == null) {
-                clearError()
-            } else {
-                showError(throwable)
-            }
-        }
-    }
-
-    private fun showError(throwable: Throwable) {
-        Snackbreak.bindTo(owner, "nearby") {
-            make(layoutRoot, throwable.message ?: "An unexpected error occurred.")
-        }
-    }
-
-    private fun clearError() {
-        Snackbreak.bindTo(owner, "nearby") {
-            dismiss()
-        }
-    }
-
-    private fun showCacheError(throwable: Throwable) {
-        Snackbreak.bindTo(owner, "cache") {
-            make(layoutRoot, throwable.message ?: "An error occurred fetching cached stores.")
-        }
-    }
-
-    private fun clearCacheError() {
-        Snackbreak.bindTo(owner, "cache") {
-            dismiss()
         }
     }
 

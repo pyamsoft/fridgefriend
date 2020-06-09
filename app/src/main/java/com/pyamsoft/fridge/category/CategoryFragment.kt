@@ -22,12 +22,10 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.CheckResult
-import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.pyamsoft.fridge.FridgeComponent
 import com.pyamsoft.fridge.R
-import com.pyamsoft.fridge.main.SnackbarContainer
 import com.pyamsoft.fridge.main.VersionChecker
 import com.pyamsoft.pydroid.arch.StateSaver
 import com.pyamsoft.pydroid.arch.createComponent
@@ -36,7 +34,7 @@ import com.pyamsoft.pydroid.ui.arch.viewModelFactory
 import com.pyamsoft.pydroid.ui.databinding.LayoutCoordinatorBinding
 import javax.inject.Inject
 
-internal class CategoryFragment : Fragment(), SnackbarContainer {
+internal class CategoryFragment : Fragment() {
 
     @JvmField
     @Inject
@@ -53,12 +51,6 @@ internal class CategoryFragment : Fragment(), SnackbarContainer {
 
     private var stateSaver: StateSaver? = null
 
-    private var rootView: CoordinatorLayout? = null
-
-    override fun getSnackbarContainer(): CoordinatorLayout? {
-        return rootView
-    }
-
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -74,8 +66,6 @@ internal class CategoryFragment : Fragment(), SnackbarContainer {
         super.onViewCreated(view, savedInstanceState)
 
         val binding = LayoutCoordinatorBinding.bind(view)
-        rootView = binding.layoutCoordinator
-
         Injector.obtain<FridgeComponent>(view.context.applicationContext)
             .plusCategoryComponent()
             .create(
@@ -115,7 +105,6 @@ internal class CategoryFragment : Fragment(), SnackbarContainer {
     override fun onDestroyView() {
         super.onDestroyView()
 
-        rootView = null
         stateSaver = null
         factory = null
     }

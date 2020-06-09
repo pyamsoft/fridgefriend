@@ -18,7 +18,6 @@
 package com.pyamsoft.fridge.locator.map.osm
 
 import android.view.ViewGroup
-import androidx.core.view.updatePadding
 import androidx.lifecycle.LifecycleOwner
 import com.pyamsoft.fridge.ui.SnackbarContainer
 import javax.inject.Inject
@@ -37,7 +36,7 @@ class OsmSnackbarContainer @Inject internal constructor(
     private fun handleBottomMargin(state: OsmViewState) {
         state.bottomOffset.let { height ->
             if (height > 0) {
-                layoutRoot.updatePadding(bottom = height)
+                addBottomPadding(height)
             }
         }
     }

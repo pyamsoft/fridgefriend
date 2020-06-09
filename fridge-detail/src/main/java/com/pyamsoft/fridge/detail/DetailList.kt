@@ -37,7 +37,6 @@ import com.pyamsoft.fridge.detail.item.DetailListAdapter.Callback
 import com.pyamsoft.fridge.detail.item.DetailListItemViewState
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.loader.ImageLoader
-import com.pyamsoft.pydroid.ui.util.Snackbreak
 import com.pyamsoft.pydroid.ui.util.refreshing
 import com.pyamsoft.pydroid.util.toDp
 import io.cabriole.decorator.LinearBoundsMarginDecoration
@@ -319,43 +318,6 @@ class DetailList @Inject internal constructor(
         usingAdapter().submitList(null)
     }
 
-    private fun showListError(throwable: Throwable) {
-        Snackbreak.bindTo(owner, "list") {
-            make(layoutRoot, throwable.message ?: "An unexpected error has occurred.")
-        }
-    }
-
-    private fun clearListError() {
-        Snackbreak.bindTo(owner, "list") {
-            dismiss()
-        }
-    }
-
-    private fun showUndoSnackbar(undoable: FridgeItem) {
-        Snackbreak.bindTo(owner, "undo") {
-            val message = when {
-                undoable.isConsumed() -> "Consumed ${undoable.name()}"
-                undoable.isSpoiled() -> "${undoable.name()} spoiled"
-                else -> "Removed ${undoable.name()}"
-            }
-            short(layoutRoot, message, onHidden = { _, _ ->
-                // Once hidden this will clear out the stored undoable
-                //
-                // If the undoable was restored before this point, this is basically a no-op
-                publish(DetailViewEvent.ReallyDeleteNoUndo(undoable))
-            }) {
-                // Restore the old item
-                setAction("Undo") { publish(DetailViewEvent.UndoDelete(undoable)) }
-            }
-        }
-    }
-
-    private fun clearUndoSnackbar() {
-        Snackbreak.bindTo(owner, "undo") {
-            dismiss()
-        }
-    }
-
     private fun handleLoading(state: DetailViewState) {
         state.isLoading.let { loading ->
             if (loading != null) {
@@ -370,26 +332,6 @@ class DetailList @Inject internal constructor(
                         }
                     }
                 }
-            }
-        }
-    }
-
-    private fun handleError(state: DetailViewState) {
-        state.listError.let { throwable ->
-            if (throwable == null) {
-                clearListError()
-            } else {
-                showListError(throwable)
-            }
-        }
-    }
-
-    private fun handleUndo(state: DetailViewState) {
-        state.undoableItem.let { undoable ->
-            if (undoable == null) {
-                clearUndoSnackbar()
-            } else {
-                showUndoSnackbar(undoable)
             }
         }
     }
@@ -411,8 +353,6 @@ class DetailList @Inject internal constructor(
     override fun onRender(state: DetailViewState) {
         layoutRoot.post { handleBottomMargin(state) }
         layoutRoot.post { handleLoading(state) }
-        layoutRoot.post { handleError(state) }
-        layoutRoot.post { handleUndo(state) }
         layoutRoot.post { setupSwipeCallback(state.showing, state.listItemPresence) }
     }
 }

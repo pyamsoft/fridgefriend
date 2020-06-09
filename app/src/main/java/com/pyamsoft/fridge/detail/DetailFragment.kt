@@ -22,7 +22,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.CheckResult
-import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.pyamsoft.fridge.FridgeComponent
@@ -30,11 +29,7 @@ import com.pyamsoft.fridge.R
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence
-import com.pyamsoft.fridge.detail.add.AddNewItemView
 import com.pyamsoft.fridge.detail.expand.ExpandedFragment
-import com.pyamsoft.fridge.main.MainActivity
-import com.pyamsoft.fridge.main.SnackbarContainer
-import com.pyamsoft.fridge.main.VersionChecker
 import com.pyamsoft.pydroid.arch.StateSaver
 import com.pyamsoft.pydroid.arch.createComponent
 import com.pyamsoft.pydroid.ui.Injector
@@ -44,7 +39,7 @@ import com.pyamsoft.pydroid.ui.databinding.LayoutCoordinatorBinding
 import com.pyamsoft.pydroid.ui.util.show
 import javax.inject.Inject
 
-internal class DetailFragment : Fragment(), SnackbarContainer {
+internal class DetailFragment : Fragment() {
 
     @JvmField
     @Inject
@@ -52,7 +47,7 @@ internal class DetailFragment : Fragment(), SnackbarContainer {
 
     @JvmField
     @Inject
-    internal var addNew: AddNewItemView? = null
+    internal var addNew: DetailAddItemView? = null
 
     @JvmField
     @Inject
@@ -64,16 +59,14 @@ internal class DetailFragment : Fragment(), SnackbarContainer {
 
     @JvmField
     @Inject
+    internal var snackbar: DetailSnackbarContainer? = null
+
+    @JvmField
+    @Inject
     internal var factory: ViewModelProvider.Factory? = null
     private val viewModel by viewModelFactory<DetailViewModel> { factory }
 
     private var stateSaver: StateSaver? = null
-
-    private var rootView: CoordinatorLayout? = null
-
-    override fun getSnackbarContainer(): CoordinatorLayout? {
-        return rootView
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -100,7 +93,6 @@ internal class DetailFragment : Fragment(), SnackbarContainer {
         super.onViewCreated(view, savedInstanceState)
 
         val binding = LayoutCoordinatorBinding.bind(view)
-        rootView = binding.layoutCoordinator
         Injector.obtain<FridgeComponent>(view.context.applicationContext)
             .plusDetailComponent()
             .create(
@@ -117,6 +109,7 @@ internal class DetailFragment : Fragment(), SnackbarContainer {
         val addNew = requireNotNull(addNew)
         val heroImage = requireNotNull(heroImage)
         val toolbar = requireNotNull(toolbar)
+        val snackbar = requireNotNull(snackbar)
 
         stateSaver = createComponent(
             savedInstanceState, viewLifecycleOwner,
@@ -124,7 +117,8 @@ internal class DetailFragment : Fragment(), SnackbarContainer {
             heroImage,
             container,
             addNew,
-            toolbar
+            toolbar,
+            snackbar
         ) {
             return@createComponent when (it) {
                 is DetailControllerEvent.ExpandForEditing -> openExisting(it.item)
@@ -133,14 +127,6 @@ internal class DetailFragment : Fragment(), SnackbarContainer {
             }
         }
 
-        initializeApp()
-    }
-
-    private fun initializeApp() {
-        val act = requireActivity()
-        if (act is VersionChecker) {
-            act.checkVersionForUpdate()
-        }
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -151,8 +137,8 @@ internal class DetailFragment : Fragment(), SnackbarContainer {
     override fun onDestroyView() {
         super.onDestroyView()
 
-        rootView = null
         factory = null
+        snackbar = null
         heroImage = null
         container = null
         addNew = null
