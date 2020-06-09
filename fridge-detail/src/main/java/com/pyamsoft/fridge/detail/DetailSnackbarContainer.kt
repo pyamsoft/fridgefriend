@@ -71,21 +71,19 @@ class DetailSnackbarContainer @Inject internal constructor(
     }
 
     private fun showUndoSnackbar(undoable: FridgeItem) {
-        withSnackbar("undo") {
-            val message = when {
-                undoable.isConsumed() -> "Consumed ${undoable.name()}"
-                undoable.isSpoiled() -> "${undoable.name()} spoiled"
-                else -> "Removed ${undoable.name()}"
-            }
-            short(layoutRoot, message, onHidden = { _, _ ->
-                // Once hidden this will clear out the stored undoable
-                //
-                // If the undoable was restored before this point, this is basically a no-op
-                publish(DetailViewEvent.ReallyDeleteNoUndo(undoable))
-            }) {
-                // Restore the old item
-                setAction("Undo") { publish(DetailViewEvent.UndoDelete(undoable)) }
-            }
+        val message = when {
+            undoable.isConsumed() -> "Consumed ${undoable.name()}"
+            undoable.isSpoiled() -> "${undoable.name()} spoiled"
+            else -> "Removed ${undoable.name()}"
+        }
+        shortSnackbar("undo", message, onHidden = { _, _ ->
+            // Once hidden this will clear out the stored undoable
+            //
+            // If the undoable was restored before this point, this is basically a no-op
+            publish(DetailViewEvent.ReallyDeleteNoUndo(undoable))
+        }) {
+            // Restore the old item
+            setAction("Undo") { publish(DetailViewEvent.UndoDelete(undoable)) }
         }
     }
 
