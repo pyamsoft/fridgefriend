@@ -20,6 +20,7 @@ package com.pyamsoft.fridge.main
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
+import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.CheckResult
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -47,6 +48,7 @@ import com.pyamsoft.pydroid.arch.createComponent
 import com.pyamsoft.pydroid.ui.Injector
 import com.pyamsoft.pydroid.ui.arch.viewModelFactory
 import com.pyamsoft.pydroid.ui.databinding.LayoutConstraintBinding
+import com.pyamsoft.pydroid.ui.databinding.LayoutCoordinatorBinding
 import com.pyamsoft.pydroid.ui.rating.ChangeLogBuilder
 import com.pyamsoft.pydroid.ui.rating.RatingActivity
 import com.pyamsoft.pydroid.ui.rating.buildChangeLog
@@ -77,18 +79,10 @@ internal class MainActivity : RatingActivity(), VersionChecker {
 
     override val snackbarRoot: ViewGroup
         get() {
-            val containerFragment = supportFragmentManager.findFragmentById(fragmentContainerId)
-            if (containerFragment is SnackbarContainer) {
-                val snackbarContainer = containerFragment.getSnackbarContainer()
-                if (snackbarContainer != null) {
-                    return snackbarContainer
-                }
-            }
-
-            return requireNotNull(rootView)
+            return requireNotNull(snackbarContainer)
         }
 
-    private var rootView: ConstraintLayout? = null
+    private var snackbarContainer: ViewGroup? = null
     private var stateSaver: StateSaver? = null
 
     @JvmField
@@ -122,7 +116,6 @@ internal class MainActivity : RatingActivity(), VersionChecker {
         val binding = LayoutConstraintBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        rootView = binding.layoutConstraint
         Injector.obtain<FridgeComponent>(applicationContext)
             .plusMainComponent()
             .create(this, binding.layoutConstraint, guaranteePage(intent), this)
@@ -190,6 +183,18 @@ internal class MainActivity : RatingActivity(), VersionChecker {
         }
     }
 
+    @CheckResult
+    private fun createSnackbarContainer(): ViewGroup {
+        val binding = LayoutCoordinatorBinding.inflate(layoutInflater)
+        // All views need an id for ConstraintSet
+        binding.root.id = View.generateViewId()
+
+        // The snackbar container must be a Coordinator or it will mess with the view heirarchy
+        snackbarContainer = binding.layoutCoordinator
+
+        return binding.root
+    }
+
     private fun inflateComponents(
         constraintLayout: ConstraintLayout,
         savedInstanceState: Bundle?
@@ -212,6 +217,10 @@ internal class MainActivity : RatingActivity(), VersionChecker {
                 is MainControllerEvent.VersionCheck -> checkForUpdate()
             }
         }
+
+        // Insert the snackbar container after the other views
+        val snackbarContainer = createSnackbarContainer()
+        constraintLayout.addView(snackbarContainer)
 
         constraintLayout.layout {
 
@@ -247,6 +256,15 @@ internal class MainActivity : RatingActivity(), VersionChecker {
                 connect(it.id(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
                 constrainHeight(it.id(), ConstraintSet.MATCH_CONSTRAINT)
                 constrainWidth(it.id(), ConstraintSet.MATCH_CONSTRAINT)
+            }
+
+            snackbarContainer.also {
+                connect(it.id, ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP)
+                connect(it.id, ConstraintSet.BOTTOM, navigation.id(), ConstraintSet.TOP)
+                connect(it.id, ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
+                connect(it.id, ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
+                constrainHeight(it.id, ConstraintSet.MATCH_CONSTRAINT)
+                constrainWidth(it.id, ConstraintSet.MATCH_CONSTRAINT)
             }
         }
     }
@@ -399,7 +417,6 @@ internal class MainActivity : RatingActivity(), VersionChecker {
 
     override fun onDestroy() {
         super.onDestroy()
-        rootView = null
         stateSaver = null
 
         toolbar = null
