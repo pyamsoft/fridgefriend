@@ -19,7 +19,6 @@
     <color name="transparent">#00000000</color>
 
     <color name="statusBarColor">@color/transparent</color>
-    <color name="navigationBarColor">@color/colorPrimary</color>
 
     <color name="disabledColor">#ffaaaaaa</color>
 </resources>

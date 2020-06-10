@@ -20,7 +20,6 @@ package com.pyamsoft.fridge.main
 import android.view.ViewGroup
 import androidx.annotation.CheckResult
 import androidx.annotation.IdRes
-import androidx.core.view.doOnLayout
 import androidx.core.view.updatePadding
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.pyamsoft.fridge.main.databinding.MainNavigationBinding
@@ -38,14 +37,6 @@ class MainNavigation @Inject internal constructor(
     override val layoutRoot by boundView { mainBottomNavigationMenu }
 
     init {
-        doOnInflate {
-            binding.mainBottomNavigationMenu.let { nav ->
-                nav.doOnLayout {
-                    nav.background = MainNavBackground(nav, 156)
-                }
-            }
-        }
-
         doOnInflate {
             layoutRoot.doOnApplyWindowInsets { v, insets, _ ->
                 v.updatePadding(bottom = insets.systemWindowInsetBottom)

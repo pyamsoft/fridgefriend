@@ -8,4 +8,7 @@
     <color name="colorOnSecondary">@color/colorOnPrimary</color>
 
     <color name="windowBackground">@color/material_light_background</color>
+
+    <color name="colorPrimarySeeThrough">#AAF44336</color>
+    <color name="navigationBarColor">#44F44336</color>
 </resources>
