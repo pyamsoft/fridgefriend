@@ -18,6 +18,7 @@
 <resources>
     <color name="transparent">#00000000</color>
 
+    <!-- Status bar is transparent so content can scroll behind it -->
     <color name="statusBarColor">@color/transparent</color>
 
     <color name="disabledColor">#ffaaaaaa</color>

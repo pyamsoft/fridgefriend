@@ -320,7 +320,7 @@ class OsmMap @Inject internal constructor(
             isTilesScaledToDpi = true
             setTileSource(TileSourceFactory.MAPNIK)
             addMapOverlays(context)
-            zoomController.setVisibility(CustomZoomButtonsController.Visibility.SHOW_AND_FADEOUT)
+            zoomController.setVisibility(CustomZoomButtonsController.Visibility.NEVER)
 
             val filter = if (theming.isDarkTheme()) TilesOverlay.INVERT_COLORS else null
             mapOverlay.setColorFilter(filter)

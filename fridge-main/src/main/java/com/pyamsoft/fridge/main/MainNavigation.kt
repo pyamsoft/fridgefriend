@@ -20,6 +20,7 @@ package com.pyamsoft.fridge.main
 import android.view.ViewGroup
 import androidx.annotation.CheckResult
 import androidx.annotation.IdRes
+import androidx.core.content.ContextCompat
 import androidx.core.view.updatePadding
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.pyamsoft.fridge.main.databinding.MainNavigationBinding
@@ -38,8 +39,17 @@ class MainNavigation @Inject internal constructor(
 
     init {
         doOnInflate {
+            correctBackground()
+        }
+
+        doOnInflate {
             layoutRoot.doOnApplyWindowInsets { v, insets, _ ->
-                v.updatePadding(bottom = insets.systemWindowInsetBottom)
+                v.updatePadding(
+                    bottom = insets.systemWindowInsetBottom,
+                    left = 0,
+                    right = 0,
+                    top = 0
+                )
                 v.post {
                     // Publish the measured height
                     publish(MainViewEvent.BottomBarMeasured(v.height))
@@ -68,6 +78,15 @@ class MainNavigation @Inject internal constructor(
         }
     }
 
+    /**
+     * Default MaterialShapeBackground makes a weird shadow thing, disable it since it looks
+     * funny through the transparent bar
+     */
+    private fun correctBackground() {
+        val color = ContextCompat.getColor(layoutRoot.context, R.color.colorPrimarySeeThrough)
+        binding.mainBottomNavigationMenu.setBackgroundColor(color)
+    }
+
     private fun handlePage(state: MainViewState) {
         state.page.let { page ->
             val pageId = getIdForPage(page)
@@ -88,6 +107,7 @@ class MainNavigation @Inject internal constructor(
     }
 
     override fun onRender(state: MainViewState) {
+        layoutRoot.post { correctBackground() }
         layoutRoot.post { handlePage(state) }
         layoutRoot.post { handleBadges(state) }
     }
