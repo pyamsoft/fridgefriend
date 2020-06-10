@@ -39,21 +39,20 @@ class MainNavigation @Inject internal constructor(
 
     init {
         doOnInflate {
-            binding.mainBottomNavigationMenu.doOnLayout {
-                binding.mainBottomNavigationMenu.background = MainNavBackground(binding.mainBottomNavigationMenu, 156)
-            }
-        }
-        doOnInflate {
-            val nav = binding.mainBottomNavigationMenu
-            nav.doOnLayout {
-                // Publish the measured height
-                publish(MainViewEvent.BottomBarMeasured(nav.height))
+            binding.mainBottomNavigationMenu.let { nav ->
+                nav.doOnLayout {
+                    nav.background = MainNavBackground(nav, 156)
+                }
             }
         }
 
         doOnInflate {
             layoutRoot.doOnApplyWindowInsets { v, insets, _ ->
                 v.updatePadding(bottom = insets.systemWindowInsetBottom)
+                v.post {
+                    // Publish the measured height
+                    publish(MainViewEvent.BottomBarMeasured(v.height))
+                }
             }
         }
 

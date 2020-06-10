@@ -59,10 +59,6 @@ internal class DetailFragment : Fragment() {
 
     @JvmField
     @Inject
-    internal var snackbar: DetailSnackbarContainer? = null
-
-    @JvmField
-    @Inject
     internal var factory: ViewModelProvider.Factory? = null
     private val viewModel by viewModelFactory<DetailViewModel> { factory }
 
@@ -109,7 +105,6 @@ internal class DetailFragment : Fragment() {
         val addNew = requireNotNull(addNew)
         val heroImage = requireNotNull(heroImage)
         val toolbar = requireNotNull(toolbar)
-        val snackbar = requireNotNull(snackbar)
 
         stateSaver = createComponent(
             savedInstanceState, viewLifecycleOwner,
@@ -117,8 +112,7 @@ internal class DetailFragment : Fragment() {
             heroImage,
             container,
             addNew,
-            toolbar,
-            snackbar
+            toolbar
         ) {
             return@createComponent when (it) {
                 is DetailControllerEvent.ExpandForEditing -> openExisting(it.item)
@@ -126,7 +120,6 @@ internal class DetailFragment : Fragment() {
                 is DetailControllerEvent.AddNew -> createItem()
             }
         }
-
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -138,7 +131,6 @@ internal class DetailFragment : Fragment() {
         super.onDestroyView()
 
         factory = null
-        snackbar = null
         heroImage = null
         container = null
         addNew = null

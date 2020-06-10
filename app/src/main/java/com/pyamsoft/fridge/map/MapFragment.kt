@@ -28,7 +28,6 @@ import com.pyamsoft.fridge.FridgeComponent
 import com.pyamsoft.fridge.locator.R
 import com.pyamsoft.fridge.locator.map.osm.OsmActions
 import com.pyamsoft.fridge.locator.map.osm.OsmMap
-import com.pyamsoft.fridge.locator.map.osm.OsmSnackbarContainer
 import com.pyamsoft.fridge.locator.map.osm.OsmViewModel
 import com.pyamsoft.fridge.main.VersionChecker
 import com.pyamsoft.pydroid.arch.StateSaver
@@ -47,10 +46,6 @@ internal class MapFragment : Fragment() {
     @JvmField
     @Inject
     internal var actions: OsmActions? = null
-
-    @JvmField
-    @Inject
-    internal var snackbar: OsmSnackbarContainer? = null
 
     @JvmField
     @Inject
@@ -85,14 +80,12 @@ internal class MapFragment : Fragment() {
 
         val map = requireNotNull(map)
         val actions = requireNotNull(actions)
-        val snackbar = requireNotNull(snackbar)
 
         stateSaver = createComponent(
             savedInstanceState, viewLifecycleOwner,
             viewModel,
             map,
-            actions,
-            snackbar
+            actions
         ) {
             // TODO handle
         }
@@ -118,7 +111,6 @@ internal class MapFragment : Fragment() {
         super.onDestroyView()
 
         factory = null
-        snackbar = null
         map = null
         actions = null
         stateSaver = null

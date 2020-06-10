@@ -19,18 +19,20 @@ package com.pyamsoft.fridge.detail
 
 import android.view.ViewGroup
 import androidx.core.view.isVisible
-import androidx.core.view.marginBottom
-import androidx.core.view.updateLayoutParams
+import androidx.core.view.updatePadding
+import androidx.lifecycle.LifecycleOwner
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.detail.databinding.AddNewBinding
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.loader.Loaded
+import com.pyamsoft.pydroid.ui.util.Snackbreak
 import com.pyamsoft.pydroid.ui.util.popShow
 import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
 import javax.inject.Inject
 
 class DetailAddItemView @Inject internal constructor(
+    private val owner: LifecycleOwner,
     private val imageLoader: ImageLoader,
     parent: ViewGroup,
     listItemPresence: FridgeItem.Presence
@@ -38,13 +40,10 @@ class DetailAddItemView @Inject internal constructor(
 
     override val viewBinding = AddNewBinding::inflate
 
-    override val layoutRoot by boundView { detailAddNewItem }
+    override val layoutRoot by boundView { detailAddNewRoot }
 
     private var addNewIconLoaded: Loaded? = null
     private var filterIconLoaded: Loaded? = null
-
-    private var originalAddItemBottomMargin = 0
-    private var originalFilterItemBottomMargin = 0
 
     init {
         doOnInflate {
@@ -54,16 +53,6 @@ class DetailAddItemView @Inject internal constructor(
 
             binding.detailAddNewItem.setOnDebouncedClickListener {
                 publish(DetailViewEvent.AddNewItemEvent)
-            }
-        }
-
-        doOnInflate {
-            binding.detailAddNewItem.post {
-                originalAddItemBottomMargin = binding.detailAddNewItem.marginBottom
-            }
-
-            binding.detailFilterItem.post {
-                originalFilterItemBottomMargin = binding.detailFilterItem.marginBottom
             }
         }
 
@@ -108,6 +97,8 @@ class DetailAddItemView @Inject internal constructor(
         layoutRoot.post { handleShowing(state) }
         layoutRoot.post { handlePresence(state) }
         layoutRoot.post { handleBottomMargin(state) }
+        layoutRoot.post { handleError(state) }
+        layoutRoot.post { handleUndo(state) }
     }
 
     private fun handlePresence(state: DetailViewState) {
@@ -135,18 +126,66 @@ class DetailAddItemView @Inject internal constructor(
     private fun handleBottomMargin(state: DetailViewState) {
         state.bottomOffset.let { height ->
             if (height > 0) {
-                if (originalAddItemBottomMargin > 0) {
-                    binding.detailAddNewItem.updateLayoutParams<ViewGroup.MarginLayoutParams> {
-                        bottomMargin = originalAddItemBottomMargin + height
-                    }
-                }
-
-                if (originalFilterItemBottomMargin > 0) {
-                    binding.detailFilterItem.updateLayoutParams<ViewGroup.MarginLayoutParams> {
-                        bottomMargin = originalFilterItemBottomMargin + height
-                    }
-                }
+                layoutRoot.updatePadding(bottom = height)
             }
+        }
+    }
+
+    private fun handleError(state: DetailViewState) {
+        state.listError.let { throwable ->
+            if (throwable == null) {
+                clearListError()
+            } else {
+                showListError(throwable)
+            }
+        }
+    }
+
+    private fun handleUndo(state: DetailViewState) {
+        state.undoableItem.let { undoable ->
+            if (undoable == null) {
+                clearUndoSnackbar()
+            } else {
+                showUndoSnackbar(undoable)
+            }
+        }
+    }
+
+    private fun showListError(throwable: Throwable) {
+        Snackbreak.bindTo(owner, "list") {
+            make(layoutRoot, throwable.message ?: "An unexpected error has occurred.")
+        }
+    }
+
+    private fun clearListError() {
+        Snackbreak.bindTo(owner, "list") {
+            dismiss()
+        }
+    }
+
+    private fun showUndoSnackbar(undoable: FridgeItem) {
+        val message = when {
+            undoable.isConsumed() -> "Consumed ${undoable.name()}"
+            undoable.isSpoiled() -> "${undoable.name()} spoiled"
+            else -> "Removed ${undoable.name()}"
+        }
+        Snackbreak.bindTo(owner, "undo") {
+            short(layoutRoot, message,
+                onHidden = { _, _ ->
+                    // Once hidden this will clear out the stored undoable
+                    //
+                    // If the undoable was restored before this point, this is basically a no-op
+                    publish(DetailViewEvent.ReallyDeleteNoUndo(undoable))
+                }) {
+                // Restore the old item
+                setAction("Undo") { publish(DetailViewEvent.UndoDelete(undoable)) }
+            }
+        }
+    }
+
+    private fun clearUndoSnackbar() {
+        Snackbreak.bindTo(owner, "undo") {
+            dismiss()
         }
     }
 }

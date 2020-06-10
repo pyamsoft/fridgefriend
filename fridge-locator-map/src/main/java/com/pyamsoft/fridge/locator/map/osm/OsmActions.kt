@@ -20,34 +20,33 @@ package com.pyamsoft.fridge.locator.map.osm
 import android.view.ViewGroup
 import androidx.core.view.ViewPropertyAnimatorCompat
 import androidx.core.view.isVisible
-import androidx.core.view.marginBottom
-import androidx.core.view.updateLayoutParams
+import androidx.core.view.updatePadding
+import androidx.lifecycle.LifecycleOwner
 import com.pyamsoft.fridge.locator.map.R
 import com.pyamsoft.fridge.locator.map.databinding.OsmActionsBinding
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.loader.Loaded
+import com.pyamsoft.pydroid.ui.util.Snackbreak
 import com.pyamsoft.pydroid.ui.util.popShow
 import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
 import javax.inject.Inject
 
 class OsmActions @Inject internal constructor(
+    private val owner: LifecycleOwner,
     private val imageLoader: ImageLoader,
     parent: ViewGroup
 ) : BaseUiView<OsmViewState, OsmViewEvent, OsmActionsBinding>(parent) {
 
     override val viewBinding = OsmActionsBinding::inflate
 
-    override val layoutRoot by boundView { osmFindNearby }
+    override val layoutRoot by boundView { osmActions }
 
     private var boundFindMeImage: Loaded? = null
     private var boundNearbyImage: Loaded? = null
 
     private var nearbyAnimator: ViewPropertyAnimatorCompat? = null
     private var meAnimator: ViewPropertyAnimatorCompat? = null
-
-    private var originalNearbyItemBottomMargin = 0
-    private var originalMeItemBottomMargin = 0
 
     init {
         doOnInflate {
@@ -79,16 +78,6 @@ class OsmActions @Inject internal constructor(
             }
         }
 
-        doOnInflate {
-            binding.osmFindNearby.post {
-                originalNearbyItemBottomMargin = binding.osmFindNearby.marginBottom
-            }
-
-            binding.osmFindMe.post {
-                originalMeItemBottomMargin = binding.osmFindMe.marginBottom
-            }
-        }
-
         doOnTeardown {
             binding.osmFindMe.setOnDebouncedClickListener(null)
             binding.osmFindNearby.setOnDebouncedClickListener(null)
@@ -116,22 +105,14 @@ class OsmActions @Inject internal constructor(
     override fun onRender(state: OsmViewState) {
         layoutRoot.post { handleCenterLocation(state) }
         layoutRoot.post { handleBottomMargin(state) }
+        layoutRoot.post { handleNearbyError(state) }
+        layoutRoot.post { handleFetchError(state) }
     }
 
     private fun handleBottomMargin(state: OsmViewState) {
         state.bottomOffset.let { height ->
             if (height > 0) {
-                if (originalNearbyItemBottomMargin > 0) {
-                    binding.osmFindNearby.updateLayoutParams<ViewGroup.MarginLayoutParams> {
-                        bottomMargin = originalNearbyItemBottomMargin + height
-                    }
-                }
-
-                if (originalMeItemBottomMargin > 0) {
-                    binding.osmFindMe.updateLayoutParams<ViewGroup.MarginLayoutParams> {
-                        bottomMargin = originalMeItemBottomMargin + height
-                    }
-                }
+                layoutRoot.updatePadding(bottom = height)
             }
         }
     }
@@ -160,6 +141,50 @@ class OsmActions @Inject internal constructor(
         }
         meAnimator = binding.osmFindMe.popShow(startDelay = 0L).withEndAction {
             dismissMeAnimator()
+        }
+    }
+
+    private fun handleFetchError(state: OsmViewState) {
+        state.cachedFetchError.let { throwable ->
+            if (throwable == null) {
+                clearCacheError()
+            } else {
+                showCacheError(throwable)
+            }
+        }
+    }
+
+    private fun handleNearbyError(state: OsmViewState) {
+        state.nearbyError.let { throwable ->
+            if (throwable == null) {
+                clearError()
+            } else {
+                showError(throwable)
+            }
+        }
+    }
+
+    private fun showError(throwable: Throwable) {
+        Snackbreak.bindTo(owner, "nearby") {
+            make(layoutRoot, throwable.message ?: "An unexpected error occurred.")
+        }
+    }
+
+    private fun clearError() {
+        Snackbreak.bindTo(owner, "nearby") {
+            dismiss()
+        }
+    }
+
+    private fun showCacheError(throwable: Throwable) {
+        Snackbreak.bindTo(owner, "cache") {
+            make(layoutRoot, throwable.message ?: "An error occurred fetching cached stores.")
+        }
+    }
+
+    private fun clearCacheError() {
+        Snackbreak.bindTo(owner, "cache") {
+            dismiss()
         }
     }
 }
