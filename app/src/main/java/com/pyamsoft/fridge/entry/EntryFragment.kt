@@ -22,6 +22,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.CheckResult
+import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.pyamsoft.fridge.FridgeComponent
@@ -30,6 +31,7 @@ import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence
 import com.pyamsoft.fridge.detail.DetailFragment
 import com.pyamsoft.fridge.main.VersionChecker
+import com.pyamsoft.fridge.ui.SnackbarContainer
 import com.pyamsoft.pydroid.arch.StateSaver
 import com.pyamsoft.pydroid.arch.createComponent
 import com.pyamsoft.pydroid.ui.Injector
@@ -39,7 +41,7 @@ import com.pyamsoft.pydroid.ui.util.commitNow
 import timber.log.Timber
 import javax.inject.Inject
 
-internal class EntryFragment : Fragment() {
+internal class EntryFragment : Fragment(), SnackbarContainer {
 
     @JvmField
     @Inject
@@ -80,6 +82,12 @@ internal class EntryFragment : Fragment() {
         }
 
         initializeApp()
+    }
+
+    override fun container(): CoordinatorLayout? {
+        val fm = childFragmentManager
+        val fragment = fm.findFragmentById(fragmentContainerId)
+        return if (fragment is SnackbarContainer) fragment.container() else null
     }
 
     private fun initializeApp() {

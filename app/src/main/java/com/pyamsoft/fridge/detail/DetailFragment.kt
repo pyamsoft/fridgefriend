@@ -22,6 +22,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.CheckResult
+import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.pyamsoft.fridge.FridgeComponent
@@ -30,6 +31,7 @@ import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence
 import com.pyamsoft.fridge.detail.expand.ExpandedFragment
+import com.pyamsoft.fridge.ui.SnackbarContainer
 import com.pyamsoft.pydroid.arch.StateSaver
 import com.pyamsoft.pydroid.arch.createComponent
 import com.pyamsoft.pydroid.ui.Injector
@@ -39,7 +41,7 @@ import com.pyamsoft.pydroid.ui.databinding.LayoutCoordinatorBinding
 import com.pyamsoft.pydroid.ui.util.show
 import javax.inject.Inject
 
-internal class DetailFragment : Fragment() {
+internal class DetailFragment : Fragment(), SnackbarContainer {
 
     @JvmField
     @Inject
@@ -120,6 +122,10 @@ internal class DetailFragment : Fragment() {
                 is DetailControllerEvent.AddNew -> createItem()
             }
         }
+    }
+
+    override fun container(): CoordinatorLayout? {
+        return addNew?.container()
     }
 
     override fun onSaveInstanceState(outState: Bundle) {

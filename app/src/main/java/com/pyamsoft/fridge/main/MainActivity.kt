@@ -20,7 +20,6 @@ package com.pyamsoft.fridge.main
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
-import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.CheckResult
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -43,12 +42,12 @@ import com.pyamsoft.fridge.locator.DeviceGps
 import com.pyamsoft.fridge.map.MapFragment
 import com.pyamsoft.fridge.permission.PermissionFragment
 import com.pyamsoft.fridge.setting.SettingsFragment
+import com.pyamsoft.fridge.ui.SnackbarContainer
 import com.pyamsoft.pydroid.arch.StateSaver
 import com.pyamsoft.pydroid.arch.createComponent
 import com.pyamsoft.pydroid.ui.Injector
 import com.pyamsoft.pydroid.ui.arch.viewModelFactory
 import com.pyamsoft.pydroid.ui.databinding.LayoutConstraintBinding
-import com.pyamsoft.pydroid.ui.databinding.LayoutCoordinatorBinding
 import com.pyamsoft.pydroid.ui.rating.ChangeLogBuilder
 import com.pyamsoft.pydroid.ui.rating.RatingActivity
 import com.pyamsoft.pydroid.ui.rating.buildChangeLog
@@ -78,7 +77,18 @@ internal class MainActivity : RatingActivity(), VersionChecker {
         get() = requireNotNull(container).id()
 
     override val snackbarRoot: ViewGroup
-        get() = requireNotNull(snackbarContainer)
+        get() {
+            val fm = supportFragmentManager
+            val fragment = fm.findFragmentById(fragmentContainerId)
+            if (fragment is SnackbarContainer) {
+                val container = fragment.container()
+                if (container != null) {
+                    return container
+                }
+            }
+
+            return requireNotNull(snackbarContainer)
+        }
 
     private var snackbarContainer: ViewGroup? = null
     private var stateSaver: StateSaver? = null
@@ -102,6 +112,10 @@ internal class MainActivity : RatingActivity(), VersionChecker {
     @JvmField
     @Inject
     internal var container: MainContainer? = null
+
+    @JvmField
+    @Inject
+    internal var snackbar: MainSnackbar? = null
 
     @JvmField
     @Inject
@@ -181,18 +195,6 @@ internal class MainActivity : RatingActivity(), VersionChecker {
         }
     }
 
-    @CheckResult
-    private fun createSnackbarContainer(): ViewGroup {
-        val binding = LayoutCoordinatorBinding.inflate(layoutInflater)
-        // All views need an id for ConstraintSet
-        binding.root.id = View.generateViewId()
-
-        // The snackbar container must be a Coordinator or it will mess with the view heirarchy
-        snackbarContainer = binding.layoutCoordinator
-
-        return binding.root
-    }
-
     private fun inflateComponents(
         constraintLayout: ConstraintLayout,
         savedInstanceState: Bundle?
@@ -200,11 +202,13 @@ internal class MainActivity : RatingActivity(), VersionChecker {
         val container = requireNotNull(container)
         val toolbar = requireNotNull(toolbar)
         val navigation = requireNotNull(navigation)
+        val snackbar = requireNotNull(snackbar)
         stateSaver = createComponent(
             savedInstanceState, this, viewModel,
             container,
             toolbar,
-            navigation
+            navigation,
+            snackbar
         ) {
             return@createComponent when (it) {
                 is MainControllerEvent.PushHave -> pushHave(it.previousPage)
@@ -215,10 +219,6 @@ internal class MainActivity : RatingActivity(), VersionChecker {
                 is MainControllerEvent.VersionCheck -> checkForUpdate()
             }
         }
-
-        // Insert the snackbar container after the other views
-        val snackbarContainer = createSnackbarContainer()
-        constraintLayout.addView(snackbarContainer)
 
         constraintLayout.layout {
 
@@ -256,13 +256,13 @@ internal class MainActivity : RatingActivity(), VersionChecker {
                 constrainWidth(it.id(), ConstraintSet.MATCH_CONSTRAINT)
             }
 
-            snackbarContainer.also {
-                connect(it.id, ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP)
-                connect(it.id, ConstraintSet.BOTTOM, navigation.id(), ConstraintSet.TOP)
-                connect(it.id, ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
-                connect(it.id, ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
-                constrainHeight(it.id, ConstraintSet.MATCH_CONSTRAINT)
-                constrainWidth(it.id, ConstraintSet.MATCH_CONSTRAINT)
+            snackbar.also {
+                connect(it.id(), ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP)
+                connect(it.id(), ConstraintSet.BOTTOM, navigation.id(), ConstraintSet.TOP)
+                connect(it.id(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
+                connect(it.id(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
+                constrainHeight(it.id(), ConstraintSet.MATCH_CONSTRAINT)
+                constrainWidth(it.id(), ConstraintSet.MATCH_CONSTRAINT)
             }
         }
     }

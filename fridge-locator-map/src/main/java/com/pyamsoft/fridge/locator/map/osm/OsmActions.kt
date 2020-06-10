@@ -18,12 +18,14 @@
 package com.pyamsoft.fridge.locator.map.osm
 
 import android.view.ViewGroup
+import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.view.ViewPropertyAnimatorCompat
 import androidx.core.view.isVisible
 import androidx.core.view.updatePadding
 import androidx.lifecycle.LifecycleOwner
 import com.pyamsoft.fridge.locator.map.R
 import com.pyamsoft.fridge.locator.map.databinding.OsmActionsBinding
+import com.pyamsoft.fridge.ui.SnackbarContainer
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.loader.Loaded
@@ -36,7 +38,7 @@ class OsmActions @Inject internal constructor(
     private val owner: LifecycleOwner,
     private val imageLoader: ImageLoader,
     parent: ViewGroup
-) : BaseUiView<OsmViewState, OsmViewEvent, OsmActionsBinding>(parent) {
+) : BaseUiView<OsmViewState, OsmViewEvent, OsmActionsBinding>(parent), SnackbarContainer {
 
     override val viewBinding = OsmActionsBinding::inflate
 
@@ -90,6 +92,10 @@ class OsmActions @Inject internal constructor(
             dismissNearbyAnimator()
             dismissMeAnimator()
         }
+    }
+
+    override fun container(): CoordinatorLayout? {
+        return layoutRoot
     }
 
     private fun dismissNearbyAnimator() {
