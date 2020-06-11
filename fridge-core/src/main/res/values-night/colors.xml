@@ -25,6 +25,6 @@
 
     <color name="windowBackground">@color/material_dark_background</color>
 
-    <color name="colorPrimarySeeThrough">#AAE57373</color>
+    <color name="colorPrimarySeeThrough">#CCE57373</color>
     <color name="navigationBarColor">#01E57373</color>
 </resources>
