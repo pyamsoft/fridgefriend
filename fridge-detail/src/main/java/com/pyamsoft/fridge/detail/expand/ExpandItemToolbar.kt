@@ -43,9 +43,15 @@ class ExpandItemToolbar @Inject internal constructor(
         doOnInflate {
             layoutRoot.setUpEnabled(true)
             layoutRoot.inflateMenu(R.menu.menu_expanded)
-            deleteMenuItem = layoutRoot.menu.findItem(R.id.menu_item_delete)
-            consumeMenuItem = layoutRoot.menu.findItem(R.id.menu_item_consume)
-            spoilMenuItem = layoutRoot.menu.findItem(R.id.menu_item_spoil)
+            deleteMenuItem = layoutRoot.menu.findItem(R.id.menu_item_delete).apply {
+                isVisible = false
+            }
+            consumeMenuItem = layoutRoot.menu.findItem(R.id.menu_item_consume).apply {
+                isVisible = false
+            }
+            spoilMenuItem = layoutRoot.menu.findItem(R.id.menu_item_spoil).apply {
+                isVisible = false
+            }
         }
 
         doOnInflate {
