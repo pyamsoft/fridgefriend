@@ -9,6 +9,6 @@
 
     <color name="windowBackground">@color/material_light_background</color>
 
-    <color name="colorPrimarySeeThrough">#CCF44336</color>
+    <color name="colorPrimarySeeThrough">#D7F44336</color>
     <color name="navigationBarColor">#01F44336</color>
 </resources>
