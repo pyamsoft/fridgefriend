@@ -53,7 +53,7 @@ import com.pyamsoft.pydroid.ui.rating.RatingActivity
 import com.pyamsoft.pydroid.ui.rating.buildChangeLog
 import com.pyamsoft.pydroid.ui.util.commitNow
 import com.pyamsoft.pydroid.ui.util.layout
-import com.pyamsoft.pydroid.util.makeWindowSexy
+import com.pyamsoft.pydroid.util.stableLayoutHideNavigation
 import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -129,7 +129,7 @@ internal class MainActivity : RatingActivity(), VersionChecker {
             .create(this, binding.layoutConstraint, guaranteePage(intent), this)
             .inject(this)
 
-        binding.root.makeWindowSexy()
+        stableLayoutHideNavigation()
         inflateComponents(binding.layoutConstraint, savedInstanceState)
         beginWork()
     }
