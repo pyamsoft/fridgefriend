@@ -17,7 +17,6 @@
 
 package com.pyamsoft.fridge.detail
 
-import android.graphics.Canvas
 import android.graphics.Color
 import android.view.ViewGroup
 import androidx.annotation.CheckResult
@@ -94,8 +93,7 @@ class DetailList @Inject internal constructor(
                         publish(DetailViewEvent.ChangePresence(itemAtIndex(index)))
                     }
                 })
-            binding.detailList.adapter = usingAdapter().apply { setHasStableIds(true) }
-            binding.detailList.setHasFixedSize(true)
+            binding.detailList.adapter = modelAdapter
         }
 
         doOnInflate {
@@ -228,7 +226,8 @@ class DetailList @Inject internal constructor(
         touchHelper?.attachToRecyclerView(null)
 
         // Attach new helper
-        val helper = ItemTouchHelper(createNewCustomSwipeTouchHelper(swipeCallback, directions))
+        val helper = createSwipeHelper(swipeCallback, directions)
+
         helper.attachToRecyclerView(binding.detailList)
 
         // Set helper for cleanup later
@@ -236,12 +235,11 @@ class DetailList @Inject internal constructor(
     }
 
     @CheckResult
-    private fun createNewCustomSwipeTouchHelper(
+    private fun createSwipeHelper(
         swipeCallback: SimpleSwipeCallback,
-        @Suppress("SameParameterValue") directions: Int
-    ): ItemTouchHelper.Callback {
-        return object : ItemTouchHelper.SimpleCallback(0, directions) {
-
+        directions: Int
+    ): ItemTouchHelper {
+        return ItemTouchHelper(object : ItemTouchHelper.SimpleCallback(0, directions) {
             override fun onMove(
                 recyclerView: RecyclerView,
                 viewHolder: RecyclerView.ViewHolder,
@@ -251,37 +249,9 @@ class DetailList @Inject internal constructor(
             }
 
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-                return swipeCallback.onSwiped(viewHolder, direction)
+                swipeCallback.onSwiped(viewHolder, direction)
             }
-
-            override fun getSwipeDirs(
-                recyclerView: RecyclerView,
-                viewHolder: RecyclerView.ViewHolder
-            ): Int {
-                // Can't swipe non item view holders
-                return if (viewHolder is DetailItemViewHolder) directions else 0
-            }
-
-            override fun onChildDraw(
-                c: Canvas,
-                recyclerView: RecyclerView,
-                viewHolder: RecyclerView.ViewHolder,
-                dX: Float,
-                dY: Float,
-                actionState: Int,
-                isCurrentlyActive: Boolean
-            ) {
-                swipeCallback.onChildDraw(
-                    c,
-                    recyclerView,
-                    viewHolder,
-                    dX,
-                    dY,
-                    actionState,
-                    isCurrentlyActive
-                )
-            }
-        }
+        })
     }
 
     @CheckResult

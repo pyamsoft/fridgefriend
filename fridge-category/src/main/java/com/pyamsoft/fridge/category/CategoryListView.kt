@@ -52,8 +52,7 @@ class CategoryListView @Inject internal constructor(
                 }
 
             modelAdapter = CategoryAdapter(owner, factory)
-            binding.categoryList.adapter = usingAdapter().apply { setHasStableIds(true) }
-            binding.categoryList.setHasFixedSize(true)
+            binding.categoryList.adapter = modelAdapter
         }
 
         doOnTeardown {

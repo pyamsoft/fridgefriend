@@ -43,8 +43,8 @@ class ExpandItemCategoryList @Inject internal constructor(
 
     init {
         doOnInflate {
-            layoutRoot.layoutManager = LinearLayoutManager(
-                layoutRoot.context,
+            binding.expandItemCategories.layoutManager = LinearLayoutManager(
+                binding.expandItemCategories.context,
                 LinearLayoutManager.HORIZONTAL,
                 false
             ).apply {
@@ -63,8 +63,7 @@ class ExpandItemCategoryList @Inject internal constructor(
                         publish(ExpandedItemViewEvent.CommitCategory(index))
                     }
                 })
-            layoutRoot.adapter = usingAdapter().apply { setHasStableIds(true) }
-            layoutRoot.setHasFixedSize(true)
+            binding.expandItemCategories.adapter = modelAdapter
         }
 
         doOnTeardown {
