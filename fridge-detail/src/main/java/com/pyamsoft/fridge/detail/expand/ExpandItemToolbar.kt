@@ -17,17 +17,23 @@
 
 package com.pyamsoft.fridge.detail.expand
 
+import android.graphics.Color
+import android.graphics.drawable.Drawable
 import android.view.MenuItem
 import android.view.ViewGroup
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence.HAVE
 import com.pyamsoft.fridge.detail.R
 import com.pyamsoft.fridge.detail.databinding.ExpandToolbarBinding
 import com.pyamsoft.pydroid.arch.BaseUiView
+import com.pyamsoft.pydroid.loader.ImageLoader
+import com.pyamsoft.pydroid.loader.ImageTarget
 import com.pyamsoft.pydroid.ui.util.DebouncedOnClickListener
 import com.pyamsoft.pydroid.ui.util.setUpEnabled
+import com.pyamsoft.pydroid.util.tintWith
 import javax.inject.Inject
 
 class ExpandItemToolbar @Inject internal constructor(
+    imageLoader: ImageLoader,
     parent: ViewGroup
 ) : BaseUiView<ExpandItemViewState, ExpandedItemViewEvent, ExpandToolbarBinding>(parent) {
 
@@ -41,25 +47,45 @@ class ExpandItemToolbar @Inject internal constructor(
 
     init {
         doOnInflate {
-            layoutRoot.setUpEnabled(true)
-            layoutRoot.inflateMenu(R.menu.menu_expanded)
-            deleteMenuItem = layoutRoot.menu.findItem(R.id.menu_item_delete).apply {
-                isVisible = false
-            }
-            consumeMenuItem = layoutRoot.menu.findItem(R.id.menu_item_consume).apply {
-                isVisible = false
-            }
-            spoilMenuItem = layoutRoot.menu.findItem(R.id.menu_item_spoil).apply {
-                isVisible = false
+            imageLoader.load(R.drawable.ic_close_24dp).mutate { it.tintWith(Color.WHITE) }
+                .into(object : ImageTarget<Drawable> {
+
+                    override fun clear() {
+                        binding.expandToolbar.navigationIcon = null
+                    }
+
+                    override fun setImage(image: Drawable) {
+                        binding.expandToolbar.setUpEnabled(true, image)
+                    }
+                }).also { loaded ->
+                    doOnTeardown {
+                        loaded.dispose()
+                    }
+                }
+        }
+        doOnInflate {
+            binding.expandToolbar.apply {
+                inflateMenu(R.menu.menu_expanded)
+                menu.apply {
+                    deleteMenuItem = findItem(R.id.menu_item_delete).apply {
+                        isVisible = false
+                    }
+                    consumeMenuItem = findItem(R.id.menu_item_consume).apply {
+                        isVisible = false
+                    }
+                    spoilMenuItem = findItem(R.id.menu_item_spoil).apply {
+                        isVisible = false
+                    }
+                }
             }
         }
 
         doOnInflate {
-            layoutRoot.setNavigationOnClickListener(DebouncedOnClickListener.create {
+            binding.expandToolbar.setNavigationOnClickListener(DebouncedOnClickListener.create {
                 publish(ExpandedItemViewEvent.CloseItem)
             })
 
-            layoutRoot.setOnMenuItemClickListener { menuItem ->
+            binding.expandToolbar.setOnMenuItemClickListener { menuItem ->
                 return@setOnMenuItemClickListener when (menuItem.itemId) {
                     R.id.menu_item_delete -> {
                         publish(ExpandedItemViewEvent.DeleteItem)
@@ -84,13 +110,13 @@ class ExpandItemToolbar @Inject internal constructor(
     }
 
     private fun clear() {
-        layoutRoot.menu.clear()
         deleteMenuItem = null
         consumeMenuItem = null
         spoilMenuItem = null
 
-        layoutRoot.setNavigationOnClickListener(null)
-        layoutRoot.setOnMenuItemClickListener(null)
+        binding.expandToolbar.menu.clear()
+        binding.expandToolbar.setNavigationOnClickListener(null)
+        binding.expandToolbar.setOnMenuItemClickListener(null)
     }
 
     private fun handleItem(state: ExpandItemViewState) {
