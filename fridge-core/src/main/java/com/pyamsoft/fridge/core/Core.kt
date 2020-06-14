@@ -19,6 +19,7 @@ package com.pyamsoft.fridge.core
 
 import android.content.Context
 import android.graphics.Point
+import android.os.Build
 import android.view.View
 import android.view.WindowManager
 import android.view.animation.OvershootInterpolator
@@ -55,7 +56,7 @@ inline fun today(func: Calendar.() -> Unit): Calendar {
 
 @CheckResult
 fun animatePopInFromBottom(view: View): ViewPropertyAnimatorCompat {
-    view.translationY = animatingHeight(view.context.applicationContext)
+    view.translationY = animatingHeight(view.context).toFloat()
     view.isVisible = true
     return ViewCompat.animate(view)
         .translationY(0F)
@@ -66,12 +67,19 @@ fun animatePopInFromBottom(view: View): ViewPropertyAnimatorCompat {
 
 private val interpolator by lazy(LazyThreadSafetyMode.NONE) { OvershootInterpolator(1.4F) }
 
-private fun animatingHeight(context: Context): Float {
-    val point = Point()
-    val app = context.applicationContext
-    val window = requireNotNull(app.getSystemService<WindowManager>())
-    window.defaultDisplay.getSize(point)
-    return point.y.toFloat()
+@CheckResult
+private fun animatingHeight(activityContext: Context): Int {
+    val windowManager = requireNotNull(activityContext.getSystemService<WindowManager>())
+    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+        windowManager.currentWindowMetrics.bounds.bottom
+    } else {
+        val point = Point()
+
+        @Suppress("DEPRECATION")
+        windowManager.defaultDisplay.getSize(point)
+
+        point.y
+    }
 }
 
 fun View.applyToolbarOffset() {

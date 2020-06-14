@@ -18,6 +18,7 @@
 package com.pyamsoft.fridge.detail
 
 import android.os.Handler
+import android.os.Looper
 import android.view.Menu
 import android.view.MenuItem
 import android.view.SubMenu
@@ -43,8 +44,8 @@ class DetailToolbar @Inject internal constructor(
     private var searchView: SearchView? = null
     private var subMenu: SubMenu? = null
 
-    private val publishHandler = Handler()
-    private val handler = Handler()
+    private val publishHandler by lazy(LazyThreadSafetyMode.NONE) { Handler(Looper.getMainLooper()) }
+    private val handler by lazy(LazyThreadSafetyMode.NONE) { Handler(Looper.getMainLooper()) }
 
     init {
         doOnInflate {
