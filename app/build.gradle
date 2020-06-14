@@ -97,6 +97,7 @@ kapt {
 dependencies {
 	// Leak Canary
 	debugImplementation "com.squareup.leakcanary:leakcanary-android:$leakCanary"
+	implementation "com.squareup.leakcanary:plumber-android:$leakCanary"
 
 	// Dagger
 	kapt "com.google.dagger:dagger-compiler:$dagger"

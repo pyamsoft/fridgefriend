@@ -33,6 +33,7 @@ import com.pyamsoft.pydroid.arch.StateSaver
 import com.pyamsoft.pydroid.arch.createComponent
 import com.pyamsoft.pydroid.ui.Injector
 import com.pyamsoft.pydroid.ui.arch.viewModelFactory
+import com.pyamsoft.pydroid.util.valueFromCurrentTheme
 import java.util.Calendar
 import javax.inject.Inject
 
@@ -44,6 +45,10 @@ internal class DateSelectDialogFragment : DialogFragment() {
     private val viewModel by viewModelFactory<DateSelectViewModel>(activity = true) { factory }
 
     private var stateSaver: StateSaver? = null
+
+    private val themeFromAttrs by lazy {
+        requireActivity().valueFromCurrentTheme(R.attr.dialogTheme)
+    }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         Injector.obtain<FridgeComponent>(requireContext().applicationContext)
@@ -90,7 +95,7 @@ internal class DateSelectDialogFragment : DialogFragment() {
     }
 
     override fun getTheme(): Int {
-        return R.style.Theme_Fridge_Dialog
+        return themeFromAttrs
     }
 
     companion object {

@@ -66,10 +66,6 @@ internal class MainActivity : RatingActivity(), VersionChecker {
 
     override val versionName: String = BuildConfig.VERSION_NAME
 
-    override val changeLogTheme: Int = R.style.Theme_Fridge_Dialog
-
-    override val versionCheckTheme: Int = R.style.Theme_Fridge_Dialog
-
     override val changeLogLines: ChangeLogBuilder = buildChangeLog {
     }
 

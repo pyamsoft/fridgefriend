@@ -43,6 +43,7 @@ import com.pyamsoft.pydroid.ui.databinding.LayoutConstraintBinding
 import com.pyamsoft.pydroid.ui.util.layout
 import com.pyamsoft.pydroid.ui.util.show
 import com.pyamsoft.pydroid.ui.widget.shadow.DropshadowView
+import com.pyamsoft.pydroid.util.valueFromCurrentTheme
 import javax.inject.Inject
 
 internal class ExpandedFragment : DialogFragment() {
@@ -85,6 +86,10 @@ internal class ExpandedFragment : DialogFragment() {
     @Inject
     internal var factory: ViewModelProvider.Factory? = null
     private val viewModel by viewModelFactory<ExpandItemViewModel> { factory }
+
+    private val themeFromAttrs by lazy {
+        requireActivity().valueFromCurrentTheme(R.attr.dialogTheme)
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -227,7 +232,7 @@ internal class ExpandedFragment : DialogFragment() {
     }
 
     override fun getTheme(): Int {
-        return R.style.Theme_Fridge_Dialog
+        return themeFromAttrs
     }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
