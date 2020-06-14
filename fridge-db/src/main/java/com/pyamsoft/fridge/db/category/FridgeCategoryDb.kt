@@ -20,7 +20,6 @@ package com.pyamsoft.fridge.db.category
 import androidx.annotation.CheckResult
 import com.pyamsoft.cachify.Cached1
 import com.pyamsoft.fridge.db.BaseDb
-import com.pyamsoft.pydroid.core.Enforcer
 
 interface FridgeCategoryDb : BaseDb<
     FridgeCategoryChangeEvent,

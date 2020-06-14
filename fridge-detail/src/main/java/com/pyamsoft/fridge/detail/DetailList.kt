@@ -40,8 +40,8 @@ import com.pyamsoft.pydroid.ui.util.refreshing
 import com.pyamsoft.pydroid.util.toDp
 import io.cabriole.decorator.LinearBoundsMarginDecoration
 import io.cabriole.decorator.LinearMarginDecoration
-import timber.log.Timber
 import javax.inject.Inject
+import timber.log.Timber
 
 class DetailList @Inject internal constructor(
     private val imageLoader: ImageLoader,

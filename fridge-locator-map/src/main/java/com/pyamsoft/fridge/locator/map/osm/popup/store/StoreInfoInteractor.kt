@@ -25,7 +25,6 @@ import com.pyamsoft.fridge.db.store.NearbyStoreInsertDao
 import com.pyamsoft.fridge.db.store.NearbyStoreQueryDao
 import com.pyamsoft.fridge.db.store.NearbyStoreRealtime
 import com.pyamsoft.fridge.locator.map.osm.popup.base.BaseInfoInteractor
-import com.pyamsoft.pydroid.core.Enforcer
 import javax.inject.Inject
 
 internal class StoreInfoInteractor @Inject internal constructor(

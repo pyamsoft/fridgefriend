@@ -32,11 +32,8 @@ package com.pyamsoft.fridge.main/*
  *
  */
 
-import android.graphics.Color
 import android.view.ViewGroup
 import androidx.coordinatorlayout.widget.CoordinatorLayout
-import com.pyamsoft.fridge.main.MainViewEvent
-import com.pyamsoft.fridge.main.MainViewState
 import com.pyamsoft.fridge.main.databinding.MainSnackbarBinding
 import com.pyamsoft.fridge.ui.SnackbarContainer
 import com.pyamsoft.pydroid.arch.BaseUiView

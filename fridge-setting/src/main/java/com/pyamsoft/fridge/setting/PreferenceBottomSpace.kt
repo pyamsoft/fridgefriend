@@ -24,7 +24,8 @@ import androidx.preference.PreferenceViewHolder
 import com.pyamsoft.pydroid.ui.preference.PreferenceCompat
 
 internal class PreferenceBottomSpace internal constructor(
-    private val height: Int, context: Context
+    private val height: Int,
+    context: Context
 ) : PreferenceCompat(context) {
 
     init {

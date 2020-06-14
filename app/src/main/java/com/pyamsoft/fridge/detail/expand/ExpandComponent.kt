@@ -35,7 +35,6 @@ import dagger.BindsInstance
 import dagger.Module
 import dagger.Subcomponent
 import dagger.multibindings.IntoMap
-import javax.inject.Named
 
 @Subcomponent(modules = [ViewModelModule::class, ExpandItemModule::class, ThemeProviderModule::class])
 internal interface ExpandComponent {

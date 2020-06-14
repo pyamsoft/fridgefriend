@@ -25,12 +25,12 @@ import com.pyamsoft.fridge.ui.BottomOffset
 import com.pyamsoft.highlander.highlander
 import com.pyamsoft.pydroid.arch.EventBus
 import com.pyamsoft.pydroid.arch.UiViewModel
+import javax.inject.Inject
+import javax.inject.Named
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import timber.log.Timber
-import javax.inject.Inject
-import javax.inject.Named
 
 class MainViewModel @Inject internal constructor(
     private val interactor: MainInteractor,

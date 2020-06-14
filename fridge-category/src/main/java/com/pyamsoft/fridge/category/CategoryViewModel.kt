@@ -19,9 +19,9 @@ package com.pyamsoft.fridge.category
 
 import androidx.lifecycle.viewModelScope
 import com.pyamsoft.pydroid.arch.UiViewModel
-import kotlinx.coroutines.Dispatchers
 import javax.inject.Inject
 import javax.inject.Named
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class CategoryViewModel @Inject internal constructor(

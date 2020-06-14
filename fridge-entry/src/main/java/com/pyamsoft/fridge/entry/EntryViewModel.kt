@@ -21,9 +21,9 @@ import androidx.lifecycle.viewModelScope
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.persist.PersistentEntries
 import com.pyamsoft.pydroid.arch.UiViewModel
-import kotlinx.coroutines.Dispatchers
 import javax.inject.Inject
 import javax.inject.Named
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import timber.log.Timber
 

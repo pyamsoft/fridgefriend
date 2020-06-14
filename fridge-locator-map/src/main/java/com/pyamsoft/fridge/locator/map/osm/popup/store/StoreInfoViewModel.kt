@@ -23,9 +23,9 @@ import com.pyamsoft.fridge.db.store.NearbyStore
 import com.pyamsoft.fridge.locator.map.osm.popup.base.BaseInfoViewModel
 import com.pyamsoft.fridge.locator.map.osm.popup.base.BaseInfoViewState
 import com.pyamsoft.fridge.locator.map.osm.popup.store.StoreInfoViewEvent.StoreFavoriteAction
-import kotlinx.coroutines.Dispatchers
 import javax.inject.Inject
 import javax.inject.Named
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.osmdroid.views.overlay.Marker
 

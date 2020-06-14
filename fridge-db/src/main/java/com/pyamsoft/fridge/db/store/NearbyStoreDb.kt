@@ -20,7 +20,6 @@ package com.pyamsoft.fridge.db.store
 import androidx.annotation.CheckResult
 import com.pyamsoft.cachify.Cached1
 import com.pyamsoft.fridge.db.BaseDb
-import com.pyamsoft.pydroid.core.Enforcer
 
 interface NearbyStoreDb : BaseDb<
     NearbyStoreChangeEvent,

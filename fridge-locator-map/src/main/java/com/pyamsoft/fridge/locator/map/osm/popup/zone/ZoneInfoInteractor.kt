@@ -28,7 +28,6 @@ import com.pyamsoft.fridge.db.zone.NearbyZoneInsertDao
 import com.pyamsoft.fridge.db.zone.NearbyZoneQueryDao
 import com.pyamsoft.fridge.db.zone.NearbyZoneRealtime
 import com.pyamsoft.fridge.locator.map.osm.popup.base.BaseInfoInteractor
-import com.pyamsoft.pydroid.core.Enforcer
 import javax.inject.Inject
 
 internal class ZoneInfoInteractor @Inject internal constructor(

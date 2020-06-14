@@ -23,10 +23,10 @@ import com.pyamsoft.pydroid.arch.EventConsumer
 import com.pyamsoft.pydroid.arch.UiViewModel
 import com.pyamsoft.pydroid.arch.UnitControllerEvent
 import com.pyamsoft.pydroid.arch.UnitViewEvent
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 import javax.inject.Named
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class SettingsViewModel @Inject internal constructor(
     bottomOffsetBus: EventConsumer<BottomOffset>,

@@ -33,7 +33,6 @@ import com.pyamsoft.fridge.db.store.JsonMappableNearbyStore
 import com.pyamsoft.fridge.db.store.NearbyStore
 import com.pyamsoft.fridge.db.zone.JsonMappableNearbyZone
 import com.pyamsoft.fridge.db.zone.NearbyZone
-import com.pyamsoft.pydroid.core.Enforcer
 import dagger.Module
 import dagger.Provides
 import java.util.concurrent.TimeUnit.MINUTES

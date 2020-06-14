@@ -21,9 +21,9 @@ import androidx.lifecycle.viewModelScope
 import com.pyamsoft.fridge.locator.MapPermission
 import com.pyamsoft.pydroid.arch.UiViewModel
 import com.pyamsoft.pydroid.arch.UnitViewState
-import kotlinx.coroutines.Dispatchers
 import javax.inject.Inject
 import javax.inject.Named
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class LocationPermissionViewModel @Inject internal constructor(

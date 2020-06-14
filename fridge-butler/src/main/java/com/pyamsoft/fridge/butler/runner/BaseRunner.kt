@@ -24,12 +24,12 @@ import com.pyamsoft.fridge.butler.NotificationHandler
 import com.pyamsoft.fridge.butler.NotificationPreferences
 import com.pyamsoft.fridge.butler.params.BaseParameters
 import com.pyamsoft.pydroid.core.Enforcer
+import java.util.Calendar
+import java.util.UUID
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import timber.log.Timber
-import java.util.Calendar
-import java.util.UUID
 
 internal abstract class BaseRunner<P : BaseParameters> protected constructor(
     private val handler: NotificationHandler,
