@@ -24,8 +24,6 @@ import com.pyamsoft.fridge.db.category.FridgeCategoryChangeEvent.Insert
 import com.pyamsoft.fridge.db.category.FridgeCategoryChangeEvent.Update
 import com.pyamsoft.pydroid.core.Enforcer
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 
 internal class FridgeCategoryDbImpl internal constructor(
@@ -34,8 +32,6 @@ internal class FridgeCategoryDbImpl internal constructor(
     updateDao: FridgeCategoryUpdateDao,
     deleteDao: FridgeCategoryDeleteDao
 ) : BaseDbImpl<FridgeCategory, FridgeCategoryChangeEvent>(cache), FridgeCategoryDb {
-
-    private val mutex = Mutex()
 
     private val realtime = object : FridgeCategoryRealtime {
 
@@ -52,13 +48,11 @@ internal class FridgeCategoryDbImpl internal constructor(
         override suspend fun query(force: Boolean): List<FridgeCategory> =
             withContext(context = Dispatchers.IO) {
                 Enforcer.assertOffMainThread()
-                mutex.withLock {
-                    if (force) {
-                        invalidate()
-                    }
-
-                    return@withContext cache.call(force).toList()
+                if (force) {
+                    invalidate()
                 }
+
+                return@withContext cache.call(force).toList()
             }
     }
 
@@ -66,7 +60,7 @@ internal class FridgeCategoryDbImpl internal constructor(
 
         override suspend fun insert(o: FridgeCategory) = withContext(context = Dispatchers.IO) {
             Enforcer.assertOffMainThread()
-            mutex.withLock { insertDao.insert(o) }
+            insertDao.insert(o)
             publish(Insert(o))
         }
     }
@@ -75,7 +69,7 @@ internal class FridgeCategoryDbImpl internal constructor(
 
         override suspend fun update(o: FridgeCategory) = withContext(context = Dispatchers.IO) {
             Enforcer.assertOffMainThread()
-            mutex.withLock { updateDao.update(o) }
+            updateDao.update(o)
             publish(Update(o))
         }
     }
@@ -84,7 +78,7 @@ internal class FridgeCategoryDbImpl internal constructor(
 
         override suspend fun delete(o: FridgeCategory) = withContext(context = Dispatchers.IO) {
             Enforcer.assertOffMainThread()
-            mutex.withLock { deleteDao.delete(o) }
+            deleteDao.delete(o)
             publish(Delete(o))
         }
     }

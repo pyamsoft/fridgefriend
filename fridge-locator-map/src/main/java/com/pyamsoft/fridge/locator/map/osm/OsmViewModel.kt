@@ -25,17 +25,15 @@ import com.pyamsoft.highlander.highlander
 import com.pyamsoft.pydroid.arch.EventConsumer
 import com.pyamsoft.pydroid.arch.UiViewModel
 import com.pyamsoft.pydroid.arch.onActualError
-import javax.inject.Inject
-import javax.inject.Named
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import timber.log.Timber
+import javax.inject.Inject
+import javax.inject.Named
 
 class OsmViewModel @Inject internal constructor(
     private val interactor: OsmInteractor,
@@ -55,8 +53,6 @@ class OsmViewModel @Inject internal constructor(
         bottomOffset = 0
     ), debug = debug
 ) {
-
-    private val mutex = Mutex()
 
     private val nearbyRunner = highlander<Unit, BBox?> { box ->
         setState { copy(loading = true) }
@@ -110,19 +106,17 @@ class OsmViewModel @Inject internal constructor(
         setState { copy(nearbyError = throwable) }
     }
 
-    private suspend fun updateMarkers(
+    private fun updateMarkers(
         markers: OsmMarkers,
         fromCached: Boolean
     ) {
-        mutex.withLock {
-            setState {
-                copy(
-                    points = merge(points, markers.points) { it.id() },
-                    zones = merge(zones, markers.zones) { it.id() },
-                    cachedFetchError = if (fromCached) null else cachedFetchError,
-                    nearbyError = if (!fromCached) null else nearbyError
-                )
-            }
+        setState {
+            copy(
+                points = merge(points, markers.points) { it.id() },
+                zones = merge(zones, markers.zones) { it.id() },
+                cachedFetchError = if (fromCached) null else cachedFetchError,
+                nearbyError = if (!fromCached) null else nearbyError
+            )
         }
     }
 

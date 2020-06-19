@@ -24,8 +24,6 @@ import com.pyamsoft.fridge.db.store.NearbyStoreChangeEvent.Insert
 import com.pyamsoft.fridge.db.store.NearbyStoreChangeEvent.Update
 import com.pyamsoft.pydroid.core.Enforcer
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 
 internal class NearbyStoreDbImpl internal constructor(
@@ -34,8 +32,6 @@ internal class NearbyStoreDbImpl internal constructor(
     updateDao: NearbyStoreUpdateDao,
     deleteDao: NearbyStoreDeleteDao
 ) : BaseDbImpl<NearbyStore, NearbyStoreChangeEvent>(cache), NearbyStoreDb {
-
-    private val mutex = Mutex()
 
     private val realtime = object : NearbyStoreRealtime {
 
@@ -51,13 +47,11 @@ internal class NearbyStoreDbImpl internal constructor(
 
         override suspend fun query(force: Boolean): List<NearbyStore> {
             Enforcer.assertOffMainThread()
-            mutex.withLock {
-                if (force) {
-                    invalidate()
-                }
-
-                return cache.call(force).toList()
+            if (force) {
+                invalidate()
             }
+
+            return cache.call(force).toList()
         }
     }
 
@@ -65,7 +59,7 @@ internal class NearbyStoreDbImpl internal constructor(
 
         override suspend fun insert(o: NearbyStore) {
             Enforcer.assertOffMainThread()
-            mutex.withLock { insertDao.insert(o) }
+            insertDao.insert(o)
             publish(Insert(o))
         }
     }
@@ -74,7 +68,7 @@ internal class NearbyStoreDbImpl internal constructor(
 
         override suspend fun update(o: NearbyStore) {
             Enforcer.assertOffMainThread()
-            mutex.withLock { updateDao.update(o) }
+            updateDao.update(o)
             publish(Update(o))
         }
     }
@@ -83,7 +77,7 @@ internal class NearbyStoreDbImpl internal constructor(
 
         override suspend fun delete(o: NearbyStore) {
             Enforcer.assertOffMainThread()
-            mutex.withLock { deleteDao.delete(o) }
+            deleteDao.delete(o)
             publish(Delete(o))
         }
     }
