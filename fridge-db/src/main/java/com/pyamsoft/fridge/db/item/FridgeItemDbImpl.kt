@@ -26,12 +26,10 @@ import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent.Delete
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent.Insert
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent.Update
 import com.pyamsoft.pydroid.core.Enforcer
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.util.Locale
 import kotlin.math.min
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
-import kotlinx.coroutines.withContext
 
 internal class FridgeItemDbImpl internal constructor(
     cache: Cached1<Sequence<FridgeItem>, Boolean>,
@@ -39,8 +37,6 @@ internal class FridgeItemDbImpl internal constructor(
     updateDao: FridgeItemUpdateDao,
     deleteDao: FridgeItemDeleteDao
 ) : BaseDbImpl<FridgeItem, FridgeItemChangeEvent>(cache), FridgeItemDb {
-
-    private val mutex = Mutex()
 
     private val realtime = object : FridgeItemRealtime {
 
@@ -78,19 +74,15 @@ internal class FridgeItemDbImpl internal constructor(
         override suspend fun query(force: Boolean): List<FridgeItem> =
             withContext(context = Dispatchers.IO) {
                 Enforcer.assertOffMainThread()
-                mutex.withLock {
-                    return@withContext queryAsSequence(force).toList()
-                }
+                return@withContext queryAsSequence(force).toList()
             }
 
         override suspend fun query(force: Boolean, id: FridgeEntry.Id): List<FridgeItem> =
             withContext(context = Dispatchers.IO) {
                 Enforcer.assertOffMainThread()
-                mutex.withLock {
-                    return@withContext queryAsSequence(force)
-                        .filter { it.entryId() == id }
-                        .toList()
-                }
+                return@withContext queryAsSequence(force)
+                    .filter { it.entryId() == id }
+                    .toList()
             }
 
         override suspend fun querySameNameDifferentPresence(
@@ -99,18 +91,16 @@ internal class FridgeItemDbImpl internal constructor(
             presence: Presence
         ): List<FridgeItem> = withContext(context = Dispatchers.IO) {
             Enforcer.assertOffMainThread()
-            mutex.withLock {
-                return@withContext queryAsSequence(force)
-                    .filter { it.isReal() }
-                    .filterNot { it.isArchived() }
-                    .filter { it.presence() == presence }
-                    .filter { item ->
-                        val cleanName = name.toLowerCase(Locale.getDefault()).trim()
-                        val itemName = item.name().toLowerCase(Locale.getDefault()).trim()
-                        return@filter itemName == cleanName
-                    }
-                    .toList()
-            }
+            return@withContext queryAsSequence(force)
+                .filter { it.isReal() }
+                .filterNot { it.isArchived() }
+                .filter { it.presence() == presence }
+                .filter { item ->
+                    val cleanName = name.toLowerCase(Locale.getDefault()).trim()
+                    val itemName = item.name().toLowerCase(Locale.getDefault()).trim()
+                    return@filter itemName == cleanName
+                }
+                .toList()
         }
 
         override suspend fun querySimilarNamedItems(
@@ -118,35 +108,33 @@ internal class FridgeItemDbImpl internal constructor(
             item: FridgeItem
         ): List<FridgeItem> = withContext(context = Dispatchers.IO) {
             Enforcer.assertOffMainThread()
-            mutex.withLock {
-                val sequence = queryAsSequence(force)
-                    .filter { it.isReal() }
-                    .filterNot { it.id() == item.id() }
-                    .map { fridgeItem ->
-                        val name = item.name().toLowerCase(Locale.getDefault()).trim()
-                        val itemName = fridgeItem.name().toLowerCase(Locale.getDefault()).trim()
+            val sequence = queryAsSequence(force)
+                .filter { it.isReal() }
+                .filterNot { it.id() == item.id() }
+                .map { fridgeItem ->
+                    val name = item.name().toLowerCase(Locale.getDefault()).trim()
+                    val itemName = fridgeItem.name().toLowerCase(Locale.getDefault()).trim()
 
-                        val score = when {
-                            itemName == name -> 1.0F
-                            itemName.startsWith(name) -> 0.75F
-                            itemName.endsWith(name) -> 0.5F
-                            else -> itemName.withDistanceRatio(name)
-                        }
-                        return@map SimilarityScore(fridgeItem, score)
+                    val score = when {
+                        itemName == name -> 1.0F
+                        itemName.startsWith(name) -> 0.75F
+                        itemName.endsWith(name) -> 0.5F
+                        else -> itemName.withDistanceRatio(name)
                     }
-                    .filterNot { it.score < SIMILARITY_MIN_SCORE_CUTOFF }
-                    .sortedBy { it.score }
-
-                if (sequence.none()) {
-                    return@withContext emptyList<FridgeItem>()
+                    return@map SimilarityScore(fridgeItem, score)
                 }
+                .filterNot { it.score < SIMILARITY_MIN_SCORE_CUTOFF }
+                .sortedBy { it.score }
 
-                return@withContext sequence
-                    .chunked(SIMILARITY_MAX_ITEM_COUNT)
-                    .first()
-                    .map { it.item }
-                    .toList()
+            if (sequence.none()) {
+                return@withContext emptyList<FridgeItem>()
             }
+
+            return@withContext sequence
+                .chunked(SIMILARITY_MAX_ITEM_COUNT)
+                .first()
+                .map { it.item }
+                .toList()
         }
 
         @CheckResult
@@ -193,7 +181,7 @@ internal class FridgeItemDbImpl internal constructor(
 
         override suspend fun insert(o: FridgeItem) = withContext(context = Dispatchers.IO) {
             Enforcer.assertOffMainThread()
-            mutex.withLock { insertDao.insert(o) }
+            insertDao.insert(o)
             publish(Insert(o.makeReal()))
         }
     }
@@ -202,7 +190,7 @@ internal class FridgeItemDbImpl internal constructor(
 
         override suspend fun update(o: FridgeItem) = withContext(context = Dispatchers.IO) {
             Enforcer.assertOffMainThread()
-            mutex.withLock { updateDao.update(o) }
+            updateDao.update(o)
             publish(Update(o.makeReal()))
         }
     }
@@ -211,7 +199,7 @@ internal class FridgeItemDbImpl internal constructor(
 
         override suspend fun delete(o: FridgeItem) = withContext(context = Dispatchers.IO) {
             Enforcer.assertOffMainThread()
-            mutex.withLock { deleteDao.delete(o) }
+            deleteDao.delete(o)
             publish(Delete(o.makeReal()))
         }
     }
