@@ -21,12 +21,12 @@ import androidx.annotation.CheckResult
 import androidx.lifecycle.ViewModelProvider
 import androidx.preference.PreferenceScreen
 import com.pyamsoft.fridge.core.FridgeViewModelFactory
-import com.pyamsoft.fridge.core.ViewModelKey
 import com.pyamsoft.pydroid.arch.UiViewModel
 import dagger.Binds
 import dagger.BindsInstance
 import dagger.Module
 import dagger.Subcomponent
+import dagger.multibindings.ClassKey
 import dagger.multibindings.IntoMap
 
 @Subcomponent(modules = [SettingsComponent.ViewModelModule::class])
@@ -51,7 +51,7 @@ internal interface SettingsComponent {
 
         @Binds
         @IntoMap
-        @ViewModelKey(SettingsViewModel::class)
+        @ClassKey(SettingsViewModel::class)
         internal abstract fun settingsViewModel(viewModel: SettingsViewModel): UiViewModel<*, *, *>
     }
 }

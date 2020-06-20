@@ -24,7 +24,6 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModelProvider
 import com.pyamsoft.fridge.ThemeProviderModule
 import com.pyamsoft.fridge.core.FridgeViewModelFactory
-import com.pyamsoft.fridge.core.ViewModelKey
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence
@@ -34,6 +33,7 @@ import dagger.Binds
 import dagger.BindsInstance
 import dagger.Module
 import dagger.Subcomponent
+import dagger.multibindings.ClassKey
 import dagger.multibindings.IntoMap
 
 @Subcomponent(modules = [ViewModelModule::class, ExpandItemModule::class, ThemeProviderModule::class])
@@ -63,7 +63,7 @@ internal interface ExpandComponent {
 
         @Binds
         @IntoMap
-        @ViewModelKey(ExpandItemViewModel::class)
+        @ClassKey(ExpandItemViewModel::class)
         internal abstract fun expandViewModel(viewModel: ExpandItemViewModel): UiViewModel<*, *, *>
     }
 }

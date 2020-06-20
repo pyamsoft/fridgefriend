@@ -23,13 +23,13 @@ import androidx.annotation.CheckResult
 import androidx.lifecycle.ViewModelProvider
 import com.pyamsoft.fridge.ThemeProviderModule
 import com.pyamsoft.fridge.core.FridgeViewModelFactory
-import com.pyamsoft.fridge.core.ViewModelKey
 import com.pyamsoft.pydroid.arch.UiViewModel
 import com.pyamsoft.pydroid.ui.app.ToolbarActivityProvider
 import dagger.Binds
 import dagger.BindsInstance
 import dagger.Module
 import dagger.Subcomponent
+import dagger.multibindings.ClassKey
 import dagger.multibindings.IntoMap
 
 @Subcomponent(modules = [MainComponent.ViewModelModule::class, ThemeProviderModule::class])
@@ -57,7 +57,7 @@ internal interface MainComponent {
 
         @Binds
         @IntoMap
-        @ViewModelKey(MainViewModel::class)
+        @ClassKey(MainViewModel::class)
         internal abstract fun entryViewModel(viewModel: MainViewModel): UiViewModel<*, *, *>
     }
 }

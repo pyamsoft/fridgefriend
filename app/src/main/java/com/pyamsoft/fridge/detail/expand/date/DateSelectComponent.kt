@@ -19,11 +19,11 @@ package com.pyamsoft.fridge.detail.expand.date
 
 import androidx.lifecycle.ViewModelProvider
 import com.pyamsoft.fridge.core.FridgeViewModelFactory
-import com.pyamsoft.fridge.core.ViewModelKey
 import com.pyamsoft.pydroid.arch.UiViewModel
 import dagger.Binds
 import dagger.Module
 import dagger.Subcomponent
+import dagger.multibindings.ClassKey
 import dagger.multibindings.IntoMap
 
 @Subcomponent(modules = [DateSelectComponent.ViewModelModule::class])
@@ -39,7 +39,7 @@ internal interface DateSelectComponent {
 
         @Binds
         @IntoMap
-        @ViewModelKey(DateSelectViewModel::class)
+        @ClassKey(DateSelectViewModel::class)
         internal abstract fun dateSelectViewModel(viewModel: DateSelectViewModel): UiViewModel<*, *, *>
     }
 }

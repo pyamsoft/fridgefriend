@@ -21,7 +21,6 @@ import android.view.ViewGroup
 import androidx.annotation.CheckResult
 import androidx.lifecycle.ViewModelProvider
 import com.pyamsoft.fridge.core.FridgeViewModelFactory
-import com.pyamsoft.fridge.core.ViewModelKey
 import com.pyamsoft.fridge.db.zone.NearbyZone
 import com.pyamsoft.fridge.locator.map.osm.popup.zone.ZoneInfoComponent.ViewModelModule
 import com.pyamsoft.pydroid.arch.UiViewModel
@@ -29,6 +28,7 @@ import dagger.Binds
 import dagger.BindsInstance
 import dagger.Module
 import dagger.Subcomponent
+import dagger.multibindings.ClassKey
 import dagger.multibindings.IntoMap
 
 @Subcomponent(modules = [ViewModelModule::class])
@@ -54,7 +54,7 @@ interface ZoneInfoComponent {
 
         @Binds
         @IntoMap
-        @ViewModelKey(ZoneInfoViewModel::class)
+        @ClassKey(ZoneInfoViewModel::class)
         internal abstract fun zoneViewModel(viewModel: ZoneInfoViewModel): UiViewModel<*, *, *>
     }
 }

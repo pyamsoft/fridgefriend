@@ -19,13 +19,12 @@ package com.pyamsoft.fridge.core
 
 import com.pyamsoft.pydroid.arch.UiViewModel
 import com.pyamsoft.pydroid.arch.UiViewModelFactory
-import dagger.MapKey
 import javax.inject.Inject
 import javax.inject.Provider
 import kotlin.reflect.KClass
 
 class FridgeViewModelFactory @Inject internal constructor(
-    private val viewModels: MutableMap<Class<out UiViewModel<*, *, *>>, Provider<UiViewModel<*, *, *>>>
+    private val viewModels: MutableMap<Class<*>, Provider<UiViewModel<*, *, *>>>
 ) : UiViewModelFactory() {
 
     override fun <T : UiViewModel<*, *, *>> viewModel(modelClass: KClass<T>): UiViewModel<*, *, *> {
@@ -34,11 +33,3 @@ class FridgeViewModelFactory @Inject internal constructor(
     }
 }
 
-@MapKey
-@Target(
-    AnnotationTarget.FUNCTION,
-    AnnotationTarget.PROPERTY_GETTER,
-    AnnotationTarget.PROPERTY_SETTER
-)
-@Retention(AnnotationRetention.RUNTIME)
-annotation class ViewModelKey(val value: KClass<out UiViewModel<*, *, *>>)

@@ -24,7 +24,6 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModelProvider
 import com.pyamsoft.fridge.ThemeProviderModule
 import com.pyamsoft.fridge.core.FridgeViewModelFactory
-import com.pyamsoft.fridge.core.ViewModelKey
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence
 import com.pyamsoft.fridge.detail.DetailComponent.ViewModelModule
@@ -35,6 +34,7 @@ import dagger.Binds
 import dagger.BindsInstance
 import dagger.Module
 import dagger.Subcomponent
+import dagger.multibindings.ClassKey
 import dagger.multibindings.IntoMap
 
 @Subcomponent(modules = [ViewModelModule::class, DetailListModule::class, TooltipModule::class, ThemeProviderModule::class])
@@ -64,7 +64,7 @@ internal interface DetailComponent {
 
         @Binds
         @IntoMap
-        @ViewModelKey(DetailViewModel::class)
+        @ClassKey(DetailViewModel::class)
         internal abstract fun detailViewModel(viewModel: DetailViewModel): UiViewModel<*, *, *>
     }
 }

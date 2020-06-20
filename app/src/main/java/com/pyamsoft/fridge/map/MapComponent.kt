@@ -24,7 +24,6 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModelProvider
 import com.pyamsoft.fridge.ThemeProviderModule
 import com.pyamsoft.fridge.core.FridgeViewModelFactory
-import com.pyamsoft.fridge.core.ViewModelKey
 import com.pyamsoft.fridge.locator.map.osm.OsmViewModel
 import com.pyamsoft.fridge.map.MapComponent.ViewModelModule
 import com.pyamsoft.pydroid.arch.UiViewModel
@@ -32,6 +31,7 @@ import dagger.Binds
 import dagger.BindsInstance
 import dagger.Module
 import dagger.Subcomponent
+import dagger.multibindings.ClassKey
 import dagger.multibindings.IntoMap
 
 @Subcomponent(modules = [ViewModelModule::class, ThemeProviderModule::class])
@@ -58,7 +58,7 @@ internal interface MapComponent {
 
         @Binds
         @IntoMap
-        @ViewModelKey(OsmViewModel::class)
+        @ClassKey(OsmViewModel::class)
         internal abstract fun osmViewModel(viewModel: OsmViewModel): UiViewModel<*, *, *>
     }
 }
