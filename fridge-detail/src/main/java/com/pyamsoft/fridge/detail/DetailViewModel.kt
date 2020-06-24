@@ -91,13 +91,13 @@ class DetailViewModel @Inject internal constructor(
             val items = interactor.getItems(entryId, force)
             handleListRefreshed(items)
             beginListeningForRealtime()
-            handleListRefreshComplete()
         } catch (error: Throwable) {
             error.onActualError { e ->
                 Timber.e(e, "Error refreshing item list")
                 handleListRefreshError(e)
-                handleListRefreshComplete()
             }
+        } finally {
+            handleListRefreshComplete()
         }
     }
 
