@@ -22,6 +22,7 @@ import android.os.Looper
 import android.view.Menu
 import android.view.MenuItem
 import android.view.SubMenu
+import android.view.View
 import androidx.annotation.CheckResult
 import androidx.appcompat.widget.SearchView
 import androidx.appcompat.widget.Toolbar
@@ -40,6 +41,16 @@ class DetailToolbar @Inject internal constructor(
     toolbarActivity: ToolbarActivity,
     presence: FridgeItem.Presence
 ) : UiView<DetailViewState, DetailViewEvent>() {
+
+    private val groupIdSearch = View.generateViewId()
+    private val groupIdSubmenu = View.generateViewId()
+    private val itemIdSearch = View.generateViewId()
+    private val itemIdSubmenu = View.generateViewId()
+    private val itemIdTitle = View.generateViewId()
+    private val itemIdCreatedDate = View.generateViewId()
+    private val itemIdName = View.generateViewId()
+    private val itemIdPurchasedDate = View.generateViewId()
+    private val itemIdExpirationDate = View.generateViewId()
 
     private var subMenu: SubMenu? = null
 
@@ -77,10 +88,10 @@ class DetailToolbar @Inject internal constructor(
             val currentSort = state.sort
             subMenu.forEach { item ->
                 val expectedSort = when (item.itemId) {
-                    ID_CREATED_DATE -> DetailViewState.Sorts.CREATED
-                    ID_NAME -> DetailViewState.Sorts.NAME
-                    ID_PURCHASED_DATE -> DetailViewState.Sorts.PURCHASED
-                    ID_EXPIRATION_DATE -> DetailViewState.Sorts.EXPIRATION
+                    itemIdCreatedDate -> DetailViewState.Sorts.CREATED
+                    itemIdName -> DetailViewState.Sorts.NAME
+                    itemIdPurchasedDate -> DetailViewState.Sorts.PURCHASED
+                    itemIdExpirationDate -> DetailViewState.Sorts.EXPIRATION
                     else -> return@forEach
                 }
                 if (currentSort == expectedSort) {
@@ -101,7 +112,7 @@ class DetailToolbar @Inject internal constructor(
 
     private fun Toolbar.setVisibilityOfNonSearchItems(visible: Boolean) {
         for (item in this.menu) {
-            if (item.itemId != ID_SEARCH) {
+            if (item.itemId != itemIdSearch) {
                 item.isVisible = visible
             }
         }
@@ -110,7 +121,7 @@ class DetailToolbar @Inject internal constructor(
     @CheckResult
     private fun Toolbar.initSearchItem(): MenuItem {
         val toolbar = this
-        return this.menu.add(GROUP_SEARCH, ID_SEARCH, Menu.NONE, "Search").apply {
+        return this.menu.add(groupIdSearch, itemIdSearch, Menu.NONE, "Search").apply {
             setIcon(R.drawable.ic_search_24dp)
             setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM or MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW)
             setOnActionExpandListener(object : MenuItem.OnActionExpandListener {
@@ -145,32 +156,33 @@ class DetailToolbar @Inject internal constructor(
 
     @CheckResult
     private fun Toolbar.initSubmenu(presence: FridgeItem.Presence): SubMenu {
-        return this.menu.addSubMenu(GROUP_SUBMENU, ID_SUBMENU, Menu.NONE, "Sorts").also { subMenu ->
-            subMenu.item.setIcon(R.drawable.ic_sort_24dp)
-            subMenu.item.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM)
-            subMenu.add(Menu.NONE, ID_TITLE, Menu.NONE, "").apply {
-                title = buildSpannedString { bold { append("Sorts") } }
-            }
-            subMenu.add(GROUP_SUBMENU, ID_CREATED_DATE, 1, "Created Date").apply {
-                isChecked = false
-                setOnMenuItemClickListener(clickListener(DetailViewState.Sorts.CREATED))
-            }
-            subMenu.add(GROUP_SUBMENU, ID_NAME, 2, "Name").apply {
-                isChecked = false
-                setOnMenuItemClickListener(clickListener(DetailViewState.Sorts.NAME))
-            }
-            if (presence == FridgeItem.Presence.HAVE) {
-                subMenu.add(GROUP_SUBMENU, ID_PURCHASED_DATE, 3, "Purchase Date").apply {
-                    isChecked = false
-                    setOnMenuItemClickListener(clickListener(DetailViewState.Sorts.PURCHASED))
+        return this.menu.addSubMenu(groupIdSubmenu, itemIdSubmenu, Menu.NONE, "Sorts")
+            .also { subMenu ->
+                subMenu.item.setIcon(R.drawable.ic_sort_24dp)
+                subMenu.item.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM)
+                subMenu.add(Menu.NONE, itemIdTitle, Menu.NONE, "").apply {
+                    title = buildSpannedString { bold { append("Sorts") } }
                 }
-                subMenu.add(GROUP_SUBMENU, ID_EXPIRATION_DATE, 4, "Expiration Date").apply {
+                subMenu.add(groupIdSubmenu, itemIdCreatedDate, 1, "Created Date").apply {
                     isChecked = false
-                    setOnMenuItemClickListener(clickListener(DetailViewState.Sorts.EXPIRATION))
+                    setOnMenuItemClickListener(clickListener(DetailViewState.Sorts.CREATED))
                 }
+                subMenu.add(groupIdSubmenu, itemIdName, 2, "Name").apply {
+                    isChecked = false
+                    setOnMenuItemClickListener(clickListener(DetailViewState.Sorts.NAME))
+                }
+                if (presence == FridgeItem.Presence.HAVE) {
+                    subMenu.add(groupIdSubmenu, itemIdPurchasedDate, 3, "Purchase Date").apply {
+                        isChecked = false
+                        setOnMenuItemClickListener(clickListener(DetailViewState.Sorts.PURCHASED))
+                    }
+                    subMenu.add(groupIdSubmenu, itemIdExpirationDate, 4, "Expiration Date").apply {
+                        isChecked = false
+                        setOnMenuItemClickListener(clickListener(DetailViewState.Sorts.EXPIRATION))
+                    }
+                }
+                subMenu.setGroupCheckable(groupIdSubmenu, true, true)
             }
-            subMenu.setGroupCheckable(GROUP_SUBMENU, true, true)
-        }
     }
 
     private fun Toolbar.teardown() {
@@ -182,11 +194,11 @@ class DetailToolbar @Inject internal constructor(
     }
 
     private fun Toolbar.teardownSearch() {
-        this.menu.removeGroup(GROUP_SEARCH)
+        this.menu.removeGroup(groupIdSearch)
     }
 
     private fun Toolbar.teardownSubmenu() {
-        this.menu.removeGroup(GROUP_SUBMENU)
+        this.menu.removeGroup(groupIdSubmenu)
         subMenu = null
     }
 
@@ -199,15 +211,6 @@ class DetailToolbar @Inject internal constructor(
     }
 
     companion object {
-        private const val GROUP_SEARCH = 69420
-        private const val GROUP_SUBMENU = 42069
-        private const val ID_SEARCH = 69
-        private const val ID_SUBMENU = 420
-        private const val ID_TITLE = 100
-        private const val ID_CREATED_DATE = 101
-        private const val ID_NAME = 102
-        private const val ID_PURCHASED_DATE = 103
-        private const val ID_EXPIRATION_DATE = 104
         private const val SEARCH_PUBLISH_TIMEOUT = 400L
     }
 }

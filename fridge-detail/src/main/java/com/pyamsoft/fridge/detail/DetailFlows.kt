@@ -26,10 +26,9 @@ import com.pyamsoft.pydroid.arch.UiViewState
 import java.util.Date
 
 data class DetailViewState(
-    internal val allItems: List<FridgeItem>,
+    val isLoading: Loading?,
     val items: List<FridgeItem>,
     val search: String,
-    val isLoading: Loading?,
     val entry: FridgeEntry?,
     val sort: Sorts,
     val showing: Showing,
@@ -39,7 +38,8 @@ data class DetailViewState(
     val isSameDayExpired: IsSameDayExpired?,
     val listItemPresence: FridgeItem.Presence,
     val counts: Counts?,
-    val bottomOffset: Int
+    val bottomOffset: Int,
+    internal val allItems: List<FridgeItem>
 ) : UiViewState {
 
     data class Counts internal constructor(
@@ -54,24 +54,6 @@ data class DetailViewState(
         // Empty query always matches
         return if (query.isBlank()) true else {
             this.name().contains(query, ignoreCase = true)
-        }
-    }
-
-    internal val dateSorter = Comparator<FridgeItem> { o1, o2 ->
-        when (sort) {
-            Sorts.CREATED -> o1.createdTime().compareTo(o2.createdTime())
-            Sorts.NAME -> o1.name().compareTo(o2.name(), ignoreCase = true)
-            Sorts.PURCHASED -> o1.purchaseTime().compareTo(o2.purchaseTime())
-            Sorts.EXPIRATION -> o1.expireTime().compareTo(o2.expireTime())
-        }
-    }
-
-    // Compare dates which may be null
-    // Null dates come after non-null dates
-    @CheckResult
-    private fun Date?.compareTo(other: Date?): Int {
-        return if (this == null && other == null) 0 else {
-            if (other == null) -1 else this?.compareTo(other) ?: 1
         }
     }
 

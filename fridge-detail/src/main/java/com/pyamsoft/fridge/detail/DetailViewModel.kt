@@ -38,14 +38,15 @@ import com.pyamsoft.fridge.ui.BottomOffset
 import com.pyamsoft.highlander.highlander
 import com.pyamsoft.pydroid.arch.EventConsumer
 import com.pyamsoft.pydroid.arch.onActualError
-import java.util.Calendar
-import javax.inject.Inject
-import javax.inject.Named
-import kotlin.math.max
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import timber.log.Timber
+import java.util.Calendar
+import java.util.Date
+import javax.inject.Inject
+import javax.inject.Named
+import kotlin.math.max
 
 class DetailViewModel @Inject internal constructor(
     private val interactor: DetailInteractor,
@@ -90,13 +91,13 @@ class DetailViewModel @Inject internal constructor(
             val items = interactor.getItems(entryId, force)
             handleListRefreshed(items)
             beginListeningForRealtime()
+            handleListRefreshComplete()
         } catch (error: Throwable) {
             error.onActualError { e ->
                 Timber.e(e, "Error refreshing item list")
                 handleListRefreshError(e)
+                handleListRefreshComplete()
             }
-        } finally {
-            handleListRefreshComplete()
         }
     }
 
@@ -337,7 +338,9 @@ class DetailViewModel @Inject internal constructor(
     }
 
     private fun handleListRefreshBegin() {
-        setState { copy(isLoading = DetailViewState.Loading(true)) }
+        setState {
+            copy(isLoading = DetailViewState.Loading(true))
+        }
     }
 
     private fun handleListRefreshed(items: List<FridgeItem>) {
@@ -365,7 +368,9 @@ class DetailViewModel @Inject internal constructor(
     }
 
     private fun handleListRefreshComplete() {
-        setState { copy(isLoading = DetailViewState.Loading(false)) }
+        setState {
+            copy(isLoading = DetailViewState.Loading(false))
+        }
     }
 
     private fun handleError(throwable: Throwable) {
@@ -438,10 +443,28 @@ class DetailViewModel @Inject internal constructor(
 
     @CheckResult
     private fun DetailViewState.prepareListItems(items: List<FridgeItem>): List<FridgeItem> {
+        val dateSorter: Comparator<FridgeItem> = Comparator { o1, o2 ->
+            when (sort) {
+                DetailViewState.Sorts.CREATED -> o1.createdTime().compareTo(o2.createdTime())
+                DetailViewState.Sorts.NAME -> o1.name().compareTo(o2.name(), ignoreCase = true)
+                DetailViewState.Sorts.PURCHASED -> o1.purchaseTime().compareTo(o2.purchaseTime())
+                DetailViewState.Sorts.EXPIRATION -> o1.expireTime().compareTo(o2.expireTime())
+            }
+        }
+
         return filterValid(items)
             .filter { it.presence() == listItemPresence }
             .sortedWith(dateSorter)
             .toList()
+    }
+
+    // Compare dates which may be null
+    // Null dates come after non-null dates
+    @CheckResult
+    private fun Date?.compareTo(other: Date?): Int {
+        return if (this == null && other == null) 0 else {
+            if (other == null) -1 else this?.compareTo(other) ?: 1
+        }
     }
 
     @CheckResult
