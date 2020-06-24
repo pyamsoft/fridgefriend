@@ -64,10 +64,8 @@ class DetailToolbar @Inject internal constructor(
         presence: FridgeItem.Presence
     ) {
         toolbar.doOnLayout {
-            toolbar.post {
-                subMenu = toolbar.initSubmenu(presence)
-                toolbar.initSearchItem()
-            }
+            subMenu = toolbar.initSubmenu(presence)
+            toolbar.initSearchItem()
         }
     }
 
