@@ -21,13 +21,14 @@ import android.view.ViewGroup
 import androidx.annotation.CheckResult
 import androidx.annotation.IdRes
 import androidx.core.content.ContextCompat
+import androidx.core.view.doOnLayout
 import androidx.core.view.updatePadding
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.pyamsoft.fridge.main.databinding.MainNavigationBinding
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.util.doOnApplyWindowInsets
-import javax.inject.Inject
 import timber.log.Timber
+import javax.inject.Inject
 
 class MainNavigation @Inject internal constructor(
     parent: ViewGroup
@@ -50,7 +51,9 @@ class MainNavigation @Inject internal constructor(
                     right = 0,
                     top = 0
                 )
-                v.post {
+
+                // Make sure we are laid out before grabbing the height
+                v.doOnLayout {
                     // Publish the measured height
                     publish(MainViewEvent.BottomBarMeasured(v.height))
                 }
@@ -107,9 +110,9 @@ class MainNavigation @Inject internal constructor(
     }
 
     override fun onRender(state: MainViewState) {
-        layoutRoot.post { correctBackground() }
-        layoutRoot.post { handlePage(state) }
-        layoutRoot.post { handleBadges(state) }
+        correctBackground()
+        handlePage(state)
+        handleBadges(state)
     }
 
     private fun BottomNavigationView.applyBadge(@IdRes id: Int, count: Int) {

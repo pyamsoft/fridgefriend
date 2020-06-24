@@ -26,7 +26,7 @@ class ExpandItemPresence @Inject internal constructor(
 ) : BaseItemPresence<ExpandItemViewState, ExpandedItemViewEvent>(parent) {
 
     override fun onRender(state: ExpandItemViewState) {
-        layoutRoot.post { render(state.item) }
+        renderItem(state.item)
     }
 
     override fun publishChangePresence() {

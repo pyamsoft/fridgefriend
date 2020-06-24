@@ -35,6 +35,6 @@ class ExpandCategorySelectOverlay @Inject internal constructor(
     }
 
     override fun onRender(state: ExpandedCategoryViewState) {
-        layoutRoot.post { handleOverlay(state) }
+        handleOverlay(state)
     }
 }

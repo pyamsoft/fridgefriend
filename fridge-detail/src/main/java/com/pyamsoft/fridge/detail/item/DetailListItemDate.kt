@@ -44,11 +44,11 @@ class DetailListItemDate @Inject internal constructor(
     private fun handleItem(state: DetailListItemViewState) {
         state.item.let { item ->
             require(item.isReal()) { "Cannot render non-real item: $item" }
-            baseRender(item)
+            renderItem(item)
         }
     }
 
     override fun onRender(state: DetailListItemViewState) {
-        layoutRoot.post { handleItem(state) }
+        handleItem(state)
     }
 }

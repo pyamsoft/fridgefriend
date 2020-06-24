@@ -134,6 +134,6 @@ class ExpandItemToolbar @Inject internal constructor(
     }
 
     override fun onRender(state: ExpandItemViewState) {
-        layoutRoot.post { handleItem(state) }
+        handleItem(state)
     }
 }

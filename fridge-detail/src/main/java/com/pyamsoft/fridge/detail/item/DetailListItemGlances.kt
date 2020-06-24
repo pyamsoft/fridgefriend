@@ -103,7 +103,7 @@ class DetailListItemGlances @Inject internal constructor(
     }
 
     override fun onRender(state: DetailListItemViewState) {
-        layoutRoot.post { handleItem(state) }
+        handleItem(state)
     }
 
     private fun handleItem(state: DetailListItemViewState) {

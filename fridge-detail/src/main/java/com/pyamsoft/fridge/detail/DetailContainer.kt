@@ -116,7 +116,7 @@ class DetailContainer @Inject internal constructor(
     }
 
     override fun onRender(state: DetailViewState) {
-        layoutRoot.post { handleLoading(state) }
+        handleLoading(state)
     }
 
     private fun handleLoading(state: DetailViewState) {

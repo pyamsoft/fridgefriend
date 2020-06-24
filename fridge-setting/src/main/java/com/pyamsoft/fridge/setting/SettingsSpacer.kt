@@ -17,8 +17,6 @@
 
 package com.pyamsoft.fridge.setting
 
-import android.os.Handler
-import android.os.Looper
 import androidx.preference.PreferenceScreen
 import com.pyamsoft.pydroid.arch.UnitViewEvent
 import com.pyamsoft.pydroid.ui.arch.PrefUiView
@@ -30,14 +28,6 @@ class SettingsSpacer @Inject internal constructor(
 
     private var space: PreferenceBottomSpace? = null
 
-    private val handler by lazy(LazyThreadSafetyMode.NONE) { Handler(Looper.getMainLooper()) }
-
-    init {
-        doOnTeardown {
-            handler.removeCallbacksAndMessages(null)
-        }
-    }
-
     private fun addSpacer(height: Int) {
         space?.let { preference ->
             parent.removePreference(preference)
@@ -48,7 +38,7 @@ class SettingsSpacer @Inject internal constructor(
     }
 
     override fun onRender(state: SettingsViewState) {
-        handler.post { handleBottomMargin(state) }
+        handleBottomMargin(state)
     }
 
     private fun handleBottomMargin(state: SettingsViewState) {

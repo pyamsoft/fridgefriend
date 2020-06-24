@@ -40,7 +40,7 @@ abstract class BaseItemPresence<S : UiViewState, V : UiViewEvent> protected cons
         publishChangePresence()
     }
 
-    protected fun render(item: FridgeItem?) {
+    protected fun renderItem(item: FridgeItem?) {
         binding.detailItemPresenceSwitch.setOnCheckedChangeListener(null)
         binding.detailItemPresenceSwitch.isEnabled = item != null && !item.isArchived()
         if (item != null) {

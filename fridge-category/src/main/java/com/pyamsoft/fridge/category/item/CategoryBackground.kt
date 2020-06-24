@@ -48,7 +48,7 @@ class CategoryBackground @Inject internal constructor(
     }
 
     override fun onRender(state: CategoryItemViewState) {
-        layoutRoot.post { handleCategory(state) }
+        handleCategory(state)
     }
 
     private fun handleCategory(state: CategoryItemViewState) {

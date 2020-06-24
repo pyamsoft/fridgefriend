@@ -57,7 +57,7 @@ abstract class BaseItemDate<S : UiViewState, V : UiViewEvent> protected construc
         binding.detailItemDateText.text = ""
     }
 
-    protected fun baseRender(item: FridgeItem?) {
+    protected fun renderItem(item: FridgeItem?) {
         if (item == null) {
             clear()
         } else {

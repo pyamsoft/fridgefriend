@@ -54,8 +54,8 @@ abstract class HeroImage<S : UiViewState, V : UiViewEvent> protected constructor
     }
 
     final override fun onRender(state: S) {
-        layoutRoot.post { loadImage(state) }
-        layoutRoot.post { onAdditionalRender(state) }
+        loadImage(state)
+        onAdditionalRender(state)
     }
 
     private fun loadImage(state: S) {

@@ -31,6 +31,6 @@ internal class StoreInfoLocation @Inject internal constructor(
     }
 
     override fun onRender(state: StoreInfoViewState) {
-        layoutRoot.post { handlePosition(state) }
+        handlePosition(state)
     }
 }

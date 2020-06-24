@@ -40,8 +40,8 @@ import com.pyamsoft.pydroid.ui.util.refreshing
 import com.pyamsoft.pydroid.util.toDp
 import io.cabriole.decorator.LinearBoundsMarginDecoration
 import io.cabriole.decorator.LinearMarginDecoration
-import javax.inject.Inject
 import timber.log.Timber
+import javax.inject.Inject
 
 class DetailList @Inject internal constructor(
     private val imageLoader: ImageLoader,
@@ -321,8 +321,8 @@ class DetailList @Inject internal constructor(
     }
 
     override fun onRender(state: DetailViewState) {
-        layoutRoot.post { handleBottomMargin(state) }
-        layoutRoot.post { handleLoading(state) }
-        layoutRoot.post { setupSwipeCallback(state.showing, state.listItemPresence) }
+        handleBottomMargin(state)
+        handleLoading(state)
+        setupSwipeCallback(state.showing, state.listItemPresence)
     }
 }

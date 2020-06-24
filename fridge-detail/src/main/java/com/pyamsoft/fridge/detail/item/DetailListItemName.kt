@@ -41,6 +41,6 @@ class DetailListItemName @Inject internal constructor(
     }
 
     override fun onRender(state: DetailListItemViewState) {
-        layoutRoot.post { handleItem(state) }
+        handleItem(state)
     }
 }

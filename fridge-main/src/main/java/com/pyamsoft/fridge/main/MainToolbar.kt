@@ -75,7 +75,7 @@ class MainToolbar @Inject internal constructor(
     }
 
     override fun onRender(state: MainViewState) {
-        layoutRoot.post { handleName(state) }
+        handleName(state)
     }
 
     private fun inflateToolbar(

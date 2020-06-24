@@ -20,7 +20,6 @@ package com.pyamsoft.fridge.category
 import android.view.ViewGroup
 import androidx.annotation.CheckResult
 import androidx.core.view.ViewPropertyAnimatorCompat
-import androidx.core.view.isVisible
 import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.pyamsoft.fridge.category.databinding.CategoryListViewBinding
@@ -77,24 +76,25 @@ class CategoryListView @Inject internal constructor(
     }
 
     override fun onRender(state: CategoryViewState) {
-        layoutRoot.post { handleCategories(state) }
+        handleCategories(state)
+    }
+
+    private fun handleAnimation(state: CategoryViewState) {
+        state.categories.let { categories ->
+            if (categories.isNotEmpty()) {
+                // If root is currently hidden, show it
+                if (animator == null) {
+                    animator = animatePopInFromBottom(layoutRoot)
+                }
+            }
+        }
     }
 
     private fun handleCategories(state: CategoryViewState) {
         state.categories.let { categories ->
-
             if (categories.isEmpty()) {
                 clearList()
             } else {
-                // If root is currently hidden, show it
-                if (!layoutRoot.isVisible) {
-                    if (animator == null) {
-                        layoutRoot.post {
-                            animator = animatePopInFromBottom(layoutRoot)
-                        }
-                    }
-                }
-
                 usingAdapter().submitList(categories.map { pairing ->
                     CategoryItemViewState(
                         pairing.category,

@@ -59,6 +59,6 @@ class ExpandItemError @Inject internal constructor(
     }
 
     override fun onRender(state: ExpandItemViewState) {
-        layoutRoot.post { handleError(state) }
+        handleError(state)
     }
 }

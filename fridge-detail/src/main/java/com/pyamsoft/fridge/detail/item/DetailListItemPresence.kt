@@ -27,13 +27,13 @@ class DetailListItemPresence @Inject internal constructor(
 ) : BaseItemPresence<DetailListItemViewState, DetailItemViewEvent>(parent) {
 
     override fun onRender(state: DetailListItemViewState) {
-        layoutRoot.post { handleItem(state) }
+        handleItem(state)
     }
 
     private fun handleItem(state: DetailListItemViewState) {
         state.item.let { item ->
             require(item.isReal()) { "Cannot render non-real item: $item" }
-            render(item)
+            renderItem(item)
         }
     }
 

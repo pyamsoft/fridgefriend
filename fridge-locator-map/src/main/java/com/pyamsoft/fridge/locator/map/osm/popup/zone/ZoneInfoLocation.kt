@@ -37,6 +37,6 @@ internal class ZoneInfoLocation @Inject internal constructor(
     }
 
     override fun onRender(state: ZoneInfoViewState) {
-        layoutRoot.post { handleLocation(state) }
+        handleLocation(state)
     }
 }

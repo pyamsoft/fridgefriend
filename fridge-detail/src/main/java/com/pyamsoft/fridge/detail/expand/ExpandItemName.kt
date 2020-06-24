@@ -23,8 +23,8 @@ import android.view.ViewGroup
 import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.detail.base.BaseItemName
-import javax.inject.Inject
 import timber.log.Timber
+import javax.inject.Inject
 
 class ExpandItemName @Inject internal constructor(
     parent: ViewGroup
@@ -74,8 +74,8 @@ class ExpandItemName @Inject internal constructor(
     }
 
     override fun onRender(state: ExpandItemViewState) {
-        layoutRoot.post { handlePopupWindow(state) }
-        layoutRoot.post { handleItem(state) }
+        handlePopupWindow(state)
+        handleItem(state)
     }
 
     private fun handleItem(state: ExpandItemViewState) {

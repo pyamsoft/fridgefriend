@@ -43,6 +43,6 @@ class ExpandItemDate @Inject internal constructor(
     }
 
     override fun onRender(state: ExpandItemViewState) {
-        layoutRoot.post { baseRender(state.item) }
+        renderItem(state.item)
     }
 }

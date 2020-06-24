@@ -48,7 +48,7 @@ class ExpandItemSimilar @Inject internal constructor(
     }
 
     override fun onRender(state: ExpandItemViewState) {
-        layoutRoot.post { handleSameNamedItems(state) }
+        handleSameNamedItems(state)
     }
 
     private fun handleSameNamedItems(state: ExpandItemViewState) {

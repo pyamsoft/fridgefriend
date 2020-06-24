@@ -81,7 +81,7 @@ class ExpandItemCategoryList @Inject internal constructor(
     }
 
     override fun onRender(state: ExpandItemViewState) {
-        layoutRoot.post { handleCategories(state) }
+        handleCategories(state)
     }
 
     private fun handleCategories(state: ExpandItemViewState) {

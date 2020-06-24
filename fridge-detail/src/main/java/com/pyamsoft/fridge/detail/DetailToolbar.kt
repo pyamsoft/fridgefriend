@@ -45,7 +45,6 @@ class DetailToolbar @Inject internal constructor(
     private var subMenu: SubMenu? = null
 
     private val publishHandler by lazy(LazyThreadSafetyMode.NONE) { Handler(Looper.getMainLooper()) }
-    private val handler by lazy(LazyThreadSafetyMode.NONE) { Handler(Looper.getMainLooper()) }
 
     init {
         doOnInflate {
@@ -58,10 +57,6 @@ class DetailToolbar @Inject internal constructor(
             toolbarActivity.withToolbar { toolbar ->
                 toolbar.teardown()
             }
-        }
-
-        doOnTeardown {
-            handler.removeCallbacksAndMessages(null)
         }
     }
 
@@ -95,7 +90,7 @@ class DetailToolbar @Inject internal constructor(
     }
 
     override fun render(state: DetailViewState) {
-        handler.post { handleSubmenu(state) }
+        handleSubmenu(state)
     }
 
     private fun debouncedPublish(event: DetailViewEvent) {
@@ -120,11 +115,13 @@ class DetailToolbar @Inject internal constructor(
             setOnActionExpandListener(object : MenuItem.OnActionExpandListener {
 
                 override fun onMenuItemActionExpand(item: MenuItem?): Boolean {
+                    // Need to post so this fires after all other UI work in toolbar
                     toolbar.post { setVisibilityOfNonSearchItems(false) }
                     return true
                 }
 
                 override fun onMenuItemActionCollapse(item: MenuItem?): Boolean {
+                    // Need to post so this fires after all other UI work in toolbar
                     toolbar.post { setVisibilityOfNonSearchItems(true) }
                     return true
                 }
@@ -177,9 +174,9 @@ class DetailToolbar @Inject internal constructor(
     }
 
     private fun Toolbar.teardown() {
-        setVisibilityOfNonSearchItems(true)
         handler?.removeCallbacksAndMessages(null)
         publishHandler.removeCallbacksAndMessages(null)
+        setVisibilityOfNonSearchItems(true)
         teardownSubmenu()
         teardownSearch()
     }

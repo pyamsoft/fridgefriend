@@ -35,7 +35,7 @@ internal class StoreInfoTitle @Inject internal constructor(
     }
 
     override fun onRender(state: StoreInfoViewState) {
-        layoutRoot.post { handleCached(state) }
+        handleCached(state)
     }
 
     override fun publishFavorite(add: Boolean) {

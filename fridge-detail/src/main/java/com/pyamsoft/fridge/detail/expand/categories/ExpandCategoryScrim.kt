@@ -41,7 +41,7 @@ class ExpandCategoryScrim @Inject internal constructor(
     }
 
     override fun onRender(state: ExpandedCategoryViewState) {
-        layoutRoot.post { handleCategory(state) }
+        handleCategory(state)
     }
 
     private fun handleCategory(state: ExpandedCategoryViewState) {

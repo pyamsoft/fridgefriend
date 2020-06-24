@@ -100,11 +100,11 @@ class DetailAddItemView @Inject internal constructor(
     }
 
     override fun onRender(state: DetailViewState) {
-        layoutRoot.post { handleShowing(state) }
-        layoutRoot.post { handlePresence(state) }
-        layoutRoot.post { handleBottomMargin(state) }
-        layoutRoot.post { handleError(state) }
-        layoutRoot.post { handleUndo(state) }
+        handleShowing(state)
+        handlePresence(state)
+        handleBottomMargin(state)
+        handleError(state)
+        handleUndo(state)
     }
 
     private fun handlePresence(state: DetailViewState) {

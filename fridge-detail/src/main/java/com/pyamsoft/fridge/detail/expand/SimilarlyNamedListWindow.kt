@@ -24,6 +24,7 @@ import android.view.ViewGroup
 import android.widget.BaseAdapter
 import androidx.annotation.CheckResult
 import androidx.appcompat.widget.ListPopupWindow
+import androidx.core.view.doOnLayout
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.detail.databinding.SimilarlyNamedListItemBinding
 import timber.log.Timber
@@ -54,7 +55,7 @@ internal class SimilarlyNamedListWindow internal constructor(context: Context) {
     }
 
     fun initializeView(anchor: View) {
-        anchor.post {
+        anchor.doOnLayout {
             popupWindow.anchorView = anchor
         }
     }

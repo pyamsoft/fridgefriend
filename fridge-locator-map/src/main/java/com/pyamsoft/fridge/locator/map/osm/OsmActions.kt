@@ -109,10 +109,10 @@ class OsmActions @Inject internal constructor(
     }
 
     override fun onRender(state: OsmViewState) {
-        layoutRoot.post { handleCenterLocation(state) }
-        layoutRoot.post { handleBottomMargin(state) }
-        layoutRoot.post { handleNearbyError(state) }
-        layoutRoot.post { handleFetchError(state) }
+        handleCenterLocation(state)
+        handleBottomMargin(state)
+        handleNearbyError(state)
+        handleFetchError(state)
     }
 
     private fun handleBottomMargin(state: OsmViewState) {

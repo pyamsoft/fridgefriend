@@ -59,7 +59,7 @@ class ExpandItemCount @Inject internal constructor(
     }
 
     override fun onRender(state: ExpandItemViewState) {
-        layoutRoot.post { handleItem(state) }
+        handleItem(state)
     }
 
     private fun handleItem(state: ExpandItemViewState) {

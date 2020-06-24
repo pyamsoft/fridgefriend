@@ -39,7 +39,6 @@ import com.pyamsoft.fridge.locator.osm.updatemanager.LocationUpdateReceiver
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.ui.theme.ThemeProvider
 import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
-import javax.inject.Inject
 import org.osmdroid.config.Configuration
 import org.osmdroid.config.DefaultConfigurationProvider
 import org.osmdroid.events.MapListener
@@ -57,6 +56,7 @@ import org.osmdroid.views.overlay.infowindow.InfoWindow
 import org.osmdroid.views.overlay.mylocation.GpsMyLocationProvider
 import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay
 import timber.log.Timber
+import javax.inject.Inject
 
 class OsmMap @Inject internal constructor(
     private val theming: ThemeProvider,
@@ -134,8 +134,8 @@ class OsmMap @Inject internal constructor(
     }
 
     override fun onRender(state: OsmViewState) {
-        layoutRoot.post { renderMap(state) }
-        layoutRoot.post { state.centerMyLocation?.let { findMyLocation() } }
+        renderMap(state)
+        state.centerMyLocation?.let { findMyLocation() }
     }
 
     private fun renderMap(state: OsmViewState) {
@@ -198,7 +198,7 @@ class OsmMap @Inject internal constructor(
 
             polygon.setOnClickListener { p, m, _ ->
                 closeAllMapPopups()
-                m.post { p.showInfoWindow() }
+                p.showInfoWindow()
                 return@setOnClickListener true
             }
 
@@ -240,7 +240,7 @@ class OsmMap @Inject internal constructor(
 
             marker.setOnMarkerClickListener { p, m ->
                 closeAllMapPopups()
-                m.post { p.showInfoWindow() }
+                p.showInfoWindow()
                 return@setOnMarkerClickListener true
             }
 
@@ -337,16 +337,12 @@ class OsmMap @Inject internal constructor(
         }
 
         val point = GeoPoint(latitude, longitude)
-        binding.osmMap.post {
-            centeringLocation = true
-            binding.osmMap.controller.setZoom(DEFAULT_ZOOM)
-            binding.osmMap.controller.animateTo(point)
-            binding.osmMap.controller.setCenter(point)
-            binding.osmMap.post {
-                onCentered(point)
-                centeringLocation = false
-            }
-        }
+        centeringLocation = true
+        binding.osmMap.controller.setZoom(DEFAULT_ZOOM)
+        binding.osmMap.controller.animateTo(point)
+        binding.osmMap.controller.setCenter(point)
+        onCentered(point)
+        centeringLocation = false
     }
 
     private fun addMapOverlays(context: Context) {
