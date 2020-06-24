@@ -44,7 +44,7 @@ class DetailToolbar @Inject internal constructor(
     private var searchView: SearchView? = null
     private var subMenu: SubMenu? = null
 
-    private val publishHandler by lazy(LazyThreadSafetyMode.NONE) { Handler(Looper.getMainLooper()) }
+    private val publishHandler = Handler(Looper.getMainLooper())
 
     init {
         doOnInflate {
