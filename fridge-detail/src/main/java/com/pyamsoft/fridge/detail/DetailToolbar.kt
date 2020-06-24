@@ -27,6 +27,7 @@ import androidx.appcompat.widget.SearchView
 import androidx.appcompat.widget.Toolbar
 import androidx.core.text.bold
 import androidx.core.text.buildSpannedString
+import androidx.core.view.doOnLayout
 import androidx.core.view.forEach
 import androidx.core.view.iterator
 import com.pyamsoft.fridge.db.item.FridgeItem
@@ -40,8 +41,6 @@ class DetailToolbar @Inject internal constructor(
     presence: FridgeItem.Presence
 ) : UiView<DetailViewState, DetailViewEvent>() {
 
-    private var searchItem: MenuItem? = null
-    private var searchView: SearchView? = null
     private var subMenu: SubMenu? = null
 
     private val publishHandler = Handler(Looper.getMainLooper())
@@ -64,8 +63,12 @@ class DetailToolbar @Inject internal constructor(
         toolbar: Toolbar,
         presence: FridgeItem.Presence
     ) {
-        subMenu = toolbar.initSubmenu(presence)
-        searchItem = toolbar.initSearchItem()
+        toolbar.doOnLayout {
+            toolbar.post {
+                subMenu = toolbar.initSubmenu(presence)
+                toolbar.initSearchItem()
+            }
+        }
     }
 
     override fun onInit(savedInstanceState: UiBundleReader) {
@@ -109,7 +112,7 @@ class DetailToolbar @Inject internal constructor(
     @CheckResult
     private fun Toolbar.initSearchItem(): MenuItem {
         val toolbar = this
-        return this.menu.add(Menu.NONE, ID_SEARCH, Menu.NONE, "Search").apply {
+        return this.menu.add(GROUP_SEARCH, ID_SEARCH, Menu.NONE, "Search").apply {
             setIcon(R.drawable.ic_search_24dp)
             setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM or MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW)
             setOnActionExpandListener(object : MenuItem.OnActionExpandListener {
@@ -126,7 +129,7 @@ class DetailToolbar @Inject internal constructor(
                     return true
                 }
             })
-            searchView = SearchView(toolbar.context).apply {
+            actionView = SearchView(toolbar.context).apply {
                 setOnQueryTextListener(object : SearchView.OnQueryTextListener {
                     override fun onQueryTextSubmit(query: String): Boolean {
                         debouncedPublish(DetailViewEvent.SearchQuery(query))
@@ -139,7 +142,6 @@ class DetailToolbar @Inject internal constructor(
                     }
                 })
             }
-            actionView = searchView
         }
     }
 
@@ -182,26 +184,11 @@ class DetailToolbar @Inject internal constructor(
     }
 
     private fun Toolbar.teardownSearch() {
-        searchItem?.let { item ->
-            item.setOnActionExpandListener(null)
-            this.menu.removeItem(item.itemId)
-        }
-        searchItem = null
-
-        searchView?.setOnQueryTextListener(null)
-        searchView = null
+        this.menu.removeGroup(GROUP_SEARCH)
     }
 
     private fun Toolbar.teardownSubmenu() {
-        subMenu?.let { subMenu ->
-            // Go backwards to avoid index oob error
-            for (index in subMenu.size() until 0) {
-                val item = subMenu.getItem(index)
-                item.setOnMenuItemClickListener(null)
-                subMenu.removeItem(item.itemId)
-            }
-            this.menu.removeItem(subMenu.item.itemId)
-        }
+        this.menu.removeGroup(GROUP_SUBMENU)
         subMenu = null
     }
 
@@ -214,6 +201,7 @@ class DetailToolbar @Inject internal constructor(
     }
 
     companion object {
+        private const val GROUP_SEARCH = 69420
         private const val GROUP_SUBMENU = 42069
         private const val ID_SEARCH = 69
         private const val ID_SUBMENU = 420
