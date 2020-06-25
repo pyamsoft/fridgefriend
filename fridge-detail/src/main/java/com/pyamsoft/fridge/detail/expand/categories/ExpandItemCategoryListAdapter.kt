@@ -30,13 +30,6 @@ internal class ExpandItemCategoryListAdapter internal constructor(
     private val factory: ExpandCategoryComponent.Factory
 ) : ListAdapter<ExpandedCategoryViewState, ExpandedCategoryViewHolder>(DIFFER) {
 
-    override fun getItemId(position: Int): Long {
-        val item = getItem(position)
-        return if (item.category == null) 0 else {
-            item.category.id.hashCode().toLong()
-        }
-    }
-
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ExpandedCategoryViewHolder {
         val inflater = LayoutInflater.from(parent.context)
         val binding = ExpandCategoryItemHolderBinding.inflate(inflater, parent, false)
