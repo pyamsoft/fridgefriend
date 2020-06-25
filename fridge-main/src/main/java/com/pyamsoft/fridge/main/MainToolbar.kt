@@ -62,8 +62,10 @@ class MainToolbar @Inject internal constructor(
             viewScope.addPrivacy(binding.mainToolbar, PRIVACY_POLICY_URL, TERMS_CONDITIONS_URL)
         }
 
-        doOnInflate {
-            animateToolbar()
+        doOnInflate { reader ->
+            if (reader.isEmpty()) {
+                animateToolbar()
+            }
         }
 
         doOnTeardown {
