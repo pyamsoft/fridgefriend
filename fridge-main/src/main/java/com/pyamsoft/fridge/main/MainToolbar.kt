@@ -19,8 +19,11 @@ package com.pyamsoft.fridge.main
 
 import android.view.ViewGroup
 import android.view.ViewGroup.MarginLayoutParams
+import android.widget.TextView
 import androidx.core.view.ViewCompat
+import androidx.core.view.ViewPropertyAnimatorCompat
 import androidx.core.view.updateLayoutParams
+import androidx.interpolator.view.animation.FastOutLinearInInterpolator
 import com.pyamsoft.fridge.core.PRIVACY_POLICY_URL
 import com.pyamsoft.fridge.core.TERMS_CONDITIONS_URL
 import com.pyamsoft.fridge.main.databinding.MainToolbarBinding
@@ -41,6 +44,7 @@ class MainToolbar @Inject internal constructor(
     parent: ViewGroup
 ) : BaseUiView<MainViewState, MainViewEvent, MainToolbarBinding>(parent) {
 
+    private var titleAnimator: ViewPropertyAnimatorCompat? = null
     override val viewBinding = MainToolbarBinding::inflate
 
     override val layoutRoot by boundView { mainToolbar }
@@ -58,9 +62,36 @@ class MainToolbar @Inject internal constructor(
             viewScope.addPrivacy(binding.mainToolbar, PRIVACY_POLICY_URL, TERMS_CONDITIONS_URL)
         }
 
+        doOnInflate {
+            animateToolbar()
+        }
+
+        doOnTeardown {
+            titleAnimator?.cancel()
+            titleAnimator = null
+        }
+
         doOnTeardown {
             binding.mainToolbar.removePrivacy()
             toolbarActivityProvider.setToolbar(null)
+        }
+    }
+
+    private fun animateToolbar() {
+        // this is gross but toolbar doesn't expose it's children to animate them :(
+        val t = binding.mainToolbar.getChildAt(0)
+        if (t is TextView) {
+            t.apply {
+                // Fade in and space out the title.
+                alpha = 0F
+                scaleX = 0.8F
+                titleAnimator = ViewCompat.animate(this)
+                    .setInterpolator(FastOutLinearInInterpolator())
+                    .alpha(1F)
+                    .scaleX(1F)
+                    .setStartDelay(300)
+                    .setDuration(900)
+            }
         }
     }
 
