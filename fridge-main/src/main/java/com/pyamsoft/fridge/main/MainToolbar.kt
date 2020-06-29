@@ -63,7 +63,7 @@ class MainToolbar @Inject internal constructor(
         }
 
         doOnInflate { reader ->
-            if (reader.isEmpty()) {
+            if (reader.hasNoSavedState()) {
                 animateToolbar()
             }
         }
