@@ -22,6 +22,7 @@ import android.graphics.drawable.Drawable
 import android.view.MenuItem
 import android.view.ViewGroup
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence.HAVE
+import com.pyamsoft.fridge.db.item.isArchived
 import com.pyamsoft.fridge.detail.R
 import com.pyamsoft.fridge.detail.databinding.ExpandToolbarBinding
 import com.pyamsoft.pydroid.arch.BaseUiView
@@ -44,6 +45,7 @@ class ExpandItemToolbar @Inject internal constructor(
     private var deleteMenuItem: MenuItem? = null
     private var consumeMenuItem: MenuItem? = null
     private var spoilMenuItem: MenuItem? = null
+    private var restoreMenuItem: MenuItem? = null
 
     init {
         doOnInflate {
@@ -76,6 +78,9 @@ class ExpandItemToolbar @Inject internal constructor(
                     spoilMenuItem = findItem(R.id.menu_item_spoil).apply {
                         isVisible = false
                     }
+                    restoreMenuItem = findItem(R.id.menu_item_restore).apply {
+                        isVisible = false
+                    }
                 }
             }
         }
@@ -99,6 +104,10 @@ class ExpandItemToolbar @Inject internal constructor(
                         publish(ExpandedItemViewEvent.SpoilItem)
                         true
                     }
+                    R.id.menu_item_restore -> {
+                        publish(ExpandedItemViewEvent.RestoreItem)
+                        true
+                    }
                     else -> false
                 }
             }
@@ -113,6 +122,7 @@ class ExpandItemToolbar @Inject internal constructor(
         deleteMenuItem = null
         consumeMenuItem = null
         spoilMenuItem = null
+        restoreMenuItem = null
 
         binding.expandToolbar.menu.clear()
         binding.expandToolbar.setNavigationOnClickListener(null)
@@ -125,10 +135,23 @@ class ExpandItemToolbar @Inject internal constructor(
                 requireNotNull(deleteMenuItem).isVisible = false
                 requireNotNull(consumeMenuItem).isVisible = false
                 requireNotNull(spoilMenuItem).isVisible = false
+                requireNotNull(restoreMenuItem).isVisible = false
             } else {
-                requireNotNull(deleteMenuItem).isVisible = item.isReal()
-                requireNotNull(consumeMenuItem).isVisible = item.isReal() && item.presence() == HAVE
-                requireNotNull(spoilMenuItem).isVisible = item.isReal() && item.presence() == HAVE
+                val isReal = item.isReal()
+                val isHave = item.presence() == HAVE
+
+                // Always show delete
+                requireNotNull(deleteMenuItem).isVisible = isReal
+
+                if (item.isArchived()) {
+                    requireNotNull(restoreMenuItem).isVisible = isReal
+                    requireNotNull(consumeMenuItem).isVisible = false
+                    requireNotNull(spoilMenuItem).isVisible = false
+                } else {
+                    requireNotNull(consumeMenuItem).isVisible = isReal && isHave
+                    requireNotNull(spoilMenuItem).isVisible = isReal && isHave
+                    requireNotNull(restoreMenuItem).isVisible = false
+                }
             }
         }
     }

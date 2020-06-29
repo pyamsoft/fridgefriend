@@ -43,6 +43,10 @@ class ExpandItemDate @Inject internal constructor(
     }
 
     override fun onRender(state: ExpandItemViewState) {
+        handleItem(state)
+    }
+
+    private fun handleItem(state: ExpandItemViewState) {
         renderItem(state.item)
     }
 }

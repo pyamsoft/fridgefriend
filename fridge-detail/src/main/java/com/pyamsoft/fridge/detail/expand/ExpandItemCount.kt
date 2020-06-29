@@ -18,10 +18,12 @@
 package com.pyamsoft.fridge.detail.expand
 
 import android.text.Editable
+import android.text.InputType
 import android.text.TextWatcher
 import android.view.ViewGroup
 import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.db.item.FridgeItem
+import com.pyamsoft.fridge.db.item.isArchived
 import com.pyamsoft.fridge.detail.databinding.ExpandCountBinding
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
@@ -74,6 +76,12 @@ class ExpandItemCount @Inject internal constructor(
                     }
                 }
             }
+
+            val isEditable = if (item == null) false else !item.isArchived()
+            binding.expandItemCountEditable.inputType = if (isEditable) InputType.TYPE_CLASS_NUMBER else InputType.TYPE_NULL
+            binding.expandItemCountEditable.isFocusable = isEditable
+            binding.expandItemCountEditable.setTextIsSelectable(isEditable)
+            binding.expandItemCountEditable.isLongClickable = isEditable
         }
     }
 

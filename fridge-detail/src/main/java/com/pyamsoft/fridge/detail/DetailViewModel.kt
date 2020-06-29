@@ -216,9 +216,7 @@ class DetailViewModel @Inject internal constructor(
     }
 
     private fun expand(item: FridgeItem) {
-        if (!item.isArchived()) {
-            publish(ExpandForEditing(item))
-        }
+        publish(ExpandForEditing(item))
     }
 
     private fun handleUndoDelete(item: FridgeItem) {

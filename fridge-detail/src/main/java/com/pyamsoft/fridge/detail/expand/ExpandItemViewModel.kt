@@ -32,18 +32,19 @@ import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent.Delete
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent.Insert
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent.Update
 import com.pyamsoft.fridge.db.item.FridgeItemRealtime
+import com.pyamsoft.fridge.db.item.isArchived
 import com.pyamsoft.fridge.detail.DetailInteractor
 import com.pyamsoft.fridge.detail.base.BaseUpdaterViewModel
 import com.pyamsoft.fridge.detail.expand.date.DateSelectPayload
 import com.pyamsoft.fridge.detail.item.isNameValid
 import com.pyamsoft.pydroid.arch.EventBus
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import timber.log.Timber
 import java.util.Calendar
 import java.util.Locale
 import javax.inject.Inject
 import javax.inject.Named
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import timber.log.Timber
 
 class ExpandItemViewModel @Inject internal constructor(
     private val interactor: DetailInteractor,
@@ -138,6 +139,7 @@ class ExpandItemViewModel @Inject internal constructor(
             is ExpandedItemViewEvent.DeleteItem -> deleteSelf()
             is ExpandedItemViewEvent.ConsumeItem -> consumeSelf()
             is ExpandedItemViewEvent.SpoilItem -> spoilSelf()
+            is ExpandedItemViewEvent.RestoreItem -> restoreSelf()
             is ExpandedItemViewEvent.SelectSimilar -> similarSelected(event.item)
         }
     }
@@ -159,6 +161,16 @@ class ExpandItemViewModel @Inject internal constructor(
                 onError = { handleError(it) }) {
                 closeItem(it)
             }
+        }
+    }
+
+    private fun restoreSelf() {
+        withState {
+            update(
+                requireNotNull(item),
+                doUpdate = { interactor.commit(it.invalidateConsumption().invalidateSpoiled()) },
+                onError = { handleError(it) })
+            // Don't close the dialog on restore so user can continue interacting.
         }
     }
 
@@ -223,6 +235,10 @@ class ExpandItemViewModel @Inject internal constructor(
     private fun pickDate() {
         withState {
             val item = requireNotNull(item)
+            if (item.isArchived()) {
+                return@withState
+            }
+
             val expireTime = item.expireTime()
             val month: Int
             val day: Int
@@ -282,6 +298,10 @@ class ExpandItemViewModel @Inject internal constructor(
     private fun commitCategory(index: Int) {
         withState {
             requireNotNull(item).let { item ->
+                if (item.isArchived()) {
+                    return@withState
+                }
+
                 val category = categories.getOrNull(index)
                 if (category != null) {
                     val existingCategoryId = item.categoryId()

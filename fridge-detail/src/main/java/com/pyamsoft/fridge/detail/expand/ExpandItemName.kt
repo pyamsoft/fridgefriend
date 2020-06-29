@@ -18,10 +18,12 @@
 package com.pyamsoft.fridge.detail.expand
 
 import android.text.Editable
+import android.text.InputType
 import android.text.TextWatcher
 import android.view.ViewGroup
 import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.db.item.FridgeItem
+import com.pyamsoft.fridge.db.item.isArchived
 import com.pyamsoft.fridge.detail.base.BaseItemName
 import timber.log.Timber
 import javax.inject.Inject
@@ -90,6 +92,12 @@ class ExpandItemName @Inject internal constructor(
                     }
                 }
             }
+            val isEditable = if (item == null) false else !item.isArchived()
+            binding.detailItemNameEditable.inputType =
+                if (isEditable) EDITABLE_INPUT_TYPE else InputType.TYPE_NULL
+            binding.detailItemNameEditable.isFocusable = isEditable
+            binding.detailItemNameEditable.setTextIsSelectable(isEditable)
+            binding.detailItemNameEditable.isLongClickable = isEditable
         }
     }
 
@@ -131,5 +139,10 @@ class ExpandItemName @Inject internal constructor(
 
     private fun commit(name: String) {
         publish(ExpandedItemViewEvent.CommitName(name))
+    }
+
+    companion object {
+        private const val EDITABLE_INPUT_TYPE =
+            InputType.TYPE_TEXT_FLAG_MULTI_LINE or InputType.TYPE_TEXT_FLAG_AUTO_CORRECT or InputType.TYPE_TEXT_FLAG_CAP_WORDS
     }
 }

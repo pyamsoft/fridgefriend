@@ -16,17 +16,21 @@
   -->
 
 <resources>
-    <string name="delete">Delete</string>
     <string name="item_name_hint">Item Name</string>
+    <string name="count">Count</string>
+
+    <string name="delete">Delete</string>
     <string name="spoiled">Spoiled</string>
     <string name="consumed">Consumed</string>
-    <string name="count">Count</string>
+    <string name="restore">Restore</string>
+
+    <string name="search">Search</string>
+    <string name="sort">Sort</string>
 
     <string name="total_number_of_items">Total number of items</string>
     <string name="number_of_fresh_items">Fresh items</string>
     <string name="number_of_expiring_items">Items expiring soon</string>
     <string name="number_of_expired_items">Expired items</string>
-    <string name="search">Search</string>
-    <string name="sort">Sort</string>
+
     <string name="purchased_on">Purchased On:</string>
 </resources>

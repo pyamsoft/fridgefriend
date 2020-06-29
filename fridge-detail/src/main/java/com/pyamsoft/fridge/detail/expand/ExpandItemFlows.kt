@@ -55,6 +55,8 @@ sealed class ExpandedItemViewEvent : UiViewEvent {
     object ConsumeItem : ExpandedItemViewEvent()
 
     object SpoilItem : ExpandedItemViewEvent()
+
+    object RestoreItem : ExpandedItemViewEvent()
 }
 
 sealed class ExpandItemControllerEvent : UiControllerEvent {
