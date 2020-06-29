@@ -58,6 +58,10 @@ internal class ExpandedFragment : DialogFragment() {
 
     @JvmField
     @Inject
+    internal var purchased: ExpandItemPurchasedDate? = null
+
+    @JvmField
+    @Inject
     internal var count: ExpandItemCount? = null
 
     @JvmField
@@ -131,6 +135,7 @@ internal class ExpandedFragment : DialogFragment() {
         val errorDisplay = requireNotNull(errorDisplay)
         val toolbar = requireNotNull(toolbar)
         val categories = requireNotNull(categories)
+        val purchased = requireNotNull(purchased)
         val shadow =
             DropshadowView.createTyped<ExpandItemViewState, ExpandedItemViewEvent>(binding.layoutConstraint)
         stateSaver = createComponent(
@@ -143,6 +148,7 @@ internal class ExpandedFragment : DialogFragment() {
             sameNamedItems,
             errorDisplay,
             categories,
+            purchased,
             toolbar,
             shadow
         ) {
@@ -221,8 +227,17 @@ internal class ExpandedFragment : DialogFragment() {
                 constrainHeight(it.id(), ConstraintSet.WRAP_CONTENT)
             }
 
-            categories.also {
+            purchased.also {
                 connect(it.id(), ConstraintSet.TOP, count.id(), ConstraintSet.BOTTOM)
+                connect(it.id(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
+                connect(it.id(), ConstraintSet.START, name.id(), ConstraintSet.START)
+
+                constrainWidth(it.id(), ConstraintSet.MATCH_CONSTRAINT)
+                constrainHeight(it.id(), ConstraintSet.WRAP_CONTENT)
+            }
+
+            categories.also {
+                connect(it.id(), ConstraintSet.TOP, purchased.id(), ConstraintSet.BOTTOM)
                 connect(it.id(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
                 connect(it.id(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
 

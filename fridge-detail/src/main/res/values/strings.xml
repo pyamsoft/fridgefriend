@@ -28,4 +28,5 @@
     <string name="number_of_expired_items">Expired items</string>
     <string name="search">Search</string>
     <string name="sort">Sort</string>
+    <string name="purchased_on">Purchased On:</string>
 </resources>
