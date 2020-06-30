@@ -17,6 +17,8 @@
 
 package com.pyamsoft.fridge.main
 
+import android.os.Handler
+import android.os.Looper
 import android.view.ViewGroup
 import androidx.annotation.CheckResult
 import androidx.annotation.IdRes
@@ -37,6 +39,8 @@ class MainNavigation @Inject internal constructor(
     override val viewBinding = MainNavigationBinding::inflate
 
     override val layoutRoot by boundView { mainBottomNavigationMenu }
+
+    private val handler = Handler(Looper.getMainLooper())
 
     init {
         doOnInflate {
@@ -79,6 +83,10 @@ class MainNavigation @Inject internal constructor(
             binding.mainBottomNavigationMenu.removeBadge(R.id.menu_item_nav_need)
             binding.mainBottomNavigationMenu.removeBadge(R.id.menu_item_nav_have)
         }
+
+        doOnTeardown {
+            handler.removeCallbacksAndMessages(null)
+        }
     }
 
     /**
@@ -96,7 +104,11 @@ class MainNavigation @Inject internal constructor(
             if (pageId != 0) {
                 // Don't mark it selected since this will re-fire the click event
                 // binding.mainBottomNavigationMenu.selectedItemId = pageId
-                binding.mainBottomNavigationMenu.menu.findItem(pageId).isChecked = true
+                val item = binding.mainBottomNavigationMenu.menu.findItem(pageId)
+                if (item != null) {
+                    handler.removeCallbacksAndMessages(null)
+                    handler.post { item.isChecked = true }
+                }
             }
         }
     }
