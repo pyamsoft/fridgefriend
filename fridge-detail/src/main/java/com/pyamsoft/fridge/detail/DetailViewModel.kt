@@ -41,6 +41,7 @@ import com.pyamsoft.pydroid.arch.onActualError
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import timber.log.Timber
 import java.util.Calendar
 import java.util.Date
@@ -141,7 +142,9 @@ class DetailViewModel @Inject internal constructor(
                 val listener = interactor.listenForExpiringSoonRangeChanged { range ->
                     setState { copy(expirationRange = DetailViewState.ExpirationRange(range)) }
                 }
-                doOnTeardown { listener.cancel() }
+                withContext(context = Dispatchers.Main) {
+                    doOnTeardown { listener.cancel() }
+                }
             }
         }
 
@@ -150,7 +153,9 @@ class DetailViewModel @Inject internal constructor(
                 val listener = interactor.listenForSameDayExpiredChanged { same ->
                     setState { copy(isSameDayExpired = DetailViewState.IsSameDayExpired(same)) }
                 }
-                doOnTeardown { listener.cancel() }
+                withContext(context = Dispatchers.Main) {
+                    doOnTeardown { listener.cancel() }
+                }
             }
         }
     }
