@@ -75,7 +75,8 @@ class ZoneInfoWindow private constructor(
         val location = requireNotNull(infoLocation)
 
         stateSaver = createComponent(
-            null, this,
+            null,
+            this,
             viewModel,
             title,
             location

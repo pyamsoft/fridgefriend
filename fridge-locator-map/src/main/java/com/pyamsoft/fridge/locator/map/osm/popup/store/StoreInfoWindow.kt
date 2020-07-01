@@ -74,7 +74,8 @@ class StoreInfoWindow private constructor(
         val title = requireNotNull(infoTitle)
         val location = requireNotNull(infoLocation)
         stateSaver = createComponent(
-            null, this,
+            null,
+            this,
             viewModel,
             title,
             location

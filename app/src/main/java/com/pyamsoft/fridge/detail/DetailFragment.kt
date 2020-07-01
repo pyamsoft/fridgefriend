@@ -103,7 +103,8 @@ internal class DetailFragment : Fragment(), SnackbarContainer {
         val toolbar = requireNotNull(toolbar)
 
         stateSaver = createComponent(
-            savedInstanceState, viewLifecycleOwner,
+            savedInstanceState,
+            viewLifecycleOwner,
             viewModel,
             heroImage,
             container,

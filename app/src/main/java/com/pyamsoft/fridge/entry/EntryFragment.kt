@@ -73,7 +73,8 @@ internal class EntryFragment : Fragment(), SnackbarContainer {
             .inject(this)
 
         stateSaver = createComponent(
-            savedInstanceState, viewLifecycleOwner,
+            savedInstanceState,
+            viewLifecycleOwner,
             viewModel
         ) {
             return@createComponent when (it) {

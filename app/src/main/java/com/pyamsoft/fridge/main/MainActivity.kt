@@ -199,7 +199,9 @@ internal class MainActivity : RatingActivity(), VersionChecker {
         val navigation = requireNotNull(navigation)
         val snackbar = requireNotNull(snackbar)
         stateSaver = createComponent(
-            savedInstanceState, this, viewModel,
+            savedInstanceState,
+            this,
+            viewModel,
             container,
             toolbar,
             navigation,

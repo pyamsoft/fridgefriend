@@ -139,7 +139,8 @@ internal class ExpandedFragment : DialogFragment() {
         val shadow =
             DropshadowView.createTyped<ExpandItemViewState, ExpandedItemViewEvent>(binding.layoutConstraint)
         stateSaver = createComponent(
-            null, viewLifecycleOwner,
+            savedInstanceState,
+            viewLifecycleOwner,
             viewModel,
             name,
             date,

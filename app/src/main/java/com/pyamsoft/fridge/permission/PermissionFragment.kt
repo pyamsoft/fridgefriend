@@ -92,7 +92,8 @@ internal class PermissionFragment : Fragment(), PermissionConsumer<ForegroundLoc
         val requestButton = requireNotNull(requestButton)
         val explanation = requireNotNull(explanation)
         stateSaver = createComponent(
-            savedInstanceState, viewLifecycleOwner,
+            savedInstanceState,
+            viewLifecycleOwner,
             viewModel,
             requestButton,
             explanation

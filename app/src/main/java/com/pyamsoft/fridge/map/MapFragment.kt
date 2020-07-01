@@ -84,7 +84,8 @@ internal class MapFragment : Fragment(), SnackbarContainer {
         val actions = requireNotNull(actions)
 
         stateSaver = createComponent(
-            savedInstanceState, viewLifecycleOwner,
+            savedInstanceState,
+            viewLifecycleOwner,
             viewModel,
             map,
             actions

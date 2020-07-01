@@ -88,8 +88,8 @@ class ExpandItemViewModel @Inject internal constructor(
 
         doOnInit { savedInstanceState ->
             // Resolve the existing item id
-            val resolveItemId =
-                FridgeItem.Id(savedInstanceState.getOrDefault(CREATED_ITEM_ID, possibleItemId.id))
+            val savedId = savedInstanceState.getOrDefault(CREATED_ITEM_ID, possibleItemId.id)
+            val resolveItemId = FridgeItem.Id(savedId)
             viewModelScope.launch(context = Dispatchers.Default) {
                 val item = interactor.resolveItem(
                     resolveItemId,
