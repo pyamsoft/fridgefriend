@@ -158,6 +158,44 @@ class DetailViewModel @Inject internal constructor(
                 }
             }
         }
+
+        doOnSaveState { state ->
+            put(SAVED_FILTER, state.showing.name)
+        }
+
+        doOnSaveState { state ->
+            put(SAVED_SORT, state.sort.name)
+        }
+
+        doOnSaveState { state ->
+            state.search.let { search ->
+                if (search.isBlank()) {
+                    remove(SAVED_SEARCH)
+                } else {
+                    put(SAVED_SEARCH, search)
+                }
+            }
+        }
+
+        doOnInit { reader ->
+            reader.useIfAvailable<String>(SAVED_FILTER) { filterName ->
+                val filter = DetailViewState.Showing.valueOf(filterName)
+                setState { copy(showing = filter) }
+            }
+        }
+
+        doOnInit { reader ->
+            reader.useIfAvailable<String>(SAVED_SORT) { sortName ->
+                val sort = DetailViewState.Sorts.valueOf(sortName)
+                setState { copy(sort = sort) }
+            }
+        }
+
+        doOnInit { reader ->
+            reader.useIfAvailable<String>(SAVED_SEARCH) { search ->
+                setState { copy(search = search) }
+            }
+        }
     }
 
     override fun handleViewEvent(event: DetailViewEvent) {
@@ -560,5 +598,11 @@ class DetailViewModel @Inject internal constructor(
                 }
             }.filter { it.matchesQuery(search) }
             .toList()
+    }
+
+    companion object {
+        private const val SAVED_SORT = "sort"
+        private const val SAVED_FILTER = "filter"
+        private const val SAVED_SEARCH = "search"
     }
 }

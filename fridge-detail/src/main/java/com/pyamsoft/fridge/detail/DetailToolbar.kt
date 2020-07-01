@@ -53,8 +53,18 @@ class DetailToolbar @Inject internal constructor(
     private val itemIdExpirationDate = View.generateViewId()
 
     private var subMenu: SubMenu? = null
+    private var searchItem: MenuItem? = null
 
     private val publishHandler = Handler(Looper.getMainLooper())
+
+    // NOTE(Peter): Hack because Android does not allow us to use Controlled view components like
+    // React does by binding input and drawing to the render loop.
+    //
+    // This initialRenderPerformed variable allows us to set the initial state of a view once, and bind listeners to
+    // it because the state.item is only available in render instead of inflate. Once the firstRender
+    // has set the view component up, the actual input will no longer be tracked via state render events,
+    // so the input is uncontrolled.
+    private var initialRenderPerformed = false
 
     init {
         doOnInflate {
@@ -76,7 +86,7 @@ class DetailToolbar @Inject internal constructor(
     ) {
         toolbar.doOnLayout {
             subMenu = toolbar.initSubmenu(presence)
-            toolbar.initSearchItem()
+            searchItem = toolbar.initSearchItem()
         }
     }
 
@@ -103,6 +113,26 @@ class DetailToolbar @Inject internal constructor(
 
     override fun render(state: DetailViewState) {
         handleSubmenu(state)
+        handleInitialSearch(state)
+    }
+
+    private fun handleInitialSearch(state: DetailViewState) {
+        if (initialRenderPerformed) {
+            return
+        }
+
+        val item = searchItem ?: return
+        val searchView = item.actionView as? SearchView ?: return
+
+        initialRenderPerformed = true
+
+        state.search.let { search ->
+            if (search.isNotBlank()) {
+                if (item.expandActionView()) {
+                    searchView.setQuery(search, true)
+                }
+            }
+        }
     }
 
     private fun debouncedPublish(event: DetailViewEvent) {
@@ -195,6 +225,7 @@ class DetailToolbar @Inject internal constructor(
 
     private fun Toolbar.teardownSearch() {
         this.menu.removeGroup(groupIdSearch)
+        searchItem = null
     }
 
     private fun Toolbar.teardownSubmenu() {
