@@ -51,8 +51,8 @@ import kotlin.math.max
 
 class DetailViewModel @Inject internal constructor(
     private val interactor: DetailInteractor,
-    private val entryId: FridgeEntry.Id,
     @Named("debug") debug: Boolean,
+    entryId: FridgeEntry.Id,
     listItemPresence: FridgeItem.Presence,
     bottomOffsetBus: EventConsumer<BottomOffset>
 ) : BaseUpdaterViewModel<DetailViewState, DetailViewEvent, DetailControllerEvent>(
@@ -167,7 +167,7 @@ class DetailViewModel @Inject internal constructor(
             is DetailViewEvent.ToggleArchiveVisibility -> toggleArchived()
             is DetailViewEvent.ReallyDeleteNoUndo -> setState { copy(undoableItem = null) }
             is DetailViewEvent.UndoDelete -> handleUndoDelete(event.item)
-            is DetailViewEvent.AddNewItemEvent -> publish(DetailControllerEvent.AddNew(entryId))
+            is DetailViewEvent.AddNewItemEvent -> handleAddNew()
             is DetailViewEvent.ChangePresence -> commitPresence(event.item)
             is DetailViewEvent.Consume -> consume(event.item)
             is DetailViewEvent.Delete -> delete(event.item)
@@ -177,6 +177,14 @@ class DetailViewModel @Inject internal constructor(
             is DetailViewEvent.DecreaseCount -> decreaseCount(event.item)
             is DetailViewEvent.SearchQuery -> updateSearch(event.search)
             is DetailViewEvent.ChangeSort -> updateSort(event.sort)
+        }
+    }
+
+    private fun handleAddNew() {
+        withState {
+            entry?.let {
+                publish(DetailControllerEvent.AddNew(entry.id(), listItemPresence))
+            }
         }
     }
 

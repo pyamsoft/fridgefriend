@@ -311,12 +311,8 @@ internal class ExpandedFragment : DialogFragment() {
 
         @JvmStatic
         @CheckResult
-        fun openExisting(
-            entryId: FridgeEntry.Id,
-            item: FridgeItem,
-            presence: Presence
-        ): DialogFragment {
-            return newInstance(item.id(), entryId, presence)
+        fun openExisting(item: FridgeItem): DialogFragment {
+            return newInstance(item.id(), item.entryId(), item.presence())
         }
 
         @JvmStatic

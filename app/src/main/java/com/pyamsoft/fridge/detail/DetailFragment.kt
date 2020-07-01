@@ -23,6 +23,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.CheckResult
 import androidx.coordinatorlayout.widget.CoordinatorLayout
+import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.pyamsoft.fridge.FridgeComponent
@@ -74,21 +75,14 @@ internal class DetailFragment : Fragment(), SnackbarContainer {
         return inflater.inflate(R.layout.layout_coordinator, container, false)
     }
 
-    @CheckResult
-    private fun getEntryIdArgument(): FridgeEntry.Id {
-        return FridgeEntry.Id(requireNotNull(requireArguments().getString(ENTRY)))
-    }
-
-    @CheckResult
-    private fun getPresenceArgument(): Presence {
-        return Presence.valueOf(requireNotNull(requireArguments().getString(PRESENCE)))
-    }
-
     override fun onViewCreated(
         view: View,
         savedInstanceState: Bundle?
     ) {
         super.onViewCreated(view, savedInstanceState)
+
+        val entryId = FridgeEntry.Id(requireNotNull(requireArguments().getString(ENTRY)))
+        val presence = Presence.valueOf(requireNotNull(requireArguments().getString(PRESENCE)))
 
         val binding = LayoutCoordinatorBinding.bind(view)
         Injector.obtain<FridgeComponent>(view.context.applicationContext)
@@ -98,8 +92,8 @@ internal class DetailFragment : Fragment(), SnackbarContainer {
                 binding.layoutCoordinator,
                 requireToolbarActivity(),
                 viewLifecycleOwner,
-                getEntryIdArgument(),
-                getPresenceArgument()
+                entryId,
+                presence
             )
             .inject(this)
 
@@ -119,7 +113,7 @@ internal class DetailFragment : Fragment(), SnackbarContainer {
             return@createComponent when (it) {
                 is DetailControllerEvent.ExpandForEditing -> openExisting(it.item)
                 is DetailControllerEvent.EntryArchived -> close()
-                is DetailControllerEvent.AddNew -> createItem()
+                is DetailControllerEvent.AddNew -> createItem(it.id, it.presence)
             }
         }
     }
@@ -148,22 +142,16 @@ internal class DetailFragment : Fragment(), SnackbarContainer {
         requireActivity().onBackPressed()
     }
 
-    private fun createItem() {
-        expandItem(null)
+    private fun createItem(entryId: FridgeEntry.Id, presence: Presence) {
+        showExpandDialog(ExpandedFragment.createNew(entryId, presence))
     }
 
     private fun openExisting(item: FridgeItem) {
-        expandItem(item)
+        showExpandDialog(ExpandedFragment.openExisting(item))
     }
 
-    private fun expandItem(item: FridgeItem?) {
-        val expandFragment = if (item == null) {
-            ExpandedFragment.createNew(getEntryIdArgument(), getPresenceArgument())
-        } else {
-            ExpandedFragment.openExisting(getEntryIdArgument(), item, getPresenceArgument())
-        }
-
-        expandFragment.show(requireActivity(), ExpandedFragment.TAG)
+    private fun showExpandDialog(dialogFragment: DialogFragment) {
+        dialogFragment.show(requireActivity(), ExpandedFragment.TAG)
     }
 
     companion object {

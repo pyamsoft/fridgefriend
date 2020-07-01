@@ -23,7 +23,6 @@ import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.pydroid.arch.UiControllerEvent
 import com.pyamsoft.pydroid.arch.UiViewEvent
 import com.pyamsoft.pydroid.arch.UiViewState
-import java.util.Date
 
 data class DetailViewState(
     val isLoading: Loading?,
@@ -117,7 +116,10 @@ sealed class DetailViewEvent : UiViewEvent {
 
 sealed class DetailControllerEvent : UiControllerEvent {
 
-    data class AddNew internal constructor(val id: FridgeEntry.Id) : DetailControllerEvent()
+    data class AddNew internal constructor(
+        val id: FridgeEntry.Id,
+        val presence: FridgeItem.Presence
+    ) : DetailControllerEvent()
 
     data class ExpandForEditing internal constructor(
         val item: FridgeItem
