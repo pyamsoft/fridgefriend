@@ -92,7 +92,7 @@ class ExpandItemName @Inject internal constructor(
         state.item?.let { item ->
             initialRenderPerformed = true
             setName(item)
-            val watcher = addWatcher()
+            val watcher = addWatcher(item.name())
             doOnTeardown {
                 removeListeners(watcher)
             }
@@ -105,6 +105,7 @@ class ExpandItemName @Inject internal constructor(
             binding.detailItemNameEditable.inputType =
                 if (isEditable) EDITABLE_INPUT_TYPE else InputType.TYPE_NULL
             binding.detailItemNameEditable.isFocusable = isEditable
+            binding.detailItemNameEditable.setTextIsSelectable(isEditable)
             binding.detailItemNameEditable.isLongClickable = isEditable
         }
     }
@@ -114,15 +115,21 @@ class ExpandItemName @Inject internal constructor(
     }
 
     @CheckResult
-    private fun addWatcher(): TextWatcher {
+    private fun addWatcher(previousText: String): TextWatcher {
         val watcher = object : TextWatcher {
 
-            override fun afterTextChanged(s: Editable?) {
-                s?.also { commit(it.toString()) }
+            private var oldText = previousText
+
+            override fun afterTextChanged(s: Editable) {
+                val newText = s.toString()
+                if (newText != oldText) {
+                    oldText = newText
+                    commit(newText)
+                }
             }
 
             override fun beforeTextChanged(
-                s: CharSequence?,
+                s: CharSequence,
                 start: Int,
                 count: Int,
                 after: Int
@@ -130,7 +137,7 @@ class ExpandItemName @Inject internal constructor(
             }
 
             override fun onTextChanged(
-                s: CharSequence?,
+                s: CharSequence,
                 start: Int,
                 before: Int,
                 count: Int

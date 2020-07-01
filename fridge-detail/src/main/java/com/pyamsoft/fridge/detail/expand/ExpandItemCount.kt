@@ -76,7 +76,7 @@ class ExpandItemCount @Inject internal constructor(
         state.item?.let { item ->
             initialRenderPerformed = true
             setCount(item)
-            val watcher = createWatcher()
+            val watcher = createWatcher(item.count())
             doOnTeardown {
                 removeWatcher(watcher)
             }
@@ -89,20 +89,27 @@ class ExpandItemCount @Inject internal constructor(
             binding.expandItemCountEditable.inputType =
                 if (isEditable) InputType.TYPE_CLASS_NUMBER else InputType.TYPE_NULL
             binding.expandItemCountEditable.isFocusable = isEditable
+            binding.expandItemCountEditable.setTextIsSelectable(isEditable)
             binding.expandItemCountEditable.isLongClickable = isEditable
         }
     }
 
     @CheckResult
-    private fun createWatcher(): TextWatcher {
+    private fun createWatcher(previousCount: Int): TextWatcher {
         val watcher = object : TextWatcher {
 
-            override fun afterTextChanged(s: Editable?) {
-                commit()
+            private var oldCount = previousCount
+
+            override fun afterTextChanged(s: Editable) {
+                val newCount = s.toString().toIntOrNull() ?: 0
+                if (newCount != oldCount) {
+                    oldCount = newCount
+                    commit(newCount)
+                }
             }
 
             override fun beforeTextChanged(
-                s: CharSequence?,
+                s: CharSequence,
                 start: Int,
                 count: Int,
                 after: Int
@@ -110,7 +117,7 @@ class ExpandItemCount @Inject internal constructor(
             }
 
             override fun onTextChanged(
-                s: CharSequence?,
+                s: CharSequence,
                 start: Int,
                 before: Int,
                 count: Int
@@ -125,8 +132,7 @@ class ExpandItemCount @Inject internal constructor(
         binding.expandItemCountEditable.removeTextChangedListener(watcher)
     }
 
-    private fun commit() {
-        val count = binding.expandItemCountEditable.text.toString().toIntOrNull() ?: 0
+    private fun commit(count: Int) {
         publish(ExpandedItemViewEvent.CommitCount(count))
     }
 }
