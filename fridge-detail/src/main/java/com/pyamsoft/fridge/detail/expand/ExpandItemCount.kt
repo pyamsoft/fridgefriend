@@ -37,13 +37,16 @@ class ExpandItemCount @Inject internal constructor(
 
     override val layoutRoot by boundView { expandItemCount }
 
+    // NOTE(Peter): Hack because Android does not allow us to use Controlled view components like
+    // React does by binding input and drawing to the render loop.
+    //
+    // This firstRender variable allows us to set the initial state of a view once, and bind listeners to
+    // it because the state.item is only available in render instead of inflate. Once the firstRender
+    // has set the view component up, the actual input will no longer be tracked via state render events,
+    // so the input is uncontrolled.
     private var firstRender = true
 
     init {
-        doOnTeardown {
-            firstRender = false
-        }
-
         doOnTeardown {
             clear()
         }
@@ -61,24 +64,30 @@ class ExpandItemCount @Inject internal constructor(
     }
 
     override fun onRender(state: ExpandItemViewState) {
+        handleInitialRender(state)
         handleItem(state)
+    }
+
+    private fun handleInitialRender(state: ExpandItemViewState) {
+        if (!firstRender) {
+            return
+        }
+
+        state.item?.let { item ->
+            firstRender = false
+            setCount(item)
+            val watcher = createWatcher()
+            doOnTeardown {
+                removeWatcher(watcher)
+            }
+        }
     }
 
     private fun handleItem(state: ExpandItemViewState) {
         state.item.let { item ->
-            if (item != null) {
-                if (firstRender) {
-                    firstRender = false
-                    setCount(item)
-                    val watcher = createWatcher()
-                    doOnTeardown {
-                        removeWatcher(watcher)
-                    }
-                }
-            }
-
             val isEditable = if (item == null) false else !item.isArchived()
-            binding.expandItemCountEditable.inputType = if (isEditable) InputType.TYPE_CLASS_NUMBER else InputType.TYPE_NULL
+            binding.expandItemCountEditable.inputType =
+                if (isEditable) InputType.TYPE_CLASS_NUMBER else InputType.TYPE_NULL
             binding.expandItemCountEditable.isFocusable = isEditable
             binding.expandItemCountEditable.setTextIsSelectable(isEditable)
             binding.expandItemCountEditable.isLongClickable = isEditable

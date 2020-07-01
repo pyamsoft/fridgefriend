@@ -33,6 +33,14 @@ class ExpandItemName @Inject internal constructor(
 ) : BaseItemName<ExpandItemViewState, ExpandedItemViewEvent>(parent) {
 
     private val popupWindow = SimilarlyNamedListWindow(parent.context)
+
+    // NOTE(Peter): Hack because Android does not allow us to use Controlled view components like
+    // React does by binding input and drawing to the render loop.
+    //
+    // This firstRender variable allows us to set the initial state of a view once, and bind listeners to
+    // it because the state.item is only available in render instead of inflate. Once the firstRender
+    // has set the view component up, the actual input will no longer be tracked via state render events,
+    // so the input is uncontrolled.
     private var firstRender = true
 
     init {
@@ -63,10 +71,6 @@ class ExpandItemName @Inject internal constructor(
         doOnTeardown {
             popupWindow.teardown()
         }
-
-        doOnTeardown {
-            firstRender = false
-        }
     }
 
     private fun selectSimilar(item: FridgeItem) {
@@ -77,21 +81,26 @@ class ExpandItemName @Inject internal constructor(
 
     override fun onRender(state: ExpandItemViewState) {
         handlePopupWindow(state)
+        handleInitialRender(state)
         handleItem(state)
+    }
+
+    private fun handleInitialRender(state: ExpandItemViewState) {
+        if (!firstRender) {
+            return
+        }
+        state.item?.let { item ->
+            firstRender = false
+            setName(item)
+            val watcher = addWatcher()
+            doOnTeardown {
+                removeListeners(watcher)
+            }
+        }
     }
 
     private fun handleItem(state: ExpandItemViewState) {
         state.item.let { item ->
-            if (item != null) {
-                if (firstRender) {
-                    firstRender = false
-                    setName(item)
-                    val watcher = addWatcher()
-                    doOnTeardown {
-                        removeListeners(watcher)
-                    }
-                }
-            }
             val isEditable = if (item == null) false else !item.isArchived()
             binding.detailItemNameEditable.inputType =
                 if (isEditable) EDITABLE_INPUT_TYPE else InputType.TYPE_NULL
