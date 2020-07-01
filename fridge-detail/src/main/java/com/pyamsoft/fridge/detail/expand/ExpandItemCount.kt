@@ -21,7 +21,6 @@ import android.text.Editable
 import android.text.InputType
 import android.text.TextWatcher
 import android.view.ViewGroup
-import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.isArchived
 import com.pyamsoft.fridge.detail.databinding.ExpandCountBinding
@@ -76,10 +75,7 @@ class ExpandItemCount @Inject internal constructor(
         state.item?.let { item ->
             initialRenderPerformed = true
             setCount(item)
-            val watcher = createWatcher(item.count())
-            doOnTeardown {
-                removeWatcher(watcher)
-            }
+            watchUntilTeardown(item.count())
         }
     }
 
@@ -94,8 +90,7 @@ class ExpandItemCount @Inject internal constructor(
         }
     }
 
-    @CheckResult
-    private fun createWatcher(previousCount: Int): TextWatcher {
+    private fun watchUntilTeardown(previousCount: Int) {
         val watcher = object : TextWatcher {
 
             private var oldCount = previousCount
@@ -104,7 +99,7 @@ class ExpandItemCount @Inject internal constructor(
                 val newCount = s.toString().toIntOrNull() ?: 0
                 if (newCount != oldCount) {
                     oldCount = newCount
-                    commit(newCount)
+                    publish(ExpandedItemViewEvent.CommitCount(newCount))
                 }
             }
 
@@ -125,14 +120,8 @@ class ExpandItemCount @Inject internal constructor(
             }
         }
         binding.expandItemCountEditable.addTextChangedListener(watcher)
-        return watcher
-    }
-
-    private fun removeWatcher(watcher: TextWatcher) {
-        binding.expandItemCountEditable.removeTextChangedListener(watcher)
-    }
-
-    private fun commit(count: Int) {
-        publish(ExpandedItemViewEvent.CommitCount(count))
+        doOnTeardown {
+            binding.expandItemCountEditable.removeTextChangedListener(watcher)
+        }
     }
 }

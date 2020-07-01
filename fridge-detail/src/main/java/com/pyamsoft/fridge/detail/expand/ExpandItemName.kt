@@ -21,7 +21,6 @@ import android.text.Editable
 import android.text.InputType
 import android.text.TextWatcher
 import android.view.ViewGroup
-import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.isArchived
 import com.pyamsoft.fridge.detail.base.BaseItemName
@@ -92,10 +91,7 @@ class ExpandItemName @Inject internal constructor(
         state.item?.let { item ->
             initialRenderPerformed = true
             setName(item)
-            val watcher = addWatcher(item.name())
-            doOnTeardown {
-                removeListeners(watcher)
-            }
+            watchUntilTeardown(item.name())
         }
     }
 
@@ -114,8 +110,7 @@ class ExpandItemName @Inject internal constructor(
         popupWindow.set(state.similarItems, binding.detailItemNameEditable.isFocused)
     }
 
-    @CheckResult
-    private fun addWatcher(previousText: String): TextWatcher {
+    private fun watchUntilTeardown(previousText: String) {
         val watcher = object : TextWatcher {
 
             private var oldText = previousText
@@ -124,7 +119,7 @@ class ExpandItemName @Inject internal constructor(
                 val newText = s.toString()
                 if (newText != oldText) {
                     oldText = newText
-                    commit(newText)
+                    publish(ExpandedItemViewEvent.CommitName(newText))
                 }
             }
 
@@ -145,15 +140,9 @@ class ExpandItemName @Inject internal constructor(
             }
         }
         binding.detailItemNameEditable.addTextChangedListener(watcher)
-        return watcher
-    }
-
-    private fun removeListeners(watcher: TextWatcher) {
-        watcher.let { binding.detailItemNameEditable.removeTextChangedListener(it) }
-    }
-
-    private fun commit(name: String) {
-        publish(ExpandedItemViewEvent.CommitName(name))
+        doOnTeardown {
+            binding.detailItemNameEditable.removeTextChangedListener(watcher)
+        }
     }
 
     companion object {
