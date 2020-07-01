@@ -37,11 +37,11 @@ class ExpandItemName @Inject internal constructor(
     // NOTE(Peter): Hack because Android does not allow us to use Controlled view components like
     // React does by binding input and drawing to the render loop.
     //
-    // This firstRender variable allows us to set the initial state of a view once, and bind listeners to
+    // This initialRenderPerformed variable allows us to set the initial state of a view once, and bind listeners to
     // it because the state.item is only available in render instead of inflate. Once the firstRender
     // has set the view component up, the actual input will no longer be tracked via state render events,
     // so the input is uncontrolled.
-    private var firstRender = true
+    private var initialRenderPerformed = false
 
     init {
         doOnInflate {
@@ -86,11 +86,11 @@ class ExpandItemName @Inject internal constructor(
     }
 
     private fun handleInitialRender(state: ExpandItemViewState) {
-        if (!firstRender) {
+        if (initialRenderPerformed) {
             return
         }
         state.item?.let { item ->
-            firstRender = false
+            initialRenderPerformed = true
             setName(item)
             val watcher = addWatcher()
             doOnTeardown {
@@ -119,7 +119,7 @@ class ExpandItemName @Inject internal constructor(
         val watcher = object : TextWatcher {
 
             override fun afterTextChanged(s: Editable?) {
-                s?.also { editable -> commit(editable.toString()) }
+                s?.also { commit(it.toString()) }
             }
 
             override fun beforeTextChanged(
