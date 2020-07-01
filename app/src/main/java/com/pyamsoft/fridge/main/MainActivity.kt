@@ -54,9 +54,9 @@ import com.pyamsoft.pydroid.ui.rating.buildChangeLog
 import com.pyamsoft.pydroid.ui.util.commitNow
 import com.pyamsoft.pydroid.ui.util.layout
 import com.pyamsoft.pydroid.util.stableLayoutHideNavigation
-import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 internal class MainActivity : RatingActivity(), VersionChecker {
 
@@ -83,10 +83,9 @@ internal class MainActivity : RatingActivity(), VersionChecker {
                 }
             }
 
-            return requireNotNull(snackbarContainer)
+            return requireNotNull(snackbar?.container())
         }
 
-    private var snackbarContainer: ViewGroup? = null
     private var stateSaver: StateSaver? = null
 
     @JvmField
