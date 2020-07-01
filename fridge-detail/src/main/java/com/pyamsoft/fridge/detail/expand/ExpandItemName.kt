@@ -105,7 +105,6 @@ class ExpandItemName @Inject internal constructor(
             binding.detailItemNameEditable.inputType =
                 if (isEditable) EDITABLE_INPUT_TYPE else InputType.TYPE_NULL
             binding.detailItemNameEditable.isFocusable = isEditable
-            binding.detailItemNameEditable.setTextIsSelectable(isEditable)
             binding.detailItemNameEditable.isLongClickable = isEditable
         }
     }

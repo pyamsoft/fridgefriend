@@ -89,7 +89,6 @@ class ExpandItemCount @Inject internal constructor(
             binding.expandItemCountEditable.inputType =
                 if (isEditable) InputType.TYPE_CLASS_NUMBER else InputType.TYPE_NULL
             binding.expandItemCountEditable.isFocusable = isEditable
-            binding.expandItemCountEditable.setTextIsSelectable(isEditable)
             binding.expandItemCountEditable.isLongClickable = isEditable
         }
     }
