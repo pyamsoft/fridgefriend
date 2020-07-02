@@ -50,9 +50,7 @@ class EntryViewModel @Inject internal constructor(
             val entry = persistentEntries.getPersistentEntry()
             setState { copy(entries = listOf(entry)) }
 
-            withState {
-                select(0)
-            }
+            select(0)
         }
     }
 
