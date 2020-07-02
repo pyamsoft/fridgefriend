@@ -241,36 +241,17 @@ class DetailList @Inject internal constructor(
             withBackgroundSwipeRight(Color.TRANSPARENT)
             withLeaveBehindSwipeRight(requireNotNull(rightBehindDrawable))
         }
+       
         // Detach any existing helper from the recyclerview
         touchHelper?.attachToRecyclerView(null)
 
         // Attach new helper
-        val helper = createSwipeHelper(swipeCallback, directions)
-
-        helper.attachToRecyclerView(binding.detailList)
+        val helper = ItemTouchHelper(swipeCallback).apply {
+            attachToRecyclerView(binding.detailList)
+        }
 
         // Set helper for cleanup later
         touchHelper = helper
-    }
-
-    @CheckResult
-    private fun createSwipeHelper(
-        swipeCallback: SimpleSwipeCallback,
-        directions: Int
-    ): ItemTouchHelper {
-        return ItemTouchHelper(object : ItemTouchHelper.SimpleCallback(0, directions) {
-            override fun onMove(
-                recyclerView: RecyclerView,
-                viewHolder: RecyclerView.ViewHolder,
-                target: RecyclerView.ViewHolder
-            ): Boolean {
-                return swipeCallback.onMove(recyclerView, viewHolder, target)
-            }
-
-            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-                swipeCallback.onSwiped(viewHolder, direction)
-            }
-        })
     }
 
     @CheckResult
