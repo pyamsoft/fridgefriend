@@ -169,12 +169,13 @@ class DetailViewModel @Inject internal constructor(
 
         doOnSaveState { outState, state ->
             state.search.let { search ->
-                if (search.isBlank()) {
-                    outState.remove(SAVED_SEARCH)
-                } else {
+                if (search.isNotBlank()) {
                     outState.put(SAVED_SEARCH, search)
+                    return@doOnSaveState
                 }
             }
+
+            outState.remove(SAVED_SEARCH)
         }
 
         doOnInit { savedInstanceState ->

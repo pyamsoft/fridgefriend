@@ -79,11 +79,12 @@ class ExpandItemViewModel @Inject internal constructor(
                 state.item?.let { item ->
                     if (item.isReal()) {
                         outState.put(CREATED_ITEM_ID, item.id().id)
-                    } else {
-                        outState.remove(CREATED_ITEM_ID)
+                        return@doOnSaveState
                     }
                 }
             }
+
+            outState.remove(CREATED_ITEM_ID)
         }
 
         doOnInit { savedInstanceState ->
