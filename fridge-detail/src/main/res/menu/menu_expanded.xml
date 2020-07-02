@@ -34,7 +34,7 @@
 
     <item
         android:id="@+id/menu_item_restore"
-        android:icon="@drawable/ic_code_24dp"
+        android:icon="@drawable/ic_restore_from_trash_24"
         android:title="@string/restore"
         android:visible="false"
         app:showAsAction="ifRoom" />

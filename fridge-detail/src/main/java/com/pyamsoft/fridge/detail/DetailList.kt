@@ -233,7 +233,7 @@ class DetailList @Inject internal constructor(
             val rightBehindDrawable = imageLoader.load(
                 when {
                     swipeAwayDeletes -> R.drawable.ic_delete_24dp
-                    swipeAwayRestores -> R.drawable.ic_code_24dp
+                    swipeAwayRestores -> R.drawable.ic_restore_from_trash_24
                     else -> R.drawable.ic_consumed_24dp
                 }
             )
