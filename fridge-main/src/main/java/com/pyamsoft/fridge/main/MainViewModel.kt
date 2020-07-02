@@ -25,12 +25,12 @@ import com.pyamsoft.fridge.ui.BottomOffset
 import com.pyamsoft.highlander.highlander
 import com.pyamsoft.pydroid.arch.EventBus
 import com.pyamsoft.pydroid.arch.UiViewModel
-import javax.inject.Inject
-import javax.inject.Named
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import timber.log.Timber
+import javax.inject.Inject
+import javax.inject.Named
 
 class MainViewModel @Inject internal constructor(
     private val interactor: MainInteractor,
@@ -128,9 +128,9 @@ class MainViewModel @Inject internal constructor(
         }
     }
 
-    private fun select(
+    private inline fun select(
         newPage: MainPage,
-        event: (page: MainPage?) -> (MainControllerEvent)
+        crossinline event: (page: MainPage?) -> (MainControllerEvent)
     ) {
         withState {
             Timber.d("Refresh badge counts")
@@ -140,13 +140,20 @@ class MainViewModel @Inject internal constructor(
             if (oldPage != newPage) {
                 Timber.d("Select entry: $newPage")
                 setState { copy(page = newPage) }
-                withState {
-                    Timber.d("Publish selection: $oldPage -> $newPage")
-                    publish(event(oldPage))
-                }
+                publishNewSelection(oldPage, event)
             } else {
                 Timber.w("Selected entry is same page: $newPage")
             }
+        }
+    }
+
+    private inline fun publishNewSelection(
+        oldPage: MainPage?,
+        crossinline event: (page: MainPage?) -> MainControllerEvent
+    ) {
+        withState {
+            Timber.d("Publish selection: $oldPage -> $page")
+            publish(event(oldPage))
         }
     }
 
