@@ -19,7 +19,7 @@
 
     <!-- Values are strings because ListPreference only handles strings -_- -->
     <string name="expiring_soon_range_key">expiring_soon_range_v1</string>
-    <string name="expiring_soon_range_title">Consider item expiring soon:</string>
+    <string name="expiring_soon_range_title">Consider item expiring soon</string>
     <string name="expiring_soon_range_summary">Consider an item expiring soon when it is within this date range</string>
     <string name="expiring_soon_range_default">3</string>
     <string-array name="expiring_soon_range_names">
@@ -39,7 +39,7 @@
 
     <!-- Values are strings because ListPreference only handles strings -_- -->
     <string name="expired_same_day_key">expired_same_day_v1</string>
-    <string name="expired_same_day_title">Consider item expired:</string>
+    <string name="expired_same_day_title">Consider item expired</string>
     <string name="expired_same_day_summary">Consider an item expired on or after the expiration date</string>
     <string name="expired_same_day_default">false</string>
     <string-array name="expired_same_day_names">
@@ -52,13 +52,13 @@
     </string-array>
 
     <string name="do_not_disturb_key">do_not_disturb_v1</string>
-    <string name="do_not_disturb_title">Do Not Disturb:</string>
+    <string name="do_not_disturb_title">Do Not Disturb</string>
     <string name="do_not_disturb_summary">Do not send notifications between the hours of 10PM and 7AM</string>
     <bool name="do_not_disturb_default">true</bool>
 
     <!-- Values are strings because ListPreference only handles strings -_- -->
     <string name="notification_period_range_key">notification_period_range_v1</string>
-    <string name="notification_period_range_title">Notification Period:</string>
+    <string name="notification_period_range_title">Notification Period</string>
     <string name="notification_period_range_summary">Time period in hours to send notifications</string>
     <string name="notification_period_range_default">2</string>
     <string-array name="notification_period_range_names">
@@ -77,7 +77,7 @@
     </string-array>
 
     <string name="zero_count_consumed_key">zero_count_consumed_v1</string>
-    <string name="zero_count_consumed_title">Consume items with 0 count:</string>
+    <string name="zero_count_consumed_title">Consume items with 0 count</string>
     <string name="zero_count_consumed_summary_on">Decreasing count down to 0 will consumed the item</string>
     <string name="zero_count_consumed_summary_off">Counts must be at least 1 or more</string>
     <bool name="zero_count_consumed_default">false</bool>
