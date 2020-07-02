@@ -72,15 +72,15 @@ class ExpandItemViewModel @Inject internal constructor(
             }
         }
 
-        doOnSaveState { state ->
+        doOnSaveState { outState, state ->
             // If this viewmodel lives on a "new" item which has since been created
             if (possibleItemId.isEmpty()) {
                 // Save the newly created item id if possible
                 state.item?.let { item ->
                     if (item.isReal()) {
-                        put(CREATED_ITEM_ID, item.id().id)
+                        outState.put(CREATED_ITEM_ID, item.id().id)
                     } else {
-                        remove(CREATED_ITEM_ID)
+                        outState.remove(CREATED_ITEM_ID)
                     }
                 }
             }

@@ -57,9 +57,9 @@ class MainViewModel @Inject internal constructor(
     }
 
     init {
-        doOnSaveState { state ->
+        doOnSaveState { outState, state ->
             state.page?.let { p ->
-                put(PAGE, p.name)
+                outState.put(PAGE, p.name)
             }
         }
 

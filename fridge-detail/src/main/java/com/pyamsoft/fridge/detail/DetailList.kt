@@ -60,6 +60,8 @@ class DetailList @Inject internal constructor(
 
     private var bottomMarginDecoration: RecyclerView.ItemDecoration? = null
 
+    private var lastScrollPosition = 0
+
     init {
         doOnInflate {
             binding.detailList.layoutManager =
@@ -98,6 +100,13 @@ class DetailList @Inject internal constructor(
 
         doOnInflate {
             binding.detailSwipeRefresh.setOnRefreshListener { publish(DetailViewEvent.ForceRefresh) }
+        }
+
+        doOnInflate { savedInstanceState ->
+            savedInstanceState.useIfAvailable<Int>(LAST_SCROLL_POSITION) { position ->
+                Timber.d("Last scroll position saved at: $position")
+                lastScrollPosition = position
+            }
         }
 
         doOnInflate {
@@ -324,5 +333,9 @@ class DetailList @Inject internal constructor(
         handleBottomMargin(state)
         handleLoading(state)
         setupSwipeCallback(state.showing, state.listItemPresence)
+    }
+
+    companion object {
+        private const val LAST_SCROLL_POSITION = "last_scroll_position"
     }
 }
