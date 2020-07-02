@@ -109,6 +109,18 @@ class DetailList @Inject internal constructor(
             }
         }
 
+        doOnSaveState { outState ->
+            val manager = binding.detailList.layoutManager
+            if (manager is LinearLayoutManager) {
+                val position = manager.findFirstVisibleItemPosition()
+                if (position > 0) {
+                    outState.put(LAST_SCROLL_POSITION, position)
+                } else {
+                    outState.remove(LAST_SCROLL_POSITION)
+                }
+            }
+        }
+
         doOnInflate {
             val margin = 16.toDp(binding.detailList.context)
 
@@ -146,13 +158,10 @@ class DetailList @Inject internal constructor(
         return usingAdapter().currentList[index].item
     }
 
-    private fun setupSwipeCallback(
-        showing: DetailViewState.Showing,
-        listItemPresence: FridgeItem.Presence
-    ) {
-        val isFresh = showing == DetailViewState.Showing.FRESH
-        val swipeAwayDeletes = isFresh && listItemPresence == NEED
-        val swipeAwayRestores = !isFresh && listItemPresence == HAVE
+    private fun setupSwipeCallback(state: DetailViewState) {
+        val isFresh = state.showing == DetailViewState.Showing.FRESH
+        val swipeAwayDeletes = isFresh && state.listItemPresence == NEED
+        val swipeAwayRestores = !isFresh && state.listItemPresence == HAVE
 
         val consumeSwipeDirection = ItemTouchHelper.RIGHT
         val spoilSwipeDirection = ItemTouchHelper.LEFT
@@ -297,18 +306,16 @@ class DetailList @Inject internal constructor(
         usingAdapter().submitList(null)
     }
 
-    private fun handleLoading(state: DetailViewState) {
-        state.isLoading.let { loading ->
-            if (loading != null) {
-                binding.detailSwipeRefresh.refreshing(loading.isLoading)
+    private fun handleList(state: DetailViewState) {
+        state.isLoading?.isLoading?.let { loading ->
+            binding.detailSwipeRefresh.refreshing(loading)
 
-                // Done loading
-                if (!loading.isLoading) {
-                    state.items.let { items ->
-                        when {
-                            items.isEmpty() -> clearList()
-                            else -> setList(items, state.expirationRange, state.isSameDayExpired)
-                        }
+            // Done loading
+            if (!loading) {
+                state.items.let { items ->
+                    when {
+                        items.isEmpty() -> clearList()
+                        else -> setList(items, state.expirationRange, state.isSameDayExpired)
                     }
                 }
             }
@@ -329,10 +336,25 @@ class DetailList @Inject internal constructor(
         }
     }
 
+    private fun restoreLastScrollPosition(state: DetailViewState) {
+        if (lastScrollPosition > 0) {
+            if (state.isLoading?.isLoading == false && state.items.isNotEmpty()) {
+                val position = lastScrollPosition
+                lastScrollPosition = 0
+
+                Timber.d("Restoring visual scroll position: $position")
+                binding.detailList.scrollToPosition(position)
+            }
+        }
+    }
+
     override fun onRender(state: DetailViewState) {
+        // Handle first before performing side effects
         handleBottomMargin(state)
-        handleLoading(state)
-        setupSwipeCallback(state.showing, state.listItemPresence)
+        handleList(state)
+
+        setupSwipeCallback(state)
+        restoreLastScrollPosition(state)
     }
 
     companion object {
