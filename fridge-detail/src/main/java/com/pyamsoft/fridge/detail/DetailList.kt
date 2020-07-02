@@ -115,10 +115,11 @@ class DetailList @Inject internal constructor(
                 val position = manager.findFirstVisibleItemPosition()
                 if (position > 0) {
                     outState.put(LAST_SCROLL_POSITION, position)
-                } else {
-                    outState.remove(LAST_SCROLL_POSITION)
+                    return@doOnSaveState
                 }
             }
+
+            outState.remove(LAST_SCROLL_POSITION)
         }
 
         doOnInflate {
