@@ -58,7 +58,7 @@ internal class NotificationHandlerImpl @Inject internal constructor(
         val id = needNotificationIdMap.getNotificationId(entry.id(), NotificationType.NEEDED)
         return notify(
             id,
-            R.drawable.ic_get_app_24dp,
+            R.drawable.ic_shopping_cart_24dp,
             NEEDED_CHANNEL_ID,
             "Shopping Reminders",
             "Reminders for items that you still need.",
@@ -107,7 +107,7 @@ internal class NotificationHandlerImpl @Inject internal constructor(
         val id = expiringNotificationIdMap.getNotificationId(entry.id(), NotificationType.EXPIRING)
         return notify(
             id,
-            R.drawable.ic_get_app_24dp,
+            R.drawable.ic_consumed_24dp,
             EXPIRING_CHANNEL_ID,
             "Expiring Reminders",
             "Reminders for items that are going to expire soon",
@@ -132,7 +132,7 @@ internal class NotificationHandlerImpl @Inject internal constructor(
         val id = expiredNotificationIdMap.getNotificationId(entry.id(), NotificationType.EXPIRED)
         return notify(
             id,
-            R.drawable.ic_get_app_24dp,
+            R.drawable.ic_spoiled_24dp,
             EXPIRED_CHANNEL_ID,
             "Expired Reminders",
             "Reminders for items that have expired",
@@ -165,7 +165,7 @@ internal class NotificationHandlerImpl @Inject internal constructor(
 
         return notify(
             notificationId,
-            R.drawable.ic_get_app_24dp,
+            R.drawable.ic_shopping_cart_24dp,
             NEARBY_CHANNEL_ID,
             "Nearby Reminders",
             "Reminders for items that may be at locations nearby.",
@@ -192,7 +192,7 @@ internal class NotificationHandlerImpl @Inject internal constructor(
         val id = NIGHTLY_NOTIFICATION_ID
         return notify(
             id,
-            R.drawable.ic_get_app_24dp,
+            R.drawable.ic_category_24,
             NIGHTLY_CHANNEL_ID,
             "Nightly Reminders",
             "Regular reminders each night to clean out your fridge",
