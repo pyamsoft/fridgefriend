@@ -241,7 +241,7 @@ class DetailList @Inject internal constructor(
             withBackgroundSwipeRight(Color.TRANSPARENT)
             withLeaveBehindSwipeRight(requireNotNull(rightBehindDrawable))
         }
-       
+
         // Detach any existing helper from the recyclerview
         touchHelper?.attachToRecyclerView(null)
 

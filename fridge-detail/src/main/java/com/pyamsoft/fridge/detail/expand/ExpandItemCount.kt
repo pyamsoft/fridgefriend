@@ -82,11 +82,15 @@ class ExpandItemCount @Inject internal constructor(
     private fun handleItem(state: ExpandItemViewState) {
         state.item.let { item ->
             val isEditable = if (item == null) false else !item.isArchived()
-            binding.expandItemCountEditable.inputType =
-                if (isEditable) InputType.TYPE_CLASS_NUMBER else InputType.TYPE_NULL
-            binding.expandItemCountEditable.isFocusable = isEditable
-            binding.expandItemCountEditable.setTextIsSelectable(isEditable)
-            binding.expandItemCountEditable.isLongClickable = isEditable
+            val isCurrentlyEditable =
+                binding.expandItemCountEditable.inputType != InputType.TYPE_NULL
+            if (isCurrentlyEditable != isEditable) {
+                binding.expandItemCountEditable.inputType =
+                    if (isEditable) InputType.TYPE_CLASS_NUMBER else InputType.TYPE_NULL
+                binding.expandItemCountEditable.isFocusable = isEditable
+                binding.expandItemCountEditable.setTextIsSelectable(isEditable)
+                binding.expandItemCountEditable.isLongClickable = isEditable
+            }
         }
     }
 

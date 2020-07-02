@@ -98,11 +98,15 @@ class ExpandItemName @Inject internal constructor(
     private fun handleItem(state: ExpandItemViewState) {
         state.item.let { item ->
             val isEditable = if (item == null) false else !item.isArchived()
-            binding.detailItemNameEditable.inputType =
-                if (isEditable) EDITABLE_INPUT_TYPE else InputType.TYPE_NULL
-            binding.detailItemNameEditable.isFocusable = isEditable
-            binding.detailItemNameEditable.setTextIsSelectable(isEditable)
-            binding.detailItemNameEditable.isLongClickable = isEditable
+            val isCurrentlyEditable =
+                binding.detailItemNameEditable.inputType != InputType.TYPE_NULL
+            if (isCurrentlyEditable != isEditable) {
+                binding.detailItemNameEditable.inputType =
+                    if (isEditable) EDITABLE_INPUT_TYPE else InputType.TYPE_NULL
+                binding.detailItemNameEditable.isFocusable = isEditable
+                binding.detailItemNameEditable.setTextIsSelectable(isEditable)
+                binding.detailItemNameEditable.isLongClickable = isEditable
+            }
         }
     }
 
