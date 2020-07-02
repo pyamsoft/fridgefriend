@@ -31,6 +31,7 @@ import com.pyamsoft.pydroid.ui.Injector
 import com.pyamsoft.pydroid.ui.arch.viewModelFactory
 import com.pyamsoft.pydroid.ui.settings.AppSettingsFragment
 import com.pyamsoft.pydroid.ui.settings.AppSettingsPreferenceFragment
+import timber.log.Timber
 import javax.inject.Inject
 
 internal class SettingsFragment : AppSettingsFragment() {

@@ -56,6 +56,7 @@ import com.pyamsoft.pydroid.ui.util.layout
 import com.pyamsoft.pydroid.util.stableLayoutHideNavigation
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import javax.inject.Inject
 
 internal class MainActivity : RatingActivity(), VersionChecker {
@@ -353,6 +354,7 @@ internal class MainActivity : RatingActivity(), VersionChecker {
         }
 
         if (push) {
+            Timber.d("Commit fragment: $tag")
             fm.commitNow(this) {
                 decideAnimationForPage(previousPage, newPage)
                 replace(container, fragment, tag)

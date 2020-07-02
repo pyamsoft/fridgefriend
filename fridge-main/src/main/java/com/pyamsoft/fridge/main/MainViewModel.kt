@@ -133,6 +133,7 @@ class MainViewModel @Inject internal constructor(
         event: (page: MainPage?) -> (MainControllerEvent)
     ) {
         withState {
+            Timber.d("Refresh badge counts")
             refreshBadgeCounts()
 
             val oldPage = this.page
