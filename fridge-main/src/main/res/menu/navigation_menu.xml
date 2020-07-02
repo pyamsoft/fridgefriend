@@ -20,33 +20,33 @@
 
     <item
         android:id="@+id/menu_item_nav_need"
-        android:icon="@drawable/ic_settings_24dp"
-        android:title="Need"
+        android:icon="@drawable/ic_shopping_cart_24dp"
+        android:title="@string/nav_need"
         app:showAsAction="ifRoom" />
 
     <item
         android:id="@+id/menu_item_nav_have"
-        android:icon="@drawable/ic_settings_24dp"
-        android:title="Have"
+        android:icon="@drawable/ic_category_24"
+        android:title="@string/nav_have"
         app:showAsAction="ifRoom" />
 
     <item
         android:id="@+id/menu_item_nav_category"
-        android:icon="@drawable/ic_settings_24dp"
-        android:title="Categories"
+        android:icon="@drawable/ic_close_24dp"
+        android:title="@string/nav_categories"
         android:visible="false"
         app:showAsAction="ifRoom" />
 
     <item
         android:id="@+id/menu_item_nav_nearby"
-        android:icon="@drawable/ic_settings_24dp"
-        android:title="Nearby"
+        android:icon="@drawable/ic_location_24dp"
+        android:title="@string/nav_nearby"
         app:showAsAction="ifRoom" />
 
     <item
         android:id="@+id/menu_item_nav_settings"
         android:icon="@drawable/ic_settings_24dp"
-        android:title="Settings"
+        android:title="@string/nav_settings"
         app:showAsAction="ifRoom" />
 
 </menu>
