@@ -31,11 +31,6 @@ android {
 		resConfigs "en"
 	}
 
-	// TODO replace with https://issuetracker.google.com/issues/72050365 once released.
-	libraryVariants.all {
-		it.generateBuildConfig.enabled = false
-	}
-
 	compileOptions {
 		sourceCompatibility JavaVersion.VERSION_1_8
 		targetCompatibility JavaVersion.VERSION_1_8
@@ -47,6 +42,7 @@ android {
 
 	buildFeatures {
 		viewBinding true
+		buildConfig false
 	}
 }
 
