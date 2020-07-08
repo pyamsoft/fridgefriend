@@ -196,7 +196,7 @@ class OsmMap @Inject internal constructor(
                 setPoints(points)
             }
 
-            polygon.setOnClickListener { p, m, _ ->
+            polygon.setOnClickListener { p, _, _ ->
                 closeAllMapPopups()
                 p.showInfoWindow()
                 return@setOnClickListener true
@@ -238,7 +238,7 @@ class OsmMap @Inject internal constructor(
                 title = mark.name()
             }
 
-            marker.setOnMarkerClickListener { p, m ->
+            marker.setOnMarkerClickListener { p, _ ->
                 closeAllMapPopups()
                 p.showInfoWindow()
                 return@setOnMarkerClickListener true

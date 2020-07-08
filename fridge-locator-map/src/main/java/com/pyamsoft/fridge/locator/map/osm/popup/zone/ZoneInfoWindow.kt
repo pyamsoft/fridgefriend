@@ -33,13 +33,11 @@ import com.pyamsoft.pydroid.arch.StateSaver
 import com.pyamsoft.pydroid.arch.createComponent
 import com.pyamsoft.pydroid.ui.arch.viewModelFactory
 import com.pyamsoft.pydroid.ui.util.layout
-import com.pyamsoft.pydroid.util.fakeBind
-import com.pyamsoft.pydroid.util.fakeUnbind
-import javax.inject.Inject
 import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.Polygon
 import org.osmdroid.views.overlay.infowindow.InfoWindow
 import timber.log.Timber
+import javax.inject.Inject
 
 class ZoneInfoWindow private constructor(
     receiver: LocationUpdateReceiver,
@@ -49,7 +47,7 @@ class ZoneInfoWindow private constructor(
 ) : BaseInfoWindow(receiver, map), LifecycleOwner {
 
     private var stateSaver: StateSaver? = null
-    private val registry = LifecycleRegistry(this)
+    private val registry by lazy(LazyThreadSafetyMode.NONE) { LifecycleRegistry(this) }
 
     @JvmField
     @Inject
@@ -103,7 +101,11 @@ class ZoneInfoWindow private constructor(
             }
         }
 
-        registry.fakeBind()
+        registry.apply {
+            handleLifecycleEvent(Lifecycle.Event.ON_CREATE)
+            handleLifecycleEvent(Lifecycle.Event.ON_START)
+            handleLifecycleEvent(Lifecycle.Event.ON_RESUME)
+        }
     }
 
     override fun onOpen(item: Any?) {
@@ -129,7 +131,12 @@ class ZoneInfoWindow private constructor(
     }
 
     override fun onTeardown() {
-        registry.fakeUnbind()
+        registry.apply {
+            handleLifecycleEvent(Lifecycle.Event.ON_PAUSE)
+            handleLifecycleEvent(Lifecycle.Event.ON_STOP)
+            handleLifecycleEvent(Lifecycle.Event.ON_DESTROY)
+        }
+
         infoTitle = null
         infoLocation = null
         factory = null

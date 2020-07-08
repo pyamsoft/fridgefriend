@@ -24,6 +24,7 @@ import com.pyamsoft.fridge.detail.databinding.ExpandCategoryItemHolderBinding
 import com.pyamsoft.pydroid.arch.ViewBinder
 import com.pyamsoft.pydroid.arch.bindViews
 import com.pyamsoft.pydroid.ui.util.layout
+import com.pyamsoft.pydroid.util.doOnDestroy
 import javax.inject.Inject
 
 class ExpandedCategoryViewHolder internal constructor(
@@ -54,16 +55,16 @@ class ExpandedCategoryViewHolder internal constructor(
     init {
         factory.create(binding.expandCategoryItem).inject(this)
 
-        val thumbnail = requireNotNull(thumbnail)
-        val scrim = requireNotNull(scrim)
-        val name = requireNotNull(name)
-        val selectOverlay = requireNotNull(selectOverlay)
+        val thumbnailView = requireNotNull(thumbnail)
+        val scrimView = requireNotNull(scrim)
+        val nameView = requireNotNull(name)
+        val selectOverlayView = requireNotNull(selectOverlay)
         viewBinder = bindViews(
             owner,
-            thumbnail,
-            scrim,
-            selectOverlay,
-            name
+            thumbnailView,
+            scrimView,
+            selectOverlayView,
+            nameView
         ) {
             return@bindViews when (it) {
                 is ExpandedCategoryViewEvent.Select -> callback.onCategorySelected(adapterPosition)
@@ -71,7 +72,7 @@ class ExpandedCategoryViewHolder internal constructor(
         }
 
         binding.expandCategoryItem.layout {
-            thumbnail.also {
+            thumbnailView.also {
                 connect(
                     it.id(), ConstraintSet.TOP,
                     ConstraintSet.PARENT_ID,
@@ -94,7 +95,7 @@ class ExpandedCategoryViewHolder internal constructor(
                 )
             }
 
-            scrim.also {
+            scrimView.also {
                 connect(
                     it.id(), ConstraintSet.TOP,
                     ConstraintSet.PARENT_ID,
@@ -117,7 +118,7 @@ class ExpandedCategoryViewHolder internal constructor(
                 )
             }
 
-            name.also {
+            nameView.also {
                 connect(
                     it.id(), ConstraintSet.BOTTOM,
                     ConstraintSet.PARENT_ID,
@@ -134,6 +135,13 @@ class ExpandedCategoryViewHolder internal constructor(
                     ConstraintSet.END
                 )
             }
+        }
+
+        owner.doOnDestroy {
+            name = null
+            scrim = null
+            selectOverlay = null
+            thumbnail = null
         }
     }
 

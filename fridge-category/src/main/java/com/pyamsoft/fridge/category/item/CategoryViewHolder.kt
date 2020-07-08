@@ -24,6 +24,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.pyamsoft.pydroid.arch.ViewBinder
 import com.pyamsoft.pydroid.arch.bindViews
 import com.pyamsoft.pydroid.ui.util.layout
+import com.pyamsoft.pydroid.util.doOnDestroy
 import javax.inject.Inject
 
 class CategoryViewHolder internal constructor(
@@ -42,16 +43,16 @@ class CategoryViewHolder internal constructor(
         // Needs a small amount of margin so the staggered grid effect works
         factory.create(constraintLayout).inject(this)
 
-        val background = requireNotNull(background)
+        val backgroundView = requireNotNull(background)
         viewBinder = bindViews(
             owner,
-            background
+            backgroundView
         ) {
             // TODO
         }
 
         constraintLayout.layout {
-            background.also {
+            backgroundView.also {
                 connect(
                     it.id(),
                     ConstraintSet.TOP,
@@ -77,6 +78,10 @@ class CategoryViewHolder internal constructor(
                     ConstraintSet.BOTTOM
                 )
             }
+        }
+
+        owner.doOnDestroy {
+            background = null
         }
     }
 
