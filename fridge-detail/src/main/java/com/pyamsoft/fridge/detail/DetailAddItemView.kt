@@ -120,7 +120,7 @@ class DetailAddItemView @Inject internal constructor(
             filterIconLoaded = imageLoader
                 .load(
                     when (showing) {
-                        DetailViewState.Showing.FRESH -> R.drawable.ic_open_in_browser_24dp
+                        DetailViewState.Showing.FRESH -> R.drawable.ic_category_24
                         DetailViewState.Showing.CONSUMED -> R.drawable.ic_consumed_24dp
                         DetailViewState.Showing.SPOILED -> R.drawable.ic_spoiled_24dp
                     }
