@@ -26,6 +26,7 @@ import com.pyamsoft.fridge.db.category.FridgeCategory
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import java.util.Calendar
 import java.util.Date
+import kotlin.math.roundToLong
 
 interface FridgeItem : EmptyModel<FridgeItem> {
 
@@ -242,4 +243,57 @@ fun FridgeItem.isExpiringSoon(
     val midnightToday = date.cleanMidnight()
     val midnightLater = later.cleanMidnight()
     return expiration.before(midnightLater) || expiration == midnightLater || expiration == midnightToday
+}
+
+@CheckResult
+private fun getDaysToTime(nowTime: Long, expireTime: Long): Long {
+    val difference = expireTime - nowTime
+    val seconds = (difference.toFloat() / 1000L).roundToLong()
+    val minutes = (seconds.toFloat() / 60L).roundToLong()
+    val hours = (minutes.toFloat() / 60L).roundToLong()
+    return (hours.toFloat() / 24L).roundToLong()
+}
+
+private const val WEEK_LIMIT = 10
+
+@CheckResult
+fun FridgeItem.getExpiringSoonMessage(now: Calendar): String {
+    val todayTime = now.timeInMillis
+    val expiringTime = requireNotNull(this.expireTime()).time
+    val days = getDaysToTime(todayTime, expiringTime)
+
+    require(days >= 0)
+    return if (days == 0L) "expires today" else {
+        if (days < 7) {
+            "will expire in $days ${if (days == 1L) "day" else "days"}"
+        } else {
+            val weeks = days / 7L
+            if (weeks < WEEK_LIMIT) {
+                "will expire in $weeks ${if (weeks == 1L) "week" else "weeks"}"
+            } else {
+                "will not expire for a long time"
+            }
+        }
+    }
+}
+
+@CheckResult
+fun FridgeItem.getExpiredMessage(now: Calendar): String {
+    val todayTime = now.timeInMillis
+    val expiringTime = requireNotNull(this.expireTime()).time
+    val days = getDaysToTime(expiringTime, todayTime)
+
+    require(days >= 0)
+    return if (days == 0L) "expires today" else {
+        if (days < 7) {
+            "expired $days ${if (days == 1L) "day" else "days"} ago"
+        } else {
+            val weeks = days / 7L
+            if (weeks < WEEK_LIMIT) {
+                "expired $weeks ${if (weeks == 1L) "week" else "weeks"} ago"
+            } else {
+                "expired a long time ago"
+            }
+        }
+    }
 }

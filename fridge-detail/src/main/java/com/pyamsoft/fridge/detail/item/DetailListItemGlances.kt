@@ -28,6 +28,8 @@ import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence.HAVE
 import com.pyamsoft.fridge.db.item.cleanMidnight
 import com.pyamsoft.fridge.db.item.daysLaterMidnight
+import com.pyamsoft.fridge.db.item.getExpiredMessage
+import com.pyamsoft.fridge.db.item.getExpiringSoonMessage
 import com.pyamsoft.fridge.db.item.isArchived
 import com.pyamsoft.fridge.db.item.isExpired
 import com.pyamsoft.fridge.db.item.isExpiringSoon
@@ -46,7 +48,6 @@ import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
 import javax.inject.Inject
-import kotlin.math.roundToLong
 
 class DetailListItemGlances @Inject internal constructor(
     private val tooltipCreator: TooltipCreator,
@@ -129,8 +130,8 @@ class DetailListItemGlances @Inject internal constructor(
                 val isExpired = item.isExpired(now, isSameDay)
 
                 setDateRangeView(item, expireTime, hasTime)
-                setExpiringView(item, expireTime, now, isExpiringSoon, isExpired, hasTime)
-                setExpiredView(item, expireTime, now, isExpired, hasTime)
+                setExpiringView(item, now, isExpiringSoon, isExpired, hasTime)
+                setExpiredView(item, now, isExpired, hasTime)
             }
         }
     }
@@ -164,7 +165,6 @@ class DetailListItemGlances @Inject internal constructor(
 
     private fun setExpiringView(
         item: FridgeItem,
-        expireTime: Date?,
         now: Calendar,
         isExpiringSoon: Boolean,
         isExpired: Boolean,
@@ -189,37 +189,15 @@ class DetailListItemGlances @Inject internal constructor(
             return
         }
 
-        val expireCalendar = today()
-            .apply { time = requireNotNull(expireTime) }
-            .cleanMidnight()
-
         expiringTooltip = tooltipCreator.top(owner) {
             // shitty old time format parser for very basic expiration estimate
-            val todayTime = now.timeInMillis
-            val expiringTime = expireCalendar.timeInMillis
-            val days = getDaysToTime(todayTime, expiringTime)
 
-            require(days >= 0)
-            val expirationRange = if (days == 0L) "will expire today" else {
-                if (days < 7) {
-                    "will expire in $days ${if (days == 1L) "day" else "days"}"
-                } else {
-                    val weeks = days / 7L
-                    if (weeks < WEEK_LIMIT) {
-                        "will expire in $weeks ${if (weeks == 1L) "week" else "weeks"}"
-                    } else {
-                        "doesn't expire for a long time"
-                    }
-                }
-            }
-
-            setText("${item.name().trim()} $expirationRange")
+            setText("${item.name().trim()} ${item.getExpiringSoonMessage(now)}")
         }
     }
 
     private fun setExpiredView(
         item: FridgeItem,
-        expireTime: Date?,
         now: Calendar,
         isExpired: Boolean,
         hasTime: Boolean
@@ -243,37 +221,12 @@ class DetailListItemGlances @Inject internal constructor(
             return
         }
 
-        val expireCalendar = today()
-            .apply { time = requireNotNull(expireTime) }
-            .cleanMidnight()
         expiredTooltip = tooltipCreator.top(owner) {
-
-            // shitty old time format parser for very basic expiration estimate
-            val todayTime = now.timeInMillis
-            val expiringTime = expireCalendar.timeInMillis
-            val days = getDaysToTime(expiringTime, todayTime)
-
-            require(days >= 0)
-            val expirationRange = if (days == 0L) "today" else {
-                if (days < 7) {
-                    "$days ${if (days == 1L) "day" else "days"} ago"
-                } else {
-                    val weeks = days / 7L
-                    if (weeks < WEEK_LIMIT) {
-                        "$weeks ${if (weeks == 1L) "week" else "weeks"} ago"
-                    } else {
-                        "a long time ago"
-                    }
-                }
-            }
-
-            setText("${item.name().trim()} expired $expirationRange")
+            setText("${item.name().trim()} ${item.getExpiredMessage(now)}")
         }
     }
 
     companion object {
-
-        private const val WEEK_LIMIT = 10
 
         @JvmStatic
         @CheckResult
@@ -298,16 +251,6 @@ class DetailListItemGlances @Inject internal constructor(
 
             view.isVisible = false
             return loaded
-        }
-
-        @JvmStatic
-        @CheckResult
-        private fun getDaysToTime(nowTime: Long, expireTime: Long): Long {
-            val difference = expireTime - nowTime
-            val seconds = (difference.toFloat() / 1000L).roundToLong()
-            val minutes = (seconds.toFloat() / 60L).roundToLong()
-            val hours = (minutes.toFloat() / 60L).roundToLong()
-            return (hours.toFloat() / 24L).roundToLong()
         }
     }
 }

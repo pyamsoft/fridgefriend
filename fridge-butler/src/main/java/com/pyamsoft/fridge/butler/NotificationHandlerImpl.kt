@@ -33,13 +33,17 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.getSystemService
 import androidx.core.text.bold
 import androidx.core.text.buildSpannedString
+import androidx.core.text.italic
+import com.pyamsoft.fridge.core.today
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItem
+import com.pyamsoft.fridge.db.item.getExpiredMessage
+import com.pyamsoft.fridge.db.item.getExpiringSoonMessage
 import com.pyamsoft.fridge.db.store.NearbyStore
 import com.pyamsoft.fridge.db.zone.NearbyZone
+import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Singleton
-import timber.log.Timber
 
 @Singleton
 internal class NotificationHandlerImpl @Inject internal constructor(
@@ -78,15 +82,21 @@ internal class NotificationHandlerImpl @Inject internal constructor(
                 append(" items")
             }
             setContentText(text)
-            setStyle(createBigTextStyle(text, items))
+            setStyle(createBigTextStyle(text, items, isExpired = false, isExpiringSoon = false))
         }
     }
 
     @CheckResult
     private fun createBigTextStyle(
         topLine: CharSequence?,
-        items: List<FridgeItem>
+        items: List<FridgeItem>,
+        isExpired: Boolean,
+        isExpiringSoon: Boolean
     ): NotificationCompat.Style {
+        require(!(isExpired && isExpiringSoon)) { "Items cannot be expired and expiring soon!" }
+
+        val now = today()
+
         return NotificationCompat.BigTextStyle().bigText(
             buildSpannedString {
                 topLine?.let { line ->
@@ -95,10 +105,20 @@ internal class NotificationHandlerImpl @Inject internal constructor(
                     appendln()
                 }
                 items
-                    .map { it.name() }
-                    .forEach { name ->
+                    .forEach { item ->
+
                         bold { append("•") }
-                        appendln("  $name")
+                        append("   ")
+                        italic { append(item.name()) }
+                        append("  ")
+
+                        if (isExpiringSoon) {
+                            append(" ${item.getExpiringSoonMessage(now)}")
+                        }
+                        if (isExpired) {
+                            append(" ${item.getExpiredMessage(now)}")
+                        }
+                        appendln()
                     }
             })
     }
@@ -124,7 +144,7 @@ internal class NotificationHandlerImpl @Inject internal constructor(
                 bold { append("about to expire!") }
             }
             setContentText(text)
-            setStyle(createBigTextStyle(text, items))
+            setStyle(createBigTextStyle(text, items, isExpired = false, isExpiringSoon = true))
         }
     }
 
@@ -150,7 +170,7 @@ internal class NotificationHandlerImpl @Inject internal constructor(
                 bold { append("passed expiration!") }
             }
             setContentText(text)
-            setStyle(createBigTextStyle(text, items))
+            setStyle(createBigTextStyle(text, items, isExpired = true, isExpiringSoon = false))
         }
     }
 
@@ -184,7 +204,7 @@ internal class NotificationHandlerImpl @Inject internal constructor(
                 append(" items")
             })
 
-            setStyle(createBigTextStyle(null, items))
+            setStyle(createBigTextStyle(null, items, isExpired = false, isExpiringSoon = false))
         }
     }
 
