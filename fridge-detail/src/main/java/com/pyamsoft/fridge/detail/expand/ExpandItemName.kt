@@ -24,6 +24,8 @@ import android.view.ViewGroup
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.isArchived
 import com.pyamsoft.fridge.detail.base.BaseItemName
+import com.pyamsoft.fridge.detail.isEditable
+import com.pyamsoft.fridge.detail.setEditable
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -98,14 +100,9 @@ class ExpandItemName @Inject internal constructor(
     private fun handleItem(state: ExpandItemViewState) {
         state.item.let { item ->
             val isEditable = if (item == null) false else !item.isArchived()
-            val isCurrentlyEditable =
-                binding.detailItemNameEditable.inputType != InputType.TYPE_NULL
-            if (isCurrentlyEditable != isEditable) {
-                binding.detailItemNameEditable.inputType =
-                    if (isEditable) EDITABLE_INPUT_TYPE else InputType.TYPE_NULL
-                binding.detailItemNameEditable.isFocusable = isEditable
-                binding.detailItemNameEditable.setTextIsSelectable(isEditable)
-                binding.detailItemNameEditable.isLongClickable = isEditable
+            if (binding.detailItemNameEditable.isEditable != isEditable) {
+                val inputType = if (isEditable) EDITABLE_INPUT_TYPE else InputType.TYPE_NULL
+                binding.detailItemNameEditable.setEditable(inputType)
             }
         }
     }

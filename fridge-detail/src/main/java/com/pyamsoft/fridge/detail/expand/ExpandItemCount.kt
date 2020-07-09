@@ -24,6 +24,8 @@ import android.view.ViewGroup
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.isArchived
 import com.pyamsoft.fridge.detail.databinding.ExpandCountBinding
+import com.pyamsoft.fridge.detail.isEditable
+import com.pyamsoft.fridge.detail.setEditable
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
 import javax.inject.Inject
@@ -82,14 +84,9 @@ class ExpandItemCount @Inject internal constructor(
     private fun handleItem(state: ExpandItemViewState) {
         state.item.let { item ->
             val isEditable = if (item == null) false else !item.isArchived()
-            val isCurrentlyEditable =
-                binding.expandItemCountEditable.inputType != InputType.TYPE_NULL
-            if (isCurrentlyEditable != isEditable) {
-                binding.expandItemCountEditable.inputType =
-                    if (isEditable) InputType.TYPE_CLASS_NUMBER else InputType.TYPE_NULL
-                binding.expandItemCountEditable.isFocusable = isEditable
-                binding.expandItemCountEditable.setTextIsSelectable(isEditable)
-                binding.expandItemCountEditable.isLongClickable = isEditable
+            if (binding.expandItemCountEditable.isEditable != isEditable) {
+                val inputType = if (isEditable) InputType.TYPE_CLASS_NUMBER else InputType.TYPE_NULL
+                binding.expandItemCountEditable.setEditable(inputType)
             }
         }
     }
