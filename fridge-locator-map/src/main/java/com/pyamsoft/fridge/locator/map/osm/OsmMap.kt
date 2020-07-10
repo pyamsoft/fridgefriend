@@ -21,11 +21,7 @@ import android.content.Context
 import android.graphics.Color
 import android.view.ViewGroup
 import androidx.annotation.CheckResult
-import androidx.lifecycle.Lifecycle.Event.ON_PAUSE
-import androidx.lifecycle.Lifecycle.Event.ON_RESUME
-import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.OnLifecycleEvent
 import androidx.preference.PreferenceManager
 import com.pyamsoft.fridge.db.store.NearbyStore
 import com.pyamsoft.fridge.db.zone.NearbyZone
@@ -39,6 +35,8 @@ import com.pyamsoft.fridge.locator.osm.updatemanager.LocationUpdateReceiver
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.ui.theme.ThemeProvider
 import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
+import com.pyamsoft.pydroid.util.doOnPause
+import com.pyamsoft.pydroid.util.doOnResume
 import org.osmdroid.config.Configuration
 import org.osmdroid.config.DefaultConfigurationProvider
 import org.osmdroid.events.MapListener
@@ -66,7 +64,7 @@ class OsmMap @Inject internal constructor(
     private val storeFactory: StoreInfoComponent.Factory,
     private val zoneFactory: ZoneInfoComponent.Factory,
     parent: ViewGroup
-) : BaseUiView<OsmViewState, OsmViewEvent, OsmMapBinding>(parent), LifecycleObserver {
+) : BaseUiView<OsmViewState, OsmViewEvent, OsmMapBinding>(parent) {
 
     override val viewBinding = OsmMapBinding::inflate
 
@@ -104,7 +102,27 @@ class OsmMap @Inject internal constructor(
         }
 
         doOnInflate {
-            owner.lifecycle.addObserver(this)
+            owner.doOnResume(repeat = true) {
+                // Load configuration
+                Configuration.getInstance()
+                    .load(
+                        layoutRoot.context.applicationContext,
+                        PreferenceManager.getDefaultSharedPreferences(layoutRoot.context.applicationContext)
+                    )
+
+                binding.osmMap.onResume()
+            }
+
+            owner.doOnPause(repeat = true) {
+                // Save configuration
+                Configuration.getInstance()
+                    .save(
+                        layoutRoot.context.applicationContext,
+                        PreferenceManager.getDefaultSharedPreferences(layoutRoot.context.applicationContext)
+                    )
+
+                binding.osmMap.onPause()
+            }
         }
 
         doOnInflate {
@@ -115,10 +133,6 @@ class OsmMap @Inject internal constructor(
             layoutRoot.setOnDebouncedClickListener { closeAllMapPopups() }
             binding.osmMap.addMapListener(mapListener)
             publishCurrentBoundingBox()
-        }
-
-        doOnTeardown {
-            owner.lifecycle.removeObserver(this)
         }
 
         doOnTeardown {
@@ -284,34 +298,6 @@ class OsmMap @Inject internal constructor(
     private fun closeAllMapPopups() {
         Timber.d("Closing all open map popups")
         InfoWindow.closeAllInfoWindowsOn(binding.osmMap)
-    }
-
-    @Suppress("unused")
-    @OnLifecycleEvent(ON_RESUME)
-    internal fun onResume() {
-
-        // Load configuration
-        Configuration.getInstance()
-            .load(
-                layoutRoot.context.applicationContext,
-                PreferenceManager.getDefaultSharedPreferences(layoutRoot.context.applicationContext)
-            )
-
-        binding.osmMap.onResume()
-    }
-
-    @Suppress("unused")
-    @OnLifecycleEvent(ON_PAUSE)
-    internal fun onPause() {
-
-        // Save configuration
-        Configuration.getInstance()
-            .save(
-                layoutRoot.context.applicationContext,
-                PreferenceManager.getDefaultSharedPreferences(layoutRoot.context.applicationContext)
-            )
-
-        binding.osmMap.onPause()
     }
 
     private fun initMap(context: Context) {

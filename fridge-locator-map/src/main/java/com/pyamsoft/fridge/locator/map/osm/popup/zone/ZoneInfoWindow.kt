@@ -101,11 +101,7 @@ class ZoneInfoWindow private constructor(
             }
         }
 
-        registry.apply {
-            handleLifecycleEvent(Lifecycle.Event.ON_CREATE)
-            handleLifecycleEvent(Lifecycle.Event.ON_START)
-            handleLifecycleEvent(Lifecycle.Event.ON_RESUME)
-        }
+        registry.handleLifecycleEvent(Lifecycle.Event.ON_RESUME)
     }
 
     override fun onOpen(item: Any?) {
@@ -131,11 +127,7 @@ class ZoneInfoWindow private constructor(
     }
 
     override fun onTeardown() {
-        registry.apply {
-            handleLifecycleEvent(Lifecycle.Event.ON_PAUSE)
-            handleLifecycleEvent(Lifecycle.Event.ON_STOP)
-            handleLifecycleEvent(Lifecycle.Event.ON_DESTROY)
-        }
+        registry.handleLifecycleEvent(Lifecycle.Event.ON_DESTROY)
 
         infoTitle = null
         infoLocation = null
