@@ -26,6 +26,7 @@ import com.pyamsoft.pydroid.arch.UiViewEvent
 import com.pyamsoft.pydroid.arch.UiViewState
 import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.loader.Loaded
+import com.pyamsoft.pydroid.loader.imageLoaded
 
 abstract class HeroImage<S : UiViewState, V : UiViewEvent> protected constructor(
     parent: ViewGroup,
@@ -36,7 +37,7 @@ abstract class HeroImage<S : UiViewState, V : UiViewEvent> protected constructor
 
     override val layoutRoot by boundView { coreHeroRoot }
 
-    private var loaded: Loaded? = null
+    private var loaded by imageLoaded()
 
     init {
         doOnInflate {
@@ -44,13 +45,8 @@ abstract class HeroImage<S : UiViewState, V : UiViewEvent> protected constructor
         }
 
         doOnTeardown {
-            clear()
+            loaded = null
         }
-    }
-
-    private fun clear() {
-        loaded?.dispose()
-        loaded = null
     }
 
     final override fun onRender(state: S) {
@@ -59,7 +55,6 @@ abstract class HeroImage<S : UiViewState, V : UiViewEvent> protected constructor
     }
 
     private fun loadImage(state: S) {
-        clear()
         loaded = onLoadImage(binding.coreHeroImage, imageLoader, state)
     }
 

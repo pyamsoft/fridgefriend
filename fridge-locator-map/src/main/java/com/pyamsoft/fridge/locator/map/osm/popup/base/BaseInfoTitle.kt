@@ -24,7 +24,7 @@ import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.arch.UiViewEvent
 import com.pyamsoft.pydroid.arch.UiViewState
 import com.pyamsoft.pydroid.loader.ImageLoader
-import com.pyamsoft.pydroid.loader.Loaded
+import com.pyamsoft.pydroid.loader.imageLoaded
 import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
 
 internal abstract class BaseInfoTitle<S : UiViewState, E : UiViewEvent> protected constructor(
@@ -37,7 +37,7 @@ internal abstract class BaseInfoTitle<S : UiViewState, E : UiViewEvent> protecte
 
     final override val layoutRoot by boundView { popupInfoTitleRoot }
 
-    private var favoriteBinder: Loaded? = null
+    private var favoriteLoaded by imageLoaded()
 
     init {
         doOnInflate {
@@ -47,22 +47,19 @@ internal abstract class BaseInfoTitle<S : UiViewState, E : UiViewEvent> protecte
         doOnTeardown {
             binding.popupInfoTitle.text = ""
             binding.popupInfoFavorite.setOnDebouncedClickListener(null)
-            clearFavoriteIcon()
         }
-    }
 
-    private fun clearFavoriteIcon() {
-        favoriteBinder?.dispose()
-        favoriteBinder = null
+        doOnTeardown {
+            favoriteLoaded = null
+        }
     }
 
     protected fun applyFavoriteFromCached(cached: Boolean?) {
         if (cached == null) {
             binding.popupInfoFavorite.setOnDebouncedClickListener(null)
         } else {
-            clearFavoriteIcon()
             val icon = if (cached) R.drawable.ic_star_24dp else R.drawable.ic_star_empty_24dp
-            favoriteBinder = imageLoader.load(icon).into(binding.popupInfoFavorite)
+            favoriteLoaded = imageLoader.load(icon).into(binding.popupInfoFavorite)
             binding.popupInfoFavorite.setOnDebouncedClickListener { publishFavorite(!cached) }
         }
     }

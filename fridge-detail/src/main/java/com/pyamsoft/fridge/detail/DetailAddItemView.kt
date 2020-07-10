@@ -27,7 +27,7 @@ import com.pyamsoft.fridge.detail.databinding.AddNewBinding
 import com.pyamsoft.fridge.ui.SnackbarContainer
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.loader.ImageLoader
-import com.pyamsoft.pydroid.loader.Loaded
+import com.pyamsoft.pydroid.loader.imageLoaded
 import com.pyamsoft.pydroid.ui.util.Snackbreak
 import com.pyamsoft.pydroid.ui.util.popShow
 import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
@@ -44,8 +44,8 @@ class DetailAddItemView @Inject internal constructor(
 
     override val layoutRoot by boundView { detailAddNewRoot }
 
-    private var addNewIconLoaded: Loaded? = null
-    private var filterIconLoaded: Loaded? = null
+    private var addNewIconLoaded by imageLoaded()
+    private var filterIconLoaded by imageLoaded()
 
     init {
         doOnInflate {
@@ -59,7 +59,7 @@ class DetailAddItemView @Inject internal constructor(
         }
 
         doOnTeardown {
-            disposeAddNewLoaded()
+            addNewIconLoaded = null
             binding.detailAddNewItem.setOnClickListener(null)
         }
 
@@ -70,7 +70,7 @@ class DetailAddItemView @Inject internal constructor(
         }
 
         doOnTeardown {
-            disposeFilterLoaded()
+            filterIconLoaded = null
             binding.detailFilterItem.setOnClickListener(null)
         }
 
@@ -87,16 +87,6 @@ class DetailAddItemView @Inject internal constructor(
 
     override fun container(): CoordinatorLayout? {
         return layoutRoot
-    }
-
-    private fun disposeFilterLoaded() {
-        filterIconLoaded?.dispose()
-        filterIconLoaded = null
-    }
-
-    private fun disposeAddNewLoaded() {
-        addNewIconLoaded?.dispose()
-        addNewIconLoaded = null
     }
 
     override fun onRender(state: DetailViewState) {
@@ -116,7 +106,6 @@ class DetailAddItemView @Inject internal constructor(
 
     private fun handleShowing(state: DetailViewState) {
         state.showing.let { showing ->
-            disposeFilterLoaded()
             filterIconLoaded = imageLoader
                 .load(
                     when (showing) {

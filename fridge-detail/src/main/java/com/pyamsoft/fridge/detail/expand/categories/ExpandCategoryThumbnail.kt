@@ -21,7 +21,7 @@ import android.view.ViewGroup
 import com.pyamsoft.fridge.db.category.FridgeCategory
 import com.pyamsoft.fridge.detail.databinding.ExpandCategoryThumbnailBinding
 import com.pyamsoft.pydroid.loader.ImageLoader
-import com.pyamsoft.pydroid.loader.Loaded
+import com.pyamsoft.pydroid.loader.imageLoaded
 import javax.inject.Inject
 
 class ExpandCategoryThumbnail @Inject internal constructor(
@@ -33,17 +33,12 @@ class ExpandCategoryThumbnail @Inject internal constructor(
 
     override val layoutRoot by boundView { expandCategoryThumbnail }
 
-    private var loaded: Loaded? = null
+    private var loaded by imageLoaded()
 
     init {
         doOnTeardown {
-            clear()
+            loaded = null
         }
-    }
-
-    private fun clear() {
-        loaded?.dispose()
-        loaded = null
     }
 
     override fun onRender(state: ExpandedCategoryViewState) {
@@ -53,7 +48,7 @@ class ExpandCategoryThumbnail @Inject internal constructor(
     private fun handleCategory(state: ExpandedCategoryViewState) {
         state.category.let { category ->
             if (category?.thumbnail == null) {
-                clear()
+                loaded = null
             } else {
                 loadImage(category.thumbnail)
             }
@@ -61,7 +56,6 @@ class ExpandCategoryThumbnail @Inject internal constructor(
     }
 
     private fun loadImage(thumbnail: FridgeCategory.Thumbnail) {
-        clear()
         loaded = imageLoader.load(thumbnail.data).into(layoutRoot)
     }
 }

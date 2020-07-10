@@ -28,6 +28,7 @@ import com.pyamsoft.pydroid.arch.UiViewEvent
 import com.pyamsoft.pydroid.arch.UiViewState
 import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.loader.Loaded
+import com.pyamsoft.pydroid.loader.imageLoaded
 import com.pyamsoft.pydroid.ui.theme.ThemeProvider
 import com.pyamsoft.pydroid.util.tintWith
 import java.util.Calendar
@@ -43,7 +44,7 @@ abstract class BaseItemDate<S : UiViewState, V : UiViewEvent> protected construc
 
     final override val layoutRoot by boundView { detailItemDate }
 
-    private var dateLoaded: Loaded? = null
+    private var dateLoaded by imageLoaded()
 
     init {
         doOnTeardown {
@@ -52,7 +53,6 @@ abstract class BaseItemDate<S : UiViewState, V : UiViewEvent> protected construc
     }
 
     private fun clear() {
-        dateLoaded?.dispose()
         dateLoaded = null
         binding.detailItemDateText.text = ""
     }

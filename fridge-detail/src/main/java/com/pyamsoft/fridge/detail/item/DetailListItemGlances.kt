@@ -41,6 +41,7 @@ import com.pyamsoft.fridge.tooltip.TooltipCreator
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.loader.Loaded
+import com.pyamsoft.pydroid.loader.imageLoaded
 import com.pyamsoft.pydroid.ui.theme.ThemeProvider
 import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
 import com.pyamsoft.pydroid.util.tintWith
@@ -61,9 +62,9 @@ class DetailListItemGlances @Inject internal constructor(
 
     override val layoutRoot by boundView { detailItemGlances }
 
-    private var dateRangeLoader: Loaded? = null
-    private var expiringLoader: Loaded? = null
-    private var expiredLoader: Loaded? = null
+    private var dateRangeLoader by imageLoaded()
+    private var expiringLoader by imageLoaded()
+    private var expiredLoader by imageLoaded()
 
     private var dateRangeTooltip: Tooltip? = null
     private var expiringTooltip: Tooltip? = null
@@ -87,17 +88,14 @@ class DetailListItemGlances @Inject internal constructor(
     }
 
     private fun clear() {
-        dateRangeLoader?.dispose()
         dateRangeLoader = null
         dateRangeTooltip?.hide()
         dateRangeTooltip = null
 
-        expiringLoader?.dispose()
         expiringLoader = null
         expiringTooltip?.hide()
         expiringTooltip = null
 
-        expiredLoader?.dispose()
         expiredLoader = null
         expiredTooltip?.hide()
         expiredTooltip = null

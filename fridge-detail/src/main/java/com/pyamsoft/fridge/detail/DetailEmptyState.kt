@@ -23,6 +23,7 @@ import com.pyamsoft.fridge.detail.databinding.DetailEmptyBinding
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.loader.Loaded
+import com.pyamsoft.pydroid.loader.imageLoaded
 import javax.inject.Inject
 
 class DetailEmptyState @Inject internal constructor(
@@ -34,16 +35,15 @@ class DetailEmptyState @Inject internal constructor(
 
     override val layoutRoot by boundView { detailEmptyRoot }
 
-    private var loaded: Loaded? = null
+    private var loaded by imageLoaded()
 
     init {
         doOnTeardown {
-            clear()
+            loaded = null
         }
     }
 
     private fun clear() {
-        loaded?.dispose()
         loaded = null
         binding.detailEmptyMessage.text = null
     }

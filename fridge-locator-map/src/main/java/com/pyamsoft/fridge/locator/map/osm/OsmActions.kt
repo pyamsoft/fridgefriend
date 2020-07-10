@@ -29,6 +29,7 @@ import com.pyamsoft.fridge.ui.SnackbarContainer
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.loader.Loaded
+import com.pyamsoft.pydroid.loader.imageLoaded
 import com.pyamsoft.pydroid.ui.util.Snackbreak
 import com.pyamsoft.pydroid.ui.util.popShow
 import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
@@ -44,8 +45,8 @@ class OsmActions @Inject internal constructor(
 
     override val layoutRoot by boundView { osmActions }
 
-    private var boundFindMeImage: Loaded? = null
-    private var boundNearbyImage: Loaded? = null
+    private var boundFindMeImage by imageLoaded()
+    private var boundNearbyImage by imageLoaded()
 
     private var nearbyAnimator: ViewPropertyAnimatorCompat? = null
     private var meAnimator: ViewPropertyAnimatorCompat? = null
@@ -57,13 +58,11 @@ class OsmActions @Inject internal constructor(
         }
 
         doOnInflate {
-            boundNearbyImage?.dispose()
             boundNearbyImage = imageLoader.load(R.drawable.ic_shopping_cart_24dp)
                 .into(binding.osmFindNearby)
         }
 
         doOnInflate {
-            boundFindMeImage?.dispose()
             boundFindMeImage = imageLoader.load(R.drawable.ic_location_search_24dp)
                 .into(binding.osmFindMe)
         }
@@ -84,8 +83,6 @@ class OsmActions @Inject internal constructor(
             binding.osmFindMe.setOnDebouncedClickListener(null)
             binding.osmFindNearby.setOnDebouncedClickListener(null)
 
-            boundFindMeImage?.dispose()
-            boundNearbyImage?.dispose()
             boundFindMeImage = null
             boundNearbyImage = null
 
