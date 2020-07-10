@@ -107,7 +107,15 @@ internal class NotificationHandlerImpl @Inject internal constructor(
                 items
                     .forEach { item ->
 
-                        bold { append("•") }
+                        bold {
+                            append(
+                                when {
+                                    isExpiringSoon -> FridgeItem.MARK_EXPIRING_SOON
+                                    isExpired -> FridgeItem.MARK_EXPIRED
+                                    else -> FridgeItem.MARK_FRESH
+                                }
+                            )
+                        }
                         append("   ")
                         italic { append(item.name()) }
                         append("  ")

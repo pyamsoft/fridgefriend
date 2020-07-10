@@ -136,6 +136,10 @@ interface FridgeItem : EmptyModel<FridgeItem> {
 
     companion object {
 
+        const val MARK_EXPIRED = "Ⓧ"
+        const val MARK_EXPIRING_SOON = "▲"
+        const val MARK_FRESH = "⭘"
+
         @CheckResult
         fun isValidName(name: String): Boolean {
             return name.isNotBlank()
