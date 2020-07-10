@@ -24,7 +24,7 @@ import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.arch.UiViewEvent
 import com.pyamsoft.pydroid.arch.UiViewState
 import com.pyamsoft.pydroid.loader.ImageLoader
-import com.pyamsoft.pydroid.loader.imageLoaded
+import com.pyamsoft.pydroid.loader.Loaded
 import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
 
 internal abstract class BaseInfoTitle<S : UiViewState, E : UiViewEvent> protected constructor(
@@ -37,7 +37,7 @@ internal abstract class BaseInfoTitle<S : UiViewState, E : UiViewEvent> protecte
 
     final override val layoutRoot by boundView { popupInfoTitleRoot }
 
-    private var favoriteLoaded by imageLoaded()
+    private var favoriteLoaded: Loaded? = null
 
     init {
         doOnInflate {
@@ -50,11 +50,17 @@ internal abstract class BaseInfoTitle<S : UiViewState, E : UiViewEvent> protecte
         }
 
         doOnTeardown {
-            favoriteLoaded = null
+            clear()
         }
     }
 
+    private fun clear() {
+        favoriteLoaded?.dispose()
+        favoriteLoaded = null
+    }
+
     protected fun applyFavoriteFromCached(cached: Boolean?) {
+        clear()
         if (cached == null) {
             binding.popupInfoFavorite.setOnDebouncedClickListener(null)
         } else {

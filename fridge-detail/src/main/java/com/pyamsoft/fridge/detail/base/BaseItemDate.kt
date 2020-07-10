@@ -28,11 +28,10 @@ import com.pyamsoft.pydroid.arch.UiViewEvent
 import com.pyamsoft.pydroid.arch.UiViewState
 import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.loader.Loaded
-import com.pyamsoft.pydroid.loader.imageLoaded
 import com.pyamsoft.pydroid.ui.theme.ThemeProvider
 import com.pyamsoft.pydroid.util.tintWith
-import java.util.Calendar
 import timber.log.Timber
+import java.util.Calendar
 
 abstract class BaseItemDate<S : UiViewState, V : UiViewEvent> protected constructor(
     private val imageLoader: ImageLoader,
@@ -44,7 +43,7 @@ abstract class BaseItemDate<S : UiViewState, V : UiViewEvent> protected construc
 
     final override val layoutRoot by boundView { detailItemDate }
 
-    private var dateLoaded by imageLoaded()
+    private var dateLoaded: Loaded? = null
 
     init {
         doOnTeardown {
@@ -53,14 +52,14 @@ abstract class BaseItemDate<S : UiViewState, V : UiViewEvent> protected construc
     }
 
     private fun clear() {
+        dateLoaded?.dispose()
         dateLoaded = null
         binding.detailItemDateText.text = ""
     }
 
     protected fun renderItem(item: FridgeItem?) {
-        if (item == null) {
-            clear()
-        } else {
+        clear()
+        if (item != null) {
             val expireTime = item.expireTime()
             if (expireTime != null) {
                 val date = today().apply { time = expireTime }
@@ -81,7 +80,6 @@ abstract class BaseItemDate<S : UiViewState, V : UiViewEvent> protected construc
                 binding.detailItemDateText.text = "-----"
                 binding.detailItemDateIcon.isVisible = true
 
-                dateLoaded?.dispose()
                 dateLoaded = imageLoader.load(R.drawable.ic_date_range_24dp)
                     .mutate { icon ->
                         val color = if (theming.isDarkTheme()) R.color.white else R.color.black

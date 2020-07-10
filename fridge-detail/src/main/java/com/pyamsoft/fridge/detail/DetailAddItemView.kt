@@ -27,7 +27,8 @@ import com.pyamsoft.fridge.detail.databinding.AddNewBinding
 import com.pyamsoft.fridge.ui.SnackbarContainer
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.loader.ImageLoader
-import com.pyamsoft.pydroid.loader.imageLoaded
+import com.pyamsoft.pydroid.loader.Loaded
+import com.pyamsoft.pydroid.loader.disposeOnDestroy
 import com.pyamsoft.pydroid.ui.util.Snackbreak
 import com.pyamsoft.pydroid.ui.util.popShow
 import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
@@ -44,14 +45,14 @@ class DetailAddItemView @Inject internal constructor(
 
     override val layoutRoot by boundView { detailAddNewRoot }
 
-    private var addNewIconLoaded by imageLoaded()
-    private var filterIconLoaded by imageLoaded()
+    private var filterIconLoaded: Loaded? = null
 
     init {
         doOnInflate {
-            addNewIconLoaded = imageLoader
+            imageLoader
                 .load(R.drawable.ic_add_24dp)
                 .into(binding.detailAddNewItem)
+                .disposeOnDestroy(owner)
 
             binding.detailAddNewItem.setOnDebouncedClickListener {
                 publish(DetailViewEvent.AddNewItemEvent)
@@ -59,7 +60,6 @@ class DetailAddItemView @Inject internal constructor(
         }
 
         doOnTeardown {
-            addNewIconLoaded = null
             binding.detailAddNewItem.setOnClickListener(null)
         }
 
@@ -70,7 +70,6 @@ class DetailAddItemView @Inject internal constructor(
         }
 
         doOnTeardown {
-            filterIconLoaded = null
             binding.detailFilterItem.setOnClickListener(null)
         }
 
@@ -83,6 +82,11 @@ class DetailAddItemView @Inject internal constructor(
                 }
             }.apply { doOnTeardown { cancel() } }
         }
+    }
+
+    private fun clearFilter() {
+        filterIconLoaded?.dispose()
+        filterIconLoaded = null
     }
 
     override fun container(): CoordinatorLayout? {
@@ -106,6 +110,7 @@ class DetailAddItemView @Inject internal constructor(
 
     private fun handleShowing(state: DetailViewState) {
         state.showing.let { showing ->
+            clearFilter()
             filterIconLoaded = imageLoader
                 .load(
                     when (showing) {

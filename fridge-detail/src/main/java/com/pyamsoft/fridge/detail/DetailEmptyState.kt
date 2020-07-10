@@ -23,7 +23,6 @@ import com.pyamsoft.fridge.detail.databinding.DetailEmptyBinding
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.loader.Loaded
-import com.pyamsoft.pydroid.loader.imageLoaded
 import javax.inject.Inject
 
 class DetailEmptyState @Inject internal constructor(
@@ -35,15 +34,16 @@ class DetailEmptyState @Inject internal constructor(
 
     override val layoutRoot by boundView { detailEmptyRoot }
 
-    private var loaded by imageLoaded()
+    private var loaded: Loaded? = null
 
     init {
         doOnTeardown {
-            loaded = null
+            clear()
         }
     }
 
     private fun clear() {
+        loaded?.dispose()
         loaded = null
         binding.detailEmptyMessage.text = null
     }
@@ -54,13 +54,9 @@ class DetailEmptyState @Inject internal constructor(
 
     private fun handleLoading(state: DetailViewState) {
         state.isLoading.let { loading ->
-            if (loading == null) {
-                clear()
-            } else {
-                if (loading.isLoading) {
-                    clear()
-                } else {
-                    clear()
+            clear()
+            if (loading != null) {
+                if (!loading.isLoading) {
                     if (state.items.isEmpty()) {
                         val isNeed = state.listItemPresence == NEED
                         loadText(isNeed, state.search.isNotBlank())

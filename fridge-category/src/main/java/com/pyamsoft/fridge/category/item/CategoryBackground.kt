@@ -22,7 +22,7 @@ import com.pyamsoft.fridge.category.databinding.CategoryBackgroundBinding
 import com.pyamsoft.fridge.db.category.FridgeCategory
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.loader.ImageLoader
-import com.pyamsoft.pydroid.loader.imageLoaded
+import com.pyamsoft.pydroid.loader.Loaded
 import javax.inject.Inject
 
 class CategoryBackground @Inject internal constructor(
@@ -34,12 +34,17 @@ class CategoryBackground @Inject internal constructor(
 
     override val layoutRoot by boundView { categoryBackgroundImage }
 
-    private var loaded by imageLoaded()
+    private var loaded: Loaded? = null
 
     init {
         doOnTeardown {
-            loaded = null
+            clear()
         }
+    }
+
+    private fun clear() {
+        loaded?.dispose()
+        loaded = null
     }
 
     override fun onRender(state: CategoryItemViewState) {
@@ -48,10 +53,10 @@ class CategoryBackground @Inject internal constructor(
 
     private fun handleCategory(state: CategoryItemViewState) {
         state.category.let { category ->
+            clear()
+
             val thumbnail = category.thumbnail()
-            if (thumbnail == null) {
-                loaded = null
-            } else {
+            if (thumbnail != null) {
                 loadImage(thumbnail)
             }
         }
