@@ -101,7 +101,7 @@ class StoreInfoWindow private constructor(
             }
         }
 
-        registry.handleLifecycleEvent(Lifecycle.Event.ON_RESUME)
+        registry.currentState = Lifecycle.State.RESUMED
     }
 
     override fun onLocationUpdate(location: Location?) {
@@ -127,7 +127,7 @@ class StoreInfoWindow private constructor(
     }
 
     override fun onTeardown() {
-        registry.handleLifecycleEvent(Lifecycle.Event.ON_DESTROY)
+        registry.currentState = Lifecycle.State.DESTROYED
 
         infoTitle = null
         infoLocation = null
