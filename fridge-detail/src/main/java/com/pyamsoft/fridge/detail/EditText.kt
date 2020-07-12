@@ -33,4 +33,3 @@ fun EditText.setEditable(inputType: Int) {
     this.setTextIsSelectable(isEditable)
     this.isLongClickable = isEditable
 }
-

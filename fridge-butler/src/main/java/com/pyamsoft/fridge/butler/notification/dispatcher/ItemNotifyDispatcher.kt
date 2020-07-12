@@ -81,5 +81,4 @@ internal abstract class ItemNotifyDispatcher<T : NotifyData> protected construct
                     }
             })
     }
-
 }

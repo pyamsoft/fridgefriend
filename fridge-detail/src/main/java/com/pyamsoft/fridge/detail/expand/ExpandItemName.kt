@@ -26,8 +26,8 @@ import com.pyamsoft.fridge.db.item.isArchived
 import com.pyamsoft.fridge.detail.base.BaseItemName
 import com.pyamsoft.fridge.detail.isEditable
 import com.pyamsoft.fridge.detail.setEditable
-import timber.log.Timber
 import javax.inject.Inject
+import timber.log.Timber
 
 class ExpandItemName @Inject internal constructor(
     parent: ViewGroup

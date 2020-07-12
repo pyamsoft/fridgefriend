@@ -33,11 +33,11 @@ import com.pyamsoft.pydroid.arch.StateSaver
 import com.pyamsoft.pydroid.arch.createComponent
 import com.pyamsoft.pydroid.ui.arch.viewModelFactory
 import com.pyamsoft.pydroid.ui.util.layout
+import javax.inject.Inject
 import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.Polygon
 import org.osmdroid.views.overlay.infowindow.InfoWindow
 import timber.log.Timber
-import javax.inject.Inject
 
 class ZoneInfoWindow private constructor(
     receiver: LocationUpdateReceiver,

@@ -33,4 +33,3 @@ class FridgeViewModelFactory @Inject internal constructor(
         return viewModels[modelClass.java]?.get() as? T ?: fail()
     }
 }
-
