@@ -38,7 +38,7 @@ buildscript {
 		maxSdk = 30
 
 		// Us
-		pydroid = "21.3.2-SNAPSHOT"
+		pydroid = "22.0.0-SNAPSHOT"
 
 		// Room
 		room = "2.2.5"
@@ -52,7 +52,7 @@ buildscript {
 		moshi = "1.9.3"
 
 		// Fast Adapter
-		fastAdapter = "5.1.0"
+		fastAdapter = "5.2.0"
 
 		workmanager = "2.3.4"
 
@@ -73,7 +73,7 @@ buildscript {
 		classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
 
 		// Spotless
-		classpath "com.diffplug.spotless:spotless-plugin-gradle:4.4.0"
+		classpath "com.diffplug.spotless:spotless-plugin-gradle:4.5.1"
 
 		//        classpath 'com.google.gms:google-services:4.3.2'
 	}

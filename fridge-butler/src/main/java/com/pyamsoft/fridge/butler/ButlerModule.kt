@@ -17,9 +17,22 @@
 
 package com.pyamsoft.fridge.butler
 
+import android.content.Context
 import androidx.annotation.CheckResult
+import com.pyamsoft.fridge.butler.notification.NotificationHandler
+import com.pyamsoft.fridge.butler.notification.NotificationHandlerImpl
+import com.pyamsoft.fridge.butler.notification.dispatcher.ExpiredItemNotifyDispatcher
+import com.pyamsoft.fridge.butler.notification.dispatcher.ExpiringItemNotifyDispatcher
+import com.pyamsoft.fridge.butler.notification.dispatcher.NearbyItemNotifyDispatcher
+import com.pyamsoft.fridge.butler.notification.dispatcher.NeededItemNotifyDispatcher
+import com.pyamsoft.fridge.butler.notification.dispatcher.NightlyNotifyDispatcher
+import com.pyamsoft.pydroid.notify.Notifier
+import com.pyamsoft.pydroid.notify.NotifyDispatcher
 import dagger.Binds
 import dagger.Module
+import dagger.Provides
+import dagger.multibindings.IntoSet
+import javax.inject.Named
 
 @Module
 abstract class ButlerModule {
@@ -27,4 +40,49 @@ abstract class ButlerModule {
     @Binds
     @CheckResult
     internal abstract fun bindNotificationHandler(impl: NotificationHandlerImpl): NotificationHandler
+
+    @Binds
+    @CheckResult
+    @IntoSet
+    @Named("notification_dispatchers")
+    internal abstract fun bindNeededDispatcher(impl: NeededItemNotifyDispatcher): NotifyDispatcher<*>
+
+    @Binds
+    @CheckResult
+    @IntoSet
+    @Named("notification_dispatchers")
+    internal abstract fun bindExpiringDispatcher(impl: ExpiringItemNotifyDispatcher): NotifyDispatcher<*>
+
+    @Binds
+    @CheckResult
+    @IntoSet
+    @Named("notification_dispatchers")
+    internal abstract fun bindExpiredDispatcher(impl: ExpiredItemNotifyDispatcher): NotifyDispatcher<*>
+
+    @Binds
+    @CheckResult
+    @IntoSet
+    @Named("notification_dispatchers")
+    internal abstract fun bindNearbyDispatcher(impl: NearbyItemNotifyDispatcher): NotifyDispatcher<*>
+
+    @Binds
+    @CheckResult
+    @IntoSet
+    @Named("notification_dispatchers")
+    internal abstract fun bindNightlyDispatcher(impl: NightlyNotifyDispatcher): NotifyDispatcher<*>
+
+    @Module
+    companion object {
+
+        @Provides
+        @JvmStatic
+        @CheckResult
+        internal fun provideNotifier(
+            // Need to use MutableSet instead of Set because of Java -> Kotlin fun.
+            @Named("notification_dispatchers") dispatchers: MutableSet<NotifyDispatcher<*>>,
+            context: Context
+        ): Notifier {
+            return Notifier(dispatchers, context)
+        }
+    }
 }

@@ -24,6 +24,7 @@ import javax.inject.Provider
 import kotlin.reflect.KClass
 
 class FridgeViewModelFactory @Inject internal constructor(
+    // Need to use MutableMap instead of Map because of Java -> Kotlin fun.
     private val viewModels: MutableMap<Class<*>, Provider<UiViewModel<*, *, *>>>
 ) : UiViewModelFactory() {
 

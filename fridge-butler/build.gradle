@@ -63,6 +63,9 @@ dependencies {
 
 	kapt "com.google.dagger:dagger-compiler:$dagger"
 
+	// PYDroid
+	api "com.pyamsoft.pydroid:notify:$pydroid"
+
 	api project(':fridge-db')
 	api project(':fridge-locator')
 }

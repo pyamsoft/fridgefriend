@@ -20,8 +20,8 @@ package com.pyamsoft.fridge.butler.runner
 import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.butler.Butler
 import com.pyamsoft.fridge.butler.ButlerPreferences
-import com.pyamsoft.fridge.butler.NotificationHandler
-import com.pyamsoft.fridge.butler.NotificationPreferences
+import com.pyamsoft.fridge.butler.notification.NotificationHandler
+import com.pyamsoft.fridge.butler.notification.NotificationPreferences
 import com.pyamsoft.fridge.butler.params.BaseParameters
 import com.pyamsoft.pydroid.core.Enforcer
 import java.util.Calendar

@@ -27,7 +27,7 @@ import androidx.work.Operation
 import androidx.work.WorkManager
 import com.google.common.util.concurrent.ListenableFuture
 import com.pyamsoft.fridge.butler.Butler
-import com.pyamsoft.fridge.butler.NotificationPreferences
+import com.pyamsoft.fridge.butler.notification.NotificationPreferences
 import com.pyamsoft.fridge.butler.params.EmptyParameters
 import com.pyamsoft.fridge.butler.params.ItemParameters
 import com.pyamsoft.fridge.butler.params.LocationParameters

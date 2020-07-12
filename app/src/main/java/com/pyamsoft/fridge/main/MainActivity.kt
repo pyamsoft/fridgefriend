@@ -20,7 +20,6 @@ package com.pyamsoft.fridge.main
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
-import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.CheckResult
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -34,7 +33,7 @@ import com.pyamsoft.fridge.ButlerParameters
 import com.pyamsoft.fridge.FridgeComponent
 import com.pyamsoft.fridge.R
 import com.pyamsoft.fridge.butler.Butler
-import com.pyamsoft.fridge.butler.NotificationHandler
+import com.pyamsoft.fridge.butler.notification.NotificationHandler
 import com.pyamsoft.fridge.category.CategoryFragment
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.entry.EntryFragment
@@ -46,6 +45,7 @@ import com.pyamsoft.fridge.setting.SettingsFragment
 import com.pyamsoft.fridge.ui.SnackbarContainer
 import com.pyamsoft.pydroid.arch.StateSaver
 import com.pyamsoft.pydroid.arch.createComponent
+import com.pyamsoft.pydroid.notify.asNotifyId
 import com.pyamsoft.pydroid.ui.Injector
 import com.pyamsoft.pydroid.ui.arch.viewModelFactory
 import com.pyamsoft.pydroid.ui.databinding.LayoutConstraintBinding
@@ -188,7 +188,7 @@ internal class MainActivity : RatingActivity(), VersionChecker {
     private fun clearLaunchNotification() {
         val id = intent.getIntExtra(NotificationHandler.NOTIFICATION_ID_KEY, 0)
         if (id != 0) {
-            requireNotNull(notificationHandler).cancel(id)
+            requireNotNull(notificationHandler).cancel(id.asNotifyId())
         }
     }
 

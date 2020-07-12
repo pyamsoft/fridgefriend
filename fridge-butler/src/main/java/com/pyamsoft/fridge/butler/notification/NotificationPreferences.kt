@@ -15,7 +15,7 @@
  *
  */
 
-package com.pyamsoft.fridge.butler
+package com.pyamsoft.fridge.butler.notification
 
 import androidx.annotation.CheckResult
 import java.util.Calendar

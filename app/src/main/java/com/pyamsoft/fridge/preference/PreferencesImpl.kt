@@ -22,7 +22,7 @@ import androidx.core.content.edit
 import androidx.preference.PreferenceManager
 import com.pyamsoft.fridge.R
 import com.pyamsoft.fridge.butler.ButlerPreferences
-import com.pyamsoft.fridge.butler.NotificationPreferences
+import com.pyamsoft.fridge.butler.notification.NotificationPreferences
 import com.pyamsoft.fridge.core.IdGenerator
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItemPreferences

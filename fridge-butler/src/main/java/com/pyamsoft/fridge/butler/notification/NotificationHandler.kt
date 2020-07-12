@@ -15,17 +15,18 @@
  *
  */
 
-package com.pyamsoft.fridge.butler
+package com.pyamsoft.fridge.butler.notification
 
 import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.store.NearbyStore
 import com.pyamsoft.fridge.db.zone.NearbyZone
+import com.pyamsoft.pydroid.notify.NotifyId
 
 interface NotificationHandler {
 
-    fun cancel(notificationId: Int)
+    fun cancel(notificationId: NotifyId)
 
     @CheckResult
     fun notifyNearby(store: NearbyStore, items: List<FridgeItem>): Boolean
