@@ -37,7 +37,6 @@ import com.pyamsoft.pydroid.notify.NotifyChannelInfo
 import com.pyamsoft.pydroid.notify.NotifyData
 import com.pyamsoft.pydroid.notify.NotifyDispatcher
 import com.pyamsoft.pydroid.notify.NotifyId
-import com.pyamsoft.pydroid.notify.toNotifyId
 import timber.log.Timber
 
 internal abstract class BaseNotifyDispatcher<T : NotifyData> protected constructor(
@@ -117,13 +116,5 @@ internal abstract class BaseNotifyDispatcher<T : NotifyData> protected construct
             intent,
             PendingIntent.FLAG_UPDATE_CURRENT
         )
-    }
-
-    @CheckResult
-    protected fun <S : Any> MutableMap<S, NotifyId>.getNotificationId(key: S): NotifyId {
-        return this.getOrPut(key) {
-            val rawId = key.hashCode()
-            return@getOrPut rawId.toNotifyId()
-        }
     }
 }
