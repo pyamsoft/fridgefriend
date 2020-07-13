@@ -45,7 +45,7 @@ import com.pyamsoft.fridge.setting.SettingsFragment
 import com.pyamsoft.fridge.ui.SnackbarContainer
 import com.pyamsoft.pydroid.arch.StateSaver
 import com.pyamsoft.pydroid.arch.createComponent
-import com.pyamsoft.pydroid.notify.asNotifyId
+import com.pyamsoft.pydroid.notify.toNotifyId
 import com.pyamsoft.pydroid.ui.Injector
 import com.pyamsoft.pydroid.ui.arch.viewModelFactory
 import com.pyamsoft.pydroid.ui.databinding.LayoutConstraintBinding
@@ -188,7 +188,7 @@ internal class MainActivity : RatingActivity(), VersionChecker {
     private fun clearLaunchNotification() {
         val id = intent.getIntExtra(NotificationHandler.NOTIFICATION_ID_KEY, 0)
         if (id != 0) {
-            requireNotNull(notificationHandler).cancel(id.asNotifyId())
+            requireNotNull(notificationHandler).cancel(id.toNotifyId())
         }
     }
 

@@ -25,7 +25,6 @@ import androidx.core.text.bold
 import androidx.core.text.buildSpannedString
 import com.pyamsoft.fridge.butler.R
 import com.pyamsoft.fridge.butler.notification.NightlyNotifyData
-import com.pyamsoft.fridge.butler.notification.NotificationChannelInfo
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.pydroid.notify.NotifyData
 import com.pyamsoft.pydroid.notify.NotifyId
@@ -38,17 +37,8 @@ internal class NightlyNotifyDispatcher @Inject internal constructor(
     activityClass: Class<out Activity>
 ) : BaseNotifyDispatcher<NightlyNotifyData>(
     context,
-    activityClass = activityClass,
-    channel = NotificationChannelInfo(
-        id = CHANNEL_ID,
-        title = "Nightly Reminders",
-        description = "Regular reminders each night to clean out your fridge"
-    )
+    activityClass = activityClass
 ) {
-
-    companion object {
-        private const val CHANNEL_ID = "fridge_nightly_reminders_channel_v1"
-    }
 
     override fun canShow(notification: NotifyData): Boolean {
         return notification is NightlyNotifyData

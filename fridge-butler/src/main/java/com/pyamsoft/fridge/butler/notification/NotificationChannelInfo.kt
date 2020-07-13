@@ -17,8 +17,34 @@
 
 package com.pyamsoft.fridge.butler.notification
 
-data class NotificationChannelInfo internal constructor(
+enum class NotificationChannelInfo(
     val id: String,
     val title: String,
     val description: String
-)
+) {
+    EXPIRING(
+        id = "fridge_expiring_reminders_channel_v1",
+        title = "Expiring Reminders",
+        description = "Reminders for items that are going to expire soon"
+    ),
+    EXPIRED(
+        id = "fridge_expiration_reminders_channel_v1",
+        title = "Expired Reminders",
+        description = "Reminders for items that have expired"
+    ),
+    NEEDED(
+        id = "fridge_needed_reminders_channel_v1",
+        title = "Shopping Reminders",
+        description = "Reminders for items that you still need."
+    ),
+    NIGHTLY(
+        id = "fridge_nightly_reminders_channel_v1",
+        title = "Nightly Reminders",
+        description = "Regular reminders each night to clean out your fridge"
+    ),
+    NEARBY(
+        id = "fridge_nearby_reminders_channel_v1",
+        title = "Nearby Reminders",
+        description = "Reminders for items that may be at locations nearby."
+    );
+}

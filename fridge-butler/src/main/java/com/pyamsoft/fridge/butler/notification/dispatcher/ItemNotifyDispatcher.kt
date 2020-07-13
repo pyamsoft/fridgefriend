@@ -24,7 +24,6 @@ import androidx.core.app.NotificationCompat
 import androidx.core.text.bold
 import androidx.core.text.buildSpannedString
 import androidx.core.text.italic
-import com.pyamsoft.fridge.butler.notification.NotificationChannelInfo
 import com.pyamsoft.fridge.core.today
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.getExpiredMessage
@@ -33,9 +32,8 @@ import com.pyamsoft.pydroid.notify.NotifyData
 
 internal abstract class ItemNotifyDispatcher<T : NotifyData> protected constructor(
     context: Context,
-    activityClass: Class<out Activity>,
-    channel: NotificationChannelInfo
-) : BaseNotifyDispatcher<T>(context, activityClass, channel) {
+    activityClass: Class<out Activity>
+) : BaseNotifyDispatcher<T>(context, activityClass) {
 
     @CheckResult
     protected fun createBigTextStyle(

@@ -19,7 +19,7 @@ package com.pyamsoft.fridge.butler.notification
 
 import androidx.annotation.CheckResult
 import com.pyamsoft.pydroid.notify.NotifyId
-import com.pyamsoft.pydroid.notify.asNotifyId
+import com.pyamsoft.pydroid.notify.toNotifyId
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -39,7 +39,7 @@ internal class NotificationIdMap @Inject internal constructor() {
         key: () -> String
     ): NotifyId {
         val k = key()
-        return getNotifications(type).getOrPut(k) { (k.hashCode() + type.ordinal).asNotifyId() }
+        return getNotifications(type).getOrPut(k) { (k.hashCode() + type.ordinal).toNotifyId() }
     }
 }
 

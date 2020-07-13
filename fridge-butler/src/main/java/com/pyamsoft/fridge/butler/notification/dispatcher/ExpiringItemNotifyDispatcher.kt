@@ -25,7 +25,6 @@ import androidx.core.text.bold
 import androidx.core.text.buildSpannedString
 import com.pyamsoft.fridge.butler.R
 import com.pyamsoft.fridge.butler.notification.ExpiringItemNotifyData
-import com.pyamsoft.fridge.butler.notification.NotificationChannelInfo
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.pydroid.notify.NotifyData
 import com.pyamsoft.pydroid.notify.NotifyId
@@ -38,17 +37,8 @@ internal class ExpiringItemNotifyDispatcher @Inject internal constructor(
     activityClass: Class<out Activity>
 ) : ItemNotifyDispatcher<ExpiringItemNotifyData>(
     context,
-    activityClass = activityClass,
-    channel = NotificationChannelInfo(
-        id = CHANNEL_ID,
-        title = "Expiring Reminders",
-        description = "Reminders for items that are going to expire soon"
-    )
+    activityClass = activityClass
 ) {
-
-    companion object {
-        private const val CHANNEL_ID = "fridge_expiring_reminders_channel_v1"
-    }
 
     override fun canShow(notification: NotifyData): Boolean {
         return notification is ExpiringItemNotifyData

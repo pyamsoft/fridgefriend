@@ -82,7 +82,7 @@ abstract class ButlerModule {
             @Named("notification_dispatchers") dispatchers: MutableSet<NotifyDispatcher<*>>,
             context: Context
         ): Notifier {
-            return Notifier(dispatchers, context)
+            return Notifier.create(context, dispatchers)
         }
     }
 }

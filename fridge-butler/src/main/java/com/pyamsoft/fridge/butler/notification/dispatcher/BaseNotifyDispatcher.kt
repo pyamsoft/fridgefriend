@@ -31,19 +31,18 @@ import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.getSystemService
 import com.pyamsoft.fridge.butler.R
-import com.pyamsoft.fridge.butler.notification.NotificationChannelInfo
 import com.pyamsoft.fridge.butler.notification.NotificationHandler
 import com.pyamsoft.fridge.db.item.FridgeItem
+import com.pyamsoft.pydroid.notify.NotifyChannelInfo
 import com.pyamsoft.pydroid.notify.NotifyData
 import com.pyamsoft.pydroid.notify.NotifyDispatcher
 import com.pyamsoft.pydroid.notify.NotifyId
-import com.pyamsoft.pydroid.notify.asNotifyId
+import com.pyamsoft.pydroid.notify.toNotifyId
 import timber.log.Timber
 
 internal abstract class BaseNotifyDispatcher<T : NotifyData> protected constructor(
     private val context: Context,
-    private val activityClass: Class<out Activity>,
-    private val channel: NotificationChannelInfo
+    private val activityClass: Class<out Activity>
 ) : NotifyDispatcher<T> {
 
     private val primaryColor by lazy {
@@ -55,22 +54,22 @@ internal abstract class BaseNotifyDispatcher<T : NotifyData> protected construct
         requireNotNull(context.applicationContext.getSystemService<NotificationManager>())
     }
 
-    private fun guaranteeNotificationChannelExists() {
+    private fun guaranteeNotificationChannelExists(channelInfo: NotifyChannelInfo) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val notificationGroup = NotificationChannelGroup(channel.id, channel.title)
+            val notificationGroup = NotificationChannelGroup(channelInfo.id, channelInfo.title)
             val notificationChannel = NotificationChannel(
-                channel.id,
-                channel.title,
+                channelInfo.id,
+                channelInfo.title,
                 NotificationManager.IMPORTANCE_DEFAULT
             ).apply {
                 group = notificationGroup.id
                 lockscreenVisibility = Notification.VISIBILITY_PUBLIC
-                description = channel.description
+                description = channelInfo.description
                 enableLights(false)
                 enableVibration(true)
             }
 
-            Timber.d("Create notification channel and group: ${channel.id} ${channel.title}")
+            Timber.d("Create notification channel and group: ${channelInfo.id} ${channelInfo.title}")
             channelCreator.apply {
                 createNotificationChannelGroup(notificationGroup)
                 createNotificationChannel(notificationChannel)
@@ -80,11 +79,12 @@ internal abstract class BaseNotifyDispatcher<T : NotifyData> protected construct
 
     final override fun build(
         id: NotifyId,
+        channelInfo: NotifyChannelInfo,
         notification: T
     ): Notification {
-        guaranteeNotificationChannelExists()
+        guaranteeNotificationChannelExists(channelInfo)
 
-        val builder = NotificationCompat.Builder(context, channel.id)
+        val builder = NotificationCompat.Builder(context, channelInfo.id)
             .setAutoCancel(false)
             .setOngoing(false)
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
@@ -123,7 +123,7 @@ internal abstract class BaseNotifyDispatcher<T : NotifyData> protected construct
     protected fun <S : Any> MutableMap<S, NotifyId>.getNotificationId(key: S): NotifyId {
         return this.getOrPut(key) {
             val rawId = key.hashCode()
-            return@getOrPut rawId.asNotifyId()
+            return@getOrPut rawId.toNotifyId()
         }
     }
 }
