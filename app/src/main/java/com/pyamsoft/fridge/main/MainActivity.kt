@@ -55,10 +55,10 @@ import com.pyamsoft.pydroid.ui.rating.buildChangeLog
 import com.pyamsoft.pydroid.ui.util.commitNow
 import com.pyamsoft.pydroid.ui.util.layout
 import com.pyamsoft.pydroid.util.stableLayoutHideNavigation
-import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import timber.log.Timber
+import javax.inject.Inject
 
 internal class MainActivity : RatingActivity(), VersionChecker {
 
@@ -308,28 +308,43 @@ internal class MainActivity : RatingActivity(), VersionChecker {
             viewModel.withForegroundPermission(withPermission = {
                 // Replace permission with map
                 // Don't need animation because we are already on this page
-                commitNearbyFragment(null)
+                Timber.d("Permission gained, commit Map fragment")
+                commitMapFragment(null, forcePush = true)
             })
         } else if (fm.findFragmentByTag(MapFragment.TAG) != null) {
             viewModel.withForegroundPermission(withoutPermission = {
                 // Replace map with permission
                 // Don't need animation because we are already on this page
-                commitNearbyFragment(null)
+                Timber.d("Permission lost, commit Permission fragment")
+                commitPermissionFragment(null, forcePush = true)
             })
         }
     }
 
+    private fun commitMapFragment(previousPage: MainPage?, forcePush: Boolean = false) {
+        commitPage(
+            MapFragment.newInstance(),
+            MainPage.NEARBY,
+            previousPage,
+            MapFragment.TAG,
+            forcePush
+        )
+    }
+
+    private fun commitPermissionFragment(previousPage: MainPage?, forcePush: Boolean = false) {
+        commitPage(
+            PermissionFragment.newInstance(fragmentContainerId),
+            MainPage.NEARBY,
+            previousPage,
+            PermissionFragment.TAG,
+            forcePush
+        )
+    }
+
     private fun commitNearbyFragment(previousPage: MainPage?) {
-        viewModel.withForegroundPermission(withPermission = {
-            commitPage(MapFragment.newInstance(), MainPage.NEARBY, previousPage, MapFragment.TAG)
-        }, withoutPermission = {
-            commitPage(
-                PermissionFragment.newInstance(fragmentContainerId),
-                MainPage.NEARBY,
-                previousPage,
-                PermissionFragment.TAG
-            )
-        }
+        viewModel.withForegroundPermission(
+            withPermission = { commitMapFragment(previousPage) },
+            withoutPermission = { commitPermissionFragment(previousPage) }
         )
     }
 
@@ -343,7 +358,8 @@ internal class MainActivity : RatingActivity(), VersionChecker {
         fragment: Fragment,
         newPage: MainPage,
         previousPage: MainPage?,
-        tag: String
+        tag: String,
+        forcePush: Boolean = false
     ) {
         val fm = supportFragmentManager
         val container = fragmentContainerId
@@ -354,8 +370,12 @@ internal class MainActivity : RatingActivity(), VersionChecker {
             else -> false
         }
 
-        if (push) {
-            Timber.d("Commit fragment: $tag")
+        if (push || forcePush) {
+            if (forcePush) {
+                Timber.d("Force commit fragment: $tag")
+            } else {
+                Timber.d("Commit fragment: $tag")
+            }
             fm.commitNow(this) {
                 decideAnimationForPage(previousPage, newPage)
                 replace(container, fragment, tag)

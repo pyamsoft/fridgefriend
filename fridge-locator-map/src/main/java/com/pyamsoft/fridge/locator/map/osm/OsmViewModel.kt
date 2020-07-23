@@ -20,13 +20,12 @@ package com.pyamsoft.fridge.locator.map.osm
 import android.app.Activity
 import androidx.lifecycle.viewModelScope
 import com.pyamsoft.fridge.locator.DeviceGps
+import com.pyamsoft.fridge.locator.MapPermission
 import com.pyamsoft.fridge.ui.BottomOffset
 import com.pyamsoft.highlander.highlander
 import com.pyamsoft.pydroid.arch.EventConsumer
 import com.pyamsoft.pydroid.arch.UiViewModel
 import com.pyamsoft.pydroid.arch.onActualError
-import javax.inject.Inject
-import javax.inject.Named
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -34,8 +33,11 @@ import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import timber.log.Timber
+import javax.inject.Inject
+import javax.inject.Named
 
 class OsmViewModel @Inject internal constructor(
+    private val mapPermission: MapPermission,
     private val interactor: OsmInteractor,
     private val deviceGps: DeviceGps,
     @Named("debug") debug: Boolean,
@@ -174,11 +176,18 @@ class OsmViewModel @Inject internal constructor(
 
     fun enableGps(activity: Activity) {
         viewModelScope.launch(context = Dispatchers.Default) {
+            if (!mapPermission.hasForegroundPermission()) {
+                Timber.w("Missing required foreground permission!")
+                return@launch
+            }
+
             if (!deviceGps.isGpsEnabled()) {
+                Timber.d("Attempt enable GPS")
                 try {
                     deviceGps.enableGps()
                 } catch (e: Throwable) {
                     if (e is DeviceGps.ResolvableError) {
+                        Timber.d(e, "Resolve GPS enable error")
                         resolveError(e, activity)
                     } else {
                         Timber.e(e, "Error during enable GPS")

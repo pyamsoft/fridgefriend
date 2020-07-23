@@ -37,6 +37,7 @@ import com.pyamsoft.pydroid.arch.createComponent
 import com.pyamsoft.pydroid.ui.Injector
 import com.pyamsoft.pydroid.ui.arch.viewModelFactory
 import com.pyamsoft.pydroid.ui.databinding.LayoutCoordinatorBinding
+import timber.log.Timber
 import javax.inject.Inject
 
 internal class MapFragment : Fragment(), SnackbarContainer {
@@ -93,9 +94,12 @@ internal class MapFragment : Fragment(), SnackbarContainer {
             // TODO handle
         }
 
-        viewModel.enableGps(requireActivity())
-
         initializeApp()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        viewModel.enableGps(requireActivity())
     }
 
     override fun container(): CoordinatorLayout? {
