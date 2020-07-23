@@ -15,7 +15,8 @@
   ~
   -->
 
-<androidx.preference.PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+<androidx.preference.PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <androidx.preference.PreferenceCategory android:title="Expiration Settings">
 
@@ -26,7 +27,8 @@
             android:entryValues="@array/expiring_soon_range_values"
             android:key="@string/expiring_soon_range_key"
             android:summary="@string/expiring_soon_range_summary"
-            android:title="@string/expiring_soon_range_title" />
+            android:title="@string/expiring_soon_range_title"
+            app:iconCompat="@drawable/ic_category_24" />
 
         <com.pyamsoft.pydroid.ui.preference.ListPreferenceCompat
             android:defaultValue="@string/expired_same_day_default"
@@ -35,14 +37,16 @@
             android:entryValues="@array/expired_same_day_values"
             android:key="@string/expired_same_day_key"
             android:summary="@string/expired_same_day_summary"
-            android:title="@string/expired_same_day_title" />
+            android:title="@string/expired_same_day_title"
+            app:iconCompat="@drawable/ic_spoiled_24dp" />
 
         <com.pyamsoft.pydroid.ui.preference.CheckBoxPreferenceCompat
             android:defaultValue="@bool/zero_count_consumed_default"
             android:key="@string/zero_count_consumed_key"
             android:summaryOff="@string/zero_count_consumed_summary_off"
             android:summaryOn="@string/zero_count_consumed_summary_on"
-            android:title="@string/zero_count_consumed_title" />
+            android:title="@string/zero_count_consumed_title"
+            app:iconCompat="@drawable/ic_consumed_24dp" />
 
     </androidx.preference.PreferenceCategory>
 
@@ -52,7 +56,8 @@
             android:defaultValue="@bool/do_not_disturb_default"
             android:key="@string/do_not_disturb_key"
             android:summary="@string/do_not_disturb_summary"
-            android:title="@string/do_not_disturb_title" />
+            android:title="@string/do_not_disturb_title"
+            app:iconCompat="@drawable/ic_do_not_disturb_24" />
 
         <com.pyamsoft.pydroid.ui.preference.ListPreferenceCompat
             android:defaultValue="@string/notification_period_range_default"
@@ -61,7 +66,8 @@
             android:entryValues="@array/notification_period_range_values"
             android:key="@string/notification_period_range_key"
             android:summary="@string/notification_period_range_summary"
-            android:title="@string/notification_period_range_title" />
+            android:title="@string/notification_period_range_title"
+            app:iconCompat="@drawable/ic_timer_24" />
 
     </androidx.preference.PreferenceCategory>
 
