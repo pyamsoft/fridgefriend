@@ -17,20 +17,7 @@
 
 package com.pyamsoft.fridge.core
 
-import android.content.Context
-import android.graphics.Point
-import android.os.Build
-import android.view.View
-import android.view.WindowManager
-import android.view.animation.OvershootInterpolator
 import androidx.annotation.CheckResult
-import androidx.core.content.getSystemService
-import androidx.core.content.withStyledAttributes
-import androidx.core.view.ViewCompat
-import androidx.core.view.ViewPropertyAnimatorCompat
-import androidx.core.view.isVisible
-import androidx.core.view.updatePadding
-import com.pyamsoft.pydroid.util.doOnApplyWindowInsets
 import java.util.Calendar
 import java.util.Date
 
@@ -54,46 +41,3 @@ inline fun today(func: Calendar.() -> Unit): Calendar {
     return Calendar.getInstance().apply(func)
 }
 
-@CheckResult
-fun animatePopInFromBottom(view: View): ViewPropertyAnimatorCompat {
-    view.translationY = animatingHeight(view.context).toFloat()
-    view.isVisible = true
-    return ViewCompat.animate(view)
-        .translationY(0F)
-        .setDuration(700)
-        .setStartDelay(300)
-        .setInterpolator(interpolator)
-}
-
-private val interpolator by lazy(LazyThreadSafetyMode.NONE) { OvershootInterpolator(1.4F) }
-
-@CheckResult
-private fun animatingHeight(activityContext: Context): Int {
-    val windowManager = requireNotNull(activityContext.getSystemService<WindowManager>())
-    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-        windowManager.currentWindowMetrics.bounds.bottom
-    } else {
-        val point = Point()
-
-        @Suppress("DEPRECATION")
-        windowManager.defaultDisplay.getSize(point)
-
-        point.y
-    }
-}
-
-fun View.applyToolbarOffset() {
-    this.doOnApplyWindowInsets { v, insets, padding ->
-        val toolbarTopMargin = padding.top + insets.systemWindowInsetTop
-        v.context.withStyledAttributes(
-            R.attr.toolbarStyle,
-            intArrayOf(R.attr.actionBarSize)
-        ) {
-            val sizeId = getResourceId(0, 0)
-            if (sizeId != 0) {
-                val toolbarHeight = v.context.resources.getDimensionPixelSize(sizeId)
-                v.updatePadding(top = toolbarTopMargin + toolbarHeight)
-            }
-        }
-    }
-}

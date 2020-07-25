@@ -26,7 +26,7 @@ import com.pyamsoft.fridge.category.databinding.CategoryListViewBinding
 import com.pyamsoft.fridge.category.item.CategoryAdapter
 import com.pyamsoft.fridge.category.item.CategoryItemComponent
 import com.pyamsoft.fridge.category.item.CategoryItemViewState
-import com.pyamsoft.fridge.core.animatePopInFromBottom
+import com.pyamsoft.fridge.ui.animatePopInFromBottom
 import com.pyamsoft.pydroid.arch.BaseUiView
 import javax.inject.Inject
 
@@ -84,7 +84,8 @@ class CategoryListView @Inject internal constructor(
             if (categories.isNotEmpty()) {
                 // If root is currently hidden, show it
                 if (animator == null) {
-                    animator = animatePopInFromBottom(layoutRoot)
+                    animator =
+                        com.pyamsoft.fridge.ui.animatePopInFromBottom(layoutRoot)
                 }
             }
         }

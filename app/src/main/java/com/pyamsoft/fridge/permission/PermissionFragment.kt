@@ -26,7 +26,6 @@ import androidx.constraintlayout.widget.ConstraintSet
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.pyamsoft.fridge.FridgeComponent
-import com.pyamsoft.fridge.core.applyToolbarOffset
 import com.pyamsoft.fridge.locator.R
 import com.pyamsoft.fridge.locator.permission.ForegroundLocationPermission
 import com.pyamsoft.fridge.locator.permission.LocationExplanation

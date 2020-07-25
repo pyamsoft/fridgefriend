@@ -29,8 +29,8 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.pyamsoft.fridge.main.databinding.MainNavigationBinding
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.util.doOnApplyWindowInsets
-import javax.inject.Inject
 import timber.log.Timber
+import javax.inject.Inject
 
 class MainNavigation @Inject internal constructor(
     parent: ViewGroup
@@ -48,8 +48,8 @@ class MainNavigation @Inject internal constructor(
         }
 
         doOnInflate {
-            layoutRoot.doOnApplyWindowInsets { v, insets, _ ->
-                v.updatePadding(
+            layoutRoot.doOnApplyWindowInsets { view, insets, _ ->
+                view.updatePadding(
                     bottom = insets.systemWindowInsetBottom,
                     left = 0,
                     right = 0,
@@ -57,7 +57,7 @@ class MainNavigation @Inject internal constructor(
                 )
 
                 // Make sure we are laid out before grabbing the height
-                v.doOnLayout {
+                view.doOnLayout { v ->
                     // Publish the measured height
                     publish(MainViewEvent.BottomBarMeasured(v.height))
                 }

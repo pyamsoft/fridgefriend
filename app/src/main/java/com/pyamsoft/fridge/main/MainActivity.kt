@@ -19,7 +19,9 @@ package com.pyamsoft.fridge.main
 
 import android.app.Activity
 import android.content.Intent
+import android.content.res.Configuration
 import android.os.Bundle
+import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.CheckResult
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -55,10 +57,10 @@ import com.pyamsoft.pydroid.ui.rating.buildChangeLog
 import com.pyamsoft.pydroid.ui.util.commitNow
 import com.pyamsoft.pydroid.ui.util.layout
 import com.pyamsoft.pydroid.util.stableLayoutHideNavigation
-import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import timber.log.Timber
+import javax.inject.Inject
 
 internal class MainActivity : RatingActivity(), VersionChecker {
 
@@ -131,6 +133,7 @@ internal class MainActivity : RatingActivity(), VersionChecker {
             .inject(this)
 
         stableLayoutHideNavigation()
+
         inflateComponents(binding.layoutConstraint, savedInstanceState)
         beginWork()
     }

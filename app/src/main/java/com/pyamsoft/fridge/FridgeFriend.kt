@@ -34,10 +34,10 @@ import com.pyamsoft.pydroid.bootstrap.libraries.OssLicenses
 import com.pyamsoft.pydroid.ui.PYDroid
 import com.pyamsoft.pydroid.util.isDebugMode
 import com.squareup.moshi.Moshi
-import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 class FridgeFriend : Application() {
 
@@ -90,6 +90,9 @@ class FridgeFriend : Application() {
     }
 
     private fun addLibraries() {
+        // We are using pydroid-notify
+        OssLibraries.usingNotify = true
+
         OssLibraries.add(
             "Room",
             "https://android.googlesource.com/platform/frameworks/support/+/androidx-master-dev/room/",

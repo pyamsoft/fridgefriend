@@ -22,7 +22,7 @@ import android.graphics.drawable.GradientDrawable
 import android.view.ViewGroup
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.view.ViewPropertyAnimatorCompat
-import com.pyamsoft.fridge.core.animatePopInFromBottom
+import com.pyamsoft.fridge.ui.animatePopInFromBottom
 import com.pyamsoft.fridge.detail.databinding.DetailContainerBinding
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.ui.theme.ThemeProvider
@@ -126,7 +126,9 @@ class DetailContainer @Inject internal constructor(
                 if (!loading.isLoading) {
                     // If root is currently hidden, show it
                     if (animator == null) {
-                        animator = animatePopInFromBottom(layoutRoot)
+                        animator = animatePopInFromBottom(
+                            layoutRoot
+                        )
                     }
                 }
             }

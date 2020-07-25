@@ -15,7 +15,7 @@
  *
  */
 
-package com.pyamsoft.fridge.core
+package com.pyamsoft.fridge.ui
 
 import android.view.ViewGroup
 import android.widget.ImageView

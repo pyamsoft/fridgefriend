@@ -18,8 +18,8 @@
 package com.pyamsoft.fridge.locator.permission
 
 import android.view.ViewGroup
-import com.pyamsoft.fridge.core.applyToolbarOffset
 import com.pyamsoft.fridge.locator.databinding.PermissionExplanationBinding
+import com.pyamsoft.fridge.ui.applyToolbarOffset
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.arch.UnitViewState
 import javax.inject.Inject
