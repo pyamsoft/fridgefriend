@@ -18,6 +18,7 @@
 package com.pyamsoft.fridge.locator.permission
 
 import android.view.ViewGroup
+import com.pyamsoft.fridge.core.applyToolbarOffset
 import com.pyamsoft.fridge.locator.databinding.PermissionExplanationBinding
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.arch.UnitViewState
@@ -29,7 +30,13 @@ class LocationExplanation @Inject internal constructor(
 
     override val viewBinding = PermissionExplanationBinding::inflate
 
-    override val layoutRoot by boundView { locationPermissionExplanation }
+    override val layoutRoot by boundView { locationPermissionRoot }
+
+    init {
+        doOnInflate {
+            layoutRoot.applyToolbarOffset()
+        }
+    }
 
     override fun onRender(state: UnitViewState) {
     }

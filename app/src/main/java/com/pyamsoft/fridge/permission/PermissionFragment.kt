@@ -26,6 +26,7 @@ import androidx.constraintlayout.widget.ConstraintSet
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.pyamsoft.fridge.FridgeComponent
+import com.pyamsoft.fridge.core.applyToolbarOffset
 import com.pyamsoft.fridge.locator.R
 import com.pyamsoft.fridge.locator.permission.ForegroundLocationPermission
 import com.pyamsoft.fridge.locator.permission.LocationExplanation
@@ -44,9 +45,8 @@ import com.pyamsoft.pydroid.ui.arch.viewModelFactory
 import com.pyamsoft.pydroid.ui.databinding.LayoutConstraintBinding
 import com.pyamsoft.pydroid.ui.util.commit
 import com.pyamsoft.pydroid.ui.util.layout
-import com.pyamsoft.pydroid.util.toDp
-import javax.inject.Inject
 import timber.log.Timber
+import javax.inject.Inject
 
 internal class PermissionFragment : Fragment(), PermissionConsumer<ForegroundLocationPermission> {
 
@@ -104,35 +104,23 @@ internal class PermissionFragment : Fragment(), PermissionConsumer<ForegroundLoc
         }
 
         binding.layoutConstraint.layout {
-            requestButton.let {
-                connect(it.id(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
-                connect(it.id(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
-                connect(it.id(), ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP)
-                connect(
-                    it.id(),
-                    ConstraintSet.BOTTOM,
-                    ConstraintSet.PARENT_ID,
-                    ConstraintSet.BOTTOM
-                )
-
-                constrainWidth(it.id(), ConstraintSet.WRAP_CONTENT)
-                constrainHeight(it.id(), ConstraintSet.WRAP_CONTENT)
-            }
 
             explanation.let {
                 connect(it.id(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
                 connect(it.id(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
-                connect(it.id(), ConstraintSet.BOTTOM, requestButton.id(), ConstraintSet.TOP)
+                connect(it.id(), ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP)
 
                 constrainWidth(it.id(), ConstraintSet.MATCH_CONSTRAINT)
                 constrainHeight(it.id(), ConstraintSet.WRAP_CONTENT)
+            }
 
-                val hMargin = 16.toDp(view.context)
-                val vMargin = 32.toDp(view.context)
-                setMargin(it.id(), ConstraintSet.TOP, vMargin)
-                setMargin(it.id(), ConstraintSet.BOTTOM, vMargin)
-                setMargin(it.id(), ConstraintSet.START, hMargin)
-                setMargin(it.id(), ConstraintSet.END, hMargin)
+            requestButton.let {
+                connect(it.id(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
+                connect(it.id(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
+                connect(it.id(), ConstraintSet.TOP, explanation.id(), ConstraintSet.BOTTOM)
+
+                constrainWidth(it.id(), ConstraintSet.WRAP_CONTENT)
+                constrainHeight(it.id(), ConstraintSet.WRAP_CONTENT)
             }
         }
 
