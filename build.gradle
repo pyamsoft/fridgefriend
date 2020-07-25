@@ -47,16 +47,16 @@ buildscript {
 		leakCanary = "2.4"
 
 		// Dagger
-		dagger = "2.28.1"
+		dagger = "2.28.3"
 
 		moshi = "1.9.3"
 
 		// Fast Adapter
-		fastAdapter = "5.2.0"
+		fastAdapter = "5.2.2"
 
-		workmanager = "2.3.4"
+		workmanager = "2.4.0"
 
-		osmdroid = "6.1.6"
+		osmdroid = "6.1.7"
 
 		// FusedLocationProvider
 		gmsLocation = "17.0.0"
@@ -68,12 +68,12 @@ buildscript {
 		classpath 'com.android.tools.build:gradle:4.0.0'
 
 		// Gradle version checker
-		classpath 'com.github.ben-manes:gradle-versions-plugin:0.28.0'
+		classpath 'com.github.ben-manes:gradle-versions-plugin:0.29.0'
 
 		classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
 
 		// Spotless
-		classpath "com.diffplug.spotless:spotless-plugin-gradle:4.5.1"
+		classpath "com.diffplug.spotless:spotless-plugin-gradle:5.1.0"
 
 		//        classpath 'com.google.gms:google-services:4.3.2'
 	}
@@ -81,18 +81,18 @@ buildscript {
 
 allprojects {
 	apply plugin: "com.github.ben-manes.versions"
-	apply plugin: "com.diffplug.gradle.spotless"
+	apply plugin: "com.diffplug.spotless"
 
 	spotless {
 		java {
-			target "**/*.java"
+			target "src/**/*.java"
 		}
 		kotlin {
-			target "**/*.kt"
+			target "src/**/*.kt"
 			ktlint()
 		}
 		groovyGradle {
-			target "*.gradle", "**/*.gradle"
+			target "*.gradle"
 			greclipse()
 		}
 	}

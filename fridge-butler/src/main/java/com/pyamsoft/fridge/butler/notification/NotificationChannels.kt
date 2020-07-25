@@ -16,4 +16,3 @@
  */
 
 package com.pyamsoft.fridge.butler.notification
-
