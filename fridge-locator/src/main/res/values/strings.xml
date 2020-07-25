@@ -21,5 +21,8 @@
         FridgeFriend has the optional ability to remind you about items you still need to shop for when you are near a supermarket.
 
         \n\nIn order to do this however, it requires access to your Location whenever the App is in use.
+
+        \n\nFind and select nearby stores on the map, and them save them as favorites by clicking the star icon. FridgeFriend will
+        remind you in the future whenever you are near one of your favorite stores about the items you still need to purchase.
     </string>
 </resources>
