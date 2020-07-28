@@ -18,7 +18,6 @@
 package com.pyamsoft.fridge.tooltip
 
 import android.view.View
-import androidx.annotation.CheckResult
 
 abstract class Tip internal constructor(
     creator: BalloonCreator,
@@ -26,15 +25,6 @@ abstract class Tip internal constructor(
 ) : Hideable {
 
     private val balloon by lazy(LazyThreadSafetyMode.NONE) { creator.create() }
-
-    fun withContentView(func: (view: View) -> Unit) {
-        func(balloon.getContentView())
-    }
-
-    @CheckResult
-    fun isShowing(): Boolean {
-        return balloon.isShowing
-    }
 
     fun show(anchor: View) {
         return when (direction) {

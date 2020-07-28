@@ -18,6 +18,7 @@
 package com.pyamsoft.fridge.locator.map.osm
 
 import androidx.annotation.CheckResult
+import com.pyamsoft.fridge.db.BaseModel
 import com.pyamsoft.fridge.db.store.NearbyStore
 import com.pyamsoft.fridge.db.store.NearbyStoreQueryDao
 import com.pyamsoft.fridge.db.zone.NearbyZone
@@ -26,12 +27,13 @@ import com.pyamsoft.fridge.locator.osm.api.NearbyLocationApi
 import com.pyamsoft.fridge.locator.osm.api.OsmNodeOrWay.Node
 import com.pyamsoft.fridge.locator.osm.api.OsmNodeOrWay.Way
 import com.pyamsoft.pydroid.core.Enforcer
-import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.withContext
 import timber.log.Timber
+import javax.inject.Inject
 
 internal class OsmInteractor @Inject internal constructor(
     private val nearbyStores: NearbyStoreQueryDao,
@@ -46,7 +48,15 @@ internal class OsmInteractor @Inject internal constructor(
         coroutineScope {
             val storeJob = async(context = Dispatchers.Default) { nearbyStores.query(false) }
             val zoneJob = async(context = Dispatchers.Default) { nearbyZones.query(false) }
-            return@coroutineScope OsmMarkers(storeJob.await(), zoneJob.await())
+
+            val results: List<List<BaseModel<*>>> = awaitAll(storeJob, zoneJob)
+
+            // Unsafe but yeah - what are you gonna do ya know.
+            // We want to use awaitAll to run in parallel, so here we are I guess
+            @Suppress("UNCHECKED_CAST") val nearbyStores = results[0] as List<NearbyStore>
+            @Suppress("UNCHECKED_CAST") val nearbyZones = results[1] as List<NearbyZone>
+
+            return@coroutineScope OsmMarkers(nearbyStores, nearbyZones)
         }
     }
 

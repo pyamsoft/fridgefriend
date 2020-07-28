@@ -22,6 +22,7 @@ import com.pyamsoft.fridge.butler.ButlerPreferences
 import com.pyamsoft.fridge.butler.notification.NotificationHandler
 import com.pyamsoft.fridge.butler.notification.NotificationPreferences
 import com.pyamsoft.fridge.butler.params.BaseParameters
+import com.pyamsoft.fridge.db.BaseModel
 import com.pyamsoft.fridge.db.entry.FridgeEntryQueryDao
 import com.pyamsoft.fridge.db.item.FridgeItemQueryDao
 import com.pyamsoft.fridge.db.store.NearbyStore
@@ -30,6 +31,7 @@ import com.pyamsoft.fridge.db.zone.NearbyZone
 import com.pyamsoft.fridge.db.zone.NearbyZoneQueryDao
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 
 internal abstract class NearbyRunner<P : BaseParameters> protected constructor(
@@ -50,12 +52,17 @@ internal abstract class NearbyRunner<P : BaseParameters> protected constructor(
     fridgeItemQueryDao
 ) {
 
-    protected suspend fun withNearbyData(func: suspend (stores: List<NearbyStore>, zones: List<NearbyZone>) -> Unit) =
+    protected suspend inline fun withNearbyData(crossinline func: suspend (stores: List<NearbyStore>, zones: List<NearbyZone>) -> Unit) =
         coroutineScope {
             val storeJob = async(context = Dispatchers.Default) { storeDb.query(false) }
             val zoneJob = async(context = Dispatchers.Default) { zoneDb.query(false) }
-            val nearbyStores = storeJob.await()
-            val nearbyZones = zoneJob.await()
+            val results: List<List<BaseModel<*>>> = awaitAll(storeJob, zoneJob)
+
+            // Unsafe but yeah - what are you gonna do ya know.
+            // We want to use awaitAll to run in parallel, so here we are I guess
+            @Suppress("UNCHECKED_CAST") val nearbyStores = results[0] as List<NearbyStore>
+            @Suppress("UNCHECKED_CAST") val nearbyZones = results[1] as List<NearbyZone>
+
             func(nearbyStores, nearbyZones)
         }
 }

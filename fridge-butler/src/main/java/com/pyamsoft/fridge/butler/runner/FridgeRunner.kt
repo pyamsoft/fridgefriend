@@ -44,7 +44,7 @@ internal abstract class FridgeRunner<P : BaseParameters> protected constructor(
     butlerPreferences
 ) {
 
-    protected suspend fun withFridgeData(func: suspend CoroutineScope.(entry: FridgeEntry, items: List<FridgeItem>) -> Unit) {
+    protected suspend inline fun withFridgeData(crossinline func: suspend CoroutineScope.(entry: FridgeEntry, items: List<FridgeItem>) -> Unit) {
         coroutineScope {
             Enforcer.assertOffMainThread()
             fridgeEntryQueryDao.query(true)

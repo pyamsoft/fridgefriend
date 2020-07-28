@@ -42,7 +42,7 @@ internal abstract class BaseRunner<P : BaseParameters> protected constructor(
         reschedule(butler, params)
     }
 
-    protected suspend fun notification(func: suspend (handler: NotificationHandler) -> Unit) {
+    protected suspend inline fun notification(crossinline func: suspend (handler: NotificationHandler) -> Unit) {
         func(handler)
     }
 
