@@ -27,13 +27,13 @@ import com.pyamsoft.fridge.locator.osm.api.NearbyLocationApi
 import com.pyamsoft.fridge.locator.osm.api.OsmNodeOrWay.Node
 import com.pyamsoft.fridge.locator.osm.api.OsmNodeOrWay.Way
 import com.pyamsoft.pydroid.core.Enforcer
+import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.withContext
 import timber.log.Timber
-import javax.inject.Inject
 
 internal class OsmInteractor @Inject internal constructor(
     private val nearbyStores: NearbyStoreQueryDao,

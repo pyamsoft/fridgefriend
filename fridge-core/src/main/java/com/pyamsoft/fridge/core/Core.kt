@@ -40,4 +40,3 @@ fun today(): Calendar {
 inline fun today(func: Calendar.() -> Unit): Calendar {
     return Calendar.getInstance().apply(func)
 }
-

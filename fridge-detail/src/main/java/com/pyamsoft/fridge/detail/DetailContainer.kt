@@ -22,8 +22,8 @@ import android.graphics.drawable.GradientDrawable
 import android.view.ViewGroup
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.view.ViewPropertyAnimatorCompat
-import com.pyamsoft.fridge.ui.animatePopInFromBottom
 import com.pyamsoft.fridge.detail.databinding.DetailContainerBinding
+import com.pyamsoft.fridge.ui.animatePopInFromBottom
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.ui.theme.ThemeProvider
 import com.pyamsoft.pydroid.ui.util.layout
