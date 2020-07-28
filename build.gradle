@@ -56,7 +56,7 @@ buildscript {
 
 		workmanager = "2.4.0"
 
-		osmdroid = "6.1.7"
+		osmdroid = "6.1.8"
 
 		// FusedLocationProvider
 		gmsLocation = "17.0.0"
