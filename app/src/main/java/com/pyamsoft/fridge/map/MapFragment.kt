@@ -96,8 +96,8 @@ internal class MapFragment : Fragment(), SnackbarContainer {
         initializeApp()
     }
 
-    override fun onResume() {
-        super.onResume()
+    override fun onStart() {
+        super.onStart()
         viewModel.enableGps(requireActivity())
     }
 

@@ -20,7 +20,7 @@ package com.pyamsoft.fridge.ui
 import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.annotation.CheckResult
-import com.pyamsoft.fridge.core.databinding.CoreHeroImageBinding
+import com.pyamsoft.fridge.ui.databinding.UiHeroImageBinding
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.arch.UiViewEvent
 import com.pyamsoft.pydroid.arch.UiViewState
@@ -30,9 +30,9 @@ import com.pyamsoft.pydroid.loader.Loaded
 abstract class HeroImage<S : UiViewState, V : UiViewEvent> protected constructor(
     parent: ViewGroup,
     private val imageLoader: ImageLoader
-) : BaseUiView<S, V, CoreHeroImageBinding>(parent) {
+) : BaseUiView<S, V, UiHeroImageBinding>(parent) {
 
-    override val viewBinding = CoreHeroImageBinding::inflate
+    override val viewBinding = UiHeroImageBinding::inflate
 
     override val layoutRoot by boundView { coreHeroRoot }
 
