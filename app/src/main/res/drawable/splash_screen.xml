@@ -22,7 +22,7 @@
     <item android:gravity="center">
 
         <bitmap
-            android:src="@drawable/ic_app_icon"
+            android:src="@drawable/ic_launcher_foreground"
             android:tileMode="disabled" />
 
     </item>
