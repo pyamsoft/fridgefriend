@@ -25,19 +25,18 @@ import androidx.appcompat.view.ContextThemeWrapper
 import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.ViewModelProvider
 import com.pyamsoft.fridge.FridgeComponent
-import com.pyamsoft.fridge.R
 import com.pyamsoft.fridge.core.today
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.pydroid.arch.StateSaver
 import com.pyamsoft.pydroid.arch.createComponent
 import com.pyamsoft.pydroid.ui.Injector
+import com.pyamsoft.pydroid.ui.app.dialog.ThemeDialog
 import com.pyamsoft.pydroid.ui.arch.viewModelFactory
-import com.pyamsoft.pydroid.util.valueFromCurrentTheme
 import java.util.Calendar
 import javax.inject.Inject
 
-internal class DateSelectDialogFragment : DialogFragment() {
+internal class DateSelectDialog : ThemeDialog() {
 
     @JvmField
     @Inject
@@ -45,10 +44,6 @@ internal class DateSelectDialogFragment : DialogFragment() {
     private val viewModel by viewModelFactory<DateSelectViewModel>(activity = true) { factory }
 
     private var stateSaver: StateSaver? = null
-
-    private val themeFromAttrs by lazy {
-        requireActivity().valueFromCurrentTheme(R.attr.dialogTheme)
-    }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         Injector.obtain<FridgeComponent>(requireContext().applicationContext)
@@ -94,10 +89,6 @@ internal class DateSelectDialogFragment : DialogFragment() {
         super.onSaveInstanceState(outState)
     }
 
-    override fun getTheme(): Int {
-        return themeFromAttrs
-    }
-
     companion object {
 
         const val TAG = "DatePickerDialogFragment"
@@ -115,7 +106,7 @@ internal class DateSelectDialogFragment : DialogFragment() {
             month: Int,
             day: Int
         ): DialogFragment {
-            return DateSelectDialogFragment()
+            return DateSelectDialog()
                 .apply {
                     arguments = Bundle().apply {
                         putString(ITEM, item.id().id)

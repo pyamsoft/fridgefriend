@@ -29,7 +29,7 @@ import dagger.multibindings.IntoMap
 @Subcomponent(modules = [DateSelectComponent.ViewModelModule::class])
 internal interface DateSelectComponent {
 
-    fun inject(fragment: DateSelectDialogFragment)
+    fun inject(fragment: DateSelectDialog)
 
     @Module
     abstract class ViewModelModule {

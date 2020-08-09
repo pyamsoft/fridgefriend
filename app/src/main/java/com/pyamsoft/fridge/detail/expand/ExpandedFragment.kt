@@ -17,7 +17,6 @@
 
 package com.pyamsoft.fridge.detail.expand
 
-import android.app.Dialog
 import android.os.Bundle
 import android.view.Gravity
 import android.view.LayoutInflater
@@ -25,7 +24,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
 import androidx.annotation.CheckResult
-import androidx.appcompat.view.ContextThemeWrapper
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.ViewModelProvider
@@ -34,19 +32,19 @@ import com.pyamsoft.fridge.R
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence
-import com.pyamsoft.fridge.detail.expand.date.DateSelectDialogFragment
+import com.pyamsoft.fridge.detail.expand.date.DateSelectDialog
 import com.pyamsoft.pydroid.arch.StateSaver
 import com.pyamsoft.pydroid.arch.createComponent
 import com.pyamsoft.pydroid.ui.Injector
+import com.pyamsoft.pydroid.ui.app.dialog.ThemeDialog
 import com.pyamsoft.pydroid.ui.arch.viewModelFactory
 import com.pyamsoft.pydroid.ui.databinding.LayoutConstraintBinding
 import com.pyamsoft.pydroid.ui.util.layout
 import com.pyamsoft.pydroid.ui.util.show
 import com.pyamsoft.pydroid.ui.widget.shadow.DropshadowView
-import com.pyamsoft.pydroid.util.valueFromCurrentTheme
 import javax.inject.Inject
 
-internal class ExpandedFragment : DialogFragment() {
+internal class ExpandedFragment : ThemeDialog() {
 
     @JvmField
     @Inject
@@ -90,10 +88,6 @@ internal class ExpandedFragment : DialogFragment() {
     @Inject
     internal var factory: ViewModelProvider.Factory? = null
     private val viewModel by viewModelFactory<ExpandItemViewModel> { factory }
-
-    private val themeFromAttrs by lazy {
-        requireActivity().valueFromCurrentTheme(R.attr.dialogTheme)
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -247,22 +241,14 @@ internal class ExpandedFragment : DialogFragment() {
         }
     }
 
-    override fun getTheme(): Int {
-        return themeFromAttrs
-    }
-
-    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        return Dialog(ContextThemeWrapper(context, theme), theme)
-    }
-
     private fun pickDate(
         oldItem: FridgeItem,
         year: Int,
         month: Int,
         day: Int
     ) {
-        DateSelectDialogFragment.newInstance(oldItem, year, month, day)
-            .show(requireActivity(), DateSelectDialogFragment.TAG)
+        DateSelectDialog.newInstance(oldItem, year, month, day)
+            .show(requireActivity(), DateSelectDialog.TAG)
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
