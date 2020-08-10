@@ -63,8 +63,5 @@ dependencies {
 
 	kapt "com.google.dagger:dagger-compiler:$dagger"
 
-	implementation "com.github.skydoves:balloon:$balloon"
-
-	api project(':fridge-core')
-
+	api project(':core')
 }

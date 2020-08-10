@@ -17,6 +17,7 @@
 
 apply plugin: "com.android.library"
 apply plugin: "kotlin-android"
+apply plugin: "kotlin-android-extensions"
 apply plugin: "kotlin-kapt"
 
 //noinspection GroovyMissingReturnStatement
@@ -61,13 +62,17 @@ kapt {
 
 dependencies {
 
-	implementation "androidx.work:work-runtime:$workmanager"
-	implementation "androidx.work:work-runtime-ktx:$workmanager"
+	// Moshi
+	implementation "com.squareup.moshi:moshi:$moshi"
+	implementation "com.squareup.moshi:moshi-adapters:$moshi"
+	kapt "com.squareup.moshi:moshi-kotlin-codegen:$moshi"
 
+	// Dagger
 	kapt "com.google.dagger:dagger-compiler:$dagger"
 
-	api project(':fridge-butler')
+	api project(':core')
 }
+
 
 
 

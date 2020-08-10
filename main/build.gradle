@@ -60,18 +60,8 @@ kapt {
 }
 
 dependencies {
-	// Moshi
-	implementation "com.squareup.moshi:moshi:$moshi"
-	implementation "com.squareup.moshi:moshi-adapters:$moshi"
-	kapt "com.squareup.moshi:moshi-kotlin-codegen:$moshi"
 
 	kapt "com.google.dagger:dagger-compiler:$dagger"
 
-	api project(':fridge-db')
-	api project(':fridge-ui')
+	api project(':locator')
 }
-
-
-
-
-

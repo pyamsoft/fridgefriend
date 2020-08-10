@@ -1,8 +1,8 @@
-include ':fridge-ui'
-include ':app', ':fridge-entry', ':fridge-core', ':fridge-main', ':fridge-setting', ':fridge-db', ':fridge-category', ':fridge-tooltip',
-		':fridge-locator-map',
-		':fridge-locator',
-		':fridge-butler-workmanager',
-		':fridge-butler',
-		':fridge-db-room',
-		':fridge-detail'
+include ':ui'
+include ':app', ':entry', ':core', ':main', ':setting', ':db', ':category', ':tooltip',
+		':locator-map',
+		':locator',
+		':butler-workmanager',
+		':butler',
+		':db-room',
+		':detail'

@@ -61,7 +61,13 @@ kapt {
 
 dependencies {
 
+	implementation "androidx.work:work-runtime:$workmanager"
+	implementation "androidx.work:work-runtime-ktx:$workmanager"
+
 	kapt "com.google.dagger:dagger-compiler:$dagger"
 
-	api project(':fridge-locator')
+	api project(':butler')
 }
+
+
+

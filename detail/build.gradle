@@ -63,11 +63,10 @@ dependencies {
 
 	kapt "com.google.dagger:dagger-compiler:$dagger"
 
-	// PYDroid
-	api "com.pyamsoft.pydroid:notify:$pydroid"
+	// FastAdapter (extensions just for Swipe leave behind)
+	implementation "com.mikepenz:fastadapter-extensions-swipe:$fastAdapter"
 
-	api project(':fridge-db')
-	api project(':fridge-locator')
+	api project(':db')
+	api project(':tooltip')
+	api project(':ui')
 }
-
-

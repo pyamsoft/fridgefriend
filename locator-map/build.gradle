@@ -61,12 +61,18 @@ kapt {
 
 dependencies {
 
+	// Need to be API instead of implementation so that Dagger can build.
+	api "org.osmdroid:osmdroid-android:$osmdroid"
+
+	implementation "com.google.android.gms:play-services-location:$gmsLocation"
+
 	kapt "com.google.dagger:dagger-compiler:$dagger"
 
-	// FastAdapter (extensions just for Swipe leave behind)
-	implementation "com.mikepenz:fastadapter-extensions-swipe:$fastAdapter"
-
-	api project(':fridge-db')
-	api project(':fridge-tooltip')
-	api project(':fridge-ui')
+	api project(':butler')
+	api project(':locator')
+	api project(':ui')
 }
+
+
+
+

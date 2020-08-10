@@ -17,7 +17,7 @@
 google-services.json
 
 # Don't include schemas
-/fridge-db-room/schemas
+/db-room/schemas
 
 # VSCode stuff
 .project

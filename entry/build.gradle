@@ -29,15 +29,6 @@ android {
 		targetSdkVersion rootProject.ext.maxSdk
 
 		resConfigs "en"
-
-		javaCompileOptions {
-			annotationProcessorOptions {
-				arguments = [
-					"room.schemaLocation": "$projectDir/schemas".toString(),
-					"room.incremental"   : "true"
-				]
-			}
-		}
 	}
 
 	compileOptions {
@@ -70,16 +61,9 @@ kapt {
 
 dependencies {
 
-	// Room
-	implementation "androidx.room:room-runtime:$room"
-	implementation "androidx.room:room-ktx:$room"
-	kapt "androidx.room:room-compiler:$room"
-
 	kapt "com.google.dagger:dagger-compiler:$dagger"
 
-	api project(':fridge-butler-workmanager')
-	api project(':fridge-db')
+	api project(':locator')
 }
-
 
 
