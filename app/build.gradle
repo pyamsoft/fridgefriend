@@ -53,10 +53,10 @@ android {
 			storePassword "android"
 		}
 		release {
-			storeFile new File(RELEASE_STORE_FILE)
-			keyAlias RELEASE_KEY_ALIAS
-			keyPassword RELEASE_KEY_PASSWD
-			storePassword RELEASE_STORE_PASSWD
+			storeFile new File(BUNDLE_STORE_FILE)
+			keyAlias BUNDLE_KEY_ALIAS
+			keyPassword BUNDLE_KEY_PASSWD
+			storePassword BUNDLE_STORE_PASSWD
 		}
 	}
 
