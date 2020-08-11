@@ -84,6 +84,7 @@ android {
 	// More than one file was found with OS independent path 'META-INF/core_release.kotlin_module'
 	packagingOptions {
 		pickFirst 'META-INF/core_release.kotlin_module'
+		pickFirst 'META-INF/ui_release.kotlin_module'
 	}
 }
 
