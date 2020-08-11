@@ -73,6 +73,8 @@ internal class SettingsFragment : AppSettingsFragment() {
 
     internal class SettingsPreferenceFragment : AppSettingsPreferenceFragment() {
 
+        override val hideUpgradeInformation: Boolean = true
+
         override val preferenceXmlResId: Int = R.xml.preferences
 
         @JvmField
