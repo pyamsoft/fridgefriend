@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Peter Kenji Yamanaka
+ * Copyright 2020 Peter Kenji Yamanaka
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,7 +12,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 apply plugin: "com.android.library"
@@ -21,50 +20,50 @@ apply plugin: "kotlin-kapt"
 
 //noinspection GroovyMissingReturnStatement
 android {
-    compileSdkVersion rootProject.ext.maxSdk
+	compileSdkVersion rootProject.ext.maxSdk
 
-    //noinspection GroovyMissingReturnStatement
-    defaultConfig {
-        minSdkVersion rootProject.ext.minSdk
-        targetSdkVersion rootProject.ext.maxSdk
+	//noinspection GroovyMissingReturnStatement
+	defaultConfig {
+		minSdkVersion rootProject.ext.minSdk
+		targetSdkVersion rootProject.ext.maxSdk
 
-        resConfigs "en"
-    }
+		resConfigs "en"
+	}
 
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
-    }
+	compileOptions {
+		sourceCompatibility JavaVersion.VERSION_1_8
+		targetCompatibility JavaVersion.VERSION_1_8
+	}
 
-    kotlinOptions {
-        jvmTarget = "1.8"
-    }
+	kotlinOptions {
+		jvmTarget = "1.8"
+	}
 
-    buildFeatures {
-        viewBinding true
-        buildConfig false
-    }
+	buildFeatures {
+		viewBinding true
+		buildConfig false
+	}
 }
 
 // Kapt flags
 kapt {
-    correctErrorTypes = true
-    useBuildCache = true
-    mapDiagnosticLocations = true
+	correctErrorTypes = true
+	useBuildCache = true
+	mapDiagnosticLocations = true
 
-    javacOptions {
-        option("-Xlint:unchecked")
-        option("-Xlint:deprecation")
-        option("-Xmaxerrs", 10000)
-    }
+	javacOptions {
+		option("-Xlint:unchecked")
+		option("-Xlint:deprecation")
+		option("-Xmaxerrs", 10000)
+	}
 }
 
 dependencies {
 
-    kapt "com.google.dagger:dagger-compiler:$dagger"
+	kapt "com.google.dagger:dagger-compiler:$dagger"
 
-    api project(':db')
-    api project(':ui')
+	api project(':db')
+	api project(':ui')
 }
 
 
