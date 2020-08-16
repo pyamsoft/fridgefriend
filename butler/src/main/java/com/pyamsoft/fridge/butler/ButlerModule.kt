@@ -31,7 +31,11 @@ import dagger.Binds
 import dagger.Module
 import dagger.Provides
 import dagger.multibindings.IntoSet
-import javax.inject.Named
+import javax.inject.Qualifier
+
+@Qualifier
+@Retention(AnnotationRetention.BINARY)
+private annotation class InternalApi
 
 @Module
 abstract class ButlerModule {
@@ -41,33 +45,28 @@ abstract class ButlerModule {
     internal abstract fun bindNotificationHandler(impl: NotificationHandlerImpl): NotificationHandler
 
     @Binds
-    @CheckResult
     @IntoSet
-    @Named("notification_dispatchers")
+    @InternalApi
     internal abstract fun bindNeededDispatcher(impl: NeededItemNotifyDispatcher): NotifyDispatcher<*>
 
     @Binds
-    @CheckResult
     @IntoSet
-    @Named("notification_dispatchers")
+    @InternalApi
     internal abstract fun bindExpiringDispatcher(impl: ExpiringItemNotifyDispatcher): NotifyDispatcher<*>
 
     @Binds
-    @CheckResult
     @IntoSet
-    @Named("notification_dispatchers")
+    @InternalApi
     internal abstract fun bindExpiredDispatcher(impl: ExpiredItemNotifyDispatcher): NotifyDispatcher<*>
 
     @Binds
-    @CheckResult
     @IntoSet
-    @Named("notification_dispatchers")
+    @InternalApi
     internal abstract fun bindNearbyDispatcher(impl: NearbyItemNotifyDispatcher): NotifyDispatcher<*>
 
     @Binds
-    @CheckResult
     @IntoSet
-    @Named("notification_dispatchers")
+    @InternalApi
     internal abstract fun bindNightlyDispatcher(impl: NightlyNotifyDispatcher): NotifyDispatcher<*>
 
     @Module
@@ -78,7 +77,7 @@ abstract class ButlerModule {
         @CheckResult
         internal fun provideNotifier(
             // Need to use MutableSet instead of Set because of Java -> Kotlin fun.
-            @Named("notification_dispatchers") dispatchers: MutableSet<NotifyDispatcher<*>>,
+            @InternalApi dispatchers: MutableSet<NotifyDispatcher<*>>,
             context: Context
         ): Notifier {
             return Notifier.create(context, dispatchers)
