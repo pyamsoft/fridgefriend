@@ -24,15 +24,24 @@ import com.pyamsoft.fridge.locator.osm.api.NearbyLocationApi
 import com.pyamsoft.fridge.locator.osm.api.OsmNodeOrWay
 import com.squareup.moshi.Moshi
 import dagger.Binds
+import dagger.Lazy
 import dagger.Module
 import dagger.Provides
-import javax.inject.Named
-import javax.inject.Singleton
+import okhttp3.Call
 import okhttp3.OkHttpClient
+import okhttp3.Request
 import okhttp3.logging.HttpLoggingInterceptor
 import okhttp3.logging.HttpLoggingInterceptor.Level.BODY
+import retrofit2.Converter
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
+import javax.inject.Named
+import javax.inject.Qualifier
+import javax.inject.Singleton
+
+@Qualifier
+@Retention(AnnotationRetention.BINARY)
+private annotation class InternalApi
 
 @Module
 abstract class MapModule {
@@ -48,15 +57,39 @@ abstract class MapModule {
     @Module
     companion object {
 
+        private const val baseUrl = "https://overpass-api.de/api/"
+
         @Provides
         @JvmStatic
-        @Singleton
-        internal fun provideRetrofit(
-            @Named("debug") debug: Boolean,
-            moshi: Moshi
-        ): Retrofit {
-            val baseUrl = "https://overpass-api.de/api/"
-            val client = OkHttpClient.Builder()
+        @InternalApi
+        internal fun provideMoshi(): Moshi {
+            return Moshi.Builder().add(OsmNodeOrWay.Adapter()).build()
+        }
+
+        @Provides
+        @JvmStatic
+        @InternalApi
+        internal fun provideConverterFactory(@InternalApi moshi: Moshi): Converter.Factory {
+            return MoshiConverterFactory.create(moshi)
+        }
+
+        @Provides
+        @JvmStatic
+        @InternalApi
+        internal fun provideCallFactory(@InternalApi client: Lazy<OkHttpClient>): Call.Factory {
+            return object : Call.Factory {
+
+                override fun newCall(request: Request): Call {
+                    return client.get().newCall(request)
+                }
+            }
+        }
+
+        @Provides
+        @JvmStatic
+        @InternalApi
+        internal fun provideOkHttpClient(@Named("debug") debug: Boolean): OkHttpClient {
+            return OkHttpClient.Builder()
                 .apply {
                     if (debug) {
                         addInterceptor(HttpLoggingInterceptor().apply {
@@ -65,20 +98,26 @@ abstract class MapModule {
                     }
                 }
                 .build()
-            val newMoshi = moshi.newBuilder()
-                .add(OsmNodeOrWay.Adapter())
-                .build()
+        }
+
+        @Provides
+        @JvmStatic
+        @InternalApi
+        internal fun provideRetrofit(
+            @InternalApi callFactory: Call.Factory,
+            @InternalApi converterFactory: Converter.Factory
+        ): Retrofit {
             return Retrofit.Builder()
                 .baseUrl(baseUrl)
-                .addConverterFactory(MoshiConverterFactory.create(newMoshi))
-                .client(client)
+                .callFactory(callFactory)
+                .addConverterFactory(converterFactory)
                 .build()
         }
 
         @Provides
         @JvmStatic
         @Singleton
-        internal fun provideNearbyLocationApi(retrofit: Retrofit): NearbyLocationApi {
+        internal fun provideNearbyLocationApi(@InternalApi retrofit: Retrofit): NearbyLocationApi {
             return retrofit.create(NearbyLocationApi::class.java)
         }
     }
