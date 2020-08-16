@@ -25,7 +25,7 @@ import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.JsonMappableFridgeItem
 import com.pyamsoft.fridge.detail.databinding.DetailListItemHolderBinding
 
-class DetailListAdapter constructor(
+class DetailListAdapter internal constructor(
     private val owner: LifecycleOwner,
     private val editable: Boolean,
     private val defaultPresence: FridgeItem.Presence,

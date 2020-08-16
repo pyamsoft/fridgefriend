@@ -55,7 +55,6 @@ import com.pyamsoft.fridge.ui.UiModule
 import com.pyamsoft.pydroid.arch.EventBus
 import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.ui.theme.Theming
-import com.squareup.moshi.Moshi
 import dagger.Binds
 import dagger.BindsInstance
 import dagger.Component

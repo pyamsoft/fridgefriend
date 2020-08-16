@@ -27,6 +27,9 @@ import dagger.Binds
 import dagger.Lazy
 import dagger.Module
 import dagger.Provides
+import javax.inject.Named
+import javax.inject.Qualifier
+import javax.inject.Singleton
 import okhttp3.Call
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -35,9 +38,6 @@ import okhttp3.logging.HttpLoggingInterceptor.Level.BODY
 import retrofit2.Converter
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
-import javax.inject.Named
-import javax.inject.Qualifier
-import javax.inject.Singleton
 
 @Qualifier
 @Retention(AnnotationRetention.BINARY)
