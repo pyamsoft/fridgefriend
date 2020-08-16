@@ -25,7 +25,6 @@ interface FridgeEntryDb : BaseDb<
     FridgeEntryRealtime,
     FridgeEntryQueryDao,
     FridgeEntryInsertDao,
-    FridgeEntryUpdateDao,
     FridgeEntryDeleteDao
     > {
 
@@ -35,10 +34,9 @@ interface FridgeEntryDb : BaseDb<
         fun wrap(
             cache: Cached1<Sequence<FridgeEntry>, Boolean>,
             insertDao: FridgeEntryInsertDao,
-            updateDao: FridgeEntryUpdateDao,
             deleteDao: FridgeEntryDeleteDao
         ): FridgeEntryDb {
-            return FridgeEntryDbImpl(cache, insertDao, updateDao, deleteDao)
+            return FridgeEntryDbImpl(cache, insertDao, deleteDao)
         }
     }
 }

@@ -20,7 +20,6 @@ import com.pyamsoft.cachify.Cached1
 import com.pyamsoft.fridge.db.BaseDbImpl
 import com.pyamsoft.fridge.db.store.NearbyStoreChangeEvent.Delete
 import com.pyamsoft.fridge.db.store.NearbyStoreChangeEvent.Insert
-import com.pyamsoft.fridge.db.store.NearbyStoreChangeEvent.Update
 import com.pyamsoft.pydroid.core.Enforcer
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -28,7 +27,6 @@ import kotlinx.coroutines.withContext
 internal class NearbyStoreDbImpl internal constructor(
     cache: Cached1<Sequence<NearbyStore>, Boolean>,
     insertDao: NearbyStoreInsertDao,
-    updateDao: NearbyStoreUpdateDao,
     deleteDao: NearbyStoreDeleteDao
 ) : BaseDbImpl<NearbyStore, NearbyStoreChangeEvent>(cache), NearbyStoreDb {
 
@@ -63,15 +61,6 @@ internal class NearbyStoreDbImpl internal constructor(
         }
     }
 
-    private val updateDao = object : NearbyStoreUpdateDao {
-
-        override suspend fun update(o: NearbyStore) {
-            Enforcer.assertOffMainThread()
-            updateDao.update(o)
-            publish(Update(o))
-        }
-    }
-
     private val deleteDao = object : NearbyStoreDeleteDao {
 
         override suspend fun delete(o: NearbyStore) {
@@ -91,10 +80,6 @@ internal class NearbyStoreDbImpl internal constructor(
 
     override fun insertDao(): NearbyStoreInsertDao {
         return insertDao
-    }
-
-    override fun updateDao(): NearbyStoreUpdateDao {
-        return updateDao
     }
 
     override fun deleteDao(): NearbyStoreDeleteDao {

@@ -19,6 +19,7 @@ package com.pyamsoft.fridge.db.room
 import android.content.Context
 import androidx.annotation.CheckResult
 import androidx.room.Room
+import com.pyamsoft.cachify.Cached1
 import com.pyamsoft.cachify.MemoryCacheStorage
 import com.pyamsoft.cachify.cachify
 import com.pyamsoft.fridge.db.FridgeDb
@@ -35,7 +36,12 @@ import com.pyamsoft.fridge.db.zone.NearbyZone
 import dagger.Module
 import dagger.Provides
 import java.util.concurrent.TimeUnit.MINUTES
+import javax.inject.Qualifier
 import javax.inject.Singleton
+
+@Qualifier
+@Retention(AnnotationRetention.BINARY)
+private annotation class InternalApi
 
 @Module
 abstract class RoomModule {
@@ -43,12 +49,17 @@ abstract class RoomModule {
     @Module
     companion object {
 
+        private const val cacheTime = 10L
+        private val cacheUnit = MINUTES
+
+        @Provides
         @JvmStatic
         @CheckResult
-        private fun createRoom(context: Context): RoomFridgeDb {
+        @InternalApi
+        internal fun provideRoom(context: Context): RoomFridgeDb {
             return Room.databaseBuilder(
                 context.applicationContext,
-                RoomFridgeDb::class.java,
+                RoomFridgeDbImpl::class.java,
                 "fridge_room_db.db"
             ).fallbackToDestructiveMigration()
                 .build()
@@ -56,12 +67,10 @@ abstract class RoomModule {
 
         @Provides
         @JvmStatic
-        @Singleton
-        internal fun provideDb(context: Context): FridgeDb {
-            val db = createRoom(context.applicationContext)
-            val cacheTime = 10L
-            val cacheUnit = MINUTES
-            val entryCache = cachify<Sequence<FridgeEntry>, Boolean>(
+        @CheckResult
+        @InternalApi
+        internal fun provideEntryCache(@InternalApi db: RoomFridgeDb): Cached1<Sequence<FridgeEntry>, Boolean> {
+            return cachify(
                 storage = MemoryCacheStorage.create(cacheTime, cacheUnit)
             ) { force ->
                 db.roomEntryQueryDao()
@@ -69,8 +78,14 @@ abstract class RoomModule {
                     .asSequence()
                     .map { JsonMappableFridgeEntry.from(it.makeReal()) }
             }
+        }
 
-            val itemCache = cachify<Sequence<FridgeItem>, Boolean>(
+        @Provides
+        @JvmStatic
+        @CheckResult
+        @InternalApi
+        internal fun provideItemCache(@InternalApi db: RoomFridgeDb): Cached1<Sequence<FridgeItem>, Boolean> {
+            return cachify(
                 storage = MemoryCacheStorage.create(cacheTime, cacheUnit)
             ) { force ->
                 db.roomItemQueryDao()
@@ -78,17 +93,14 @@ abstract class RoomModule {
                     .asSequence()
                     .map { JsonMappableFridgeItem.from(it.makeReal()) }
             }
+        }
 
-            val storeCache = cachify<Sequence<NearbyStore>, Boolean>(
-                storage = MemoryCacheStorage.create(cacheTime, cacheUnit)
-            ) { force ->
-                db.roomStoreQueryDao()
-                    .query(force)
-                    .asSequence()
-                    .map { JsonMappableNearbyStore.from(it) }
-            }
-
-            val zoneCache = cachify<Sequence<NearbyZone>, Boolean>(
+        @Provides
+        @JvmStatic
+        @CheckResult
+        @InternalApi
+        internal fun provideZoneCache(@InternalApi db: RoomFridgeDb): Cached1<Sequence<NearbyZone>, Boolean> {
+            return cachify(
                 storage = MemoryCacheStorage.create(cacheTime, cacheUnit)
             ) { force ->
                 db.roomZoneQueryDao()
@@ -96,8 +108,29 @@ abstract class RoomModule {
                     .asSequence()
                     .map { JsonMappableNearbyZone.from(it) }
             }
+        }
 
-            val categoryCache = cachify<Sequence<FridgeCategory>, Boolean>(
+        @Provides
+        @JvmStatic
+        @CheckResult
+        @InternalApi
+        internal fun provideStoreCache(@InternalApi db: RoomFridgeDb): Cached1<Sequence<NearbyStore>, Boolean> {
+            return cachify(
+                storage = MemoryCacheStorage.create(cacheTime, cacheUnit)
+            ) { force ->
+                db.roomStoreQueryDao()
+                    .query(force)
+                    .asSequence()
+                    .map { JsonMappableNearbyStore.from(it) }
+            }
+        }
+
+        @Provides
+        @JvmStatic
+        @CheckResult
+        @InternalApi
+        internal fun provideCategoryCache(@InternalApi db: RoomFridgeDb): Cached1<Sequence<FridgeCategory>, Boolean> {
+            return cachify(
                 storage = MemoryCacheStorage.create(cacheTime, cacheUnit)
             ) { force ->
                 db.roomCategoryQueryDao()
@@ -105,8 +138,21 @@ abstract class RoomModule {
                     .asSequence()
                     .map { JsonMappableFridgeCategory.from(it) }
             }
+        }
 
-            return RoomFridgeDbImpl(
+        @Provides
+        @JvmStatic
+        @Singleton
+        internal fun provideDb(
+            @InternalApi db: RoomFridgeDb,
+            @InternalApi entryCache: Cached1<Sequence<FridgeEntry>, Boolean>,
+            @InternalApi itemCache: Cached1<Sequence<FridgeItem>, Boolean>,
+            @InternalApi storeCache: Cached1<Sequence<NearbyStore>, Boolean>,
+            @InternalApi zoneCache: Cached1<Sequence<NearbyZone>, Boolean>,
+            @InternalApi categoryCache: Cached1<Sequence<FridgeCategory>, Boolean>
+        ): FridgeDb {
+
+            return FridgeDbImpl(
                 db,
                 entryCache,
                 itemCache,

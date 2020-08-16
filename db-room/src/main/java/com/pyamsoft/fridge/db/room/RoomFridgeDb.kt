@@ -17,124 +17,66 @@
 package com.pyamsoft.fridge.db.room
 
 import androidx.annotation.CheckResult
-import androidx.room.Database
-import androidx.room.RoomDatabase
-import androidx.room.TypeConverters
-import com.pyamsoft.fridge.db.room.converter.CategoryIdConverter
-import com.pyamsoft.fridge.db.room.converter.DateTypeConverter
-import com.pyamsoft.fridge.db.room.converter.EntryIdConverter
-import com.pyamsoft.fridge.db.room.converter.ItemIdConverter
-import com.pyamsoft.fridge.db.room.converter.NearbyZonePointListConverter
-import com.pyamsoft.fridge.db.room.converter.PresenceTypeConverter
-import com.pyamsoft.fridge.db.room.converter.StoreIdConverter
-import com.pyamsoft.fridge.db.room.converter.ThumbnailTypeConverter
-import com.pyamsoft.fridge.db.room.converter.ZoneIdConverter
 import com.pyamsoft.fridge.db.room.dao.category.RoomFridgeCategoryDeleteDao
 import com.pyamsoft.fridge.db.room.dao.category.RoomFridgeCategoryInsertDao
 import com.pyamsoft.fridge.db.room.dao.category.RoomFridgeCategoryQueryDao
-import com.pyamsoft.fridge.db.room.dao.category.RoomFridgeCategoryUpdateDao
 import com.pyamsoft.fridge.db.room.dao.entry.RoomFridgeEntryDeleteDao
 import com.pyamsoft.fridge.db.room.dao.entry.RoomFridgeEntryInsertDao
 import com.pyamsoft.fridge.db.room.dao.entry.RoomFridgeEntryQueryDao
-import com.pyamsoft.fridge.db.room.dao.entry.RoomFridgeEntryUpdateDao
 import com.pyamsoft.fridge.db.room.dao.item.RoomFridgeItemDeleteDao
 import com.pyamsoft.fridge.db.room.dao.item.RoomFridgeItemInsertDao
 import com.pyamsoft.fridge.db.room.dao.item.RoomFridgeItemQueryDao
-import com.pyamsoft.fridge.db.room.dao.item.RoomFridgeItemUpdateDao
 import com.pyamsoft.fridge.db.room.dao.store.RoomNearbyStoreDeleteDao
 import com.pyamsoft.fridge.db.room.dao.store.RoomNearbyStoreInsertDao
 import com.pyamsoft.fridge.db.room.dao.store.RoomNearbyStoreQueryDao
-import com.pyamsoft.fridge.db.room.dao.store.RoomNearbyStoreUpdateDao
 import com.pyamsoft.fridge.db.room.dao.zone.RoomNearbyZoneDeleteDao
 import com.pyamsoft.fridge.db.room.dao.zone.RoomNearbyZoneInsertDao
 import com.pyamsoft.fridge.db.room.dao.zone.RoomNearbyZoneQueryDao
-import com.pyamsoft.fridge.db.room.dao.zone.RoomNearbyZoneUpdateDao
-import com.pyamsoft.fridge.db.room.entity.RoomFridgeCategory
-import com.pyamsoft.fridge.db.room.entity.RoomFridgeEntry
-import com.pyamsoft.fridge.db.room.entity.RoomFridgeItem
-import com.pyamsoft.fridge.db.room.entity.RoomNearbyStore
-import com.pyamsoft.fridge.db.room.entity.RoomNearbyZone
 
-@Database(
-    version = 1,
-    entities = [
-        RoomFridgeItem::class,
-        RoomFridgeEntry::class,
-        RoomNearbyStore::class,
-        RoomNearbyZone::class,
-        RoomFridgeCategory::class
-    ]
-)
-@TypeConverters(
-    PresenceTypeConverter::class,
-    DateTypeConverter::class,
-    NearbyZonePointListConverter::class,
-    ThumbnailTypeConverter::class,
-    EntryIdConverter::class,
-    ItemIdConverter::class,
-    CategoryIdConverter::class,
-    ZoneIdConverter::class,
-    StoreIdConverter::class
-)
-internal abstract class RoomFridgeDb internal constructor() : RoomDatabase() {
+internal interface RoomFridgeDb {
 
     @CheckResult
-    internal abstract fun roomItemQueryDao(): RoomFridgeItemQueryDao
+    fun roomItemQueryDao(): RoomFridgeItemQueryDao
 
     @CheckResult
-    internal abstract fun roomItemInsertDao(): RoomFridgeItemInsertDao
+    fun roomItemInsertDao(): RoomFridgeItemInsertDao
 
     @CheckResult
-    internal abstract fun roomItemUpdateDao(): RoomFridgeItemUpdateDao
+    fun roomItemDeleteDao(): RoomFridgeItemDeleteDao
 
     @CheckResult
-    internal abstract fun roomItemDeleteDao(): RoomFridgeItemDeleteDao
+    fun roomEntryQueryDao(): RoomFridgeEntryQueryDao
 
     @CheckResult
-    internal abstract fun roomEntryQueryDao(): RoomFridgeEntryQueryDao
+    fun roomEntryInsertDao(): RoomFridgeEntryInsertDao
 
     @CheckResult
-    internal abstract fun roomEntryInsertDao(): RoomFridgeEntryInsertDao
+    fun roomEntryDeleteDao(): RoomFridgeEntryDeleteDao
 
     @CheckResult
-    internal abstract fun roomEntryUpdateDao(): RoomFridgeEntryUpdateDao
+    fun roomStoreQueryDao(): RoomNearbyStoreQueryDao
 
     @CheckResult
-    internal abstract fun roomEntryDeleteDao(): RoomFridgeEntryDeleteDao
+    fun roomStoreInsertDao(): RoomNearbyStoreInsertDao
 
     @CheckResult
-    internal abstract fun roomStoreQueryDao(): RoomNearbyStoreQueryDao
+    fun roomStoreDeleteDao(): RoomNearbyStoreDeleteDao
 
     @CheckResult
-    internal abstract fun roomStoreInsertDao(): RoomNearbyStoreInsertDao
+    fun roomZoneQueryDao(): RoomNearbyZoneQueryDao
 
     @CheckResult
-    internal abstract fun roomStoreUpdateDao(): RoomNearbyStoreUpdateDao
+    fun roomZoneInsertDao(): RoomNearbyZoneInsertDao
 
     @CheckResult
-    internal abstract fun roomStoreDeleteDao(): RoomNearbyStoreDeleteDao
+    fun roomZoneDeleteDao(): RoomNearbyZoneDeleteDao
 
     @CheckResult
-    internal abstract fun roomZoneQueryDao(): RoomNearbyZoneQueryDao
+    fun roomCategoryQueryDao(): RoomFridgeCategoryQueryDao
 
     @CheckResult
-    internal abstract fun roomZoneInsertDao(): RoomNearbyZoneInsertDao
+    fun roomCategoryInsertDao(): RoomFridgeCategoryInsertDao
 
     @CheckResult
-    internal abstract fun roomZoneUpdateDao(): RoomNearbyZoneUpdateDao
-
-    @CheckResult
-    internal abstract fun roomZoneDeleteDao(): RoomNearbyZoneDeleteDao
-
-    @CheckResult
-    internal abstract fun roomCategoryQueryDao(): RoomFridgeCategoryQueryDao
-
-    @CheckResult
-    internal abstract fun roomCategoryInsertDao(): RoomFridgeCategoryInsertDao
-
-    @CheckResult
-    internal abstract fun roomCategoryUpdateDao(): RoomFridgeCategoryUpdateDao
-
-    @CheckResult
-    internal abstract fun roomCategoryDeleteDao(): RoomFridgeCategoryDeleteDao
+    fun roomCategoryDeleteDao(): RoomFridgeCategoryDeleteDao
 }

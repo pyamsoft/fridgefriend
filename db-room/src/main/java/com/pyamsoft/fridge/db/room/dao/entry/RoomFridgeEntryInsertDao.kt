@@ -33,6 +33,6 @@ internal abstract class RoomFridgeEntryInsertDao internal constructor() : Fridge
         daoInsert(roomEntry)
     }
 
-    @Insert(onConflict = OnConflictStrategy.ABORT)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     internal abstract fun daoInsert(entry: RoomFridgeEntry)
 }

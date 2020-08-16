@@ -25,7 +25,6 @@ interface NearbyZoneDb : BaseDb<
     NearbyZoneRealtime,
     NearbyZoneQueryDao,
     NearbyZoneInsertDao,
-    NearbyZoneUpdateDao,
     NearbyZoneDeleteDao
     > {
 
@@ -35,10 +34,9 @@ interface NearbyZoneDb : BaseDb<
         fun wrap(
             cache: Cached1<Sequence<NearbyZone>, Boolean>,
             insertDao: NearbyZoneInsertDao,
-            updateDao: NearbyZoneUpdateDao,
             deleteDao: NearbyZoneDeleteDao
         ): NearbyZoneDb {
-            return NearbyZoneDbImpl(cache, insertDao, updateDao, deleteDao)
+            return NearbyZoneDbImpl(cache, insertDao, deleteDao)
         }
     }
 }

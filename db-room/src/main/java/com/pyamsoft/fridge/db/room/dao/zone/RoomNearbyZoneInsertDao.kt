@@ -33,6 +33,6 @@ internal abstract class RoomNearbyZoneInsertDao internal constructor() : NearbyZ
         daoInsert(roomNearbyZone)
     }
 
-    @Insert(onConflict = OnConflictStrategy.ABORT)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     internal abstract fun daoInsert(entry: RoomNearbyZone)
 }

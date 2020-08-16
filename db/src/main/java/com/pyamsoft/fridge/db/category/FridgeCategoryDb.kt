@@ -25,7 +25,6 @@ interface FridgeCategoryDb : BaseDb<
     FridgeCategoryRealtime,
     FridgeCategoryQueryDao,
     FridgeCategoryInsertDao,
-    FridgeCategoryUpdateDao,
     FridgeCategoryDeleteDao
     > {
 
@@ -35,10 +34,9 @@ interface FridgeCategoryDb : BaseDb<
         fun wrap(
             cache: Cached1<Sequence<FridgeCategory>, Boolean>,
             insertDao: FridgeCategoryInsertDao,
-            updateDao: FridgeCategoryUpdateDao,
             deleteDao: FridgeCategoryDeleteDao
         ): FridgeCategoryDb {
-            return FridgeCategoryDbImpl(cache, insertDao, updateDao, deleteDao)
+            return FridgeCategoryDbImpl(cache, insertDao, deleteDao)
         }
     }
 }

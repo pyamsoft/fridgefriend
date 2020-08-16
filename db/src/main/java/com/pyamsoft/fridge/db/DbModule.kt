@@ -22,13 +22,11 @@ import com.pyamsoft.fridge.db.category.FridgeCategoryDeleteDao
 import com.pyamsoft.fridge.db.category.FridgeCategoryInsertDao
 import com.pyamsoft.fridge.db.category.FridgeCategoryQueryDao
 import com.pyamsoft.fridge.db.category.FridgeCategoryRealtime
-import com.pyamsoft.fridge.db.category.FridgeCategoryUpdateDao
 import com.pyamsoft.fridge.db.entry.FridgeEntryDb
 import com.pyamsoft.fridge.db.entry.FridgeEntryDeleteDao
 import com.pyamsoft.fridge.db.entry.FridgeEntryInsertDao
 import com.pyamsoft.fridge.db.entry.FridgeEntryQueryDao
 import com.pyamsoft.fridge.db.entry.FridgeEntryRealtime
-import com.pyamsoft.fridge.db.entry.FridgeEntryUpdateDao
 import com.pyamsoft.fridge.db.guarantee.EntryGuarantee
 import com.pyamsoft.fridge.db.guarantee.EntryGuaranteeImpl
 import com.pyamsoft.fridge.db.item.FridgeItemDb
@@ -36,7 +34,6 @@ import com.pyamsoft.fridge.db.item.FridgeItemDeleteDao
 import com.pyamsoft.fridge.db.item.FridgeItemInsertDao
 import com.pyamsoft.fridge.db.item.FridgeItemQueryDao
 import com.pyamsoft.fridge.db.item.FridgeItemRealtime
-import com.pyamsoft.fridge.db.item.FridgeItemUpdateDao
 import com.pyamsoft.fridge.db.persist.PersistentCategories
 import com.pyamsoft.fridge.db.persist.PersistentCategoriesImpl
 import com.pyamsoft.fridge.db.persist.PersistentEntries
@@ -46,16 +43,19 @@ import com.pyamsoft.fridge.db.store.NearbyStoreDeleteDao
 import com.pyamsoft.fridge.db.store.NearbyStoreInsertDao
 import com.pyamsoft.fridge.db.store.NearbyStoreQueryDao
 import com.pyamsoft.fridge.db.store.NearbyStoreRealtime
-import com.pyamsoft.fridge.db.store.NearbyStoreUpdateDao
 import com.pyamsoft.fridge.db.zone.NearbyZoneDb
 import com.pyamsoft.fridge.db.zone.NearbyZoneDeleteDao
 import com.pyamsoft.fridge.db.zone.NearbyZoneInsertDao
 import com.pyamsoft.fridge.db.zone.NearbyZoneQueryDao
 import com.pyamsoft.fridge.db.zone.NearbyZoneRealtime
-import com.pyamsoft.fridge.db.zone.NearbyZoneUpdateDao
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
+import javax.inject.Qualifier
+
+@Qualifier
+@Retention(AnnotationRetention.BINARY)
+private annotation class InternalApi
 
 @Module
 abstract class DbModule {
@@ -78,6 +78,7 @@ abstract class DbModule {
         @JvmStatic
         @Provides
         @CheckResult
+        @InternalApi
         internal fun provideItemDb(db: FridgeDb): FridgeItemDb {
             return db.items()
         }
@@ -85,41 +86,35 @@ abstract class DbModule {
         @JvmStatic
         @Provides
         @CheckResult
-        internal fun provideItemRealtimeDao(db: FridgeItemDb): FridgeItemRealtime {
+        internal fun provideItemRealtimeDao(@InternalApi db: FridgeItemDb): FridgeItemRealtime {
             return db.realtime()
         }
 
         @JvmStatic
         @Provides
         @CheckResult
-        internal fun provideItemQueryDao(db: FridgeItemDb): FridgeItemQueryDao {
+        internal fun provideItemQueryDao(@InternalApi db: FridgeItemDb): FridgeItemQueryDao {
             return db.queryDao()
         }
 
         @JvmStatic
         @Provides
         @CheckResult
-        internal fun provideItemInsertDao(db: FridgeItemDb): FridgeItemInsertDao {
+        internal fun provideItemInsertDao(@InternalApi db: FridgeItemDb): FridgeItemInsertDao {
             return db.insertDao()
         }
 
         @JvmStatic
         @Provides
         @CheckResult
-        internal fun provideItemUpdateDao(db: FridgeItemDb): FridgeItemUpdateDao {
-            return db.updateDao()
-        }
-
-        @JvmStatic
-        @Provides
-        @CheckResult
-        internal fun provideItemDeleteDao(db: FridgeItemDb): FridgeItemDeleteDao {
+        internal fun provideItemDeleteDao(@InternalApi db: FridgeItemDb): FridgeItemDeleteDao {
             return db.deleteDao()
         }
 
         @JvmStatic
         @Provides
         @CheckResult
+        @InternalApi
         internal fun provideEntryDb(db: FridgeDb): FridgeEntryDb {
             return db.entries()
         }
@@ -127,41 +122,35 @@ abstract class DbModule {
         @JvmStatic
         @Provides
         @CheckResult
-        internal fun provideEntryRealtimeDao(db: FridgeEntryDb): FridgeEntryRealtime {
+        internal fun provideEntryRealtimeDao(@InternalApi db: FridgeEntryDb): FridgeEntryRealtime {
             return db.realtime()
         }
 
         @JvmStatic
         @Provides
         @CheckResult
-        internal fun provideEntryQueryDao(db: FridgeEntryDb): FridgeEntryQueryDao {
+        internal fun provideEntryQueryDao(@InternalApi db: FridgeEntryDb): FridgeEntryQueryDao {
             return db.queryDao()
         }
 
         @JvmStatic
         @Provides
         @CheckResult
-        internal fun provideEntryInsertDao(db: FridgeEntryDb): FridgeEntryInsertDao {
+        internal fun provideEntryInsertDao(@InternalApi db: FridgeEntryDb): FridgeEntryInsertDao {
             return db.insertDao()
         }
 
         @JvmStatic
         @Provides
         @CheckResult
-        internal fun provideEntryUpdateDao(db: FridgeEntryDb): FridgeEntryUpdateDao {
-            return db.updateDao()
-        }
-
-        @JvmStatic
-        @Provides
-        @CheckResult
-        internal fun provideEntryDeleteDao(db: FridgeEntryDb): FridgeEntryDeleteDao {
+        internal fun provideEntryDeleteDao(@InternalApi db: FridgeEntryDb): FridgeEntryDeleteDao {
             return db.deleteDao()
         }
 
         @JvmStatic
         @Provides
         @CheckResult
+        @InternalApi
         internal fun provideStoreDb(db: FridgeDb): NearbyStoreDb {
             return db.stores()
         }
@@ -169,41 +158,35 @@ abstract class DbModule {
         @JvmStatic
         @Provides
         @CheckResult
-        internal fun provideStoreRealtimeDao(db: NearbyStoreDb): NearbyStoreRealtime {
+        internal fun provideStoreRealtimeDao(@InternalApi db: NearbyStoreDb): NearbyStoreRealtime {
             return db.realtime()
         }
 
         @JvmStatic
         @Provides
         @CheckResult
-        internal fun provideStoreQueryDao(db: NearbyStoreDb): NearbyStoreQueryDao {
+        internal fun provideStoreQueryDao(@InternalApi db: NearbyStoreDb): NearbyStoreQueryDao {
             return db.queryDao()
         }
 
         @JvmStatic
         @Provides
         @CheckResult
-        internal fun provideStoreInsertDao(db: NearbyStoreDb): NearbyStoreInsertDao {
+        internal fun provideStoreInsertDao(@InternalApi db: NearbyStoreDb): NearbyStoreInsertDao {
             return db.insertDao()
         }
 
         @JvmStatic
         @Provides
         @CheckResult
-        internal fun provideStoreUpdateDao(db: NearbyStoreDb): NearbyStoreUpdateDao {
-            return db.updateDao()
-        }
-
-        @JvmStatic
-        @Provides
-        @CheckResult
-        internal fun provideStoreDeleteDao(db: NearbyStoreDb): NearbyStoreDeleteDao {
+        internal fun provideStoreDeleteDao(@InternalApi db: NearbyStoreDb): NearbyStoreDeleteDao {
             return db.deleteDao()
         }
 
         @JvmStatic
         @Provides
         @CheckResult
+        @InternalApi
         internal fun provideZoneDb(db: FridgeDb): NearbyZoneDb {
             return db.zones()
         }
@@ -211,41 +194,35 @@ abstract class DbModule {
         @JvmStatic
         @Provides
         @CheckResult
-        internal fun provideZoneRealtimeDao(db: NearbyZoneDb): NearbyZoneRealtime {
+        internal fun provideZoneRealtimeDao(@InternalApi db: NearbyZoneDb): NearbyZoneRealtime {
             return db.realtime()
         }
 
         @JvmStatic
         @Provides
         @CheckResult
-        internal fun provideZoneQueryDao(db: NearbyZoneDb): NearbyZoneQueryDao {
+        internal fun provideZoneQueryDao(@InternalApi db: NearbyZoneDb): NearbyZoneQueryDao {
             return db.queryDao()
         }
 
         @JvmStatic
         @Provides
         @CheckResult
-        internal fun provideZoneInsertDao(db: NearbyZoneDb): NearbyZoneInsertDao {
+        internal fun provideZoneInsertDao(@InternalApi db: NearbyZoneDb): NearbyZoneInsertDao {
             return db.insertDao()
         }
 
         @JvmStatic
         @Provides
         @CheckResult
-        internal fun provideZoneUpdateDao(db: NearbyZoneDb): NearbyZoneUpdateDao {
-            return db.updateDao()
-        }
-
-        @JvmStatic
-        @Provides
-        @CheckResult
-        internal fun provideZoneDeleteDao(db: NearbyZoneDb): NearbyZoneDeleteDao {
+        internal fun provideZoneDeleteDao(@InternalApi db: NearbyZoneDb): NearbyZoneDeleteDao {
             return db.deleteDao()
         }
 
         @JvmStatic
         @Provides
         @CheckResult
+        @InternalApi
         internal fun provideCategoryDb(db: FridgeDb): FridgeCategoryDb {
             return db.categories()
         }
@@ -253,35 +230,28 @@ abstract class DbModule {
         @JvmStatic
         @Provides
         @CheckResult
-        internal fun provideCategoryRealtimeDao(db: FridgeCategoryDb): FridgeCategoryRealtime {
+        internal fun provideCategoryRealtimeDao(@InternalApi db: FridgeCategoryDb): FridgeCategoryRealtime {
             return db.realtime()
         }
 
         @JvmStatic
         @Provides
         @CheckResult
-        internal fun provideCategoryQueryDao(db: FridgeCategoryDb): FridgeCategoryQueryDao {
+        internal fun provideCategoryQueryDao(@InternalApi db: FridgeCategoryDb): FridgeCategoryQueryDao {
             return db.queryDao()
         }
 
         @JvmStatic
         @Provides
         @CheckResult
-        internal fun provideCategoryInsertDao(db: FridgeCategoryDb): FridgeCategoryInsertDao {
+        internal fun provideCategoryInsertDao(@InternalApi db: FridgeCategoryDb): FridgeCategoryInsertDao {
             return db.insertDao()
         }
 
         @JvmStatic
         @Provides
         @CheckResult
-        internal fun provideCategoryUpdateDao(db: FridgeCategoryDb): FridgeCategoryUpdateDao {
-            return db.updateDao()
-        }
-
-        @JvmStatic
-        @Provides
-        @CheckResult
-        internal fun provideCategoryDeleteDao(db: FridgeCategoryDb): FridgeCategoryDeleteDao {
+        internal fun provideCategoryDeleteDao(@InternalApi db: FridgeCategoryDb): FridgeCategoryDeleteDao {
             return db.deleteDao()
         }
     }

@@ -30,20 +30,18 @@ import com.pyamsoft.fridge.db.item.FridgeItemInsertDao
 import com.pyamsoft.fridge.db.item.FridgeItemPreferences
 import com.pyamsoft.fridge.db.item.FridgeItemQueryDao
 import com.pyamsoft.fridge.db.item.FridgeItemRealtime
-import com.pyamsoft.fridge.db.item.FridgeItemUpdateDao
 import com.pyamsoft.fridge.db.persist.PersistentCategories
 import com.pyamsoft.pydroid.core.Enforcer
 import com.pyamsoft.pydroid.util.PreferenceListener
-import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import timber.log.Timber
+import javax.inject.Inject
 
 internal class DetailInteractor @Inject internal constructor(
     private val entryGuarantee: EntryGuarantee,
     private val itemQueryDao: FridgeItemQueryDao,
     private val itemInsertDao: FridgeItemInsertDao,
-    private val itemUpdateDao: FridgeItemUpdateDao,
     private val itemDeleteDao: FridgeItemDeleteDao,
     private val itemRealtime: FridgeItemRealtime,
     private val entryQueryDao: FridgeEntryQueryDao,
@@ -179,23 +177,10 @@ internal class DetailInteractor @Inject internal constructor(
         }
     }
 
-    @CheckResult
-    private suspend fun getValidItem(item: FridgeItem): FridgeItem? {
-        Enforcer.assertOffMainThread()
-        return getItems(item.entryId(), false)
-            .singleOrNull { it.id() == item.id() }
-    }
-
     private suspend fun commitItem(item: FridgeItem) {
         Enforcer.assertOffMainThread()
-        val valid = getValidItem(item)
-        if (valid != null) {
-            Timber.d("Update existing item [${item.id()}]: $item")
-            itemUpdateDao.update(item)
-        } else {
-            Timber.d("Create new item [${item.id()}]: $item")
-            itemInsertDao.insert(item)
-        }
+        Timber.d("Insert or replace item [${item.id()}]: $item")
+        itemInsertDao.insert(item)
     }
 
     suspend fun delete(item: FridgeItem) = withContext(context = Dispatchers.Default) {

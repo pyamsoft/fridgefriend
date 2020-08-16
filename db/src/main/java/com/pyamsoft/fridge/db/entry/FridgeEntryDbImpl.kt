@@ -21,7 +21,6 @@ import com.pyamsoft.fridge.db.BaseDbImpl
 import com.pyamsoft.fridge.db.entry.FridgeEntryChangeEvent.Delete
 import com.pyamsoft.fridge.db.entry.FridgeEntryChangeEvent.DeleteAll
 import com.pyamsoft.fridge.db.entry.FridgeEntryChangeEvent.Insert
-import com.pyamsoft.fridge.db.entry.FridgeEntryChangeEvent.Update
 import com.pyamsoft.pydroid.core.Enforcer
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -29,7 +28,6 @@ import kotlinx.coroutines.withContext
 internal class FridgeEntryDbImpl internal constructor(
     cache: Cached1<Sequence<FridgeEntry>, Boolean>,
     insertDao: FridgeEntryInsertDao,
-    updateDao: FridgeEntryUpdateDao,
     deleteDao: FridgeEntryDeleteDao
 ) : BaseDbImpl<FridgeEntry, FridgeEntryChangeEvent>(cache), FridgeEntryDb {
 
@@ -60,15 +58,6 @@ internal class FridgeEntryDbImpl internal constructor(
         }
     }
 
-    private val updateDao = object : FridgeEntryUpdateDao {
-
-        override suspend fun update(o: FridgeEntry) = withContext(context = Dispatchers.IO) {
-            Enforcer.assertOffMainThread()
-            updateDao.update(o)
-            publish(Update(o.makeReal()))
-        }
-    }
-
     private val deleteDao = object : FridgeEntryDeleteDao {
 
         override suspend fun delete(o: FridgeEntry) = withContext(context = Dispatchers.IO) {
@@ -94,10 +83,6 @@ internal class FridgeEntryDbImpl internal constructor(
 
     override fun insertDao(): FridgeEntryInsertDao {
         return insertDao
-    }
-
-    override fun updateDao(): FridgeEntryUpdateDao {
-        return updateDao
     }
 
     override fun deleteDao(): FridgeEntryDeleteDao {

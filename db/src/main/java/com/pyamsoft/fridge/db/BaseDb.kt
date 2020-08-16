@@ -21,9 +21,8 @@ import com.pyamsoft.fridge.db.BaseDb.Delete
 import com.pyamsoft.fridge.db.BaseDb.Insert
 import com.pyamsoft.fridge.db.BaseDb.Query
 import com.pyamsoft.fridge.db.BaseDb.Realtime
-import com.pyamsoft.fridge.db.BaseDb.Update
 
-interface BaseDb<ChangeEvent : Any, R : Realtime<*>, Q : Query<*>, I : Insert<*>, U : Update<*>, D : Delete<*>> {
+interface BaseDb<ChangeEvent : Any, R : Realtime<*>, Q : Query<*>, I : Insert<*>, D : Delete<*>> {
 
     suspend fun publish(event: ChangeEvent)
 
@@ -35,9 +34,6 @@ interface BaseDb<ChangeEvent : Any, R : Realtime<*>, Q : Query<*>, I : Insert<*>
 
     @CheckResult
     fun insertDao(): I
-
-    @CheckResult
-    fun updateDao(): U
 
     @CheckResult
     fun deleteDao(): D
@@ -57,11 +53,6 @@ interface BaseDb<ChangeEvent : Any, R : Realtime<*>, Q : Query<*>, I : Insert<*>
     interface Insert<T : Any> {
 
         suspend fun insert(o: T)
-    }
-
-    interface Update<T : Any> {
-
-        suspend fun update(o: T)
     }
 
     interface Query<T : Any> {

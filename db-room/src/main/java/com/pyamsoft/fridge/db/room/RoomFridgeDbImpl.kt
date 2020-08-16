@@ -16,96 +16,43 @@
 
 package com.pyamsoft.fridge.db.room
 
-import androidx.annotation.CheckResult
-import com.pyamsoft.cachify.Cached1
-import com.pyamsoft.fridge.db.FridgeDb
-import com.pyamsoft.fridge.db.category.FridgeCategory
-import com.pyamsoft.fridge.db.category.FridgeCategoryDb
-import com.pyamsoft.fridge.db.entry.FridgeEntry
-import com.pyamsoft.fridge.db.entry.FridgeEntryDb
-import com.pyamsoft.fridge.db.item.FridgeItem
-import com.pyamsoft.fridge.db.item.FridgeItemDb
-import com.pyamsoft.fridge.db.store.NearbyStore
-import com.pyamsoft.fridge.db.store.NearbyStoreDb
-import com.pyamsoft.fridge.db.zone.NearbyZone
-import com.pyamsoft.fridge.db.zone.NearbyZoneDb
+import androidx.room.Database
+import androidx.room.RoomDatabase
+import androidx.room.TypeConverters
+import com.pyamsoft.fridge.db.room.converter.CategoryIdConverter
+import com.pyamsoft.fridge.db.room.converter.DateTypeConverter
+import com.pyamsoft.fridge.db.room.converter.EntryIdConverter
+import com.pyamsoft.fridge.db.room.converter.ItemIdConverter
+import com.pyamsoft.fridge.db.room.converter.NearbyZonePointListConverter
+import com.pyamsoft.fridge.db.room.converter.PresenceTypeConverter
+import com.pyamsoft.fridge.db.room.converter.StoreIdConverter
+import com.pyamsoft.fridge.db.room.converter.ThumbnailTypeConverter
+import com.pyamsoft.fridge.db.room.converter.ZoneIdConverter
+import com.pyamsoft.fridge.db.room.entity.RoomFridgeCategory
+import com.pyamsoft.fridge.db.room.entity.RoomFridgeEntry
+import com.pyamsoft.fridge.db.room.entity.RoomFridgeItem
+import com.pyamsoft.fridge.db.room.entity.RoomNearbyStore
+import com.pyamsoft.fridge.db.room.entity.RoomNearbyZone
 
-internal class RoomFridgeDbImpl internal constructor(
-    db: RoomFridgeDb,
-    entryCache: Cached1<Sequence<FridgeEntry>, Boolean>,
-    itemCache: Cached1<Sequence<FridgeItem>, Boolean>,
-    storeCache: Cached1<Sequence<NearbyStore>, Boolean>,
-    zoneCache: Cached1<Sequence<NearbyZone>, Boolean>,
-    categoryCache: Cached1<Sequence<FridgeCategory>, Boolean>
-) : FridgeDb {
-
-    private val itemDb by lazy {
-        FridgeItemDb.wrap(
-            itemCache,
-            db.roomItemInsertDao(),
-            db.roomItemUpdateDao(),
-            db.roomItemDeleteDao()
-        )
-    }
-
-    private val entryDb by lazy {
-        FridgeEntryDb.wrap(
-            entryCache,
-            db.roomEntryInsertDao(),
-            db.roomEntryUpdateDao(),
-            db.roomEntryDeleteDao()
-        )
-    }
-
-    private val storeDb by lazy {
-        NearbyStoreDb.wrap(
-            storeCache,
-            db.roomStoreInsertDao(),
-            db.roomStoreUpdateDao(),
-            db.roomStoreDeleteDao()
-        )
-    }
-
-    private val zoneDb by lazy {
-        NearbyZoneDb.wrap(
-            zoneCache,
-            db.roomZoneInsertDao(),
-            db.roomZoneUpdateDao(),
-            db.roomZoneDeleteDao()
-        )
-    }
-
-    private val categoryDb by lazy {
-        FridgeCategoryDb.wrap(
-            categoryCache,
-            db.roomCategoryInsertDao(),
-            db.roomCategoryUpdateDao(),
-            db.roomCategoryDeleteDao()
-        )
-    }
-
-    @CheckResult
-    override fun items(): FridgeItemDb {
-        return itemDb
-    }
-
-    @CheckResult
-    override fun entries(): FridgeEntryDb {
-        return entryDb
-    }
-
-    @CheckResult
-    override fun stores(): NearbyStoreDb {
-        return storeDb
-    }
-
-    @CheckResult
-    override fun zones(): NearbyZoneDb {
-        return zoneDb
-    }
-
-    @CheckResult
-    override fun categories(): FridgeCategoryDb {
-        return categoryDb
-    }
-}
+@Database(
+    version = 1,
+    entities = [
+        RoomFridgeItem::class,
+        RoomFridgeEntry::class,
+        RoomNearbyStore::class,
+        RoomNearbyZone::class,
+        RoomFridgeCategory::class
+    ]
+)
+@TypeConverters(
+    PresenceTypeConverter::class,
+    DateTypeConverter::class,
+    NearbyZonePointListConverter::class,
+    ThumbnailTypeConverter::class,
+    EntryIdConverter::class,
+    ItemIdConverter::class,
+    CategoryIdConverter::class,
+    ZoneIdConverter::class,
+    StoreIdConverter::class
+)
+internal abstract class RoomFridgeDbImpl internal constructor() : RoomDatabase(), RoomFridgeDb

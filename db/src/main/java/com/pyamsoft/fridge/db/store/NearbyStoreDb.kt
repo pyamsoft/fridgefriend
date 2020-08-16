@@ -25,7 +25,6 @@ interface NearbyStoreDb : BaseDb<
     NearbyStoreRealtime,
     NearbyStoreQueryDao,
     NearbyStoreInsertDao,
-    NearbyStoreUpdateDao,
     NearbyStoreDeleteDao
     > {
 
@@ -35,10 +34,9 @@ interface NearbyStoreDb : BaseDb<
         fun wrap(
             cache: Cached1<Sequence<NearbyStore>, Boolean>,
             insertDao: NearbyStoreInsertDao,
-            updateDao: NearbyStoreUpdateDao,
             deleteDao: NearbyStoreDeleteDao
         ): NearbyStoreDb {
-            return NearbyStoreDbImpl(cache, insertDao, updateDao, deleteDao)
+            return NearbyStoreDbImpl(cache, insertDao, deleteDao)
         }
     }
 }
