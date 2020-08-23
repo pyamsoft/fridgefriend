@@ -63,6 +63,7 @@ dependencies {
 	kapt "com.google.dagger:dagger-compiler:$dagger"
 
 	// PYDroid
+	// API for dagger
 	api "com.pyamsoft.pydroid:notify:$pydroid"
 
 	api project(':db')

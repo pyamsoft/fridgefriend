@@ -62,5 +62,5 @@ dependencies {
 
 	kapt "com.google.dagger:dagger-compiler:$dagger"
 
-	api project(':locator')
+	implementation project(':locator')
 }
