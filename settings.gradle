@@ -14,11 +14,6 @@
  * limitations under the License.
  */
 
-include ':ui'
-include ':app', ':entry', ':core', ':main', ':setting', ':db', ':category', ':tooltip',
-		':locator-map',
-		':locator',
-		':butler-workmanager',
-		':butler',
-		':db-room',
-		':detail'
+include ':app', ':entry', ':core', ':main', ':setting', ':db', ':category', ':tooltip', ':ui',
+		':locator-map', ':locator', ':butler-workmanager', ':butler', ':db-room', ':detail',
+rootProject.name = "FridgeFriend"
