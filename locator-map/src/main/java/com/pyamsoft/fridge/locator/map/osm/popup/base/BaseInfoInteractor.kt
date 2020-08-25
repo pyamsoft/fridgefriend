@@ -33,13 +33,13 @@ internal abstract class BaseInfoInteractor<
         I : BaseDb.Insert<T>,
         D : BaseDb.Delete<T>
         > protected constructor(
-    private val orderFactory: OrderFactory,
-    private val butler: Butler,
-    private val realtime: R,
-    private val queryDao: Q,
-    private val insertDao: I,
-    private val deleteDao: D
-) {
+            private val orderFactory: OrderFactory,
+            private val butler: Butler,
+            private val realtime: R,
+            private val queryDao: Q,
+            private val insertDao: I,
+            private val deleteDao: D
+        ) {
 
     @CheckResult
     suspend fun getAllCached(): List<T> = withContext(context = Dispatchers.Default) {

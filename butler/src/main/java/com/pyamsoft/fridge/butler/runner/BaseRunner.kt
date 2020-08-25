@@ -19,9 +19,9 @@ package com.pyamsoft.fridge.butler.runner
 import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.butler.Butler
 import com.pyamsoft.fridge.butler.ButlerPreferences
-import com.pyamsoft.fridge.butler.order.Order
 import com.pyamsoft.fridge.butler.notification.NotificationHandler
 import com.pyamsoft.fridge.butler.notification.NotificationPreferences
+import com.pyamsoft.fridge.butler.order.Order
 import com.pyamsoft.fridge.butler.params.BaseParameters
 import com.pyamsoft.pydroid.core.Enforcer
 import kotlinx.coroutines.CancellationException
@@ -38,7 +38,7 @@ internal abstract class BaseRunner<P : BaseParameters> protected constructor(
     private val butlerPreferences: ButlerPreferences
 ) {
 
-    private suspend fun teardown(order: Order) {
+    private suspend fun reschedule(order: Order) {
         butler.scheduleOrder(order)
     }
 
@@ -46,26 +46,25 @@ internal abstract class BaseRunner<P : BaseParameters> protected constructor(
         func(handler)
     }
 
+    // Don't mark inline or you get an Inaccessible error from the JVM at runtime
     @CheckResult
-    suspend inline fun doWork(
+    suspend fun doWork(
         id: UUID,
         tags: Set<String>,
         params: P,
-        crossinline order: () -> Order,
+        order: () -> Order,
     ): WorkResult = withContext(context = Dispatchers.Default) {
         Enforcer.assertOffMainThread()
         val identifier = identifier(id, tags)
         try {
             performWork(butlerPreferences, params)
-            success(identifier)
+            success(identifier).also { reschedule(order()) }
         } catch (e: Throwable) {
             if (e is CancellationException) {
                 cancelled(identifier, e)
             } else {
                 fail(identifier, e)
             }
-        } finally {
-            teardown(order())
         }
     }
 

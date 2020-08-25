@@ -29,24 +29,27 @@ class LocationInjector(context: Context) : BaseInjector<LocationParameters>(cont
 
     @JvmField
     @Inject
-    internal var delegate: LocationRunner? = null
+    internal var runner: LocationRunner? = null
+
+    // TODO(Peter) For some reason this is null if we inject it in BaseInjector
+    @JvmField
+    @Inject
+    internal var orderFactory: OrderFactory? = null
 
     override suspend fun onRun(
         context: Context,
         id: UUID,
         tags: Set<String>,
-        params: LocationParameters,
-        factory: OrderFactory
+        params: LocationParameters
     ): WorkResult {
         Injector.obtain<ButlerComponent>(context.applicationContext).inject(this)
-        val result = requireNotNull(delegate).doWork(id, tags, params) {
-            factory.locationOrder(
+
+        return requireNotNull(runner).doWork(id, tags, params) {
+            requireNotNull(orderFactory).locationOrder(
                 LocationParameters(
                     forceNotifyNeeded = false
                 )
             )
         }
-        delegate = null
-        return result
     }
 }

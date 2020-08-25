@@ -29,17 +29,23 @@ class NightlyInjector(context: Context) : BaseInjector<EmptyParameters>(context)
 
     @JvmField
     @Inject
-    internal var delegate: NightlyRunner? = null
+    internal var runner: NightlyRunner? = null
+
+    // TODO(Peter) For some reason this is null if we inject it in BaseInjector
+    @JvmField
+    @Inject
+    internal var orderFactory: OrderFactory? = null
+
     override suspend fun onRun(
         context: Context,
         id: UUID,
         tags: Set<String>,
-        params: EmptyParameters,
-        factory: OrderFactory
+        params: EmptyParameters
     ): WorkResult {
         Injector.obtain<ButlerComponent>(context.applicationContext).inject(this)
-        val result = requireNotNull(delegate).doWork(id, tags, params) { factory.nightlyOrder() }
-        delegate = null
-        return result
+
+        return requireNotNull(runner).doWork(id, tags, params) {
+            requireNotNull(orderFactory).nightlyOrder()
+        }
     }
 }
