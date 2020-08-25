@@ -51,7 +51,7 @@ buildscript {
 		moshi = "1.9.3"
 
 		// Fast Adapter
-		fastAdapter = "5.2.2"
+		fastAdapter = "5.2.3"
 
 		workmanager = "2.4.0"
 
@@ -60,7 +60,7 @@ buildscript {
 		// FusedLocationProvider
 		gmsLocation = "17.0.0"
 
-		balloon = "1.2.0"
+		balloon = "1.2.1"
 	}
 
 	dependencies {
