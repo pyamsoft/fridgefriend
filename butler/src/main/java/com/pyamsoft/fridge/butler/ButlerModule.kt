@@ -35,7 +35,7 @@ import javax.inject.Qualifier
 
 @Qualifier
 @Retention(AnnotationRetention.BINARY)
-private annotation class InternalApi
+internal annotation class InternalApi
 
 @Module
 abstract class ButlerModule {
@@ -75,6 +75,7 @@ abstract class ButlerModule {
         @Provides
         @JvmStatic
         @CheckResult
+        @InternalApi
         internal fun provideNotifier(
             // Need to use MutableSet instead of Set because of Java -> Kotlin fun.
             @InternalApi dispatchers: MutableSet<NotifyDispatcher<*>>,

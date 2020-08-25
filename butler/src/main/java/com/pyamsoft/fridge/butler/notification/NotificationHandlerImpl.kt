@@ -17,6 +17,7 @@
 package com.pyamsoft.fridge.butler.notification
 
 import androidx.annotation.CheckResult
+import com.pyamsoft.fridge.butler.InternalApi
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.store.NearbyStore
@@ -26,14 +27,14 @@ import com.pyamsoft.pydroid.notify.NotifyChannelInfo
 import com.pyamsoft.pydroid.notify.NotifyData
 import com.pyamsoft.pydroid.notify.NotifyId
 import com.pyamsoft.pydroid.notify.toNotifyId
+import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Singleton
-import timber.log.Timber
 
 @Singleton
 internal class NotificationHandlerImpl @Inject internal constructor(
-    private val idMap: NotificationIdMap,
-    private val notifier: Notifier
+    @InternalApi private val notifier: Notifier,
+    private val idMap: NotificationIdMap
 ) : NotificationHandler {
 
     override fun notifyNeeded(entry: FridgeEntry, items: List<FridgeItem>): Boolean {
