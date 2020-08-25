@@ -26,10 +26,10 @@ import com.pyamsoft.fridge.core.today
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence.HAVE
 import com.pyamsoft.fridge.db.item.FridgeItemQueryDao
-import java.util.Calendar
-import javax.inject.Inject
 import kotlinx.coroutines.coroutineScope
 import timber.log.Timber
+import java.util.Calendar
+import javax.inject.Inject
 
 internal class NightlyRunner @Inject internal constructor(
     handler: NotificationHandler,
@@ -60,10 +60,6 @@ internal class NightlyRunner @Inject internal constructor(
                 }
             }
         }
-    }
-
-    override suspend fun reschedule(butler: Butler, params: EmptyParameters) {
-        butler.scheduleRemindNightly(params)
     }
 
     override suspend fun performWork(

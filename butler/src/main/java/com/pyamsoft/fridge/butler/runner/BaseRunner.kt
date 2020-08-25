@@ -19,16 +19,17 @@ package com.pyamsoft.fridge.butler.runner
 import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.butler.Butler
 import com.pyamsoft.fridge.butler.ButlerPreferences
+import com.pyamsoft.fridge.butler.order.Order
 import com.pyamsoft.fridge.butler.notification.NotificationHandler
 import com.pyamsoft.fridge.butler.notification.NotificationPreferences
 import com.pyamsoft.fridge.butler.params.BaseParameters
 import com.pyamsoft.pydroid.core.Enforcer
-import java.util.Calendar
-import java.util.UUID
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import timber.log.Timber
+import java.util.Calendar
+import java.util.UUID
 
 internal abstract class BaseRunner<P : BaseParameters> protected constructor(
     private val handler: NotificationHandler,
@@ -37,22 +38,20 @@ internal abstract class BaseRunner<P : BaseParameters> protected constructor(
     private val butlerPreferences: ButlerPreferences
 ) {
 
-    private suspend fun teardown(params: P) {
-        reschedule(butler, params)
+    private suspend fun teardown(order: Order) {
+        butler.scheduleOrder(order)
     }
 
     protected suspend inline fun notification(crossinline func: suspend (handler: NotificationHandler) -> Unit) {
         func(handler)
     }
 
-    protected open suspend fun reschedule(butler: Butler, params: P) {
-    }
-
     @CheckResult
-    suspend fun doWork(
+    suspend inline fun doWork(
         id: UUID,
         tags: Set<String>,
-        params: P
+        params: P,
+        crossinline order: () -> Order,
     ): WorkResult = withContext(context = Dispatchers.Default) {
         Enforcer.assertOffMainThread()
         val identifier = identifier(id, tags)
@@ -66,7 +65,7 @@ internal abstract class BaseRunner<P : BaseParameters> protected constructor(
                 fail(identifier, e)
             }
         } finally {
-            teardown(params)
+            teardown(order())
         }
     }
 

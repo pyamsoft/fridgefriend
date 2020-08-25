@@ -16,4 +16,4 @@
 
 include ':app', ':entry', ':core', ':main', ':setting', ':db', ':category', ':tooltip', ':ui',
 		':locator-map', ':locator', ':butler-workmanager', ':butler', ':db-room', ':detail',
-rootProject.name = "FridgeFriend"
+		rootProject.name = "FridgeFriend"

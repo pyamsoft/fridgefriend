@@ -14,24 +14,18 @@
  * limitations under the License.
  */
 
-package com.pyamsoft.fridge.butler
+package com.pyamsoft.fridge.butler.workmanager.order
 
 import com.pyamsoft.fridge.butler.order.Order
+import com.pyamsoft.fridge.butler.notification.NotificationPreferences
 
-interface Butler {
+internal abstract class NotifyingOrder protected constructor(
+    private val preferences: NotificationPreferences,
+) : Order {
 
-    /**
-     * Fires first order instantly before repeating
-     */
-    suspend fun placeOrder(order: Order)
-
-    /**
-     * Queues order after period before repeating
-     */
-    suspend fun scheduleOrder(order: Order)
-
-    suspend fun cancelOrder(order: Order)
-
-    suspend fun cancel()
+    final override suspend fun period(): Long {
+        return preferences.getNotificationPeriod()
+    }
 
 }
+

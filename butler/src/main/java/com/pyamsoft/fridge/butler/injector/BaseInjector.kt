@@ -18,15 +18,21 @@ package com.pyamsoft.fridge.butler.injector
 
 import android.content.Context
 import androidx.annotation.CheckResult
+import com.pyamsoft.fridge.butler.order.OrderFactory
 import com.pyamsoft.fridge.butler.params.BaseParameters
 import com.pyamsoft.fridge.butler.runner.WorkResult
-import java.util.UUID
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import java.util.UUID
+import javax.inject.Inject
 
 abstract class BaseInjector<P : BaseParameters> protected constructor(context: Context) {
 
     private var applicationContext: Context? = context.applicationContext
+
+    @JvmField
+    @Inject
+    internal var orderFactory: OrderFactory? = null
 
     @CheckResult
     suspend fun run(
@@ -35,8 +41,15 @@ abstract class BaseInjector<P : BaseParameters> protected constructor(context: C
         params: P
     ): WorkResult {
         val result = withContext(context = Dispatchers.Default) {
-            onRun(requireNotNull(applicationContext), id, tags, params)
+            onRun(
+                requireNotNull(applicationContext),
+                id,
+                tags,
+                params,
+                requireNotNull(orderFactory)
+            )
         }
+        orderFactory = null
         applicationContext = null
         return result
     }
@@ -46,6 +59,7 @@ abstract class BaseInjector<P : BaseParameters> protected constructor(context: C
         context: Context,
         id: UUID,
         tags: Set<String>,
-        params: P
+        params: P,
+        factory: OrderFactory
     ): WorkResult
 }

@@ -16,22 +16,4 @@
 
 package com.pyamsoft.fridge.butler
 
-import com.pyamsoft.fridge.butler.order.Order
-
-interface Butler {
-
-    /**
-     * Fires first order instantly before repeating
-     */
-    suspend fun placeOrder(order: Order)
-
-    /**
-     * Queues order after period before repeating
-     */
-    suspend fun scheduleOrder(order: Order)
-
-    suspend fun cancelOrder(order: Order)
-
-    suspend fun cancel()
-
-}
+interface Work

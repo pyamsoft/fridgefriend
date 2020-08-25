@@ -17,6 +17,7 @@
 package com.pyamsoft.fridge.butler.injector
 
 import android.content.Context
+import com.pyamsoft.fridge.butler.order.OrderFactory
 import com.pyamsoft.fridge.butler.params.LocationParameters
 import com.pyamsoft.fridge.butler.runner.LocationRunner
 import com.pyamsoft.fridge.butler.runner.WorkResult
@@ -34,10 +35,17 @@ class LocationInjector(context: Context) : BaseInjector<LocationParameters>(cont
         context: Context,
         id: UUID,
         tags: Set<String>,
-        params: LocationParameters
+        params: LocationParameters,
+        factory: OrderFactory
     ): WorkResult {
         Injector.obtain<ButlerComponent>(context.applicationContext).inject(this)
-        val result = requireNotNull(delegate).doWork(id, tags, params)
+        val result = requireNotNull(delegate).doWork(id, tags, params) {
+            factory.locationOrder(
+                LocationParameters(
+                    forceNotifyNeeded = false
+                )
+            )
+        }
         delegate = null
         return result
     }

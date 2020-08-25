@@ -17,6 +17,7 @@
 package com.pyamsoft.fridge.butler.injector
 
 import android.content.Context
+import com.pyamsoft.fridge.butler.order.OrderFactory
 import com.pyamsoft.fridge.butler.params.EmptyParameters
 import com.pyamsoft.fridge.butler.runner.NightlyRunner
 import com.pyamsoft.fridge.butler.runner.WorkResult
@@ -33,10 +34,11 @@ class NightlyInjector(context: Context) : BaseInjector<EmptyParameters>(context)
         context: Context,
         id: UUID,
         tags: Set<String>,
-        params: EmptyParameters
+        params: EmptyParameters,
+        factory: OrderFactory
     ): WorkResult {
         Injector.obtain<ButlerComponent>(context.applicationContext).inject(this)
-        val result = requireNotNull(delegate).doWork(id, tags, params)
+        val result = requireNotNull(delegate).doWork(id, tags, params) { factory.nightlyOrder() }
         delegate = null
         return result
     }

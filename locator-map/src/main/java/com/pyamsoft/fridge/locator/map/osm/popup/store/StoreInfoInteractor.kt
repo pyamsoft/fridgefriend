@@ -17,6 +17,7 @@
 package com.pyamsoft.fridge.locator.map.osm.popup.store
 
 import com.pyamsoft.fridge.butler.Butler
+import com.pyamsoft.fridge.butler.order.OrderFactory
 import com.pyamsoft.fridge.db.store.NearbyStore
 import com.pyamsoft.fridge.db.store.NearbyStoreChangeEvent
 import com.pyamsoft.fridge.db.store.NearbyStoreDeleteDao
@@ -27,19 +28,20 @@ import com.pyamsoft.fridge.locator.map.osm.popup.base.BaseInfoInteractor
 import javax.inject.Inject
 
 internal class StoreInfoInteractor @Inject internal constructor(
+    orderFactory: OrderFactory,
     butler: Butler,
     realtime: NearbyStoreRealtime,
     queryDao: NearbyStoreQueryDao,
     insertDao: NearbyStoreInsertDao,
     deleteDao: NearbyStoreDeleteDao
 ) : BaseInfoInteractor<
-    NearbyStore,
-    NearbyStoreChangeEvent,
-    NearbyStoreRealtime,
-    NearbyStoreQueryDao,
-    NearbyStoreInsertDao,
-    NearbyStoreDeleteDao
-    >(butler, realtime, queryDao, insertDao, deleteDao) {
+        NearbyStore,
+        NearbyStoreChangeEvent,
+        NearbyStoreRealtime,
+        NearbyStoreQueryDao,
+        NearbyStoreInsertDao,
+        NearbyStoreDeleteDao
+        >(orderFactory, butler, realtime, queryDao, insertDao, deleteDao) {
 
     suspend inline fun listenForNearbyCacheChanges(
         crossinline onInsert: (store: NearbyStore) -> Unit,

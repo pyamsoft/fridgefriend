@@ -17,28 +17,34 @@
 package com.pyamsoft.fridge
 
 import com.pyamsoft.fridge.butler.Butler
-import com.pyamsoft.fridge.butler.params.EmptyParameters
+import com.pyamsoft.fridge.butler.order.OrderFactory
 import com.pyamsoft.fridge.butler.params.ItemParameters
 import com.pyamsoft.fridge.butler.params.LocationParameters
 
-suspend fun Butler.initOnAppStart(params: ButlerParameters) {
+suspend fun Butler.initOnAppStart(orderFactory: OrderFactory, params: ButlerParameters) {
     cancel()
 
-    remindItems(
-        ItemParameters(
-            forceNotifyNeeded = params.forceNotifyNeeded,
-            forceNotifyExpiring = params.forceNotifyExpiring
+    // Fire instantly an item order
+    placeOrder(
+        orderFactory.itemOrder(
+            ItemParameters(
+                forceNotifyNeeded = params.forceNotifyNeeded,
+                forceNotifyExpiring = params.forceNotifyExpiring
+            )
         )
     )
 
-    remindLocation(
-        LocationParameters(
-            forceNotifyNeeded = params.forceNotifyNeeded
+    // Fire instantly a location order
+    placeOrder(
+        orderFactory.locationOrder(
+            LocationParameters(
+                forceNotifyNeeded = params.forceNotifyNeeded
+            )
         )
     )
 
     // Nightly notifications are always scheduled since they must fire at an exact time.
-    scheduleRemindNightly(EmptyParameters)
+    scheduleOrder(orderFactory.nightlyOrder())
 }
 
 data class ButlerParameters(val forceNotifyNeeded: Boolean, val forceNotifyExpiring: Boolean)

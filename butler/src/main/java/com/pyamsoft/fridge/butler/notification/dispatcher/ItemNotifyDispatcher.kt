@@ -48,9 +48,9 @@ internal abstract class ItemNotifyDispatcher<T : NotifyData> protected construct
         return NotificationCompat.BigTextStyle().bigText(
             buildSpannedString {
                 topLine?.let { line ->
-                    appendln(line)
-                    appendln("-".repeat(40))
-                    appendln()
+                    appendLine(line)
+                    appendLine("-".repeat(40))
+                    appendLine()
                 }
                 items
                     .forEach { item ->
@@ -74,7 +74,7 @@ internal abstract class ItemNotifyDispatcher<T : NotifyData> protected construct
                         if (isExpired) {
                             append(" ${item.getExpiredMessage(now)}")
                         }
-                        appendln()
+                        appendLine()
                     }
             })
     }

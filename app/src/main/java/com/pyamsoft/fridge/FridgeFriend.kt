@@ -20,6 +20,7 @@ import android.app.Application
 import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.butler.Butler
 import com.pyamsoft.fridge.butler.injector.ButlerComponent
+import com.pyamsoft.fridge.butler.order.OrderFactory
 import com.pyamsoft.fridge.category.CategoryListComponent
 import com.pyamsoft.fridge.core.PRIVACY_POLICY_URL
 import com.pyamsoft.fridge.core.TERMS_CONDITIONS_URL
@@ -32,16 +33,20 @@ import com.pyamsoft.pydroid.bootstrap.libraries.OssLibraries
 import com.pyamsoft.pydroid.bootstrap.libraries.OssLicenses
 import com.pyamsoft.pydroid.ui.PYDroid
 import com.pyamsoft.pydroid.util.isDebugMode
-import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 class FridgeFriend : Application() {
 
     @JvmField
     @Inject
     internal var butler: Butler? = null
+
+    @JvmField
+    @Inject
+    internal var orderFactory: OrderFactory? = null
 
     private var component: FridgeComponent? = null
 
@@ -76,6 +81,7 @@ class FridgeFriend : Application() {
     private fun beginWork() {
         GlobalScope.launch(context = Dispatchers.Default) {
             requireNotNull(butler).initOnAppStart(
+                requireNotNull(orderFactory),
                 ButlerParameters(
                     forceNotifyExpiring = false,
                     forceNotifyNeeded = false

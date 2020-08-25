@@ -34,10 +34,10 @@ import com.pyamsoft.fridge.db.item.daysLaterMidnight
 import com.pyamsoft.fridge.db.item.isArchived
 import com.pyamsoft.fridge.db.item.isExpired
 import com.pyamsoft.fridge.db.item.isExpiringSoon
-import java.util.Calendar
-import javax.inject.Inject
 import kotlinx.coroutines.coroutineScope
 import timber.log.Timber
+import java.util.Calendar
+import javax.inject.Inject
 
 internal class ItemRunner @Inject internal constructor(
     handler: NotificationHandler,
@@ -153,15 +153,6 @@ internal class ItemRunner @Inject internal constructor(
         notifyNeeded(neededItems, entry, now, preferences, params)
         notifyExpiringSoon(expiringItems, entry, now, preferences, params)
         notifyExpired(expiredItems, entry, now, preferences, params)
-    }
-
-    override suspend fun reschedule(butler: Butler, params: ItemParameters) {
-        butler.scheduleRemindItems(
-            ItemParameters(
-                forceNotifyNeeded = false,
-                forceNotifyExpiring = false
-            )
-        )
     }
 
     override suspend fun performWork(

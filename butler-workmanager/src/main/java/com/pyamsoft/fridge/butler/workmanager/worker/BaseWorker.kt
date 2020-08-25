@@ -21,6 +21,7 @@ import androidx.annotation.CheckResult
 import androidx.work.CoroutineWorker
 import androidx.work.Data
 import androidx.work.WorkerParameters
+import com.pyamsoft.fridge.butler.Work
 import com.pyamsoft.fridge.butler.injector.BaseInjector
 import com.pyamsoft.fridge.butler.params.BaseParameters
 import com.pyamsoft.fridge.butler.runner.WorkResult
@@ -30,7 +31,7 @@ import kotlinx.coroutines.withContext
 internal abstract class BaseWorker<P : BaseParameters> protected constructor(
     context: Context,
     params: WorkerParameters
-) : CoroutineWorker(context.applicationContext, params) {
+) : CoroutineWorker(context.applicationContext, params), Work {
 
     final override suspend fun doWork(): Result = withContext(context = Dispatchers.Default) {
         val injector = getInjector(applicationContext)

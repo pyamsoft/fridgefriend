@@ -14,24 +14,24 @@
  * limitations under the License.
  */
 
-package com.pyamsoft.fridge.butler
+package com.pyamsoft.fridge.butler.order
 
+import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.butler.order.Order
+import com.pyamsoft.fridge.butler.params.ItemParameters
+import com.pyamsoft.fridge.butler.params.LocationParameters
+import javax.inject.Singleton
 
-interface Butler {
+@Singleton
+interface OrderFactory {
 
-    /**
-     * Fires first order instantly before repeating
-     */
-    suspend fun placeOrder(order: Order)
+    @CheckResult
+    fun itemOrder(params: ItemParameters): Order
 
-    /**
-     * Queues order after period before repeating
-     */
-    suspend fun scheduleOrder(order: Order)
+    @CheckResult
+    fun locationOrder(params: LocationParameters): Order
 
-    suspend fun cancelOrder(order: Order)
-
-    suspend fun cancel()
+    @CheckResult
+    fun nightlyOrder(): Order
 
 }

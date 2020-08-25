@@ -33,6 +33,7 @@ import com.pyamsoft.fridge.FridgeComponent
 import com.pyamsoft.fridge.R
 import com.pyamsoft.fridge.butler.Butler
 import com.pyamsoft.fridge.butler.notification.NotificationHandler
+import com.pyamsoft.fridge.butler.order.OrderFactory
 import com.pyamsoft.fridge.category.CategoryFragment
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.entry.EntryFragment
@@ -54,10 +55,10 @@ import com.pyamsoft.pydroid.ui.rating.buildChangeLog
 import com.pyamsoft.pydroid.ui.util.commitNow
 import com.pyamsoft.pydroid.ui.util.layout
 import com.pyamsoft.pydroid.util.stableLayoutHideNavigation
-import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import timber.log.Timber
+import javax.inject.Inject
 
 internal class MainActivity : RatingActivity(), VersionChecker {
 
@@ -92,6 +93,10 @@ internal class MainActivity : RatingActivity(), VersionChecker {
     @JvmField
     @Inject
     internal var butler: Butler? = null
+
+    @JvmField
+    @Inject
+    internal var orderFactory: OrderFactory? = null
 
     @JvmField
     @Inject
@@ -172,6 +177,7 @@ internal class MainActivity : RatingActivity(), VersionChecker {
         this.lifecycleScope.launch(context = Dispatchers.Default) {
             val presence = getPresenceFromIntent(intent)
             requireNotNull(butler).initOnAppStart(
+                requireNotNull(orderFactory),
                 ButlerParameters(
                     forceNotifyNeeded = presence != FridgeItem.Presence.NEED,
                     forceNotifyExpiring = presence != FridgeItem.Presence.HAVE

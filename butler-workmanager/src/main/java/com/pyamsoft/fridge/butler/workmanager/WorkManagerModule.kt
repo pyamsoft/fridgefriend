@@ -18,6 +18,8 @@ package com.pyamsoft.fridge.butler.workmanager
 
 import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.butler.Butler
+import com.pyamsoft.fridge.butler.order.OrderFactory
+import com.pyamsoft.fridge.butler.workmanager.order.WorkOrderFactory
 import dagger.Binds
 import dagger.Module
 
@@ -27,4 +29,8 @@ abstract class WorkManagerModule {
     @Binds
     @CheckResult
     internal abstract fun bindButler(impl: WorkManagerButler): Butler
+
+    @Binds
+    @CheckResult
+    internal abstract fun bindOrderFactory(impl: WorkOrderFactory): OrderFactory
 }
