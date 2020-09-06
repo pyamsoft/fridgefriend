@@ -17,6 +17,7 @@
 package com.pyamsoft.fridge.db.store
 
 import androidx.annotation.CheckResult
+import com.pyamsoft.cachify.Cached
 import com.pyamsoft.cachify.Cached1
 import com.pyamsoft.fridge.db.BaseDb
 
@@ -32,7 +33,7 @@ interface NearbyStoreDb : BaseDb<
 
         @CheckResult
         fun wrap(
-            cache: Cached1<Sequence<NearbyStore>, Boolean>,
+            cache: Cached<List<NearbyStore>>,
             insertDao: NearbyStoreInsertDao,
             deleteDao: NearbyStoreDeleteDao
         ): NearbyStoreDb {

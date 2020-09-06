@@ -33,10 +33,11 @@ import com.pyamsoft.fridge.db.item.FridgeItemRealtime
 import com.pyamsoft.fridge.db.persist.PersistentCategories
 import com.pyamsoft.pydroid.core.Enforcer
 import com.pyamsoft.pydroid.util.PreferenceListener
-import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import timber.log.Timber
+import java.util.Locale
+import javax.inject.Inject
 
 internal class DetailInteractor @Inject internal constructor(
     private val entryGuarantee: EntryGuarantee,
@@ -84,17 +85,32 @@ internal class DetailInteractor @Inject internal constructor(
         }
 
     @CheckResult
-    suspend fun findSameNamedItems(name: String, presence: Presence): Collection<FridgeItem> =
+    suspend fun findSameNamedItems(item: FridgeItem): Collection<FridgeItem> =
         withContext(context = Dispatchers.Default) {
             Enforcer.assertOffMainThread()
-            return@withContext itemQueryDao.querySameNameDifferentPresence(false, name, presence)
+
+            // Return no results for an item we already HAVE
+            // This will currently only prompt the user when they mark something as NEED that they already own
+            if (item.presence() == Presence.HAVE) {
+                return@withContext emptyList()
+            }
+
+            return@withContext itemQueryDao.querySameNameDifferentPresence(
+                false,
+                item.name().trim().toLowerCase(Locale.getDefault()),
+                item.presence()
+            )
         }
 
     @CheckResult
     suspend fun findSimilarNamedItems(item: FridgeItem): Collection<FridgeItem> =
         withContext(context = Dispatchers.Default) {
             Enforcer.assertOffMainThread()
-            return@withContext itemQueryDao.querySimilarNamedItems(false, item)
+            return@withContext itemQueryDao.querySimilarNamedItems(
+                false,
+                item.id(),
+                item.name().trim().toLowerCase(Locale.getDefault())
+            )
         }
 
     @CheckResult

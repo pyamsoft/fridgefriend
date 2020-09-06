@@ -16,31 +16,25 @@
 
 package com.pyamsoft.fridge.db
 
-import com.pyamsoft.cachify.Cached1
 import com.pyamsoft.pydroid.arch.EventBus
 import com.pyamsoft.pydroid.core.Enforcer
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-internal abstract class BaseDbImpl<T : Any, ChangeEvent : Any> protected constructor(
-    private val cache: Cached1<Sequence<T>, Boolean>
-) {
+internal abstract class BaseDbImpl<T : Any, ChangeEvent : Any> protected constructor() :
+    BaseRealtime<ChangeEvent> {
 
     private val bus = EventBus.create<ChangeEvent>()
 
-    protected suspend fun onEvent(onEvent: suspend (event: ChangeEvent) -> Unit) {
-        return bus.onEvent(onEvent)
-    }
-
-    suspend fun publish(event: ChangeEvent) =
-        withContext(context = Dispatchers.Default) {
+    protected suspend fun onEvent(onEvent: suspend (event: ChangeEvent) -> Unit) =
+        withContext(context = Dispatchers.IO) {
             Enforcer.assertOffMainThread()
-            invalidate()
-            bus.send(event)
+            return@withContext bus.onEvent(onEvent)
         }
 
-    suspend fun invalidate() {
+    final override suspend fun publish(event: ChangeEvent) = withContext(context = Dispatchers.IO) {
         Enforcer.assertOffMainThread()
-        cache.clear()
+        invalidate()
+        bus.send(event)
     }
 }

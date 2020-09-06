@@ -17,6 +17,7 @@
 package com.pyamsoft.fridge.db.category
 
 import androidx.annotation.CheckResult
+import com.pyamsoft.cachify.Cached
 import com.pyamsoft.cachify.Cached1
 import com.pyamsoft.fridge.db.BaseDb
 
@@ -32,7 +33,7 @@ interface FridgeCategoryDb : BaseDb<
 
         @CheckResult
         fun wrap(
-            cache: Cached1<Sequence<FridgeCategory>, Boolean>,
+            cache: Cached<List<FridgeCategory>>,
             insertDao: FridgeCategoryInsertDao,
             deleteDao: FridgeCategoryDeleteDao
         ): FridgeCategoryDb {

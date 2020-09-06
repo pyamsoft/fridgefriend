@@ -17,22 +17,22 @@
 package com.pyamsoft.fridge.db.entry
 
 import androidx.annotation.CheckResult
-import com.pyamsoft.cachify.Cached1
+import com.pyamsoft.cachify.Cached
 import com.pyamsoft.fridge.db.BaseDb
 
 interface FridgeEntryDb : BaseDb<
-    FridgeEntryChangeEvent,
-    FridgeEntryRealtime,
-    FridgeEntryQueryDao,
-    FridgeEntryInsertDao,
-    FridgeEntryDeleteDao
-    > {
+        FridgeEntryChangeEvent,
+        FridgeEntryRealtime,
+        FridgeEntryQueryDao,
+        FridgeEntryInsertDao,
+        FridgeEntryDeleteDao
+        > {
 
     companion object {
 
         @CheckResult
         fun wrap(
-            cache: Cached1<Sequence<FridgeEntry>, Boolean>,
+            cache: Cached<List<FridgeEntry>>,
             insertDao: FridgeEntryInsertDao,
             deleteDao: FridgeEntryDeleteDao
         ): FridgeEntryDb {

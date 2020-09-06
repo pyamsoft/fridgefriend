@@ -16,7 +16,7 @@
 
 package com.pyamsoft.fridge.db.category
 
-import com.pyamsoft.cachify.Cached1
+import com.pyamsoft.cachify.Cached
 import com.pyamsoft.fridge.db.BaseDbImpl
 import com.pyamsoft.fridge.db.category.FridgeCategoryChangeEvent.Delete
 import com.pyamsoft.fridge.db.category.FridgeCategoryChangeEvent.Insert
@@ -25,10 +25,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 internal class FridgeCategoryDbImpl internal constructor(
-    cache: Cached1<Sequence<FridgeCategory>, Boolean>,
+    private val cache: Cached<List<FridgeCategory>>,
     insertDao: FridgeCategoryInsertDao,
     deleteDao: FridgeCategoryDeleteDao
-) : BaseDbImpl<FridgeCategory, FridgeCategoryChangeEvent>(cache), FridgeCategoryDb {
+) : BaseDbImpl<FridgeCategory, FridgeCategoryChangeEvent>(), FridgeCategoryDb {
 
     private val realtime = object : FridgeCategoryRealtime {
 
@@ -49,7 +49,7 @@ internal class FridgeCategoryDbImpl internal constructor(
                     invalidate()
                 }
 
-                return@withContext cache.call(force).toList()
+                return@withContext cache.call()
             }
     }
 
@@ -85,5 +85,9 @@ internal class FridgeCategoryDbImpl internal constructor(
 
     override fun deleteDao(): FridgeCategoryDeleteDao {
         return deleteDao
+    }
+
+    override suspend fun invalidate() {
+        cache.clear()
     }
 }

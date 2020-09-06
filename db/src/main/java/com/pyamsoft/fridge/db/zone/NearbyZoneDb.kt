@@ -17,6 +17,7 @@
 package com.pyamsoft.fridge.db.zone
 
 import androidx.annotation.CheckResult
+import com.pyamsoft.cachify.Cached
 import com.pyamsoft.cachify.Cached1
 import com.pyamsoft.fridge.db.BaseDb
 
@@ -32,7 +33,7 @@ interface NearbyZoneDb : BaseDb<
 
         @CheckResult
         fun wrap(
-            cache: Cached1<Sequence<NearbyZone>, Boolean>,
+            cache: Cached<List<NearbyZone>>,
             insertDao: NearbyZoneInsertDao,
             deleteDao: NearbyZoneDeleteDao
         ): NearbyZoneDb {

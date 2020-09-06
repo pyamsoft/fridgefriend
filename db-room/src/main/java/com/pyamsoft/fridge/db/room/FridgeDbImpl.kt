@@ -17,7 +17,9 @@
 package com.pyamsoft.fridge.db.room
 
 import androidx.annotation.CheckResult
-import com.pyamsoft.cachify.Cached1
+import com.pyamsoft.cachify.Cached
+import com.pyamsoft.cachify.MultiCached1
+import com.pyamsoft.cachify.MultiCached2
 import com.pyamsoft.fridge.db.FridgeDb
 import com.pyamsoft.fridge.db.category.FridgeCategory
 import com.pyamsoft.fridge.db.category.FridgeCategoryDb
@@ -32,16 +34,32 @@ import com.pyamsoft.fridge.db.zone.NearbyZoneDb
 
 internal class FridgeDbImpl internal constructor(
     db: RoomFridgeDb,
-    entryCache: Cached1<Sequence<FridgeEntry>, Boolean>,
-    itemCache: Cached1<Sequence<FridgeItem>, Boolean>,
-    storeCache: Cached1<Sequence<NearbyStore>, Boolean>,
-    zoneCache: Cached1<Sequence<NearbyZone>, Boolean>,
-    categoryCache: Cached1<Sequence<FridgeCategory>, Boolean>
+
+    // Items
+    allItemsCache: Cached<List<FridgeItem>>,
+    itemsByEntryCache: MultiCached1<FridgeEntry.Id, List<FridgeItem>, FridgeEntry.Id>,
+    sameNameDifferentPresenceCache: MultiCached2<FridgeItemDb.QuerySameNameDifferentPresenceKey, List<FridgeItem>, String, FridgeItem.Presence>,
+    similarNamedCache: MultiCached2<FridgeItemDb.QuerySimilarNamedKey, List<FridgeItemDb.SimilarityScore>, FridgeItem.Id, String>,
+
+    // Entries
+    entryCache: Cached<List<FridgeEntry>>,
+
+    // Stores
+    storeCache: Cached<List<NearbyStore>>,
+
+    // Zones
+    zoneCache: Cached<List<NearbyZone>>,
+
+    // Categories
+    categoryCache: Cached<List<FridgeCategory>>
 ) : FridgeDb {
 
     private val itemDb by lazy {
         FridgeItemDb.wrap(
-            itemCache,
+            allItemsCache,
+            itemsByEntryCache,
+            sameNameDifferentPresenceCache,
+            similarNamedCache,
             db.roomItemInsertDao(),
             db.roomItemDeleteDao()
         )

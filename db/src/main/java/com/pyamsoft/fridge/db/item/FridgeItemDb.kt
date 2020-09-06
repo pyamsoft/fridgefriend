@@ -17,26 +17,54 @@
 package com.pyamsoft.fridge.db.item
 
 import androidx.annotation.CheckResult
-import com.pyamsoft.cachify.Cached1
+import com.pyamsoft.cachify.Cached
+import com.pyamsoft.cachify.MultiCached1
+import com.pyamsoft.cachify.MultiCached2
 import com.pyamsoft.fridge.db.BaseDb
+import com.pyamsoft.fridge.db.entry.FridgeEntry
 
 interface FridgeItemDb : BaseDb<
-    FridgeItemChangeEvent,
-    FridgeItemRealtime,
-    FridgeItemQueryDao,
-    FridgeItemInsertDao,
-    FridgeItemDeleteDao
-    > {
+        FridgeItemChangeEvent,
+        FridgeItemRealtime,
+        FridgeItemQueryDao,
+        FridgeItemInsertDao,
+        FridgeItemDeleteDao
+        > {
+
+    data class QuerySameNameDifferentPresenceKey(
+        val name: String,
+        val presence: FridgeItem.Presence
+    )
+
+    data class QuerySimilarNamedKey(
+        val id: FridgeItem.Id,
+        val name: String
+    )
+
+    data class SimilarityScore constructor(
+        val item: FridgeItem,
+        val score: Float
+    )
 
     companion object {
 
         @CheckResult
         fun wrap(
-            cache: Cached1<Sequence<FridgeItem>, Boolean>,
+            allItemsCache: Cached<List<FridgeItem>>,
+            itemsByEntryCache: MultiCached1<FridgeEntry.Id, List<FridgeItem>, FridgeEntry.Id>,
+            sameNameDifferentPresenceCache: MultiCached2<QuerySameNameDifferentPresenceKey, List<FridgeItem>, String, FridgeItem.Presence>,
+            similarNamedCache: MultiCached2<QuerySimilarNamedKey, List<SimilarityScore>, FridgeItem.Id, String>,
             insertDao: FridgeItemInsertDao,
             deleteDao: FridgeItemDeleteDao
         ): FridgeItemDb {
-            return FridgeItemDbImpl(cache, insertDao, deleteDao)
+            return FridgeItemDbImpl(
+                allItemsCache,
+                itemsByEntryCache,
+                sameNameDifferentPresenceCache,
+                similarNamedCache,
+                insertDao,
+                deleteDao
+            )
         }
     }
 }

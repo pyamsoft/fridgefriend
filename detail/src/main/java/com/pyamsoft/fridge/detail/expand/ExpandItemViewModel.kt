@@ -25,7 +25,6 @@ import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence.HAVE
-import com.pyamsoft.fridge.db.item.FridgeItem.Presence.NEED
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent.Delete
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent.Insert
@@ -37,13 +36,13 @@ import com.pyamsoft.fridge.detail.base.BaseUpdaterViewModel
 import com.pyamsoft.fridge.detail.expand.date.DateSelectPayload
 import com.pyamsoft.fridge.detail.item.isNameValid
 import com.pyamsoft.pydroid.arch.EventBus
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import timber.log.Timber
 import java.util.Calendar
 import java.util.Locale
 import javax.inject.Inject
 import javax.inject.Named
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import timber.log.Timber
 
 class ExpandItemViewModel @Inject internal constructor(
     private val interactor: DetailInteractor,
@@ -272,7 +271,7 @@ class ExpandItemViewModel @Inject internal constructor(
             requireNotNull(item).let { item ->
                 if (count > 0) {
                     setFixMessage("")
-                    commitItem(item.count(count), item.presence())
+                    commitItem(item.count(count))
                 } else {
                     Timber.w("Invalid count: $count")
                     handleInvalidCount(count)
@@ -286,7 +285,7 @@ class ExpandItemViewModel @Inject internal constructor(
             requireNotNull(item).let { item ->
                 if (isNameValid(name)) {
                     setFixMessage("")
-                    commitItem(item.name(name), item.presence())
+                    commitItem(item.name(name))
                 } else {
                     Timber.w("Invalid name: $name")
                     handleInvalidName(name)
@@ -307,10 +306,10 @@ class ExpandItemViewModel @Inject internal constructor(
                     val existingCategoryId = item.categoryId()
                     if (existingCategoryId != null && existingCategoryId == category.id()) {
                         Timber.d("Clearing category id")
-                        commitItem(item.invalidateCategoryId(), item.presence())
+                        commitItem(item.invalidateCategoryId())
                     } else {
                         Timber.d("Attempt save category: $category")
-                        commitItem(item.categoryId(category.id()), item.presence())
+                        commitItem(item.categoryId(category.id()))
                     }
                 }
             }
@@ -333,7 +332,7 @@ class ExpandItemViewModel @Inject internal constructor(
                     }
                     .time
                 Timber.d("Save expire time: $newTime")
-                commitItem(item.expireTime(newTime), item.presence())
+                commitItem(item.expireTime(newTime))
             }
         }
     }
@@ -341,26 +340,21 @@ class ExpandItemViewModel @Inject internal constructor(
     private fun commitPresence() {
         withState {
             requireNotNull(item).let { item ->
-                val oldPresence = item.presence()
-                val newItem = item.presence(oldPresence.flip())
-                commitItem(newItem, oldPresence)
+                val newItem = item.presence(item.presence().flip())
+                commitItem(newItem)
             }
         }
     }
 
-    private fun commitItem(item: FridgeItem, oldPresence: Presence) {
+    private fun commitItem(item: FridgeItem) {
         updateItem(item)
-        findSameNamedItems(item, oldPresence)
+        findSameNamedItems(item)
         findSimilarItems(item)
     }
 
-    private fun findSameNamedItems(item: FridgeItem, oldPresence: Presence) {
-        if (oldPresence != NEED) {
-            return
-        }
-
+    private fun findSameNamedItems(item: FridgeItem) {
         viewModelScope.launch(context = Dispatchers.Default) {
-            val sameNamedItems = interactor.findSameNamedItems(item.name(), HAVE)
+            val sameNamedItems = interactor.findSameNamedItems(item)
             setState { copy(sameNamedItems = sameNamedItems) }
         }
     }
@@ -438,7 +432,7 @@ class ExpandItemViewModel @Inject internal constructor(
         private const val CREATED_ITEM_ID = "created_item_id"
     }
 
-    private data class FixMessageThrowable internal constructor(
+    private data class FixMessageThrowable(
         override val message: String
     ) : IllegalStateException(message)
 }

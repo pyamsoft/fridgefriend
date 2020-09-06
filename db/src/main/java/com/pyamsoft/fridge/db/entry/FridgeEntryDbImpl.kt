@@ -16,7 +16,7 @@
 
 package com.pyamsoft.fridge.db.entry
 
-import com.pyamsoft.cachify.Cached1
+import com.pyamsoft.cachify.Cached
 import com.pyamsoft.fridge.db.BaseDbImpl
 import com.pyamsoft.fridge.db.entry.FridgeEntryChangeEvent.Delete
 import com.pyamsoft.fridge.db.entry.FridgeEntryChangeEvent.DeleteAll
@@ -26,10 +26,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 internal class FridgeEntryDbImpl internal constructor(
-    cache: Cached1<Sequence<FridgeEntry>, Boolean>,
+    private val cache: Cached<List<FridgeEntry>>,
     insertDao: FridgeEntryInsertDao,
     deleteDao: FridgeEntryDeleteDao
-) : BaseDbImpl<FridgeEntry, FridgeEntryChangeEvent>(cache), FridgeEntryDb {
+) : BaseDbImpl<FridgeEntry, FridgeEntryChangeEvent>(), FridgeEntryDb {
 
     private val realtime = object : FridgeEntryRealtime {
         override suspend fun listenForChanges(onChange: suspend (event: FridgeEntryChangeEvent) -> Unit) =
@@ -45,7 +45,7 @@ internal class FridgeEntryDbImpl internal constructor(
                     invalidate()
                 }
 
-                return@withContext cache.call(force).toList()
+                return@withContext cache.call()
             }
     }
 
@@ -87,5 +87,9 @@ internal class FridgeEntryDbImpl internal constructor(
 
     override fun deleteDao(): FridgeEntryDeleteDao {
         return deleteDao
+    }
+
+    override suspend fun invalidate() {
+        cache.clear()
     }
 }

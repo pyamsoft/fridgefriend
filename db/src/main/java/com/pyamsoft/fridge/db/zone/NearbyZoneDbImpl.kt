@@ -16,7 +16,7 @@
 
 package com.pyamsoft.fridge.db.zone
 
-import com.pyamsoft.cachify.Cached1
+import com.pyamsoft.cachify.Cached
 import com.pyamsoft.fridge.db.BaseDbImpl
 import com.pyamsoft.fridge.db.zone.NearbyZoneChangeEvent.Delete
 import com.pyamsoft.fridge.db.zone.NearbyZoneChangeEvent.Insert
@@ -25,10 +25,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 internal class NearbyZoneDbImpl internal constructor(
-    cache: Cached1<Sequence<NearbyZone>, Boolean>,
+    private val cache: Cached<List<NearbyZone>>,
     insertDao: NearbyZoneInsertDao,
     deleteDao: NearbyZoneDeleteDao
-) : BaseDbImpl<NearbyZone, NearbyZoneChangeEvent>(cache), NearbyZoneDb {
+) : BaseDbImpl<NearbyZone, NearbyZoneChangeEvent>(), NearbyZoneDb {
 
     private val realtime = object : NearbyZoneRealtime {
 
@@ -45,7 +45,7 @@ internal class NearbyZoneDbImpl internal constructor(
                 invalidate()
             }
 
-            return cache.call(force).toList()
+            return cache.call()
         }
     }
 
@@ -81,5 +81,9 @@ internal class NearbyZoneDbImpl internal constructor(
 
     override fun deleteDao(): NearbyZoneDeleteDao {
         return deleteDao
+    }
+
+    override suspend fun invalidate() {
+        cache.clear()
     }
 }

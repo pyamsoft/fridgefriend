@@ -34,5 +34,9 @@ interface FridgeItemQueryDao : BaseDb.Query<FridgeItem> {
     ): List<FridgeItem>
 
     @CheckResult
-    suspend fun querySimilarNamedItems(force: Boolean, item: FridgeItem): List<FridgeItem>
+    suspend fun querySimilarNamedItems(
+        force: Boolean,
+        id: FridgeItem.Id,
+        name: String
+    ): List<FridgeItem>
 }
