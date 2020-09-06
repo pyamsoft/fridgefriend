@@ -106,11 +106,13 @@ internal class FridgeItemDbImpl internal constructor(
             }
 
             val key = FridgeItemDb.QuerySimilarNamedKey(id, name)
-            return@withContext similarNamedCache.key(key).call(id, name)
-                .chunked(SIMILARITY_MAX_ITEM_COUNT)
-                .first()
-                .map { it.item }
-                .toList()
+            val result = similarNamedCache.key(key).call(id, name)
+            return@withContext if (result.isEmpty()) emptyList() else {
+                result.chunked(SIMILARITY_MAX_ITEM_COUNT)
+                    .first()
+                    .map { it.item }
+                    .toList()
+            }
         }
     }
 
