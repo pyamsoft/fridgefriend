@@ -49,12 +49,14 @@ interface BaseDb<
 
     interface Delete<T : Any> {
 
-        suspend fun delete(o: T)
+        @CheckResult
+        suspend fun delete(o: T): Boolean
     }
 
     interface Insert<T : Any> {
 
-        suspend fun insert(o: T)
+        @CheckResult
+        suspend fun insert(o: T): Boolean
     }
 
     interface Query<T : Any> {

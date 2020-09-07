@@ -16,9 +16,12 @@
 
 package com.pyamsoft.fridge.db.room.dao.store
 
+import androidx.annotation.CheckResult
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
+import androidx.room.Query
+import androidx.room.Update
 import com.pyamsoft.fridge.db.room.entity.RoomNearbyStore
 import com.pyamsoft.fridge.db.store.NearbyStore
 import com.pyamsoft.fridge.db.store.NearbyStoreInsertDao
@@ -28,11 +31,30 @@ import kotlinx.coroutines.withContext
 @Dao
 internal abstract class RoomNearbyStoreInsertDao internal constructor() : NearbyStoreInsertDao {
 
-    override suspend fun insert(o: NearbyStore) = withContext(context = Dispatchers.IO) {
+    override suspend fun insert(o: NearbyStore): Boolean = withContext(context = Dispatchers.IO) {
         val roomNearbyStore = RoomNearbyStore.create(o)
-        daoInsert(roomNearbyStore)
+        return@withContext  if (daoQuery(roomNearbyStore.id()) ==null) {
+            daoInsert(roomNearbyStore)
+            true
+        } else {
+            daoUpdate(roomNearbyStore)
+            false
+        }
     }
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert(onConflict = OnConflictStrategy.ABORT)
     internal abstract fun daoInsert(entry: RoomNearbyStore)
+
+    @CheckResult
+    @Query(
+        """
+        SELECT * FROM ${RoomNearbyStore.TABLE_NAME} WHERE 
+        ${RoomNearbyStore.COLUMN_ID} = :id
+        LIMIT 1
+        """
+    )
+    internal abstract suspend fun daoQuery(id: NearbyStore.Id): RoomNearbyStore?
+
+    @Update
+    internal abstract suspend fun daoUpdate(store: RoomNearbyStore)
 }

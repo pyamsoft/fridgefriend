@@ -28,13 +28,13 @@ import com.pyamsoft.fridge.db.category.toThumbnail
 import com.pyamsoft.pydroid.core.Enforcer
 import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.loader.ImageTarget
-import java.io.ByteArrayOutputStream
-import javax.inject.Inject
-import kotlin.coroutines.resume
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
 import timber.log.Timber
+import java.io.ByteArrayOutputStream
+import javax.inject.Inject
+import kotlin.coroutines.resume
 
 internal class PersistentCategoriesImpl @Inject internal constructor(
     private val imageLoader: ImageLoader,
@@ -85,7 +85,13 @@ internal class PersistentCategoriesImpl @Inject internal constructor(
             )
 
             // Parallel collection iteration one day?
-            defaultCategories.forEach { insertDao.insert(it) }
+            defaultCategories.forEach { category ->
+                if (insertDao.insert(category)) {
+                    Timber.d("Inserted new default category: $category")
+                } else {
+                    Timber.d("Updated existing default category: $category")
+                }
+            }
 
             preferences.setPersistentCategoriesInserted()
         }

@@ -16,9 +16,12 @@
 
 package com.pyamsoft.fridge.db.room.dao.item
 
+import androidx.annotation.CheckResult
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
+import androidx.room.Query
+import androidx.room.Update
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItemInsertDao
 import com.pyamsoft.fridge.db.room.entity.RoomFridgeItem
@@ -30,9 +33,28 @@ internal abstract class RoomFridgeItemInsertDao internal constructor() : FridgeI
 
     final override suspend fun insert(o: FridgeItem) = withContext(context = Dispatchers.IO) {
         val roomItem = RoomFridgeItem.create(o)
-        daoInsert(roomItem)
+        return@withContext if (daoQuery(roomItem.id()) == null) {
+            daoInsert(roomItem)
+            true
+        } else {
+            daoUpdate(roomItem)
+            false
+        }
     }
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert(onConflict = OnConflictStrategy.ABORT)
     internal abstract fun daoInsert(item: RoomFridgeItem)
+
+    @CheckResult
+    @Query(
+        """
+        SELECT * FROM ${RoomFridgeItem.TABLE_NAME} WHERE 
+        ${RoomFridgeItem.COLUMN_ID} = :id
+        LIMIT 1
+        """
+    )
+    internal abstract suspend fun daoQuery(id: FridgeItem.Id): RoomFridgeItem?
+
+    @Update
+    internal abstract suspend fun daoUpdate(entry: RoomFridgeItem)
 }

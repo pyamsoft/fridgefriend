@@ -196,13 +196,19 @@ internal class DetailInteractor @Inject internal constructor(
     private suspend fun commitItem(item: FridgeItem) {
         Enforcer.assertOffMainThread()
         Timber.d("Insert or replace item [${item.id()}]: $item")
-        itemInsertDao.insert(item)
+        if (itemInsertDao.insert(item)) {
+            Timber.d("Item inserted: $item")
+        } else {
+            Timber.d("Item updated: $item")
+        }
     }
 
     suspend fun delete(item: FridgeItem) = withContext(context = Dispatchers.Default) {
         Enforcer.assertOffMainThread()
         require(item.isReal()) { "Cannot delete item that is not real: $item" }
         Timber.d("Deleting item [${item.id()}]: $item")
-        itemDeleteDao.delete(item)
+        if (itemDeleteDao.delete(item)) {
+            Timber.d("Item deleted: $item")
+        }
     }
 }

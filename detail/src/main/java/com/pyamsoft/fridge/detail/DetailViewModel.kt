@@ -37,16 +37,16 @@ import com.pyamsoft.fridge.ui.BottomOffset
 import com.pyamsoft.highlander.highlander
 import com.pyamsoft.pydroid.arch.EventConsumer
 import com.pyamsoft.pydroid.arch.onActualError
-import java.util.Calendar
-import java.util.Date
-import javax.inject.Inject
-import javax.inject.Named
-import kotlin.math.max
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import timber.log.Timber
+import java.util.Calendar
+import java.util.Date
+import javax.inject.Inject
+import javax.inject.Named
+import kotlin.math.max
 
 class DetailViewModel @Inject internal constructor(
     private val interactor: DetailInteractor,
@@ -355,6 +355,7 @@ class DetailViewModel @Inject internal constructor(
     }
 
     private fun handleRealtimeUpdate(item: FridgeItem) {
+        Timber.d("Realtime update: $item ${item.isArchived()}")
         setState {
             val list = internalAllItems
             val updatedItems = if (list.none { it.id() == item.id() }) list + item else {
@@ -373,6 +374,7 @@ class DetailViewModel @Inject internal constructor(
     }
 
     private fun handleRealtimeDelete(item: FridgeItem) {
+        Timber.d("Realtime delete: $item")
         setState {
             val newItems = prepareListItems(internalAllItems.filterNot { it.id() == item.id() })
             val visibleItems = getOnlyVisibleItems(newItems)

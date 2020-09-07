@@ -18,8 +18,6 @@ package com.pyamsoft.fridge.db.store
 
 import com.pyamsoft.cachify.Cached
 import com.pyamsoft.fridge.db.BaseDbImpl
-import com.pyamsoft.fridge.db.store.NearbyStoreChangeEvent.Delete
-import com.pyamsoft.fridge.db.store.NearbyStoreChangeEvent.Insert
 import com.pyamsoft.pydroid.core.Enforcer
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -42,32 +40,43 @@ internal class NearbyStoreDbImpl internal constructor(
 
     private val queryDao = object : NearbyStoreQueryDao {
 
-        override suspend fun query(force: Boolean): List<NearbyStore> {
-            Enforcer.assertOffMainThread()
-            if (force) {
-                invalidate()
-            }
+        override suspend fun query(force: Boolean): List<NearbyStore> =
+            withContext(context = Dispatchers.IO) {
+                Enforcer.assertOffMainThread()
+                if (force) {
+                    invalidate()
+                }
 
-            return cache.call()
-        }
+                return@withContext cache.call()
+            }
     }
 
     private val insertDao = object : NearbyStoreInsertDao {
 
-        override suspend fun insert(o: NearbyStore) {
-            Enforcer.assertOffMainThread()
-            insertDao.insert(o)
-            publish(Insert(o))
-        }
+        override suspend fun insert(o: NearbyStore): Boolean =
+            withContext(context = Dispatchers.IO) {
+                Enforcer.assertOffMainThread()
+                return@withContext insertDao.insert(o).also { inserted ->
+                    if (inserted) {
+                        publish(NearbyStoreChangeEvent.Insert(o))
+                    } else {
+                        publish(NearbyStoreChangeEvent.Update(o))
+                    }
+                }
+            }
     }
 
     private val deleteDao = object : NearbyStoreDeleteDao {
 
-        override suspend fun delete(o: NearbyStore) {
-            Enforcer.assertOffMainThread()
-            deleteDao.delete(o)
-            publish(Delete(o))
-        }
+        override suspend fun delete(o: NearbyStore): Boolean =
+            withContext(context = Dispatchers.IO) {
+                Enforcer.assertOffMainThread()
+                return@withContext deleteDao.delete(o).also { deleted ->
+                    if (deleted) {
+                        publish(NearbyStoreChangeEvent.Delete(o))
+                    }
+                }
+            }
     }
 
     override fun realtime(): NearbyStoreRealtime {
@@ -86,7 +95,7 @@ internal class NearbyStoreDbImpl internal constructor(
         return deleteDao
     }
 
-    override suspend fun invalidate() {
+    override suspend fun invalidate() = withContext(context = Dispatchers.IO) {
         cache.clear()
     }
 }

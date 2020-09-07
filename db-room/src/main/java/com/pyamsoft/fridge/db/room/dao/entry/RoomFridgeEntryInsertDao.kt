@@ -16,9 +16,12 @@
 
 package com.pyamsoft.fridge.db.room.dao.entry
 
+import androidx.annotation.CheckResult
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
+import androidx.room.Query
+import androidx.room.Update
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.entry.FridgeEntryInsertDao
 import com.pyamsoft.fridge.db.room.entity.RoomFridgeEntry
@@ -28,11 +31,31 @@ import kotlinx.coroutines.withContext
 @Dao
 internal abstract class RoomFridgeEntryInsertDao internal constructor() : FridgeEntryInsertDao {
 
-    final override suspend fun insert(o: FridgeEntry) = withContext(context = Dispatchers.IO) {
-        val roomEntry = RoomFridgeEntry.create(o)
-        daoInsert(roomEntry)
-    }
+    final override suspend fun insert(o: FridgeEntry): Boolean =
+        withContext(context = Dispatchers.IO) {
+            val roomEntry = RoomFridgeEntry.create(o)
+            return@withContext if (daoQuery(roomEntry.id()) == null) {
+                daoInsert(roomEntry)
+                true
+            } else {
+                daoUpdate(roomEntry)
+                false
+            }
+        }
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert(onConflict = OnConflictStrategy.ABORT)
     internal abstract fun daoInsert(entry: RoomFridgeEntry)
+
+    @CheckResult
+    @Query(
+        """
+        SELECT * FROM ${RoomFridgeEntry.TABLE_NAME} WHERE 
+        ${RoomFridgeEntry.COLUMN_ID} = :id
+        LIMIT 1
+        """
+    )
+    internal abstract suspend fun daoQuery(id: FridgeEntry.Id): RoomFridgeEntry?
+
+    @Update
+    internal abstract suspend fun daoUpdate(entry: RoomFridgeEntry)
 }

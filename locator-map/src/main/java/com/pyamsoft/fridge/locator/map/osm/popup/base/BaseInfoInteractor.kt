@@ -24,6 +24,7 @@ import com.pyamsoft.fridge.db.BaseDb
 import com.pyamsoft.pydroid.core.Enforcer
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import timber.log.Timber
 
 internal abstract class BaseInfoInteractor<
         T : Any,
@@ -33,13 +34,13 @@ internal abstract class BaseInfoInteractor<
         I : BaseDb.Insert<T>,
         D : BaseDb.Delete<T>
         > protected constructor(
-            private val orderFactory: OrderFactory,
-            private val butler: Butler,
-            private val realtime: R,
-            private val queryDao: Q,
-            private val insertDao: I,
-            private val deleteDao: D
-        ) {
+    private val orderFactory: OrderFactory,
+    private val butler: Butler,
+    private val realtime: R,
+    private val queryDao: Q,
+    private val insertDao: I,
+    private val deleteDao: D
+) {
 
     @CheckResult
     suspend fun getAllCached(): List<T> = withContext(context = Dispatchers.Default) {
@@ -56,13 +57,19 @@ internal abstract class BaseInfoInteractor<
 
     suspend fun deleteFromDb(data: T) = withContext(context = Dispatchers.Default) {
         Enforcer.assertOffMainThread()
-        deleteDao.delete(data)
-        restartLocationWorker()
+        if (deleteDao.delete(data)) {
+            Timber.d("Favorite removed: $data")
+            restartLocationWorker()
+        }
     }
 
     suspend fun insertIntoDb(data: T) = withContext(context = Dispatchers.Default) {
         Enforcer.assertOffMainThread()
-        insertDao.insert(data)
+        if (insertDao.insert(data)) {
+            Timber.d("Favorite inserted: $data")
+        } else {
+            Timber.d("Favorite updated: $data")
+        }
         restartLocationWorker()
     }
 

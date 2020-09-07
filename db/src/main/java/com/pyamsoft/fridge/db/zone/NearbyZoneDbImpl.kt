@@ -18,8 +18,6 @@ package com.pyamsoft.fridge.db.zone
 
 import com.pyamsoft.cachify.Cached
 import com.pyamsoft.fridge.db.BaseDbImpl
-import com.pyamsoft.fridge.db.zone.NearbyZoneChangeEvent.Delete
-import com.pyamsoft.fridge.db.zone.NearbyZoneChangeEvent.Insert
 import com.pyamsoft.pydroid.core.Enforcer
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -39,31 +37,41 @@ internal class NearbyZoneDbImpl internal constructor(
 
     private val queryDao = object : NearbyZoneQueryDao {
 
-        override suspend fun query(force: Boolean): List<NearbyZone> {
-            Enforcer.assertOffMainThread()
-            if (force) {
-                invalidate()
-            }
+        override suspend fun query(force: Boolean): List<NearbyZone> =
+            withContext(context = Dispatchers.IO) {
+                Enforcer.assertOffMainThread()
+                if (force) {
+                    invalidate()
+                }
 
-            return cache.call()
-        }
+                return@withContext cache.call()
+            }
     }
 
     private val insertDao = object : NearbyZoneInsertDao {
 
-        override suspend fun insert(o: NearbyZone) {
-            Enforcer.assertOffMainThread()
-            insertDao.insert(o)
-            publish(Insert(o))
-        }
+        override suspend fun insert(o: NearbyZone): Boolean =
+            withContext(context = Dispatchers.IO) {
+                Enforcer.assertOffMainThread()
+                return@withContext insertDao.insert(o).also { inserted ->
+                    if (inserted) {
+                        publish(NearbyZoneChangeEvent.Insert(o))
+                    } else {
+                        publish(NearbyZoneChangeEvent.Update(o))
+                    }
+                }
+            }
     }
 
     private val deleteDao = object : NearbyZoneDeleteDao {
 
-        override suspend fun delete(o: NearbyZone) {
+        override suspend fun delete(o: NearbyZone) = withContext(context = Dispatchers.IO) {
             Enforcer.assertOffMainThread()
-            deleteDao.delete(o)
-            publish(Delete(o))
+            return@withContext deleteDao.delete(o).also { deleted ->
+                if (deleted) {
+                    publish(NearbyZoneChangeEvent.Delete(o))
+                }
+            }
         }
     }
 
@@ -83,7 +91,7 @@ internal class NearbyZoneDbImpl internal constructor(
         return deleteDao
     }
 
-    override suspend fun invalidate() {
+    override suspend fun invalidate() = withContext(context = Dispatchers.IO) {
         cache.clear()
     }
 }

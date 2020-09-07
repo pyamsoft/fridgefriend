@@ -22,8 +22,6 @@ import com.pyamsoft.cachify.MultiCached2
 import com.pyamsoft.fridge.db.BaseDbImpl
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence
-import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent.Delete
-import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent.Insert
 import com.pyamsoft.pydroid.core.Enforcer
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -118,20 +116,30 @@ internal class FridgeItemDbImpl internal constructor(
 
     private val insertDao = object : FridgeItemInsertDao {
 
-        override suspend fun insert(o: FridgeItem) = withContext(context = Dispatchers.IO) {
-            Enforcer.assertOffMainThread()
-            insertDao.insert(o)
-            publish(Insert(o.makeReal()))
-        }
+        override suspend fun insert(o: FridgeItem): Boolean =
+            withContext(context = Dispatchers.IO) {
+                Enforcer.assertOffMainThread()
+                return@withContext insertDao.insert(o).also { inserted ->
+                    if (inserted) {
+                        publish(FridgeItemChangeEvent.Insert(o.makeReal()))
+                    } else {
+                        publish(FridgeItemChangeEvent.Update(o.makeReal()))
+                    }
+                }
+            }
     }
 
     private val deleteDao = object : FridgeItemDeleteDao {
 
-        override suspend fun delete(o: FridgeItem) = withContext(context = Dispatchers.IO) {
-            Enforcer.assertOffMainThread()
-            deleteDao.delete(o)
-            publish(Delete(o.makeReal()))
-        }
+        override suspend fun delete(o: FridgeItem): Boolean =
+            withContext(context = Dispatchers.IO) {
+                Enforcer.assertOffMainThread()
+                return@withContext deleteDao.delete(o).also { deleted ->
+                    if (deleted) {
+                        publish(FridgeItemChangeEvent.Delete(o.makeReal()))
+                    }
+                }
+            }
     }
 
     override fun realtime(): FridgeItemRealtime {

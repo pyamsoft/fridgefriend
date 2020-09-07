@@ -18,9 +18,6 @@ package com.pyamsoft.fridge.db.entry
 
 import com.pyamsoft.cachify.Cached
 import com.pyamsoft.fridge.db.BaseDbImpl
-import com.pyamsoft.fridge.db.entry.FridgeEntryChangeEvent.Delete
-import com.pyamsoft.fridge.db.entry.FridgeEntryChangeEvent.DeleteAll
-import com.pyamsoft.fridge.db.entry.FridgeEntryChangeEvent.Insert
 import com.pyamsoft.pydroid.core.Enforcer
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -51,25 +48,36 @@ internal class FridgeEntryDbImpl internal constructor(
 
     private val insertDao = object : FridgeEntryInsertDao {
 
-        override suspend fun insert(o: FridgeEntry) = withContext(context = Dispatchers.IO) {
-            Enforcer.assertOffMainThread()
-            insertDao.insert(o)
-            publish(Insert(o.makeReal()))
-        }
+        override suspend fun insert(o: FridgeEntry): Boolean =
+            withContext(context = Dispatchers.IO) {
+                Enforcer.assertOffMainThread()
+                return@withContext insertDao.insert(o).also { inserted ->
+                    if (inserted) {
+                        publish(FridgeEntryChangeEvent.Insert(o.makeReal()))
+                    } else {
+                        publish(FridgeEntryChangeEvent.Update(o.makeReal()))
+                    }
+                }
+            }
     }
 
     private val deleteDao = object : FridgeEntryDeleteDao {
 
-        override suspend fun delete(o: FridgeEntry) = withContext(context = Dispatchers.IO) {
-            Enforcer.assertOffMainThread()
-            deleteDao.delete(o)
-            publish(Delete(o.makeReal()))
-        }
+        override suspend fun delete(o: FridgeEntry): Boolean =
+            withContext(context = Dispatchers.IO) {
+                Enforcer.assertOffMainThread()
+                return@withContext deleteDao.delete(o).also { deleted ->
+                    if (deleted) {
+                        publish(FridgeEntryChangeEvent.Delete(o.makeReal()))
+                    }
+                }
+            }
 
         override suspend fun deleteAll() = withContext(context = Dispatchers.IO) {
             Enforcer.assertOffMainThread()
-            deleteDao.deleteAll()
-            publish(DeleteAll)
+            return@withContext deleteDao.deleteAll().also {
+                publish(FridgeEntryChangeEvent.DeleteAll)
+            }
         }
     }
 
@@ -89,7 +97,7 @@ internal class FridgeEntryDbImpl internal constructor(
         return deleteDao
     }
 
-    override suspend fun invalidate() {
+    override suspend fun invalidate() = withContext(context = Dispatchers.IO) {
         cache.clear()
     }
 }

@@ -16,6 +16,7 @@
 
 package com.pyamsoft.fridge.db.room.dao.category
 
+import androidx.annotation.CheckResult
 import androidx.room.Dao
 import androidx.room.Delete
 import com.pyamsoft.fridge.db.category.FridgeCategory
@@ -28,11 +29,13 @@ import kotlinx.coroutines.withContext
 internal abstract class RoomFridgeCategoryDeleteDao internal constructor() :
     FridgeCategoryDeleteDao {
 
-    final override suspend fun delete(o: FridgeCategory) = withContext(context = Dispatchers.IO) {
-        val roomCategory = RoomFridgeCategory.create(o)
-        daoDelete(roomCategory)
-    }
+    final override suspend fun delete(o: FridgeCategory): Boolean =
+        withContext(context = Dispatchers.IO) {
+            val roomCategory = RoomFridgeCategory.create(o)
+            return@withContext daoDelete(roomCategory) > 0
+        }
 
     @Delete
-    internal abstract fun daoDelete(entry: RoomFridgeCategory)
+    @CheckResult
+    internal abstract fun daoDelete(entry: RoomFridgeCategory): Int
 }

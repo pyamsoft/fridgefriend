@@ -18,8 +18,6 @@ package com.pyamsoft.fridge.db.category
 
 import com.pyamsoft.cachify.Cached
 import com.pyamsoft.fridge.db.BaseDbImpl
-import com.pyamsoft.fridge.db.category.FridgeCategoryChangeEvent.Delete
-import com.pyamsoft.fridge.db.category.FridgeCategoryChangeEvent.Insert
 import com.pyamsoft.pydroid.core.Enforcer
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -55,20 +53,30 @@ internal class FridgeCategoryDbImpl internal constructor(
 
     private val insertDao = object : FridgeCategoryInsertDao {
 
-        override suspend fun insert(o: FridgeCategory) = withContext(context = Dispatchers.IO) {
-            Enforcer.assertOffMainThread()
-            insertDao.insert(o)
-            publish(Insert(o))
-        }
+        override suspend fun insert(o: FridgeCategory): Boolean =
+            withContext(context = Dispatchers.IO) {
+                Enforcer.assertOffMainThread()
+                return@withContext insertDao.insert(o).also { inserted ->
+                    if (inserted) {
+                        publish(FridgeCategoryChangeEvent.Insert(o))
+                    } else {
+                        publish(FridgeCategoryChangeEvent.Update(o))
+                    }
+                }
+            }
     }
 
     private val deleteDao = object : FridgeCategoryDeleteDao {
 
-        override suspend fun delete(o: FridgeCategory) = withContext(context = Dispatchers.IO) {
-            Enforcer.assertOffMainThread()
-            deleteDao.delete(o)
-            publish(Delete(o))
-        }
+        override suspend fun delete(o: FridgeCategory): Boolean =
+            withContext(context = Dispatchers.IO) {
+                Enforcer.assertOffMainThread()
+                return@withContext deleteDao.delete(o).also { deleted ->
+                    if (deleted) {
+                        publish(FridgeCategoryChangeEvent.Delete(o))
+                    }
+                }
+            }
     }
 
     override fun realtime(): FridgeCategoryRealtime {
@@ -87,7 +95,7 @@ internal class FridgeCategoryDbImpl internal constructor(
         return deleteDao
     }
 
-    override suspend fun invalidate() {
+    override suspend fun invalidate() = withContext(context = Dispatchers.IO) {
         cache.clear()
     }
 }
