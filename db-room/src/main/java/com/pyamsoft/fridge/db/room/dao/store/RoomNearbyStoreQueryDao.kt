@@ -28,7 +28,7 @@ import kotlinx.coroutines.withContext
 @Dao
 internal abstract class RoomNearbyStoreQueryDao internal constructor() : NearbyStoreQueryDao {
 
-    override suspend fun query(force: Boolean): List<NearbyStore> =
+    final override suspend fun query(force: Boolean): List<NearbyStore> =
         withContext(context = Dispatchers.IO) { daoQuery() }
 
     @CheckResult

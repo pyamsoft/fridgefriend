@@ -36,7 +36,7 @@ internal abstract class RoomFridgeItemQueryDao internal constructor() : FridgeIt
     @Query("""SELECT * FROM ${RoomFridgeItem.TABLE_NAME}""")
     internal abstract suspend fun daoQuery(): List<RoomFridgeItem>
 
-    override suspend fun query(force: Boolean, id: FridgeEntry.Id): List<FridgeItem> =
+    final override suspend fun query(force: Boolean, id: FridgeEntry.Id): List<FridgeItem> =
         withContext(context = Dispatchers.IO) {
             daoQuery(id)
         }
@@ -50,7 +50,7 @@ internal abstract class RoomFridgeItemQueryDao internal constructor() : FridgeIt
     )
     internal abstract suspend fun daoQuery(id: FridgeEntry.Id): List<RoomFridgeItem>
 
-    override suspend fun querySameNameDifferentPresence(
+    final override suspend fun querySameNameDifferentPresence(
         force: Boolean,
         name: String,
         presence: FridgeItem.Presence
@@ -71,7 +71,7 @@ internal abstract class RoomFridgeItemQueryDao internal constructor() : FridgeIt
         presence: FridgeItem.Presence
     ): List<RoomFridgeItem>
 
-    override suspend fun querySimilarNamedItems(
+    final override suspend fun querySimilarNamedItems(
         force: Boolean,
         id: FridgeItem.Id,
         name: String

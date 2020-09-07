@@ -31,7 +31,7 @@ import kotlinx.coroutines.withContext
 @Dao
 internal abstract class RoomNearbyZoneInsertDao internal constructor() : NearbyZoneInsertDao {
 
-    override suspend fun insert(o: NearbyZone): Boolean = withContext(context = Dispatchers.IO) {
+    final override suspend fun insert(o: NearbyZone): Boolean = withContext(context = Dispatchers.IO) {
         val roomNearbyZone = RoomNearbyZone.create(o)
         return@withContext if (daoQuery(roomNearbyZone.id()) == null) {
             daoInsert(roomNearbyZone)

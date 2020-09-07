@@ -69,6 +69,10 @@ internal class MainActivity : RatingActivity(), VersionChecker {
     override val versionName: String = BuildConfig.VERSION_NAME
 
     override val changeLogLines: ChangeLogBuilder = buildChangeLog {
+        change("Faster database performance")
+        change("Better UI responsiveness")
+        bugfix("Fix Map page sometimes rendering incorrectly")
+        change("Schedule notifications more efficiently to save battery")
     }
 
     override val fragmentContainerId: Int

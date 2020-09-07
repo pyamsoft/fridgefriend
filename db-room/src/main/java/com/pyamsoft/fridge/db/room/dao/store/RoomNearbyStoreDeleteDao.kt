@@ -28,7 +28,7 @@ import kotlinx.coroutines.withContext
 @Dao
 internal abstract class RoomNearbyStoreDeleteDao internal constructor() : NearbyStoreDeleteDao {
 
-    override suspend fun delete(o: NearbyStore): Boolean = withContext(context = Dispatchers.IO) {
+    final override suspend fun delete(o: NearbyStore): Boolean = withContext(context = Dispatchers.IO) {
         val roomNearbyStore = RoomNearbyStore.create(o)
         return@withContext daoDelete(roomNearbyStore) > 0
     }
