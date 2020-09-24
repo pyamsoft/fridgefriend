@@ -58,7 +58,7 @@ buildscript {
 		osmdroid = "6.1.8"
 
 		// FusedLocationProvider
-		gmsLocation = "17.0.0"
+		gmsLocation = "17.1.0"
 
 		balloon = "1.2.1"
 	}
