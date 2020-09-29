@@ -112,25 +112,15 @@ class DetailContainer @Inject internal constructor(
                 }
             }
         }
-    }
 
-    override fun onRender(state: DetailViewState) {
-        handleLoading(state)
-    }
-
-    private fun handleLoading(state: DetailViewState) {
-        state.isLoading.let { loading ->
-            if (loading != null) {
-                // Done loading
-                if (!loading.isLoading) {
-                    // If root is currently hidden, show it
-                    if (animator == null) {
-                        animator = animatePopInFromBottom(
-                            layoutRoot
-                        )
-                    }
-                }
+        doOnInflate {
+            if (animator == null) {
+                animator = animatePopInFromBottom(layoutRoot)
             }
         }
     }
+
+    override fun onRender(state: DetailViewState) {
+    }
+
 }
