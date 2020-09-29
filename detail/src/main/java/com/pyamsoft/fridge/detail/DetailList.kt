@@ -39,8 +39,8 @@ import com.pyamsoft.pydroid.ui.util.refreshing
 import com.pyamsoft.pydroid.util.toDp
 import io.cabriole.decorator.LinearBoundsMarginDecoration
 import io.cabriole.decorator.LinearMarginDecoration
-import javax.inject.Inject
 import timber.log.Timber
+import javax.inject.Inject
 
 class DetailList @Inject internal constructor(
     private val imageLoader: ImageLoader,
@@ -288,7 +288,7 @@ class DetailList @Inject internal constructor(
     }
 
     private fun handleList(state: DetailViewState) {
-        state.isLoading?.isLoading?.let { loading ->
+        state.isLoading.let { loading ->
             binding.detailSwipeRefresh.refreshing(loading)
 
             // Done loading
@@ -319,7 +319,7 @@ class DetailList @Inject internal constructor(
 
     private fun restoreLastScrollPosition(state: DetailViewState) {
         if (lastScrollPosition > 0) {
-            if (state.isLoading?.isLoading == false && state.items.isNotEmpty()) {
+            if (!state.isLoading && state.items.isNotEmpty()) {
                 val position = lastScrollPosition
                 lastScrollPosition = 0
 

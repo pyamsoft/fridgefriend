@@ -54,13 +54,11 @@ class DetailEmptyState @Inject internal constructor(
     private fun handleLoading(state: DetailViewState) {
         state.isLoading.let { loading ->
             clear()
-            if (loading != null) {
-                if (!loading.isLoading) {
-                    if (state.items.isEmpty()) {
-                        val isNeed = state.listItemPresence == NEED
-                        loadText(isNeed, state.search.isNotBlank())
-                        loadImage(isNeed)
-                    }
+            if (!loading) {
+                if (state.items.isEmpty()) {
+                    val isNeed = state.listItemPresence == NEED
+                    loadText(isNeed, state.search.isNotBlank())
+                    loadImage(isNeed)
                 }
             }
         }

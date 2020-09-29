@@ -24,7 +24,7 @@ import com.pyamsoft.pydroid.arch.UiViewEvent
 import com.pyamsoft.pydroid.arch.UiViewState
 
 data class DetailViewState(
-    val isLoading: Loading?,
+    val isLoading: Boolean,
     val items: List<FridgeItem>,
     val search: String,
     val entry: FridgeEntry?,
@@ -75,8 +75,6 @@ data class DetailViewState(
     data class ExpirationRange internal constructor(val range: Int)
 
     data class IsSameDayExpired internal constructor(val isSame: Boolean)
-
-    data class Loading internal constructor(val isLoading: Boolean)
 }
 
 sealed class DetailViewEvent : UiViewEvent {

@@ -58,7 +58,7 @@ class DetailViewModel @Inject internal constructor(
     initialState = DetailViewState(
         entry = null,
         search = "",
-        isLoading = null,
+        isLoading = false,
         showing = DetailViewState.Showing.FRESH,
         sort = DetailViewState.Sorts.CREATED,
         listError = null,
@@ -384,9 +384,7 @@ class DetailViewModel @Inject internal constructor(
     }
 
     private fun handleListRefreshBegin() {
-        setState {
-            copy(isLoading = DetailViewState.Loading(true))
-        }
+        setState { copy(isLoading = true) }
     }
 
     private fun handleListRefreshed(items: List<FridgeItem>) {
@@ -412,9 +410,7 @@ class DetailViewModel @Inject internal constructor(
     }
 
     private fun handleListRefreshComplete() {
-        setState {
-            copy(isLoading = DetailViewState.Loading(false))
-        }
+        setState { copy(isLoading = false) }
     }
 
     private fun handleError(throwable: Throwable) {
