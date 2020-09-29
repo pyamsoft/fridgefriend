@@ -37,8 +37,8 @@ import com.pyamsoft.pydroid.ui.Injector
 import com.pyamsoft.pydroid.ui.arch.viewModelFactory
 import com.pyamsoft.pydroid.ui.databinding.LayoutCoordinatorBinding
 import com.pyamsoft.pydroid.ui.util.commitNow
-import javax.inject.Inject
 import timber.log.Timber
+import javax.inject.Inject
 
 internal class EntryFragment : Fragment(), SnackbarContainer {
 
@@ -77,7 +77,7 @@ internal class EntryFragment : Fragment(), SnackbarContainer {
             viewModel
         ) {
             return@createComponent when (it) {
-                is EntryControllerEvent.LoadEntry -> pushPage(it.entry)
+                is EntryControllerEvent.LoadEntry -> pushPage(it.entry, Presence.NEED)
             }
         }
 
@@ -109,13 +109,11 @@ internal class EntryFragment : Fragment(), SnackbarContainer {
         stateSaver = null
     }
 
-    private fun pushPage(entry: FridgeEntry) {
+    private fun pushPage(entry: FridgeEntry, presence: Presence) {
         val tag = entry.id().id
         Timber.d("Push new entry page: $tag")
         val fm = childFragmentManager
         if (fm.findFragmentByTag(tag) == null) {
-            val presenceString = requireNotNull(requireArguments().getString(EXTRA_PRESENCE))
-            val presence = Presence.valueOf(presenceString)
             fm.commitNow(viewLifecycleOwner) {
                 replace(
                     fragmentContainerId,
@@ -128,16 +126,13 @@ internal class EntryFragment : Fragment(), SnackbarContainer {
 
     companion object {
 
-        const val EXTRA_PRESENCE = "presence"
         const val TAG = "EntryFragment"
 
         @JvmStatic
         @CheckResult
-        fun newInstance(presence: Presence): Fragment {
+        fun newInstance(): Fragment {
             return EntryFragment().apply {
-                arguments = Bundle().apply {
-                    putString(EXTRA_PRESENCE, presence.name)
-                }
+                arguments = Bundle().apply {}
             }
         }
     }

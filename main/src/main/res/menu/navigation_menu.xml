@@ -18,20 +18,14 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
-        android:id="@+id/menu_item_nav_need"
+        android:id="@+id/menu_item_nav_entries"
         android:icon="@drawable/ic_shopping_cart_24dp"
-        android:title="@string/nav_need"
-        app:showAsAction="ifRoom" />
-
-    <item
-        android:id="@+id/menu_item_nav_have"
-        android:icon="@drawable/ic_category_24"
-        android:title="@string/nav_have"
+        android:title="@string/nav_entries"
         app:showAsAction="ifRoom" />
 
     <item
         android:id="@+id/menu_item_nav_category"
-        android:icon="@drawable/ic_close_24dp"
+        android:icon="@drawable/ic_category_24"
         android:title="@string/nav_categories"
         android:visible="false"
         app:showAsAction="ifRoom" />

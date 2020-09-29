@@ -16,7 +16,7 @@
 
 <resources>
     <string name="settings">Settings</string>
-    <string name="nav_need">Need</string>
+    <string name="nav_entries">Fridge</string>
     <string name="nav_have">Have</string>
     <string name="nav_categories">Categories</string>
     <string name="nav_nearby">Nearby</string>

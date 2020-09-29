@@ -20,16 +20,14 @@ import android.os.Handler
 import android.os.Looper
 import android.view.ViewGroup
 import androidx.annotation.CheckResult
-import androidx.annotation.IdRes
 import androidx.core.content.ContextCompat
 import androidx.core.view.doOnLayout
 import androidx.core.view.updatePadding
-import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.pyamsoft.fridge.main.databinding.MainNavigationBinding
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.util.doOnApplyWindowInsets
-import javax.inject.Inject
 import timber.log.Timber
+import javax.inject.Inject
 
 class MainNavigation @Inject internal constructor(
     parent: ViewGroup
@@ -67,8 +65,7 @@ class MainNavigation @Inject internal constructor(
             binding.mainBottomNavigationMenu.setOnNavigationItemSelectedListener { item ->
                 Timber.d("Click nav item: $item")
                 return@setOnNavigationItemSelectedListener when (item.itemId) {
-                    R.id.menu_item_nav_need -> select(MainViewEvent.OpenNeed)
-                    R.id.menu_item_nav_have -> select(MainViewEvent.OpenHave)
+                    R.id.menu_item_nav_entries -> select(MainViewEvent.OpenEntries)
                     R.id.menu_item_nav_category -> select(MainViewEvent.OpenCategory)
                     R.id.menu_item_nav_nearby -> select(MainViewEvent.OpenNearby)
                     R.id.menu_item_nav_settings -> select(MainViewEvent.OpenSettings)
@@ -79,8 +76,7 @@ class MainNavigation @Inject internal constructor(
 
         doOnTeardown {
             binding.mainBottomNavigationMenu.setOnNavigationItemSelectedListener(null)
-            binding.mainBottomNavigationMenu.removeBadge(R.id.menu_item_nav_need)
-            binding.mainBottomNavigationMenu.removeBadge(R.id.menu_item_nav_have)
+            binding.mainBottomNavigationMenu.removeBadge(R.id.menu_item_nav_entries)
         }
 
         doOnTeardown {
@@ -112,34 +108,16 @@ class MainNavigation @Inject internal constructor(
         }
     }
 
-    private fun handleBadges(state: MainViewState) {
-        binding.mainBottomNavigationMenu.applyBadge(R.id.menu_item_nav_need, state.countNeeded)
-        binding.mainBottomNavigationMenu.applyBadge(
-            R.id.menu_item_nav_have,
-            state.countExpiringOrExpired
-        )
-    }
-
     override fun onRender(state: MainViewState) {
         correctBackground()
         handlePage(state)
-        handleBadges(state)
-    }
-
-    private fun BottomNavigationView.applyBadge(@IdRes id: Int, count: Int) {
-        if (count <= 0) {
-            this.removeBadge(id)
-        } else {
-            requireNotNull(this.getOrCreateBadge(id)).number = count
-        }
     }
 
     @CheckResult
     private fun getIdForPage(page: MainPage?): Int {
         return if (page == null) 0 else {
             when (page) {
-                MainPage.NEED -> R.id.menu_item_nav_need
-                MainPage.HAVE -> R.id.menu_item_nav_have
+                MainPage.ENTRIES -> R.id.menu_item_nav_entries
                 MainPage.CATEGORY -> R.id.menu_item_nav_category
                 MainPage.NEARBY -> R.id.menu_item_nav_nearby
                 MainPage.SETTINGS -> R.id.menu_item_nav_settings

@@ -30,9 +30,7 @@ data class MainViewState(
 
 sealed class MainViewEvent : UiViewEvent {
 
-    object OpenHave : MainViewEvent()
-
-    object OpenNeed : MainViewEvent()
+    object OpenEntries : MainViewEvent()
 
     object OpenCategory : MainViewEvent()
 
@@ -45,9 +43,7 @@ sealed class MainViewEvent : UiViewEvent {
 
 sealed class MainControllerEvent : UiControllerEvent {
 
-    data class PushHave internal constructor(val previousPage: MainPage?) : MainControllerEvent()
-
-    data class PushNeed internal constructor(val previousPage: MainPage?) : MainControllerEvent()
+    data class PushEntry internal constructor(val previousPage: MainPage?) : MainControllerEvent()
 
     data class PushCategory internal constructor(val previousPage: MainPage?) :
         MainControllerEvent()

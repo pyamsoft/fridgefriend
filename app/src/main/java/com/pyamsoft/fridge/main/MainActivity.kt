@@ -35,7 +35,6 @@ import com.pyamsoft.fridge.butler.Butler
 import com.pyamsoft.fridge.butler.notification.NotificationHandler
 import com.pyamsoft.fridge.butler.order.OrderFactory
 import com.pyamsoft.fridge.category.CategoryFragment
-import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.entry.EntryFragment
 import com.pyamsoft.fridge.initOnAppStart
 import com.pyamsoft.fridge.locator.DeviceGps
@@ -146,16 +145,9 @@ internal class MainActivity : RatingActivity(), VersionChecker {
 
     @CheckResult
     private fun guaranteePage(intent: Intent): MainPage {
-        return getPage(intent) ?: MainPage.NEED
-    }
-
-    @CheckResult
-    private fun getPage(intent: Intent): MainPage? {
-        return when (getPresenceFromIntent(intent)) {
-            FridgeItem.Presence.HAVE -> MainPage.HAVE
-            FridgeItem.Presence.NEED -> MainPage.NEED
-            else -> null
-        }
+        // TODO(Peter): We must open the right page
+        // Additionally pass a FridgeItem.Presence to open the correct tab within the selected entry
+        return MainPage.ENTRIES
     }
 
     override fun checkVersionForUpdate() {
@@ -166,10 +158,10 @@ internal class MainActivity : RatingActivity(), VersionChecker {
         super.onNewIntent(intent)
         setIntent(intent)
 
-        val page = getPage(intent)
-        if (page != null) {
-            viewModel.selectPage(page)
-        }
+//        val page = getPage(intent)
+//        if (page != null) {
+//            viewModel.selectPage(page)
+//        }
     }
 
     override fun onStart() {
@@ -179,13 +171,9 @@ internal class MainActivity : RatingActivity(), VersionChecker {
 
     private fun beginWork() {
         this.lifecycleScope.launch(context = Dispatchers.Default) {
-            val presence = getPresenceFromIntent(intent)
             requireNotNull(butler).initOnAppStart(
                 requireNotNull(orderFactory),
-                ButlerParameters(
-                    forceNotifyNeeded = presence != FridgeItem.Presence.NEED,
-                    forceNotifyExpiring = presence != FridgeItem.Presence.HAVE
-                )
+                ButlerParameters(forceNotifyNeeded = false, forceNotifyExpiring = false)
             )
         }
     }
@@ -220,8 +208,7 @@ internal class MainActivity : RatingActivity(), VersionChecker {
             snackbar
         ) {
             return@createComponent when (it) {
-                is MainControllerEvent.PushHave -> pushHave(it.previousPage)
-                is MainControllerEvent.PushNeed -> pushNeed(it.previousPage)
+                is MainControllerEvent.PushEntry -> pushEntry(it.previousPage)
                 is MainControllerEvent.PushCategory -> pushCategory(it.previousPage)
                 is MainControllerEvent.PushNearby -> pushNearby(it.previousPage)
                 is MainControllerEvent.PushSettings -> pushSettings(it.previousPage)
@@ -283,14 +270,6 @@ internal class MainActivity : RatingActivity(), VersionChecker {
             previousPage,
             SettingsFragment.TAG
         )
-    }
-
-    private fun pushHave(previousPage: MainPage?) {
-        pushPresenceFragment(previousPage, FridgeItem.Presence.HAVE)
-    }
-
-    private fun pushNeed(previousPage: MainPage?) {
-        pushPresenceFragment(previousPage, FridgeItem.Presence.NEED)
     }
 
     private fun pushCategory(previousPage: MainPage?) {
@@ -358,10 +337,8 @@ internal class MainActivity : RatingActivity(), VersionChecker {
         )
     }
 
-    private fun pushPresenceFragment(previousPage: MainPage?, presence: FridgeItem.Presence) {
-        val tag = "${EntryFragment.TAG}|${presence.name}"
-        val newPage = if (presence == FridgeItem.Presence.HAVE) MainPage.HAVE else MainPage.NEED
-        commitPage(EntryFragment.newInstance(presence), newPage, previousPage, tag)
+    private fun pushEntry(previousPage: MainPage?) {
+        commitPage(EntryFragment.newInstance(), MainPage.ENTRIES, previousPage, EntryFragment.TAG)
     }
 
     private fun commitPage(
@@ -395,32 +372,26 @@ internal class MainActivity : RatingActivity(), VersionChecker {
 
     private fun FragmentTransaction.decideAnimationForPage(oldPage: MainPage?, newPage: MainPage) {
         val (enter, exit) = when (newPage) {
-            MainPage.NEED -> when (oldPage) {
+            MainPage.ENTRIES -> when (oldPage) {
                 null -> R.anim.fragment_open_enter to R.anim.fragment_open_exit
-                MainPage.HAVE, MainPage.CATEGORY, MainPage.NEARBY, MainPage.SETTINGS -> R.anim.slide_in_left to R.anim.slide_out_right
-                MainPage.NEED -> throw IllegalStateException("Cannot move from $oldPage to $newPage")
-            }
-            MainPage.HAVE -> when (oldPage) {
-                null -> R.anim.fragment_open_enter to R.anim.fragment_open_exit
-                MainPage.NEED -> R.anim.slide_in_right to R.anim.slide_out_left
                 MainPage.CATEGORY, MainPage.NEARBY, MainPage.SETTINGS -> R.anim.slide_in_left to R.anim.slide_out_right
-                MainPage.HAVE -> throw IllegalStateException("Cannot move from $oldPage to $newPage")
+                MainPage.ENTRIES -> throw IllegalStateException("Cannot move from $oldPage to $newPage")
             }
             MainPage.CATEGORY -> when (oldPage) {
                 null -> R.anim.fragment_open_enter to R.anim.fragment_open_exit
-                MainPage.NEED, MainPage.HAVE -> R.anim.slide_in_right to R.anim.slide_out_left
+                MainPage.ENTRIES -> R.anim.slide_in_right to R.anim.slide_out_left
                 MainPage.NEARBY, MainPage.SETTINGS -> R.anim.slide_in_left to R.anim.slide_out_right
                 MainPage.CATEGORY -> throw IllegalStateException("Cannot move from $oldPage to $newPage")
             }
             MainPage.NEARBY -> when (oldPage) {
                 null -> R.anim.fragment_open_enter to R.anim.fragment_open_exit
-                MainPage.NEED, MainPage.HAVE, MainPage.CATEGORY -> R.anim.slide_in_right to R.anim.slide_out_left
+                MainPage.ENTRIES, MainPage.CATEGORY -> R.anim.slide_in_right to R.anim.slide_out_left
                 MainPage.SETTINGS -> R.anim.slide_in_left to R.anim.slide_out_right
                 MainPage.NEARBY -> throw IllegalStateException("Cannot move from $oldPage to $newPage")
             }
             MainPage.SETTINGS -> when (oldPage) {
                 null -> R.anim.fragment_open_enter to R.anim.fragment_open_exit
-                MainPage.NEED, MainPage.HAVE, MainPage.CATEGORY, MainPage.NEARBY -> R.anim.slide_in_right to R.anim.slide_out_left
+                MainPage.ENTRIES, MainPage.CATEGORY, MainPage.NEARBY -> R.anim.slide_in_right to R.anim.slide_out_left
                 MainPage.SETTINGS -> throw IllegalStateException("Cannot move from $oldPage to $newPage")
             }
         }
@@ -453,15 +424,5 @@ internal class MainActivity : RatingActivity(), VersionChecker {
         snackbar = null
 
         factory = null
-    }
-
-    companion object {
-
-        @JvmStatic
-        @CheckResult
-        private fun getPresenceFromIntent(intent: Intent): FridgeItem.Presence? {
-            val presenceString: String? = intent.getStringExtra(FridgeItem.Presence.KEY)
-            return if (presenceString == null) null else FridgeItem.Presence.valueOf(presenceString)
-        }
     }
 }

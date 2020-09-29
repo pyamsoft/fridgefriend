@@ -24,12 +24,12 @@ import com.pyamsoft.fridge.ui.BottomOffset
 import com.pyamsoft.highlander.highlander
 import com.pyamsoft.pydroid.arch.EventBus
 import com.pyamsoft.pydroid.arch.UiViewModel
-import javax.inject.Inject
-import javax.inject.Named
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import timber.log.Timber
+import javax.inject.Inject
+import javax.inject.Named
 
 class MainViewModel @Inject internal constructor(
     private val interactor: MainInteractor,
@@ -102,8 +102,7 @@ class MainViewModel @Inject internal constructor(
 
     override fun handleViewEvent(event: MainViewEvent) {
         return when (event) {
-            is MainViewEvent.OpenHave -> selectPage(MainPage.HAVE)
-            is MainViewEvent.OpenNeed -> selectPage(MainPage.NEED)
+            is MainViewEvent.OpenEntries -> selectPage(MainPage.ENTRIES)
             is MainViewEvent.OpenCategory -> selectPage(MainPage.CATEGORY)
             is MainViewEvent.OpenNearby -> selectPage(MainPage.NEARBY)
             is MainViewEvent.OpenSettings -> selectPage(MainPage.SETTINGS)
@@ -119,8 +118,7 @@ class MainViewModel @Inject internal constructor(
 
     fun selectPage(newPage: MainPage) {
         when (newPage) {
-            MainPage.NEED -> select(newPage) { MainControllerEvent.PushNeed(it) }
-            MainPage.HAVE -> select(newPage) { MainControllerEvent.PushHave(it) }
+            MainPage.ENTRIES -> select(newPage) { MainControllerEvent.PushEntry(it) }
             MainPage.NEARBY -> select(newPage) { MainControllerEvent.PushNearby(it) }
             MainPage.CATEGORY -> select(newPage) { MainControllerEvent.PushCategory(it) }
             MainPage.SETTINGS -> select(newPage) { MainControllerEvent.PushSettings(it) }
