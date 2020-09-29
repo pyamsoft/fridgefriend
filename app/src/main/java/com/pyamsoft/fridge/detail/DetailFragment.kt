@@ -114,6 +114,7 @@ internal class DetailFragment : Fragment(), SnackbarContainer {
                 is DetailControllerEvent.ExpandForEditing -> openExisting(it.item)
                 is DetailControllerEvent.EntryArchived -> close()
                 is DetailControllerEvent.AddNew -> createItem(it.id, it.presence)
+                is DetailControllerEvent.Back -> requireActivity().onBackPressed()
             }
         }
     }

@@ -48,9 +48,11 @@ private fun animatingHeight(activityContext: Context): Int {
 @CheckResult
 fun animatePopInFromBottom(view: View): ViewPropertyAnimatorCompat {
     view.translationY = animatingHeight(view.context).toFloat()
+    view.scaleX = 0.4F
     view.isVisible = true
     return ViewCompat.animate(view)
         .translationY(0F)
+        .scaleX(1.0F)
         .setDuration(700)
         .setStartDelay(300)
         .setInterpolator(interpolator)

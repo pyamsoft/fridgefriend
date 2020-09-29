@@ -24,13 +24,15 @@ import com.pyamsoft.pydroid.arch.UiViewState
 data class EntryViewState(
     val isLoading: Boolean,
     val error: Throwable?,
-    val undoableEntry: FridgeEntry?,
     val entries: List<FridgeEntry>,
+    val bottomOffset: Int,
 ) : UiViewState
 
 sealed class EntryViewEvent : UiViewEvent {
 
     data class SelectEntry internal constructor(val position: Int) : EntryViewEvent()
+
+    object AddNew : EntryViewEvent()
 }
 
 sealed class EntryControllerEvent : UiControllerEvent {

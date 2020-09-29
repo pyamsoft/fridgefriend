@@ -111,6 +111,7 @@ class DetailViewModel @Inject internal constructor(
                 bottomOffsetBus.onEvent { setState { copy(bottomOffset = it.height) } }
             }
         }
+
         doOnInit {
             refreshList(false)
         }
@@ -215,6 +216,7 @@ class DetailViewModel @Inject internal constructor(
             is DetailViewEvent.DecreaseCount -> decreaseCount(event.item)
             is DetailViewEvent.SearchQuery -> updateSearch(event.search)
             is DetailViewEvent.ChangeSort -> updateSort(event.sort)
+            is DetailViewEvent.Back -> publish(DetailControllerEvent.Back)
         }
     }
 

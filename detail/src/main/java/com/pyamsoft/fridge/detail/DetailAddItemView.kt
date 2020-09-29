@@ -22,7 +22,7 @@ import androidx.core.view.isVisible
 import androidx.core.view.updatePadding
 import androidx.lifecycle.LifecycleOwner
 import com.pyamsoft.fridge.db.item.FridgeItem
-import com.pyamsoft.fridge.detail.databinding.AddNewBinding
+import com.pyamsoft.fridge.detail.databinding.DetailAddNewBinding
 import com.pyamsoft.fridge.ui.SnackbarContainer
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.loader.ImageLoader
@@ -38,9 +38,9 @@ class DetailAddItemView @Inject internal constructor(
     private val imageLoader: ImageLoader,
     parent: ViewGroup,
     listItemPresence: FridgeItem.Presence
-) : BaseUiView<DetailViewState, DetailViewEvent, AddNewBinding>(parent), SnackbarContainer {
+) : BaseUiView<DetailViewState, DetailViewEvent, DetailAddNewBinding>(parent), SnackbarContainer {
 
-    override val viewBinding = AddNewBinding::inflate
+    override val viewBinding = DetailAddNewBinding::inflate
 
     override val layoutRoot by boundView { detailAddNewRoot }
 

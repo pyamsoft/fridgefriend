@@ -20,9 +20,11 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.OnBackPressedCallback
 import androidx.annotation.CheckResult
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.ViewModelProvider
 import com.pyamsoft.fridge.FridgeComponent
 import com.pyamsoft.fridge.R
@@ -36,7 +38,7 @@ import com.pyamsoft.pydroid.arch.createComponent
 import com.pyamsoft.pydroid.ui.Injector
 import com.pyamsoft.pydroid.ui.arch.viewModelFactory
 import com.pyamsoft.pydroid.ui.databinding.LayoutCoordinatorBinding
-import com.pyamsoft.pydroid.ui.util.commitNow
+import com.pyamsoft.pydroid.ui.util.commit
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -47,9 +49,30 @@ internal class EntryFragment : Fragment(), SnackbarContainer {
     internal var factory: ViewModelProvider.Factory? = null
     private val viewModel by viewModelFactory<EntryViewModel> { factory }
 
+    @JvmField
+    @Inject
+    internal var addNew: EntryAddNew? = null
+
+    @JvmField
+    @Inject
+    internal var container: EntryContainer? = null
+
     private var stateSaver: StateSaver? = null
 
     private var fragmentContainerId = 0
+
+    private val backPressedCallback = object : OnBackPressedCallback(false) {
+        override fun handleOnBackPressed() {
+            childFragmentManager.popBackStack()
+        }
+    }
+
+    private val backStackChangedListener = FragmentManager.OnBackStackChangedListener {
+        val count = childFragmentManager.backStackEntryCount
+        val enabled = count > 0
+        Timber.d("Back stack callback state: $enabled")
+        backPressedCallback.isEnabled = enabled
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -64,17 +87,22 @@ internal class EntryFragment : Fragment(), SnackbarContainer {
         savedInstanceState: Bundle?
     ) {
         super.onViewCreated(view, savedInstanceState)
+
         val binding = LayoutCoordinatorBinding.bind(view)
-        fragmentContainerId = binding.layoutCoordinator.id
         Injector.obtain<FridgeComponent>(view.context.applicationContext)
             .plusEntryComponent()
-            .create(binding.layoutCoordinator)
+            .create(viewLifecycleOwner, binding.layoutCoordinator)
             .inject(this)
+
+        val addNew = requireNotNull(addNew)
+        val container = requireNotNull(container)
 
         stateSaver = createComponent(
             savedInstanceState,
             viewLifecycleOwner,
-            viewModel
+            viewModel,
+            addNew,
+            container,
         ) {
             return@createComponent when (it) {
                 is EntryControllerEvent.LoadEntry -> pushPage(it.entry, Presence.NEED)
@@ -90,7 +118,17 @@ internal class EntryFragment : Fragment(), SnackbarContainer {
         return if (fragment is SnackbarContainer) fragment.container() else null
     }
 
+    private fun watchBackPresses() {
+        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, backPressedCallback)
+        childFragmentManager.addOnBackStackChangedListener(backStackChangedListener)
+    }
+
     private fun initializeApp() {
+        watchBackPresses()
+
+        // Set the fragment container ID
+        fragmentContainerId = requireNotNull(container).id()
+
         val act = requireActivity()
         if (act is VersionChecker) {
             act.checkVersionForUpdate()
@@ -105,8 +143,16 @@ internal class EntryFragment : Fragment(), SnackbarContainer {
     override fun onDestroyView() {
         super.onDestroyView()
 
-        factory = null
+        removeBackWatchers()
+
         stateSaver = null
+        factory = null
+        addNew = null
+        container = null
+    }
+
+    private fun removeBackWatchers() {
+        childFragmentManager.removeOnBackStackChangedListener(backStackChangedListener)
     }
 
     private fun pushPage(entry: FridgeEntry, presence: Presence) {
@@ -114,12 +160,13 @@ internal class EntryFragment : Fragment(), SnackbarContainer {
         Timber.d("Push new entry page: $tag")
         val fm = childFragmentManager
         if (fm.findFragmentByTag(tag) == null) {
-            fm.commitNow(viewLifecycleOwner) {
+            fm.commit(viewLifecycleOwner) {
                 replace(
                     fragmentContainerId,
                     DetailFragment.newInstance(entry, presence),
                     tag
                 )
+                addToBackStack(null)
             }
         }
     }

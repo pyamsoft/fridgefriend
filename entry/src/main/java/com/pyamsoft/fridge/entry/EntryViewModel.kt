@@ -20,7 +20,9 @@ import androidx.annotation.CheckResult
 import androidx.lifecycle.viewModelScope
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.entry.FridgeEntryChangeEvent
+import com.pyamsoft.fridge.ui.BottomOffset
 import com.pyamsoft.highlander.highlander
+import com.pyamsoft.pydroid.arch.EventConsumer
 import com.pyamsoft.pydroid.arch.UiViewModel
 import com.pyamsoft.pydroid.arch.onActualError
 import kotlinx.coroutines.CoroutineScope
@@ -32,13 +34,14 @@ import javax.inject.Named
 
 class EntryViewModel @Inject internal constructor(
     private val interactor: EntryInteractor,
+    bottomOffsetBus: EventConsumer<BottomOffset>,
     @Named("debug") debug: Boolean
 ) : UiViewModel<EntryViewState, EntryViewEvent, EntryControllerEvent>(
     initialState = EntryViewState(
         isLoading = false,
         error = null,
-        undoableEntry = null,
         entries = emptyList(),
+        bottomOffset = 0,
     ), debug = debug
 ) {
 
@@ -66,6 +69,12 @@ class EntryViewModel @Inject internal constructor(
     init {
         doOnInit {
             refreshList(false)
+        }
+
+        doOnInit {
+            viewModelScope.launch(context = Dispatchers.Default) {
+                bottomOffsetBus.onEvent { setState { copy(bottomOffset = it.height) } }
+            }
         }
     }
 
@@ -160,20 +169,21 @@ class EntryViewModel @Inject internal constructor(
     private fun handleRealtimeDelete(entry: FridgeEntry) {
         Timber.d("Realtime delete: $entry")
         setState {
-            val newEntries =
-                prepareListEntries(entries.filterNot { it.id() == entry.id() })
-            copy(
-                entries = newEntries,
-                // Show undo banner
-                undoableEntry = entry
-            )
+            val newEntries = prepareListEntries(entries.filterNot { it.id() == entry.id() })
+            copy(entries = newEntries)
         }
     }
 
     override fun handleViewEvent(event: EntryViewEvent) {
         return when (event) {
             is EntryViewEvent.SelectEntry -> select(event.position)
+            is EntryViewEvent.AddNew -> handleAddNew()
         }
+    }
+
+    private fun handleAddNew() {
+        // TODO(Peter) Real handler, prompt for adding new
+        select(0)
     }
 
     private fun select(position: Int) {

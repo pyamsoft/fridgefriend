@@ -90,6 +90,8 @@ sealed class DetailViewEvent : UiViewEvent {
 
     object ToggleArchiveVisibility : DetailViewEvent()
 
+    object Back : DetailViewEvent()
+
     data class ChangeSort internal constructor(val sort: DetailViewState.Sorts) : DetailViewEvent()
 
     data class UndoDelete internal constructor(val item: FridgeItem) : DetailViewEvent()
@@ -125,4 +127,6 @@ sealed class DetailControllerEvent : UiControllerEvent {
     ) : DetailControllerEvent()
 
     object EntryArchived : DetailControllerEvent()
+
+    object Back : DetailControllerEvent()
 }

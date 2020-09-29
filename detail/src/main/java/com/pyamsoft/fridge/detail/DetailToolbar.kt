@@ -34,6 +34,8 @@ import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.pydroid.arch.UiBundleReader
 import com.pyamsoft.pydroid.arch.UiView
 import com.pyamsoft.pydroid.ui.app.ToolbarActivity
+import com.pyamsoft.pydroid.ui.util.DebouncedOnClickListener
+import com.pyamsoft.pydroid.ui.util.setUpEnabled
 import javax.inject.Inject
 
 class DetailToolbar @Inject internal constructor(
@@ -68,13 +70,18 @@ class DetailToolbar @Inject internal constructor(
     init {
         doOnInflate {
             toolbarActivity.requireToolbar { toolbar ->
+                toolbar.setUpEnabled(true)
+                toolbar.setNavigationOnClickListener(DebouncedOnClickListener.create {
+                    publish(DetailViewEvent.Back)
+                })
                 initializeMenuItems(toolbar, presence)
             }
         }
 
         doOnTeardown {
             toolbarActivity.withToolbar { toolbar ->
-                toolbar.teardown()
+                toolbar.setUpEnabled(false)
+                toolbar.teardownMenu()
             }
         }
     }
@@ -214,7 +221,7 @@ class DetailToolbar @Inject internal constructor(
             }
     }
 
-    private fun Toolbar.teardown() {
+    private fun Toolbar.teardownMenu() {
         handler?.removeCallbacksAndMessages(null)
         publishHandler.removeCallbacksAndMessages(null)
         setVisibilityOfNonSearchItems(true)

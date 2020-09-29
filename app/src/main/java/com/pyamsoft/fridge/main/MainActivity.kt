@@ -51,7 +51,7 @@ import com.pyamsoft.pydroid.ui.databinding.LayoutConstraintBinding
 import com.pyamsoft.pydroid.ui.rating.ChangeLogBuilder
 import com.pyamsoft.pydroid.ui.rating.RatingActivity
 import com.pyamsoft.pydroid.ui.rating.buildChangeLog
-import com.pyamsoft.pydroid.ui.util.commitNow
+import com.pyamsoft.pydroid.ui.util.commit
 import com.pyamsoft.pydroid.ui.util.layout
 import com.pyamsoft.pydroid.util.stableLayoutHideNavigation
 import kotlinx.coroutines.Dispatchers
@@ -162,6 +162,16 @@ internal class MainActivity : RatingActivity(), VersionChecker {
 //        if (page != null) {
 //            viewModel.selectPage(page)
 //        }
+    }
+
+    override fun onBackPressed() {
+        onBackPressedDispatcher.also { dispatcher ->
+            if (dispatcher.hasEnabledCallbacks()) {
+                dispatcher.onBackPressed()
+            } else {
+                super.onBackPressed()
+            }
+        }
     }
 
     override fun onStart() {
@@ -363,7 +373,7 @@ internal class MainActivity : RatingActivity(), VersionChecker {
             } else {
                 Timber.d("Commit fragment: $tag")
             }
-            fm.commitNow(this) {
+            fm.commit(this) {
                 decideAnimationForPage(previousPage, newPage)
                 replace(container, fragment, tag)
             }
