@@ -31,7 +31,6 @@ import com.pyamsoft.fridge.category.CategoryListComponent
 import com.pyamsoft.fridge.db.DbModule
 import com.pyamsoft.fridge.db.item.FridgeItemPreferences
 import com.pyamsoft.fridge.db.persist.PersistentCategoryPreferences
-import com.pyamsoft.fridge.db.persist.PersistentEntryPreferences
 import com.pyamsoft.fridge.db.room.RoomModule
 import com.pyamsoft.fridge.detail.DetailComponent
 import com.pyamsoft.fridge.detail.DetailListComponent
@@ -166,9 +165,6 @@ internal interface FridgeComponent {
 
         @Binds
         internal abstract fun bindPersistentCategoryPreferences(impl: PreferencesImpl): PersistentCategoryPreferences
-
-        @Binds
-        internal abstract fun bindPersistentEntryPreferences(impl: PreferencesImpl): PersistentEntryPreferences
 
         @Binds
         internal abstract fun bindSettingsPreferences(impl: PreferencesImpl): SettingsPreferences

@@ -37,10 +37,6 @@ data class DetailViewState(
     val listItemPresence: FridgeItem.Presence,
     val counts: Counts?,
     val bottomOffset: Int,
-
-    // NOTE(Peter) What can we do with this
-    // Not really a view state
-    internal val internalAllItems: List<FridgeItem>
 ) : UiViewState {
 
     data class Counts internal constructor(

@@ -36,8 +36,6 @@ import com.pyamsoft.fridge.db.item.FridgeItemQueryDao
 import com.pyamsoft.fridge.db.item.FridgeItemRealtime
 import com.pyamsoft.fridge.db.persist.PersistentCategories
 import com.pyamsoft.fridge.db.persist.PersistentCategoriesImpl
-import com.pyamsoft.fridge.db.persist.PersistentEntries
-import com.pyamsoft.fridge.db.persist.PersistentEntriesImpl
 import com.pyamsoft.fridge.db.store.NearbyStoreDb
 import com.pyamsoft.fridge.db.store.NearbyStoreDeleteDao
 import com.pyamsoft.fridge.db.store.NearbyStoreInsertDao
@@ -59,10 +57,6 @@ private annotation class InternalApi
 
 @Module
 abstract class DbModule {
-
-    @Binds
-    @CheckResult
-    internal abstract fun providePersistentEntries(impl: PersistentEntriesImpl): PersistentEntries
 
     @Binds
     @CheckResult

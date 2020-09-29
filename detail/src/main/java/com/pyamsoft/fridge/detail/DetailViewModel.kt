@@ -66,12 +66,13 @@ class DetailViewModel @Inject internal constructor(
         expirationRange = null,
         isSameDayExpired = null,
         listItemPresence = listItemPresence,
-        internalAllItems = emptyList(),
         items = emptyList(),
         counts = null,
         bottomOffset = 0
     ), debug = debug
 ) {
+
+    private var internalAllItems: List<FridgeItem> = emptyList()
 
     private val undoRunner = highlander<Unit, FridgeItem> { item ->
         try {
@@ -232,11 +233,10 @@ class DetailViewModel @Inject internal constructor(
             val newItems = prepareListItems(internalAllItems)
             val visibleItems = getOnlyVisibleItems(newItems, search = cleanSearch)
             copy(
-                internalAllItems = newItems,
                 items = visibleItems,
                 counts = calculateCounts(visibleItems),
                 search = cleanSearch
-            )
+            ).also { internalAllItems = newItems }
         }
     }
 
@@ -331,7 +331,7 @@ class DetailViewModel @Inject internal constructor(
 
     @CheckResult
     private fun checkExists(
-        items: MutableList<FridgeItem>,
+        items: List<FridgeItem>,
         item: FridgeItem
     ): Boolean {
         return items.any { item.id() == it.id() && item.entryId() == it.entryId() }
@@ -347,29 +347,25 @@ class DetailViewModel @Inject internal constructor(
 
             val visibleItems = getOnlyVisibleItems(newItems)
             copy(
-                internalAllItems = newItems,
                 items = visibleItems,
                 counts = calculateCounts(visibleItems)
-            )
+            ).also { internalAllItems = newItems }
         }
     }
 
     private fun handleRealtimeUpdate(item: FridgeItem) {
         Timber.d("Realtime update: $item ${item.isArchived()}")
         setState {
-            val list = internalAllItems
-            val updatedItems = if (list.none { it.id() == item.id() }) list + item else {
-                list.map { if (it.id() == item.id()) item else it }
-            }
-            val newItems = prepareListItems(updatedItems)
+            val list = internalAllItems.toMutableList()
+            insertOrUpdate(list, item)
+            val newItems = prepareListItems(list)
             val visibleItems = getOnlyVisibleItems(newItems)
             copy(
-                internalAllItems = newItems,
                 items = visibleItems,
                 counts = calculateCounts(visibleItems),
                 // Show undo banner if we are archiving this item, otherwise no-op
                 undoableItem = if (item.isArchived()) item else undoableItem
-            )
+            ).also { internalAllItems = newItems }
         }
     }
 
@@ -379,12 +375,11 @@ class DetailViewModel @Inject internal constructor(
             val newItems = prepareListItems(internalAllItems.filterNot { it.id() == item.id() })
             val visibleItems = getOnlyVisibleItems(newItems)
             copy(
-                internalAllItems = newItems,
                 items = visibleItems,
                 counts = calculateCounts(visibleItems),
                 // Show undo banner
                 undoableItem = item
-            )
+            ).also { internalAllItems = newItems }
         }
     }
 
@@ -399,22 +394,20 @@ class DetailViewModel @Inject internal constructor(
             val newItems = prepareListItems(items)
             val visibleItems = getOnlyVisibleItems(newItems)
             copy(
-                internalAllItems = newItems,
                 items = visibleItems,
                 counts = calculateCounts(visibleItems),
                 listError = null
-            )
+            ).also { internalAllItems = newItems }
         }
     }
 
     private fun handleListRefreshError(throwable: Throwable) {
         setState {
             copy(
-                internalAllItems = emptyList(),
                 items = emptyList(),
                 counts = null,
                 listError = throwable
-            )
+            ).also { internalAllItems = emptyList() }
         }
     }
 
@@ -587,7 +580,7 @@ class DetailViewModel @Inject internal constructor(
 
     @CheckResult
     private fun DetailViewState.getOnlyVisibleItems(
-        items: List<FridgeItem> = this.internalAllItems,
+        items: List<FridgeItem>,
         search: String = this.search
     ): List<FridgeItem> {
         return items

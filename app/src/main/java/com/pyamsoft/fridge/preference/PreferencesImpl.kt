@@ -22,17 +22,17 @@ import androidx.preference.PreferenceManager
 import com.pyamsoft.fridge.R
 import com.pyamsoft.fridge.butler.ButlerPreferences
 import com.pyamsoft.fridge.butler.notification.NotificationPreferences
-import com.pyamsoft.fridge.core.IdGenerator
-import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItemPreferences
 import com.pyamsoft.fridge.db.persist.PersistentCategoryPreferences
-import com.pyamsoft.fridge.db.persist.PersistentEntryPreferences
 import com.pyamsoft.fridge.setting.SettingsPreferences
 import com.pyamsoft.pydroid.core.Enforcer
 import com.pyamsoft.pydroid.util.PreferenceListener
 import com.pyamsoft.pydroid.util.onChange
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.yield
 import java.util.Calendar
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
@@ -43,7 +43,6 @@ internal class PreferencesImpl @Inject internal constructor(
     context: Context
 ) : ButlerPreferences,
     FridgeItemPreferences,
-    PersistentEntryPreferences,
     PersistentCategoryPreferences,
     SettingsPreferences,
     NotificationPreferences {
@@ -87,6 +86,19 @@ internal class PreferencesImpl @Inject internal constructor(
 
             isZeroCountConsumedKey = getString(R.string.zero_count_consumed_key)
             isZeroCountConsumedDefault = getBoolean(R.bool.zero_count_consumed_default)
+        }
+
+        clearOldPreferences()
+    }
+
+    private fun clearOldPreferences() {
+        GlobalScope.launch(context = Dispatchers.IO) {
+            // Wait our turn
+            yield()
+
+            preferences.edit {
+                remove(KEY_PERSISTENT_ENTRIES)
+            }
         }
     }
 
@@ -210,25 +222,6 @@ internal class PreferencesImpl @Inject internal constructor(
             return@withContext preferences.onChange(isSameDayExpiredKey) {
                 onChange(isSameDayExpired())
             }
-        }
-
-    override suspend fun getPersistentEntryId(): FridgeEntry.Id =
-        withContext(context = Dispatchers.IO) {
-            Enforcer.assertOffMainThread()
-            return@withContext FridgeEntry.Id(
-                requireNotNull(
-                    preferences.getString(
-                        KEY_PERSISTENT_ENTRIES,
-                        IdGenerator.generate()
-                    )
-                )
-            )
-        }
-
-    override suspend fun savePersistentEntryId(id: FridgeEntry.Id) =
-        withContext(context = Dispatchers.IO) {
-            Enforcer.assertOffMainThread()
-            preferences.edit { putString(KEY_PERSISTENT_ENTRIES, id.id) }
         }
 
     override suspend fun getNotificationPeriod(): Long =

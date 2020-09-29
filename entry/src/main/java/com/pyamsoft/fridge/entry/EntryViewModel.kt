@@ -16,40 +16,165 @@
 
 package com.pyamsoft.fridge.entry
 
+import androidx.annotation.CheckResult
 import androidx.lifecycle.viewModelScope
 import com.pyamsoft.fridge.db.entry.FridgeEntry
-import com.pyamsoft.fridge.db.persist.PersistentEntries
+import com.pyamsoft.fridge.db.entry.FridgeEntryChangeEvent
+import com.pyamsoft.highlander.highlander
 import com.pyamsoft.pydroid.arch.UiViewModel
-import javax.inject.Inject
-import javax.inject.Named
+import com.pyamsoft.pydroid.arch.onActualError
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import timber.log.Timber
+import javax.inject.Inject
+import javax.inject.Named
 
 class EntryViewModel @Inject internal constructor(
-    private val persistentEntries: PersistentEntries,
+    private val interactor: EntryInteractor,
     @Named("debug") debug: Boolean
 ) : UiViewModel<EntryViewState, EntryViewEvent, EntryControllerEvent>(
     initialState = EntryViewState(
-        entries = emptyList()
+        entries = emptyList(),
+        isLoading = false,
+        error = null,
+        undoableEntry = null
     ), debug = debug
 ) {
 
-    init {
-        doOnInit {
-            loadDefaultEntry()
+    private var internalAllEntries: List<FridgeEntry> = emptyList()
+
+    private val refreshRunner = highlander<Unit, Boolean> { force ->
+        handleListRefreshBegin()
+
+        try {
+            val entries = interactor.loadEntries(force)
+            handleListRefreshed(entries)
+            beginListeningForRealtime()
+        } catch (error: Throwable) {
+            error.onActualError { e ->
+                Timber.e(e, "Error refreshing entry list")
+                handleListRefreshError(e)
+            }
+        } finally {
+            handleListRefreshComplete()
         }
     }
 
-    // NOTE(Peter): This exists only as a workaround for now since we always load one default entry.
-    // When we support multiple entries, this can be removed
-    private fun loadDefaultEntry() {
-        Timber.d("Loading default entry page")
-        viewModelScope.launch(context = Dispatchers.Default) {
-            val entry = persistentEntries.getPersistentEntry()
-            setState { copy(entries = listOf(entry)) }
+    private val realtimeRunner = highlander<Unit> {
+        interactor.listenForChanges { handleRealtime(it) }
+    }
 
-            select(0)
+    init {
+        doOnInit {
+            refreshList(false)
+        }
+    }
+
+    private fun refreshList(force: Boolean) {
+        viewModelScope.launch(context = Dispatchers.Default) {
+            refreshRunner.call(force)
+        }
+    }
+
+    private fun handleListRefreshBegin() {
+        setState { copy(isLoading = true) }
+    }
+
+    private fun handleListRefreshed(entries: List<FridgeEntry>) {
+        setState { copy(entries = prepareListEntries(entries), error = null) }
+    }
+
+    private fun handleListRefreshError(throwable: Throwable) {
+        setState { copy(entries = emptyList(), error = throwable) }
+    }
+
+    private fun handleListRefreshComplete() {
+        setState { copy(isLoading = false) }
+    }
+
+    private fun CoroutineScope.beginListeningForRealtime() {
+        launch(context = Dispatchers.Default) { realtimeRunner.call() }
+    }
+
+    private fun handleRealtime(event: FridgeEntryChangeEvent) {
+        return when (event) {
+            is FridgeEntryChangeEvent.Insert -> handleRealtimeInsert(event.entry)
+            is FridgeEntryChangeEvent.Update -> handleRealtimeUpdate(event.entry)
+            is FridgeEntryChangeEvent.Delete -> handleRealtimeDelete(event.entry)
+            is FridgeEntryChangeEvent.DeleteAll -> handleRealtimeDeleteAll()
+        }
+    }
+
+    private fun handleRealtimeDeleteAll() {
+        Timber.d("Realtime DELETE ALL")
+        setState {
+            copy(entries = emptyList()).also {
+                internalAllEntries = emptyList()
+            }
+        }
+    }
+
+    private fun insertOrUpdate(
+        items: MutableList<FridgeEntry>,
+        item: FridgeEntry
+    ) {
+        if (!checkExists(items, item)) {
+            items.add(item)
+        } else {
+            for ((index, oldItem) in items.withIndex()) {
+                if (oldItem.id() == item.id()) {
+                    items[index] = item
+                    break
+                }
+            }
+        }
+    }
+
+    @CheckResult
+    private fun checkExists(
+        items: List<FridgeEntry>,
+        item: FridgeEntry
+    ): Boolean {
+        return items.any { item.id() == it.id() }
+    }
+
+    private fun handleRealtimeInsert(entry: FridgeEntry) {
+        setState {
+            val newEntries = internalAllEntries.let { entries ->
+                val mutableEntries = entries.toMutableList()
+                insertOrUpdate(mutableEntries, entry)
+                prepareListEntries(mutableEntries)
+            }
+
+            copy(entries = newEntries).also {
+                internalAllEntries = newEntries
+            }
+        }
+    }
+
+    private fun handleRealtimeUpdate(entry: FridgeEntry) {
+        Timber.d("Realtime update: $entry")
+        setState {
+            val list = internalAllEntries.toMutableList()
+            insertOrUpdate(list, entry)
+            val newEntries = prepareListEntries(list)
+            copy(entries = newEntries).also {
+                internalAllEntries = newEntries
+            }
+        }
+    }
+
+    private fun handleRealtimeDelete(entry: FridgeEntry) {
+        Timber.d("Realtime delete: $entry")
+        setState {
+            val newEntries =
+                prepareListEntries(internalAllEntries.filterNot { it.id() == entry.id() })
+            copy(
+                entries = newEntries,
+                // Show undo banner
+                undoableEntry = entry
+            ).also { internalAllEntries = newEntries }
         }
     }
 
@@ -61,12 +186,16 @@ class EntryViewModel @Inject internal constructor(
 
     private fun select(position: Int) {
         withState {
-            loadEntry(entries[position])
+            val entry = entries[position]
+            Timber.d("Loading entry page: $entry")
+            publish(EntryControllerEvent.LoadEntry(entry))
         }
     }
 
-    private fun loadEntry(entry: FridgeEntry) {
-        Timber.d("Loading entry page: $entry")
-        publish(EntryControllerEvent.LoadEntry(entry))
+    @CheckResult
+    private fun prepareListEntries(entries: List<FridgeEntry>): List<FridgeEntry> {
+        return entries
+            .filter { it.isReal() }
+            .toList()
     }
 }
