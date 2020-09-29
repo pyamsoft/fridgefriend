@@ -35,14 +35,12 @@ class EntryViewModel @Inject internal constructor(
     @Named("debug") debug: Boolean
 ) : UiViewModel<EntryViewState, EntryViewEvent, EntryControllerEvent>(
     initialState = EntryViewState(
-        entries = emptyList(),
         isLoading = false,
         error = null,
-        undoableEntry = null
+        undoableEntry = null,
+        entries = emptyList(),
     ), debug = debug
 ) {
-
-    private var internalAllEntries: List<FridgeEntry> = emptyList()
 
     private val refreshRunner = highlander<Unit, Boolean> { force ->
         handleListRefreshBegin()
@@ -109,9 +107,7 @@ class EntryViewModel @Inject internal constructor(
     private fun handleRealtimeDeleteAll() {
         Timber.d("Realtime DELETE ALL")
         setState {
-            copy(entries = emptyList()).also {
-                internalAllEntries = emptyList()
-            }
+            copy(entries = emptyList())
         }
     }
 
@@ -141,27 +137,23 @@ class EntryViewModel @Inject internal constructor(
 
     private fun handleRealtimeInsert(entry: FridgeEntry) {
         setState {
-            val newEntries = internalAllEntries.let { entries ->
+            val newEntries = entries.let { entries ->
                 val mutableEntries = entries.toMutableList()
                 insertOrUpdate(mutableEntries, entry)
                 prepareListEntries(mutableEntries)
             }
 
-            copy(entries = newEntries).also {
-                internalAllEntries = newEntries
-            }
+            copy(entries = newEntries)
         }
     }
 
     private fun handleRealtimeUpdate(entry: FridgeEntry) {
         Timber.d("Realtime update: $entry")
         setState {
-            val list = internalAllEntries.toMutableList()
+            val list = entries.toMutableList()
             insertOrUpdate(list, entry)
             val newEntries = prepareListEntries(list)
-            copy(entries = newEntries).also {
-                internalAllEntries = newEntries
-            }
+            copy(entries = newEntries)
         }
     }
 
@@ -169,12 +161,12 @@ class EntryViewModel @Inject internal constructor(
         Timber.d("Realtime delete: $entry")
         setState {
             val newEntries =
-                prepareListEntries(internalAllEntries.filterNot { it.id() == entry.id() })
+                prepareListEntries(entries.filterNot { it.id() == entry.id() })
             copy(
                 entries = newEntries,
                 // Show undo banner
                 undoableEntry = entry
-            ).also { internalAllEntries = newEntries }
+            )
         }
     }
 

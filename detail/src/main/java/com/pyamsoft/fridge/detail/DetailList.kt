@@ -293,7 +293,7 @@ class DetailList @Inject internal constructor(
 
             // Done loading
             if (!loading) {
-                state.items.let { items ->
+                state.displayedItems.let { items ->
                     when {
                         items.isEmpty() -> clearList()
                         else -> setList(items, state.expirationRange, state.isSameDayExpired)
@@ -319,7 +319,7 @@ class DetailList @Inject internal constructor(
 
     private fun restoreLastScrollPosition(state: DetailViewState) {
         if (lastScrollPosition > 0) {
-            if (!state.isLoading && state.items.isNotEmpty()) {
+            if (!state.isLoading && state.displayedItems.isNotEmpty()) {
                 val position = lastScrollPosition
                 lastScrollPosition = 0
 

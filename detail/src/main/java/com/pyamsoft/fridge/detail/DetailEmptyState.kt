@@ -55,7 +55,7 @@ class DetailEmptyState @Inject internal constructor(
         state.isLoading.let { loading ->
             clear()
             if (!loading) {
-                if (state.items.isEmpty()) {
+                if (state.displayedItems.isEmpty()) {
                     val isNeed = state.listItemPresence == NEED
                     loadText(isNeed, state.search.isNotBlank())
                     loadImage(isNeed)

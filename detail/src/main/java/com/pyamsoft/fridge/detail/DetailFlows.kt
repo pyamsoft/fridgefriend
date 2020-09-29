@@ -25,7 +25,10 @@ import com.pyamsoft.pydroid.arch.UiViewState
 
 data class DetailViewState(
     val isLoading: Boolean,
-    val items: List<FridgeItem>,
+    // All currently displayed list items
+    val displayedItems: List<FridgeItem>,
+    // All the list items before filtering
+    internal val allItems: List<FridgeItem>,
     val search: String,
     val entry: FridgeEntry?,
     val sort: Sorts,

@@ -23,9 +23,9 @@ import com.pyamsoft.pydroid.arch.UiViewState
 
 data class EntryViewState(
     val isLoading: Boolean,
-    val entries: List<FridgeEntry>,
     val error: Throwable?,
-    val undoableEntry: FridgeEntry?
+    val undoableEntry: FridgeEntry?,
+    val entries: List<FridgeEntry>,
 ) : UiViewState
 
 sealed class EntryViewEvent : UiViewEvent {
