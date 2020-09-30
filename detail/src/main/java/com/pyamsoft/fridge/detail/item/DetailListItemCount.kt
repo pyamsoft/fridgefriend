@@ -30,7 +30,7 @@ class DetailListItemCount @Inject internal constructor(
     theming: ThemeProvider,
     imageLoader: ImageLoader,
     parent: ViewGroup
-) : BaseUiView<DetailListItemViewState, DetailItemViewEvent, DetailListItemCountBinding>(parent) {
+) : BaseUiView<DetailItemViewState, DetailItemViewEvent, DetailListItemCountBinding>(parent) {
 
     override val viewBinding = DetailListItemCountBinding::inflate
 
@@ -69,11 +69,11 @@ class DetailListItemCount @Inject internal constructor(
         }
     }
 
-    override fun onRender(state: DetailListItemViewState) {
+    override fun onRender(state: DetailItemViewState) {
         handleItem(state)
     }
 
-    private fun handleItem(state: DetailListItemViewState) {
+    private fun handleItem(state: DetailItemViewState) {
         state.item.let { item ->
             require(item.isReal()) { "Cannot render non-real item: $item" }
             binding.detailItemCountText.text = "${item.count()}"

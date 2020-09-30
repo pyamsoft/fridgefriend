@@ -23,7 +23,7 @@ import javax.inject.Inject
 
 class DetailListItemName @Inject internal constructor(
     parent: ViewGroup
-) : BaseItemName<DetailListItemViewState, DetailItemViewEvent>(parent) {
+) : BaseItemName<DetailItemViewState, DetailItemViewEvent>(parent) {
 
     init {
         doOnInflate {
@@ -32,14 +32,14 @@ class DetailListItemName @Inject internal constructor(
         }
     }
 
-    private fun handleItem(state: DetailListItemViewState) {
+    private fun handleItem(state: DetailItemViewState) {
         state.item.let { item ->
             require(item.isReal()) { "Cannot render non-real item: $item" }
             setName(item)
         }
     }
 
-    override fun onRender(state: DetailListItemViewState) {
+    override fun onRender(state: DetailItemViewState) {
         handleItem(state)
     }
 }

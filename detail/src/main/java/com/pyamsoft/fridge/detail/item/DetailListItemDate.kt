@@ -17,6 +17,9 @@
 package com.pyamsoft.fridge.detail.item
 
 import android.view.ViewGroup
+import androidx.core.view.isGone
+import androidx.core.view.isVisible
+import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.detail.base.BaseItemDate
 import com.pyamsoft.fridge.detail.item.DetailItemViewEvent.ExpandItem
 import com.pyamsoft.pydroid.loader.ImageLoader
@@ -28,7 +31,7 @@ class DetailListItemDate @Inject internal constructor(
     imageLoader: ImageLoader,
     theming: ThemeProvider,
     parent: ViewGroup
-) : BaseItemDate<DetailListItemViewState, DetailItemViewEvent>(imageLoader, theming, parent) {
+) : BaseItemDate<DetailItemViewState, DetailItemViewEvent>(imageLoader, theming, parent) {
 
     init {
         doOnInflate {
@@ -40,14 +43,25 @@ class DetailListItemDate @Inject internal constructor(
         }
     }
 
-    private fun handleItem(state: DetailListItemViewState) {
+    private fun handleItem(state: DetailItemViewState) {
         state.item.let { item ->
             require(item.isReal()) { "Cannot render non-real item: $item" }
             renderItem(item)
         }
     }
 
-    override fun onRender(state: DetailListItemViewState) {
+    private fun handlePresence(state: DetailItemViewState) {
+        state.presence.let { presence ->
+            if (presence == FridgeItem.Presence.NEED) {
+                layoutRoot.isVisible = true
+            } else {
+                layoutRoot.isGone = true
+            }
+        }
+    }
+
+    override fun onRender(state: DetailItemViewState) {
+        handlePresence(state)
         handleItem(state)
     }
 }

@@ -29,7 +29,7 @@ class DetailListAdapter internal constructor(
     private val editable: Boolean,
     private val callback: Callback,
     private val factory: DetailItemComponent.Factory
-) : ListAdapter<DetailListItemViewState, DetailItemViewHolder>(DIFFER) {
+) : ListAdapter<DetailItemViewState, DetailItemViewHolder>(DIFFER) {
 
     override fun onCreateViewHolder(
         parent: ViewGroup,
@@ -37,7 +37,7 @@ class DetailListAdapter internal constructor(
     ): DetailItemViewHolder {
         val inflater = LayoutInflater.from(parent.context)
         val binding = DetailListItemHolderBinding.inflate(inflater, parent, false)
-        return DetailItemHaveViewHolder(binding, owner, editable, callback, factory)
+        return DetailItemViewHolder(binding, owner, editable, callback, factory)
     }
 
     override fun onBindViewHolder(
@@ -61,18 +61,18 @@ class DetailListAdapter internal constructor(
 
     companion object {
 
-        private val DIFFER = object : DiffUtil.ItemCallback<DetailListItemViewState>() {
+        private val DIFFER = object : DiffUtil.ItemCallback<DetailItemViewState>() {
 
             override fun areItemsTheSame(
-                oldItem: DetailListItemViewState,
-                newItem: DetailListItemViewState
+                oldItem: DetailItemViewState,
+                newItem: DetailItemViewState
             ): Boolean {
                 return oldItem.item.id() == newItem.item.id()
             }
 
             override fun areContentsTheSame(
-                oldItem: DetailListItemViewState,
-                newItem: DetailListItemViewState
+                oldItem: DetailItemViewState,
+                newItem: DetailItemViewState
             ): Boolean {
                 return JsonMappableFridgeItem.from(oldItem.item) == JsonMappableFridgeItem.from(
                     newItem.item

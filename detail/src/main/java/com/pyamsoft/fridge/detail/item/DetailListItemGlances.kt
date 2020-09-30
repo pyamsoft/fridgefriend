@@ -20,11 +20,11 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.annotation.CheckResult
 import androidx.annotation.DrawableRes
+import androidx.core.view.isGone
 import androidx.core.view.isVisible
 import androidx.lifecycle.LifecycleOwner
 import com.pyamsoft.fridge.core.today
 import com.pyamsoft.fridge.db.item.FridgeItem
-import com.pyamsoft.fridge.db.item.FridgeItem.Presence.HAVE
 import com.pyamsoft.fridge.db.item.cleanMidnight
 import com.pyamsoft.fridge.db.item.daysLaterMidnight
 import com.pyamsoft.fridge.db.item.getExpiredMessage
@@ -54,7 +54,7 @@ class DetailListItemGlances @Inject internal constructor(
     private val imageLoader: ImageLoader,
     private val owner: LifecycleOwner,
     parent: ViewGroup
-) : BaseUiView<DetailListItemViewState, DetailItemViewEvent, DetailListItemGlancesBinding>(parent) {
+) : BaseUiView<DetailItemViewState, DetailItemViewEvent, DetailListItemGlancesBinding>(parent) {
 
     override val viewBinding = DetailListItemGlancesBinding::inflate
 
@@ -102,36 +102,51 @@ class DetailListItemGlances @Inject internal constructor(
         expiredTooltip = null
     }
 
-    override fun onRender(state: DetailListItemViewState) {
+    override fun onRender(state: DetailItemViewState) {
+        handlePresence(state)
         handleItem(state)
     }
 
-    private fun handleItem(state: DetailListItemViewState) {
+    @CheckResult
+    private fun isValidGlancesItem(state: DetailItemViewState): Boolean {
+        val item = state.item
+        val range = state.expirationRange
+        val isSameDayExpired = state.isSameDayExpired
+        val presence = state.presence
+        val isValidItem = !item.isArchived() && presence == FridgeItem.Presence.HAVE
+        val isValidDate = range != null && isSameDayExpired != null
+        return isValidItem && isValidDate
+    }
+
+    private fun handlePresence(state: DetailItemViewState) {
+        if (isValidGlancesItem(state)) {
+            layoutRoot.isVisible = true
+        } else {
+            layoutRoot.isGone = true
+        }
+    }
+
+    private fun handleItem(state: DetailItemViewState) {
         state.item.let { item ->
             require(item.isReal()) { "Cannot render non-real item: $item" }
-            val range = state.expirationRange
-            val isSameDayExpired = state.isSameDayExpired
-
-            val isVisible =
-                !item.isArchived() && item.presence() == HAVE && range != null && isSameDayExpired != null
-            layoutRoot.isVisible = isVisible
-
-            if (isVisible) {
-                // This should be fine because of the isVisible conditional
-                val dateRange = requireNotNull(range).range
-                val isSameDay = requireNotNull(isSameDayExpired).isSame
-
-                val now = today().cleanMidnight()
-                val soonDate = today().daysLaterMidnight(dateRange)
-                val expireTime = item.expireTime()
-                val hasTime = expireTime != null
-                val isExpiringSoon = item.isExpiringSoon(now, soonDate, isSameDay)
-                val isExpired = item.isExpired(now, isSameDay)
-
-                setDateRangeView(item, expireTime, hasTime)
-                setExpiringView(item, now, isExpiringSoon, isExpired, hasTime)
-                setExpiredView(item, now, isExpired, hasTime)
+            if (!isValidGlancesItem(state)) {
+                return
             }
+
+            // This should be fine because of the isVisible conditional
+            val dateRange = requireNotNull(state.expirationRange).range
+            val isSameDay = requireNotNull(state.isSameDayExpired).isSame
+
+            val now = today().cleanMidnight()
+            val soonDate = today().daysLaterMidnight(dateRange)
+            val expireTime = item.expireTime()
+            val hasTime = expireTime != null
+            val isExpiringSoon = item.isExpiringSoon(now, soonDate, isSameDay)
+            val isExpired = item.isExpired(now, isSameDay)
+
+            setDateRangeView(item, expireTime, hasTime)
+            setExpiringView(item, now, isExpiringSoon, isExpired, hasTime)
+            setExpiredView(item, now, isExpired, hasTime)
         }
     }
 

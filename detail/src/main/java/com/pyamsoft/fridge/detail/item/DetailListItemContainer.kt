@@ -17,25 +17,26 @@
 package com.pyamsoft.fridge.detail.item
 
 import android.view.ViewGroup
-import androidx.annotation.CheckResult
-import androidx.lifecycle.LifecycleOwner
-import dagger.BindsInstance
-import dagger.Subcomponent
-import javax.inject.Named
+import com.pyamsoft.fridge.detail.databinding.DetailListItemContainerBinding
+import com.pyamsoft.pydroid.arch.BaseUiView
+import javax.inject.Inject
 
-@Subcomponent
-interface DetailItemComponent {
+class DetailListItemContainer @Inject internal constructor(
+    glances: DetailListItemGlances,
+    date: DetailListItemDate,
+    parent: ViewGroup
+) : BaseUiView<DetailItemViewState, DetailItemViewEvent, DetailListItemContainerBinding>(parent) {
 
-    fun inject(holder: DetailItemViewHolder)
+    override val viewBinding = DetailListItemContainerBinding::inflate
 
-    @Subcomponent.Factory
-    interface Factory {
+    override val layoutRoot by boundView { detailItemContainer }
 
-        @CheckResult
-        fun create(
-            @BindsInstance parent: ViewGroup,
-            @BindsInstance owner: LifecycleOwner,
-            @BindsInstance @Named("item_editable") editable: Boolean
-        ): DetailItemComponent
+    init {
+        nest(glances)
+        nest(date)
     }
+
+    override fun onRender(state: DetailItemViewState) {
+    }
+
 }

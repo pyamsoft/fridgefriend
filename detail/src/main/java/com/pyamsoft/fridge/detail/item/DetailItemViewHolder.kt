@@ -16,23 +16,23 @@
 
 package com.pyamsoft.fridge.detail.item
 
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.RecyclerView
 import com.pyamsoft.fridge.detail.databinding.DetailListItemHolderBinding
-import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.arch.ViewBinder
 import com.pyamsoft.pydroid.arch.bindViews
 import com.pyamsoft.pydroid.ui.util.layout
 import com.pyamsoft.pydroid.util.doOnDestroy
 import javax.inject.Inject
 
-abstract class DetailItemViewHolder protected constructor(
+class DetailItemViewHolder internal constructor(
     binding: DetailListItemHolderBinding,
-    private val owner: LifecycleOwner,
-    private val callback: DetailListAdapter.Callback
-) : RecyclerView.ViewHolder(binding.root), ViewBinder<DetailListItemViewState> {
+    owner: LifecycleOwner,
+    editable: Boolean,
+    callback: DetailListAdapter.Callback,
+    factory: DetailItemComponent.Factory
+) : RecyclerView.ViewHolder(binding.root), ViewBinder<DetailItemViewState> {
 
     @JvmField
     @Inject
@@ -42,13 +42,20 @@ abstract class DetailItemViewHolder protected constructor(
     @Inject
     internal var presenceView: DetailListItemPresence? = null
 
-    private var viewBinder: ViewBinder<DetailListItemViewState>? = null
+    @JvmField
+    @Inject
+    internal var extraContainer: DetailListItemContainer? = null
 
-    protected fun create(
-        parent: ConstraintLayout,
-        count: DetailListItemCount,
-        extra: BaseUiView<DetailListItemViewState, DetailItemViewEvent, *>
-    ) {
+    @JvmField
+    @Inject
+    internal var countView: DetailListItemCount? = null
+
+    private val viewBinder: ViewBinder<DetailItemViewState>
+
+    init {
+        factory.create(binding.detailListItem, owner, editable).inject(this)
+        val count = requireNotNull(countView)
+        val extra = requireNotNull(extraContainer)
         val name = requireNotNull(nameView)
         val presence = requireNotNull(presenceView)
         viewBinder = bindViews(
@@ -66,7 +73,7 @@ abstract class DetailItemViewHolder protected constructor(
             }
         }
 
-        parent.layout {
+        binding.detailListItem.layout {
             presence.also {
                 connect(
                     it.id(), ConstraintSet.TOP,
@@ -103,7 +110,7 @@ abstract class DetailItemViewHolder protected constructor(
                     ConstraintSet.BOTTOM
                 )
                 constrainWidth(it.id(), ConstraintSet.WRAP_CONTENT)
-                constrainHeight(it.id(), ConstraintSet.WRAP_CONTENT)
+                constrainHeight(it.id(), ConstraintSet.MATCH_CONSTRAINT)
             }
 
             count.also {
@@ -151,11 +158,13 @@ abstract class DetailItemViewHolder protected constructor(
         owner.doOnDestroy {
             nameView = null
             presenceView = null
-            viewBinder = null
+            extraContainer = null
+            countView = null
         }
     }
 
-    final override fun bind(state: DetailListItemViewState) {
-        requireNotNull(viewBinder).bind(state)
+    override fun bind(state: DetailItemViewState) {
+        viewBinder.bind(state)
     }
+
 }

@@ -30,9 +30,9 @@ import com.pyamsoft.fridge.db.item.FridgeItem.Presence.NEED
 import com.pyamsoft.fridge.detail.databinding.DetailListBinding
 import com.pyamsoft.fridge.detail.item.DetailItemComponent
 import com.pyamsoft.fridge.detail.item.DetailItemViewHolder
+import com.pyamsoft.fridge.detail.item.DetailItemViewState
 import com.pyamsoft.fridge.detail.item.DetailListAdapter
 import com.pyamsoft.fridge.detail.item.DetailListAdapter.Callback
-import com.pyamsoft.fridge.detail.item.DetailListItemViewState
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.ui.util.refreshing
@@ -274,10 +274,11 @@ class DetailList @Inject internal constructor(
 
     private fun setList(
         list: List<FridgeItem>,
+        presence: FridgeItem.Presence,
         expirationRange: DetailViewState.ExpirationRange?,
         sameDayExpired: DetailViewState.IsSameDayExpired?
     ) {
-        val data = list.map { DetailListItemViewState(it, expirationRange, sameDayExpired) }
+        val data = list.map { DetailItemViewState(it, presence, expirationRange, sameDayExpired) }
         usingAdapter().submitList(data)
     }
 
@@ -294,7 +295,12 @@ class DetailList @Inject internal constructor(
                 state.displayedItems.let { items ->
                     when {
                         items.isEmpty() -> clearList()
-                        else -> setList(items, state.expirationRange, state.isSameDayExpired)
+                        else -> setList(
+                            items,
+                            state.listItemPresence,
+                            state.expirationRange,
+                            state.isSameDayExpired
+                        )
                     }
                 }
             }

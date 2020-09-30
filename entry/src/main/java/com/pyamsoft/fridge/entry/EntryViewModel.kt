@@ -191,7 +191,7 @@ class EntryViewModel @Inject internal constructor(
         withState {
             val entry = entries[position]
             Timber.d("Loading entry page: $entry")
-            publish(EntryControllerEvent.LoadEntry(entry, FridgeItem.Presence.HAVE))
+            publish(EntryControllerEvent.LoadEntry(entry, FridgeItem.Presence.NEED))
         }
     }
 

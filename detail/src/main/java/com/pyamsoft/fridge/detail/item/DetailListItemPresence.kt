@@ -23,13 +23,13 @@ import javax.inject.Inject
 
 class DetailListItemPresence @Inject internal constructor(
     parent: ViewGroup
-) : BaseItemPresence<DetailListItemViewState, DetailItemViewEvent>(parent) {
+) : BaseItemPresence<DetailItemViewState, DetailItemViewEvent>(parent) {
 
-    override fun onRender(state: DetailListItemViewState) {
+    override fun onRender(state: DetailItemViewState) {
         handleItem(state)
     }
 
-    private fun handleItem(state: DetailListItemViewState) {
+    private fun handleItem(state: DetailItemViewState) {
         state.item.let { item ->
             require(item.isReal()) { "Cannot render non-real item: $item" }
             renderItem(item)
