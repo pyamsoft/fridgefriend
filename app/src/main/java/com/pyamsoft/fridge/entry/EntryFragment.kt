@@ -29,7 +29,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.pyamsoft.fridge.FridgeComponent
 import com.pyamsoft.fridge.R
 import com.pyamsoft.fridge.db.entry.FridgeEntry
-import com.pyamsoft.fridge.db.item.FridgeItem.Presence
+import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.detail.DetailFragment
 import com.pyamsoft.fridge.main.VersionChecker
 import com.pyamsoft.fridge.ui.SnackbarContainer
@@ -105,7 +105,7 @@ internal class EntryFragment : Fragment(), SnackbarContainer {
             container,
         ) {
             return@createComponent when (it) {
-                is EntryControllerEvent.LoadEntry -> pushPage(it.entry, Presence.NEED)
+                is EntryControllerEvent.LoadEntry -> pushPage(it.entry, it.presence)
             }
         }
 
@@ -155,7 +155,7 @@ internal class EntryFragment : Fragment(), SnackbarContainer {
         childFragmentManager.removeOnBackStackChangedListener(backStackChangedListener)
     }
 
-    private fun pushPage(entry: FridgeEntry, presence: Presence) {
+    private fun pushPage(entry: FridgeEntry, presence: FridgeItem.Presence) {
         val tag = entry.id().id
         Timber.d("Push new entry page: $tag")
         val fm = childFragmentManager

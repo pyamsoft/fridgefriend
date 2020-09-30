@@ -20,6 +20,7 @@ import androidx.annotation.CheckResult
 import androidx.lifecycle.viewModelScope
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.entry.FridgeEntryChangeEvent
+import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.ui.BottomOffset
 import com.pyamsoft.highlander.highlander
 import com.pyamsoft.pydroid.arch.EventConsumer
@@ -190,7 +191,7 @@ class EntryViewModel @Inject internal constructor(
         withState {
             val entry = entries[position]
             Timber.d("Loading entry page: $entry")
-            publish(EntryControllerEvent.LoadEntry(entry))
+            publish(EntryControllerEvent.LoadEntry(entry, FridgeItem.Presence.HAVE))
         }
     }
 

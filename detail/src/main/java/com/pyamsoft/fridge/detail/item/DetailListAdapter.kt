@@ -21,14 +21,12 @@ import android.view.ViewGroup
 import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
-import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.JsonMappableFridgeItem
 import com.pyamsoft.fridge.detail.databinding.DetailListItemHolderBinding
 
 class DetailListAdapter internal constructor(
     private val owner: LifecycleOwner,
     private val editable: Boolean,
-    private val defaultPresence: FridgeItem.Presence,
     private val callback: Callback,
     private val factory: DetailItemComponent.Factory
 ) : ListAdapter<DetailListItemViewState, DetailItemViewHolder>(DIFFER) {
@@ -39,12 +37,7 @@ class DetailListAdapter internal constructor(
     ): DetailItemViewHolder {
         val inflater = LayoutInflater.from(parent.context)
         val binding = DetailListItemHolderBinding.inflate(inflater, parent, false)
-        val showGlances = defaultPresence == FridgeItem.Presence.HAVE
-        return if (showGlances) {
-            DetailItemHaveViewHolder(binding, owner, editable, callback, factory)
-        } else {
-            DetailItemNeedViewHolder(binding, owner, editable, callback, factory)
-        }
+        return DetailItemHaveViewHolder(binding, owner, editable, callback, factory)
     }
 
     override fun onBindViewHolder(

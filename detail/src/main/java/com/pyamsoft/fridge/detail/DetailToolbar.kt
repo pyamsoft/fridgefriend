@@ -39,8 +39,7 @@ import com.pyamsoft.pydroid.ui.util.setUpEnabled
 import javax.inject.Inject
 
 class DetailToolbar @Inject internal constructor(
-    toolbarActivity: ToolbarActivity,
-    presence: FridgeItem.Presence
+    toolbarActivity: ToolbarActivity
 ) : UiView<DetailViewState, DetailViewEvent>() {
 
     private val groupIdSearch = View.generateViewId()
@@ -74,7 +73,7 @@ class DetailToolbar @Inject internal constructor(
                 toolbar.setNavigationOnClickListener(DebouncedOnClickListener.create {
                     publish(DetailViewEvent.Back)
                 })
-                initializeMenuItems(toolbar, presence)
+                initializeMenuItems(toolbar)
             }
         }
 
@@ -86,12 +85,9 @@ class DetailToolbar @Inject internal constructor(
         }
     }
 
-    private fun initializeMenuItems(
-        toolbar: Toolbar,
-        presence: FridgeItem.Presence
-    ) {
+    private fun initializeMenuItems(toolbar: Toolbar) {
         toolbar.doOnLayout {
-            subMenu = toolbar.initSubmenu(presence)
+            subMenu = toolbar.initSubmenu()
             searchItem = toolbar.initSearchItem()
         }
     }
@@ -114,6 +110,11 @@ class DetailToolbar @Inject internal constructor(
                     item.isChecked = true
                 }
             }
+
+            val isHavePresence = state.listItemPresence == FridgeItem.Presence.HAVE
+            val showExtraMenuItems = isHavePresence && searchItem?.isActionViewExpanded == false
+            subMenu.findItem(itemIdPurchasedDate)?.isVisible = showExtraMenuItems
+            subMenu.findItem(itemIdExpirationDate)?.isVisible = showExtraMenuItems
         }
     }
 
@@ -191,7 +192,7 @@ class DetailToolbar @Inject internal constructor(
     }
 
     @CheckResult
-    private fun Toolbar.initSubmenu(presence: FridgeItem.Presence): SubMenu {
+    private fun Toolbar.initSubmenu(): SubMenu {
         return this.menu.addSubMenu(groupIdSubmenu, itemIdSubmenu, Menu.NONE, "Sorts")
             .also { subMenu ->
                 subMenu.item.setIcon(R.drawable.ic_sort_24dp)
@@ -207,16 +208,15 @@ class DetailToolbar @Inject internal constructor(
                     isChecked = false
                     setOnMenuItemClickListener(clickListener(DetailViewState.Sorts.NAME))
                 }
-                if (presence == FridgeItem.Presence.HAVE) {
-                    subMenu.add(groupIdSubmenu, itemIdPurchasedDate, 3, "Purchase Date").apply {
-                        isChecked = false
-                        setOnMenuItemClickListener(clickListener(DetailViewState.Sorts.PURCHASED))
-                    }
-                    subMenu.add(groupIdSubmenu, itemIdExpirationDate, 4, "Expiration Date").apply {
-                        isChecked = false
-                        setOnMenuItemClickListener(clickListener(DetailViewState.Sorts.EXPIRATION))
-                    }
+                subMenu.add(groupIdSubmenu, itemIdPurchasedDate, 3, "Purchase Date").apply {
+                    isChecked = false
+                    setOnMenuItemClickListener(clickListener(DetailViewState.Sorts.PURCHASED))
                 }
+                subMenu.add(groupIdSubmenu, itemIdExpirationDate, 4, "Expiration Date").apply {
+                    isChecked = false
+                    setOnMenuItemClickListener(clickListener(DetailViewState.Sorts.EXPIRATION))
+                }
+
                 subMenu.setGroupCheckable(groupIdSubmenu, true, true)
             }
     }

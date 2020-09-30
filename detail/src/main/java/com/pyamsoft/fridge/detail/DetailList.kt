@@ -46,7 +46,6 @@ class DetailList @Inject internal constructor(
     private val imageLoader: ImageLoader,
     private val owner: LifecycleOwner,
     parent: ViewGroup,
-    defaultPresence: FridgeItem.Presence,
     factory: DetailItemComponent.Factory
 ) : BaseUiView<DetailViewState, DetailViewEvent, DetailListBinding>(parent) {
 
@@ -74,7 +73,6 @@ class DetailList @Inject internal constructor(
             modelAdapter = DetailListAdapter(
                 owner = owner,
                 editable = false,
-                defaultPresence = defaultPresence,
                 factory = factory,
                 callback = object : Callback {
 

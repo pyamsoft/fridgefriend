@@ -18,6 +18,7 @@ package com.pyamsoft.fridge.detail
 
 import android.view.ViewGroup
 import androidx.coordinatorlayout.widget.CoordinatorLayout
+import androidx.core.view.ViewPropertyAnimatorCompat
 import androidx.core.view.isVisible
 import androidx.core.view.updatePadding
 import androidx.lifecycle.LifecycleOwner
@@ -37,7 +38,6 @@ class DetailAddItemView @Inject internal constructor(
     private val owner: LifecycleOwner,
     private val imageLoader: ImageLoader,
     parent: ViewGroup,
-    listItemPresence: FridgeItem.Presence
 ) : BaseUiView<DetailViewState, DetailViewEvent, DetailAddNewBinding>(parent), SnackbarContainer {
 
     override val viewBinding = DetailAddNewBinding::inflate
@@ -45,6 +45,9 @@ class DetailAddItemView @Inject internal constructor(
     override val layoutRoot by boundView { detailAddNewRoot }
 
     private var filterIconLoaded: Loaded? = null
+
+    private var addNewAnimatorCompat: ViewPropertyAnimatorCompat? = null
+    private var filterAnimatorCompat: ViewPropertyAnimatorCompat? = null
 
     init {
         doOnInflate {
@@ -73,13 +76,17 @@ class DetailAddItemView @Inject internal constructor(
         }
 
         doOnInflate {
-            binding.detailAddNewItem.popShow().withEndAction {
-                if (listItemPresence == FridgeItem.Presence.HAVE) {
-                    binding.detailFilterItem.popShow().apply { doOnTeardown { cancel() } }
-                } else {
-                    binding.detailFilterItem.isVisible = false
-                }
-            }.apply { doOnTeardown { cancel() } }
+            addNewAnimatorCompat = binding.detailAddNewItem.popShow()
+        }
+
+        doOnTeardown {
+            addNewAnimatorCompat?.cancel()
+            addNewAnimatorCompat = null
+        }
+
+        doOnTeardown {
+            filterAnimatorCompat?.cancel()
+            filterAnimatorCompat = null
         }
     }
 
@@ -104,6 +111,12 @@ class DetailAddItemView @Inject internal constructor(
         // Hide filter button for NEED
         if (state.listItemPresence == FridgeItem.Presence.NEED) {
             binding.detailFilterItem.isVisible = false
+        } else {
+            if (filterAnimatorCompat == null) {
+                addNewAnimatorCompat?.withEndAction {
+                    filterAnimatorCompat = binding.detailFilterItem.popShow()
+                }
+            }
         }
     }
 

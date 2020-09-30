@@ -17,6 +17,7 @@
 package com.pyamsoft.fridge.entry
 
 import com.pyamsoft.fridge.db.entry.FridgeEntry
+import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.pydroid.arch.UiControllerEvent
 import com.pyamsoft.pydroid.arch.UiViewEvent
 import com.pyamsoft.pydroid.arch.UiViewState
@@ -37,5 +38,8 @@ sealed class EntryViewEvent : UiViewEvent {
 
 sealed class EntryControllerEvent : UiControllerEvent {
 
-    data class LoadEntry internal constructor(val entry: FridgeEntry) : EntryControllerEvent()
+    data class LoadEntry internal constructor(
+        val entry: FridgeEntry,
+        val presence: FridgeItem.Presence
+    ) : EntryControllerEvent()
 }
