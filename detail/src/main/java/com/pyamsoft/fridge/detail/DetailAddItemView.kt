@@ -111,11 +111,11 @@ class DetailAddItemView @Inject internal constructor(
         // Hide filter button for NEED
         if (state.listItemPresence == FridgeItem.Presence.NEED) {
             binding.detailFilterItem.isVisible = false
+            filterAnimatorCompat?.cancel()
+            filterAnimatorCompat = null
         } else {
             if (filterAnimatorCompat == null) {
-                addNewAnimatorCompat?.withEndAction {
-                    filterAnimatorCompat = binding.detailFilterItem.popShow()
-                }
+                filterAnimatorCompat = binding.detailFilterItem.popShow()
             }
         }
     }

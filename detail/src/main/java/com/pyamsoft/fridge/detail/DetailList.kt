@@ -274,12 +274,10 @@ class DetailList @Inject internal constructor(
 
     private fun setList(
         list: List<FridgeItem>,
-        presence: FridgeItem.Presence,
         expirationRange: DetailViewState.ExpirationRange?,
         sameDayExpired: DetailViewState.IsSameDayExpired?
     ) {
-        Timber.d("List data: $list")
-        val data = list.map { DetailItemViewState(it, presence, expirationRange, sameDayExpired) }
+        val data = list.map { DetailItemViewState(it, expirationRange, sameDayExpired) }
         usingAdapter().submitList(data)
     }
 
@@ -299,7 +297,6 @@ class DetailList @Inject internal constructor(
                 items.isEmpty() -> clearList()
                 else -> setList(
                     items,
-                    state.listItemPresence,
                     state.expirationRange,
                     state.isSameDayExpired
                 )

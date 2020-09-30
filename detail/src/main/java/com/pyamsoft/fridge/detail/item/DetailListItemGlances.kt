@@ -112,8 +112,7 @@ class DetailListItemGlances @Inject internal constructor(
         val item = state.item
         val range = state.expirationRange
         val isSameDayExpired = state.isSameDayExpired
-        val presence = state.presence
-        val isValidItem = !item.isArchived() && presence == FridgeItem.Presence.HAVE
+        val isValidItem = !item.isArchived() && item.presence() == FridgeItem.Presence.HAVE
         val isValidDate = range != null && isSameDayExpired != null
         return isValidItem && isValidDate
     }

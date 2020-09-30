@@ -222,12 +222,8 @@ class DetailViewModel @Inject internal constructor(
     }
 
     private fun handlePresenceSwitch(presence: FridgeItem.Presence) {
-        setState {
-            copy(listItemPresence = presence)
-        }
-        withState {
-            refreshList(true)
-        }
+        setState { copy(listItemPresence = presence) }
+        withState { refreshList(false) }
     }
 
     private fun handleAddNew() {
@@ -241,14 +237,10 @@ class DetailViewModel @Inject internal constructor(
     private fun updateSearch(search: String) {
         setState {
             val cleanSearch = if (search.isNotBlank()) search.trim() else ""
-            val newItems = prepareListItems(allItems)
-            val visibleItems = getOnlyVisibleItems(newItems, search = cleanSearch)
-            copy(
-                allItems = newItems,
-                displayedItems = visibleItems,
-                counts = calculateCounts(visibleItems),
-                search = cleanSearch
-            )
+            copy(search = cleanSearch)
+        }
+        withState {
+            refreshList(false)
         }
     }
 
@@ -302,9 +294,7 @@ class DetailViewModel @Inject internal constructor(
 
     private fun updateSort(newSort: DetailViewState.Sorts) {
         setState { copy(sort = newSort) }
-        withState {
-            refreshList(false)
-        }
+        withState { refreshList(false) }
     }
 
     private fun refreshList(force: Boolean) {
@@ -351,32 +341,16 @@ class DetailViewModel @Inject internal constructor(
 
     private fun handleRealtimeInsert(item: FridgeItem) {
         setState {
-            val newItems = allItems.let { items ->
-                val mutableItems = items.toMutableList()
-                insertOrUpdate(mutableItems, item)
-                prepareListItems(mutableItems)
-            }
-
-            val visibleItems = getOnlyVisibleItems(newItems)
-            copy(
-                allItems = newItems,
-                displayedItems = visibleItems,
-                counts = calculateCounts(visibleItems)
-            )
+            val newItems = allItems.toMutableList().also { insertOrUpdate(it, item) }
+            regenerateItems(newItems)
         }
     }
 
     private fun handleRealtimeUpdate(item: FridgeItem) {
         Timber.d("Realtime update: $item ${item.isArchived()}")
         setState {
-            val list = allItems.toMutableList()
-            insertOrUpdate(list, item)
-            val newItems = prepareListItems(list)
-            val visibleItems = getOnlyVisibleItems(newItems)
-            copy(
-                allItems = newItems,
-                displayedItems = visibleItems,
-                counts = calculateCounts(visibleItems),
+            val newItems = allItems.toMutableList().also { insertOrUpdate(it, item) }
+            regenerateItems(newItems).copy(
                 // Show undo banner if we are archiving this item, otherwise no-op
                 undoableItem = if (item.isArchived()) item else undoableItem
             )
@@ -386,33 +360,33 @@ class DetailViewModel @Inject internal constructor(
     private fun handleRealtimeDelete(item: FridgeItem) {
         Timber.d("Realtime delete: $item")
         setState {
-            val newItems = prepareListItems(allItems.filterNot { it.id() == item.id() })
-            val visibleItems = getOnlyVisibleItems(newItems)
-            copy(
-                allItems = newItems,
-                displayedItems = visibleItems,
-                counts = calculateCounts(visibleItems),
+            val newItems = allItems.filterNot { it.id() == item.id() }
+            regenerateItems(newItems).copy(
                 // Show undo banner
                 undoableItem = item
             )
         }
     }
 
-    private fun handleListRefreshBegin() {
-        setState { copy(isLoading = true) }
+    @CheckResult
+    private fun DetailViewState.regenerateItems(items: List<FridgeItem>): DetailViewState {
+        val newItems = prepareListItems(items)
+        val visibleItems = getOnlyVisibleItems(newItems, search)
+        return copy(
+            allItems = newItems,
+            displayedItems = visibleItems,
+            counts = calculateCounts(visibleItems),
+        )
     }
 
     private fun handleListRefreshed(items: List<FridgeItem>) {
         setState {
-            val newItems = prepareListItems(items)
-            val visibleItems = getOnlyVisibleItems(newItems)
-            copy(
-                allItems = newItems,
-                displayedItems = visibleItems,
-                counts = calculateCounts(visibleItems),
-                listError = null
-            )
+            regenerateItems(items).copy(listError = null)
         }
+    }
+
+    private fun handleListRefreshBegin() {
+        setState { copy(isLoading = true) }
     }
 
     private fun handleListRefreshError(throwable: Throwable) {
@@ -594,7 +568,7 @@ class DetailViewModel @Inject internal constructor(
     @CheckResult
     private fun DetailViewState.getOnlyVisibleItems(
         items: List<FridgeItem>,
-        search: String = this.search
+        search: String
     ): List<FridgeItem> {
         return items
             .asSequence()

@@ -51,7 +51,8 @@ class DetailListItemDate @Inject internal constructor(
     }
 
     private fun handlePresence(state: DetailItemViewState) {
-        state.presence.let { presence ->
+        state.item.let { item ->
+            val presence = item.presence()
             if (presence == FridgeItem.Presence.NEED) {
                 layoutRoot.isVisible = true
             } else {
