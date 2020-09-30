@@ -57,7 +57,7 @@ class DetailAddItemView @Inject internal constructor(
                 .disposeOnDestroy(owner)
 
             binding.detailAddNewItem.setOnDebouncedClickListener {
-                publish(DetailViewEvent.AddNewItemEvent)
+                publish(DetailViewEvent.AddNew)
             }
         }
 
@@ -187,10 +187,10 @@ class DetailAddItemView @Inject internal constructor(
                     // Once hidden this will clear out the stored undoable
                     //
                     // If the undoable was restored before this point, this is basically a no-op
-                    publish(DetailViewEvent.ReallyDeleteNoUndo(undoable))
+                    publish(DetailViewEvent.ReallyDeleteItemNoUndo(undoable))
                 }) {
                 // Restore the old item
-                setAction("Undo") { publish(DetailViewEvent.UndoDelete(undoable)) }
+                setAction("Undo") { publish(DetailViewEvent.UndoDeleteItem(undoable)) }
             }
         }
     }

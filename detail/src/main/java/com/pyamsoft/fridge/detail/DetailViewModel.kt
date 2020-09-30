@@ -202,22 +202,22 @@ class DetailViewModel @Inject internal constructor(
     override fun handleViewEvent(event: DetailViewEvent) {
         return when (event) {
             is DetailViewEvent.ForceRefresh -> refreshList(true)
-            is DetailViewEvent.ExpandItem -> expand(event.item)
             is DetailViewEvent.ToggleArchiveVisibility -> toggleArchived()
-            is DetailViewEvent.ReallyDeleteNoUndo -> setState { copy(undoableItem = null) }
-            is DetailViewEvent.UndoDelete -> handleUndoDelete(event.item)
-            is DetailViewEvent.AddNewItemEvent -> handleAddNew()
-            is DetailViewEvent.ChangePresence -> commitPresence(event.item)
-            is DetailViewEvent.Consume -> consume(event.item)
-            is DetailViewEvent.Delete -> delete(event.item)
-            is DetailViewEvent.Restore -> restore(event.item)
-            is DetailViewEvent.Spoil -> spoil(event.item)
-            is DetailViewEvent.IncreaseCount -> increaseCount(event.item)
-            is DetailViewEvent.DecreaseCount -> decreaseCount(event.item)
+            is DetailViewEvent.AddNew -> handleAddNew()
             is DetailViewEvent.SearchQuery -> updateSearch(event.search)
             is DetailViewEvent.ChangeSort -> updateSort(event.sort)
             is DetailViewEvent.Back -> publish(DetailControllerEvent.Back)
             is DetailViewEvent.PresenceSwitched -> handlePresenceSwitch(event.presence)
+            is DetailViewEvent.ExpandItem -> expand(event.item)
+            is DetailViewEvent.ReallyDeleteItemNoUndo -> setState { copy(undoableItem = null) }
+            is DetailViewEvent.UndoDeleteItem -> handleUndoDelete(event.item)
+            is DetailViewEvent.ChangeItemPresence -> commitPresence(event.item)
+            is DetailViewEvent.ConsumeItem -> consume(event.item)
+            is DetailViewEvent.DeleteItem -> delete(event.item)
+            is DetailViewEvent.RestoreItem -> restore(event.item)
+            is DetailViewEvent.SpoilItem -> spoil(event.item)
+            is DetailViewEvent.IncreaseItemCount -> increaseCount(event.item)
+            is DetailViewEvent.DecreaseItemCount -> decreaseCount(event.item)
         }
     }
 

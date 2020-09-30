@@ -77,11 +77,11 @@ class DetailList @Inject internal constructor(
                 callback = object : Callback {
 
                     override fun onIncreaseCount(index: Int) {
-                        publish(DetailViewEvent.IncreaseCount(itemAtIndex(index)))
+                        publish(DetailViewEvent.IncreaseItemCount(itemAtIndex(index)))
                     }
 
                     override fun onDecreaseCount(index: Int) {
-                        publish(DetailViewEvent.DecreaseCount(itemAtIndex(index)))
+                        publish(DetailViewEvent.DecreaseItemCount(itemAtIndex(index)))
                     }
 
                     override fun onItemExpanded(index: Int) {
@@ -89,7 +89,7 @@ class DetailList @Inject internal constructor(
                     }
 
                     override fun onPresenceChange(index: Int) {
-                        publish(DetailViewEvent.ChangePresence(itemAtIndex(index)))
+                        publish(DetailViewEvent.ChangeItemPresence(itemAtIndex(index)))
                     }
                 })
             binding.detailList.adapter = modelAdapter
@@ -257,19 +257,19 @@ class DetailList @Inject internal constructor(
     }
 
     private fun restoreListItem(position: Int) {
-        publish(DetailViewEvent.Restore(itemAtIndex(position)))
+        publish(DetailViewEvent.RestoreItem(itemAtIndex(position)))
     }
 
     private fun deleteListItem(position: Int) {
-        publish(DetailViewEvent.Delete(itemAtIndex(position)))
+        publish(DetailViewEvent.DeleteItem(itemAtIndex(position)))
     }
 
     private fun consumeListItem(position: Int) {
-        publish(DetailViewEvent.Consume(itemAtIndex(position)))
+        publish(DetailViewEvent.ConsumeItem(itemAtIndex(position)))
     }
 
     private fun spoilListItem(position: Int) {
-        publish(DetailViewEvent.Spoil(itemAtIndex(position)))
+        publish(DetailViewEvent.SpoilItem(itemAtIndex(position)))
     }
 
     private fun setList(

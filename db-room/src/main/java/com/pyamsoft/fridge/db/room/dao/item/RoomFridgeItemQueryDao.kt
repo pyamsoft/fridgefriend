@@ -63,6 +63,8 @@ internal abstract class RoomFridgeItemQueryDao internal constructor() : FridgeIt
         """
         SELECT * FROM ${RoomFridgeItem.TABLE_NAME} WHERE 
         ${RoomFridgeItem.COLUMN_PRESENCE} != :presence AND 
+        ${RoomFridgeItem.COLUMN_CONSUMED} IS NULL AND
+        ${RoomFridgeItem.COLUMN_SPOILED} IS NULL AND
         TRIM(${RoomFridgeItem.COLUMN_NAME})  = :name COLLATE NOCASE
         """
     )

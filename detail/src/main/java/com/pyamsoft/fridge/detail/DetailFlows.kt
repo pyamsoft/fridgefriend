@@ -82,7 +82,7 @@ data class DetailViewState(
 
 sealed class DetailViewEvent : UiViewEvent {
 
-    object AddNewItemEvent : DetailViewEvent()
+    object AddNew : DetailViewEvent()
 
     data class PresenceSwitched internal constructor(
         val presence: FridgeItem.Presence
@@ -98,25 +98,25 @@ sealed class DetailViewEvent : UiViewEvent {
 
     data class ChangeSort internal constructor(val sort: DetailViewState.Sorts) : DetailViewEvent()
 
-    data class UndoDelete internal constructor(val item: FridgeItem) : DetailViewEvent()
+    data class UndoDeleteItem internal constructor(val item: FridgeItem) : DetailViewEvent()
 
-    data class ReallyDeleteNoUndo internal constructor(val item: FridgeItem) : DetailViewEvent()
+    data class ReallyDeleteItemNoUndo internal constructor(val item: FridgeItem) : DetailViewEvent()
 
-    data class Consume internal constructor(val item: FridgeItem) : DetailViewEvent()
+    data class ConsumeItem internal constructor(val item: FridgeItem) : DetailViewEvent()
 
-    data class Delete internal constructor(val item: FridgeItem) : DetailViewEvent()
+    data class DeleteItem internal constructor(val item: FridgeItem) : DetailViewEvent()
 
-    data class Restore internal constructor(val item: FridgeItem) : DetailViewEvent()
+    data class RestoreItem internal constructor(val item: FridgeItem) : DetailViewEvent()
 
-    data class Spoil internal constructor(val item: FridgeItem) : DetailViewEvent()
+    data class SpoilItem internal constructor(val item: FridgeItem) : DetailViewEvent()
 
     data class ExpandItem internal constructor(val item: FridgeItem) : DetailViewEvent()
 
-    data class ChangePresence internal constructor(val item: FridgeItem) : DetailViewEvent()
+    data class ChangeItemPresence internal constructor(val item: FridgeItem) : DetailViewEvent()
 
-    data class IncreaseCount internal constructor(val item: FridgeItem) : DetailViewEvent()
+    data class IncreaseItemCount internal constructor(val item: FridgeItem) : DetailViewEvent()
 
-    data class DecreaseCount internal constructor(val item: FridgeItem) : DetailViewEvent()
+    data class DecreaseItemCount internal constructor(val item: FridgeItem) : DetailViewEvent()
 }
 
 sealed class DetailControllerEvent : UiControllerEvent {
