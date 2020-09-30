@@ -84,6 +84,10 @@ sealed class DetailViewEvent : UiViewEvent {
 
     object AddNewItemEvent : DetailViewEvent()
 
+    data class PresenceSwitched internal constructor(
+        val presence: FridgeItem.Presence
+    ) : DetailViewEvent()
+
     data class SearchQuery internal constructor(val search: String) : DetailViewEvent()
 
     object ForceRefresh : DetailViewEvent()

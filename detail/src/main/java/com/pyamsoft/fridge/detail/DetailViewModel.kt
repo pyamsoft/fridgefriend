@@ -217,6 +217,16 @@ class DetailViewModel @Inject internal constructor(
             is DetailViewEvent.SearchQuery -> updateSearch(event.search)
             is DetailViewEvent.ChangeSort -> updateSort(event.sort)
             is DetailViewEvent.Back -> publish(DetailControllerEvent.Back)
+            is DetailViewEvent.PresenceSwitched -> handlePresenceSwitch(event.presence)
+        }
+    }
+
+    private fun handlePresenceSwitch(presence: FridgeItem.Presence) {
+        setState {
+            copy(listItemPresence = presence)
+        }
+        withState {
+            refreshList(true)
         }
     }
 

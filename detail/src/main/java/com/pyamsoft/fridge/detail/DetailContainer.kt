@@ -33,6 +33,7 @@ import javax.inject.Inject
 
 class DetailContainer @Inject internal constructor(
     private val theming: ThemeProvider,
+    switcher: DetailPresenceSwitcher,
     emptyState: DetailEmptyState,
     list: DetailList,
     parent: ViewGroup
@@ -45,6 +46,7 @@ class DetailContainer @Inject internal constructor(
     private var animator: ViewPropertyAnimatorCompat? = null
 
     init {
+        nest(switcher)
         nest(emptyState)
         nest(list)
 
@@ -73,6 +75,19 @@ class DetailContainer @Inject internal constructor(
 
         doOnInflate {
             binding.detailContainer.layout {
+                switcher.let {
+                    connect(it.id(), ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP)
+                    connect(it.id(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
+                    connect(
+                        it.id(),
+                        ConstraintSet.START,
+                        ConstraintSet.PARENT_ID,
+                        ConstraintSet.START
+                    )
+                    constrainWidth(it.id(), ConstraintSet.WRAP_CONTENT)
+                    constrainHeight(it.id(), ConstraintSet.WRAP_CONTENT)
+                }
+
                 emptyState.let {
                     connect(
                         it.id(),
@@ -80,7 +95,7 @@ class DetailContainer @Inject internal constructor(
                         ConstraintSet.PARENT_ID,
                         ConstraintSet.START
                     )
-                    connect(it.id(), ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP)
+                    connect(it.id(), ConstraintSet.TOP, switcher.id(), ConstraintSet.BOTTOM)
                     connect(
                         it.id(),
                         ConstraintSet.BOTTOM,
@@ -99,7 +114,7 @@ class DetailContainer @Inject internal constructor(
                         ConstraintSet.PARENT_ID,
                         ConstraintSet.START
                     )
-                    connect(it.id(), ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP)
+                    connect(it.id(), ConstraintSet.TOP, switcher.id(), ConstraintSet.BOTTOM)
                     connect(
                         it.id(),
                         ConstraintSet.BOTTOM,

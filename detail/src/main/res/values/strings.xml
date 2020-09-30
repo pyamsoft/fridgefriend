@@ -32,4 +32,6 @@
     <string name="number_of_expired_items">Expired items</string>
 
     <string name="purchased_on">Purchased On:</string>
+    <string name="need">Need</string>
+    <string name="have">Have</string>
 </resources>

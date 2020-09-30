@@ -278,6 +278,7 @@ class DetailList @Inject internal constructor(
         expirationRange: DetailViewState.ExpirationRange?,
         sameDayExpired: DetailViewState.IsSameDayExpired?
     ) {
+        Timber.d("List data: $list")
         val data = list.map { DetailItemViewState(it, presence, expirationRange, sameDayExpired) }
         usingAdapter().submitList(data)
     }
@@ -286,23 +287,22 @@ class DetailList @Inject internal constructor(
         usingAdapter().submitList(null)
     }
 
-    private fun handleList(state: DetailViewState) {
+    private fun handleLoading(state: DetailViewState) {
         state.isLoading.let { loading ->
             binding.detailSwipeRefresh.refreshing(loading)
+        }
+    }
 
-            // Done loading
-            if (!loading) {
-                state.displayedItems.let { items ->
-                    when {
-                        items.isEmpty() -> clearList()
-                        else -> setList(
-                            items,
-                            state.listItemPresence,
-                            state.expirationRange,
-                            state.isSameDayExpired
-                        )
-                    }
-                }
+    private fun handleList(state: DetailViewState) {
+        state.displayedItems.let { items ->
+            when {
+                items.isEmpty() -> clearList()
+                else -> setList(
+                    items,
+                    state.listItemPresence,
+                    state.expirationRange,
+                    state.isSameDayExpired
+                )
             }
         }
     }
@@ -336,6 +336,7 @@ class DetailList @Inject internal constructor(
     override fun onRender(state: DetailViewState) {
         // Handle first before performing side effects
         handleBottomMargin(state)
+        handleLoading(state)
         handleList(state)
 
         setupSwipeCallback(state)
