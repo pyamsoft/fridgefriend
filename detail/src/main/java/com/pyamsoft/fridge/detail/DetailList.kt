@@ -32,7 +32,6 @@ import com.pyamsoft.fridge.detail.item.DetailItemComponent
 import com.pyamsoft.fridge.detail.item.DetailItemViewHolder
 import com.pyamsoft.fridge.detail.item.DetailItemViewState
 import com.pyamsoft.fridge.detail.item.DetailListAdapter
-import com.pyamsoft.fridge.detail.item.DetailListAdapter.Callback
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.ui.util.refreshing
@@ -44,7 +43,7 @@ import javax.inject.Inject
 
 class DetailList @Inject internal constructor(
     private val imageLoader: ImageLoader,
-    private val owner: LifecycleOwner,
+    owner: LifecycleOwner,
     parent: ViewGroup,
     factory: DetailItemComponent.Factory
 ) : BaseUiView<DetailViewState, DetailViewEvent, DetailListBinding>(parent) {
@@ -72,9 +71,8 @@ class DetailList @Inject internal constructor(
         doOnInflate {
             modelAdapter = DetailListAdapter(
                 owner = owner,
-                editable = false,
                 factory = factory,
-                callback = object : Callback {
+                callback = object : DetailListAdapter.Callback {
 
                     override fun onIncreaseCount(index: Int) {
                         publish(DetailViewEvent.IncreaseItemCount(itemAtIndex(index)))
@@ -341,6 +339,6 @@ class DetailList @Inject internal constructor(
     }
 
     companion object {
-        private const val LAST_SCROLL_POSITION = "last_scroll_position"
+        private const val LAST_SCROLL_POSITION = "detail_last_scroll_position"
     }
 }

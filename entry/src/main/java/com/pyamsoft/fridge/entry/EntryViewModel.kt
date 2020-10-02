@@ -177,22 +177,19 @@ class EntryViewModel @Inject internal constructor(
 
     override fun handleViewEvent(event: EntryViewEvent) {
         return when (event) {
-            is EntryViewEvent.SelectEntry -> select(event.position)
+            is EntryViewEvent.SelectEntry -> select(event.entry)
             is EntryViewEvent.AddNew -> handleAddNew()
+            is EntryViewEvent.ForceRefresh -> refreshList(true)
         }
     }
 
     private fun handleAddNew() {
         // TODO(Peter) Real handler, prompt for adding new
-        select(0)
     }
 
-    private fun select(position: Int) {
-        withState {
-            val entry = entries[position]
-            Timber.d("Loading entry page: $entry")
-            publish(EntryControllerEvent.LoadEntry(entry, FridgeItem.Presence.NEED))
-        }
+    private fun select(entry: FridgeEntry) {
+        Timber.d("Loading entry page: $entry")
+        publish(EntryControllerEvent.LoadEntry(entry, FridgeItem.Presence.NEED))
     }
 
     @CheckResult

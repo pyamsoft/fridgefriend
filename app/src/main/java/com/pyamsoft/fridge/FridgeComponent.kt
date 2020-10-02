@@ -39,6 +39,7 @@ import com.pyamsoft.fridge.detail.expand.ExpandItemCategoryListComponent
 import com.pyamsoft.fridge.detail.expand.date.DateSelectComponent
 import com.pyamsoft.fridge.detail.expand.date.DateSelectPayload
 import com.pyamsoft.fridge.entry.EntryComponent
+import com.pyamsoft.fridge.entry.EntryListComponent
 import com.pyamsoft.fridge.locator.GpsChangeEvent
 import com.pyamsoft.fridge.locator.LocatorModule
 import com.pyamsoft.fridge.locator.map.MapModule
@@ -83,27 +84,31 @@ internal interface FridgeComponent {
     // ===============================================
     // HACKY INJECTORS
 
-    /* FROM inside CategoryListView */
+    /* FROM inside CategoryListView: See FridgeFriend Injector */
     @CheckResult
     fun plusCategoryListComponent(): CategoryListComponent.Factory
 
-    /* FROM inside DetailList */
+    /* FROM inside DetailList: See FridgeFriend Injector */
     @CheckResult
     fun plusDetailListComponent(): DetailListComponent.Factory
 
-    /* FROM inside ExpandItemCategoryList */
+    /* FROM inside EntryList: See FridgeFriend Injector */
+    @CheckResult
+    fun plusEntryListComponent(): EntryListComponent.Factory
+
+    /* FROM inside ExpandItemCategoryList: See FridgeFriend Injector */
     @CheckResult
     fun plusExpandCategoryListComponent(): ExpandItemCategoryListComponent.Factory
 
-    /* FROM inside OsmMap */
+    /* FROM inside OsmMap: See FridgeFriend Injector */
     @CheckResult
     fun plusStoreComponent(): StoreInfoComponent.Factory
 
-    /* FROM inside OsmMap */
+    /* FROM inside OsmMap: See FridgeFriend Injector */
     @CheckResult
     fun plusZoneComponent(): ZoneInfoComponent.Factory
 
-    /* FROM inside LocationInjector, ExpirationInjector */
+    /* FROM inside LocationInjector, ExpirationInjector: See FridgeFriend Injector */
     @CheckResult
     fun plusButlerComponent(): ButlerComponent
 

@@ -57,6 +57,10 @@ internal class EntryFragment : Fragment(), SnackbarContainer {
     @Inject
     internal var container: EntryContainer? = null
 
+    @JvmField
+    @Inject
+    internal var list: EntryList? = null
+
     private var stateSaver: StateSaver? = null
 
     private var fragmentContainerId = 0
@@ -91,17 +95,19 @@ internal class EntryFragment : Fragment(), SnackbarContainer {
         val binding = LayoutCoordinatorBinding.bind(view)
         Injector.obtain<FridgeComponent>(view.context.applicationContext)
             .plusEntryComponent()
-            .create(viewLifecycleOwner, binding.layoutCoordinator)
+            .create(requireActivity(), viewLifecycleOwner, binding.layoutCoordinator)
             .inject(this)
 
         val addNew = requireNotNull(addNew)
         val container = requireNotNull(container)
+        val list = requireNotNull(list)
 
         stateSaver = createComponent(
             savedInstanceState,
             viewLifecycleOwner,
             viewModel,
             addNew,
+            list,
             container,
         ) {
             return@createComponent when (it) {
@@ -119,7 +125,10 @@ internal class EntryFragment : Fragment(), SnackbarContainer {
     }
 
     private fun watchBackPresses() {
-        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, backPressedCallback)
+        requireActivity().onBackPressedDispatcher.addCallback(
+            viewLifecycleOwner,
+            backPressedCallback
+        )
         childFragmentManager.addOnBackStackChangedListener(backStackChangedListener)
     }
 
@@ -149,6 +158,7 @@ internal class EntryFragment : Fragment(), SnackbarContainer {
         factory = null
         addNew = null
         container = null
+        list = null
     }
 
     private fun removeBackWatchers() {

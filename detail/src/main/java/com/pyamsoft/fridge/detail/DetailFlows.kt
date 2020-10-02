@@ -23,7 +23,7 @@ import com.pyamsoft.pydroid.arch.UiControllerEvent
 import com.pyamsoft.pydroid.arch.UiViewEvent
 import com.pyamsoft.pydroid.arch.UiViewState
 
-data class DetailViewState(
+data class DetailViewState internal constructor(
     val isLoading: Boolean,
     // All currently displayed list items
     val displayedItems: List<FridgeItem>,

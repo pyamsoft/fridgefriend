@@ -26,7 +26,6 @@ import com.pyamsoft.fridge.detail.databinding.DetailListItemHolderBinding
 
 class DetailListAdapter internal constructor(
     private val owner: LifecycleOwner,
-    private val editable: Boolean,
     private val callback: Callback,
     private val factory: DetailItemComponent.Factory
 ) : ListAdapter<DetailItemViewState, DetailItemViewHolder>(DIFFER) {
@@ -37,7 +36,7 @@ class DetailListAdapter internal constructor(
     ): DetailItemViewHolder {
         val inflater = LayoutInflater.from(parent.context)
         val binding = DetailListItemHolderBinding.inflate(inflater, parent, false)
-        return DetailItemViewHolder(binding, owner, editable, callback, factory)
+        return DetailItemViewHolder(binding, owner, editable = false, callback, factory)
     }
 
     override fun onBindViewHolder(

@@ -20,7 +20,7 @@ import com.pyamsoft.pydroid.arch.UiControllerEvent
 import com.pyamsoft.pydroid.arch.UiViewEvent
 import com.pyamsoft.pydroid.arch.UiViewState
 
-data class MainViewState(
+data class MainViewState internal constructor(
     val page: MainPage?,
     val appNameRes: Int,
     val countNeeded: Int,

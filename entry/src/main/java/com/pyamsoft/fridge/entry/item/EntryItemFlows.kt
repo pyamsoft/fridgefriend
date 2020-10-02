@@ -14,15 +14,11 @@
  * limitations under the License.
  */
 
-package com.pyamsoft.fridge.category.item
+package com.pyamsoft.fridge.entry.item
 
-import com.pyamsoft.fridge.db.category.FridgeCategory
-import com.pyamsoft.pydroid.arch.UiViewEvent
+import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.pydroid.arch.UiViewState
 
-data class CategoryItemViewState internal constructor(
-    val category: FridgeCategory,
-    val itemCount: Int
-) : UiViewState
-
-sealed class CategoryItemViewEvent : UiViewEvent
+data class EntryItemViewState internal constructor(
+    val entry: FridgeEntry
+): UiViewState

@@ -22,7 +22,7 @@ import com.pyamsoft.pydroid.arch.UiControllerEvent
 import com.pyamsoft.pydroid.arch.UiViewEvent
 import com.pyamsoft.pydroid.arch.UiViewState
 
-data class CategoryViewState(
+data class CategoryViewState internal constructor(
     val categories: List<CategoryItemsPairing>
 ) : UiViewState {
 

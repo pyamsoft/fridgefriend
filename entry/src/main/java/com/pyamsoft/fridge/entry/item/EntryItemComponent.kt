@@ -14,15 +14,27 @@
  * limitations under the License.
  */
 
-package com.pyamsoft.fridge.category.item
+package com.pyamsoft.fridge.entry.item
 
-import com.pyamsoft.fridge.db.category.FridgeCategory
-import com.pyamsoft.pydroid.arch.UiViewEvent
-import com.pyamsoft.pydroid.arch.UiViewState
+import android.view.ViewGroup
+import androidx.annotation.CheckResult
+import androidx.lifecycle.LifecycleOwner
+import dagger.BindsInstance
+import dagger.Subcomponent
+import javax.inject.Named
 
-data class CategoryItemViewState internal constructor(
-    val category: FridgeCategory,
-    val itemCount: Int
-) : UiViewState
+@Subcomponent
+interface EntryItemComponent {
 
-sealed class CategoryItemViewEvent : UiViewEvent
+    fun inject(holder: EntryItemViewHolder)
+
+    @Subcomponent.Factory
+    interface Factory {
+
+        @CheckResult
+        fun create(
+            @BindsInstance parent: ViewGroup,
+            @BindsInstance owner: LifecycleOwner
+        ): EntryItemComponent
+    }
+}

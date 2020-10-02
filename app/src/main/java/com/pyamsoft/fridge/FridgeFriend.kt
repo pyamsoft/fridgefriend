@@ -26,6 +26,7 @@ import com.pyamsoft.fridge.core.PRIVACY_POLICY_URL
 import com.pyamsoft.fridge.core.TERMS_CONDITIONS_URL
 import com.pyamsoft.fridge.detail.DetailListComponent
 import com.pyamsoft.fridge.detail.expand.ExpandItemCategoryListComponent
+import com.pyamsoft.fridge.entry.EntryListComponent
 import com.pyamsoft.fridge.locator.map.osm.popup.store.StoreInfoComponent
 import com.pyamsoft.fridge.locator.map.osm.popup.zone.ZoneInfoComponent
 import com.pyamsoft.fridge.main.MainActivity
@@ -163,6 +164,7 @@ class FridgeFriend : Application() {
                 ButlerComponent::class.java.name -> plusButlerComponent()
                 CategoryListComponent.Factory::class.java.name -> plusCategoryListComponent()
                 DetailListComponent.Factory::class.java.name -> plusDetailListComponent()
+                EntryListComponent.Factory::class.java.name -> plusEntryListComponent()
                 ExpandItemCategoryListComponent.Factory::class.java.name -> plusExpandCategoryListComponent()
                 StoreInfoComponent.Factory::class.java.name -> plusStoreComponent()
                 ZoneInfoComponent.Factory::class.java.name -> plusZoneComponent()
