@@ -25,6 +25,7 @@ import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.entry.databinding.EntryListBinding
 import com.pyamsoft.fridge.entry.item.EntryItemComponent
 import com.pyamsoft.fridge.entry.item.EntryItemViewState
+import com.pyamsoft.fridge.ui.applyToolbarOffset
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.ui.util.refreshing
 import com.pyamsoft.pydroid.util.toDp
@@ -48,6 +49,10 @@ class EntryList @Inject internal constructor(
     private var lastScrollPosition = 0
 
     init {
+        doOnInflate {
+            layoutRoot.applyToolbarOffset()
+        }
+
         doOnInflate {
             binding.entryList.layoutManager =
                 GridLayoutManager(binding.entryList.context, 2).apply {

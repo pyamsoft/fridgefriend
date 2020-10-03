@@ -222,7 +222,7 @@ class DetailViewModel @Inject internal constructor(
     }
 
     private fun handlePresenceSwitch(presence: FridgeItem.Presence) {
-        setState { copy(listItemPresence = presence) }
+        setState { copy(listItemPresence = presence, showing = DetailViewState.Showing.FRESH) }
         withState { refreshList(false) }
     }
 

@@ -22,8 +22,7 @@
         xmlns:app="http://schemas.android.com/apk/res-auto"
         android:id="@+id/entry_swipe_refresh"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginTop="150dp">
+        android:layout_height="match_parent">
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/entry_list"
