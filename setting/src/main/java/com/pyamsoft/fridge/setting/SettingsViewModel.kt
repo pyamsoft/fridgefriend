@@ -37,7 +37,7 @@ class SettingsViewModel @Inject internal constructor(
 ) {
 
     init {
-        doOnInit {
+        doOnBind {
             viewModelScope.launch(context = Dispatchers.Default) {
                 bottomOffsetBus.onEvent { setState { copy(bottomOffset = it.height) } }
             }

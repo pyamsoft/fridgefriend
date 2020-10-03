@@ -106,38 +106,38 @@ class DetailViewModel @Inject internal constructor(
     }
 
     init {
-        doOnInit {
+        doOnBind {
             viewModelScope.launch(context = Dispatchers.Default) {
                 bottomOffsetBus.onEvent { setState { copy(bottomOffset = it.height) } }
             }
         }
 
-        doOnInit {
+        doOnBind {
             refreshList(false)
         }
 
-        doOnInit {
+        doOnBind {
             viewModelScope.launch(context = Dispatchers.Default) {
                 val entry = interactor.loadEntry(entryId)
                 setState { copy(entry = entry) }
             }
         }
 
-        doOnInit {
+        doOnBind {
             viewModelScope.launch(context = Dispatchers.Default) {
                 val range = interactor.getExpiringSoonRange()
                 setState { copy(expirationRange = DetailViewState.ExpirationRange(range)) }
             }
         }
 
-        doOnInit {
+        doOnBind {
             viewModelScope.launch(context = Dispatchers.Default) {
                 val isSame = interactor.isSameDayExpired()
                 setState { copy(isSameDayExpired = DetailViewState.IsSameDayExpired(isSame)) }
             }
         }
 
-        doOnInit {
+        doOnBind {
             viewModelScope.launch(context = Dispatchers.Default) {
                 val listener = interactor.listenForExpiringSoonRangeChanged { range ->
                     setState { copy(expirationRange = DetailViewState.ExpirationRange(range)) }
@@ -148,7 +148,7 @@ class DetailViewModel @Inject internal constructor(
             }
         }
 
-        doOnInit {
+        doOnBind {
             viewModelScope.launch(context = Dispatchers.Default) {
                 val listener = interactor.listenForSameDayExpiredChanged { same ->
                     setState { copy(isSameDayExpired = DetailViewState.IsSameDayExpired(same)) }
@@ -178,21 +178,21 @@ class DetailViewModel @Inject internal constructor(
             outState.remove(SAVED_SEARCH)
         }
 
-        doOnInit { savedInstanceState ->
+        doOnBind { savedInstanceState ->
             savedInstanceState.useIfAvailable<String>(SAVED_FILTER) { filterName ->
                 val filter = DetailViewState.Showing.valueOf(filterName)
                 setState { copy(showing = filter) }
             }
         }
 
-        doOnInit { savedInstanceState ->
+        doOnBind { savedInstanceState ->
             savedInstanceState.useIfAvailable<String>(SAVED_SORT) { sortName ->
                 val sort = DetailViewState.Sorts.valueOf(sortName)
                 setState { copy(sort = sort) }
             }
         }
 
-        doOnInit { savedInstanceState ->
+        doOnBind { savedInstanceState ->
             savedInstanceState.useIfAvailable<String>(SAVED_SEARCH) { search ->
                 setState { copy(search = search) }
             }

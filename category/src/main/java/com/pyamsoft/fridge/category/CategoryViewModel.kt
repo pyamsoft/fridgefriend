@@ -31,7 +31,7 @@ class CategoryViewModel @Inject internal constructor(
 ) {
 
     init {
-        doOnInit {
+        doOnBind {
             viewModelScope.launch(context = Dispatchers.Default) {
                 val categories = interactor.loadCategories()
                 setState { copy(categories = categories) }

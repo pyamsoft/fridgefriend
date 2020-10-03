@@ -92,11 +92,11 @@ class OsmViewModel @Inject internal constructor(
     }
 
     init {
-        doOnInit {
+        doOnBind {
             initialFetchFromCache()
         }
 
-        doOnInit {
+        doOnBind {
             viewModelScope.launch(context = Dispatchers.Default) {
                 bottomOffsetBus.onEvent { setState { copy(bottomOffset = it.height) } }
             }

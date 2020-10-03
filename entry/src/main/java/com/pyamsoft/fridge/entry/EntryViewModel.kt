@@ -68,11 +68,11 @@ class EntryViewModel @Inject internal constructor(
     }
 
     init {
-        doOnInit {
+        doOnBind {
             refreshList(false)
         }
 
-        doOnInit {
+        doOnBind {
             viewModelScope.launch(context = Dispatchers.Default) {
                 bottomOffsetBus.onEvent { setState { copy(bottomOffset = it.height) } }
             }

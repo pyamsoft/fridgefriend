@@ -63,7 +63,7 @@ class ExpandItemViewModel @Inject internal constructor(
 ) {
 
     init {
-        doOnInit {
+        doOnBind {
             viewModelScope.launch(context = Dispatchers.Default) {
                 val categories = interactor.loadAllCategories()
                 setState { copy(categories = listOf(FridgeCategory.empty()) + categories) }
@@ -85,7 +85,7 @@ class ExpandItemViewModel @Inject internal constructor(
             outState.remove(CREATED_ITEM_ID)
         }
 
-        doOnInit { savedInstanceState ->
+        doOnBind { savedInstanceState ->
             // Resolve the existing item id
             val savedId = savedInstanceState.getOrDefault(CREATED_ITEM_ID, possibleItemId.id)
             val resolveItemId = FridgeItem.Id(savedId)
@@ -100,13 +100,13 @@ class ExpandItemViewModel @Inject internal constructor(
             }
         }
 
-        doOnInit {
+        doOnBind {
             viewModelScope.launch(context = Dispatchers.Default) {
                 realtime.listenForChanges(itemEntryId) { handleRealtimeEvent(it) }
             }
         }
 
-        doOnInit {
+        doOnBind {
             viewModelScope.launch(context = Dispatchers.Default) {
                 dateSelectBus.onEvent { event ->
                     withState {

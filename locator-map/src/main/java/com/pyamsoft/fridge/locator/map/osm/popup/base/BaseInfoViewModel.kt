@@ -35,7 +35,7 @@ internal abstract class BaseInfoViewModel<T : Any, S : BaseInfoViewState<*>, V :
 ) : UiViewModel<S, V, C>(initialState, debug) {
 
     init {
-        doOnInit {
+        doOnBind {
             findCachedIfExists()
             listenForRealtime()
         }

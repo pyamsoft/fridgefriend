@@ -62,7 +62,7 @@ class MainViewModel @Inject internal constructor(
             }
         }
 
-        doOnInit { savedInstanceState ->
+        doOnBind { savedInstanceState ->
             val savedPageString = savedInstanceState.get<String>(PAGE)
             val page = if (savedPageString == null) defaultPage else {
                 MainPage.valueOf(savedPageString)
@@ -71,7 +71,7 @@ class MainViewModel @Inject internal constructor(
             selectPage(page)
         }
 
-        doOnInit {
+        doOnBind {
             refreshBadgeCounts()
 
             viewModelScope.launch(context = Dispatchers.Default) {
