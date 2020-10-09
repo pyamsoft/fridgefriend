@@ -121,7 +121,7 @@ internal class EntryFragment : Fragment(), SnackbarContainer {
     override fun container(): CoordinatorLayout? {
         val fm = childFragmentManager
         val fragment = fm.findFragmentById(fragmentContainerId)
-        return if (fragment is SnackbarContainer) fragment.container() else null
+        return if (fragment is SnackbarContainer) fragment.container() else addNew?.container()
     }
 
     private fun watchBackPresses() {

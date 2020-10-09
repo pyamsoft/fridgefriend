@@ -71,7 +71,6 @@ class EntryAddNew @Inject internal constructor(
         handleBottomMargin(state)
     }
 
-
     private fun handleBottomMargin(state: EntryViewState) {
         state.bottomOffset.let { height ->
             if (height > 0) {
