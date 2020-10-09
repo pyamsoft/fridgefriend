@@ -84,11 +84,14 @@ internal class MainActivity : RatingActivity(), VersionChecker {
             if (fragment is SnackbarContainer) {
                 val container = fragment.container()
                 if (container != null) {
+                    Timber.d("Return fragment snackbar container: $fragment $container")
                     return container
                 }
             }
 
-            return requireNotNull(snackbar?.container())
+            val fallbackContainer = requireNotNull(snackbar?.container())
+            Timber.d("Return activity snackbar container: $fallbackContainer")
+            return fallbackContainer
         }
 
     private var stateSaver: StateSaver? = null
@@ -151,6 +154,7 @@ internal class MainActivity : RatingActivity(), VersionChecker {
     }
 
     override fun checkVersionForUpdate() {
+        Timber.d("Begin update check")
         viewModel.checkForUpdates()
     }
 
@@ -222,7 +226,7 @@ internal class MainActivity : RatingActivity(), VersionChecker {
                 is MainControllerEvent.PushCategory -> pushCategory(it.previousPage)
                 is MainControllerEvent.PushNearby -> pushNearby(it.previousPage)
                 is MainControllerEvent.PushSettings -> pushSettings(it.previousPage)
-                is MainControllerEvent.VersionCheck -> checkForUpdate()
+                is MainControllerEvent.VersionCheck -> performUpdate()
             }
         }
 
@@ -271,6 +275,11 @@ internal class MainActivity : RatingActivity(), VersionChecker {
                 constrainWidth(it.id(), ConstraintSet.MATCH_CONSTRAINT)
             }
         }
+    }
+
+    private fun performUpdate() {
+        Timber.d("Do check for update")
+        checkForUpdate()
     }
 
     private fun pushSettings(previousPage: MainPage?) {
