@@ -43,6 +43,7 @@ class MainSnackbar @Inject internal constructor(
 ) : BaseUiView<MainViewState, MainViewEvent, MainSnackbarBinding>(parent), SnackbarContainer {
 
     override val layoutRoot by boundView { mainSnackbar }
+
     override val viewBinding = MainSnackbarBinding::inflate
 
     override fun onRender(state: MainViewState) {

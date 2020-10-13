@@ -32,6 +32,7 @@ import com.pyamsoft.fridge.locator.map.osm.popup.zone.ZoneInfoComponent
 import com.pyamsoft.fridge.main.MainActivity
 import com.pyamsoft.pydroid.bootstrap.libraries.OssLibraries
 import com.pyamsoft.pydroid.bootstrap.libraries.OssLicenses
+import com.pyamsoft.pydroid.ui.ModuleProvider
 import com.pyamsoft.pydroid.ui.PYDroid
 import com.pyamsoft.pydroid.util.isDebugMode
 import kotlinx.coroutines.Dispatchers
@@ -41,18 +42,15 @@ import javax.inject.Inject
 
 class FridgeFriend : Application() {
 
-    @JvmField
     @Inject
+    @JvmField
     internal var butler: Butler? = null
 
-    @JvmField
     @Inject
+    @JvmField
     internal var orderFactory: OrderFactory? = null
 
-    private var component: FridgeComponent? = null
-
-    override fun onCreate() {
-        super.onCreate()
+    private val component by lazy {
         val url = "https://github.com/pyamsoft/fridgefriend"
         val parameters = PYDroid.Parameters(
             url,
@@ -61,21 +59,28 @@ class FridgeFriend : Application() {
             TERMS_CONDITIONS_URL,
             BuildConfig.VERSION_CODE
         )
-        PYDroid.init(this, parameters) { provider ->
-            component = DaggerFridgeComponent.factory().create(
-                this,
-                isDebugMode(),
-                provider.theming(),
-                provider.imageLoader(),
-                MainActivity::class.java
-            ).apply {
-                onInitialized(this)
-            }
-        }
+
+        return@lazy createComponent(PYDroid.init(this, parameters))
     }
 
-    private fun onInitialized(component: FridgeComponent) {
-        addLibraries()
+    @CheckResult
+    private fun createComponent(provider: ModuleProvider): FridgeComponent {
+        return DaggerFridgeComponent.factory().create(
+            this,
+            isDebugMode(),
+            provider.theming(),
+            provider.imageLoader(),
+            MainActivity::class.java
+        )
+            .also { addLibraries() }
+    }
+
+    override fun onCreate() {
+        super.onCreate()
+        onInitialized()
+    }
+
+    private fun onInitialized() {
         component.inject(this)
         beginWork()
     }
@@ -105,7 +110,7 @@ class FridgeFriend : Application() {
 
     @CheckResult
     private fun provideModuleDependencies(name: String): Any? {
-        return component?.run {
+        return component.run {
             when (name) {
                 ButlerComponent::class.java.name -> plusButlerComponent()
                 CategoryListComponent.Factory::class.java.name -> plusCategoryListComponent()
