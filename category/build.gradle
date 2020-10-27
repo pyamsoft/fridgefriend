@@ -62,8 +62,8 @@ dependencies {
 
 	kapt "com.google.dagger:dagger-compiler:$dagger"
 
-	implementation project(':db')
-	implementation project(':ui')
+	api project(':db')
+	api project(':ui')
 }
 
 

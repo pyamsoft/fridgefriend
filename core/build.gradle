@@ -59,9 +59,27 @@ kapt {
 }
 
 dependencies {
+	// Timber logging
+	api "com.jakewharton.timber:timber:$timber"
 
 	// PYDroid
+	api "com.pyamsoft.pydroid:arch:$pydroid"
 	api "com.pyamsoft.pydroid:ui:$pydroid"
+	api "com.pyamsoft.pydroid:util:$pydroid"
+
+	// Cachify
+	api "com.pyamsoft.cachify:cachify:$cachify"
+
+	// Highlander
+	api "com.pyamsoft.highlander:highlander:$highlander"
+
+    // Coroutines
+	api "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutines"
+
+	// Android support library.
+	api "androidx.core:core-ktx:$core"
+
+	api "androidx.vectordrawable:vectordrawable:$vectorDrawable"
 
 	// Dagger
 	api "com.google.dagger:dagger:$dagger"

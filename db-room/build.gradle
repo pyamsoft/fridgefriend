@@ -76,7 +76,7 @@ dependencies {
 
 	kapt "com.google.dagger:dagger-compiler:$dagger"
 
-	implementation project(':butler-workmanager')
+	api project(':butler')
 	api project(':db')
 }
 

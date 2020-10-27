@@ -36,8 +36,13 @@ buildscript {
 		minSdk = 23
 		maxSdk = 30
 
+		// Kotlin
+		coroutines = '1.3.9'
+
 		// Us
 		pydroid = "22.1.0-SNAPSHOT"
+		cachify = "0.0.15"
+		highlander = "0.0.13"
 
 		// Room
 		room = "2.2.5"
@@ -45,10 +50,16 @@ buildscript {
 		// Leak Canary
 		leakCanary = "2.5"
 
+		// Logging
+		timber = "4.7.1"
+
 		// Dagger
 		dagger = "2.29.1"
 
+		// Network
 		moshi = "1.11.0"
+		retrofit = '2.9.0'
+		okhttp = "4.9.0"
 
 		// Fast Adapter
 		fastAdapter = "5.2.4"
@@ -61,13 +72,30 @@ buildscript {
 		gmsLocation = "17.1.0"
 
 		balloon = "1.2.1"
+
+		// AndroidX
+		core = "1.3.2"
+		constraintLayout = "2.0.2"
+		lifecycle = "2.2.0"
+		vectorDrawable = "1.1.0"
+		preference = "1.1.1"
+		recyclerView = "1.1.0"
+		fragment = "1.2.5"
+		appCompat = "1.2.0"
+		swipeRefresh = "1.1.0"
+
+		// Material Design
+		materialDesign = "1.2.1"
+
+		// Recyclerview
+		decorator = "1.2.0"
 	}
 
 	dependencies {
-		classpath 'com.android.tools.build:gradle:4.1.0'
+		classpath 'com.android.tools.build:gradle:4.0.2'
 
 		// Gradle version checker
-		classpath 'com.github.ben-manes:gradle-versions-plugin:0.29.0'
+		classpath 'com.github.ben-manes:gradle-versions-plugin:0.33.0'
 
 		classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
 
