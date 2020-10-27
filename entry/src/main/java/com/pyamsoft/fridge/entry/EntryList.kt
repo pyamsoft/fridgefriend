@@ -28,7 +28,7 @@ import com.pyamsoft.fridge.entry.item.EntryItemViewState
 import com.pyamsoft.fridge.ui.applyToolbarOffset
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.ui.util.refreshing
-import com.pyamsoft.pydroid.util.toDp
+import com.pyamsoft.pydroid.util.asDp
 import io.cabriole.decorator.LinearBoundsMarginDecoration
 import io.cabriole.decorator.LinearMarginDecoration
 import timber.log.Timber
@@ -99,7 +99,7 @@ class EntryList @Inject internal constructor(
         }
 
         doOnInflate {
-            val margin = 16.toDp(binding.entryList.context)
+            val margin = 16.asDp(binding.entryList.context)
 
             // Standard margin on all items
             LinearMarginDecoration.create(margin = margin).apply {
@@ -173,7 +173,7 @@ class EntryList @Inject internal constructor(
         state.bottomOffset.let { height ->
             if (height > 0) {
                 // The bottom has additional space to fit the FAB
-                val fabSpacing = 72.toDp(binding.entryList.context)
+                val fabSpacing = 72.asDp(binding.entryList.context)
                 LinearBoundsMarginDecoration(bottomMargin = fabSpacing + height).apply {
                     binding.entryList.addItemDecoration(this)
                     bottomMarginDecoration = this

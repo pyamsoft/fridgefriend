@@ -26,9 +26,9 @@ import com.pyamsoft.fridge.ui.animatePopInFromBottom
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.ui.theme.ThemeProvider
 import com.pyamsoft.pydroid.ui.util.layout
+import com.pyamsoft.pydroid.util.asDp
 import com.pyamsoft.pydroid.util.darker
 import com.pyamsoft.pydroid.util.lighter
-import com.pyamsoft.pydroid.util.toDp
 import javax.inject.Inject
 
 class DetailContainer @Inject internal constructor(
@@ -59,7 +59,7 @@ class DetailContainer @Inject internal constructor(
             layoutRoot.background = GradientDrawable().apply {
                 val context = layoutRoot.context
                 shape = GradientDrawable.RECTANGLE
-                val radius = 16.toDp(context).toFloat()
+                val radius = 16.asDp(context).toFloat()
                 cornerRadii = floatArrayOf(radius, radius, radius, radius, 0F, 0F, 0F, 0F)
 
                 val backgroundColor = context.getColor(R.color.windowBackground)

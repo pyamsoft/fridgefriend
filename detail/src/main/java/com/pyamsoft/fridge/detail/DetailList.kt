@@ -35,7 +35,7 @@ import com.pyamsoft.fridge.detail.item.DetailListAdapter
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.ui.util.refreshing
-import com.pyamsoft.pydroid.util.toDp
+import com.pyamsoft.pydroid.util.asDp
 import io.cabriole.decorator.LinearBoundsMarginDecoration
 import io.cabriole.decorator.LinearMarginDecoration
 import timber.log.Timber
@@ -118,7 +118,7 @@ class DetailList @Inject internal constructor(
         }
 
         doOnInflate {
-            val margin = 16.toDp(binding.detailList.context)
+            val margin = 16.asDp(binding.detailList.context)
 
             // Standard margin on all items
             LinearMarginDecoration.create(margin = margin).apply {
@@ -307,7 +307,7 @@ class DetailList @Inject internal constructor(
         state.bottomOffset.let { height ->
             if (height > 0) {
                 // The bottom has additional space to fit the FAB
-                val fabSpacing = 72.toDp(binding.detailList.context)
+                val fabSpacing = 72.asDp(binding.detailList.context)
                 LinearBoundsMarginDecoration(bottomMargin = fabSpacing + height).apply {
                     binding.detailList.addItemDecoration(this)
                     bottomMarginDecoration = this

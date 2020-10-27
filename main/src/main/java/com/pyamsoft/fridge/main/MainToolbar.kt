@@ -31,8 +31,8 @@ import com.pyamsoft.pydroid.ui.app.ToolbarActivityProvider
 import com.pyamsoft.pydroid.ui.privacy.addPrivacy
 import com.pyamsoft.pydroid.ui.privacy.removePrivacy
 import com.pyamsoft.pydroid.ui.theme.ThemeProvider
+import com.pyamsoft.pydroid.util.asDp
 import com.pyamsoft.pydroid.util.doOnApplyWindowInsets
-import com.pyamsoft.pydroid.util.toDp
 import javax.inject.Inject
 import javax.inject.Named
 
@@ -54,7 +54,7 @@ class MainToolbar @Inject internal constructor(
 
             layoutRoot.doOnApplyWindowInsets { v, insets, padding ->
                 v.updateLayoutParams<MarginLayoutParams> {
-                    topMargin = padding.top + insets.systemWindowInsetTop + 8.toDp(v.context)
+                    topMargin = padding.top + insets.systemWindowInsetTop + 8.asDp(v.context)
                 }
             }
 
@@ -124,7 +124,7 @@ class MainToolbar @Inject internal constructor(
         binding.mainToolbar.apply {
             popupTheme = theme
             setTitle(appNameRes)
-            ViewCompat.setElevation(this, 8f.toDp(context).toFloat())
+            ViewCompat.setElevation(this, 8f.asDp(context).toFloat())
             toolbarActivityProvider.setToolbar(this)
         }
     }
