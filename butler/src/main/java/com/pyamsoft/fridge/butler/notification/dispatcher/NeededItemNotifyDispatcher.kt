@@ -22,7 +22,7 @@ import android.content.Context
 import androidx.core.app.NotificationCompat
 import androidx.core.text.bold
 import androidx.core.text.buildSpannedString
-import com.pyamsoft.fridge.butler.R
+import com.pyamsoft.fridge.ui.R
 import com.pyamsoft.fridge.butler.notification.NeededItemNotifyData
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.pydroid.notify.NotifyData

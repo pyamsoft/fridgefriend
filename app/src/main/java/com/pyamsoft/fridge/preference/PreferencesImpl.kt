@@ -19,7 +19,7 @@ package com.pyamsoft.fridge.preference
 import android.content.Context
 import androidx.core.content.edit
 import androidx.preference.PreferenceManager
-import com.pyamsoft.fridge.R
+import com.pyamsoft.fridge.setting.R
 import com.pyamsoft.fridge.butler.ButlerPreferences
 import com.pyamsoft.fridge.butler.notification.NotificationPreferences
 import com.pyamsoft.fridge.db.item.FridgeItemPreferences

@@ -25,6 +25,7 @@ import com.pyamsoft.pydroid.ui.theme.ThemeProvider
 import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
 import com.pyamsoft.pydroid.util.tintWith
 import javax.inject.Inject
+import com.pyamsoft.pydroid.ui.R as R2
 
 class DetailListItemCount @Inject internal constructor(
     theming: ThemeProvider,
@@ -40,14 +41,14 @@ class DetailListItemCount @Inject internal constructor(
         doOnInflate {
             imageLoader.load(R.drawable.ic_arrow_drop_down_24dp)
                 .mutate { icon ->
-                    val color = if (theming.isDarkTheme()) R.color.white else R.color.black
+                    val color = if (theming.isDarkTheme()) R2.color.white else R2.color.black
                     icon.tintWith(layoutRoot.context, color)
                 }.into(binding.detailItemCountDown)
                 .apply { doOnTeardown { dispose() } }
 
             imageLoader.load(R.drawable.ic_arrow_drop_up_24dp)
                 .mutate { icon ->
-                    val color = if (theming.isDarkTheme()) R.color.white else R.color.black
+                    val color = if (theming.isDarkTheme()) R2.color.white else R2.color.black
                     icon.tintWith(layoutRoot.context, color)
                 }.into(binding.detailItemCountUp)
                 .apply { doOnTeardown { dispose() } }

@@ -21,6 +21,7 @@ import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.view.updatePadding
 import androidx.lifecycle.LifecycleOwner
 import com.pyamsoft.fridge.entry.databinding.EntryAddNewBinding
+import com.pyamsoft.fridge.ui.R
 import com.pyamsoft.fridge.ui.SnackbarContainer
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.loader.ImageLoader

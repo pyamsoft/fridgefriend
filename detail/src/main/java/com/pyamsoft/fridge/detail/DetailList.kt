@@ -40,6 +40,7 @@ import io.cabriole.decorator.LinearBoundsMarginDecoration
 import io.cabriole.decorator.LinearMarginDecoration
 import timber.log.Timber
 import javax.inject.Inject
+import com.pyamsoft.fridge.ui.R as R2
 
 class DetailList @Inject internal constructor(
     private val imageLoader: ImageLoader,
@@ -210,7 +211,7 @@ class DetailList @Inject internal constructor(
             when {
                 swipeAwayDeletes -> R.drawable.ic_delete_24dp
                 swipeAwayRestores -> R.drawable.ic_delete_24dp
-                else -> R.drawable.ic_spoiled_24dp
+                else -> R2.drawable.ic_spoiled_24dp
             }
         ).immediate()
 
@@ -229,7 +230,7 @@ class DetailList @Inject internal constructor(
                 when {
                     swipeAwayDeletes -> R.drawable.ic_delete_24dp
                     swipeAwayRestores -> R.drawable.ic_restore_from_trash_24
-                    else -> R.drawable.ic_consumed_24dp
+                    else -> R2.drawable.ic_consumed_24dp
                 }
             )
                 .immediate()

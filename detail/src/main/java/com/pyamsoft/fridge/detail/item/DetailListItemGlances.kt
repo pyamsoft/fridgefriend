@@ -47,6 +47,8 @@ import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
 import javax.inject.Inject
+import com.pyamsoft.fridge.ui.R as R2
+import com.pyamsoft.pydroid.ui.R as R3
 
 class DetailListItemGlances @Inject internal constructor(
     private val tooltipCreator: TooltipCreator,
@@ -192,7 +194,7 @@ class DetailListItemGlances @Inject internal constructor(
             theming,
             imageLoader,
             binding.detailItemGlancesExpiring,
-            R.drawable.ic_consumed_24dp,
+            R2.drawable.ic_consumed_24dp,
             expiringLoader,
             isExpiringSoon,
             isVisible
@@ -225,7 +227,7 @@ class DetailListItemGlances @Inject internal constructor(
             theming,
             imageLoader,
             binding.detailItemGlancesExpired,
-            R.drawable.ic_spoiled_24dp,
+            R2.drawable.ic_spoiled_24dp,
             expiredLoader,
             isExpired,
             isVisible
@@ -258,7 +260,7 @@ class DetailListItemGlances @Inject internal constructor(
             if (isVisible) {
                 view.isVisible = true
                 val color =
-                    if (isColored) R.color.colorSecondary else if (theming.isDarkTheme()) R.color.white else R.color.black
+                    if (isColored) R2.color.colorSecondary else if (theming.isDarkTheme()) R3.color.white else R3.color.black
                 loaded?.dispose()
                 return imageLoader.load(drawable)
                     .mutate { it.tintWith(view.context, color) }

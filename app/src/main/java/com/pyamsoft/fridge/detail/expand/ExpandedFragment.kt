@@ -27,7 +27,6 @@ import androidx.constraintlayout.widget.ConstraintSet
 import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.ViewModelProvider
 import com.pyamsoft.fridge.FridgeComponent
-import com.pyamsoft.fridge.R
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence
@@ -35,6 +34,7 @@ import com.pyamsoft.fridge.detail.expand.date.DateSelectDialog
 import com.pyamsoft.pydroid.arch.StateSaver
 import com.pyamsoft.pydroid.arch.createComponent
 import com.pyamsoft.pydroid.ui.Injector
+import com.pyamsoft.pydroid.ui.R
 import com.pyamsoft.pydroid.ui.app.dialog.ThemeDialog
 import com.pyamsoft.pydroid.ui.arch.viewModelFactory
 import com.pyamsoft.pydroid.ui.databinding.LayoutConstraintBinding

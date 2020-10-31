@@ -35,6 +35,7 @@ import com.pyamsoft.pydroid.util.asDp
 import com.pyamsoft.pydroid.util.doOnApplyWindowInsets
 import javax.inject.Inject
 import javax.inject.Named
+import com.google.android.material.R as R2
 
 class MainToolbar @Inject internal constructor(
     @Named("app_name") appNameRes: Int,
@@ -116,9 +117,9 @@ class MainToolbar @Inject internal constructor(
         appNameRes: Int
     ) {
         val theme = if (theming.isDarkTheme()) {
-            R.style.ThemeOverlay_MaterialComponents
+            R2.style.ThemeOverlay_MaterialComponents
         } else {
-            R.style.ThemeOverlay_MaterialComponents_Light
+            R2.style.ThemeOverlay_MaterialComponents_Light
         }
 
         binding.mainToolbar.apply {

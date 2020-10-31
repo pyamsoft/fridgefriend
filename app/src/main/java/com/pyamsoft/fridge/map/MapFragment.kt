@@ -25,7 +25,7 @@ import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.pyamsoft.fridge.FridgeComponent
-import com.pyamsoft.fridge.locator.R
+import com.pyamsoft.pydroid.ui.R
 import com.pyamsoft.fridge.locator.map.osm.OsmActions
 import com.pyamsoft.fridge.locator.map.osm.OsmMap
 import com.pyamsoft.fridge.locator.map.osm.OsmViewModel

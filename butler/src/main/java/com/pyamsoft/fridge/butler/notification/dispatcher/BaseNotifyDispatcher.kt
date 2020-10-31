@@ -29,9 +29,9 @@ import androidx.annotation.CheckResult
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.getSystemService
-import com.pyamsoft.fridge.butler.R
 import com.pyamsoft.fridge.butler.notification.NotificationHandler
 import com.pyamsoft.fridge.db.item.FridgeItem
+import com.pyamsoft.fridge.ui.R
 import com.pyamsoft.pydroid.notify.NotifyChannelInfo
 import com.pyamsoft.pydroid.notify.NotifyData
 import com.pyamsoft.pydroid.notify.NotifyDispatcher

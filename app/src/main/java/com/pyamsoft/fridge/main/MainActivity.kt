@@ -58,6 +58,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
+import androidx.fragment.R as R2
 
 internal class MainActivity : RatingActivity(), VersionChecker {
 
@@ -392,24 +393,24 @@ internal class MainActivity : RatingActivity(), VersionChecker {
     private fun FragmentTransaction.decideAnimationForPage(oldPage: MainPage?, newPage: MainPage) {
         val (enter, exit) = when (newPage) {
             MainPage.ENTRIES -> when (oldPage) {
-                null -> R.anim.fragment_open_enter to R.anim.fragment_open_exit
+                null -> R2.anim.fragment_open_enter to R2.anim.fragment_open_exit
                 MainPage.CATEGORY, MainPage.NEARBY, MainPage.SETTINGS -> R.anim.slide_in_left to R.anim.slide_out_right
                 MainPage.ENTRIES -> throw IllegalStateException("Cannot move from $oldPage to $newPage")
             }
             MainPage.CATEGORY -> when (oldPage) {
-                null -> R.anim.fragment_open_enter to R.anim.fragment_open_exit
+                null -> R2.anim.fragment_open_enter to R2.anim.fragment_open_exit
                 MainPage.ENTRIES -> R.anim.slide_in_right to R.anim.slide_out_left
                 MainPage.NEARBY, MainPage.SETTINGS -> R.anim.slide_in_left to R.anim.slide_out_right
                 MainPage.CATEGORY -> throw IllegalStateException("Cannot move from $oldPage to $newPage")
             }
             MainPage.NEARBY -> when (oldPage) {
-                null -> R.anim.fragment_open_enter to R.anim.fragment_open_exit
+                null -> R2.anim.fragment_open_enter to R2.anim.fragment_open_exit
                 MainPage.ENTRIES, MainPage.CATEGORY -> R.anim.slide_in_right to R.anim.slide_out_left
                 MainPage.SETTINGS -> R.anim.slide_in_left to R.anim.slide_out_right
                 MainPage.NEARBY -> throw IllegalStateException("Cannot move from $oldPage to $newPage")
             }
             MainPage.SETTINGS -> when (oldPage) {
-                null -> R.anim.fragment_open_enter to R.anim.fragment_open_exit
+                null -> R2.anim.fragment_open_enter to R2.anim.fragment_open_exit
                 MainPage.ENTRIES, MainPage.CATEGORY, MainPage.NEARBY -> R.anim.slide_in_right to R.anim.slide_out_left
                 MainPage.SETTINGS -> throw IllegalStateException("Cannot move from $oldPage to $newPage")
             }

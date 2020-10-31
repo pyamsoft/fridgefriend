@@ -30,6 +30,7 @@ import com.pyamsoft.pydroid.loader.ImageTarget
 import com.pyamsoft.pydroid.ui.util.DebouncedOnClickListener
 import com.pyamsoft.pydroid.ui.util.setUpEnabled
 import com.pyamsoft.pydroid.util.tintWith
+import com.pyamsoft.pydroid.ui.R as R2
 import javax.inject.Inject
 
 class ExpandItemToolbar @Inject internal constructor(
@@ -48,7 +49,7 @@ class ExpandItemToolbar @Inject internal constructor(
 
     init {
         doOnInflate {
-            imageLoader.load(R.drawable.ic_close_24dp).mutate { it.tintWith(Color.WHITE) }
+            imageLoader.load(R2.drawable.ic_close_24dp).mutate { it.tintWith(Color.WHITE) }
                 .into(object : ImageTarget<Drawable> {
 
                     override fun clear() {

@@ -28,6 +28,7 @@ import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.util.doOnApplyWindowInsets
 import timber.log.Timber
 import javax.inject.Inject
+import com.pyamsoft.fridge.ui.R as R2
 
 class MainNavigation @Inject internal constructor(
     parent: ViewGroup
@@ -89,7 +90,7 @@ class MainNavigation @Inject internal constructor(
      * funny through the transparent bar
      */
     private fun correctBackground() {
-        val color = ContextCompat.getColor(layoutRoot.context, R.color.colorPrimarySeeThrough)
+        val color = ContextCompat.getColor(layoutRoot.context, R2.color.colorPrimarySeeThrough)
         binding.mainBottomNavigationMenu.setBackgroundColor(color)
     }
 

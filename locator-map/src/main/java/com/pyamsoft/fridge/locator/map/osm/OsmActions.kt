@@ -32,6 +32,7 @@ import com.pyamsoft.pydroid.ui.util.Snackbreak
 import com.pyamsoft.pydroid.ui.util.popShow
 import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
 import javax.inject.Inject
+import com.pyamsoft.fridge.ui.R as R2
 
 class OsmActions @Inject internal constructor(
     private val owner: LifecycleOwner,
@@ -53,7 +54,7 @@ class OsmActions @Inject internal constructor(
         }
 
         doOnInflate {
-            imageLoader.load(R.drawable.ic_shopping_cart_24dp)
+            imageLoader.load(R2.drawable.ic_shopping_cart_24dp)
                 .into(binding.osmFindNearby)
                 .disposeOnDestroy(owner)
         }

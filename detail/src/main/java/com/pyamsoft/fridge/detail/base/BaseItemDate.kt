@@ -29,8 +29,9 @@ import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.loader.Loaded
 import com.pyamsoft.pydroid.ui.theme.ThemeProvider
 import com.pyamsoft.pydroid.util.tintWith
-import java.util.Calendar
 import timber.log.Timber
+import java.util.Calendar
+import com.pyamsoft.pydroid.ui.R as R2
 
 abstract class BaseItemDate<S : UiViewState, V : UiViewEvent> protected constructor(
     private val imageLoader: ImageLoader,
@@ -71,8 +72,10 @@ abstract class BaseItemDate<S : UiViewState, V : UiViewEvent> protected construc
 
                 val dateString =
                     "${"${month + 1}".padStart(2, '0')}/${
-                    "$day".padStart(2, '0')}/${
-                    "$year".padStart(4, '0')}"
+                        "$day".padStart(2, '0')
+                    }/${
+                        "$year".padStart(4, '0')
+                    }"
                 binding.detailItemDateText.text = dateString
                 binding.detailItemDateIcon.isVisible = false
             } else {
@@ -81,7 +84,7 @@ abstract class BaseItemDate<S : UiViewState, V : UiViewEvent> protected construc
 
                 dateLoaded = imageLoader.load(R.drawable.ic_date_range_24dp)
                     .mutate { icon ->
-                        val color = if (theming.isDarkTheme()) R.color.white else R.color.black
+                        val color = if (theming.isDarkTheme()) R2.color.white else R2.color.black
                         icon.tintWith(layoutRoot.context, color)
                     }
                     .into(binding.detailItemDateIcon)

@@ -28,6 +28,7 @@ import com.pyamsoft.fridge.butler.notification.NotificationPreferences
 import com.pyamsoft.fridge.butler.workmanager.WorkManagerModule
 import com.pyamsoft.fridge.category.CategoryComponent
 import com.pyamsoft.fridge.category.CategoryListComponent
+import com.pyamsoft.fridge.core.R
 import com.pyamsoft.fridge.db.DbModule
 import com.pyamsoft.fridge.db.item.FridgeItemPreferences
 import com.pyamsoft.fridge.db.persist.PersistentCategoryPreferences
