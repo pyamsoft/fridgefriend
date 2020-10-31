@@ -19,7 +19,6 @@ package com.pyamsoft.fridge.ui
 import android.view.View
 import androidx.core.content.withStyledAttributes
 import androidx.core.view.updatePadding
-import com.pyamsoft.fridge.core.R
 import com.pyamsoft.pydroid.util.doOnApplyWindowInsets
 
 fun View.applyToolbarOffset() {

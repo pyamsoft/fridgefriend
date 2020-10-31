@@ -74,5 +74,9 @@ dependencies {
 	// RecyclerView decorations
 	api "io.cabriole:decorator:$decorator"
 
+	// PYDroid
+	api "com.pyamsoft.pydroid:ui:$pydroid"
+	api "com.pyamsoft.pydroid:loader:$pydroid"
+
 	api project(':core')
 }
