@@ -78,8 +78,6 @@ dependencies {
 	// Android support library.
 	api "androidx.core:core-ktx:$core"
 
-	api "androidx.vectordrawable:vectordrawable:$vectorDrawable"
-
 	// Dagger
 	api "com.google.dagger:dagger:$dagger"
 	kapt "com.google.dagger:dagger-compiler:$dagger"
