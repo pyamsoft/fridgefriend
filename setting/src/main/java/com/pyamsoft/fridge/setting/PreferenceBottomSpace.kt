@@ -35,8 +35,8 @@ internal class PreferenceBottomSpace internal constructor(
         super.onBindViewHolder(holder)
         height.let { h ->
             if (h > 0) {
-                holder.itemView.updateLayoutParams<ViewGroup.MarginLayoutParams> {
-                    bottomMargin = h
+                holder.itemView.updateLayoutParams<ViewGroup.LayoutParams> {
+                    height = h
                 }
             }
         }
