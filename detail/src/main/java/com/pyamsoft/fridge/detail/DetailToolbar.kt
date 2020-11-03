@@ -92,9 +92,6 @@ class DetailToolbar @Inject internal constructor(
         }
     }
 
-    override fun onInit(savedInstanceState: UiBundleReader) {
-    }
-
     private fun handleSubmenu(state: DetailViewState) {
         subMenu?.let { subMenu ->
             val currentSort = state.sort
