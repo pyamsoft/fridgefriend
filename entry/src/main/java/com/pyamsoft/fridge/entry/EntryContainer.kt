@@ -17,18 +17,32 @@
 package com.pyamsoft.fridge.entry
 
 import android.view.ViewGroup
+import androidx.coordinatorlayout.widget.CoordinatorLayout
 import com.pyamsoft.fridge.entry.databinding.EntryContainerBinding
+import com.pyamsoft.fridge.ui.SnackbarContainer
 import com.pyamsoft.pydroid.arch.BaseUiView
 import javax.inject.Inject
 
 class EntryContainer @Inject internal constructor(
-    parent: ViewGroup
-) : BaseUiView<EntryViewState, EntryViewEvent, EntryContainerBinding>(parent) {
+    parent: ViewGroup,
+    list: EntryList,
+    private val addNew: EntryAddNew,
+) : BaseUiView<EntryViewState, EntryViewEvent, EntryContainerBinding>(parent), SnackbarContainer {
 
     override val viewBinding = EntryContainerBinding::inflate
 
     override val layoutRoot by boundView { entryContainer }
 
+    init {
+        nest(list)
+        nest(addNew)
+    }
+
+    override fun container(): CoordinatorLayout? {
+        return addNew.container()
+    }
+
     override fun onRender(state: EntryViewState) {
     }
+
 }

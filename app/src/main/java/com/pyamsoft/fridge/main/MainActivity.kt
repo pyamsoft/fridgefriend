@@ -359,7 +359,7 @@ internal class MainActivity : RatingActivity(), VersionChecker {
 
     private fun pushEntry(previousPage: MainPage?) {
         commitPage(
-            EntryFragment.newInstance(fragmentContainerId),
+            EntryFragment.newInstance(),
             MainPage.ENTRIES,
             previousPage,
             EntryFragment.TAG

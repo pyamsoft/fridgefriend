@@ -51,13 +51,11 @@ internal class EntryFragment : Fragment(), SnackbarContainer {
 
     @JvmField
     @Inject
-    internal var addNew: EntryAddNew? = null
-
-    @JvmField
-    @Inject
-    internal var list: EntryList? = null
+    internal var container: EntryContainer? = null
 
     private var stateSaver: StateSaver? = null
+
+    private var fragmentContainerId = 0
 
     private val backPressedCallback = object : OnBackPressedCallback(false) {
         override fun handleOnBackPressed() {
@@ -92,15 +90,13 @@ internal class EntryFragment : Fragment(), SnackbarContainer {
             .create(requireActivity(), viewLifecycleOwner, binding.layoutCoordinator)
             .inject(this)
 
-        val addNew = requireNotNull(addNew)
-        val list = requireNotNull(list)
+        val container = requireNotNull(container)
 
         stateSaver = createComponent(
             savedInstanceState,
             viewLifecycleOwner,
             viewModel,
-            list,
-            addNew,
+            container,
         ) {
             return@createComponent when (it) {
                 is EntryControllerEvent.LoadEntry -> pushPage(it.entry, it.presence)
@@ -117,7 +113,7 @@ internal class EntryFragment : Fragment(), SnackbarContainer {
     }
 
     override fun container(): CoordinatorLayout? {
-        return addNew?.container()
+        return container?.container()
     }
 
     private fun watchBackPresses() {
@@ -130,6 +126,9 @@ internal class EntryFragment : Fragment(), SnackbarContainer {
 
     private fun initializeApp() {
         watchBackPresses()
+
+        // Set the fragment container ID
+        fragmentContainerId = requireNotNull(container).id()
 
         val act = requireActivity()
         if (act is VersionChecker) {
@@ -149,8 +148,7 @@ internal class EntryFragment : Fragment(), SnackbarContainer {
 
         stateSaver = null
         factory = null
-        addNew = null
-        list = null
+        container = null
     }
 
     private fun removeBackWatchers() {
@@ -159,16 +157,17 @@ internal class EntryFragment : Fragment(), SnackbarContainer {
 
     private fun pushPage(entry: FridgeEntry, presence: FridgeItem.Presence) {
         val tag = entry.id().id
-        val fm = parentFragmentManager
-
         Timber.d("Push new entry page: $tag")
-        fm.commit(viewLifecycleOwner) {
-            replace(
-                requireArguments().getInt(KEY_CONTAINER, 0),
-                DetailFragment.newInstance(entry, presence),
-                tag
-            )
-            addToBackStack(null)
+        val fm = childFragmentManager
+        if (fm.findFragmentByTag(tag) == null) {
+            fm.commit(viewLifecycleOwner) {
+                replace(
+                    fragmentContainerId,
+                    DetailFragment.newInstance(entry, presence),
+                    tag
+                )
+                addToBackStack(null)
+            }
         }
     }
 
@@ -176,15 +175,11 @@ internal class EntryFragment : Fragment(), SnackbarContainer {
 
         const val TAG = "EntryFragment"
 
-        private const val KEY_CONTAINER = "key_container"
-
         @JvmStatic
         @CheckResult
-        fun newInstance(containerId: Int): Fragment {
+        fun newInstance(): Fragment {
             return EntryFragment().apply {
-                arguments = Bundle().apply {
-                    putInt(KEY_CONTAINER, containerId)
-                }
+                arguments = Bundle().apply {}
             }
         }
     }
