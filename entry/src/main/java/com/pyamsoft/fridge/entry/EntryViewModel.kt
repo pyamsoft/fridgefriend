@@ -41,7 +41,9 @@ class EntryViewModel @Inject internal constructor(
     initialState = EntryViewState(
         isLoading = false,
         error = null,
-        entries = emptyList(),
+        displayedEntries = emptyList(),
+        allEntries = emptyList(),
+        search = "",
         bottomOffset = 0,
     ), debug = debug
 ) {
@@ -85,16 +87,44 @@ class EntryViewModel @Inject internal constructor(
         }
     }
 
+    @CheckResult
+    private fun EntryViewState.regenerateEntries(entries: List<FridgeEntry>): EntryViewState {
+        val newItems = prepareListEntries(entries)
+        val visibleEntries = getOnlyVisibleEntries(newItems, search)
+        return copy(
+            allEntries = newItems,
+            displayedEntries = visibleEntries,
+        )
+    }
+
+    @CheckResult
+    private fun EntryViewState.getOnlyVisibleEntries(
+        entries: List<FridgeEntry>,
+        search: String
+    ): List<FridgeEntry> {
+        return entries
+            .asSequence()
+            .filter { it.matchesQuery(search) }
+            .toList()
+    }
+
+
     private fun handleListRefreshBegin() {
         setState { copy(isLoading = true) }
     }
 
     private fun handleListRefreshed(entries: List<FridgeEntry>) {
-        setState { copy(entries = prepareListEntries(entries), error = null) }
+        setState { regenerateEntries(entries).copy(error = null) }
     }
 
     private fun handleListRefreshError(throwable: Throwable) {
-        setState { copy(entries = emptyList(), error = throwable) }
+        setState {
+            copy(
+                allEntries = emptyList(),
+                displayedEntries = emptyList(),
+                error = throwable
+            )
+        }
     }
 
     private fun handleListRefreshComplete() {
@@ -117,7 +147,7 @@ class EntryViewModel @Inject internal constructor(
     private fun handleRealtimeDeleteAll() {
         Timber.d("Realtime DELETE ALL")
         setState {
-            copy(entries = emptyList())
+            copy(allEntries = emptyList(), displayedEntries = emptyList())
         }
     }
 
@@ -147,31 +177,24 @@ class EntryViewModel @Inject internal constructor(
 
     private fun handleRealtimeInsert(entry: FridgeEntry) {
         setState {
-            val newEntries = entries.let { entries ->
-                val mutableEntries = entries.toMutableList()
-                insertOrUpdate(mutableEntries, entry)
-                prepareListEntries(mutableEntries)
-            }
-
-            copy(entries = newEntries)
+            val newEntries = allEntries.toMutableList().also { insertOrUpdate(it, entry) }
+            regenerateEntries(newEntries)
         }
     }
 
     private fun handleRealtimeUpdate(entry: FridgeEntry) {
         Timber.d("Realtime update: $entry")
         setState {
-            val list = entries.toMutableList()
-            insertOrUpdate(list, entry)
-            val newEntries = prepareListEntries(list)
-            copy(entries = newEntries)
+            val newEntries = allEntries.toMutableList().also { insertOrUpdate(it, entry) }
+            regenerateEntries(newEntries)
         }
     }
 
     private fun handleRealtimeDelete(entry: FridgeEntry) {
         Timber.d("Realtime delete: $entry")
         setState {
-            val newEntries = prepareListEntries(entries.filterNot { it.id() == entry.id() })
-            copy(entries = newEntries)
+            val newEntries = allEntries.filterNot { it.id() == entry.id() }
+            regenerateEntries(newEntries)
         }
     }
 

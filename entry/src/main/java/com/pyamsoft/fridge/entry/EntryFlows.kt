@@ -16,6 +16,7 @@
 
 package com.pyamsoft.fridge.entry
 
+import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.pydroid.arch.UiControllerEvent
@@ -23,11 +24,24 @@ import com.pyamsoft.pydroid.arch.UiViewEvent
 import com.pyamsoft.pydroid.arch.UiViewState
 
 data class EntryViewState internal constructor(
+    // All currently displayed list entries
+    val displayedEntries: List<FridgeEntry>,
+    // All the list entries before filtering
+    internal val allEntries: List<FridgeEntry>,
     val isLoading: Boolean,
     val error: Throwable?,
-    val entries: List<FridgeEntry>,
+    val search: String,
     val bottomOffset: Int,
-) : UiViewState
+) : UiViewState {
+
+    @CheckResult
+    internal fun FridgeEntry.matchesQuery(query: String): Boolean {
+        // Empty query always matches
+        return if (query.isBlank()) true else {
+            this.name().contains(query, ignoreCase = true)
+        }
+    }
+}
 
 sealed class EntryViewEvent : UiViewEvent {
 

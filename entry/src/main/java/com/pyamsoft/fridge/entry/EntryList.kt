@@ -160,7 +160,7 @@ class EntryList @Inject internal constructor(
     }
 
     private fun handleList(state: EntryViewState) {
-        state.entries.let { entries ->
+        state.displayedEntries.let { entries ->
             when {
                 entries.isEmpty() -> clearList()
                 else -> setList(entries)
