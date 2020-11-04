@@ -27,11 +27,11 @@ import androidx.appcompat.widget.SearchView
 import androidx.appcompat.widget.Toolbar
 import androidx.core.text.bold
 import androidx.core.text.buildSpannedString
+import androidx.core.view.children
 import androidx.core.view.doOnLayout
 import androidx.core.view.forEach
 import androidx.core.view.iterator
 import com.pyamsoft.fridge.db.item.FridgeItem
-import com.pyamsoft.pydroid.arch.UiBundleReader
 import com.pyamsoft.pydroid.arch.UiView
 import com.pyamsoft.pydroid.ui.app.ToolbarActivity
 import com.pyamsoft.pydroid.ui.util.DebouncedOnClickListener
@@ -93,25 +93,40 @@ class DetailToolbar @Inject internal constructor(
         }
     }
 
+    @CheckResult
+    private fun sortForMenuItem(
+        item: MenuItem,
+        showExtra: Boolean
+    ): DetailViewState.Sorts? {
+        return when (item.itemId) {
+            itemIdCreatedDate -> DetailViewState.Sorts.CREATED
+            itemIdName -> DetailViewState.Sorts.NAME
+            itemIdPurchasedDate -> if (showExtra) DetailViewState.Sorts.PURCHASED else null
+            itemIdExpirationDate -> if (showExtra) DetailViewState.Sorts.EXPIRATION else null
+            else -> null
+        }
+    }
+
     private fun handleSubmenu(state: DetailViewState) {
         subMenu?.let { subMenu ->
             val isHavePresence = state.listItemPresence == FridgeItem.Presence.HAVE
             val showExtraMenuItems = isHavePresence && searchItem?.isActionViewExpanded == false
+
             subMenu.findItem(itemIdPurchasedDate)?.isVisible = showExtraMenuItems
             subMenu.findItem(itemIdExpirationDate)?.isVisible = showExtraMenuItems
 
             val currentSort = state.sort
             subMenu.forEach { item ->
-                val expectedSort = when (item.itemId) {
-                    itemIdCreatedDate -> DetailViewState.Sorts.CREATED
-                    itemIdName -> DetailViewState.Sorts.NAME
-                    itemIdPurchasedDate -> DetailViewState.Sorts.PURCHASED
-                    itemIdExpirationDate -> DetailViewState.Sorts.EXPIRATION
-                    else -> return@forEach
+                sortForMenuItem(item, showExtraMenuItems)?.also { sort ->
+                    if (currentSort == sort) {
+                        item.isChecked = true
+                    }
                 }
-                if (currentSort == expectedSort) {
-                    item.isChecked = true
-                }
+            }
+
+            // If nothing is checked, thats a no no
+            if (subMenu.children.all { !it.isChecked }) {
+                Timber.w("SORTS: NOTHING IS CHECKED: $currentSort")
             }
         }
     }
