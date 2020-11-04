@@ -203,6 +203,18 @@ class EntryViewModel @Inject internal constructor(
             is EntryViewEvent.SelectEntry -> select(event.entry)
             is EntryViewEvent.AddNew -> handleAddNew()
             is EntryViewEvent.ForceRefresh -> refreshList(true)
+            is EntryViewEvent.SearchQuery -> updateSearch(event.search)
+        }
+    }
+
+    private fun updateSearch(search: String) {
+        setState {
+            val cleanSearch = if (search.isNotBlank()) search.trim() else ""
+            copy(search = cleanSearch)
+        }
+
+        withState {
+            refreshList(false)
         }
     }
 

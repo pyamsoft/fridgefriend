@@ -26,6 +26,7 @@ import com.pyamsoft.fridge.core.FridgeViewModelFactory
 import com.pyamsoft.fridge.entry.EntryComponent.ViewModelModule
 import com.pyamsoft.fridge.tooltip.TooltipModule
 import com.pyamsoft.pydroid.arch.UiViewModel
+import com.pyamsoft.pydroid.ui.app.ToolbarActivity
 import dagger.Binds
 import dagger.BindsInstance
 import dagger.Module

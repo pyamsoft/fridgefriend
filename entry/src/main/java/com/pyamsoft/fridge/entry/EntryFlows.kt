@@ -47,6 +47,8 @@ sealed class EntryViewEvent : UiViewEvent {
 
     data class SelectEntry internal constructor(val entry: FridgeEntry) : EntryViewEvent()
 
+    data class SearchQuery internal constructor(val search: String) : EntryViewEvent()
+
     object AddNew : EntryViewEvent()
 
     object ForceRefresh : EntryViewEvent()
