@@ -36,6 +36,7 @@ import com.pyamsoft.pydroid.arch.UiView
 import com.pyamsoft.pydroid.ui.app.ToolbarActivity
 import com.pyamsoft.pydroid.ui.util.DebouncedOnClickListener
 import com.pyamsoft.pydroid.ui.util.setUpEnabled
+import timber.log.Timber
 import javax.inject.Inject
 
 class DetailToolbar @Inject internal constructor(
@@ -94,6 +95,11 @@ class DetailToolbar @Inject internal constructor(
 
     private fun handleSubmenu(state: DetailViewState) {
         subMenu?.let { subMenu ->
+            val isHavePresence = state.listItemPresence == FridgeItem.Presence.HAVE
+            val showExtraMenuItems = isHavePresence && searchItem?.isActionViewExpanded == false
+            subMenu.findItem(itemIdPurchasedDate)?.isVisible = showExtraMenuItems
+            subMenu.findItem(itemIdExpirationDate)?.isVisible = showExtraMenuItems
+
             val currentSort = state.sort
             subMenu.forEach { item ->
                 val expectedSort = when (item.itemId) {
@@ -107,11 +113,6 @@ class DetailToolbar @Inject internal constructor(
                     item.isChecked = true
                 }
             }
-
-            val isHavePresence = state.listItemPresence == FridgeItem.Presence.HAVE
-            val showExtraMenuItems = isHavePresence && searchItem?.isActionViewExpanded == false
-            subMenu.findItem(itemIdPurchasedDate)?.isVisible = showExtraMenuItems
-            subMenu.findItem(itemIdExpirationDate)?.isVisible = showExtraMenuItems
         }
     }
 
