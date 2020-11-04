@@ -184,7 +184,8 @@ class EntryViewModel @Inject internal constructor(
     }
 
     private fun handleAddNew() {
-        // TODO(Peter) Real handler, prompt for adding new
+        Timber.d("Add new entry")
+        publish(EntryControllerEvent.AddEntry)
     }
 
     private fun select(entry: FridgeEntry) {

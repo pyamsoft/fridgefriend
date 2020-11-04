@@ -44,4 +44,6 @@ sealed class EntryControllerEvent : UiControllerEvent {
         val entry: FridgeEntry,
         val presence: FridgeItem.Presence
     ) : EntryControllerEvent()
+
+    object AddEntry : EntryControllerEvent()
 }

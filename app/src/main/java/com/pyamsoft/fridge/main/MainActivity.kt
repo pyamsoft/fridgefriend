@@ -358,7 +358,12 @@ internal class MainActivity : RatingActivity(), VersionChecker {
     }
 
     private fun pushEntry(previousPage: MainPage?) {
-        commitPage(EntryFragment.newInstance(), MainPage.ENTRIES, previousPage, EntryFragment.TAG)
+        commitPage(
+            EntryFragment.newInstance(fragmentContainerId),
+            MainPage.ENTRIES,
+            previousPage,
+            EntryFragment.TAG
+        )
     }
 
     private fun commitPage(
