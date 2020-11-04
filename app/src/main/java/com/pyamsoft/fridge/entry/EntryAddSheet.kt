@@ -69,7 +69,7 @@ internal class EntryAddSheet : BottomSheetDialogFragment() {
         savedInstanceState: Bundle?
     ) {
         super.onViewCreated(view, savedInstanceState)
-//        applyDialogMargins(view)
+        applyDialogMargins(view)
     }
 
     companion object {
