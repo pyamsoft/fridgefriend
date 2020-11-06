@@ -17,26 +17,21 @@
 package com.pyamsoft.fridge.detail.item
 
 import android.view.ViewGroup
-import android.widget.EditText
-import com.pyamsoft.fridge.detail.base.BaseItemName
 import com.pyamsoft.fridge.ui.setNotEditable
+import com.pyamsoft.fridge.ui.view.UiEditText
 import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
 import javax.inject.Inject
 
 class DetailListItemName @Inject internal constructor(
     parent: ViewGroup
-) : BaseItemName<DetailItemViewState, DetailItemViewEvent>(parent) {
+) : UiEditText<DetailItemViewState, DetailItemViewEvent>(parent) {
 
     override val isWatchingForTextChanges = false
 
-    override fun provideEditTextView(): EditText {
-        return binding.detailItemNameEditable
-    }
-
     init {
         doOnInflate {
-            binding.detailItemNameEditable.setNotEditable()
-            binding.detailItemNameEditable.setOnDebouncedClickListener {
+            binding.uiEditText.setNotEditable()
+            binding.uiEditText.setOnDebouncedClickListener {
                 publish(DetailItemViewEvent.ExpandItem)
             }
         }

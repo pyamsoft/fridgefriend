@@ -18,18 +18,18 @@ package com.pyamsoft.fridge.ui.view
 
 import android.text.Editable
 import android.text.TextWatcher
+import android.view.View
 import android.view.ViewGroup
-import android.widget.EditText
 import androidx.annotation.CallSuper
 import androidx.annotation.CheckResult
-import androidx.viewbinding.ViewBinding
+import com.pyamsoft.fridge.ui.databinding.UiEditTextBinding
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.arch.UiViewEvent
 import com.pyamsoft.pydroid.arch.UiViewState
 
-abstract class UiEditText<S : UiViewState, V : UiViewEvent, VB : ViewBinding> protected constructor(
+abstract class UiEditText<S : UiViewState, V : UiViewEvent> protected constructor(
     parent: ViewGroup
-) : BaseUiView<S, V, VB>(parent) {
+) : BaseUiView<S, V, UiEditTextBinding>(parent) {
 
     // NOTE(Peter): Hack because Android does not allow us to use Controlled view components like
     // React does by binding input and drawing to the render loop.
@@ -40,6 +40,10 @@ abstract class UiEditText<S : UiViewState, V : UiViewEvent, VB : ViewBinding> pr
     // so the input is uncontrolled.
     private var initialRenderPerformed = false
 
+    override val viewBinding = UiEditTextBinding::inflate
+
+    final override val layoutRoot: View by boundView { uiEditTextContainer }
+
     init {
         doOnTeardown {
             clear()
@@ -48,7 +52,7 @@ abstract class UiEditText<S : UiViewState, V : UiViewEvent, VB : ViewBinding> pr
         doOnInflate {
             if (isWatchingForTextChanges) {
                 val watcher = createTextWatcher()
-                provideEditTextView().apply {
+                binding.uiEditText.apply {
                     addTextChangedListener(watcher)
                     doOnTeardown {
                         removeTextChangedListener(watcher)
@@ -64,9 +68,6 @@ abstract class UiEditText<S : UiViewState, V : UiViewEvent, VB : ViewBinding> pr
     protected open fun createTextChangedEvent(text: String): V {
         throw IllegalStateException("If you are watching for text changes, you must provide a text change event")
     }
-
-    @CheckResult
-    protected abstract fun provideEditTextView(): EditText
 
     /**
      * True if first render was performed, false if not.
@@ -118,10 +119,10 @@ abstract class UiEditText<S : UiViewState, V : UiViewEvent, VB : ViewBinding> pr
     }
 
     protected fun setText(text: String) {
-        provideEditTextView().setTextKeepState(text)
+        binding.uiEditText.setTextKeepState(text)
     }
 
     protected fun clear() {
-        provideEditTextView().text.clear()
+        binding.uiEditText.text.clear()
     }
 }

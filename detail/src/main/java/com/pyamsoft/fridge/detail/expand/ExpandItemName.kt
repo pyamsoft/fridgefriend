@@ -18,26 +18,21 @@ package com.pyamsoft.fridge.detail.expand
 
 import android.text.InputType
 import android.view.ViewGroup
-import android.widget.EditText
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.isArchived
-import com.pyamsoft.fridge.detail.base.BaseItemName
 import com.pyamsoft.fridge.ui.isEditable
 import com.pyamsoft.fridge.ui.setEditable
+import com.pyamsoft.fridge.ui.view.UiEditText
 import timber.log.Timber
 import javax.inject.Inject
 
 class ExpandItemName @Inject internal constructor(
     parent: ViewGroup
-) : BaseItemName<ExpandItemViewState, ExpandedItemViewEvent>(parent) {
+) : UiEditText<ExpandItemViewState, ExpandedItemViewEvent>(parent) {
 
     private val popupWindow = SimilarlyNamedListWindow(parent.context)
 
     override val isWatchingForTextChanges: Boolean = true
-
-    override fun provideEditTextView(): EditText {
-        return binding.detailItemNameEditable
-    }
 
     override fun createTextChangedEvent(text: String): ExpandedItemViewEvent {
         return ExpandedItemViewEvent.CommitName(text)
@@ -55,7 +50,7 @@ class ExpandItemName @Inject internal constructor(
         }
 
         doOnInflate {
-            binding.detailItemNameEditable.setOnFocusChangeListener { _, hasFocus ->
+            binding.uiEditText.setOnFocusChangeListener { _, hasFocus ->
                 if (hasFocus) {
                     popupWindow.show()
                 } else {
@@ -65,7 +60,7 @@ class ExpandItemName @Inject internal constructor(
         }
 
         doOnTeardown {
-            binding.detailItemNameEditable.onFocusChangeListener = null
+            binding.uiEditText.onFocusChangeListener = null
         }
 
         doOnTeardown {
@@ -98,15 +93,15 @@ class ExpandItemName @Inject internal constructor(
     private fun handleItem(state: ExpandItemViewState) {
         state.item.let { item ->
             val isEditable = if (item == null) false else !item.isArchived()
-            if (binding.detailItemNameEditable.isEditable != isEditable) {
+            if (binding.uiEditText.isEditable != isEditable) {
                 val inputType = if (isEditable) EDITABLE_INPUT_TYPE else InputType.TYPE_NULL
-                binding.detailItemNameEditable.setEditable(inputType)
+                binding.uiEditText.setEditable(inputType)
             }
         }
     }
 
     private fun handlePopupWindow(state: ExpandItemViewState) {
-        popupWindow.set(state.similarItems, binding.detailItemNameEditable.isFocused)
+        popupWindow.set(state.similarItems, binding.uiEditText.isFocused)
     }
 
     companion object {
