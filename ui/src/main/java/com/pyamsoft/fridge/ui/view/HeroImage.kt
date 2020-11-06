@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 
-package com.pyamsoft.fridge.ui
+package com.pyamsoft.fridge.ui.view
 
 import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.annotation.CheckResult
+import com.pyamsoft.fridge.ui.applyToolbarOffset
 import com.pyamsoft.fridge.ui.databinding.UiHeroImageBinding
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.arch.UiViewEvent

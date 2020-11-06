@@ -14,9 +14,33 @@
  * limitations under the License.
  */
 
-package com.pyamsoft.fridge.detail
+package com.pyamsoft.fridge.ui
 
 import android.text.InputType
 import android.widget.EditText
 import androidx.annotation.CheckResult
 
+@CheckResult
+private fun isEditableType(inputType: Int): Boolean {
+    return inputType != InputType.TYPE_NULL
+}
+
+val EditText.isEditable: Boolean
+    @get:CheckResult get() {
+        return isEditableType(inputType)
+    }
+
+fun EditText.setNotEditable() {
+    setEditable(InputType.TYPE_NULL)
+}
+
+fun EditText.setEditable(inputType: Int) {
+    val isEditable = isEditableType(inputType)
+    this.inputType = inputType
+    this.isFocusable = isEditable
+    this.isLongClickable = isEditable
+    this.setTextIsSelectable(isEditable)
+    isFocusableInTouchMode = isEditable
+    isFocusable = isEditable
+    isCursorVisible = isEditable
+}

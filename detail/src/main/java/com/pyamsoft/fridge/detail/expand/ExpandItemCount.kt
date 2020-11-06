@@ -23,8 +23,8 @@ import android.view.ViewGroup
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.isArchived
 import com.pyamsoft.fridge.detail.databinding.ExpandCountBinding
-import com.pyamsoft.fridge.detail.isEditable
-import com.pyamsoft.fridge.detail.setEditable
+import com.pyamsoft.fridge.ui.isEditable
+import com.pyamsoft.fridge.ui.setEditable
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
 import javax.inject.Inject

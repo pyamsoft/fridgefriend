@@ -17,7 +17,9 @@
 package com.pyamsoft.fridge.detail.item
 
 import android.view.ViewGroup
+import android.widget.EditText
 import com.pyamsoft.fridge.detail.base.BaseItemName
+import com.pyamsoft.fridge.ui.setNotEditable
 import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
 import javax.inject.Inject
 
@@ -25,21 +27,30 @@ class DetailListItemName @Inject internal constructor(
     parent: ViewGroup
 ) : BaseItemName<DetailItemViewState, DetailItemViewEvent>(parent) {
 
+    override val isWatchingForTextChanges = false
+
+    override fun provideEditTextView(): EditText {
+        return binding.detailItemNameEditable
+    }
+
     init {
         doOnInflate {
             binding.detailItemNameEditable.setNotEditable()
-            binding.detailItemNameEditable.setOnDebouncedClickListener { publish(DetailItemViewEvent.ExpandItem) }
+            binding.detailItemNameEditable.setOnDebouncedClickListener {
+                publish(DetailItemViewEvent.ExpandItem)
+            }
         }
     }
 
     private fun handleItem(state: DetailItemViewState) {
         state.item.let { item ->
             require(item.isReal()) { "Cannot render non-real item: $item" }
-            setName(item)
+            setText(item.name())
         }
     }
 
     override fun onRender(state: DetailItemViewState) {
+        super.onRender(state)
         handleItem(state)
     }
 }

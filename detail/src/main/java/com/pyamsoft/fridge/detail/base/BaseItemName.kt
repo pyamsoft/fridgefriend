@@ -17,35 +17,17 @@
 package com.pyamsoft.fridge.detail.base
 
 import android.view.ViewGroup
-import androidx.annotation.CallSuper
-import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.detail.databinding.DetailListItemNameBinding
-import com.pyamsoft.pydroid.arch.BaseUiView
+import com.pyamsoft.fridge.ui.view.UiEditText
 import com.pyamsoft.pydroid.arch.UiViewEvent
 import com.pyamsoft.pydroid.arch.UiViewState
-import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
 
 abstract class BaseItemName<S : UiViewState, V : UiViewEvent> protected constructor(
     parent: ViewGroup
-) : BaseUiView<S, V, DetailListItemNameBinding>(parent) {
+) : UiEditText<S, V, DetailListItemNameBinding>(parent) {
 
     final override val viewBinding = DetailListItemNameBinding::inflate
 
     final override val layoutRoot by boundView { detailItemName }
 
-    init {
-        doOnTeardown {
-            clear()
-        }
-    }
-
-    protected fun setName(item: FridgeItem) {
-        binding.detailItemNameEditable.setTextKeepState(item.name())
-    }
-
-    @CallSuper
-    protected open fun clear() {
-        binding.detailItemNameEditable.text.clear()
-        binding.detailItemNameEditable.setOnDebouncedClickListener(null)
-    }
 }

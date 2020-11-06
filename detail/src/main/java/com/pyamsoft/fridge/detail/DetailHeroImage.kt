@@ -21,7 +21,7 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.core.view.isVisible
 import com.pyamsoft.fridge.db.item.FridgeItem
-import com.pyamsoft.fridge.ui.HeroImage
+import com.pyamsoft.fridge.ui.view.HeroImage
 import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.loader.Loaded
 import javax.inject.Inject

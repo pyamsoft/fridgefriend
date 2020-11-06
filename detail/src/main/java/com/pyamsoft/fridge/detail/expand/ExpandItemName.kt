@@ -16,17 +16,16 @@
 
 package com.pyamsoft.fridge.detail.expand
 
-import android.text.Editable
 import android.text.InputType
-import android.text.TextWatcher
 import android.view.ViewGroup
+import android.widget.EditText
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.isArchived
 import com.pyamsoft.fridge.detail.base.BaseItemName
-import com.pyamsoft.fridge.detail.isEditable
-import com.pyamsoft.fridge.detail.setEditable
-import javax.inject.Inject
+import com.pyamsoft.fridge.ui.isEditable
+import com.pyamsoft.fridge.ui.setEditable
 import timber.log.Timber
+import javax.inject.Inject
 
 class ExpandItemName @Inject internal constructor(
     parent: ViewGroup
@@ -34,14 +33,15 @@ class ExpandItemName @Inject internal constructor(
 
     private val popupWindow = SimilarlyNamedListWindow(parent.context)
 
-    // NOTE(Peter): Hack because Android does not allow us to use Controlled view components like
-    // React does by binding input and drawing to the render loop.
-    //
-    // This initialRenderPerformed variable allows us to set the initial state of a view once, and bind listeners to
-    // it because the state.item is only available in render instead of inflate. Once the firstRender
-    // has set the view component up, the actual input will no longer be tracked via state render events,
-    // so the input is uncontrolled.
-    private var initialRenderPerformed = false
+    override val isWatchingForTextChanges: Boolean = true
+
+    override fun provideEditTextView(): EditText {
+        return binding.detailItemNameEditable
+    }
+
+    override fun createTextChangedEvent(text: String): ExpandedItemViewEvent {
+        return ExpandedItemViewEvent.CommitName(text)
+    }
 
     init {
         doOnInflate {
@@ -75,25 +75,24 @@ class ExpandItemName @Inject internal constructor(
 
     private fun selectSimilar(item: FridgeItem) {
         Timber.d("Similar popup FridgeItem selected: $item")
-        setName(item)
+        setText(item.name())
         publish(ExpandedItemViewEvent.SelectSimilar(item))
     }
 
     override fun onRender(state: ExpandItemViewState) {
+        super.onRender(state)
         handlePopupWindow(state)
-        handleInitialRender(state)
         handleItem(state)
     }
 
-    private fun handleInitialRender(state: ExpandItemViewState) {
-        if (initialRenderPerformed) {
-            return
-        }
+    override fun onFirstRender(state: ExpandItemViewState): Boolean {
         state.item?.let { item ->
-            initialRenderPerformed = true
-            setName(item)
-            watchUntilTeardown(item.name())
+            setText(item.name())
+
+            return true
         }
+
+        return false
     }
 
     private fun handleItem(state: ExpandItemViewState) {
@@ -108,41 +107,6 @@ class ExpandItemName @Inject internal constructor(
 
     private fun handlePopupWindow(state: ExpandItemViewState) {
         popupWindow.set(state.similarItems, binding.detailItemNameEditable.isFocused)
-    }
-
-    private fun watchUntilTeardown(previousText: String) {
-        val watcher = object : TextWatcher {
-
-            private var oldText = previousText
-
-            override fun afterTextChanged(s: Editable) {
-                val newText = s.toString()
-                if (newText != oldText) {
-                    oldText = newText
-                    publish(ExpandedItemViewEvent.CommitName(newText))
-                }
-            }
-
-            override fun beforeTextChanged(
-                s: CharSequence,
-                start: Int,
-                count: Int,
-                after: Int
-            ) {
-            }
-
-            override fun onTextChanged(
-                s: CharSequence,
-                start: Int,
-                before: Int,
-                count: Int
-            ) {
-            }
-        }
-        binding.detailItemNameEditable.addTextChangedListener(watcher)
-        doOnTeardown {
-            binding.detailItemNameEditable.removeTextChangedListener(watcher)
-        }
     }
 
     companion object {
