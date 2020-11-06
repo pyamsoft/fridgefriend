@@ -37,7 +37,7 @@ buildscript {
 		maxSdk = 30
 
 		// Kotlin
-		coroutines = '1.4.0'
+		coroutines = '1.4.1'
 
 		// Us
 		pydroid = "22.1.0-SNAPSHOT"
