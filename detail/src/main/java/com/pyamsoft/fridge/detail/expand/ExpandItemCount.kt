@@ -16,17 +16,16 @@
 
 package com.pyamsoft.fridge.detail.expand
 
-import android.text.Editable
 import android.text.InputType
-import android.text.TextWatcher
 import android.view.ViewGroup
+import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.isArchived
 import com.pyamsoft.fridge.detail.databinding.ExpandCountBinding
 import com.pyamsoft.fridge.ui.isEditable
 import com.pyamsoft.fridge.ui.setEditable
+import com.pyamsoft.fridge.ui.view.UiEditTextDelegate
 import com.pyamsoft.pydroid.arch.BaseUiView
-import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
 import javax.inject.Inject
 
 class ExpandItemCount @Inject internal constructor(
@@ -37,47 +36,37 @@ class ExpandItemCount @Inject internal constructor(
 
     override val layoutRoot by boundView { expandItemCount }
 
-    // NOTE(Peter): Hack because Android does not allow us to use Controlled view components like
-    // React does by binding input and drawing to the render loop.
-    //
-    // This initialRenderPerformed variable allows us to set the initial state of a view once, and bind listeners to
-    // it because the state.item is only available in render instead of inflate. Once the firstRender
-    // has set the view component up, the actual input will no longer be tracked via state render events,
-    // so the input is uncontrolled.
-    private var initialRenderPerformed = false
-
-    init {
-        doOnTeardown {
-            clear()
+    private val delegate by lazy {
+        UiEditTextDelegate(binding.expandItemCountEditable) { _, newText ->
+            publish(ExpandedItemViewEvent.CommitCount(newText.toIntOrNull() ?: 0))
         }
     }
 
-    private fun clear() {
-        binding.expandItemCountEditable.text.clear()
-        binding.expandItemCountEditable.setOnDebouncedClickListener(null)
+    init {
+        doOnInflate {
+            delegate.create()
+        }
+
+        doOnTeardown {
+            delegate.destroy()
+        }
     }
 
-    private fun setCount(item: FridgeItem) {
+    private fun renderCount(state: ExpandItemViewState) {
+        state.item?.let { item ->
+            delegate.render(getCountAsText(item))
+        }
+    }
+
+    @CheckResult
+    private fun getCountAsText(item: FridgeItem): String {
         val count = item.count()
-        val countText = if (count > 0) "$count" else ""
-        binding.expandItemCountEditable.setTextKeepState(countText)
+        return if (count > 0) "$count" else ""
     }
 
     override fun onRender(state: ExpandItemViewState) {
-        handleInitialRender(state)
+        renderCount(state)
         handleItem(state)
-    }
-
-    private fun handleInitialRender(state: ExpandItemViewState) {
-        if (initialRenderPerformed) {
-            return
-        }
-
-        state.item?.let { item ->
-            initialRenderPerformed = true
-            setCount(item)
-            watchUntilTeardown(item.count())
-        }
     }
 
     private fun handleItem(state: ExpandItemViewState) {
@@ -90,38 +79,4 @@ class ExpandItemCount @Inject internal constructor(
         }
     }
 
-    private fun watchUntilTeardown(previousCount: Int) {
-        val watcher = object : TextWatcher {
-
-            private var oldCount = previousCount
-
-            override fun afterTextChanged(s: Editable) {
-                val newCount = s.toString().toIntOrNull() ?: 0
-                if (newCount != oldCount) {
-                    oldCount = newCount
-                    publish(ExpandedItemViewEvent.CommitCount(newCount))
-                }
-            }
-
-            override fun beforeTextChanged(
-                s: CharSequence,
-                start: Int,
-                count: Int,
-                after: Int
-            ) {
-            }
-
-            override fun onTextChanged(
-                s: CharSequence,
-                start: Int,
-                before: Int,
-                count: Int
-            ) {
-            }
-        }
-        binding.expandItemCountEditable.addTextChangedListener(watcher)
-        doOnTeardown {
-            binding.expandItemCountEditable.removeTextChangedListener(watcher)
-        }
-    }
 }

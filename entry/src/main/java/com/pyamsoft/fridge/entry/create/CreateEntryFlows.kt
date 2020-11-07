@@ -14,30 +14,29 @@
  * limitations under the License.
  */
 
-package com.pyamsoft.fridge.detail.item
+package com.pyamsoft.fridge.entry.create
 
-import com.pyamsoft.fridge.db.item.FridgeItem
-import com.pyamsoft.fridge.detail.DetailViewState
 import com.pyamsoft.fridge.ui.view.UiEditTextViewState
+import com.pyamsoft.pydroid.arch.UiControllerEvent
 import com.pyamsoft.pydroid.arch.UiViewEvent
 
-data class DetailItemViewState internal constructor(
-    val item: FridgeItem,
-    val expirationRange: DetailViewState.ExpirationRange?,
-    val isSameDayExpired: DetailViewState.IsSameDayExpired?
+data class CreateEntryViewState internal constructor(
+    val name: String,
+    val creating: Boolean,
+    val throwable: Throwable?
 ) : UiEditTextViewState {
 
-    override val text: String = item.name()
+    override val text: String = name
 
 }
 
-sealed class DetailItemViewEvent : UiViewEvent {
+sealed class CreateEntryViewEvent : UiViewEvent {
 
-    object IncreaseCount : DetailItemViewEvent()
-
-    object DecreaseCount : DetailItemViewEvent()
-
-    object ExpandItem : DetailItemViewEvent()
-
-    object CommitPresence : DetailItemViewEvent()
+    object Commit : CreateEntryViewEvent()
 }
+
+sealed class CreateEntryControllerEvent : UiControllerEvent {
+
+    object Commit : CreateEntryControllerEvent()
+}
+

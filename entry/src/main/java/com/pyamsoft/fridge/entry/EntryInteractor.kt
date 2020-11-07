@@ -19,6 +19,7 @@ package com.pyamsoft.fridge.entry
 import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.entry.FridgeEntryChangeEvent
+import com.pyamsoft.fridge.db.entry.FridgeEntryInsertDao
 import com.pyamsoft.fridge.db.entry.FridgeEntryQueryDao
 import com.pyamsoft.fridge.db.entry.FridgeEntryRealtime
 import com.pyamsoft.pydroid.core.Enforcer
@@ -29,6 +30,7 @@ import javax.inject.Singleton
 
 @Singleton
 class EntryInteractor @Inject internal constructor(
+    private val entryInsertDao: FridgeEntryInsertDao,
     private val entryQueryDao: FridgeEntryQueryDao,
     private val entryRealtime: FridgeEntryRealtime
 ) {
@@ -45,5 +47,10 @@ class EntryInteractor @Inject internal constructor(
             Enforcer.assertOffMainThread()
             return@withContext entryRealtime.listenForChanges(onChange)
         }
+
+    suspend fun createEntry(name: String) = withContext(context = Dispatchers.IO) {
+        val entry = FridgeEntry.create(name)
+        entryInsertDao.insert(entry.makeReal())
+    }
 
 }

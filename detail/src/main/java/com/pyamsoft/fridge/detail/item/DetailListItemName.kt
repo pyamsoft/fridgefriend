@@ -26,8 +26,6 @@ class DetailListItemName @Inject internal constructor(
     parent: ViewGroup
 ) : UiEditText<DetailItemViewState, DetailItemViewEvent>(parent) {
 
-    override val isWatchingForTextChanges = false
-
     init {
         doOnInflate {
             binding.uiEditText.setNotEditable()

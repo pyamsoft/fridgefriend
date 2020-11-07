@@ -16,33 +16,26 @@
 
 package com.pyamsoft.fridge.ui.view
 
-import android.text.Editable
-import android.text.TextWatcher
 import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.CallSuper
-import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.ui.databinding.UiEditTextBinding
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.arch.UiViewEvent
-import com.pyamsoft.pydroid.arch.UiViewState
 
-abstract class UiEditText<S : UiViewState, V : UiViewEvent> protected constructor(
+abstract class UiEditText<S : UiEditTextViewState, V : UiViewEvent> protected constructor(
     parent: ViewGroup
-) : BaseUiView<S, V, UiEditTextBinding>(parent) {
+) : BaseUiView<S, V, UiEditTextBinding>(parent), UiTextWatcher {
 
-    // NOTE(Peter): Hack because Android does not allow us to use Controlled view components like
-    // React does by binding input and drawing to the render loop.
-    //
-    // This initialRenderPerformed variable allows us to set the initial state of a view once, and bind listeners to
-    // it because the state.item is only available in render instead of inflate. Once the firstRender
-    // has set the view component up, the actual input will no longer be tracked via state render events,
-    // so the input is uncontrolled.
-    private var initialRenderPerformed = false
-
-    override val viewBinding = UiEditTextBinding::inflate
+    final override val viewBinding = UiEditTextBinding::inflate
 
     final override val layoutRoot: View by boundView { uiEditTextContainer }
+
+    private val delegate by lazy {
+        UiEditTextDelegate(binding.uiEditText) { oldText, newText ->
+            onTextChanged(oldText, newText)
+        }
+    }
 
     init {
         doOnTeardown {
@@ -50,79 +43,28 @@ abstract class UiEditText<S : UiViewState, V : UiViewEvent> protected constructo
         }
 
         doOnInflate {
-            if (isWatchingForTextChanges) {
-                val watcher = createTextWatcher()
-                binding.uiEditText.apply {
-                    addTextChangedListener(watcher)
-                    doOnTeardown {
-                        removeTextChangedListener(watcher)
-                    }
-                }
-            }
+            delegate.create()
         }
-    }
 
-    protected abstract val isWatchingForTextChanges: Boolean
-
-    @CheckResult
-    protected open fun createTextChangedEvent(text: String): V {
-        throw IllegalStateException("If you are watching for text changes, you must provide a text change event")
-    }
-
-    /**
-     * True if first render was performed, false if not.
-     */
-    @CheckResult
-    protected open fun onFirstRender(state: S): Boolean {
-        return true
-    }
-
-    @CheckResult
-    private fun createTextWatcher(): TextWatcher {
-        return object : TextWatcher {
-
-            private var oldText = ""
-
-            override fun afterTextChanged(s: Editable) {
-                val newText = s.toString()
-                if (newText != oldText) {
-                    oldText = newText
-                    publish(createTextChangedEvent(newText))
-                }
-            }
-
-            override fun beforeTextChanged(
-                s: CharSequence,
-                start: Int,
-                count: Int,
-                after: Int
-            ) {
-            }
-
-            override fun onTextChanged(
-                s: CharSequence,
-                start: Int,
-                before: Int,
-                count: Int
-            ) {
-            }
+        doOnTeardown {
+            delegate.destroy()
         }
     }
 
     @CallSuper
     override fun onRender(state: S) {
-        if (!initialRenderPerformed) {
-            if (onFirstRender(state)) {
-                initialRenderPerformed = true
-            }
-        }
+        delegate.render(state.text)
     }
 
     protected fun setText(text: String) {
-        binding.uiEditText.setTextKeepState(text)
+        delegate.setText(text)
     }
 
     protected fun clear() {
-        binding.uiEditText.text.clear()
+        delegate.clear()
     }
+
+    override fun onTextChanged(oldText: String, newText: String) {
+    }
+
 }

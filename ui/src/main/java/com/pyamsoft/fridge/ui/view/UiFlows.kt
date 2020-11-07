@@ -14,9 +14,13 @@
  * limitations under the License.
  */
 
-package com.pyamsoft.fridge.detail
+package com.pyamsoft.fridge.ui.view
 
-import android.text.InputType
-import android.widget.EditText
-import androidx.annotation.CheckResult
+import com.pyamsoft.pydroid.arch.UiViewState
+
+interface UiEditTextViewState : UiViewState {
+
+    val text: String
+
+}
 

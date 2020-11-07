@@ -41,6 +41,7 @@ import com.pyamsoft.fridge.detail.expand.date.DateSelectComponent
 import com.pyamsoft.fridge.detail.expand.date.DateSelectPayload
 import com.pyamsoft.fridge.entry.EntryComponent
 import com.pyamsoft.fridge.entry.EntryListComponent
+import com.pyamsoft.fridge.entry.create.CreateEntryComponent
 import com.pyamsoft.fridge.locator.GpsChangeEvent
 import com.pyamsoft.fridge.locator.LocatorModule
 import com.pyamsoft.fridge.locator.map.MapModule
@@ -129,6 +130,9 @@ internal interface FridgeComponent {
 
     @CheckResult
     fun plusEntryComponent(): EntryComponent.Factory
+
+    @CheckResult
+    fun plusCreateEntryComponent(): CreateEntryComponent.Factory
 
     @CheckResult
     fun plusMainComponent(): MainComponent.Factory

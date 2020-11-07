@@ -32,12 +32,6 @@ class ExpandItemName @Inject internal constructor(
 
     private val popupWindow = SimilarlyNamedListWindow(parent.context)
 
-    override val isWatchingForTextChanges: Boolean = true
-
-    override fun createTextChangedEvent(text: String): ExpandedItemViewEvent {
-        return ExpandedItemViewEvent.CommitName(text)
-    }
-
     init {
         doOnInflate {
             popupWindow.apply {
@@ -68,6 +62,10 @@ class ExpandItemName @Inject internal constructor(
         }
     }
 
+    override fun onTextChanged(oldText: String, newText: String) {
+        publish(ExpandedItemViewEvent.CommitName(newText))
+    }
+
     private fun selectSimilar(item: FridgeItem) {
         Timber.d("Similar popup FridgeItem selected: $item")
         setText(item.name())
@@ -78,16 +76,6 @@ class ExpandItemName @Inject internal constructor(
         super.onRender(state)
         handlePopupWindow(state)
         handleItem(state)
-    }
-
-    override fun onFirstRender(state: ExpandItemViewState): Boolean {
-        state.item?.let { item ->
-            setText(item.name())
-
-            return true
-        }
-
-        return false
     }
 
     private fun handleItem(state: ExpandItemViewState) {

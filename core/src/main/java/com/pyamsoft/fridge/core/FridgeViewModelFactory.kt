@@ -19,6 +19,7 @@ package com.pyamsoft.fridge.core
 import com.pyamsoft.pydroid.arch.UiStateViewModel
 import com.pyamsoft.pydroid.arch.UiViewModel
 import com.pyamsoft.pydroid.arch.UiViewModelFactory
+import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Provider
 import kotlin.reflect.KClass
@@ -29,6 +30,8 @@ class FridgeViewModelFactory @Inject internal constructor(
 ) : UiViewModelFactory() {
 
     override fun <T : UiStateViewModel<*>> viewModel(modelClass: KClass<T>): UiStateViewModel<*> {
+        Timber.d("Get ViewModel from factory: ${modelClass.simpleName}")
+
         @Suppress("UNCHECKED_CAST")
         return viewModels[modelClass.java]?.get() as? T ?: fail()
     }

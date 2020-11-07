@@ -16,16 +16,12 @@
 
 <resources>
 
-    <style name="Theme.Fridge.Normal" parent="@style/Base.Theme.Fridge.Normal" />
+    <style name="MC.Theme.Fridge.BottomSheet" parent="@style/ThemeOverlay.MaterialComponents.BottomSheetDialog">
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorOnPrimary">@color/colorOnPrimary</item>
 
-    <style name="Theme.Fridge.Dialog" parent="@style/Base.Theme.Fridge.Dialog" />
-
-    <style name="Theme.Fridge.Dialog.Alert" parent="@style/Base.Theme.Fridge.Dialog.Alert" />
-
-    <style name="Theme.Fridge.BottomSheet" parent="@style/Base.Theme.Fridge.BottomSheet" />
-
-    <style name="Theme.Fridge.Splash" parent="@style/Base.Theme.Fridge.Splash" />
-
-    <style name="Theme.Fridge.Preferences" parent="@style/Base.Theme.Fridge.Preferences" />
+        <item name="colorSecondary">@color/colorSecondary</item>
+        <item name="colorOnSecondary">@color/colorOnSecondary</item>
+    </style>
 
 </resources>

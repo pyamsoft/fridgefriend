@@ -30,6 +30,7 @@ import com.pyamsoft.fridge.FridgeComponent
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.detail.DetailFragment
+import com.pyamsoft.fridge.entry.create.CreateEntrySheet
 import com.pyamsoft.fridge.main.VersionChecker
 import com.pyamsoft.fridge.ui.SnackbarContainer
 import com.pyamsoft.pydroid.arch.StateSaver
@@ -109,7 +110,7 @@ internal class EntryFragment : Fragment(), SnackbarContainer {
 
     private fun startAddFlow() {
         Timber.d("Add new entry")
-        EntryAddSheet.show(requireActivity())
+        CreateEntrySheet.show(requireActivity())
     }
 
     override fun container(): CoordinatorLayout? {
