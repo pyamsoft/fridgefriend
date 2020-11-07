@@ -20,7 +20,6 @@ import android.app.DatePickerDialog
 import android.app.Dialog
 import android.os.Bundle
 import androidx.annotation.CheckResult
-import androidx.appcompat.view.ContextThemeWrapper
 import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.ViewModelProvider
 import com.pyamsoft.fridge.FridgeComponent
@@ -30,12 +29,11 @@ import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.pydroid.arch.StateSaver
 import com.pyamsoft.pydroid.arch.createComponent
 import com.pyamsoft.pydroid.ui.Injector
-import com.pyamsoft.pydroid.ui.app.dialog.ThemeDialog
 import com.pyamsoft.pydroid.ui.arch.viewModelFactory
 import java.util.Calendar
 import javax.inject.Inject
 
-internal class DateSelectDialog : ThemeDialog() {
+internal class DateSelectDialog : DialogFragment() {
 
     @JvmField
     @Inject
@@ -76,8 +74,7 @@ internal class DateSelectDialog : ThemeDialog() {
         }
 
         return DatePickerDialog(
-            ContextThemeWrapper(context, theme),
-            theme, listener, initialYear, initialMonth, initialDay
+            requireActivity(), listener, initialYear, initialMonth, initialDay
         ).apply {
             datePicker.minDate = today.timeInMillis
         }

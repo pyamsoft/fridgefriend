@@ -16,29 +16,23 @@
 
 package com.pyamsoft.fridge.entry.create
 
-import android.app.Dialog
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.CallSuper
 import androidx.annotation.CheckResult
-import androidx.appcompat.view.ContextThemeWrapper
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.ViewModelProvider
-import com.google.android.material.R
-import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.pyamsoft.fridge.FridgeComponent
 import com.pyamsoft.pydroid.arch.StateSaver
 import com.pyamsoft.pydroid.arch.createComponent
 import com.pyamsoft.pydroid.ui.Injector
-import com.pyamsoft.pydroid.ui.app.noTitle
 import com.pyamsoft.pydroid.ui.arch.viewModelFactory
 import com.pyamsoft.pydroid.ui.databinding.LayoutLinearVerticalBinding
 import com.pyamsoft.pydroid.ui.util.show
-import com.pyamsoft.pydroid.util.valueFromCurrentTheme
 import javax.inject.Inject
 import com.pyamsoft.pydroid.ui.R as R2
 
@@ -54,18 +48,6 @@ internal class CreateEntrySheet : BottomSheetDialogFragment() {
     internal var name: CreateEntryName? = null
 
     private var stateSaver: StateSaver? = null
-
-    private val themeFromAttrs: Int by lazy(LazyThreadSafetyMode.NONE) {
-        requireActivity().valueFromCurrentTheme(R.attr.bottomSheetDialogTheme)
-    }
-
-    override fun getTheme(): Int {
-        return themeFromAttrs
-    }
-
-    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        return BottomSheetDialog(ContextThemeWrapper(requireActivity(), theme), theme).noTitle()
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
