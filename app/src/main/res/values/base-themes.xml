@@ -18,9 +18,10 @@
 
     <style name="Base.Theme.Fridge.Normal" parent="@style/MC.Theme.Fridge">
         <item name="dialogTheme">@style/ThemeOverlay.Fridge.Dialog</item>
+        <item name="preferenceTheme">@style/Theme.Fridge.Preferences</item>
         <item name="alertDialogTheme">@style/ThemeOverlay.Fridge.Dialog.Alert</item>
         <item name="bottomSheetDialogTheme">@style/ThemeOverlay.Fridge.BottomSheet</item>
-        <item name="preferenceTheme">@style/Theme.Fridge.Preferences</item>
+        <item name="android:datePickerDialogTheme">@style/ThemeOverlay.Fridge.Dialog</item>
 
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorOnPrimary">@color/colorOnPrimary</item>
@@ -37,6 +38,7 @@
         <item name="dialogTheme">@style/ThemeOverlay.Fridge.Dialog</item>
         <item name="alertDialogTheme">@style/ThemeOverlay.Fridge.Dialog.Alert</item>
         <item name="bottomSheetDialogTheme">@style/ThemeOverlay.Fridge.BottomSheet</item>
+        <item name="android:datePickerDialogTheme">@style/ThemeOverlay.Fridge.Dialog</item>
 
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorOnPrimary">@color/colorOnPrimary</item>
