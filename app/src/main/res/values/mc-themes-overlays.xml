@@ -16,8 +16,10 @@
 
 <resources>
 
-    <style name="MC.Theme.Fridge" parent="@style/Theme.MaterialComponents.DayNight.NoActionBar" />
+    <style name="MC.ThemeOverlay.Fridge.Dialog" parent="@style/ThemeOverlay.MaterialComponents.Dialog" />
 
-    <style name="MC.Theme.Fridge.Preferences" parent="@style/PreferenceThemeOverlay" />
+    <style name="MC.ThemeOverlay.Fridge.Dialog.Alert" parent="@style/ThemeOverlay.MaterialComponents.Dialog.Alert" />
+
+    <style name="MC.ThemeOverlay.Fridge.BottomSheet" parent="@style/ThemeOverlay.MaterialComponents.Light.BottomSheetDialog" />
 
 </resources>

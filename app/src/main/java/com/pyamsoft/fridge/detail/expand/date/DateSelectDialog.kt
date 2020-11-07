@@ -20,6 +20,7 @@ import android.app.DatePickerDialog
 import android.app.Dialog
 import android.os.Bundle
 import androidx.annotation.CheckResult
+import androidx.appcompat.app.AppCompatDialogFragment
 import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.ViewModelProvider
 import com.pyamsoft.fridge.FridgeComponent
@@ -33,7 +34,7 @@ import com.pyamsoft.pydroid.ui.arch.viewModelFactory
 import java.util.Calendar
 import javax.inject.Inject
 
-internal class DateSelectDialog : DialogFragment() {
+internal class DateSelectDialog : AppCompatDialogFragment() {
 
     @JvmField
     @Inject

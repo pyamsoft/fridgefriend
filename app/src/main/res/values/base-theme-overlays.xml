@@ -16,16 +16,18 @@
 
 <resources>
 
-    <style name="Theme.Fridge.Normal" parent="@style/Base.Theme.Fridge.Normal">
-        <item name="android:windowLightNavigationBar">false</item>
+    <style name="Base.ThemeOverlay.Fridge.Dialog" parent="@style/MC.ThemeOverlay.Fridge.Dialog">
+        <item name="dialogCornerRadius">16dp</item>
+        <item name="android:windowBackground">@drawable/dialog_background</item>
     </style>
 
-    <style name="Theme.Fridge.Splash" parent="@style/Base.Theme.Fridge.Splash">
-        <item name="android:windowLightNavigationBar">false</item>
+    <style name="Base.ThemeOverlay.Fridge.Dialog.Alert" parent="@style/MC.ThemeOverlay.Fridge.Dialog.Alert">
+        <item name="dialogCornerRadius">16dp</item>
+        <item name="android:windowBackground">@drawable/dialog_background</item>
     </style>
 
-    <style name="Theme.Fridge.Preferences" parent="@style/Base.Theme.Fridge.Preferences">
-        <item name="android:windowLightNavigationBar">false</item>
+    <style name="Base.ThemeOverlay.Fridge.BottomSheet" parent="@style/MC.ThemeOverlay.Fridge.BottomSheet">
+        <item name="bottomSheetStyle">@style/Widget.Fridge.BottomSheet</item>
     </style>
 
 </resources>
