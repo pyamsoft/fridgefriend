@@ -29,7 +29,10 @@ class DetailListItemName @Inject internal constructor(
     init {
         doOnInflate {
             binding.uiEditText.setNotEditable()
-            binding.uiEditText.setOnDebouncedClickListener {
+        }
+
+        doOnInflate {
+            binding.uiEditTextContainer.setOnDebouncedClickListener {
                 publish(DetailItemViewEvent.ExpandItem)
             }
         }
