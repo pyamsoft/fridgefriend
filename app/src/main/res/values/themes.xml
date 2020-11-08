@@ -16,10 +16,12 @@
 
 <resources>
 
-    <style name="Theme.Fridge" parent="@style/Base.Theme.Fridge" />
+    <style name="Theme.Fridge" parent="@style/Custom.Theme.Fridge" />
 
-    <style name="Theme.Fridge.Splash" parent="@style/Base.Theme.Fridge.Splash" />
+    <style name="Theme.Fridge.Splash" parent="@style/Custom.Theme.Fridge.Splash" />
 
-    <style name="Theme.Fridge.Preferences" parent="@style/Base.Theme.Fridge.Preferences" />
+    <style name="Theme.Fridge.Preferences" parent="@style/Custom.Theme.Fridge.Preferences" />
+
+    <style name="Theme.Fridge.BottomSheet" parent="@style/Custom.Theme.Fridge.BottomSheet" />
 
 </resources>

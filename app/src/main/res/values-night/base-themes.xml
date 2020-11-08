@@ -16,20 +16,7 @@
 
 <resources>
 
-    <style name="Theme.Fridge" parent="@style/Custom.Theme.Fridge">
-        <item name="android:windowLightNavigationBar">false</item>
-    </style>
+    <style name="Base.Theme.Fridge.BottomSheet" parent="@style/Theme.MaterialComponents.BottomSheetDialog" />
 
-    <style name="Theme.Fridge.Splash" parent="@style/Custom.Theme.Fridge.Splash">
-        <item name="android:windowLightNavigationBar">false</item>
-    </style>
-
-    <style name="Theme.Fridge.Preferences" parent="@style/Custom.Theme.Fridge.Preferences">
-        <item name="android:windowLightNavigationBar">false</item>
-    </style>
-
-    <style name="Theme.Fridge.BottomSheet" parent="@style/Custom.Theme.Fridge.BottomSheet">
-        <item name="android:windowLightNavigationBar">@bool/light_bars</item>
-    </style>
 
 </resources>

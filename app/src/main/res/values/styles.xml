@@ -16,7 +16,7 @@
 
 <resources>
 
-    <style name="Widget.Fridge.BottomSheet" parent="@style/Widget.MaterialComponents.BottomSheet">
+    <style name="Widget.Fridge.BottomSheet" parent="@style/Widget.MaterialComponents.BottomSheet.Modal">
         <item name="shapeAppearanceOverlay">@style/Shape.Fridge.BottomSheet</item>
     </style>
 

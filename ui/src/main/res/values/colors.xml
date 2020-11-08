@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ Copyright 2020 Peter Kenji Yamanaka
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
@@ -26,5 +25,7 @@
     <color name="windowBackground">@color/material_light_background</color>
 
     <color name="colorPrimarySeeThrough">#D7F44336</color>
+
     <color name="navigationBarColor">#01F44336</color>
+    <color name="bottomSheetNavigationBarColor">@color/white</color>
 </resources>

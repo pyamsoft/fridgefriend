@@ -16,43 +16,13 @@
 
 <resources>
 
-    <style name="Base.Theme.Fridge" parent="@style/Theme.MaterialComponents.DayNight.NoActionBar">
-        <item name="dialogTheme">@style/ThemeOverlay.Fridge.Dialog</item>
-        <item name="preferenceTheme">@style/Theme.Fridge.Preferences</item>
-        <item name="alertDialogTheme">@style/ThemeOverlay.Fridge.Dialog.Alert</item>
-        <item name="bottomSheetDialogTheme">@style/ThemeOverlay.Fridge.BottomSheet</item>
-        <item name="android:datePickerDialogTheme">@style/ThemeOverlay.Fridge.Dialog</item>
+    <style name="Base.Theme.Fridge" parent="@style/Theme.MaterialComponents.DayNight.NoActionBar" />
 
-        <item name="colorPrimary">@color/colorPrimary</item>
-        <item name="colorOnPrimary">@color/colorOnPrimary</item>
-        <item name="colorSecondary">@color/colorSecondary</item>
-        <item name="colorOnSecondary">@color/colorOnSecondary</item>
+    <style name="Base.Theme.Fridge.Splash" parent="@style/Base.Theme.Fridge" />
 
-        <item name="android:windowBackground">@color/windowBackground</item>
-        <item name="android:navigationBarColor">@color/navigationBarColor</item>
-        <item name="android:statusBarColor">@color/statusBarColor</item>
-        <item name="android:windowLightStatusBar">@bool/light_bars</item>
-    </style>
+    <style name="Base.Theme.Fridge.Preferences" parent="@style/PreferenceThemeOverlay" />
 
-    <style name="Base.Theme.Fridge.Preferences" parent="@style/PreferenceThemeOverlay">
-        <item name="dialogTheme">@style/ThemeOverlay.Fridge.Dialog</item>
-        <item name="alertDialogTheme">@style/ThemeOverlay.Fridge.Dialog.Alert</item>
-        <item name="bottomSheetDialogTheme">@style/ThemeOverlay.Fridge.BottomSheet</item>
-        <item name="android:datePickerDialogTheme">@style/ThemeOverlay.Fridge.Dialog</item>
+    <style name="Base.Theme.Fridge.BottomSheet" parent="@style/Theme.MaterialComponents.Light.BottomSheetDialog" />
 
-        <item name="colorPrimary">@color/colorPrimary</item>
-        <item name="colorOnPrimary">@color/colorOnPrimary</item>
-        <item name="colorSecondary">@color/colorSecondary</item>
-        <item name="colorOnSecondary">@color/colorOnSecondary</item>
-
-        <item name="android:windowBackground">@color/windowBackground</item>
-        <item name="android:navigationBarColor">@color/navigationBarColor</item>
-        <item name="android:statusBarColor">@color/statusBarColor</item>
-        <item name="android:windowLightStatusBar">@bool/light_bars</item>
-    </style>
-
-    <style name="Base.Theme.Fridge.Splash" parent="@style/Base.Theme.Fridge">
-        <item name="android:windowBackground">@drawable/splash_screen</item>
-    </style>
 
 </resources>
