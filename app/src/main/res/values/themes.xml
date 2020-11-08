@@ -16,7 +16,7 @@
 
 <resources>
 
-    <style name="Theme.Fridge.Normal" parent="@style/Base.Theme.Fridge.Normal" />
+    <style name="Theme.Fridge" parent="@style/Base.Theme.Fridge" />
 
     <style name="Theme.Fridge.Splash" parent="@style/Base.Theme.Fridge.Splash" />
 

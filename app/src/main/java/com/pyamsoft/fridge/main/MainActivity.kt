@@ -131,7 +131,7 @@ internal class MainActivity : RatingActivity(), VersionChecker {
     private val viewModel by viewModelFactory<MainViewModel> { factory }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        setTheme(R.style.Theme_Fridge_Normal)
+        setTheme(R.style.Theme_Fridge)
         super.onCreate(savedInstanceState)
         val binding = LayoutConstraintBinding.inflate(layoutInflater)
         setContentView(binding.root)

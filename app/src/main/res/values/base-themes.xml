@@ -16,7 +16,7 @@
 
 <resources>
 
-    <style name="Base.Theme.Fridge.Normal" parent="@style/MC.Theme.Fridge">
+    <style name="Base.Theme.Fridge" parent="@style/Theme.MaterialComponents.DayNight.NoActionBar">
         <item name="dialogTheme">@style/ThemeOverlay.Fridge.Dialog</item>
         <item name="preferenceTheme">@style/Theme.Fridge.Preferences</item>
         <item name="alertDialogTheme">@style/ThemeOverlay.Fridge.Dialog.Alert</item>
@@ -34,7 +34,7 @@
         <item name="android:windowLightStatusBar">@bool/light_bars</item>
     </style>
 
-    <style name="Base.Theme.Fridge.Preferences" parent="@style/MC.Theme.Fridge.Preferences">
+    <style name="Base.Theme.Fridge.Preferences" parent="@style/PreferenceThemeOverlay">
         <item name="dialogTheme">@style/ThemeOverlay.Fridge.Dialog</item>
         <item name="alertDialogTheme">@style/ThemeOverlay.Fridge.Dialog.Alert</item>
         <item name="bottomSheetDialogTheme">@style/ThemeOverlay.Fridge.BottomSheet</item>
@@ -51,7 +51,7 @@
         <item name="android:windowLightStatusBar">@bool/light_bars</item>
     </style>
 
-    <style name="Base.Theme.Fridge.Splash" parent="@style/Base.Theme.Fridge.Normal">
+    <style name="Base.Theme.Fridge.Splash" parent="@style/Base.Theme.Fridge">
         <item name="android:windowBackground">@drawable/splash_screen</item>
     </style>
 

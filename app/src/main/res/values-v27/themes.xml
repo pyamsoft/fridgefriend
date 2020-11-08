@@ -16,7 +16,7 @@
 
 <resources>
 
-    <style name="Theme.Fridge.Normal" parent="@style/Base.Theme.Fridge.Normal">
+    <style name="Theme.Fridge" parent="@style/Base.Theme.Fridge">
         <item name="android:windowLightNavigationBar">false</item>
     </style>
 
