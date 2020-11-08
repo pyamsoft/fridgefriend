@@ -20,7 +20,6 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.widget.EditText
 import androidx.annotation.CheckResult
-import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
 
 class UiEditTextDelegate(
     private val view: EditText,
@@ -52,7 +51,6 @@ class UiEditTextDelegate(
     fun destroy() {
         killWatcher()
         clear()
-        view.setOnDebouncedClickListener(null)
     }
 
     @CheckResult

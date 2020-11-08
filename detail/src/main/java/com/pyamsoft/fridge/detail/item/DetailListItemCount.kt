@@ -24,6 +24,7 @@ import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.ui.theme.ThemeProvider
 import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
 import com.pyamsoft.pydroid.util.tintWith
+import timber.log.Timber
 import javax.inject.Inject
 import com.pyamsoft.pydroid.ui.R as R2
 
@@ -62,11 +63,16 @@ class DetailListItemCount @Inject internal constructor(
             binding.detailItemCountDown.setOnDebouncedClickListener {
                 publish(DetailItemViewEvent.DecreaseCount)
             }
+
+            binding.detailItemCountText.setOnDebouncedClickListener {
+                Timber.d("Count text eat click")
+            }
         }
 
         doOnTeardown {
             binding.detailItemCountUp.setOnDebouncedClickListener(null)
             binding.detailItemCountDown.setOnDebouncedClickListener(null)
+            binding.detailItemCountText.setOnDebouncedClickListener(null)
         }
     }
 

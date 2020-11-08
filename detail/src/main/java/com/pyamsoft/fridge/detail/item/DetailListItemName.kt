@@ -32,9 +32,24 @@ class DetailListItemName @Inject internal constructor(
         }
 
         doOnInflate {
-            binding.uiEditTextContainer.setOnDebouncedClickListener {
+            binding.uiEditText.setOnDebouncedClickListener {
                 publish(DetailItemViewEvent.ExpandItem)
             }
+        }
+
+        doOnTeardown {
+            binding.uiEditText.setOnDebouncedClickListener(null)
+        }
+
+        doOnInflate {
+            // Bind entire parent item click listener to expand
+            parent.setOnDebouncedClickListener {
+                publish(DetailItemViewEvent.ExpandItem)
+            }
+        }
+
+        doOnTeardown {
+            parent.setOnDebouncedClickListener(null)
         }
     }
 

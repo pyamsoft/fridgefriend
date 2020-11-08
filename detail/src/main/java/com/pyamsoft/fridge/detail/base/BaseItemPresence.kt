@@ -17,7 +17,6 @@
 package com.pyamsoft.fridge.detail.base
 
 import android.view.ViewGroup
-import android.widget.CompoundButton
 import androidx.core.view.isInvisible
 import androidx.core.view.isVisible
 import com.pyamsoft.fridge.db.item.FridgeItem
@@ -26,6 +25,7 @@ import com.pyamsoft.fridge.detail.databinding.DetailListItemPresenceBinding
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.arch.UiViewEvent
 import com.pyamsoft.pydroid.arch.UiViewState
+import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
 
 abstract class BaseItemPresence<S : UiViewState, V : UiViewEvent> protected constructor(
     parent: ViewGroup
@@ -35,17 +35,28 @@ abstract class BaseItemPresence<S : UiViewState, V : UiViewEvent> protected cons
 
     final override val layoutRoot by boundView { detailItemPresence }
 
-    private val listener = CompoundButton.OnCheckedChangeListener { _, _ ->
-        publishChangePresence()
+    init {
+        doOnInflate {
+            layoutRoot.setOnDebouncedClickListener {
+                publishChangePresence()
+            }
+
+            binding.detailItemPresenceSwitch.setOnDebouncedClickListener {
+                publishChangePresence()
+            }
+        }
+
+        doOnTeardown {
+            layoutRoot.setOnDebouncedClickListener(null)
+            binding.detailItemPresenceSwitch.setOnDebouncedClickListener(null)
+        }
     }
 
     protected fun renderItem(item: FridgeItem?) {
-        binding.detailItemPresenceSwitch.setOnCheckedChangeListener(null)
         binding.detailItemPresenceSwitch.isEnabled = item != null && !item.isArchived()
         if (item != null) {
             binding.detailItemPresenceSwitch.isVisible = true
             binding.detailItemPresenceSwitch.isChecked = item.presence() == FridgeItem.Presence.HAVE
-            binding.detailItemPresenceSwitch.setOnCheckedChangeListener(listener)
         } else {
             binding.detailItemPresenceSwitch.isInvisible = true
         }
