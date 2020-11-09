@@ -47,6 +47,10 @@ internal class CreateEntrySheet : BottomSheetDialogFragment() {
     @Inject
     internal var name: CreateEntryName? = null
 
+    @JvmField
+    @Inject
+    internal var commit: CreateEntryCommit? = null
+
     private var stateSaver: StateSaver? = null
 
     override fun onCreateView(
@@ -74,7 +78,8 @@ internal class CreateEntrySheet : BottomSheetDialogFragment() {
             savedInstanceState,
             viewLifecycleOwner,
             viewModel,
-            requireNotNull(name)
+            requireNotNull(name),
+            requireNotNull(commit)
         ) {
             return@createComponent when (it) {
                 is CreateEntryControllerEvent.Commit -> dismiss()
@@ -93,6 +98,7 @@ internal class CreateEntrySheet : BottomSheetDialogFragment() {
         factory = null
         stateSaver = null
         name = null
+        commit = null
     }
 
     companion object {

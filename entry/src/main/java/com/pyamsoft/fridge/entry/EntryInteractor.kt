@@ -49,6 +49,8 @@ class EntryInteractor @Inject internal constructor(
         }
 
     suspend fun createEntry(name: String) = withContext(context = Dispatchers.IO) {
+        require(name.isNotBlank()) { "Name cannot be blank" }
+
         val entry = FridgeEntry.create(name)
         entryInsertDao.insert(entry.makeReal())
     }
