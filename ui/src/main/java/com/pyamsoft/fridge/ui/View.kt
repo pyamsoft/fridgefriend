@@ -32,7 +32,7 @@ fun View.applyToolbarOffset() {
             val sizeId = getResourceId(0, 0)
             if (sizeId != 0) {
                 val toolbarHeight = v.context.resources.getDimensionPixelSize(sizeId)
-                v.updatePadding(top = toolbarTopMargin + toolbarHeight)
+                v.updatePadding(top = toolbarTopMargin + toolbarHeight + v.paddingTop)
             }
         }
     }

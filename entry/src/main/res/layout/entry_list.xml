@@ -18,23 +18,31 @@
 
 <merge>
 
-    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
-        android:id="@+id/entry_swipe_refresh"
+        android:id="@+id/entry_list_root"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:paddingTop="16dp">
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/entry_list"
+        <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+            android:id="@+id/entry_swipe_refresh"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            app:fastScrollEnabled="true"
-            app:fastScrollHorizontalThumbDrawable="@drawable/list_thumb"
-            app:fastScrollHorizontalTrackDrawable="@drawable/list_line"
-            app:fastScrollVerticalThumbDrawable="@drawable/list_thumb"
-            app:fastScrollVerticalTrackDrawable="@drawable/list_line" />
+            android:layout_height="match_parent">
 
-    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/entry_list"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                app:fastScrollEnabled="true"
+                app:fastScrollHorizontalThumbDrawable="@drawable/list_thumb"
+                app:fastScrollHorizontalTrackDrawable="@drawable/list_line"
+                app:fastScrollVerticalThumbDrawable="@drawable/list_thumb"
+                app:fastScrollVerticalTrackDrawable="@drawable/list_line" />
+
+        </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+
+    </FrameLayout>
 
 </merge>
 

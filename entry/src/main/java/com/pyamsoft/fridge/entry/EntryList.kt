@@ -29,6 +29,7 @@ import com.pyamsoft.fridge.ui.applyToolbarOffset
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.ui.util.refreshing
 import com.pyamsoft.pydroid.util.asDp
+import io.cabriole.decorator.DecorationLookup
 import io.cabriole.decorator.LinearBoundsMarginDecoration
 import io.cabriole.decorator.LinearMarginDecoration
 import timber.log.Timber
@@ -42,7 +43,7 @@ class EntryList @Inject internal constructor(
 
     override val viewBinding = EntryListBinding::inflate
 
-    override val layoutRoot by boundView { entrySwipeRefresh }
+    override val layoutRoot by boundView { entryListRoot }
 
     private var modelAdapter: EntryListAdapter? = null
     private var bottomMarginDecoration: RecyclerView.ItemDecoration? = null
@@ -102,10 +103,39 @@ class EntryList @Inject internal constructor(
             val margin = 16.asDp(binding.entryList.context)
 
             // Standard margin on all items
-            LinearMarginDecoration.create(margin = margin).apply {
-                binding.entryList.addItemDecoration(this)
-                doOnTeardown { binding.entryList.removeItemDecoration(this) }
-            }
+            // For some reason, the margin registers only half as large as it needs to
+            // be, so we must double it.
+            bindListDecoration(LinearMarginDecoration(bottomMargin = margin * 2))
+
+            // Left margin on items on the left
+            bindListDecoration(
+                LinearMarginDecoration(
+                    leftMargin = margin,
+                    // Half margin since these cards will meet in the middle
+                    rightMargin = margin / 2,
+                    decorationLookup = object : DecorationLookup {
+                        override fun shouldApplyDecoration(position: Int, itemCount: Int): Boolean {
+                            // If the position is even, its on the left side and should have a left margin
+                            // Bitwise is faster than modulo
+                            return position and 1 == 0
+                        }
+                    })
+            )
+
+            // Right margin on items on the right
+            bindListDecoration(
+                LinearMarginDecoration(
+                    rightMargin = margin,
+                    // Half margin since these cards will meet in the middle
+                    leftMargin = margin / 2,
+                    decorationLookup = object : DecorationLookup {
+                        override fun shouldApplyDecoration(position: Int, itemCount: Int): Boolean {
+                            // If the position is odd, its on the right side and should have a right margin
+                            // Bitwise is faster than modulo
+                            return position and 1 == 1
+                        }
+                    })
+            )
         }
 
         doOnTeardown {
@@ -121,6 +151,11 @@ class EntryList @Inject internal constructor(
 
             modelAdapter = null
         }
+    }
+
+    private fun bindListDecoration(decoration: RecyclerView.ItemDecoration) {
+        binding.entryList.addItemDecoration(decoration)
+        doOnTeardown { binding.entryList.removeItemDecoration(decoration) }
     }
 
     @CheckResult
