@@ -22,4 +22,10 @@ import javax.inject.Inject
 
 class CreateEntryName @Inject internal constructor(
     parent: ViewGroup
-) : UiEditText<CreateEntryViewState, CreateEntryViewEvent>(parent)
+) : UiEditText<CreateEntryViewState, CreateEntryViewEvent>(parent) {
+
+    override fun onTextChanged(oldText: String, newText: String) {
+        publish(CreateEntryViewEvent.NameChanged(newText))
+    }
+
+}

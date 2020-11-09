@@ -32,6 +32,8 @@ data class CreateEntryViewState internal constructor(
 
 sealed class CreateEntryViewEvent : UiViewEvent {
 
+    data class NameChanged internal constructor(val name: String) : CreateEntryViewEvent()
+
     object Commit : CreateEntryViewEvent()
 }
 
