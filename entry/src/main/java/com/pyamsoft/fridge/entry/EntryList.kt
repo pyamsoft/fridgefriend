@@ -33,6 +33,7 @@ import com.pyamsoft.pydroid.util.asDp
 import io.cabriole.decorator.DecorationLookup
 import io.cabriole.decorator.LinearBoundsMarginDecoration
 import io.cabriole.decorator.LinearMarginDecoration
+import me.zhanghai.android.fastscroll.FastScrollerBuilder
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -74,6 +75,14 @@ class EntryList @Inject internal constructor(
                     }
                 })
             binding.entryList.adapter = modelAdapter
+        }
+
+        doOnInflate {
+            // Fast Scroll
+            FastScrollerBuilder(binding.entryList)
+                .useMd2Style()
+                .setPopupTextProvider(usingAdapter())
+                .build()
         }
 
         doOnInflate {

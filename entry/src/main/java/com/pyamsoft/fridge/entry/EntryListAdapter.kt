@@ -26,12 +26,18 @@ import com.pyamsoft.fridge.entry.databinding.EntryListItemHolderBinding
 import com.pyamsoft.fridge.entry.item.EntryItemComponent
 import com.pyamsoft.fridge.entry.item.EntryItemViewHolder
 import com.pyamsoft.fridge.entry.item.EntryItemViewState
+import me.zhanghai.android.fastscroll.PopupTextProvider
 
 class EntryListAdapter internal constructor(
     private val owner: LifecycleOwner,
     private val factory: EntryItemComponent.Factory,
     private val callback: Callback
-) : ListAdapter<EntryItemViewState, EntryItemViewHolder>(DIFFER) {
+) : ListAdapter<EntryItemViewState, EntryItemViewHolder>(DIFFER), PopupTextProvider {
+
+    override fun getPopupText(position: Int): String {
+        val item = getItem(position)
+        return item.entry.name()
+    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): EntryItemViewHolder {
         val inflater = LayoutInflater.from(parent.context)

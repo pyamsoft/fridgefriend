@@ -97,6 +97,14 @@ class DetailList @Inject internal constructor(
         }
 
         doOnInflate {
+            // Fast Scroll
+            FastScrollerBuilder(binding.detailList)
+                .useMd2Style()
+                .setPopupTextProvider(usingAdapter())
+                .build()
+        }
+
+        doOnInflate {
             binding.detailSwipeRefresh.setOnRefreshListener { publish(DetailViewEvent.ForceRefresh) }
         }
 
@@ -144,10 +152,6 @@ class DetailList @Inject internal constructor(
 
             modelAdapter = null
             touchHelper = null
-        }
-
-        doOnInflate {
-            FastScrollerBuilder(binding.detailList).useMd2Style().build()
         }
     }
 

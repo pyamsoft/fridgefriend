@@ -23,12 +23,18 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import com.pyamsoft.fridge.db.item.JsonMappableFridgeItem
 import com.pyamsoft.fridge.detail.databinding.DetailListItemHolderBinding
+import me.zhanghai.android.fastscroll.PopupTextProvider
 
 class DetailListAdapter internal constructor(
     private val owner: LifecycleOwner,
     private val callback: Callback,
     private val factory: DetailItemComponent.Factory
-) : ListAdapter<DetailItemViewState, DetailItemViewHolder>(DIFFER) {
+) : ListAdapter<DetailItemViewState, DetailItemViewHolder>(DIFFER), PopupTextProvider {
+
+    override fun getPopupText(position: Int): String {
+        val item = getItem(position)
+        return item.item.name()
+    }
 
     override fun onCreateViewHolder(
         parent: ViewGroup,

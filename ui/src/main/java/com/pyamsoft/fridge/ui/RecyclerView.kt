@@ -19,7 +19,12 @@ package com.pyamsoft.fridge.ui
 import androidx.recyclerview.widget.RecyclerView
 
 fun RecyclerView.removeAllItemDecorations() {
-    for (i in 0 until this.itemDecorationCount) {
+    val totalCount = this.itemDecorationCount - 1
+    if (totalCount <= 0) {
+        return
+    }
+
+    for (i in totalCount..0) {
         this.removeItemDecorationAt(i)
     }
 }
