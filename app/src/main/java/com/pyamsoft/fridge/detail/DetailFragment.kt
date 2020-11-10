@@ -30,16 +30,17 @@ import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence
 import com.pyamsoft.fridge.detail.expand.ExpandedFragment
+import com.pyamsoft.fridge.ui.R
 import com.pyamsoft.fridge.ui.SnackbarContainer
 import com.pyamsoft.pydroid.arch.StateSaver
 import com.pyamsoft.pydroid.arch.createComponent
 import com.pyamsoft.pydroid.ui.Injector
-import com.pyamsoft.pydroid.ui.R
 import com.pyamsoft.pydroid.ui.app.requireToolbarActivity
 import com.pyamsoft.pydroid.ui.arch.viewModelFactory
 import com.pyamsoft.pydroid.ui.databinding.LayoutCoordinatorBinding
 import com.pyamsoft.pydroid.ui.util.show
 import javax.inject.Inject
+import com.pyamsoft.pydroid.ui.R as R2
 
 internal class DetailFragment : Fragment(), SnackbarContainer {
 
@@ -71,7 +72,10 @@ internal class DetailFragment : Fragment(), SnackbarContainer {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        return inflater.inflate(R.layout.layout_coordinator, container, false)
+        return inflater.inflate(R2.layout.layout_coordinator, container, false).apply {
+            // Cover the existing Entry List
+            setBackgroundResource(R.color.windowBackground)
+        }
     }
 
     override fun onViewCreated(
