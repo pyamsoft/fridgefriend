@@ -162,11 +162,6 @@ class FridgeFriend : Application() {
                 "A lightweight popup like tooltips, fully customizable with arrow and animations."
             )
             OssLibraries.add(
-                "AndroidFastScroll",
-                "https://github.com/zhanghai/AndroidFastScroll",
-                "Fast scroll for Android RecyclerView and more "
-            )
-            OssLibraries.add(
                 "Google Play Location Services",
                 "https://developers.google.com/android/",
                 "Google Play Services Location client for Android.",

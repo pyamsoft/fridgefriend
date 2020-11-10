@@ -26,9 +26,9 @@ import com.pyamsoft.fridge.entry.databinding.EntryListBinding
 import com.pyamsoft.fridge.entry.item.EntryItemComponent
 import com.pyamsoft.fridge.entry.item.EntryItemViewState
 import com.pyamsoft.fridge.ui.applyToolbarOffset
-import com.pyamsoft.fridge.ui.removeAllItemDecorations
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.ui.util.refreshing
+import com.pyamsoft.pydroid.ui.util.removeAllItemDecorations
 import com.pyamsoft.pydroid.util.asDp
 import io.cabriole.decorator.DecorationLookup
 import io.cabriole.decorator.LinearBoundsMarginDecoration

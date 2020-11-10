@@ -31,6 +31,10 @@ class DetailListAdapter internal constructor(
     private val factory: DetailItemComponent.Factory
 ) : ListAdapter<DetailItemViewState, DetailItemViewHolder>(DIFFER), PopupTextProvider {
 
+    init {
+        setHasStableIds(true)
+    }
+
     override fun getPopupText(position: Int): String {
         val item = getItem(position)
         return item.item.name()

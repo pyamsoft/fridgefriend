@@ -32,10 +32,10 @@ import com.pyamsoft.fridge.detail.item.DetailItemComponent
 import com.pyamsoft.fridge.detail.item.DetailItemViewHolder
 import com.pyamsoft.fridge.detail.item.DetailItemViewState
 import com.pyamsoft.fridge.detail.item.DetailListAdapter
-import com.pyamsoft.fridge.ui.removeAllItemDecorations
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.ui.util.refreshing
+import com.pyamsoft.pydroid.ui.util.removeAllItemDecorations
 import com.pyamsoft.pydroid.util.asDp
 import io.cabriole.decorator.LinearBoundsMarginDecoration
 import io.cabriole.decorator.LinearMarginDecoration

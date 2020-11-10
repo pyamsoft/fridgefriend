@@ -34,6 +34,10 @@ class EntryListAdapter internal constructor(
     private val callback: Callback
 ) : ListAdapter<EntryItemViewState, EntryItemViewHolder>(DIFFER), PopupTextProvider {
 
+    init {
+        setHasStableIds(true)
+    }
+
     override fun getPopupText(position: Int): String {
         val item = getItem(position)
         return item.entry.name()
