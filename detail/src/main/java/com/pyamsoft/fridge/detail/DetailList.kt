@@ -32,12 +32,14 @@ import com.pyamsoft.fridge.detail.item.DetailItemComponent
 import com.pyamsoft.fridge.detail.item.DetailItemViewHolder
 import com.pyamsoft.fridge.detail.item.DetailItemViewState
 import com.pyamsoft.fridge.detail.item.DetailListAdapter
+import com.pyamsoft.fridge.ui.removeAllItemDecorations
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.ui.util.refreshing
 import com.pyamsoft.pydroid.util.asDp
 import io.cabriole.decorator.LinearBoundsMarginDecoration
 import io.cabriole.decorator.LinearMarginDecoration
+import me.zhanghai.android.fastscroll.FastScrollerBuilder
 import timber.log.Timber
 import javax.inject.Inject
 import com.pyamsoft.fridge.ui.R as R2
@@ -124,17 +126,17 @@ class DetailList @Inject internal constructor(
             // Standard margin on all items
             LinearMarginDecoration.create(margin = margin).apply {
                 binding.detailList.addItemDecoration(this)
-                doOnTeardown { binding.detailList.removeItemDecoration(this) }
             }
         }
 
         doOnTeardown {
             removeBottomMargin()
+            binding.detailList.removeAllItemDecorations()
         }
 
         doOnTeardown {
-            // Throws
-            // recyclerView.adapter = null
+            // Throws - think this is because items have LifecycleObservers
+            // binding.detailList.adapter = null
             clearList()
 
             touchHelper?.attachToRecyclerView(null)
@@ -142,6 +144,10 @@ class DetailList @Inject internal constructor(
 
             modelAdapter = null
             touchHelper = null
+        }
+
+        doOnInflate {
+            FastScrollerBuilder(binding.detailList).useMd2Style().build()
         }
     }
 

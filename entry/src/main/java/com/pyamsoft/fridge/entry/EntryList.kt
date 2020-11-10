@@ -26,6 +26,7 @@ import com.pyamsoft.fridge.entry.databinding.EntryListBinding
 import com.pyamsoft.fridge.entry.item.EntryItemComponent
 import com.pyamsoft.fridge.entry.item.EntryItemViewState
 import com.pyamsoft.fridge.ui.applyToolbarOffset
+import com.pyamsoft.fridge.ui.removeAllItemDecorations
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.ui.util.refreshing
 import com.pyamsoft.pydroid.util.asDp
@@ -105,57 +106,57 @@ class EntryList @Inject internal constructor(
             // Standard margin on all items
             // For some reason, the margin registers only half as large as it needs to
             // be, so we must double it.
-            bindListDecoration(LinearMarginDecoration(bottomMargin = margin * 2))
+            LinearMarginDecoration(bottomMargin = margin * 2).apply {
+                binding.entryList.addItemDecoration(this)
+            }
 
             // Left margin on items on the left
-            bindListDecoration(
-                LinearMarginDecoration(
-                    leftMargin = margin,
-                    // Half margin since these cards will meet in the middle
-                    rightMargin = margin / 2,
-                    decorationLookup = object : DecorationLookup {
-                        override fun shouldApplyDecoration(position: Int, itemCount: Int): Boolean {
-                            // If the position is even, its on the left side and should have a left margin
-                            // Bitwise is faster than modulo
-                            return position and 1 == 0
-                        }
-                    })
-            )
+            LinearMarginDecoration(
+                leftMargin = margin,
+                // Half margin since these cards will meet in the middle
+                rightMargin = margin / 2,
+                decorationLookup = object : DecorationLookup {
+                    override fun shouldApplyDecoration(position: Int, itemCount: Int): Boolean {
+                        // If the position is even, its on the left side and should have a left margin
+                        // Bitwise is faster than modulo
+                        return position and 1 == 0
+                    }
+                })
+                .apply {
+                    binding.entryList.addItemDecoration(this)
+                }
 
             // Right margin on items on the right
-            bindListDecoration(
-                LinearMarginDecoration(
-                    rightMargin = margin,
-                    // Half margin since these cards will meet in the middle
-                    leftMargin = margin / 2,
-                    decorationLookup = object : DecorationLookup {
-                        override fun shouldApplyDecoration(position: Int, itemCount: Int): Boolean {
-                            // If the position is odd, its on the right side and should have a right margin
-                            // Bitwise is faster than modulo
-                            return position and 1 == 1
-                        }
-                    })
-            )
+            LinearMarginDecoration(
+                rightMargin = margin,
+                // Half margin since these cards will meet in the middle
+                leftMargin = margin / 2,
+                decorationLookup = object : DecorationLookup {
+                    override fun shouldApplyDecoration(position: Int, itemCount: Int): Boolean {
+                        // If the position is odd, its on the right side and should have a right margin
+                        // Bitwise is faster than modulo
+                        return position and 1 == 1
+                    }
+                })
+                .apply {
+                    binding.entryList.addItemDecoration(this)
+                }
         }
 
         doOnTeardown {
             removeBottomMargin()
+            binding.entryList.removeAllItemDecorations()
         }
 
         doOnTeardown {
-            // Throws
-            // recyclerView.adapter = null
+            // Throws - think this is because items have LifecycleObservers
+            // binding.entryList.adapter = null
             clearList()
 
             binding.entrySwipeRefresh.setOnRefreshListener(null)
 
             modelAdapter = null
         }
-    }
-
-    private fun bindListDecoration(decoration: RecyclerView.ItemDecoration) {
-        binding.entryList.addItemDecoration(decoration)
-        doOnTeardown { binding.entryList.removeItemDecoration(decoration) }
     }
 
     @CheckResult
