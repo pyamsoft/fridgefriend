@@ -85,7 +85,6 @@ class DetailContainer @Inject internal constructor(
                         ConstraintSet.PARENT_ID,
                         ConstraintSet.START
                     )
-                    constrainWidth(it.id(), ConstraintSet.WRAP_CONTENT)
                     constrainHeight(it.id(), ConstraintSet.WRAP_CONTENT)
                 }
 

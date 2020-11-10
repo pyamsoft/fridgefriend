@@ -17,51 +17,68 @@
 package com.pyamsoft.fridge.detail
 
 import android.view.ViewGroup
-import androidx.coordinatorlayout.widget.CoordinatorLayout
-import androidx.core.view.ViewPropertyAnimatorCompat
-import androidx.core.view.isVisible
-import androidx.core.view.updatePadding
-import androidx.lifecycle.LifecycleOwner
+import androidx.annotation.CheckResult
+import com.google.android.material.tabs.TabLayout
 import com.pyamsoft.fridge.db.item.FridgeItem
-import com.pyamsoft.fridge.detail.databinding.DetailAddNewBinding
 import com.pyamsoft.fridge.detail.databinding.DetailPresenceSwitchBinding
-import com.pyamsoft.fridge.ui.SnackbarContainer
 import com.pyamsoft.pydroid.arch.BaseUiView
-import com.pyamsoft.pydroid.loader.ImageLoader
-import com.pyamsoft.pydroid.loader.Loaded
-import com.pyamsoft.pydroid.loader.disposeOnDestroy
-import com.pyamsoft.pydroid.ui.util.Snackbreak
-import com.pyamsoft.pydroid.ui.util.popShow
-import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
+import com.pyamsoft.pydroid.ui.theme.ThemeProvider
+import timber.log.Timber
 import javax.inject.Inject
 
 class DetailPresenceSwitcher @Inject internal constructor(
     parent: ViewGroup,
+    theming: ThemeProvider,
 ) : BaseUiView<DetailViewState, DetailViewEvent, DetailPresenceSwitchBinding>(parent) {
 
     override val viewBinding = DetailPresenceSwitchBinding::inflate
 
     override val layoutRoot by boundView { detailPresenceSwitcherRoot }
 
+
     init {
         doOnInflate {
-            binding.detailPresenceSwitcherNeed.setOnDebouncedClickListener {
-                publish(DetailViewEvent.PresenceSwitched(FridgeItem.Presence.NEED))
+            binding.detailPresenceSwitcherRoot.apply {
+                addTab(newTab().setText("NEED").setTag(FridgeItem.Presence.NEED))
+                addTab(newTab().setText("HAVE").setTag(FridgeItem.Presence.HAVE))
             }
         }
 
         doOnTeardown {
-            binding.detailPresenceSwitcherNeed.setOnClickListener(null)
+            binding.detailPresenceSwitcherRoot.removeAllTabs()
         }
 
         doOnInflate {
-            binding.detailPresenceSwitcherHave.setOnDebouncedClickListener {
-                publish(DetailViewEvent.PresenceSwitched(FridgeItem.Presence.HAVE))
-            }
-        }
+            val listener = object : TabLayout.OnTabSelectedListener {
 
-        doOnTeardown {
-            binding.detailPresenceSwitcherHave.setOnClickListener(null)
+                override fun onTabSelected(tab: TabLayout.Tab?) {
+                    if (tab == null) {
+                        Timber.w("NULL tab selected")
+                        return
+                    }
+
+                    val presence = getTabPresence(tab)
+                    if (presence == null) {
+                        Timber.w("No Presence model found for tab: $tab")
+                        return
+                    }
+
+                    publish(DetailViewEvent.PresenceSwitched(presence))
+                }
+
+                override fun onTabUnselected(tab: TabLayout.Tab?) {
+                }
+
+                override fun onTabReselected(tab: TabLayout.Tab?) {
+                }
+
+            }
+            binding.detailPresenceSwitcherRoot.apply {
+                addOnTabSelectedListener(listener)
+                doOnTeardown {
+                    removeOnTabSelectedListener(listener)
+                }
+            }
         }
     }
 
@@ -69,12 +86,41 @@ class DetailPresenceSwitcher @Inject internal constructor(
         handlePresence(state)
     }
 
+    @CheckResult
+    private fun getTabPresence(tab: TabLayout.Tab): FridgeItem.Presence? {
+        val tag = tab.tag
+        if (tag == null) {
+            Timber.w("No tag found on tab: $tab")
+            return null
+        }
+
+        if (tag !is FridgeItem.Presence) {
+            Timber.w("Tag is not Presence model: $tag")
+            return null
+        }
+
+        return tag
+    }
+
     private fun handlePresence(state: DetailViewState) {
         state.listItemPresence.let { presence ->
-            val isNeed = presence == FridgeItem.Presence.NEED
-            val isHave = presence == FridgeItem.Presence.HAVE
-                    binding.detailPresenceSwitcherNeed.isEnabled = !isNeed
-            binding.detailPresenceSwitcherHave.isEnabled = !isHave
+            binding.detailPresenceSwitcherRoot.apply {
+                for (i in 0 until tabCount) {
+                    val tab = getTabAt(i)
+                    if (tab == null) {
+                        Timber.w("No tab found at index: $i")
+                        continue
+                    }
+
+                    val tag = getTabPresence(tab)
+                    if (tag == presence) {
+                        Timber.d("Selecting tab: $tag $tab")
+                        selectTab(tab, true)
+                        break
+                    }
+
+                }
+            }
         }
     }
 

@@ -18,29 +18,16 @@
 
 <merge>
 
-    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    <com.google.android.material.tabs.TabLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
         android:id="@+id/detail_presence_switcher_root"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:layout_marginBottom="0dp"
-        android:orientation="horizontal">
-
-        <Button
-            android:id="@+id/detail_presence_switcher_need"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/need"
-            android:textAppearance="?attr/textAppearanceButton" />
-
-        <Button
-            android:id="@+id/detail_presence_switcher_have"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/have"
-            android:textAppearance="?attr/textAppearanceButton" />
-
-    </LinearLayout>
+        android:background="@color/transparent"
+        app:tabBackground="@color/transparent"
+        app:tabMode="fixed"
+        app:tabSelectedTextColor="?attr/colorPrimary"
+        app:tabTextColor="@color/grey500" />
 
 </merge>
 
