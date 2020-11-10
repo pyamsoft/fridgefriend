@@ -15,16 +15,7 @@
   -->
 <shape xmlns:android="http://schemas.android.com/apk/res/android"
     android:shape="rectangle">
-
-    <corners
-        android:bottomLeftRadius="44dp"
-        android:topLeftRadius="44dp"
-        android:topRightRadius="44dp" />
-
-    <padding
-        android:paddingLeft="22dp"
-        android:paddingRight="22dp" />
-
+    <corners android:radius="32dp" />
     <solid android:color="@color/colorPrimary" />
 
 </shape>
