@@ -22,13 +22,11 @@ import com.google.android.material.tabs.TabLayout
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.detail.databinding.DetailPresenceSwitchBinding
 import com.pyamsoft.pydroid.arch.BaseUiView
-import com.pyamsoft.pydroid.ui.theme.ThemeProvider
 import timber.log.Timber
 import javax.inject.Inject
 
 class DetailPresenceSwitcher @Inject internal constructor(
     parent: ViewGroup,
-    theming: ThemeProvider,
 ) : BaseUiView<DetailViewState, DetailViewEvent, DetailPresenceSwitchBinding>(parent) {
 
     override val viewBinding = DetailPresenceSwitchBinding::inflate
@@ -38,42 +36,32 @@ class DetailPresenceSwitcher @Inject internal constructor(
 
     init {
         doOnInflate {
-            binding.detailPresenceSwitcherRoot.apply {
+            layoutRoot.apply {
                 addTab(newTab().setText("NEED").setTag(FridgeItem.Presence.NEED))
                 addTab(newTab().setText("HAVE").setTag(FridgeItem.Presence.HAVE))
             }
         }
 
         doOnTeardown {
-            binding.detailPresenceSwitcherRoot.removeAllTabs()
+            layoutRoot.removeAllTabs()
         }
 
         doOnInflate {
             val listener = object : TabLayout.OnTabSelectedListener {
 
-                override fun onTabSelected(tab: TabLayout.Tab?) {
-                    if (tab == null) {
-                        Timber.w("NULL tab selected")
-                        return
-                    }
-
-                    val presence = getTabPresence(tab)
-                    if (presence == null) {
-                        Timber.w("No Presence model found for tab: $tab")
-                        return
-                    }
-
+                override fun onTabSelected(tab: TabLayout.Tab) {
+                    val presence = getTabPresence(tab) ?: return
                     publish(DetailViewEvent.PresenceSwitched(presence))
                 }
 
-                override fun onTabUnselected(tab: TabLayout.Tab?) {
+                override fun onTabUnselected(tab: TabLayout.Tab) {
                 }
 
-                override fun onTabReselected(tab: TabLayout.Tab?) {
+                override fun onTabReselected(tab: TabLayout.Tab) {
                 }
 
             }
-            binding.detailPresenceSwitcherRoot.apply {
+            layoutRoot.apply {
                 addOnTabSelectedListener(listener)
                 doOnTeardown {
                     removeOnTabSelectedListener(listener)
@@ -104,22 +92,20 @@ class DetailPresenceSwitcher @Inject internal constructor(
 
     private fun handlePresence(state: DetailViewState) {
         state.listItemPresence.let { presence ->
-            binding.detailPresenceSwitcherRoot.apply {
-                for (i in 0 until tabCount) {
-                    val tab = getTabAt(i)
-                    if (tab == null) {
-                        Timber.w("No tab found at index: $i")
-                        continue
-                    }
-
-                    val tag = getTabPresence(tab)
-                    if (tag == presence) {
-                        Timber.d("Selecting tab: $tag $tab")
-                        selectTab(tab, true)
-                        break
-                    }
-
+            val tabs = layoutRoot
+            for (i in 0 until tabs.tabCount) {
+                val tab = tabs.getTabAt(i)
+                if (tab == null) {
+                    Timber.w("No tab found at index: $i")
+                    continue
                 }
+
+                val tag = getTabPresence(tab)
+                if (tag == presence) {
+                    tabs.selectTab(tab, true)
+                    break
+                }
+
             }
         }
     }
