@@ -73,6 +73,7 @@ dependencies {
 
 	// RecyclerView decorations
 	api "io.cabriole:decorator:$decorator"
+	api "me.zhanghai.android.fastscroll:library:$fastscroll"
 
 	// PYDroid
 	api "com.pyamsoft.pydroid:ui:$pydroid"
