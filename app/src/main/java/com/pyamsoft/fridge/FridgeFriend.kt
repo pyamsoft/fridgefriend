@@ -131,6 +131,9 @@ class FridgeFriend : Application() {
             // We are using pydroid-notify
             OssLibraries.usingNotify = true
 
+            // We are using pydroid-autopsy
+            OssLibraries.usingAutopsy = true
+
             OssLibraries.add(
                 "Room",
                 "https://android.googlesource.com/platform/frameworks/support/+/androidx-master-dev/room/",

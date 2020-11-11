@@ -20,7 +20,10 @@ import android.content.Context
 import android.graphics.Color
 import android.view.ViewGroup
 import androidx.annotation.CheckResult
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.OnLifecycleEvent
 import androidx.preference.PreferenceManager
 import com.pyamsoft.fridge.db.store.NearbyStore
 import com.pyamsoft.fridge.db.zone.NearbyZone
@@ -34,9 +37,6 @@ import com.pyamsoft.fridge.locator.osm.updatemanager.LocationUpdateReceiver
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.ui.theme.ThemeProvider
 import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
-import com.pyamsoft.pydroid.util.doOnPause
-import com.pyamsoft.pydroid.util.doOnResume
-import javax.inject.Inject
 import org.osmdroid.config.Configuration
 import org.osmdroid.config.DefaultConfigurationProvider
 import org.osmdroid.events.MapListener
@@ -54,6 +54,7 @@ import org.osmdroid.views.overlay.infowindow.InfoWindow
 import org.osmdroid.views.overlay.mylocation.GpsMyLocationProvider
 import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay
 import timber.log.Timber
+import javax.inject.Inject
 
 class OsmMap @Inject internal constructor(
     private val theming: ThemeProvider,
@@ -101,26 +102,45 @@ class OsmMap @Inject internal constructor(
         }
 
         doOnInflate {
-            owner.doOnResume(repeat = true) {
-                // Load configuration
-                Configuration.getInstance()
-                    .load(
-                        layoutRoot.context.applicationContext,
-                        PreferenceManager.getDefaultSharedPreferences(layoutRoot.context.applicationContext)
-                    )
+            val resumeObserver = object : LifecycleObserver {
 
-                binding.osmMap.onResume()
+                @Suppress("unused")
+                @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
+                fun onResume() {
+                    // Load configuration
+                    Configuration.getInstance()
+                        .load(
+                            layoutRoot.context.applicationContext,
+                            PreferenceManager.getDefaultSharedPreferences(layoutRoot.context.applicationContext)
+                        )
+
+                    binding.osmMap.onResume()
+                }
             }
 
-            owner.doOnPause(repeat = true) {
-                // Save configuration
-                Configuration.getInstance()
-                    .save(
-                        layoutRoot.context.applicationContext,
-                        PreferenceManager.getDefaultSharedPreferences(layoutRoot.context.applicationContext)
-                    )
+            val pauseObserver = object : LifecycleObserver {
 
-                binding.osmMap.onPause()
+                @Suppress("unused")
+                @OnLifecycleEvent(Lifecycle.Event.ON_PAUSE)
+                fun onPause() {
+                    // Save configuration
+                    Configuration.getInstance()
+                        .save(
+                            layoutRoot.context.applicationContext,
+                            PreferenceManager.getDefaultSharedPreferences(layoutRoot.context.applicationContext)
+                        )
+
+                    binding.osmMap.onPause()
+                }
+            }
+            owner.lifecycle.apply {
+                addObserver(resumeObserver)
+                addObserver(pauseObserver)
+
+                doOnTeardown {
+                    removeObserver(resumeObserver)
+                    removeObserver(pauseObserver)
+                }
             }
         }
 

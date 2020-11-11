@@ -18,8 +18,6 @@
 
     <style name="Base.Theme.Fridge" parent="@style/Theme.MaterialComponents.DayNight.NoActionBar" />
 
-    <style name="Base.Theme.Fridge.Splash" parent="@style/Base.Theme.Fridge" />
-
     <style name="Base.Theme.Fridge.Preferences" parent="@style/PreferenceThemeOverlay" />
 
     <style name="Base.Theme.Fridge.BottomSheet" parent="@style/Theme.MaterialComponents.Light.BottomSheetDialog" />

@@ -51,8 +51,9 @@
         <item name="android:windowLightStatusBar">@bool/light_bars</item>
     </style>
 
-    <style name="Custom.Theme.Fridge.Splash" parent="@style/Base.Theme.Fridge.Splash">
+    <style name="Custom.Theme.Fridge.Splash" parent="@style/Custom.Theme.Fridge">
         <item name="android:windowBackground">@drawable/splash_screen</item>
+        <item name="android:navigationBarColor">@color/colorPrimary</item>
     </style>
 
     <style name="Custom.Theme.Fridge.BottomSheet" parent="@style/Base.Theme.Fridge.BottomSheet">
