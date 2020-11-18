@@ -31,21 +31,19 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
-import javax.inject.Named
 
 class EntryViewModel @Inject internal constructor(
     private val interactor: EntryInteractor,
     bottomOffsetBus: EventConsumer<BottomOffset>,
-    @Named("debug") debug: Boolean
 ) : UiViewModel<EntryViewState, EntryViewEvent, EntryControllerEvent>(
-    initialState = EntryViewState(
+    EntryViewState(
         isLoading = false,
         error = null,
         displayedEntries = emptyList(),
         allEntries = emptyList(),
         search = "",
         bottomOffset = 0,
-    ), debug = debug
+    )
 ) {
 
     private val refreshRunner = highlander<Unit, Boolean> { force ->
@@ -70,14 +68,13 @@ class EntryViewModel @Inject internal constructor(
     }
 
     init {
-        doOnBind {
-            refreshList(false)
+        viewModelScope.launch(context = Dispatchers.Default) {
+            bottomOffsetBus.onEvent { setState { copy(bottomOffset = it.height) } }
         }
 
         doOnBind {
-            viewModelScope.launch(context = Dispatchers.Default) {
-                bottomOffsetBus.onEvent { setState { copy(bottomOffset = it.height) } }
-            }
+            // Refresh each time we have UI
+            refreshList(false)
         }
     }
 

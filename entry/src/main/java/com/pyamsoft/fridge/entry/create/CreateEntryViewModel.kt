@@ -24,18 +24,15 @@ import com.pyamsoft.pydroid.arch.onActualError
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-import javax.inject.Named
 
 class CreateEntryViewModel @Inject internal constructor(
     private val interactor: EntryInteractor,
-    @Named("debug") debug: Boolean
 ) : UiViewModel<CreateEntryViewState, CreateEntryViewEvent, CreateEntryControllerEvent>(
-    initialState = CreateEntryViewState(
+    CreateEntryViewState(
         name = "",
         creating = false,
         throwable = null
-    ),
-    debug = debug
+    )
 ) {
 
     private val commitRunner = highlander<Unit, String> { name ->

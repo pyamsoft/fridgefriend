@@ -20,17 +20,13 @@ import androidx.lifecycle.viewModelScope
 import com.pyamsoft.fridge.locator.MapPermission
 import com.pyamsoft.pydroid.arch.UiViewModel
 import com.pyamsoft.pydroid.arch.UnitViewState
-import javax.inject.Inject
-import javax.inject.Named
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 class LocationPermissionViewModel @Inject internal constructor(
     private val mapPermission: MapPermission,
-    @Named("debug") debug: Boolean
-) : UiViewModel<UnitViewState, PermissionViewEvent, PermissionControllerEvent>(
-    initialState = UnitViewState, debug = debug
-) {
+) : UiViewModel<UnitViewState, PermissionViewEvent, PermissionControllerEvent>(UnitViewState) {
 
     override fun handleViewEvent(event: PermissionViewEvent) {
         return when (event) {

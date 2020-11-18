@@ -42,7 +42,6 @@ import timber.log.Timber
 import java.util.Calendar
 import java.util.Locale
 import javax.inject.Inject
-import javax.inject.Named
 
 class ExpandItemViewModel @Inject internal constructor(
     private val interactor: DetailInteractor,
@@ -51,7 +50,6 @@ class ExpandItemViewModel @Inject internal constructor(
     realtime: FridgeItemRealtime,
     possibleItemId: FridgeItem.Id,
     itemEntryId: FridgeEntry.Id,
-    @Named("debug") debug: Boolean
 ) : BaseUpdaterViewModel<ExpandItemViewState, ExpandedItemViewEvent, ExpandItemControllerEvent>(
     initialState = ExpandItemViewState(
         item = null,
@@ -59,15 +57,13 @@ class ExpandItemViewModel @Inject internal constructor(
         sameNamedItems = emptyList(),
         similarItems = emptyList(),
         categories = emptyList()
-    ), debug = debug
+    )
 ) {
 
     init {
-        doOnBind {
-            viewModelScope.launch(context = Dispatchers.Default) {
-                val categories = interactor.loadAllCategories()
-                setState { copy(categories = listOf(FridgeCategory.empty()) + categories) }
-            }
+        viewModelScope.launch(context = Dispatchers.Default) {
+            val categories = interactor.loadAllCategories()
+            setState { copy(categories = listOf(FridgeCategory.empty()) + categories) }
         }
 
         doOnSaveState { outState, state ->
@@ -100,27 +96,23 @@ class ExpandItemViewModel @Inject internal constructor(
             }
         }
 
-        doOnBind {
-            viewModelScope.launch(context = Dispatchers.Default) {
-                realtime.listenForChanges(itemEntryId) { handleRealtimeEvent(it) }
-            }
+        viewModelScope.launch(context = Dispatchers.Default) {
+            realtime.listenForChanges(itemEntryId) { handleRealtimeEvent(it) }
         }
 
-        doOnBind {
-            viewModelScope.launch(context = Dispatchers.Default) {
-                dateSelectBus.onEvent { event ->
-                    withState {
-                        requireNotNull(item).let { item ->
-                            if (event.entryId != item.entryId()) {
-                                return@let
-                            }
-
-                            if (event.itemId != item.id()) {
-                                return@let
-                            }
-
-                            commitDate(event.year, event.month, event.day)
+        viewModelScope.launch(context = Dispatchers.Default) {
+            dateSelectBus.onEvent { event ->
+                withState {
+                    requireNotNull(item).let { item ->
+                        if (event.entryId != item.entryId()) {
+                            return@let
                         }
+
+                        if (event.itemId != item.id()) {
+                            return@let
+                        }
+
+                        commitDate(event.year, event.month, event.day)
                     }
                 }
             }

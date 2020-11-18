@@ -22,45 +22,40 @@ import com.pyamsoft.fridge.db.zone.NearbyZone
 import com.pyamsoft.fridge.locator.map.osm.popup.base.BaseInfoViewModel
 import com.pyamsoft.fridge.locator.map.osm.popup.base.BaseInfoViewState
 import com.pyamsoft.fridge.locator.map.osm.popup.zone.ZoneInfoViewEvent.ZoneFavoriteAction
-import javax.inject.Inject
-import javax.inject.Named
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.osmdroid.views.overlay.Polygon
+import javax.inject.Inject
 
 internal class ZoneInfoViewModel @Inject internal constructor(
     private val interactor: ZoneInfoInteractor,
     zone: NearbyZone,
-    @Named("debug") debug: Boolean
 ) : BaseInfoViewModel<NearbyZone, ZoneInfoViewState, ZoneInfoViewEvent, ZoneInfoControllerEvent>(
     interactor,
     initialState = ZoneInfoViewState(
         myLocation = null,
         data = null,
         cached = null
-    ),
-    debug = debug
+    )
 ) {
 
     private val zoneId = zone.id()
 
-    override fun listenForRealtime() {
-        viewModelScope.launch(context = Dispatchers.Default) {
-            interactor.listenForNearbyCacheChanges(
-                onInsert = { zone ->
-                    if (zone.id() == zoneId) {
-                        setState { copy(cached = BaseInfoViewState.Cached(true)) }
-                    }
-                },
-                onDelete = { zone ->
-                    if (zone.id() == zoneId) {
-                        setState { copy(cached = BaseInfoViewState.Cached(false)) }
-                    }
-                })
-        }
+    override suspend fun listenForRealtime() {
+        interactor.listenForNearbyCacheChanges(
+            onInsert = { zone ->
+                if (zone.id() == zoneId) {
+                    setState { copy(cached = BaseInfoViewState.Cached(true)) }
+                }
+            },
+            onDelete = { zone ->
+                if (zone.id() == zoneId) {
+                    setState { copy(cached = BaseInfoViewState.Cached(false)) }
+                }
+            })
     }
 
-    override fun restoreStateFromCachedData(cached: List<NearbyZone>) {
+    override suspend fun restoreStateFromCachedData(cached: List<NearbyZone>) {
         setState { copy(cached = BaseInfoViewState.Cached(cached = cached.any { it.id() == zoneId })) }
     }
 

@@ -22,25 +22,19 @@ import com.pyamsoft.pydroid.arch.EventConsumer
 import com.pyamsoft.pydroid.arch.UiViewModel
 import com.pyamsoft.pydroid.arch.UnitControllerEvent
 import com.pyamsoft.pydroid.arch.UnitViewEvent
-import javax.inject.Inject
-import javax.inject.Named
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 class SettingsViewModel @Inject internal constructor(
     bottomOffsetBus: EventConsumer<BottomOffset>,
-    @Named("debug") debug: Boolean
 ) : UiViewModel<SettingsViewState, UnitViewEvent, UnitControllerEvent>(
-    initialState = SettingsViewState(
-        bottomOffset = 0
-    ), debug = debug
+    SettingsViewState(bottomOffset = 0)
 ) {
 
     init {
-        doOnBind {
-            viewModelScope.launch(context = Dispatchers.Default) {
-                bottomOffsetBus.onEvent { setState { copy(bottomOffset = it.height) } }
-            }
+        viewModelScope.launch(context = Dispatchers.Default) {
+            bottomOffsetBus.onEvent { setState { copy(bottomOffset = it.height) } }
         }
     }
 

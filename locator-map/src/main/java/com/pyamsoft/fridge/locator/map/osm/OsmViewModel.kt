@@ -25,8 +25,6 @@ import com.pyamsoft.highlander.highlander
 import com.pyamsoft.pydroid.arch.EventConsumer
 import com.pyamsoft.pydroid.arch.UiViewModel
 import com.pyamsoft.pydroid.arch.onActualError
-import javax.inject.Inject
-import javax.inject.Named
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -34,15 +32,15 @@ import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import timber.log.Timber
+import javax.inject.Inject
 
 class OsmViewModel @Inject internal constructor(
     private val mapPermission: MapPermission,
     private val interactor: OsmInteractor,
     private val deviceGps: DeviceGps,
-    @Named("debug") debug: Boolean,
     bottomOffsetBus: EventConsumer<BottomOffset>
 ) : UiViewModel<OsmViewState, OsmViewEvent, OsmControllerEvent>(
-    initialState = OsmViewState(
+    OsmViewState(
         boundingBox = null,
         loading = false,
         points = emptyList(),
@@ -52,7 +50,7 @@ class OsmViewModel @Inject internal constructor(
         cachedFetchError = null,
         gpsError = null,
         bottomOffset = 0
-    ), debug = debug
+    )
 ) {
 
     private val nearbyRunner = highlander<Unit, BBox?> { box ->
@@ -92,15 +90,11 @@ class OsmViewModel @Inject internal constructor(
     }
 
     init {
-        doOnBind {
-            initialFetchFromCache()
+        viewModelScope.launch(context = Dispatchers.Default) {
+            bottomOffsetBus.onEvent { setState { copy(bottomOffset = it.height) } }
         }
 
-        doOnBind {
-            viewModelScope.launch(context = Dispatchers.Default) {
-                bottomOffsetBus.onEvent { setState { copy(bottomOffset = it.height) } }
-            }
-        }
+        initialFetchFromCache()
     }
 
     private fun nearbyError(throwable: Throwable) {

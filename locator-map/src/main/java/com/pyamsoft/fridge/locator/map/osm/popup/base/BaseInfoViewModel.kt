@@ -22,21 +22,23 @@ import androidx.lifecycle.viewModelScope
 import com.pyamsoft.pydroid.arch.UiControllerEvent
 import com.pyamsoft.pydroid.arch.UiViewEvent
 import com.pyamsoft.pydroid.arch.UiViewModel
-import javax.inject.Named
-import kotlin.math.abs
-import kotlin.math.pow
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlin.math.abs
+import kotlin.math.pow
 
 internal abstract class BaseInfoViewModel<T : Any, S : BaseInfoViewState<*>, V : UiViewEvent, C : UiControllerEvent> protected constructor(
     private val interactor: BaseInfoInteractor<T, *, *, *, *, *>,
     initialState: S,
-    @Named("debug") debug: Boolean
-) : UiViewModel<S, V, C>(initialState, debug) {
+) : UiViewModel<S, V, C>(initialState) {
 
     init {
-        doOnBind {
-            findCachedIfExists()
+        findCachedIfExists()
+        openRealtime()
+    }
+
+    private fun openRealtime() {
+        viewModelScope.launch(context = Dispatchers.Default) {
             listenForRealtime()
         }
     }
@@ -103,9 +105,9 @@ internal abstract class BaseInfoViewModel<T : Any, S : BaseInfoViewState<*>, V :
 
     abstract fun handleLocationUpdate(location: Location?)
 
-    protected abstract fun listenForRealtime()
+    protected abstract suspend fun listenForRealtime()
 
-    protected abstract fun restoreStateFromCachedData(cached: List<T>)
+    protected abstract suspend fun restoreStateFromCachedData(cached: List<T>)
 
     protected data class LocationUpdate internal constructor(val location: Location?)
 }

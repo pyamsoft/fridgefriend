@@ -30,16 +30,15 @@ import timber.log.Timber
 
 abstract class BaseUpdaterViewModel<S : UiViewState, V : UiViewEvent, C : UiControllerEvent> protected constructor(
     initialState: S,
-    debug: Boolean
-) : UiViewModel<S, V, C>(initialState = initialState, debug = debug) {
+) : UiViewModel<S, V, C>(initialState) {
 
     private val updateRunner = highlander<
-        Unit,
-        FridgeItem,
-        suspend (item: FridgeItem) -> Unit,
-            (throwable: Throwable) -> Unit,
-            (item: FridgeItem) -> Unit
-        > { item, doUpdate, onError, afterUpdate ->
+            Unit,
+            FridgeItem,
+            suspend (item: FridgeItem) -> Unit,
+                (throwable: Throwable) -> Unit,
+                (item: FridgeItem) -> Unit
+            > { item, doUpdate, onError, afterUpdate ->
         try {
             doUpdate(item.makeReal())
         } catch (error: Throwable) {

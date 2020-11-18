@@ -37,16 +37,15 @@ class MainViewModel @Inject internal constructor(
     private val gpsChangeBus: EventBus<GpsChangeEvent>,
     private val bottomOffsetBus: EventBus<BottomOffset>,
     @Named("app_name") appNameRes: Int,
-    @Named("debug") debug: Boolean,
     defaultPage: MainPage
 ) : UiViewModel<MainViewState, MainViewEvent, MainControllerEvent>(
-    initialState = MainViewState(
+    MainViewState(
         page = null,
         appNameRes = appNameRes,
         countNeeded = 0,
         countExpiringOrExpired = 0,
         hasNearby = false
-    ), debug = debug
+    )
 ) {
 
     private var versionChecked: Boolean = false
@@ -56,12 +55,17 @@ class MainViewModel @Inject internal constructor(
     }
 
     init {
+        viewModelScope.launch(context = Dispatchers.Default) {
+            realtimeRunner.call()
+        }
+
         doOnSaveState { outState, state ->
             state.page?.let { p ->
                 outState.put(PAGE, p.name)
             }
         }
 
+        // Do each time since it requires publishing
         doOnBind { savedInstanceState ->
             val savedPageString = savedInstanceState.get<String>(PAGE)
             val page = if (savedPageString == null) defaultPage else {
@@ -72,11 +76,8 @@ class MainViewModel @Inject internal constructor(
         }
 
         doOnBind {
+            // Do each time we bind to a view
             refreshBadgeCounts()
-
-            viewModelScope.launch(context = Dispatchers.Default) {
-                realtimeRunner.call()
-            }
         }
     }
 

@@ -17,50 +17,42 @@
 package com.pyamsoft.fridge.locator.map.osm.popup.store
 
 import android.location.Location
-import androidx.lifecycle.viewModelScope
 import com.pyamsoft.fridge.db.store.NearbyStore
 import com.pyamsoft.fridge.locator.map.osm.popup.base.BaseInfoViewModel
 import com.pyamsoft.fridge.locator.map.osm.popup.base.BaseInfoViewState
 import com.pyamsoft.fridge.locator.map.osm.popup.store.StoreInfoViewEvent.StoreFavoriteAction
-import javax.inject.Inject
-import javax.inject.Named
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import org.osmdroid.views.overlay.Marker
+import javax.inject.Inject
 
 internal class StoreInfoViewModel @Inject internal constructor(
     private val interactor: StoreInfoInteractor,
     store: NearbyStore,
-    @Named("debug") debug: Boolean
 ) : BaseInfoViewModel<NearbyStore, StoreInfoViewState, StoreInfoViewEvent, StoreInfoControllerEvent>(
     interactor,
     initialState = StoreInfoViewState(
         myLocation = null,
         data = null,
         cached = null
-    ),
-    debug = debug
+    )
 ) {
 
     private val storeId = store.id()
 
-    override fun listenForRealtime() {
-        viewModelScope.launch(context = Dispatchers.Default) {
-            interactor.listenForNearbyCacheChanges(
-                onInsert = { store ->
-                    if (store.id() == storeId) {
-                        setState { copy(cached = BaseInfoViewState.Cached(true)) }
-                    }
-                },
-                onDelete = { store ->
-                    if (store.id() == storeId) {
-                        setState { copy(cached = BaseInfoViewState.Cached(false)) }
-                    }
-                })
-        }
+    override suspend fun listenForRealtime() {
+        interactor.listenForNearbyCacheChanges(
+            onInsert = { store ->
+                if (store.id() == storeId) {
+                    setState { copy(cached = BaseInfoViewState.Cached(true)) }
+                }
+            },
+            onDelete = { store ->
+                if (store.id() == storeId) {
+                    setState { copy(cached = BaseInfoViewState.Cached(false)) }
+                }
+            })
     }
 
-    override fun restoreStateFromCachedData(cached: List<NearbyStore>) {
+    override suspend fun restoreStateFromCachedData(cached: List<NearbyStore>) {
         setState { copy(cached = BaseInfoViewState.Cached(cached = cached.any { it.id() == storeId })) }
     }
 

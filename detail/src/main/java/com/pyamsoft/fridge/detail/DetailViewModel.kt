@@ -45,12 +45,10 @@ import timber.log.Timber
 import java.util.Calendar
 import java.util.Date
 import javax.inject.Inject
-import javax.inject.Named
 import kotlin.math.max
 
 class DetailViewModel @Inject internal constructor(
     private val interactor: DetailInteractor,
-    @Named("debug") debug: Boolean,
     entryId: FridgeEntry.Id,
     listItemPresence: FridgeItem.Presence,
     bottomOffsetBus: EventConsumer<BottomOffset>
@@ -70,7 +68,7 @@ class DetailViewModel @Inject internal constructor(
         bottomOffset = 0,
         displayedItems = emptyList(),
         allItems = emptyList()
-    ), debug = debug
+    )
 ) {
 
     private val undoRunner = highlander<Unit, FridgeItem> { item ->
@@ -106,35 +104,28 @@ class DetailViewModel @Inject internal constructor(
     }
 
     init {
-        doOnBind {
-            viewModelScope.launch(context = Dispatchers.Default) {
-                bottomOffsetBus.onEvent { setState { copy(bottomOffset = it.height) } }
-            }
+        viewModelScope.launch(context = Dispatchers.Default) {
+            bottomOffsetBus.onEvent { setState { copy(bottomOffset = it.height) } }
         }
 
         doOnBind {
+            // Do each time we bind UI
             refreshList(false)
         }
 
-        doOnBind {
-            viewModelScope.launch(context = Dispatchers.Default) {
-                val entry = interactor.loadEntry(entryId)
-                setState { copy(entry = entry) }
-            }
+        viewModelScope.launch(context = Dispatchers.Default) {
+            val entry = interactor.loadEntry(entryId)
+            setState { copy(entry = entry) }
         }
 
-        doOnBind {
-            viewModelScope.launch(context = Dispatchers.Default) {
-                val range = interactor.getExpiringSoonRange()
-                setState { copy(expirationRange = DetailViewState.ExpirationRange(range)) }
-            }
+        viewModelScope.launch(context = Dispatchers.Default) {
+            val range = interactor.getExpiringSoonRange()
+            setState { copy(expirationRange = DetailViewState.ExpirationRange(range)) }
         }
 
-        doOnBind {
-            viewModelScope.launch(context = Dispatchers.Default) {
-                val isSame = interactor.isSameDayExpired()
-                setState { copy(isSameDayExpired = DetailViewState.IsSameDayExpired(isSame)) }
-            }
+        viewModelScope.launch(context = Dispatchers.Default) {
+            val isSame = interactor.isSameDayExpired()
+            setState { copy(isSameDayExpired = DetailViewState.IsSameDayExpired(isSame)) }
         }
 
         doOnBind {
@@ -143,7 +134,7 @@ class DetailViewModel @Inject internal constructor(
                     setState { copy(expirationRange = DetailViewState.ExpirationRange(range)) }
                 }
                 withContext(context = Dispatchers.Main) {
-                    doOnTeardown { listener.cancel() }
+                    doOnUnbind { listener.cancel() }
                 }
             }
         }
@@ -154,7 +145,7 @@ class DetailViewModel @Inject internal constructor(
                     setState { copy(isSameDayExpired = DetailViewState.IsSameDayExpired(same)) }
                 }
                 withContext(context = Dispatchers.Main) {
-                    doOnTeardown { listener.cancel() }
+                    doOnUnbind { listener.cancel() }
                 }
             }
         }
