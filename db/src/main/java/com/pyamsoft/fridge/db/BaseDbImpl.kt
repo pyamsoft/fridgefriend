@@ -24,7 +24,7 @@ import kotlinx.coroutines.withContext
 internal abstract class BaseDbImpl<T : Any, ChangeEvent : Any> protected constructor() :
     BaseRealtime<ChangeEvent> {
 
-    private val bus = EventBus.create<ChangeEvent>()
+    private val bus = EventBus.create<ChangeEvent>(emitOnlyWhenActive = true)
 
     protected suspend fun onEvent(onEvent: suspend (event: ChangeEvent) -> Unit) =
         withContext(context = Dispatchers.IO) {

@@ -186,14 +186,14 @@ internal interface FridgeComponent {
             @JvmStatic
             @Singleton
             internal fun provideGpsStateBus(): EventBus<GpsChangeEvent> {
-                return EventBus.create()
+                return EventBus.create(emitOnlyWhenActive = true)
             }
 
             @Provides
             @JvmStatic
             @Singleton
             internal fun provideDateSelectBus(): EventBus<DateSelectPayload> {
-                return EventBus.create()
+                return EventBus.create(emitOnlyWhenActive = true)
             }
 
             @Provides

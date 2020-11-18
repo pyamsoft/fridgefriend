@@ -72,10 +72,8 @@ class EntryViewModel @Inject internal constructor(
             bottomOffsetBus.onEvent { setState { copy(bottomOffset = it.height) } }
         }
 
-        doOnBind {
-            // Refresh each time we have UI
-            refreshList(false)
-        }
+        // Refresh each time we have UI
+        refreshList(false)
     }
 
     private fun refreshList(force: Boolean) {

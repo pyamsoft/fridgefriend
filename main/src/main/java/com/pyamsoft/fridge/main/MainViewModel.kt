@@ -65,7 +65,6 @@ class MainViewModel @Inject internal constructor(
             }
         }
 
-        // Do each time since it requires publishing
         doOnBind { savedInstanceState ->
             val savedPageString = savedInstanceState.get<String>(PAGE)
             val page = if (savedPageString == null) defaultPage else {
@@ -75,10 +74,7 @@ class MainViewModel @Inject internal constructor(
             selectPage(page)
         }
 
-        doOnBind {
-            // Do each time we bind to a view
-            refreshBadgeCounts()
-        }
+        refreshBadgeCounts()
     }
 
     private fun handleRealtime(event: FridgeItemChangeEvent) {

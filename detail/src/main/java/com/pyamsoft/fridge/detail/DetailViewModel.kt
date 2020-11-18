@@ -108,11 +108,6 @@ class DetailViewModel @Inject internal constructor(
             bottomOffsetBus.onEvent { setState { copy(bottomOffset = it.height) } }
         }
 
-        doOnBind {
-            // Do each time we bind UI
-            refreshList(false)
-        }
-
         viewModelScope.launch(context = Dispatchers.Default) {
             val entry = interactor.loadEntry(entryId)
             setState { copy(entry = entry) }
@@ -128,25 +123,21 @@ class DetailViewModel @Inject internal constructor(
             setState { copy(isSameDayExpired = DetailViewState.IsSameDayExpired(isSame)) }
         }
 
-        doOnBind {
-            viewModelScope.launch(context = Dispatchers.Default) {
-                val listener = interactor.listenForExpiringSoonRangeChanged { range ->
-                    setState { copy(expirationRange = DetailViewState.ExpirationRange(range)) }
-                }
-                withContext(context = Dispatchers.Main) {
-                    doOnUnbind { listener.cancel() }
-                }
+        viewModelScope.launch(context = Dispatchers.Default) {
+            val listener = interactor.listenForExpiringSoonRangeChanged { range ->
+                setState { copy(expirationRange = DetailViewState.ExpirationRange(range)) }
+            }
+            withContext(context = Dispatchers.Main) {
+                doOnCleared { listener.cancel() }
             }
         }
 
-        doOnBind {
-            viewModelScope.launch(context = Dispatchers.Default) {
-                val listener = interactor.listenForSameDayExpiredChanged { same ->
-                    setState { copy(isSameDayExpired = DetailViewState.IsSameDayExpired(same)) }
-                }
-                withContext(context = Dispatchers.Main) {
-                    doOnUnbind { listener.cancel() }
-                }
+        viewModelScope.launch(context = Dispatchers.Default) {
+            val listener = interactor.listenForSameDayExpiredChanged { same ->
+                setState { copy(isSameDayExpired = DetailViewState.IsSameDayExpired(same)) }
+            }
+            withContext(context = Dispatchers.Main) {
+                doOnCleared { listener.cancel() }
             }
         }
 
@@ -188,6 +179,9 @@ class DetailViewModel @Inject internal constructor(
                 setState { copy(search = search) }
             }
         }
+
+        // Do each time we bind UI
+        refreshList(false)
     }
 
     override fun handleViewEvent(event: DetailViewEvent) {

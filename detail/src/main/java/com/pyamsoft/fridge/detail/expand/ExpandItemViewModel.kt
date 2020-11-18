@@ -35,6 +35,7 @@ import com.pyamsoft.fridge.detail.DetailInteractor
 import com.pyamsoft.fridge.detail.base.BaseUpdaterViewModel
 import com.pyamsoft.fridge.detail.expand.date.DateSelectPayload
 import com.pyamsoft.fridge.detail.item.isNameValid
+import com.pyamsoft.highlander.highlander
 import com.pyamsoft.pydroid.arch.EventBus
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -59,6 +60,16 @@ class ExpandItemViewModel @Inject internal constructor(
         categories = emptyList()
     )
 ) {
+
+    private val itemResolveRunner = highlander<Unit, FridgeItem.Id> { resolveItemId ->
+        val item = interactor.resolveItem(
+            resolveItemId,
+            itemEntryId,
+            defaultPresence,
+            force = false
+        )
+        setState { copy(item = item) }
+    }
 
     init {
         viewModelScope.launch(context = Dispatchers.Default) {
@@ -86,13 +97,7 @@ class ExpandItemViewModel @Inject internal constructor(
             val savedId = savedInstanceState.getOrDefault(CREATED_ITEM_ID, possibleItemId.id)
             val resolveItemId = FridgeItem.Id(savedId)
             viewModelScope.launch(context = Dispatchers.Default) {
-                val item = interactor.resolveItem(
-                    resolveItemId,
-                    itemEntryId,
-                    defaultPresence,
-                    force = false
-                )
-                setState { copy(item = item) }
+                itemResolveRunner.call(resolveItemId)
             }
         }
 
