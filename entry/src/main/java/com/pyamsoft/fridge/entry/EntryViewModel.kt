@@ -26,7 +26,6 @@ import com.pyamsoft.highlander.highlander
 import com.pyamsoft.pydroid.arch.EventConsumer
 import com.pyamsoft.pydroid.arch.UiViewModel
 import com.pyamsoft.pydroid.arch.onActualError
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -52,7 +51,6 @@ class EntryViewModel @Inject internal constructor(
         try {
             val entries = interactor.loadEntries(force)
             handleListRefreshed(entries)
-            beginListeningForRealtime()
         } catch (error: Throwable) {
             error.onActualError { e ->
                 Timber.e(e, "Error refreshing entry list")
@@ -63,13 +61,13 @@ class EntryViewModel @Inject internal constructor(
         }
     }
 
-    private val realtimeRunner = highlander<Unit> {
-        interactor.listenForChanges { handleRealtime(it) }
-    }
-
     init {
         viewModelScope.launch(context = Dispatchers.Default) {
             bottomOffsetBus.onEvent { setState { copy(bottomOffset = it.height) } }
+        }
+
+        viewModelScope.launch(context = Dispatchers.Default) {
+            interactor.listenForChanges { handleRealtime(it) }
         }
 
         // Refresh each time we have UI
@@ -124,10 +122,6 @@ class EntryViewModel @Inject internal constructor(
 
     private fun handleListRefreshComplete() {
         setState { copy(isLoading = false) }
-    }
-
-    private fun CoroutineScope.beginListeningForRealtime() {
-        launch(context = Dispatchers.Default) { realtimeRunner.call() }
     }
 
     private fun handleRealtime(event: FridgeEntryChangeEvent) {
