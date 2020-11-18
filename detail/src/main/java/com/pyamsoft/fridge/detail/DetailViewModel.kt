@@ -37,7 +37,6 @@ import com.pyamsoft.fridge.ui.BottomOffset
 import com.pyamsoft.highlander.highlander
 import com.pyamsoft.pydroid.arch.EventConsumer
 import com.pyamsoft.pydroid.arch.onActualError
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -83,12 +82,10 @@ class DetailViewModel @Inject internal constructor(
     }
 
     private val refreshRunner = highlander<Unit, Boolean> { force ->
-        handleListRefreshBegin()
-
         try {
+            handleListRefreshBegin()
             val items = interactor.getItems(entryId, force)
             handleListRefreshed(items)
-            beginListeningForRealtime()
         } catch (error: Throwable) {
             error.onActualError { e ->
                 Timber.e(e, "Error refreshing item list")
@@ -97,10 +94,6 @@ class DetailViewModel @Inject internal constructor(
         } finally {
             handleListRefreshComplete()
         }
-    }
-
-    private val realtimeRunner = highlander<Unit> {
-        interactor.listenForChanges(entryId) { handleRealtime(it) }
     }
 
     init {
@@ -139,6 +132,10 @@ class DetailViewModel @Inject internal constructor(
             withContext(context = Dispatchers.Main) {
                 doOnCleared { listener.cancel() }
             }
+        }
+
+        viewModelScope.launch(context = Dispatchers.Default) {
+            interactor.listenForChanges(entryId) { handleRealtime(it) }
         }
 
         doOnSaveState { outState, state ->
@@ -302,10 +299,6 @@ class DetailViewModel @Inject internal constructor(
             is Update -> handleRealtimeUpdate(event.item)
             is Delete -> handleRealtimeDelete(event.item)
         }
-    }
-
-    private fun CoroutineScope.beginListeningForRealtime() {
-        launch(context = Dispatchers.Default) { realtimeRunner.call() }
     }
 
     private fun insertOrUpdate(
