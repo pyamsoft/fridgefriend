@@ -47,10 +47,9 @@ import com.pyamsoft.pydroid.arch.createComponent
 import com.pyamsoft.pydroid.notify.toNotifyId
 import com.pyamsoft.pydroid.ui.Injector
 import com.pyamsoft.pydroid.ui.arch.viewModelFactory
+import com.pyamsoft.pydroid.ui.changelog.buildChangeLog
 import com.pyamsoft.pydroid.ui.databinding.LayoutConstraintBinding
-import com.pyamsoft.pydroid.ui.rating.ChangeLogBuilder
 import com.pyamsoft.pydroid.ui.rating.RatingActivity
-import com.pyamsoft.pydroid.ui.rating.buildChangeLog
 import com.pyamsoft.pydroid.ui.util.commit
 import com.pyamsoft.pydroid.ui.util.layout
 import com.pyamsoft.pydroid.util.stableLayoutHideNavigation
@@ -62,13 +61,13 @@ import androidx.fragment.R as R2
 
 internal class MainActivity : RatingActivity(), VersionChecker {
 
-    override val checkForUpdates: Boolean = false
+    override val checkForUpdates = false
 
-    override val applicationIcon: Int = R.mipmap.ic_launcher
+    override val applicationIcon = R.mipmap.ic_launcher
 
-    override val versionName: String = BuildConfig.VERSION_NAME
+    override val versionName = BuildConfig.VERSION_NAME
 
-    override val changeLogLines: ChangeLogBuilder = buildChangeLog {
+    override val changeLogLines = buildChangeLog {
         change("Faster database performance")
         change("Better UI responsiveness")
         bugfix("Fix Map page sometimes rendering incorrectly")

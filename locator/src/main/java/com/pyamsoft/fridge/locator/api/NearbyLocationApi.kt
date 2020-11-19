@@ -14,11 +14,15 @@
  * limitations under the License.
  */
 
-package com.pyamsoft.fridge.locator.osm.updatemanager
+package com.pyamsoft.fridge.locator.api
 
-import android.location.Location
+import retrofit2.http.Field
+import retrofit2.http.FormUrlEncoded
+import retrofit2.http.POST
 
-interface LocationUpdatePublisher {
+interface NearbyLocationApi {
 
-    fun publish(location: Location?)
+    @POST("interpreter")
+    @FormUrlEncoded
+    suspend fun queryNearby(@Field("data") data: String): OverpassResponse
 }

@@ -14,15 +14,19 @@
  * limitations under the License.
  */
 
-package com.pyamsoft.fridge.locator.osm.api
+package com.pyamsoft.fridge.locator.api
 
-import retrofit2.http.Field
-import retrofit2.http.FormUrlEncoded
-import retrofit2.http.POST
+import androidx.annotation.CheckResult
+import com.squareup.moshi.JsonClass
 
-interface NearbyLocationApi {
+@JsonClass(generateAdapter = true)
+data class OsmTags internal constructor(val name: String?) {
 
-    @POST("interpreter")
-    @FormUrlEncoded
-    suspend fun queryNearby(@Field("data") data: String): OverpassResponse
+    @CheckResult
+    fun name(): String {
+        return name.orEmpty()
+    }
+
+    // Needed to generate static adapter
+    companion object
 }

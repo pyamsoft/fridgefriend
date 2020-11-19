@@ -14,18 +14,11 @@
  * limitations under the License.
  */
 
-package com.pyamsoft.fridge.locator.osm.updatemanager
+package com.pyamsoft.fridge.locator.location
 
 import android.location.Location
 
-interface LocationUpdateReceiver {
+fun interface LocationUpdatePublisher {
 
-    fun register(listener: Listener)
-
-    fun unregister(listener: Listener)
-
-    interface Listener {
-
-        fun onLocationUpdate(location: Location?)
-    }
+    fun publish(location: Location?)
 }

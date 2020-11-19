@@ -67,14 +67,6 @@ dependencies {
 
 	kapt "com.google.dagger:dagger-compiler:$dagger"
 
-	// Moshi
-	implementation "com.squareup.moshi:moshi-adapters:$moshi"
-	kapt "com.squareup.moshi:moshi-kotlin-codegen:$moshi"
-
-	// Retrofit
-	implementation "com.squareup.retrofit2:converter-moshi:$retrofit"
-	implementation "com.squareup.okhttp3:logging-interceptor:$okhttp"
-
 	implementation "androidx.preference:preference:$preference"
 
 	api project(':butler')

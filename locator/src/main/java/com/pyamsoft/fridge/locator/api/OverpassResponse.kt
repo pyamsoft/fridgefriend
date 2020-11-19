@@ -14,17 +14,33 @@
  * limitations under the License.
  */
 
-package com.pyamsoft.fridge.locator.osm.api
+package com.pyamsoft.fridge.locator.api
 
 import androidx.annotation.CheckResult
+import com.pyamsoft.fridge.locator.api.OsmNodeOrWay.Node
+import com.pyamsoft.fridge.locator.api.OsmNodeOrWay.Way
 import com.squareup.moshi.JsonClass
 
 @JsonClass(generateAdapter = true)
-data class OsmTags internal constructor(val name: String?) {
+data class OverpassResponse internal constructor(
+    internal val elements: List<OsmNodeOrWay>?
+) {
 
     @CheckResult
-    fun name(): String {
-        return name.orEmpty()
+    fun elements(): List<OsmNodeOrWay> {
+        return elements.let { list ->
+            if (list == null) {
+                throw RuntimeException("OverpassResponse: elements was null")
+            } else {
+                return@let list.filter { e ->
+                    return@filter when (e) {
+                        is Node -> true
+                        is Way -> e.tags.name().isNotBlank()
+                        else -> false
+                    }
+                }
+            }
+        }
     }
 
     // Needed to generate static adapter

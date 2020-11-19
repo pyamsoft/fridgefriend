@@ -14,18 +14,18 @@
  * limitations under the License.
  */
 
-package com.pyamsoft.fridge.locator.osm.updatemanager
+package com.pyamsoft.fridge.locator.location
 
 import android.location.Location
 import android.os.Build
-import com.pyamsoft.fridge.locator.osm.updatemanager.LocationUpdateReceiver.Listener
+import com.pyamsoft.fridge.locator.location.LocationUpdateReceiver.Listener
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.LazyThreadSafetyMode.NONE
 
 @Singleton
-internal class LocationUpdateManagerImpl @Inject internal constructor() : LocationUpdateReceiver,
-    LocationUpdatePublisher {
+internal class LocationUpdateManagerImpl @Inject internal constructor(
+) : LocationUpdateReceiver, LocationUpdatePublisher {
 
     private val listeners by lazy(NONE) { mutableSetOf<Listener>() }
 

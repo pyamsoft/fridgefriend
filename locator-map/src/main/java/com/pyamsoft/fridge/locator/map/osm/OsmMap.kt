@@ -32,8 +32,8 @@ import com.pyamsoft.fridge.locator.map.osm.popup.store.StoreInfoComponent
 import com.pyamsoft.fridge.locator.map.osm.popup.store.StoreInfoWindow
 import com.pyamsoft.fridge.locator.map.osm.popup.zone.ZoneInfoComponent
 import com.pyamsoft.fridge.locator.map.osm.popup.zone.ZoneInfoWindow
-import com.pyamsoft.fridge.locator.osm.updatemanager.LocationUpdatePublisher
-import com.pyamsoft.fridge.locator.osm.updatemanager.LocationUpdateReceiver
+import com.pyamsoft.fridge.locator.location.LocationUpdatePublisher
+import com.pyamsoft.fridge.locator.location.LocationUpdateReceiver
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.ui.theme.ThemeProvider
 import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener

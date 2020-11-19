@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.pyamsoft.fridge.locator.osm.api
+package com.pyamsoft.fridge.locator.api
 
 import com.squareup.moshi.FromJson
 import com.squareup.moshi.JsonClass

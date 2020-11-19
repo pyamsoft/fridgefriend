@@ -81,7 +81,7 @@ abstract class ButlerModule {
             @InternalApi dispatchers: MutableSet<NotifyDispatcher<*>>,
             context: Context
         ): Notifier {
-            return Notifier.create(context, dispatchers)
+            return Notifier.createDefault(context, dispatchers)
         }
     }
 }

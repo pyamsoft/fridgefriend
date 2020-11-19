@@ -14,23 +14,18 @@
  * limitations under the License.
  */
 
-package com.pyamsoft.fridge.locator.map
+package com.pyamsoft.fridge.locator.location
 
-import androidx.annotation.CheckResult
-import com.pyamsoft.fridge.locator.DeviceGps
-import com.pyamsoft.fridge.locator.Geofencer
-import com.pyamsoft.fridge.locator.map.gms.GmsLocator
-import dagger.Binds
-import dagger.Module
+import android.location.Location
 
-@Module
-abstract class MapModule {
+interface LocationUpdateReceiver {
 
-    @Binds
-    @CheckResult
-    internal abstract fun bindDeviceGps(impl: GmsLocator): DeviceGps
+    fun register(listener: Listener)
 
-    @Binds
-    @CheckResult
-    internal abstract fun bindGeofencer(impl: GmsLocator): Geofencer
+    fun unregister(listener: Listener)
+
+    fun interface Listener {
+
+        fun onLocationUpdate(location: Location?)
+    }
 }
