@@ -60,10 +60,10 @@ kapt {
 
 dependencies {
 
-	api "com.squareup.moshi:moshi:$moshi"
+	// api for dagger
 	api "com.squareup.retrofit2:retrofit:$retrofit"
+	api "com.squareup.moshi:moshi:$moshi"
 
-	// Retrofit
 	implementation "com.squareup.retrofit2:converter-moshi:$retrofit"
 	implementation "com.squareup.okhttp3:logging-interceptor:$okhttp"
 
