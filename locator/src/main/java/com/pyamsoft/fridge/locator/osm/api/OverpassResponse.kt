@@ -20,7 +20,6 @@ import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.locator.osm.api.OsmNodeOrWay.Node
 import com.pyamsoft.fridge.locator.osm.api.OsmNodeOrWay.Way
 import com.squareup.moshi.JsonClass
-import java.util.Collections
 
 @JsonClass(generateAdapter = true)
 data class OverpassResponse internal constructor(
@@ -33,13 +32,13 @@ data class OverpassResponse internal constructor(
             if (list == null) {
                 throw RuntimeException("OverpassResponse: elements was null")
             } else {
-                return@let Collections.unmodifiableList(list.filter { e ->
+                return@let list.filter { e ->
                     return@filter when (e) {
                         is Node -> true
                         is Way -> e.tags.name().isNotBlank()
                         else -> false
                     }
-                })
+                }
             }
         }
     }
