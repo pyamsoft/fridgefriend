@@ -16,6 +16,7 @@
 
 package com.pyamsoft.fridge.butler.runner
 
+import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.butler.Butler
 import com.pyamsoft.fridge.butler.ButlerPreferences
 import com.pyamsoft.fridge.butler.notification.NotificationHandler
@@ -43,15 +44,23 @@ internal abstract class FridgeRunner<P : BaseParameters> protected constructor(
     butlerPreferences
 ) {
 
-    protected suspend inline fun withFridgeData(crossinline func: suspend CoroutineScope.(entry: FridgeEntry, items: List<FridgeItem>) -> Unit) {
+    @CheckResult
+    protected suspend inline fun withFridgeData(crossinline func: suspend CoroutineScope.(entry: FridgeEntry, items: List<FridgeItem>) -> NotifyResults): List<NotifyResults> =
         coroutineScope {
             Enforcer.assertOffMainThread()
-            fridgeEntryQueryDao.query(true)
-                .forEach { entry ->
+            return@coroutineScope fridgeEntryQueryDao.query(true)
+                .map { entry ->
                     Enforcer.assertOffMainThread()
                     val items = fridgeItemQueryDao.query(true, entry.id())
-                    func(entry, items)
+                    return@map func(entry, items)
                 }
         }
-    }
+
+    protected data class NotifyResults internal constructor(
+        val entryId: FridgeEntry.Id,
+        val needed: Boolean,
+        val expiring: Boolean,
+        val expired: Boolean,
+        val nearby: Boolean
+    )
 }

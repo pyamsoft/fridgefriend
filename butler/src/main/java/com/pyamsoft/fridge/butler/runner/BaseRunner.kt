@@ -39,11 +39,13 @@ internal abstract class BaseRunner<P : BaseParameters> protected constructor(
 ) {
 
     private suspend fun reschedule(order: Order) {
+        Timber.d("Rescheduling order: ${order.tag()} ${order.period()}")
         butler.scheduleOrder(order)
     }
 
-    protected suspend inline fun notification(crossinline func: suspend (handler: NotificationHandler) -> Unit) {
-        func(handler)
+    @CheckResult
+    protected suspend inline fun notification(crossinline func: suspend NotificationHandler.() -> Boolean): Boolean {
+        return func(handler)
     }
 
     // Don't mark inline or you get an Inaccessible error from the JVM at runtime
@@ -67,6 +69,8 @@ internal abstract class BaseRunner<P : BaseParameters> protected constructor(
             } else {
                 fail(identifier, e)
             }
+        } finally {
+            Timber.d("Worker has been completed")
         }
     }
 

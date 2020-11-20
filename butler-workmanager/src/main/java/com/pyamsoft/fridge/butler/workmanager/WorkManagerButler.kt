@@ -107,17 +107,14 @@ internal class WorkManagerButler @Inject internal constructor(
         )
     }
 
-    override suspend fun cancelOrder(order: Order) =
-        withContext(context = Dispatchers.Default) {
-            Enforcer.assertOffMainThread()
-            workManager().cancelAllWorkByTag(order.tag()).await()
-        }
+    override suspend fun cancelOrder(order: Order) = withContext(context = Dispatchers.Default) {
+        Enforcer.assertOffMainThread()
+        workManager().cancelAllWorkByTag(order.tag()).await()
+    }
 
-    override suspend fun cancel() {
-        withContext(context = Dispatchers.Default) {
-            Enforcer.assertOffMainThread()
-            workManager().cancelAllWork().await()
-        }
+    override suspend fun cancel() = withContext(context = Dispatchers.Default) {
+        Enforcer.assertOffMainThread()
+        workManager().cancelAllWork().await()
     }
 
 }

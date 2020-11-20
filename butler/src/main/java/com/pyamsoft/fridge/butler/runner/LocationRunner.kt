@@ -24,6 +24,7 @@ import com.pyamsoft.fridge.butler.notification.NotificationHandler
 import com.pyamsoft.fridge.butler.notification.NotificationPreferences
 import com.pyamsoft.fridge.butler.params.LocationParameters
 import com.pyamsoft.fridge.core.today
+import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.entry.FridgeEntryQueryDao
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItemQueryDao
@@ -138,6 +139,17 @@ internal class LocationRunner @Inject internal constructor(
         }
     }
 
+    @CheckResult
+    private fun createResults(nearby: Boolean): NotifyResults {
+        return NotifyResults(
+            entryId = FridgeEntry.Id.EMPTY,
+            needed = false,
+            expiring = false,
+            expired = false,
+            nearby = nearby
+        )
+    }
+
     private suspend fun fireNotification(
         params: LocationParameters,
         preferences: ButlerPreferences,
@@ -152,32 +164,32 @@ internal class LocationRunner @Inject internal constructor(
             return
         }
 
+        val now = today()
         withFridgeData { _, items ->
             val neededItems = items.filterNot { it.isArchived() }
                 .filter { it.presence() == FridgeItem.Presence.NEED }
             if (neededItems.isEmpty()) {
                 Timber.w("There are nearby's but nothing is needed")
-                return@withFridgeData
+                return@withFridgeData createResults(nearby = false)
             }
 
-            val now = today()
             val lastTime = preferences.getLastNotificationTimeNearby()
             if (now.isAllowedToNotify(params.forceNotifyNeeded, lastTime)) {
-                if (storeNotification != null) {
-                    notification { handler ->
-                        if (handler.notifyNearby(storeNotification, neededItems)) {
-                            preferences.markNotificationNearby(now)
-                        }
-                    }
+                val storeNotified = if (storeNotification == null) false else {
+                    notification { notifyNearby(storeNotification, neededItems) }
                 }
 
-                if (zoneNotification != null) {
-                    notification { handler ->
-                        if (handler.notifyNearby(zoneNotification, neededItems)) {
-                            preferences.markNotificationNearby(now)
-                        }
-                    }
+                val zoneNotified = if (zoneNotification == null) false else {
+                    notification { notifyNearby(zoneNotification, neededItems) }
                 }
+
+                return@withFridgeData createResults(nearby = storeNotified || zoneNotified)
+            } else {
+                return@withFridgeData createResults(nearby = false)
+            }
+        }.also { results ->
+            results.firstOrNull { it.nearby }?.let {
+                preferences.markNotificationNearby(now)
             }
         }
     }

@@ -53,10 +53,8 @@ internal class NightlyRunner @Inject internal constructor(
             val lastTime = preferences.getLastNotificationTimeNightly()
             if (now.isAllowedToNotify(false, lastTime) && isAtleastTime(now)) {
                 Timber.d("Notify user about items nightly fridge cleanup")
-                notification { handler ->
-                    if (handler.notifyNightly()) {
-                        preferences.markNotificationNightly(now)
-                    }
+                if (notification { notifyNightly() }) {
+                    preferences.markNotificationNightly(now)
                 }
             }
         }
