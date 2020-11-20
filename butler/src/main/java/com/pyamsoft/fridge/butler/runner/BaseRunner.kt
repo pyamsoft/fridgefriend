@@ -52,13 +52,15 @@ internal abstract class BaseRunner<P : BaseParameters> protected constructor(
         id: UUID,
         tags: Set<String>,
         params: P,
-        order: () -> Order,
+        order: () -> Order?,
     ): WorkResult = withContext(context = Dispatchers.Default) {
         Enforcer.assertOffMainThread()
         val identifier = identifier(id, tags)
         try {
             performWork(butlerPreferences, params)
-            success(identifier).also { reschedule(order()) }
+            success(identifier).also {
+                order()?.also { reschedule(it) }
+            }
         } catch (e: Throwable) {
             if (e is CancellationException) {
                 cancelled(identifier, e)

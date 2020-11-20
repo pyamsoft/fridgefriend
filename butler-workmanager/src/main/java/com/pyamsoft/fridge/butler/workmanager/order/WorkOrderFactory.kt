@@ -17,11 +17,10 @@
 package com.pyamsoft.fridge.butler.workmanager.order
 
 import androidx.annotation.CheckResult
+import com.pyamsoft.fridge.butler.notification.NotificationPreferences
 import com.pyamsoft.fridge.butler.order.Order
 import com.pyamsoft.fridge.butler.order.OrderFactory
-import com.pyamsoft.fridge.butler.notification.NotificationPreferences
 import com.pyamsoft.fridge.butler.params.ItemParameters
-import com.pyamsoft.fridge.butler.params.LocationParameters
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -33,11 +32,6 @@ internal class WorkOrderFactory @Inject internal constructor(
     @CheckResult
     override fun itemOrder(params: ItemParameters): Order {
         return ItemOrder(params, preferences)
-    }
-
-    @CheckResult
-    override fun locationOrder(params: LocationParameters): Order {
-        return LocationOrder(params, preferences)
     }
 
     @CheckResult

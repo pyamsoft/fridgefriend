@@ -25,7 +25,9 @@ import com.pyamsoft.pydroid.ui.Injector
 import java.util.UUID
 import javax.inject.Inject
 
-class ItemInjector(context: Context) : BaseInjector<ItemParameters>(context) {
+class ItemInjector @Inject constructor(
+    context: Context
+) : BaseInjector<ItemParameters>(context) {
 
     @JvmField
     @Inject
@@ -36,7 +38,7 @@ class ItemInjector(context: Context) : BaseInjector<ItemParameters>(context) {
     @Inject
     internal var orderFactory: OrderFactory? = null
 
-    override suspend fun onRun(
+    override suspend fun onExecute(
         context: Context,
         id: UUID,
         tags: Set<String>,

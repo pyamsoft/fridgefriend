@@ -29,12 +29,12 @@ abstract class BaseInjector<P : BaseParameters> protected constructor(
 ) {
 
     @CheckResult
-    suspend fun run(
+    suspend fun execute(
         id: UUID,
         tags: Set<String>,
         params: P
     ): WorkResult = withContext(context = Dispatchers.Default) {
-        onRun(
+        onExecute(
             context.applicationContext,
             id,
             tags,
@@ -43,7 +43,7 @@ abstract class BaseInjector<P : BaseParameters> protected constructor(
     }
 
     @CheckResult
-    protected abstract suspend fun onRun(
+    protected abstract suspend fun onExecute(
         context: Context,
         id: UUID,
         tags: Set<String>,

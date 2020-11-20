@@ -35,7 +35,7 @@ internal abstract class BaseWorker<P : BaseParameters> protected constructor(
 
     final override suspend fun doWork(): Result = withContext(context = Dispatchers.Default) {
         val injector = getInjector(applicationContext)
-        val result = injector.run(id, tags.toSet(), getParams(inputData))
+        val result = injector.execute(id, tags.toSet(), getParams(inputData))
         if (result == WorkResult.Success) Result.success() else Result.failure()
     }
 

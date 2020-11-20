@@ -19,7 +19,6 @@ package com.pyamsoft.fridge
 import com.pyamsoft.fridge.butler.Butler
 import com.pyamsoft.fridge.butler.order.OrderFactory
 import com.pyamsoft.fridge.butler.params.ItemParameters
-import com.pyamsoft.fridge.butler.params.LocationParameters
 
 suspend fun Butler.initOnAppStart(orderFactory: OrderFactory, params: ButlerParameters) {
     cancel()
@@ -30,15 +29,6 @@ suspend fun Butler.initOnAppStart(orderFactory: OrderFactory, params: ButlerPara
             ItemParameters(
                 forceNotifyNeeded = params.forceNotifyNeeded,
                 forceNotifyExpiring = params.forceNotifyExpiring
-            )
-        )
-    )
-
-    // Fire instantly a location order
-    placeOrder(
-        orderFactory.locationOrder(
-            LocationParameters(
-                forceNotifyNeeded = params.forceNotifyNeeded
             )
         )
     )

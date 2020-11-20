@@ -25,7 +25,9 @@ import com.pyamsoft.pydroid.ui.Injector
 import java.util.UUID
 import javax.inject.Inject
 
-class LocationInjector(context: Context) : BaseInjector<LocationParameters>(context) {
+class LocationInjector @Inject constructor(
+    context: Context
+) : BaseInjector<LocationParameters>(context) {
 
     @JvmField
     @Inject
@@ -36,20 +38,13 @@ class LocationInjector(context: Context) : BaseInjector<LocationParameters>(cont
     @Inject
     internal var orderFactory: OrderFactory? = null
 
-    override suspend fun onRun(
+    override suspend fun onExecute(
         context: Context,
         id: UUID,
         tags: Set<String>,
         params: LocationParameters
     ): WorkResult {
         Injector.obtain<ButlerComponent>(context.applicationContext).inject(this)
-
-        return requireNotNull(runner).doWork(id, tags, params) {
-            requireNotNull(orderFactory).locationOrder(
-                LocationParameters(
-                    forceNotifyNeeded = false
-                )
-            )
-        }
+        return requireNotNull(runner).doWork(id, tags, params) { null }
     }
 }
