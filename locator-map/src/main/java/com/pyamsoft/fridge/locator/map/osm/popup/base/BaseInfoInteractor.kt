@@ -59,7 +59,7 @@ internal abstract class BaseInfoInteractor<
         Enforcer.assertOffMainThread()
         if (deleteDao.delete(data)) {
             Timber.d("Favorite removed: $data")
-            restartLocationWorker()
+            fireLocationQuery()
         }
     }
 
@@ -70,10 +70,10 @@ internal abstract class BaseInfoInteractor<
         } else {
             Timber.d("Favorite updated: $data")
         }
-        restartLocationWorker()
+        fireLocationQuery()
     }
 
-    private suspend fun restartLocationWorker() {
+    private suspend fun fireLocationQuery() {
         Enforcer.assertOffMainThread()
 
         val id = UUID.randomUUID()
