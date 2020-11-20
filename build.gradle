@@ -38,7 +38,7 @@ buildscript {
 
         // Us
         pydroid = "22.1.0-SNAPSHOT"
-        cachify = "0.0.15"
+        cachify = "0.0.16"
         highlander = "0.0.14"
 
         // Room
