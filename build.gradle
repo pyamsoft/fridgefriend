@@ -58,7 +58,7 @@ buildscript {
         retrofit = '2.9.0'
         okhttp = "4.9.0"
 
-        fastAdapter = "5.3.0"
+        fastAdapter = "5.3.1"
 
         // Jobs
         workmanager = "2.4.0"
