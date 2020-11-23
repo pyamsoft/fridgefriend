@@ -40,6 +40,10 @@ class DetailListAdapter internal constructor(
         return item.item.name()
     }
 
+    override fun getItemId(position: Int): Long {
+        return getItem(position).item.id().id.hashCode().toLong()
+    }
+
     override fun onCreateViewHolder(
         parent: ViewGroup,
         viewType: Int

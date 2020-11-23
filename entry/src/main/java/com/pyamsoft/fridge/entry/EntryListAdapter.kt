@@ -38,6 +38,10 @@ class EntryListAdapter internal constructor(
         setHasStableIds(true)
     }
 
+    override fun getItemId(position: Int): Long {
+        return getItem(position).entry.id().id.hashCode().toLong()
+    }
+
     override fun getPopupText(position: Int): String {
         val item = getItem(position)
         return item.entry.name()

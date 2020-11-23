@@ -31,6 +31,14 @@ class CategoryAdapter internal constructor(
     private val factory: CategoryItemComponent.Factory
 ) : ListAdapter<CategoryItemViewState, CategoryViewHolder>(DIFFER) {
 
+    init {
+        setHasStableIds(true)
+    }
+
+    override fun getItemId(position: Int): Long {
+        return getItem(position).category.id().id.hashCode().toLong()
+    }
+
     override fun getItemViewType(position: Int): Int {
         val item = getItem(position)
         return when {
