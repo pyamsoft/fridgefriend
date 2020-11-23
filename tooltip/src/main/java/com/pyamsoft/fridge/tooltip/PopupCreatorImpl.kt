@@ -18,19 +18,15 @@ package com.pyamsoft.fridge.tooltip
 
 import android.app.Activity
 import android.view.View
-import androidx.lifecycle.LifecycleOwner
 import javax.inject.Inject
 
 internal class PopupCreatorImpl @Inject internal constructor(
     activity: Activity
 ) : TipCreatorImpl<PopupBuilder, Popup>(activity), PopupCreator {
 
-    override fun build(
-        owner: LifecycleOwner,
-        builder: PopupBuilder.() -> PopupBuilder
-    ): BalloonCreator {
+    override fun build(builder: PopupBuilder.() -> PopupBuilder): BalloonCreator {
         var configureHook: ((Hideable, View) -> Unit)? = null
-        val balloonBuilder = newBuilder(owner) {
+        val balloonBuilder = newBuilder {
             val realBuilder = PopupBuilderImpl(this).apply { builder() }
             configureHook = realBuilder.configure
         }

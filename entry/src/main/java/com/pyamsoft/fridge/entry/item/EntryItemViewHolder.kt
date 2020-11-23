@@ -16,7 +16,6 @@
 
 package com.pyamsoft.fridge.entry.item
 
-import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.RecyclerView
 import com.pyamsoft.fridge.entry.EntryListAdapter
 import com.pyamsoft.fridge.entry.databinding.EntryListItemHolderBinding
@@ -25,7 +24,6 @@ import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
 
 class EntryItemViewHolder internal constructor(
     binding: EntryListItemHolderBinding,
-    owner: LifecycleOwner,
     factory: EntryItemComponent.Factory,
     callback: EntryListAdapter.Callback
 ) : RecyclerView.ViewHolder(binding.root), ViewBinder<EntryItemViewState> {
@@ -38,6 +36,10 @@ class EntryItemViewHolder internal constructor(
 
     override fun bind(state: EntryItemViewState) {
         // TODO bind content
+    }
+
+    override fun teardown() {
+
     }
 
 }

@@ -17,21 +17,18 @@
 package com.pyamsoft.fridge.detail.expand.categories
 
 import androidx.constraintlayout.widget.ConstraintSet
-import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.RecyclerView
 import com.pyamsoft.fridge.detail.databinding.ExpandCategoryItemHolderBinding
 import com.pyamsoft.pydroid.arch.ViewBinder
-import com.pyamsoft.pydroid.arch.bindViews
+import com.pyamsoft.pydroid.arch.createViewBinder
 import com.pyamsoft.pydroid.ui.util.layout
-import com.pyamsoft.pydroid.util.doOnDestroy
 import javax.inject.Inject
 
 class ExpandedCategoryViewHolder internal constructor(
     binding: ExpandCategoryItemHolderBinding,
-    owner: LifecycleOwner,
-    callback: ExpandItemCategoryListAdapter.Callback,
-    factory: ExpandCategoryComponent.Factory
-) : RecyclerView.ViewHolder(binding.root) {
+    factory: ExpandCategoryComponent.Factory,
+    callback: ExpandItemCategoryListAdapter.Callback
+) : RecyclerView.ViewHolder(binding.root), ViewBinder<ExpandedCategoryViewState> {
 
     private val viewBinder: ViewBinder<ExpandedCategoryViewState>
 
@@ -58,14 +55,13 @@ class ExpandedCategoryViewHolder internal constructor(
         val scrimView = requireNotNull(scrim)
         val nameView = requireNotNull(name)
         val selectOverlayView = requireNotNull(selectOverlay)
-        viewBinder = bindViews(
-            owner,
+        viewBinder = createViewBinder(
             thumbnailView,
             scrimView,
             selectOverlayView,
             nameView
         ) {
-            return@bindViews when (it) {
+            return@createViewBinder when (it) {
                 is ExpandedCategoryViewEvent.Select -> callback.onCategorySelected(adapterPosition)
             }
         }
@@ -135,16 +131,17 @@ class ExpandedCategoryViewHolder internal constructor(
                 )
             }
         }
-
-        owner.doOnDestroy {
-            name = null
-            scrim = null
-            selectOverlay = null
-            thumbnail = null
-        }
     }
 
-    fun bind(state: ExpandedCategoryViewState) {
+    override fun bind(state: ExpandedCategoryViewState) {
         viewBinder.bind(state)
+    }
+
+    override fun teardown() {
+        viewBinder.teardown()
+        name = null
+        scrim = null
+        selectOverlay = null
+        thumbnail = null
     }
 }

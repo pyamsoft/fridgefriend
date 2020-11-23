@@ -47,9 +47,9 @@ import com.pyamsoft.pydroid.arch.createComponent
 import com.pyamsoft.pydroid.notify.toNotifyId
 import com.pyamsoft.pydroid.ui.Injector
 import com.pyamsoft.pydroid.ui.arch.viewModelFactory
+import com.pyamsoft.pydroid.ui.changelog.ChangeLogActivity
 import com.pyamsoft.pydroid.ui.changelog.buildChangeLog
 import com.pyamsoft.pydroid.ui.databinding.LayoutConstraintBinding
-import com.pyamsoft.pydroid.ui.rating.RatingActivity
 import com.pyamsoft.pydroid.ui.util.commit
 import com.pyamsoft.pydroid.ui.util.layout
 import com.pyamsoft.pydroid.util.stableLayoutHideNavigation
@@ -59,7 +59,7 @@ import timber.log.Timber
 import javax.inject.Inject
 import androidx.fragment.R as R2
 
-internal class MainActivity : RatingActivity(), VersionChecker {
+internal class MainActivity : ChangeLogActivity(), VersionChecker {
 
     override val checkForUpdates = false
 

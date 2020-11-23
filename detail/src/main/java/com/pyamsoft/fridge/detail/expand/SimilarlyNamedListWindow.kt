@@ -76,6 +76,7 @@ internal class SimilarlyNamedListWindow internal constructor(context: Context) {
         dismiss()
         popupWindow.setOnItemClickListener(null)
         popupWindow.setOnDismissListener(null)
+        popupWindow.setAdapter(null)
     }
 
     fun set(items: Collection<ExpandItemViewState.SimilarItem>, isFocused: Boolean) {
@@ -101,7 +102,7 @@ internal class SimilarlyNamedListWindow internal constructor(context: Context) {
         private val fridgeItems = mutableListOf<ExpandItemViewState.SimilarItem>()
 
         @CheckResult
-        internal fun getModel(position: Int): ExpandItemViewState.SimilarItem {
+        fun getModel(position: Int): ExpandItemViewState.SimilarItem {
             return fridgeItems[position]
         }
 
@@ -117,18 +118,18 @@ internal class SimilarlyNamedListWindow internal constructor(context: Context) {
             return fridgeItems.size
         }
 
-        internal fun clear() {
+        fun clear() {
             fridgeItems.clear()
         }
 
-        internal fun set(items: Collection<ExpandItemViewState.SimilarItem>) {
+        fun set(items: Collection<ExpandItemViewState.SimilarItem>) {
             clear()
             fridgeItems.addAll(items)
             notifyDataSetChanged()
         }
     }
 
-    private class SimilarlyNamedListAdapter internal constructor() : PopupWindowListAdapter() {
+    private class SimilarlyNamedListAdapter : PopupWindowListAdapter() {
 
         override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
             val view = inflateView(convertView, parent)
@@ -164,7 +165,5 @@ internal class SimilarlyNamedListWindow internal constructor(context: Context) {
         }
     }
 
-    private class ViewHolder internal constructor(
-        internal val binding: SimilarlyNamedListItemBinding
-    )
+    private data class ViewHolder(val binding: SimilarlyNamedListItemBinding)
 }

@@ -17,18 +17,14 @@
 package com.pyamsoft.fridge.tooltip
 
 import android.app.Activity
-import androidx.lifecycle.LifecycleOwner
 import javax.inject.Inject
 
 internal class TooltipCreatorImpl @Inject internal constructor(
     activity: Activity
 ) : TipCreatorImpl<TooltipBuilder, Tooltip>(activity), TooltipCreator {
 
-    override fun build(
-        owner: LifecycleOwner,
-        builder: TooltipBuilder.() -> TooltipBuilder
-    ): BalloonCreator {
-        val balloonBuilder = newBuilder(owner) {
+    override fun build(builder: TooltipBuilder.() -> TooltipBuilder): BalloonCreator {
+        val balloonBuilder = newBuilder {
             setHeight(65)
             TooltipBuilderImpl(this).apply { builder() }
         }

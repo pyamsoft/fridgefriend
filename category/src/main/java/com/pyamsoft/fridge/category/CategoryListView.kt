@@ -19,19 +19,16 @@ package com.pyamsoft.fridge.category
 import android.view.ViewGroup
 import androidx.annotation.CheckResult
 import androidx.core.view.ViewPropertyAnimatorCompat
-import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.pyamsoft.fridge.category.databinding.CategoryListViewBinding
 import com.pyamsoft.fridge.category.item.CategoryAdapter
 import com.pyamsoft.fridge.category.item.CategoryItemComponent
 import com.pyamsoft.fridge.category.item.CategoryItemViewState
-import com.pyamsoft.fridge.ui.animatePopInFromBottom
 import com.pyamsoft.pydroid.arch.BaseUiView
 import javax.inject.Inject
 
 class CategoryListView @Inject internal constructor(
     factory: CategoryItemComponent.Factory,
-    owner: LifecycleOwner,
     parent: ViewGroup
 ) : BaseUiView<CategoryViewState, CategoryViewEvent, CategoryListViewBinding>(parent) {
 
@@ -49,11 +46,12 @@ class CategoryListView @Inject internal constructor(
                     isItemPrefetchEnabled = true
                 }
 
-            modelAdapter = CategoryAdapter(owner, factory)
+            modelAdapter = CategoryAdapter(factory)
             binding.categoryList.adapter = modelAdapter
         }
 
         doOnTeardown {
+            binding.categoryList.adapter = null
             clearList()
 
             modelAdapter = null

@@ -18,26 +18,36 @@ package com.pyamsoft.fridge.detail.expand.categories
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
+import androidx.recyclerview.widget.RecyclerView
 import com.pyamsoft.fridge.detail.databinding.ExpandCategoryItemHolderBinding
+import com.pyamsoft.pydroid.arch.ViewBinder
 
 internal class ExpandItemCategoryListAdapter internal constructor(
-    private val owner: LifecycleOwner,
-    private val callback: Callback,
-    private val factory: ExpandCategoryComponent.Factory
+    private val factory: ExpandCategoryComponent.Factory,
+    private val callback: Callback
 ) : ListAdapter<ExpandedCategoryViewState, ExpandedCategoryViewHolder>(DIFFER) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ExpandedCategoryViewHolder {
         val inflater = LayoutInflater.from(parent.context)
         val binding = ExpandCategoryItemHolderBinding.inflate(inflater, parent, false)
-        return ExpandedCategoryViewHolder(binding, owner, callback, factory)
+        return ExpandedCategoryViewHolder(binding, factory, callback)
     }
 
     override fun onBindViewHolder(holder: ExpandedCategoryViewHolder, position: Int) {
         val category = getItem(position)
         holder.bind(category)
+    }
+
+    override fun onDetachedFromRecyclerView(recyclerView: RecyclerView) {
+        super.onDetachedFromRecyclerView(recyclerView)
+        for (index in 0 until itemCount) {
+            val holder = recyclerView.findViewHolderForAdapterPosition(index)
+            if (holder is ViewBinder<*>) {
+                holder.teardown()
+            }
+        }
     }
 
     interface Callback {

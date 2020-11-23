@@ -18,7 +18,6 @@ package com.pyamsoft.fridge.detail.item
 
 import android.view.ViewGroup
 import androidx.annotation.CheckResult
-import androidx.lifecycle.LifecycleOwner
 import dagger.BindsInstance
 import dagger.Subcomponent
 import javax.inject.Named
@@ -34,7 +33,6 @@ interface DetailItemComponent {
         @CheckResult
         fun create(
             @BindsInstance parent: ViewGroup,
-            @BindsInstance owner: LifecycleOwner,
             @BindsInstance @Named("item_editable") editable: Boolean
         ): DetailItemComponent
     }

@@ -18,7 +18,6 @@ package com.pyamsoft.fridge.tooltip
 
 import android.app.Activity
 import androidx.annotation.CheckResult
-import androidx.lifecycle.LifecycleOwner
 import com.skydoves.balloon.Balloon
 import com.skydoves.balloon.BalloonAnimation
 
@@ -27,12 +26,8 @@ internal abstract class BalloonBuilderCreator protected constructor(
 ) {
 
     @CheckResult
-    protected fun newBuilder(
-        owner: LifecycleOwner,
-        withBuilder: Balloon.Builder.() -> Unit
-    ): Balloon.Builder {
+    protected fun newBuilder(withBuilder: Balloon.Builder.() -> Unit): Balloon.Builder {
         return Balloon.Builder(activity).apply {
-            setLifecycleOwner(owner)
             setArrowVisible(false)
             setCornerRadius(16F)
             setAlpha(0.85F)

@@ -18,17 +18,17 @@ package com.pyamsoft.fridge.detail.item
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
+import androidx.recyclerview.widget.RecyclerView
 import com.pyamsoft.fridge.db.item.JsonMappableFridgeItem
 import com.pyamsoft.fridge.detail.databinding.DetailListItemHolderBinding
+import com.pyamsoft.pydroid.arch.ViewBinder
 import me.zhanghai.android.fastscroll.PopupTextProvider
 
 class DetailListAdapter internal constructor(
-    private val owner: LifecycleOwner,
-    private val callback: Callback,
-    private val factory: DetailItemComponent.Factory
+    private val factory: DetailItemComponent.Factory,
+    private val callback: Callback
 ) : ListAdapter<DetailItemViewState, DetailItemViewHolder>(DIFFER), PopupTextProvider {
 
     init {
@@ -46,7 +46,7 @@ class DetailListAdapter internal constructor(
     ): DetailItemViewHolder {
         val inflater = LayoutInflater.from(parent.context)
         val binding = DetailListItemHolderBinding.inflate(inflater, parent, false)
-        return DetailItemViewHolder(binding, owner, editable = false, callback, factory)
+        return DetailItemViewHolder(binding, editable = false, factory, callback)
     }
 
     override fun onBindViewHolder(
@@ -55,6 +55,16 @@ class DetailListAdapter internal constructor(
     ) {
         val item = getItem(position)
         holder.bind(item)
+    }
+
+    override fun onDetachedFromRecyclerView(recyclerView: RecyclerView) {
+        super.onDetachedFromRecyclerView(recyclerView)
+        for (index in 0 until itemCount) {
+            val holder = recyclerView.findViewHolderForAdapterPosition(index)
+            if (holder is ViewBinder<*>) {
+                holder.teardown()
+            }
+        }
     }
 
     interface Callback {

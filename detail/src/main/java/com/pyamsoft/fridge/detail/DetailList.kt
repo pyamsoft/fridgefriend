@@ -19,7 +19,6 @@ package com.pyamsoft.fridge.detail
 import android.graphics.Color
 import android.view.ViewGroup
 import androidx.annotation.CheckResult
-import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -46,7 +45,6 @@ import com.pyamsoft.fridge.ui.R as R2
 
 class DetailList @Inject internal constructor(
     private val imageLoader: ImageLoader,
-    owner: LifecycleOwner,
     parent: ViewGroup,
     factory: DetailItemComponent.Factory
 ) : BaseUiView<DetailViewState, DetailViewEvent, DetailListBinding>(parent) {
@@ -73,7 +71,6 @@ class DetailList @Inject internal constructor(
 
         doOnInflate {
             modelAdapter = DetailListAdapter(
-                owner = owner,
                 factory = factory,
                 callback = object : DetailListAdapter.Callback {
 
@@ -143,8 +140,7 @@ class DetailList @Inject internal constructor(
         }
 
         doOnTeardown {
-            // Throws - think this is because items have LifecycleObservers
-            // binding.detailList.adapter = null
+            binding.detailList.adapter = null
             clearList()
 
             touchHelper?.attachToRecyclerView(null)

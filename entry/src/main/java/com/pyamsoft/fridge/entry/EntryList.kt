@@ -18,7 +18,6 @@ package com.pyamsoft.fridge.entry
 
 import android.view.ViewGroup
 import androidx.annotation.CheckResult
-import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.pyamsoft.fridge.db.entry.FridgeEntry
@@ -38,7 +37,6 @@ import timber.log.Timber
 import javax.inject.Inject
 
 class EntryList @Inject internal constructor(
-    owner: LifecycleOwner,
     parent: ViewGroup,
     factory: EntryItemComponent.Factory
 ) : BaseUiView<EntryViewState, EntryViewEvent, EntryListBinding>(parent) {
@@ -66,7 +64,6 @@ class EntryList @Inject internal constructor(
 
         doOnInflate {
             modelAdapter = EntryListAdapter(
-                owner = owner,
                 factory = factory,
                 callback = object : EntryListAdapter.Callback {
 
@@ -158,8 +155,7 @@ class EntryList @Inject internal constructor(
         }
 
         doOnTeardown {
-            // Throws - think this is because items have LifecycleObservers
-            // binding.entryList.adapter = null
+            binding.entryList.adapter = null
             clearList()
 
             binding.entrySwipeRefresh.setOnRefreshListener(null)

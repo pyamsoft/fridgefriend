@@ -17,21 +17,18 @@
 package com.pyamsoft.fridge.detail.item
 
 import androidx.constraintlayout.widget.ConstraintSet
-import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.RecyclerView
 import com.pyamsoft.fridge.detail.databinding.DetailListItemHolderBinding
 import com.pyamsoft.pydroid.arch.ViewBinder
-import com.pyamsoft.pydroid.arch.bindViews
+import com.pyamsoft.pydroid.arch.createViewBinder
 import com.pyamsoft.pydroid.ui.util.layout
-import com.pyamsoft.pydroid.util.doOnDestroy
 import javax.inject.Inject
 
 class DetailItemViewHolder internal constructor(
     binding: DetailListItemHolderBinding,
-    owner: LifecycleOwner,
     editable: Boolean,
-    callback: DetailListAdapter.Callback,
-    factory: DetailItemComponent.Factory
+    factory: DetailItemComponent.Factory,
+    callback: DetailListAdapter.Callback
 ) : RecyclerView.ViewHolder(binding.root), ViewBinder<DetailItemViewState> {
 
     @JvmField
@@ -53,19 +50,18 @@ class DetailItemViewHolder internal constructor(
     private val viewBinder: ViewBinder<DetailItemViewState>
 
     init {
-        factory.create(binding.detailListItem, owner, editable).inject(this)
+        factory.create(binding.detailListItem, editable).inject(this)
         val count = requireNotNull(countView)
         val extra = requireNotNull(extraContainer)
         val name = requireNotNull(nameView)
         val presence = requireNotNull(presenceView)
-        viewBinder = bindViews(
-            owner,
+        viewBinder = createViewBinder(
             name,
             extra,
             count,
             presence
         ) {
-            return@bindViews when (it) {
+            return@createViewBinder when (it) {
                 is DetailItemViewEvent.ExpandItem -> callback.onItemExpanded(adapterPosition)
                 is DetailItemViewEvent.CommitPresence -> callback.onPresenceChange(adapterPosition)
                 is DetailItemViewEvent.IncreaseCount -> callback.onIncreaseCount(adapterPosition)
@@ -154,17 +150,18 @@ class DetailItemViewHolder internal constructor(
                 constrainHeight(it.id(), ConstraintSet.WRAP_CONTENT)
             }
         }
-
-        owner.doOnDestroy {
-            nameView = null
-            presenceView = null
-            extraContainer = null
-            countView = null
-        }
     }
 
     override fun bind(state: DetailItemViewState) {
         viewBinder.bind(state)
+    }
+
+    override fun teardown() {
+        viewBinder.teardown()
+        nameView = null
+        presenceView = null
+        extraContainer = null
+        countView = null
     }
 
 }
