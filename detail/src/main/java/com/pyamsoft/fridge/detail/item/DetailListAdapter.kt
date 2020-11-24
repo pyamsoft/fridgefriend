@@ -23,7 +23,7 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.pyamsoft.fridge.db.item.JsonMappableFridgeItem
 import com.pyamsoft.fridge.detail.databinding.DetailListItemHolderBinding
-import com.pyamsoft.pydroid.arch.ViewBinder
+import com.pyamsoft.pydroid.ui.util.teardownAdapter
 import me.zhanghai.android.fastscroll.PopupTextProvider
 
 class DetailListAdapter internal constructor(
@@ -63,12 +63,7 @@ class DetailListAdapter internal constructor(
 
     override fun onDetachedFromRecyclerView(recyclerView: RecyclerView) {
         super.onDetachedFromRecyclerView(recyclerView)
-        for (index in 0 until itemCount) {
-            val holder = recyclerView.findViewHolderForAdapterPosition(index)
-            if (holder is ViewBinder<*>) {
-                holder.teardown()
-            }
-        }
+        teardownAdapter(recyclerView)
     }
 
     interface Callback {

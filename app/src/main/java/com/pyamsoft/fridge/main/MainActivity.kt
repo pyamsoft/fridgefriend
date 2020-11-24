@@ -67,7 +67,7 @@ internal class MainActivity : ChangeLogActivity(), VersionChecker {
 
     override val versionName = BuildConfig.VERSION_NAME
 
-    override val changeLogLines = buildChangeLog {
+    override val changelog = buildChangeLog {
         change("Faster database performance")
         change("Better UI responsiveness")
         bugfix("Fix Map page sometimes rendering incorrectly")

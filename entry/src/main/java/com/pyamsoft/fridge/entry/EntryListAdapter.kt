@@ -26,7 +26,7 @@ import com.pyamsoft.fridge.entry.databinding.EntryListItemHolderBinding
 import com.pyamsoft.fridge.entry.item.EntryItemComponent
 import com.pyamsoft.fridge.entry.item.EntryItemViewHolder
 import com.pyamsoft.fridge.entry.item.EntryItemViewState
-import com.pyamsoft.pydroid.arch.ViewBinder
+import com.pyamsoft.pydroid.ui.util.teardownAdapter
 import me.zhanghai.android.fastscroll.PopupTextProvider
 
 class EntryListAdapter internal constructor(
@@ -60,12 +60,7 @@ class EntryListAdapter internal constructor(
 
     override fun onDetachedFromRecyclerView(recyclerView: RecyclerView) {
         super.onDetachedFromRecyclerView(recyclerView)
-        for (index in 0 until itemCount) {
-            val holder = recyclerView.findViewHolderForAdapterPosition(index)
-            if (holder is ViewBinder<*>) {
-                holder.teardown()
-            }
-        }
+        teardownAdapter(recyclerView)
     }
 
     interface Callback {
