@@ -14,22 +14,29 @@
  * limitations under the License.
  */
 
-package com.pyamsoft.fridge.entry.item
+package com.pyamsoft.fridge.detail.item
 
 import android.view.ViewGroup
-import androidx.annotation.CheckResult
-import dagger.BindsInstance
-import dagger.Subcomponent
+import com.pyamsoft.pydroid.arch.UiView
+import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
+import javax.inject.Inject
 
-@Subcomponent
-interface EntryItemComponent {
+class DetailListItemClick @Inject internal constructor(
+    parent: ViewGroup
+) : UiView<DetailItemViewState, DetailItemViewEvent>() {
 
-    fun inject(holder: EntryItemViewHolder)
+    init {
+        doOnInflate {
+            parent.setOnDebouncedClickListener {
+                publish(DetailItemViewEvent.ExpandItem)
+            }
+        }
 
-    @Subcomponent.Factory
-    interface Factory {
+        doOnTeardown {
+            parent.setOnDebouncedClickListener(null)
+        }
+    }
 
-        @CheckResult
-        fun create(@BindsInstance parent: ViewGroup): EntryItemComponent
+    override fun render(state: DetailItemViewState) {
     }
 }

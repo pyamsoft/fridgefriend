@@ -31,6 +31,11 @@ class DetailItemViewHolder internal constructor(
     callback: DetailListAdapter.Callback
 ) : RecyclerView.ViewHolder(binding.root), ViewBinder<DetailItemViewState> {
 
+
+    @JvmField
+    @Inject
+    internal var clickView: DetailListItemClick? = null
+
     @JvmField
     @Inject
     internal var nameView: DetailListItemName? = null
@@ -51,11 +56,13 @@ class DetailItemViewHolder internal constructor(
 
     init {
         factory.create(binding.detailListItem, editable).inject(this)
+        val click = requireNotNull(clickView)
         val count = requireNotNull(countView)
         val extra = requireNotNull(extraContainer)
         val name = requireNotNull(nameView)
         val presence = requireNotNull(presenceView)
         viewBinder = createViewBinder(
+            click,
             name,
             extra,
             count,
@@ -158,6 +165,7 @@ class DetailItemViewHolder internal constructor(
 
     override fun teardown() {
         viewBinder.teardown()
+        clickView = null
         nameView = null
         presenceView = null
         extraContainer = null

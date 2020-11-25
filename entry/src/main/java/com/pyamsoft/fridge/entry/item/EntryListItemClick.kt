@@ -16,16 +16,28 @@
 
 package com.pyamsoft.fridge.entry.item
 
-import com.pyamsoft.fridge.db.entry.FridgeEntry
-import com.pyamsoft.pydroid.arch.UiViewEvent
-import com.pyamsoft.pydroid.arch.UiViewState
+import android.view.ViewGroup
+import com.pyamsoft.pydroid.arch.UiView
+import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
+import timber.log.Timber
+import javax.inject.Inject
 
-data class EntryItemViewState internal constructor(
-    val entry: FridgeEntry
-) : UiViewState
+class EntryListItemClick @Inject internal constructor(
+    parent: ViewGroup
+) : UiView<EntryItemViewState, EntryItemViewEvent>() {
 
-sealed class EntryItemViewEvent : UiViewEvent {
+    init {
+        doOnInflate {
+            parent.setOnDebouncedClickListener {
+                publish(EntryItemViewEvent.ExpandEntry)
+            }
+        }
 
-    object ExpandEntry : EntryItemViewEvent()
+        doOnTeardown {
+            parent.setOnDebouncedClickListener(null)
+        }
+    }
 
+    override fun render(state: EntryItemViewState) {
+    }
 }

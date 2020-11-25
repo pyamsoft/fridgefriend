@@ -20,7 +20,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.pyamsoft.fridge.entry.EntryListAdapter
 import com.pyamsoft.fridge.entry.databinding.EntryListItemHolderBinding
 import com.pyamsoft.pydroid.arch.ViewBinder
-import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
+import com.pyamsoft.pydroid.arch.createViewBinder
+import javax.inject.Inject
 
 class EntryItemViewHolder internal constructor(
     binding: EntryListItemHolderBinding,
@@ -28,18 +29,36 @@ class EntryItemViewHolder internal constructor(
     callback: EntryListAdapter.Callback
 ) : RecyclerView.ViewHolder(binding.root), ViewBinder<EntryItemViewState> {
 
+    @Inject
+    @JvmField
+    internal var clickView: EntryListItemClick? = null
+
+    @Inject
+    @JvmField
+    internal var nameView: EntryListItemName? = null
+
+    private var viewBinder: ViewBinder<EntryItemViewState>
+
     init {
-        binding.root.setOnDebouncedClickListener {
-            callback.onSelect(adapterPosition)
+        factory.create(binding.entryListItem).inject(this)
+
+        val click = requireNotNull(clickView)
+        val name = requireNotNull(nameView)
+        viewBinder = createViewBinder(click, name) {
+            return@createViewBinder when (it) {
+                is EntryItemViewEvent.ExpandEntry -> callback.onSelect(adapterPosition)
+            }
         }
     }
 
     override fun bind(state: EntryItemViewState) {
-        // TODO bind content
+        viewBinder.bind(state)
     }
 
     override fun teardown() {
-
+        viewBinder.teardown()
+        clickView = null
+        nameView = null
     }
 
 }
