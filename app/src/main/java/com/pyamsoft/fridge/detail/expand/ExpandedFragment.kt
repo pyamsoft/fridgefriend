@@ -17,11 +17,9 @@
 package com.pyamsoft.fridge.detail.expand
 
 import android.os.Bundle
-import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.WindowManager
 import androidx.annotation.CheckResult
 import androidx.appcompat.app.AppCompatDialogFragment
 import androidx.constraintlayout.widget.ConstraintSet
@@ -35,6 +33,7 @@ import com.pyamsoft.fridge.detail.expand.date.DateSelectDialog
 import com.pyamsoft.pydroid.arch.StateSaver
 import com.pyamsoft.pydroid.arch.createComponent
 import com.pyamsoft.pydroid.ui.Injector
+import com.pyamsoft.pydroid.ui.app.makeFullWidth
 import com.pyamsoft.pydroid.ui.arch.viewModelFactory
 import com.pyamsoft.pydroid.ui.databinding.LayoutConstraintBinding
 import com.pyamsoft.pydroid.ui.util.layout
@@ -101,6 +100,7 @@ internal class ExpandedFragment : AppCompatDialogFragment() {
         savedInstanceState: Bundle?
     ) {
         super.onViewCreated(view, savedInstanceState)
+        makeFullWidth()
 
         val binding = LayoutConstraintBinding.bind(view)
         val itemId = FridgeItem.Id(requireNotNull(requireArguments().getString(ITEM)))
@@ -265,17 +265,6 @@ internal class ExpandedFragment : AppCompatDialogFragment() {
         toolbar = null
         errorDisplay = null
         stateSaver = null
-    }
-
-    override fun onResume() {
-        super.onResume()
-        dialog?.window?.apply {
-            setLayout(
-                WindowManager.LayoutParams.MATCH_PARENT,
-                WindowManager.LayoutParams.WRAP_CONTENT
-            )
-            setGravity(Gravity.CENTER)
-        }
     }
 
     companion object {
