@@ -73,10 +73,8 @@ class CreateEntryViewModel @Inject internal constructor(
     }
 
     private fun commitNewEntry() {
-        withState {
-            viewModelScope.launch(context = Dispatchers.Default) {
-                commitRunner.call(name)
-            }
+        viewModelScope.launch(context = Dispatchers.Default) {
+            commitRunner.call(state.name)
         }
     }
 

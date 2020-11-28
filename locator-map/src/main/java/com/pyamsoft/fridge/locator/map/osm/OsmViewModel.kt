@@ -160,10 +160,8 @@ class OsmViewModel @Inject internal constructor(
     }
 
     private fun nearbySupermarkets() {
-        withState {
-            boundingBox?.let { box ->
-                viewModelScope.launch(context = Dispatchers.Default) { nearbyRunner.call(box) }
-            }
+        state.boundingBox?.let { box ->
+            viewModelScope.launch(context = Dispatchers.Default) { nearbyRunner.call(box) }
         }
     }
 

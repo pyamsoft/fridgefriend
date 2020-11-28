@@ -204,34 +204,43 @@ class DetailViewModel @Inject internal constructor(
     }
 
     private fun handlePresenceSwitch(presence: FridgeItem.Presence) {
-        setState {
-            copy(
-                listItemPresence = presence,
-                // Reset the showing
-                showing = DetailViewState.Showing.FRESH,
-                // Reset the sort
-                sort = DetailViewState.Sorts.CREATED
-            )
-        }
-        withState { refreshList(false) }
+        setState(
+            stateChange = {
+                copy(
+                    listItemPresence = presence,
+                    // Reset the showing
+                    showing = DetailViewState.Showing.FRESH,
+                    // Reset the sort
+                    sort = DetailViewState.Sorts.CREATED
+                )
+            },
+            andThen = {
+                refreshList(false)
+            }
+        )
     }
 
     private fun handleAddNew() {
-        withState {
-            entry?.let {
-                publish(DetailControllerEvent.AddNew(entry.id(), listItemPresence))
+        state.apply {
+            val e = entry
+            if (e == null) {
+                Timber.w("Cannot add new, detail entry null!")
+            } else {
+                publish(DetailControllerEvent.AddNew(e.id(), listItemPresence))
             }
         }
     }
 
     private fun updateSearch(search: String) {
-        setState {
-            val cleanSearch = if (search.isNotBlank()) search.trim() else ""
-            copy(search = cleanSearch)
-        }
-        withState {
-            refreshList(false)
-        }
+        setState(
+            stateChange = {
+                val cleanSearch = if (search.isNotBlank()) search.trim() else ""
+                copy(search = cleanSearch)
+            },
+            andThen = {
+                refreshList(false)
+            }
+        )
     }
 
     private fun decreaseCount(item: FridgeItem) {
@@ -269,22 +278,23 @@ class DetailViewModel @Inject internal constructor(
     }
 
     private fun toggleArchived() {
-        setState {
-            val newShowing = when (showing) {
-                DetailViewState.Showing.FRESH -> DetailViewState.Showing.CONSUMED
-                DetailViewState.Showing.CONSUMED -> DetailViewState.Showing.SPOILED
-                DetailViewState.Showing.SPOILED -> DetailViewState.Showing.FRESH
+        setState(
+            stateChange = {
+                val newShowing = when (showing) {
+                    DetailViewState.Showing.FRESH -> DetailViewState.Showing.CONSUMED
+                    DetailViewState.Showing.CONSUMED -> DetailViewState.Showing.SPOILED
+                    DetailViewState.Showing.SPOILED -> DetailViewState.Showing.FRESH
+                }
+                copy(showing = newShowing)
+            },
+            andThen = {
+                refreshList(false)
             }
-            copy(showing = newShowing)
-        }
-        withState {
-            refreshList(false)
-        }
+        )
     }
 
     private fun updateSort(newSort: DetailViewState.Sorts) {
-        setState { copy(sort = newSort) }
-        withState { refreshList(false) }
+        setState(stateChange = { copy(sort = newSort) }, andThen = { refreshList(false) })
     }
 
     private fun refreshList(force: Boolean) {

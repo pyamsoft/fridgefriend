@@ -197,14 +197,16 @@ class EntryViewModel @Inject internal constructor(
     }
 
     private fun updateSearch(search: String) {
-        setState {
-            val cleanSearch = if (search.isNotBlank()) search.trim() else ""
-            copy(search = cleanSearch)
-        }
+        setState(
+            stateChange = {
+                val cleanSearch = if (search.isNotBlank()) search.trim() else ""
+                copy(search = cleanSearch)
+            },
+            andThen = {
+                refreshList(false)
+            }
+        )
 
-        withState {
-            refreshList(false)
-        }
     }
 
     private fun handleAddNew() {

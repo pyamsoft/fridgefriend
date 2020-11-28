@@ -126,18 +126,16 @@ class MainViewModel @Inject internal constructor(
         newPage: MainPage,
         crossinline event: (page: MainPage?) -> (MainControllerEvent)
     ) {
-        withState {
-            Timber.d("Refresh badge counts")
-            refreshBadgeCounts()
+        Timber.d("Refresh badge counts")
+        refreshBadgeCounts()
 
-            val oldPage = this.page
-            if (oldPage != newPage) {
-                Timber.d("Select entry: $newPage")
-                setState { copy(page = newPage) }
-                publishNewSelection(oldPage, event)
-            } else {
-                Timber.w("Selected entry is same page: $newPage")
-            }
+        val oldPage = state.page
+        if (oldPage != newPage) {
+            Timber.d("Select entry: $newPage")
+            setState { copy(page = newPage) }
+            publishNewSelection(oldPage, event)
+        } else {
+            Timber.w("Selected entry is same page: $newPage")
         }
     }
 
@@ -145,10 +143,8 @@ class MainViewModel @Inject internal constructor(
         oldPage: MainPage?,
         crossinline event: (page: MainPage?) -> MainControllerEvent
     ) {
-        withState {
-            Timber.d("Publish selection: $oldPage -> $page")
-            publish(event(oldPage))
-        }
+        Timber.d("Publish selection: $oldPage -> ${state.page}")
+        publish(event(oldPage))
     }
 
     @JvmOverloads
@@ -167,11 +163,9 @@ class MainViewModel @Inject internal constructor(
 
     // Called from DetailFragment upon initialization
     fun checkForUpdates() {
-        withState {
-            if (!versionChecked) {
-                versionChecked = true
-                publish(MainControllerEvent.VersionCheck)
-            }
+        if (!versionChecked) {
+            versionChecked = true
+            publish(MainControllerEvent.VersionCheck)
         }
     }
 

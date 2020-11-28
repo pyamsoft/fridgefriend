@@ -107,18 +107,16 @@ class ExpandItemViewModel @Inject internal constructor(
 
         viewModelScope.launch(context = Dispatchers.Default) {
             dateSelectBus.onEvent { event ->
-                withState {
-                    requireNotNull(item).let { item ->
-                        if (event.entryId != item.entryId()) {
-                            return@let
-                        }
-
-                        if (event.itemId != item.id()) {
-                            return@let
-                        }
-
-                        commitDate(event.year, event.month, event.day)
+                requireNotNull(state.item).let { item ->
+                    if (event.entryId != item.entryId()) {
+                        return@let
                     }
+
+                    if (event.itemId != item.id()) {
+                        return@let
+                    }
+
+                    commitDate(event.year, event.month, event.day)
                 }
             }
         }
@@ -150,45 +148,38 @@ class ExpandItemViewModel @Inject internal constructor(
     }
 
     private fun consumeSelf() {
-        withState {
-            update(
-                requireNotNull(item),
-                doUpdate = { interactor.commit(it.consume(currentDate())) },
-                onError = { handleError(it) }) {
-                closeItem(it)
-            }
+        update(
+            requireNotNull(state.item),
+            doUpdate = { interactor.commit(it.consume(currentDate())) },
+            onError = { handleError(it) }) {
+            closeItem(it)
         }
     }
 
     private fun restoreSelf() {
-        withState {
-            update(
-                requireNotNull(item),
-                doUpdate = { interactor.commit(it.invalidateConsumption().invalidateSpoiled()) },
-                onError = { handleError(it) })
-            // Don't close the dialog on restore so user can continue interacting.
-        }
+        // Don't close the dialog on restore so user can continue interacting.
+        update(
+            requireNotNull(state.item),
+            doUpdate = { interactor.commit(it.invalidateConsumption().invalidateSpoiled()) },
+            onError = { handleError(it) })
+        // closeItem(it)
     }
 
     private fun spoilSelf() {
-        withState {
-            update(
-                requireNotNull(item),
-                doUpdate = { interactor.commit(it.spoil(currentDate())) },
-                onError = { handleError(it) }) {
-                closeItem(it)
-            }
+        update(
+            requireNotNull(state.item),
+            doUpdate = { interactor.commit(it.spoil(currentDate())) },
+            onError = { handleError(it) }) {
+            closeItem(it)
         }
     }
 
     private fun deleteSelf() {
-        withState {
-            update(
-                requireNotNull(item),
-                doUpdate = { interactor.delete(it) },
-                onError = { handleError(it) }) {
-                closeItem(it)
-            }
+        update(
+            requireNotNull(state.item),
+            doUpdate = { interactor.delete(it) },
+            onError = { handleError(it) }) {
+            closeItem(it)
         }
     }
 
@@ -201,61 +192,53 @@ class ExpandItemViewModel @Inject internal constructor(
     }
 
     private fun closeSelf() {
-        withState {
-            closeItem(requireNotNull(item))
-        }
+        closeItem(requireNotNull(state.item))
     }
 
     private fun closeItem(closeMe: FridgeItem) {
-        withState {
-            requireNotNull(item).let { item ->
-                if (closeMe.id() == item.id() && closeMe.entryId() == item.entryId()) {
-                    viewModelScope.launch(context = Dispatchers.Default) {
-                        publish(ExpandItemControllerEvent.CloseExpand)
-                    }
+        requireNotNull(state.item).let { item ->
+            if (closeMe.id() == item.id() && closeMe.entryId() == item.entryId()) {
+                viewModelScope.launch(context = Dispatchers.Default) {
+                    publish(ExpandItemControllerEvent.CloseExpand)
                 }
             }
         }
     }
 
     private fun handleModelUpdate(newItem: FridgeItem) {
-        withState {
-            requireNotNull(item).let { item ->
-                if (item.id() == newItem.id() && item.entryId() == newItem.entryId()) {
-                    setState { copy(item = newItem) }
-                }
+        requireNotNull(state.item).let { item ->
+            if (item.id() == newItem.id() && item.entryId() == newItem.entryId()) {
+                setState { copy(item = newItem) }
             }
         }
     }
 
     private fun pickDate() {
-        withState {
-            val item = requireNotNull(item)
-            if (item.isArchived()) {
-                return@withState
-            }
-
-            val expireTime = item.expireTime()
-            val month: Int
-            val day: Int
-            val year: Int
-
-            if (expireTime != null) {
-                val date = today().apply { time = expireTime }
-
-                // Month is zero indexed in storage
-                month = date.get(Calendar.MONTH)
-                day = date.get(Calendar.DAY_OF_MONTH)
-                year = date.get(Calendar.YEAR)
-            } else {
-                month = 0
-                day = 0
-                year = 0
-            }
-
-            Timber.d("Launch date picker from date: $year ${month + 1} $day")
-            publish(ExpandItemControllerEvent.DatePick(item, year, month, day))
+        val item = requireNotNull(state.item)
+        if (item.isArchived()) {
+            return
         }
+
+        val expireTime = item.expireTime()
+        val month: Int
+        val day: Int
+        val year: Int
+
+        if (expireTime != null) {
+            val date = today().apply { time = expireTime }
+
+            // Month is zero indexed in storage
+            month = date.get(Calendar.MONTH)
+            day = date.get(Calendar.DAY_OF_MONTH)
+            year = date.get(Calendar.YEAR)
+        } else {
+            month = 0
+            day = 0
+            year = 0
+        }
+
+        Timber.d("Launch date picker from date: $year ${month + 1} $day")
+        publish(ExpandItemControllerEvent.DatePick(item, year, month, day))
     }
 
     @CheckResult
@@ -264,38 +247,34 @@ class ExpandItemViewModel @Inject internal constructor(
     }
 
     private fun commitCount(count: Int) {
-        withState {
-            requireNotNull(item).let { item ->
-                if (count > 0) {
-                    setFixMessage("")
-                    commitItem(item.count(count))
-                } else {
-                    Timber.w("Invalid count: $count")
-                    handleInvalidCount(count)
-                }
+        requireNotNull(state.item).let { item ->
+            if (count > 0) {
+                setFixMessage("")
+                commitItem(item.count(count))
+            } else {
+                Timber.w("Invalid count: $count")
+                handleInvalidCount(count)
             }
         }
     }
 
     private fun commitName(name: String) {
-        withState {
-            requireNotNull(item).let { item ->
-                if (isNameValid(name)) {
-                    setFixMessage("")
-                    commitItem(item.name(name))
-                } else {
-                    Timber.w("Invalid name: $name")
-                    handleInvalidName(name)
-                }
+        requireNotNull(state.item).let { item ->
+            if (isNameValid(name)) {
+                setFixMessage("")
+                commitItem(item.name(name))
+            } else {
+                Timber.w("Invalid name: $name")
+                handleInvalidName(name)
             }
         }
     }
 
     private fun commitCategory(index: Int) {
-        withState {
+        state.apply {
             requireNotNull(item).let { item ->
                 if (item.isArchived()) {
-                    return@withState
+                    return
                 }
 
                 val category = categories.getOrNull(index)
@@ -318,28 +297,24 @@ class ExpandItemViewModel @Inject internal constructor(
         month: Int,
         day: Int
     ) {
-        withState {
-            requireNotNull(item).let { item ->
-                Timber.d("Attempt save time: $year/${month + 1}/$day")
-                val newTime = today()
-                    .apply {
-                        set(Calendar.YEAR, year)
-                        set(Calendar.MONTH, month)
-                        set(Calendar.DAY_OF_MONTH, day)
-                    }
-                    .time
-                Timber.d("Save expire time: $newTime")
-                commitItem(item.expireTime(newTime))
-            }
+        requireNotNull(state.item).let { item ->
+            Timber.d("Attempt save time: $year/${month + 1}/$day")
+            val newTime = today()
+                .apply {
+                    set(Calendar.YEAR, year)
+                    set(Calendar.MONTH, month)
+                    set(Calendar.DAY_OF_MONTH, day)
+                }
+                .time
+            Timber.d("Save expire time: $newTime")
+            commitItem(item.expireTime(newTime))
         }
     }
 
     private fun commitPresence() {
-        withState {
-            requireNotNull(item).let { item ->
-                val newItem = item.presence(item.presence().flip())
-                commitItem(newItem)
-            }
+        requireNotNull(state.item).let { item ->
+            val newItem = item.presence(item.presence().flip())
+            commitItem(newItem)
         }
     }
 
