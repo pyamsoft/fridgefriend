@@ -42,7 +42,7 @@ import com.pyamsoft.pydroid.ui.widget.shadow.DropshadowView
 import javax.inject.Inject
 import com.pyamsoft.pydroid.ui.R as R2
 
-internal class ExpandedFragment : AppCompatDialogFragment() {
+internal class ExpandedItemDialog : AppCompatDialogFragment() {
 
     @JvmField
     @Inject
@@ -297,7 +297,7 @@ internal class ExpandedFragment : AppCompatDialogFragment() {
             entryId: FridgeEntry.Id,
             presence: Presence
         ): DialogFragment {
-            return ExpandedFragment().apply {
+            return ExpandedItemDialog().apply {
                 arguments = Bundle().apply {
                     putString(ITEM, itemId.id)
                     putString(ENTRY, entryId.id)

@@ -29,7 +29,7 @@ import com.pyamsoft.fridge.FridgeComponent
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence
-import com.pyamsoft.fridge.detail.expand.ExpandedFragment
+import com.pyamsoft.fridge.detail.expand.ExpandedItemDialog
 import com.pyamsoft.fridge.ui.R
 import com.pyamsoft.fridge.ui.SnackbarContainer
 import com.pyamsoft.pydroid.arch.StateSaver
@@ -148,15 +148,15 @@ internal class DetailFragment : Fragment(), SnackbarContainer {
     }
 
     private fun createItem(entryId: FridgeEntry.Id, presence: Presence) {
-        showExpandDialog(ExpandedFragment.createNew(entryId, presence))
+        showExpandDialog(ExpandedItemDialog.createNew(entryId, presence))
     }
 
     private fun openExisting(item: FridgeItem) {
-        showExpandDialog(ExpandedFragment.openExisting(item))
+        showExpandDialog(ExpandedItemDialog.openExisting(item))
     }
 
     private fun showExpandDialog(dialogFragment: DialogFragment) {
-        dialogFragment.show(requireActivity(), ExpandedFragment.TAG)
+        dialogFragment.show(requireActivity(), ExpandedItemDialog.TAG)
     }
 
     companion object {

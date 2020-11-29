@@ -18,13 +18,11 @@ package com.pyamsoft.fridge.detail.expand
 
 import androidx.annotation.CheckResult
 import androidx.lifecycle.viewModelScope
-import com.pyamsoft.fridge.core.currentDate
 import com.pyamsoft.fridge.core.today
 import com.pyamsoft.fridge.db.category.FridgeCategory
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence
-import com.pyamsoft.fridge.db.item.FridgeItem.Presence.HAVE
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent.Delete
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent.Insert
@@ -71,6 +69,7 @@ class ExpandItemViewModel @Inject internal constructor(
             defaultPresence,
             force = false
         )
+
         setState { copy(item = item) }
     }
 
@@ -319,32 +318,14 @@ class ExpandItemViewModel @Inject internal constructor(
         }
     }
 
-    private fun updateItem(oldItem: FridgeItem) {
-        val real = oldItem.isReal() || isReadyToBeReal(oldItem)
+    private fun updateItem(item: FridgeItem) {
+        val real = item.isReal() || isReadyToBeReal(item)
         if (!real) {
-            Timber.w("Commit called on a non-real item: $oldItem")
+            Timber.w("Commit called on a non-real item: $item")
             // Don't beacon the update anywhere since we don't want the UI to respond
             // But, commit the changes as a potential update
-            handleModelUpdate(oldItem)
+            handleModelUpdate(item)
             return
-        }
-
-        val item = oldItem.run {
-            val dateOfPurchase = purchaseTime()
-            if (presence() == HAVE) {
-                if (dateOfPurchase == null) {
-                    val now = currentDate()
-                    Timber.d("${oldItem.name()} purchased! $now")
-                    return@run purchaseTime(now)
-                }
-            } else {
-                if (dateOfPurchase != null) {
-                    Timber.d("${oldItem.name()} purchase date cleared")
-                    return@run invalidatePurchase()
-                }
-            }
-
-            return@run this
         }
 
         // Method reference :: just to avoid another allocation

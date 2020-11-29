@@ -18,7 +18,6 @@ package com.pyamsoft.fridge.detail
 
 import androidx.annotation.CheckResult
 import androidx.lifecycle.viewModelScope
-import com.pyamsoft.fridge.core.currentDate
 import com.pyamsoft.fridge.core.today
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItem
@@ -413,26 +412,7 @@ class DetailViewModel @Inject internal constructor(
     }
 
     private fun changePresence(oldItem: FridgeItem, newPresence: FridgeItem.Presence) {
-        val item = oldItem.presence(newPresence)
-        val updated = item.run {
-            val dateOfPurchase = purchaseTime()
-            if (newPresence == FridgeItem.Presence.HAVE) {
-                if (dateOfPurchase == null) {
-                    val now = currentDate()
-                    Timber.d("${item.name()} purchased! $now")
-                    return@run purchaseTime(now)
-                }
-            } else {
-                if (dateOfPurchase != null) {
-                    Timber.d("${item.name()} purchase date cleared")
-                    return@run invalidatePurchase()
-                }
-            }
-
-            return@run this
-        }
-
-        updateDelegate.updateItem(updated)
+        updateDelegate.updateItem(oldItem.presence(newPresence))
     }
 
     private fun consume(item: FridgeItem) {

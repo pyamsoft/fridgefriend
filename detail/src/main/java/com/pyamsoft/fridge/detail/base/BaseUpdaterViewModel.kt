@@ -138,8 +138,29 @@ abstract class BaseUpdaterViewModel<S : UiViewState, V : UiViewEvent, C : UiCont
         }
 
         internal fun updateItem(item: FridgeItem) {
+            val updated = item.run {
+                val dateOfPurchase = this.purchaseTime()
+                if (this.presence() == FridgeItem.Presence.HAVE) {
+                    // If we are HAVE but don't have a purchase date, we just purchased the item!
+                    if (dateOfPurchase == null) {
+                        val now = currentDate()
+                        Timber.d("${item.name()} purchased! $now")
+                        return@run this.purchaseTime(now)
+                    }
+                } else {
+                    // If we are NEED but have a purchase date, we must invalidate the date
+                    if (dateOfPurchase != null) {
+                        Timber.d("${item.name()} purchase date cleared")
+                        return@run this.invalidatePurchase()
+                    }
+                }
+
+                // No side effects
+                return@run this
+            }
+
             update(
-                item,
+                updated,
                 doUpdate = requireNotNull(interactor)::commit,
                 afterUpdate = EMPTY_DONE
             )

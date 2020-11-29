@@ -38,7 +38,7 @@ import dagger.multibindings.IntoMap
 @Subcomponent(modules = [ViewModelModule::class, ExpandItemModule::class, ThemeProviderModule::class])
 internal interface ExpandComponent {
 
-    fun inject(fragment: ExpandedFragment)
+    fun inject(dialog: ExpandedItemDialog)
 
     @Subcomponent.Factory
     interface Factory {
