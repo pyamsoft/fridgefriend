@@ -27,6 +27,7 @@ import com.pyamsoft.fridge.butler.params.BaseParameters
 import com.pyamsoft.fridge.butler.runner.WorkResult
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import timber.log.Timber
 
 internal abstract class BaseWorker<P : BaseParameters> protected constructor(
     context: Context,
@@ -35,8 +36,24 @@ internal abstract class BaseWorker<P : BaseParameters> protected constructor(
 
     final override suspend fun doWork(): Result = withContext(context = Dispatchers.Default) {
         val injector = getInjector(applicationContext)
-        val result = injector.execute(id, tags.toSet(), getParams(inputData))
-        if (result == WorkResult.Success) Result.success() else Result.failure()
+        return@withContext when (val result = injector.execute(
+            id, tags.toSet(), getParams(inputData)
+        )) {
+            is WorkResult.Success -> {
+                Timber.d("Work succeeded ${result.id}")
+                Result.success()
+            }
+            is WorkResult.Cancel -> {
+                Timber.w("Work cancelled: ${result.id}")
+
+                // Return success so that the work chain continues, even though the work was cancelled
+                Result.success()
+            }
+            is WorkResult.Failure -> {
+                Timber.e("Work failed: ${result.id}")
+                Result.failure()
+            }
+        }
     }
 
     @CheckResult

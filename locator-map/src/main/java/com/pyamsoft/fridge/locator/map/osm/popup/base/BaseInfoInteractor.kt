@@ -79,13 +79,15 @@ internal abstract class BaseInfoInteractor<
         val id = UUID.randomUUID()
         val tag = "Location Reminder 1"
 
-        when (locationInjector.execute(
-            id,
-            setOf(tag),
-            LocationParameters(forceNotifyNeeded = true)
+        when (val result = locationInjector.execute(
+            id, setOf(tag), LocationParameters(forceNotifyNeeded = true)
         )) {
-            WorkResult.Success -> Timber.d("Location reminder success :)")
-            WorkResult.Failure -> Timber.e("Location reminder error :(")
+            is WorkResult.Success -> Timber.d("Location reminder success: ${result.id}")
+            is WorkResult.Cancel -> Timber.w("Location reminder cancelled: ${result.id}")
+            is WorkResult.Failure -> Timber.e("Location reminder error: ${result.id}")
         }
     }
+
+
 }
+

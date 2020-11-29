@@ -16,7 +16,8 @@
 
 package com.pyamsoft.fridge.butler.runner
 
-sealed class WorkResult {
-    object Success : WorkResult()
-    object Failure : WorkResult()
+sealed class WorkResult(open val id: String) {
+    data class Success internal constructor(override val id: String) : WorkResult(id)
+    data class Cancel internal constructor(override val id: String) : WorkResult(id)
+    data class Failure internal constructor(override val id: String) : WorkResult(id)
 }

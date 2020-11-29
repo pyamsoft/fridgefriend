@@ -82,19 +82,19 @@ internal abstract class BaseRunner<P : BaseParameters> protected constructor(
     @CheckResult
     private fun success(identifier: String): WorkResult {
         Timber.d("Worker completed successfully $identifier")
-        return WorkResult.Success
+        return WorkResult.Success(identifier)
     }
 
     @CheckResult
     private fun fail(identifier: String, throwable: Throwable): WorkResult {
         Timber.e(throwable, "Worker failed to complete $identifier")
-        return WorkResult.Failure
+        return WorkResult.Failure(identifier)
     }
 
     @CheckResult
     private fun cancelled(identifier: String, throwable: CancellationException): WorkResult {
         Timber.w(throwable, "Worker was cancelled $identifier")
-        return WorkResult.Failure
+        return WorkResult.Cancel(identifier)
     }
 
     @CheckResult
