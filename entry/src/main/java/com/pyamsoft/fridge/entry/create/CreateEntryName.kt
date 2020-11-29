@@ -34,11 +34,12 @@ class CreateEntryName @Inject internal constructor(
             binding.uiEditText.apply {
                 setEditable(EDITABLE_INPUT_TYPE)
                 imeOptions = EditorInfo.IME_ACTION_GO
+                setImeActionLabel("Create", EditorInfo.IME_ACTION_GO)
             }
         }
 
         doOnInflate {
-            binding.uiEditText.setOnEditorActionListener { v, actionId, event ->
+            binding.uiEditText.setOnEditorActionListener { _, _, event ->
                 if (event != null) {
                     if (event.action == KeyEvent.ACTION_DOWN && event.keyCode == KeyEvent.KEYCODE_ENTER) {
                         Timber.d("Commit on IME action Enter")
