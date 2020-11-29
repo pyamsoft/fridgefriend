@@ -112,17 +112,6 @@ internal class EntryFragment : Fragment(), SnackbarContainer {
             )
             .inject(this)
 
-        val addStateSaver = createComponent(
-            savedInstanceState,
-            viewLifecycleOwner,
-            addViewModel,
-            requireNotNull(addNew),
-        ) {
-            return@createComponent when (it) {
-                is EntryAddControllerEvent.AddEntry -> startAddFlow()
-            }
-        }
-
         val listStateSaver = createComponent(
             savedInstanceState,
             viewLifecycleOwner,
@@ -131,6 +120,18 @@ internal class EntryFragment : Fragment(), SnackbarContainer {
         ) {
             return@createComponent when (it) {
                 is EntryControllerEvent.LoadEntry -> pushPage(it.entry, it.presence)
+            }
+        }
+
+        // Inject the add last so that it is pushed on top Z
+        val addStateSaver = createComponent(
+            savedInstanceState,
+            viewLifecycleOwner,
+            addViewModel,
+            requireNotNull(addNew),
+        ) {
+            return@createComponent when (it) {
+                is EntryAddControllerEvent.AddEntry -> startAddFlow()
             }
         }
 

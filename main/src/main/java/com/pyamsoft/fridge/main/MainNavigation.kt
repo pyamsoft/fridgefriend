@@ -96,8 +96,10 @@ class MainNavigation @Inject internal constructor(
 
     private fun handlePage(state: MainViewState) {
         state.page.let { page ->
+            Timber.d("Handle page: $page")
             val pageId = getIdForPage(page)
             if (pageId != 0) {
+                Timber.d("Mark page selected: $page $pageId")
                 // Don't mark it selected since this will re-fire the click event
                 // binding.mainBottomNavigationMenu.selectedItemId = pageId
                 val item = binding.mainBottomNavigationMenu.menu.findItem(pageId)
