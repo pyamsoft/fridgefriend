@@ -52,7 +52,7 @@ class ExpandItemViewModel @Inject internal constructor(
     possibleItemId: FridgeItem.Id,
     itemEntryId: FridgeEntry.Id,
 ) : BaseUpdaterViewModel<ExpandItemViewState, ExpandedItemViewEvent, ExpandItemControllerEvent>(
-    initialState = ExpandItemViewState(
+    ExpandItemViewState(
         item = null,
         throwable = null,
         sameNamedItems = emptyList(),
@@ -60,6 +60,8 @@ class ExpandItemViewModel @Inject internal constructor(
         categories = emptyList()
     )
 ) {
+
+    private val updateDelegate = createUpdateDelegate(interactor)
 
     private val itemResolveRunner = highlander<Unit, FridgeItem.Id> { resolveItemId ->
         val item = interactor.resolveItem(
@@ -145,42 +147,6 @@ class ExpandItemViewModel @Inject internal constructor(
         // Upon selection, adopt the item.name() and figure out the difference between when the item
         // was created and the expiration date if it exists. Apply this difference to the current time for this new item to resolve
         // the expiration date
-    }
-
-    private fun consumeSelf() {
-        update(
-            requireNotNull(state.item),
-            doUpdate = { interactor.commit(it.consume(currentDate())) },
-            onError = { handleError(it) }) {
-            closeItem(it)
-        }
-    }
-
-    private fun restoreSelf() {
-        // Don't close the dialog on restore so user can continue interacting.
-        update(
-            requireNotNull(state.item),
-            doUpdate = { interactor.commit(it.invalidateConsumption().invalidateSpoiled()) },
-            onError = { handleError(it) })
-        // closeItem(it)
-    }
-
-    private fun spoilSelf() {
-        update(
-            requireNotNull(state.item),
-            doUpdate = { interactor.commit(it.spoil(currentDate())) },
-            onError = { handleError(it) }) {
-            closeItem(it)
-        }
-    }
-
-    private fun deleteSelf() {
-        update(
-            requireNotNull(state.item),
-            doUpdate = { interactor.delete(it) },
-            onError = { handleError(it) }) {
-            closeItem(it)
-        }
     }
 
     private fun handleRealtimeEvent(event: FridgeItemChangeEvent) {
@@ -376,7 +342,29 @@ class ExpandItemViewModel @Inject internal constructor(
             return@run this
         }
 
-        update(item, doUpdate = { interactor.commit(it) }, onError = { handleError(it) })
+        // Method reference :: just to avoid another allocation
+        updateDelegate.updateItem(item, this::handleError)
+    }
+
+    private fun consumeSelf() {
+        // Method reference :: just to avoid another allocation
+        updateDelegate.consumeItem(requireNotNull(state.item), this::handleError, this::closeItem)
+    }
+
+    private fun restoreSelf() {
+        // Method reference :: just to avoid another allocation
+        // Don't close the dialog on restore so user can continue interacting.
+        updateDelegate.restoreItem(requireNotNull(state.item), this::handleError)
+    }
+
+    private fun spoilSelf() {
+        // Method reference :: just to avoid another allocation
+        updateDelegate.spoilItem(requireNotNull(state.item), this::handleError, this::closeItem)
+    }
+
+    private fun deleteSelf() {
+        // Method reference :: just to avoid another allocation
+        updateDelegate.deleteItem(requireNotNull(state.item), this::handleError, this::closeItem)
     }
 
     private fun handleInvalidName(name: String) {

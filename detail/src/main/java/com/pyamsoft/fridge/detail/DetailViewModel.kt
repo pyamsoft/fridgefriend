@@ -70,6 +70,8 @@ class DetailViewModel @Inject internal constructor(
     )
 ) {
 
+    private val updateDelegate = createUpdateDelegate(interactor)
+
     private val undoRunner = highlander<Unit, FridgeItem> { item ->
         try {
             require(item.isReal()) { "Cannot undo for non-real item: $item" }
@@ -262,10 +264,8 @@ class DetailViewModel @Inject internal constructor(
 
     private fun updateCount(item: FridgeItem) {
         if (!item.isArchived()) {
-            updateItem(
-                item,
-                doUpdate = { interactor.commit(it) },
-                onError = { handleError(it) })
+            // Method reference :: just to avoid another allocation
+            updateDelegate.updateItem(item, this::handleError)
         }
     }
 
@@ -428,44 +428,28 @@ class DetailViewModel @Inject internal constructor(
             return@run this
         }
 
-        updateItem(updated, doUpdate = { interactor.commit(it) }, onError = { handleError(it) })
-    }
-
-    private fun updateItem(
-        item: FridgeItem,
-        doUpdate: suspend (item: FridgeItem) -> Unit,
-        onError: (throwable: Throwable) -> Unit
-    ) {
-        require(item.isReal()) { "Commit called on a non-real item: $item" }
-        update(item, doUpdate = doUpdate, onError = onError)
+        // Method reference :: just to avoid another allocation
+        updateDelegate.updateItem(updated, this::handleError)
     }
 
     private fun consume(item: FridgeItem) {
-        updateItem(
-            item,
-            doUpdate = { interactor.commit(it.consume(currentDate())) },
-            onError = { handleError(it) })
+        // Method reference :: just to avoid another allocation
+        updateDelegate.consumeItem(item, this::handleError)
     }
 
     private fun restore(item: FridgeItem) {
-        updateItem(
-            item,
-            doUpdate = { interactor.commit(it.invalidateConsumption().invalidateSpoiled()) },
-            onError = { handleError(it) })
+        // Method reference :: just to avoid another allocation
+        updateDelegate.restoreItem(item, this::handleError)
     }
 
     private fun spoil(item: FridgeItem) {
-        updateItem(
-            item,
-            doUpdate = { interactor.commit(it.spoil(currentDate())) },
-            onError = { handleError(it) })
+        // Method reference :: just to avoid another allocation
+        updateDelegate.spoilItem(item, this::handleError)
     }
 
     private fun delete(item: FridgeItem) {
-        updateItem(
-            item,
-            doUpdate = { interactor.delete(it) },
-            onError = { handleError(it) })
+        // Method reference :: just to avoid another allocation
+        updateDelegate.deleteItem(item, this::handleError)
     }
 
     @CheckResult
