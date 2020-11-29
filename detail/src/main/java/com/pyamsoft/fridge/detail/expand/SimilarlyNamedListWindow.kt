@@ -62,7 +62,7 @@ internal class SimilarlyNamedListWindow internal constructor(context: Context) {
         }
     }
 
-    private inline fun isRealItem(
+    private inline fun withRealItem(
         model: ExpandItemViewState.SimilarItem,
         func: (FridgeItem) -> Unit
     ) {
@@ -74,7 +74,7 @@ internal class SimilarlyNamedListWindow internal constructor(context: Context) {
     fun setOnItemClickListener(listener: (item: FridgeItem) -> Unit) {
         popupWindow.setOnItemClickListener { _, _, position, _ ->
             val model = adapter.getModel(position)
-            isRealItem(model) { item ->
+            withRealItem(model) { item ->
                 listener(item)
                 dismiss()
             }
