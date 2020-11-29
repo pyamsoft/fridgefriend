@@ -122,7 +122,7 @@ abstract class BaseUpdaterViewModel<S : UiViewState, V : UiViewEvent, C : UiCont
         ) {
             update(
                 item,
-                doUpdate = { interactor.delete(it) },
+                doUpdate = interactor::delete,
                 onError = onError,
                 afterUpdate = afterUpdate
             )
@@ -134,7 +134,7 @@ abstract class BaseUpdaterViewModel<S : UiViewState, V : UiViewEvent, C : UiCont
         ) {
             update(
                 item,
-                doUpdate = { interactor.commit(it) },
+                doUpdate = interactor::commit,
                 onError = onError,
                 afterUpdate = EMPTY_DONE
             )
