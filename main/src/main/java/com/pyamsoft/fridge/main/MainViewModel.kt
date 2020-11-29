@@ -130,13 +130,10 @@ class MainViewModel @Inject internal constructor(
         refreshBadgeCounts()
 
         val oldPage = state.page
-        if (oldPage != newPage) {
-            Timber.d("Select entry: $newPage")
-            setState { copy(page = newPage) }
+        Timber.d("Select entry: $newPage")
+        setState(stateChange = { copy(page = newPage) }, andThen = {
             publishNewSelection(oldPage, event)
-        } else {
-            Timber.w("Selected entry is same page: $newPage")
-        }
+        })
     }
 
     private inline fun publishNewSelection(
