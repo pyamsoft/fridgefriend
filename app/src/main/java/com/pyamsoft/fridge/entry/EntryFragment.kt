@@ -31,31 +31,39 @@ import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.detail.DetailFragment
 import com.pyamsoft.fridge.entry.create.CreateEntrySheet
+import com.pyamsoft.fridge.entry.databinding.EntryContainerBinding
 import com.pyamsoft.fridge.main.VersionChecker
 import com.pyamsoft.fridge.ui.SnackbarContainer
 import com.pyamsoft.pydroid.arch.StateSaver
 import com.pyamsoft.pydroid.arch.createComponent
 import com.pyamsoft.pydroid.ui.Injector
-import com.pyamsoft.pydroid.ui.R
 import com.pyamsoft.pydroid.ui.arch.viewModelFactory
 import com.pyamsoft.pydroid.ui.databinding.LayoutCoordinatorBinding
 import com.pyamsoft.pydroid.ui.util.commit
 import timber.log.Timber
 import javax.inject.Inject
+import com.pyamsoft.pydroid.ui.R as R2
 
 internal class EntryFragment : Fragment(), SnackbarContainer {
 
     @JvmField
     @Inject
     internal var factory: ViewModelProvider.Factory? = null
-    private val viewModel by viewModelFactory<EntryViewModel>(activity = true) { factory }
+    private val addViewModel by viewModelFactory<EntryAddViewModel>(activity = true) { factory }
+    private val listViewModel by viewModelFactory<EntryListViewModel>(activity = true) { factory }
 
     @JvmField
     @Inject
-    internal var container: EntryContainer? = null
+    internal var list: EntryList? = null
+
+    @JvmField
+    @Inject
+    internal var addNew: EntryAddNew? = null
 
     private var stateSaver: StateSaver? = null
 
+    // We add our own fragment container here so that we can replace the entire view
+    // in a child transaction
     private var fragmentContainerId = 0
 
     private val backPressedCallback = object : OnBackPressedCallback(false) {
@@ -76,7 +84,7 @@ internal class EntryFragment : Fragment(), SnackbarContainer {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        return inflater.inflate(R.layout.layout_coordinator, container, false)
+        return inflater.inflate(R2.layout.layout_coordinator, container, false)
     }
 
     override fun onViewCreated(
@@ -86,23 +94,49 @@ internal class EntryFragment : Fragment(), SnackbarContainer {
         super.onViewCreated(view, savedInstanceState)
 
         val binding = LayoutCoordinatorBinding.bind(view)
+
+        // Inflate a fragment container and add it to the view
+        // This is so that we can replace the entire container as a child fragment operation
+        val container = EntryContainerBinding.inflate(layoutInflater, binding.layoutCoordinator)
+        fragmentContainerId = container.entryContainer.id
+
         Injector.obtain<FridgeComponent>(view.context.applicationContext)
             .plusEntryComponent()
-            .create(requireActivity(), viewLifecycleOwner, binding.layoutCoordinator)
+            .create(
+                requireActivity(),
+                viewLifecycleOwner,
+
+                // Pass our created container as the parent view for the graph
+                // so that child transactions happen on the entire page
+                container.entryContainer
+            )
             .inject(this)
 
-        val container = requireNotNull(container)
-
-        stateSaver = createComponent(
+        val addStateSaver = createComponent(
             savedInstanceState,
             viewLifecycleOwner,
-            viewModel,
-            container,
+            addViewModel,
+            requireNotNull(addNew),
+        ) {
+            return@createComponent when (it) {
+                is EntryAddControllerEvent.AddEntry -> startAddFlow()
+            }
+        }
+
+        val listStateSaver = createComponent(
+            savedInstanceState,
+            viewLifecycleOwner,
+            listViewModel,
+            requireNotNull(list)
         ) {
             return@createComponent when (it) {
                 is EntryControllerEvent.LoadEntry -> pushPage(it.entry, it.presence)
-                is EntryControllerEvent.AddEntry -> startAddFlow()
             }
+        }
+
+        stateSaver = StateSaver { outState ->
+            addStateSaver.saveState(outState)
+            listStateSaver.saveState(outState)
         }
 
         initializeApp()
@@ -114,7 +148,7 @@ internal class EntryFragment : Fragment(), SnackbarContainer {
     }
 
     override fun container(): CoordinatorLayout? {
-        return container?.container()
+        return addNew?.container()
     }
 
     private fun watchBackPresses() {
@@ -127,9 +161,6 @@ internal class EntryFragment : Fragment(), SnackbarContainer {
 
     private fun initializeApp() {
         watchBackPresses()
-
-        // Set the fragment container ID
-        fragmentContainerId = requireNotNull(container).id()
 
         val act = requireActivity()
         if (act is VersionChecker) {
@@ -149,7 +180,8 @@ internal class EntryFragment : Fragment(), SnackbarContainer {
 
         stateSaver = null
         factory = null
-        container = null
+        list = null
+        addNew = null
     }
 
     private fun removeBackWatchers() {

@@ -31,7 +31,7 @@ import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
 
-class EntryViewModel @Inject internal constructor(
+class EntryListViewModel @Inject internal constructor(
     private val interactor: EntryInteractor,
     bottomOffsetBus: EventConsumer<BottomOffset>,
 ) : UiViewModel<EntryViewState, EntryViewEvent, EntryControllerEvent>(
@@ -190,7 +190,6 @@ class EntryViewModel @Inject internal constructor(
     override fun handleViewEvent(event: EntryViewEvent) {
         return when (event) {
             is EntryViewEvent.SelectEntry -> select(event.entry)
-            is EntryViewEvent.AddNew -> handleAddNew()
             is EntryViewEvent.ForceRefresh -> refreshList(true)
             is EntryViewEvent.SearchQuery -> updateSearch(event.search)
         }
@@ -207,11 +206,6 @@ class EntryViewModel @Inject internal constructor(
             }
         )
 
-    }
-
-    private fun handleAddNew() {
-        Timber.d("Add new entry")
-        publish(EntryControllerEvent.AddEntry)
     }
 
     private fun select(entry: FridgeEntry) {

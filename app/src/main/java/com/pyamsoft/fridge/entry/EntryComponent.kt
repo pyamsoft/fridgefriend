@@ -26,7 +26,6 @@ import com.pyamsoft.fridge.core.FridgeViewModelFactory
 import com.pyamsoft.fridge.entry.EntryComponent.ViewModelModule
 import com.pyamsoft.fridge.tooltip.TooltipModule
 import com.pyamsoft.pydroid.arch.UiViewModel
-import com.pyamsoft.pydroid.ui.app.ToolbarActivity
 import dagger.Binds
 import dagger.BindsInstance
 import dagger.Module
@@ -58,7 +57,12 @@ internal interface EntryComponent {
 
         @Binds
         @IntoMap
-        @ClassKey(EntryViewModel::class)
-        internal abstract fun entryViewModel(viewModel: EntryViewModel): UiViewModel<*, *, *>
+        @ClassKey(EntryAddViewModel::class)
+        internal abstract fun entryAddViewModel(viewModel: EntryAddViewModel): UiViewModel<*, *, *>
+
+        @Binds
+        @IntoMap
+        @ClassKey(EntryListViewModel::class)
+        internal abstract fun entryListViewModel(viewModel: EntryListViewModel): UiViewModel<*, *, *>
     }
 }

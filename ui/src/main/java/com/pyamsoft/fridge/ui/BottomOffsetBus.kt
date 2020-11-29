@@ -18,31 +18,24 @@ package com.pyamsoft.fridge.ui
 
 import com.pyamsoft.pydroid.arch.EventBus
 import com.pyamsoft.pydroid.core.Enforcer
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
 internal class BottomOffsetBus @Inject internal constructor() : EventBus<BottomOffset> {
 
-    private val bus = EventBus.create<BottomOffset>(emitOnlyWhenActive = true)
-    private val mutex = Mutex()
-    private var mostRecentEvent: BottomOffset? = null
+    private val bus = EventBus.create<BottomOffset>(
+        emitOnlyWhenActive = false,
+        replayCount = 1
+    )
 
     override suspend fun onEvent(emitter: suspend (event: BottomOffset) -> Unit) {
         Enforcer.assertOffMainThread()
-
-        mutex.withLock {
-            mostRecentEvent?.also { emitter(it) }
-        }
         return bus.onEvent(emitter)
     }
 
     override suspend fun send(event: BottomOffset) {
         Enforcer.assertOffMainThread()
-
-        mutex.withLock { mostRecentEvent = event }
         bus.send(event)
     }
 }

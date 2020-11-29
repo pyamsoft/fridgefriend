@@ -49,8 +49,6 @@ sealed class EntryViewEvent : UiViewEvent {
 
     data class SearchQuery internal constructor(val search: String) : EntryViewEvent()
 
-    object AddNew : EntryViewEvent()
-
     object ForceRefresh : EntryViewEvent()
 }
 
@@ -60,6 +58,18 @@ sealed class EntryControllerEvent : UiControllerEvent {
         val entry: FridgeEntry,
         val presence: FridgeItem.Presence
     ) : EntryControllerEvent()
+}
 
-    object AddEntry : EntryControllerEvent()
+data class EntryAddViewState internal constructor(
+    val bottomOffset: Int,
+) : UiViewState
+
+sealed class EntryAddViewEvent : UiViewEvent {
+
+    object AddNew : EntryAddViewEvent()
+}
+
+sealed class EntryAddControllerEvent : UiControllerEvent {
+
+    object AddEntry : EntryAddControllerEvent()
 }

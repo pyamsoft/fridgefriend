@@ -34,7 +34,8 @@ class EntryAddNew @Inject internal constructor(
     private val owner: LifecycleOwner,
     private val imageLoader: ImageLoader,
     parent: ViewGroup,
-) : BaseUiView<EntryViewState, EntryViewEvent, EntryAddNewBinding>(parent), SnackbarContainer {
+) : BaseUiView<EntryAddViewState, EntryAddViewEvent, EntryAddNewBinding>(parent),
+    SnackbarContainer {
 
     override val viewBinding = EntryAddNewBinding::inflate
 
@@ -50,7 +51,7 @@ class EntryAddNew @Inject internal constructor(
 
         doOnInflate {
             binding.entryAddNew.setOnDebouncedClickListener {
-                publish(EntryViewEvent.AddNew)
+                publish(EntryAddViewEvent.AddNew)
             }
         }
 
@@ -68,11 +69,11 @@ class EntryAddNew @Inject internal constructor(
         return layoutRoot
     }
 
-    override fun onRender(state: EntryViewState) {
+    override fun onRender(state: EntryAddViewState) {
         handleBottomMargin(state)
     }
 
-    private fun handleBottomMargin(state: EntryViewState) {
+    private fun handleBottomMargin(state: EntryAddViewState) {
         state.bottomOffset.let { height ->
             if (height > 0) {
                 layoutRoot.updatePadding(bottom = height)
