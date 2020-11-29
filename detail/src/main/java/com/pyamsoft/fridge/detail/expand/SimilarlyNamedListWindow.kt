@@ -182,10 +182,12 @@ internal class SimilarlyNamedListWindow internal constructor(context: Context) {
             )
 
             // Set the text style for title versus selectable item
-            textView.setTypeface(
-                textView.typeface,
-                if (isTitleModel) Typeface.BOLD else Typeface.NORMAL
-            )
+            if (isTitleModel) {
+                textView.setTypeface(textView.typeface, Typeface.BOLD)
+            } else {
+                val normalTypeface = Typeface.create(textView.typeface, Typeface.NORMAL)
+                textView.setTypeface(normalTypeface, Typeface.NORMAL)
+            }
 
             return view
         }
