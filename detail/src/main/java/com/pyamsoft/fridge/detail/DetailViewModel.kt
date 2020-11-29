@@ -69,8 +69,7 @@ class DetailViewModel @Inject internal constructor(
     )
 ) {
 
-    // Method reference :: just to avoid another allocation
-    private val updateDelegate = createUpdateDelegate(interactor, this::handleError)
+    private val updateDelegate = createUpdateDelegate(interactor) { handleError(it) }
 
     private val undoRunner = highlander<Unit, FridgeItem> { item ->
         try {

@@ -59,8 +59,7 @@ class ExpandItemViewModel @Inject internal constructor(
     )
 ) {
 
-    // Method reference :: just to avoid another allocation
-    private val updateDelegate = createUpdateDelegate(interactor, this::handleError)
+    private val updateDelegate = createUpdateDelegate(interactor) { handleError(it) }
 
     private val itemResolveRunner = highlander<Unit, FridgeItem.Id> { resolveItemId ->
         val item = interactor.resolveItem(
@@ -178,7 +177,16 @@ class ExpandItemViewModel @Inject internal constructor(
     private fun handleModelUpdate(newItem: FridgeItem) {
         requireNotNull(state.item).let { item ->
             if (item.id() == newItem.id() && item.entryId() == newItem.entryId()) {
-                setState { copy(item = newItem) }
+                setState(
+                    stateChange = { copy(item = newItem) },
+                    andThen = { newState ->
+                        val currentItem = requireNotNull(newState.item)
+                        if (currentItem.isConsumed() || currentItem.isSpoiled()) {
+                            Timber.d("Close item since it has been consumed/spoiled")
+                            closeItem(currentItem)
+                        }
+                    }
+                )
             }
         }
     }
@@ -328,29 +336,23 @@ class ExpandItemViewModel @Inject internal constructor(
             return
         }
 
-        // Method reference :: just to avoid another allocation
         updateDelegate.updateItem(item)
     }
 
     private fun consumeSelf() {
-        // Method reference :: just to avoid another allocation
-        updateDelegate.consumeItem(requireNotNull(state.item), this::closeItem)
+        updateDelegate.consumeItem(requireNotNull(state.item))
     }
 
     private fun restoreSelf() {
-        // Method reference :: just to avoid another allocation
-        // Don't close the dialog on restore so user can continue interacting.
         updateDelegate.restoreItem(requireNotNull(state.item))
     }
 
     private fun spoilSelf() {
-        // Method reference :: just to avoid another allocation
-        updateDelegate.spoilItem(requireNotNull(state.item), this::closeItem)
+        updateDelegate.spoilItem(requireNotNull(state.item))
     }
 
     private fun deleteSelf() {
-        // Method reference :: just to avoid another allocation
-        updateDelegate.deleteItem(requireNotNull(state.item), this::closeItem)
+        updateDelegate.deleteItem(requireNotNull(state.item))
     }
 
     private fun handleInvalidName(name: String) {

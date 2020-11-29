@@ -64,9 +64,8 @@ abstract class BaseUpdaterViewModel<S : UiViewState, V : UiViewEvent, C : UiCont
                 Unit,
                 FridgeItem,
                 suspend (item: FridgeItem) -> Unit,
-                    (throwable: Throwable) -> Unit,
-                    (item: FridgeItem) -> Unit
-                > { item, doUpdate, onError, afterUpdate ->
+                    (throwable: Throwable) -> Unit
+                > { item, doUpdate, onError ->
             try {
                 doUpdate(item.makeReal())
             } catch (error: Throwable) {
@@ -74,67 +73,31 @@ abstract class BaseUpdaterViewModel<S : UiViewState, V : UiViewEvent, C : UiCont
                     Timber.e(e, "Error updating item: ${item.id()}")
                     onError(e)
                 }
-            } finally {
-                afterUpdate(item)
             }
         }
 
-        private fun update(
-            item: FridgeItem,
-            doUpdate: suspend (item: FridgeItem) -> Unit,
-            afterUpdate: (item: FridgeItem) -> Unit
-        ) {
+        private fun update(item: FridgeItem, doUpdate: suspend (item: FridgeItem) -> Unit) {
             requireNotNull(viewModelScope).launch(context = Dispatchers.Default) {
-                updateRunner.call(item, doUpdate, requireNotNull(handleError), afterUpdate)
+                updateRunner.call(item, doUpdate, requireNotNull(handleError))
             }
         }
 
-        internal fun consumeItem(
-            item: FridgeItem,
-            afterUpdate: (item: FridgeItem) -> Unit = EMPTY_DONE
-        ) {
-            update(
-                item,
-                doUpdate = { requireNotNull(interactor).commit(it.consume(currentDate())) },
-                afterUpdate = afterUpdate
-            )
+        internal fun consumeItem(item: FridgeItem) {
+            update(item) { requireNotNull(interactor).commit(it.consume(currentDate())) }
         }
 
-        internal fun restoreItem(
-            item: FridgeItem,
-            afterUpdate: (item: FridgeItem) -> Unit = EMPTY_DONE
-        ) {
-            update(
-                item,
-                doUpdate = {
-                    requireNotNull(interactor).commit(
-                        it.invalidateConsumption().invalidateSpoiled()
-                    )
-                },
-                afterUpdate = afterUpdate
-            )
+        internal fun restoreItem(item: FridgeItem) {
+            update(item) {
+                requireNotNull(interactor).commit(it.invalidateConsumption().invalidateSpoiled())
+            }
         }
 
-        internal fun spoilItem(
-            item: FridgeItem,
-            afterUpdate: (item: FridgeItem) -> Unit = EMPTY_DONE
-        ) {
-            update(
-                item,
-                doUpdate = { requireNotNull(interactor).commit(it.spoil(currentDate())) },
-                afterUpdate = afterUpdate
-            )
+        internal fun spoilItem(item: FridgeItem) {
+            update(item) { requireNotNull(interactor).commit(it.spoil(currentDate())) }
         }
 
-        internal fun deleteItem(
-            item: FridgeItem,
-            afterUpdate: (item: FridgeItem) -> Unit = EMPTY_DONE
-        ) {
-            update(
-                item,
-                doUpdate = requireNotNull(interactor)::delete,
-                afterUpdate = afterUpdate
-            )
+        internal fun deleteItem(item: FridgeItem) {
+            update(item) { requireNotNull(interactor).delete(it) }
         }
 
         internal fun updateItem(item: FridgeItem) {
@@ -162,12 +125,7 @@ abstract class BaseUpdaterViewModel<S : UiViewState, V : UiViewEvent, C : UiCont
             update(
                 updated,
                 doUpdate = requireNotNull(interactor)::commit,
-                afterUpdate = EMPTY_DONE
             )
-        }
-
-        companion object {
-            private val EMPTY_DONE: (FridgeItem) -> Unit = {}
         }
     }
 
