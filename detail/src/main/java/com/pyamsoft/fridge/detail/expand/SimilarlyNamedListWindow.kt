@@ -119,7 +119,7 @@ internal class SimilarlyNamedListWindow internal constructor(context: Context) {
         }
 
         final override fun getItem(position: Int): Any {
-            return getModel(position).also { Timber.d("SIMILAR: $it") }
+            return getModel(position)
         }
 
         final override fun getItemId(position: Int): Long {
