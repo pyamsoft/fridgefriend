@@ -18,7 +18,7 @@
     android:inset="16dp">
     <shape android:shape="rectangle">
         <corners android:radius="16dp" />
-        <solid android:color="@color/windowBackground" />
+        <solid android:color="@color/dialogBackground" />
     </shape>
 </inset>
 

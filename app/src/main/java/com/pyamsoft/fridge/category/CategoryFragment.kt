@@ -46,7 +46,7 @@ internal class CategoryFragment : Fragment() {
     @JvmField
     @Inject
     internal var factory: ViewModelProvider.Factory? = null
-    private val viewModel by viewModelFactory<CategoryViewModel> { factory }
+    private val viewModel by viewModelFactory<CategoryViewModel>(activity = true) { factory }
 
     private var stateSaver: StateSaver? = null
 

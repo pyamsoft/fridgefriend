@@ -77,7 +77,7 @@ internal class SettingsFragment : AppSettingsFragment() {
         @JvmField
         @Inject
         internal var factory: ViewModelProvider.Factory? = null
-        private val viewModel by viewModelFactory<SettingsViewModel> { factory }
+        private val viewModel by viewModelFactory<SettingsViewModel>(activity = true) { factory }
 
         @JvmField
         @Inject
