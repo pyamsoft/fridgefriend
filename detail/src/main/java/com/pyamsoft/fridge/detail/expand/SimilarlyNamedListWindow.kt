@@ -17,7 +17,6 @@
 package com.pyamsoft.fridge.detail.expand
 
 import android.content.Context
-import android.graphics.Typeface
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -25,10 +24,9 @@ import android.widget.BaseAdapter
 import androidx.annotation.CheckResult
 import androidx.appcompat.widget.ListPopupWindow
 import androidx.core.view.doOnLayout
-import androidx.core.view.updatePadding
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.detail.databinding.SimilarlyNamedListItemBinding
-import com.pyamsoft.pydroid.util.asDp
+import com.pyamsoft.fridge.detail.databinding.SimilarlyNamedListTitleBinding
 import timber.log.Timber
 
 internal class SimilarlyNamedListWindow internal constructor(context: Context) {
@@ -156,67 +154,120 @@ internal class SimilarlyNamedListWindow internal constructor(context: Context) {
     private class SimilarlyNamedListAdapter : PopupWindowListAdapter() {
 
         @CheckResult
+        private fun isTitle(position: Int): Boolean {
+            return position == 0
+        }
+
+        @CheckResult
         private fun isTitle(model: ExpandItemViewState.SimilarItem): Boolean {
             return model.item == null
         }
 
+        private fun bindItem(view: View, model: ExpandItemViewState.SimilarItem) {
+            val holder = view.requireItemViewHolder()
+            holder.binding.similarlyNamedItemName.text = model.display
+        }
+
+        private fun bindTitle(view: View, model: ExpandItemViewState.SimilarItem) {
+            val holder = view.requireTitleViewHolder()
+            holder.binding.similarlyNamedItemTitle.text = model.display
+        }
+
         override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
-            val view = inflateView(convertView, parent)
-            val holder = view.getViewHolder()
-            val item = getModel(position)
-            val isTitleModel = isTitle(item)
-
-            val textView = holder.binding.similarlyNamedItemName
-
-            // Set the text
-            textView.text = item.display
-
-            // Set the padding for title versus selectable item
-            val horizontalPadding = 8.asDp(parent.context)
-            val verticalPadding = (if (isTitleModel) 8 else 4).asDp(parent.context)
-            holder.binding.root.updatePadding(
-                left = horizontalPadding,
-                right = horizontalPadding,
-                top = verticalPadding,
-                bottom = verticalPadding
-            )
-
-            // Set the text style for title versus selectable item
-            if (isTitleModel) {
-                textView.setTypeface(textView.typeface, Typeface.BOLD)
+            val view = inflateView(position, convertView, parent)
+            val model = getModel(position)
+            if (isTitle(model)) {
+                bindTitle(view, model)
             } else {
-                val normalTypeface = Typeface.create(textView.typeface, Typeface.NORMAL)
-                textView.setTypeface(normalTypeface, Typeface.NORMAL)
+                bindItem(view, model)
             }
 
             return view
         }
 
         @CheckResult
-        private fun inflateView(scrap: View?, parent: ViewGroup): View {
-            val view: View
-            if (scrap == null) {
-                val inflater = LayoutInflater.from(parent.context)
-                val binding = SimilarlyNamedListItemBinding.inflate(inflater, parent, false)
-                view = binding.root
-                view.tag = ViewHolder(binding)
+        private fun inflateNewView(position: Int, parent: ViewGroup): View {
+            return if (isTitle(position)) {
+                Timber.d("Inflating new title view into null scrap")
+                inflateTitleView(parent)
             } else {
-                view = scrap
+                Timber.d("Inflating new item view into null scrap")
+                inflateItemView(parent)
             }
-
-            return view
         }
 
         @CheckResult
-        private fun View.getViewHolder(): ViewHolder {
+        private fun View.recycleView(position: Int, parent: ViewGroup): View {
+            return if (isTitle(position)) {
+                if (this.getTitleViewHolder() != null) this else {
+                    Timber.d("Inflating new title view into recycled scrap")
+                    inflateTitleView(parent)
+                }
+            } else {
+                if (this.getItemViewHolder() != null) this else {
+                    Timber.d("Inflating new item view into recycled scrap")
+                    inflateItemView(parent)
+                }
+            }
+        }
+
+        @CheckResult
+        private fun inflateView(position: Int, scrap: View?, parent: ViewGroup): View {
+            return scrap?.recycleView(position, parent) ?: inflateNewView(position, parent)
+        }
+
+        @CheckResult
+        private fun inflateItemView(parent: ViewGroup): View {
+            val inflater = LayoutInflater.from(parent.context)
+            val binding = SimilarlyNamedListItemBinding.inflate(inflater, parent, false)
+            return binding.root.apply {
+                tag = ItemViewHolder(binding)
+            }
+        }
+
+        @CheckResult
+        private fun inflateTitleView(parent: ViewGroup): View {
+            val inflater = LayoutInflater.from(parent.context)
+            val binding = SimilarlyNamedListTitleBinding.inflate(inflater, parent, false)
+            return binding.root.apply {
+                tag = TitleViewHolder(binding)
+            }
+        }
+
+        @CheckResult
+        private fun View.requireItemViewHolder(): ItemViewHolder {
+            return this.requireViewHolder()
+        }
+
+        @CheckResult
+        private fun View.requireTitleViewHolder(): TitleViewHolder {
+            return this.requireViewHolder()
+        }
+
+        @CheckResult
+        private inline fun <reified S : Any> View.requireViewHolder(): S {
+            return this.getViewHolder<S>()
+                ?: throw IllegalStateException("View is not ViewHolder: ${this.tag}")
+        }
+
+        @CheckResult
+        private fun View.getItemViewHolder(): ItemViewHolder? {
+            return this.getViewHolder()
+        }
+
+        @CheckResult
+        private fun View.getTitleViewHolder(): TitleViewHolder? {
+            return this.getViewHolder()
+        }
+
+        @CheckResult
+        private inline fun <reified S : Any> View.getViewHolder(): S? {
             val tag = this.tag
-            if (tag is ViewHolder) {
-                return tag
-            } else {
-                throw IllegalStateException("View tag is not a ViewHolder: $tag")
-            }
+            return if (tag is S) tag else null
         }
     }
 
-    private data class ViewHolder(val binding: SimilarlyNamedListItemBinding)
+    private data class ItemViewHolder(val binding: SimilarlyNamedListItemBinding)
+
+    private data class TitleViewHolder(val binding: SimilarlyNamedListTitleBinding)
 }
