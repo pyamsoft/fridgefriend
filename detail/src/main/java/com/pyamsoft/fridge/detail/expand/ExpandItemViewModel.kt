@@ -61,7 +61,8 @@ class ExpandItemViewModel @Inject internal constructor(
     )
 ) {
 
-    private val updateDelegate = createUpdateDelegate(interactor)
+    // Method reference :: just to avoid another allocation
+    private val updateDelegate = createUpdateDelegate(interactor, this::handleError)
 
     private val itemResolveRunner = highlander<Unit, FridgeItem.Id> { resolveItemId ->
         val item = interactor.resolveItem(
@@ -74,6 +75,10 @@ class ExpandItemViewModel @Inject internal constructor(
     }
 
     init {
+        doOnCleared {
+            updateDelegate.teardown()
+        }
+
         viewModelScope.launch(context = Dispatchers.Default) {
             val categories = interactor.loadAllCategories()
             setState { copy(categories = listOf(FridgeCategory.empty()) + categories) }
@@ -343,28 +348,28 @@ class ExpandItemViewModel @Inject internal constructor(
         }
 
         // Method reference :: just to avoid another allocation
-        updateDelegate.updateItem(item, this::handleError)
+        updateDelegate.updateItem(item)
     }
 
     private fun consumeSelf() {
         // Method reference :: just to avoid another allocation
-        updateDelegate.consumeItem(requireNotNull(state.item), this::handleError, this::closeItem)
+        updateDelegate.consumeItem(requireNotNull(state.item), this::closeItem)
     }
 
     private fun restoreSelf() {
         // Method reference :: just to avoid another allocation
         // Don't close the dialog on restore so user can continue interacting.
-        updateDelegate.restoreItem(requireNotNull(state.item), this::handleError)
+        updateDelegate.restoreItem(requireNotNull(state.item))
     }
 
     private fun spoilSelf() {
         // Method reference :: just to avoid another allocation
-        updateDelegate.spoilItem(requireNotNull(state.item), this::handleError, this::closeItem)
+        updateDelegate.spoilItem(requireNotNull(state.item), this::closeItem)
     }
 
     private fun deleteSelf() {
         // Method reference :: just to avoid another allocation
-        updateDelegate.deleteItem(requireNotNull(state.item), this::handleError, this::closeItem)
+        updateDelegate.deleteItem(requireNotNull(state.item), this::closeItem)
     }
 
     private fun handleInvalidName(name: String) {

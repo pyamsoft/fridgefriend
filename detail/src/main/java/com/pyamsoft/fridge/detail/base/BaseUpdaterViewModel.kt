@@ -37,14 +37,28 @@ abstract class BaseUpdaterViewModel<S : UiViewState, V : UiViewEvent, C : UiCont
 ) : UiViewModel<S, V, C>(initialState) {
 
     @CheckResult
-    internal fun createUpdateDelegate(interactor: DetailInteractor): UpdateDelegate {
-        return UpdateDelegate(viewModelScope, interactor)
+    internal fun createUpdateDelegate(
+        interactor: DetailInteractor,
+        onError: (Throwable) -> Unit
+    ): UpdateDelegate {
+        return UpdateDelegate(viewModelScope, interactor, onError)
     }
 
     internal class UpdateDelegate internal constructor(
-        private val viewModelScope: CoroutineScope,
-        private val interactor: DetailInteractor
+        viewModelScope: CoroutineScope,
+        interactor: DetailInteractor,
+        handleError: (Throwable) -> Unit,
     ) {
+
+        private var viewModelScope: CoroutineScope? = viewModelScope
+        private var interactor: DetailInteractor? = interactor
+        private var handleError: ((Throwable) -> Unit)? = handleError
+
+        fun teardown() {
+            viewModelScope = null
+            interactor = null
+            handleError = null
+        }
 
         private val updateRunner = highlander<
                 Unit,
@@ -68,74 +82,65 @@ abstract class BaseUpdaterViewModel<S : UiViewState, V : UiViewEvent, C : UiCont
         private fun update(
             item: FridgeItem,
             doUpdate: suspend (item: FridgeItem) -> Unit,
-            onError: (throwable: Throwable) -> Unit,
             afterUpdate: (item: FridgeItem) -> Unit
         ) {
-            viewModelScope.launch(context = Dispatchers.Default) {
-                updateRunner.call(item, doUpdate, onError, afterUpdate)
+            requireNotNull(viewModelScope).launch(context = Dispatchers.Default) {
+                updateRunner.call(item, doUpdate, requireNotNull(handleError), afterUpdate)
             }
         }
 
         internal fun consumeItem(
             item: FridgeItem,
-            onError: (throwable: Throwable) -> Unit,
             afterUpdate: (item: FridgeItem) -> Unit = EMPTY_DONE
         ) {
             update(
                 item,
-                doUpdate = { interactor.commit(it.consume(currentDate())) },
-                onError = onError,
+                doUpdate = { requireNotNull(interactor).commit(it.consume(currentDate())) },
                 afterUpdate = afterUpdate
             )
         }
 
         internal fun restoreItem(
             item: FridgeItem,
-            onError: (throwable: Throwable) -> Unit,
             afterUpdate: (item: FridgeItem) -> Unit = EMPTY_DONE
         ) {
             update(
                 item,
-                doUpdate = { interactor.commit(it.invalidateConsumption().invalidateSpoiled()) },
-                onError = onError,
+                doUpdate = {
+                    requireNotNull(interactor).commit(
+                        it.invalidateConsumption().invalidateSpoiled()
+                    )
+                },
                 afterUpdate = afterUpdate
             )
         }
 
         internal fun spoilItem(
             item: FridgeItem,
-            onError: (throwable: Throwable) -> Unit,
             afterUpdate: (item: FridgeItem) -> Unit = EMPTY_DONE
         ) {
             update(
                 item,
-                doUpdate = { interactor.commit(it.spoil(currentDate())) },
-                onError = onError,
+                doUpdate = { requireNotNull(interactor).commit(it.spoil(currentDate())) },
                 afterUpdate = afterUpdate
             )
         }
 
         internal fun deleteItem(
             item: FridgeItem,
-            onError: (throwable: Throwable) -> Unit,
             afterUpdate: (item: FridgeItem) -> Unit = EMPTY_DONE
         ) {
             update(
                 item,
-                doUpdate = interactor::delete,
-                onError = onError,
+                doUpdate = requireNotNull(interactor)::delete,
                 afterUpdate = afterUpdate
             )
         }
 
-        internal fun updateItem(
-            item: FridgeItem,
-            onError: (throwable: Throwable) -> Unit
-        ) {
+        internal fun updateItem(item: FridgeItem) {
             update(
                 item,
-                doUpdate = interactor::commit,
-                onError = onError,
+                doUpdate = requireNotNull(interactor)::commit,
                 afterUpdate = EMPTY_DONE
             )
         }

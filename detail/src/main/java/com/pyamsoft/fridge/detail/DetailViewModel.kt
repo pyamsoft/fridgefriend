@@ -70,7 +70,8 @@ class DetailViewModel @Inject internal constructor(
     )
 ) {
 
-    private val updateDelegate = createUpdateDelegate(interactor)
+    // Method reference :: just to avoid another allocation
+    private val updateDelegate = createUpdateDelegate(interactor, this::handleError)
 
     private val undoRunner = highlander<Unit, FridgeItem> { item ->
         try {
@@ -99,6 +100,10 @@ class DetailViewModel @Inject internal constructor(
     }
 
     init {
+        doOnCleared {
+            updateDelegate.teardown()
+        }
+
         viewModelScope.launch(context = Dispatchers.Default) {
             bottomOffsetBus.onEvent { setState { copy(bottomOffset = it.height) } }
         }
@@ -264,8 +269,7 @@ class DetailViewModel @Inject internal constructor(
 
     private fun updateCount(item: FridgeItem) {
         if (!item.isArchived()) {
-            // Method reference :: just to avoid another allocation
-            updateDelegate.updateItem(item, this::handleError)
+            updateDelegate.updateItem(item)
         }
     }
 
@@ -428,28 +432,23 @@ class DetailViewModel @Inject internal constructor(
             return@run this
         }
 
-        // Method reference :: just to avoid another allocation
-        updateDelegate.updateItem(updated, this::handleError)
+        updateDelegate.updateItem(updated)
     }
 
     private fun consume(item: FridgeItem) {
-        // Method reference :: just to avoid another allocation
-        updateDelegate.consumeItem(item, this::handleError)
+        updateDelegate.consumeItem(item)
     }
 
     private fun restore(item: FridgeItem) {
-        // Method reference :: just to avoid another allocation
-        updateDelegate.restoreItem(item, this::handleError)
+        updateDelegate.restoreItem(item)
     }
 
     private fun spoil(item: FridgeItem) {
-        // Method reference :: just to avoid another allocation
-        updateDelegate.spoilItem(item, this::handleError)
+        updateDelegate.spoilItem(item)
     }
 
     private fun delete(item: FridgeItem) {
-        // Method reference :: just to avoid another allocation
-        updateDelegate.deleteItem(item, this::handleError)
+        updateDelegate.deleteItem(item)
     }
 
     @CheckResult
