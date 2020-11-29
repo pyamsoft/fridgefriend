@@ -17,6 +17,7 @@
 package com.pyamsoft.fridge.detail.expand
 
 import android.content.Context
+import android.graphics.Typeface
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -24,8 +25,10 @@ import android.widget.BaseAdapter
 import androidx.annotation.CheckResult
 import androidx.appcompat.widget.ListPopupWindow
 import androidx.core.view.doOnLayout
+import androidx.core.view.updatePadding
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.detail.databinding.SimilarlyNamedListItemBinding
+import com.pyamsoft.pydroid.util.asDp
 import timber.log.Timber
 
 internal class SimilarlyNamedListWindow internal constructor(context: Context) {
@@ -59,11 +62,22 @@ internal class SimilarlyNamedListWindow internal constructor(context: Context) {
         }
     }
 
+    private inline fun isRealItem(
+        model: ExpandItemViewState.SimilarItem,
+        func: (FridgeItem) -> Unit
+    ) {
+        if (model.item != null) {
+            func(model.item)
+        }
+    }
+
     fun setOnItemClickListener(listener: (item: FridgeItem) -> Unit) {
         popupWindow.setOnItemClickListener { _, _, position, _ ->
             val model = adapter.getModel(position)
-            listener(model.item)
-            dismiss()
+            isRealItem(model) { item ->
+                listener(item)
+                dismiss()
+            }
         }
     }
 
@@ -107,11 +121,13 @@ internal class SimilarlyNamedListWindow internal constructor(context: Context) {
         }
 
         final override fun getItem(position: Int): Any {
-            return getModel(position)
+            return getModel(position).also { Timber.d("SIMILAR: $it") }
         }
 
         final override fun getItemId(position: Int): Long {
-            return getModel(position).item.id().hashCode().toLong()
+            val model = getModel(position)
+            val item = model.item
+            return item?.id()?.hashCode()?.toLong() ?: 0
         }
 
         final override fun getCount(): Int {
@@ -124,18 +140,53 @@ internal class SimilarlyNamedListWindow internal constructor(context: Context) {
 
         fun set(items: Collection<ExpandItemViewState.SimilarItem>) {
             clear()
-            fridgeItems.addAll(items)
+            fridgeItems.addAll(TITLE_ITEM + items)
             notifyDataSetChanged()
+        }
+
+        companion object {
+
+            private val TITLE_ITEM = listOf(
+                ExpandItemViewState.SimilarItem(item = null, display = "Similar Items")
+            )
+
         }
     }
 
     private class SimilarlyNamedListAdapter : PopupWindowListAdapter() {
 
+        @CheckResult
+        private fun isTitle(model: ExpandItemViewState.SimilarItem): Boolean {
+            return model.item == null
+        }
+
         override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
             val view = inflateView(convertView, parent)
             val holder = view.getViewHolder()
             val item = getModel(position)
-            holder.binding.similarlyNamedItemName.text = item.display
+            val isTitleModel = isTitle(item)
+
+            val textView = holder.binding.similarlyNamedItemName
+
+            // Set the text
+            textView.text = item.display
+
+            // Set the padding for title versus selectable item
+            val horizontalPadding = 8.asDp(parent.context)
+            val verticalPadding = (if (isTitleModel) 8 else 4).asDp(parent.context)
+            holder.binding.root.updatePadding(
+                left = horizontalPadding,
+                right = horizontalPadding,
+                top = verticalPadding,
+                bottom = verticalPadding
+            )
+
+            // Set the text style for title versus selectable item
+            textView.setTypeface(
+                textView.typeface,
+                if (isTitleModel) Typeface.BOLD else Typeface.NORMAL
+            )
+
             return view
         }
 

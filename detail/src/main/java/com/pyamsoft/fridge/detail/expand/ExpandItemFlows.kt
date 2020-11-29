@@ -30,7 +30,7 @@ data class ExpandItemViewState internal constructor(
     val categories: List<FridgeCategory>
 ) : UiViewState {
 
-    data class SimilarItem internal constructor(val item: FridgeItem, val display: String)
+    data class SimilarItem internal constructor(val item: FridgeItem?, val display: String)
 }
 
 sealed class ExpandedItemViewEvent : UiViewEvent {
