@@ -16,16 +16,52 @@
 
 package com.pyamsoft.fridge.entry.create
 
+import android.text.InputType
+import android.view.KeyEvent
 import android.view.ViewGroup
+import android.view.inputmethod.EditorInfo
+import com.pyamsoft.fridge.ui.setEditable
 import com.pyamsoft.fridge.ui.view.UiEditText
+import timber.log.Timber
 import javax.inject.Inject
 
 class CreateEntryName @Inject internal constructor(
     parent: ViewGroup
 ) : UiEditText<CreateEntryViewState, CreateEntryViewEvent>(parent) {
 
+    init {
+        doOnInflate {
+            binding.uiEditText.apply {
+                setEditable(EDITABLE_INPUT_TYPE)
+                imeOptions = EditorInfo.IME_ACTION_GO
+            }
+        }
+
+        doOnInflate {
+            binding.uiEditText.setOnEditorActionListener { v, actionId, event ->
+                if (event != null) {
+                    if (event.action == KeyEvent.ACTION_DOWN && event.keyCode == KeyEvent.KEYCODE_ENTER) {
+                        Timber.d("Commit on IME action Enter")
+                        publish(CreateEntryViewEvent.Commit)
+                        return@setOnEditorActionListener true
+                    }
+                }
+
+                return@setOnEditorActionListener false
+            }
+        }
+
+        doOnTeardown {
+            binding.uiEditText.setOnEditorActionListener(null)
+        }
+    }
+
     override fun onTextChanged(oldText: String, newText: String) {
         publish(CreateEntryViewEvent.NameChanged(newText))
     }
 
+    companion object {
+        private const val EDITABLE_INPUT_TYPE =
+            InputType.TYPE_TEXT_FLAG_AUTO_CORRECT or InputType.TYPE_TEXT_FLAG_CAP_WORDS
+    }
 }
