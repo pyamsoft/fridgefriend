@@ -18,18 +18,14 @@ package com.pyamsoft.fridge.detail.item
 
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.detail.DetailViewState
-import com.pyamsoft.fridge.ui.view.UiEditTextViewState
 import com.pyamsoft.pydroid.arch.UiViewEvent
+import com.pyamsoft.pydroid.arch.UiViewState
 
 data class DetailItemViewState internal constructor(
     val item: FridgeItem,
     val expirationRange: DetailViewState.ExpirationRange?,
     val isSameDayExpired: DetailViewState.IsSameDayExpired?
-) : UiEditTextViewState {
-
-    override val text: String = item.name()
-
-}
+) : UiViewState
 
 sealed class DetailItemViewEvent : UiViewEvent {
 

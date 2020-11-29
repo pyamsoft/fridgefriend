@@ -16,19 +16,15 @@
 
 package com.pyamsoft.fridge.entry.create
 
-import com.pyamsoft.fridge.ui.view.UiEditTextViewState
 import com.pyamsoft.pydroid.arch.UiControllerEvent
 import com.pyamsoft.pydroid.arch.UiViewEvent
+import com.pyamsoft.pydroid.arch.UiViewState
 
 data class CreateEntryViewState internal constructor(
     val name: String,
     val creating: Boolean,
     val throwable: Throwable?
-) : UiEditTextViewState {
-
-    override val text: String = name
-
-}
+) : UiViewState
 
 sealed class CreateEntryViewEvent : UiViewEvent {
 

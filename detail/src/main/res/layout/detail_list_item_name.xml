@@ -16,25 +16,21 @@
   ~ limitations under the License.
   -->
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/search_root"
-    android:layout_width="260dp"
-    android:layout_height="wrap_content"
-    android:orientation="vertical">
+<merge>
 
-    <TextView
-        android:id="@+id/search_label"
+    <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/detail_item_name_root"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/search"
-        android:textAppearance="?attr/textAppearanceBody2"
-        android:textColor="?android:attr/textColorPrimaryInverse" />
+        android:padding="8dp">
 
-    <EditText
-        android:id="@+id/search_view"
-        android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:inputType="textAutoComplete|textAutoCorrect"
-        android:textColor="?android:attr/textColorPrimaryInverse" />
+        <TextView
+            android:id="@+id/detail_item_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center" />
 
-</LinearLayout>
+    </FrameLayout>
+
+</merge>
+

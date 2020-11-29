@@ -18,9 +18,9 @@ package com.pyamsoft.fridge.detail.expand
 
 import com.pyamsoft.fridge.db.category.FridgeCategory
 import com.pyamsoft.fridge.db.item.FridgeItem
-import com.pyamsoft.fridge.ui.view.UiEditTextViewState
 import com.pyamsoft.pydroid.arch.UiControllerEvent
 import com.pyamsoft.pydroid.arch.UiViewEvent
+import com.pyamsoft.pydroid.arch.UiViewState
 
 data class ExpandItemViewState internal constructor(
     val item: FridgeItem?,
@@ -28,9 +28,7 @@ data class ExpandItemViewState internal constructor(
     val sameNamedItems: Collection<FridgeItem>,
     val similarItems: Collection<SimilarItem>,
     val categories: List<FridgeCategory>
-) : UiEditTextViewState {
-
-    override val text: String = item?.name().orEmpty()
+) : UiViewState {
 
     data class SimilarItem internal constructor(val item: FridgeItem, val display: String)
 }

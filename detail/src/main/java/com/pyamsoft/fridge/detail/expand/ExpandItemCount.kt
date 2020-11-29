@@ -52,7 +52,7 @@ class ExpandItemCount @Inject internal constructor(
         }
     }
 
-    private fun renderCount(state: ExpandItemViewState) {
+    private fun handleCount(state: ExpandItemViewState) {
         state.item?.let { item ->
             delegate.render(getCountAsText(item))
         }
@@ -65,11 +65,11 @@ class ExpandItemCount @Inject internal constructor(
     }
 
     override fun onRender(state: ExpandItemViewState) {
-        renderCount(state)
-        handleItem(state)
+        handleCount(state)
+        handleEditable(state)
     }
 
-    private fun handleItem(state: ExpandItemViewState) {
+    private fun handleEditable(state: ExpandItemViewState) {
         state.item.let { item ->
             val isEditable = if (item == null) false else !item.isArchived()
             if (binding.expandItemCountEditable.isEditable != isEditable) {

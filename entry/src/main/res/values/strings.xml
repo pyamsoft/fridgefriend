@@ -17,4 +17,6 @@
 
 <resources>
     <string name="create">Create</string>
+    <string name="name">Name</string>
+    <string name="enter_a_name">Enter a Name</string>
 </resources>

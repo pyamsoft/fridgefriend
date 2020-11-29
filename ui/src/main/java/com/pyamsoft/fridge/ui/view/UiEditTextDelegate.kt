@@ -37,20 +37,9 @@ class UiEditTextDelegate(
 
     private var textWatcher: TextWatcher? = null
 
-    fun create() {
-        killWatcher()
-        val watcher = createTextWatcher()
-        view.addTextChangedListener(watcher)
-    }
-
     private fun killWatcher() {
         textWatcher?.also { view.removeTextChangedListener(it) }
         textWatcher = null
-    }
-
-    fun destroy() {
-        killWatcher()
-        clear()
     }
 
     @CheckResult
@@ -84,6 +73,17 @@ class UiEditTextDelegate(
             ) {
             }
         }
+    }
+
+    fun create() {
+        killWatcher()
+        val watcher = createTextWatcher()
+        view.addTextChangedListener(watcher)
+    }
+
+    fun destroy() {
+        killWatcher()
+        clear()
     }
 
     fun render(text: String) {

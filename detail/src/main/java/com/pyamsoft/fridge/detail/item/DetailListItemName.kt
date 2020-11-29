@@ -17,40 +17,32 @@
 package com.pyamsoft.fridge.detail.item
 
 import android.view.ViewGroup
-import com.pyamsoft.fridge.ui.setNotEditable
-import com.pyamsoft.fridge.ui.view.UiEditText
-import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
+import com.pyamsoft.fridge.detail.databinding.DetailListItemNameBinding
+import com.pyamsoft.pydroid.arch.BaseUiView
 import javax.inject.Inject
 
 class DetailListItemName @Inject internal constructor(
     parent: ViewGroup
-) : UiEditText<DetailItemViewState, DetailItemViewEvent>(parent) {
+) : BaseUiView<DetailItemViewState, DetailItemViewEvent, DetailListItemNameBinding>(parent) {
+
+    override val viewBinding = DetailListItemNameBinding::inflate
+
+    override val layoutRoot by boundView { detailItemNameRoot }
 
     init {
-        doOnInflate {
-            binding.uiEditText.setNotEditable()
-        }
-
-        doOnInflate {
-            binding.uiEditText.setOnDebouncedClickListener {
-                publish(DetailItemViewEvent.ExpandItem)
-            }
-        }
-
         doOnTeardown {
-            binding.uiEditText.setOnDebouncedClickListener(null)
-        }
-    }
-
-    private fun handleItem(state: DetailItemViewState) {
-        state.item.let { item ->
-            require(item.isReal()) { "Cannot render non-real item: $item" }
-            setText(item.name())
+            binding.detailItemName.text = ""
         }
     }
 
     override fun onRender(state: DetailItemViewState) {
-        super.onRender(state)
         handleItem(state)
     }
+
+    private fun handleItem(state: DetailItemViewState) {
+        state.item.let { item ->
+            binding.detailItemName.text = item.name()
+        }
+    }
+
 }

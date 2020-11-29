@@ -20,17 +20,29 @@ import android.text.InputType
 import android.view.ViewGroup
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.isArchived
+import com.pyamsoft.fridge.detail.databinding.ExpandNameBinding
 import com.pyamsoft.fridge.ui.isEditable
 import com.pyamsoft.fridge.ui.setEditable
-import com.pyamsoft.fridge.ui.view.UiEditText
+import com.pyamsoft.fridge.ui.view.UiEditTextDelegate
+import com.pyamsoft.pydroid.arch.BaseUiView
 import timber.log.Timber
 import javax.inject.Inject
 
 class ExpandItemName @Inject internal constructor(
     parent: ViewGroup
-) : UiEditText<ExpandItemViewState, ExpandedItemViewEvent>(parent) {
+) : BaseUiView<ExpandItemViewState, ExpandedItemViewEvent, ExpandNameBinding>(parent) {
+
+    override val viewBinding = ExpandNameBinding::inflate
+
+    override val layoutRoot by boundView { expandItemNameContainer }
 
     private val popupWindow = SimilarlyNamedListWindow(parent.context)
+
+    private val delegate by lazy {
+        UiEditTextDelegate(binding.expandItemName) { _, newText ->
+            publish(ExpandedItemViewEvent.CommitName(newText))
+        }
+    }
 
     init {
         doOnInflate {
@@ -44,7 +56,7 @@ class ExpandItemName @Inject internal constructor(
         }
 
         doOnInflate {
-            binding.uiEditText.setOnFocusChangeListener { _, hasFocus ->
+            binding.expandItemName.setOnFocusChangeListener { _, hasFocus ->
                 if (hasFocus) {
                     popupWindow.show()
                 } else {
@@ -54,42 +66,52 @@ class ExpandItemName @Inject internal constructor(
         }
 
         doOnTeardown {
-            binding.uiEditText.onFocusChangeListener = null
+            binding.expandItemName.onFocusChangeListener = null
         }
 
         doOnTeardown {
             popupWindow.teardown()
         }
-    }
 
-    override fun onTextChanged(oldText: String, newText: String) {
-        publish(ExpandedItemViewEvent.CommitName(newText))
+        doOnInflate {
+            delegate.create()
+        }
+
+        doOnTeardown {
+            delegate.destroy()
+        }
     }
 
     private fun selectSimilar(item: FridgeItem) {
         Timber.d("Similar popup FridgeItem selected: $item")
-        setText(item.name())
+        delegate.setText(item.name())
         publish(ExpandedItemViewEvent.SelectSimilar(item))
     }
 
     override fun onRender(state: ExpandItemViewState) {
-        super.onRender(state)
+        handleName(state)
         handlePopupWindow(state)
-        handleItem(state)
+        handleEditable(state)
     }
 
-    private fun handleItem(state: ExpandItemViewState) {
+    private fun handleName(state: ExpandItemViewState) {
+        state.item?.let { item ->
+            delegate.render(item.name())
+        }
+    }
+
+    private fun handleEditable(state: ExpandItemViewState) {
         state.item.let { item ->
             val isEditable = if (item == null) false else !item.isArchived()
-            if (binding.uiEditText.isEditable != isEditable) {
+            if (binding.expandItemName.isEditable != isEditable) {
                 val inputType = if (isEditable) EDITABLE_INPUT_TYPE else InputType.TYPE_NULL
-                binding.uiEditText.setEditable(inputType)
+                binding.expandItemName.setEditable(inputType)
             }
         }
     }
 
     private fun handlePopupWindow(state: ExpandItemViewState) {
-        popupWindow.set(state.similarItems, binding.uiEditText.isFocused)
+        popupWindow.set(state.similarItems, binding.expandItemName.isFocused)
     }
 
     companion object {

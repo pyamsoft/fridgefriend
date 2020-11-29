@@ -20,18 +20,38 @@ import android.text.InputType
 import android.view.KeyEvent
 import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
+import com.pyamsoft.fridge.entry.databinding.CreateEntryNameBinding
 import com.pyamsoft.fridge.ui.setEditable
-import com.pyamsoft.fridge.ui.view.UiEditText
+import com.pyamsoft.fridge.ui.view.UiEditTextDelegate
+import com.pyamsoft.pydroid.arch.BaseUiView
 import timber.log.Timber
 import javax.inject.Inject
 
 class CreateEntryName @Inject internal constructor(
     parent: ViewGroup
-) : UiEditText<CreateEntryViewState, CreateEntryViewEvent>(parent) {
+) : BaseUiView<CreateEntryViewState, CreateEntryViewEvent, CreateEntryNameBinding>(parent) {
+
+    override val viewBinding = CreateEntryNameBinding::inflate
+
+    override val layoutRoot by boundView { createEntryNameRoot }
+
+    private val delegate by lazy {
+        UiEditTextDelegate(binding.createEntryNameValue) { _, newText ->
+            publish(CreateEntryViewEvent.NameChanged(newText))
+        }
+    }
 
     init {
         doOnInflate {
-            binding.uiEditText.apply {
+            delegate.create()
+        }
+
+        doOnTeardown {
+            delegate.destroy()
+        }
+
+        doOnInflate {
+            binding.createEntryNameValue.apply {
                 setEditable(EDITABLE_INPUT_TYPE)
                 imeOptions = EditorInfo.IME_ACTION_GO
                 setImeActionLabel("Create", EditorInfo.IME_ACTION_GO)
@@ -39,7 +59,7 @@ class CreateEntryName @Inject internal constructor(
         }
 
         doOnInflate {
-            binding.uiEditText.setOnEditorActionListener { _, _, event ->
+            binding.createEntryNameValue.setOnEditorActionListener { _, _, event ->
                 if (event != null) {
                     if (event.action == KeyEvent.ACTION_DOWN && event.keyCode == KeyEvent.KEYCODE_ENTER) {
                         Timber.d("Commit on IME action Enter")
@@ -53,12 +73,12 @@ class CreateEntryName @Inject internal constructor(
         }
 
         doOnTeardown {
-            binding.uiEditText.setOnEditorActionListener(null)
+            binding.createEntryNameValue.setOnEditorActionListener(null)
         }
     }
 
-    override fun onTextChanged(oldText: String, newText: String) {
-        publish(CreateEntryViewEvent.NameChanged(newText))
+    override fun onRender(state: CreateEntryViewState) {
+        delegate.render(state.name)
     }
 
     companion object {

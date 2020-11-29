@@ -19,22 +19,29 @@
 <merge>
 
     <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        android:id="@+id/ui_edit_text_container"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/expand_item_name_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="8dp">
 
-        <EditText
-            android:id="@+id/ui_edit_text"
+        <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="center_vertical|start"
-            android:hint="@string/enter_text"
-            android:imeOptions="actionNext"
-            android:importantForAutofill="no"
-            android:inputType="textMultiLine|textAutoCorrect|textCapWords"
-            android:scrollHorizontally="false"
-            android:textAppearance="?attr/textAppearanceBody1" />
+            app:boxBackgroundMode="outline"
+            app:boxCornerRadiusBottomEnd="8dp"
+            app:boxCornerRadiusBottomStart="8dp"
+            app:boxCornerRadiusTopEnd="8dp"
+            app:boxCornerRadiusTopStart="8dp">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/expand_item_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/enter_text"
+                android:textAppearance="?attr/textAppearanceBody1" />
+
+        </com.google.android.material.textfield.TextInputLayout>
 
     </FrameLayout>
 
