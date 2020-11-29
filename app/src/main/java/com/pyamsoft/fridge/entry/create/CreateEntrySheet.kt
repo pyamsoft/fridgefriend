@@ -30,11 +30,11 @@ import com.pyamsoft.fridge.FridgeComponent
 import com.pyamsoft.pydroid.arch.StateSaver
 import com.pyamsoft.pydroid.arch.createComponent
 import com.pyamsoft.pydroid.ui.Injector
+import com.pyamsoft.pydroid.ui.R
 import com.pyamsoft.pydroid.ui.arch.viewModelFactory
 import com.pyamsoft.pydroid.ui.databinding.LayoutLinearVerticalBinding
 import com.pyamsoft.pydroid.ui.util.show
 import javax.inject.Inject
-import com.pyamsoft.pydroid.ui.R as R2
 
 internal class CreateEntrySheet : BottomSheetDialogFragment() {
 
@@ -58,7 +58,7 @@ internal class CreateEntrySheet : BottomSheetDialogFragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        return inflater.inflate(R2.layout.layout_linear_vertical, container, false)
+        return inflater.inflate(R.layout.layout_linear_vertical, container, false)
     }
 
     @CallSuper
