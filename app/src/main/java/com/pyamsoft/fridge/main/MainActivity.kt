@@ -28,7 +28,6 @@ import androidx.fragment.app.FragmentTransaction
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.pyamsoft.fridge.BuildConfig
-import com.pyamsoft.fridge.ButlerParameters
 import com.pyamsoft.fridge.FridgeComponent
 import com.pyamsoft.fridge.R
 import com.pyamsoft.fridge.butler.Butler
@@ -185,15 +184,7 @@ internal class MainActivity : ChangeLogActivity(), VersionChecker {
 
     private fun beginWork() {
         this.lifecycleScope.launch(context = Dispatchers.Default) {
-            val b = requireNotNull(butler)
-            val o = requireNotNull(orderFactory)
-            initOnAppStart(
-                b, o, ButlerParameters(
-                    forceNotifyNeeded = false,
-                    forceNotifyExpiring = false,
-                    forceNotifyNearby = false
-                )
-            )
+            initOnAppStart(requireNotNull(butler), requireNotNull(orderFactory))
         }
     }
 

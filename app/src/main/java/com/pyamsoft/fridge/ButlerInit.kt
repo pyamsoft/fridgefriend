@@ -26,23 +26,20 @@ import com.pyamsoft.fridge.butler.params.LocationParameters
 suspend fun Activity.initOnAppStart(
     butler: Butler,
     orderFactory: OrderFactory,
-    params: ButlerParameters
 ) {
-    butler.initOnAppStart(isForeground = true, orderFactory, params)
+    butler.initOnAppStart(isForeground = true, orderFactory)
 }
 
 suspend fun Application.initOnAppStart(
     butler: Butler,
     orderFactory: OrderFactory,
-    params: ButlerParameters
 ) {
-    butler.initOnAppStart(isForeground = false, orderFactory, params)
+    butler.initOnAppStart(isForeground = false, orderFactory)
 }
 
 private suspend fun Butler.initOnAppStart(
     isForeground: Boolean,
-    orderFactory: OrderFactory,
-    params: ButlerParameters
+    orderFactory: OrderFactory
 ) {
     cancel()
 
@@ -50,8 +47,8 @@ private suspend fun Butler.initOnAppStart(
     placeOrder(
         orderFactory.itemOrder(
             ItemParameters(
-                forceNotifyNeeded = params.forceNotifyNeeded,
-                forceNotifyExpiring = params.forceNotifyExpiring
+                forceNotifyNeeded = true,
+                forceNotifyExpiring = true,
             )
         )
     )
@@ -67,13 +64,8 @@ private suspend fun Butler.initOnAppStart(
     placeOrder(
         orderFactory.locationOrder(
             LocationParameters(
-                forceNotifyNearby = params.forceNotifyNearby
+                forceNotifyNearby = true,
             )
         )
     )
 }
-
-data class ButlerParameters(
-    val forceNotifyNeeded: Boolean, val forceNotifyExpiring: Boolean,
-    val forceNotifyNearby: Boolean
-)

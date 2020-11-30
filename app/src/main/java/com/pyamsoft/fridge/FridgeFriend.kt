@@ -90,11 +90,6 @@ class FridgeFriend : Application() {
             initOnAppStart(
                 requireNotNull(butler),
                 requireNotNull(orderFactory),
-                ButlerParameters(
-                    forceNotifyExpiring = false,
-                    forceNotifyNeeded = false,
-                    forceNotifyNearby = false
-                )
             )
         }
     }
