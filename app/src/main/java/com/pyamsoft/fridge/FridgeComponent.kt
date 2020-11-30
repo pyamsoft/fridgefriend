@@ -41,6 +41,7 @@ import com.pyamsoft.fridge.detail.expand.date.DateSelectComponent
 import com.pyamsoft.fridge.detail.expand.date.DateSelectPayload
 import com.pyamsoft.fridge.entry.EntryComponent
 import com.pyamsoft.fridge.entry.EntryListComponent
+import com.pyamsoft.fridge.entry.EntryPreferences
 import com.pyamsoft.fridge.entry.create.CreateEntryComponent
 import com.pyamsoft.fridge.locator.GpsChangeEvent
 import com.pyamsoft.fridge.locator.LocatorModule
@@ -178,6 +179,9 @@ internal interface FridgeComponent {
 
         @Binds
         internal abstract fun bindSettingsPreferences(impl: PreferencesImpl): SettingsPreferences
+
+        @Binds
+        internal abstract fun bindEntryPreferences(impl: PreferencesImpl): EntryPreferences
 
         @Module
         companion object {

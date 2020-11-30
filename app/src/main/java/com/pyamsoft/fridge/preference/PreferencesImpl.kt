@@ -19,11 +19,12 @@ package com.pyamsoft.fridge.preference
 import android.content.Context
 import androidx.core.content.edit
 import androidx.preference.PreferenceManager
-import com.pyamsoft.fridge.setting.R
 import com.pyamsoft.fridge.butler.ButlerPreferences
 import com.pyamsoft.fridge.butler.notification.NotificationPreferences
 import com.pyamsoft.fridge.db.item.FridgeItemPreferences
 import com.pyamsoft.fridge.db.persist.PersistentCategoryPreferences
+import com.pyamsoft.fridge.entry.EntryPreferences
+import com.pyamsoft.fridge.setting.R
 import com.pyamsoft.fridge.setting.SettingsPreferences
 import com.pyamsoft.pydroid.core.Enforcer
 import com.pyamsoft.pydroid.util.PreferenceListener
@@ -45,7 +46,8 @@ internal class PreferencesImpl @Inject internal constructor(
     FridgeItemPreferences,
     PersistentCategoryPreferences,
     SettingsPreferences,
-    NotificationPreferences {
+    NotificationPreferences,
+    EntryPreferences {
 
     private val preferences by lazy {
         Enforcer.assertOffMainThread()
@@ -256,6 +258,16 @@ internal class PreferencesImpl @Inject internal constructor(
             preferences.edit { putBoolean(KEY_PERSISTENT_CATEGORIES, true) }
         }
 
+    override suspend fun isDefaultEntryCreated(): Boolean = withContext(context = Dispatchers.IO) {
+        Enforcer.assertOffMainThread()
+        return@withContext preferences.getBoolean(KEY_ENTRY_DEFAULT_CREATED, false)
+    }
+
+    override suspend fun markDefaultEntryCreated() = withContext(context = Dispatchers.IO) {
+        Enforcer.assertOffMainThread()
+        preferences.edit { putBoolean(KEY_ENTRY_DEFAULT_CREATED, true) }
+    }
+
     companion object {
 
         private const val FALLBACK_EXPIRING_SOON = 1
@@ -271,5 +283,6 @@ internal class PreferencesImpl @Inject internal constructor(
         private const val KEY_LAST_NOTIFICATION_TIME_EXPIRED = "last_notification_expired_v1"
         private const val KEY_LAST_NOTIFICATION_TIME_NEEDED = "last_notification_needed_v1"
         private const val KEY_LAST_NOTIFICATION_TIME_NIGHTLY = "last_notification_nightly_v1"
+        private const val KEY_ENTRY_DEFAULT_CREATED = "default_entry_created_v1"
     }
 }

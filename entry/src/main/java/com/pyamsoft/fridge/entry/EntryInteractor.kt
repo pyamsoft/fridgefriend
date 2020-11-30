@@ -25,11 +25,13 @@ import com.pyamsoft.fridge.db.entry.FridgeEntryRealtime
 import com.pyamsoft.pydroid.core.Enforcer
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
 class EntryInteractor @Inject internal constructor(
+    private val preferences: EntryPreferences,
     private val entryInsertDao: FridgeEntryInsertDao,
     private val entryQueryDao: FridgeEntryQueryDao,
     private val entryRealtime: FridgeEntryRealtime
@@ -39,7 +41,15 @@ class EntryInteractor @Inject internal constructor(
     suspend fun loadEntries(force: Boolean): List<FridgeEntry> =
         withContext(context = Dispatchers.IO) {
             Enforcer.assertOffMainThread()
-            return@withContext entryQueryDao.query(force)
+            var entries = entryQueryDao.query(force)
+            if (entries.isEmpty() && !preferences.isDefaultEntryCreated()) {
+                Timber.d("Create first entry when entries list is empty")
+                createEntry("My Fridge")
+                preferences.markDefaultEntryCreated()
+                entries = entryQueryDao.query(force)
+            }
+
+            return@withContext entries
         }
 
     suspend fun listenForChanges(onChange: suspend (FridgeEntryChangeEvent) -> Unit) =
