@@ -17,21 +17,27 @@
 package com.pyamsoft.fridge.entry
 
 import androidx.annotation.CheckResult
+import com.pyamsoft.fridge.core.currentDate
+import com.pyamsoft.fridge.core.today
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.entry.FridgeEntryChangeEvent
 import com.pyamsoft.fridge.db.entry.FridgeEntryInsertDao
 import com.pyamsoft.fridge.db.entry.FridgeEntryQueryDao
 import com.pyamsoft.fridge.db.entry.FridgeEntryRealtime
+import com.pyamsoft.fridge.db.item.FridgeItem
+import com.pyamsoft.fridge.db.item.FridgeItemInsertDao
 import com.pyamsoft.pydroid.core.Enforcer
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import timber.log.Timber
+import java.util.Calendar
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
 class EntryInteractor @Inject internal constructor(
     private val preferences: EntryPreferences,
+    private val itemInsertDao: FridgeItemInsertDao,
     private val entryInsertDao: FridgeEntryInsertDao,
     private val entryQueryDao: FridgeEntryQueryDao,
     private val entryRealtime: FridgeEntryRealtime
@@ -44,9 +50,20 @@ class EntryInteractor @Inject internal constructor(
             var entries = entryQueryDao.query(force)
             if (entries.isEmpty() && !preferences.isDefaultEntryCreated()) {
                 Timber.d("Create first entry when entries list is empty")
-                createEntry("My Fridge")
-                preferences.markDefaultEntryCreated()
-                entries = entryQueryDao.query(force)
+                val entry = FridgeEntry.create("My Fridge")
+                if (entryInsertDao.insert(entry)) {
+                    Timber.d("First entry created: $entry")
+                    preferences.markDefaultEntryCreated()
+
+                    val items = generateItems(entry)
+                    for (item in items) {
+                        if (itemInsertDao.insert(item.makeReal())) {
+                            Timber.d("Item created in first entry: $item")
+                        }
+                    }
+
+                    entries = entryQueryDao.query(force)
+                }
             }
 
             return@withContext entries
@@ -63,6 +80,40 @@ class EntryInteractor @Inject internal constructor(
 
         val entry = FridgeEntry.create(name)
         entryInsertDao.insert(entry.makeReal())
+    }
+
+    companion object {
+
+        @CheckResult
+        private fun generateItems(entry: FridgeEntry): List<FridgeItem> {
+            return listOf(
+                FridgeItem.create(entryId = entry.id(), presence = FridgeItem.Presence.NEED)
+                    .name("Need First Item"),
+                FridgeItem.create(entryId = entry.id(), presence = FridgeItem.Presence.NEED)
+                    .name("Need Second Item"),
+                FridgeItem.create(entryId = entry.id(), presence = FridgeItem.Presence.NEED)
+                    .name("Need Third Item"),
+                FridgeItem.create(entryId = entry.id(), presence = FridgeItem.Presence.HAVE)
+                    .name("Have First Item")
+                    .purchaseTime(currentDate())
+                    .expireTime(today().apply {
+                        add(Calendar.DAY_OF_YEAR, 5)
+                    }.time),
+                FridgeItem.create(entryId = entry.id(), presence = FridgeItem.Presence.HAVE)
+                    .name("Have Second Item")
+                    .purchaseTime(currentDate())
+                    .expireTime(today().apply {
+                        add(Calendar.DAY_OF_YEAR, 7)
+                    }.time),
+                FridgeItem.create(entryId = entry.id(), presence = FridgeItem.Presence.HAVE)
+                    .name("Have Third Item")
+                    .purchaseTime(currentDate())
+                    .expireTime(today().apply {
+                        add(Calendar.DAY_OF_YEAR, 10)
+                    }.time),
+            )
+        }
+
     }
 
 }
