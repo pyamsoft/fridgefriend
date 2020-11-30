@@ -26,13 +26,19 @@ import androidx.work.WorkManager
 import androidx.work.Worker
 import com.google.common.util.concurrent.ListenableFuture
 import com.pyamsoft.fridge.butler.Butler
+import com.pyamsoft.fridge.butler.injector.LocationInjector
 import com.pyamsoft.fridge.butler.order.Order
 import com.pyamsoft.fridge.butler.order.OrderParameters
+import com.pyamsoft.fridge.butler.params.LocationParameters
+import com.pyamsoft.fridge.butler.runner.WorkResult
+import com.pyamsoft.fridge.butler.workmanager.order.LocationOrder
+import com.pyamsoft.fridge.butler.workmanager.order.WorkOrder
 import com.pyamsoft.pydroid.core.Enforcer
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
 import timber.log.Timber
+import java.util.UUID
 import java.util.concurrent.CancellationException
 import java.util.concurrent.ExecutionException
 import java.util.concurrent.Executor
@@ -44,7 +50,8 @@ import kotlin.coroutines.resumeWithException
 
 @Singleton
 internal class WorkManagerButler @Inject internal constructor(
-    private val context: Context
+    private val context: Context,
+    private val locationInjector: LocationInjector
 ) : Butler {
 
     @CheckResult
@@ -62,19 +69,13 @@ internal class WorkManagerButler @Inject internal constructor(
     }
 
     private fun schedule(
-        work: Class<*>,
+        work: Class<out Worker>,
         tag: String,
         type: WorkType,
         inputData: Data
     ) {
         Enforcer.assertOffMainThread()
-
-        // Basically, this is shit, but hey its Android!
-        // Please make sure your orders use a class that implements a worker, thanks.
-        @Suppress("UNCHECKED_CAST")
-        val worker = work as Class<out Worker>
-
-        val request = OneTimeWorkRequest.Builder(worker)
+        val request = OneTimeWorkRequest.Builder(work)
             .addTag(tag)
             .setConstraints(generateConstraints())
             .apply {
@@ -90,21 +91,66 @@ internal class WorkManagerButler @Inject internal constructor(
         Timber.d("Queue work [$tag]: ${request.id}")
     }
 
+    @CheckResult
+    private suspend fun WorkOrder.worker(): Class<out Worker> {
+        // Basically, this is shit, but hey its Android!
+        // Please make sure your orders use a class that implements a worker, thanks.
+        @Suppress("UNCHECKED_CAST")
+        return this.work() as Class<out Worker>
+    }
+
+    private suspend fun performLocationOrder(order: LocationOrder) {
+        val parameters = order.parameters().getBooleanParameters()
+
+        val id = UUID.randomUUID()
+        val tag = "Location Reminder 1"
+
+        val force = parameters.getOrElse(LocationOrder.FORCE_LOCATION_NOTIFICATION) { false }
+        val params = LocationParameters(forceNotifyNearby = force)
+        when (val result = locationInjector.execute(id, setOf(tag), params)) {
+            is WorkResult.Success -> Timber.d("Location reminder success: ${result.id}")
+            is WorkResult.Cancel -> Timber.w("Location reminder cancelled: ${result.id}")
+            is WorkResult.Failure -> Timber.e("Location reminder error: ${result.id}")
+        }
+    }
+
+    private suspend fun performImmediateWork(order: Order) {
+        when (order) {
+            is LocationOrder -> performLocationOrder(order)
+            else -> Timber.w("Unhandled order: $order")
+        }
+    }
+
     override suspend fun placeOrder(order: Order) = withContext(context = Dispatchers.Default) {
         Enforcer.assertOffMainThread()
         cancelOrder(order)
-        schedule(order.work(), order.tag(), WorkType.Instant, order.parameters().toInputData())
+
+        if (order is WorkOrder) {
+            schedule(
+                order.worker(),
+                order.tag(),
+                WorkType.Instant,
+                order.parameters().toInputData()
+            )
+        } else {
+            performImmediateWork(order)
+        }
     }
 
     override suspend fun scheduleOrder(order: Order) = withContext(context = Dispatchers.Default) {
         Enforcer.assertOffMainThread()
         cancelOrder(order)
-        schedule(
-            order.work(),
-            order.tag(),
-            WorkType.Periodic(order.period()),
-            order.parameters().toInputData()
-        )
+
+        if (order is WorkOrder) {
+            schedule(
+                order.worker(),
+                order.tag(),
+                WorkType.Periodic(order.period()),
+                order.parameters().toInputData()
+            )
+        } else {
+            throw IllegalStateException("Can only schedule WorkOrder type work")
+        }
     }
 
     override suspend fun cancelOrder(order: Order) = withContext(context = Dispatchers.Default) {

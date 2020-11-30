@@ -17,15 +17,14 @@
 package com.pyamsoft.fridge.locator.map.osm.popup.base
 
 import androidx.annotation.CheckResult
-import com.pyamsoft.fridge.butler.injector.LocationInjector
+import com.pyamsoft.fridge.butler.Butler
+import com.pyamsoft.fridge.butler.order.OrderFactory
 import com.pyamsoft.fridge.butler.params.LocationParameters
-import com.pyamsoft.fridge.butler.runner.WorkResult
 import com.pyamsoft.fridge.db.BaseDb
 import com.pyamsoft.pydroid.core.Enforcer
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import timber.log.Timber
-import java.util.UUID
 
 internal abstract class BaseInfoInteractor<
         T : Any,
@@ -35,7 +34,8 @@ internal abstract class BaseInfoInteractor<
         I : BaseDb.Insert<T>,
         D : BaseDb.Delete<T>
         > protected constructor(
-    private val locationInjector: LocationInjector,
+    private val butler: Butler,
+    private val orderFactory: OrderFactory,
     private val realtime: R,
     private val queryDao: Q,
     private val insertDao: I,
@@ -75,19 +75,9 @@ internal abstract class BaseInfoInteractor<
 
     private suspend fun fireLocationQuery() {
         Enforcer.assertOffMainThread()
-
-        val id = UUID.randomUUID()
-        val tag = "Location Reminder 1"
-
-        when (val result = locationInjector.execute(
-            id, setOf(tag), LocationParameters(forceNotifyNeeded = true)
-        )) {
-            is WorkResult.Success -> Timber.d("Location reminder success: ${result.id}")
-            is WorkResult.Cancel -> Timber.w("Location reminder cancelled: ${result.id}")
-            is WorkResult.Failure -> Timber.e("Location reminder error: ${result.id}")
-        }
+        val order = orderFactory.locationOrder(LocationParameters(forceNotifyNearby = true))
+        butler.placeOrder(order)
     }
-
 
 }
 

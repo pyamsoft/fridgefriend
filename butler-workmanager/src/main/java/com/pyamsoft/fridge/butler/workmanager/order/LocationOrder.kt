@@ -16,31 +16,28 @@
 
 package com.pyamsoft.fridge.butler.workmanager.order
 
-import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.butler.notification.NotificationPreferences
-import com.pyamsoft.fridge.butler.order.Order
-import com.pyamsoft.fridge.butler.order.OrderFactory
-import com.pyamsoft.fridge.butler.params.ItemParameters
+import com.pyamsoft.fridge.butler.order.OrderParameters
 import com.pyamsoft.fridge.butler.params.LocationParameters
-import javax.inject.Inject
-import javax.inject.Singleton
 
-@Singleton
-internal class WorkOrderFactory @Inject internal constructor(
-    private val preferences: NotificationPreferences
-) : OrderFactory {
+internal class LocationOrder internal constructor(
+    private val params: LocationParameters,
+    preferences: NotificationPreferences
+) : NotifyingOrder(preferences) {
 
-    @CheckResult
-    override fun itemOrder(params: ItemParameters): Order {
-        return ItemOrder(params, preferences)
+    override suspend fun tag(): String {
+        return "Location Reminder 1"
     }
 
-    override fun locationOrder(params: LocationParameters): Order {
-        return LocationOrder(params, preferences)
+    override suspend fun parameters(): OrderParameters {
+        return OrderParameters {
+            putBoolean(FORCE_LOCATION_NOTIFICATION, params.forceNotifyNearby)
+        }
     }
 
-    @CheckResult
-    override fun nightlyOrder(): Order {
-        return NightlyOrder()
+    companion object {
+
+        internal const val FORCE_LOCATION_NOTIFICATION = "force_location_notifications_v1"
     }
 }
+

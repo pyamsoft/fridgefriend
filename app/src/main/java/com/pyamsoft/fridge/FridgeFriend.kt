@@ -87,11 +87,13 @@ class FridgeFriend : Application() {
 
     private fun beginWork() {
         GlobalScope.launch(context = Dispatchers.Default) {
-            requireNotNull(butler).initOnAppStart(
+            initOnAppStart(
+                requireNotNull(butler),
                 requireNotNull(orderFactory),
                 ButlerParameters(
                     forceNotifyExpiring = false,
-                    forceNotifyNeeded = false
+                    forceNotifyNeeded = false,
+                    forceNotifyNearby = false
                 )
             )
         }

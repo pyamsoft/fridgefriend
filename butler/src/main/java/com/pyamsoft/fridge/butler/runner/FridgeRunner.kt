@@ -32,14 +32,12 @@ import kotlinx.coroutines.coroutineScope
 
 internal abstract class FridgeRunner<P : BaseParameters> protected constructor(
     handler: NotificationHandler,
-    butler: Butler,
     notificationPreferences: NotificationPreferences,
     butlerPreferences: ButlerPreferences,
     private val fridgeEntryQueryDao: FridgeEntryQueryDao,
     private val fridgeItemQueryDao: FridgeItemQueryDao
 ) : BaseRunner<P>(
     handler,
-    butler,
     notificationPreferences,
     butlerPreferences
 ) {

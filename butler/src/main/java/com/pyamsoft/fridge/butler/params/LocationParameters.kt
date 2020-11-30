@@ -17,5 +17,5 @@
 package com.pyamsoft.fridge.butler.params
 
 data class LocationParameters(
-    val forceNotifyNeeded: Boolean
+    val forceNotifyNearby: Boolean
 ) : BaseParameters

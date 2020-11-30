@@ -25,9 +25,7 @@ import com.pyamsoft.pydroid.ui.Injector
 import java.util.UUID
 import javax.inject.Inject
 
-class ItemInjector @Inject constructor(
-    context: Context
-) : BaseInjector<ItemParameters>(context) {
+class ItemInjector(context: Context) : BaseInjector<ItemParameters>(context) {
 
     @JvmField
     @Inject

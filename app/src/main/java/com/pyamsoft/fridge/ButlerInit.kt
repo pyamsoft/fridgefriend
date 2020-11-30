@@ -16,11 +16,34 @@
 
 package com.pyamsoft.fridge
 
+import android.app.Activity
+import android.app.Application
 import com.pyamsoft.fridge.butler.Butler
 import com.pyamsoft.fridge.butler.order.OrderFactory
 import com.pyamsoft.fridge.butler.params.ItemParameters
+import com.pyamsoft.fridge.butler.params.LocationParameters
 
-suspend fun Butler.initOnAppStart(orderFactory: OrderFactory, params: ButlerParameters) {
+suspend fun Activity.initOnAppStart(
+    butler: Butler,
+    orderFactory: OrderFactory,
+    params: ButlerParameters
+) {
+    butler.initOnAppStart(isForeground = true, orderFactory, params)
+}
+
+suspend fun Application.initOnAppStart(
+    butler: Butler,
+    orderFactory: OrderFactory,
+    params: ButlerParameters
+) {
+    butler.initOnAppStart(isForeground = false, orderFactory, params)
+}
+
+private suspend fun Butler.initOnAppStart(
+    isForeground: Boolean,
+    orderFactory: OrderFactory,
+    params: ButlerParameters
+) {
     cancel()
 
     // Fire instantly an item order
@@ -35,6 +58,22 @@ suspend fun Butler.initOnAppStart(orderFactory: OrderFactory, params: ButlerPara
 
     // Nightly notifications are always scheduled since they must fire at an exact time.
     scheduleOrder(orderFactory.nightlyOrder())
+
+    // No location in background
+    if (!isForeground) {
+        return
+    }
+
+    placeOrder(
+        orderFactory.locationOrder(
+            LocationParameters(
+                forceNotifyNearby = params.forceNotifyNearby
+            )
+        )
+    )
 }
 
-data class ButlerParameters(val forceNotifyNeeded: Boolean, val forceNotifyExpiring: Boolean)
+data class ButlerParameters(
+    val forceNotifyNeeded: Boolean, val forceNotifyExpiring: Boolean,
+    val forceNotifyNearby: Boolean
+)

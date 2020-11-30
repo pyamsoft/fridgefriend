@@ -16,7 +16,6 @@
 
 package com.pyamsoft.fridge.butler.runner
 
-import com.pyamsoft.fridge.butler.Butler
 import com.pyamsoft.fridge.butler.ButlerPreferences
 import com.pyamsoft.fridge.butler.notification.NotificationHandler
 import com.pyamsoft.fridge.butler.notification.NotificationPreferences
@@ -35,7 +34,6 @@ import kotlinx.coroutines.coroutineScope
 
 internal abstract class NearbyRunner<P : BaseParameters> protected constructor(
     handler: NotificationHandler,
-    butler: Butler,
     notificationPreferences: NotificationPreferences,
     butlerPreferences: ButlerPreferences,
     fridgeEntryQueryDao: FridgeEntryQueryDao,
@@ -44,7 +42,6 @@ internal abstract class NearbyRunner<P : BaseParameters> protected constructor(
     private val zoneDb: NearbyZoneQueryDao
 ) : FridgeRunner<P>(
     handler,
-    butler,
     notificationPreferences,
     butlerPreferences,
     fridgeEntryQueryDao,

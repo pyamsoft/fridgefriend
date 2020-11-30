@@ -17,7 +17,6 @@
 package com.pyamsoft.fridge.butler.runner
 
 import androidx.annotation.CheckResult
-import com.pyamsoft.fridge.butler.Butler
 import com.pyamsoft.fridge.butler.ButlerPreferences
 import com.pyamsoft.fridge.butler.notification.NotificationHandler
 import com.pyamsoft.fridge.butler.notification.NotificationPreferences
@@ -33,14 +32,11 @@ import java.util.UUID
 
 internal abstract class BaseRunner<P : BaseParameters> protected constructor(
     private val handler: NotificationHandler,
-    private val butler: Butler,
     private val notificationPreferences: NotificationPreferences,
     private val butlerPreferences: ButlerPreferences
 ) {
 
-    private suspend fun reschedule(order: Order) {
-        Timber.d("Rescheduling order: ${order.tag()} ${order.period()}")
-        butler.scheduleOrder(order)
+    protected open suspend fun onReschedule(order: Order) {
     }
 
     @CheckResult
@@ -61,7 +57,7 @@ internal abstract class BaseRunner<P : BaseParameters> protected constructor(
         try {
             performWork(butlerPreferences, params)
             success(identifier).also {
-                order()?.also { reschedule(it) }
+                order()?.also { onReschedule(it) }
             }
         } catch (e: Throwable) {
             if (e is CancellationException) {

@@ -14,20 +14,15 @@
  * limitations under the License.
  */
 
-package com.pyamsoft.fridge.butler.order
+package com.pyamsoft.fridge.butler.workmanager.order
 
 import androidx.annotation.CheckResult
+import com.pyamsoft.fridge.butler.order.Order
 
-interface Order {
-
-    @CheckResult
-    suspend fun tag(): String
+internal interface WorkOrder : Order {
 
     @CheckResult
-    suspend fun parameters(): OrderParameters
-
-    @CheckResult
-    suspend fun period(): Long
+    suspend fun work(): Class<*>
 
 }
 

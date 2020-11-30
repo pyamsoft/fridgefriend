@@ -16,7 +16,8 @@
 
 package com.pyamsoft.fridge.locator.map.osm.popup.zone
 
-import com.pyamsoft.fridge.butler.injector.LocationInjector
+import com.pyamsoft.fridge.butler.Butler
+import com.pyamsoft.fridge.butler.order.OrderFactory
 import com.pyamsoft.fridge.db.zone.NearbyZone
 import com.pyamsoft.fridge.db.zone.NearbyZoneChangeEvent
 import com.pyamsoft.fridge.db.zone.NearbyZoneChangeEvent.Delete
@@ -30,7 +31,8 @@ import com.pyamsoft.fridge.locator.map.osm.popup.base.BaseInfoInteractor
 import javax.inject.Inject
 
 internal class ZoneInfoInteractor @Inject internal constructor(
-    injector: LocationInjector,
+    butler: Butler,
+    orderFactory: OrderFactory,
     realtime: NearbyZoneRealtime,
     queryDao: NearbyZoneQueryDao,
     insertDao: NearbyZoneInsertDao,
@@ -42,7 +44,7 @@ internal class ZoneInfoInteractor @Inject internal constructor(
         NearbyZoneQueryDao,
         NearbyZoneInsertDao,
         NearbyZoneDeleteDao
-        >(injector, realtime, queryDao, insertDao, deleteDao) {
+        >(butler, orderFactory, realtime, queryDao, insertDao, deleteDao) {
 
     suspend inline fun listenForNearbyCacheChanges(
         crossinline onInsert: (zone: NearbyZone) -> Unit,

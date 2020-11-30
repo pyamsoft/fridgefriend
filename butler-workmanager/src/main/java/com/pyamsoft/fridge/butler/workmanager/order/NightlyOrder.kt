@@ -16,13 +16,12 @@
 
 package com.pyamsoft.fridge.butler.workmanager.order
 
-import com.pyamsoft.fridge.butler.order.Order
 import com.pyamsoft.fridge.butler.order.OrderParameters
 import com.pyamsoft.fridge.butler.workmanager.worker.NightlyWorker
 import com.pyamsoft.fridge.core.today
 import java.util.Calendar
 
-internal class NightlyOrder internal constructor() : Order {
+internal class NightlyOrder internal constructor() : WorkOrder {
 
     override suspend fun work(): Class<*> {
         return NightlyWorker::class.java

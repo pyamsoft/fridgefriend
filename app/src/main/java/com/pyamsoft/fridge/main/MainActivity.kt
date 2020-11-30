@@ -185,9 +185,14 @@ internal class MainActivity : ChangeLogActivity(), VersionChecker {
 
     private fun beginWork() {
         this.lifecycleScope.launch(context = Dispatchers.Default) {
-            requireNotNull(butler).initOnAppStart(
-                requireNotNull(orderFactory),
-                ButlerParameters(forceNotifyNeeded = false, forceNotifyExpiring = false)
+            val b = requireNotNull(butler)
+            val o = requireNotNull(orderFactory)
+            initOnAppStart(
+                b, o, ButlerParameters(
+                    forceNotifyNeeded = false,
+                    forceNotifyExpiring = false,
+                    forceNotifyNearby = false
+                )
             )
         }
     }

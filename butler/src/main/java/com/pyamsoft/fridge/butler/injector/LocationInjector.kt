@@ -17,7 +17,6 @@
 package com.pyamsoft.fridge.butler.injector
 
 import android.content.Context
-import com.pyamsoft.fridge.butler.order.OrderFactory
 import com.pyamsoft.fridge.butler.params.LocationParameters
 import com.pyamsoft.fridge.butler.runner.LocationRunner
 import com.pyamsoft.fridge.butler.runner.WorkResult
@@ -32,11 +31,6 @@ class LocationInjector @Inject constructor(
     @JvmField
     @Inject
     internal var runner: LocationRunner? = null
-
-    // TODO(Peter) For some reason this is null if we inject it in BaseInjector
-    @JvmField
-    @Inject
-    internal var orderFactory: OrderFactory? = null
 
     override suspend fun onExecute(
         context: Context,

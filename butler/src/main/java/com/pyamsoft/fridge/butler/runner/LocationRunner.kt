@@ -18,7 +18,6 @@ package com.pyamsoft.fridge.butler.runner
 
 import android.location.Location
 import androidx.annotation.CheckResult
-import com.pyamsoft.fridge.butler.Butler
 import com.pyamsoft.fridge.butler.ButlerPreferences
 import com.pyamsoft.fridge.butler.notification.NotificationHandler
 import com.pyamsoft.fridge.butler.notification.NotificationPreferences
@@ -37,10 +36,11 @@ import com.pyamsoft.fridge.locator.Geofencer
 import kotlinx.coroutines.coroutineScope
 import timber.log.Timber
 import javax.inject.Inject
+import javax.inject.Singleton
 
+@Singleton
 internal class LocationRunner @Inject internal constructor(
     handler: NotificationHandler,
-    butler: Butler,
     notificationPreferences: NotificationPreferences,
     butlerPreferences: ButlerPreferences,
     fridgeEntryQueryDao: FridgeEntryQueryDao,
@@ -50,7 +50,6 @@ internal class LocationRunner @Inject internal constructor(
     private val geofencer: Geofencer
 ) : NearbyRunner<LocationParameters>(
     handler,
-    butler,
     notificationPreferences,
     butlerPreferences,
     fridgeEntryQueryDao,
@@ -174,7 +173,7 @@ internal class LocationRunner @Inject internal constructor(
             }
 
             val lastTime = preferences.getLastNotificationTimeNearby()
-            if (now.isAllowedToNotify(params.forceNotifyNeeded, lastTime)) {
+            if (now.isAllowedToNotify(params.forceNotifyNearby, lastTime)) {
                 val storeNotified = if (storeNotification == null) false else {
                     notification { notifyNearby(storeNotification, neededItems) }
                 }

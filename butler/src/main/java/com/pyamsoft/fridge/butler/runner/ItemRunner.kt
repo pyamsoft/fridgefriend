@@ -21,6 +21,7 @@ import com.pyamsoft.fridge.butler.Butler
 import com.pyamsoft.fridge.butler.ButlerPreferences
 import com.pyamsoft.fridge.butler.notification.NotificationHandler
 import com.pyamsoft.fridge.butler.notification.NotificationPreferences
+import com.pyamsoft.fridge.butler.order.Order
 import com.pyamsoft.fridge.butler.params.ItemParameters
 import com.pyamsoft.fridge.core.today
 import com.pyamsoft.fridge.db.entry.FridgeEntry
@@ -39,23 +40,29 @@ import kotlinx.coroutines.coroutineScope
 import timber.log.Timber
 import java.util.Calendar
 import javax.inject.Inject
+import javax.inject.Singleton
 
+@Singleton
 internal class ItemRunner @Inject internal constructor(
+    private val butler: Butler,
+    private val fridgeItemPreferences: FridgeItemPreferences,
     handler: NotificationHandler,
-    butler: Butler,
     notificationPreferences: NotificationPreferences,
     butlerPreferences: ButlerPreferences,
-    private val fridgeItemPreferences: FridgeItemPreferences,
     fridgeEntryQueryDao: FridgeEntryQueryDao,
     fridgeItemQueryDao: FridgeItemQueryDao
 ) : FridgeRunner<ItemParameters>(
     handler,
-    butler,
     notificationPreferences,
     butlerPreferences,
     fridgeEntryQueryDao,
     fridgeItemQueryDao
 ) {
+
+    override suspend fun onReschedule(order: Order) {
+        Timber.d("Rescheduling order: $order")
+        butler.scheduleOrder(order)
+    }
 
     @CheckResult
     private suspend fun notifyNeeded(

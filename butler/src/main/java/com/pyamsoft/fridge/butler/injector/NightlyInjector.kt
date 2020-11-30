@@ -25,9 +25,7 @@ import com.pyamsoft.pydroid.ui.Injector
 import java.util.UUID
 import javax.inject.Inject
 
-class NightlyInjector @Inject constructor(
-    context: Context
-) : BaseInjector<EmptyParameters>(context) {
+class NightlyInjector(context: Context) : BaseInjector<EmptyParameters>(context) {
 
     @JvmField
     @Inject

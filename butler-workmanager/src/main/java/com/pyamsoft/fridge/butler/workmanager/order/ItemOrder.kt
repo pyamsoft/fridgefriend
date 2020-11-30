@@ -16,8 +16,8 @@
 
 package com.pyamsoft.fridge.butler.workmanager.order
 
-import com.pyamsoft.fridge.butler.order.OrderParameters
 import com.pyamsoft.fridge.butler.notification.NotificationPreferences
+import com.pyamsoft.fridge.butler.order.OrderParameters
 import com.pyamsoft.fridge.butler.params.ItemParameters
 import com.pyamsoft.fridge.butler.workmanager.worker.BaseWorker
 import com.pyamsoft.fridge.butler.workmanager.worker.ItemWorker
@@ -25,7 +25,7 @@ import com.pyamsoft.fridge.butler.workmanager.worker.ItemWorker
 internal class ItemOrder internal constructor(
     private val params: ItemParameters,
     preferences: NotificationPreferences
-) : NotifyingOrder(preferences) {
+) : NotifyingOrder(preferences), WorkOrder {
 
     override suspend fun work(): Class<*> {
         return ItemWorker::class.java
