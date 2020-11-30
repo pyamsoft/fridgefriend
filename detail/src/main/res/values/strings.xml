@@ -15,7 +15,6 @@
   -->
 
 <resources>
-    <string name="item_name_hint">Item Name</string>
     <string name="count">Count</string>
 
     <string name="delete">Delete</string>

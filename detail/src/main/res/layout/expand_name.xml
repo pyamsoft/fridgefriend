@@ -28,6 +28,8 @@
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:gravity="center_vertical|start"
+            app:boxBackgroundColor="@null"
             app:boxBackgroundMode="outline"
             app:boxCornerRadiusBottomEnd="8dp"
             app:boxCornerRadiusBottomStart="8dp"
@@ -38,7 +40,12 @@
                 android:id="@+id/expand_item_name"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="@string/enter_text"
+                android:gravity="center_vertical|start"
+                android:hint="@string/item_name"
+                android:paddingStart="8dp"
+                android:paddingTop="16dp"
+                android:paddingEnd="8dp"
+                android:paddingBottom="16dp"
                 android:textAppearance="?attr/textAppearanceBody1" />
 
         </com.google.android.material.textfield.TextInputLayout>
