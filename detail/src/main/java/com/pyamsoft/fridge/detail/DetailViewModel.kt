@@ -162,27 +162,26 @@ class DetailViewModel @Inject internal constructor(
             outState.remove(SAVED_SEARCH)
         }
 
-        doOnBind { savedInstanceState ->
+        doOnRestoreState { savedInstanceState ->
             savedInstanceState.useIfAvailable<String>(SAVED_FILTER) { filterName ->
                 val filter = DetailViewState.Showing.valueOf(filterName)
                 setState { copy(showing = filter) }
             }
         }
 
-        doOnBind { savedInstanceState ->
+        doOnRestoreState { savedInstanceState ->
             savedInstanceState.useIfAvailable<String>(SAVED_SORT) { sortName ->
                 val sort = DetailViewState.Sorts.valueOf(sortName)
                 setState { copy(sort = sort) }
             }
         }
 
-        doOnBind { savedInstanceState ->
+        doOnRestoreState { savedInstanceState ->
             savedInstanceState.useIfAvailable<String>(SAVED_SEARCH) { search ->
                 setState { copy(search = search) }
             }
         }
 
-        // Do each time we bind UI
         refreshList(false)
     }
 

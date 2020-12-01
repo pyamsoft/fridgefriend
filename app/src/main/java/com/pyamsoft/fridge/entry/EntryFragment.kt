@@ -36,12 +36,12 @@ import com.pyamsoft.fridge.ui.SnackbarContainer
 import com.pyamsoft.pydroid.arch.StateSaver
 import com.pyamsoft.pydroid.arch.createComponent
 import com.pyamsoft.pydroid.ui.Injector
+import com.pyamsoft.pydroid.ui.R
 import com.pyamsoft.pydroid.ui.arch.viewModelFactory
 import com.pyamsoft.pydroid.ui.databinding.LayoutCoordinatorBinding
 import com.pyamsoft.pydroid.ui.util.commit
 import timber.log.Timber
 import javax.inject.Inject
-import com.pyamsoft.pydroid.ui.R as R2
 
 internal class EntryFragment : Fragment(), SnackbarContainer {
 
@@ -78,7 +78,7 @@ internal class EntryFragment : Fragment(), SnackbarContainer {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        return inflater.inflate(R2.layout.layout_coordinator, container, false)
+        return inflater.inflate(R.layout.layout_coordinator, container, false)
     }
 
     override fun onViewCreated(

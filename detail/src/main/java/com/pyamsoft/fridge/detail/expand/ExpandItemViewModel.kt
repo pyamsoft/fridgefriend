@@ -97,7 +97,7 @@ class ExpandItemViewModel @Inject internal constructor(
             outState.remove(CREATED_ITEM_ID)
         }
 
-        doOnBind { savedInstanceState ->
+        doOnRestoreState { savedInstanceState ->
             // Resolve the existing item id
             savedInstanceState.use(CREATED_ITEM_ID, possibleItemId.id) { savedId ->
                 val resolveItemId = FridgeItem.Id(savedId)

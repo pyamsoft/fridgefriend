@@ -66,7 +66,7 @@ class MainViewModel @Inject internal constructor(
         }
 
         // This pushes the fragment onto the stack
-        doOnBind { savedInstanceState ->
+        doOnRestoreState { savedInstanceState ->
             val savedPage = savedInstanceState.get<String>(PAGE)
             if (savedPage == null) {
                 selectPage(defaultPage)
