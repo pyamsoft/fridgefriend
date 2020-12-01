@@ -17,6 +17,7 @@
 package com.pyamsoft.fridge.detail
 
 import android.graphics.Color
+import android.graphics.drawable.Drawable
 import android.view.ViewGroup
 import androidx.annotation.CheckResult
 import androidx.recyclerview.widget.ItemTouchHelper
@@ -33,18 +34,22 @@ import com.pyamsoft.fridge.detail.item.DetailItemViewState
 import com.pyamsoft.fridge.detail.item.DetailListAdapter
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.loader.ImageLoader
+import com.pyamsoft.pydroid.ui.theme.ThemeProvider
 import com.pyamsoft.pydroid.ui.util.refreshing
 import com.pyamsoft.pydroid.ui.util.removeAllItemDecorations
 import com.pyamsoft.pydroid.util.asDp
+import com.pyamsoft.pydroid.util.tintWith
 import io.cabriole.decorator.LinearBoundsMarginDecoration
 import io.cabriole.decorator.LinearMarginDecoration
 import me.zhanghai.android.fastscroll.FastScrollerBuilder
 import timber.log.Timber
 import javax.inject.Inject
 import com.pyamsoft.fridge.ui.R as R2
+import com.pyamsoft.pydroid.ui.R as R3
 
 class DetailList @Inject internal constructor(
     private val imageLoader: ImageLoader,
+    private val theming: ThemeProvider,
     parent: ViewGroup,
     factory: DetailItemComponent.Factory
 ) : BaseUiView<DetailViewState, DetailViewEvent, DetailListBinding>(parent) {
@@ -207,6 +212,12 @@ class DetailList @Inject internal constructor(
         }
     }
 
+    @CheckResult
+    private fun Drawable.themeIcon(): Drawable {
+        val color = if (theming.isDarkTheme()) R3.color.white else R3.color.black
+        return this.tintWith(layoutRoot.context, color)
+    }
+
     private inline fun applySwipeCallback(
         directions: Int,
         swipeAwayDeletes: Boolean,
@@ -219,7 +230,9 @@ class DetailList @Inject internal constructor(
                 swipeAwayRestores -> R.drawable.ic_delete_24dp
                 else -> R2.drawable.ic_spoiled_24dp
             }
-        ).immediate()
+        )
+            .mutate { it.themeIcon() }
+            .immediate()
 
         val swipeCallback = SimpleSwipeCallback(
             object : SimpleSwipeCallback.ItemSwipeCallback {
@@ -239,6 +252,7 @@ class DetailList @Inject internal constructor(
                     else -> R2.drawable.ic_consumed_24dp
                 }
             )
+                .mutate { it.themeIcon() }
                 .immediate()
             withBackgroundSwipeRight(Color.TRANSPARENT)
             withLeaveBehindSwipeRight(requireNotNull(rightBehindDrawable))
