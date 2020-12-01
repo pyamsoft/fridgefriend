@@ -31,7 +31,6 @@ import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.detail.DetailFragment
 import com.pyamsoft.fridge.entry.create.CreateEntrySheet
-import com.pyamsoft.fridge.entry.databinding.EntryContainerBinding
 import com.pyamsoft.fridge.main.VersionChecker
 import com.pyamsoft.fridge.ui.SnackbarContainer
 import com.pyamsoft.pydroid.arch.StateSaver
@@ -49,16 +48,11 @@ internal class EntryFragment : Fragment(), SnackbarContainer {
     @JvmField
     @Inject
     internal var factory: ViewModelProvider.Factory? = null
-    private val addViewModel by viewModelFactory<EntryAddViewModel>(activity = true) { factory }
-    private val listViewModel by viewModelFactory<EntryListViewModel>(activity = true) { factory }
+    private val viewModel by viewModelFactory<EntryViewModel>(activity = true) { factory }
 
     @JvmField
     @Inject
-    internal var list: EntryList? = null
-
-    @JvmField
-    @Inject
-    internal var addNew: EntryAddNew? = null
+    internal var container: EntryContainer? = null
 
     private var stateSaver: StateSaver? = null
 
@@ -94,50 +88,25 @@ internal class EntryFragment : Fragment(), SnackbarContainer {
         super.onViewCreated(view, savedInstanceState)
 
         val binding = LayoutCoordinatorBinding.bind(view)
-
-        // Inflate a fragment container and add it to the view
-        // This is so that we can replace the entire container as a child fragment operation
-        val container = EntryContainerBinding.inflate(layoutInflater, binding.layoutCoordinator)
-        fragmentContainerId = container.entryContainer.id
-
         Injector.obtain<FridgeComponent>(view.context.applicationContext)
             .plusEntryComponent()
             .create(
                 requireActivity(),
                 viewLifecycleOwner,
-
-                // Pass our created container as the parent view for the graph
-                // so that child transactions happen on the entire page
-                container.entryContainer
+                binding.layoutCoordinator
             )
             .inject(this)
 
-        val listStateSaver = createComponent(
+        stateSaver = createComponent(
             savedInstanceState,
             viewLifecycleOwner,
-            listViewModel,
-            requireNotNull(list)
+            viewModel,
+            requireNotNull(container),
         ) {
             return@createComponent when (it) {
                 is EntryControllerEvent.LoadEntry -> pushPage(it.entry, it.presence)
+                is EntryControllerEvent.AddEntry -> startAddFlow()
             }
-        }
-
-        // Inject the add last so that it is pushed on top Z
-        val addStateSaver = createComponent(
-            savedInstanceState,
-            viewLifecycleOwner,
-            addViewModel,
-            requireNotNull(addNew),
-        ) {
-            return@createComponent when (it) {
-                is EntryAddControllerEvent.AddEntry -> startAddFlow()
-            }
-        }
-
-        stateSaver = StateSaver { outState ->
-            addStateSaver.saveState(outState)
-            listStateSaver.saveState(outState)
         }
 
         initializeApp()
@@ -149,7 +118,7 @@ internal class EntryFragment : Fragment(), SnackbarContainer {
     }
 
     override fun container(): CoordinatorLayout? {
-        return addNew?.container()
+        return container?.container()
     }
 
     private fun watchBackPresses() {
@@ -162,6 +131,9 @@ internal class EntryFragment : Fragment(), SnackbarContainer {
 
     private fun initializeApp() {
         watchBackPresses()
+
+        // Capture container ID
+        fragmentContainerId = requireNotNull(container).id()
 
         val act = requireActivity()
         if (act is VersionChecker) {
@@ -181,8 +153,7 @@ internal class EntryFragment : Fragment(), SnackbarContainer {
 
         stateSaver = null
         factory = null
-        list = null
-        addNew = null
+        container = null
     }
 
     private fun removeBackWatchers() {

@@ -57,12 +57,7 @@ internal interface EntryComponent {
 
         @Binds
         @IntoMap
-        @ClassKey(EntryAddViewModel::class)
-        internal abstract fun entryAddViewModel(viewModel: EntryAddViewModel): UiViewModel<*, *, *>
-
-        @Binds
-        @IntoMap
-        @ClassKey(EntryListViewModel::class)
-        internal abstract fun entryListViewModel(viewModel: EntryListViewModel): UiViewModel<*, *, *>
+        @ClassKey(EntryViewModel::class)
+        internal abstract fun entryViewModel(viewModel: EntryViewModel): UiViewModel<*, *, *>
     }
 }

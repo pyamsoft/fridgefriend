@@ -96,7 +96,7 @@ class DetailAddItemView @Inject internal constructor(
         filterIconLoaded = null
     }
 
-    override fun container(): CoordinatorLayout? {
+    override fun container(): CoordinatorLayout {
         return layoutRoot
     }
 

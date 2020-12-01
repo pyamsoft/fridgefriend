@@ -50,9 +50,13 @@ sealed class EntryViewEvent : UiViewEvent {
     data class SearchQuery internal constructor(val search: String) : EntryViewEvent()
 
     object ForceRefresh : EntryViewEvent()
+
+    object AddNew : EntryViewEvent()
 }
 
 sealed class EntryControllerEvent : UiControllerEvent {
+
+    object AddEntry : EntryControllerEvent()
 
     data class LoadEntry internal constructor(
         val entry: FridgeEntry,
@@ -60,16 +64,3 @@ sealed class EntryControllerEvent : UiControllerEvent {
     ) : EntryControllerEvent()
 }
 
-data class EntryAddViewState internal constructor(
-    val bottomOffset: Int,
-) : UiViewState
-
-sealed class EntryAddViewEvent : UiViewEvent {
-
-    object AddNew : EntryAddViewEvent()
-}
-
-sealed class EntryAddControllerEvent : UiControllerEvent {
-
-    object AddEntry : EntryAddControllerEvent()
-}
