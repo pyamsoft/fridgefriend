@@ -47,8 +47,11 @@ internal class EntryListStateModel @Inject internal constructor(
         handleListRefreshBegin()
 
         try {
-            val entries = interactor.loadEntries(force)
-            handleListRefreshed(entries)
+            val groups = interactor.loadEntries(force).map { entry ->
+                val items = interactor.loadItems(force, entry)
+                return@map EntryViewState.EntryGroup(entry = entry, items = items)
+            }
+            handleListRefreshed(groups)
         } catch (error: Throwable) {
             error.onActualError { e ->
                 Timber.e(e, "Error refreshing entry list")
@@ -65,15 +68,14 @@ internal class EntryListStateModel @Inject internal constructor(
         }
 
         stateModelScope.launch(context = Dispatchers.Default) {
-            interactor.listenForChanges { handleRealtime(it) }
+            interactor.listenForEntryChanges { handleEventRealtime(it) }
         }
 
-        // Refresh each time we have UI
         refreshList(false)
     }
 
     @CheckResult
-    private fun EntryViewState.regenerateEntries(entries: List<FridgeEntry>): EntryViewState {
+    private fun EntryViewState.regenerateEntries(entries: List<EntryViewState.EntryGroup>): EntryViewState {
         val newItems = prepareListEntries(entries)
         val visibleEntries = getOnlyVisibleEntries(newItems, search)
         return copy(
@@ -84,12 +86,12 @@ internal class EntryListStateModel @Inject internal constructor(
 
     @CheckResult
     private fun EntryViewState.getOnlyVisibleEntries(
-        entries: List<FridgeEntry>,
+        entries: List<EntryViewState.EntryGroup>,
         search: String
-    ): List<FridgeEntry> {
+    ): List<EntryViewState.EntryGroup> {
         return entries
             .asSequence()
-            .filter { it.matchesQuery(search) }
+            .filter { it.entry.matchesQuery(search) }
             .toList()
     }
 
@@ -98,7 +100,7 @@ internal class EntryListStateModel @Inject internal constructor(
         setState { copy(isLoading = true) }
     }
 
-    private fun handleListRefreshed(entries: List<FridgeEntry>) {
+    private fun handleListRefreshed(entries: List<EntryViewState.EntryGroup>) {
         setState { regenerateEntries(entries).copy(error = null) }
     }
 
@@ -116,49 +118,28 @@ internal class EntryListStateModel @Inject internal constructor(
         setState { copy(isLoading = false) }
     }
 
-    private fun handleRealtime(event: FridgeEntryChangeEvent) {
+    private fun handleEventRealtime(event: FridgeEntryChangeEvent) {
         return when (event) {
             is FridgeEntryChangeEvent.Insert -> handleRealtimeInsert(event.entry)
             is FridgeEntryChangeEvent.Update -> handleRealtimeUpdate(event.entry)
             is FridgeEntryChangeEvent.Delete -> handleRealtimeDelete(event.entry)
-            is FridgeEntryChangeEvent.DeleteAll -> handleRealtimeDeleteAll()
+            is FridgeEntryChangeEvent.DeleteAll -> handleRealtimeEntryDeleteAll()
         }
     }
 
-    private fun handleRealtimeDeleteAll() {
+    private fun handleRealtimeEntryDeleteAll() {
         Timber.d("Realtime DELETE ALL")
         setState {
             copy(allEntries = emptyList(), displayedEntries = emptyList())
         }
     }
 
-    private fun insertOrUpdate(
-        items: MutableList<FridgeEntry>,
-        item: FridgeEntry
-    ) {
-        if (!checkExists(items, item)) {
-            items.add(item)
-        } else {
-            for ((index, oldItem) in items.withIndex()) {
-                if (oldItem.id() == item.id()) {
-                    items[index] = item
-                    break
-                }
-            }
-        }
-    }
-
-    @CheckResult
-    private fun checkExists(
-        items: List<FridgeEntry>,
-        item: FridgeEntry
-    ): Boolean {
-        return items.any { item.id() == it.id() }
-    }
-
     private fun handleRealtimeInsert(entry: FridgeEntry) {
         setState {
-            val newEntries = allEntries.toMutableList().also { insertOrUpdate(it, entry) }
+            val newEntries = allEntries + EntryViewState.EntryGroup(
+                entry = entry,
+                items = emptyList()
+            )
             regenerateEntries(newEntries)
         }
     }
@@ -166,7 +147,11 @@ internal class EntryListStateModel @Inject internal constructor(
     private fun handleRealtimeUpdate(entry: FridgeEntry) {
         Timber.d("Realtime update: $entry")
         setState {
-            val newEntries = allEntries.toMutableList().also { insertOrUpdate(it, entry) }
+            val newEntries = allEntries.map { group ->
+                if (group.entry.id() != entry.id()) group else {
+                    group.copy(entry = entry)
+                }
+            }
             regenerateEntries(newEntries)
         }
     }
@@ -174,15 +159,17 @@ internal class EntryListStateModel @Inject internal constructor(
     private fun handleRealtimeDelete(entry: FridgeEntry) {
         Timber.d("Realtime delete: $entry")
         setState {
-            val newEntries = allEntries.filterNot { it.id() == entry.id() }
+            val newEntries = allEntries.filterNot { it.entry.id() == entry.id() }
             regenerateEntries(newEntries)
         }
     }
 
     @CheckResult
-    private fun prepareListEntries(entries: List<FridgeEntry>): List<FridgeEntry> {
+    private fun prepareListEntries(
+        entries: List<EntryViewState.EntryGroup>
+    ): List<EntryViewState.EntryGroup> {
         return entries
-            .filter { it.isReal() }
+            .filter { it.entry.isReal() }
             .toList()
     }
 
@@ -196,7 +183,6 @@ internal class EntryListStateModel @Inject internal constructor(
                 refreshList(false)
             }
         )
-
     }
 
     internal fun refreshList(force: Boolean) {

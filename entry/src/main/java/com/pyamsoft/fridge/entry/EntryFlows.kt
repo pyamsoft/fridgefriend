@@ -25,14 +25,19 @@ import com.pyamsoft.pydroid.arch.UiViewState
 
 data class EntryViewState internal constructor(
     // All currently displayed list entries
-    val displayedEntries: List<FridgeEntry>,
+    val displayedEntries: List<EntryGroup>,
     // All the list entries before filtering
-    internal val allEntries: List<FridgeEntry>,
+    internal val allEntries: List<EntryGroup>,
     val isLoading: Boolean,
     val error: Throwable?,
     val search: String,
     val bottomOffset: Int,
 ) : UiViewState {
+
+    data class EntryGroup internal constructor(
+        val entry: FridgeEntry,
+        val items: List<FridgeItem>
+    )
 
     @CheckResult
     internal fun FridgeEntry.matchesQuery(query: String): Boolean {

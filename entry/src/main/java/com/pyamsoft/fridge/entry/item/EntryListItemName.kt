@@ -19,7 +19,6 @@ package com.pyamsoft.fridge.entry.item
 import android.view.ViewGroup
 import com.pyamsoft.fridge.entry.databinding.EntryItemNameBinding
 import com.pyamsoft.pydroid.arch.BaseUiView
-import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
 import javax.inject.Inject
 
 class EntryListItemName @Inject internal constructor(
@@ -31,16 +30,6 @@ class EntryListItemName @Inject internal constructor(
     override val layoutRoot by boundView { entryItemName }
 
     init {
-        doOnInflate {
-            layoutRoot.setOnDebouncedClickListener {
-                publish(EntryItemViewEvent.ExpandEntry)
-            }
-        }
-
-        doOnTeardown {
-            layoutRoot.setOnDebouncedClickListener(null)
-        }
-
         doOnTeardown {
             clear()
         }

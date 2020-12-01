@@ -21,7 +21,6 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.pyamsoft.fridge.db.entry.JsonMappableFridgeEntry
 import com.pyamsoft.fridge.entry.databinding.EntryListItemHolderBinding
 import com.pyamsoft.fridge.entry.item.EntryItemComponent
 import com.pyamsoft.fridge.entry.item.EntryItemViewHolder
@@ -84,9 +83,7 @@ class EntryListAdapter internal constructor(
                 oldItem: EntryItemViewState,
                 newItem: EntryItemViewState
             ): Boolean {
-                return JsonMappableFridgeEntry.from(oldItem.entry) == JsonMappableFridgeEntry.from(
-                    newItem.entry
-                )
+                return oldItem == newItem
             }
         }
     }

@@ -14,19 +14,26 @@
  * limitations under the License.
  */
 
-package com.pyamsoft.fridge.entry.item
+package com.pyamsoft.fridge.ui
 
-import com.pyamsoft.fridge.db.entry.FridgeEntry
-import com.pyamsoft.pydroid.arch.UiViewEvent
-import com.pyamsoft.pydroid.arch.UiViewState
+import android.graphics.drawable.Drawable
+import android.view.View
+import androidx.annotation.CheckResult
+import com.pyamsoft.pydroid.loader.ImageTarget
+import com.pyamsoft.pydroid.loader.Loaded
+import com.pyamsoft.pydroid.loader.Loader
 
-data class EntryItemViewState internal constructor(
-    val entry: FridgeEntry,
-    val itemCount: Int,
-) : UiViewState
+@CheckResult
+fun Loader<Drawable>.intoBackground(view: View): Loaded {
+    return this.into(object : ImageTarget<Drawable> {
+        override fun clear() {
+            view.background = null
+        }
 
-sealed class EntryItemViewEvent : UiViewEvent {
+        override fun setImage(image: Drawable) {
+            view.background = image
+        }
 
-    object ExpandEntry : EntryItemViewEvent()
-
+    })
 }
+

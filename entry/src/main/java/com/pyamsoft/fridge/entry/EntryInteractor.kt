@@ -25,7 +25,10 @@ import com.pyamsoft.fridge.db.entry.FridgeEntryInsertDao
 import com.pyamsoft.fridge.db.entry.FridgeEntryQueryDao
 import com.pyamsoft.fridge.db.entry.FridgeEntryRealtime
 import com.pyamsoft.fridge.db.item.FridgeItem
+import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent
 import com.pyamsoft.fridge.db.item.FridgeItemInsertDao
+import com.pyamsoft.fridge.db.item.FridgeItemQueryDao
+import com.pyamsoft.fridge.db.item.FridgeItemRealtime
 import com.pyamsoft.pydroid.core.Enforcer
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -38,6 +41,7 @@ import javax.inject.Singleton
 class EntryInteractor @Inject internal constructor(
     private val preferences: EntryPreferences,
     private val itemInsertDao: FridgeItemInsertDao,
+    private val itemQueryDao: FridgeItemQueryDao,
     private val entryInsertDao: FridgeEntryInsertDao,
     private val entryQueryDao: FridgeEntryQueryDao,
     private val entryRealtime: FridgeEntryRealtime
@@ -69,7 +73,14 @@ class EntryInteractor @Inject internal constructor(
             return@withContext entries
         }
 
-    suspend fun listenForChanges(onChange: suspend (FridgeEntryChangeEvent) -> Unit) =
+    @CheckResult
+    suspend fun loadItems(force: Boolean, entry: FridgeEntry): List<FridgeItem> =
+        withContext(context = Dispatchers.IO) {
+            Enforcer.assertOffMainThread()
+            return@withContext itemQueryDao.query(force, entry.id())
+        }
+
+    suspend fun listenForEntryChanges(onChange: suspend (FridgeEntryChangeEvent) -> Unit) =
         withContext(context = Dispatchers.IO) {
             Enforcer.assertOffMainThread()
             return@withContext entryRealtime.listenForChanges(onChange)

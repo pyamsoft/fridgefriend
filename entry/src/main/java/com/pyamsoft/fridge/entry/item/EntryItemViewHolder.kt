@@ -31,7 +31,7 @@ class EntryItemViewHolder internal constructor(
 
     @Inject
     @JvmField
-    internal var clickView: EntryListItemClick? = null
+    internal var scrimView: EntryListItemScrim? = null
 
     @Inject
     @JvmField
@@ -42,9 +42,10 @@ class EntryItemViewHolder internal constructor(
     init {
         factory.create(binding.entryListItem).inject(this)
 
-        val click = requireNotNull(clickView)
-        val name = requireNotNull(nameView)
-        viewBinder = createViewBinder(click, name) {
+        viewBinder = createViewBinder(
+            requireNotNull(scrimView),
+            requireNotNull(nameView)
+        ) {
             return@createViewBinder when (it) {
                 is EntryItemViewEvent.ExpandEntry -> callback.onSelect(adapterPosition)
             }
@@ -57,7 +58,7 @@ class EntryItemViewHolder internal constructor(
 
     override fun teardown() {
         viewBinder.teardown()
-        clickView = null
+        scrimView = null
         nameView = null
     }
 

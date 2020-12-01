@@ -185,8 +185,9 @@ class EntryList @Inject internal constructor(
         bottomMarginDecoration = null
     }
 
-    private fun setList(list: List<FridgeEntry>) {
-        val data = list.map { EntryItemViewState(it) }
+    private fun setList(list: List<EntryViewState.EntryGroup>) {
+        val data = list.map { EntryItemViewState(it.entry, itemCount = it.items.size) }
+        Timber.d("Submit data list: $data")
         usingAdapter().submitList(data)
     }
 
