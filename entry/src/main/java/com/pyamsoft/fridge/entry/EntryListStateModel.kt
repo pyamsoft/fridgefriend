@@ -21,6 +21,7 @@ import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.entry.FridgeEntryChangeEvent
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent
+import com.pyamsoft.fridge.db.item.isArchived
 import com.pyamsoft.fridge.ui.BottomOffset
 import com.pyamsoft.highlander.highlander
 import com.pyamsoft.pydroid.arch.EventConsumer
@@ -82,10 +83,10 @@ internal class EntryListStateModel @Inject internal constructor(
 
     @CheckResult
     private fun EntryViewState.regenerateEntries(entries: List<EntryViewState.EntryGroup>): EntryViewState {
-        val newItems = prepareListEntries(entries)
-        val visibleEntries = getOnlyVisibleEntries(newItems, search)
+        val newEntries = prepareListEntries(entries)
+        val visibleEntries = getOnlyVisibleEntries(newEntries, search)
         return copy(
-            allEntries = newItems,
+            allEntries = newEntries,
             displayedEntries = visibleEntries,
         )
     }
@@ -217,6 +218,12 @@ internal class EntryListStateModel @Inject internal constructor(
     ): List<EntryViewState.EntryGroup> {
         return entries
             .filter { it.entry.isReal() }
+            .map { group ->
+                val validItems = group.items
+                    .filterNot { it.isArchived() }
+                    .filterNot { it.isReal() }
+                return@map group.copy(items = validItems)
+            }
             .toList()
     }
 
