@@ -19,6 +19,8 @@ package com.pyamsoft.fridge.entry
 import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.entry.FridgeEntryChangeEvent
+import com.pyamsoft.fridge.db.item.FridgeItem
+import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent
 import com.pyamsoft.fridge.ui.BottomOffset
 import com.pyamsoft.highlander.highlander
 import com.pyamsoft.pydroid.arch.EventConsumer
@@ -71,6 +73,10 @@ internal class EntryListStateModel @Inject internal constructor(
             interactor.listenForEntryChanges { handleEventRealtime(it) }
         }
 
+        stateModelScope.launch(context = Dispatchers.Default) {
+            interactor.listenForItemChanges { handleItemRealtime(it) }
+        }
+
         refreshList(false)
     }
 
@@ -120,10 +126,51 @@ internal class EntryListStateModel @Inject internal constructor(
 
     private fun handleEventRealtime(event: FridgeEntryChangeEvent) {
         return when (event) {
-            is FridgeEntryChangeEvent.Insert -> handleRealtimeInsert(event.entry)
-            is FridgeEntryChangeEvent.Update -> handleRealtimeUpdate(event.entry)
-            is FridgeEntryChangeEvent.Delete -> handleRealtimeDelete(event.entry)
+            is FridgeEntryChangeEvent.Insert -> handleRealtimeEntryInsert(event.entry)
+            is FridgeEntryChangeEvent.Update -> handleRealtimeEntryUpdate(event.entry)
+            is FridgeEntryChangeEvent.Delete -> handleRealtimeEntryDelete(event.entry)
             is FridgeEntryChangeEvent.DeleteAll -> handleRealtimeEntryDeleteAll()
+        }
+    }
+
+    private fun handleItemRealtime(event: FridgeItemChangeEvent) {
+        return when (event) {
+            is FridgeItemChangeEvent.Insert -> handleRealtimeItemInsert(event.item)
+            is FridgeItemChangeEvent.Update -> handleRealtimeItemUpdate(event.item)
+            is FridgeItemChangeEvent.Delete -> handleRealtimeItemDelete(event.item)
+        }
+    }
+
+    private fun handleRealtimeItemInsert(item: FridgeItem) {
+        setState {
+            val newEntries = allEntries.map { group ->
+                if (group.entry.id() != item.entryId()) group else {
+                    group.copy(items = group.items + item)
+                }
+            }
+            regenerateEntries(newEntries)
+        }
+    }
+
+    private fun handleRealtimeItemUpdate(item: FridgeItem) {
+        setState {
+            val newEntries = allEntries.map { group ->
+                if (group.entry.id() != item.entryId()) group else {
+                    group.copy(items = group.items.map { if (it.id() == item.id()) item else it })
+                }
+            }
+            regenerateEntries(newEntries)
+        }
+    }
+
+    private fun handleRealtimeItemDelete(item: FridgeItem) {
+        setState {
+            val newEntries = allEntries.map { group ->
+                if (group.entry.id() != item.entryId()) group else {
+                    group.copy(items = group.items.filterNot { it.id() == item.id() })
+                }
+            }
+            regenerateEntries(newEntries)
         }
     }
 
@@ -134,7 +181,7 @@ internal class EntryListStateModel @Inject internal constructor(
         }
     }
 
-    private fun handleRealtimeInsert(entry: FridgeEntry) {
+    private fun handleRealtimeEntryInsert(entry: FridgeEntry) {
         setState {
             val newEntries = allEntries + EntryViewState.EntryGroup(
                 entry = entry,
@@ -144,7 +191,7 @@ internal class EntryListStateModel @Inject internal constructor(
         }
     }
 
-    private fun handleRealtimeUpdate(entry: FridgeEntry) {
+    private fun handleRealtimeEntryUpdate(entry: FridgeEntry) {
         Timber.d("Realtime update: $entry")
         setState {
             val newEntries = allEntries.map { group ->
@@ -156,7 +203,7 @@ internal class EntryListStateModel @Inject internal constructor(
         }
     }
 
-    private fun handleRealtimeDelete(entry: FridgeEntry) {
+    private fun handleRealtimeEntryDelete(entry: FridgeEntry) {
         Timber.d("Realtime delete: $entry")
         setState {
             val newEntries = allEntries.filterNot { it.entry.id() == entry.id() }

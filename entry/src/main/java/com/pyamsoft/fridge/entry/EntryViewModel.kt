@@ -33,6 +33,7 @@ class EntryViewModel @Inject internal constructor(
         val job = delegate.bind(Renderable { state -> setState { state } })
         doOnCleared { job.cancel() }
         doOnCleared { delegate.clear() }
+        doOnCleared { Timber.d("View Model Killed") }
     }
 
     override fun handleViewEvent(event: EntryViewEvent) {

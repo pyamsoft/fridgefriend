@@ -42,6 +42,7 @@ class EntryInteractor @Inject internal constructor(
     private val preferences: EntryPreferences,
     private val itemInsertDao: FridgeItemInsertDao,
     private val itemQueryDao: FridgeItemQueryDao,
+    private val itemRealtime: FridgeItemRealtime,
     private val entryInsertDao: FridgeEntryInsertDao,
     private val entryQueryDao: FridgeEntryQueryDao,
     private val entryRealtime: FridgeEntryRealtime
@@ -84,6 +85,12 @@ class EntryInteractor @Inject internal constructor(
         withContext(context = Dispatchers.IO) {
             Enforcer.assertOffMainThread()
             return@withContext entryRealtime.listenForChanges(onChange)
+        }
+
+    suspend fun listenForItemChanges(onChange: suspend (FridgeItemChangeEvent) -> Unit) =
+        withContext(context = Dispatchers.IO) {
+            Enforcer.assertOffMainThread()
+            return@withContext itemRealtime.listenForChanges(onChange)
         }
 
     suspend fun createEntry(name: String) = withContext(context = Dispatchers.IO) {
