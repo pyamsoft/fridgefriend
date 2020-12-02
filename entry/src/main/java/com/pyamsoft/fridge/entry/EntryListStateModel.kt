@@ -219,10 +219,10 @@ internal class EntryListStateModel @Inject internal constructor(
         return entries
             .filter { it.entry.isReal() }
             .map { group ->
-                val validItems = group.items
+                return@map group.copy(items = group.items
                     .filterNot { it.isArchived() }
                     .filterNot { it.isReal() }
-                return@map group.copy(items = validItems)
+                )
             }
             .toList()
     }
