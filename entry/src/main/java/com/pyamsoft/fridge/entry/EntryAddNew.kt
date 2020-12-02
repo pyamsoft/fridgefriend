@@ -20,12 +20,14 @@ import android.view.ViewGroup
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.view.updatePadding
 import androidx.lifecycle.LifecycleOwner
+import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.entry.databinding.EntryAddNewBinding
 import com.pyamsoft.fridge.ui.R
 import com.pyamsoft.fridge.ui.SnackbarContainer
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.loader.disposeOnDestroy
+import com.pyamsoft.pydroid.ui.util.Snackbreak
 import com.pyamsoft.pydroid.ui.util.popShow
 import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
 import javax.inject.Inject
@@ -71,6 +73,7 @@ class EntryAddNew @Inject internal constructor(
 
     override fun onRender(state: EntryViewState) {
         handleBottomMargin(state)
+        handleUndo(state)
     }
 
     private fun handleBottomMargin(state: EntryViewState) {
@@ -78,6 +81,37 @@ class EntryAddNew @Inject internal constructor(
             if (height > 0) {
                 layoutRoot.updatePadding(bottom = height)
             }
+        }
+    }
+
+    private fun handleUndo(state: EntryViewState) {
+        state.undoableEntry.let { undoable ->
+            if (undoable == null) {
+                clearUndoSnackbar()
+            } else {
+                showUndoSnackbar(undoable)
+            }
+        }
+    }
+
+    private fun showUndoSnackbar(undoable: FridgeEntry) {
+        Snackbreak.bindTo(owner, "undo") {
+            short(layoutRoot, "Removed ${undoable.name()}",
+                onHidden = { _, _ ->
+                    // Once hidden this will clear out the stored undoable
+                    //
+                    // If the undoable was restored before this point, this is basically a no-op
+                    publish(EntryViewEvent.ReallyDeleteEntryNoUndo(undoable))
+                }) {
+                // Restore the old item
+                setAction("Undo") { publish(EntryViewEvent.UndoDeleteEntry(undoable)) }
+            }
+        }
+    }
+
+    private fun clearUndoSnackbar() {
+        Snackbreak.bindTo(owner, "undo") {
+            dismiss()
         }
     }
 }

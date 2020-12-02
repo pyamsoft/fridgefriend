@@ -16,19 +16,28 @@
 
 package com.pyamsoft.fridge.entry
 
+import android.graphics.Color
+import android.graphics.drawable.Drawable
 import android.view.ViewGroup
 import androidx.annotation.CheckResult
 import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
+import com.mikepenz.fastadapter.swipe.SimpleSwipeCallback
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.entry.databinding.EntryListBinding
 import com.pyamsoft.fridge.entry.item.EntryItemComponent
+import com.pyamsoft.fridge.entry.item.EntryItemViewHolder
 import com.pyamsoft.fridge.entry.item.EntryItemViewState
+import com.pyamsoft.fridge.ui.R
 import com.pyamsoft.fridge.ui.applyToolbarOffset
 import com.pyamsoft.pydroid.arch.BaseUiView
+import com.pyamsoft.pydroid.loader.ImageLoader
+import com.pyamsoft.pydroid.ui.theme.ThemeProvider
 import com.pyamsoft.pydroid.ui.util.refreshing
 import com.pyamsoft.pydroid.ui.util.removeAllItemDecorations
 import com.pyamsoft.pydroid.util.asDp
+import com.pyamsoft.pydroid.util.tintWith
 import io.cabriole.decorator.DecorationLookup
 import io.cabriole.decorator.LinearBoundsMarginDecoration
 import io.cabriole.decorator.LinearMarginDecoration
@@ -37,6 +46,8 @@ import timber.log.Timber
 import javax.inject.Inject
 
 class EntryList @Inject internal constructor(
+    private val theming: ThemeProvider,
+    private val imageLoader: ImageLoader,
     parent: ViewGroup,
     factory: EntryItemComponent.Factory
 ) : BaseUiView<EntryViewState, EntryViewEvent, EntryListBinding>(parent) {
@@ -45,8 +56,11 @@ class EntryList @Inject internal constructor(
 
     override val layoutRoot by boundView { entryListRoot }
 
+    private var touchHelper: ItemTouchHelper? = null
     private var modelAdapter: EntryListAdapter? = null
+
     private var bottomMarginDecoration: RecyclerView.ItemDecoration? = null
+
     private var lastScrollPosition = 0
 
     init {
@@ -84,6 +98,10 @@ class EntryList @Inject internal constructor(
 
         doOnInflate {
             binding.entrySwipeRefresh.setOnRefreshListener { publish(EntryViewEvent.ForceRefresh) }
+        }
+
+        doOnInflate {
+            setupSwipeCallback()
         }
 
         doOnInflate { savedInstanceState ->
@@ -158,15 +176,82 @@ class EntryList @Inject internal constructor(
             binding.entryList.adapter = null
             clearList()
 
+            touchHelper?.attachToRecyclerView(null)
             binding.entrySwipeRefresh.setOnRefreshListener(null)
 
             modelAdapter = null
+            touchHelper = null
         }
     }
 
     @CheckResult
     private fun itemAtIndex(index: Int): FridgeEntry {
         return usingAdapter().currentList[index].entry
+    }
+
+    private fun deleteListItem(position: Int) {
+        publish(EntryViewEvent.DeleteEntry(itemAtIndex(position)))
+    }
+
+    private fun setupSwipeCallback() {
+        applySwipeCallback(ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT) { position: Int, direction: Int ->
+            val holder = binding.entryList.findViewHolderForAdapterPosition(position)
+            if (holder == null) {
+                Timber.w("ViewHolder is null, cannot respond to swipe")
+                return@applySwipeCallback
+            }
+            if (holder !is EntryItemViewHolder) {
+                Timber.w("ViewHolder is not EntryItemViewHolder, cannot respond to swipe")
+                return@applySwipeCallback
+            }
+
+            deleteListItem(position)
+        }
+    }
+
+    @CheckResult
+    private fun Drawable.themeIcon(): Drawable {
+        val color =
+            if (theming.isDarkTheme()) com.pyamsoft.pydroid.ui.R.color.white else com.pyamsoft.pydroid.ui.R.color.black
+        return this.tintWith(layoutRoot.context, color)
+    }
+
+    private inline fun applySwipeCallback(
+        directions: Int,
+        crossinline itemSwipeCallback: (position: Int, directions: Int) -> Unit
+    ) {
+        val leftBehindDrawable = imageLoader.load(R.drawable.ic_delete_24dp)
+            .mutate { it.themeIcon() }
+            .immediate()
+
+        val swipeCallback = SimpleSwipeCallback(
+            object : SimpleSwipeCallback.ItemSwipeCallback {
+
+                override fun itemSwiped(position: Int, direction: Int) {
+                    itemSwipeCallback(position, direction)
+                }
+            },
+            requireNotNull(leftBehindDrawable),
+            directions,
+            Color.TRANSPARENT
+        ).apply {
+            val rightBehindDrawable = imageLoader.load(R.drawable.ic_delete_24dp)
+                .mutate { it.themeIcon() }
+                .immediate()
+            withBackgroundSwipeRight(Color.TRANSPARENT)
+            withLeaveBehindSwipeRight(requireNotNull(rightBehindDrawable))
+        }
+
+        // Detach any existing helper from the recyclerview
+        touchHelper?.attachToRecyclerView(null)
+
+        // Attach new helper
+        val helper = ItemTouchHelper(swipeCallback).apply {
+            attachToRecyclerView(binding.entryList)
+        }
+
+        // Set helper for cleanup later
+        touchHelper = helper
     }
 
     override fun onRender(state: EntryViewState) {

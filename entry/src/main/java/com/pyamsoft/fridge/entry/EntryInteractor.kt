@@ -21,6 +21,7 @@ import com.pyamsoft.fridge.core.currentDate
 import com.pyamsoft.fridge.core.today
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.entry.FridgeEntryChangeEvent
+import com.pyamsoft.fridge.db.entry.FridgeEntryDeleteDao
 import com.pyamsoft.fridge.db.entry.FridgeEntryInsertDao
 import com.pyamsoft.fridge.db.entry.FridgeEntryQueryDao
 import com.pyamsoft.fridge.db.entry.FridgeEntryRealtime
@@ -45,6 +46,7 @@ class EntryInteractor @Inject internal constructor(
     private val itemRealtime: FridgeItemRealtime,
     private val entryInsertDao: FridgeEntryInsertDao,
     private val entryQueryDao: FridgeEntryQueryDao,
+    private val entryDeleteDao: FridgeEntryDeleteDao,
     private val entryRealtime: FridgeEntryRealtime
 ) {
 
@@ -96,8 +98,22 @@ class EntryInteractor @Inject internal constructor(
     suspend fun createEntry(name: String) = withContext(context = Dispatchers.IO) {
         require(name.isNotBlank()) { "Name cannot be blank" }
 
+        Enforcer.assertOffMainThread()
         val entry = FridgeEntry.create(name)
         entryInsertDao.insert(entry.makeReal())
+    }
+
+    suspend fun delete(entry: FridgeEntry) = withContext(context = Dispatchers.IO) {
+        require(entry.isReal()) { "Entry must be real" }
+
+        Enforcer.assertOffMainThread()
+        entryDeleteDao.delete(entry)
+    }
+
+    suspend fun commit(entry: FridgeEntry) = withContext(context = Dispatchers.IO) {
+        require(entry.isReal()) { "Entry must be real" }
+        Enforcer.assertOffMainThread()
+        entryInsertDao.insert(entry)
     }
 
     companion object {

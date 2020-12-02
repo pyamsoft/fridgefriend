@@ -28,6 +28,7 @@ data class EntryViewState internal constructor(
     val displayedEntries: List<EntryGroup>,
     // All the list entries before filtering
     internal val allEntries: List<EntryGroup>,
+    val undoableEntry: FridgeEntry?,
     val isLoading: Boolean,
     val error: Throwable?,
     val search: String,
@@ -53,6 +54,14 @@ sealed class EntryViewEvent : UiViewEvent {
     data class SelectEntry internal constructor(val entry: FridgeEntry) : EntryViewEvent()
 
     data class SearchQuery internal constructor(val search: String) : EntryViewEvent()
+
+    data class DeleteEntry internal constructor(val entry: FridgeEntry) : EntryViewEvent()
+
+    data class ReallyDeleteEntryNoUndo internal constructor(
+        val entry: FridgeEntry
+    ) : EntryViewEvent()
+
+    data class UndoDeleteEntry internal constructor(val entry: FridgeEntry) : EntryViewEvent()
 
     object ForceRefresh : EntryViewEvent()
 

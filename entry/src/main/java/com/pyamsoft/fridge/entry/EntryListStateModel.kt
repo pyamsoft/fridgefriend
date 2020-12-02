@@ -43,6 +43,7 @@ internal class EntryListStateModel @Inject internal constructor(
         allEntries = emptyList(),
         search = "",
         bottomOffset = 0,
+        undoableEntry = null
     )
 ) {
 
@@ -62,6 +63,17 @@ internal class EntryListStateModel @Inject internal constructor(
             }
         } finally {
             handleListRefreshComplete()
+        }
+    }
+
+    private val undoRunner = highlander<Unit, FridgeEntry> { entry ->
+        try {
+            require(entry.isReal()) { "Cannot undo for non-real entry: $entry" }
+            interactor.commit(entry)
+        } catch (error: Throwable) {
+            error.onActualError { e ->
+                Timber.e(e, "Error undoing entry: ${entry.id()}")
+            }
         }
     }
 
@@ -208,7 +220,10 @@ internal class EntryListStateModel @Inject internal constructor(
         Timber.d("Realtime delete: $entry")
         setState {
             val newEntries = allEntries.filterNot { it.entry.id() == entry.id() }
-            regenerateEntries(newEntries)
+            regenerateEntries(newEntries).copy(
+                // Show undo banner
+                undoableEntry = entry
+            )
         }
     }
 
@@ -242,6 +257,27 @@ internal class EntryListStateModel @Inject internal constructor(
     internal fun refreshList(force: Boolean) {
         stateModelScope.launch(context = Dispatchers.Default) {
             refreshRunner.call(force)
+        }
+    }
+
+    internal fun deleteEntry(entry: FridgeEntry) {
+        stateModelScope.launch(context = Dispatchers.Default) {
+            interactor.delete(entry)
+        }
+    }
+
+    internal fun deleteForever(entry: FridgeEntry) {
+        setState {
+            if (undoableEntry?.id() == entry.id()) copy(undoableEntry = null) else this
+        }
+    }
+
+    internal fun undoDelete(entry: FridgeEntry) {
+        val undoable = state.undoableEntry
+        if (undoable?.id() == entry.id()) {
+            stateModelScope.launch(context = Dispatchers.Default) {
+                undoRunner.call(entry)
+            }
         }
     }
 }

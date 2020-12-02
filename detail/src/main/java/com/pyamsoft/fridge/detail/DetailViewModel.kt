@@ -195,7 +195,7 @@ class DetailViewModel @Inject internal constructor(
             is DetailViewEvent.Back -> publish(DetailControllerEvent.Back)
             is DetailViewEvent.PresenceSwitched -> handlePresenceSwitch(event.presence)
             is DetailViewEvent.ExpandItem -> expand(event.item)
-            is DetailViewEvent.ReallyDeleteItemNoUndo -> setState { copy(undoableItem = null) }
+            is DetailViewEvent.ReallyDeleteItemNoUndo -> deleteForever(event.item)
             is DetailViewEvent.UndoDeleteItem -> handleUndoDelete(event.item)
             is DetailViewEvent.ChangeItemPresence -> commitPresence(event.item)
             is DetailViewEvent.ConsumeItem -> consume(event.item)
@@ -204,6 +204,13 @@ class DetailViewModel @Inject internal constructor(
             is DetailViewEvent.SpoilItem -> spoil(event.item)
             is DetailViewEvent.IncreaseItemCount -> increaseCount(event.item)
             is DetailViewEvent.DecreaseItemCount -> decreaseCount(event.item)
+        }
+    }
+
+    private fun deleteForever(item: FridgeItem) {
+        val undoable = state.undoableItem
+        if (undoable?.id() == item.id()) {
+            setState { copy(undoableItem = null) }
         }
     }
 
@@ -275,7 +282,12 @@ class DetailViewModel @Inject internal constructor(
     }
 
     private fun handleUndoDelete(item: FridgeItem) {
-        viewModelScope.launch(context = Dispatchers.Default) { undoRunner.call(item) }
+        val undoable = state.undoableItem
+        if (undoable?.id() == item.id()) {
+            viewModelScope.launch(context = Dispatchers.Default) {
+                undoRunner.call(item)
+            }
+        }
     }
 
     private fun toggleArchived() {
