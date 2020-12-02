@@ -100,19 +100,14 @@ internal class DetailFragment : Fragment(), SnackbarContainer {
             )
             .inject(this)
 
-        val container = requireNotNull(container)
-        val addNew = requireNotNull(addNew)
-        val heroImage = requireNotNull(heroImage)
-        val toolbar = requireNotNull(toolbar)
-
         stateSaver = createComponent(
             savedInstanceState,
             viewLifecycleOwner,
             viewModel,
-            heroImage,
-            container,
-            addNew,
-            toolbar
+            requireNotNull(heroImage),
+            requireNotNull(container),
+            requireNotNull(addNew),
+            requireNotNull(toolbar)
         ) {
             return@createComponent when (it) {
                 is DetailControllerEvent.ExpandForEditing -> openExisting(it.item)

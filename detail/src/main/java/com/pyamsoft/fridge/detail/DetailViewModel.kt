@@ -443,7 +443,7 @@ class DetailViewModel @Inject internal constructor(
 
     @CheckResult
     private fun DetailViewState.prepareListItems(items: List<FridgeItem>): List<FridgeItem> {
-        val dateSorter: Comparator<FridgeItem> = Comparator { o1, o2 ->
+        val dateSorter = Comparator<FridgeItem> { o1, o2 ->
             when (sort) {
                 DetailViewState.Sorts.CREATED -> o1.createdTime().compareTo(o2.createdTime())
                 DetailViewState.Sorts.NAME -> o1.name().compareTo(o2.name(), ignoreCase = true)

@@ -37,6 +37,7 @@ import com.pyamsoft.pydroid.arch.StateSaver
 import com.pyamsoft.pydroid.arch.createComponent
 import com.pyamsoft.pydroid.ui.Injector
 import com.pyamsoft.pydroid.ui.R
+import com.pyamsoft.pydroid.ui.app.requireToolbarActivity
 import com.pyamsoft.pydroid.ui.arch.viewModelFactory
 import com.pyamsoft.pydroid.ui.databinding.LayoutCoordinatorBinding
 import com.pyamsoft.pydroid.ui.util.commit
@@ -53,6 +54,10 @@ internal class EntryFragment : Fragment(), SnackbarContainer {
     @JvmField
     @Inject
     internal var container: EntryContainer? = null
+
+    @JvmField
+    @Inject
+    internal var toolbar: EntryToolbar? = null
 
     private var stateSaver: StateSaver? = null
 
@@ -91,6 +96,7 @@ internal class EntryFragment : Fragment(), SnackbarContainer {
         Injector.obtain<FridgeComponent>(view.context.applicationContext)
             .plusEntryComponent()
             .create(
+                requireToolbarActivity(),
                 requireActivity(),
                 viewLifecycleOwner,
                 binding.layoutCoordinator
@@ -102,6 +108,7 @@ internal class EntryFragment : Fragment(), SnackbarContainer {
             viewLifecycleOwner,
             viewModel,
             requireNotNull(container),
+            requireNotNull(toolbar),
         ) {
             return@createComponent when (it) {
                 is EntryControllerEvent.LoadEntry -> pushPage(it.entry, it.presence)

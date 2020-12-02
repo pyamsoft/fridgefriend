@@ -74,14 +74,12 @@ internal class CategoryFragment : Fragment() {
             )
             .inject(this)
 
-        val list = requireNotNull(list)
-        val heroImage = requireNotNull(heroImage)
         stateSaver = createComponent(
             savedInstanceState,
             viewLifecycleOwner,
             viewModel,
-            heroImage,
-            list
+            requireNotNull(heroImage),
+            requireNotNull(list)
         ) {
             // TODO
         }

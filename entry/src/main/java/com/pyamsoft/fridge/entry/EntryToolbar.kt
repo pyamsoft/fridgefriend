@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.pyamsoft.fridge.detail
+package com.pyamsoft.fridge.entry
 
 import android.os.Handler
 import android.os.Looper
@@ -31,18 +31,16 @@ import androidx.core.view.children
 import androidx.core.view.doOnLayout
 import androidx.core.view.forEach
 import androidx.core.view.iterator
-import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.ui.R
 import com.pyamsoft.pydroid.arch.UiView
 import com.pyamsoft.pydroid.ui.app.ToolbarActivity
-import com.pyamsoft.pydroid.ui.util.DebouncedOnClickListener
 import com.pyamsoft.pydroid.ui.util.setUpEnabled
 import timber.log.Timber
 import javax.inject.Inject
 
-class DetailToolbar @Inject internal constructor(
+class EntryToolbar @Inject internal constructor(
     toolbarActivity: ToolbarActivity
-) : UiView<DetailViewState, DetailViewEvent>() {
+) : UiView<EntryViewState, EntryViewEvent>() {
 
     private val groupIdSearch = View.generateViewId()
     private val groupIdSubmenu = View.generateViewId()
@@ -51,8 +49,6 @@ class DetailToolbar @Inject internal constructor(
     private val itemIdTitle = View.generateViewId()
     private val itemIdCreatedDate = View.generateViewId()
     private val itemIdName = View.generateViewId()
-    private val itemIdPurchasedDate = View.generateViewId()
-    private val itemIdExpirationDate = View.generateViewId()
 
     private var subMenu: SubMenu? = null
     private var searchItem: MenuItem? = null
@@ -71,10 +67,7 @@ class DetailToolbar @Inject internal constructor(
     init {
         doOnInflate {
             toolbarActivity.requireToolbar { toolbar ->
-                toolbar.setUpEnabled(true)
-                toolbar.setNavigationOnClickListener(DebouncedOnClickListener.create {
-                    publish(DetailViewEvent.Back)
-                })
+                toolbar.setUpEnabled(false)
                 initializeMenuItems(toolbar)
             }
         }
@@ -95,30 +88,19 @@ class DetailToolbar @Inject internal constructor(
     }
 
     @CheckResult
-    private fun sortForMenuItem(
-        item: MenuItem,
-        showExtra: Boolean
-    ): DetailViewState.Sorts? {
+    private fun sortForMenuItem(item: MenuItem): EntryViewState.Sorts? {
         return when (item.itemId) {
-            itemIdCreatedDate -> DetailViewState.Sorts.CREATED
-            itemIdName -> DetailViewState.Sorts.NAME
-            itemIdPurchasedDate -> if (showExtra) DetailViewState.Sorts.PURCHASED else null
-            itemIdExpirationDate -> if (showExtra) DetailViewState.Sorts.EXPIRATION else null
+            itemIdCreatedDate -> EntryViewState.Sorts.CREATED
+            itemIdName -> EntryViewState.Sorts.NAME
             else -> null
         }
     }
 
-    private fun handleSubmenu(state: DetailViewState) {
+    private fun handleSubmenu(state: EntryViewState) {
         subMenu?.let { subMenu ->
-            val isHavePresence = state.listItemPresence == FridgeItem.Presence.HAVE
-            val showExtraMenuItems = isHavePresence && searchItem?.isActionViewExpanded == false
-
-            subMenu.findItem(itemIdPurchasedDate)?.isVisible = showExtraMenuItems
-            subMenu.findItem(itemIdExpirationDate)?.isVisible = showExtraMenuItems
-
             val currentSort = state.sort
             subMenu.forEach { item ->
-                sortForMenuItem(item, showExtraMenuItems)?.also { sort ->
+                sortForMenuItem(item)?.also { sort ->
                     if (currentSort == sort) {
                         item.isChecked = true
                     }
@@ -132,12 +114,12 @@ class DetailToolbar @Inject internal constructor(
         }
     }
 
-    override fun render(state: DetailViewState) {
+    override fun render(state: EntryViewState) {
         handleSubmenu(state)
         handleInitialSearch(state)
     }
 
-    private fun handleInitialSearch(state: DetailViewState) {
+    private fun handleInitialSearch(state: EntryViewState) {
         if (initialRenderPerformed) {
             return
         }
@@ -159,7 +141,7 @@ class DetailToolbar @Inject internal constructor(
     private fun publishSearch(query: String) {
         publishHandler.removeCallbacksAndMessages(null)
         publishHandler.postDelayed(
-            { publish(DetailViewEvent.SearchQuery(query)) },
+            { publish(EntryViewEvent.SearchQuery(query)) },
             SEARCH_PUBLISH_TIMEOUT
         )
     }
@@ -219,21 +201,12 @@ class DetailToolbar @Inject internal constructor(
                 }
                 subMenu.add(groupIdSubmenu, itemIdCreatedDate, 1, "Created Date").apply {
                     isChecked = false
-                    setOnMenuItemClickListener(clickListener(DetailViewState.Sorts.CREATED))
+                    setOnMenuItemClickListener(clickListener(EntryViewState.Sorts.CREATED))
                 }
                 subMenu.add(groupIdSubmenu, itemIdName, 2, "Name").apply {
                     isChecked = false
-                    setOnMenuItemClickListener(clickListener(DetailViewState.Sorts.NAME))
+                    setOnMenuItemClickListener(clickListener(EntryViewState.Sorts.NAME))
                 }
-                subMenu.add(groupIdSubmenu, itemIdPurchasedDate, 3, "Purchase Date").apply {
-                    isChecked = false
-                    setOnMenuItemClickListener(clickListener(DetailViewState.Sorts.PURCHASED))
-                }
-                subMenu.add(groupIdSubmenu, itemIdExpirationDate, 4, "Expiration Date").apply {
-                    isChecked = false
-                    setOnMenuItemClickListener(clickListener(DetailViewState.Sorts.EXPIRATION))
-                }
-
                 subMenu.setGroupCheckable(groupIdSubmenu, true, true)
             }
     }
@@ -257,9 +230,9 @@ class DetailToolbar @Inject internal constructor(
     }
 
     @CheckResult
-    private fun clickListener(sort: DetailViewState.Sorts): MenuItem.OnMenuItemClickListener {
+    private fun clickListener(sort: EntryViewState.Sorts): MenuItem.OnMenuItemClickListener {
         return MenuItem.OnMenuItemClickListener {
-            publish(DetailViewEvent.ChangeSort(sort))
+            publish(EntryViewEvent.ChangeSort(sort))
             return@OnMenuItemClickListener true
         }
     }

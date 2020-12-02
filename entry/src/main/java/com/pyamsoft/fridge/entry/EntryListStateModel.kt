@@ -43,7 +43,8 @@ internal class EntryListStateModel @Inject internal constructor(
         allEntries = emptyList(),
         search = "",
         bottomOffset = 0,
-        undoableEntry = null
+        undoableEntry = null,
+        sort = EntryViewState.Sorts.CREATED
     )
 ) {
 
@@ -228,11 +229,21 @@ internal class EntryListStateModel @Inject internal constructor(
     }
 
     @CheckResult
-    private fun prepareListEntries(
+    private fun EntryViewState.prepareListEntries(
         entries: List<EntryViewState.EntryGroup>
     ): List<EntryViewState.EntryGroup> {
+        val dateSorter = Comparator<EntryViewState.EntryGroup> { o1, o2 ->
+            when (sort) {
+                EntryViewState.Sorts.CREATED -> o1.entry.createdTime()
+                    .compareTo(o2.entry.createdTime())
+                EntryViewState.Sorts.NAME -> o1.entry.name()
+                    .compareTo(o2.entry.name(), ignoreCase = true)
+            }
+        }
+
         return entries
             .filter { it.entry.isReal() }
+            .sortedWith(dateSorter)
             .map { group ->
                 return@map group.copy(items = group.items
                     .filterNot { it.isArchived() }
@@ -279,5 +290,9 @@ internal class EntryListStateModel @Inject internal constructor(
                 undoRunner.call(entry)
             }
         }
+    }
+
+    internal fun changeSort(newSort: EntryViewState.Sorts) {
+        setState(stateChange = { copy(sort = newSort) }, andThen = { refreshList(false) })
     }
 }

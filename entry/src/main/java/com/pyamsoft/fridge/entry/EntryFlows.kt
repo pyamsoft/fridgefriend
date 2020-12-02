@@ -33,6 +33,7 @@ data class EntryViewState internal constructor(
     val error: Throwable?,
     val search: String,
     val bottomOffset: Int,
+    val sort: Sorts
 ) : UiViewState {
 
     data class EntryGroup internal constructor(
@@ -46,6 +47,11 @@ data class EntryViewState internal constructor(
         return if (query.isBlank()) true else {
             this.name().contains(query, ignoreCase = true)
         }
+    }
+
+    enum class Sorts {
+        CREATED,
+        NAME,
     }
 }
 
@@ -62,6 +68,8 @@ sealed class EntryViewEvent : UiViewEvent {
     ) : EntryViewEvent()
 
     data class UndoDeleteEntry internal constructor(val entry: FridgeEntry) : EntryViewEvent()
+
+    data class ChangeSort internal constructor(val sort: EntryViewState.Sorts) : EntryViewEvent()
 
     object ForceRefresh : EntryViewEvent()
 

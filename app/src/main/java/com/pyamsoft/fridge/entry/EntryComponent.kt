@@ -26,6 +26,7 @@ import com.pyamsoft.fridge.core.FridgeViewModelFactory
 import com.pyamsoft.fridge.entry.EntryComponent.ViewModelModule
 import com.pyamsoft.fridge.tooltip.TooltipModule
 import com.pyamsoft.pydroid.arch.UiViewModel
+import com.pyamsoft.pydroid.ui.app.ToolbarActivity
 import dagger.Binds
 import dagger.BindsInstance
 import dagger.Module
@@ -43,6 +44,7 @@ internal interface EntryComponent {
 
         @CheckResult
         fun create(
+            @BindsInstance toolbarActivity: ToolbarActivity,
             @BindsInstance activity: Activity,
             @BindsInstance owner: LifecycleOwner,
             @BindsInstance parent: ViewGroup

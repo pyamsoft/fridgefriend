@@ -45,6 +45,7 @@ class EntryViewModel @Inject internal constructor(
             is EntryViewEvent.DeleteEntry -> delegate.deleteEntry(event.entry)
             is EntryViewEvent.ReallyDeleteEntryNoUndo -> delegate.deleteForever(event.entry)
             is EntryViewEvent.UndoDeleteEntry -> delegate.undoDelete(event.entry)
+            is EntryViewEvent.ChangeSort -> delegate.changeSort(event.sort)
         }
     }
 
