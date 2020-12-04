@@ -95,6 +95,17 @@ class MainNavigation @Inject internal constructor(
         binding.mainBottomNavigationMenu.setBackgroundColor(color)
     }
 
+    override fun onRender(state: MainViewState) {
+        correctBackground()
+        handlePage(state)
+        handleBadge(state)
+    }
+
+    private fun handleBadge(state: MainViewState) {
+        // TODO Put count of needed+expiring+expired on Entries tab
+        // TODO Put nearby store+zone on Location tab
+    }
+
     private fun handlePage(state: MainViewState) {
         state.page.let { page ->
             Timber.d("Handle page: $page")
@@ -110,11 +121,6 @@ class MainNavigation @Inject internal constructor(
                 }
             }
         }
-    }
-
-    override fun onRender(state: MainViewState) {
-        correctBackground()
-        handlePage(state)
     }
 
     @CheckResult
