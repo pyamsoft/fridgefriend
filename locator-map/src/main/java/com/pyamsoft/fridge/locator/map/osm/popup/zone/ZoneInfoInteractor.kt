@@ -17,7 +17,7 @@
 package com.pyamsoft.fridge.locator.map.osm.popup.zone
 
 import com.pyamsoft.fridge.butler.Butler
-import com.pyamsoft.fridge.butler.order.OrderFactory
+import com.pyamsoft.fridge.butler.work.OrderFactory
 import com.pyamsoft.fridge.db.zone.NearbyZone
 import com.pyamsoft.fridge.db.zone.NearbyZoneChangeEvent
 import com.pyamsoft.fridge.db.zone.NearbyZoneChangeEvent.Delete

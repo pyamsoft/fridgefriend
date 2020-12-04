@@ -18,7 +18,7 @@ package com.pyamsoft.fridge.locator.map.osm.popup.base
 
 import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.butler.Butler
-import com.pyamsoft.fridge.butler.order.OrderFactory
+import com.pyamsoft.fridge.butler.work.OrderFactory
 import com.pyamsoft.fridge.butler.params.LocationParameters
 import com.pyamsoft.fridge.db.BaseDb
 import com.pyamsoft.pydroid.core.Enforcer

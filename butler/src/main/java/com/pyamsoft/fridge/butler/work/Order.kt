@@ -14,18 +14,20 @@
  * limitations under the License.
  */
 
-package com.pyamsoft.fridge.butler.workmanager.order
+package com.pyamsoft.fridge.butler.work
 
-import com.pyamsoft.fridge.butler.order.Order
-import com.pyamsoft.fridge.butler.notification.NotificationPreferences
+import androidx.annotation.CheckResult
 
-internal abstract class NotifyingOrder protected constructor(
-    private val preferences: NotificationPreferences,
-) : Order {
+interface Order {
 
-    final override suspend fun period(): Long {
-        return preferences.getNotificationPeriod()
-    }
+    @CheckResult
+    suspend fun tag(): String
+
+    @CheckResult
+    suspend fun parameters(): OrderParameters
+
+    @CheckResult
+    suspend fun period(): Long
 
 }
 

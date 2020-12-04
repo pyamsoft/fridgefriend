@@ -21,7 +21,7 @@ import com.pyamsoft.fridge.butler.Butler
 import com.pyamsoft.fridge.butler.ButlerPreferences
 import com.pyamsoft.fridge.butler.notification.NotificationHandler
 import com.pyamsoft.fridge.butler.notification.NotificationPreferences
-import com.pyamsoft.fridge.butler.order.Order
+import com.pyamsoft.fridge.butler.work.Order
 import com.pyamsoft.fridge.butler.params.ItemParameters
 import com.pyamsoft.fridge.core.today
 import com.pyamsoft.fridge.db.entry.FridgeEntry

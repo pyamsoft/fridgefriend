@@ -17,7 +17,7 @@
 package com.pyamsoft.fridge.butler.injector
 
 import android.content.Context
-import com.pyamsoft.fridge.butler.order.OrderFactory
+import com.pyamsoft.fridge.butler.work.OrderFactory
 import com.pyamsoft.fridge.butler.params.EmptyParameters
 import com.pyamsoft.fridge.butler.runner.NightlyRunner
 import com.pyamsoft.fridge.butler.runner.WorkResult

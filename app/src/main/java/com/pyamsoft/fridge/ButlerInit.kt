@@ -19,7 +19,7 @@ package com.pyamsoft.fridge
 import android.app.Activity
 import android.app.Application
 import com.pyamsoft.fridge.butler.Butler
-import com.pyamsoft.fridge.butler.order.OrderFactory
+import com.pyamsoft.fridge.butler.work.OrderFactory
 import com.pyamsoft.fridge.butler.params.ItemParameters
 import com.pyamsoft.fridge.butler.params.LocationParameters
 

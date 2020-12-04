@@ -21,6 +21,7 @@ import androidx.work.Data
 import androidx.work.WorkerParameters
 import com.pyamsoft.fridge.butler.injector.BaseInjector
 import com.pyamsoft.fridge.butler.injector.ItemInjector
+import com.pyamsoft.fridge.butler.work.order.ItemOrder
 import com.pyamsoft.fridge.butler.params.ItemParameters
 
 internal class ItemWorker internal constructor(
@@ -34,8 +35,8 @@ internal class ItemWorker internal constructor(
 
     override fun getParams(data: Data): ItemParameters {
         return ItemParameters(
-            forceNotifyExpiring = data.getBoolean(FORCE_EXPIRING_NOTIFICATION, false),
-            forceNotifyNeeded = data.getBoolean(FORCE_NEEDED_NOTIFICATION, false)
+            forceNotifyExpiring = data.getBoolean(ItemOrder.FORCE_EXPIRING_NOTIFICATION, false),
+            forceNotifyNeeded = data.getBoolean(ItemOrder.FORCE_NEEDED_NOTIFICATION, false)
         )
     }
 }

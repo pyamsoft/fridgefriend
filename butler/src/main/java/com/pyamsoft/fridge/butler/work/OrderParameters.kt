@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.pyamsoft.fridge.butler.order
+package com.pyamsoft.fridge.butler.work
 
 import androidx.annotation.CheckResult
 

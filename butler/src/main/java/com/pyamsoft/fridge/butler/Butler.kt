@@ -16,7 +16,7 @@
 
 package com.pyamsoft.fridge.butler
 
-import com.pyamsoft.fridge.butler.order.Order
+import com.pyamsoft.fridge.butler.work.Order
 
 interface Butler {
 

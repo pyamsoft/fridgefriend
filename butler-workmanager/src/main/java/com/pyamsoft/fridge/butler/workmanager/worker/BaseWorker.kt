@@ -21,7 +21,6 @@ import androidx.annotation.CheckResult
 import androidx.work.CoroutineWorker
 import androidx.work.Data
 import androidx.work.WorkerParameters
-import com.pyamsoft.fridge.butler.Work
 import com.pyamsoft.fridge.butler.injector.BaseInjector
 import com.pyamsoft.fridge.butler.params.BaseParameters
 import com.pyamsoft.fridge.butler.runner.WorkResult
@@ -32,7 +31,7 @@ import timber.log.Timber
 internal abstract class BaseWorker<P : BaseParameters> protected constructor(
     context: Context,
     params: WorkerParameters
-) : CoroutineWorker(context.applicationContext, params), Work {
+) : CoroutineWorker(context.applicationContext, params) {
 
     final override suspend fun doWork(): Result = withContext(context = Dispatchers.Default) {
         val injector = getInjector(applicationContext)
@@ -61,10 +60,4 @@ internal abstract class BaseWorker<P : BaseParameters> protected constructor(
 
     @CheckResult
     protected abstract fun getParams(data: Data): P
-
-    companion object {
-
-        internal const val FORCE_NEEDED_NOTIFICATION = "force_needed_notifications_v1"
-        internal const val FORCE_EXPIRING_NOTIFICATION = "force_expiring_notifications_v1"
-    }
 }

@@ -14,19 +14,19 @@
  * limitations under the License.
  */
 
-package com.pyamsoft.fridge.butler.workmanager.order
+package com.pyamsoft.fridge.butler.work.order
 
 import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.butler.notification.NotificationPreferences
-import com.pyamsoft.fridge.butler.order.Order
-import com.pyamsoft.fridge.butler.order.OrderFactory
 import com.pyamsoft.fridge.butler.params.ItemParameters
 import com.pyamsoft.fridge.butler.params.LocationParameters
+import com.pyamsoft.fridge.butler.work.Order
+import com.pyamsoft.fridge.butler.work.OrderFactory
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-internal class WorkOrderFactory @Inject internal constructor(
+internal class OrderFactoryImpl @Inject internal constructor(
     private val preferences: NotificationPreferences
 ) : OrderFactory {
 

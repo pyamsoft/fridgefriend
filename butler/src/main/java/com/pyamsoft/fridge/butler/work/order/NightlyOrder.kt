@@ -14,18 +14,14 @@
  * limitations under the License.
  */
 
-package com.pyamsoft.fridge.butler.workmanager.order
+package com.pyamsoft.fridge.butler.work.order
 
-import com.pyamsoft.fridge.butler.order.OrderParameters
-import com.pyamsoft.fridge.butler.workmanager.worker.NightlyWorker
+import com.pyamsoft.fridge.butler.work.Order
+import com.pyamsoft.fridge.butler.work.OrderParameters
 import com.pyamsoft.fridge.core.today
 import java.util.Calendar
 
-internal class NightlyOrder internal constructor() : WorkOrder {
-
-    override suspend fun work(): Class<*> {
-        return NightlyWorker::class.java
-    }
+class NightlyOrder internal constructor() : Order {
 
     override suspend fun tag(): String {
         return "Nightly Reminder 1"

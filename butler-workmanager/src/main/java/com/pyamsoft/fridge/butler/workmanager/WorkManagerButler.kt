@@ -27,12 +27,15 @@ import androidx.work.Worker
 import com.google.common.util.concurrent.ListenableFuture
 import com.pyamsoft.fridge.butler.Butler
 import com.pyamsoft.fridge.butler.injector.LocationInjector
-import com.pyamsoft.fridge.butler.order.Order
-import com.pyamsoft.fridge.butler.order.OrderParameters
+import com.pyamsoft.fridge.butler.work.order.ItemOrder
+import com.pyamsoft.fridge.butler.work.order.LocationOrder
+import com.pyamsoft.fridge.butler.work.order.NightlyOrder
+import com.pyamsoft.fridge.butler.work.Order
+import com.pyamsoft.fridge.butler.work.OrderParameters
 import com.pyamsoft.fridge.butler.params.LocationParameters
 import com.pyamsoft.fridge.butler.runner.WorkResult
-import com.pyamsoft.fridge.butler.workmanager.order.LocationOrder
-import com.pyamsoft.fridge.butler.workmanager.order.WorkOrder
+import com.pyamsoft.fridge.butler.workmanager.worker.ItemWorker
+import com.pyamsoft.fridge.butler.workmanager.worker.NightlyWorker
 import com.pyamsoft.pydroid.core.Enforcer
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.suspendCancellableCoroutine
@@ -92,11 +95,17 @@ internal class WorkManagerButler @Inject internal constructor(
     }
 
     @CheckResult
-    private suspend fun WorkOrder.worker(): Class<out Worker> {
+    private fun Order.asWork(): Class<out Worker>? {
+        val workClass = when (this) {
+            is ItemOrder -> ItemWorker::class.java
+            is NightlyOrder -> NightlyWorker::class.java
+            else -> null
+        }
+
         // Basically, this is shit, but hey its Android!
         // Please make sure your orders use a class that implements a worker, thanks.
         @Suppress("UNCHECKED_CAST")
-        return this.work() as Class<out Worker>
+        return workClass as? Class<out Worker>
     }
 
     private suspend fun performLocationOrder(order: LocationOrder) {
@@ -125,15 +134,16 @@ internal class WorkManagerButler @Inject internal constructor(
         Enforcer.assertOffMainThread()
         cancelOrder(order)
 
-        if (order is WorkOrder) {
+        val worker = order.asWork()
+        if (worker == null) {
+            performImmediateWork(order)
+        } else {
             schedule(
-                order.worker(),
+                worker,
                 order.tag(),
                 WorkType.Instant,
                 order.parameters().toInputData()
             )
-        } else {
-            performImmediateWork(order)
         }
     }
 
@@ -141,15 +151,16 @@ internal class WorkManagerButler @Inject internal constructor(
         Enforcer.assertOffMainThread()
         cancelOrder(order)
 
-        if (order is WorkOrder) {
+        val worker = order.asWork()
+        if (worker == null) {
+            throw IllegalStateException("Can only schedule WorkOrder type work")
+        } else {
             schedule(
-                order.worker(),
+                worker,
                 order.tag(),
                 WorkType.Periodic(order.period()),
                 order.parameters().toInputData()
             )
-        } else {
-            throw IllegalStateException("Can only schedule WorkOrder type work")
         }
     }
 

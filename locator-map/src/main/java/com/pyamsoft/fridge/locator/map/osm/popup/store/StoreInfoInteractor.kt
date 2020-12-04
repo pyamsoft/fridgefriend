@@ -17,7 +17,7 @@
 package com.pyamsoft.fridge.locator.map.osm.popup.store
 
 import com.pyamsoft.fridge.butler.Butler
-import com.pyamsoft.fridge.butler.order.OrderFactory
+import com.pyamsoft.fridge.butler.work.OrderFactory
 import com.pyamsoft.fridge.db.store.NearbyStore
 import com.pyamsoft.fridge.db.store.NearbyStoreChangeEvent
 import com.pyamsoft.fridge.db.store.NearbyStoreDeleteDao

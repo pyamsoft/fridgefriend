@@ -14,33 +14,30 @@
  * limitations under the License.
  */
 
-package com.pyamsoft.fridge.butler.workmanager.order
+package com.pyamsoft.fridge.butler.work.order
 
 import com.pyamsoft.fridge.butler.notification.NotificationPreferences
-import com.pyamsoft.fridge.butler.order.OrderParameters
-import com.pyamsoft.fridge.butler.params.ItemParameters
-import com.pyamsoft.fridge.butler.workmanager.worker.BaseWorker
-import com.pyamsoft.fridge.butler.workmanager.worker.ItemWorker
+import com.pyamsoft.fridge.butler.params.LocationParameters
+import com.pyamsoft.fridge.butler.work.OrderParameters
 
-internal class ItemOrder internal constructor(
-    private val params: ItemParameters,
+class LocationOrder internal constructor(
+    private val params: LocationParameters,
     preferences: NotificationPreferences
-) : NotifyingOrder(preferences), WorkOrder {
-
-    override suspend fun work(): Class<*> {
-        return ItemWorker::class.java
-    }
+) : NotifyingOrder(preferences) {
 
     override suspend fun tag(): String {
-        return "Items Reminder 1"
+        return "Location Reminder 1"
     }
 
     override suspend fun parameters(): OrderParameters {
         return OrderParameters {
-            putBoolean(BaseWorker.FORCE_EXPIRING_NOTIFICATION, params.forceNotifyExpiring)
-            putBoolean(BaseWorker.FORCE_NEEDED_NOTIFICATION, params.forceNotifyNeeded)
+            putBoolean(FORCE_LOCATION_NOTIFICATION, params.forceNotifyNearby)
         }
     }
 
+    companion object {
+
+        const val FORCE_LOCATION_NOTIFICATION = "force_location_notifications_v1"
+    }
 }
 
