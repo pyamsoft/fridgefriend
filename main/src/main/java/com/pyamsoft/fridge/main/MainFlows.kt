@@ -25,6 +25,8 @@ data class MainViewState internal constructor(
     val appNameRes: Int,
     val countNeeded: Int,
     val countExpiringOrExpired: Int,
+    val countNearbyStores: Int,
+    val countNearbyZones: Int,
     val hasNearby: Boolean
 ) : UiViewState
 

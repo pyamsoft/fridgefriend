@@ -43,6 +43,8 @@ class MainViewModel @Inject internal constructor(
         appNameRes = appNameRes,
         countNeeded = 0,
         countExpiringOrExpired = 0,
+        countNearbyStores = 0,
+        countNearbyZones = 0,
         hasNearby = false
     )
 ) {
@@ -90,6 +92,16 @@ class MainViewModel @Inject internal constructor(
         viewModelScope.launch(context = Dispatchers.Default) {
             val expiredExpiringCount = interactor.getExpiredOrExpiringCount()
             setState { copy(countExpiringOrExpired = expiredExpiringCount) }
+        }
+
+        viewModelScope.launch(context = Dispatchers.Default) {
+            val nearby = interactor.getNearbyStoreCount()
+            setState { copy(countNearbyStores = nearby) }
+        }
+
+        viewModelScope.launch(context = Dispatchers.Default) {
+            val nearby = interactor.getNearbyZoneCount()
+            setState { copy(countNearbyZones = nearby) }
         }
     }
 

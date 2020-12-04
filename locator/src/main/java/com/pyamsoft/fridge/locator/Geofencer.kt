@@ -23,4 +23,9 @@ interface Geofencer {
 
     @CheckResult
     suspend fun getLastKnownLocation(): Location?
+
+
+    companion object {
+        const val DEFAULT_RADIUS_IN_METERS = 1600F
+    }
 }

@@ -78,6 +78,7 @@ class MainNavigation @Inject internal constructor(
         doOnTeardown {
             binding.mainBottomNavigationMenu.setOnNavigationItemSelectedListener(null)
             binding.mainBottomNavigationMenu.removeBadge(R.id.menu_item_nav_entries)
+            binding.mainBottomNavigationMenu.removeBadge(R.id.menu_item_nav_nearby)
         }
 
         doOnTeardown {

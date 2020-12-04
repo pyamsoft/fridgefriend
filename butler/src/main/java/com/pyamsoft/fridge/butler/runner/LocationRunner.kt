@@ -28,6 +28,7 @@ import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.isArchived
 import com.pyamsoft.fridge.db.store.NearbyStore
 import com.pyamsoft.fridge.db.zone.NearbyZone
+import com.pyamsoft.fridge.locator.Geofencer
 import com.pyamsoft.fridge.locator.Nearby
 import kotlinx.coroutines.coroutineScope
 import timber.log.Timber
@@ -57,7 +58,7 @@ internal class LocationRunner @Inject internal constructor(
         var closestZone: NearbyZone? = null
         var closestZoneDistance = Float.MAX_VALUE
 
-        nearby.nearbyStores(false, RADIUS_IN_METERS).forEach { pairing ->
+        nearby.nearbyStores(false, Geofencer.DEFAULT_RADIUS_IN_METERS).forEach { pairing ->
             Timber.d("Process nearby store: ${pairing.nearby}")
             val newClosest = if (closestStore == null) true else {
                 pairing.distance < closestStoreDistance
@@ -70,7 +71,7 @@ internal class LocationRunner @Inject internal constructor(
             }
         }
 
-        nearby.nearbyZones(false, RADIUS_IN_METERS).forEach { pairing ->
+        nearby.nearbyZones(false, Geofencer.DEFAULT_RADIUS_IN_METERS).forEach { pairing ->
             Timber.d("Process nearby zone: ${pairing.nearby}")
             val newClosest = if (closestZone == null) true else {
                 pairing.distance < closestZoneDistance
@@ -142,7 +143,5 @@ internal class LocationRunner @Inject internal constructor(
     }
 
     companion object {
-
-        private const val RADIUS_IN_METERS = 1600F
     }
 }
