@@ -16,23 +16,19 @@
 
 package com.pyamsoft.fridge.butler.runner
 
-import android.location.Location
 import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.butler.ButlerPreferences
 import com.pyamsoft.fridge.butler.notification.NotificationHandler
 import com.pyamsoft.fridge.butler.notification.NotificationPreferences
 import com.pyamsoft.fridge.butler.params.LocationParameters
 import com.pyamsoft.fridge.core.today
+import com.pyamsoft.fridge.db.Fridge
 import com.pyamsoft.fridge.db.entry.FridgeEntry
-import com.pyamsoft.fridge.db.entry.FridgeEntryQueryDao
 import com.pyamsoft.fridge.db.item.FridgeItem
-import com.pyamsoft.fridge.db.item.FridgeItemQueryDao
 import com.pyamsoft.fridge.db.item.isArchived
 import com.pyamsoft.fridge.db.store.NearbyStore
-import com.pyamsoft.fridge.db.store.NearbyStoreQueryDao
 import com.pyamsoft.fridge.db.zone.NearbyZone
-import com.pyamsoft.fridge.db.zone.NearbyZoneQueryDao
-import com.pyamsoft.fridge.locator.Geofencer
+import com.pyamsoft.fridge.locator.Nearby
 import kotlinx.coroutines.coroutineScope
 import timber.log.Timber
 import javax.inject.Inject
@@ -40,102 +36,54 @@ import javax.inject.Singleton
 
 @Singleton
 internal class LocationRunner @Inject internal constructor(
+    private val nearby: Nearby,
+    private val fridge: Fridge,
     handler: NotificationHandler,
     notificationPreferences: NotificationPreferences,
-    butlerPreferences: ButlerPreferences,
-    fridgeEntryQueryDao: FridgeEntryQueryDao,
-    fridgeItemQueryDao: FridgeItemQueryDao,
-    storeDb: NearbyStoreQueryDao,
-    zoneDb: NearbyZoneQueryDao,
-    private val geofencer: Geofencer
-) : NearbyRunner<LocationParameters>(
+    butlerPreferences: ButlerPreferences
+) : BaseRunner<LocationParameters>(
     handler,
     notificationPreferences,
     butlerPreferences,
-    fridgeEntryQueryDao,
-    fridgeItemQueryDao,
-    storeDb,
-    zoneDb
 ) {
 
     override suspend fun performWork(
         preferences: ButlerPreferences,
         params: LocationParameters
     ) = coroutineScope {
-        val location = try {
-            geofencer.getLastKnownLocation()
-        } catch (e: Exception) {
-            Timber.w("Could not get last known location - permission issue perhaps?")
-            null
-        }
-
-        if (location == null) {
-            Timber.w("Last Known location was null, cannot continue")
-            return@coroutineScope
-        }
-
         var closestStore: NearbyStore? = null
         var closestStoreDistance = Float.MAX_VALUE
 
         var closestZone: NearbyZone? = null
         var closestZoneDistance = Float.MAX_VALUE
 
-        return@coroutineScope withNearbyData { stores, zones ->
-            val currentLatitude = location.latitude
-            val currentLongitude = location.longitude
-
-            stores.forEach { store ->
-                val storeDistance =
-                    store.getDistanceTo(currentLatitude, currentLongitude)
-                if (storeDistance > RADIUS_IN_METERS) {
-                    // Out of range
-                    return@forEach
-                }
-
-                Timber.d("Process nearby store: $store")
-                val newClosest = if (closestStore == null) true else {
-                    storeDistance < closestStoreDistance
-                }
-
-                if (newClosest) {
-                    Timber.d("New closest store: $store")
-                    closestStore = store
-                    closestStoreDistance = storeDistance
-                }
+        nearby.nearbyStores(false, RADIUS_IN_METERS).forEach { pairing ->
+            Timber.d("Process nearby store: ${pairing.nearby}")
+            val newClosest = if (closestStore == null) true else {
+                pairing.distance < closestStoreDistance
             }
 
-            zones.forEach { zone ->
-                val zoneDistance =
-                    zone.getDistanceTo(currentLatitude, currentLongitude)
-
-                if (zoneDistance > RADIUS_IN_METERS) {
-                    // Out of range
-                    return@forEach
-                }
-
-                Timber.d("Process nearby zone: $zone")
-                val newClosest = if (closestZone == null) true else {
-                    zoneDistance < closestZoneDistance
-                }
-
-                if (newClosest) {
-                    Timber.d("New closest zone: $zone")
-                    closestZone = zone
-                    closestZoneDistance = zoneDistance
-                }
+            if (newClosest) {
+                Timber.d("New closest store: ${pairing.nearby}")
+                closestStore = pairing.nearby
+                closestStoreDistance = pairing.distance
             }
-
-            // There can be only one
-            if (closestStore != null && closestZone != null) {
-                if (closestStoreDistance < closestZoneDistance) {
-                    closestZone = null
-                } else {
-                    closestStore = null
-                }
-            }
-
-            fireNotification(params, preferences, closestStore, closestZone)
         }
+
+        nearby.nearbyZones(false, RADIUS_IN_METERS).forEach { pairing ->
+            Timber.d("Process nearby zone: ${pairing.nearby}")
+            val newClosest = if (closestZone == null) true else {
+                pairing.distance < closestZoneDistance
+            }
+
+            if (newClosest) {
+                Timber.d("New closest zone: ${pairing.nearby}")
+                closestZone = pairing.nearby
+                closestZoneDistance = pairing.distance
+            }
+        }
+
+        fireNotification(params, preferences, closestStore, closestZone)
     }
 
     @CheckResult
@@ -164,12 +112,12 @@ internal class LocationRunner @Inject internal constructor(
         }
 
         val now = today()
-        withFridgeData { _, items ->
+        fridge.forAllItemsInEachEntry(true) { _, items ->
             val neededItems = items.filterNot { it.isArchived() }
                 .filter { it.presence() == FridgeItem.Presence.NEED }
             if (neededItems.isEmpty()) {
                 Timber.w("There are nearby's but nothing is needed")
-                return@withFridgeData createResults(nearby = false)
+                return@forAllItemsInEachEntry createResults(nearby = false)
             }
 
             val lastTime = preferences.getLastNotificationTimeNearby()
@@ -182,50 +130,15 @@ internal class LocationRunner @Inject internal constructor(
                     notification { notifyNearby(zoneNotification, neededItems) }
                 }
 
-                return@withFridgeData createResults(nearby = storeNotified || zoneNotified)
+                return@forAllItemsInEachEntry createResults(nearby = storeNotified || zoneNotified)
             } else {
-                return@withFridgeData createResults(nearby = false)
+                return@forAllItemsInEachEntry createResults(nearby = false)
             }
         }.also { results ->
             results.firstOrNull { it.nearby }?.let {
                 preferences.markNotificationNearby(now)
             }
         }
-    }
-
-    // Get the closest point in the zone to the lat lon
-    @CheckResult
-    private fun NearbyZone.getDistanceTo(lat: Double, lon: Double): Float {
-        var closestDistance = Float.MAX_VALUE
-        this.points().forEach { point ->
-            val distance = getDistance(point.lat, point.lon, lat, lon)
-            if (distance < closestDistance) {
-                closestDistance = distance
-            }
-        }
-
-        return closestDistance
-    }
-
-    @CheckResult
-    private fun NearbyStore.getDistanceTo(lat: Double, lon: Double): Float {
-        return getDistance(this.latitude(), this.longitude(), lat, lon)
-    }
-
-    @CheckResult
-    private fun getDistance(lat1: Double, lon1: Double, lat2: Double, lon2: Double): Float {
-        val resultArray = FloatArray(1)
-        Location.distanceBetween(
-            lat1,
-            lon1,
-            lat2,
-            lon2,
-            resultArray
-        )
-
-        // Arbitrary Android magic number
-        // https://developer.android.com/reference/android/location/Location.html#distanceBetween(double,%20double,%20double,%20double,%20float%5B%5D)
-        return resultArray[0]
     }
 
     companion object {

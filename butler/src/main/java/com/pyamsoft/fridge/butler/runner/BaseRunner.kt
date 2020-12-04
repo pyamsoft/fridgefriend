@@ -20,8 +20,9 @@ import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.butler.ButlerPreferences
 import com.pyamsoft.fridge.butler.notification.NotificationHandler
 import com.pyamsoft.fridge.butler.notification.NotificationPreferences
-import com.pyamsoft.fridge.butler.work.Order
 import com.pyamsoft.fridge.butler.params.BaseParameters
+import com.pyamsoft.fridge.butler.work.Order
+import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.pydroid.core.Enforcer
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
@@ -115,4 +116,13 @@ internal abstract class BaseRunner<P : BaseParameters> protected constructor(
             false
         }
     }
+
+    protected data class NotifyResults internal constructor(
+        val entryId: FridgeEntry.Id,
+        val needed: Boolean,
+        val expiring: Boolean,
+        val expired: Boolean,
+        val nearby: Boolean
+    )
 }
+

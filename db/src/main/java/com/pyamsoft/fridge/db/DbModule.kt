@@ -27,6 +27,7 @@ import com.pyamsoft.fridge.db.entry.FridgeEntryDeleteDao
 import com.pyamsoft.fridge.db.entry.FridgeEntryInsertDao
 import com.pyamsoft.fridge.db.entry.FridgeEntryQueryDao
 import com.pyamsoft.fridge.db.entry.FridgeEntryRealtime
+import com.pyamsoft.fridge.db.fridge.FridgeImpl
 import com.pyamsoft.fridge.db.guarantee.EntryGuarantee
 import com.pyamsoft.fridge.db.guarantee.EntryGuaranteeImpl
 import com.pyamsoft.fridge.db.item.FridgeItemDb
@@ -65,6 +66,10 @@ abstract class DbModule {
     @Binds
     @CheckResult
     internal abstract fun provideEntryGuarantee(impl: EntryGuaranteeImpl): EntryGuarantee
+
+    @Binds
+    @CheckResult
+    internal abstract fun provideFridge(impl: FridgeImpl): Fridge
 
     @Module
     companion object {

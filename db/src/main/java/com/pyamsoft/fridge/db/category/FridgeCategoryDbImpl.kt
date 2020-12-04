@@ -17,7 +17,7 @@
 package com.pyamsoft.fridge.db.category
 
 import com.pyamsoft.cachify.Cached
-import com.pyamsoft.fridge.db.BaseDbImpl
+import com.pyamsoft.fridge.db.fridge.BaseDbImpl
 import com.pyamsoft.pydroid.core.Enforcer
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext

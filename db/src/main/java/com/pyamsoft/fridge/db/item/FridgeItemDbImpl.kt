@@ -19,7 +19,7 @@ package com.pyamsoft.fridge.db.item
 import com.pyamsoft.cachify.Cached
 import com.pyamsoft.cachify.MultiCached1
 import com.pyamsoft.cachify.MultiCached2
-import com.pyamsoft.fridge.db.BaseDbImpl
+import com.pyamsoft.fridge.db.fridge.BaseDbImpl
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence
 import com.pyamsoft.pydroid.core.Enforcer

@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-package com.pyamsoft.fridge.db
+package com.pyamsoft.fridge.db.fridge
 
+import com.pyamsoft.fridge.db.BaseRealtime
 import com.pyamsoft.pydroid.arch.EventBus
 import com.pyamsoft.pydroid.core.Enforcer
 import kotlinx.coroutines.Dispatchers

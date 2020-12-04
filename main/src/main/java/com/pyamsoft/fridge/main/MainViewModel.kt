@@ -21,7 +21,6 @@ import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent
 import com.pyamsoft.fridge.locator.GpsChangeEvent
 import com.pyamsoft.fridge.locator.MapPermission
 import com.pyamsoft.fridge.ui.BottomOffset
-import com.pyamsoft.highlander.highlander
 import com.pyamsoft.pydroid.arch.EventBus
 import com.pyamsoft.pydroid.arch.UiViewModel
 import kotlinx.coroutines.Dispatchers
@@ -50,13 +49,9 @@ class MainViewModel @Inject internal constructor(
 
     private var versionChecked: Boolean = false
 
-    private val realtimeRunner = highlander<Unit> {
-        interactor.listenForItemChanges { handleRealtime(it) }
-    }
-
     init {
         viewModelScope.launch(context = Dispatchers.Default) {
-            realtimeRunner.call()
+            interactor.listenForItemChanges { handleRealtime(it) }
         }
 
         doOnSaveState { outState, state ->

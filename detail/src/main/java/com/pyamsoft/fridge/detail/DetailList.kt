@@ -179,7 +179,7 @@ class DetailList @Inject internal constructor(
             directions,
             swipeAwayDeletes,
             swipeAwayRestores
-        ) { position: Int, direction: Int ->
+        ) { position, direction ->
             val holder = binding.detailList.findViewHolderForAdapterPosition(position)
             if (holder == null) {
                 Timber.w("ViewHolder is null, cannot respond to swipe")

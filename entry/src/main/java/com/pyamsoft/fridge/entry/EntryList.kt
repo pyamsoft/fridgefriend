@@ -194,7 +194,7 @@ class EntryList @Inject internal constructor(
     }
 
     private fun setupSwipeCallback() {
-        applySwipeCallback(ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT) { position: Int, direction: Int ->
+        applySwipeCallback(ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT) { position, _ ->
             val holder = binding.entryList.findViewHolderForAdapterPosition(position)
             if (holder == null) {
                 Timber.w("ViewHolder is null, cannot respond to swipe")

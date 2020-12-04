@@ -22,6 +22,7 @@ import com.pyamsoft.fridge.locator.api.OsmNodeOrWay
 import com.pyamsoft.fridge.locator.location.LocationUpdateManagerImpl
 import com.pyamsoft.fridge.locator.location.LocationUpdatePublisher
 import com.pyamsoft.fridge.locator.location.LocationUpdateReceiver
+import com.pyamsoft.fridge.locator.location.NearbyImpl
 import com.pyamsoft.fridge.locator.permission.ForegroundLocationPermission
 import com.pyamsoft.fridge.locator.permission.PermissionGranter
 import com.pyamsoft.fridge.locator.permission.PermissionHandler
@@ -33,7 +34,6 @@ import dagger.Module
 import dagger.Provides
 import okhttp3.Call
 import okhttp3.OkHttpClient
-import okhttp3.Request
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Converter
 import retrofit2.Retrofit
@@ -60,6 +60,10 @@ abstract class LocatorModule {
     @Binds
     @CheckResult
     internal abstract fun bindLocationUpdatePublisher(impl: LocationUpdateManagerImpl): LocationUpdatePublisher
+
+    @Binds
+    @CheckResult
+    internal abstract fun bindNearby(impl: NearbyImpl): Nearby
 
     @Module
     companion object {

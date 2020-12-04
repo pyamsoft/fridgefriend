@@ -21,16 +21,15 @@ import com.pyamsoft.fridge.butler.Butler
 import com.pyamsoft.fridge.butler.ButlerPreferences
 import com.pyamsoft.fridge.butler.notification.NotificationHandler
 import com.pyamsoft.fridge.butler.notification.NotificationPreferences
-import com.pyamsoft.fridge.butler.work.Order
 import com.pyamsoft.fridge.butler.params.ItemParameters
+import com.pyamsoft.fridge.butler.work.Order
 import com.pyamsoft.fridge.core.today
+import com.pyamsoft.fridge.db.Fridge
 import com.pyamsoft.fridge.db.entry.FridgeEntry
-import com.pyamsoft.fridge.db.entry.FridgeEntryQueryDao
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence.HAVE
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence.NEED
 import com.pyamsoft.fridge.db.item.FridgeItemPreferences
-import com.pyamsoft.fridge.db.item.FridgeItemQueryDao
 import com.pyamsoft.fridge.db.item.cleanMidnight
 import com.pyamsoft.fridge.db.item.daysLaterMidnight
 import com.pyamsoft.fridge.db.item.isArchived
@@ -46,17 +45,14 @@ import javax.inject.Singleton
 internal class ItemRunner @Inject internal constructor(
     private val butler: Butler,
     private val fridgeItemPreferences: FridgeItemPreferences,
+    private val fridge: Fridge,
     handler: NotificationHandler,
     notificationPreferences: NotificationPreferences,
     butlerPreferences: ButlerPreferences,
-    fridgeEntryQueryDao: FridgeEntryQueryDao,
-    fridgeItemQueryDao: FridgeItemQueryDao
-) : FridgeRunner<ItemParameters>(
+) : BaseRunner<ItemParameters>(
     handler,
     notificationPreferences,
     butlerPreferences,
-    fridgeEntryQueryDao,
-    fridgeItemQueryDao
 ) {
 
     override suspend fun onReschedule(order: Order) {
@@ -171,7 +167,7 @@ internal class ItemRunner @Inject internal constructor(
         val later = today().daysLaterMidnight(fridgeItemPreferences.getExpiringSoonRange())
         val isSameDayExpired = fridgeItemPreferences.isSameDayExpired()
 
-        withFridgeData { entry, items ->
+        fridge.forAllItemsInEachEntry(true) { entry, items ->
             notifyForEntry(params, preferences, now, today, later, isSameDayExpired, entry, items)
         }.let { results ->
             results.firstOrNull { it.needed }?.let {
