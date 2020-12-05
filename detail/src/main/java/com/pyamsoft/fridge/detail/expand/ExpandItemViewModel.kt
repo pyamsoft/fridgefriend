@@ -30,11 +30,12 @@ import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent.Update
 import com.pyamsoft.fridge.db.item.FridgeItemRealtime
 import com.pyamsoft.fridge.db.item.isArchived
 import com.pyamsoft.fridge.detail.DetailInteractor
-import com.pyamsoft.fridge.detail.base.BaseUpdaterViewModel
+import com.pyamsoft.fridge.detail.base.createUpdateDelegate
 import com.pyamsoft.fridge.detail.expand.date.DateSelectPayload
 import com.pyamsoft.fridge.detail.item.isNameValid
 import com.pyamsoft.highlander.highlander
 import com.pyamsoft.pydroid.arch.EventBus
+import com.pyamsoft.pydroid.arch.UiViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -49,7 +50,7 @@ class ExpandItemViewModel @Inject internal constructor(
     realtime: FridgeItemRealtime,
     possibleItemId: FridgeItem.Id,
     itemEntryId: FridgeEntry.Id,
-) : BaseUpdaterViewModel<ExpandItemViewState, ExpandedItemViewEvent, ExpandItemControllerEvent>(
+) : UiViewModel<ExpandItemViewState, ExpandedItemViewEvent, ExpandItemControllerEvent>(
     ExpandItemViewState(
         item = null,
         throwable = null,
@@ -59,7 +60,8 @@ class ExpandItemViewModel @Inject internal constructor(
     )
 ) {
 
-    private val updateDelegate = createUpdateDelegate(interactor) { handleError(it) }
+    private val updateDelegate =
+        createUpdateDelegate(viewModelScope, interactor) { handleError(it) }
 
     private val itemResolveRunner = highlander<Unit, FridgeItem.Id> { resolveItemId ->
         val item = interactor.resolveItem(

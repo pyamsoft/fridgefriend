@@ -41,93 +41,102 @@ abstract class BaseUpdaterViewModel<S : UiViewState, V : UiViewEvent, C : UiCont
         interactor: DetailInteractor,
         onError: (Throwable) -> Unit
     ): UpdateDelegate {
-        return UpdateDelegate(viewModelScope, interactor, onError)
+        return createUpdateDelegate(viewModelScope, interactor, onError)
     }
 
-    internal class UpdateDelegate internal constructor(
-        viewModelScope: CoroutineScope,
-        interactor: DetailInteractor,
-        handleError: (Throwable) -> Unit,
-    ) {
+}
 
-        private var viewModelScope: CoroutineScope? = viewModelScope
-        private var interactor: DetailInteractor? = interactor
-        private var handleError: ((Throwable) -> Unit)? = handleError
+@CheckResult
+internal fun createUpdateDelegate(
+    scope: CoroutineScope,
+    interactor: DetailInteractor,
+    onError: (Throwable) -> Unit
+): UpdateDelegate {
+    return UpdateDelegate(scope, interactor, onError)
+}
 
-        fun teardown() {
-            viewModelScope = null
-            interactor = null
-            handleError = null
-        }
+internal class UpdateDelegate internal constructor(
+    viewModelScope: CoroutineScope,
+    interactor: DetailInteractor,
+    handleError: (Throwable) -> Unit,
+) {
 
-        private val updateRunner = highlander<
-                Unit,
-                FridgeItem,
-                suspend (item: FridgeItem) -> Unit,
-                    (throwable: Throwable) -> Unit
-                > { item, doUpdate, onError ->
-            try {
-                doUpdate(item.makeReal())
-            } catch (error: Throwable) {
-                error.onActualError { e ->
-                    Timber.e(e, "Error updating item: ${item.id()}")
-                    onError(e)
-                }
+    private var viewModelScope: CoroutineScope? = viewModelScope
+    private var interactor: DetailInteractor? = interactor
+    private var handleError: ((Throwable) -> Unit)? = handleError
+
+    fun teardown() {
+        viewModelScope = null
+        interactor = null
+        handleError = null
+    }
+
+    private val updateRunner = highlander<
+            Unit,
+            FridgeItem,
+            suspend (item: FridgeItem) -> Unit,
+                (throwable: Throwable) -> Unit
+            > { item, doUpdate, onError ->
+        try {
+            doUpdate(item.makeReal())
+        } catch (error: Throwable) {
+            error.onActualError { e ->
+                Timber.e(e, "Error updating item: ${item.id()}")
+                onError(e)
             }
-        }
-
-        private fun update(item: FridgeItem, doUpdate: suspend (item: FridgeItem) -> Unit) {
-            requireNotNull(viewModelScope).launch(context = Dispatchers.Default) {
-                updateRunner.call(item, doUpdate, requireNotNull(handleError))
-            }
-        }
-
-        internal fun consumeItem(item: FridgeItem) {
-            update(item) { requireNotNull(interactor).commit(it.consume(currentDate())) }
-        }
-
-        internal fun restoreItem(item: FridgeItem) {
-            update(item) {
-                requireNotNull(interactor).commit(it.invalidateConsumption().invalidateSpoiled())
-            }
-        }
-
-        internal fun spoilItem(item: FridgeItem) {
-            update(item) { requireNotNull(interactor).commit(it.spoil(currentDate())) }
-        }
-
-        internal fun deleteItem(item: FridgeItem) {
-            update(item) { requireNotNull(interactor).delete(it) }
-        }
-
-        internal fun updateItem(item: FridgeItem) {
-            val updated = item.run {
-                val dateOfPurchase = this.purchaseTime()
-                if (this.presence() == FridgeItem.Presence.HAVE) {
-                    // If we are HAVE but don't have a purchase date, we just purchased the item!
-                    if (dateOfPurchase == null) {
-                        val now = currentDate()
-                        Timber.d("${item.name()} purchased! $now")
-                        return@run this.purchaseTime(now)
-                    }
-                } else {
-                    // If we are NEED but have a purchase date, we must invalidate the date
-                    if (dateOfPurchase != null) {
-                        Timber.d("${item.name()} purchase date cleared")
-                        return@run this.invalidatePurchase()
-                    }
-                }
-
-                // No side effects
-                return@run this
-            }
-
-            update(
-                updated,
-                doUpdate = requireNotNull(interactor)::commit,
-            )
         }
     }
 
+    private fun update(item: FridgeItem, doUpdate: suspend (item: FridgeItem) -> Unit) {
+        requireNotNull(viewModelScope).launch(context = Dispatchers.Default) {
+            updateRunner.call(item, doUpdate, requireNotNull(handleError))
+        }
+    }
+
+    internal fun consumeItem(item: FridgeItem) {
+        update(item) { requireNotNull(interactor).commit(it.consume(currentDate())) }
+    }
+
+    internal fun restoreItem(item: FridgeItem) {
+        update(item) {
+            requireNotNull(interactor).commit(it.invalidateConsumption().invalidateSpoiled())
+        }
+    }
+
+    internal fun spoilItem(item: FridgeItem) {
+        update(item) { requireNotNull(interactor).commit(it.spoil(currentDate())) }
+    }
+
+    internal fun deleteItem(item: FridgeItem) {
+        update(item) { requireNotNull(interactor).delete(it) }
+    }
+
+    internal fun updateItem(item: FridgeItem) {
+        val updated = item.run {
+            val dateOfPurchase = this.purchaseTime()
+            if (this.presence() == FridgeItem.Presence.HAVE) {
+                // If we are HAVE but don't have a purchase date, we just purchased the item!
+                if (dateOfPurchase == null) {
+                    val now = currentDate()
+                    Timber.d("${item.name()} purchased! $now")
+                    return@run this.purchaseTime(now)
+                }
+            } else {
+                // If we are NEED but have a purchase date, we must invalidate the date
+                if (dateOfPurchase != null) {
+                    Timber.d("${item.name()} purchase date cleared")
+                    return@run this.invalidatePurchase()
+                }
+            }
+
+            // No side effects
+            return@run this
+        }
+
+        update(
+            updated,
+            doUpdate = requireNotNull(interactor)::commit,
+        )
+    }
 }
 
