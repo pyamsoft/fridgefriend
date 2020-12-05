@@ -18,6 +18,7 @@ package com.pyamsoft.fridge.detail
 
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.detail.DetailControllerEvent.ExpandForEditing
+import com.pyamsoft.pydroid.arch.Renderable
 import com.pyamsoft.pydroid.arch.UiViewModel
 import timber.log.Timber
 import javax.inject.Inject
@@ -29,6 +30,10 @@ class DetailViewModel @Inject internal constructor(
 ) {
 
     init {
+        val job = delegate.bind(Renderable { state -> setState { state } })
+        doOnCleared {
+            job.cancel()
+        }
         doOnCleared {
             delegate.clear()
         }
