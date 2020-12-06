@@ -20,11 +20,10 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.activity.OnBackPressedCallback
 import androidx.annotation.CheckResult
+import androidx.annotation.IdRes
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.ViewModelProvider
 import com.pyamsoft.fridge.FridgeComponent
 import com.pyamsoft.fridge.db.entry.FridgeEntry
@@ -61,22 +60,7 @@ internal class EntryFragment : Fragment(), SnackbarContainer {
 
     private var stateSaver: StateSaver? = null
 
-    // We add our own fragment container here so that we can replace the entire view
-    // in a child transaction
     private var fragmentContainerId = 0
-
-    private val backPressedCallback = object : OnBackPressedCallback(false) {
-        override fun handleOnBackPressed() {
-            childFragmentManager.popBackStack()
-        }
-    }
-
-    private val backStackChangedListener = FragmentManager.OnBackStackChangedListener {
-        val count = childFragmentManager.backStackEntryCount
-        val enabled = count > 0
-        Timber.d("Back stack callback state: $enabled")
-        backPressedCallback.isEnabled = enabled
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -92,6 +76,7 @@ internal class EntryFragment : Fragment(), SnackbarContainer {
     ) {
         super.onViewCreated(view, savedInstanceState)
 
+        fragmentContainerId = requireArguments().getInt(FRAGMENT_CONTAINER, 0)
         val binding = LayoutCoordinatorBinding.bind(view)
         Injector.obtain<FridgeComponent>(view.context.applicationContext)
             .plusEntryComponent()
@@ -128,20 +113,7 @@ internal class EntryFragment : Fragment(), SnackbarContainer {
         return container?.container()
     }
 
-    private fun watchBackPresses() {
-        requireActivity().onBackPressedDispatcher.addCallback(
-            viewLifecycleOwner,
-            backPressedCallback
-        )
-        childFragmentManager.addOnBackStackChangedListener(backStackChangedListener)
-    }
-
     private fun initializeApp() {
-        watchBackPresses()
-
-        // Capture container ID
-        fragmentContainerId = requireNotNull(container).id()
-
         val act = requireActivity()
         if (act is VersionChecker) {
             act.checkVersionForUpdate()
@@ -155,43 +127,37 @@ internal class EntryFragment : Fragment(), SnackbarContainer {
 
     override fun onDestroyView() {
         super.onDestroyView()
-
-        removeBackWatchers()
-
         stateSaver = null
         factory = null
         container = null
-    }
-
-    private fun removeBackWatchers() {
-        childFragmentManager.removeOnBackStackChangedListener(backStackChangedListener)
+        fragmentContainerId = 0
     }
 
     private fun pushPage(entry: FridgeEntry, presence: FridgeItem.Presence) {
         val tag = entry.id().id
         Timber.d("Push new entry page: $tag")
-        val fm = childFragmentManager
-        if (fm.findFragmentByTag(tag) == null) {
-            fm.commit(viewLifecycleOwner) {
-                replace(
-                    fragmentContainerId,
-                    DetailFragment.newInstance(entry, presence),
-                    tag
-                )
-                addToBackStack(null)
-            }
+        parentFragmentManager.commit(viewLifecycleOwner) {
+            replace(
+                fragmentContainerId,
+                DetailFragment.newInstance(entry, presence),
+                tag
+            )
+            addToBackStack(null)
         }
     }
 
     companion object {
 
         const val TAG = "EntryFragment"
+        private const val FRAGMENT_CONTAINER = "entry_container"
 
         @JvmStatic
         @CheckResult
-        fun newInstance(): Fragment {
+        fun newInstance(@IdRes containerId: Int): Fragment {
             return EntryFragment().apply {
-                arguments = Bundle().apply {}
+                arguments = Bundle().apply {
+                    putInt(FRAGMENT_CONTAINER, containerId)
+                }
             }
         }
     }

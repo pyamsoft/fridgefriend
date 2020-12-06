@@ -24,6 +24,7 @@ import androidx.annotation.CheckResult
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentTransaction
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
@@ -354,7 +355,7 @@ internal class MainActivity : ChangeLogActivity(), VersionChecker {
 
     private fun pushEntry(previousPage: MainPage?) {
         commitPage(
-            EntryFragment.newInstance(),
+            EntryFragment.newInstance(fragmentContainerId),
             MainPage.ENTRIES,
             previousPage,
             EntryFragment.TAG
@@ -383,6 +384,10 @@ internal class MainActivity : ChangeLogActivity(), VersionChecker {
             } else {
                 Timber.d("Commit fragment: $tag")
             }
+
+            // Clear the back stack (for entry->detail stack)
+            fm.popBackStackImmediate(null, FragmentManager.POP_BACK_STACK_INCLUSIVE)
+
             fm.commit(this) {
                 decideAnimationForPage(previousPage, newPage)
                 replace(container, fragment, tag)
