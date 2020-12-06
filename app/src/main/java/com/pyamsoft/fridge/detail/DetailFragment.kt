@@ -21,6 +21,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.CheckResult
+import androidx.constraintlayout.widget.ConstraintSet
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
@@ -59,6 +60,21 @@ internal class DetailFragment : Fragment(), SnackbarContainer {
     @JvmField
     @Inject
     internal var toolbar: DetailToolbar? = null
+
+    // Nested in container
+    @JvmField
+    @Inject
+    internal var switcher: DetailPresenceSwitcher? = null
+
+    // Nested in container
+    @JvmField
+    @Inject
+    internal var emptyState: DetailEmptyState? = null
+
+    // Nested in container
+    @JvmField
+    @Inject
+    internal var list: DetailList? = null
 
     @JvmField
     @Inject
@@ -100,12 +116,18 @@ internal class DetailFragment : Fragment(), SnackbarContainer {
             )
             .inject(this)
 
+        val container = requireNotNull(container)
+        val nestedSwitcher = requireNotNull(switcher)
+        val nestedEmptyState = requireNotNull(emptyState)
+        val nestedList = requireNotNull(list)
+        container.nest(nestedSwitcher, nestedEmptyState, nestedList)
+
         stateSaver = createComponent(
             savedInstanceState,
             viewLifecycleOwner,
             viewModel,
             requireNotNull(heroImage),
-            requireNotNull(container),
+            container,
             requireNotNull(addNew),
             requireNotNull(toolbar)
         ) {
@@ -114,6 +136,58 @@ internal class DetailFragment : Fragment(), SnackbarContainer {
                 is DetailControllerEvent.EntryArchived -> close()
                 is DetailControllerEvent.AddNew -> createItem(it.id, it.presence)
                 is DetailControllerEvent.Back -> close()
+            }
+        }
+
+        container.layout {
+            nestedSwitcher.let {
+                connect(it.id(), ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP)
+                connect(it.id(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
+                connect(
+                    it.id(),
+                    ConstraintSet.START,
+                    ConstraintSet.PARENT_ID,
+                    ConstraintSet.START
+                )
+                constrainHeight(it.id(), ConstraintSet.WRAP_CONTENT)
+            }
+
+            nestedEmptyState.let {
+                connect(
+                    it.id(),
+                    ConstraintSet.START,
+                    ConstraintSet.PARENT_ID,
+                    ConstraintSet.START
+                )
+                connect(it.id(), ConstraintSet.TOP, nestedSwitcher.id(), ConstraintSet.BOTTOM)
+                connect(
+                    it.id(),
+                    ConstraintSet.BOTTOM,
+                    ConstraintSet.PARENT_ID,
+                    ConstraintSet.BOTTOM
+                )
+                connect(it.id(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
+                constrainWidth(it.id(), ConstraintSet.MATCH_CONSTRAINT)
+                constrainHeight(it.id(), ConstraintSet.MATCH_CONSTRAINT)
+            }
+
+            nestedList.let {
+                connect(
+                    it.id(),
+                    ConstraintSet.START,
+                    ConstraintSet.PARENT_ID,
+                    ConstraintSet.START
+                )
+                connect(it.id(), ConstraintSet.TOP, nestedSwitcher.id(), ConstraintSet.BOTTOM)
+                connect(
+                    it.id(),
+                    ConstraintSet.BOTTOM,
+                    ConstraintSet.PARENT_ID,
+                    ConstraintSet.BOTTOM
+                )
+                connect(it.id(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
+                constrainWidth(it.id(), ConstraintSet.MATCH_CONSTRAINT)
+                constrainHeight(it.id(), ConstraintSet.MATCH_CONSTRAINT)
             }
         }
     }

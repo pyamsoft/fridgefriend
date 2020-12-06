@@ -46,19 +46,36 @@ class DetailItemViewHolder internal constructor(
 
     @JvmField
     @Inject
-    internal var extraContainer: DetailListItemContainer? = null
+    internal var countView: DetailListItemCount? = null
+
 
     @JvmField
     @Inject
-    internal var countView: DetailListItemCount? = null
+    internal var extraContainer: DetailListItemContainer? = null
+
+    // Nested in Container
+    @JvmField
+    @Inject
+    internal var glances: DetailListItemGlances? = null
+
+    // Nested in Container
+    @JvmField
+    @Inject
+    internal var date: DetailListItemDate? = null
 
     private val viewBinder: ViewBinder<DetailItemViewState>
 
     init {
         factory.create(binding.detailListItem, editable).inject(this)
+
+        // Nest views
+        val extra = requireNotNull(extraContainer)
+        val nestedGlances = requireNotNull(glances)
+        val nestedDate = requireNotNull(date)
+        extra.nest(nestedGlances, nestedDate)
+
         val click = requireNotNull(clickView)
         val count = requireNotNull(countView)
-        val extra = requireNotNull(extraContainer)
         val name = requireNotNull(nameView)
         val presence = requireNotNull(presenceView)
         viewBinder = createViewBinder(

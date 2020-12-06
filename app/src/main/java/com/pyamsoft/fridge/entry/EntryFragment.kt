@@ -58,6 +58,16 @@ internal class EntryFragment : Fragment(), SnackbarContainer {
     @Inject
     internal var toolbar: EntryToolbar? = null
 
+    // Nested in container
+    @JvmField
+    @Inject
+    internal var addNew: EntryAddNew? = null
+
+    // Nested in container
+    @JvmField
+    @Inject
+    internal var list: EntryList? = null
+
     private var stateSaver: StateSaver? = null
 
     private var fragmentContainerId = 0
@@ -88,11 +98,16 @@ internal class EntryFragment : Fragment(), SnackbarContainer {
             )
             .inject(this)
 
+        val container = requireNotNull(container)
+        val nestedAddNew = requireNotNull(addNew)
+        val nestedList = requireNotNull(list)
+        container.nest(nestedAddNew, nestedList)
+
         stateSaver = createComponent(
             savedInstanceState,
             viewLifecycleOwner,
             viewModel,
-            requireNotNull(container),
+            container,
             requireNotNull(toolbar),
         ) {
             return@createComponent when (it) {
@@ -110,7 +125,7 @@ internal class EntryFragment : Fragment(), SnackbarContainer {
     }
 
     override fun container(): CoordinatorLayout? {
-        return container?.container()
+        return addNew?.container()
     }
 
     private fun initializeApp() {

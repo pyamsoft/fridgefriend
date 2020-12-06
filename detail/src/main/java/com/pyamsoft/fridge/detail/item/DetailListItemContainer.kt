@@ -22,19 +22,12 @@ import com.pyamsoft.pydroid.arch.BaseUiView
 import javax.inject.Inject
 
 class DetailListItemContainer @Inject internal constructor(
-    glances: DetailListItemGlances,
-    date: DetailListItemDate,
     parent: ViewGroup
 ) : BaseUiView<DetailItemViewState, DetailItemViewEvent, DetailListItemContainerBinding>(parent) {
 
     override val viewBinding = DetailListItemContainerBinding::inflate
 
     override val layoutRoot by boundView { detailItemContainer }
-
-    init {
-        nest(glances)
-        nest(date)
-    }
 
     override fun onRender(state: DetailItemViewState) {
     }
