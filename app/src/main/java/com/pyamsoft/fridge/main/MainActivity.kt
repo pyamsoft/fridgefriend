@@ -52,6 +52,7 @@ import com.pyamsoft.pydroid.ui.changelog.buildChangeLog
 import com.pyamsoft.pydroid.ui.databinding.LayoutConstraintBinding
 import com.pyamsoft.pydroid.ui.util.commit
 import com.pyamsoft.pydroid.ui.util.layout
+import com.pyamsoft.pydroid.util.doOnStart
 import com.pyamsoft.pydroid.util.stableLayoutHideNavigation
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -385,12 +386,15 @@ internal class MainActivity : ChangeLogActivity(), VersionChecker {
                 Timber.d("Commit fragment: $tag")
             }
 
-            // Clear the back stack (for entry->detail stack)
-            fm.popBackStackImmediate(null, FragmentManager.POP_BACK_STACK_INCLUSIVE)
+            this.doOnStart {
+                // Clear the back stack (for entry->detail stack)
+                fm.popBackStackImmediate(null, FragmentManager.POP_BACK_STACK_INCLUSIVE)
 
-            fm.commit(this) {
-                decideAnimationForPage(previousPage, newPage)
-                replace(container, fragment, tag)
+                fm.commit(this) {
+
+                    decideAnimationForPage(previousPage, newPage)
+                    replace(container, fragment, tag)
+                }
             }
         }
     }
