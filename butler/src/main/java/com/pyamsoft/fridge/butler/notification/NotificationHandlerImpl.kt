@@ -92,6 +92,7 @@ internal class NotificationHandlerImpl @Inject internal constructor(
             id = idMap.getNotificationId(NotificationType.NEARBY) { nearbyId.toString() },
             channelInfo = NotificationChannelInfo.NEARBY,
             notification = NearbyItemNotifyData(
+                id = nearbyId,
                 name = nearbyName,
                 items = items
             )

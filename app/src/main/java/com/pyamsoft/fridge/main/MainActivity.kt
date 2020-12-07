@@ -196,7 +196,7 @@ internal class MainActivity : ChangeLogActivity(), VersionChecker {
     }
 
     private fun clearLaunchNotification() {
-        val id = intent.getIntExtra(NotificationHandler.NOTIFICATION_ID_KEY, 0)
+        val id = intent.getIntExtra(NotificationHandler.KEY_NOTIFICATION_ID, 0)
         if (id != 0) {
             requireNotNull(notificationHandler).cancel(id.toNotifyId())
         }

@@ -22,9 +22,10 @@ import android.content.Context
 import androidx.core.app.NotificationCompat
 import androidx.core.text.bold
 import androidx.core.text.buildSpannedString
-import com.pyamsoft.fridge.ui.R
 import com.pyamsoft.fridge.butler.notification.NeededItemNotifyData
+import com.pyamsoft.fridge.butler.notification.NotificationHandler
 import com.pyamsoft.fridge.db.item.FridgeItem
+import com.pyamsoft.fridge.ui.R
 import com.pyamsoft.pydroid.notify.NotifyData
 import com.pyamsoft.pydroid.notify.NotifyId
 import javax.inject.Inject
@@ -50,7 +51,6 @@ internal class NeededItemNotifyDispatcher @Inject internal constructor(
     ): Notification {
         builder.apply {
             setSmallIcon(R.drawable.ic_shopping_cart_24dp)
-            setContentIntent(createContentIntent(id, FridgeItem.Presence.NEED))
             setContentTitle(buildSpannedString {
                 bold { append("Shopping reminder") }
                 append(" for ")
@@ -73,6 +73,11 @@ internal class NeededItemNotifyDispatcher @Inject internal constructor(
                     isExpiringSoon = false
                 )
             )
+
+            setContentIntent(createContentIntent(id) {
+                putExtra(NotificationHandler.KEY_ENTRY_ID, notification.entry.id().id)
+                putExtra(NotificationHandler.KEY_PRESENCE_TYPE, FridgeItem.Presence.NEED)
+            })
         }
         return builder.build()
     }

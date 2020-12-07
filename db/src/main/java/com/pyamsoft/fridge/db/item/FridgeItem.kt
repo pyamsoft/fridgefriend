@@ -126,11 +126,6 @@ interface FridgeItem : EmptyModel<FridgeItem> {
         fun flip(): Presence {
             return if (this == NEED) HAVE else NEED
         }
-
-        companion object {
-
-            const val KEY = "key_presence"
-        }
     }
 
     companion object {

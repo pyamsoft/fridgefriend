@@ -22,9 +22,10 @@ import android.content.Context
 import androidx.core.app.NotificationCompat
 import androidx.core.text.bold
 import androidx.core.text.buildSpannedString
-import com.pyamsoft.fridge.ui.R
 import com.pyamsoft.fridge.butler.notification.ExpiringItemNotifyData
+import com.pyamsoft.fridge.butler.notification.NotificationHandler
 import com.pyamsoft.fridge.db.item.FridgeItem
+import com.pyamsoft.fridge.ui.R
 import com.pyamsoft.pydroid.notify.NotifyData
 import com.pyamsoft.pydroid.notify.NotifyId
 import javax.inject.Inject
@@ -50,7 +51,6 @@ internal class ExpiringItemNotifyDispatcher @Inject internal constructor(
     ): Notification {
         builder.apply {
             setSmallIcon(R.drawable.ic_consumed_24dp)
-            setContentIntent(createContentIntent(id, FridgeItem.Presence.HAVE))
             setContentTitle(buildSpannedString {
                 bold { append("Expiration reminder") }
                 append(" for ")
@@ -70,6 +70,11 @@ internal class ExpiringItemNotifyDispatcher @Inject internal constructor(
                     isExpiringSoon = true
                 )
             )
+
+            setContentIntent(createContentIntent(id) {
+                putExtra(NotificationHandler.KEY_ENTRY_ID, notification.entry.id().id)
+                putExtra(NotificationHandler.KEY_PRESENCE_TYPE, FridgeItem.Presence.HAVE)
+            })
         }
         return builder.build()
     }

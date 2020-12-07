@@ -30,7 +30,6 @@ import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.getSystemService
 import com.pyamsoft.fridge.butler.notification.NotificationHandler
-import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.ui.R
 import com.pyamsoft.pydroid.notify.NotifyChannelInfo
 import com.pyamsoft.pydroid.notify.NotifyData
@@ -100,11 +99,11 @@ internal abstract class BaseNotifyDispatcher<T : NotifyData> protected construct
     @CheckResult
     protected fun createContentIntent(
         notificationId: NotifyId,
-        presence: FridgeItem.Presence
+        extras: Intent.() -> Unit
     ): PendingIntent {
         val intent = Intent(context, activityClass).apply {
-            putExtra(FridgeItem.Presence.KEY, presence.name)
-            putExtra(NotificationHandler.NOTIFICATION_ID_KEY, notificationId.id)
+            putExtra(NotificationHandler.KEY_NOTIFICATION_ID, notificationId.id)
+            extras()
             addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
             addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
         }

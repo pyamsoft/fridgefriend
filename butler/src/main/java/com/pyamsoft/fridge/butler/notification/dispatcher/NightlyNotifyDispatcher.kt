@@ -19,12 +19,12 @@ package com.pyamsoft.fridge.butler.notification.dispatcher
 import android.app.Activity
 import android.app.Notification
 import android.content.Context
+import android.content.Intent
 import androidx.core.app.NotificationCompat
 import androidx.core.text.bold
 import androidx.core.text.buildSpannedString
-import com.pyamsoft.fridge.ui.R
 import com.pyamsoft.fridge.butler.notification.NightlyNotifyData
-import com.pyamsoft.fridge.db.item.FridgeItem
+import com.pyamsoft.fridge.ui.R
 import com.pyamsoft.pydroid.notify.NotifyData
 import com.pyamsoft.pydroid.notify.NotifyId
 import javax.inject.Inject
@@ -50,7 +50,6 @@ internal class NightlyNotifyDispatcher @Inject internal constructor(
     ): Notification {
         builder.apply {
             setSmallIcon(R.drawable.ic_category_24)
-            setContentIntent(createContentIntent(id, FridgeItem.Presence.HAVE))
             setContentTitle(buildSpannedString {
                 bold { append("Nightly reminder") }
                 append(" to ")
@@ -62,7 +61,14 @@ internal class NightlyNotifyDispatcher @Inject internal constructor(
                 bold { append("mark off") }
                 append(" anything you consumed today!")
             })
+
+            setContentIntent(createContentIntent(id, NOTHING))
         }
         return builder.build()
+    }
+
+    companion object {
+
+        private val NOTHING: Intent.() -> Unit = {}
     }
 }

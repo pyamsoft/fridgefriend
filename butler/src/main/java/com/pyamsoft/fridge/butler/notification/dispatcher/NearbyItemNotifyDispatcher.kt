@@ -22,9 +22,9 @@ import android.content.Context
 import androidx.core.app.NotificationCompat
 import androidx.core.text.bold
 import androidx.core.text.buildSpannedString
-import com.pyamsoft.fridge.ui.R
 import com.pyamsoft.fridge.butler.notification.NearbyItemNotifyData
-import com.pyamsoft.fridge.db.item.FridgeItem
+import com.pyamsoft.fridge.butler.notification.NotificationHandler
+import com.pyamsoft.fridge.ui.R
 import com.pyamsoft.pydroid.notify.NotifyData
 import com.pyamsoft.pydroid.notify.NotifyId
 import javax.inject.Inject
@@ -50,7 +50,6 @@ internal class NearbyItemNotifyDispatcher @Inject internal constructor(
     ): Notification {
         builder.apply {
             setSmallIcon(R.drawable.ic_shopping_cart_24dp)
-            setContentIntent(createContentIntent(id, FridgeItem.Presence.NEED))
             setContentTitle(buildSpannedString {
                 bold { append("Nearby reminder") }
                 append(" for ")
@@ -72,6 +71,10 @@ internal class NearbyItemNotifyDispatcher @Inject internal constructor(
                     isExpiringSoon = false
                 )
             )
+
+            setContentIntent(createContentIntent(id) {
+                putExtra(NotificationHandler.KEY_NEARBY_ID, notification.id)
+            })
         }
         return builder.build()
     }
