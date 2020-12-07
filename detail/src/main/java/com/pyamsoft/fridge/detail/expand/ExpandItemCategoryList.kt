@@ -63,8 +63,8 @@ class ExpandItemCategoryList @Inject internal constructor(
         }
 
         doOnTeardown {
-            binding.expandItemCategories.adapter = null
             clearList()
+            binding.expandItemCategories.adapter = null
 
             modelAdapter = null
         }

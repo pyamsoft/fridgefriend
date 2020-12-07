@@ -51,8 +51,8 @@ class CategoryListView @Inject internal constructor(
         }
 
         doOnTeardown {
-            binding.categoryList.adapter = null
             clearList()
+            binding.categoryList.adapter = null
 
             modelAdapter = null
         }

@@ -173,8 +173,8 @@ class EntryList @Inject internal constructor(
         }
 
         doOnTeardown {
-            binding.entryList.adapter = null
             clearList()
+            binding.entryList.adapter = null
 
             touchHelper?.attachToRecyclerView(null)
             binding.entrySwipeRefresh.setOnRefreshListener(null)
