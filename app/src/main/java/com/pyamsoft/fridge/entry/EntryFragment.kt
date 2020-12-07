@@ -24,6 +24,8 @@ import androidx.annotation.CheckResult
 import androidx.annotation.IdRes
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModelProvider
 import com.pyamsoft.fridge.FridgeComponent
 import com.pyamsoft.fridge.db.entry.FridgeEntry
@@ -119,6 +121,16 @@ internal class EntryFragment : Fragment(), SnackbarContainer {
         initializeApp()
     }
 
+    private fun pushPage(entry: FridgeEntry, presence: FridgeItem.Presence) {
+        pushDetailPage(
+            parentFragmentManager,
+            viewLifecycleOwner,
+            fragmentContainerId,
+            entry.id(),
+            presence
+        )
+    }
+
     private fun startAddFlow() {
         Timber.d("Add new entry")
         CreateEntrySheet.show(requireActivity())
@@ -148,19 +160,6 @@ internal class EntryFragment : Fragment(), SnackbarContainer {
         fragmentContainerId = 0
     }
 
-    private fun pushPage(entry: FridgeEntry, presence: FridgeItem.Presence) {
-        val tag = entry.id().id
-        Timber.d("Push new entry page: $tag")
-        parentFragmentManager.commit(viewLifecycleOwner) {
-            replace(
-                fragmentContainerId,
-                DetailFragment.newInstance(entry, presence),
-                tag
-            )
-            addToBackStack(null)
-        }
-    }
-
     companion object {
 
         const val TAG = "EntryFragment"
@@ -173,6 +172,26 @@ internal class EntryFragment : Fragment(), SnackbarContainer {
                 arguments = Bundle().apply {
                     putInt(FRAGMENT_CONTAINER, containerId)
                 }
+            }
+        }
+
+        @JvmStatic
+        fun pushDetailPage(
+            fragmentManager: FragmentManager,
+            owner: LifecycleOwner,
+            containerId: Int,
+            entryId: FridgeEntry.Id,
+            presence: FridgeItem.Presence
+        ) {
+            val tag = entryId.id
+            Timber.d("Push new entry page: $tag")
+            fragmentManager.commit(owner) {
+                replace(
+                    containerId,
+                    DetailFragment.newInstance(entryId, presence),
+                    tag
+                )
+                addToBackStack(null)
             }
         }
     }

@@ -236,12 +236,12 @@ internal class DetailFragment : Fragment(), SnackbarContainer {
         @JvmStatic
         @CheckResult
         fun newInstance(
-            entry: FridgeEntry,
+            entryId: FridgeEntry.Id,
             filterPresence: Presence
         ): Fragment {
             return DetailFragment().apply {
                 arguments = Bundle().apply {
-                    putString(ENTRY, entry.id().id)
+                    putString(ENTRY, entryId.id)
                     putString(PRESENCE, filterPresence.name)
                 }
             }

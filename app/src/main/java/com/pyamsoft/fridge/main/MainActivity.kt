@@ -19,6 +19,8 @@ package com.pyamsoft.fridge.main
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.view.ViewGroup
 import androidx.annotation.CheckResult
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -134,6 +136,8 @@ internal class MainActivity : ChangeLogActivity(), VersionChecker {
     internal var factory: ViewModelProvider.Factory? = null
     private val viewModel by viewModelFactory<MainViewModel> { factory }
 
+    private val handler by lazy(LazyThreadSafetyMode.NONE) { Handler(Looper.getMainLooper()) }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         setTheme(R.style.Theme_Fridge)
         super.onCreate(savedInstanceState)
@@ -177,6 +181,27 @@ internal class MainActivity : ChangeLogActivity(), VersionChecker {
             val entryId = FridgeEntry.Id(stringEntryId)
             val presence = FridgeItem.Presence.valueOf(pres)
             Timber.d("Entries page selected, load entry $entryId with presence: $presence")
+
+            // No good way to figure out when the FM is done transacting from a different context I think
+            handler.removeCallbacksAndMessages(null)
+
+            // Assuming that the FM handler uses the main thread, we post twice
+            // The first post puts us into the queue and basically waits for everything to clear out
+            // this would include the FM pending transactions which may also include the page select
+            // commit.
+            // Then the second post queues up a new push which will then call its own commit, hopefully once
+            // the EntryFragment is done mounting.
+            handler.post {
+                handler.post {
+                    EntryFragment.pushDetailPage(
+                        supportFragmentManager,
+                        this,
+                        fragmentContainerId,
+                        entryId,
+                        presence
+                    )
+                }
+            }
         }
         return true
     }
@@ -516,5 +541,7 @@ internal class MainActivity : ChangeLogActivity(), VersionChecker {
         snackbar = null
 
         factory = null
+
+        handler.removeCallbacksAndMessages(null)
     }
 }
