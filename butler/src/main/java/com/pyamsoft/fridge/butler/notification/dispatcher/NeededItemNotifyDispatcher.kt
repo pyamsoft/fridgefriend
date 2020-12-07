@@ -76,7 +76,7 @@ internal class NeededItemNotifyDispatcher @Inject internal constructor(
 
             setContentIntent(createContentIntent(id) {
                 putExtra(NotificationHandler.KEY_ENTRY_ID, notification.entry.id().id)
-                putExtra(NotificationHandler.KEY_PRESENCE_TYPE, FridgeItem.Presence.NEED)
+                putExtra(NotificationHandler.KEY_PRESENCE_TYPE, FridgeItem.Presence.NEED.name)
             })
         }
         return builder.build()

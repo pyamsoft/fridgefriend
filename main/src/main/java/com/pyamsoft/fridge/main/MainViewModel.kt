@@ -63,11 +63,8 @@ class MainViewModel @Inject internal constructor(
 
         // This pushes the fragment onto the stack
         doOnRestoreState { savedInstanceState ->
-            val savedPage = savedInstanceState.get<String>(PAGE)
-            if (savedPage == null) {
-                selectPage(MainPage.ENTRIES)
-            } else {
-                selectPage(MainPage.valueOf(savedPage))
+            savedInstanceState.useIfAvailable<String>(PAGE) { page ->
+                selectPage(MainPage.valueOf(page))
             }
         }
 
@@ -132,18 +129,22 @@ class MainViewModel @Inject internal constructor(
 
     private inline fun select(
         newPage: MainPage,
-        crossinline onSelected: () -> Unit,
+        crossinline onAfterSelected: () -> Unit,
         crossinline event: (page: MainPage?) -> (MainControllerEvent)
     ) {
-        Timber.d("Refresh badge counts")
+        Timber.d("Select entry: $newPage")
         refreshBadgeCounts()
 
+        // If the pages match we can just run the after, no need to set and publish
         val oldPage = state.page
-        Timber.d("Select entry: $newPage")
-        setState(stateChange = { copy(page = newPage) }, andThen = {
-            publishNewSelection(oldPage, event)
-            onSelected()
-        })
+        if (oldPage == newPage) {
+            onAfterSelected()
+        } else {
+            setState(stateChange = { copy(page = newPage) }, andThen = {
+                publishNewSelection(oldPage, event)
+                onAfterSelected()
+            })
+        }
     }
 
     private inline fun publishNewSelection(

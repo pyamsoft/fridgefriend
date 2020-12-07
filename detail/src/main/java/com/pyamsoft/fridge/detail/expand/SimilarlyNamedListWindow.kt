@@ -102,7 +102,8 @@ internal class SimilarlyNamedListWindow internal constructor(context: Context) {
     }
 
     fun show() {
-        if (adapter.isEmpty) {
+        // The only item is the title item
+        if (adapter.count <= 1) {
             dismiss()
         } else {
             popupWindow.show()

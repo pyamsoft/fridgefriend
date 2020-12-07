@@ -149,6 +149,14 @@ internal class MainActivity : ChangeLogActivity(), VersionChecker {
 
         inflateComponents(binding.layoutConstraint, savedInstanceState)
         beginWork()
+
+        handleIntentExtras(intent)
+
+        // Load default page
+        if (savedInstanceState == null) {
+            Timber.d("Load default ENTRIES page")
+            viewModel.selectPage(MainPage.ENTRIES)
+        }
     }
 
     override fun checkVersionForUpdate() {
@@ -447,7 +455,6 @@ internal class MainActivity : ChangeLogActivity(), VersionChecker {
                 fm.popBackStackImmediate(null, FragmentManager.POP_BACK_STACK_INCLUSIVE)
 
                 fm.commit(this) {
-
                     decideAnimationForPage(previousPage, newPage)
                     replace(container, fragment, tag)
                 }

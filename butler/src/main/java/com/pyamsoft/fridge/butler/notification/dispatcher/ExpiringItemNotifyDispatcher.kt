@@ -73,7 +73,7 @@ internal class ExpiringItemNotifyDispatcher @Inject internal constructor(
 
             setContentIntent(createContentIntent(id) {
                 putExtra(NotificationHandler.KEY_ENTRY_ID, notification.entry.id().id)
-                putExtra(NotificationHandler.KEY_PRESENCE_TYPE, FridgeItem.Presence.HAVE)
+                putExtra(NotificationHandler.KEY_PRESENCE_TYPE, FridgeItem.Presence.HAVE.name)
             })
         }
         return builder.build()
