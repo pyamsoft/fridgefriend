@@ -84,6 +84,17 @@ internal class LocationRunner @Inject internal constructor(
             }
         }
 
+        if (closestStore != null && closestZone != null) {
+            Timber.d("Have both store and zone, pick closest")
+            if (closestStoreDistance <= closestZoneDistance) {
+                Timber.d("Clear the closest zone, keep closest store")
+                closestZone = null
+            } else {
+                Timber.d("Clear the closest store, keep closest zone")
+                closestStore = null
+            }
+        }
+
         fireNotification(params, preferences, closestStore, closestZone)
     }
 
