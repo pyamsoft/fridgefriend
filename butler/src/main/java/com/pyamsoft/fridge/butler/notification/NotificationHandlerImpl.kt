@@ -83,6 +83,7 @@ internal class NotificationHandlerImpl @Inject internal constructor(
     private fun notifyNearby(
         nearbyId: Long,
         nearbyName: String,
+        nearbyType: String,
         items: List<FridgeItem>
     ): Boolean {
         // Plain needed notifications are overruled by location aware Nearby notifications
@@ -94,6 +95,7 @@ internal class NotificationHandlerImpl @Inject internal constructor(
             notification = NearbyItemNotifyData(
                 id = nearbyId,
                 name = nearbyName,
+                type = nearbyType,
                 items = items
             )
         ).also { Timber.d("Showing nearby notification: $it") }
@@ -101,11 +103,21 @@ internal class NotificationHandlerImpl @Inject internal constructor(
     }
 
     override fun notifyNearby(zone: NearbyZone, items: List<FridgeItem>): Boolean {
-        return notifyNearby(zone.id().id, zone.name(), items)
+        return notifyNearby(
+            zone.id().id,
+            zone.name(),
+            NotificationHandler.VALUE_NEARBY_TYPE_ZONE,
+            items
+        )
     }
 
     override fun notifyNearby(store: NearbyStore, items: List<FridgeItem>): Boolean {
-        return notifyNearby(store.id().id, store.name(), items)
+        return notifyNearby(
+            store.id().id,
+            store.name(),
+            NotificationHandler.VALUE_NEARBY_TYPE_STORE,
+            items
+        )
     }
 
     override fun notifyNightly(): Boolean {

@@ -46,6 +46,11 @@ interface NearbyZone : BaseModel<NearbyZone> {
         fun isEmpty(): Boolean {
             return id == 0L
         }
+
+        companion object {
+
+            val EMPTY = Id(0)
+        }
     }
 
     companion object {

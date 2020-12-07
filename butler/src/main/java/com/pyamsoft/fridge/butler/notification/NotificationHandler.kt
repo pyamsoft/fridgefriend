@@ -48,8 +48,13 @@ interface NotificationHandler {
     companion object {
 
         const val KEY_NOTIFICATION_ID = "key_notification_id"
+
         const val KEY_ENTRY_ID = "key_entry_id"
         const val KEY_PRESENCE_TYPE = "key_presence_type"
+
         const val KEY_NEARBY_ID = "key_nearby_id"
+        const val KEY_NEARBY_TYPE = "key_nearby_type"
+        const val VALUE_NEARBY_TYPE_STORE = "nearby_store"
+        const val VALUE_NEARBY_TYPE_ZONE = "nearby_zone"
     }
 }

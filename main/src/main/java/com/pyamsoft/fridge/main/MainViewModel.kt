@@ -35,8 +35,7 @@ class MainViewModel @Inject internal constructor(
     private val mapPermission: MapPermission,
     private val gpsChangeBus: EventBus<GpsChangeEvent>,
     private val bottomOffsetBus: EventBus<BottomOffset>,
-    @Named("app_name") appNameRes: Int,
-    defaultPage: MainPage
+    @Named("app_name") appNameRes: Int
 ) : UiViewModel<MainViewState, MainViewEvent, MainControllerEvent>(
     MainViewState(
         page = null,
@@ -66,7 +65,7 @@ class MainViewModel @Inject internal constructor(
         doOnRestoreState { savedInstanceState ->
             val savedPage = savedInstanceState.get<String>(PAGE)
             if (savedPage == null) {
-                selectPage(defaultPage)
+                selectPage(MainPage.ENTRIES)
             } else {
                 selectPage(MainPage.valueOf(savedPage))
             }
@@ -121,17 +120,19 @@ class MainViewModel @Inject internal constructor(
         }
     }
 
-    fun selectPage(newPage: MainPage) {
-        when (newPage) {
-            MainPage.ENTRIES -> select(newPage) { MainControllerEvent.PushEntry(it) }
-            MainPage.NEARBY -> select(newPage) { MainControllerEvent.PushNearby(it) }
-            MainPage.CATEGORY -> select(newPage) { MainControllerEvent.PushCategory(it) }
-            MainPage.SETTINGS -> select(newPage) { MainControllerEvent.PushSettings(it) }
+    @JvmOverloads
+    fun selectPage(page: MainPage, onSelected: () -> Unit = EMPTY) {
+        when (page) {
+            MainPage.ENTRIES -> select(page, onSelected) { MainControllerEvent.PushEntry(it) }
+            MainPage.NEARBY -> select(page, onSelected) { MainControllerEvent.PushNearby(it) }
+            MainPage.CATEGORY -> select(page, onSelected) { MainControllerEvent.PushCategory(it) }
+            MainPage.SETTINGS -> select(page, onSelected) { MainControllerEvent.PushSettings(it) }
         }
     }
 
     private inline fun select(
         newPage: MainPage,
+        crossinline onSelected: () -> Unit,
         crossinline event: (page: MainPage?) -> (MainControllerEvent)
     ) {
         Timber.d("Refresh badge counts")
@@ -141,6 +142,7 @@ class MainViewModel @Inject internal constructor(
         Timber.d("Select entry: $newPage")
         setState(stateChange = { copy(page = newPage) }, andThen = {
             publishNewSelection(oldPage, event)
+            onSelected()
         })
     }
 

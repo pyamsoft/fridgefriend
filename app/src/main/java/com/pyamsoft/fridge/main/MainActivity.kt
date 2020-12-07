@@ -35,6 +35,10 @@ import com.pyamsoft.fridge.butler.Butler
 import com.pyamsoft.fridge.butler.notification.NotificationHandler
 import com.pyamsoft.fridge.butler.work.OrderFactory
 import com.pyamsoft.fridge.category.CategoryFragment
+import com.pyamsoft.fridge.db.entry.FridgeEntry
+import com.pyamsoft.fridge.db.item.FridgeItem
+import com.pyamsoft.fridge.db.store.NearbyStore
+import com.pyamsoft.fridge.db.zone.NearbyZone
 import com.pyamsoft.fridge.entry.EntryFragment
 import com.pyamsoft.fridge.initOnAppStart
 import com.pyamsoft.fridge.locator.DeviceGps
@@ -138,7 +142,7 @@ internal class MainActivity : ChangeLogActivity(), VersionChecker {
 
         Injector.obtain<FridgeComponent>(applicationContext)
             .plusMainComponent()
-            .create(this, binding.layoutConstraint, guaranteePage(intent), this)
+            .create(this, binding.layoutConstraint, this)
             .inject(this)
 
         stableLayoutHideNavigation()
@@ -147,26 +151,78 @@ internal class MainActivity : ChangeLogActivity(), VersionChecker {
         beginWork()
     }
 
-    @CheckResult
-    private fun guaranteePage(intent: Intent): MainPage {
-        // TODO(Peter): We must open the right page
-        // Additionally pass a FridgeItem.Presence to open the correct tab within the selected entry
-        return MainPage.ENTRIES
-    }
-
     override fun checkVersionForUpdate() {
         Timber.d("Begin update check")
         viewModel.checkForUpdates()
     }
 
+    @CheckResult
+    private fun handleEntryIntent(intent: Intent): Boolean {
+        val stringEntryId = intent.getStringExtra(NotificationHandler.KEY_ENTRY_ID) ?: return false
+        viewModel.selectPage(MainPage.ENTRIES) {
+            val pres = intent.getStringExtra(NotificationHandler.KEY_PRESENCE_TYPE)
+            if (pres == null) {
+                Timber.d("New intent had entry key but no presence type")
+                return@selectPage
+            }
+
+            val entryId = FridgeEntry.Id(stringEntryId)
+            val presence = FridgeItem.Presence.valueOf(pres)
+            Timber.d("Entries page selected, load entry $entryId with presence: $presence")
+        }
+        return true
+    }
+
+    @CheckResult
+    private fun handleNearbyIntent(intent: Intent): Boolean {
+        val longNearbyId = intent.getLongExtra(NotificationHandler.KEY_NEARBY_ID, 0L)
+        if (longNearbyId == 0L) {
+            return false
+        }
+
+        viewModel.selectPage(MainPage.NEARBY) {
+            val nearbyType = intent.getStringExtra(NotificationHandler.KEY_NEARBY_TYPE)
+            if (nearbyType == null) {
+                Timber.d("New intent had nearby key but no type")
+                return@selectPage
+            }
+            val nearbyStoreId: NearbyStore.Id
+            val nearbyZoneId: NearbyZone.Id
+            when (nearbyType) {
+                NotificationHandler.VALUE_NEARBY_TYPE_STORE -> {
+                    nearbyStoreId = NearbyStore.Id(longNearbyId)
+                    nearbyZoneId = NearbyZone.Id.EMPTY
+                }
+                NotificationHandler.VALUE_NEARBY_TYPE_ZONE -> {
+                    nearbyStoreId = NearbyStore.Id.EMPTY
+                    nearbyZoneId = NearbyZone.Id(longNearbyId)
+                }
+                else -> return@selectPage
+            }
+
+            Timber.d("Map page selected, load nearby: $nearbyStoreId $nearbyZoneId")
+        }
+        return true
+    }
+
+    private fun handleIntentExtras(intent: Intent) {
+        if (handleEntryIntent(intent)) {
+            Timber.d("New intent handled entry extras")
+            return
+        }
+
+        if (handleNearbyIntent(intent)) {
+            Timber.d("New intent handled nearby extras")
+            return
+        }
+
+        Timber.d("New intent no extras")
+    }
+
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         setIntent(intent)
-
-//        val page = getPage(intent)
-//        if (page != null) {
-//            viewModel.selectPage(page)
-//        }
+        handleIntentExtras(intent)
     }
 
     override fun onBackPressed() {

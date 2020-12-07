@@ -43,7 +43,6 @@ internal interface MainComponent {
         fun create(
             @BindsInstance activity: Activity,
             @BindsInstance parent: ViewGroup,
-            @BindsInstance page: MainPage,
             @BindsInstance provider: ToolbarActivityProvider
         ): MainComponent
     }
@@ -57,6 +56,6 @@ internal interface MainComponent {
         @Binds
         @IntoMap
         @ClassKey(MainViewModel::class)
-        internal abstract fun entryViewModel(viewModel: MainViewModel): UiViewModel<*, *, *>
+        internal abstract fun mainViewModel(viewModel: MainViewModel): UiViewModel<*, *, *>
     }
 }

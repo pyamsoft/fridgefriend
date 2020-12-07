@@ -74,6 +74,7 @@ internal class NearbyItemNotifyDispatcher @Inject internal constructor(
 
             setContentIntent(createContentIntent(id) {
                 putExtra(NotificationHandler.KEY_NEARBY_ID, notification.id)
+                putExtra(NotificationHandler.KEY_NEARBY_TYPE, notification.type)
             })
         }
         return builder.build()
