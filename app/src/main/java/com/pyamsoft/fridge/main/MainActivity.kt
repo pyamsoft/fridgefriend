@@ -189,10 +189,6 @@ internal class MainActivity : ChangeLogActivity(), VersionChecker {
 
         val fm = supportFragmentManager
 
-        // Clear the back stack
-        // In case we are already on a detail fragment for example, this will clear the stack.
-        fm.clearBackStack()
-
         // Assuming that the FM handler uses the main thread, we post twice
         // The first post puts us into the queue and basically waits for everything to clear out
         // this would include the FM pending transactions which may also include the page select
@@ -201,6 +197,10 @@ internal class MainActivity : ChangeLogActivity(), VersionChecker {
         // the EntryFragment is done mounting.
         handler.post {
             handler.postDelayed({
+                // Clear the back stack
+                // In case we are already on a detail fragment for example, this will clear the stack.
+                fm.clearBackStack()
+
                 EntryFragment.pushDetailPage(
                     fm,
                     this,
