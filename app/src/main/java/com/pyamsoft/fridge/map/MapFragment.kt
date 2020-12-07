@@ -25,9 +25,11 @@ import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.pyamsoft.fridge.FridgeComponent
+import com.pyamsoft.fridge.locator.map.MapControllerEvent
+import com.pyamsoft.fridge.locator.map.MapPopupOverlay
+import com.pyamsoft.fridge.locator.map.MapViewModel
 import com.pyamsoft.fridge.locator.map.osm.OsmActions
 import com.pyamsoft.fridge.locator.map.osm.OsmMap
-import com.pyamsoft.fridge.locator.map.osm.OsmViewModel
 import com.pyamsoft.fridge.main.VersionChecker
 import com.pyamsoft.fridge.ui.SnackbarContainer
 import com.pyamsoft.pydroid.arch.StateSaver
@@ -36,6 +38,7 @@ import com.pyamsoft.pydroid.ui.Injector
 import com.pyamsoft.pydroid.ui.R
 import com.pyamsoft.pydroid.ui.arch.viewModelFactory
 import com.pyamsoft.pydroid.ui.databinding.LayoutCoordinatorBinding
+import timber.log.Timber
 import javax.inject.Inject
 
 internal class MapFragment : Fragment(), SnackbarContainer {
@@ -51,7 +54,7 @@ internal class MapFragment : Fragment(), SnackbarContainer {
     @JvmField
     @Inject
     internal var factory: ViewModelProvider.Factory? = null
-    private val viewModel by viewModelFactory<OsmViewModel>(activity = true) { factory }
+    private val viewModel by viewModelFactory<MapViewModel>(activity = true) { factory }
 
     private var stateSaver: StateSaver? = null
 
@@ -87,10 +90,17 @@ internal class MapFragment : Fragment(), SnackbarContainer {
             requireNotNull(map),
             requireNotNull(actions)
         ) {
-            // TODO handle
+            return@createComponent when (it) {
+                is MapControllerEvent.PopupClicked -> revealPopup(it.popup)
+            }
         }
 
         initializeApp()
+    }
+
+    private fun revealPopup(popupOverlay: MapPopupOverlay) {
+        Timber.d("Show map popup: $popupOverlay")
+        popupOverlay.show()
     }
 
     override fun onStart() {

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.pyamsoft.fridge.locator.map.osm
+package com.pyamsoft.fridge.locator.map
 
 import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.db.BaseModel
@@ -34,14 +34,14 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.withContext
 import timber.log.Timber
 
-internal class OsmInteractor @Inject internal constructor(
+internal class MapInteractor @Inject internal constructor(
     private val nearbyStores: NearbyStoreQueryDao,
     private val nearbyZones: NearbyZoneQueryDao,
     private val api: NearbyLocationApi
 ) {
 
     @CheckResult
-    suspend fun fromCache(): OsmMarkers = withContext(context = Dispatchers.Default) {
+    suspend fun fromCache(): MapMarkers = withContext(context = Dispatchers.Default) {
         Enforcer.assertOffMainThread()
 
         coroutineScope {
@@ -55,12 +55,12 @@ internal class OsmInteractor @Inject internal constructor(
             @Suppress("UNCHECKED_CAST") val nearbyStores = results[0] as List<NearbyStore>
             @Suppress("UNCHECKED_CAST") val nearbyZones = results[1] as List<NearbyZone>
 
-            return@coroutineScope OsmMarkers(nearbyStores, nearbyZones)
+            return@coroutineScope MapMarkers(nearbyStores, nearbyZones)
         }
     }
 
     @CheckResult
-    suspend fun nearbyLocations(box: BBox): OsmMarkers =
+    suspend fun nearbyLocations(box: BBox): MapMarkers =
         withContext(context = Dispatchers.Default) {
             Enforcer.assertOffMainThread()
 
@@ -97,7 +97,7 @@ internal class OsmInteractor @Inject internal constructor(
             }
             val markers = remainingNodes.map { NearbyStore.create(it) }
 
-            return@withContext OsmMarkers(markers, polygons)
+            return@withContext MapMarkers(markers, polygons)
         }
 
     companion object {

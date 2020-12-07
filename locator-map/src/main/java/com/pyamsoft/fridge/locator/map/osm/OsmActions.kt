@@ -22,6 +22,8 @@ import androidx.core.view.ViewPropertyAnimatorCompat
 import androidx.core.view.isVisible
 import androidx.core.view.updatePadding
 import androidx.lifecycle.LifecycleOwner
+import com.pyamsoft.fridge.locator.map.MapViewEvent
+import com.pyamsoft.fridge.locator.map.MapViewState
 import com.pyamsoft.fridge.locator.map.R
 import com.pyamsoft.fridge.locator.map.databinding.OsmActionsBinding
 import com.pyamsoft.fridge.ui.SnackbarContainer
@@ -38,7 +40,7 @@ class OsmActions @Inject internal constructor(
     private val owner: LifecycleOwner,
     private val imageLoader: ImageLoader,
     parent: ViewGroup
-) : BaseUiView<OsmViewState, OsmViewEvent, OsmActionsBinding>(parent), SnackbarContainer {
+) : BaseUiView<MapViewState, MapViewEvent, OsmActionsBinding>(parent), SnackbarContainer {
 
     override val viewBinding = OsmActionsBinding::inflate
 
@@ -67,13 +69,13 @@ class OsmActions @Inject internal constructor(
 
         doOnInflate {
             binding.osmFindMe.setOnDebouncedClickListener {
-                publish(OsmViewEvent.RequestMyLocation(firstTime = false))
+                publish(MapViewEvent.RequestMyLocation(firstTime = false))
             }
         }
 
         doOnInflate {
             binding.osmFindNearby.setOnDebouncedClickListener {
-                publish(OsmViewEvent.RequestFindNearby)
+                publish(MapViewEvent.RequestFindNearby)
             }
         }
 
@@ -100,14 +102,14 @@ class OsmActions @Inject internal constructor(
         meAnimator = null
     }
 
-    override fun onRender(state: OsmViewState) {
+    override fun onRender(state: MapViewState) {
         handleCenterLocation(state)
         handleBottomMargin(state)
         handleNearbyError(state)
         handleFetchError(state)
     }
 
-    private fun handleBottomMargin(state: OsmViewState) {
+    private fun handleBottomMargin(state: MapViewState) {
         state.bottomOffset.let { height ->
             if (height > 0) {
                 layoutRoot.updatePadding(bottom = height)
@@ -115,7 +117,7 @@ class OsmActions @Inject internal constructor(
         }
     }
 
-    private fun handleCenterLocation(state: OsmViewState) {
+    private fun handleCenterLocation(state: MapViewState) {
         state.centerMyLocation?.let { event ->
             if (event.firstTime) {
                 revealButtons()
@@ -142,7 +144,7 @@ class OsmActions @Inject internal constructor(
         }
     }
 
-    private fun handleFetchError(state: OsmViewState) {
+    private fun handleFetchError(state: MapViewState) {
         state.cachedFetchError.let { throwable ->
             if (throwable == null) {
                 clearCacheError()
@@ -152,7 +154,7 @@ class OsmActions @Inject internal constructor(
         }
     }
 
-    private fun handleNearbyError(state: OsmViewState) {
+    private fun handleNearbyError(state: MapViewState) {
         state.nearbyError.let { throwable ->
             if (throwable == null) {
                 clearError()

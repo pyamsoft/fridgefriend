@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.pyamsoft.fridge.locator.map.osm
+package com.pyamsoft.fridge.locator.map
 
 import android.app.Activity
 import androidx.lifecycle.viewModelScope
@@ -34,13 +34,13 @@ import kotlinx.coroutines.withContext
 import timber.log.Timber
 import javax.inject.Inject
 
-class OsmViewModel @Inject internal constructor(
+class MapViewModel @Inject internal constructor(
     private val mapPermission: MapPermission,
-    private val interactor: OsmInteractor,
+    private val interactor: MapInteractor,
     private val deviceGps: DeviceGps,
     bottomOffsetBus: EventConsumer<BottomOffset>
-) : UiViewModel<OsmViewState, OsmViewEvent, OsmControllerEvent>(
-    OsmViewState(
+) : UiViewModel<MapViewState, MapViewEvent, MapControllerEvent>(
+    MapViewState(
         boundingBox = null,
         loading = false,
         points = emptyList(),
@@ -102,7 +102,7 @@ class OsmViewModel @Inject internal constructor(
     }
 
     private fun updateMarkers(
-        markers: OsmMarkers,
+        markers: MapMarkers,
         fromCached: Boolean
     ) {
         setState {
@@ -140,18 +140,19 @@ class OsmViewModel @Inject internal constructor(
         setState { copy(cachedFetchError = throwable) }
     }
 
-    override fun handleViewEvent(event: OsmViewEvent) {
+    override fun handleViewEvent(event: MapViewEvent) {
         return when (event) {
-            is OsmViewEvent.UpdateBoundingBox -> setState { copy(boundingBox = event.box) }
-            is OsmViewEvent.RequestMyLocation -> findMyLocation(event.firstTime)
-            is OsmViewEvent.DoneFindingMyLocation -> doneFindingMyLocation()
-            is OsmViewEvent.RequestFindNearby -> nearbySupermarkets()
+            is MapViewEvent.UpdateBoundingBox -> setState { copy(boundingBox = event.box) }
+            is MapViewEvent.RequestMyLocation -> findMyLocation(event.firstTime)
+            is MapViewEvent.DoneFindingMyLocation -> doneFindingMyLocation()
+            is MapViewEvent.RequestFindNearby -> nearbySupermarkets()
+            is MapViewEvent.OpenPopup -> publish(MapControllerEvent.PopupClicked(event.popup))
         }
     }
 
     private fun findMyLocation(firstTime: Boolean) {
         setState {
-            copy(centerMyLocation = OsmViewState.CenterMyLocation(firstTime))
+            copy(centerMyLocation = MapViewState.CenterMyLocation(firstTime))
         }
     }
 

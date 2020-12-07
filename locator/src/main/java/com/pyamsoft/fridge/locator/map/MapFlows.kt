@@ -14,7 +14,8 @@
  * limitations under the License.
  */
 
-package com.pyamsoft.fridge.locator.map.osm
+package com.pyamsoft.fridge.locator.map
+
 
 import com.pyamsoft.fridge.db.store.NearbyStore
 import com.pyamsoft.fridge.db.zone.NearbyZone
@@ -22,7 +23,7 @@ import com.pyamsoft.pydroid.arch.UiControllerEvent
 import com.pyamsoft.pydroid.arch.UiViewEvent
 import com.pyamsoft.pydroid.arch.UiViewState
 
-data class OsmViewState internal constructor(
+data class MapViewState internal constructor(
     val boundingBox: BBox?,
     val loading: Boolean,
     val points: List<NearbyStore>,
@@ -37,15 +38,20 @@ data class OsmViewState internal constructor(
     data class CenterMyLocation internal constructor(val firstTime: Boolean)
 }
 
-sealed class OsmViewEvent : UiViewEvent {
+sealed class MapViewEvent : UiViewEvent {
 
-    data class UpdateBoundingBox internal constructor(internal val box: BBox) : OsmViewEvent()
+    data class UpdateBoundingBox(val box: BBox) : MapViewEvent()
 
-    data class RequestMyLocation internal constructor(val firstTime: Boolean) : OsmViewEvent()
+    data class RequestMyLocation(val firstTime: Boolean) : MapViewEvent()
 
-    object DoneFindingMyLocation : OsmViewEvent()
+    object DoneFindingMyLocation : MapViewEvent()
 
-    object RequestFindNearby : OsmViewEvent()
+    object RequestFindNearby : MapViewEvent()
+
+    data class OpenPopup(val popup: MapPopup) : MapViewEvent()
 }
 
-sealed class OsmControllerEvent : UiControllerEvent
+sealed class MapControllerEvent : UiControllerEvent {
+
+    data class PopupClicked(val popup: MapPopupOverlay) : MapControllerEvent()
+}

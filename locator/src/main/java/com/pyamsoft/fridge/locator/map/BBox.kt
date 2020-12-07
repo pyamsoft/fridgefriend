@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package com.pyamsoft.fridge.locator.map.osm
+package com.pyamsoft.fridge.locator.map
 
-data class BBox internal constructor(
+data class BBox(
     val south: Double,
     val west: Double,
     val north: Double,

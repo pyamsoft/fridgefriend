@@ -27,13 +27,19 @@ import androidx.lifecycle.OnLifecycleEvent
 import androidx.preference.PreferenceManager
 import com.pyamsoft.fridge.db.store.NearbyStore
 import com.pyamsoft.fridge.db.zone.NearbyZone
+import com.pyamsoft.fridge.locator.location.LocationUpdatePublisher
+import com.pyamsoft.fridge.locator.location.LocationUpdateReceiver
+import com.pyamsoft.fridge.locator.map.BBox
+import com.pyamsoft.fridge.locator.map.MapPopup
+import com.pyamsoft.fridge.locator.map.MapViewEvent
+import com.pyamsoft.fridge.locator.map.MapViewState
 import com.pyamsoft.fridge.locator.map.databinding.OsmMapBinding
+import com.pyamsoft.fridge.locator.map.getMarkerUid
+import com.pyamsoft.fridge.locator.map.getPolygonUid
 import com.pyamsoft.fridge.locator.map.osm.popup.store.StoreInfoComponent
 import com.pyamsoft.fridge.locator.map.osm.popup.store.StoreInfoWindow
 import com.pyamsoft.fridge.locator.map.osm.popup.zone.ZoneInfoComponent
 import com.pyamsoft.fridge.locator.map.osm.popup.zone.ZoneInfoWindow
-import com.pyamsoft.fridge.locator.location.LocationUpdatePublisher
-import com.pyamsoft.fridge.locator.location.LocationUpdateReceiver
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.ui.theme.ThemeProvider
 import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
@@ -48,6 +54,7 @@ import org.osmdroid.views.CustomZoomButtonsController
 import org.osmdroid.views.MapView
 import org.osmdroid.views.Projection
 import org.osmdroid.views.overlay.Marker
+import org.osmdroid.views.overlay.PolyOverlayWithIW
 import org.osmdroid.views.overlay.Polygon
 import org.osmdroid.views.overlay.TilesOverlay
 import org.osmdroid.views.overlay.infowindow.InfoWindow
@@ -64,7 +71,7 @@ class OsmMap @Inject internal constructor(
     private val storeFactory: StoreInfoComponent.Factory,
     private val zoneFactory: ZoneInfoComponent.Factory,
     parent: ViewGroup
-) : BaseUiView<OsmViewState, OsmViewEvent, OsmMapBinding>(parent) {
+) : BaseUiView<MapViewState, MapViewEvent, OsmMapBinding>(parent) {
 
     override val viewBinding = OsmMapBinding::inflate
 
@@ -166,12 +173,12 @@ class OsmMap @Inject internal constructor(
         }
     }
 
-    override fun onRender(state: OsmViewState) {
+    override fun onRender(state: MapViewState) {
         renderMap(state)
         state.centerMyLocation?.let { findMyLocation() }
     }
 
-    private fun renderMap(state: OsmViewState) {
+    private fun renderMap(state: MapViewState) {
         var invalidate = false
         state.points.let { points ->
             if (renderMapMarkers(points)) {
@@ -228,10 +235,8 @@ class OsmMap @Inject internal constructor(
                 // This sets up the info window location
                 setPoints(points)
             }
-
             polygon.setOnClickListener { p, _, _ ->
-                closeAllMapPopups()
-                p.showInfoWindow()
+                publish(MapViewEvent.OpenPopup(p.asPopup()))
                 return@setOnClickListener true
             }
 
@@ -272,8 +277,7 @@ class OsmMap @Inject internal constructor(
             }
 
             marker.setOnMarkerClickListener { p, _ ->
-                closeAllMapPopups()
-                p.showInfoWindow()
+                publish(MapViewEvent.OpenPopup(p.asPopup()))
                 return@setOnMarkerClickListener true
             }
 
@@ -285,7 +289,7 @@ class OsmMap @Inject internal constructor(
     }
 
     private fun publishCurrentBoundingBox() {
-        publish(OsmViewEvent.UpdateBoundingBox(getBoundingBoxOfCurrentScreen()))
+        publish(MapViewEvent.UpdateBoundingBox(getBoundingBoxOfCurrentScreen()))
     }
 
     @CheckResult
@@ -362,7 +366,7 @@ class OsmMap @Inject internal constructor(
         locationOverlay = overlay
 
         overlay.runOnFirstFix {
-            publish(OsmViewEvent.RequestMyLocation(firstTime = true))
+            publish(MapViewEvent.RequestMyLocation(firstTime = true))
         }
     }
 
@@ -372,8 +376,54 @@ class OsmMap @Inject internal constructor(
             if (location != null) {
                 centerOnLocation(location.latitude, location.longitude) {
                     Timber.d("Centered onto current user location")
-                    publish(OsmViewEvent.DoneFindingMyLocation)
+                    publish(MapViewEvent.DoneFindingMyLocation)
                 }
+            }
+        }
+    }
+
+    @CheckResult
+    private fun Marker.asPopup(): MapPopup {
+        val marker = this
+        val position = marker.position
+        return object : MapPopup {
+
+            override fun show() {
+                closeAllMapPopups()
+                centerOnLocation(latitude(), longitude()) {
+                    marker.showInfoWindow()
+                }
+            }
+
+            override fun latitude(): Double {
+                return position.latitude
+            }
+
+            override fun longitude(): Double {
+                return position.longitude
+            }
+        }
+    }
+
+    @CheckResult
+    private fun PolyOverlayWithIW.asPopup(): MapPopup {
+        val marker = this
+        val bounds = marker.bounds
+        return object : MapPopup {
+
+            override fun show() {
+                closeAllMapPopups()
+                centerOnLocation(latitude(), longitude()) {
+                    marker.showInfoWindow()
+                }
+            }
+
+            override fun latitude(): Double {
+                return bounds.centerLatitude
+            }
+
+            override fun longitude(): Double {
+                return bounds.centerLongitude
             }
         }
     }

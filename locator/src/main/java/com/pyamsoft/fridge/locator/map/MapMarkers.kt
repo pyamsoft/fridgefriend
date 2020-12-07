@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.pyamsoft.fridge.locator.map.osm
+package com.pyamsoft.fridge.locator.map
 
 import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.core.currentDate
@@ -25,17 +25,17 @@ import com.pyamsoft.fridge.locator.api.OsmNodeOrWay.Node
 import com.pyamsoft.fridge.locator.api.OsmNodeOrWay.Way
 
 @CheckResult
-internal fun NearbyStore.Companion.create(node: Node): NearbyStore {
+fun NearbyStore.Companion.create(node: Node): NearbyStore {
     return create(NearbyStore.Id(node.id), node.tags.name(), currentDate(), node.lat, node.lon)
 }
 
 @CheckResult
-internal fun NearbyStore.Companion.getMarkerUidPrefix(): String {
+fun NearbyStore.Companion.getMarkerUidPrefix(): String {
     return requireNotNull(NearbyStore::class.simpleName)
 }
 
 @CheckResult
-internal fun NearbyStore.getMarkerUid(): String {
+fun NearbyStore.getMarkerUid(): String {
     return "${NearbyStore.getMarkerUidPrefix()}${id()}"
 }
 
@@ -62,7 +62,7 @@ private fun findName(
 }
 
 @CheckResult
-internal fun NearbyZone.Companion.create(
+fun NearbyZone.Companion.create(
     way: Way,
     nodes: List<Node>
 ): NearbyZone {
@@ -75,16 +75,16 @@ internal fun NearbyZone.Companion.create(
 }
 
 @CheckResult
-internal fun NearbyZone.Companion.getPolygonUidPrefix(): String {
+fun NearbyZone.Companion.getPolygonUidPrefix(): String {
     return requireNotNull(NearbyZone::class.simpleName)
 }
 
 @CheckResult
-internal fun NearbyZone.getPolygonUid(): String {
+fun NearbyZone.getPolygonUid(): String {
     return "${NearbyZone.getPolygonUidPrefix()}${id()}"
 }
 
-data class OsmMarkers internal constructor(
+data class MapMarkers internal constructor(
     val points: List<NearbyStore>,
     val zones: List<NearbyZone>
 )
