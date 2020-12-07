@@ -36,10 +36,10 @@ import com.pyamsoft.fridge.locator.map.MapViewState
 import com.pyamsoft.fridge.locator.map.databinding.OsmMapBinding
 import com.pyamsoft.fridge.locator.map.getMarkerUid
 import com.pyamsoft.fridge.locator.map.getPolygonUid
-import com.pyamsoft.fridge.locator.map.osm.popup.store.StoreInfoComponent
-import com.pyamsoft.fridge.locator.map.osm.popup.store.StoreInfoWindow
-import com.pyamsoft.fridge.locator.map.osm.popup.zone.ZoneInfoComponent
-import com.pyamsoft.fridge.locator.map.osm.popup.zone.ZoneInfoWindow
+import com.pyamsoft.fridge.locator.map.osm.popup.StoreInfoComponent
+import com.pyamsoft.fridge.locator.map.osm.popup.StoreInfoWindow
+import com.pyamsoft.fridge.locator.map.osm.popup.ZoneInfoComponent
+import com.pyamsoft.fridge.locator.map.osm.popup.ZoneInfoWindow
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.ui.theme.ThemeProvider
 import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener

@@ -14,21 +14,9 @@
  * limitations under the License.
  */
 
-package com.pyamsoft.fridge.locator.map.osm.popup
+package com.pyamsoft.fridge.locator.map.popup.store
 
-import android.location.Location
-import androidx.annotation.CheckResult
-import org.osmdroid.util.GeoPoint
+import com.pyamsoft.fridge.db.store.NearbyStore
+import com.pyamsoft.fridge.locator.map.popup.base.BaseInfoInteractor
 
-@CheckResult
-internal fun Location.calculateKmDistanceTo(point: GeoPoint): Float {
-    val result = FloatArray(1)
-    Location.distanceBetween(
-        this.latitude,
-        this.longitude,
-        point.latitude,
-        point.longitude,
-        result
-    )
-    return result[0] / 1000
-}
+interface StoreInfoInteractor : BaseInfoInteractor<NearbyStore>

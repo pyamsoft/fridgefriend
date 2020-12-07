@@ -14,18 +14,15 @@
  * limitations under the License.
  */
 
-package com.pyamsoft.fridge.locator.map.osm.popup.base
+package com.pyamsoft.fridge.locator.map.popup.base
 
-import android.location.Location
 import android.view.ViewGroup
-import com.pyamsoft.fridge.locator.map.databinding.PopupInfoLocationBinding
-import com.pyamsoft.fridge.locator.map.osm.popup.calculateKmDistanceTo
+import com.pyamsoft.fridge.locator.databinding.PopupInfoLocationBinding
+import com.pyamsoft.fridge.locator.map.popup.calculateKmDistanceTo
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.arch.UiViewEvent
-import com.pyamsoft.pydroid.arch.UiViewState
-import org.osmdroid.util.GeoPoint
 
-internal abstract class BaseInfoLocation<S : UiViewState, E : UiViewEvent> protected constructor(
+abstract class BaseInfoLocation<S : BaseInfoViewState, E : UiViewEvent> protected constructor(
     parent: ViewGroup
 ) : BaseUiView<S, E, PopupInfoLocationBinding>(parent) {
 
@@ -40,12 +37,11 @@ internal abstract class BaseInfoLocation<S : UiViewState, E : UiViewEvent> prote
         }
     }
 
-    protected fun displayLocation(
-        latitude: Double?,
-        longitude: Double?,
-        myLocation: Location?,
-        centerPoint: GeoPoint?
-    ) {
+    private fun handleLocation(state: S) {
+        val latitude = state.latitude
+        val longitude = state.longitude
+        val myLocation = state.myLocation
+
         if (latitude == null || longitude == null) {
             binding.popupInfoCoords.text = ""
         } else {
@@ -54,12 +50,16 @@ internal abstract class BaseInfoLocation<S : UiViewState, E : UiViewEvent> prote
             val coords = "($lat, $lon)"
             binding.popupInfoCoords.text = "Located at: $coords"
 
-            if (myLocation == null || centerPoint == null) {
+            if (myLocation == null) {
                 binding.popupInfoDistanceToMe.text = ""
             } else {
-                val distance = "%.2f".format(myLocation.calculateKmDistanceTo(centerPoint))
+                val distance = "%.2f".format(myLocation.calculateKmDistanceTo(latitude, longitude))
                 binding.popupInfoDistanceToMe.text = "${distance}km away"
             }
         }
+    }
+
+    final override fun onRender(state: S) {
+        handleLocation(state)
     }
 }

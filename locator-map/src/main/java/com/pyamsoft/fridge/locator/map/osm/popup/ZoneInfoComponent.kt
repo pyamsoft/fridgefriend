@@ -14,14 +14,15 @@
  * limitations under the License.
  */
 
-package com.pyamsoft.fridge.locator.map.osm.popup.zone
+package com.pyamsoft.fridge.locator.map.osm.popup
 
 import android.view.ViewGroup
 import androidx.annotation.CheckResult
 import androidx.lifecycle.ViewModelProvider
 import com.pyamsoft.fridge.core.FridgeViewModelFactory
 import com.pyamsoft.fridge.db.zone.NearbyZone
-import com.pyamsoft.fridge.locator.map.osm.popup.zone.ZoneInfoComponent.ViewModelModule
+import com.pyamsoft.fridge.locator.map.osm.popup.ZoneInfoComponent.ViewModelModule
+import com.pyamsoft.fridge.locator.map.popup.zone.ZoneInfoViewModel
 import com.pyamsoft.pydroid.arch.UiViewModel
 import dagger.Binds
 import dagger.BindsInstance

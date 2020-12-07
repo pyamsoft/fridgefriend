@@ -28,7 +28,7 @@ import com.pyamsoft.fridge.FridgeComponent
 import com.pyamsoft.fridge.locator.map.MapControllerEvent
 import com.pyamsoft.fridge.locator.map.MapPopupOverlay
 import com.pyamsoft.fridge.locator.map.MapViewModel
-import com.pyamsoft.fridge.locator.map.osm.OsmActions
+import com.pyamsoft.fridge.locator.map.MapActions
 import com.pyamsoft.fridge.locator.map.osm.OsmMap
 import com.pyamsoft.fridge.main.VersionChecker
 import com.pyamsoft.fridge.ui.SnackbarContainer
@@ -49,7 +49,7 @@ internal class MapFragment : Fragment(), SnackbarContainer {
 
     @JvmField
     @Inject
-    internal var actions: OsmActions? = null
+    internal var actions: MapActions? = null
 
     @JvmField
     @Inject

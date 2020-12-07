@@ -14,19 +14,19 @@
  * limitations under the License.
  */
 
-package com.pyamsoft.fridge.locator.map.osm.popup.base
+package com.pyamsoft.fridge.locator.map.osm.popup
 
-import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.butler.Butler
-import com.pyamsoft.fridge.butler.work.OrderFactory
 import com.pyamsoft.fridge.butler.params.LocationParameters
+import com.pyamsoft.fridge.butler.work.OrderFactory
 import com.pyamsoft.fridge.db.BaseDb
+import com.pyamsoft.fridge.locator.map.popup.base.BaseInfoInteractor
 import com.pyamsoft.pydroid.core.Enforcer
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import timber.log.Timber
 
-internal abstract class BaseInfoInteractor<
+abstract class BaseInfoInteractorImpl<
         T : Any,
         RE : Any,
         R : BaseDb.Realtime<RE>,
@@ -40,22 +40,20 @@ internal abstract class BaseInfoInteractor<
     private val queryDao: Q,
     private val insertDao: I,
     private val deleteDao: D
-) {
+) : BaseInfoInteractor<T> {
 
-    @CheckResult
-    suspend fun getAllCached(): List<T> = withContext(context = Dispatchers.Default) {
+    override suspend fun getAllCached(): List<T> = withContext(context = Dispatchers.Default) {
         Enforcer.assertOffMainThread()
         queryDao.query(false)
     }
 
-    protected suspend inline fun listenChanges(
-        crossinline onEvent: (event: RE) -> Unit
-    ) = withContext(context = Dispatchers.Default) {
-        Enforcer.assertOffMainThread()
-        realtime.listenForChanges { onEvent(it) }
-    }
+    override suspend fun listenForNearbyCacheChanges(onInsert: (T) -> Unit, onDelete: (T) -> Unit) =
+        withContext(context = Dispatchers.Default) {
+            Enforcer.assertOffMainThread()
+            realtime.listenForChanges { onRealtimeChange(it, onInsert, onDelete) }
+        }
 
-    suspend fun deleteFromDb(data: T) = withContext(context = Dispatchers.Default) {
+    override suspend fun deleteFromDb(data: T) = withContext(context = Dispatchers.Default) {
         Enforcer.assertOffMainThread()
         if (deleteDao.delete(data)) {
             Timber.d("Favorite removed: $data")
@@ -63,7 +61,7 @@ internal abstract class BaseInfoInteractor<
         }
     }
 
-    suspend fun insertIntoDb(data: T) = withContext(context = Dispatchers.Default) {
+    override suspend fun insertIntoDb(data: T) = withContext(context = Dispatchers.Default) {
         Enforcer.assertOffMainThread()
         if (insertDao.insert(data)) {
             Timber.d("Favorite inserted: $data")
@@ -78,6 +76,8 @@ internal abstract class BaseInfoInteractor<
         val order = orderFactory.locationOrder(LocationParameters(forceNotifyNearby = true))
         butler.placeOrder(order)
     }
+
+    protected abstract fun onRealtimeChange(event: RE, onInsert: (T) -> Unit, onDelete: (T) -> Unit)
 
 }
 

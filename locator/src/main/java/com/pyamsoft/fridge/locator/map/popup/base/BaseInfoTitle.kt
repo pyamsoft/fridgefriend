@@ -14,22 +14,20 @@
  * limitations under the License.
  */
 
-package com.pyamsoft.fridge.locator.map.osm.popup.base
+package com.pyamsoft.fridge.locator.map.popup.base
 
 import android.view.ViewGroup
-import com.pyamsoft.fridge.locator.map.R
-import com.pyamsoft.fridge.locator.map.databinding.PopupInfoTitleBinding
+import com.pyamsoft.fridge.locator.R
+import com.pyamsoft.fridge.locator.databinding.PopupInfoTitleBinding
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.arch.UiViewEvent
-import com.pyamsoft.pydroid.arch.UiViewState
 import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.loader.Loaded
 import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
 
-internal abstract class BaseInfoTitle<S : UiViewState, E : UiViewEvent> protected constructor(
+abstract class BaseInfoTitle<S : BaseInfoViewState, E : UiViewEvent> protected constructor(
     private val imageLoader: ImageLoader,
-    parent: ViewGroup,
-    name: () -> String
+    parent: ViewGroup
 ) : BaseUiView<S, E, PopupInfoTitleBinding>(parent) {
 
     final override val viewBinding = PopupInfoTitleBinding::inflate
@@ -39,10 +37,6 @@ internal abstract class BaseInfoTitle<S : UiViewState, E : UiViewEvent> protecte
     private var favoriteLoaded: Loaded? = null
 
     init {
-        doOnInflate {
-            binding.popupInfoTitle.text = name()
-        }
-
         doOnTeardown {
             binding.popupInfoTitle.text = ""
             binding.popupInfoFavorite.setOnDebouncedClickListener(null)
@@ -58,15 +52,29 @@ internal abstract class BaseInfoTitle<S : UiViewState, E : UiViewEvent> protecte
         favoriteLoaded = null
     }
 
-    protected fun applyFavoriteFromCached(cached: Boolean?) {
+    private fun handleCached(state: S) {
         clear()
-        if (cached == null) {
-            binding.popupInfoFavorite.setOnDebouncedClickListener(null)
-        } else {
-            val icon = if (cached) R.drawable.ic_star_24dp else R.drawable.ic_star_empty_24dp
-            favoriteLoaded = imageLoader.load(icon).into(binding.popupInfoFavorite)
-            binding.popupInfoFavorite.setOnDebouncedClickListener { publishFavorite(!cached) }
+        state.cached.let { cached ->
+            if (cached == null) {
+                binding.popupInfoFavorite.setOnDebouncedClickListener(null)
+            } else {
+                val isCached = cached.cached
+                val icon = if (isCached) R.drawable.ic_star_24dp else R.drawable.ic_star_empty_24dp
+                favoriteLoaded = imageLoader.load(icon).into(binding.popupInfoFavorite)
+                binding.popupInfoFavorite.setOnDebouncedClickListener { publishFavorite(!isCached) }
+            }
         }
+    }
+
+    private fun handleName(state: S) {
+        state.name.let { name ->
+            binding.popupInfoTitle.text = name
+        }
+    }
+
+    final override fun onRender(state: S) {
+        handleCached(state)
+        handleName(state)
     }
 
     protected abstract fun publishFavorite(add: Boolean)

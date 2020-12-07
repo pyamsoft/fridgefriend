@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.pyamsoft.fridge.locator.map.osm.popup.zone
+package com.pyamsoft.fridge.locator.map.osm.popup
 
 import com.pyamsoft.fridge.butler.Butler
 import com.pyamsoft.fridge.butler.work.OrderFactory
@@ -27,17 +27,17 @@ import com.pyamsoft.fridge.db.zone.NearbyZoneDeleteDao
 import com.pyamsoft.fridge.db.zone.NearbyZoneInsertDao
 import com.pyamsoft.fridge.db.zone.NearbyZoneQueryDao
 import com.pyamsoft.fridge.db.zone.NearbyZoneRealtime
-import com.pyamsoft.fridge.locator.map.osm.popup.base.BaseInfoInteractor
+import com.pyamsoft.fridge.locator.map.popup.zone.ZoneInfoInteractor
 import javax.inject.Inject
 
-internal class ZoneInfoInteractor @Inject internal constructor(
+internal class ZoneInfoInteractorImpl @Inject internal constructor(
     butler: Butler,
     orderFactory: OrderFactory,
     realtime: NearbyZoneRealtime,
     queryDao: NearbyZoneQueryDao,
     insertDao: NearbyZoneInsertDao,
     deleteDao: NearbyZoneDeleteDao
-) : BaseInfoInteractor<
+) : ZoneInfoInteractor, BaseInfoInteractorImpl<
         NearbyZone,
         NearbyZoneChangeEvent,
         NearbyZoneRealtime,
@@ -46,11 +46,12 @@ internal class ZoneInfoInteractor @Inject internal constructor(
         NearbyZoneDeleteDao
         >(butler, orderFactory, realtime, queryDao, insertDao, deleteDao) {
 
-    suspend inline fun listenForNearbyCacheChanges(
-        crossinline onInsert: (zone: NearbyZone) -> Unit,
-        crossinline onDelete: (zone: NearbyZone) -> Unit
-    ) = listenChanges { event ->
-        return@listenChanges when (event) {
+    override fun onRealtimeChange(
+        event: NearbyZoneChangeEvent,
+        onInsert: (NearbyZone) -> Unit,
+        onDelete: (NearbyZone) -> Unit
+    ) {
+        return when (event) {
             is Insert -> onInsert(event.zone)
             is Delete -> onDelete(event.zone)
             is Update -> {

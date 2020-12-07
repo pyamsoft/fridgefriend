@@ -27,8 +27,8 @@ import com.pyamsoft.fridge.core.TERMS_CONDITIONS_URL
 import com.pyamsoft.fridge.detail.DetailListComponent
 import com.pyamsoft.fridge.detail.expand.ExpandItemCategoryListComponent
 import com.pyamsoft.fridge.entry.EntryListComponent
-import com.pyamsoft.fridge.locator.map.osm.popup.store.StoreInfoComponent
-import com.pyamsoft.fridge.locator.map.osm.popup.zone.ZoneInfoComponent
+import com.pyamsoft.fridge.locator.map.osm.popup.StoreInfoComponent
+import com.pyamsoft.fridge.locator.map.osm.popup.ZoneInfoComponent
 import com.pyamsoft.fridge.main.MainActivity
 import com.pyamsoft.pydroid.bootstrap.libraries.OssLibraries
 import com.pyamsoft.pydroid.bootstrap.libraries.OssLicenses

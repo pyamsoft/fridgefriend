@@ -46,8 +46,8 @@ import com.pyamsoft.fridge.entry.create.CreateEntryComponent
 import com.pyamsoft.fridge.locator.GpsChangeEvent
 import com.pyamsoft.fridge.locator.LocatorModule
 import com.pyamsoft.fridge.locator.map.MapModule
-import com.pyamsoft.fridge.locator.map.osm.popup.store.StoreInfoComponent
-import com.pyamsoft.fridge.locator.map.osm.popup.zone.ZoneInfoComponent
+import com.pyamsoft.fridge.locator.map.osm.popup.StoreInfoComponent
+import com.pyamsoft.fridge.locator.map.osm.popup.ZoneInfoComponent
 import com.pyamsoft.fridge.main.MainComponent
 import com.pyamsoft.fridge.map.MapComponent
 import com.pyamsoft.fridge.permission.PermissionComponent

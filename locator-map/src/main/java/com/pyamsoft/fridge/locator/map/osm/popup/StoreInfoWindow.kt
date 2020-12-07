@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 
-package com.pyamsoft.fridge.locator.map.osm.popup.zone
+package com.pyamsoft.fridge.locator.map.osm.popup
 
 import android.location.Location
-import android.view.View
 import androidx.annotation.CheckResult
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.lifecycle.Lifecycle
@@ -25,52 +24,53 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleRegistry
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStore
-import com.pyamsoft.fridge.db.zone.NearbyZone
-import com.pyamsoft.fridge.locator.map.osm.popup.base.BaseInfoWindow
+import com.pyamsoft.fridge.db.store.NearbyStore
 import com.pyamsoft.fridge.locator.location.LocationUpdateReceiver
+import com.pyamsoft.fridge.locator.map.popup.store.StoreInfoLocation
+import com.pyamsoft.fridge.locator.map.popup.store.StoreInfoTitle
+import com.pyamsoft.fridge.locator.map.popup.store.StoreInfoViewModel
 import com.pyamsoft.pydroid.arch.StateSaver
 import com.pyamsoft.pydroid.arch.createComponent
 import com.pyamsoft.pydroid.ui.arch.viewModelFactory
 import com.pyamsoft.pydroid.ui.util.layout
-import javax.inject.Inject
 import org.osmdroid.views.MapView
-import org.osmdroid.views.overlay.Polygon
+import org.osmdroid.views.overlay.Marker
 import org.osmdroid.views.overlay.infowindow.InfoWindow
-import timber.log.Timber
+import javax.inject.Inject
 
-class ZoneInfoWindow private constructor(
+class StoreInfoWindow private constructor(
     receiver: LocationUpdateReceiver,
-    zone: NearbyZone,
+    store: NearbyStore,
     map: MapView,
-    componentFactory: ZoneInfoComponent.Factory
-) : BaseInfoWindow(receiver, map), LifecycleOwner {
+    componentFactory: StoreInfoComponent.Factory
+) : BaseInfoWindow<Marker>(receiver, map), LifecycleOwner {
 
     private var stateSaver: StateSaver? = null
+
     private val registry by lazy(LazyThreadSafetyMode.NONE) { LifecycleRegistry(this) }
 
     @JvmField
     @Inject
-    internal var infoTitle: ZoneInfoTitle? = null
-
-    @JvmField
-    @Inject
-    internal var infoLocation: ZoneInfoLocation? = null
-
-    @JvmField
-    @Inject
     internal var factory: ViewModelProvider.Factory? = null
-    private val viewModel by viewModelFactory<ZoneInfoViewModel>(ViewModelStore()) { factory }
+
+    @JvmField
+    @Inject
+    internal var infoTitle: StoreInfoTitle? = null
+
+    @JvmField
+    @Inject
+    internal var infoLocation: StoreInfoLocation? = null
+    private val viewModel by viewModelFactory<StoreInfoViewModel>(ViewModelStore()) { factory }
 
     override fun getLifecycle(): Lifecycle {
         return registry
     }
 
     init {
-        componentFactory.create(parent, zone).inject(this)
+        componentFactory.create(store, parent).inject(this)
 
         val title = requireNotNull(infoTitle)
         val location = requireNotNull(infoLocation)
-
         stateSaver = createComponent(
             null,
             this,
@@ -81,7 +81,6 @@ class ZoneInfoWindow private constructor(
             // TODO
         }
 
-        listenForLocationUpdates()
         parent.layout {
             title.also {
                 connect(it.id(), ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP)
@@ -103,23 +102,17 @@ class ZoneInfoWindow private constructor(
         registry.currentState = Lifecycle.State.RESUMED
     }
 
-    override fun onOpen(item: Any?) {
-        val v: View? = view
-        if (v == null) {
-            Timber.e("ZoneInfoWindow.open, mView is null! Bail")
-            return
-        }
-
-        if (item == null || item !is Polygon) {
-            Timber.e("ZoneInfoWindow.open, item is not OverlayWithIW! Bail")
-            return
-        }
-
-        viewModel.updatePolygon(item)
-    }
-
     override fun onLocationUpdate(location: Location?) {
         viewModel.handleLocationUpdate(location)
+    }
+
+    override fun onPopupOpened(popup: Marker) {
+        val position = popup.position
+        viewModel.updatePopup(
+            name = popup.title,
+            latitude = position.latitude,
+            longitude = position.longitude
+        )
     }
 
     override fun onClose() {
@@ -140,11 +133,11 @@ class ZoneInfoWindow private constructor(
         @CheckResult
         fun fromMap(
             receiver: LocationUpdateReceiver,
-            zone: NearbyZone,
+            store: NearbyStore,
             map: MapView,
-            factory: ZoneInfoComponent.Factory
+            factory: StoreInfoComponent.Factory
         ): InfoWindow {
-            return ZoneInfoWindow(receiver, zone, map, factory)
+            return StoreInfoWindow(receiver, store, map, factory)
         }
     }
 }

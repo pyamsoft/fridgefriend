@@ -14,16 +14,20 @@
  * limitations under the License.
  */
 
-package com.pyamsoft.fridge.locator.map.osm.popup.base
+package com.pyamsoft.fridge.locator.map.popup.base
 
-import android.location.Location
-import com.pyamsoft.pydroid.arch.UiViewState
+import androidx.annotation.CheckResult
 
-interface BaseInfoViewState<T : Any> : UiViewState {
+interface BaseInfoInteractor<T : Any> {
 
-    val myLocation: Location?
-    val cached: Cached?
-    val data: T?
+    @CheckResult
+    suspend fun getAllCached(): List<T>
 
-    data class Cached internal constructor(val cached: Boolean)
+    suspend fun listenForNearbyCacheChanges(onInsert: (T) -> Unit, onDelete: (T) -> Unit)
+
+    suspend fun deleteFromDb(data: T)
+
+    suspend fun insertIntoDb(data: T)
+
 }
+

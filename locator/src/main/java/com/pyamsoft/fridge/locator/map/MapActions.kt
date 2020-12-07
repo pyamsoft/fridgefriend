@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.pyamsoft.fridge.locator.map.osm
+package com.pyamsoft.fridge.locator.map
 
 import android.view.ViewGroup
 import androidx.coordinatorlayout.widget.CoordinatorLayout
@@ -22,10 +22,8 @@ import androidx.core.view.ViewPropertyAnimatorCompat
 import androidx.core.view.isVisible
 import androidx.core.view.updatePadding
 import androidx.lifecycle.LifecycleOwner
-import com.pyamsoft.fridge.locator.map.MapViewEvent
-import com.pyamsoft.fridge.locator.map.MapViewState
-import com.pyamsoft.fridge.locator.map.R
-import com.pyamsoft.fridge.locator.map.databinding.OsmActionsBinding
+import com.pyamsoft.fridge.locator.R
+import com.pyamsoft.fridge.locator.databinding.MapActionsBinding
 import com.pyamsoft.fridge.ui.SnackbarContainer
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.loader.ImageLoader
@@ -36,13 +34,13 @@ import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
 import javax.inject.Inject
 import com.pyamsoft.fridge.ui.R as R2
 
-class OsmActions @Inject internal constructor(
+class MapActions @Inject internal constructor(
     private val owner: LifecycleOwner,
     private val imageLoader: ImageLoader,
     parent: ViewGroup
-) : BaseUiView<MapViewState, MapViewEvent, OsmActionsBinding>(parent), SnackbarContainer {
+) : BaseUiView<MapViewState, MapViewEvent, MapActionsBinding>(parent), SnackbarContainer {
 
-    override val viewBinding = OsmActionsBinding::inflate
+    override val viewBinding = MapActionsBinding::inflate
 
     override val layoutRoot by boundView { osmActions }
 
@@ -88,7 +86,7 @@ class OsmActions @Inject internal constructor(
         }
     }
 
-    override fun container(): CoordinatorLayout? {
+    override fun container(): CoordinatorLayout {
         return layoutRoot
     }
 

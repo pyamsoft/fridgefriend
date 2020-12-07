@@ -14,22 +14,12 @@
  * limitations under the License.
  */
 
-package com.pyamsoft.fridge.locator.map.osm.popup.store
+package com.pyamsoft.fridge.locator.map.popup.store
 
 import android.view.ViewGroup
-import com.pyamsoft.fridge.locator.map.osm.popup.base.BaseInfoLocation
+import com.pyamsoft.fridge.locator.map.popup.base.BaseInfoLocation
 import javax.inject.Inject
 
-internal class StoreInfoLocation @Inject internal constructor(
+class StoreInfoLocation @Inject internal constructor(
     parent: ViewGroup
-) : BaseInfoLocation<StoreInfoViewState, StoreInfoViewEvent>(parent) {
-
-    private fun handlePosition(state: StoreInfoViewState) {
-        val position = state.data?.position
-        displayLocation(position?.latitude, position?.longitude, state.myLocation, position)
-    }
-
-    override fun onRender(state: StoreInfoViewState) {
-        handlePosition(state)
-    }
-}
+) : BaseInfoLocation<StoreInfoViewState, StoreInfoViewEvent>(parent)

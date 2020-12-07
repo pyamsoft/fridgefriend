@@ -20,6 +20,10 @@ import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.locator.DeviceGps
 import com.pyamsoft.fridge.locator.Geofencer
 import com.pyamsoft.fridge.locator.map.gms.GmsLocator
+import com.pyamsoft.fridge.locator.map.osm.popup.StoreInfoInteractorImpl
+import com.pyamsoft.fridge.locator.map.osm.popup.ZoneInfoInteractorImpl
+import com.pyamsoft.fridge.locator.map.popup.store.StoreInfoInteractor
+import com.pyamsoft.fridge.locator.map.popup.zone.ZoneInfoInteractor
 import dagger.Binds
 import dagger.Module
 
@@ -33,4 +37,12 @@ abstract class MapModule {
     @Binds
     @CheckResult
     internal abstract fun bindGeofencer(impl: GmsLocator): Geofencer
+
+    @Binds
+    @CheckResult
+    internal abstract fun bindZoneInteractor(impl: ZoneInfoInteractorImpl): ZoneInfoInteractor
+
+    @Binds
+    @CheckResult
+    internal abstract fun bindStoreInteractor(impl: StoreInfoInteractorImpl): StoreInfoInteractor
 }

@@ -14,26 +14,22 @@
  * limitations under the License.
  */
 
-package com.pyamsoft.fridge.locator.map.osm.popup.zone
+package com.pyamsoft.fridge.locator.map.popup.store
 
 import android.view.ViewGroup
-import com.pyamsoft.fridge.db.zone.NearbyZone
-import com.pyamsoft.fridge.locator.map.osm.popup.base.BaseInfoTitle
-import com.pyamsoft.fridge.locator.map.osm.popup.zone.ZoneInfoViewEvent.ZoneFavoriteAction
+import com.pyamsoft.fridge.db.store.NearbyStore
+import com.pyamsoft.fridge.locator.map.popup.base.BaseInfoTitle
+import com.pyamsoft.fridge.locator.map.popup.store.StoreInfoViewEvent.StoreFavoriteAction
 import com.pyamsoft.pydroid.loader.ImageLoader
 import javax.inject.Inject
 
-internal class ZoneInfoTitle @Inject internal constructor(
-    private val zone: NearbyZone,
+class StoreInfoTitle @Inject internal constructor(
+    private val store: NearbyStore,
     imageLoader: ImageLoader,
     parent: ViewGroup
-) : BaseInfoTitle<ZoneInfoViewState, ZoneInfoViewEvent>(imageLoader, parent, { zone.name() }) {
-
-    override fun onRender(state: ZoneInfoViewState) {
-        applyFavoriteFromCached(cached = state.cached?.cached)
-    }
+) : BaseInfoTitle<StoreInfoViewState, StoreInfoViewEvent>(imageLoader, parent) {
 
     override fun publishFavorite(add: Boolean) {
-        publish(ZoneFavoriteAction(zone, add))
+        publish(StoreFavoriteAction(store, add))
     }
 }

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.pyamsoft.fridge.locator.map.osm.popup.base
+package com.pyamsoft.fridge.locator.map.popup.base
 
 import android.location.Location
 import androidx.annotation.CheckResult
@@ -27,8 +27,8 @@ import kotlinx.coroutines.launch
 import kotlin.math.abs
 import kotlin.math.pow
 
-internal abstract class BaseInfoViewModel<T : Any, S : BaseInfoViewState<*>, V : UiViewEvent, C : UiControllerEvent> protected constructor(
-    private val interactor: BaseInfoInteractor<T, *, *, *, *, *>,
+abstract class BaseInfoViewModel<T : Any, S : BaseInfoViewState, V : UiViewEvent, C : UiControllerEvent> protected constructor(
+    private val interactor: BaseInfoInteractor<T>,
     initialState: S,
 ) : UiViewModel<S, V, C>(initialState) {
 
@@ -50,21 +50,8 @@ internal abstract class BaseInfoViewModel<T : Any, S : BaseInfoViewState<*>, V :
         }
     }
 
-    protected fun handleFavoriteAction(
-        data: T,
-        add: Boolean
-    ) {
-        viewModelScope.launch(context = Dispatchers.Default) {
-            if (add) {
-                interactor.insertIntoDb(data)
-            } else {
-                interactor.deleteFromDb(data)
-            }
-        }
-    }
-
     @CheckResult
-    protected fun S.processLocationUpdate(location: Location?): LocationUpdate? {
+    private fun S.processLocationUpdate(location: Location?): Location? {
         // If location hasn't changed, do nothing
         val currentLocation = myLocation
         if (currentLocation == null && location == null) {
@@ -73,12 +60,12 @@ internal abstract class BaseInfoViewModel<T : Any, S : BaseInfoViewState<*>, V :
 
         // If location is cleared, set
         if (currentLocation != null && location == null) {
-            return LocationUpdate(location)
+            return location
         }
 
         // If location is first fixed, set
         if (currentLocation == null && location != null) {
-            return LocationUpdate(location)
+            return location
         }
 
         // Require both to be non-null
@@ -88,7 +75,7 @@ internal abstract class BaseInfoViewModel<T : Any, S : BaseInfoViewState<*>, V :
         // A bunch of things can change but we only care about renders around lat and lon
         val latitudeMatch = abs(relax(currentLocation.longitude) - relax(location.longitude)) < 1
         val longitudeMatch = abs(relax(currentLocation.latitude) - relax(location.latitude)) < 1
-        return if (latitudeMatch && longitudeMatch) null else LocationUpdate(location)
+        return if (latitudeMatch && longitudeMatch) null else location
     }
 
     @CheckResult
@@ -103,11 +90,70 @@ internal abstract class BaseInfoViewModel<T : Any, S : BaseInfoViewState<*>, V :
         return (abs(value) * 10.0.pow(5))
     }
 
-    abstract fun handleLocationUpdate(location: Location?)
+    private fun restoreStateFromCachedData(cached: List<T>) {
+        setState {
+            copyState(
+                this,
+                cached = BaseInfoViewState.Cached(cached = cached.any { isDataMatch(it) })
+            )
+        }
+    }
 
-    protected abstract suspend fun listenForRealtime()
+    private suspend fun listenForRealtime() {
+        interactor.listenForNearbyCacheChanges(
+            onInsert = { data ->
+                if (isDataMatch(data)) {
+                    setState { copyState(this, cached = BaseInfoViewState.Cached(true)) }
+                }
+            },
+            onDelete = { data ->
+                if (isDataMatch(data)) {
+                    setState { copyState(this, cached = BaseInfoViewState.Cached(false)) }
+                }
+            })
+    }
 
-    protected abstract suspend fun restoreStateFromCachedData(cached: List<T>)
+    fun handleLocationUpdate(location: Location?) {
+        setState {
+            val newLocation = processLocationUpdate(location)
+            return@setState if (newLocation == null) this else {
+                copyState(this, myLocation = newLocation)
+            }
+        }
+    }
 
-    protected data class LocationUpdate internal constructor(val location: Location?)
+    fun updatePopup(
+        name: String,
+        latitude: Double,
+        longitude: Double
+    ) {
+        setState {
+            copyState(this, name = name, latitude = latitude, longitude = longitude)
+        }
+    }
+
+    protected fun handleFavoriteAction(
+        data: T,
+        add: Boolean
+    ) {
+        viewModelScope.launch(context = Dispatchers.Default) {
+            if (add) {
+                interactor.insertIntoDb(data)
+            } else {
+                interactor.deleteFromDb(data)
+            }
+        }
+    }
+
+    @CheckResult
+    protected abstract fun isDataMatch(data: T): Boolean
+
+    @CheckResult
+    protected abstract fun copyState(
+        state: S, myLocation: Location? = state.myLocation,
+        cached: BaseInfoViewState.Cached? = state.cached,
+        name: String = state.name,
+        latitude: Double? = state.latitude,
+        longitude: Double? = state.longitude
+    ): S
 }

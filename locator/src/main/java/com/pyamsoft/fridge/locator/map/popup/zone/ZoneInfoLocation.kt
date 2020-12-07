@@ -14,28 +14,12 @@
  * limitations under the License.
  */
 
-package com.pyamsoft.fridge.locator.map.osm.popup.zone
+package com.pyamsoft.fridge.locator.map.popup.zone
 
 import android.view.ViewGroup
-import com.pyamsoft.fridge.locator.map.osm.popup.base.BaseInfoLocation
+import com.pyamsoft.fridge.locator.map.popup.base.BaseInfoLocation
 import javax.inject.Inject
 
-internal class ZoneInfoLocation @Inject internal constructor(
+class ZoneInfoLocation @Inject internal constructor(
     parent: ViewGroup
-) : BaseInfoLocation<ZoneInfoViewState, ZoneInfoViewEvent>(parent) {
-
-    private fun handleLocation(state: ZoneInfoViewState) {
-        val polygon = state.data
-        val centerPoint = polygon?.infoWindowLocation
-        displayLocation(
-            centerPoint?.latitude,
-            centerPoint?.longitude,
-            state.myLocation,
-            centerPoint
-        )
-    }
-
-    override fun onRender(state: ZoneInfoViewState) {
-        handleLocation(state)
-    }
-}
+) : BaseInfoLocation<ZoneInfoViewState, ZoneInfoViewEvent>(parent)

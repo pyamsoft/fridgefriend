@@ -14,20 +14,21 @@
  * limitations under the License.
  */
 
-package com.pyamsoft.fridge.locator.map.osm.popup.zone
+package com.pyamsoft.fridge.locator.map.popup.zone
 
 import android.location.Location
 import com.pyamsoft.fridge.db.zone.NearbyZone
-import com.pyamsoft.fridge.locator.map.osm.popup.base.BaseInfoViewState
+import com.pyamsoft.fridge.locator.map.popup.base.BaseInfoViewState
 import com.pyamsoft.pydroid.arch.UiControllerEvent
 import com.pyamsoft.pydroid.arch.UiViewEvent
-import org.osmdroid.views.overlay.Polygon
 
 data class ZoneInfoViewState internal constructor(
     override val myLocation: Location?,
     override val cached: BaseInfoViewState.Cached?,
-    override val data: Polygon?
-) : BaseInfoViewState<Polygon>
+    override val name: String,
+    override val latitude: Double?,
+    override val longitude: Double?,
+) : BaseInfoViewState
 
 sealed class ZoneInfoViewEvent : UiViewEvent {
 
