@@ -56,7 +56,6 @@ import com.pyamsoft.pydroid.ui.arch.viewModelFactory
 import com.pyamsoft.pydroid.ui.changelog.ChangeLogActivity
 import com.pyamsoft.pydroid.ui.changelog.buildChangeLog
 import com.pyamsoft.pydroid.ui.databinding.LayoutConstraintBinding
-import com.pyamsoft.pydroid.ui.util.commit
 import com.pyamsoft.pydroid.ui.util.commitNow
 import com.pyamsoft.pydroid.ui.util.layout
 import com.pyamsoft.pydroid.util.doOnStart
@@ -169,6 +168,30 @@ internal class MainActivity : ChangeLogActivity(), VersionChecker {
         viewModel.checkForUpdates()
     }
 
+    private inline fun handleNotificationAction(crossinline action: (FragmentManager) -> Unit) {
+        handler.removeCallbacksAndMessages(null)
+
+        // No good way to figure out when the FM is done transacting from a different context I think
+        //
+        // Assuming that the FM handler uses the main thread, we post twice
+        // The first post puts us into the queue and basically waits for everything to clear out
+        // this would include the FM pending transactions which may also include the page select
+        // commit.
+        //
+        // We post delayed just in case the transaction takes longer than it takes to queue the new message up
+        // to be safe, we should try to use commitNow whenever possible.
+        handler.post {
+            handler.postDelayed({
+                val fm = supportFragmentManager
+
+                // Clear the back stack
+                // In case we are already on a detail fragment for example, this will clear the stack.
+                fm.clearBackStack()
+                action(fm)
+            }, 200)
+        }
+    }
+
     @CheckResult
     private fun handleEntryIntent(intent: Intent): Boolean {
         val stringEntryId = intent.getStringExtra(NotificationHandler.KEY_ENTRY_ID) ?: return false
@@ -184,31 +207,14 @@ internal class MainActivity : ChangeLogActivity(), VersionChecker {
         val presence = FridgeItem.Presence.valueOf(pres)
         Timber.d("Entries page selected, load entry $entryId with presence: $presence")
 
-        // No good way to figure out when the FM is done transacting from a different context I think
-        handler.removeCallbacksAndMessages(null)
-
-        val fm = supportFragmentManager
-
-        // Assuming that the FM handler uses the main thread, we post twice
-        // The first post puts us into the queue and basically waits for everything to clear out
-        // this would include the FM pending transactions which may also include the page select
-        // commit.
-        // Then the second post queues up a new push which will then call its own commit, hopefully once
-        // the EntryFragment is done mounting.
-        handler.post {
-            handler.postDelayed({
-                // Clear the back stack
-                // In case we are already on a detail fragment for example, this will clear the stack.
-                fm.clearBackStack()
-
-                EntryFragment.pushDetailPage(
-                    fm,
-                    this,
-                    fragmentContainerId,
-                    entryId,
-                    presence
-                )
-            }, 200)
+        handleNotificationAction { fm ->
+            EntryFragment.pushDetailPage(
+                fm,
+                this,
+                fragmentContainerId,
+                entryId,
+                presence
+            )
         }
         return true
     }
