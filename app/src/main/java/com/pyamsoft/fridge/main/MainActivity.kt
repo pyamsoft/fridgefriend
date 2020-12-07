@@ -57,6 +57,7 @@ import com.pyamsoft.pydroid.ui.changelog.ChangeLogActivity
 import com.pyamsoft.pydroid.ui.changelog.buildChangeLog
 import com.pyamsoft.pydroid.ui.databinding.LayoutConstraintBinding
 import com.pyamsoft.pydroid.ui.util.commit
+import com.pyamsoft.pydroid.ui.util.commitNow
 import com.pyamsoft.pydroid.ui.util.layout
 import com.pyamsoft.pydroid.util.doOnStart
 import com.pyamsoft.pydroid.util.stableLayoutHideNavigation
@@ -159,7 +160,7 @@ internal class MainActivity : ChangeLogActivity(), VersionChecker {
         // Load default page
         if (savedInstanceState == null) {
             Timber.d("Load default ENTRIES page")
-            viewModel.selectPage(MainPage.ENTRIES)
+            viewModel.selectPage(force = false, MainPage.ENTRIES)
         }
     }
 
@@ -171,37 +172,43 @@ internal class MainActivity : ChangeLogActivity(), VersionChecker {
     @CheckResult
     private fun handleEntryIntent(intent: Intent): Boolean {
         val stringEntryId = intent.getStringExtra(NotificationHandler.KEY_ENTRY_ID) ?: return false
-        viewModel.selectPage(MainPage.ENTRIES) {
-            val pres = intent.getStringExtra(NotificationHandler.KEY_PRESENCE_TYPE)
-            if (pres == null) {
-                Timber.d("New intent had entry key but no presence type")
-                return@selectPage
-            }
+        viewModel.selectPage(force = true, MainPage.ENTRIES)
 
-            val entryId = FridgeEntry.Id(stringEntryId)
-            val presence = FridgeItem.Presence.valueOf(pres)
-            Timber.d("Entries page selected, load entry $entryId with presence: $presence")
+        val pres = intent.getStringExtra(NotificationHandler.KEY_PRESENCE_TYPE)
+        if (pres == null) {
+            Timber.d("New intent had entry key but no presence type")
+            return false
+        }
 
-            // No good way to figure out when the FM is done transacting from a different context I think
-            handler.removeCallbacksAndMessages(null)
+        val entryId = FridgeEntry.Id(stringEntryId)
+        val presence = FridgeItem.Presence.valueOf(pres)
+        Timber.d("Entries page selected, load entry $entryId with presence: $presence")
 
-            // Assuming that the FM handler uses the main thread, we post twice
-            // The first post puts us into the queue and basically waits for everything to clear out
-            // this would include the FM pending transactions which may also include the page select
-            // commit.
-            // Then the second post queues up a new push which will then call its own commit, hopefully once
-            // the EntryFragment is done mounting.
-            handler.post {
-                handler.post {
-                    EntryFragment.pushDetailPage(
-                        supportFragmentManager,
-                        this,
-                        fragmentContainerId,
-                        entryId,
-                        presence
-                    )
-                }
-            }
+        // No good way to figure out when the FM is done transacting from a different context I think
+        handler.removeCallbacksAndMessages(null)
+
+        val fm = supportFragmentManager
+
+        // Clear the back stack
+        // In case we are already on a detail fragment for example, this will clear the stack.
+        fm.clearBackStack()
+
+        // Assuming that the FM handler uses the main thread, we post twice
+        // The first post puts us into the queue and basically waits for everything to clear out
+        // this would include the FM pending transactions which may also include the page select
+        // commit.
+        // Then the second post queues up a new push which will then call its own commit, hopefully once
+        // the EntryFragment is done mounting.
+        handler.post {
+            handler.postDelayed({
+                EntryFragment.pushDetailPage(
+                    fm,
+                    this,
+                    fragmentContainerId,
+                    entryId,
+                    presence
+                )
+            }, 200)
         }
         return true
     }
@@ -213,28 +220,27 @@ internal class MainActivity : ChangeLogActivity(), VersionChecker {
             return false
         }
 
-        viewModel.selectPage(MainPage.NEARBY) {
-            val nearbyType = intent.getStringExtra(NotificationHandler.KEY_NEARBY_TYPE)
-            if (nearbyType == null) {
-                Timber.d("New intent had nearby key but no type")
-                return@selectPage
-            }
-            val nearbyStoreId: NearbyStore.Id
-            val nearbyZoneId: NearbyZone.Id
-            when (nearbyType) {
-                NotificationHandler.VALUE_NEARBY_TYPE_STORE -> {
-                    nearbyStoreId = NearbyStore.Id(longNearbyId)
-                    nearbyZoneId = NearbyZone.Id.EMPTY
-                }
-                NotificationHandler.VALUE_NEARBY_TYPE_ZONE -> {
-                    nearbyStoreId = NearbyStore.Id.EMPTY
-                    nearbyZoneId = NearbyZone.Id(longNearbyId)
-                }
-                else -> return@selectPage
-            }
-
-            Timber.d("Map page selected, load nearby: $nearbyStoreId $nearbyZoneId")
+        viewModel.selectPage(force = true, MainPage.NEARBY)
+        val nearbyType = intent.getStringExtra(NotificationHandler.KEY_NEARBY_TYPE)
+        if (nearbyType == null) {
+            Timber.d("New intent had nearby key but no type")
+            return false
         }
+        val nearbyStoreId: NearbyStore.Id
+        val nearbyZoneId: NearbyZone.Id
+        when (nearbyType) {
+            NotificationHandler.VALUE_NEARBY_TYPE_STORE -> {
+                nearbyStoreId = NearbyStore.Id(longNearbyId)
+                nearbyZoneId = NearbyZone.Id.EMPTY
+            }
+            NotificationHandler.VALUE_NEARBY_TYPE_ZONE -> {
+                nearbyStoreId = NearbyStore.Id.EMPTY
+                nearbyZoneId = NearbyZone.Id(longNearbyId)
+            }
+            else -> return false
+        }
+
+        Timber.d("Map page selected, load nearby: $nearbyStoreId $nearbyZoneId")
         return true
     }
 
@@ -309,10 +315,10 @@ internal class MainActivity : ChangeLogActivity(), VersionChecker {
             snackbar
         ) {
             return@createComponent when (it) {
-                is MainControllerEvent.PushEntry -> pushEntry(it.previousPage)
-                is MainControllerEvent.PushCategory -> pushCategory(it.previousPage)
-                is MainControllerEvent.PushNearby -> pushNearby(it.previousPage)
-                is MainControllerEvent.PushSettings -> pushSettings(it.previousPage)
+                is MainControllerEvent.PushEntry -> pushEntry(it.previousPage, it.force)
+                is MainControllerEvent.PushCategory -> pushCategory(it.previousPage, it.force)
+                is MainControllerEvent.PushNearby -> pushNearby(it.previousPage, it.force)
+                is MainControllerEvent.PushSettings -> pushSettings(it.previousPage, it.force)
                 is MainControllerEvent.VersionCheck -> performUpdate()
             }
         }
@@ -369,32 +375,28 @@ internal class MainActivity : ChangeLogActivity(), VersionChecker {
         checkForUpdate()
     }
 
-    private fun pushSettings(previousPage: MainPage?) {
+    private fun pushSettings(previousPage: MainPage?, force: Boolean) {
         commitPage(
             SettingsFragment.newInstance(),
             MainPage.SETTINGS,
             previousPage,
-            SettingsFragment.TAG
+            SettingsFragment.TAG,
+            force
         )
     }
 
-    private fun pushCategory(previousPage: MainPage?) {
+    private fun pushCategory(previousPage: MainPage?, force: Boolean) {
         commitPage(
             CategoryFragment.newInstance(),
             MainPage.CATEGORY,
             previousPage,
-            CategoryFragment.TAG
+            CategoryFragment.TAG,
+            force
         )
     }
 
-    private fun pushNearby(previousPage: MainPage?) {
-        val fm = supportFragmentManager
-        if (
-            fm.findFragmentByTag(MapFragment.TAG) == null &&
-            fm.findFragmentByTag(PermissionFragment.TAG) == null
-        ) {
-            commitNearbyFragment(previousPage)
-        }
+    private fun pushNearby(previousPage: MainPage?, force: Boolean) {
+        commitNearbyFragment(previousPage, force)
     }
 
     private fun checkNearbyFragmentPermissions() {
@@ -404,51 +406,52 @@ internal class MainActivity : ChangeLogActivity(), VersionChecker {
                 // Replace permission with map
                 // Don't need animation because we are already on this page
                 Timber.d("Permission gained, commit Map fragment")
-                commitMapFragment(null, forcePush = true)
+                commitMapFragment(null, force = true)
             })
         } else if (fm.findFragmentByTag(MapFragment.TAG) != null) {
             viewModel.withForegroundPermission(withoutPermission = {
                 // Replace map with permission
                 // Don't need animation because we are already on this page
                 Timber.d("Permission lost, commit Permission fragment")
-                commitPermissionFragment(null, forcePush = true)
+                commitPermissionFragment(null, force = true)
             })
         }
     }
 
-    private fun commitMapFragment(previousPage: MainPage?, forcePush: Boolean = false) {
+    private fun commitMapFragment(previousPage: MainPage?, force: Boolean) {
         commitPage(
             MapFragment.newInstance(),
             MainPage.NEARBY,
             previousPage,
             MapFragment.TAG,
-            forcePush
+            force
         )
     }
 
-    private fun commitPermissionFragment(previousPage: MainPage?, forcePush: Boolean = false) {
+    private fun commitPermissionFragment(previousPage: MainPage?, force: Boolean) {
         commitPage(
             PermissionFragment.newInstance(fragmentContainerId),
             MainPage.NEARBY,
             previousPage,
             PermissionFragment.TAG,
-            forcePush
+            force
         )
     }
 
-    private fun commitNearbyFragment(previousPage: MainPage?) {
+    private fun commitNearbyFragment(previousPage: MainPage?, force: Boolean) {
         viewModel.withForegroundPermission(
-            withPermission = { commitMapFragment(previousPage) },
-            withoutPermission = { commitPermissionFragment(previousPage) }
+            withPermission = { commitMapFragment(previousPage, force) },
+            withoutPermission = { commitPermissionFragment(previousPage, force) }
         )
     }
 
-    private fun pushEntry(previousPage: MainPage?) {
+    private fun pushEntry(previousPage: MainPage?, force: Boolean) {
         commitPage(
             EntryFragment.newInstance(fragmentContainerId),
             MainPage.ENTRIES,
             previousPage,
-            EntryFragment.TAG
+            EntryFragment.TAG,
+            force
         )
     }
 
@@ -457,7 +460,7 @@ internal class MainActivity : ChangeLogActivity(), VersionChecker {
         newPage: MainPage,
         previousPage: MainPage?,
         tag: String,
-        forcePush: Boolean = false
+        force: Boolean
     ) {
         val fm = supportFragmentManager
         val container = fragmentContainerId
@@ -468,8 +471,8 @@ internal class MainActivity : ChangeLogActivity(), VersionChecker {
             else -> false
         }
 
-        if (push || forcePush) {
-            if (forcePush) {
+        if (push || force) {
+            if (force) {
                 Timber.d("Force commit fragment: $tag")
             } else {
                 Timber.d("Commit fragment: $tag")
@@ -477,9 +480,9 @@ internal class MainActivity : ChangeLogActivity(), VersionChecker {
 
             this.doOnStart {
                 // Clear the back stack (for entry->detail stack)
-                fm.popBackStackImmediate(null, FragmentManager.POP_BACK_STACK_INCLUSIVE)
+                fm.clearBackStack()
 
-                fm.commit(this) {
+                fm.commitNow(this) {
                     decideAnimationForPage(previousPage, newPage)
                     replace(container, fragment, tag)
                 }
@@ -543,5 +546,10 @@ internal class MainActivity : ChangeLogActivity(), VersionChecker {
         factory = null
 
         handler.removeCallbacksAndMessages(null)
+    }
+
+    private fun FragmentManager.clearBackStack() {
+        Timber.d("Clear FM back stack")
+        this.popBackStackImmediate(null, FragmentManager.POP_BACK_STACK_INCLUSIVE)
     }
 }

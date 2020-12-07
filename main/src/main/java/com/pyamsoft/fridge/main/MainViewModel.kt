@@ -64,7 +64,7 @@ class MainViewModel @Inject internal constructor(
         // This pushes the fragment onto the stack
         doOnRestoreState { savedInstanceState ->
             savedInstanceState.useIfAvailable<String>(PAGE) { page ->
-                selectPage(MainPage.valueOf(page))
+                selectPage(force = false, MainPage.valueOf(page))
             }
         }
 
@@ -103,10 +103,10 @@ class MainViewModel @Inject internal constructor(
 
     override fun handleViewEvent(event: MainViewEvent) {
         return when (event) {
-            is MainViewEvent.OpenEntries -> selectPage(MainPage.ENTRIES)
-            is MainViewEvent.OpenCategory -> selectPage(MainPage.CATEGORY)
-            is MainViewEvent.OpenNearby -> selectPage(MainPage.NEARBY)
-            is MainViewEvent.OpenSettings -> selectPage(MainPage.SETTINGS)
+            is MainViewEvent.OpenEntries -> selectPage(force = false, MainPage.ENTRIES)
+            is MainViewEvent.OpenCategory -> selectPage(force = false, MainPage.CATEGORY)
+            is MainViewEvent.OpenNearby -> selectPage(force = false, MainPage.NEARBY)
+            is MainViewEvent.OpenSettings -> selectPage(force = false, MainPage.SETTINGS)
             is MainViewEvent.BottomBarMeasured -> consumeBottomBarHeight(event.height)
         }
     }
@@ -117,19 +117,17 @@ class MainViewModel @Inject internal constructor(
         }
     }
 
-    @JvmOverloads
-    fun selectPage(page: MainPage, onSelected: () -> Unit = EMPTY) {
+    fun selectPage(force: Boolean, page: MainPage) {
         when (page) {
-            MainPage.ENTRIES -> select(page, onSelected) { MainControllerEvent.PushEntry(it) }
-            MainPage.NEARBY -> select(page, onSelected) { MainControllerEvent.PushNearby(it) }
-            MainPage.CATEGORY -> select(page, onSelected) { MainControllerEvent.PushCategory(it) }
-            MainPage.SETTINGS -> select(page, onSelected) { MainControllerEvent.PushSettings(it) }
+            MainPage.ENTRIES -> select(page) { MainControllerEvent.PushEntry(it, force) }
+            MainPage.NEARBY -> select(page) { MainControllerEvent.PushNearby(it, force) }
+            MainPage.CATEGORY -> select(page) { MainControllerEvent.PushCategory(it, force) }
+            MainPage.SETTINGS -> select(page) { MainControllerEvent.PushSettings(it, force) }
         }
     }
 
     private inline fun select(
         newPage: MainPage,
-        crossinline onAfterSelected: () -> Unit,
         crossinline event: (page: MainPage?) -> (MainControllerEvent)
     ) {
         Timber.d("Select entry: $newPage")
@@ -137,14 +135,9 @@ class MainViewModel @Inject internal constructor(
 
         // If the pages match we can just run the after, no need to set and publish
         val oldPage = state.page
-        if (oldPage == newPage) {
-            onAfterSelected()
-        } else {
-            setState(stateChange = { copy(page = newPage) }, andThen = {
-                publishNewSelection(oldPage, event)
-                onAfterSelected()
-            })
-        }
+        setState(stateChange = { copy(page = newPage) }, andThen = {
+            publishNewSelection(oldPage, event)
+        })
     }
 
     private inline fun publishNewSelection(

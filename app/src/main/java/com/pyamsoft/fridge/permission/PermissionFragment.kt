@@ -25,7 +25,6 @@ import androidx.constraintlayout.widget.ConstraintSet
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.pyamsoft.fridge.FridgeComponent
-import com.pyamsoft.pydroid.ui.R
 import com.pyamsoft.fridge.locator.permission.ForegroundLocationPermission
 import com.pyamsoft.fridge.locator.permission.LocationExplanation
 import com.pyamsoft.fridge.locator.permission.LocationPermissionViewModel
@@ -39,12 +38,13 @@ import com.pyamsoft.fridge.map.MapFragment
 import com.pyamsoft.pydroid.arch.StateSaver
 import com.pyamsoft.pydroid.arch.createComponent
 import com.pyamsoft.pydroid.ui.Injector
+import com.pyamsoft.pydroid.ui.R
 import com.pyamsoft.pydroid.ui.arch.viewModelFactory
 import com.pyamsoft.pydroid.ui.databinding.LayoutConstraintBinding
-import com.pyamsoft.pydroid.ui.util.commit
+import com.pyamsoft.pydroid.ui.util.commitNow
 import com.pyamsoft.pydroid.ui.util.layout
-import javax.inject.Inject
 import timber.log.Timber
+import javax.inject.Inject
 
 internal class PermissionFragment : Fragment(), PermissionConsumer<ForegroundLocationPermission> {
 
@@ -149,7 +149,7 @@ internal class PermissionFragment : Fragment(), PermissionConsumer<ForegroundLoc
     }
 
     private fun pushMapFragmentOncePermissionGranted() {
-        requireActivity().supportFragmentManager.commit(viewLifecycleOwner) {
+        parentFragmentManager.commitNow(viewLifecycleOwner) {
             replace(
                 requireArguments().getInt(CONTAINER_ID, 0),
                 MapFragment.newInstance(),

@@ -45,15 +45,25 @@ sealed class MainViewEvent : UiViewEvent {
 
 sealed class MainControllerEvent : UiControllerEvent {
 
-    data class PushEntry internal constructor(val previousPage: MainPage?) : MainControllerEvent()
+    data class PushEntry internal constructor(
+        val previousPage: MainPage?,
+        val force: Boolean
+    ) : MainControllerEvent()
 
-    data class PushCategory internal constructor(val previousPage: MainPage?) :
-        MainControllerEvent()
+    data class PushCategory internal constructor(
+        val previousPage: MainPage?,
+        val force: Boolean
+    ) : MainControllerEvent()
 
-    data class PushNearby internal constructor(val previousPage: MainPage?) : MainControllerEvent()
+    data class PushNearby internal constructor(
+        val previousPage: MainPage?,
+        val force: Boolean
+    ) : MainControllerEvent()
 
-    data class PushSettings internal constructor(val previousPage: MainPage?) :
-        MainControllerEvent()
+    data class PushSettings internal constructor(
+        val previousPage: MainPage?,
+        val force: Boolean
+    ) : MainControllerEvent()
 
     object VersionCheck : MainControllerEvent()
 }

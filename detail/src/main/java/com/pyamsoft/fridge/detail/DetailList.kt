@@ -145,7 +145,7 @@ class DetailList @Inject internal constructor(
         }
 
         doOnTeardown {
-            clearList()
+            modelAdapter?.submitList(null)
             binding.detailList.adapter = null
 
             touchHelper?.attachToRecyclerView(null)
