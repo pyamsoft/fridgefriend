@@ -127,10 +127,10 @@ class MainNavigation @Inject internal constructor(
     private fun getIdForPage(page: MainPage?): Int {
         return if (page == null) 0 else {
             when (page) {
-                MainPage.ENTRIES -> R.id.menu_item_nav_entries
-                MainPage.CATEGORY -> R.id.menu_item_nav_category
-                MainPage.NEARBY -> R.id.menu_item_nav_nearby
-                MainPage.SETTINGS -> R.id.menu_item_nav_settings
+                is MainPage.Entries -> R.id.menu_item_nav_entries
+                is MainPage.Category -> R.id.menu_item_nav_category
+                is MainPage.Nearby -> R.id.menu_item_nav_nearby
+                is MainPage.Settings -> R.id.menu_item_nav_settings
             }
         }
     }

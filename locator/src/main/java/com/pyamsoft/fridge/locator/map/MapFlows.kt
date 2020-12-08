@@ -26,14 +26,24 @@ import com.pyamsoft.pydroid.arch.UiViewState
 data class MapViewState internal constructor(
     val boundingBox: BBox?,
     val loading: Boolean,
-    val points: List<NearbyStore>,
-    val zones: List<NearbyZone>,
+    val points: List<MapPoint>,
+    val zones: List<MapZone>,
     val nearbyError: Throwable?,
     val gpsError: Throwable?,
     val cachedFetchError: Throwable?,
     val centerMyLocation: CenterMyLocation?,
-    val bottomOffset: Int
+    val bottomOffset: Int,
 ) : UiViewState {
+
+    data class MapPoint internal constructor(
+        val point: NearbyStore,
+        val forceOpen: Boolean,
+    )
+
+    data class MapZone internal constructor(
+        val zone: NearbyZone,
+        val forceOpen: Boolean,
+    )
 
     data class CenterMyLocation internal constructor(val firstTime: Boolean)
 }

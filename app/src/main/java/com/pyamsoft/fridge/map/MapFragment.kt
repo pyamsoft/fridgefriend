@@ -25,10 +25,12 @@ import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.pyamsoft.fridge.FridgeComponent
+import com.pyamsoft.fridge.db.store.NearbyStore
+import com.pyamsoft.fridge.db.zone.NearbyZone
+import com.pyamsoft.fridge.locator.map.MapActions
 import com.pyamsoft.fridge.locator.map.MapControllerEvent
 import com.pyamsoft.fridge.locator.map.MapPopupOverlay
 import com.pyamsoft.fridge.locator.map.MapViewModel
-import com.pyamsoft.fridge.locator.map.MapActions
 import com.pyamsoft.fridge.locator.map.osm.OsmMap
 import com.pyamsoft.fridge.main.VersionChecker
 import com.pyamsoft.fridge.ui.SnackbarContainer
@@ -61,14 +63,14 @@ internal class MapFragment : Fragment(), SnackbarContainer {
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View? {
         return inflater.inflate(R.layout.layout_coordinator, container, false)
     }
 
     override fun onViewCreated(
         view: View,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -78,10 +80,8 @@ internal class MapFragment : Fragment(), SnackbarContainer {
             .create(
                 requireActivity(),
                 binding.layoutCoordinator,
-                viewLifecycleOwner
-            )
-            .inject(this)
-
+                viewLifecycleOwner,
+            ).inject(this)
 
         stateSaver = createComponent(
             savedInstanceState,
@@ -117,6 +117,10 @@ internal class MapFragment : Fragment(), SnackbarContainer {
         if (act is VersionChecker) {
             act.checkVersionForUpdate()
         }
+
+        val storeId = NearbyStore.Id(requireArguments().getLong(KEY_STORE_ID, 0L))
+        val zoneId = NearbyZone.Id(requireArguments().getLong(KEY_ZONE_ID, 0L))
+        viewModel.fetchNearby(storeId, zoneId)
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -136,12 +140,17 @@ internal class MapFragment : Fragment(), SnackbarContainer {
     companion object {
 
         const val TAG = "MapFragment"
+        private const val KEY_STORE_ID = "store_id"
+        private const val KEY_ZONE_ID = "zone_id"
 
         @JvmStatic
         @CheckResult
-        fun newInstance(): Fragment {
+        fun newInstance(storeId: NearbyStore.Id, zoneId: NearbyZone.Id): Fragment {
             return MapFragment().apply {
-                arguments = Bundle().apply {}
+                arguments = Bundle().apply {
+                    putLong(KEY_STORE_ID, storeId.id)
+                    putLong(KEY_ZONE_ID, zoneId.id)
+                }
             }
         }
     }

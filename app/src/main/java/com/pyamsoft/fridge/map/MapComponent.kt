@@ -23,6 +23,8 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModelProvider
 import com.pyamsoft.fridge.ThemeProviderModule
 import com.pyamsoft.fridge.core.FridgeViewModelFactory
+import com.pyamsoft.fridge.db.store.NearbyStore
+import com.pyamsoft.fridge.db.zone.NearbyZone
 import com.pyamsoft.fridge.locator.map.MapViewModel
 import com.pyamsoft.fridge.map.MapComponent.ViewModelModule
 import com.pyamsoft.pydroid.arch.UiViewModel
@@ -58,6 +60,6 @@ internal interface MapComponent {
         @Binds
         @IntoMap
         @ClassKey(MapViewModel::class)
-        internal abstract fun osmViewModel(viewModel: MapViewModel): UiViewModel<*, *, *>
+        internal abstract fun mapViewModel(viewModel: MapViewModel): UiViewModel<*, *, *>
     }
 }

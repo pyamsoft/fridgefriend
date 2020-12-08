@@ -16,8 +16,11 @@
 
 package com.pyamsoft.fridge.main
 
+import androidx.annotation.CheckResult
 import androidx.lifecycle.viewModelScope
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent
+import com.pyamsoft.fridge.db.store.NearbyStore
+import com.pyamsoft.fridge.db.zone.NearbyZone
 import com.pyamsoft.fridge.locator.GpsChangeEvent
 import com.pyamsoft.fridge.locator.MapPermission
 import com.pyamsoft.fridge.ui.BottomOffset
@@ -35,7 +38,7 @@ class MainViewModel @Inject internal constructor(
     private val mapPermission: MapPermission,
     private val gpsChangeBus: EventBus<GpsChangeEvent>,
     private val bottomOffsetBus: EventBus<BottomOffset>,
-    @Named("app_name") appNameRes: Int
+    @Named("app_name") appNameRes: Int,
 ) : UiViewModel<MainViewState, MainViewEvent, MainControllerEvent>(
     MainViewState(
         page = null,
@@ -57,18 +60,36 @@ class MainViewModel @Inject internal constructor(
 
         doOnSaveState { outState, state ->
             state.page?.let { p ->
-                outState.put(PAGE, p.name)
+                outState.put(KEY_PAGE, p.asString())
             }
         }
 
         // This pushes the fragment onto the stack
         doOnRestoreState { savedInstanceState ->
-            savedInstanceState.useIfAvailable<String>(PAGE) { page ->
-                selectPage(force = false, MainPage.valueOf(page))
+            savedInstanceState.useIfAvailable<String>(KEY_PAGE) { page ->
+                selectPage(force = false, page.asMainPage())
             }
         }
 
         refreshBadgeCounts()
+    }
+
+    @CheckResult
+    private fun MainPage.asString(): String {
+        return this::class.java.name
+    }
+
+    private fun String.asMainPage(): MainPage {
+        return when (this) {
+            MainPage.Entries::class.java.name -> MainPage.Entries
+            MainPage.Category::class.java.name -> MainPage.Category
+            MainPage.Settings::class.java.name -> MainPage.Settings
+            MainPage.Nearby::class.java.name -> MainPage.Nearby(
+                storeId = NearbyStore.Id.EMPTY,
+                zoneId = NearbyZone.Id.EMPTY
+            )
+            else -> MainPage.Entries
+        }
     }
 
     private fun handleRealtime(event: FridgeItemChangeEvent) {
@@ -103,11 +124,14 @@ class MainViewModel @Inject internal constructor(
 
     override fun handleViewEvent(event: MainViewEvent) {
         return when (event) {
-            is MainViewEvent.OpenEntries -> selectPage(force = false, MainPage.ENTRIES)
-            is MainViewEvent.OpenCategory -> selectPage(force = false, MainPage.CATEGORY)
-            is MainViewEvent.OpenNearby -> selectPage(force = false, MainPage.NEARBY)
-            is MainViewEvent.OpenSettings -> selectPage(force = false, MainPage.SETTINGS)
+            is MainViewEvent.OpenEntries -> selectPage(force = false, MainPage.Entries)
+            is MainViewEvent.OpenCategory -> selectPage(force = false, MainPage.Category)
+            is MainViewEvent.OpenSettings -> selectPage(force = false, MainPage.Settings)
             is MainViewEvent.BottomBarMeasured -> consumeBottomBarHeight(event.height)
+            is MainViewEvent.OpenNearby -> selectPage(force = false, MainPage.Nearby(
+                storeId = NearbyStore.Id.EMPTY,
+                zoneId = NearbyZone.Id.EMPTY
+            ))
         }
     }
 
@@ -119,16 +143,23 @@ class MainViewModel @Inject internal constructor(
 
     fun selectPage(force: Boolean, page: MainPage) {
         when (page) {
-            MainPage.ENTRIES -> select(page) { MainControllerEvent.PushEntry(it, force) }
-            MainPage.NEARBY -> select(page) { MainControllerEvent.PushNearby(it, force) }
-            MainPage.CATEGORY -> select(page) { MainControllerEvent.PushCategory(it, force) }
-            MainPage.SETTINGS -> select(page) { MainControllerEvent.PushSettings(it, force) }
+            is MainPage.Entries -> select(page) { MainControllerEvent.PushEntry(it, force) }
+            is MainPage.Category -> select(page) { MainControllerEvent.PushCategory(it, force) }
+            is MainPage.Settings -> select(page) { MainControllerEvent.PushSettings(it, force) }
+            is MainPage.Nearby -> select(page) {
+                MainControllerEvent.PushNearby(
+                    it,
+                    page.storeId,
+                    page.zoneId,
+                    force
+                )
+            }
         }
     }
 
     private inline fun select(
         newPage: MainPage,
-        crossinline event: (page: MainPage?) -> (MainControllerEvent)
+        crossinline event: (page: MainPage?) -> (MainControllerEvent),
     ) {
         Timber.d("Select entry: $newPage")
         refreshBadgeCounts()
@@ -142,7 +173,7 @@ class MainViewModel @Inject internal constructor(
 
     private inline fun publishNewSelection(
         oldPage: MainPage?,
-        crossinline event: (page: MainPage?) -> MainControllerEvent
+        crossinline event: (page: MainPage?) -> MainControllerEvent,
     ) {
         Timber.d("Publish selection: $oldPage -> ${state.page}")
         publish(event(oldPage))
@@ -151,7 +182,7 @@ class MainViewModel @Inject internal constructor(
     @JvmOverloads
     fun withForegroundPermission(
         withPermission: () -> Unit = EMPTY,
-        withoutPermission: () -> Unit = EMPTY
+        withoutPermission: () -> Unit = EMPTY,
     ) {
         viewModelScope.launch(context = Dispatchers.Default) {
             if (mapPermission.hasForegroundPermission()) {
@@ -179,7 +210,7 @@ class MainViewModel @Inject internal constructor(
 
     companion object {
 
-        private const val PAGE = "page"
+        private const val KEY_PAGE = "page"
         private val EMPTY = {}
     }
 }

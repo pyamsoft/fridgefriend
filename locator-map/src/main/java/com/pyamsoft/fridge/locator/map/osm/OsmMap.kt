@@ -18,6 +18,8 @@ package com.pyamsoft.fridge.locator.map.osm
 
 import android.content.Context
 import android.graphics.Color
+import android.os.Handler
+import android.os.Looper
 import android.view.ViewGroup
 import androidx.annotation.CheckResult
 import androidx.lifecycle.Lifecycle
@@ -25,8 +27,6 @@ import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.OnLifecycleEvent
 import androidx.preference.PreferenceManager
-import com.pyamsoft.fridge.db.store.NearbyStore
-import com.pyamsoft.fridge.db.zone.NearbyZone
 import com.pyamsoft.fridge.locator.location.LocationUpdatePublisher
 import com.pyamsoft.fridge.locator.location.LocationUpdateReceiver
 import com.pyamsoft.fridge.locator.map.BBox
@@ -70,7 +70,7 @@ class OsmMap @Inject internal constructor(
     private val locationUpdatePublisher: LocationUpdatePublisher,
     private val storeFactory: StoreInfoComponent.Factory,
     private val zoneFactory: ZoneInfoComponent.Factory,
-    parent: ViewGroup
+    parent: ViewGroup,
 ) : BaseUiView<MapViewState, MapViewEvent, OsmMapBinding>(parent) {
 
     override val viewBinding = OsmMapBinding::inflate
@@ -79,6 +79,9 @@ class OsmMap @Inject internal constructor(
 
     private var locationOverlay: MyLocationNewOverlay? = null
     private var centeringLocation = false
+
+    private val mapHandler by lazy(LazyThreadSafetyMode.NONE) { Handler(Looper.getMainLooper()) }
+    private val boundingBoxHandler by lazy(LazyThreadSafetyMode.NONE) { Handler(Looper.getMainLooper()) }
 
     init {
         // Must happen before inflate
@@ -171,125 +174,163 @@ class OsmMap @Inject internal constructor(
             binding.osmMap.removeMapListener(mapListener)
             binding.osmMap.onDetach()
         }
+
+        doOnTeardown {
+            mapHandler.removeCallbacksAndMessages(null)
+            boundingBoxHandler.removeCallbacksAndMessages(null)
+        }
     }
 
     override fun onRender(state: MapViewState) {
-        renderMap(state)
-        state.centerMyLocation?.let { findMyLocation() }
+        handleMap(state)
+        handleMyLocation(state)
     }
 
-    private fun renderMap(state: MapViewState) {
+    private fun handleMap(state: MapViewState) {
         var invalidate = false
         state.points.let { points ->
             if (renderMapMarkers(points)) {
                 invalidate = true
+                mapHandler.removeCallbacksAndMessages(null)
             }
         }
 
         state.zones.let { zones ->
             if (renderMapPolygons(zones)) {
                 invalidate = true
+                mapHandler.removeCallbacksAndMessages(null)
             }
         }
 
         if (invalidate) {
-            binding.osmMap.invalidate()
+            mapHandler.removeCallbacksAndMessages(null)
+            mapHandler.postDelayed({
+                binding.osmMap.invalidate()
+            }, 100)
         }
     }
 
     @CheckResult
-    private fun renderMapPolygons(zones: List<NearbyZone>): Boolean {
-        // Skip work if no polygons
-        if (zones.isEmpty()) {
-            return false
-        }
+    private fun renderMapPolygons(zones: List<MapViewState.MapZone>): Boolean {
+        val overlay = binding.osmMap.overlayManager
 
-        var changed = false
+        // Remove any polygons that used to exist but don't anymore
+        overlay.filterIsInstance<Polygon>()
+            .filter { polygon -> zones.find { it.zone.getPolygonUid() == polygon.id } == null }
+            .forEach { overlay.remove(it) }
+
         val color = Color.argb(75, 255, 255, 0)
-        zones.forEach { zone ->
-            val uid = zone.getPolygonUid()
-            val oldPolygon = binding.osmMap.overlayManager.filterIsInstance<Polygon>()
-                .find { it.id == uid }
-            if (oldPolygon != null) {
-                // Already have this polygon, avoid extra work
-                return@forEach
+        return zones.map { zone ->
+            val nearby = zone.zone
+            val forceOpen = zone.forceOpen
+
+            val uid = nearby.getPolygonUid()
+            var polygon = overlay.filterIsInstance<Polygon>().find { it.id == uid }
+            if (polygon == null) {
+                polygon = Polygon(binding.osmMap).apply {
+                    id = uid
+                    infoWindow = ZoneInfoWindow.fromMap(
+                        locationUpdateReceiver,
+                        nearby,
+                        binding.osmMap,
+                        zoneFactory
+                    )
+                    fillPaint.color = color
+                    outlinePaint.color = if (theming.isDarkTheme()) Color.WHITE else Color.BLACK
+
+                    setOnClickListener { p, _, _ ->
+                        publish(MapViewEvent.OpenPopup(p.asPopup()))
+                        return@setOnClickListener true
+                    }
+                }
+
+                overlay.add(polygon)
+            } else {
+                if (!forceOpen) {
+                    // Already have this polygon, avoid extra work
+                    return@map false
+                }
             }
 
             // Convert list of nodes to geo points
-            val points = ArrayList(zone.points().map { GeoPoint(it.lat, it.lon) })
+            val points = ArrayList(nearby.points().map { GeoPoint(it.lat, it.lon) })
             // Add the first point again to close the polygon
             points.add(points[0])
 
-            val polygon = Polygon(binding.osmMap).apply {
-                infoWindow = ZoneInfoWindow.fromMap(
-                    locationUpdateReceiver,
-                    zone,
-                    binding.osmMap,
-                    zoneFactory
-                )
-                id = uid
-                title = zone.name()
-                fillPaint.color = color
-                outlinePaint.color = if (theming.isDarkTheme()) Color.WHITE else Color.BLACK
-
-                // This sets up the info window location
+            // This sets up the info window location
+            polygon.apply {
+                title = nearby.name()
                 setPoints(points)
             }
-            polygon.setOnClickListener { p, _, _ ->
-                publish(MapViewEvent.OpenPopup(p.asPopup()))
-                return@setOnClickListener true
+
+            if (forceOpen) {
+                Timber.d("Render zone popup as open: $polygon")
+                publish(MapViewEvent.OpenPopup(polygon.asPopup()))
             }
 
-            binding.osmMap.overlayManager.add(polygon)
-            changed = true
-        }
-
-        return changed
+            return@map true
+        }.any { it }
     }
 
     @CheckResult
-    private fun renderMapMarkers(marks: List<NearbyStore>): Boolean {
-        // Skip work if no markers
-        if (marks.isEmpty()) {
-            return false
-        }
+    private fun renderMapMarkers(marks: List<MapViewState.MapPoint>): Boolean {
+        val overlay = binding.osmMap.overlayManager
 
-        var changed = false
-        marks.forEach { mark ->
-            val uid = mark.getMarkerUid()
-            val oldMarker = binding.osmMap.overlayManager.filterIsInstance<Marker>()
-                .find { it.id == uid }
-            if (oldMarker != null) {
-                // Already have this marker, avoid extra work
-                return@forEach
+        // Remove any marks that used to exist but don't anymore
+        overlay.filterIsInstance<Marker>()
+            .filter { marker -> marks.find { it.point.getMarkerUid() == marker.id } == null }
+            .forEach { overlay.remove(it) }
+
+        return marks.map { mark ->
+            val nearby = mark.point
+            val forceOpen = mark.forceOpen
+
+            val uid = nearby.getMarkerUid()
+            var marker = overlay.filterIsInstance<Marker>().find { it.id == uid }
+            if (marker == null) {
+                // Create a new marker
+                marker = Marker(binding.osmMap).apply {
+                    id = uid
+                    infoWindow = StoreInfoWindow.fromMap(
+                        locationUpdateReceiver,
+                        nearby,
+                        binding.osmMap,
+                        storeFactory
+                    )
+
+                    setOnMarkerClickListener { p, _ ->
+                        publish(MapViewEvent.OpenPopup(p.asPopup()))
+                        return@setOnMarkerClickListener true
+                    }
+                }
+
+                overlay.add(marker)
+            } else {
+                if (!forceOpen) {
+                    // Already have this marker, avoid extra work
+                    return@map false
+                }
             }
 
-            val marker = Marker(binding.osmMap).apply {
-                infoWindow = StoreInfoWindow.fromMap(
-                    locationUpdateReceiver,
-                    mark,
-                    binding.osmMap,
-                    storeFactory
-                )
-                id = uid
-                position = GeoPoint(mark.latitude(), mark.longitude())
-                title = mark.name()
+            marker.apply {
+                title = nearby.name()
+                position = GeoPoint(nearby.latitude(), nearby.longitude())
             }
 
-            marker.setOnMarkerClickListener { p, _ ->
-                publish(MapViewEvent.OpenPopup(p.asPopup()))
-                return@setOnMarkerClickListener true
+            if (forceOpen) {
+                Timber.d("Render marks popup as open: $marker")
+                publish(MapViewEvent.OpenPopup(marker.asPopup()))
             }
 
-            binding.osmMap.overlayManager.add(marker)
-            changed = true
-        }
-
-        return changed
+            return@map true
+        }.any { it }
     }
 
     private fun publishCurrentBoundingBox() {
-        publish(MapViewEvent.UpdateBoundingBox(getBoundingBoxOfCurrentScreen()))
+        boundingBoxHandler.removeCallbacksAndMessages(null)
+        boundingBoxHandler.postDelayed({
+            publish(MapViewEvent.UpdateBoundingBox(getBoundingBoxOfCurrentScreen()))
+        }, 100)
     }
 
     @CheckResult
@@ -339,19 +380,20 @@ class OsmMap @Inject internal constructor(
     private inline fun centerOnLocation(
         latitude: Double,
         longitude: Double,
-        crossinline onCentered: (location: GeoPoint) -> Unit
+        crossinline onCentered: (location: GeoPoint) -> Unit,
     ) {
         if (centeringLocation) {
             return
         }
 
-        val point = GeoPoint(latitude, longitude)
         centeringLocation = true
+        val point = GeoPoint(latitude, longitude)
         binding.osmMap.controller.setZoom(DEFAULT_ZOOM)
         binding.osmMap.controller.animateTo(point)
         binding.osmMap.controller.setCenter(point)
         onCentered(point)
         centeringLocation = false
+        publishCurrentBoundingBox()
     }
 
     private fun addMapOverlays(context: Context) {
@@ -370,13 +412,20 @@ class OsmMap @Inject internal constructor(
         }
     }
 
-    private fun findMyLocation() {
-        locationOverlay?.let { overlay ->
-            val location = overlay.myLocation
-            if (location != null) {
-                centerOnLocation(location.latitude, location.longitude) {
-                    Timber.d("Centered onto current user location")
-                    publish(MapViewEvent.DoneFindingMyLocation)
+    private fun handleMyLocation(state: MapViewState) {
+        state.centerMyLocation?.let {
+            // Animation debounce
+            if (centeringLocation) {
+                return@let
+            }
+
+            locationOverlay?.let { overlay ->
+                val location = overlay.myLocation
+                if (location != null) {
+                    centerOnLocation(location.latitude, location.longitude) {
+                        Timber.d("Centered onto current user location")
+                        publish(MapViewEvent.DoneFindingMyLocation)
+                    }
                 }
             }
         }

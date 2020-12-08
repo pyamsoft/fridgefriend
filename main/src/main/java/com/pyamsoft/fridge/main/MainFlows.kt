@@ -16,6 +16,8 @@
 
 package com.pyamsoft.fridge.main
 
+import com.pyamsoft.fridge.db.store.NearbyStore
+import com.pyamsoft.fridge.db.zone.NearbyZone
 import com.pyamsoft.pydroid.arch.UiControllerEvent
 import com.pyamsoft.pydroid.arch.UiViewEvent
 import com.pyamsoft.pydroid.arch.UiViewState
@@ -27,7 +29,7 @@ data class MainViewState internal constructor(
     val countExpiringOrExpired: Int,
     val countNearbyStores: Int,
     val countNearbyZones: Int,
-    val hasNearby: Boolean
+    val hasNearby: Boolean,
 ) : UiViewState
 
 sealed class MainViewEvent : UiViewEvent {
@@ -47,22 +49,24 @@ sealed class MainControllerEvent : UiControllerEvent {
 
     data class PushEntry internal constructor(
         val previousPage: MainPage?,
-        val force: Boolean
+        val force: Boolean,
     ) : MainControllerEvent()
 
     data class PushCategory internal constructor(
         val previousPage: MainPage?,
-        val force: Boolean
+        val force: Boolean,
     ) : MainControllerEvent()
 
     data class PushNearby internal constructor(
         val previousPage: MainPage?,
-        val force: Boolean
+        val storeId: NearbyStore.Id,
+        val zoneId: NearbyZone.Id,
+        val force: Boolean,
     ) : MainControllerEvent()
 
     data class PushSettings internal constructor(
         val previousPage: MainPage?,
-        val force: Boolean
+        val force: Boolean,
     ) : MainControllerEvent()
 
     object VersionCheck : MainControllerEvent()

@@ -25,6 +25,8 @@ import androidx.constraintlayout.widget.ConstraintSet
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.pyamsoft.fridge.FridgeComponent
+import com.pyamsoft.fridge.db.store.NearbyStore
+import com.pyamsoft.fridge.db.zone.NearbyZone
 import com.pyamsoft.fridge.locator.permission.ForegroundLocationPermission
 import com.pyamsoft.fridge.locator.permission.LocationExplanation
 import com.pyamsoft.fridge.locator.permission.LocationPermissionViewModel
@@ -70,14 +72,14 @@ internal class PermissionFragment : Fragment(), PermissionConsumer<ForegroundLoc
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View? {
         return inflater.inflate(R.layout.layout_constraint, container, false)
     }
 
     override fun onViewCreated(
         view: View,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -152,7 +154,10 @@ internal class PermissionFragment : Fragment(), PermissionConsumer<ForegroundLoc
         parentFragmentManager.commitNow(viewLifecycleOwner) {
             replace(
                 requireArguments().getInt(CONTAINER_ID, 0),
-                MapFragment.newInstance(),
+                MapFragment.newInstance(
+                    storeId = NearbyStore.Id.EMPTY,
+                    zoneId = NearbyZone.Id.EMPTY
+                ),
                 MapFragment.TAG
             )
         }
@@ -161,7 +166,7 @@ internal class PermissionFragment : Fragment(), PermissionConsumer<ForegroundLoc
     override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<out String>,
-        grantResults: IntArray
+        grantResults: IntArray,
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         requireNotNull(permissionHandler).handlePermissionResponse(

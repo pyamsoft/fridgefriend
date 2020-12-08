@@ -17,7 +17,10 @@
 package com.pyamsoft.fridge.locator.map
 
 import android.app.Activity
+import androidx.annotation.CheckResult
 import androidx.lifecycle.viewModelScope
+import com.pyamsoft.fridge.db.store.NearbyStore
+import com.pyamsoft.fridge.db.zone.NearbyZone
 import com.pyamsoft.fridge.locator.DeviceGps
 import com.pyamsoft.fridge.locator.MapPermission
 import com.pyamsoft.fridge.ui.BottomOffset
@@ -38,7 +41,7 @@ class MapViewModel @Inject internal constructor(
     private val mapPermission: MapPermission,
     private val interactor: MapInteractor,
     private val deviceGps: DeviceGps,
-    bottomOffsetBus: EventConsumer<BottomOffset>
+    bottomOffsetBus: EventConsumer<BottomOffset>,
 ) : UiViewModel<MapViewState, MapViewEvent, MapControllerEvent>(
     MapViewState(
         boundingBox = null,
@@ -53,19 +56,24 @@ class MapViewModel @Inject internal constructor(
     )
 ) {
 
-    private val nearbyRunner = highlander<Unit, BBox?> { box ->
-        setState { copy(loading = true) }
-
-        // Run jobs in parallel
-        val jobs = mutableListOf<Deferred<*>>()
+    private val nearbyRunner = highlander<
+            Unit,
+            BBox?,
+            NearbyStore.Id,
+            NearbyZone.Id
+            > { box, storeId, zoneId ->
         try {
+            setState { copy(loading = true) }
+
+            // Run jobs in parallel
+            val jobs = mutableListOf<Deferred<*>>()
             jobs += async(context = Dispatchers.Default) {
                 try {
-                    updateMarkers(interactor.fromCache(), fromCached = true)
+                    updateMarkers(interactor.fromCache(), storeId, zoneId)
                 } catch (error: Throwable) {
                     error.onActualError { e ->
                         Timber.e(e, "Error getting cached supermarkets")
-                        cachedFetchError(e)
+                        handleCachedFetchError(e)
                     }
                 }
             }
@@ -73,11 +81,11 @@ class MapViewModel @Inject internal constructor(
             if (box != null) {
                 jobs += async(context = Dispatchers.Default) {
                     try {
-                        updateMarkers(interactor.nearbyLocations(box), fromCached = false)
+                        updateMarkers(interactor.nearbyLocations(box), storeId, zoneId)
                     } catch (error: Throwable) {
                         error.onActualError { e ->
                             Timber.e(e, "Error fetching nearby supermarkets")
-                            nearbyError(e)
+                            handleNearbyError(e)
                         }
                     }
                 }
@@ -91,26 +99,31 @@ class MapViewModel @Inject internal constructor(
 
     init {
         viewModelScope.launch(context = Dispatchers.Default) {
-            bottomOffsetBus.onEvent { setState { copy(bottomOffset = it.height) } }
+            bottomOffsetBus.onEvent { setState { copy(bottomOffset = it.height).resetForceOpen() } }
         }
-
-        initialFetchFromCache()
     }
 
-    private fun nearbyError(throwable: Throwable) {
-        setState { copy(nearbyError = throwable) }
+    private fun handleNearbyError(throwable: Throwable) {
+        setState { copy(nearbyError = throwable).resetForceOpen() }
     }
 
     private fun updateMarkers(
         markers: MapMarkers,
-        fromCached: Boolean
+        storeId: NearbyStore.Id,
+        zoneId: NearbyZone.Id,
     ) {
         setState {
+            val newPoints = markers.points.map {
+                MapViewState.MapPoint(point = it, forceOpen = it.id() == storeId)
+            }
+            val newZones = markers.zones.map {
+                MapViewState.MapZone(zone = it, forceOpen = it.id() == zoneId)
+            }
             copy(
-                points = merge(points, markers.points) { it.id() },
-                zones = merge(zones, markers.zones) { it.id() },
-                cachedFetchError = if (fromCached) null else cachedFetchError,
-                nearbyError = if (!fromCached) null else nearbyError
+                points = merge(points, newPoints) { it.point.id() },
+                zones = merge(zones, newZones) { it.zone.id() },
+                cachedFetchError = null,
+                nearbyError = null
             )
         }
     }
@@ -118,7 +131,7 @@ class MapViewModel @Inject internal constructor(
     private inline fun <T : Any, ID : Any> merge(
         oldList: List<T>,
         newList: List<T>,
-        id: (item: T) -> ID
+        id: (item: T) -> ID,
     ): List<T> {
         val result = ArrayList(newList)
         oldList.forEach { oldItem ->
@@ -132,37 +145,65 @@ class MapViewModel @Inject internal constructor(
         return result
     }
 
-    private fun initialFetchFromCache() {
-        viewModelScope.launch(context = Dispatchers.Default) { nearbyRunner.call(null) }
-    }
-
-    private fun cachedFetchError(throwable: Throwable) {
-        setState { copy(cachedFetchError = throwable) }
+    private fun handleCachedFetchError(throwable: Throwable) {
+        setState { copy(cachedFetchError = throwable).resetForceOpen() }
     }
 
     override fun handleViewEvent(event: MapViewEvent) {
         return when (event) {
-            is MapViewEvent.UpdateBoundingBox -> setState { copy(boundingBox = event.box) }
+            is MapViewEvent.UpdateBoundingBox -> handleBoundingBox(event.box)
             is MapViewEvent.RequestMyLocation -> findMyLocation(event.firstTime)
             is MapViewEvent.DoneFindingMyLocation -> doneFindingMyLocation()
             is MapViewEvent.RequestFindNearby -> nearbySupermarkets()
-            is MapViewEvent.OpenPopup -> publish(MapControllerEvent.PopupClicked(event.popup))
+            is MapViewEvent.OpenPopup -> openPopup(event.popup)
         }
+    }
+
+    private fun handleBoundingBox(box: BBox) {
+        setState { copy(boundingBox = box).resetForceOpen() }
+    }
+
+    @CheckResult
+    private fun MapViewState.resetForceOpen(): MapViewState {
+        return this.copy(
+            points = this.points.map { MapViewState.MapPoint(it.point, forceOpen = false) },
+            zones = this.zones.map { MapViewState.MapZone(it.zone, forceOpen = false) }
+        )
+    }
+
+    private fun openPopup(popup: MapPopup) {
+        publish(MapControllerEvent.PopupClicked(popup))
     }
 
     private fun findMyLocation(firstTime: Boolean) {
         setState {
-            copy(centerMyLocation = MapViewState.CenterMyLocation(firstTime))
+            copy(centerMyLocation = MapViewState.CenterMyLocation(firstTime)).resetForceOpen()
         }
     }
 
     private fun doneFindingMyLocation() {
-        setState { copy(centerMyLocation = null) }
+        setState { copy(centerMyLocation = null).resetForceOpen() }
     }
 
     private fun nearbySupermarkets() {
-        state.boundingBox?.let { box ->
-            viewModelScope.launch(context = Dispatchers.Default) { nearbyRunner.call(box) }
+        state.boundingBox?.let { fetchNearby(it, NearbyStore.Id.EMPTY, NearbyZone.Id.EMPTY) }
+    }
+
+    private fun fetchNearby(box: BBox?, storeId: NearbyStore.Id, zoneId: NearbyZone.Id) {
+        viewModelScope.launch(context = Dispatchers.Default) {
+            nearbyRunner.call(box, storeId, zoneId)
+        }
+    }
+
+    private suspend fun resolveError(resolution: DeviceGps.ResolvableError, activity: Activity) {
+        withContext(context = Dispatchers.Main) {
+            try {
+                Timber.w("Resolvable error when enabling GPS, try resolve")
+                resolution.resolve(activity)
+            } catch (e: Throwable) {
+                Timber.e(e, "Error during resolution of enable GPS error")
+                setState { copy(gpsError = e).resetForceOpen() }
+            }
         }
     }
 
@@ -183,22 +224,15 @@ class MapViewModel @Inject internal constructor(
                         resolveError(e, activity)
                     } else {
                         Timber.e(e, "Error during enable GPS")
-                        setState { copy(gpsError = e) }
+                        setState { copy(gpsError = e).resetForceOpen() }
                     }
                 }
             }
         }
     }
 
-    private suspend fun resolveError(resolution: DeviceGps.ResolvableError, activity: Activity) {
-        withContext(context = Dispatchers.Main) {
-            try {
-                Timber.w("Resolvable error when enabling GPS, try resolve")
-                resolution.resolve(activity)
-            } catch (e: Throwable) {
-                Timber.e(e, "Error during resolution of enable GPS error")
-                setState { copy(gpsError = e) }
-            }
-        }
+    fun fetchNearby(storeId: NearbyStore.Id, zoneId: NearbyZone.Id) {
+        fetchNearby(null, storeId, zoneId)
     }
+
 }

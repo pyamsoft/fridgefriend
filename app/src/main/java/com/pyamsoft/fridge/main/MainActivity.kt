@@ -159,7 +159,7 @@ internal class MainActivity : ChangeLogActivity(), VersionChecker {
         // Load default page
         if (savedInstanceState == null) {
             Timber.d("Load default ENTRIES page")
-            viewModel.selectPage(force = false, MainPage.ENTRIES)
+            viewModel.selectPage(force = false, MainPage.Entries)
         }
     }
 
@@ -195,7 +195,6 @@ internal class MainActivity : ChangeLogActivity(), VersionChecker {
     @CheckResult
     private fun handleEntryIntent(intent: Intent): Boolean {
         val stringEntryId = intent.getStringExtra(NotificationHandler.KEY_ENTRY_ID) ?: return false
-        viewModel.selectPage(force = true, MainPage.ENTRIES)
 
         val pres = intent.getStringExtra(NotificationHandler.KEY_PRESENCE_TYPE)
         if (pres == null) {
@@ -207,6 +206,7 @@ internal class MainActivity : ChangeLogActivity(), VersionChecker {
         val presence = FridgeItem.Presence.valueOf(pres)
         Timber.d("Entries page selected, load entry $entryId with presence: $presence")
 
+        viewModel.selectPage(force = true, MainPage.Entries)
         handleNotificationAction { fm ->
             EntryFragment.pushDetailPage(
                 fm,
@@ -226,7 +226,6 @@ internal class MainActivity : ChangeLogActivity(), VersionChecker {
             return false
         }
 
-        viewModel.selectPage(force = true, MainPage.NEARBY)
         val nearbyType = intent.getStringExtra(NotificationHandler.KEY_NEARBY_TYPE)
         if (nearbyType == null) {
             Timber.d("New intent had nearby key but no type")
@@ -247,6 +246,10 @@ internal class MainActivity : ChangeLogActivity(), VersionChecker {
         }
 
         Timber.d("Map page selected, load nearby: $nearbyStoreId $nearbyZoneId")
+        viewModel.selectPage(force = true, MainPage.Nearby(
+            storeId = nearbyStoreId,
+            zoneId = nearbyZoneId
+        ))
         return true
     }
 
@@ -305,7 +308,7 @@ internal class MainActivity : ChangeLogActivity(), VersionChecker {
 
     private fun inflateComponents(
         constraintLayout: ConstraintLayout,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ) {
         val container = requireNotNull(container)
         val toolbar = requireNotNull(toolbar)
@@ -321,11 +324,16 @@ internal class MainActivity : ChangeLogActivity(), VersionChecker {
             snackbar
         ) {
             return@createComponent when (it) {
+                is MainControllerEvent.VersionCheck -> performUpdate()
                 is MainControllerEvent.PushEntry -> pushEntry(it.previousPage, it.force)
                 is MainControllerEvent.PushCategory -> pushCategory(it.previousPage, it.force)
-                is MainControllerEvent.PushNearby -> pushNearby(it.previousPage, it.force)
                 is MainControllerEvent.PushSettings -> pushSettings(it.previousPage, it.force)
-                is MainControllerEvent.VersionCheck -> performUpdate()
+                is MainControllerEvent.PushNearby -> pushNearby(
+                    it.previousPage,
+                    it.storeId,
+                    it.zoneId,
+                    it.force
+                )
             }
         }
 
@@ -384,7 +392,7 @@ internal class MainActivity : ChangeLogActivity(), VersionChecker {
     private fun pushSettings(previousPage: MainPage?, force: Boolean) {
         commitPage(
             SettingsFragment.newInstance(),
-            MainPage.SETTINGS,
+            MainPage.Settings,
             previousPage,
             SettingsFragment.TAG,
             force
@@ -394,15 +402,20 @@ internal class MainActivity : ChangeLogActivity(), VersionChecker {
     private fun pushCategory(previousPage: MainPage?, force: Boolean) {
         commitPage(
             CategoryFragment.newInstance(),
-            MainPage.CATEGORY,
+            MainPage.Category,
             previousPage,
             CategoryFragment.TAG,
             force
         )
     }
 
-    private fun pushNearby(previousPage: MainPage?, force: Boolean) {
-        commitNearbyFragment(previousPage, force)
+    private fun pushNearby(
+        previousPage: MainPage?,
+        storeId: NearbyStore.Id,
+        zoneId: NearbyZone.Id,
+        force: Boolean,
+    ) {
+        commitNearbyFragment(previousPage, storeId, zoneId, force)
     }
 
     private fun checkNearbyFragmentPermissions() {
@@ -412,7 +425,12 @@ internal class MainActivity : ChangeLogActivity(), VersionChecker {
                 // Replace permission with map
                 // Don't need animation because we are already on this page
                 Timber.d("Permission gained, commit Map fragment")
-                commitMapFragment(null, force = true)
+                commitMapFragment(
+                    null,
+                    storeId = NearbyStore.Id.EMPTY,
+                    zoneId = NearbyZone.Id.EMPTY,
+                    force = true
+                )
             })
         } else if (fm.findFragmentByTag(MapFragment.TAG) != null) {
             viewModel.withForegroundPermission(withoutPermission = {
@@ -424,10 +442,14 @@ internal class MainActivity : ChangeLogActivity(), VersionChecker {
         }
     }
 
-    private fun commitMapFragment(previousPage: MainPage?, force: Boolean) {
+    private fun commitMapFragment(
+        previousPage: MainPage?,
+        storeId: NearbyStore.Id,
+        zoneId: NearbyZone.Id, force: Boolean,
+    ) {
         commitPage(
-            MapFragment.newInstance(),
-            MainPage.NEARBY,
+            MapFragment.newInstance(storeId, zoneId),
+            MainPage.Nearby(storeId, zoneId),
             previousPage,
             MapFragment.TAG,
             force
@@ -437,16 +459,21 @@ internal class MainActivity : ChangeLogActivity(), VersionChecker {
     private fun commitPermissionFragment(previousPage: MainPage?, force: Boolean) {
         commitPage(
             PermissionFragment.newInstance(fragmentContainerId),
-            MainPage.NEARBY,
+            MainPage.Nearby(storeId = NearbyStore.Id.EMPTY, zoneId = NearbyZone.Id.EMPTY),
             previousPage,
             PermissionFragment.TAG,
             force
         )
     }
 
-    private fun commitNearbyFragment(previousPage: MainPage?, force: Boolean) {
+    private fun commitNearbyFragment(
+        previousPage: MainPage?,
+        storeId: NearbyStore.Id,
+        zoneId: NearbyZone.Id,
+        force: Boolean,
+    ) {
         viewModel.withForegroundPermission(
-            withPermission = { commitMapFragment(previousPage, force) },
+            withPermission = { commitMapFragment(previousPage, storeId, zoneId, force) },
             withoutPermission = { commitPermissionFragment(previousPage, force) }
         )
     }
@@ -454,7 +481,7 @@ internal class MainActivity : ChangeLogActivity(), VersionChecker {
     private fun pushEntry(previousPage: MainPage?, force: Boolean) {
         commitPage(
             EntryFragment.newInstance(fragmentContainerId),
-            MainPage.ENTRIES,
+            MainPage.Entries,
             previousPage,
             EntryFragment.TAG,
             force
@@ -466,7 +493,7 @@ internal class MainActivity : ChangeLogActivity(), VersionChecker {
         newPage: MainPage,
         previousPage: MainPage?,
         tag: String,
-        force: Boolean
+        force: Boolean,
     ) {
         val fm = supportFragmentManager
         val container = fragmentContainerId
@@ -497,31 +524,35 @@ internal class MainActivity : ChangeLogActivity(), VersionChecker {
     }
 
     private fun FragmentTransaction.decideAnimationForPage(oldPage: MainPage?, newPage: MainPage) {
-        val (enter, exit) = when (newPage) {
-            MainPage.ENTRIES -> when (oldPage) {
+        val animations = when (newPage) {
+            is MainPage.Entries -> when (oldPage) {
                 null -> R2.anim.fragment_open_enter to R2.anim.fragment_open_exit
-                MainPage.CATEGORY, MainPage.NEARBY, MainPage.SETTINGS -> R.anim.slide_in_left to R.anim.slide_out_right
-                MainPage.ENTRIES -> throw IllegalStateException("Cannot move from $oldPage to $newPage")
+                is MainPage.Category, is MainPage.Nearby, is MainPage.Settings -> R.anim.slide_in_left to R.anim.slide_out_right
+                is MainPage.Entries -> null
             }
-            MainPage.CATEGORY -> when (oldPage) {
+            is MainPage.Category -> when (oldPage) {
                 null -> R2.anim.fragment_open_enter to R2.anim.fragment_open_exit
-                MainPage.ENTRIES -> R.anim.slide_in_right to R.anim.slide_out_left
-                MainPage.NEARBY, MainPage.SETTINGS -> R.anim.slide_in_left to R.anim.slide_out_right
-                MainPage.CATEGORY -> throw IllegalStateException("Cannot move from $oldPage to $newPage")
+                is MainPage.Entries -> R.anim.slide_in_right to R.anim.slide_out_left
+                is MainPage.Nearby, is MainPage.Settings -> R.anim.slide_in_left to R.anim.slide_out_right
+                is MainPage.Category -> null
             }
-            MainPage.NEARBY -> when (oldPage) {
+            is MainPage.Nearby -> when (oldPage) {
                 null -> R2.anim.fragment_open_enter to R2.anim.fragment_open_exit
-                MainPage.ENTRIES, MainPage.CATEGORY -> R.anim.slide_in_right to R.anim.slide_out_left
-                MainPage.SETTINGS -> R.anim.slide_in_left to R.anim.slide_out_right
-                MainPage.NEARBY -> throw IllegalStateException("Cannot move from $oldPage to $newPage")
+                is MainPage.Entries, is MainPage.Category -> R.anim.slide_in_right to R.anim.slide_out_left
+                is MainPage.Settings -> R.anim.slide_in_left to R.anim.slide_out_right
+                is MainPage.Nearby -> null
             }
-            MainPage.SETTINGS -> when (oldPage) {
+            is MainPage.Settings -> when (oldPage) {
                 null -> R2.anim.fragment_open_enter to R2.anim.fragment_open_exit
-                MainPage.ENTRIES, MainPage.CATEGORY, MainPage.NEARBY -> R.anim.slide_in_right to R.anim.slide_out_left
-                MainPage.SETTINGS -> throw IllegalStateException("Cannot move from $oldPage to $newPage")
+                is MainPage.Entries, is MainPage.Category, is MainPage.Nearby -> R.anim.slide_in_right to R.anim.slide_out_left
+                is MainPage.Settings -> null
             }
         }
-        setCustomAnimations(enter, exit, enter, exit)
+
+        if (animations != null) {
+            val (enter, exit) = animations
+            setCustomAnimations(enter, exit, enter, exit)
+        }
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
