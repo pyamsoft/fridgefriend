@@ -45,8 +45,8 @@ class ExpandItemSimilar @Inject internal constructor(
     }
 
     override fun onRender(state: UiRender<ExpandItemViewState>) {
-        state.distinctBy { it.item }.render { handleItemDuplicateMessage(it) }
-        state.distinctBy { it.similarItems }.render { handleSameNamedItems(it) }
+        state.distinctBy { it.item }.render(viewScope) { handleItemDuplicateMessage(it) }
+        state.distinctBy { it.similarItems }.render(viewScope) { handleSameNamedItems(it) }
     }
 
     private fun handleItemDuplicateMessage(item: FridgeItem?) {

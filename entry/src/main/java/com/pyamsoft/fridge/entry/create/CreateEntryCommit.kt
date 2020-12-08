@@ -48,7 +48,7 @@ class CreateEntryCommit @Inject internal constructor(
     }
 
     override fun onRender(state: UiRender<CreateEntryViewState>) {
-        state.distinctBy { it.name }.render { handleName(it) }
+        state.distinctBy { it.name }.render(viewScope) { handleName(it) }
     }
 
 }

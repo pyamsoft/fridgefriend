@@ -70,8 +70,8 @@ abstract class BaseInfoTitle<S : BaseInfoViewState, E : UiViewEvent> protected c
     }
 
     final override fun onRender(state: UiRender<S>) {
-        state.distinctBy { it.name }.render { handleName(it) }
-        state.distinctBy { it.cached }.render { handleCached(it) }
+        state.distinctBy { it.name }.render(viewScope) { handleName(it) }
+        state.distinctBy { it.cached }.render(viewScope) { handleCached(it) }
     }
 
     protected abstract fun publishFavorite(add: Boolean)

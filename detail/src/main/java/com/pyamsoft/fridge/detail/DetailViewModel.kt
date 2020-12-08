@@ -16,6 +16,7 @@
 
 package com.pyamsoft.fridge.detail
 
+import androidx.lifecycle.viewModelScope
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.detail.DetailControllerEvent.ExpandForEditing
 import com.pyamsoft.pydroid.arch.Renderable
@@ -30,7 +31,11 @@ class DetailViewModel @Inject internal constructor(
 ) {
 
     init {
-        val job = delegate.bind(Renderable { state -> state.render { setState { it } } })
+        val job = delegate.bind(Renderable { state ->
+            state.render(viewModelScope) { newState ->
+                setState { newState }
+            }
+        })
         doOnCleared {
             job.cancel()
         }

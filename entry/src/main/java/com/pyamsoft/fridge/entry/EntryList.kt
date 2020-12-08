@@ -256,9 +256,9 @@ class EntryList @Inject internal constructor(
     }
 
     override fun onRender(state: UiRender<EntryViewState>) {
-        state.distinctBy { it.bottomOffset }.render { handleBottomMargin(it) }
-        state.distinctBy { it.displayedEntries }.render { handleList(it) }
-        state.distinctBy { it.isLoading }.render { handleLoading(it) }
+        state.distinctBy { it.bottomOffset }.render(viewScope) { handleBottomMargin(it) }
+        state.distinctBy { it.displayedEntries }.render(viewScope) { handleList(it) }
+        state.distinctBy { it.isLoading }.render(viewScope) { handleLoading(it) }
     }
 
     @CheckResult

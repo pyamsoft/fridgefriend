@@ -55,7 +55,7 @@ abstract class HeroImage<S : UiViewState, V : UiViewEvent> protected constructor
     }
 
     override fun onRender(state: UiRender<S>) {
-        state.render { loadImage(it) }
+        state.render(viewScope) { loadImage(it) }
         onAdditionalRender(state)
     }
 

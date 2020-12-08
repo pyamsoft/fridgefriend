@@ -57,6 +57,6 @@ class ExpandItemError @Inject internal constructor(
     }
 
     override fun onRender(state: UiRender<ExpandItemViewState>) {
-        state.distinctBy { it.throwable }.render { handleError(it) }
+        state.distinctBy { it.throwable }.render(viewScope) { handleError(it) }
     }
 }

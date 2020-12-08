@@ -47,7 +47,7 @@ class ExpandCategoryThumbnail @Inject internal constructor(
     }
 
     override fun onRender(state: UiRender<ExpandedCategoryViewState>) {
-        state.distinctBy { it.category }.render { handleCategory(it) }
+        state.distinctBy { it.category }.render(viewScope) { handleCategory(it) }
     }
 
     private fun handleCategory(category: ExpandedCategoryViewState.Category?) {

@@ -104,8 +104,8 @@ class DetailListItemGlances @Inject internal constructor(
     }
 
     override fun onRender(state: UiRender<DetailItemViewState>) {
-        state.render { handlePresence(it) }
-        state.render { handleItem(it) }
+        state.render(viewScope) { handlePresence(it) }
+        state.render(viewScope) { handleItem(it) }
     }
 
     @CheckResult

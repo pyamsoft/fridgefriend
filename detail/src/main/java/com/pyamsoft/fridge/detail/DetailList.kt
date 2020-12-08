@@ -347,9 +347,9 @@ class DetailList @Inject internal constructor(
     }
 
     override fun onRender(state: UiRender<DetailViewState>) {
-        state.distinctBy { it.bottomOffset }.render { handleBottomMargin(it) }
-        state.distinctBy { it.isLoading }.render { handleLoading(it) }
-        state.render { s ->
+        state.distinctBy { it.bottomOffset }.render(viewScope) { handleBottomMargin(it) }
+        state.distinctBy { it.isLoading }.render(viewScope) { handleLoading(it) }
+        state.render(viewScope) { s ->
             handleList(s)
             setupSwipeCallback(s)
             restoreLastScrollPosition(s)

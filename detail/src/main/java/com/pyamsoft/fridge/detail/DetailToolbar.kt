@@ -109,9 +109,9 @@ class DetailToolbar @Inject internal constructor(
     }
 
     override fun render(state: UiRender<DetailViewState>) {
-        state.distinctBy { it.listItemPresence }.render { handleExtraSubItems(it) }
-        state.distinctBy { it.sort }.render { handleSubmenu(it) }
-        state.distinctBy { it.search }.render { handleInitialSearch(it) }
+        state.distinctBy { it.listItemPresence }.render(viewScope) { handleExtraSubItems(it) }
+        state.distinctBy { it.sort }.render(viewScope) { handleSubmenu(it) }
+        state.distinctBy { it.search }.render(viewScope) { handleInitialSearch(it) }
     }
 
     private fun handleExtraSubItems(presence: FridgeItem.Presence) {

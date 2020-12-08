@@ -62,8 +62,8 @@ class DetailHeroImage @Inject internal constructor(
     }
 
     override fun onAdditionalRender(state: UiRender<DetailViewState>) {
-        state.render { handleTitle(it) }
-        state.render { handleShowing(it) }
+        state.render(viewScope) { handleTitle(it) }
+        state.render(viewScope) { handleShowing(it) }
     }
 
     private fun handleShowing(state: DetailViewState) {

@@ -102,10 +102,10 @@ class MapActions @Inject internal constructor(
     }
 
     override fun onRender(state: UiRender<MapViewState>) {
-        state.distinctBy { it.bottomOffset }.render { handleBottomMargin(it) }
-        state.distinctBy { it.centerMyLocation }.render { handleCenterLocation(it) }
-        state.distinctBy { it.nearbyError }.render { handleNearbyError(it) }
-        state.distinctBy { it.cachedFetchError }.render { handleFetchError(it) }
+        state.distinctBy { it.bottomOffset }.render(viewScope) { handleBottomMargin(it) }
+        state.distinctBy { it.centerMyLocation }.render(viewScope) { handleCenterLocation(it) }
+        state.distinctBy { it.nearbyError }.render(viewScope) { handleNearbyError(it) }
+        state.distinctBy { it.cachedFetchError }.render(viewScope) { handleFetchError(it) }
     }
 
     private fun handleBottomMargin(height: Int) {

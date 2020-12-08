@@ -48,7 +48,7 @@ class CategoryBackground @Inject internal constructor(
     }
 
     override fun onRender(state: UiRender<CategoryItemViewState>) {
-        state.distinctBy { it.category }.render { handleCategory(it) }
+        state.distinctBy { it.category }.render(viewScope) { handleCategory(it) }
     }
 
     private fun handleCategory(category: FridgeCategory) {

@@ -59,7 +59,7 @@ class DetailListItemDate @Inject internal constructor(
     }
 
     override fun onRender(state: UiRender<DetailItemViewState>) {
-        state.distinctBy { it.item }.render { handleItem(it) }
-        state.distinctBy { it.item }.render { handlePresence(it) }
+        state.distinctBy { it.item }.render(viewScope) { handleItem(it) }
+        state.distinctBy { it.item }.render(viewScope) { handlePresence(it) }
     }
 }

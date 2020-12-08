@@ -16,6 +16,7 @@
 
 package com.pyamsoft.fridge.entry
 
+import androidx.lifecycle.viewModelScope
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.pydroid.arch.Renderable
@@ -30,7 +31,11 @@ class EntryViewModel @Inject internal constructor(
 ) {
 
     init {
-        val job = delegate.bind(Renderable { state -> state.render { setState { it } } })
+        val job = delegate.bind(Renderable { state ->
+            state.render(viewModelScope) { newState ->
+                setState { newState }
+            }
+        })
         doOnCleared { job.cancel() }
         doOnCleared { delegate.clear() }
         doOnCleared { Timber.d("View Model Killed") }

@@ -38,7 +38,7 @@ class SettingsSpacer @Inject internal constructor(
     }
 
     override fun onRender(state: UiRender<SettingsViewState>) {
-        state.distinctBy { it.bottomOffset }.render { handleBottomMargin(it) }
+        state.distinctBy { it.bottomOffset }.render(viewScope) { handleBottomMargin(it) }
     }
 
     private fun handleBottomMargin(height: Int) {

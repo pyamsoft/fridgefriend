@@ -49,7 +49,7 @@ class DetailEmptyState @Inject internal constructor(
     }
 
     override fun onRender(state: UiRender<DetailViewState>) {
-        state.render { handleLoading(it) }
+        state.render(viewScope) { handleLoading(it) }
     }
 
     private fun handleLoading(state: DetailViewState) {

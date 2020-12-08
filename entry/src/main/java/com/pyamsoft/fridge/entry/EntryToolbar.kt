@@ -98,8 +98,8 @@ class EntryToolbar @Inject internal constructor(
     }
 
     override fun render(state: UiRender<EntryViewState>) {
-        state.distinctBy { it.sort }.render { handleSubmenu(it) }
-        state.distinctBy { it.search }.render { handleInitialSearch(it) }
+        state.distinctBy { it.sort }.render(viewScope) { handleSubmenu(it) }
+        state.distinctBy { it.search }.render(viewScope) { handleInitialSearch(it) }
     }
 
     private fun handleSubmenu(currentSort: EntryViewState.Sorts) {

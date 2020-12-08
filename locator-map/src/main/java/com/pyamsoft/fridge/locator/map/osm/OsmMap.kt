@@ -185,9 +185,9 @@ class OsmMap @Inject internal constructor(
     }
 
     override fun onRender(state: UiRender<MapViewState>) {
-        state.distinctBy { it.points }.render { handleMapPoints(it) }
-        state.distinctBy { it.zones }.render { handleMapZones(it) }
-        state.distinctBy { it.centerMyLocation }.render { handleMyLocation(it) }
+        state.distinctBy { it.points }.render(viewScope) { handleMapPoints(it) }
+        state.distinctBy { it.zones }.render(viewScope) { handleMapZones(it) }
+        state.distinctBy { it.centerMyLocation }.render(viewScope) { handleMyLocation(it) }
     }
 
     private fun handleMapPoints(points: List<MapViewState.MapPoint>) {

@@ -35,6 +35,6 @@ class ExpandCategorySelectOverlay @Inject internal constructor(
     }
 
     override fun onRender(state: UiRender<ExpandedCategoryViewState>) {
-        state.distinctBy { it.isSelected }.render { handleOverlay(it) }
+        state.distinctBy { it.isSelected }.render(viewScope) { handleOverlay(it) }
     }
 }

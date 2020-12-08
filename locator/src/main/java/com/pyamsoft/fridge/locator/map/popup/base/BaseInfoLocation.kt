@@ -61,6 +61,6 @@ abstract class BaseInfoLocation<S : BaseInfoViewState, E : UiViewEvent> protecte
     }
 
     final override fun onRender(state: UiRender<S>) {
-        state.render { handleLocation(it) }
+        state.render(viewScope) { handleLocation(it) }
     }
 }

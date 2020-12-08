@@ -50,8 +50,8 @@ class CategoryHeroImage @Inject internal constructor(
     }
 
     override fun onAdditionalRender(state: UiRender<CategoryViewState>) {
-        state.render { handleTitle() }
-        state.distinctBy { it.categories }.render { handleCategories(it) }
+        state.render(viewScope) { handleTitle() }
+        state.distinctBy { it.categories }.render(viewScope) { handleCategories(it) }
     }
 
     private fun handleTitle() {

@@ -72,7 +72,7 @@ class DetailPresenceSwitcher @Inject internal constructor(
     }
 
     override fun onRender(state: UiRender<DetailViewState>) {
-        state.distinctBy { it.listItemPresence }.render { handlePresence(it) }
+        state.distinctBy { it.listItemPresence }.render(viewScope) { handlePresence(it) }
     }
 
     @CheckResult

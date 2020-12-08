@@ -157,6 +157,6 @@ class ExpandItemToolbar @Inject internal constructor(
     }
 
     override fun onRender(state: UiRender<ExpandItemViewState>) {
-        state.distinctBy { it.item }.render { handleItem(it) }
+        state.distinctBy { it.item }.render(viewScope) { handleItem(it) }
     }
 }

@@ -90,9 +90,9 @@ class ExpandItemName @Inject internal constructor(
     }
 
     override fun onRender(state: UiRender<ExpandItemViewState>) {
-        state.distinctBy { it.item }.render { handleName(it) }
-        state.distinctBy { it.item }.render { handleEditable(it) }
-        state.distinctBy { it.similarItems }.render { handlePopupWindow(it) }
+        state.distinctBy { it.item }.render(viewScope) { handleName(it) }
+        state.distinctBy { it.item }.render(viewScope) { handleEditable(it) }
+        state.distinctBy { it.similarItems }.render(viewScope) { handlePopupWindow(it) }
     }
 
     private fun handleName(item: FridgeItem?) {

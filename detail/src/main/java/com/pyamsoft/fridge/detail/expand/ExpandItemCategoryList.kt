@@ -77,7 +77,7 @@ class ExpandItemCategoryList @Inject internal constructor(
     }
 
     override fun onRender(state: UiRender<ExpandItemViewState>) {
-        state.render { handleCategories(it) }
+        state.render(viewScope) { handleCategories(it) }
     }
 
     private fun handleCategories(state: ExpandItemViewState) {

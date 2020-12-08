@@ -79,7 +79,7 @@ class DetailListItemCount @Inject internal constructor(
     }
 
     override fun onRender(state: UiRender<DetailItemViewState>) {
-        state.distinctBy { it.item }.render { handleItem(it) }
+        state.distinctBy { it.item }.render(viewScope) { handleItem(it) }
     }
 
     private fun handleItem(item: FridgeItem) {
