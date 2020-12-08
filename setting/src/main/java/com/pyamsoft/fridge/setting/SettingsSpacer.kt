@@ -17,12 +17,13 @@
 package com.pyamsoft.fridge.setting
 
 import androidx.preference.PreferenceScreen
+import com.pyamsoft.pydroid.arch.UiRender
 import com.pyamsoft.pydroid.arch.UnitViewEvent
 import com.pyamsoft.pydroid.ui.arch.PrefUiView
 import javax.inject.Inject
 
 class SettingsSpacer @Inject internal constructor(
-    private val parent: PreferenceScreen
+    private val parent: PreferenceScreen,
 ) : PrefUiView<SettingsViewState, UnitViewEvent>(parent) {
 
     private var space: PreferenceBottomSpace? = null
@@ -36,15 +37,13 @@ class SettingsSpacer @Inject internal constructor(
         }
     }
 
-    override fun onRender(state: SettingsViewState) {
-        handleBottomMargin(state)
+    override fun onRender(state: UiRender<SettingsViewState>) {
+        state.distinctBy { it.bottomOffset }.render { handleBottomMargin(it) }
     }
 
-    private fun handleBottomMargin(state: SettingsViewState) {
-        state.bottomOffset.let { height ->
-            if (height > 0) {
-                addSpacer(height)
-            }
+    private fun handleBottomMargin(height: Int) {
+        if (height > 0) {
+            addSpacer(height)
         }
     }
 }

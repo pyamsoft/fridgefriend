@@ -25,11 +25,12 @@ import com.pyamsoft.fridge.ui.isEditable
 import com.pyamsoft.fridge.ui.setEditable
 import com.pyamsoft.fridge.ui.view.UiEditTextDelegate
 import com.pyamsoft.pydroid.arch.BaseUiView
+import com.pyamsoft.pydroid.arch.UiRender
 import timber.log.Timber
 import javax.inject.Inject
 
 class ExpandItemName @Inject internal constructor(
-    parent: ViewGroup
+    parent: ViewGroup,
 ) : BaseUiView<ExpandItemViewState, ExpandedItemViewEvent, ExpandNameBinding>(parent) {
 
     override val viewBinding = ExpandNameBinding::inflate
@@ -88,30 +89,26 @@ class ExpandItemName @Inject internal constructor(
         publish(ExpandedItemViewEvent.SelectSimilar(item))
     }
 
-    override fun onRender(state: ExpandItemViewState) {
-        handleName(state)
-        handlePopupWindow(state)
-        handleEditable(state)
+    override fun onRender(state: UiRender<ExpandItemViewState>) {
+        state.distinctBy { it.item }.render { handleName(it) }
+        state.distinctBy { it.item }.render { handleEditable(it) }
+        state.distinctBy { it.similarItems }.render { handlePopupWindow(it) }
     }
 
-    private fun handleName(state: ExpandItemViewState) {
-        state.item?.let { item ->
-            delegate.render(item.name())
+    private fun handleName(item: FridgeItem?) {
+        item?.let { delegate.render(it.name()) }
+    }
+
+    private fun handleEditable(item: FridgeItem?) {
+        val isEditable = if (item == null) false else !item.isArchived()
+        if (binding.expandItemName.isEditable != isEditable) {
+            val inputType = if (isEditable) EDITABLE_INPUT_TYPE else InputType.TYPE_NULL
+            binding.expandItemName.setEditable(inputType)
         }
     }
 
-    private fun handleEditable(state: ExpandItemViewState) {
-        state.item.let { item ->
-            val isEditable = if (item == null) false else !item.isArchived()
-            if (binding.expandItemName.isEditable != isEditable) {
-                val inputType = if (isEditable) EDITABLE_INPUT_TYPE else InputType.TYPE_NULL
-                binding.expandItemName.setEditable(inputType)
-            }
-        }
-    }
-
-    private fun handlePopupWindow(state: ExpandItemViewState) {
-        popupWindow.set(state.similarItems, binding.expandItemName.isFocused)
+    private fun handlePopupWindow(similarItems: Collection<ExpandItemViewState.SimilarItem>) {
+        popupWindow.set(similarItems, binding.expandItemName.isFocused)
     }
 
     companion object {

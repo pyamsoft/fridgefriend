@@ -17,9 +17,11 @@
 package com.pyamsoft.fridge.detail.item
 
 import android.view.ViewGroup
+import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.detail.R
 import com.pyamsoft.fridge.detail.databinding.DetailListItemCountBinding
 import com.pyamsoft.pydroid.arch.BaseUiView
+import com.pyamsoft.pydroid.arch.UiRender
 import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.ui.theme.ThemeProvider
 import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
@@ -31,7 +33,7 @@ import com.pyamsoft.pydroid.ui.R as R2
 class DetailListItemCount @Inject internal constructor(
     theming: ThemeProvider,
     imageLoader: ImageLoader,
-    parent: ViewGroup
+    parent: ViewGroup,
 ) : BaseUiView<DetailItemViewState, DetailItemViewEvent, DetailListItemCountBinding>(parent) {
 
     override val viewBinding = DetailListItemCountBinding::inflate
@@ -76,14 +78,12 @@ class DetailListItemCount @Inject internal constructor(
         }
     }
 
-    override fun onRender(state: DetailItemViewState) {
-        handleItem(state)
+    override fun onRender(state: UiRender<DetailItemViewState>) {
+        state.distinctBy { it.item }.render { handleItem(it) }
     }
 
-    private fun handleItem(state: DetailItemViewState) {
-        state.item.let { item ->
-            require(item.isReal()) { "Cannot render non-real item: $item" }
-            binding.detailItemCountText.text = "${item.count()}"
-        }
+    private fun handleItem(item: FridgeItem) {
+        require(item.isReal()) { "Cannot render non-real item: $item" }
+        binding.detailItemCountText.text = "${item.count()}"
     }
 }

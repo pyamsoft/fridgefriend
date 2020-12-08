@@ -20,12 +20,13 @@ import android.graphics.Color
 import android.view.ViewGroup
 import androidx.core.view.isVisible
 import com.pyamsoft.fridge.detail.databinding.ExpandCategoryNameBinding
+import com.pyamsoft.pydroid.arch.UiRender
 import com.pyamsoft.pydroid.ui.theme.ThemeProvider
 import javax.inject.Inject
 
 class ExpandCategoryName @Inject internal constructor(
     private val themeProvider: ThemeProvider,
-    parent: ViewGroup
+    parent: ViewGroup,
 ) : ExpandCategoryClickable<ExpandCategoryNameBinding>(parent) {
 
     override val viewBinding = ExpandCategoryNameBinding::inflate
@@ -39,20 +40,18 @@ class ExpandCategoryName @Inject internal constructor(
         }
     }
 
-    override fun onRender(state: ExpandedCategoryViewState) {
-        handleCategory(state)
+    override fun onRender(state: UiRender<ExpandedCategoryViewState>) {
+        state.distinctBy { it.category }.render { handleCategory(it) }
     }
 
-    private fun handleCategory(state: ExpandedCategoryViewState) {
-        state.category.let { category ->
-            layoutRoot.isVisible = true
-            if (category == null || category.name.isBlank()) {
-                layoutRoot.text = "None"
-                layoutRoot.setTextColor(if (themeProvider.isDarkTheme()) Color.WHITE else Color.BLACK)
-            } else {
-                layoutRoot.text = category.name
-                layoutRoot.setTextColor(Color.WHITE)
-            }
+    private fun handleCategory(category: ExpandedCategoryViewState.Category?) {
+        layoutRoot.isVisible = true
+        if (category == null || category.name.isBlank()) {
+            layoutRoot.text = "None"
+            layoutRoot.setTextColor(if (themeProvider.isDarkTheme()) Color.WHITE else Color.BLACK)
+        } else {
+            layoutRoot.text = category.name
+            layoutRoot.setTextColor(Color.WHITE)
         }
     }
 }

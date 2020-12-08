@@ -39,17 +39,14 @@ import com.pyamsoft.pydroid.arch.BaseUiView
 import javax.inject.Inject
 
 class MainSnackbar @Inject internal constructor(
-    parent: ViewGroup
+    parent: ViewGroup,
 ) : BaseUiView<MainViewState, MainViewEvent, MainSnackbarBinding>(parent), SnackbarContainer {
 
     override val layoutRoot by boundView { mainSnackbar }
 
     override val viewBinding = MainSnackbarBinding::inflate
 
-    override fun onRender(state: MainViewState) {
-    }
-
-    override fun container(): CoordinatorLayout? {
+    override fun container(): CoordinatorLayout {
         return layoutRoot
     }
 }

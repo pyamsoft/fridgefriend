@@ -36,7 +36,4 @@ class LocationExplanation @Inject internal constructor(
             layoutRoot.applyToolbarOffset()
         }
     }
-
-    override fun onRender(state: UnitViewState) {
-    }
 }

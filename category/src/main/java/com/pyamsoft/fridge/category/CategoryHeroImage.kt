@@ -20,13 +20,14 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.core.view.isVisible
 import com.pyamsoft.fridge.ui.view.HeroImage
+import com.pyamsoft.pydroid.arch.UiRender
 import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.loader.Loaded
 import javax.inject.Inject
 
 class CategoryHeroImage @Inject internal constructor(
     parent: ViewGroup,
-    imageLoader: ImageLoader
+    imageLoader: ImageLoader,
 ) : HeroImage<CategoryViewState, CategoryViewEvent>(parent, imageLoader) {
 
     init {
@@ -43,16 +44,23 @@ class CategoryHeroImage @Inject internal constructor(
     override fun onLoadImage(
         imageView: ImageView,
         imageLoader: ImageLoader,
-        state: CategoryViewState
+        state: CategoryViewState,
     ): Loaded? {
-        // TODO
         return null
     }
 
-    override fun onAdditionalRender(state: CategoryViewState) {
-        binding.coreHeroTitle.setText(R.string.categories)
-
-        binding.coreHeroFirstLineLabel.setText(R.string.total_number_of_categories)
-        binding.coreHeroFirstLineValue.text = "${state.categories.size}"
+    override fun onAdditionalRender(state: UiRender<CategoryViewState>) {
+        state.render { handleTitle() }
+        state.distinctBy { it.categories }.render { handleCategories(it) }
     }
+
+    private fun handleTitle() {
+        binding.coreHeroTitle.setText(R.string.categories)
+        binding.coreHeroFirstLineLabel.setText(R.string.total_number_of_categories)
+    }
+
+    private fun handleCategories(categories: List<CategoryViewState.CategoryItemsPairing>) {
+        binding.coreHeroFirstLineValue.text = "${categories.size}"
+    }
+
 }

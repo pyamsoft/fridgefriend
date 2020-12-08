@@ -19,11 +19,12 @@ package com.pyamsoft.fridge.entry.create
 import android.view.ViewGroup
 import com.pyamsoft.fridge.entry.databinding.CreateEntryCommitBinding
 import com.pyamsoft.pydroid.arch.BaseUiView
+import com.pyamsoft.pydroid.arch.UiRender
 import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
 import javax.inject.Inject
 
 class CreateEntryCommit @Inject internal constructor(
-    parent: ViewGroup
+    parent: ViewGroup,
 ) : BaseUiView<CreateEntryViewState, CreateEntryViewEvent, CreateEntryCommitBinding>(parent) {
 
     override val viewBinding = CreateEntryCommitBinding::inflate
@@ -42,11 +43,12 @@ class CreateEntryCommit @Inject internal constructor(
         }
     }
 
-    override fun onRender(state: CreateEntryViewState) {
-        state.name.let { name ->
-            layoutRoot.isEnabled = name.isNotBlank()
-        }
+    private fun handleName(name: String) {
+        layoutRoot.isEnabled = name.isNotBlank()
     }
 
+    override fun onRender(state: UiRender<CreateEntryViewState>) {
+        state.distinctBy { it.name }.render { handleName(it) }
+    }
 
 }

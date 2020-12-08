@@ -21,6 +21,7 @@ import com.pyamsoft.fridge.entry.R
 import com.pyamsoft.fridge.entry.databinding.EntryItemScrimBinding
 import com.pyamsoft.fridge.ui.intoBackground
 import com.pyamsoft.pydroid.arch.BaseUiView
+import com.pyamsoft.pydroid.arch.UiRender
 import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.loader.Loaded
 import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
@@ -28,7 +29,7 @@ import javax.inject.Inject
 
 class EntryListItemScrim @Inject internal constructor(
     private val imageLoader: ImageLoader,
-    parent: ViewGroup
+    parent: ViewGroup,
 ) : BaseUiView<EntryItemViewState, EntryItemViewEvent, EntryItemScrimBinding>(parent) {
 
     override val viewBinding = EntryItemScrimBinding::inflate
@@ -58,13 +59,13 @@ class EntryListItemScrim @Inject internal constructor(
         loaded = null
     }
 
-    override fun onRender(state: EntryItemViewState) {
-        handleScrim(state)
+    override fun onRender(state: UiRender<EntryItemViewState>) {
+        state.distinctBy { it.itemCount }.render { handleScrim(it) }
     }
 
-    private fun handleScrim(state: EntryItemViewState) {
+    private fun handleScrim(itemCount: Int) {
         clear()
-        if (state.itemCount > 0) {
+        if (itemCount > 0) {
             loaded = imageLoader.load(R.drawable.entry_item_scrim).intoBackground(layoutRoot)
         }
     }

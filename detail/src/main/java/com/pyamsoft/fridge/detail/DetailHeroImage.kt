@@ -22,13 +22,14 @@ import android.widget.ImageView
 import androidx.core.view.isVisible
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.ui.view.HeroImage
+import com.pyamsoft.pydroid.arch.UiRender
 import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.loader.Loaded
 import javax.inject.Inject
 
 class DetailHeroImage @Inject internal constructor(
     parent: ViewGroup,
-    imageLoader: ImageLoader
+    imageLoader: ImageLoader,
 ) : HeroImage<DetailViewState, DetailViewEvent>(parent, imageLoader) {
 
     init {
@@ -40,15 +41,15 @@ class DetailHeroImage @Inject internal constructor(
     override fun onLoadImage(
         imageView: ImageView,
         imageLoader: ImageLoader,
-        state: DetailViewState
-    ): Loaded? {
+        state: DetailViewState,
+    ): Loaded {
         val need = state.listItemPresence == FridgeItem.Presence.NEED
         val icon = if (need) R.drawable.bg_item_need else R.drawable.bg_item_have
         return imageLoader.load(icon).into(imageView)
     }
 
     @SuppressLint("SetTextI18n")
-    private fun setTitle(state: DetailViewState) {
+    private fun handleTitle(state: DetailViewState) {
         val type = when (state.showing) {
             DetailViewState.Showing.FRESH -> when (state.listItemPresence) {
                 FridgeItem.Presence.HAVE -> "current"
@@ -60,9 +61,12 @@ class DetailHeroImage @Inject internal constructor(
         binding.coreHeroTitle.text = "${state.entry?.name().orEmpty()}: $type items"
     }
 
-    override fun onAdditionalRender(state: DetailViewState) {
-        setTitle(state)
+    override fun onAdditionalRender(state: UiRender<DetailViewState>) {
+        state.render { handleTitle(it) }
+        state.render { handleShowing(it) }
+    }
 
+    private fun handleShowing(state: DetailViewState) {
         when (state.showing) {
             DetailViewState.Showing.FRESH -> renderFresh(state)
             DetailViewState.Showing.CONSUMED -> renderConsumed(state)

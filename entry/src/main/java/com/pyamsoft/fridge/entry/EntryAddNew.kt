@@ -25,6 +25,7 @@ import com.pyamsoft.fridge.entry.databinding.EntryAddNewBinding
 import com.pyamsoft.fridge.ui.R
 import com.pyamsoft.fridge.ui.SnackbarContainer
 import com.pyamsoft.pydroid.arch.BaseUiView
+import com.pyamsoft.pydroid.arch.UiRender
 import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.loader.disposeOnDestroy
 import com.pyamsoft.pydroid.ui.util.Snackbreak
@@ -71,26 +72,22 @@ class EntryAddNew @Inject internal constructor(
         return layoutRoot
     }
 
-    override fun onRender(state: EntryViewState) {
-        handleBottomMargin(state)
-        handleUndo(state)
+    override fun onRender(state: UiRender<EntryViewState>) {
+        state.distinctBy { it.bottomOffset }.render { handleBottomMargin(it) }
+        state.distinctBy { it.undoableEntry }.render { handleUndo(it) }
     }
 
-    private fun handleBottomMargin(state: EntryViewState) {
-        state.bottomOffset.let { height ->
-            if (height > 0) {
-                layoutRoot.updatePadding(bottom = height)
-            }
+    private fun handleBottomMargin(height: Int) {
+        if (height > 0) {
+            layoutRoot.updatePadding(bottom = height)
         }
     }
 
-    private fun handleUndo(state: EntryViewState) {
-        state.undoableEntry.let { undoable ->
-            if (undoable == null) {
-                clearUndoSnackbar()
-            } else {
-                showUndoSnackbar(undoable)
-            }
+    private fun handleUndo(undoable: FridgeEntry?) {
+        if (undoable == null) {
+            clearUndoSnackbar()
+        } else {
+            showUndoSnackbar(undoable)
         }
     }
 

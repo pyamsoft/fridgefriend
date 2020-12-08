@@ -26,6 +26,7 @@ import com.pyamsoft.fridge.locator.R
 import com.pyamsoft.fridge.locator.databinding.MapActionsBinding
 import com.pyamsoft.fridge.ui.SnackbarContainer
 import com.pyamsoft.pydroid.arch.BaseUiView
+import com.pyamsoft.pydroid.arch.UiRender
 import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.loader.disposeOnDestroy
 import com.pyamsoft.pydroid.ui.util.Snackbreak
@@ -37,7 +38,7 @@ import com.pyamsoft.fridge.ui.R as R2
 class MapActions @Inject internal constructor(
     private val owner: LifecycleOwner,
     private val imageLoader: ImageLoader,
-    parent: ViewGroup
+    parent: ViewGroup,
 ) : BaseUiView<MapViewState, MapViewEvent, MapActionsBinding>(parent), SnackbarContainer {
 
     override val viewBinding = MapActionsBinding::inflate
@@ -100,23 +101,21 @@ class MapActions @Inject internal constructor(
         meAnimator = null
     }
 
-    override fun onRender(state: MapViewState) {
-        handleCenterLocation(state)
-        handleBottomMargin(state)
-        handleNearbyError(state)
-        handleFetchError(state)
+    override fun onRender(state: UiRender<MapViewState>) {
+        state.distinctBy { it.bottomOffset }.render { handleBottomMargin(it) }
+        state.distinctBy { it.centerMyLocation }.render { handleCenterLocation(it) }
+        state.distinctBy { it.nearbyError }.render { handleNearbyError(it) }
+        state.distinctBy { it.cachedFetchError }.render { handleFetchError(it) }
     }
 
-    private fun handleBottomMargin(state: MapViewState) {
-        state.bottomOffset.let { height ->
-            if (height > 0) {
-                layoutRoot.updatePadding(bottom = height)
-            }
+    private fun handleBottomMargin(height: Int) {
+        if (height > 0) {
+            layoutRoot.updatePadding(bottom = height)
         }
     }
 
-    private fun handleCenterLocation(state: MapViewState) {
-        state.centerMyLocation?.let { event ->
+    private fun handleCenterLocation(centerMyLocation: MapViewState.CenterMyLocation?) {
+        centerMyLocation?.let { event ->
             if (event.firstTime) {
                 revealButtons()
             }
@@ -142,23 +141,19 @@ class MapActions @Inject internal constructor(
         }
     }
 
-    private fun handleFetchError(state: MapViewState) {
-        state.cachedFetchError.let { throwable ->
-            if (throwable == null) {
-                clearCacheError()
-            } else {
-                showCacheError(throwable)
-            }
+    private fun handleFetchError(throwable: Throwable?) {
+        if (throwable == null) {
+            clearCacheError()
+        } else {
+            showCacheError(throwable)
         }
     }
 
-    private fun handleNearbyError(state: MapViewState) {
-        state.nearbyError.let { throwable ->
-            if (throwable == null) {
-                clearError()
-            } else {
-                showError(throwable)
-            }
+    private fun handleNearbyError(throwable: Throwable?) {
+        if (throwable == null) {
+            clearError()
+        } else {
+            showError(throwable)
         }
     }
 

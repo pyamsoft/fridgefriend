@@ -17,12 +17,14 @@
 package com.pyamsoft.fridge.detail.item
 
 import android.view.ViewGroup
+import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.detail.databinding.DetailListItemNameBinding
 import com.pyamsoft.pydroid.arch.BaseUiView
+import com.pyamsoft.pydroid.arch.UiRender
 import javax.inject.Inject
 
 class DetailListItemName @Inject internal constructor(
-    parent: ViewGroup
+    parent: ViewGroup,
 ) : BaseUiView<DetailItemViewState, DetailItemViewEvent, DetailListItemNameBinding>(parent) {
 
     override val viewBinding = DetailListItemNameBinding::inflate
@@ -35,14 +37,12 @@ class DetailListItemName @Inject internal constructor(
         }
     }
 
-    override fun onRender(state: DetailItemViewState) {
-        handleItem(state)
+    override fun onRender(state: UiRender<DetailItemViewState>) {
+        state.distinctBy { it.item }.render { handleItem(it) }
     }
 
-    private fun handleItem(state: DetailItemViewState) {
-        state.item.let { item ->
-            binding.detailItemName.text = item.name()
-        }
+    private fun handleItem(item: FridgeItem) {
+        binding.detailItemName.text = item.name()
     }
 
 }

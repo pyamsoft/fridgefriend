@@ -29,7 +29,4 @@ class EntryContainer @Inject internal constructor(
 
     override val layoutRoot by boundView { entryContainer }
 
-    override fun onRender(state: EntryViewState) {
-    }
-
 }

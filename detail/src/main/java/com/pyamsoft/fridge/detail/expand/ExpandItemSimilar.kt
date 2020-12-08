@@ -18,12 +18,14 @@ package com.pyamsoft.fridge.detail.expand
 
 import android.view.ViewGroup
 import androidx.core.view.isVisible
+import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.detail.databinding.ExpandSimilarBinding
 import com.pyamsoft.pydroid.arch.BaseUiView
+import com.pyamsoft.pydroid.arch.UiRender
 import javax.inject.Inject
 
 class ExpandItemSimilar @Inject internal constructor(
-    parent: ViewGroup
+    parent: ViewGroup,
 ) : BaseUiView<ExpandItemViewState, ExpandedItemViewEvent, ExpandSimilarBinding>(parent) {
 
     override val viewBinding = ExpandSimilarBinding::inflate
@@ -37,33 +39,26 @@ class ExpandItemSimilar @Inject internal constructor(
         }
 
         doOnTeardown {
-            clear()
+            binding.expandItemSimilarMsg.isVisible = false
+            binding.expandItemSimilarMsg.text = null
         }
     }
 
-    private fun clear() {
-        binding.expandItemSimilarMsg.isVisible = false
-        binding.expandItemSimilarMsg.text = null
+    override fun onRender(state: UiRender<ExpandItemViewState>) {
+        state.distinctBy { it.item }.render { handleItemDuplicateMessage(it) }
+        state.distinctBy { it.similarItems }.render { handleSameNamedItems(it) }
     }
 
-    override fun onRender(state: ExpandItemViewState) {
-        handleSameNamedItems(state)
-    }
-
-    private fun handleSameNamedItems(state: ExpandItemViewState) {
-        state.sameNamedItems.let { similar ->
-            if (similar.isEmpty()) {
-                clear()
-            } else {
-                state.item.let { item ->
-                    if (item != null) {
-                        val name = item.name().trim()
-                        binding.expandItemSimilarMsg.isVisible = true
-                        binding.expandItemSimilarMsg.text =
-                            "You already have at least ${similar.size} '$name', do you need another?"
-                    }
-                }
-            }
+    private fun handleItemDuplicateMessage(item: FridgeItem?) {
+        if (item == null) {
+            binding.expandItemSimilarMsg.text = ""
+        } else {
+            val name = item.name().trim()
+            binding.expandItemSimilarMsg.text = "You already have some '$name', do you need more?"
         }
+    }
+
+    private fun handleSameNamedItems(similar: Collection<ExpandItemViewState.SimilarItem>) {
+        binding.expandItemSimilarMsg.isVisible = !similar.isEmpty()
     }
 }

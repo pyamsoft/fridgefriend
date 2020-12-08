@@ -21,11 +21,12 @@ import androidx.core.view.isVisible
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.detail.databinding.ExpandPurchasedBinding
 import com.pyamsoft.pydroid.arch.BaseUiView
+import com.pyamsoft.pydroid.arch.UiRender
 import java.text.DateFormat
 import javax.inject.Inject
 
 class ExpandItemPurchasedDate @Inject internal constructor(
-    parent: ViewGroup
+    parent: ViewGroup,
 ) : BaseUiView<ExpandItemViewState, ExpandedItemViewEvent, ExpandPurchasedBinding>(parent) {
 
     override val viewBinding = ExpandPurchasedBinding::inflate
@@ -43,32 +44,30 @@ class ExpandItemPurchasedDate @Inject internal constructor(
         }
     }
 
-    override fun onRender(state: ExpandItemViewState) {
-        handleItem(state)
+    override fun onRender(state: UiRender<ExpandItemViewState>) {
+        state.distinctBy { it.item }.render { handleItem(it) }
     }
 
-    private fun handleItem(state: ExpandItemViewState) {
-        state.item.also { item ->
-            if (item == null) {
-                layoutRoot.isVisible = false
-                return
-            }
-
-            if (item.presence() != FridgeItem.Presence.HAVE) {
-                layoutRoot.isVisible = false
-                return
-            }
-
-            val purchasedOn = item.purchaseTime()
-            if (purchasedOn == null) {
-                layoutRoot.isVisible = false
-                return
-            }
-
-            val formatted = dateFormatter.format(purchasedOn)
-            layoutRoot.isVisible = true
-            binding.expandItemPurchasedOn.text = formatted
+    private fun handleItem(item: FridgeItem?) {
+        if (item == null) {
+            layoutRoot.isVisible = false
+            return
         }
+
+        if (item.presence() != FridgeItem.Presence.HAVE) {
+            layoutRoot.isVisible = false
+            return
+        }
+
+        val purchasedOn = item.purchaseTime()
+        if (purchasedOn == null) {
+            layoutRoot.isVisible = false
+            return
+        }
+
+        val formatted = dateFormatter.format(purchasedOn)
+        layoutRoot.isVisible = true
+        binding.expandItemPurchasedOn.text = formatted
     }
 
     companion object {

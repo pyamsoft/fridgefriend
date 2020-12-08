@@ -42,7 +42,4 @@ class LocationRequestButton @Inject internal constructor(
             binding.locationPermissionButton.setOnDebouncedClickListener(null)
         }
     }
-
-    override fun onRender(state: UnitViewState) {
-    }
 }

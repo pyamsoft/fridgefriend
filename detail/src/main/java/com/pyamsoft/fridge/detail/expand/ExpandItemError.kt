@@ -20,10 +20,11 @@ import android.view.ViewGroup
 import androidx.core.view.isVisible
 import com.pyamsoft.fridge.detail.databinding.ExpandErrorBinding
 import com.pyamsoft.pydroid.arch.BaseUiView
+import com.pyamsoft.pydroid.arch.UiRender
 import javax.inject.Inject
 
 class ExpandItemError @Inject internal constructor(
-    parent: ViewGroup
+    parent: ViewGroup,
 ) : BaseUiView<ExpandItemViewState, ExpandedItemViewEvent, ExpandErrorBinding>(parent) {
 
     override val viewBinding = ExpandErrorBinding::inflate
@@ -46,18 +47,16 @@ class ExpandItemError @Inject internal constructor(
         binding.expandItemErrorMsg.text = ""
     }
 
-    private fun handleError(state: ExpandItemViewState) {
-        state.throwable.let { throwable ->
-            if (throwable == null) {
-                clear()
-            } else {
-                binding.expandItemErrorMsg.isVisible = true
-                binding.expandItemErrorMsg.text = throwable.message ?: "An unknown error occurred"
-            }
+    private fun handleError(throwable: Throwable?) {
+        if (throwable == null) {
+            clear()
+        } else {
+            binding.expandItemErrorMsg.isVisible = true
+            binding.expandItemErrorMsg.text = throwable.message ?: "An unknown error occurred"
         }
     }
 
-    override fun onRender(state: ExpandItemViewState) {
-        handleError(state)
+    override fun onRender(state: UiRender<ExpandItemViewState>) {
+        state.distinctBy { it.throwable }.render { handleError(it) }
     }
 }

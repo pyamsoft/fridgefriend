@@ -20,22 +20,24 @@ import android.graphics.Color
 import android.graphics.drawable.Drawable
 import android.view.MenuItem
 import android.view.ViewGroup
+import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence.HAVE
 import com.pyamsoft.fridge.db.item.isArchived
 import com.pyamsoft.fridge.detail.R
 import com.pyamsoft.fridge.detail.databinding.ExpandToolbarBinding
 import com.pyamsoft.pydroid.arch.BaseUiView
+import com.pyamsoft.pydroid.arch.UiRender
 import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.loader.ImageTarget
 import com.pyamsoft.pydroid.ui.util.DebouncedOnClickListener
 import com.pyamsoft.pydroid.ui.util.setUpEnabled
 import com.pyamsoft.pydroid.util.tintWith
-import com.pyamsoft.pydroid.ui.R as R2
 import javax.inject.Inject
+import com.pyamsoft.pydroid.ui.R as R2
 
 class ExpandItemToolbar @Inject internal constructor(
     imageLoader: ImageLoader,
-    parent: ViewGroup
+    parent: ViewGroup,
 ) : BaseUiView<ExpandItemViewState, ExpandedItemViewEvent, ExpandToolbarBinding>(parent) {
 
     override val viewBinding = ExpandToolbarBinding::inflate
@@ -129,34 +131,32 @@ class ExpandItemToolbar @Inject internal constructor(
         binding.expandToolbar.setOnMenuItemClickListener(null)
     }
 
-    private fun handleItem(state: ExpandItemViewState) {
-        state.item.let { item ->
-            if (item == null) {
-                requireNotNull(deleteMenuItem).isVisible = false
+    private fun handleItem(item: FridgeItem?) {
+        if (item == null) {
+            requireNotNull(deleteMenuItem).isVisible = false
+            requireNotNull(consumeMenuItem).isVisible = false
+            requireNotNull(spoilMenuItem).isVisible = false
+            requireNotNull(restoreMenuItem).isVisible = false
+        } else {
+            val isReal = item.isReal()
+            val isHave = item.presence() == HAVE
+
+            // Always show delete
+            requireNotNull(deleteMenuItem).isVisible = isReal
+
+            if (item.isArchived()) {
+                requireNotNull(restoreMenuItem).isVisible = isReal
                 requireNotNull(consumeMenuItem).isVisible = false
                 requireNotNull(spoilMenuItem).isVisible = false
-                requireNotNull(restoreMenuItem).isVisible = false
             } else {
-                val isReal = item.isReal()
-                val isHave = item.presence() == HAVE
-
-                // Always show delete
-                requireNotNull(deleteMenuItem).isVisible = isReal
-
-                if (item.isArchived()) {
-                    requireNotNull(restoreMenuItem).isVisible = isReal
-                    requireNotNull(consumeMenuItem).isVisible = false
-                    requireNotNull(spoilMenuItem).isVisible = false
-                } else {
-                    requireNotNull(consumeMenuItem).isVisible = isReal && isHave
-                    requireNotNull(spoilMenuItem).isVisible = isReal && isHave
-                    requireNotNull(restoreMenuItem).isVisible = false
-                }
+                requireNotNull(consumeMenuItem).isVisible = isReal && isHave
+                requireNotNull(spoilMenuItem).isVisible = isReal && isHave
+                requireNotNull(restoreMenuItem).isVisible = false
             }
         }
     }
 
-    override fun onRender(state: ExpandItemViewState) {
-        handleItem(state)
+    override fun onRender(state: UiRender<ExpandItemViewState>) {
+        state.distinctBy { it.item }.render { handleItem(it) }
     }
 }

@@ -18,14 +18,15 @@ package com.pyamsoft.fridge.detail.expand
 
 import android.view.ViewGroup
 import com.pyamsoft.fridge.detail.base.BaseItemPresence
+import com.pyamsoft.pydroid.arch.UiRender
 import javax.inject.Inject
 
 class ExpandItemPresence @Inject internal constructor(
     parent: ViewGroup
 ) : BaseItemPresence<ExpandItemViewState, ExpandedItemViewEvent>(parent) {
 
-    override fun onRender(state: ExpandItemViewState) {
-        renderItem(state.item)
+    override fun onRender(state: UiRender<ExpandItemViewState>) {
+        state.distinctBy { it.item }.render { renderItem(it) }
     }
 
     override fun publishChangePresence() {

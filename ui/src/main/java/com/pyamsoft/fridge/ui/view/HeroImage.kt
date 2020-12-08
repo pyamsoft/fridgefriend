@@ -55,10 +55,8 @@ abstract class HeroImage<S : UiViewState, V : UiViewEvent> protected constructor
     }
 
     override fun onRender(state: UiRender<S>) {
-        state.render { s ->
-            loadImage(s)
-            onAdditionalRender(s)
-        }
+        state.render { loadImage(it) }
+        onAdditionalRender(state)
     }
 
     private fun loadImage(state: S) {
@@ -66,7 +64,7 @@ abstract class HeroImage<S : UiViewState, V : UiViewEvent> protected constructor
         loaded = onLoadImage(binding.coreHeroImage, imageLoader, state)
     }
 
-    protected open fun onAdditionalRender(state: S) {
+    protected open fun onAdditionalRender(state: UiRender<S>) {
     }
 
     @CheckResult

@@ -37,6 +37,7 @@ import com.pyamsoft.fridge.detail.item.DetailItemViewEvent.ExpandItem
 import com.pyamsoft.fridge.tooltip.Tooltip
 import com.pyamsoft.fridge.tooltip.TooltipCreator
 import com.pyamsoft.pydroid.arch.BaseUiView
+import com.pyamsoft.pydroid.arch.UiRender
 import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.loader.Loaded
 import com.pyamsoft.pydroid.ui.theme.ThemeProvider
@@ -53,7 +54,7 @@ class DetailListItemGlances @Inject internal constructor(
     private val tooltipCreator: TooltipCreator,
     private val theming: ThemeProvider,
     private val imageLoader: ImageLoader,
-    parent: ViewGroup
+    parent: ViewGroup,
 ) : BaseUiView<DetailItemViewState, DetailItemViewEvent, DetailListItemGlancesBinding>(parent) {
 
     override val viewBinding = DetailListItemGlancesBinding::inflate
@@ -102,9 +103,9 @@ class DetailListItemGlances @Inject internal constructor(
         expiredTooltip = null
     }
 
-    override fun onRender(state: DetailItemViewState) {
-        handlePresence(state)
-        handleItem(state)
+    override fun onRender(state: UiRender<DetailItemViewState>) {
+        state.render { handlePresence(it) }
+        state.render { handleItem(it) }
     }
 
     @CheckResult
@@ -152,7 +153,7 @@ class DetailListItemGlances @Inject internal constructor(
     private fun setDateRangeView(
         item: FridgeItem,
         expireTime: Date?,
-        hasTime: Boolean
+        hasTime: Boolean,
     ) {
         dateRangeLoader?.dispose()
         dateRangeLoader = setViewColor(
@@ -182,7 +183,7 @@ class DetailListItemGlances @Inject internal constructor(
         now: Calendar,
         isExpiringSoon: Boolean,
         isExpired: Boolean,
-        hasTime: Boolean
+        hasTime: Boolean,
     ) {
         // Show this if there is a time and the item is not yet expired
         val isVisible = hasTime && !isExpired
@@ -215,7 +216,7 @@ class DetailListItemGlances @Inject internal constructor(
         item: FridgeItem,
         now: Calendar,
         isExpired: Boolean,
-        hasTime: Boolean
+        hasTime: Boolean,
     ) {
         // Show this if there is a time and the item is expired
         val isVisible = hasTime && isExpired
@@ -253,7 +254,7 @@ class DetailListItemGlances @Inject internal constructor(
             @DrawableRes drawable: Int,
             loaded: Loaded?,
             isColored: Boolean,
-            isVisible: Boolean
+            isVisible: Boolean,
         ): Loaded? {
             if (isVisible) {
                 view.isVisible = true

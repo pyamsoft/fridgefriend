@@ -22,6 +22,7 @@ import androidx.core.view.isVisible
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.detail.base.BaseItemDate
 import com.pyamsoft.fridge.detail.item.DetailItemViewEvent.ExpandItem
+import com.pyamsoft.pydroid.arch.UiRender
 import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.ui.theme.ThemeProvider
 import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
@@ -30,7 +31,7 @@ import javax.inject.Inject
 class DetailListItemDate @Inject internal constructor(
     imageLoader: ImageLoader,
     theming: ThemeProvider,
-    parent: ViewGroup
+    parent: ViewGroup,
 ) : BaseItemDate<DetailItemViewState, DetailItemViewEvent>(imageLoader, theming, parent) {
 
     init {
@@ -43,26 +44,22 @@ class DetailListItemDate @Inject internal constructor(
         }
     }
 
-    private fun handleItem(state: DetailItemViewState) {
-        state.item.let { item ->
-            require(item.isReal()) { "Cannot render non-real item: $item" }
-            renderItem(item)
+    private fun handleItem(item: FridgeItem) {
+        require(item.isReal()) { "Cannot render non-real item: $item" }
+        renderItem(item)
+    }
+
+    private fun handlePresence(item: FridgeItem) {
+        val presence = item.presence()
+        if (presence == FridgeItem.Presence.NEED) {
+            layoutRoot.isVisible = true
+        } else {
+            layoutRoot.isGone = true
         }
     }
 
-    private fun handlePresence(state: DetailItemViewState) {
-        state.item.let { item ->
-            val presence = item.presence()
-            if (presence == FridgeItem.Presence.NEED) {
-                layoutRoot.isVisible = true
-            } else {
-                layoutRoot.isGone = true
-            }
-        }
-    }
-
-    override fun onRender(state: DetailItemViewState) {
-        handlePresence(state)
-        handleItem(state)
+    override fun onRender(state: UiRender<DetailItemViewState>) {
+        state.distinctBy { it.item }.render { handleItem(it) }
+        state.distinctBy { it.item }.render { handlePresence(it) }
     }
 }

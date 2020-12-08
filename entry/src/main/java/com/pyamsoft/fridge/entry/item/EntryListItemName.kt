@@ -19,10 +19,11 @@ package com.pyamsoft.fridge.entry.item
 import android.view.ViewGroup
 import com.pyamsoft.fridge.entry.databinding.EntryItemNameBinding
 import com.pyamsoft.pydroid.arch.BaseUiView
+import com.pyamsoft.pydroid.arch.UiRender
 import javax.inject.Inject
 
 class EntryListItemName @Inject internal constructor(
-    parent: ViewGroup
+    parent: ViewGroup,
 ) : BaseUiView<EntryItemViewState, EntryItemViewEvent, EntryItemNameBinding>(parent) {
 
     override val viewBinding = EntryItemNameBinding::inflate
@@ -35,21 +36,19 @@ class EntryListItemName @Inject internal constructor(
         }
     }
 
-    override fun onRender(state: EntryItemViewState) {
-        handleName(state)
+    override fun onRender(state: UiRender<EntryItemViewState>) {
+        state.distinctBy { it.entry }.distinctBy { it.name() }.render { handleName(it) }
     }
 
     private fun clear() {
         binding.entryItemName.text = ""
     }
 
-    private fun handleName(state: EntryItemViewState) {
-        state.entry.name().let { name ->
-            if (name.isBlank()) {
-                clear()
-            } else {
-                binding.entryItemName.text = name
-            }
+    private fun handleName(name: String) {
+        if (name.isBlank()) {
+            clear()
+        } else {
+            binding.entryItemName.text = name
         }
     }
 }

@@ -19,10 +19,11 @@ package com.pyamsoft.fridge.detail.expand.categories
 import android.view.ViewGroup
 import androidx.core.view.isVisible
 import com.pyamsoft.fridge.detail.databinding.ExpandCategoryScrimBinding
+import com.pyamsoft.pydroid.arch.UiRender
 import javax.inject.Inject
 
 class ExpandCategoryScrim @Inject internal constructor(
-    parent: ViewGroup
+    parent: ViewGroup,
 ) : ExpandCategoryClickable<ExpandCategoryScrimBinding>(parent) {
 
     override val viewBinding = ExpandCategoryScrimBinding::inflate
@@ -39,17 +40,15 @@ class ExpandCategoryScrim @Inject internal constructor(
         layoutRoot.isVisible = false
     }
 
-    override fun onRender(state: ExpandedCategoryViewState) {
-        handleCategory(state)
+    override fun onRender(state: UiRender<ExpandedCategoryViewState>) {
+        state.distinctBy { it.category }.render { handleCategory(it) }
     }
 
-    private fun handleCategory(state: ExpandedCategoryViewState) {
-        state.category.let { category ->
-            if (category == null || category.name.isBlank()) {
-                clear()
-            } else {
-                layoutRoot.isVisible = true
-            }
+    private fun handleCategory(category: ExpandedCategoryViewState.Category?) {
+        if (category == null || category.name.isBlank()) {
+            clear()
+        } else {
+            layoutRoot.isVisible = true
         }
     }
 }

@@ -24,11 +24,12 @@ import com.pyamsoft.fridge.entry.databinding.CreateEntryNameBinding
 import com.pyamsoft.fridge.ui.setEditable
 import com.pyamsoft.fridge.ui.view.UiEditTextDelegate
 import com.pyamsoft.pydroid.arch.BaseUiView
+import com.pyamsoft.pydroid.arch.UiRender
 import timber.log.Timber
 import javax.inject.Inject
 
 class CreateEntryName @Inject internal constructor(
-    parent: ViewGroup
+    parent: ViewGroup,
 ) : BaseUiView<CreateEntryViewState, CreateEntryViewEvent, CreateEntryNameBinding>(parent) {
 
     override val viewBinding = CreateEntryNameBinding::inflate
@@ -77,8 +78,12 @@ class CreateEntryName @Inject internal constructor(
         }
     }
 
-    override fun onRender(state: CreateEntryViewState) {
-        delegate.render(state.name)
+    private fun handleName(name: String) {
+        delegate.render(name)
+    }
+
+    override fun onRender(state: UiRender<CreateEntryViewState>) {
+        state.distinctBy { it.name }.render { handleName(it) }
     }
 
     companion object {

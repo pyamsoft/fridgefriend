@@ -32,6 +32,7 @@ import com.pyamsoft.fridge.entry.item.EntryItemViewState
 import com.pyamsoft.fridge.ui.R
 import com.pyamsoft.fridge.ui.applyToolbarOffset
 import com.pyamsoft.pydroid.arch.BaseUiView
+import com.pyamsoft.pydroid.arch.UiRender
 import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.ui.theme.ThemeProvider
 import com.pyamsoft.pydroid.ui.util.refreshing
@@ -49,7 +50,7 @@ class EntryList @Inject internal constructor(
     private val theming: ThemeProvider,
     private val imageLoader: ImageLoader,
     parent: ViewGroup,
-    factory: EntryItemComponent.Factory
+    factory: EntryItemComponent.Factory,
 ) : BaseUiView<EntryViewState, EntryViewEvent, EntryListBinding>(parent) {
 
     override val viewBinding = EntryListBinding::inflate
@@ -218,7 +219,7 @@ class EntryList @Inject internal constructor(
 
     private inline fun applySwipeCallback(
         directions: Int,
-        crossinline itemSwipeCallback: (position: Int, directions: Int) -> Unit
+        crossinline itemSwipeCallback: (position: Int, directions: Int) -> Unit,
     ) {
         val leftBehindDrawable = imageLoader.load(R.drawable.ic_delete_24dp)
             .mutate { it.themeIcon() }
@@ -254,10 +255,10 @@ class EntryList @Inject internal constructor(
         touchHelper = helper
     }
 
-    override fun onRender(state: EntryViewState) {
-        handleBottomMargin(state)
-        handleList(state)
-        handleLoading(state)
+    override fun onRender(state: UiRender<EntryViewState>) {
+        state.distinctBy { it.bottomOffset }.render { handleBottomMargin(it) }
+        state.distinctBy { it.displayedEntries }.render { handleList(it) }
+        state.distinctBy { it.isLoading }.render { handleLoading(it) }
     }
 
     @CheckResult
@@ -280,31 +281,25 @@ class EntryList @Inject internal constructor(
         usingAdapter().submitList(null)
     }
 
-    private fun handleLoading(state: EntryViewState) {
-        state.isLoading.let { loading ->
-            binding.entrySwipeRefresh.refreshing(loading)
+    private fun handleLoading(loading: Boolean) {
+        binding.entrySwipeRefresh.refreshing(loading)
+    }
+
+    private fun handleList(entries: List<EntryViewState.EntryGroup>) {
+        when {
+            entries.isEmpty() -> clearList()
+            else -> setList(entries)
         }
     }
 
-    private fun handleList(state: EntryViewState) {
-        state.displayedEntries.let { entries ->
-            when {
-                entries.isEmpty() -> clearList()
-                else -> setList(entries)
-            }
-        }
-    }
-
-    private fun handleBottomMargin(state: EntryViewState) {
+    private fun handleBottomMargin(height: Int) {
         removeBottomMargin()
-        state.bottomOffset.let { height ->
-            if (height > 0) {
-                // The bottom has additional space to fit the FAB
-                val fabSpacing = 72.asDp(binding.entryList.context)
-                LinearBoundsMarginDecoration(bottomMargin = fabSpacing + height).apply {
-                    binding.entryList.addItemDecoration(this)
-                    bottomMarginDecoration = this
-                }
+        if (height > 0) {
+            // The bottom has additional space to fit the FAB
+            val fabSpacing = 72.asDp(binding.entryList.context)
+            LinearBoundsMarginDecoration(bottomMargin = fabSpacing + height).apply {
+                binding.entryList.addItemDecoration(this)
+                bottomMarginDecoration = this
             }
         }
     }

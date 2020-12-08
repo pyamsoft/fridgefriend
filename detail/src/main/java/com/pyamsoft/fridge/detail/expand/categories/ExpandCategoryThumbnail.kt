@@ -19,13 +19,14 @@ package com.pyamsoft.fridge.detail.expand.categories
 import android.view.ViewGroup
 import com.pyamsoft.fridge.db.category.FridgeCategory
 import com.pyamsoft.fridge.detail.databinding.ExpandCategoryThumbnailBinding
+import com.pyamsoft.pydroid.arch.UiRender
 import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.loader.Loaded
 import javax.inject.Inject
 
 class ExpandCategoryThumbnail @Inject internal constructor(
     parent: ViewGroup,
-    private val imageLoader: ImageLoader
+    private val imageLoader: ImageLoader,
 ) : ExpandCategoryClickable<ExpandCategoryThumbnailBinding>(parent) {
 
     override val viewBinding = ExpandCategoryThumbnailBinding::inflate
@@ -45,16 +46,14 @@ class ExpandCategoryThumbnail @Inject internal constructor(
         loaded = null
     }
 
-    override fun onRender(state: ExpandedCategoryViewState) {
-        handleCategory(state)
+    override fun onRender(state: UiRender<ExpandedCategoryViewState>) {
+        state.distinctBy { it.category }.render { handleCategory(it) }
     }
 
-    private fun handleCategory(state: ExpandedCategoryViewState) {
-        state.category.let { category ->
-            clear()
-            if (category?.thumbnail != null) {
-                loadImage(category.thumbnail)
-            }
+    private fun handleCategory(category: ExpandedCategoryViewState.Category?) {
+        clear()
+        if (category?.thumbnail != null) {
+            loadImage(category.thumbnail)
         }
     }
 

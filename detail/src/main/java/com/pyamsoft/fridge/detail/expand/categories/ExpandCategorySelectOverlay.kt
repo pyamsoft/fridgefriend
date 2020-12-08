@@ -19,21 +19,22 @@ package com.pyamsoft.fridge.detail.expand.categories
 import android.view.ViewGroup
 import androidx.core.view.isVisible
 import com.pyamsoft.fridge.detail.databinding.ExpandCategorySelectOverlayBinding
+import com.pyamsoft.pydroid.arch.UiRender
 import javax.inject.Inject
 
 class ExpandCategorySelectOverlay @Inject internal constructor(
-    parent: ViewGroup
+    parent: ViewGroup,
 ) : ExpandCategoryClickable<ExpandCategorySelectOverlayBinding>(parent) {
 
     override val viewBinding = ExpandCategorySelectOverlayBinding::inflate
 
     override val layoutRoot by boundView { expandCategorySelectOverlay }
 
-    private fun handleOverlay(state: ExpandedCategoryViewState) {
-        binding.expandCategorySelectOverlay.isVisible = state.isSelected
+    private fun handleOverlay(isSelected: Boolean) {
+        binding.expandCategorySelectOverlay.isVisible = isSelected
     }
 
-    override fun onRender(state: ExpandedCategoryViewState) {
-        handleOverlay(state)
+    override fun onRender(state: UiRender<ExpandedCategoryViewState>) {
+        state.distinctBy { it.isSelected }.render { handleOverlay(it) }
     }
 }

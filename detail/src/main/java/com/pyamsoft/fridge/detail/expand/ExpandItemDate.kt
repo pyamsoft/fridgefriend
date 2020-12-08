@@ -18,6 +18,7 @@ package com.pyamsoft.fridge.detail.expand
 
 import android.view.ViewGroup
 import com.pyamsoft.fridge.detail.base.BaseItemDate
+import com.pyamsoft.pydroid.arch.UiRender
 import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.ui.theme.ThemeProvider
 import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
@@ -26,7 +27,7 @@ import javax.inject.Inject
 class ExpandItemDate @Inject internal constructor(
     imageLoader: ImageLoader,
     theming: ThemeProvider,
-    parent: ViewGroup
+    parent: ViewGroup,
 ) : BaseItemDate<ExpandItemViewState, ExpandedItemViewEvent>(imageLoader, theming, parent) {
 
     init {
@@ -41,11 +42,7 @@ class ExpandItemDate @Inject internal constructor(
         }
     }
 
-    override fun onRender(state: ExpandItemViewState) {
-        handleItem(state)
-    }
-
-    private fun handleItem(state: ExpandItemViewState) {
-        renderItem(state.item)
+    override fun onRender(state: UiRender<ExpandItemViewState>) {
+        state.distinctBy { it.item }.render { renderItem(it) }
     }
 }

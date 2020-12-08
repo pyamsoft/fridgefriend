@@ -19,6 +19,7 @@ package com.pyamsoft.fridge.main
 import android.view.ViewGroup
 import android.view.ViewGroup.MarginLayoutParams
 import android.widget.TextView
+import androidx.annotation.StringRes
 import androidx.core.view.ViewCompat
 import androidx.core.view.ViewPropertyAnimatorCompat
 import androidx.core.view.updateLayoutParams
@@ -27,6 +28,7 @@ import com.pyamsoft.fridge.core.PRIVACY_POLICY_URL
 import com.pyamsoft.fridge.core.TERMS_CONDITIONS_URL
 import com.pyamsoft.fridge.main.databinding.MainToolbarBinding
 import com.pyamsoft.pydroid.arch.BaseUiView
+import com.pyamsoft.pydroid.arch.UiRender
 import com.pyamsoft.pydroid.ui.app.ToolbarActivityProvider
 import com.pyamsoft.pydroid.ui.privacy.addPrivacy
 import com.pyamsoft.pydroid.ui.privacy.removePrivacy
@@ -41,7 +43,7 @@ class MainToolbar @Inject internal constructor(
     @Named("app_name") appNameRes: Int,
     toolbarActivityProvider: ToolbarActivityProvider,
     theming: ThemeProvider,
-    parent: ViewGroup
+    parent: ViewGroup,
 ) : BaseUiView<MainViewState, MainViewEvent, MainToolbarBinding>(parent) {
 
     private var titleAnimator: ViewPropertyAnimatorCompat? = null
@@ -97,24 +99,22 @@ class MainToolbar @Inject internal constructor(
         }
     }
 
-    private fun handleName(state: MainViewState) {
-        state.appNameRes.let { name ->
-            if (name == 0) {
-                binding.mainToolbar.title = null
-            } else {
-                binding.mainToolbar.setTitle(name)
-            }
+    private fun handleName(@StringRes name: Int) {
+        if (name == 0) {
+            binding.mainToolbar.title = null
+        } else {
+            binding.mainToolbar.setTitle(name)
         }
     }
 
-    override fun onRender(state: MainViewState) {
-        handleName(state)
+    override fun onRender(state: UiRender<MainViewState>) {
+        state.distinctBy { it.appNameRes }.render { handleName(it) }
     }
 
     private fun inflateToolbar(
         toolbarActivityProvider: ToolbarActivityProvider,
         theming: ThemeProvider,
-        appNameRes: Int
+        appNameRes: Int,
     ) {
         val theme = if (theming.isDarkTheme()) {
             R2.style.ThemeOverlay_MaterialComponents

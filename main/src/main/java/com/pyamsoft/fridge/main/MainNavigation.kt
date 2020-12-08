@@ -25,13 +25,14 @@ import androidx.core.view.doOnLayout
 import androidx.core.view.updatePadding
 import com.pyamsoft.fridge.main.databinding.MainNavigationBinding
 import com.pyamsoft.pydroid.arch.BaseUiView
+import com.pyamsoft.pydroid.arch.UiRender
 import com.pyamsoft.pydroid.util.doOnApplyWindowInsets
 import timber.log.Timber
 import javax.inject.Inject
 import com.pyamsoft.fridge.ui.R as R2
 
 class MainNavigation @Inject internal constructor(
-    parent: ViewGroup
+    parent: ViewGroup,
 ) : BaseUiView<MainViewState, MainViewEvent, MainNavigationBinding>(parent) {
 
     override val viewBinding = MainNavigationBinding::inflate
@@ -95,30 +96,22 @@ class MainNavigation @Inject internal constructor(
         binding.mainBottomNavigationMenu.setBackgroundColor(color)
     }
 
-    override fun onRender(state: MainViewState) {
-        correctBackground()
-        handlePage(state)
-        handleBadge(state)
+    override fun onRender(state: UiRender<MainViewState>) {
+        state.render { correctBackground() }
+        state.distinctBy { it.page }.render { handlePage(it) }
     }
 
-    private fun handleBadge(state: MainViewState) {
-        // TODO Put count of needed+expiring+expired on Entries tab
-        // TODO Put nearby store+zone on Location tab
-    }
-
-    private fun handlePage(state: MainViewState) {
-        state.page.let { page ->
-            Timber.d("Handle page: $page")
-            val pageId = getIdForPage(page)
-            if (pageId != 0) {
-                Timber.d("Mark page selected: $page $pageId")
-                // Don't mark it selected since this will re-fire the click event
-                // binding.mainBottomNavigationMenu.selectedItemId = pageId
-                val item = binding.mainBottomNavigationMenu.menu.findItem(pageId)
-                if (item != null) {
-                    handler.removeCallbacksAndMessages(null)
-                    handler.post { item.isChecked = true }
-                }
+    private fun handlePage(page: MainPage?) {
+        Timber.d("Handle page: $page")
+        val pageId = getIdForPage(page)
+        if (pageId != 0) {
+            Timber.d("Mark page selected: $page $pageId")
+            // Don't mark it selected since this will re-fire the click event
+            // binding.mainBottomNavigationMenu.selectedItemId = pageId
+            val item = binding.mainBottomNavigationMenu.menu.findItem(pageId)
+            if (item != null) {
+                handler.removeCallbacksAndMessages(null)
+                handler.post { item.isChecked = true }
             }
         }
     }
