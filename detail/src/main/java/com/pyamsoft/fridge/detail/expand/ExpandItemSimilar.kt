@@ -50,7 +50,7 @@ class ExpandItemSimilar @Inject internal constructor(
     }
 
     private fun handleItemDuplicateMessage(item: FridgeItem?) {
-        if (item == null) {
+        if (item == null || item.presence() != FridgeItem.Presence.NEED) {
             binding.expandItemSimilarMsg.text = ""
         } else {
             val name = item.name().trim()
