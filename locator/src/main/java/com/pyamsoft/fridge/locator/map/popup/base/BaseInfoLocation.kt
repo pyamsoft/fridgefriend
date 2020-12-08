@@ -20,10 +20,11 @@ import android.view.ViewGroup
 import com.pyamsoft.fridge.locator.databinding.PopupInfoLocationBinding
 import com.pyamsoft.fridge.locator.map.popup.calculateKmDistanceTo
 import com.pyamsoft.pydroid.arch.BaseUiView
+import com.pyamsoft.pydroid.arch.UiRender
 import com.pyamsoft.pydroid.arch.UiViewEvent
 
 abstract class BaseInfoLocation<S : BaseInfoViewState, E : UiViewEvent> protected constructor(
-    parent: ViewGroup
+    parent: ViewGroup,
 ) : BaseUiView<S, E, PopupInfoLocationBinding>(parent) {
 
     final override val viewBinding = PopupInfoLocationBinding::inflate
@@ -59,7 +60,7 @@ abstract class BaseInfoLocation<S : BaseInfoViewState, E : UiViewEvent> protecte
         }
     }
 
-    final override fun onRender(state: S) {
-        handleLocation(state)
+    final override fun onRender(state: UiRender<S>) {
+        state.render { handleLocation(it) }
     }
 }

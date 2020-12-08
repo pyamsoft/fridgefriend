@@ -27,6 +27,7 @@ import com.pyamsoft.fridge.detail.databinding.DetailAddNewBinding
 import com.pyamsoft.fridge.ui.R
 import com.pyamsoft.fridge.ui.SnackbarContainer
 import com.pyamsoft.pydroid.arch.BaseUiView
+import com.pyamsoft.pydroid.arch.UiRender
 import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.loader.Loaded
 import com.pyamsoft.pydroid.loader.disposeOnDestroy
@@ -100,17 +101,17 @@ class DetailAddItemView @Inject internal constructor(
         return layoutRoot
     }
 
-    override fun onRender(state: DetailViewState) {
-        handleShowing(state)
-        handlePresence(state)
-        handleBottomMargin(state)
-        handleError(state)
-        handleUndo(state)
+    override fun onRender(state: UiRender<DetailViewState>) {
+        state.distinctBy { it.showing }.render { handleShowing(it) }
+        state.distinctBy { it.listItemPresence }.render { handlePresence(it) }
+        state.distinctBy { it.bottomOffset }.render { handleBottomMargin(it) }
+        state.distinctBy { it.listError }.render { handleError(it) }
+        state.distinctBy { it.undoableItem }.render { handleUndo(it) }
     }
 
-    private fun handlePresence(state: DetailViewState) {
+    private fun handlePresence(presence: FridgeItem.Presence) {
         // Hide filter button for NEED
-        if (state.listItemPresence == FridgeItem.Presence.NEED) {
+        if (presence == FridgeItem.Presence.NEED) {
             binding.detailFilterItem.isVisible = false
             filterAnimatorCompat?.cancel()
             filterAnimatorCompat = null
@@ -121,46 +122,37 @@ class DetailAddItemView @Inject internal constructor(
         }
     }
 
-    private fun handleShowing(state: DetailViewState) {
-        state.showing.let { showing ->
-            clearFilter()
-            filterIconLoaded = imageLoader
-                .load(
-                    when (showing) {
-                        DetailViewState.Showing.FRESH -> R.drawable.ic_category_24
-                        DetailViewState.Showing.CONSUMED -> R.drawable.ic_consumed_24dp
-                        DetailViewState.Showing.SPOILED -> R.drawable.ic_spoiled_24dp
-                    }
-                )
-                .into(binding.detailFilterItem)
+    private fun handleShowing(showing: DetailViewState.Showing) {
+        clearFilter()
+        filterIconLoaded = imageLoader.load(
+            when (showing) {
+                DetailViewState.Showing.FRESH -> R.drawable.ic_category_24
+                DetailViewState.Showing.CONSUMED -> R.drawable.ic_consumed_24dp
+                DetailViewState.Showing.SPOILED -> R.drawable.ic_spoiled_24dp
+            }
+        )
+            .into(binding.detailFilterItem)
+    }
+
+    private fun handleBottomMargin(height: Int) {
+        if (height > 0) {
+            layoutRoot.updatePadding(bottom = height)
         }
     }
 
-    private fun handleBottomMargin(state: DetailViewState) {
-        state.bottomOffset.let { height ->
-            if (height > 0) {
-                layoutRoot.updatePadding(bottom = height)
-            }
+    private fun handleError(throwable: Throwable?) {
+        if (throwable == null) {
+            clearListError()
+        } else {
+            showListError(throwable)
         }
     }
 
-    private fun handleError(state: DetailViewState) {
-        state.listError.let { throwable ->
-            if (throwable == null) {
-                clearListError()
-            } else {
-                showListError(throwable)
-            }
-        }
-    }
-
-    private fun handleUndo(state: DetailViewState) {
-        state.undoableItem.let { undoable ->
-            if (undoable == null) {
-                clearUndoSnackbar()
-            } else {
-                showUndoSnackbar(undoable)
-            }
+    private fun handleUndo(undoable: FridgeItem?) {
+        if (undoable == null) {
+            clearUndoSnackbar()
+        } else {
+            showUndoSnackbar(undoable)
         }
     }
 

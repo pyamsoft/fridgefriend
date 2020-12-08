@@ -22,6 +22,7 @@ import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.ui.applyToolbarOffset
 import com.pyamsoft.fridge.ui.databinding.UiHeroImageBinding
 import com.pyamsoft.pydroid.arch.BaseUiView
+import com.pyamsoft.pydroid.arch.UiRender
 import com.pyamsoft.pydroid.arch.UiViewEvent
 import com.pyamsoft.pydroid.arch.UiViewState
 import com.pyamsoft.pydroid.loader.ImageLoader
@@ -29,7 +30,7 @@ import com.pyamsoft.pydroid.loader.Loaded
 
 abstract class HeroImage<S : UiViewState, V : UiViewEvent> protected constructor(
     parent: ViewGroup,
-    private val imageLoader: ImageLoader
+    private val imageLoader: ImageLoader,
 ) : BaseUiView<S, V, UiHeroImageBinding>(parent) {
 
     override val viewBinding = UiHeroImageBinding::inflate
@@ -53,9 +54,11 @@ abstract class HeroImage<S : UiViewState, V : UiViewEvent> protected constructor
         loaded = null
     }
 
-    final override fun onRender(state: S) {
-        loadImage(state)
-        onAdditionalRender(state)
+    override fun onRender(state: UiRender<S>) {
+        state.render { s ->
+            loadImage(s)
+            onAdditionalRender(s)
+        }
     }
 
     private fun loadImage(state: S) {
@@ -70,6 +73,6 @@ abstract class HeroImage<S : UiViewState, V : UiViewEvent> protected constructor
     protected abstract fun onLoadImage(
         imageView: ImageView,
         imageLoader: ImageLoader,
-        state: S
+        state: S,
     ): Loaded?
 }

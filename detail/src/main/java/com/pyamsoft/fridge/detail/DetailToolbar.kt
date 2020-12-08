@@ -96,50 +96,52 @@ class DetailToolbar @Inject internal constructor(
     }
 
     @CheckResult
-    private fun sortForMenuItem(
-        item: MenuItem,
-        showExtra: Boolean,
-    ): DetailViewState.Sorts? {
+    private fun sortForMenuItem(subMenu: SubMenu, item: MenuItem): DetailViewState.Sorts? {
+        val purchaseVisible = subMenu.findItem(itemIdPurchasedDate)?.isVisible ?: false
+        val expirationVisible = subMenu.findItem(itemIdExpirationDate)?.isVisible ?: false
         return when (item.itemId) {
             itemIdCreatedDate -> DetailViewState.Sorts.CREATED
             itemIdName -> DetailViewState.Sorts.NAME
-            itemIdPurchasedDate -> if (showExtra) DetailViewState.Sorts.PURCHASED else null
-            itemIdExpirationDate -> if (showExtra) DetailViewState.Sorts.EXPIRATION else null
+            itemIdPurchasedDate -> if (purchaseVisible) DetailViewState.Sorts.PURCHASED else null
+            itemIdExpirationDate -> if (expirationVisible) DetailViewState.Sorts.EXPIRATION else null
             else -> null
         }
     }
 
     override fun render(state: UiRender<DetailViewState>) {
+        state.distinctBy { it.listItemPresence }.render { handleExtraSubItems(it) }
         state.distinctBy { it.sort }.render { handleSubmenu(it) }
         state.distinctBy { it.search }.render { handleInitialSearch(it) }
     }
 
-    private fun handleSubmenu(state: DetailViewState) {
-        state.sort.let { currentSort ->
-            subMenu?.let { subMenu ->
-                val isHavePresence = state.listItemPresence == FridgeItem.Presence.HAVE
-                val showExtraMenuItems = isHavePresence && searchItem?.isActionViewExpanded == false
+    private fun handleExtraSubItems(presence: FridgeItem.Presence) {
+        subMenu?.let { subMenu ->
+            val isHavePresence = presence == FridgeItem.Presence.HAVE
+            val showExtraMenuItems = isHavePresence && searchItem?.isActionViewExpanded == false
 
-                subMenu.findItem(itemIdPurchasedDate)?.isVisible = showExtraMenuItems
-                subMenu.findItem(itemIdExpirationDate)?.isVisible = showExtraMenuItems
+            subMenu.findItem(itemIdPurchasedDate)?.isVisible = showExtraMenuItems
+            subMenu.findItem(itemIdExpirationDate)?.isVisible = showExtraMenuItems
+        }
+    }
 
-                subMenu.forEach { item ->
-                    sortForMenuItem(item, showExtraMenuItems)?.also { sort ->
-                        if (currentSort == sort) {
-                            item.isChecked = true
-                        }
+    private fun handleSubmenu(currentSort: DetailViewState.Sorts) {
+        subMenu?.let { subMenu ->
+            subMenu.forEach { item ->
+                sortForMenuItem(subMenu, item)?.also { sort ->
+                    if (currentSort == sort) {
+                        item.isChecked = true
                     }
                 }
+            }
 
-                // If nothing is checked, thats a no no
-                if (subMenu.children.all { !it.isChecked }) {
-                    Timber.w("SORTS: NOTHING IS CHECKED: $currentSort")
-                }
+            // If nothing is checked, thats a no no
+            if (subMenu.children.all { !it.isChecked }) {
+                Timber.w("SORTS: NOTHING IS CHECKED: $currentSort")
             }
         }
     }
 
-    private fun handleInitialSearch(state: DetailViewState) {
+    private fun handleInitialSearch(search: String) {
         if (initialRenderPerformed) {
             return
         }
@@ -149,11 +151,9 @@ class DetailToolbar @Inject internal constructor(
 
         initialRenderPerformed = true
 
-        state.search.let { search ->
-            if (search.isNotBlank()) {
-                if (item.expandActionView()) {
-                    searchView.setQuery(search, true)
-                }
+        if (search.isNotBlank()) {
+            if (item.expandActionView()) {
+                searchView.setQuery(search, true)
             }
         }
     }

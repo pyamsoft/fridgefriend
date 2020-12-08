@@ -20,6 +20,7 @@ import android.view.ViewGroup
 import com.pyamsoft.fridge.locator.R
 import com.pyamsoft.fridge.locator.databinding.PopupInfoTitleBinding
 import com.pyamsoft.pydroid.arch.BaseUiView
+import com.pyamsoft.pydroid.arch.UiRender
 import com.pyamsoft.pydroid.arch.UiViewEvent
 import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.loader.Loaded
@@ -27,7 +28,7 @@ import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
 
 abstract class BaseInfoTitle<S : BaseInfoViewState, E : UiViewEvent> protected constructor(
     private val imageLoader: ImageLoader,
-    parent: ViewGroup
+    parent: ViewGroup,
 ) : BaseUiView<S, E, PopupInfoTitleBinding>(parent) {
 
     final override val viewBinding = PopupInfoTitleBinding::inflate
@@ -52,29 +53,25 @@ abstract class BaseInfoTitle<S : BaseInfoViewState, E : UiViewEvent> protected c
         favoriteLoaded = null
     }
 
-    private fun handleCached(state: S) {
+    private fun handleCached(cached: BaseInfoViewState.Cached?) {
         clear()
-        state.cached.let { cached ->
-            if (cached == null) {
-                binding.popupInfoFavorite.setOnDebouncedClickListener(null)
-            } else {
-                val isCached = cached.cached
-                val icon = if (isCached) R.drawable.ic_star_24dp else R.drawable.ic_star_empty_24dp
-                favoriteLoaded = imageLoader.load(icon).into(binding.popupInfoFavorite)
-                binding.popupInfoFavorite.setOnDebouncedClickListener { publishFavorite(!isCached) }
-            }
+        if (cached == null) {
+            binding.popupInfoFavorite.setOnDebouncedClickListener(null)
+        } else {
+            val isCached = cached.cached
+            val icon = if (isCached) R.drawable.ic_star_24dp else R.drawable.ic_star_empty_24dp
+            favoriteLoaded = imageLoader.load(icon).into(binding.popupInfoFavorite)
+            binding.popupInfoFavorite.setOnDebouncedClickListener { publishFavorite(!isCached) }
         }
     }
 
-    private fun handleName(state: S) {
-        state.name.let { name ->
-            binding.popupInfoTitle.text = name
-        }
+    private fun handleName(name: String) {
+        binding.popupInfoTitle.text = name
     }
 
-    final override fun onRender(state: S) {
-        handleCached(state)
-        handleName(state)
+    final override fun onRender(state: UiRender<S>) {
+        state.distinctBy { it.name }.render { handleName(it) }
+        state.distinctBy { it.cached }.render { handleCached(it) }
     }
 
     protected abstract fun publishFavorite(add: Boolean)

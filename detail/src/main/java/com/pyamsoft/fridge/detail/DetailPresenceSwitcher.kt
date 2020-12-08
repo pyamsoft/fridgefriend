@@ -22,6 +22,7 @@ import com.google.android.material.tabs.TabLayout
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.detail.databinding.DetailPresenceSwitchBinding
 import com.pyamsoft.pydroid.arch.BaseUiView
+import com.pyamsoft.pydroid.arch.UiRender
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -70,8 +71,8 @@ class DetailPresenceSwitcher @Inject internal constructor(
         }
     }
 
-    override fun onRender(state: DetailViewState) {
-        handlePresence(state)
+    override fun onRender(state: UiRender<DetailViewState>) {
+        state.distinctBy { it.listItemPresence }.render { handlePresence(it) }
     }
 
     @CheckResult
@@ -90,22 +91,19 @@ class DetailPresenceSwitcher @Inject internal constructor(
         return tag
     }
 
-    private fun handlePresence(state: DetailViewState) {
-        state.listItemPresence.let { presence ->
-            val tabs = layoutRoot
-            for (i in 0 until tabs.tabCount) {
-                val tab = tabs.getTabAt(i)
-                if (tab == null) {
-                    Timber.w("No tab found at index: $i")
-                    continue
-                }
+    private fun handlePresence(presence: FridgeItem.Presence) {
+        val tabs = layoutRoot
+        for (i in 0 until tabs.tabCount) {
+            val tab = tabs.getTabAt(i)
+            if (tab == null) {
+                Timber.w("No tab found at index: $i")
+                continue
+            }
 
-                val tag = getTabPresence(tab)
-                if (tag == presence) {
-                    tabs.selectTab(tab, true)
-                    break
-                }
-
+            val tag = getTabPresence(tab)
+            if (tag == presence) {
+                tabs.selectTab(tab, true)
+                break
             }
         }
     }

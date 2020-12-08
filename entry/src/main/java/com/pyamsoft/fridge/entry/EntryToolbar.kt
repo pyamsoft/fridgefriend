@@ -102,26 +102,24 @@ class EntryToolbar @Inject internal constructor(
         state.distinctBy { it.search }.render { handleInitialSearch(it) }
     }
 
-    private fun handleSubmenu(state: EntryViewState) {
-        state.sort.let { currentSort ->
-            subMenu?.let { subMenu ->
-                subMenu.forEach { item ->
-                    sortForMenuItem(item)?.also { sort ->
-                        if (currentSort == sort) {
-                            item.isChecked = true
-                        }
+    private fun handleSubmenu(currentSort: EntryViewState.Sorts) {
+        subMenu?.let { subMenu ->
+            subMenu.forEach { item ->
+                sortForMenuItem(item)?.also { sort ->
+                    if (currentSort == sort) {
+                        item.isChecked = true
                     }
                 }
+            }
 
-                // If nothing is checked, thats a no no
-                if (subMenu.children.all { !it.isChecked }) {
-                    Timber.w("SORTS: NOTHING IS CHECKED: $currentSort")
-                }
+            // If nothing is checked, thats a no no
+            if (subMenu.children.all { !it.isChecked }) {
+                Timber.w("SORTS: NOTHING IS CHECKED: $currentSort")
             }
         }
     }
 
-    private fun handleInitialSearch(state: EntryViewState) {
+    private fun handleInitialSearch(search: String) {
         if (initialRenderPerformed) {
             return
         }
@@ -131,11 +129,9 @@ class EntryToolbar @Inject internal constructor(
 
         initialRenderPerformed = true
 
-        state.search.let { search ->
-            if (search.isNotBlank()) {
-                if (item.expandActionView()) {
-                    searchView.setQuery(search, true)
-                }
+        if (search.isNotBlank()) {
+            if (item.expandActionView()) {
+                searchView.setQuery(search, true)
             }
         }
     }

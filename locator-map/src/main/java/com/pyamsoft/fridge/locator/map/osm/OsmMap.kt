@@ -41,6 +41,7 @@ import com.pyamsoft.fridge.locator.map.osm.popup.StoreInfoWindow
 import com.pyamsoft.fridge.locator.map.osm.popup.ZoneInfoComponent
 import com.pyamsoft.fridge.locator.map.osm.popup.ZoneInfoWindow
 import com.pyamsoft.pydroid.arch.BaseUiView
+import com.pyamsoft.pydroid.arch.UiRender
 import com.pyamsoft.pydroid.ui.theme.ThemeProvider
 import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
 import org.osmdroid.config.Configuration
@@ -183,33 +184,27 @@ class OsmMap @Inject internal constructor(
         }
     }
 
-    override fun onRender(state: MapViewState) {
-        handleMap(state)
-        handleMyLocation(state)
+    override fun onRender(state: UiRender<MapViewState>) {
+        state.distinctBy { it.points }.render { handleMapPoints(it) }
+        state.distinctBy { it.zones }.render { handleMapZones(it) }
+        state.distinctBy { it.centerMyLocation }.render { handleMyLocation(it) }
     }
 
-    private fun handleMap(state: MapViewState) {
-        var invalidate = false
-        state.points.let { points ->
-            if (renderMapMarkers(points)) {
-                invalidate = true
-                mapHandler.removeCallbacksAndMessages(null)
-            }
+    private fun handleMapPoints(points: List<MapViewState.MapPoint>) {
+        if (renderMapMarkers(points)) {
+            invalidateMap()
         }
+    }
 
-        state.zones.let { zones ->
-            if (renderMapPolygons(zones)) {
-                invalidate = true
-                mapHandler.removeCallbacksAndMessages(null)
-            }
+    private fun handleMapZones(zones: List<MapViewState.MapZone>) {
+        if (renderMapPolygons(zones)) {
+            invalidateMap()
         }
+    }
 
-        if (invalidate) {
-            mapHandler.removeCallbacksAndMessages(null)
-            mapHandler.postDelayed({
-                binding.osmMap.invalidate()
-            }, 100)
-        }
+    private fun invalidateMap() {
+        mapHandler.removeCallbacksAndMessages(null)
+        mapHandler.postDelayed({ binding.osmMap.invalidate() }, 100)
     }
 
     @CheckResult
@@ -420,13 +415,13 @@ class OsmMap @Inject internal constructor(
         locationOverlay = overlay
     }
 
-    private fun handleMyLocation(state: MapViewState) {
-        state.centerMyLocation?.let {
-            // Animation debounce
-            if (centeringLocation) {
-                return@let
-            }
+    private fun handleMyLocation(myLocation: MapViewState.CenterMyLocation?) {
+        // Animation debounce
+        if (centeringLocation) {
+            return
+        }
 
+        myLocation?.let {
             locationOverlay?.let { overlay ->
                 val location = overlay.myLocation
                 if (location != null) {

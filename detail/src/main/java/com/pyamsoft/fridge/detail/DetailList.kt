@@ -33,6 +33,7 @@ import com.pyamsoft.fridge.detail.item.DetailItemViewHolder
 import com.pyamsoft.fridge.detail.item.DetailItemViewState
 import com.pyamsoft.fridge.detail.item.DetailListAdapter
 import com.pyamsoft.pydroid.arch.BaseUiView
+import com.pyamsoft.pydroid.arch.UiRender
 import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.ui.theme.ThemeProvider
 import com.pyamsoft.pydroid.ui.util.refreshing
@@ -51,7 +52,7 @@ class DetailList @Inject internal constructor(
     private val imageLoader: ImageLoader,
     private val theming: ThemeProvider,
     parent: ViewGroup,
-    factory: DetailItemComponent.Factory
+    factory: DetailItemComponent.Factory,
 ) : BaseUiView<DetailViewState, DetailViewEvent, DetailListBinding>(parent) {
 
     override val viewBinding = DetailListBinding::inflate
@@ -222,7 +223,7 @@ class DetailList @Inject internal constructor(
         directions: Int,
         swipeAwayDeletes: Boolean,
         swipeAwayRestores: Boolean,
-        crossinline itemSwipeCallback: (position: Int, directions: Int) -> Unit
+        crossinline itemSwipeCallback: (position: Int, directions: Int) -> Unit,
     ) {
         val leftBehindDrawable = imageLoader.load(
             when {
@@ -294,7 +295,7 @@ class DetailList @Inject internal constructor(
     private fun setList(
         list: List<FridgeItem>,
         expirationRange: DetailViewState.ExpirationRange?,
-        sameDayExpired: DetailViewState.IsSameDayExpired?
+        sameDayExpired: DetailViewState.IsSameDayExpired?,
     ) {
         val data = list.map { DetailItemViewState(it, expirationRange, sameDayExpired) }
         usingAdapter().submitList(data)
@@ -304,10 +305,8 @@ class DetailList @Inject internal constructor(
         usingAdapter().submitList(null)
     }
 
-    private fun handleLoading(state: DetailViewState) {
-        state.isLoading.let { loading ->
-            binding.detailSwipeRefresh.refreshing(loading)
-        }
+    private fun handleLoading(loading: Boolean) {
+        binding.detailSwipeRefresh.refreshing(loading)
     }
 
     private fun handleList(state: DetailViewState) {
@@ -323,16 +322,14 @@ class DetailList @Inject internal constructor(
         }
     }
 
-    private fun handleBottomMargin(state: DetailViewState) {
+    private fun handleBottomMargin(height: Int) {
         removeBottomMargin()
-        state.bottomOffset.let { height ->
-            if (height > 0) {
-                // The bottom has additional space to fit the FAB
-                val fabSpacing = 72.asDp(binding.detailList.context)
-                LinearBoundsMarginDecoration(bottomMargin = fabSpacing + height).apply {
-                    binding.detailList.addItemDecoration(this)
-                    bottomMarginDecoration = this
-                }
+        if (height > 0) {
+            // The bottom has additional space to fit the FAB
+            val fabSpacing = 72.asDp(binding.detailList.context)
+            LinearBoundsMarginDecoration(bottomMargin = fabSpacing + height).apply {
+                binding.detailList.addItemDecoration(this)
+                bottomMarginDecoration = this
             }
         }
     }
@@ -349,14 +346,14 @@ class DetailList @Inject internal constructor(
         }
     }
 
-    override fun onRender(state: DetailViewState) {
-        // Handle first before performing side effects
-        handleBottomMargin(state)
-        handleLoading(state)
-        handleList(state)
-
-        setupSwipeCallback(state)
-        restoreLastScrollPosition(state)
+    override fun onRender(state: UiRender<DetailViewState>) {
+        state.distinctBy { it.bottomOffset }.render { handleBottomMargin(it) }
+        state.distinctBy { it.isLoading }.render { handleLoading(it) }
+        state.render { s ->
+            handleList(s)
+            setupSwipeCallback(s)
+            restoreLastScrollPosition(s)
+        }
     }
 
     companion object {

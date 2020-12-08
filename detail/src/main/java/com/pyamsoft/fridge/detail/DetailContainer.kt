@@ -34,7 +34,7 @@ import javax.inject.Inject
 
 class DetailContainer @Inject internal constructor(
     private val theming: ThemeProvider,
-    parent: ViewGroup
+    parent: ViewGroup,
 ) : BaseUiView<DetailViewState, DetailViewEvent, DetailContainerBinding>(parent) {
 
     override val viewBinding = DetailContainerBinding::inflate
@@ -76,9 +76,6 @@ class DetailContainer @Inject internal constructor(
 
     fun layout(func: ConstraintSet.() -> Unit) {
         return binding.detailContainer.layout(func)
-    }
-
-    override fun onRender(state: DetailViewState) {
     }
 
 }

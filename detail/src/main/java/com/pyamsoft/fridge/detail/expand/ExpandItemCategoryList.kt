@@ -25,11 +25,12 @@ import com.pyamsoft.fridge.detail.expand.categories.ExpandCategoryComponent
 import com.pyamsoft.fridge.detail.expand.categories.ExpandItemCategoryListAdapter
 import com.pyamsoft.fridge.detail.expand.categories.ExpandedCategoryViewState
 import com.pyamsoft.pydroid.arch.BaseUiView
+import com.pyamsoft.pydroid.arch.UiRender
 import javax.inject.Inject
 
 class ExpandItemCategoryList @Inject internal constructor(
     parent: ViewGroup,
-    factory: ExpandCategoryComponent.Factory
+    factory: ExpandCategoryComponent.Factory,
 ) : BaseUiView<ExpandItemViewState, ExpandedItemViewEvent, ExpandCategoriesBinding>(parent) {
 
     override val viewBinding = ExpandCategoriesBinding::inflate
@@ -75,8 +76,8 @@ class ExpandItemCategoryList @Inject internal constructor(
         return requireNotNull(modelAdapter)
     }
 
-    override fun onRender(state: ExpandItemViewState) {
-        handleCategories(state)
+    override fun onRender(state: UiRender<ExpandItemViewState>) {
+        state.render { handleCategories(it) }
     }
 
     private fun handleCategories(state: ExpandItemViewState) {
@@ -90,7 +91,7 @@ class ExpandItemCategoryList @Inject internal constructor(
 
     private fun setList(
         categories: List<FridgeCategory>,
-        selectedCategoryId: FridgeCategory.Id?
+        selectedCategoryId: FridgeCategory.Id?,
     ) {
         val itemList = categories.map { category ->
             val catView = if (category.isEmpty()) null else {

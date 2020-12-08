@@ -26,10 +26,11 @@ import com.pyamsoft.fridge.ui.isEditable
 import com.pyamsoft.fridge.ui.setEditable
 import com.pyamsoft.fridge.ui.view.UiEditTextDelegate
 import com.pyamsoft.pydroid.arch.BaseUiView
+import com.pyamsoft.pydroid.arch.UiRender
 import javax.inject.Inject
 
 class ExpandItemCount @Inject internal constructor(
-    parent: ViewGroup
+    parent: ViewGroup,
 ) : BaseUiView<ExpandItemViewState, ExpandedItemViewEvent, ExpandCountBinding>(parent) {
 
     override val viewBinding = ExpandCountBinding::inflate
@@ -52,10 +53,9 @@ class ExpandItemCount @Inject internal constructor(
         }
     }
 
-    private fun handleCount(state: ExpandItemViewState) {
-        state.item?.let { item ->
-            delegate.render(getCountAsText(item))
-        }
+    override fun onRender(state: UiRender<ExpandItemViewState>) {
+        state.distinctBy { it.item }.render { handleEditable(it) }
+        state.distinctBy { it.item }.render { handleCount(it) }
     }
 
     @CheckResult
@@ -64,18 +64,15 @@ class ExpandItemCount @Inject internal constructor(
         return if (count > 0) "$count" else ""
     }
 
-    override fun onRender(state: ExpandItemViewState) {
-        handleCount(state)
-        handleEditable(state)
+    private fun handleCount(item: FridgeItem?) {
+        item?.let { delegate.render(getCountAsText(it)) }
     }
 
-    private fun handleEditable(state: ExpandItemViewState) {
-        state.item.let { item ->
-            val isEditable = if (item == null) false else !item.isArchived()
-            if (binding.expandItemCountEditable.isEditable != isEditable) {
-                val inputType = if (isEditable) InputType.TYPE_CLASS_NUMBER else InputType.TYPE_NULL
-                binding.expandItemCountEditable.setEditable(inputType)
-            }
+    private fun handleEditable(item: FridgeItem?) {
+        val isEditable = if (item == null) false else !item.isArchived()
+        if (binding.expandItemCountEditable.isEditable != isEditable) {
+            val inputType = if (isEditable) InputType.TYPE_CLASS_NUMBER else InputType.TYPE_NULL
+            binding.expandItemCountEditable.setEditable(inputType)
         }
     }
 

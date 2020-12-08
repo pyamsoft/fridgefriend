@@ -24,12 +24,14 @@ import com.pyamsoft.fridge.category.databinding.CategoryListViewBinding
 import com.pyamsoft.fridge.category.item.CategoryAdapter
 import com.pyamsoft.fridge.category.item.CategoryItemComponent
 import com.pyamsoft.fridge.category.item.CategoryItemViewState
+import com.pyamsoft.fridge.ui.animatePopInFromBottom
 import com.pyamsoft.pydroid.arch.BaseUiView
+import com.pyamsoft.pydroid.arch.UiRender
 import javax.inject.Inject
 
 class CategoryListView @Inject internal constructor(
     factory: CategoryItemComponent.Factory,
-    parent: ViewGroup
+    parent: ViewGroup,
 ) : BaseUiView<CategoryViewState, CategoryViewEvent, CategoryListViewBinding>(parent) {
 
     override val viewBinding = CategoryListViewBinding::inflate
@@ -72,34 +74,27 @@ class CategoryListView @Inject internal constructor(
         return requireNotNull(modelAdapter)
     }
 
-    override fun onRender(state: CategoryViewState) {
-        handleCategories(state)
+    override fun onRender(state: UiRender<CategoryViewState>) {
+        state.distinctBy { it.categories }.render { handleAnimation(it) }
+        state.distinctBy { it.categories }.render { handleCategories(it) }
     }
 
-    private fun handleAnimation(state: CategoryViewState) {
-        state.categories.let { categories ->
-            if (categories.isNotEmpty()) {
-                // If root is currently hidden, show it
-                if (animator == null) {
-                    animator =
-                        com.pyamsoft.fridge.ui.animatePopInFromBottom(layoutRoot)
-                }
+    private fun handleAnimation(categories: List<CategoryViewState.CategoryItemsPairing>) {
+        if (categories.isNotEmpty()) {
+            // If root is currently hidden, show it
+            if (animator == null) {
+                animator = animatePopInFromBottom(layoutRoot)
             }
         }
     }
 
-    private fun handleCategories(state: CategoryViewState) {
-        state.categories.let { categories ->
-            if (categories.isEmpty()) {
-                clearList()
-            } else {
-                usingAdapter().submitList(categories.map { pairing ->
-                    CategoryItemViewState(
-                        pairing.category,
-                        pairing.items.asSequence().map { it.count() }.sum()
-                    )
-                })
-            }
+    private fun handleCategories(categories: List<CategoryViewState.CategoryItemsPairing>) {
+        if (categories.isEmpty()) {
+            clearList()
+        } else {
+            usingAdapter().submitList(categories.map { p ->
+                CategoryItemViewState(p.category, p.items.asSequence().map { it.count() }.sum())
+            })
         }
     }
 }
