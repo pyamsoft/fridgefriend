@@ -60,7 +60,7 @@ class ExpandItemSimilar @Inject internal constructor(
             clear()
         } else {
             val name = item.name().trim()
-            val count = sameName.asSequence().filterNot { it.isArchived() }.count()
+            val count = sameName.filterNot { it.isArchived() }.count()
             val message = "You already have at least $count '$name', do you need more?"
             binding.expandItemSimilarMsg.isVisible = true
             binding.expandItemSimilarMsg.text = message
