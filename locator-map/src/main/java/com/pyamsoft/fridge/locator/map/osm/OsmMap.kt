@@ -171,8 +171,10 @@ class OsmMap @Inject internal constructor(
 
         doOnTeardown {
             layoutRoot.setOnDebouncedClickListener(null)
-            binding.osmMap.removeMapListener(mapListener)
-            binding.osmMap.onDetach()
+            binding.osmMap.apply {
+                removeMapListener(mapListener)
+                onDetach()
+            }
         }
 
         doOnTeardown {
@@ -212,7 +214,8 @@ class OsmMap @Inject internal constructor(
 
     @CheckResult
     private fun renderMapPolygons(zones: List<MapViewState.MapZone>): Boolean {
-        val overlay = binding.osmMap.overlayManager
+        val map = binding.osmMap
+        val overlay = map.overlayManager
 
         // Remove any polygons that used to exist but don't anymore
         overlay.filterIsInstance<Polygon>()
@@ -227,12 +230,12 @@ class OsmMap @Inject internal constructor(
             val uid = nearby.getPolygonUid()
             var polygon = overlay.filterIsInstance<Polygon>().find { it.id == uid }
             if (polygon == null) {
-                polygon = Polygon(binding.osmMap).apply {
+                polygon = Polygon(map).apply {
                     id = uid
                     infoWindow = ZoneInfoWindow.fromMap(
                         locationUpdateReceiver,
                         nearby,
-                        binding.osmMap,
+                        map,
                         zoneFactory
                     )
                     fillPaint.color = color
@@ -274,7 +277,8 @@ class OsmMap @Inject internal constructor(
 
     @CheckResult
     private fun renderMapMarkers(marks: List<MapViewState.MapPoint>): Boolean {
-        val overlay = binding.osmMap.overlayManager
+        val map = binding.osmMap
+        val overlay = map.overlayManager
 
         // Remove any marks that used to exist but don't anymore
         overlay.filterIsInstance<Marker>()
@@ -289,12 +293,12 @@ class OsmMap @Inject internal constructor(
             var marker = overlay.filterIsInstance<Marker>().find { it.id == uid }
             if (marker == null) {
                 // Create a new marker
-                marker = Marker(binding.osmMap).apply {
+                marker = Marker(map).apply {
                     id = uid
                     infoWindow = StoreInfoWindow.fromMap(
                         locationUpdateReceiver,
                         nearby,
-                        binding.osmMap,
+                        map,
                         storeFactory
                     )
 
@@ -335,18 +339,19 @@ class OsmMap @Inject internal constructor(
 
     @CheckResult
     private fun getBoundingBoxOfCurrentScreen(): BBox {
+        val map = binding.osmMap
         val screenBox = Projection(
-            binding.osmMap.zoomLevelDouble,
-            binding.osmMap.getIntrinsicScreenRect(null),
-            GeoPoint(binding.osmMap.mapCenter),
-            binding.osmMap.mapScrollX,
-            binding.osmMap.mapScrollY,
-            binding.osmMap.mapOrientation,
-            binding.osmMap.isHorizontalMapRepetitionEnabled,
-            binding.osmMap.isVerticalMapRepetitionEnabled,
+            map.zoomLevelDouble,
+            map.getIntrinsicScreenRect(null),
+            GeoPoint(map.mapCenter),
+            map.mapScrollX,
+            map.mapScrollY,
+            map.mapOrientation,
+            map.isHorizontalMapRepetitionEnabled,
+            map.isVerticalMapRepetitionEnabled,
             MapView.getTileSystem(),
-            binding.osmMap.mapCenterOffsetX,
-            binding.osmMap.mapCenterOffsetY
+            map.mapCenterOffsetX,
+            map.mapCenterOffsetY
         ).boundingBox
 
         // Always scale the bounding request box to be within screen size - or 20 miles of current location
@@ -387,29 +392,32 @@ class OsmMap @Inject internal constructor(
         }
 
         centeringLocation = true
+
         val point = GeoPoint(latitude, longitude)
-        binding.osmMap.controller.setZoom(DEFAULT_ZOOM)
-        binding.osmMap.controller.animateTo(point)
-        binding.osmMap.controller.setCenter(point)
+        binding.osmMap.controller.apply {
+            setZoom(DEFAULT_ZOOM)
+            animateTo(point)
+            setCenter(point)
+        }
         onCentered(point)
+
         centeringLocation = false
         publishCurrentBoundingBox()
     }
 
     private fun addMapOverlays(context: Context) {
-
-        val overlay = UpdateAwareLocationOverlay(
-            GpsMyLocationProvider(context),
-            binding.osmMap,
-            onLocationChanged = { locationUpdatePublisher.publish(it) }
-        )
-        overlay.enableMyLocation()
-        binding.osmMap.overlayManager.add(overlay)
-        locationOverlay = overlay
-
-        overlay.runOnFirstFix {
-            publish(MapViewEvent.RequestMyLocation(firstTime = true))
+        val map = binding.osmMap
+        val overlay = UpdateAwareLocationOverlay(GpsMyLocationProvider(context), map) {
+            locationUpdatePublisher.publish(it)
+        }.apply {
+            enableMyLocation()
+            runOnFirstFix {
+                publish(MapViewEvent.RequestMyLocation(firstTime = true))
+            }
         }
+
+        map.overlayManager.add(overlay)
+        locationOverlay = overlay
     }
 
     private fun handleMyLocation(state: MapViewState) {
