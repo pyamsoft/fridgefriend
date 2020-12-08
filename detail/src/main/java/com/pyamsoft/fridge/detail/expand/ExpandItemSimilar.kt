@@ -19,6 +19,7 @@ package com.pyamsoft.fridge.detail.expand
 import android.view.ViewGroup
 import androidx.core.view.isVisible
 import com.pyamsoft.fridge.db.item.FridgeItem
+import com.pyamsoft.fridge.db.item.isArchived
 import com.pyamsoft.fridge.detail.databinding.ExpandSimilarBinding
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.arch.UiRender
@@ -39,26 +40,30 @@ class ExpandItemSimilar @Inject internal constructor(
         }
 
         doOnTeardown {
-            binding.expandItemSimilarMsg.isVisible = false
-            binding.expandItemSimilarMsg.text = null
+            clear()
         }
     }
 
     override fun onRender(state: UiRender<ExpandItemViewState>) {
-        state.distinctBy { it.item }.render(viewScope) { handleItemDuplicateMessage(it) }
-        state.distinctBy { it.similarItems }.render(viewScope) { handleSameNamedItems(it) }
+        state.render(viewScope) { handleSameNamedItems(it) }
     }
 
-    private fun handleItemDuplicateMessage(item: FridgeItem?) {
-        if (item == null || item.presence() != FridgeItem.Presence.NEED) {
-            binding.expandItemSimilarMsg.text = ""
+    private fun clear() {
+        binding.expandItemSimilarMsg.isVisible = false
+        binding.expandItemSimilarMsg.text = null
+    }
+
+    private fun handleSameNamedItems(state: ExpandItemViewState) {
+        val sameName = state.sameNamedItems
+        val item = state.item
+        if (sameName.isEmpty() || item == null || item.presence() != FridgeItem.Presence.NEED) {
+            clear()
         } else {
             val name = item.name().trim()
-            binding.expandItemSimilarMsg.text = "You already have some '$name', do you need more?"
+            val count = sameName.asSequence().filterNot { it.isArchived() }.count()
+            val message = "You already have at least $count '$name', do you need more?"
+            binding.expandItemSimilarMsg.isVisible = true
+            binding.expandItemSimilarMsg.text = message
         }
-    }
-
-    private fun handleSameNamedItems(similar: Collection<ExpandItemViewState.SimilarItem>) {
-        binding.expandItemSimilarMsg.isVisible = !similar.isEmpty()
     }
 }
