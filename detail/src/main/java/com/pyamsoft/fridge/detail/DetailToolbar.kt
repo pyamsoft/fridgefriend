@@ -33,6 +33,7 @@ import androidx.core.view.forEach
 import androidx.core.view.iterator
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.ui.R
+import com.pyamsoft.pydroid.arch.UiRender
 import com.pyamsoft.pydroid.arch.UiView
 import com.pyamsoft.pydroid.ui.app.ToolbarActivity
 import com.pyamsoft.pydroid.ui.util.DebouncedOnClickListener
@@ -41,7 +42,7 @@ import timber.log.Timber
 import javax.inject.Inject
 
 class DetailToolbar @Inject internal constructor(
-    toolbarActivity: ToolbarActivity
+    toolbarActivity: ToolbarActivity,
 ) : UiView<DetailViewState, DetailViewEvent>() {
 
     private val groupIdSearch = View.generateViewId()
@@ -97,7 +98,7 @@ class DetailToolbar @Inject internal constructor(
     @CheckResult
     private fun sortForMenuItem(
         item: MenuItem,
-        showExtra: Boolean
+        showExtra: Boolean,
     ): DetailViewState.Sorts? {
         return when (item.itemId) {
             itemIdCreatedDate -> DetailViewState.Sorts.CREATED
@@ -108,33 +109,34 @@ class DetailToolbar @Inject internal constructor(
         }
     }
 
-    private fun handleSubmenu(state: DetailViewState) {
-        subMenu?.let { subMenu ->
-            val isHavePresence = state.listItemPresence == FridgeItem.Presence.HAVE
-            val showExtraMenuItems = isHavePresence && searchItem?.isActionViewExpanded == false
-
-            subMenu.findItem(itemIdPurchasedDate)?.isVisible = showExtraMenuItems
-            subMenu.findItem(itemIdExpirationDate)?.isVisible = showExtraMenuItems
-
-            val currentSort = state.sort
-            subMenu.forEach { item ->
-                sortForMenuItem(item, showExtraMenuItems)?.also { sort ->
-                    if (currentSort == sort) {
-                        item.isChecked = true
-                    }
-                }
-            }
-
-            // If nothing is checked, thats a no no
-            if (subMenu.children.all { !it.isChecked }) {
-                Timber.w("SORTS: NOTHING IS CHECKED: $currentSort")
-            }
-        }
+    override fun render(state: UiRender<DetailViewState>) {
+        state.distinctBy { it.sort }.render { handleSubmenu(it) }
+        state.distinctBy { it.search }.render { handleInitialSearch(it) }
     }
 
-    override fun render(state: DetailViewState) {
-        handleSubmenu(state)
-        handleInitialSearch(state)
+    private fun handleSubmenu(state: DetailViewState) {
+        state.sort.let { currentSort ->
+            subMenu?.let { subMenu ->
+                val isHavePresence = state.listItemPresence == FridgeItem.Presence.HAVE
+                val showExtraMenuItems = isHavePresence && searchItem?.isActionViewExpanded == false
+
+                subMenu.findItem(itemIdPurchasedDate)?.isVisible = showExtraMenuItems
+                subMenu.findItem(itemIdExpirationDate)?.isVisible = showExtraMenuItems
+
+                subMenu.forEach { item ->
+                    sortForMenuItem(item, showExtraMenuItems)?.also { sort ->
+                        if (currentSort == sort) {
+                            item.isChecked = true
+                        }
+                    }
+                }
+
+                // If nothing is checked, thats a no no
+                if (subMenu.children.all { !it.isChecked }) {
+                    Timber.w("SORTS: NOTHING IS CHECKED: $currentSort")
+                }
+            }
+        }
     }
 
     private fun handleInitialSearch(state: DetailViewState) {

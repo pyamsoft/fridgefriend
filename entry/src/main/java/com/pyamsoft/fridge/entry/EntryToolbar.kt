@@ -32,6 +32,7 @@ import androidx.core.view.doOnLayout
 import androidx.core.view.forEach
 import androidx.core.view.iterator
 import com.pyamsoft.fridge.ui.R
+import com.pyamsoft.pydroid.arch.UiRender
 import com.pyamsoft.pydroid.arch.UiView
 import com.pyamsoft.pydroid.ui.app.ToolbarActivity
 import com.pyamsoft.pydroid.ui.util.setUpEnabled
@@ -39,7 +40,7 @@ import timber.log.Timber
 import javax.inject.Inject
 
 class EntryToolbar @Inject internal constructor(
-    toolbarActivity: ToolbarActivity
+    toolbarActivity: ToolbarActivity,
 ) : UiView<EntryViewState, EntryViewEvent>() {
 
     private val groupIdSearch = View.generateViewId()
@@ -96,27 +97,28 @@ class EntryToolbar @Inject internal constructor(
         }
     }
 
-    private fun handleSubmenu(state: EntryViewState) {
-        subMenu?.let { subMenu ->
-            val currentSort = state.sort
-            subMenu.forEach { item ->
-                sortForMenuItem(item)?.also { sort ->
-                    if (currentSort == sort) {
-                        item.isChecked = true
-                    }
-                }
-            }
-
-            // If nothing is checked, thats a no no
-            if (subMenu.children.all { !it.isChecked }) {
-                Timber.w("SORTS: NOTHING IS CHECKED: $currentSort")
-            }
-        }
+    override fun render(state: UiRender<EntryViewState>) {
+        state.distinctBy { it.sort }.render { handleSubmenu(it) }
+        state.distinctBy { it.search }.render { handleInitialSearch(it) }
     }
 
-    override fun render(state: EntryViewState) {
-        handleSubmenu(state)
-        handleInitialSearch(state)
+    private fun handleSubmenu(state: EntryViewState) {
+        state.sort.let { currentSort ->
+            subMenu?.let { subMenu ->
+                subMenu.forEach { item ->
+                    sortForMenuItem(item)?.also { sort ->
+                        if (currentSort == sort) {
+                            item.isChecked = true
+                        }
+                    }
+                }
+
+                // If nothing is checked, thats a no no
+                if (subMenu.children.all { !it.isChecked }) {
+                    Timber.w("SORTS: NOTHING IS CHECKED: $currentSort")
+                }
+            }
+        }
     }
 
     private fun handleInitialSearch(state: EntryViewState) {

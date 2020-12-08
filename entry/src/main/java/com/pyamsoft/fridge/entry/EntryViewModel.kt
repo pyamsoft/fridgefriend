@@ -21,17 +21,16 @@ import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.pydroid.arch.Renderable
 import com.pyamsoft.pydroid.arch.UiViewModel
 import timber.log.Timber
-import java.util.PrimitiveIterator
 import javax.inject.Inject
 
 class EntryViewModel @Inject internal constructor(
-    private val delegate: EntryListStateModel
+    private val delegate: EntryListStateModel,
 ) : UiViewModel<EntryViewState, EntryViewEvent, EntryControllerEvent>(
     initialState = delegate.initialState
 ) {
 
     init {
-        val job = delegate.bind(Renderable { state -> setState { state } })
+        val job = delegate.bind(Renderable { state -> state.render { setState { it } } })
         doOnCleared { job.cancel() }
         doOnCleared { delegate.clear() }
         doOnCleared { Timber.d("View Model Killed") }

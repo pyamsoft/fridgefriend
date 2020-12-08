@@ -30,7 +30,7 @@ class DetailViewModel @Inject internal constructor(
 ) {
 
     init {
-        val job = delegate.bind(Renderable { state -> setState { state } })
+        val job = delegate.bind(Renderable { state -> state.render { setState { it } } })
         doOnCleared {
             job.cancel()
         }

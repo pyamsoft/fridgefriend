@@ -17,12 +17,13 @@
 package com.pyamsoft.fridge.detail.item
 
 import android.view.ViewGroup
+import com.pyamsoft.pydroid.arch.UiRender
 import com.pyamsoft.pydroid.arch.UiView
 import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
 import javax.inject.Inject
 
 class DetailListItemClick @Inject internal constructor(
-    parent: ViewGroup
+    parent: ViewGroup,
 ) : UiView<DetailItemViewState, DetailItemViewEvent>() {
 
     init {
@@ -37,6 +38,7 @@ class DetailListItemClick @Inject internal constructor(
         }
     }
 
-    override fun render(state: DetailItemViewState) {
+    override fun render(state: UiRender<DetailItemViewState>) {
     }
+
 }
