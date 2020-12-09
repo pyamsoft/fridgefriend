@@ -16,6 +16,7 @@
 
 package com.pyamsoft.fridge.detail.base
 
+import android.view.View
 import android.view.ViewGroup
 import androidx.core.view.isVisible
 import com.pyamsoft.fridge.core.today
@@ -28,6 +29,8 @@ import com.pyamsoft.pydroid.arch.UiViewState
 import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.loader.Loaded
 import com.pyamsoft.pydroid.ui.theme.ThemeProvider
+import com.pyamsoft.pydroid.ui.util.DebouncedOnClickListener
+import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
 import com.pyamsoft.pydroid.util.tintWith
 import timber.log.Timber
 import java.util.Calendar
@@ -49,6 +52,20 @@ abstract class BaseItemDate<S : UiViewState, V : UiViewEvent> protected construc
         doOnTeardown {
             clear()
         }
+
+        doOnTeardown {
+            setOnDateClickListener(null)
+        }
+    }
+
+    protected fun setOnDateClickListener(listener: DebouncedOnClickListener?) {
+        binding.detailItemDateIcon.setOnDebouncedClickListener(listener)
+        binding.detailItemDateText.setOnDebouncedClickListener(listener)
+    }
+
+    protected inline fun setOnDateClickListener(crossinline listener: (View) -> Unit) {
+        binding.detailItemDateIcon.setOnDebouncedClickListener(listener)
+        binding.detailItemDateText.setOnDebouncedClickListener(listener)
     }
 
     private fun clear() {

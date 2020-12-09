@@ -72,7 +72,7 @@ class DetailItemViewHolder internal constructor(
         val extra = requireNotNull(extraContainer)
         val nestedGlances = requireNotNull(glances)
         val nestedDate = requireNotNull(date)
-        extra.nest(nestedGlances, nestedDate)
+        extra.nest(nestedDate, nestedGlances)
 
         val click = requireNotNull(clickView)
         val count = requireNotNull(countView)

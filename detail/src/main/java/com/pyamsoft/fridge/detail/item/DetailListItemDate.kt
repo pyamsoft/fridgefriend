@@ -21,6 +21,7 @@ import androidx.core.view.isGone
 import androidx.core.view.isVisible
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.detail.base.BaseItemDate
+import com.pyamsoft.fridge.detail.expand.ExpandedItemViewEvent
 import com.pyamsoft.fridge.detail.item.DetailItemViewEvent.ExpandItem
 import com.pyamsoft.pydroid.arch.UiRender
 import com.pyamsoft.pydroid.loader.ImageLoader
@@ -37,6 +38,14 @@ class DetailListItemDate @Inject internal constructor(
     init {
         doOnInflate {
             layoutRoot.setOnDebouncedClickListener { publish(ExpandItem) }
+        }
+
+        doOnInflate {
+            setOnDateClickListener { publish(ExpandItem) }
+        }
+
+        doOnTeardown {
+            setOnDateClickListener(null)
         }
 
         doOnTeardown {

@@ -37,6 +37,16 @@ class ExpandItemDate @Inject internal constructor(
             }
         }
 
+        doOnInflate {
+            setOnDateClickListener {
+                publish(ExpandedItemViewEvent.PickDate)
+            }
+        }
+
+        doOnTeardown {
+            setOnDateClickListener(null)
+        }
+
         doOnTeardown {
             layoutRoot.setOnDebouncedClickListener(null)
         }
