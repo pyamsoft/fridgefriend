@@ -24,16 +24,18 @@ import com.google.android.material.R
 import com.pyamsoft.pydroid.util.doOnApplyWindowInsets
 
 fun View.applyToolbarOffset(owner: LifecycleOwner) {
-    this.doOnApplyWindowInsets(owner) { v, insets, padding ->
-        val toolbarTopMargin = padding.top + insets.systemWindowInsetTop
-        v.context.withStyledAttributes(
-            R.attr.toolbarStyle,
-            intArrayOf(R.attr.actionBarSize)
-        ) {
-            val sizeId = getResourceId(0, 0)
-            if (sizeId != 0) {
-                val toolbarHeight = v.context.resources.getDimensionPixelSize(sizeId)
-                v.updatePadding(top = toolbarTopMargin + toolbarHeight + v.paddingTop)
+    val view = this
+    view.context.withStyledAttributes(
+        R.attr.toolbarStyle,
+        intArrayOf(R.attr.actionBarSize)
+    ) {
+        val sizeId = getResourceId(0, 0)
+        if (sizeId != 0) {
+            val toolbarHeight = view.context.resources.getDimensionPixelSize(sizeId)
+            view.doOnApplyWindowInsets(owner) { v, insets, padding ->
+                val toolbarTopMargin = padding.top + insets.systemWindowInsetTop
+                val newPaddingTop = toolbarHeight + toolbarTopMargin
+                v.updatePadding(top = newPaddingTop)
             }
         }
     }
