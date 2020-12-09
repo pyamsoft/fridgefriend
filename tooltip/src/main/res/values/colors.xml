@@ -15,7 +15,6 @@
   -->
 
 <resources>
-
     <color name="tooltipBackground">@color/material_dark_background</color>
     <color name="tooltipText">@color/white</color>
 </resources>
