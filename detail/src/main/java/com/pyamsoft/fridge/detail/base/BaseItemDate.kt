@@ -52,20 +52,6 @@ abstract class BaseItemDate<S : UiViewState, V : UiViewEvent> protected construc
         doOnTeardown {
             clear()
         }
-
-        doOnTeardown {
-            setOnDateClickListener(null)
-        }
-    }
-
-    protected fun setOnDateClickListener(listener: DebouncedOnClickListener?) {
-        binding.detailItemDateIcon.setOnDebouncedClickListener(listener)
-        binding.detailItemDateText.setOnDebouncedClickListener(listener)
-    }
-
-    protected inline fun setOnDateClickListener(crossinline listener: (View) -> Unit) {
-        binding.detailItemDateIcon.setOnDebouncedClickListener(listener)
-        binding.detailItemDateText.setOnDebouncedClickListener(listener)
     }
 
     private fun clear() {
