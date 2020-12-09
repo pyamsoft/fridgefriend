@@ -75,10 +75,12 @@ internal class MainActivity : ChangeLogActivity(), VersionChecker {
     override val versionName = BuildConfig.VERSION_NAME
 
     override val changelog = buildChangeLog {
-        change("Faster database performance")
-        change("Better UI responsiveness")
-        bugfix("Fix Map page sometimes rendering incorrectly")
-        change("Schedule notifications more efficiently to save battery")
+        change("No longer able to notify about nearby Stores without opening the App. This is to comply with the new store guidelines regarding background location.")
+        feature("Support multiple Groups of Items")
+        change("Improve map scrolling performance")
+        change("Improve general page performance")
+        bugfix("Item alerts about Items with the same name will not notify when the same-named Item has been marked.")
+        bugfix("Do not suggest similar Items which have nothing to do with the current Item")
     }
 
     override val fragmentContainerId: Int
