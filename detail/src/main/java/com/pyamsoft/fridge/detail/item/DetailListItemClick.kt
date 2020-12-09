@@ -20,6 +20,7 @@ import android.view.ViewGroup
 import com.pyamsoft.pydroid.arch.UiRender
 import com.pyamsoft.pydroid.arch.UiView
 import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
+import timber.log.Timber
 import javax.inject.Inject
 
 class DetailListItemClick @Inject internal constructor(

@@ -53,7 +53,6 @@ class CategoryListView @Inject internal constructor(
         }
 
         doOnTeardown {
-            modelAdapter?.submitList(null)
             binding.categoryList.adapter = null
 
             modelAdapter = null
@@ -66,7 +65,6 @@ class CategoryListView @Inject internal constructor(
     }
 
     private fun clearList() {
-        modelAdapter?.submitList(null)
     }
 
     @CheckResult
