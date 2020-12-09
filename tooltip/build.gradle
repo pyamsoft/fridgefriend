@@ -64,6 +64,8 @@ dependencies {
 
 	implementation "com.github.skydoves:balloon:$balloon"
 
+	implementation "com.pyamsoft.pydroid:ui:$pydroid"
+
 	api project(':core')
 
 }

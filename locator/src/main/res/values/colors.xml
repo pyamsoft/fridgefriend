@@ -15,5 +15,6 @@
   -->
 
 <resources>
-    <color name="amber50">#FFF8E1</color>
+    <color name="titleColor">@color/black</color>
+    <color name="descriptionColor">#80000000</color>
 </resources>
