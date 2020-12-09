@@ -19,6 +19,7 @@ package com.pyamsoft.fridge.ui.view
 import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.annotation.CheckResult
+import androidx.lifecycle.LifecycleOwner
 import com.pyamsoft.fridge.ui.applyToolbarOffset
 import com.pyamsoft.fridge.ui.databinding.UiHeroImageBinding
 import com.pyamsoft.pydroid.arch.BaseUiView
@@ -30,6 +31,7 @@ import com.pyamsoft.pydroid.loader.Loaded
 
 abstract class HeroImage<S : UiViewState, V : UiViewEvent> protected constructor(
     parent: ViewGroup,
+    owner: LifecycleOwner,
     private val imageLoader: ImageLoader,
 ) : BaseUiView<S, V, UiHeroImageBinding>(parent) {
 
@@ -41,7 +43,7 @@ abstract class HeroImage<S : UiViewState, V : UiViewEvent> protected constructor
 
     init {
         doOnInflate {
-            binding.coreHeroCollapse.applyToolbarOffset()
+            binding.coreHeroCollapse.applyToolbarOffset(owner)
         }
 
         doOnTeardown {

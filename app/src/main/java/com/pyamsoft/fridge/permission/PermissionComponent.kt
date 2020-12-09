@@ -18,6 +18,7 @@ package com.pyamsoft.fridge.permission
 
 import android.view.ViewGroup
 import androidx.annotation.CheckResult
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModelProvider
 import com.pyamsoft.fridge.core.FridgeViewModelFactory
 import com.pyamsoft.fridge.locator.permission.LocationPermissionViewModel
@@ -40,7 +41,8 @@ internal interface PermissionComponent {
 
         @CheckResult
         fun create(
-            @BindsInstance parent: ViewGroup
+            @BindsInstance parent: ViewGroup,
+            @BindsInstance owner: LifecycleOwner,
         ): PermissionComponent
     }
 

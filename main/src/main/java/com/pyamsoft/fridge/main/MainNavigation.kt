@@ -23,6 +23,7 @@ import androidx.annotation.CheckResult
 import androidx.core.content.ContextCompat
 import androidx.core.view.doOnLayout
 import androidx.core.view.updatePadding
+import androidx.lifecycle.LifecycleOwner
 import com.pyamsoft.fridge.main.databinding.MainNavigationBinding
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.arch.UiRender
@@ -32,6 +33,7 @@ import javax.inject.Inject
 import com.pyamsoft.fridge.ui.R as R2
 
 class MainNavigation @Inject internal constructor(
+    owner: LifecycleOwner,
     parent: ViewGroup,
 ) : BaseUiView<MainViewState, MainViewEvent, MainNavigationBinding>(parent) {
 
@@ -47,7 +49,7 @@ class MainNavigation @Inject internal constructor(
         }
 
         doOnInflate {
-            layoutRoot.doOnApplyWindowInsets { view, insets, _ ->
+            layoutRoot.doOnApplyWindowInsets(owner) { view, insets, _ ->
                 view.updatePadding(
                     bottom = insets.systemWindowInsetBottom,
                     left = 0,

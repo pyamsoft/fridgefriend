@@ -20,6 +20,7 @@ import android.annotation.SuppressLint
 import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.core.view.isVisible
+import androidx.lifecycle.LifecycleOwner
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.ui.view.HeroImage
 import com.pyamsoft.pydroid.arch.UiRender
@@ -30,7 +31,8 @@ import javax.inject.Inject
 class DetailHeroImage @Inject internal constructor(
     parent: ViewGroup,
     imageLoader: ImageLoader,
-) : HeroImage<DetailViewState, DetailViewEvent>(parent, imageLoader) {
+    owner: LifecycleOwner,
+) : HeroImage<DetailViewState, DetailViewEvent>(parent, owner, imageLoader) {
 
     init {
         doOnTeardown {

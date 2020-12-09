@@ -19,6 +19,7 @@ package com.pyamsoft.fridge.category
 import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.core.view.isVisible
+import androidx.lifecycle.LifecycleOwner
 import com.pyamsoft.fridge.ui.view.HeroImage
 import com.pyamsoft.pydroid.arch.UiRender
 import com.pyamsoft.pydroid.loader.ImageLoader
@@ -28,7 +29,8 @@ import javax.inject.Inject
 class CategoryHeroImage @Inject internal constructor(
     parent: ViewGroup,
     imageLoader: ImageLoader,
-) : HeroImage<CategoryViewState, CategoryViewEvent>(parent, imageLoader) {
+    owner: LifecycleOwner,
+) : HeroImage<CategoryViewState, CategoryViewEvent>(parent, owner, imageLoader) {
 
     init {
         doOnInflate {

@@ -36,7 +36,7 @@ internal class SettingsFragment : AppSettingsFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        view.applyToolbarOffset()
+        view.applyToolbarOffset(viewLifecycleOwner)
 
         initializeApp()
     }

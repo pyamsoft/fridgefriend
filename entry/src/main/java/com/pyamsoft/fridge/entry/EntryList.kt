@@ -20,6 +20,7 @@ import android.graphics.Color
 import android.graphics.drawable.Drawable
 import android.view.ViewGroup
 import androidx.annotation.CheckResult
+import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
@@ -49,6 +50,7 @@ import javax.inject.Inject
 class EntryList @Inject internal constructor(
     private val theming: ThemeProvider,
     private val imageLoader: ImageLoader,
+    owner: LifecycleOwner,
     parent: ViewGroup,
     factory: EntryItemComponent.Factory,
 ) : BaseUiView<EntryViewState, EntryViewEvent, EntryListBinding>(parent) {
@@ -66,7 +68,7 @@ class EntryList @Inject internal constructor(
 
     init {
         doOnInflate {
-            layoutRoot.applyToolbarOffset()
+            layoutRoot.applyToolbarOffset(owner)
         }
 
         doOnInflate {

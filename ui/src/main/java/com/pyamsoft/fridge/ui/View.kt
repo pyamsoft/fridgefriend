@@ -19,11 +19,12 @@ package com.pyamsoft.fridge.ui
 import android.view.View
 import androidx.core.content.withStyledAttributes
 import androidx.core.view.updatePadding
+import androidx.lifecycle.LifecycleOwner
 import com.google.android.material.R
 import com.pyamsoft.pydroid.util.doOnApplyWindowInsets
 
-fun View.applyToolbarOffset() {
-    this.doOnApplyWindowInsets { v, insets, padding ->
+fun View.applyToolbarOffset(owner: LifecycleOwner) {
+    this.doOnApplyWindowInsets(owner) { v, insets, padding ->
         val toolbarTopMargin = padding.top + insets.systemWindowInsetTop
         v.context.withStyledAttributes(
             R.attr.toolbarStyle,

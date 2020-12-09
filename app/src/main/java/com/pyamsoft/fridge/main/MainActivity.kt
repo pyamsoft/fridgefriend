@@ -148,7 +148,7 @@ internal class MainActivity : ChangeLogActivity(), VersionChecker {
 
         Injector.obtain<FridgeComponent>(applicationContext)
             .plusMainComponent()
-            .create(this, binding.layoutConstraint, this)
+            .create(this, this, binding.layoutConstraint, this)
             .inject(this)
 
         stableLayoutHideNavigation()

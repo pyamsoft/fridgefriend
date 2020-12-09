@@ -24,6 +24,7 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.ViewPropertyAnimatorCompat
 import androidx.core.view.updateLayoutParams
 import androidx.interpolator.view.animation.FastOutLinearInInterpolator
+import androidx.lifecycle.LifecycleOwner
 import com.pyamsoft.fridge.core.PRIVACY_POLICY_URL
 import com.pyamsoft.fridge.core.TERMS_CONDITIONS_URL
 import com.pyamsoft.fridge.main.databinding.MainToolbarBinding
@@ -41,6 +42,7 @@ import com.google.android.material.R as R2
 
 class MainToolbar @Inject internal constructor(
     @Named("app_name") appNameRes: Int,
+    owner: LifecycleOwner,
     toolbarActivityProvider: ToolbarActivityProvider,
     theming: ThemeProvider,
     parent: ViewGroup,
@@ -55,7 +57,7 @@ class MainToolbar @Inject internal constructor(
         doOnInflate {
             inflateToolbar(toolbarActivityProvider, theming, appNameRes)
 
-            layoutRoot.doOnApplyWindowInsets { v, insets, padding ->
+            layoutRoot.doOnApplyWindowInsets(owner) { v, insets, padding ->
                 v.updateLayoutParams<MarginLayoutParams> {
                     topMargin = padding.top + insets.systemWindowInsetTop + 8.asDp(v.context)
                 }

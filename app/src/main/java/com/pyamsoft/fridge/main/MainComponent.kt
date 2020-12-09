@@ -19,6 +19,7 @@ package com.pyamsoft.fridge.main
 import android.app.Activity
 import android.view.ViewGroup
 import androidx.annotation.CheckResult
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModelProvider
 import com.pyamsoft.fridge.ThemeProviderModule
 import com.pyamsoft.fridge.core.FridgeViewModelFactory
@@ -42,6 +43,7 @@ internal interface MainComponent {
         @CheckResult
         fun create(
             @BindsInstance activity: Activity,
+            @BindsInstance owner: LifecycleOwner,
             @BindsInstance parent: ViewGroup,
             @BindsInstance provider: ToolbarActivityProvider
         ): MainComponent
