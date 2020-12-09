@@ -71,10 +71,13 @@ class DetailListItemGlances @Inject internal constructor(
 
     init {
         doOnInflate {
-            layoutRoot.setOnDebouncedClickListener { publish(ExpandItem) }
             binding.detailItemGlancesDate.setOnDebouncedClickListener { dateRangeTooltip?.show(it) }
             binding.detailItemGlancesExpiring.setOnDebouncedClickListener { expiringTooltip?.show(it) }
             binding.detailItemGlancesExpired.setOnDebouncedClickListener { expiredTooltip?.show(it) }
+
+            layoutRoot.setOnDebouncedClickListener {
+                // No-op if you click around the glances
+            }
         }
 
         doOnTeardown {
