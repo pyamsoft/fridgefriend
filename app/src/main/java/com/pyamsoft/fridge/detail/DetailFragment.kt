@@ -120,7 +120,7 @@ internal class DetailFragment : Fragment(), SnackbarContainer {
         val nestedSwitcher = requireNotNull(switcher)
         val nestedEmptyState = requireNotNull(emptyState)
         val nestedList = requireNotNull(list)
-        container.nest(nestedSwitcher, nestedEmptyState, nestedList)
+        container.nest(nestedEmptyState, nestedSwitcher, nestedList)
 
         stateSaver = createComponent(
             savedInstanceState,

@@ -103,7 +103,7 @@ internal class EntryFragment : Fragment(), SnackbarContainer {
         val container = requireNotNull(container)
         val nestedAddNew = requireNotNull(addNew)
         val nestedList = requireNotNull(list)
-        container.nest(nestedAddNew, nestedList)
+        container.nest(nestedList, nestedAddNew)
 
         stateSaver = createComponent(
             savedInstanceState,
