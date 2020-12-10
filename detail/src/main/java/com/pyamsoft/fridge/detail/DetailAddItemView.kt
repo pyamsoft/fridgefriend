@@ -157,13 +157,13 @@ class DetailAddItemView @Inject internal constructor(
     }
 
     private fun showListError(throwable: Throwable) {
-        Snackbreak.bindTo(owner, "list") {
+        Snackbreak.bindTo(owner) {
             make(layoutRoot, throwable.message ?: "An unexpected error has occurred.")
         }
     }
 
     private fun clearListError() {
-        Snackbreak.bindTo(owner, "list") {
+        Snackbreak.bindTo(owner) {
             dismiss()
         }
     }
@@ -174,7 +174,7 @@ class DetailAddItemView @Inject internal constructor(
             undoable.isSpoiled() -> "${undoable.name()} spoiled"
             else -> "Removed ${undoable.name()}"
         }
-        Snackbreak.bindTo(owner, "undo") {
+        Snackbreak.bindTo(owner) {
             short(layoutRoot, message,
                 onHidden = { _, _ ->
                     // Once hidden this will clear out the stored undoable
@@ -189,7 +189,7 @@ class DetailAddItemView @Inject internal constructor(
     }
 
     private fun clearUndoSnackbar() {
-        Snackbreak.bindTo(owner, "undo") {
+        Snackbreak.bindTo(owner) {
             dismiss()
         }
     }

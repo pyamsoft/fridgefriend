@@ -158,25 +158,25 @@ class MapActions @Inject internal constructor(
     }
 
     private fun showError(throwable: Throwable) {
-        Snackbreak.bindTo(owner, "nearby") {
+        Snackbreak.bindTo(owner) {
             make(layoutRoot, throwable.message ?: "An unexpected error occurred.")
         }
     }
 
     private fun clearError() {
-        Snackbreak.bindTo(owner, "nearby") {
+        Snackbreak.bindTo(owner) {
             dismiss()
         }
     }
 
     private fun showCacheError(throwable: Throwable) {
-        Snackbreak.bindTo(owner, "cache") {
+        Snackbreak.bindTo(owner) {
             make(layoutRoot, throwable.message ?: "An error occurred fetching cached stores.")
         }
     }
 
     private fun clearCacheError() {
-        Snackbreak.bindTo(owner, "cache") {
+        Snackbreak.bindTo(owner) {
             dismiss()
         }
     }

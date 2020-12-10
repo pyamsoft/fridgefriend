@@ -92,7 +92,7 @@ class EntryAddNew @Inject internal constructor(
     }
 
     private fun showUndoSnackbar(undoable: FridgeEntry) {
-        Snackbreak.bindTo(owner, "undo") {
+        Snackbreak.bindTo(owner) {
             short(layoutRoot, "Removed ${undoable.name()}",
                 onHidden = { _, _ ->
                     // Once hidden this will clear out the stored undoable
@@ -107,7 +107,7 @@ class EntryAddNew @Inject internal constructor(
     }
 
     private fun clearUndoSnackbar() {
-        Snackbreak.bindTo(owner, "undo") {
+        Snackbreak.bindTo(owner) {
             dismiss()
         }
     }
