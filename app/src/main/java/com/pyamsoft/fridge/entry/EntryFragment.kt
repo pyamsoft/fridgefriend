@@ -32,7 +32,6 @@ import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.detail.DetailFragment
 import com.pyamsoft.fridge.entry.create.CreateEntrySheet
-import com.pyamsoft.fridge.main.VersionChecker
 import com.pyamsoft.fridge.ui.SnackbarContainer
 import com.pyamsoft.pydroid.arch.StateSaver
 import com.pyamsoft.pydroid.arch.createComponent
@@ -77,14 +76,14 @@ internal class EntryFragment : Fragment(), SnackbarContainer {
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View? {
         return inflater.inflate(R.layout.layout_coordinator, container, false)
     }
 
     override fun onViewCreated(
         view: View,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -117,8 +116,6 @@ internal class EntryFragment : Fragment(), SnackbarContainer {
                 is EntryControllerEvent.AddEntry -> startAddFlow()
             }
         }
-
-        initializeApp()
     }
 
     private fun pushPage(entry: FridgeEntry, presence: FridgeItem.Presence) {
@@ -138,13 +135,6 @@ internal class EntryFragment : Fragment(), SnackbarContainer {
 
     override fun container(): CoordinatorLayout? {
         return addNew?.container()
-    }
-
-    private fun initializeApp() {
-        val act = requireActivity()
-        if (act is VersionChecker) {
-            act.checkVersionForUpdate()
-        }
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -181,7 +171,7 @@ internal class EntryFragment : Fragment(), SnackbarContainer {
             owner: LifecycleOwner,
             containerId: Int,
             entryId: FridgeEntry.Id,
-            presence: FridgeItem.Presence
+            presence: FridgeItem.Presence,
         ) {
             val tag = entryId.id
             Timber.d("Push new entry page: $tag")

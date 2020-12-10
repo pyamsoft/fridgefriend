@@ -68,6 +68,4 @@ sealed class MainControllerEvent : UiControllerEvent {
         val previousPage: MainPage?,
         val force: Boolean,
     ) : MainControllerEvent()
-
-    object VersionCheck : MainControllerEvent()
 }

@@ -35,7 +35,6 @@ import com.pyamsoft.fridge.locator.permission.PermissionConsumer
 import com.pyamsoft.fridge.locator.permission.PermissionControllerEvent.LocationPermissionRequest
 import com.pyamsoft.fridge.locator.permission.PermissionGrant
 import com.pyamsoft.fridge.locator.permission.PermissionHandler
-import com.pyamsoft.fridge.main.VersionChecker
 import com.pyamsoft.fridge.map.MapFragment
 import com.pyamsoft.pydroid.arch.StateSaver
 import com.pyamsoft.pydroid.arch.createComponent
@@ -122,15 +121,6 @@ internal class PermissionFragment : Fragment(), PermissionConsumer<ForegroundLoc
                 constrainWidth(it.id(), ConstraintSet.WRAP_CONTENT)
                 constrainHeight(it.id(), ConstraintSet.WRAP_CONTENT)
             }
-        }
-
-        initializeApp()
-    }
-
-    private fun initializeApp() {
-        val act = requireActivity()
-        if (act is VersionChecker) {
-            act.checkVersionForUpdate()
         }
     }
 

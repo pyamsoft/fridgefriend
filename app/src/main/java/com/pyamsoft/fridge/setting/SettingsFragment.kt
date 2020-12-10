@@ -22,7 +22,6 @@ import androidx.annotation.CheckResult
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.pyamsoft.fridge.FridgeComponent
-import com.pyamsoft.fridge.main.VersionChecker
 import com.pyamsoft.fridge.ui.applyToolbarOffset
 import com.pyamsoft.pydroid.arch.StateSaver
 import com.pyamsoft.pydroid.arch.createComponent
@@ -37,15 +36,6 @@ internal class SettingsFragment : AppSettingsFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         view.applyToolbarOffset(viewLifecycleOwner)
-
-        initializeApp()
-    }
-
-    private fun initializeApp() {
-        val act = requireActivity()
-        if (act is VersionChecker) {
-            act.checkVersionForUpdate()
-        }
     }
 
     override fun provideSettingsFragment(): AppSettingsPreferenceFragment {

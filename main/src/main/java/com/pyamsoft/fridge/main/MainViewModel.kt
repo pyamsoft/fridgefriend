@@ -193,14 +193,6 @@ class MainViewModel @Inject internal constructor(
         }
     }
 
-    // Called from DetailFragment upon initialization
-    fun checkForUpdates() {
-        if (!versionChecked) {
-            versionChecked = true
-            publish(MainControllerEvent.VersionCheck)
-        }
-    }
-
     fun publishGpsChange(isEnabled: Boolean) {
         viewModelScope.launch(context = Dispatchers.Default) {
             Timber.d("Publish GPS state change: $isEnabled")

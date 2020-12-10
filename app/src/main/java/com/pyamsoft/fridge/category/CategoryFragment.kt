@@ -24,7 +24,6 @@ import androidx.annotation.CheckResult
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.pyamsoft.fridge.FridgeComponent
-import com.pyamsoft.fridge.main.VersionChecker
 import com.pyamsoft.pydroid.arch.StateSaver
 import com.pyamsoft.pydroid.arch.createComponent
 import com.pyamsoft.pydroid.ui.Injector
@@ -53,14 +52,14 @@ internal class CategoryFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View? {
         return inflater.inflate(R2.layout.layout_coordinator, container, false)
     }
 
     override fun onViewCreated(
         view: View,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -82,15 +81,6 @@ internal class CategoryFragment : Fragment() {
             requireNotNull(list)
         ) {
             // TODO
-        }
-
-        initializeApp()
-    }
-
-    private fun initializeApp() {
-        val act = requireActivity()
-        if (act is VersionChecker) {
-            act.checkVersionForUpdate()
         }
     }
 

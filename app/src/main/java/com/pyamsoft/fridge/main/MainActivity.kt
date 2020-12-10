@@ -66,7 +66,7 @@ import timber.log.Timber
 import javax.inject.Inject
 import androidx.fragment.R as R2
 
-internal class MainActivity : ChangeLogActivity(), VersionChecker {
+internal class MainActivity : ChangeLogActivity() {
 
     override val checkForUpdates = false
 
@@ -166,11 +166,6 @@ internal class MainActivity : ChangeLogActivity(), VersionChecker {
             Timber.d("Load default ENTRIES page")
             viewModel.selectPage(force = false, MainPage.Entries)
         }
-    }
-
-    override fun checkVersionForUpdate() {
-        Timber.d("Begin update check")
-        viewModel.checkForUpdates()
     }
 
     private inline fun handleNotificationAction(crossinline action: (FragmentManager) -> Unit) {
@@ -329,7 +324,6 @@ internal class MainActivity : ChangeLogActivity(), VersionChecker {
             snackbar
         ) {
             return@createComponent when (it) {
-                is MainControllerEvent.VersionCheck -> performUpdate()
                 is MainControllerEvent.PushEntry -> pushEntry(it.previousPage, it.force)
                 is MainControllerEvent.PushCategory -> pushCategory(it.previousPage, it.force)
                 is MainControllerEvent.PushSettings -> pushSettings(it.previousPage, it.force)
@@ -387,11 +381,6 @@ internal class MainActivity : ChangeLogActivity(), VersionChecker {
                 constrainWidth(it.id(), ConstraintSet.MATCH_CONSTRAINT)
             }
         }
-    }
-
-    private fun performUpdate() {
-        Timber.d("Do check for update")
-        checkForUpdate()
     }
 
     private fun pushSettings(previousPage: MainPage?, force: Boolean) {
