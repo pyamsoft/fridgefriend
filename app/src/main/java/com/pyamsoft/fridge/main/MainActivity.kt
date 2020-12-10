@@ -75,12 +75,15 @@ internal class MainActivity : ChangeLogActivity(), VersionChecker {
     override val versionName = BuildConfig.VERSION_NAME
 
     override val changelog = buildChangeLog {
-        change("No longer able to notify about nearby Stores without opening the App. This is to comply with the new store guidelines regarding background location.")
-        feature("Support multiple Groups of Items")
-        change("Improve map scrolling performance")
-        change("Improve general page performance")
-        bugfix("Item alerts about Items with the same name will not notify when the same-named Item has been marked.")
-        bugfix("Do not suggest similar Items which have nothing to do with the current Item")
+        // TODO(Do this)
+        bugfix("Fix tooltip arrow location")
+        // TODO(Do this)
+        feature("Group names can be edited via long press")
+        // TODO(Do this)
+        feature("An Item can be moved from one Group to another via toolbar option.")
+        // TODO(Do this)
+        feature("More information on Group overview screen")
+        // TODO(Do this): Entry screen empty state
     }
 
     override val fragmentContainerId: Int
