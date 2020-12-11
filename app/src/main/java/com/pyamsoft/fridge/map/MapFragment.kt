@@ -32,6 +32,7 @@ import com.pyamsoft.fridge.locator.map.MapControllerEvent
 import com.pyamsoft.fridge.locator.map.MapPopupOverlay
 import com.pyamsoft.fridge.locator.map.MapViewModel
 import com.pyamsoft.fridge.locator.map.osm.OsmMap
+import com.pyamsoft.fridge.main.VersionChecker
 import com.pyamsoft.fridge.ui.SnackbarContainer
 import com.pyamsoft.pydroid.arch.StateSaver
 import com.pyamsoft.pydroid.arch.createComponent
@@ -115,6 +116,11 @@ internal class MapFragment : Fragment(), SnackbarContainer {
         val storeId = NearbyStore.Id(requireArguments().getLong(KEY_STORE_ID, 0L))
         val zoneId = NearbyZone.Id(requireArguments().getLong(KEY_ZONE_ID, 0L))
         viewModel.fetchNearby(storeId, zoneId)
+
+        val act = requireActivity()
+        if (act is VersionChecker) {
+            act.onVersionCheck()
+        }
     }
 
     override fun onSaveInstanceState(outState: Bundle) {

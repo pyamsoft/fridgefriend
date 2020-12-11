@@ -66,7 +66,7 @@ import timber.log.Timber
 import javax.inject.Inject
 import androidx.fragment.R as R2
 
-internal class MainActivity : ChangeLogActivity() {
+internal class MainActivity : ChangeLogActivity(), VersionChecker {
 
     override val checkForUpdates = false
 
@@ -169,6 +169,11 @@ internal class MainActivity : ChangeLogActivity() {
             Timber.d("Load default ENTRIES page")
             viewModel.selectPage(force = false, MainPage.Entries)
         }
+    }
+
+    override fun onVersionCheck() {
+        Timber.d("Checking for a new update")
+        checkForUpdates()
     }
 
     private inline fun handleNotificationAction(crossinline action: (FragmentManager) -> Unit) {

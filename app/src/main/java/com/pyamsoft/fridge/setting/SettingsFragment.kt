@@ -22,6 +22,7 @@ import androidx.annotation.CheckResult
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.pyamsoft.fridge.FridgeComponent
+import com.pyamsoft.fridge.main.VersionChecker
 import com.pyamsoft.fridge.ui.applyToolbarOffset
 import com.pyamsoft.pydroid.arch.StateSaver
 import com.pyamsoft.pydroid.arch.createComponent
@@ -88,6 +89,15 @@ internal class SettingsFragment : AppSettingsFragment() {
                 viewModel,
                 requireNotNull(spacer)
             ) {}
+
+            initializeUpdate()
+        }
+
+        private fun initializeUpdate() {
+            val act = requireActivity()
+            if (act is VersionChecker) {
+                act.onVersionCheck()
+            }
         }
 
         override fun onSaveInstanceState(outState: Bundle) {

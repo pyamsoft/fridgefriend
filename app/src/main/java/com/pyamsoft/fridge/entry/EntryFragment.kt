@@ -32,6 +32,7 @@ import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.detail.DetailFragment
 import com.pyamsoft.fridge.entry.create.CreateEntrySheet
+import com.pyamsoft.fridge.main.VersionChecker
 import com.pyamsoft.fridge.ui.SnackbarContainer
 import com.pyamsoft.pydroid.arch.StateSaver
 import com.pyamsoft.pydroid.arch.createComponent
@@ -115,6 +116,15 @@ internal class EntryFragment : Fragment(), SnackbarContainer {
                 is EntryControllerEvent.LoadEntry -> pushPage(it.entry, it.presence)
                 is EntryControllerEvent.AddEntry -> startAddFlow()
             }
+        }
+
+        initializeUpdate()
+    }
+
+    private fun initializeUpdate() {
+        val act = requireActivity()
+        if (act is VersionChecker) {
+            act.onVersionCheck()
         }
     }
 
