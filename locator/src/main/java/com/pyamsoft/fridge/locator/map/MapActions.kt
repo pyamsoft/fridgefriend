@@ -142,42 +142,34 @@ class MapActions @Inject internal constructor(
     }
 
     private fun handleFetchError(throwable: Throwable?) {
-        if (throwable == null) {
-            clearCacheError()
-        } else {
+        if (throwable != null) {
             showCacheError(throwable)
         }
     }
 
     private fun handleNearbyError(throwable: Throwable?) {
-        if (throwable == null) {
-            clearError()
-        } else {
-            showError(throwable)
+        if (throwable != null) {
+            showFetchError(throwable)
         }
     }
 
-    private fun showError(throwable: Throwable) {
+    private fun showFetchError(throwable: Throwable) {
         Snackbreak.bindTo(owner) {
-            make(layoutRoot, throwable.message ?: "An unexpected error occurred.")
-        }
-    }
-
-    private fun clearError() {
-        Snackbreak.bindTo(owner) {
-            dismiss()
+            long(
+                layoutRoot,
+                throwable.message ?: "An unexpected error occurred.",
+                onHidden = { _, _ -> publish(MapViewEvent.HideFetchError) }
+            )
         }
     }
 
     private fun showCacheError(throwable: Throwable) {
         Snackbreak.bindTo(owner) {
-            make(layoutRoot, throwable.message ?: "An error occurred fetching cached stores.")
-        }
-    }
-
-    private fun clearCacheError() {
-        Snackbreak.bindTo(owner) {
-            dismiss()
+            long(
+                layoutRoot,
+                throwable.message ?: "An error occurred fetching cached stores.",
+                onHidden = { _, _ -> publish(MapViewEvent.HideCacheError) }
+            )
         }
     }
 }

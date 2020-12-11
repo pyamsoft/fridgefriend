@@ -58,6 +58,10 @@ sealed class MapViewEvent : UiViewEvent {
 
     object RequestFindNearby : MapViewEvent()
 
+    object HideFetchError : MapViewEvent()
+
+    object HideCacheError : MapViewEvent()
+
     data class OpenPopup(val popup: MapPopup) : MapViewEvent()
 }
 

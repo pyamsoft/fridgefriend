@@ -141,30 +141,24 @@ class DetailAddItemView @Inject internal constructor(
     }
 
     private fun handleError(throwable: Throwable?) {
-        if (throwable == null) {
-            clearListError()
-        } else {
+        if (throwable != null) {
             showListError(throwable)
         }
     }
 
     private fun handleUndo(undoable: FridgeItem?) {
-        if (undoable == null) {
-            clearUndoSnackbar()
-        } else {
+        if (undoable != null) {
             showUndoSnackbar(undoable)
         }
     }
 
     private fun showListError(throwable: Throwable) {
         Snackbreak.bindTo(owner) {
-            make(layoutRoot, throwable.message ?: "An unexpected error has occurred.")
-        }
-    }
-
-    private fun clearListError() {
-        Snackbreak.bindTo(owner) {
-            dismiss()
+            long(
+                layoutRoot,
+                throwable.message ?: "An unexpected error has occurred.",
+                onHidden = { _, _ -> publish(DetailViewEvent.ClearListError) }
+            )
         }
     }
 
@@ -175,22 +169,14 @@ class DetailAddItemView @Inject internal constructor(
             else -> "Removed ${undoable.name()}"
         }
         Snackbreak.bindTo(owner) {
-            short(layoutRoot, message,
-                onHidden = { _, _ ->
-                    // Once hidden this will clear out the stored undoable
-                    //
-                    // If the undoable was restored before this point, this is basically a no-op
-                    publish(DetailViewEvent.ReallyDeleteItemNoUndo(undoable))
-                }) {
+            long(
+                layoutRoot,
+                message,
+                onHidden = { _, _ -> publish(DetailViewEvent.ReallyDeleteItemNoUndo(undoable)) }
+            ) {
                 // Restore the old item
                 setAction("Undo") { publish(DetailViewEvent.UndoDeleteItem(undoable)) }
             }
-        }
-    }
-
-    private fun clearUndoSnackbar() {
-        Snackbreak.bindTo(owner) {
-            dismiss()
         }
     }
 }

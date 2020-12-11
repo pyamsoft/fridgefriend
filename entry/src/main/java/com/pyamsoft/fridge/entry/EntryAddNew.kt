@@ -84,31 +84,21 @@ class EntryAddNew @Inject internal constructor(
     }
 
     private fun handleUndo(undoable: FridgeEntry?) {
-        if (undoable == null) {
-            clearUndoSnackbar()
-        } else {
+        if (undoable != null) {
             showUndoSnackbar(undoable)
         }
     }
 
     private fun showUndoSnackbar(undoable: FridgeEntry) {
         Snackbreak.bindTo(owner) {
-            short(layoutRoot, "Removed ${undoable.name()}",
-                onHidden = { _, _ ->
-                    // Once hidden this will clear out the stored undoable
-                    //
-                    // If the undoable was restored before this point, this is basically a no-op
-                    publish(EntryViewEvent.ReallyDeleteEntryNoUndo(undoable))
-                }) {
+            long(
+                layoutRoot,
+                "Removed ${undoable.name()}",
+                onHidden = { _, _ -> publish(EntryViewEvent.ReallyDeleteEntryNoUndo(undoable)) }
+            ) {
                 // Restore the old item
                 setAction("Undo") { publish(EntryViewEvent.UndoDeleteEntry(undoable)) }
             }
-        }
-    }
-
-    private fun clearUndoSnackbar() {
-        Snackbreak.bindTo(owner) {
-            dismiss()
         }
     }
 }

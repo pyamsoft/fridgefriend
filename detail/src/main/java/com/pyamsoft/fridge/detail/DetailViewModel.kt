@@ -99,6 +99,7 @@ class DetailViewModel @Inject internal constructor(
             is DetailViewEvent.SpoilItem -> delegate.spoil(event.item)
             is DetailViewEvent.IncreaseItemCount -> delegate.increaseCount(event.item)
             is DetailViewEvent.DecreaseItemCount -> delegate.decreaseCount(event.item)
+            is DetailViewEvent.ClearListError -> delegate.clearListError()
             is DetailViewEvent.AddNew -> handleAddNew()
             is DetailViewEvent.Back -> handleBack()
             is DetailViewEvent.ExpandItem -> handleExpand(event.item)

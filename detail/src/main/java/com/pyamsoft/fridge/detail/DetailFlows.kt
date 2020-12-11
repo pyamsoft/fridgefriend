@@ -46,7 +46,7 @@ data class DetailViewState internal constructor(
         val totalCount: Int,
         val firstCount: Int,
         val secondCount: Int,
-        val thirdCount: Int
+        val thirdCount: Int,
     )
 
     @CheckResult
@@ -85,7 +85,7 @@ sealed class DetailViewEvent : UiViewEvent {
     object AddNew : DetailViewEvent()
 
     data class PresenceSwitched internal constructor(
-        val presence: FridgeItem.Presence
+        val presence: FridgeItem.Presence,
     ) : DetailViewEvent()
 
     data class SearchQuery internal constructor(val search: String) : DetailViewEvent()
@@ -95,6 +95,8 @@ sealed class DetailViewEvent : UiViewEvent {
     object ToggleArchiveVisibility : DetailViewEvent()
 
     object Back : DetailViewEvent()
+
+    object ClearListError : DetailViewEvent()
 
     data class ChangeSort internal constructor(val sort: DetailViewState.Sorts) : DetailViewEvent()
 
@@ -123,11 +125,11 @@ sealed class DetailControllerEvent : UiControllerEvent {
 
     data class AddNew internal constructor(
         val id: FridgeEntry.Id,
-        val presence: FridgeItem.Presence
+        val presence: FridgeItem.Presence,
     ) : DetailControllerEvent()
 
     data class ExpandForEditing internal constructor(
-        val item: FridgeItem
+        val item: FridgeItem,
     ) : DetailControllerEvent()
 
     object EntryArchived : DetailControllerEvent()

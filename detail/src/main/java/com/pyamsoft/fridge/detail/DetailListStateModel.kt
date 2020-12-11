@@ -48,7 +48,7 @@ class DetailListStateModel @Inject internal constructor(
     private val interactor: DetailInteractor,
     entryId: FridgeEntry.Id,
     listItemPresence: FridgeItem.Presence,
-    bottomOffsetBus: EventConsumer<BottomOffset>
+    bottomOffsetBus: EventConsumer<BottomOffset>,
 ) : UiStateModel<DetailViewState>(
     initialState = DetailViewState(
         entry = null,
@@ -160,7 +160,7 @@ class DetailListStateModel @Inject internal constructor(
 
     private fun insertOrUpdate(
         items: MutableList<FridgeItem>,
-        item: FridgeItem
+        item: FridgeItem,
     ) {
         if (!checkExists(items, item)) {
             items.add(item)
@@ -177,7 +177,7 @@ class DetailListStateModel @Inject internal constructor(
     @CheckResult
     private fun checkExists(
         items: List<FridgeItem>,
-        item: FridgeItem
+        item: FridgeItem,
     ): Boolean {
         return items.any { item.id() == it.id() && item.entryId() == it.entryId() }
     }
@@ -247,7 +247,7 @@ class DetailListStateModel @Inject internal constructor(
         setState { copy(isLoading = false) }
     }
 
-    private fun handleError(throwable: Throwable) {
+    private fun handleError(throwable: Throwable?) {
         setState { copy(listError = throwable) }
     }
 
@@ -319,7 +319,7 @@ class DetailListStateModel @Inject internal constructor(
         items: List<FridgeItem>,
         today: Calendar,
         later: Calendar,
-        isSameDayExpired: Boolean
+        isSameDayExpired: Boolean,
     ): DetailViewState.Counts {
         val validItems = filterValid(items)
             .filterNot { it.isArchived() }
@@ -347,7 +347,7 @@ class DetailListStateModel @Inject internal constructor(
     @CheckResult
     private fun DetailViewState.getOnlyVisibleItems(
         items: List<FridgeItem>,
-        search: String
+        search: String,
     ): List<FridgeItem> {
         return items
             .asSequence()
@@ -477,6 +477,10 @@ class DetailListStateModel @Inject internal constructor(
 
     internal fun delete(item: FridgeItem) {
         updateDelegate.deleteItem(item)
+    }
+
+    internal fun clearListError() {
+        handleError(null)
     }
 
     internal fun updateFilter(showing: DetailViewState.Showing) {

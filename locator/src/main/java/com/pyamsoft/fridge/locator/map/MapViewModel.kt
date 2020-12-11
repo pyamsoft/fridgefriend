@@ -103,7 +103,7 @@ class MapViewModel @Inject internal constructor(
         }
     }
 
-    private fun handleNearbyError(throwable: Throwable) {
+    private fun handleNearbyError(throwable: Throwable?) {
         setState { copy(nearbyError = throwable).resetForceOpen() }
     }
 
@@ -145,7 +145,7 @@ class MapViewModel @Inject internal constructor(
         return result
     }
 
-    private fun handleCachedFetchError(throwable: Throwable) {
+    private fun handleCachedFetchError(throwable: Throwable?) {
         setState { copy(cachedFetchError = throwable).resetForceOpen() }
     }
 
@@ -156,6 +156,8 @@ class MapViewModel @Inject internal constructor(
             is MapViewEvent.DoneFindingMyLocation -> doneFindingMyLocation()
             is MapViewEvent.RequestFindNearby -> nearbySupermarkets()
             is MapViewEvent.OpenPopup -> openPopup(event.popup)
+            is MapViewEvent.HideFetchError -> handleNearbyError(null)
+            is MapViewEvent.HideCacheError -> handleCachedFetchError(null)
         }
     }
 
