@@ -68,6 +68,8 @@ import androidx.fragment.R as R2
 
 internal class MainActivity : ChangeLogActivity(), VersionChecker {
 
+    private var isUpdateChecked = false
+
     override val checkForUpdates = false
 
     override val applicationIcon = R.mipmap.ic_launcher
@@ -172,8 +174,11 @@ internal class MainActivity : ChangeLogActivity(), VersionChecker {
     }
 
     override fun onVersionCheck() {
-        Timber.d("Checking for a new update")
-        checkForUpdates()
+        if (!isUpdateChecked) {
+            isUpdateChecked = true
+            Timber.d("Checking for a new update")
+            checkForUpdates()
+        }
     }
 
     private inline fun handleNotificationAction(crossinline action: (FragmentManager) -> Unit) {
