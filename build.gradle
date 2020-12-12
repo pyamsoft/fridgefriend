@@ -37,7 +37,7 @@ buildscript {
         maxSdk = 30
 
         // Us
-        pydroid = "22.2.6-SNAPSHOT"
+        pydroid = "22.2.6"
         cachify = "0.0.16"
         highlander = "0.0.14"
 
