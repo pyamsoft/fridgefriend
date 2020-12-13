@@ -58,6 +58,7 @@ import com.pyamsoft.pydroid.ui.changelog.buildChangeLog
 import com.pyamsoft.pydroid.ui.databinding.LayoutConstraintBinding
 import com.pyamsoft.pydroid.ui.util.commitNow
 import com.pyamsoft.pydroid.ui.util.layout
+import com.pyamsoft.pydroid.util.doOnResume
 import com.pyamsoft.pydroid.util.doOnStart
 import com.pyamsoft.pydroid.util.stableLayoutHideNavigation
 import kotlinx.coroutines.Dispatchers
@@ -80,6 +81,8 @@ internal class MainActivity : ChangeLogActivity(), VersionChecker {
         feature("Multiple Groups can now be created to categorize Items")
         change("Improved Map performance")
         change("Nearby store notifications can only be received while the application is open. This change is to comply with store policy.")
+        bugfix("Fix a crash on device rotation")
+        bugfix("Fix a crash on theme change")
 //        // TODO(Do this)
 //        bugfix("Fix tooltip arrow location")
 //        // TODO(Do this)
@@ -176,8 +179,14 @@ internal class MainActivity : ChangeLogActivity(), VersionChecker {
     override fun onVersionCheck() {
         if (!isUpdateChecked) {
             isUpdateChecked = true
-            Timber.d("Checking for a new update")
-            checkForUpdates()
+            Timber.d("Queue new update check")
+
+            // Queue this for doOnResume because the VersionCheck code is only available after
+            // onPostCreate and will otherwise throw an NPE
+            doOnResume {
+                Timber.d("Checking for a new update")
+                checkForUpdates()
+            }
         }
     }
 
@@ -301,15 +310,15 @@ internal class MainActivity : ChangeLogActivity(), VersionChecker {
         checkNearbyFragmentPermissions()
     }
 
+    override fun onResume() {
+        super.onResume()
+        clearLaunchNotification()
+    }
+
     private fun beginWork() {
         this.lifecycleScope.launch(context = Dispatchers.Default) {
             initOnAppStart(requireNotNull(butler), requireNotNull(orderFactory))
         }
-    }
-
-    override fun onResume() {
-        super.onResume()
-        clearLaunchNotification()
     }
 
     private fun clearLaunchNotification() {
