@@ -20,65 +20,62 @@ apply plugin: "kotlin-kapt"
 
 //noinspection GroovyMissingReturnStatement
 android {
-	compileSdkVersion rootProject.ext.maxSdk
+  compileSdkVersion rootProject.ext.maxSdk
 
-	//noinspection GroovyMissingReturnStatement
-	defaultConfig {
-		minSdkVersion rootProject.ext.minSdk
-		targetSdkVersion rootProject.ext.maxSdk
+  //noinspection GroovyMissingReturnStatement
+  defaultConfig {
+    minSdkVersion rootProject.ext.minSdk
+    targetSdkVersion rootProject.ext.maxSdk
 
-		resConfigs "en"
-	}
+    resConfigs "en"
+  }
 
-	compileOptions {
-		sourceCompatibility JavaVersion.VERSION_1_8
-		targetCompatibility JavaVersion.VERSION_1_8
-	}
+  compileOptions {
+    sourceCompatibility JavaVersion.VERSION_1_8
+    targetCompatibility JavaVersion.VERSION_1_8
+  }
 
-	kotlinOptions {
-		jvmTarget = "1.8"
-	}
+  kotlinOptions {
+    jvmTarget = "1.8"
+  }
 
-	buildFeatures {
-		viewBinding true
-		buildConfig false
-	}
+  buildFeatures {
+    viewBinding true
+    buildConfig false
+  }
 }
 
 // Kapt flags
 kapt {
-	correctErrorTypes = true
-	useBuildCache = true
-	mapDiagnosticLocations = true
+  correctErrorTypes = true
+  useBuildCache = true
+  mapDiagnosticLocations = true
 
-	javacOptions {
-		option("-Xlint:unchecked")
-		option("-Xlint:deprecation")
-		option("-Xmaxerrs", 10000)
-	}
+  javacOptions {
+    option("-Xlint:unchecked")
+    option("-Xlint:deprecation")
+    option("-Xmaxerrs", 10000)
+  }
 }
 
 dependencies {
-	// Timber logging
-	api "com.jakewharton.timber:timber:$timber"
+  // Timber logging
+  api "com.jakewharton.timber:timber:$timber"
 
-	// PYDroid
-	api "com.pyamsoft.pydroid:arch:$pydroid"
-	api "com.pyamsoft.pydroid:util:$pydroid"
+  // PYDroid
+  api "com.pyamsoft.pydroid:arch:$pydroid"
+  api "com.pyamsoft.pydroid:util:$pydroid"
 
-	// Cachify
-	api "com.pyamsoft.cachify:cachify:$cachify"
+  // Cachify
+  api "com.pyamsoft.cachify:cachify:$cachify"
 
-	// Highlander
-	api "com.pyamsoft.highlander:highlander:$highlander"
+  // Highlander
+  api "com.pyamsoft.highlander:highlander:$highlander"
 
-	// Android support library.
-	api "androidx.core:core-ktx:$core"
+  // Android support library.
+  api "androidx.core:core-ktx:$core"
 
-	// Dagger
-	api "com.google.dagger:dagger:$dagger"
-	kapt "com.google.dagger:dagger-compiler:$dagger"
+  // Dagger
+  api "com.google.dagger:dagger:$dagger"
+  kapt "com.google.dagger:dagger-compiler:$dagger"
 }
-
-
-

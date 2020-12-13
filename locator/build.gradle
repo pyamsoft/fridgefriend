@@ -20,63 +20,58 @@ apply plugin: "kotlin-kapt"
 
 //noinspection GroovyMissingReturnStatement
 android {
-	compileSdkVersion rootProject.ext.maxSdk
+  compileSdkVersion rootProject.ext.maxSdk
 
-	//noinspection GroovyMissingReturnStatement
-	defaultConfig {
-		minSdkVersion rootProject.ext.minSdk
-		targetSdkVersion rootProject.ext.maxSdk
+  //noinspection GroovyMissingReturnStatement
+  defaultConfig {
+    minSdkVersion rootProject.ext.minSdk
+    targetSdkVersion rootProject.ext.maxSdk
 
-		resConfigs "en"
-	}
+    resConfigs "en"
+  }
 
-	compileOptions {
-		sourceCompatibility JavaVersion.VERSION_1_8
-		targetCompatibility JavaVersion.VERSION_1_8
-	}
+  compileOptions {
+    sourceCompatibility JavaVersion.VERSION_1_8
+    targetCompatibility JavaVersion.VERSION_1_8
+  }
 
-	kotlinOptions {
-		jvmTarget = "1.8"
-	}
+  kotlinOptions {
+    jvmTarget = "1.8"
+  }
 
-	buildFeatures {
-		viewBinding true
-		buildConfig false
-	}
+  buildFeatures {
+    viewBinding true
+    buildConfig false
+  }
 }
 
 // Kapt flags
 kapt {
-	correctErrorTypes = true
-	useBuildCache = true
-	mapDiagnosticLocations = true
+  correctErrorTypes = true
+  useBuildCache = true
+  mapDiagnosticLocations = true
 
-	javacOptions {
-		option("-Xlint:unchecked")
-		option("-Xlint:deprecation")
-		option("-Xmaxerrs", 10000)
-	}
+  javacOptions {
+    option("-Xlint:unchecked")
+    option("-Xlint:deprecation")
+    option("-Xmaxerrs", 10000)
+  }
 }
 
 dependencies {
 
-	// api for dagger
-	api "com.squareup.retrofit2:retrofit:$retrofit"
-	api "com.squareup.moshi:moshi:$moshi"
+  // api for dagger
+  api "com.squareup.retrofit2:retrofit:$retrofit"
+  api "com.squareup.moshi:moshi:$moshi"
 
-	implementation "com.squareup.retrofit2:converter-moshi:$retrofit"
-	implementation "com.squareup.okhttp3:logging-interceptor:$okhttp"
+  implementation "com.squareup.retrofit2:converter-moshi:$retrofit"
+  implementation "com.squareup.okhttp3:logging-interceptor:$okhttp"
 
-	// Needed to add generated adapters onto classpath
-	kapt "com.squareup.moshi:moshi-kotlin-codegen:$moshi"
+  // Needed to add generated adapters onto classpath
+  kapt "com.squareup.moshi:moshi-kotlin-codegen:$moshi"
 
-	kapt "com.google.dagger:dagger-compiler:$dagger"
+  kapt "com.google.dagger:dagger-compiler:$dagger"
 
-	api project(':db')
-	api project(':ui')
+  api project(':db')
+  api project(':ui')
 }
-
-
-
-
-

@@ -20,51 +20,50 @@ apply plugin: "kotlin-kapt"
 
 //noinspection GroovyMissingReturnStatement
 android {
-	compileSdkVersion rootProject.ext.maxSdk
+  compileSdkVersion rootProject.ext.maxSdk
 
-	//noinspection GroovyMissingReturnStatement
-	defaultConfig {
-		minSdkVersion rootProject.ext.minSdk
-		targetSdkVersion rootProject.ext.maxSdk
+  //noinspection GroovyMissingReturnStatement
+  defaultConfig {
+    minSdkVersion rootProject.ext.minSdk
+    targetSdkVersion rootProject.ext.maxSdk
 
-		resConfigs "en"
-	}
+    resConfigs "en"
+  }
 
-	compileOptions {
-		sourceCompatibility JavaVersion.VERSION_1_8
-		targetCompatibility JavaVersion.VERSION_1_8
-	}
+  compileOptions {
+    sourceCompatibility JavaVersion.VERSION_1_8
+    targetCompatibility JavaVersion.VERSION_1_8
+  }
 
-	kotlinOptions {
-		jvmTarget = "1.8"
-	}
+  kotlinOptions {
+    jvmTarget = "1.8"
+  }
 
-	buildFeatures {
-		viewBinding true
-		buildConfig false
-	}
+  buildFeatures {
+    viewBinding true
+    buildConfig false
+  }
 }
 
 // Kapt flags
 kapt {
-	correctErrorTypes = true
-	useBuildCache = true
-	mapDiagnosticLocations = true
+  correctErrorTypes = true
+  useBuildCache = true
+  mapDiagnosticLocations = true
 
-	javacOptions {
-		option("-Xlint:unchecked")
-		option("-Xlint:deprecation")
-		option("-Xmaxerrs", 10000)
-	}
+  javacOptions {
+    option("-Xlint:unchecked")
+    option("-Xlint:deprecation")
+    option("-Xmaxerrs", 10000)
+  }
 }
 
 dependencies {
 
-	kapt "com.google.dagger:dagger-compiler:$dagger"
+  kapt "com.google.dagger:dagger-compiler:$dagger"
 
-	// AndroidX
-	implementation "androidx.preference:preference:$preference"
+  // AndroidX
+  implementation "androidx.preference:preference:$preference"
 
-	api project(':ui')
+  api project(':ui')
 }
-
