@@ -62,7 +62,7 @@ dependencies {
 
 	kapt "com.google.dagger:dagger-compiler:$dagger"
 
-    // AndroidX
+	// AndroidX
 	implementation "androidx.preference:preference:$preference"
 
 	api project(':ui')
