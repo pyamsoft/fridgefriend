@@ -42,7 +42,7 @@ buildscript {
     highlander = "0.0.14"
 
     // Room
-    room = "2.2.5"
+    room = "2.2.6"
 
     // Leak Canary
     leakCanary = "2.5"
