@@ -30,7 +30,7 @@ import javax.inject.Inject
 class ItemMoveViewModel @Inject internal constructor(
     private val interactor: DetailInteractor,
     private val itemId: FridgeItem.Id,
-    private val entryId: FridgeEntry.Id,
+    entryId: FridgeEntry.Id,
 ) : UiViewModel<ItemMoveViewState, ItemMoveViewEvent, ItemMoveControllerEvent>(
     initialState = ItemMoveViewState(
         item = null
@@ -66,6 +66,11 @@ class ItemMoveViewModel @Inject internal constructor(
 
     fun handleMoveItemToEntry(entry: FridgeEntry) {
         state.item?.let { item ->
+            if (item.entryId() == entry.id()) {
+                Timber.w("Cannot move item to same entry: ${entry.id()}")
+                return
+            }
+
             Timber.d("Move item from ${item.entryId()} to ${entry.id()}")
             viewModelScope.launch(context = Dispatchers.Default) {
                 Timber.d("Remove old item")
@@ -73,8 +78,10 @@ class ItemMoveViewModel @Inject internal constructor(
 
                 Timber.d("Create item with new entry id")
                 interactor.commit(item.migrateTo(entry.id()))
+
+                Timber.d("All done moving, close dialog")
+                closeDialog()
             }
-            closeDialog()
         }
     }
 }

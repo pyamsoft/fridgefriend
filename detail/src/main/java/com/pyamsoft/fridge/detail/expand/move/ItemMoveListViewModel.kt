@@ -34,14 +34,11 @@ class ItemMoveListViewModel @Inject internal constructor(
 
     init {
         val job = delegate.bind(Renderable { state ->
-            state.render(viewModelScope) { newState ->
-                setState { newState }
-            }
+            state.render(viewModelScope) { newState -> setState { newState } }
         })
         doOnCleared { job.cancel() }
         doOnCleared { delegate.clear() }
     }
-
 
     override fun handleViewEvent(event: EntryViewEvent) {
         return when (event) {
