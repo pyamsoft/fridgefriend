@@ -42,9 +42,9 @@ class EntryViewModel @Inject internal constructor(
 
     override fun handleViewEvent(event: EntryViewEvent) {
         return when (event) {
+            is EntryViewEvent.ForceRefresh -> delegate.refreshList(true)
             is EntryViewEvent.SelectEntry -> select(event.entry)
             is EntryViewEvent.AddNew -> handleAddNew()
-            is EntryViewEvent.ForceRefresh -> delegate.refreshList(true)
             is EntryViewEvent.SearchQuery -> delegate.updateSearch(event.search)
             is EntryViewEvent.DeleteEntry -> delegate.deleteEntry(event.entry)
             is EntryViewEvent.ReallyDeleteEntryNoUndo -> delegate.deleteForever(event.entry)

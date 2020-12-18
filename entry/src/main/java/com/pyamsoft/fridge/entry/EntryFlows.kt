@@ -19,9 +19,9 @@ package com.pyamsoft.fridge.entry
 import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItem
+import com.pyamsoft.fridge.ui.view.UiToolbar
 import com.pyamsoft.pydroid.arch.UiControllerEvent
 import com.pyamsoft.pydroid.arch.UiViewEvent
-import com.pyamsoft.pydroid.arch.UiViewState
 
 data class EntryViewState internal constructor(
     // All currently displayed list entries
@@ -33,12 +33,15 @@ data class EntryViewState internal constructor(
     val error: Throwable?,
     val search: String,
     val bottomOffset: Int,
-    val sort: Sorts
-) : UiViewState {
+    val sort: Sorts,
+) : UiToolbar.State<EntryViewState.Sorts> {
+
+    override val toolbarSearch = search
+    override val toolbarSort = sort.asToolbarSort()
 
     data class EntryGroup internal constructor(
         val entry: FridgeEntry,
-        val items: List<FridgeItem>
+        val items: List<FridgeItem>,
     )
 
     @CheckResult
@@ -64,7 +67,7 @@ sealed class EntryViewEvent : UiViewEvent {
     data class DeleteEntry internal constructor(val entry: FridgeEntry) : EntryViewEvent()
 
     data class ReallyDeleteEntryNoUndo internal constructor(
-        val entry: FridgeEntry
+        val entry: FridgeEntry,
     ) : EntryViewEvent()
 
     data class UndoDeleteEntry internal constructor(val entry: FridgeEntry) : EntryViewEvent()
@@ -82,7 +85,7 @@ sealed class EntryControllerEvent : UiControllerEvent {
 
     data class LoadEntry internal constructor(
         val entry: FridgeEntry,
-        val presence: FridgeItem.Presence
+        val presence: FridgeItem.Presence,
     ) : EntryControllerEvent()
 }
 

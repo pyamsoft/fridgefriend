@@ -19,9 +19,9 @@ package com.pyamsoft.fridge.detail
 import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItem
+import com.pyamsoft.fridge.ui.view.UiToolbar
 import com.pyamsoft.pydroid.arch.UiControllerEvent
 import com.pyamsoft.pydroid.arch.UiViewEvent
-import com.pyamsoft.pydroid.arch.UiViewState
 
 data class DetailViewState internal constructor(
     val isLoading: Boolean,
@@ -40,7 +40,10 @@ data class DetailViewState internal constructor(
     val listItemPresence: FridgeItem.Presence,
     val counts: Counts?,
     val bottomOffset: Int,
-) : UiViewState {
+) : UiToolbar.State<DetailViewState.Sorts> {
+
+    override val toolbarSearch = search
+    override val toolbarSort = sort.asToolbarSort()
 
     data class Counts internal constructor(
         val totalCount: Int,
