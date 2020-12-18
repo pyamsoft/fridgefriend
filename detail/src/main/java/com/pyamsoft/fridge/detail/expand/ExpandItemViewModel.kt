@@ -115,7 +115,7 @@ class ExpandItemViewModel @Inject internal constructor(
 
         viewModelScope.launch(context = Dispatchers.Default) {
             dateSelectBus.onEvent { event ->
-                requireNotNull(state.item).let { item ->
+                state.item?.let { item ->
                     if (event.entryId != item.entryId()) {
                         return@let
                     }
@@ -124,7 +124,7 @@ class ExpandItemViewModel @Inject internal constructor(
                         return@let
                     }
 
-                    commitDate(event.year, event.month, event.day)
+                    commitDate(item, event.year, event.month, event.day)
                 }
             }
         }
@@ -143,6 +143,14 @@ class ExpandItemViewModel @Inject internal constructor(
             is ExpandedItemViewEvent.SpoilItem -> spoilSelf()
             is ExpandedItemViewEvent.RestoreItem -> restoreSelf()
             is ExpandedItemViewEvent.SelectSimilar -> similarSelected(event.item)
+            is ExpandedItemViewEvent.MoveItem -> moveItem()
+        }
+    }
+
+    private fun moveItem() {
+        state.item?.let { item ->
+            Timber.d("Move item from entry: $item")
+            publish(ExpandItemControllerEvent.BeginMove(item))
         }
     }
 
@@ -274,26 +282,25 @@ class ExpandItemViewModel @Inject internal constructor(
     }
 
     private fun commitDate(
+        item: FridgeItem,
         year: Int,
         month: Int,
-        day: Int
+        day: Int,
     ) {
-        requireNotNull(state.item).let { item ->
-            Timber.d("Attempt save time: $year/${month + 1}/$day")
-            val newTime = today()
-                .apply {
-                    set(Calendar.YEAR, year)
-                    set(Calendar.MONTH, month)
-                    set(Calendar.DAY_OF_MONTH, day)
-                }
-                .time
-            Timber.d("Save expire time: $newTime")
-            commitItem(item.expireTime(newTime))
-        }
+        Timber.d("Attempt save time: $year/${month + 1}/$day")
+        val newTime = today()
+            .apply {
+                set(Calendar.YEAR, year)
+                set(Calendar.MONTH, month)
+                set(Calendar.DAY_OF_MONTH, day)
+            }
+            .time
+        Timber.d("Save expire time: $newTime")
+        commitItem(item.expireTime(newTime))
     }
 
     private fun commitPresence() {
-        requireNotNull(state.item).let { item ->
+        state.item?.let { item ->
             val newItem = item.presence(item.presence().flip())
             commitItem(newItem)
         }
@@ -343,19 +350,19 @@ class ExpandItemViewModel @Inject internal constructor(
     }
 
     private fun consumeSelf() {
-        updateDelegate.consumeItem(requireNotNull(state.item))
+        state.item?.let { updateDelegate.consumeItem(it) }
     }
 
     private fun restoreSelf() {
-        updateDelegate.restoreItem(requireNotNull(state.item))
+        state.item?.let { updateDelegate.restoreItem(it) }
     }
 
     private fun spoilSelf() {
-        updateDelegate.spoilItem(requireNotNull(state.item))
+        state.item?.let { updateDelegate.spoilItem(it) }
     }
 
     private fun deleteSelf() {
-        updateDelegate.deleteItem(requireNotNull(state.item))
+        state.item?.let { updateDelegate.deleteItem(it) }
     }
 
     private fun handleInvalidName(name: String) {
@@ -384,6 +391,6 @@ class ExpandItemViewModel @Inject internal constructor(
     }
 
     private data class FixMessageThrowable(
-        override val message: String
+        override val message: String,
     ) : IllegalStateException(message)
 }

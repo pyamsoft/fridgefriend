@@ -33,4 +33,5 @@
     <string name="purchased_on">Purchased On:</string>
     <string name="need">Need</string>
     <string name="have">Have</string>
+    <string name="move">Change Group</string>
 </resources>

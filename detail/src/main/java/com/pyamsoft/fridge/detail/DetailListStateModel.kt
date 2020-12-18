@@ -154,7 +154,7 @@ class DetailListStateModel @Inject internal constructor(
         return when (event) {
             is Insert -> handleRealtimeInsert(event.item)
             is Update -> handleRealtimeUpdate(event.item)
-            is Delete -> handleRealtimeDelete(event.item)
+            is Delete -> handleRealtimeDelete(event.item, event.offerUndo)
         }
     }
 
@@ -200,13 +200,13 @@ class DetailListStateModel @Inject internal constructor(
         }
     }
 
-    private fun handleRealtimeDelete(item: FridgeItem) {
+    private fun handleRealtimeDelete(item: FridgeItem, offerUndo: Boolean) {
         Timber.d("Realtime delete: $item")
         setState {
             val newItems = allItems.filterNot { it.id() == item.id() }
             regenerateItems(newItems).copy(
                 // Show undo banner
-                undoableItem = item
+                undoableItem = if (offerUndo) item else null
             )
         }
     }

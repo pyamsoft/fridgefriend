@@ -50,7 +50,7 @@ interface BaseDb<
     interface Delete<T : Any> {
 
         @CheckResult
-        suspend fun delete(o: T): Boolean
+        suspend fun delete(o: T, offerUndo: Boolean): Boolean
     }
 
     interface Insert<T : Any> {

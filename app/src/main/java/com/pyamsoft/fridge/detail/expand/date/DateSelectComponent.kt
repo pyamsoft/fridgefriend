@@ -18,6 +18,7 @@ package com.pyamsoft.fridge.detail.expand.date
 
 import androidx.lifecycle.ViewModelProvider
 import com.pyamsoft.fridge.core.FridgeViewModelFactory
+import com.pyamsoft.fridge.detail.expand.date.DateSelectViewModel
 import com.pyamsoft.pydroid.arch.UiViewModel
 import dagger.Binds
 import dagger.Module

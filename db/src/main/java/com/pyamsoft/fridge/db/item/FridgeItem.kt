@@ -54,6 +54,9 @@ interface FridgeItem : EmptyModel<FridgeItem> {
     fun isReal(): Boolean
 
     @CheckResult
+    fun migrateTo(entryId: FridgeEntry.Id): FridgeItem
+
+    @CheckResult
     fun count(count: Int): FridgeItem
 
     @CheckResult
@@ -144,7 +147,7 @@ interface FridgeItem : EmptyModel<FridgeItem> {
         fun create(
             id: Id = Id(IdGenerator.generate()),
             entryId: FridgeEntry.Id,
-            presence: Presence
+            presence: Presence,
         ): FridgeItem {
             return JsonMappableFridgeItem(
                 id = id,
@@ -166,6 +169,7 @@ interface FridgeItem : EmptyModel<FridgeItem> {
         @JvmOverloads
         fun create(
             item: FridgeItem,
+            entryId: FridgeEntry.Id = item.entryId(),
             name: String = item.name(),
             count: Int = item.count(),
             createdTime: Date = item.createdTime(),
@@ -175,11 +179,11 @@ interface FridgeItem : EmptyModel<FridgeItem> {
             consumptionDate: Date? = item.consumptionDate(),
             spoiledDate: Date? = item.spoiledDate(),
             categoryId: FridgeCategory.Id? = item.categoryId(),
-            isReal: Boolean
+            isReal: Boolean,
         ): FridgeItem {
             return JsonMappableFridgeItem(
                 item.id(),
-                item.entryId(),
+                entryId,
                 name,
                 count,
                 createdTime,
@@ -225,7 +229,7 @@ fun FridgeItem.isExpired(date: Calendar, countSameDayAsExpired: Boolean): Boolea
 fun FridgeItem.isExpiringSoon(
     date: Calendar,
     later: Calendar,
-    countSameDayAsExpired: Boolean
+    countSameDayAsExpired: Boolean,
 ): Boolean {
     val expireTime = this.expireTime() ?: return false
 

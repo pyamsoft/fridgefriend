@@ -81,7 +81,7 @@ internal data class RoomFridgeItem internal constructor(
 
     @JvmField
     @ColumnInfo(name = COLUMN_CATEGORY)
-    val categoryId: FridgeCategory.Id?
+    val categoryId: FridgeCategory.Id?,
 ) : FridgeItem {
 
     @Ignore
@@ -173,6 +173,11 @@ internal data class RoomFridgeItem internal constructor(
     @Ignore
     override fun isEmpty(): Boolean {
         return id().isEmpty()
+    }
+
+    @Ignore
+    override fun migrateTo(entryId: FridgeEntry.Id): FridgeItem {
+        return FridgeItem.create(this, entryId = entryId, isReal = isReal())
     }
 
     @Ignore

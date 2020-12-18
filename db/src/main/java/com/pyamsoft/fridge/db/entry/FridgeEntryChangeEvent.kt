@@ -22,7 +22,10 @@ sealed class FridgeEntryChangeEvent {
 
     data class Update(val entry: FridgeEntry) : FridgeEntryChangeEvent()
 
-    data class Delete(val entry: FridgeEntry) : FridgeEntryChangeEvent()
+    data class Delete(
+        val entry: FridgeEntry,
+        val offerUndo: Boolean,
+    ) : FridgeEntryChangeEvent()
 
     object DeleteAll : FridgeEntryChangeEvent()
 }

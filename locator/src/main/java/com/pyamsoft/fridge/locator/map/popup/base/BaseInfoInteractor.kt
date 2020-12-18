@@ -25,7 +25,7 @@ interface BaseInfoInteractor<T : Any> {
 
     suspend fun listenForNearbyCacheChanges(onInsert: (T) -> Unit, onDelete: (T) -> Unit)
 
-    suspend fun deleteFromDb(data: T)
+    suspend fun deleteFromDb(data: T, offerUndo: Boolean)
 
     suspend fun insertIntoDb(data: T)
 

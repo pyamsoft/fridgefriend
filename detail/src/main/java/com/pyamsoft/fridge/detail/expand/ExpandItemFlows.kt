@@ -27,7 +27,7 @@ data class ExpandItemViewState internal constructor(
     val throwable: Throwable?,
     val sameNamedItems: Collection<FridgeItem>,
     val similarItems: Collection<SimilarItem>,
-    val categories: List<FridgeCategory>
+    val categories: List<FridgeCategory>,
 ) : UiViewState {
 
     data class SimilarItem internal constructor(val item: FridgeItem?, val display: String)
@@ -56,6 +56,8 @@ sealed class ExpandedItemViewEvent : UiViewEvent {
     object SpoilItem : ExpandedItemViewEvent()
 
     object RestoreItem : ExpandedItemViewEvent()
+
+    object MoveItem : ExpandedItemViewEvent()
 }
 
 sealed class ExpandItemControllerEvent : UiControllerEvent {
@@ -64,8 +66,12 @@ sealed class ExpandItemControllerEvent : UiControllerEvent {
         val oldItem: FridgeItem,
         val year: Int,
         val month: Int,
-        val day: Int
+        val day: Int,
     ) : ExpandItemControllerEvent()
 
     object CloseExpand : ExpandItemControllerEvent()
+
+    data class BeginMove internal constructor(
+        val item: FridgeItem,
+    ) : ExpandItemControllerEvent()
 }

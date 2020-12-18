@@ -30,6 +30,7 @@ import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence
 import com.pyamsoft.fridge.detail.expand.date.DateSelectDialog
+import com.pyamsoft.fridge.detail.expand.move.ItemMoveDialog
 import com.pyamsoft.pydroid.arch.StateSaver
 import com.pyamsoft.pydroid.arch.createComponent
 import com.pyamsoft.pydroid.ui.Injector
@@ -90,14 +91,14 @@ internal class ExpandedItemDialog : AppCompatDialogFragment() {
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View? {
         return inflater.inflate(R2.layout.layout_constraint, container, false)
     }
 
     override fun onViewCreated(
         view: View,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ) {
         super.onViewCreated(view, savedInstanceState)
         makeFullWidth()
@@ -154,6 +155,7 @@ internal class ExpandedItemDialog : AppCompatDialogFragment() {
                     it.day
                 )
                 is ExpandItemControllerEvent.CloseExpand -> dismiss()
+                is ExpandItemControllerEvent.BeginMove -> loadMoveSubDialog(it.item)
             }
         }
 
@@ -240,11 +242,15 @@ internal class ExpandedItemDialog : AppCompatDialogFragment() {
         }
     }
 
+    private fun loadMoveSubDialog(item: FridgeItem) {
+        ItemMoveDialog.newInstance(item).show(requireActivity(), ItemMoveDialog.TAG)
+    }
+
     private fun pickDate(
         oldItem: FridgeItem,
         year: Int,
         month: Int,
-        day: Int
+        day: Int,
     ) {
         DateSelectDialog.newInstance(oldItem, year, month, day)
             .show(requireActivity(), DateSelectDialog.TAG)
@@ -279,7 +285,7 @@ internal class ExpandedItemDialog : AppCompatDialogFragment() {
         @CheckResult
         fun createNew(
             entryId: FridgeEntry.Id,
-            presence: Presence
+            presence: Presence,
         ): DialogFragment {
             return newInstance(FridgeItem.Id.EMPTY, entryId, presence)
         }
@@ -295,7 +301,7 @@ internal class ExpandedItemDialog : AppCompatDialogFragment() {
         private fun newInstance(
             itemId: FridgeItem.Id,
             entryId: FridgeEntry.Id,
-            presence: Presence
+            presence: Presence,
         ): DialogFragment {
             return ExpandedItemDialog().apply {
                 arguments = Bundle().apply {

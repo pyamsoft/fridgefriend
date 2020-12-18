@@ -22,5 +22,8 @@ sealed class FridgeCategoryChangeEvent {
 
     data class Update(val category: FridgeCategory) : FridgeCategoryChangeEvent()
 
-    data class Delete(val category: FridgeCategory) : FridgeCategoryChangeEvent()
+    data class Delete(
+        val category: FridgeCategory,
+        val offerUndo: Boolean,
+    ) : FridgeCategoryChangeEvent()
 }

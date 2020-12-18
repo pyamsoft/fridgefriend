@@ -140,7 +140,7 @@ abstract class BaseInfoViewModel<T : Any, S : BaseInfoViewState, V : UiViewEvent
             if (add) {
                 interactor.insertIntoDb(data)
             } else {
-                interactor.deleteFromDb(data)
+                interactor.deleteFromDb(data, false)
             }
         }
     }

@@ -39,7 +39,7 @@ abstract class BaseUpdaterViewModel<S : UiViewState, V : UiViewEvent, C : UiCont
     @CheckResult
     internal fun createUpdateDelegate(
         interactor: DetailInteractor,
-        onError: (Throwable) -> Unit
+        onError: (Throwable) -> Unit,
     ): UpdateDelegate {
         return createUpdateDelegate(viewModelScope, interactor, onError)
     }
@@ -50,7 +50,7 @@ abstract class BaseUpdaterViewModel<S : UiViewState, V : UiViewEvent, C : UiCont
 internal fun createUpdateDelegate(
     scope: CoroutineScope,
     interactor: DetailInteractor,
-    onError: (Throwable) -> Unit
+    onError: (Throwable) -> Unit,
 ): UpdateDelegate {
     return UpdateDelegate(scope, interactor, onError)
 }
@@ -108,7 +108,7 @@ internal class UpdateDelegate internal constructor(
     }
 
     internal fun deleteItem(item: FridgeItem) {
-        update(item) { requireNotNull(interactor).delete(it) }
+        update(item) { requireNotNull(interactor).delete(it, true) }
     }
 
     internal fun updateItem(item: FridgeItem) {

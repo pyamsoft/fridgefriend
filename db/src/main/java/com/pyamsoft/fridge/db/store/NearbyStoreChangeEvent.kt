@@ -22,5 +22,8 @@ sealed class NearbyStoreChangeEvent {
 
     data class Update(val store: NearbyStore) : NearbyStoreChangeEvent()
 
-    data class Delete(val store: NearbyStore) : NearbyStoreChangeEvent()
+    data class Delete(
+        val store: NearbyStore,
+        val offerUndo: Boolean,
+    ) : NearbyStoreChangeEvent()
 }

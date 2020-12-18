@@ -53,9 +53,9 @@ abstract class BaseInfoInteractorImpl<
             realtime.listenForChanges { onRealtimeChange(it, onInsert, onDelete) }
         }
 
-    override suspend fun deleteFromDb(data: T) = withContext(context = Dispatchers.Default) {
+    override suspend fun deleteFromDb(data: T, offerUndo: Boolean) = withContext(context = Dispatchers.Default) {
         Enforcer.assertOffMainThread()
-        if (deleteDao.delete(data)) {
+        if (deleteDao.delete(data, offerUndo)) {
             Timber.d("Favorite removed: $data")
             fireLocationQuery()
         }

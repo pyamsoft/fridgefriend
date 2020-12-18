@@ -18,6 +18,13 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
+        android:id="@+id/menu_item_move"
+        android:icon="@drawable/ic_change_group_24"
+        android:title="@string/move"
+        android:visible="false"
+        app:showAsAction="ifRoom" />
+
+    <item
         android:id="@+id/menu_item_consume"
         android:icon="@drawable/ic_consumed_24dp"
         android:title="@string/consumed"

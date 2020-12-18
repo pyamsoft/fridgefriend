@@ -36,7 +36,7 @@ data class JsonMappableFridgeItem internal constructor(
     internal val consumptionDate: Date?,
     internal val spoiledDate: Date?,
     internal val categoryId: FridgeCategory.Id?,
-    internal val isReal: Boolean
+    internal val isReal: Boolean,
 ) : FridgeItem {
 
     override fun id(): FridgeItem.Id {
@@ -111,6 +111,10 @@ data class JsonMappableFridgeItem internal constructor(
 
     override fun isEmpty(): Boolean {
         return id().isEmpty()
+    }
+
+    override fun migrateTo(entryId: FridgeEntry.Id): FridgeItem {
+        return this.copy(entryId = entryId)
     }
 
     override fun name(name: String): FridgeItem {

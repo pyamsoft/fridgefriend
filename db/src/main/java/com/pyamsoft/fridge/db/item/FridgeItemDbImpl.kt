@@ -19,8 +19,8 @@ package com.pyamsoft.fridge.db.item
 import com.pyamsoft.cachify.Cached
 import com.pyamsoft.cachify.MultiCached1
 import com.pyamsoft.cachify.MultiCached2
-import com.pyamsoft.fridge.db.fridge.BaseDbImpl
 import com.pyamsoft.fridge.db.entry.FridgeEntry
+import com.pyamsoft.fridge.db.fridge.BaseDbImpl
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence
 import com.pyamsoft.pydroid.core.Enforcer
 import kotlinx.coroutines.Dispatchers
@@ -32,7 +32,7 @@ internal class FridgeItemDbImpl internal constructor(
     private val sameNameDifferentPresenceCache: MultiCached2<FridgeItemDb.QuerySameNameDifferentPresenceKey, List<FridgeItem>, String, Presence>,
     private val similarNamedCache: MultiCached2<FridgeItemDb.QuerySimilarNamedKey, List<FridgeItemDb.SimilarityScore>, FridgeItem.Id, String>,
     insertDao: FridgeItemInsertDao,
-    deleteDao: FridgeItemDeleteDao
+    deleteDao: FridgeItemDeleteDao,
 ) : BaseDbImpl<FridgeItem, FridgeItemChangeEvent>(), FridgeItemDb {
 
     private val realtime = object : FridgeItemRealtime {
@@ -45,7 +45,7 @@ internal class FridgeItemDbImpl internal constructor(
 
         override suspend fun listenForChanges(
             id: FridgeEntry.Id,
-            onChange: suspend (event: FridgeItemChangeEvent) -> Unit
+            onChange: suspend (event: FridgeItemChangeEvent) -> Unit,
         ) = withContext(context = Dispatchers.IO) {
             Enforcer.assertOffMainThread()
             onEvent { event ->
@@ -82,7 +82,7 @@ internal class FridgeItemDbImpl internal constructor(
         override suspend fun querySameNameDifferentPresence(
             force: Boolean,
             name: String,
-            presence: Presence
+            presence: Presence,
         ): List<FridgeItem> = withContext(context = Dispatchers.IO) {
             Enforcer.assertOffMainThread()
             if (force) {
@@ -131,12 +131,12 @@ internal class FridgeItemDbImpl internal constructor(
 
     private val deleteDao = object : FridgeItemDeleteDao {
 
-        override suspend fun delete(o: FridgeItem): Boolean =
+        override suspend fun delete(o: FridgeItem, offerUndo: Boolean): Boolean =
             withContext(context = Dispatchers.IO) {
                 Enforcer.assertOffMainThread()
-                return@withContext deleteDao.delete(o).also { deleted ->
+                return@withContext deleteDao.delete(o, offerUndo).also { deleted ->
                     if (deleted) {
-                        publish(FridgeItemChangeEvent.Delete(o.makeReal()))
+                        publish(FridgeItemChangeEvent.Delete(o.makeReal(), offerUndo))
                     }
                 }
             }

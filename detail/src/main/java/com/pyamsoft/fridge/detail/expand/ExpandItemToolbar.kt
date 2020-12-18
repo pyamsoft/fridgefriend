@@ -44,6 +44,7 @@ class ExpandItemToolbar @Inject internal constructor(
 
     override val layoutRoot by boundView { expandToolbar }
 
+    private var moveMenuItem: MenuItem? = null
     private var deleteMenuItem: MenuItem? = null
     private var consumeMenuItem: MenuItem? = null
     private var spoilMenuItem: MenuItem? = null
@@ -71,6 +72,9 @@ class ExpandItemToolbar @Inject internal constructor(
             binding.expandToolbar.apply {
                 inflateMenu(R.menu.menu_expanded)
                 menu.apply {
+                    moveMenuItem = findItem(R.id.menu_item_move).apply {
+                        isVisible = false
+                    }
                     deleteMenuItem = findItem(R.id.menu_item_delete).apply {
                         isVisible = false
                     }
@@ -94,6 +98,10 @@ class ExpandItemToolbar @Inject internal constructor(
 
             binding.expandToolbar.setOnMenuItemClickListener { menuItem ->
                 return@setOnMenuItemClickListener when (menuItem.itemId) {
+                    R.id.menu_item_move -> {
+                        publish(ExpandedItemViewEvent.MoveItem)
+                        true
+                    }
                     R.id.menu_item_delete -> {
                         publish(ExpandedItemViewEvent.DeleteItem)
                         true
@@ -125,6 +133,7 @@ class ExpandItemToolbar @Inject internal constructor(
         consumeMenuItem = null
         spoilMenuItem = null
         restoreMenuItem = null
+        moveMenuItem = null
 
         binding.expandToolbar.menu.clear()
         binding.expandToolbar.setNavigationOnClickListener(null)
@@ -137,12 +146,14 @@ class ExpandItemToolbar @Inject internal constructor(
             requireNotNull(consumeMenuItem).isVisible = false
             requireNotNull(spoilMenuItem).isVisible = false
             requireNotNull(restoreMenuItem).isVisible = false
+            requireNotNull(moveMenuItem).isVisible = false
         } else {
             val isReal = item.isReal()
             val isHave = item.presence() == HAVE
 
-            // Always show delete
+            // Always show delete and move
             requireNotNull(deleteMenuItem).isVisible = isReal
+            requireNotNull(moveMenuItem).isVisible = isReal
 
             if (item.isArchived()) {
                 requireNotNull(restoreMenuItem).isVisible = isReal

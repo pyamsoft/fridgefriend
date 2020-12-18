@@ -48,7 +48,7 @@ internal class DetailInteractor @Inject internal constructor(
     private val entryQueryDao: FridgeEntryQueryDao,
     private val persistentCategories: PersistentCategories,
     private val categoryQueryDao: FridgeCategoryQueryDao,
-    private val preferences: FridgeItemPreferences
+    private val preferences: FridgeItemPreferences,
 ) {
 
     @CheckResult
@@ -133,7 +133,7 @@ internal class DetailInteractor @Inject internal constructor(
         itemId: FridgeItem.Id,
         entryId: FridgeEntry.Id,
         presence: Presence,
-        force: Boolean
+        force: Boolean,
     ): FridgeItem = withContext(context = Dispatchers.Default) {
         Enforcer.assertOffMainThread()
         return@withContext if (itemId.isEmpty()) {
@@ -158,16 +158,16 @@ internal class DetailInteractor @Inject internal constructor(
      * This should only be called on items that already exist in the db.
      */
     @CheckResult
-    private suspend fun loadItem(
+    suspend fun loadItem(
         itemId: FridgeItem.Id,
         entryId: FridgeEntry.Id,
-        force: Boolean
+        force: Boolean,
     ): FridgeItem = getItems(entryId, force).first { it.id() == itemId }
 
     @CheckResult
     suspend fun getItems(
         entryId: FridgeEntry.Id,
-        force: Boolean
+        force: Boolean,
     ): List<FridgeItem> = withContext(context = Dispatchers.Default) {
         Enforcer.assertOffMainThread()
         return@withContext itemQueryDao.query(force, entryId)
@@ -175,7 +175,7 @@ internal class DetailInteractor @Inject internal constructor(
 
     suspend fun listenForChanges(
         id: FridgeEntry.Id,
-        onChange: suspend (event: FridgeItemChangeEvent) -> Unit
+        onChange: suspend (event: FridgeItemChangeEvent) -> Unit,
     ) =
         withContext(context = Dispatchers.Default) {
             Enforcer.assertOffMainThread()
@@ -203,12 +203,13 @@ internal class DetailInteractor @Inject internal constructor(
         }
     }
 
-    suspend fun delete(item: FridgeItem) = withContext(context = Dispatchers.Default) {
-        Enforcer.assertOffMainThread()
-        require(item.isReal()) { "Cannot delete item that is not real: $item" }
-        Timber.d("Deleting item [${item.id()}]: $item")
-        if (itemDeleteDao.delete(item)) {
-            Timber.d("Item deleted: $item")
+    suspend fun delete(item: FridgeItem, offerUndo: Boolean) =
+        withContext(context = Dispatchers.Default) {
+            Enforcer.assertOffMainThread()
+            require(item.isReal()) { "Cannot delete item that is not real: $item" }
+            Timber.d("Deleting item [${item.id()}]: $item")
+            if (itemDeleteDao.delete(item, offerUndo)) {
+                Timber.d("Item deleted: $item")
+            }
         }
-    }
 }

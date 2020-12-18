@@ -68,12 +68,12 @@ internal class NearbyStoreDbImpl internal constructor(
 
     private val deleteDao = object : NearbyStoreDeleteDao {
 
-        override suspend fun delete(o: NearbyStore): Boolean =
+        override suspend fun delete(o: NearbyStore, offerUndo: Boolean): Boolean =
             withContext(context = Dispatchers.IO) {
                 Enforcer.assertOffMainThread()
-                return@withContext deleteDao.delete(o).also { deleted ->
+                return@withContext deleteDao.delete(o, offerUndo).also { deleted ->
                     if (deleted) {
-                        publish(NearbyStoreChangeEvent.Delete(o))
+                        publish(NearbyStoreChangeEvent.Delete(o, offerUndo))
                     }
                 }
             }

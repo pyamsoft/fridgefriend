@@ -39,6 +39,7 @@ import com.pyamsoft.fridge.detail.expand.ExpandComponent
 import com.pyamsoft.fridge.detail.expand.ExpandItemCategoryListComponent
 import com.pyamsoft.fridge.detail.expand.date.DateSelectComponent
 import com.pyamsoft.fridge.detail.expand.date.DateSelectPayload
+import com.pyamsoft.fridge.detail.expand.move.ItemMoveComponent
 import com.pyamsoft.fridge.entry.EntryComponent
 import com.pyamsoft.fridge.entry.EntryListComponent
 import com.pyamsoft.fridge.entry.EntryPreferences
@@ -122,6 +123,9 @@ internal interface FridgeComponent {
 
     @CheckResult
     fun plusCategoryComponent(): CategoryComponent.Factory
+
+    @CheckResult
+    fun plusItemMoveComponent(): ItemMoveComponent.Factory
 
     @CheckResult
     fun plusExpandComponent(): ExpandComponent.Factory

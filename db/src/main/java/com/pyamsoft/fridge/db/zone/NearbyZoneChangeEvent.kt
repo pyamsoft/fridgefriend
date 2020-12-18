@@ -22,5 +22,8 @@ sealed class NearbyZoneChangeEvent {
 
     data class Update(val zone: NearbyZone) : NearbyZoneChangeEvent()
 
-    data class Delete(val zone: NearbyZone) : NearbyZoneChangeEvent()
+    data class Delete(
+        val zone: NearbyZone,
+        val offerUndo: Boolean,
+    ) : NearbyZoneChangeEvent()
 }

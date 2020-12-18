@@ -14,19 +14,21 @@
  * limitations under the License.
  */
 
-package com.pyamsoft.fridge.entry
+package com.pyamsoft.fridge.detail.expand.move
 
 import androidx.lifecycle.viewModelScope
 import com.pyamsoft.fridge.db.entry.FridgeEntry
-import com.pyamsoft.fridge.db.item.FridgeItem
+import com.pyamsoft.fridge.entry.EntryListStateModel
+import com.pyamsoft.fridge.entry.EntryViewEvent
+import com.pyamsoft.fridge.entry.EntryViewState
 import com.pyamsoft.pydroid.arch.Renderable
 import com.pyamsoft.pydroid.arch.UiViewModel
 import timber.log.Timber
 import javax.inject.Inject
 
-class EntryViewModel @Inject internal constructor(
+class ItemMoveListViewModel @Inject internal constructor(
     private val delegate: EntryListStateModel,
-) : UiViewModel<EntryViewState, EntryViewEvent, EntryControllerEvent>(
+) : UiViewModel<EntryViewState, EntryViewEvent, ItemMoveListControllerEvent>(
     initialState = delegate.initialState
 ) {
 
@@ -40,27 +42,26 @@ class EntryViewModel @Inject internal constructor(
         doOnCleared { delegate.clear() }
     }
 
+
     override fun handleViewEvent(event: EntryViewEvent) {
         return when (event) {
-            is EntryViewEvent.SelectEntry -> select(event.entry)
-            is EntryViewEvent.AddNew -> handleAddNew()
-            is EntryViewEvent.ForceRefresh -> delegate.refreshList(true)
+            is EntryViewEvent.SelectEntry -> selectEntry(event.entry)
             is EntryViewEvent.SearchQuery -> delegate.updateSearch(event.search)
-            is EntryViewEvent.DeleteEntry -> delegate.deleteEntry(event.entry)
-            is EntryViewEvent.ReallyDeleteEntryNoUndo -> delegate.deleteForever(event.entry)
-            is EntryViewEvent.UndoDeleteEntry -> delegate.undoDelete(event.entry)
             is EntryViewEvent.ChangeSort -> delegate.changeSort(event.sort)
+            is EntryViewEvent.ForceRefresh -> delegate.refreshList(true)
+            is EntryViewEvent.AddNew -> notHandled(event)
+            is EntryViewEvent.DeleteEntry -> notHandled(event)
+            is EntryViewEvent.ReallyDeleteEntryNoUndo -> notHandled(event)
+            is EntryViewEvent.UndoDeleteEntry -> notHandled(event)
         }
     }
 
-    private fun handleAddNew() {
-        Timber.d("Add new entry")
-        publish(EntryControllerEvent.AddEntry)
+    private fun notHandled(event: EntryViewEvent) {
+        throw IllegalStateException("Event not handled: $event")
     }
 
-    private fun select(entry: FridgeEntry) {
-        Timber.d("Loading entry page: $entry")
-        publish(EntryControllerEvent.LoadEntry(entry, FridgeItem.Presence.NEED))
+    private fun selectEntry(entry: FridgeEntry) {
+        Timber.d("Selected entry $entry")
+        publish(ItemMoveListControllerEvent.SelectedTarget(entry))
     }
-
 }

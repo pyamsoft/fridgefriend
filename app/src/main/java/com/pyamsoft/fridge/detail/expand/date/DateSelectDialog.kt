@@ -23,11 +23,12 @@ import androidx.annotation.CheckResult
 import androidx.appcompat.app.AppCompatDialogFragment
 import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.ViewModelProvider
-import com.google.android.material.datepicker.MaterialDatePicker
 import com.pyamsoft.fridge.FridgeComponent
 import com.pyamsoft.fridge.core.today
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItem
+import com.pyamsoft.fridge.detail.expand.date.DateSelectControllerEvent
+import com.pyamsoft.fridge.detail.expand.date.DateSelectViewModel
 import com.pyamsoft.pydroid.arch.StateSaver
 import com.pyamsoft.pydroid.arch.createComponent
 import com.pyamsoft.pydroid.ui.Injector
@@ -102,18 +103,17 @@ internal class DateSelectDialog : AppCompatDialogFragment() {
             item: FridgeItem,
             year: Int,
             month: Int,
-            day: Int
+            day: Int,
         ): DialogFragment {
-            return DateSelectDialog()
-                .apply {
-                    arguments = Bundle().apply {
-                        putString(ITEM, item.id().id)
-                        putString(ENTRY, item.entryId().id)
-                        putInt(YEAR, year)
-                        putInt(MONTH, month)
-                        putInt(DAY, day)
-                    }
+            return DateSelectDialog().apply {
+                arguments = Bundle().apply {
+                    putString(ITEM, item.id().id)
+                    putString(ENTRY, item.entryId().id)
+                    putInt(YEAR, year)
+                    putInt(MONTH, month)
+                    putInt(DAY, day)
                 }
+            }
         }
     }
 }

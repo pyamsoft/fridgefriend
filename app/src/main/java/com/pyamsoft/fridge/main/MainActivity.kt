@@ -78,17 +78,11 @@ internal class MainActivity : ChangeLogActivity(), VersionChecker {
     override val versionName = BuildConfig.VERSION_NAME
 
     override val changelog = buildChangeLog {
-        feature("Multiple Groups can now be created to categorize Items")
-        change("Improved Map performance")
-        change("Nearby store notifications can only be received while the application is open. This change is to comply with store policy.")
-        bugfix("Fix a crash on device rotation")
-        bugfix("Fix a crash on theme change")
+        feature("An Item can be moved from one Group to another via toolbar option.")
 //        // TODO(Do this)
 //        bugfix("Fix tooltip arrow location")
 //        // TODO(Do this)
 //        feature("Group names can be edited via long press")
-//        // TODO(Do this)
-//        feature("An Item can be moved from one Group to another via toolbar option.")
 //        // TODO(Do this)
 //        feature("More information on Group overview screen")
 //        // TODO(Do this): Entry screen empty state

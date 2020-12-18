@@ -47,7 +47,7 @@ class EntryInteractor @Inject internal constructor(
     private val entryInsertDao: FridgeEntryInsertDao,
     private val entryQueryDao: FridgeEntryQueryDao,
     private val entryDeleteDao: FridgeEntryDeleteDao,
-    private val entryRealtime: FridgeEntryRealtime
+    private val entryRealtime: FridgeEntryRealtime,
 ) {
 
     @CheckResult
@@ -103,12 +103,13 @@ class EntryInteractor @Inject internal constructor(
         entryInsertDao.insert(entry.makeReal())
     }
 
-    suspend fun delete(entry: FridgeEntry) = withContext(context = Dispatchers.IO) {
-        require(entry.isReal()) { "Entry must be real" }
+    suspend fun delete(entry: FridgeEntry, offerUndo: Boolean) =
+        withContext(context = Dispatchers.IO) {
+            require(entry.isReal()) { "Entry must be real" }
 
-        Enforcer.assertOffMainThread()
-        entryDeleteDao.delete(entry)
-    }
+            Enforcer.assertOffMainThread()
+            entryDeleteDao.delete(entry, offerUndo)
+        }
 
     suspend fun commit(entry: FridgeEntry) = withContext(context = Dispatchers.IO) {
         require(entry.isReal()) { "Entry must be real" }

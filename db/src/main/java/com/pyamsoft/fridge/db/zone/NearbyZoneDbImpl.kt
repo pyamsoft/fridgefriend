@@ -65,11 +65,11 @@ internal class NearbyZoneDbImpl internal constructor(
 
     private val deleteDao = object : NearbyZoneDeleteDao {
 
-        override suspend fun delete(o: NearbyZone) = withContext(context = Dispatchers.IO) {
+        override suspend fun delete(o: NearbyZone, offerUndo: Boolean) = withContext(context = Dispatchers.IO) {
             Enforcer.assertOffMainThread()
-            return@withContext deleteDao.delete(o).also { deleted ->
+            return@withContext deleteDao.delete(o, offerUndo).also { deleted ->
                 if (deleted) {
-                    publish(NearbyZoneChangeEvent.Delete(o))
+                    publish(NearbyZoneChangeEvent.Delete(o, offerUndo))
                 }
             }
         }

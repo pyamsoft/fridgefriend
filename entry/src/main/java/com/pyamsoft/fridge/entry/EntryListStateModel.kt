@@ -32,7 +32,7 @@ import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
 
-internal class EntryListStateModel @Inject internal constructor(
+class EntryListStateModel @Inject internal constructor(
     private val interactor: EntryInteractor,
     bottomOffsetBus: EventConsumer<BottomOffset>,
 ) : UiStateModel<EntryViewState>(
@@ -107,7 +107,7 @@ internal class EntryListStateModel @Inject internal constructor(
     @CheckResult
     private fun EntryViewState.getOnlyVisibleEntries(
         entries: List<EntryViewState.EntryGroup>,
-        search: String
+        search: String,
     ): List<EntryViewState.EntryGroup> {
         return entries
             .asSequence()
@@ -140,10 +140,13 @@ internal class EntryListStateModel @Inject internal constructor(
 
     private fun handleEventRealtime(event: FridgeEntryChangeEvent) {
         return when (event) {
+            is FridgeEntryChangeEvent.DeleteAll -> handleRealtimeEntryDeleteAll()
             is FridgeEntryChangeEvent.Insert -> handleRealtimeEntryInsert(event.entry)
             is FridgeEntryChangeEvent.Update -> handleRealtimeEntryUpdate(event.entry)
-            is FridgeEntryChangeEvent.Delete -> handleRealtimeEntryDelete(event.entry)
-            is FridgeEntryChangeEvent.DeleteAll -> handleRealtimeEntryDeleteAll()
+            is FridgeEntryChangeEvent.Delete -> handleRealtimeEntryDelete(
+                event.entry,
+                event.offerUndo
+            )
         }
     }
 
@@ -217,20 +220,20 @@ internal class EntryListStateModel @Inject internal constructor(
         }
     }
 
-    private fun handleRealtimeEntryDelete(entry: FridgeEntry) {
+    private fun handleRealtimeEntryDelete(entry: FridgeEntry, offerUndo: Boolean) {
         Timber.d("Realtime delete: $entry")
         setState {
             val newEntries = allEntries.filterNot { it.entry.id() == entry.id() }
             regenerateEntries(newEntries).copy(
                 // Show undo banner
-                undoableEntry = entry
+                undoableEntry = if (offerUndo) entry else null
             )
         }
     }
 
     @CheckResult
     private fun EntryViewState.prepareListEntries(
-        entries: List<EntryViewState.EntryGroup>
+        entries: List<EntryViewState.EntryGroup>,
     ): List<EntryViewState.EntryGroup> {
         val dateSorter = Comparator<EntryViewState.EntryGroup> { o1, o2 ->
             when (sort) {
@@ -253,7 +256,7 @@ internal class EntryListStateModel @Inject internal constructor(
             .toList()
     }
 
-    internal fun updateSearch(search: String) {
+    fun updateSearch(search: String) {
         setState(
             stateChange = {
                 val cleanSearch = if (search.isNotBlank()) search.trim() else ""
@@ -265,7 +268,7 @@ internal class EntryListStateModel @Inject internal constructor(
         )
     }
 
-    internal fun refreshList(force: Boolean) {
+    fun refreshList(force: Boolean) {
         stateModelScope.launch(context = Dispatchers.Default) {
             refreshRunner.call(force)
         }
@@ -273,7 +276,7 @@ internal class EntryListStateModel @Inject internal constructor(
 
     internal fun deleteEntry(entry: FridgeEntry) {
         stateModelScope.launch(context = Dispatchers.Default) {
-            interactor.delete(entry)
+            interactor.delete(entry, true)
         }
     }
 
@@ -292,7 +295,7 @@ internal class EntryListStateModel @Inject internal constructor(
         }
     }
 
-    internal fun changeSort(newSort: EntryViewState.Sorts) {
+    fun changeSort(newSort: EntryViewState.Sorts) {
         setState(stateChange = { copy(sort = newSort) }, andThen = { refreshList(false) })
     }
 }

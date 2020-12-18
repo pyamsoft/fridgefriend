@@ -63,12 +63,12 @@ internal class FridgeEntryDbImpl internal constructor(
 
     private val deleteDao = object : FridgeEntryDeleteDao {
 
-        override suspend fun delete(o: FridgeEntry): Boolean =
+        override suspend fun delete(o: FridgeEntry, offerUndo: Boolean): Boolean =
             withContext(context = Dispatchers.IO) {
                 Enforcer.assertOffMainThread()
-                return@withContext deleteDao.delete(o).also { deleted ->
+                return@withContext deleteDao.delete(o, offerUndo).also { deleted ->
                     if (deleted) {
-                        publish(FridgeEntryChangeEvent.Delete(o.makeReal()))
+                        publish(FridgeEntryChangeEvent.Delete(o.makeReal(), offerUndo))
                     }
                 }
             }
