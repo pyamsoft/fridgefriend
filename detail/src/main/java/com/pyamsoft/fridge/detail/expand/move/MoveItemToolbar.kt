@@ -27,8 +27,8 @@ import com.pyamsoft.fridge.entry.EntryViewEvent
 import com.pyamsoft.fridge.entry.EntryViewState
 import com.pyamsoft.fridge.ui.view.UiToolbar
 import com.pyamsoft.pydroid.arch.BaseUiView
-import com.pyamsoft.pydroid.arch.StateUiRender
 import com.pyamsoft.pydroid.arch.UiRender
+import com.pyamsoft.pydroid.arch.asUiRender
 import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.loader.ImageTarget
 import com.pyamsoft.pydroid.ui.theme.ThemeProvider
@@ -134,7 +134,7 @@ class MoveItemToolbar @Inject internal constructor(
 
     override fun onRender(state: UiRender<ItemMoveViewState>) {
         state.distinctBy { it.item }.render(viewScope) { handleItem(it) }
-        state.distinctBy { it.listState }.render(viewScope) { delegate.render(StateUiRender(it)) }
+        state.distinctBy { it.listState }.render(viewScope) { delegate.render(it.asUiRender()) }
     }
 }
 
