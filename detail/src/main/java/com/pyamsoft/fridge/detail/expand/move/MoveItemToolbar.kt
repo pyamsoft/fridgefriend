@@ -25,6 +25,7 @@ import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.detail.databinding.ExpandToolbarBinding
 import com.pyamsoft.fridge.entry.EntryViewEvent
 import com.pyamsoft.fridge.entry.EntryViewState
+import com.pyamsoft.fridge.ui.StateUiRender
 import com.pyamsoft.fridge.ui.view.UiToolbar
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.arch.UiRender
@@ -35,8 +36,6 @@ import com.pyamsoft.pydroid.ui.util.DebouncedOnClickListener
 import com.pyamsoft.pydroid.ui.util.setUpEnabled
 import com.pyamsoft.pydroid.util.asDp
 import com.pyamsoft.pydroid.util.tintWith
-import kotlinx.coroutines.CoroutineScope
-import timber.log.Timber
 import javax.inject.Inject
 import com.pyamsoft.pydroid.ui.R as R2
 
@@ -74,8 +73,8 @@ class MoveItemToolbar @Inject internal constructor(
     init {
         doOnSaveState { delegate.saveState(it) }
         doOnTeardown { delegate.teardown() }
-
         doOnInflate { savedInstanceState ->
+            // Set the theme before inflating the delegate or popup theme will be wrong.
             val theme = if (theming.isDarkTheme()) {
                 R.style.ThemeOverlay_MaterialComponents
             } else {
@@ -135,24 +134,7 @@ class MoveItemToolbar @Inject internal constructor(
 
     override fun onRender(state: UiRender<ItemMoveViewState>) {
         state.distinctBy { it.item }.render(viewScope) { handleItem(it) }
-        state.render(viewScope) {
-            Timber.d("Render state: ${it.listState}")
-            delegate.render(ItemUiRender(it.listState))
-        }
+        state.distinctBy { it.listState }.render(viewScope) { delegate.render(StateUiRender(it)) }
     }
 }
 
-class ItemUiRender<S>(private val state: S) : UiRender<S> {
-    override fun render(scope: CoroutineScope, onRender: (state: S) -> Unit) {
-        onRender(state)
-    }
-
-    override fun <T> distinctBy(distinctBy: (state: S) -> T): UiRender<T> {
-        return ItemUiRender(distinctBy(state))
-    }
-
-    override fun distinct(areEquivalent: (old: S, new: S) -> Boolean): UiRender<S> {
-        return this
-    }
-
-}

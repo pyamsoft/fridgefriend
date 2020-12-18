@@ -21,6 +21,7 @@ import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.ui.view.UiToolbar
 import com.pyamsoft.pydroid.arch.UiRender
 import com.pyamsoft.pydroid.ui.app.ToolbarActivity
+import com.pyamsoft.pydroid.ui.util.DebouncedOnClickListener
 import javax.inject.Inject
 
 class DetailToolbar @Inject internal constructor(
@@ -31,6 +32,20 @@ class DetailToolbar @Inject internal constructor(
 
     private val itemIdPurchasedDate = View.generateViewId()
     private val itemIdExpirationDate = View.generateViewId()
+
+    init {
+        doOnInflate {
+            toolbarActivity.withToolbar { toolbar ->
+                toolbar.setNavigationOnClickListener(DebouncedOnClickListener.create {
+                    publish(DetailViewEvent.Back)
+                })
+            }
+        }
+
+        doOnTeardown {
+            toolbarActivity.withToolbar { it.setNavigationOnClickListener(null) }
+        }
+    }
 
     override fun publishSearchEvent(search: String) {
         publish(DetailViewEvent.SearchQuery(search))

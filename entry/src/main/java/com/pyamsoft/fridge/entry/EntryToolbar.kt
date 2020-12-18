@@ -18,6 +18,7 @@ package com.pyamsoft.fridge.entry
 
 import com.pyamsoft.fridge.ui.view.UiToolbar
 import com.pyamsoft.pydroid.ui.app.ToolbarActivity
+import com.pyamsoft.pydroid.ui.util.setUpEnabled
 import javax.inject.Inject
 
 class EntryToolbar @Inject internal constructor(
@@ -25,6 +26,16 @@ class EntryToolbar @Inject internal constructor(
 ) : UiToolbar<EntryViewState.Sorts, EntryViewState, EntryViewEvent>(
     withToolbar = { toolbarActivity.withToolbar(it) }
 ) {
+
+    init {
+        doOnInflate {
+            toolbarActivity.withToolbar { it.setUpEnabled(false) }
+        }
+
+        doOnTeardown {
+            toolbarActivity.withToolbar { it.setUpEnabled(false) }
+        }
+    }
 
     override fun publishSearchEvent(search: String) {
         publish(EntryViewEvent.SearchQuery(search))

@@ -36,7 +36,6 @@ import com.pyamsoft.pydroid.arch.UiRender
 import com.pyamsoft.pydroid.arch.UiView
 import com.pyamsoft.pydroid.arch.UiViewEvent
 import com.pyamsoft.pydroid.arch.UiViewState
-import com.pyamsoft.pydroid.ui.util.setUpEnabled
 import timber.log.Timber
 
 abstract class UiToolbar<E : Enum<E>, S : UiToolbar.State<E>, V : UiViewEvent> protected constructor(
@@ -68,14 +67,12 @@ abstract class UiToolbar<E : Enum<E>, S : UiToolbar.State<E>, V : UiViewEvent> p
     init {
         doOnInflate {
             withToolbar { toolbar ->
-                toolbar.setUpEnabled(false)
                 initializeMenuItems(toolbar)
             }
         }
 
         doOnTeardown {
             withToolbar { toolbar ->
-                toolbar.setUpEnabled(false)
                 toolbar.teardownMenu()
             }
         }
