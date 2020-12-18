@@ -31,9 +31,11 @@ import com.pyamsoft.pydroid.arch.UiViewModel
 import dagger.Binds
 import dagger.BindsInstance
 import dagger.Module
+import dagger.Provides
 import dagger.Subcomponent
 import dagger.multibindings.ClassKey
 import dagger.multibindings.IntoMap
+import javax.inject.Named
 
 @Subcomponent(modules = [ItemMoveComponent.ViewModelModule::class, EntryListModule::class, ThemeProviderModule::class, TooltipModule::class])
 internal interface ItemMoveComponent {
@@ -68,5 +70,18 @@ internal interface ItemMoveComponent {
         @IntoMap
         @ClassKey(ItemMoveListViewModel::class)
         internal abstract fun itemMoveListViewModel(viewModel: ItemMoveListViewModel): UiViewModel<*, *, *>
+
+        @Module
+        companion object {
+
+            @JvmStatic
+            @Provides
+            @CheckResult
+            @Named("is_interactive")
+            internal fun provideInteractive(): Boolean {
+                return false
+            }
+
+        }
     }
 }

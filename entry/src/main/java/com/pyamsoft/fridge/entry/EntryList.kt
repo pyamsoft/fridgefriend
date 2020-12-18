@@ -46,10 +46,12 @@ import io.cabriole.decorator.LinearMarginDecoration
 import me.zhanghai.android.fastscroll.FastScrollerBuilder
 import timber.log.Timber
 import javax.inject.Inject
+import javax.inject.Named
 
 class EntryList @Inject internal constructor(
     private val theming: ThemeProvider,
     private val imageLoader: ImageLoader,
+    @Named("is_interactive") interactive: Boolean,
     owner: LifecycleOwner,
     parent: ViewGroup,
     factory: EntryItemComponent.Factory,
@@ -104,7 +106,9 @@ class EntryList @Inject internal constructor(
         }
 
         doOnInflate {
-            setupSwipeCallback()
+            if (interactive) {
+                setupSwipeCallback()
+            }
         }
 
         doOnInflate { savedInstanceState ->
