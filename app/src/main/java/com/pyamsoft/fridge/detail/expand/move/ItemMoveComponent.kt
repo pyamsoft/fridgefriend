@@ -22,6 +22,7 @@ import androidx.annotation.CheckResult
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModelProvider
 import com.pyamsoft.fridge.ThemeProviderModule
+import com.pyamsoft.fridge.core.FragmentScope
 import com.pyamsoft.fridge.core.FridgeViewModelFactory
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItem
@@ -37,7 +38,14 @@ import dagger.multibindings.ClassKey
 import dagger.multibindings.IntoMap
 import javax.inject.Named
 
-@Subcomponent(modules = [ItemMoveComponent.ViewModelModule::class, EntryListModule::class, ThemeProviderModule::class, TooltipModule::class])
+@Subcomponent(modules = [
+    ItemMoveComponent.ViewModelModule::class,
+    ItemMoveModule::class,
+    EntryListModule::class,
+    ThemeProviderModule::class,
+    TooltipModule::class
+])
+@FragmentScope
 internal interface ItemMoveComponent {
 
     fun inject(dialog: ItemMoveDialog)

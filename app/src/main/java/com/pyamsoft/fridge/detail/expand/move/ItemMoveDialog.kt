@@ -29,6 +29,7 @@ import com.pyamsoft.fridge.FridgeComponent
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.entry.EntryList
+import com.pyamsoft.fridge.entry.EntryViewState
 import com.pyamsoft.pydroid.arch.StateSaver
 import com.pyamsoft.pydroid.arch.createComponent
 import com.pyamsoft.pydroid.ui.Injector
@@ -46,7 +47,7 @@ internal class ItemMoveDialog : AppCompatDialogFragment() {
     @Inject
     internal var factory: ViewModelProvider.Factory? = null
     private val viewModel by viewModelFactory<ItemMoveViewModel> { factory }
-    private val listViewModel by viewModelFactory<ItemMoveListViewModel>(activity = true) { factory }
+    private val listViewModel by viewModelFactory<ItemMoveListViewModel> { factory }
 
     @JvmField
     @Inject
@@ -106,6 +107,8 @@ internal class ItemMoveDialog : AppCompatDialogFragment() {
         ) {
             return@createComponent when (it) {
                 is ItemMoveControllerEvent.Close -> dismiss()
+                is ItemMoveControllerEvent.PublishSearch -> handleSearch(it.search)
+                is ItemMoveControllerEvent.PublishSort -> handleSort(it.sort)
             }
         }
 
@@ -141,6 +144,14 @@ internal class ItemMoveDialog : AppCompatDialogFragment() {
                 constrainHeight(it.id(), ConstraintSet.MATCH_CONSTRAINT)
             }
         }
+    }
+
+    private fun handleSearch(search: String) {
+        listViewModel.handleUpdateSearch(search)
+    }
+
+    private fun handleSort(sort: EntryViewState.Sorts) {
+        listViewModel.handleUpdateSort(sort)
     }
 
     private fun handleEntrySelect(entry: FridgeEntry) {

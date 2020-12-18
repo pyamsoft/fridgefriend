@@ -19,28 +19,78 @@ package com.pyamsoft.fridge.detail.expand.move
 import android.graphics.Color
 import android.graphics.drawable.Drawable
 import android.view.ViewGroup
+import androidx.core.view.ViewCompat
+import com.google.android.material.R
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.detail.databinding.ExpandToolbarBinding
+import com.pyamsoft.fridge.entry.EntryViewEvent
+import com.pyamsoft.fridge.entry.EntryViewState
+import com.pyamsoft.fridge.ui.view.UiToolbar
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.arch.UiRender
 import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.loader.ImageTarget
+import com.pyamsoft.pydroid.ui.theme.ThemeProvider
 import com.pyamsoft.pydroid.ui.util.DebouncedOnClickListener
 import com.pyamsoft.pydroid.ui.util.setUpEnabled
+import com.pyamsoft.pydroid.util.asDp
 import com.pyamsoft.pydroid.util.tintWith
+import kotlinx.coroutines.CoroutineScope
+import timber.log.Timber
 import javax.inject.Inject
 import com.pyamsoft.pydroid.ui.R as R2
 
 class MoveItemToolbar @Inject internal constructor(
     imageLoader: ImageLoader,
     parent: ViewGroup,
+    theming: ThemeProvider,
 ) : BaseUiView<ItemMoveViewState, ItemMoveViewEvent, ExpandToolbarBinding>(parent) {
+
+    private val delegate = object : UiToolbar<EntryViewState.Sorts, EntryViewState, EntryViewEvent>(
+        withToolbar = { it(binding.expandToolbar) }
+    ) {
+        override fun onGetSortForMenuItem(itemId: Int): EntryViewState.Sorts? {
+            return when (itemId) {
+                itemIdCreatedDate -> EntryViewState.Sorts.CREATED
+                itemIdName -> EntryViewState.Sorts.NAME
+                else -> null
+            }
+        }
+
+        override fun publishSearchEvent(search: String) {
+            publish(ItemMoveViewEvent.SearchQuery(search))
+        }
+
+        override fun publishSortEvent(sort: State.Sort<EntryViewState.Sorts>) {
+            publish(ItemMoveViewEvent.ChangeSort(sort.original))
+        }
+
+    }
 
     override val viewBinding = ExpandToolbarBinding::inflate
 
     override val layoutRoot by boundView { expandToolbar }
 
     init {
+        doOnSaveState { delegate.saveState(it) }
+        doOnTeardown { delegate.teardown() }
+
+        doOnInflate { savedInstanceState ->
+            val theme = if (theming.isDarkTheme()) {
+                R.style.ThemeOverlay_MaterialComponents
+            } else {
+                R.style.ThemeOverlay_MaterialComponents_Light
+            }
+
+            binding.expandToolbar.apply {
+                popupTheme = theme
+                ViewCompat.setElevation(this, 8f.asDp(context).toFloat())
+            }
+
+            delegate.init(savedInstanceState)
+            delegate.inflate(savedInstanceState)
+        }
+
         doOnInflate {
             imageLoader.load(R2.drawable.ic_close_24dp).mutate { it.tintWith(Color.WHITE) }
                 .into(object : ImageTarget<Drawable> {
@@ -85,5 +135,24 @@ class MoveItemToolbar @Inject internal constructor(
 
     override fun onRender(state: UiRender<ItemMoveViewState>) {
         state.distinctBy { it.item }.render(viewScope) { handleItem(it) }
+        state.render(viewScope) {
+            Timber.d("Render state: ${it.listState}")
+            delegate.render(ItemUiRender(it.listState))
+        }
     }
+}
+
+class ItemUiRender<S>(private val state: S) : UiRender<S> {
+    override fun render(scope: CoroutineScope, onRender: (state: S) -> Unit) {
+        onRender(state)
+    }
+
+    override fun <T> distinctBy(distinctBy: (state: S) -> T): UiRender<T> {
+        return ItemUiRender(distinctBy(state))
+    }
+
+    override fun distinct(areEquivalent: (old: S, new: S) -> Boolean): UiRender<S> {
+        return this
+    }
+
 }

@@ -27,7 +27,7 @@ import timber.log.Timber
 import javax.inject.Inject
 
 class ItemMoveListViewModel @Inject internal constructor(
-    private val delegate: EntryListStateModel,
+    @param:InternalApi private val delegate: EntryListStateModel,
 ) : UiViewModel<EntryViewState, EntryViewEvent, ItemMoveListControllerEvent>(
     initialState = delegate.initialState
 ) {
@@ -43,14 +43,22 @@ class ItemMoveListViewModel @Inject internal constructor(
     override fun handleViewEvent(event: EntryViewEvent) {
         return when (event) {
             is EntryViewEvent.SelectEntry -> selectEntry(event.entry)
-            is EntryViewEvent.SearchQuery -> delegate.updateSearch(event.search)
-            is EntryViewEvent.ChangeSort -> delegate.changeSort(event.sort)
             is EntryViewEvent.ForceRefresh -> delegate.refreshList(true)
+            is EntryViewEvent.SearchQuery -> notHandled(event)
+            is EntryViewEvent.ChangeSort -> notHandled(event)
             is EntryViewEvent.AddNew -> notHandled(event)
             is EntryViewEvent.DeleteEntry -> notHandled(event)
             is EntryViewEvent.ReallyDeleteEntryNoUndo -> notHandled(event)
             is EntryViewEvent.UndoDeleteEntry -> notHandled(event)
         }
+    }
+
+    fun handleUpdateSearch(search: String) {
+        delegate.updateSearch(search)
+    }
+
+    fun handleUpdateSort(sort: EntryViewState.Sorts) {
+        delegate.changeSort(sort)
     }
 
     private fun notHandled(event: EntryViewEvent) {

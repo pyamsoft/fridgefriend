@@ -36,12 +36,11 @@ import com.pyamsoft.pydroid.arch.UiRender
 import com.pyamsoft.pydroid.arch.UiView
 import com.pyamsoft.pydroid.arch.UiViewEvent
 import com.pyamsoft.pydroid.arch.UiViewState
-import com.pyamsoft.pydroid.ui.app.ToolbarActivity
 import com.pyamsoft.pydroid.ui.util.setUpEnabled
 import timber.log.Timber
 
 abstract class UiToolbar<E : Enum<E>, S : UiToolbar.State<E>, V : UiViewEvent> protected constructor(
-    toolbarActivity: ToolbarActivity,
+    withToolbar: ((Toolbar) -> Unit) -> Unit,
 ) : UiView<S, V>() {
 
     private val groupIdSearch = View.generateViewId()
@@ -68,14 +67,14 @@ abstract class UiToolbar<E : Enum<E>, S : UiToolbar.State<E>, V : UiViewEvent> p
 
     init {
         doOnInflate {
-            toolbarActivity.requireToolbar { toolbar ->
+            withToolbar { toolbar ->
                 toolbar.setUpEnabled(false)
                 initializeMenuItems(toolbar)
             }
         }
 
         doOnTeardown {
-            toolbarActivity.withToolbar { toolbar ->
+            withToolbar { toolbar ->
                 toolbar.setUpEnabled(false)
                 toolbar.teardownMenu()
             }
@@ -131,10 +130,7 @@ abstract class UiToolbar<E : Enum<E>, S : UiToolbar.State<E>, V : UiViewEvent> p
 
     private fun publishSearch(query: String) {
         publishHandler.removeCallbacksAndMessages(null)
-        publishHandler.postDelayed(
-            { publish(createSearchEvent(query)) },
-            SEARCH_PUBLISH_TIMEOUT
-        )
+        publishHandler.postDelayed({ publishSearchEvent(query) }, SEARCH_PUBLISH_TIMEOUT)
     }
 
     private fun Toolbar.setVisibilityOfNonSearchItems(visible: Boolean) {
@@ -250,7 +246,7 @@ abstract class UiToolbar<E : Enum<E>, S : UiToolbar.State<E>, V : UiViewEvent> p
     @CheckResult
     private fun clickListener(sort: State.Sort<E>): MenuItem.OnMenuItemClickListener {
         return MenuItem.OnMenuItemClickListener {
-            publish(createSortEvent(sort))
+            publishSortEvent(sort)
             return@OnMenuItemClickListener true
         }
     }
@@ -258,16 +254,6 @@ abstract class UiToolbar<E : Enum<E>, S : UiToolbar.State<E>, V : UiViewEvent> p
     @CheckResult
     private fun getSortForMenuItem(itemId: Int): State.Sort<E>? {
         return onGetSortForMenuItem(itemId)?.let { State.Sort(sort = it.ordinal, original = it) }
-    }
-
-    @CheckResult
-    private fun createSortEvent(sort: State.Sort<E>): V {
-        return onCreateSortEvent(sort)
-    }
-
-    @CheckResult
-    private fun createSearchEvent(query: String): V {
-        return onCreateSearchEvent(query)
     }
 
     protected open fun onCreateAdditionalSortItems(adder: (Int, CharSequence) -> Unit) {
@@ -279,11 +265,9 @@ abstract class UiToolbar<E : Enum<E>, S : UiToolbar.State<E>, V : UiViewEvent> p
     @CheckResult
     protected abstract fun onGetSortForMenuItem(itemId: Int): E?
 
-    @CheckResult
-    protected abstract fun onCreateSortEvent(sort: State.Sort<E>): V
+    protected abstract fun publishSortEvent(sort: State.Sort<E>)
 
-    @CheckResult
-    protected abstract fun onCreateSearchEvent(search: String): V
+    protected abstract fun publishSearchEvent(search: String)
 
     companion object {
         private const val SEARCH_PUBLISH_TIMEOUT = 400L

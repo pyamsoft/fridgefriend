@@ -32,7 +32,7 @@ import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
 
-class EntryListStateModel @Inject internal constructor(
+class EntryListStateModel @Inject constructor(
     private val interactor: EntryInteractor,
     bottomOffsetBus: EventConsumer<BottomOffset>,
 ) : UiStateModel<EntryViewState>(

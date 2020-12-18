@@ -20,7 +20,10 @@ import androidx.lifecycle.viewModelScope
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.detail.DetailInteractor
+import com.pyamsoft.fridge.entry.EntryListStateModel
+import com.pyamsoft.fridge.entry.EntryViewState
 import com.pyamsoft.highlander.highlander
+import com.pyamsoft.pydroid.arch.Renderable
 import com.pyamsoft.pydroid.arch.UiViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -30,10 +33,12 @@ import javax.inject.Inject
 class ItemMoveViewModel @Inject internal constructor(
     private val interactor: DetailInteractor,
     private val itemId: FridgeItem.Id,
+    @param:InternalApi private val delegate: EntryListStateModel,
     entryId: FridgeEntry.Id,
 ) : UiViewModel<ItemMoveViewState, ItemMoveViewEvent, ItemMoveControllerEvent>(
     initialState = ItemMoveViewState(
-        item = null
+        item = null,
+        listState = delegate.initialState
     )
 ) {
 
@@ -48,6 +53,12 @@ class ItemMoveViewModel @Inject internal constructor(
     }
 
     init {
+        val job = delegate.bind(Renderable { state ->
+            state.render(viewModelScope) { newState -> setState { copy(listState = newState) } }
+        })
+        doOnCleared { job.cancel() }
+        doOnCleared { delegate.clear() }
+
         viewModelScope.launch(context = Dispatchers.Default) {
             itemResolveRunner.call(itemId)
         }
@@ -57,7 +68,17 @@ class ItemMoveViewModel @Inject internal constructor(
     override fun handleViewEvent(event: ItemMoveViewEvent) {
         return when (event) {
             is ItemMoveViewEvent.Close -> closeDialog()
+            is ItemMoveViewEvent.SearchQuery -> publishSearch(event.search)
+            is ItemMoveViewEvent.ChangeSort -> publishSort(event.sort)
         }
+    }
+
+    private fun publishSort(sort: EntryViewState.Sorts) {
+        publish(ItemMoveControllerEvent.PublishSort(sort))
+    }
+
+    private fun publishSearch(search: String) {
+        publish(ItemMoveControllerEvent.PublishSearch(search))
     }
 
     private fun closeDialog() {

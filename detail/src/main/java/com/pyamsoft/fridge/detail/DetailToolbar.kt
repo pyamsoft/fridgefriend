@@ -25,17 +25,19 @@ import javax.inject.Inject
 
 class DetailToolbar @Inject internal constructor(
     toolbarActivity: ToolbarActivity,
-) : UiToolbar<DetailViewState.Sorts, DetailViewState, DetailViewEvent>(toolbarActivity) {
+) : UiToolbar<DetailViewState.Sorts, DetailViewState, DetailViewEvent>(
+    withToolbar = { toolbarActivity.withToolbar(it) }
+) {
 
     private val itemIdPurchasedDate = View.generateViewId()
     private val itemIdExpirationDate = View.generateViewId()
 
-    override fun onCreateSearchEvent(search: String): DetailViewEvent {
-        return DetailViewEvent.SearchQuery(search)
+    override fun publishSearchEvent(search: String) {
+        publish(DetailViewEvent.SearchQuery(search))
     }
 
-    override fun onCreateSortEvent(sort: State.Sort<DetailViewState.Sorts>): DetailViewEvent {
-        return DetailViewEvent.ChangeSort(sort.original)
+    override fun publishSortEvent(sort: State.Sort<DetailViewState.Sorts>) {
+        publish(DetailViewEvent.ChangeSort(sort.original))
     }
 
     override fun onGetSortForMenuItem(itemId: Int): DetailViewState.Sorts? {

@@ -62,7 +62,7 @@ sealed class EntryViewEvent : UiViewEvent {
 
     data class SelectEntry internal constructor(val entry: FridgeEntry) : EntryViewEvent()
 
-    data class SearchQuery internal constructor(val search: String) : EntryViewEvent()
+    data class SearchQuery(val search: String) : EntryViewEvent()
 
     data class DeleteEntry internal constructor(val entry: FridgeEntry) : EntryViewEvent()
 
@@ -72,7 +72,7 @@ sealed class EntryViewEvent : UiViewEvent {
 
     data class UndoDeleteEntry internal constructor(val entry: FridgeEntry) : EntryViewEvent()
 
-    data class ChangeSort internal constructor(val sort: EntryViewState.Sorts) : EntryViewEvent()
+    data class ChangeSort(val sort: EntryViewState.Sorts) : EntryViewEvent()
 
     object ForceRefresh : EntryViewEvent()
 
