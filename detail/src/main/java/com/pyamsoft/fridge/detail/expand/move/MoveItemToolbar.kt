@@ -25,9 +25,9 @@ import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.detail.databinding.ExpandToolbarBinding
 import com.pyamsoft.fridge.entry.EntryViewEvent
 import com.pyamsoft.fridge.entry.EntryViewState
-import com.pyamsoft.fridge.ui.StateUiRender
 import com.pyamsoft.fridge.ui.view.UiToolbar
 import com.pyamsoft.pydroid.arch.BaseUiView
+import com.pyamsoft.pydroid.arch.StateUiRender
 import com.pyamsoft.pydroid.arch.UiRender
 import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.loader.ImageTarget
