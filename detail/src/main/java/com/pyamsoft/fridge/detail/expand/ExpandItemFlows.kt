@@ -35,29 +35,38 @@ data class ExpandItemViewState internal constructor(
 
 sealed class ExpandedItemViewEvent : UiViewEvent {
 
-    data class CommitCategory internal constructor(val index: Int) : ExpandedItemViewEvent()
+    sealed class ItemEvent : ExpandedItemViewEvent() {
 
-    data class CommitName internal constructor(val name: String) : ExpandedItemViewEvent()
+        data class CommitCategory internal constructor(val index: Int) : ItemEvent()
 
-    data class CommitCount internal constructor(val count: Int) : ExpandedItemViewEvent()
+        data class CommitName internal constructor(val name: String) : ItemEvent()
 
-    data class SelectSimilar internal constructor(val item: FridgeItem) : ExpandedItemViewEvent()
+        data class CommitCount internal constructor(val count: Int) : ItemEvent()
 
-    object CommitPresence : ExpandedItemViewEvent()
+        data class SelectSimilar internal constructor(val item: FridgeItem) : ItemEvent()
 
-    object PickDate : ExpandedItemViewEvent()
+        object CommitPresence : ItemEvent()
 
-    object CloseItem : ExpandedItemViewEvent()
+        object PickDate : ItemEvent()
 
-    object DeleteItem : ExpandedItemViewEvent()
+    }
 
-    object ConsumeItem : ExpandedItemViewEvent()
+    sealed class ToolbarEvent : ExpandedItemViewEvent() {
 
-    object SpoilItem : ExpandedItemViewEvent()
+        object CloseItem : ToolbarEvent()
 
-    object RestoreItem : ExpandedItemViewEvent()
+        object DeleteItem : ToolbarEvent()
 
-    object MoveItem : ExpandedItemViewEvent()
+        object ConsumeItem : ToolbarEvent()
+
+        object SpoilItem : ToolbarEvent()
+
+        object RestoreItem : ToolbarEvent()
+
+        object MoveItem : ToolbarEvent()
+
+    }
+
 }
 
 sealed class ExpandItemControllerEvent : UiControllerEvent {

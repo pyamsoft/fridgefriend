@@ -40,7 +40,7 @@ class DetailAddItemView @Inject internal constructor(
     private val owner: LifecycleOwner,
     private val imageLoader: ImageLoader,
     parent: ViewGroup,
-) : BaseUiView<DetailViewState, DetailViewEvent, DetailAddNewBinding>(parent), SnackbarContainer {
+) : BaseUiView<DetailViewState, DetailViewEvent.AddEvent, DetailAddNewBinding>(parent), SnackbarContainer {
 
     override val viewBinding = DetailAddNewBinding::inflate
 
@@ -59,7 +59,7 @@ class DetailAddItemView @Inject internal constructor(
                 .disposeOnDestroy(owner)
 
             binding.detailAddNewItem.setOnDebouncedClickListener {
-                publish(DetailViewEvent.AddNew)
+                publish(DetailViewEvent.AddEvent.AddNew)
             }
         }
 
@@ -69,7 +69,7 @@ class DetailAddItemView @Inject internal constructor(
 
         doOnInflate {
             binding.detailFilterItem.setOnDebouncedClickListener {
-                publish(DetailViewEvent.ToggleArchiveVisibility)
+                publish(DetailViewEvent.AddEvent.ToggleArchiveVisibility)
             }
         }
 
@@ -157,7 +157,7 @@ class DetailAddItemView @Inject internal constructor(
             long(
                 layoutRoot,
                 throwable.message ?: "An unexpected error has occurred.",
-                onHidden = { _, _ -> publish(DetailViewEvent.ClearListError) }
+                onHidden = { _, _ -> publish(DetailViewEvent.AddEvent.ClearListError) }
             )
         }
     }
@@ -172,10 +172,10 @@ class DetailAddItemView @Inject internal constructor(
             long(
                 layoutRoot,
                 message,
-                onHidden = { _, _ -> publish(DetailViewEvent.ReallyDeleteItemNoUndo(undoable)) }
+                onHidden = { _, _ -> publish(DetailViewEvent.AddEvent.ReallyDeleteItemNoUndo(undoable)) }
             ) {
                 // Restore the old item
-                setAction("Undo") { publish(DetailViewEvent.UndoDeleteItem(undoable)) }
+                setAction("Undo") { publish(DetailViewEvent.AddEvent.UndoDeleteItem(undoable)) }
             }
         }
     }

@@ -23,7 +23,7 @@ import javax.inject.Inject
 
 class EntryToolbar @Inject internal constructor(
     toolbarActivity: ToolbarActivity,
-) : UiToolbar<EntryViewState.Sorts, EntryViewState, EntryViewEvent>(
+) : UiToolbar<EntryViewState.Sorts, EntryViewState, EntryViewEvent.ToolbarEvent>(
     withToolbar = { toolbarActivity.withToolbar(it) }
 ) {
 
@@ -38,11 +38,11 @@ class EntryToolbar @Inject internal constructor(
     }
 
     override fun publishSearchEvent(search: String) {
-        publish(EntryViewEvent.SearchQuery(search))
+        publish(EntryViewEvent.ToolbarEvent.SearchQuery(search))
     }
 
     override fun publishSortEvent(sort: State.Sort<EntryViewState.Sorts>) {
-        publish(EntryViewEvent.ChangeSort(sort.original))
+        publish(EntryViewEvent.ToolbarEvent.ChangeSort(sort.original))
     }
 
     override fun onGetSortForMenuItem(itemId: Int): EntryViewState.Sorts? {

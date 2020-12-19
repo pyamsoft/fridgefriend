@@ -38,7 +38,7 @@ import com.pyamsoft.pydroid.ui.R as R2
 class ExpandItemToolbar @Inject internal constructor(
     imageLoader: ImageLoader,
     parent: ViewGroup,
-) : BaseUiView<ExpandItemViewState, ExpandedItemViewEvent, ExpandToolbarBinding>(parent) {
+) : BaseUiView<ExpandItemViewState, ExpandedItemViewEvent.ToolbarEvent, ExpandToolbarBinding>(parent) {
 
     override val viewBinding = ExpandToolbarBinding::inflate
 
@@ -93,29 +93,29 @@ class ExpandItemToolbar @Inject internal constructor(
 
         doOnInflate {
             binding.expandToolbar.setNavigationOnClickListener(DebouncedOnClickListener.create {
-                publish(ExpandedItemViewEvent.CloseItem)
+                publish(ExpandedItemViewEvent.ToolbarEvent.CloseItem)
             })
 
             binding.expandToolbar.setOnMenuItemClickListener { menuItem ->
                 return@setOnMenuItemClickListener when (menuItem.itemId) {
                     R.id.menu_item_move -> {
-                        publish(ExpandedItemViewEvent.MoveItem)
+                        publish(ExpandedItemViewEvent.ToolbarEvent.MoveItem)
                         true
                     }
                     R.id.menu_item_delete -> {
-                        publish(ExpandedItemViewEvent.DeleteItem)
+                        publish(ExpandedItemViewEvent.ToolbarEvent.DeleteItem)
                         true
                     }
                     R.id.menu_item_consume -> {
-                        publish(ExpandedItemViewEvent.ConsumeItem)
+                        publish(ExpandedItemViewEvent.ToolbarEvent.ConsumeItem)
                         true
                     }
                     R.id.menu_item_spoil -> {
-                        publish(ExpandedItemViewEvent.SpoilItem)
+                        publish(ExpandedItemViewEvent.ToolbarEvent.SpoilItem)
                         true
                     }
                     R.id.menu_item_restore -> {
-                        publish(ExpandedItemViewEvent.RestoreItem)
+                        publish(ExpandedItemViewEvent.ToolbarEvent.RestoreItem)
                         true
                     }
                     else -> false

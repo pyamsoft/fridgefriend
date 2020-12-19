@@ -151,13 +151,14 @@ class MapViewModel @Inject internal constructor(
 
     override fun handleViewEvent(event: MapViewEvent) {
         return when (event) {
-            is MapViewEvent.UpdateBoundingBox -> handleBoundingBox(event.box)
-            is MapViewEvent.RequestMyLocation -> findMyLocation(event.firstTime)
-            is MapViewEvent.DoneFindingMyLocation -> doneFindingMyLocation()
-            is MapViewEvent.RequestFindNearby -> nearbySupermarkets()
-            is MapViewEvent.OpenPopup -> openPopup(event.popup)
-            is MapViewEvent.HideFetchError -> handleNearbyError(null)
-            is MapViewEvent.HideCacheError -> handleCachedFetchError(null)
+            is MapViewEvent.MapEvent.UpdateBoundingBox -> handleBoundingBox(event.box)
+            is MapViewEvent.MapEvent.OpenPopup -> openPopup(event.popup)
+            is MapViewEvent.MapEvent.DoneFindingMyLocation -> doneFindingMyLocation()
+            is MapViewEvent.MapEvent.FindMyLocation -> findMyLocation(true)
+            is MapViewEvent.ActionEvent.RequestMyLocation -> findMyLocation(false)
+            is MapViewEvent.ActionEvent.RequestFindNearby -> nearbySupermarkets()
+            is MapViewEvent.ActionEvent.HideFetchError -> handleNearbyError(null)
+            is MapViewEvent.ActionEvent.HideCacheError -> handleCachedFetchError(null)
         }
     }
 

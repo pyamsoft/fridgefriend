@@ -60,23 +60,37 @@ data class EntryViewState internal constructor(
 
 sealed class EntryViewEvent : UiViewEvent {
 
-    data class SelectEntry internal constructor(val entry: FridgeEntry) : EntryViewEvent()
+    sealed class ListEvent : EntryViewEvent() {
 
-    data class SearchQuery(val search: String) : EntryViewEvent()
+        data class SelectEntry internal constructor(val entry: FridgeEntry) : ListEvent()
 
-    data class DeleteEntry internal constructor(val entry: FridgeEntry) : EntryViewEvent()
+        object ForceRefresh : ListEvent()
 
-    data class ReallyDeleteEntryNoUndo internal constructor(
-        val entry: FridgeEntry,
-    ) : EntryViewEvent()
+        data class DeleteEntry internal constructor(val entry: FridgeEntry) : ListEvent()
 
-    data class UndoDeleteEntry internal constructor(val entry: FridgeEntry) : EntryViewEvent()
+    }
 
-    data class ChangeSort(val sort: EntryViewState.Sorts) : EntryViewEvent()
+    sealed class AddEvent : EntryViewEvent() {
 
-    object ForceRefresh : EntryViewEvent()
+        data class ReallyDeleteEntryNoUndo internal constructor(
+            val entry: FridgeEntry,
+        ) : AddEvent()
 
-    object AddNew : EntryViewEvent()
+        data class UndoDeleteEntry internal constructor(val entry: FridgeEntry) : AddEvent()
+
+        object AddNew : AddEvent()
+
+    }
+
+    sealed class ToolbarEvent : EntryViewEvent() {
+
+        data class SearchQuery(val search: String) : ToolbarEvent()
+
+        data class ChangeSort(val sort: EntryViewState.Sorts) : ToolbarEvent()
+
+    }
+
+
 }
 
 sealed class EntryControllerEvent : UiControllerEvent {

@@ -23,13 +23,13 @@ import javax.inject.Inject
 
 class ExpandItemPresence @Inject internal constructor(
     parent: ViewGroup
-) : BaseItemPresence<ExpandItemViewState, ExpandedItemViewEvent>(parent) {
+) : BaseItemPresence<ExpandItemViewState, ExpandedItemViewEvent.ItemEvent>(parent) {
 
     override fun onRender(state: UiRender<ExpandItemViewState>) {
         state.distinctBy { it.item }.render(viewScope) { renderItem(it) }
     }
 
     override fun publishChangePresence() {
-        publish(ExpandedItemViewEvent.CommitPresence)
+        publish(ExpandedItemViewEvent.ItemEvent.CommitPresence)
     }
 }

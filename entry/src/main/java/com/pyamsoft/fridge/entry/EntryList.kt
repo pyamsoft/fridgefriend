@@ -55,7 +55,7 @@ class EntryList @Inject internal constructor(
     owner: LifecycleOwner,
     parent: ViewGroup,
     factory: EntryItemComponent.Factory,
-) : BaseUiView<EntryViewState, EntryViewEvent, EntryListBinding>(parent) {
+) : BaseUiView<EntryViewState, EntryViewEvent.ListEvent, EntryListBinding>(parent) {
 
     override val viewBinding = EntryListBinding::inflate
 
@@ -87,7 +87,7 @@ class EntryList @Inject internal constructor(
                 callback = object : EntryListAdapter.Callback {
 
                     override fun onSelect(index: Int) {
-                        publish(EntryViewEvent.SelectEntry(itemAtIndex(index)))
+                        publish(EntryViewEvent.ListEvent.SelectEntry(itemAtIndex(index)))
                     }
                 })
             binding.entryList.adapter = modelAdapter
@@ -102,7 +102,9 @@ class EntryList @Inject internal constructor(
         }
 
         doOnInflate {
-            binding.entrySwipeRefresh.setOnRefreshListener { publish(EntryViewEvent.ForceRefresh) }
+            binding.entrySwipeRefresh.setOnRefreshListener {
+                publish(EntryViewEvent.ListEvent.ForceRefresh)
+            }
         }
 
         doOnInflate {
@@ -197,7 +199,7 @@ class EntryList @Inject internal constructor(
     }
 
     private fun deleteListItem(position: Int) {
-        publish(EntryViewEvent.DeleteEntry(itemAtIndex(position)))
+        publish(EntryViewEvent.ListEvent.DeleteEntry(itemAtIndex(position)))
     }
 
     private fun setupSwipeCallback() {

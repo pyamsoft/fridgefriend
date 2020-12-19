@@ -132,18 +132,18 @@ class ExpandItemViewModel @Inject internal constructor(
 
     override fun handleViewEvent(event: ExpandedItemViewEvent) {
         return when (event) {
-            is ExpandedItemViewEvent.CommitCategory -> commitCategory(event.index)
-            is ExpandedItemViewEvent.CommitName -> commitName(event.name)
-            is ExpandedItemViewEvent.CommitCount -> commitCount(event.count)
-            is ExpandedItemViewEvent.CommitPresence -> commitPresence()
-            is ExpandedItemViewEvent.PickDate -> pickDate()
-            is ExpandedItemViewEvent.CloseItem -> closeSelf()
-            is ExpandedItemViewEvent.DeleteItem -> deleteSelf()
-            is ExpandedItemViewEvent.ConsumeItem -> consumeSelf()
-            is ExpandedItemViewEvent.SpoilItem -> spoilSelf()
-            is ExpandedItemViewEvent.RestoreItem -> restoreSelf()
-            is ExpandedItemViewEvent.SelectSimilar -> similarSelected(event.item)
-            is ExpandedItemViewEvent.MoveItem -> moveItem()
+            is ExpandedItemViewEvent.ItemEvent.CommitCategory -> commitCategory(event.index)
+            is ExpandedItemViewEvent.ItemEvent.CommitName -> commitName(event.name)
+            is ExpandedItemViewEvent.ItemEvent.CommitCount -> commitCount(event.count)
+            is ExpandedItemViewEvent.ItemEvent.CommitPresence -> commitPresence()
+            is ExpandedItemViewEvent.ItemEvent.PickDate -> pickDate()
+            is ExpandedItemViewEvent.ItemEvent.SelectSimilar -> similarSelected(event.item)
+            is ExpandedItemViewEvent.ToolbarEvent.CloseItem -> closeSelf()
+            is ExpandedItemViewEvent.ToolbarEvent.DeleteItem -> deleteSelf()
+            is ExpandedItemViewEvent.ToolbarEvent.ConsumeItem -> consumeSelf()
+            is ExpandedItemViewEvent.ToolbarEvent.SpoilItem -> spoilSelf()
+            is ExpandedItemViewEvent.ToolbarEvent.RestoreItem -> restoreSelf()
+            is ExpandedItemViewEvent.ToolbarEvent.MoveItem -> moveItem()
         }
     }
 

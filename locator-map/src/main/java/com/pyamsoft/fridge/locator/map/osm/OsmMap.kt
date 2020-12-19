@@ -72,7 +72,7 @@ class OsmMap @Inject internal constructor(
     private val storeFactory: StoreInfoComponent.Factory,
     private val zoneFactory: ZoneInfoComponent.Factory,
     parent: ViewGroup,
-) : BaseUiView<MapViewState, MapViewEvent, OsmMapBinding>(parent) {
+) : BaseUiView<MapViewState, MapViewEvent.MapEvent, OsmMapBinding>(parent) {
 
     override val viewBinding = OsmMapBinding::inflate
 
@@ -237,7 +237,7 @@ class OsmMap @Inject internal constructor(
                     outlinePaint.color = if (theming.isDarkTheme()) Color.WHITE else Color.BLACK
 
                     setOnClickListener { p, _, _ ->
-                        publish(MapViewEvent.OpenPopup(p.asPopup()))
+                        publish(MapViewEvent.MapEvent.OpenPopup(p.asPopup()))
                         return@setOnClickListener true
                     }
                 }
@@ -263,7 +263,7 @@ class OsmMap @Inject internal constructor(
 
             if (forceOpen) {
                 Timber.d("Render zone popup as open: $polygon")
-                publish(MapViewEvent.OpenPopup(polygon.asPopup()))
+                publish(MapViewEvent.MapEvent.OpenPopup(polygon.asPopup()))
             }
 
             return@map true
@@ -298,7 +298,7 @@ class OsmMap @Inject internal constructor(
                     )
 
                     setOnMarkerClickListener { p, _ ->
-                        publish(MapViewEvent.OpenPopup(p.asPopup()))
+                        publish(MapViewEvent.MapEvent.OpenPopup(p.asPopup()))
                         return@setOnMarkerClickListener true
                     }
                 }
@@ -318,7 +318,7 @@ class OsmMap @Inject internal constructor(
 
             if (forceOpen) {
                 Timber.d("Render marks popup as open: $marker")
-                publish(MapViewEvent.OpenPopup(marker.asPopup()))
+                publish(MapViewEvent.MapEvent.OpenPopup(marker.asPopup()))
             }
 
             return@map true
@@ -328,7 +328,7 @@ class OsmMap @Inject internal constructor(
     private fun publishCurrentBoundingBox() {
         boundingBoxHandler.removeCallbacksAndMessages(null)
         boundingBoxHandler.postDelayed({
-            publish(MapViewEvent.UpdateBoundingBox(getBoundingBoxOfCurrentScreen()))
+            publish(MapViewEvent.MapEvent.UpdateBoundingBox(getBoundingBoxOfCurrentScreen()))
         }, 100)
     }
 
@@ -407,7 +407,7 @@ class OsmMap @Inject internal constructor(
         }.apply {
             enableMyLocation()
             runOnFirstFix {
-                publish(MapViewEvent.RequestMyLocation(firstTime = true))
+                publish(MapViewEvent.MapEvent.FindMyLocation)
             }
         }
 
@@ -427,7 +427,7 @@ class OsmMap @Inject internal constructor(
                 if (location != null) {
                     centerOnLocation(location.latitude, location.longitude) {
                         Timber.d("Centered onto current user location")
-                        publish(MapViewEvent.DoneFindingMyLocation)
+                        publish(MapViewEvent.MapEvent.DoneFindingMyLocation)
                     }
                 }
             }

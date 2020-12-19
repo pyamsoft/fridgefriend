@@ -28,7 +28,7 @@ import javax.inject.Inject
 
 class DetailPresenceSwitcher @Inject internal constructor(
     parent: ViewGroup,
-) : BaseUiView<DetailViewState, DetailViewEvent, DetailPresenceSwitchBinding>(parent) {
+) : BaseUiView<DetailViewState, DetailViewEvent.SwitcherEvent, DetailPresenceSwitchBinding>(parent) {
 
     override val viewBinding = DetailPresenceSwitchBinding::inflate
 
@@ -52,7 +52,7 @@ class DetailPresenceSwitcher @Inject internal constructor(
 
                 override fun onTabSelected(tab: TabLayout.Tab) {
                     val presence = getTabPresence(tab) ?: return
-                    publish(DetailViewEvent.PresenceSwitched(presence))
+                    publish(DetailViewEvent.SwitcherEvent.PresenceSwitched(presence))
                 }
 
                 override fun onTabUnselected(tab: TabLayout.Tab) {

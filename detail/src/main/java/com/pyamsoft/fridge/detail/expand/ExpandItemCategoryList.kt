@@ -31,7 +31,7 @@ import javax.inject.Inject
 class ExpandItemCategoryList @Inject internal constructor(
     parent: ViewGroup,
     factory: ExpandCategoryComponent.Factory,
-) : BaseUiView<ExpandItemViewState, ExpandedItemViewEvent, ExpandCategoriesBinding>(parent) {
+) : BaseUiView<ExpandItemViewState, ExpandedItemViewEvent.ItemEvent, ExpandCategoriesBinding>(parent) {
 
     override val viewBinding = ExpandCategoriesBinding::inflate
 
@@ -57,7 +57,7 @@ class ExpandItemCategoryList @Inject internal constructor(
                 callback = object : ExpandItemCategoryListAdapter.Callback {
 
                     override fun onCategorySelected(index: Int) {
-                        publish(ExpandedItemViewEvent.CommitCategory(index))
+                        publish(ExpandedItemViewEvent.ItemEvent.CommitCategory(index))
                     }
                 })
             binding.expandItemCategories.adapter = modelAdapter

@@ -31,7 +31,7 @@ import javax.inject.Inject
 
 class ExpandItemName @Inject internal constructor(
     parent: ViewGroup,
-) : BaseUiView<ExpandItemViewState, ExpandedItemViewEvent, ExpandNameBinding>(parent) {
+) : BaseUiView<ExpandItemViewState, ExpandedItemViewEvent.ItemEvent, ExpandNameBinding>(parent) {
 
     override val viewBinding = ExpandNameBinding::inflate
 
@@ -41,7 +41,7 @@ class ExpandItemName @Inject internal constructor(
 
     private val delegate by lazy {
         UiEditTextDelegate(binding.expandItemName) { _, newText ->
-            publish(ExpandedItemViewEvent.CommitName(newText))
+            publish(ExpandedItemViewEvent.ItemEvent.CommitName(newText))
         }
     }
 
@@ -86,7 +86,7 @@ class ExpandItemName @Inject internal constructor(
     private fun selectSimilar(item: FridgeItem) {
         Timber.d("Similar popup FridgeItem selected: $item")
         delegate.setText(item.name())
-        publish(ExpandedItemViewEvent.SelectSimilar(item))
+        publish(ExpandedItemViewEvent.ItemEvent.SelectSimilar(item))
     }
 
     override fun onRender(state: UiRender<ExpandItemViewState>) {

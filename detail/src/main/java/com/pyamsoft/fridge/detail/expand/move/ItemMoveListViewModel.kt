@@ -28,7 +28,7 @@ import javax.inject.Inject
 
 class ItemMoveListViewModel @Inject internal constructor(
     @param:InternalApi private val delegate: EntryListStateModel,
-) : UiViewModel<EntryViewState, EntryViewEvent, ItemMoveListControllerEvent>(
+) : UiViewModel<EntryViewState, EntryViewEvent.ListEvent, ItemMoveListControllerEvent>(
     initialState = delegate.initialState
 ) {
 
@@ -40,16 +40,11 @@ class ItemMoveListViewModel @Inject internal constructor(
         doOnCleared { delegate.clear() }
     }
 
-    override fun handleViewEvent(event: EntryViewEvent) {
+    override fun handleViewEvent(event: EntryViewEvent.ListEvent) {
         return when (event) {
-            is EntryViewEvent.SelectEntry -> selectEntry(event.entry)
-            is EntryViewEvent.ForceRefresh -> delegate.refreshList(true)
-            is EntryViewEvent.SearchQuery -> notHandled(event)
-            is EntryViewEvent.ChangeSort -> notHandled(event)
-            is EntryViewEvent.AddNew -> notHandled(event)
-            is EntryViewEvent.DeleteEntry -> notHandled(event)
-            is EntryViewEvent.ReallyDeleteEntryNoUndo -> notHandled(event)
-            is EntryViewEvent.UndoDeleteEntry -> notHandled(event)
+            is EntryViewEvent.ListEvent.SelectEntry -> selectEntry(event.entry)
+            is EntryViewEvent.ListEvent.ForceRefresh -> delegate.refreshList(true)
+            is EntryViewEvent.ListEvent.DeleteEntry -> notHandled(event)
         }
     }
 

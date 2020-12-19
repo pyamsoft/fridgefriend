@@ -91,12 +91,16 @@ internal class ItemMoveDialog : AppCompatDialogFragment() {
         val toolbar = requireNotNull(toolbar)
         val dropshadow = DropshadowView.createTyped<ItemMoveViewState, ItemMoveViewEvent>(parent)
 
-        val listSaver =
-            createComponent(savedInstanceState, viewLifecycleOwner, listViewModel, list) {
-                return@createComponent when (it) {
-                    is ItemMoveListControllerEvent.SelectedTarget -> handleEntrySelect(it.entry)
-                }
+        val listSaver = createComponent(
+            savedInstanceState,
+            viewLifecycleOwner,
+            listViewModel,
+            list
+        ) {
+            return@createComponent when (it) {
+                is ItemMoveListControllerEvent.SelectedTarget -> handleEntrySelect(it.entry)
             }
+        }
 
         val moveSaver = createComponent(
             savedInstanceState,

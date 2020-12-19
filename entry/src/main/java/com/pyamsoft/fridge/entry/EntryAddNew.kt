@@ -37,7 +37,7 @@ class EntryAddNew @Inject internal constructor(
     private val owner: LifecycleOwner,
     private val imageLoader: ImageLoader,
     parent: ViewGroup,
-) : BaseUiView<EntryViewState, EntryViewEvent, EntryAddNewBinding>(parent),
+) : BaseUiView<EntryViewState, EntryViewEvent.AddEvent, EntryAddNewBinding>(parent),
     SnackbarContainer {
 
     override val viewBinding = EntryAddNewBinding::inflate
@@ -54,7 +54,7 @@ class EntryAddNew @Inject internal constructor(
 
         doOnInflate {
             binding.entryAddNew.setOnDebouncedClickListener {
-                publish(EntryViewEvent.AddNew)
+                publish(EntryViewEvent.AddEvent.AddNew)
             }
         }
 
@@ -94,10 +94,10 @@ class EntryAddNew @Inject internal constructor(
             long(
                 layoutRoot,
                 "Removed ${undoable.name()}",
-                onHidden = { _, _ -> publish(EntryViewEvent.ReallyDeleteEntryNoUndo(undoable)) }
+                onHidden = { _, _ -> publish(EntryViewEvent.AddEvent.ReallyDeleteEntryNoUndo(undoable)) }
             ) {
                 // Restore the old item
-                setAction("Undo") { publish(EntryViewEvent.UndoDeleteEntry(undoable)) }
+                setAction("Undo") { publish(EntryViewEvent.AddEvent.UndoDeleteEntry(undoable)) }
             }
         }
     }

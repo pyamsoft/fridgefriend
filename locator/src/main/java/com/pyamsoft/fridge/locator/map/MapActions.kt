@@ -39,7 +39,8 @@ class MapActions @Inject internal constructor(
     private val owner: LifecycleOwner,
     private val imageLoader: ImageLoader,
     parent: ViewGroup,
-) : BaseUiView<MapViewState, MapViewEvent, MapActionsBinding>(parent), SnackbarContainer {
+) : BaseUiView<MapViewState, MapViewEvent.ActionEvent, MapActionsBinding>(parent),
+    SnackbarContainer {
 
     override val viewBinding = MapActionsBinding::inflate
 
@@ -68,13 +69,13 @@ class MapActions @Inject internal constructor(
 
         doOnInflate {
             binding.osmFindMe.setOnDebouncedClickListener {
-                publish(MapViewEvent.RequestMyLocation(firstTime = false))
+                publish(MapViewEvent.ActionEvent.RequestMyLocation)
             }
         }
 
         doOnInflate {
             binding.osmFindNearby.setOnDebouncedClickListener {
-                publish(MapViewEvent.RequestFindNearby)
+                publish(MapViewEvent.ActionEvent.RequestFindNearby)
             }
         }
 
@@ -158,7 +159,7 @@ class MapActions @Inject internal constructor(
             long(
                 layoutRoot,
                 throwable.message ?: "An unexpected error occurred.",
-                onHidden = { _, _ -> publish(MapViewEvent.HideFetchError) }
+                onHidden = { _, _ -> publish(MapViewEvent.ActionEvent.HideFetchError) }
             )
         }
     }
@@ -168,7 +169,7 @@ class MapActions @Inject internal constructor(
             long(
                 layoutRoot,
                 throwable.message ?: "An error occurred fetching cached stores.",
-                onHidden = { _, _ -> publish(MapViewEvent.HideCacheError) }
+                onHidden = { _, _ -> publish(MapViewEvent.ActionEvent.HideCacheError) }
             )
         }
     }

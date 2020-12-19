@@ -85,43 +85,59 @@ data class DetailViewState internal constructor(
 
 sealed class DetailViewEvent : UiViewEvent {
 
-    object AddNew : DetailViewEvent()
+    sealed class AddEvent : DetailViewEvent() {
 
-    data class PresenceSwitched internal constructor(
-        val presence: FridgeItem.Presence,
-    ) : DetailViewEvent()
+        object AddNew : AddEvent()
 
-    data class SearchQuery internal constructor(val search: String) : DetailViewEvent()
+        object ToggleArchiveVisibility : AddEvent()
 
-    object ForceRefresh : DetailViewEvent()
+        object ClearListError : AddEvent()
 
-    object ToggleArchiveVisibility : DetailViewEvent()
+        data class UndoDeleteItem internal constructor(val item: FridgeItem) : AddEvent()
 
-    object Back : DetailViewEvent()
+        data class ReallyDeleteItemNoUndo internal constructor(val item: FridgeItem) : AddEvent()
 
-    object ClearListError : DetailViewEvent()
+    }
 
-    data class ChangeSort internal constructor(val sort: DetailViewState.Sorts) : DetailViewEvent()
+    sealed class ListEvent : DetailViewEvent() {
 
-    data class UndoDeleteItem internal constructor(val item: FridgeItem) : DetailViewEvent()
+        object ForceRefresh : ListEvent()
 
-    data class ReallyDeleteItemNoUndo internal constructor(val item: FridgeItem) : DetailViewEvent()
+        data class IncreaseItemCount internal constructor(val item: FridgeItem) : ListEvent()
 
-    data class ConsumeItem internal constructor(val item: FridgeItem) : DetailViewEvent()
+        data class DecreaseItemCount internal constructor(val item: FridgeItem) : ListEvent()
 
-    data class DeleteItem internal constructor(val item: FridgeItem) : DetailViewEvent()
+        data class ConsumeItem internal constructor(val item: FridgeItem) : ListEvent()
 
-    data class RestoreItem internal constructor(val item: FridgeItem) : DetailViewEvent()
+        data class DeleteItem internal constructor(val item: FridgeItem) : ListEvent()
 
-    data class SpoilItem internal constructor(val item: FridgeItem) : DetailViewEvent()
+        data class RestoreItem internal constructor(val item: FridgeItem) : ListEvent()
 
-    data class ExpandItem internal constructor(val item: FridgeItem) : DetailViewEvent()
+        data class SpoilItem internal constructor(val item: FridgeItem) : ListEvent()
 
-    data class ChangeItemPresence internal constructor(val item: FridgeItem) : DetailViewEvent()
+        data class ExpandItem internal constructor(val item: FridgeItem) : ListEvent()
 
-    data class IncreaseItemCount internal constructor(val item: FridgeItem) : DetailViewEvent()
+        data class ChangeItemPresence internal constructor(val item: FridgeItem) : ListEvent()
 
-    data class DecreaseItemCount internal constructor(val item: FridgeItem) : DetailViewEvent()
+    }
+
+    sealed class SwitcherEvent : DetailViewEvent() {
+
+        data class PresenceSwitched internal constructor(
+            val presence: FridgeItem.Presence,
+        ) : SwitcherEvent()
+    }
+
+    sealed class ToolbarEvent : DetailViewEvent() {
+
+        data class SearchQuery internal constructor(val search: String) : ToolbarEvent()
+
+        object Back : ToolbarEvent()
+
+        data class ChangeSort internal constructor(val sort: DetailViewState.Sorts) : ToolbarEvent()
+
+    }
+
 }
 
 sealed class DetailControllerEvent : UiControllerEvent {

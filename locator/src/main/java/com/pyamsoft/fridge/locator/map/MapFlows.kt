@@ -50,19 +50,29 @@ data class MapViewState internal constructor(
 
 sealed class MapViewEvent : UiViewEvent {
 
-    data class UpdateBoundingBox(val box: BBox) : MapViewEvent()
+    sealed class MapEvent : MapViewEvent() {
 
-    data class RequestMyLocation(val firstTime: Boolean) : MapViewEvent()
+        data class UpdateBoundingBox(val box: BBox) : MapEvent()
 
-    object DoneFindingMyLocation : MapViewEvent()
+        data class OpenPopup(val popup: MapPopup) : MapEvent()
 
-    object RequestFindNearby : MapViewEvent()
+        object DoneFindingMyLocation : MapEvent()
 
-    object HideFetchError : MapViewEvent()
+        object FindMyLocation : MapEvent()
+    }
 
-    object HideCacheError : MapViewEvent()
+    sealed class ActionEvent : MapViewEvent() {
 
-    data class OpenPopup(val popup: MapPopup) : MapViewEvent()
+        object RequestMyLocation : ActionEvent()
+
+        object RequestFindNearby : ActionEvent()
+
+        object HideFetchError : ActionEvent()
+
+        object HideCacheError : ActionEvent()
+
+    }
+
 }
 
 sealed class MapControllerEvent : UiControllerEvent {

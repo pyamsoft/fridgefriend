@@ -53,7 +53,7 @@ class DetailList @Inject internal constructor(
     private val theming: ThemeProvider,
     parent: ViewGroup,
     factory: DetailItemComponent.Factory,
-) : BaseUiView<DetailViewState, DetailViewEvent, DetailListBinding>(parent) {
+) : BaseUiView<DetailViewState, DetailViewEvent.ListEvent, DetailListBinding>(parent) {
 
     override val viewBinding = DetailListBinding::inflate
 
@@ -81,19 +81,19 @@ class DetailList @Inject internal constructor(
                 callback = object : DetailListAdapter.Callback {
 
                     override fun onIncreaseCount(index: Int) {
-                        publish(DetailViewEvent.IncreaseItemCount(itemAtIndex(index)))
+                        publish(DetailViewEvent.ListEvent.IncreaseItemCount(itemAtIndex(index)))
                     }
 
                     override fun onDecreaseCount(index: Int) {
-                        publish(DetailViewEvent.DecreaseItemCount(itemAtIndex(index)))
+                        publish(DetailViewEvent.ListEvent.DecreaseItemCount(itemAtIndex(index)))
                     }
 
                     override fun onItemExpanded(index: Int) {
-                        publish(DetailViewEvent.ExpandItem(itemAtIndex(index)))
+                        publish(DetailViewEvent.ListEvent.ExpandItem(itemAtIndex(index)))
                     }
 
                     override fun onPresenceChange(index: Int) {
-                        publish(DetailViewEvent.ChangeItemPresence(itemAtIndex(index)))
+                        publish(DetailViewEvent.ListEvent.ChangeItemPresence(itemAtIndex(index)))
                     }
                 })
             binding.detailList.adapter = modelAdapter
@@ -108,7 +108,9 @@ class DetailList @Inject internal constructor(
         }
 
         doOnInflate {
-            binding.detailSwipeRefresh.setOnRefreshListener { publish(DetailViewEvent.ForceRefresh) }
+            binding.detailSwipeRefresh.setOnRefreshListener {
+                publish(DetailViewEvent.ListEvent.ForceRefresh)
+            }
         }
 
         doOnInflate { savedInstanceState ->
@@ -276,19 +278,19 @@ class DetailList @Inject internal constructor(
     }
 
     private fun restoreListItem(position: Int) {
-        publish(DetailViewEvent.RestoreItem(itemAtIndex(position)))
+        publish(DetailViewEvent.ListEvent.RestoreItem(itemAtIndex(position)))
     }
 
     private fun deleteListItem(position: Int) {
-        publish(DetailViewEvent.DeleteItem(itemAtIndex(position)))
+        publish(DetailViewEvent.ListEvent.DeleteItem(itemAtIndex(position)))
     }
 
     private fun consumeListItem(position: Int) {
-        publish(DetailViewEvent.ConsumeItem(itemAtIndex(position)))
+        publish(DetailViewEvent.ListEvent.ConsumeItem(itemAtIndex(position)))
     }
 
     private fun spoilListItem(position: Int) {
-        publish(DetailViewEvent.SpoilItem(itemAtIndex(position)))
+        publish(DetailViewEvent.ListEvent.SpoilItem(itemAtIndex(position)))
     }
 
     private fun setList(

@@ -28,12 +28,12 @@ class ExpandItemDate @Inject internal constructor(
     imageLoader: ImageLoader,
     theming: ThemeProvider,
     parent: ViewGroup,
-) : BaseItemDate<ExpandItemViewState, ExpandedItemViewEvent>(imageLoader, theming, parent) {
+) : BaseItemDate<ExpandItemViewState, ExpandedItemViewEvent.ItemEvent>(imageLoader, theming, parent) {
 
     init {
         doOnInflate {
             layoutRoot.setOnDebouncedClickListener {
-                publish(ExpandedItemViewEvent.PickDate)
+                publish(ExpandedItemViewEvent.ItemEvent.PickDate)
             }
         }
 

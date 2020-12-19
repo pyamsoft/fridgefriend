@@ -54,7 +54,9 @@ class ItemMoveViewModel @Inject internal constructor(
 
     init {
         val job = delegate.bind(Renderable { state ->
-            state.render(viewModelScope) { newState -> setState { copy(listState = newState) } }
+            state.render(viewModelScope) { newState -> setState { copy(listState = newState.copy(
+                displayedEntries = newState.displayedEntries.also { Timber.d("Entries are: $it") }
+            )) } }
         })
         doOnCleared { job.cancel() }
         doOnCleared { delegate.clear() }

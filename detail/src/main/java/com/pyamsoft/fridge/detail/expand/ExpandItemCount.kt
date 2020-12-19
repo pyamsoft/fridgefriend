@@ -31,7 +31,7 @@ import javax.inject.Inject
 
 class ExpandItemCount @Inject internal constructor(
     parent: ViewGroup,
-) : BaseUiView<ExpandItemViewState, ExpandedItemViewEvent, ExpandCountBinding>(parent) {
+) : BaseUiView<ExpandItemViewState, ExpandedItemViewEvent.ItemEvent, ExpandCountBinding>(parent) {
 
     override val viewBinding = ExpandCountBinding::inflate
 
@@ -39,7 +39,7 @@ class ExpandItemCount @Inject internal constructor(
 
     private val delegate by lazy {
         UiEditTextDelegate(binding.expandItemCountEditable) { _, newText ->
-            publish(ExpandedItemViewEvent.CommitCount(newText.toIntOrNull() ?: 0))
+            publish(ExpandedItemViewEvent.ItemEvent.CommitCount(newText.toIntOrNull() ?: 0))
         }
     }
 
