@@ -44,6 +44,7 @@ import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.arch.UiRender
 import com.pyamsoft.pydroid.ui.theme.ThemeProvider
 import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
+import com.pyamsoft.pydroid.util.contains
 import org.osmdroid.config.Configuration
 import org.osmdroid.config.DefaultConfigurationProvider
 import org.osmdroid.events.MapListener
@@ -214,7 +215,7 @@ class OsmMap @Inject internal constructor(
 
         // Remove any polygons that used to exist but don't anymore
         overlay.filterIsInstance<Polygon>()
-            .filter { polygon -> zones.find { it.zone.getPolygonUid() == polygon.id } == null }
+            .filter { polygon -> !zones.contains { it.zone.getPolygonUid() == polygon.id } }
             .forEach { overlay.remove(it) }
 
         val color = Color.argb(75, 255, 255, 0)
@@ -277,7 +278,7 @@ class OsmMap @Inject internal constructor(
 
         // Remove any marks that used to exist but don't anymore
         overlay.filterIsInstance<Marker>()
-            .filter { marker -> marks.find { it.point.getMarkerUid() == marker.id } == null }
+            .filter { marker -> !marks.contains { it.point.getMarkerUid() == marker.id } }
             .forEach { overlay.remove(it) }
 
         return marks.map { mark ->

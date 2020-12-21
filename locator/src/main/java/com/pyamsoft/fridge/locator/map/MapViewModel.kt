@@ -28,6 +28,7 @@ import com.pyamsoft.highlander.highlander
 import com.pyamsoft.pydroid.arch.EventConsumer
 import com.pyamsoft.pydroid.arch.UiViewModel
 import com.pyamsoft.pydroid.arch.onActualError
+import com.pyamsoft.pydroid.util.contains
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -138,7 +139,7 @@ class MapViewModel @Inject internal constructor(
             val oldId = id(oldItem)
             // If the new list doesn't have the old id, add the old id
             // Otherwise, the new item is newer.
-            if (result.find { id(it) == oldId } == null) {
+            if (!result.contains { id(it) == oldId }) {
                 result.add(oldItem)
             }
         }
