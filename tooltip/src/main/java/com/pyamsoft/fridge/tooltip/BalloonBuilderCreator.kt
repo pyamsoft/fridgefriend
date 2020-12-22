@@ -22,13 +22,13 @@ import com.skydoves.balloon.Balloon
 import com.skydoves.balloon.BalloonAnimation
 
 internal abstract class BalloonBuilderCreator protected constructor(
-    private val activity: Activity
+    private val activity: Activity,
 ) {
 
     @CheckResult
     protected fun newBuilder(withBuilder: Balloon.Builder.() -> Unit): Balloon.Builder {
         return Balloon.Builder(activity).apply {
-            setArrowVisible(false)
+            setIsVisibleArrow(false)
             setCornerRadius(16F)
             setAlpha(0.85F)
             setBackgroundColorResource(R.color.tooltipBackground)
