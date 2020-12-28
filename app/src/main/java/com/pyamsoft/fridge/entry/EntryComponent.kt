@@ -24,7 +24,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.pyamsoft.fridge.ThemeProviderModule
 import com.pyamsoft.fridge.core.FridgeViewModelFactory
 import com.pyamsoft.fridge.entry.EntryComponent.ViewModelModule
-import com.pyamsoft.fridge.tooltip.TooltipModule
+import com.pyamsoft.fridge.tooltip.balloon.TooltipModule
 import com.pyamsoft.pydroid.arch.UiViewModel
 import com.pyamsoft.pydroid.ui.app.ToolbarActivity
 import dagger.Binds

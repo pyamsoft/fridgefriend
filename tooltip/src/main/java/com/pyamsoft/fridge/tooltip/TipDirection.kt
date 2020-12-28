@@ -16,7 +16,7 @@
 
 package com.pyamsoft.fridge.tooltip
 
-internal enum class TipDirection {
+enum class TipDirection {
     CENTER,
     TOP,
     BOTTOM,

@@ -16,14 +16,7 @@
 
 package com.pyamsoft.fridge.tooltip
 
-import androidx.annotation.CheckResult
-import dagger.Binds
-import dagger.Module
-
-@Module
-abstract class TooltipModule {
-
-    @Binds
-    @CheckResult
-    internal abstract fun bindTooltipCreator(impl: TooltipCreatorImpl): TooltipCreator
-}
+data class TooltipParameters(
+    val dismissOnClick: Boolean,
+    val dismissOnTouchOutside: Boolean,
+)

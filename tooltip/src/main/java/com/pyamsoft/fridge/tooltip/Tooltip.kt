@@ -16,7 +16,11 @@
 
 package com.pyamsoft.fridge.tooltip
 
-class Tooltip internal constructor(
-    creator: BalloonCreator,
-    direction: TipDirection
-) : Tip(creator, direction)
+import android.view.View
+
+interface Tooltip : Hideable {
+
+    fun show(anchor: View)
+
+    fun show(anchor: View, xOff: Int, yOff: Int)
+}

@@ -62,10 +62,6 @@ dependencies {
 
   kapt "com.google.dagger:dagger-compiler:$dagger"
 
-  implementation "com.github.skydoves:balloon:$balloon"
-
-  implementation "com.pyamsoft.pydroid:ui:$pydroid"
-
   api project(':core')
 
 }

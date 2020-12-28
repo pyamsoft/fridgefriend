@@ -14,18 +14,21 @@
  * limitations under the License.
  */
 
-package com.pyamsoft.fridge.tooltip
+package com.pyamsoft.fridge.tooltip.balloon
 
 import android.view.View
+import com.pyamsoft.fridge.tooltip.TipDirection
+import com.pyamsoft.fridge.tooltip.Tooltip
+import com.skydoves.balloon.Balloon
 
-abstract class Tip internal constructor(
-    creator: BalloonCreator,
-    private val direction: TipDirection
-) : Hideable {
+internal class BalloonTooltip internal constructor(
+    creator: LazyBalloon,
+    private val direction: TipDirection,
+) : Tooltip {
 
-    private val balloon by lazy(LazyThreadSafetyMode.NONE) { creator.create() }
+    private val balloon: Balloon by lazy(LazyThreadSafetyMode.NONE) { creator.create() }
 
-    fun show(anchor: View) {
+    override fun show(anchor: View) {
         return when (direction) {
             TipDirection.CENTER -> balloon.show(anchor)
             TipDirection.TOP -> balloon.showAlignTop(anchor)
@@ -35,7 +38,7 @@ abstract class Tip internal constructor(
         }
     }
 
-    fun show(anchor: View, xOff: Int, yOff: Int) {
+    override fun show(anchor: View, xOff: Int, yOff: Int) {
         return when (direction) {
             TipDirection.CENTER -> balloon.show(anchor, xOff, yOff)
             TipDirection.TOP -> balloon.showAlignTop(anchor, xOff, yOff)
@@ -45,7 +48,9 @@ abstract class Tip internal constructor(
         }
     }
 
-    final override fun hide() {
+    override fun hide() {
         return balloon.dismiss()
     }
+
 }
+

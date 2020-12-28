@@ -119,7 +119,7 @@ dependencies {
   implementation project(':main')
   //  implementation project(':ocr')
   implementation project(':setting')
-  implementation project(':tooltip')
+  implementation project(':tooltip-balloon')
 }
 
 // Leave at bottom

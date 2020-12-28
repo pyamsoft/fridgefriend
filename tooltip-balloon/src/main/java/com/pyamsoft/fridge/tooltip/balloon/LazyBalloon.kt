@@ -14,9 +14,13 @@
  * limitations under the License.
  */
 
-package com.pyamsoft.fridge.tooltip
+package com.pyamsoft.fridge.tooltip.balloon
 
-internal data class BaloonParameters internal constructor(
-    val dismissOnClick: Boolean,
-    val dismissOnTouchOutside: Boolean
-)
+import androidx.annotation.CheckResult
+import com.skydoves.balloon.Balloon
+
+internal fun interface LazyBalloon {
+
+    @CheckResult
+    fun create(): Balloon
+}

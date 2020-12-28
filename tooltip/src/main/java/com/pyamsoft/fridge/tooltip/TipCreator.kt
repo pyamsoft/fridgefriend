@@ -18,11 +18,11 @@ package com.pyamsoft.fridge.tooltip
 
 import androidx.annotation.CheckResult
 
-interface TipCreator<B : Any, R : Tip> {
+interface TipCreator<B : Any> {
 
     @CheckResult
-    fun top(): R
+    fun top(): Tooltip
 
     @CheckResult
-    fun top(builder: B.() -> B): R
+    fun top(builder: B.() -> B): Tooltip
 }

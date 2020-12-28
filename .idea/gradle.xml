@@ -25,6 +25,7 @@
             <option value="$PROJECT_DIR$/main" />
             <option value="$PROJECT_DIR$/setting" />
             <option value="$PROJECT_DIR$/tooltip" />
+            <option value="$PROJECT_DIR$/tooltip-balloon" />
             <option value="$PROJECT_DIR$/ui" />
           </set>
         </option>

@@ -14,12 +14,13 @@
  * limitations under the License.
  */
 
-package com.pyamsoft.fridge.tooltip
+package com.pyamsoft.fridge.tooltip.balloon
 
 import android.graphics.drawable.Drawable
+import com.pyamsoft.fridge.tooltip.TooltipBuilder
 import com.skydoves.balloon.Balloon
 
-internal class TooltipBuilderImpl internal constructor(
+internal class BalloonTooltipBuilder internal constructor(
     private val builder: Balloon.Builder
 ) : TooltipBuilder {
 

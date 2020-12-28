@@ -14,29 +14,17 @@
  * limitations under the License.
  */
 
-package com.pyamsoft.fridge.tooltip
+package com.pyamsoft.fridge.tooltip.balloon
 
-import android.app.Activity
 import androidx.annotation.CheckResult
+import com.pyamsoft.fridge.tooltip.TooltipCreator
+import dagger.Binds
+import dagger.Module
 
-internal abstract class TipCreatorImpl<B : Any, R : Tip> protected constructor(
-    activity: Activity
-) : BalloonBuilderCreator(activity), TipCreator<B, R> {
+@Module
+abstract class TooltipModule {
 
-    private val empty: B.() -> B = { this }
-
+    @Binds
     @CheckResult
-    protected abstract fun build(builder: B.() -> B): BalloonCreator
-
-    @CheckResult
-    protected abstract fun create(creator: BalloonCreator, direction: TipDirection): R
-
-    final override fun top(): R {
-        return top(empty)
-    }
-
-    final override fun top(builder: B.() -> B): R {
-        return create(build(builder), TipDirection.TOP)
-    }
-
+    internal abstract fun bindTooltipCreator(impl: BalloonTooltipCreator): TooltipCreator
 }

@@ -21,7 +21,7 @@ import androidx.annotation.CheckResult
 import androidx.lifecycle.ViewModelProvider
 import com.pyamsoft.fridge.ThemeProviderModule
 import com.pyamsoft.fridge.core.FridgeViewModelFactory
-import com.pyamsoft.fridge.tooltip.TooltipModule
+import com.pyamsoft.fridge.tooltip.balloon.TooltipModule
 import com.pyamsoft.pydroid.arch.UiViewModel
 import dagger.Binds
 import dagger.BindsInstance

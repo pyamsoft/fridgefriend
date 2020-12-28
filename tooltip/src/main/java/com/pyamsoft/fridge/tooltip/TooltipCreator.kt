@@ -16,4 +16,4 @@
 
 package com.pyamsoft.fridge.tooltip
 
-interface TooltipCreator : TipCreator<TooltipBuilder, Tooltip>
+interface TooltipCreator : TipCreator<TooltipBuilder>
