@@ -19,9 +19,7 @@ package com.pyamsoft.fridge.tooltip.balloon
 import android.app.Activity
 import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.tooltip.R
-import com.pyamsoft.fridge.tooltip.TipDirection
 import com.pyamsoft.fridge.tooltip.Tooltip
-import com.pyamsoft.fridge.tooltip.TooltipBuilder
 import com.pyamsoft.fridge.tooltip.TooltipCreator
 import com.pyamsoft.fridge.tooltip.TooltipParameters
 import com.skydoves.balloon.Balloon
@@ -66,14 +64,14 @@ internal class BalloonTooltipCreator @Inject internal constructor(
         return top(EMPTY_BUILDER)
     }
 
-    override fun top(builder: TooltipBuilder.() -> TooltipBuilder): Tooltip {
-        return create(build(builder), TipDirection.TOP)
+    override fun top(builder: Tooltip.Builder.() -> Tooltip.Builder): Tooltip {
+        return create(build(builder), Tooltip.Direction.TOP)
     }
 
-    private fun build(builder: TooltipBuilder.() -> TooltipBuilder): LazyBalloon {
+    private fun build(builder: Tooltip.Builder.() -> Tooltip.Builder): LazyBalloon {
         val balloonBuilder = newBuilder {
             setHeight(65)
-            BalloonTooltipBuilder(this).apply { builder() }
+            BalloonTooltip.Builder(this).apply { builder() }
         }
 
         val params = TooltipParameters(dismissOnClick = true, dismissOnTouchOutside = true)
@@ -82,11 +80,11 @@ internal class BalloonTooltipCreator @Inject internal constructor(
 
     companion object {
 
-        private val EMPTY_BUILDER: TooltipBuilder.() -> TooltipBuilder = { this }
+        private val EMPTY_BUILDER: Tooltip.Builder.() -> Tooltip.Builder = { this }
 
         @JvmStatic
         @CheckResult
-        private fun create(balloon: LazyBalloon, direction: TipDirection): BalloonTooltip {
+        private fun create(balloon: LazyBalloon, direction: Tooltip.Direction): BalloonTooltip {
             return BalloonTooltip(balloon, direction)
         }
     }
