@@ -17,85 +17,23 @@
 package com.pyamsoft.fridge.db.room
 
 import androidx.annotation.CheckResult
-import com.pyamsoft.cachify.Cached
-import com.pyamsoft.cachify.MultiCached1
-import com.pyamsoft.cachify.MultiCached2
 import com.pyamsoft.fridge.db.FridgeDb
-import com.pyamsoft.fridge.db.category.FridgeCategory
 import com.pyamsoft.fridge.db.category.FridgeCategoryDb
-import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.entry.FridgeEntryDb
-import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItemDb
-import com.pyamsoft.fridge.db.store.NearbyStore
 import com.pyamsoft.fridge.db.store.NearbyStoreDb
-import com.pyamsoft.fridge.db.zone.NearbyZone
 import com.pyamsoft.fridge.db.zone.NearbyZoneDb
+import javax.inject.Inject
+import javax.inject.Singleton
 
-internal class FridgeDbImpl internal constructor(
-    db: RoomFridgeDb,
-
-    // Items
-    allItemsCache: Cached<List<FridgeItem>>,
-    itemsByEntryCache: MultiCached1<FridgeEntry.Id, List<FridgeItem>, FridgeEntry.Id>,
-    sameNameDifferentPresenceCache: MultiCached2<FridgeItemDb.QuerySameNameDifferentPresenceKey, List<FridgeItem>, String, FridgeItem.Presence>,
-    similarNamedCache: MultiCached2<FridgeItemDb.QuerySimilarNamedKey, List<FridgeItemDb.SimilarityScore>, FridgeItem.Id, String>,
-
-    // Entries
-    entryCache: Cached<List<FridgeEntry>>,
-
-    // Stores
-    storeCache: Cached<List<NearbyStore>>,
-
-    // Zones
-    zoneCache: Cached<List<NearbyZone>>,
-
-    // Categories
-    categoryCache: Cached<List<FridgeCategory>>
+@Singleton
+internal class FridgeDbImpl @Inject internal constructor(
+    private val itemDb: FridgeItemDb,
+    private val entryDb: FridgeEntryDb,
+    private val storeDb: NearbyStoreDb,
+    private val zoneDb: NearbyZoneDb,
+    private val categoryDb: FridgeCategoryDb,
 ) : FridgeDb {
-
-    private val itemDb by lazy {
-        FridgeItemDb.wrap(
-            allItemsCache,
-            itemsByEntryCache,
-            sameNameDifferentPresenceCache,
-            similarNamedCache,
-            db.roomItemInsertDao(),
-            db.roomItemDeleteDao()
-        )
-    }
-
-    private val entryDb by lazy {
-        FridgeEntryDb.wrap(
-            entryCache,
-            db.roomEntryInsertDao(),
-            db.roomEntryDeleteDao()
-        )
-    }
-
-    private val storeDb by lazy {
-        NearbyStoreDb.wrap(
-            storeCache,
-            db.roomStoreInsertDao(),
-            db.roomStoreDeleteDao()
-        )
-    }
-
-    private val zoneDb by lazy {
-        NearbyZoneDb.wrap(
-            zoneCache,
-            db.roomZoneInsertDao(),
-            db.roomZoneDeleteDao()
-        )
-    }
-
-    private val categoryDb by lazy {
-        FridgeCategoryDb.wrap(
-            categoryCache,
-            db.roomCategoryInsertDao(),
-            db.roomCategoryDeleteDao()
-        )
-    }
 
     @CheckResult
     override fun items(): FridgeItemDb {

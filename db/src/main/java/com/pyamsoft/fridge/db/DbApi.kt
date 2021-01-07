@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Peter Kenji Yamanaka
+ * Copyright 2021 Peter Kenji Yamanaka
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,8 +14,13 @@
  * limitations under the License.
  */
 
-package com.pyamsoft.fridge.db.item
+package com.pyamsoft.fridge.db
 
-import com.pyamsoft.fridge.db.DbInsert
+import javax.inject.Qualifier
 
-interface FridgeItemInsertDao : DbInsert<FridgeItem>
+/**
+ * Scope for anything used internally by the Db implementation
+ */
+@Qualifier
+@Retention(AnnotationRetention.BINARY)
+annotation class DbApi

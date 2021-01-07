@@ -17,85 +17,83 @@
 package com.pyamsoft.fridge.db.store
 
 import com.pyamsoft.cachify.Cached
-import com.pyamsoft.fridge.db.fridge.BaseDbImpl
+import com.pyamsoft.fridge.db.BaseDbImpl
+import com.pyamsoft.fridge.db.DbApi
 import com.pyamsoft.pydroid.core.Enforcer
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import javax.inject.Inject
+import javax.inject.Singleton
 
-internal class NearbyStoreDbImpl internal constructor(
-    private val cache: Cached<List<NearbyStore>>,
-    insertDao: NearbyStoreInsertDao,
-    deleteDao: NearbyStoreDeleteDao
-) : BaseDbImpl<NearbyStore, NearbyStoreChangeEvent>(), NearbyStoreDb {
+@Singleton
+internal class NearbyStoreDbImpl @Inject internal constructor(
+    @param:DbApi private val realQueryDao: Cached<List<NearbyStore>>,
+    @param:DbApi private val realInsertDao: NearbyStoreInsertDao,
+    @param:DbApi private val realDeleteDao: NearbyStoreDeleteDao,
+) : BaseDbImpl<
+        NearbyStoreChangeEvent,
+        NearbyStoreRealtime,
+        NearbyStoreQueryDao,
+        NearbyStoreInsertDao,
+        NearbyStoreDeleteDao
+        >(), NearbyStoreDb {
 
-    private val realtime = object : NearbyStoreRealtime {
-
-        override suspend fun listenForChanges(onChange: suspend (event: NearbyStoreChangeEvent) -> Unit) {
-            withContext(context = Dispatchers.IO) {
-                Enforcer.assertOffMainThread()
-                onEvent(onChange)
-            }
+    override suspend fun listenForChanges(onChange: suspend (event: NearbyStoreChangeEvent) -> Unit) {
+        withContext(context = Dispatchers.IO) {
+            Enforcer.assertOffMainThread()
+            onEvent(onChange)
         }
     }
 
-    private val queryDao = object : NearbyStoreQueryDao {
-
-        override suspend fun query(force: Boolean): List<NearbyStore> =
-            withContext(context = Dispatchers.IO) {
-                Enforcer.assertOffMainThread()
-                if (force) {
-                    invalidate()
-                }
-
-                return@withContext cache.call()
+    override suspend fun query(force: Boolean): List<NearbyStore> =
+        withContext(context = Dispatchers.IO) {
+            Enforcer.assertOffMainThread()
+            if (force) {
+                invalidate()
             }
-    }
 
-    private val insertDao = object : NearbyStoreInsertDao {
+            return@withContext realQueryDao.call()
+        }
 
-        override suspend fun insert(o: NearbyStore): Boolean =
-            withContext(context = Dispatchers.IO) {
-                Enforcer.assertOffMainThread()
-                return@withContext insertDao.insert(o).also { inserted ->
-                    if (inserted) {
-                        publish(NearbyStoreChangeEvent.Insert(o))
-                    } else {
-                        publish(NearbyStoreChangeEvent.Update(o))
-                    }
+    override suspend fun insert(o: NearbyStore): Boolean =
+        withContext(context = Dispatchers.IO) {
+            Enforcer.assertOffMainThread()
+            return@withContext realInsertDao.insert(o).also { inserted ->
+                if (inserted) {
+                    publish(NearbyStoreChangeEvent.Insert(o))
+                } else {
+                    publish(NearbyStoreChangeEvent.Update(o))
                 }
             }
-    }
+        }
 
-    private val deleteDao = object : NearbyStoreDeleteDao {
-
-        override suspend fun delete(o: NearbyStore, offerUndo: Boolean): Boolean =
-            withContext(context = Dispatchers.IO) {
-                Enforcer.assertOffMainThread()
-                return@withContext deleteDao.delete(o, offerUndo).also { deleted ->
-                    if (deleted) {
-                        publish(NearbyStoreChangeEvent.Delete(o, offerUndo))
-                    }
+    override suspend fun delete(o: NearbyStore, offerUndo: Boolean): Boolean =
+        withContext(context = Dispatchers.IO) {
+            Enforcer.assertOffMainThread()
+            return@withContext realDeleteDao.delete(o, offerUndo).also { deleted ->
+                if (deleted) {
+                    publish(NearbyStoreChangeEvent.Delete(o, offerUndo))
                 }
             }
-    }
+        }
 
     override fun realtime(): NearbyStoreRealtime {
-        return realtime
+        return this
     }
 
     override fun queryDao(): NearbyStoreQueryDao {
-        return queryDao
+        return this
     }
 
     override fun insertDao(): NearbyStoreInsertDao {
-        return insertDao
+        return this
     }
 
     override fun deleteDao(): NearbyStoreDeleteDao {
-        return deleteDao
+        return this
     }
 
     override suspend fun invalidate() = withContext(context = Dispatchers.IO) {
-        cache.clear()
+        realQueryDao.clear()
     }
 }

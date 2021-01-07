@@ -14,12 +14,17 @@
  * limitations under the License.
  */
 
-package com.pyamsoft.fridge.db
+package com.pyamsoft.fridge.db.fridge
 
-interface BaseRealtime<ChangeEvent : Any> {
+import androidx.annotation.CheckResult
+import com.pyamsoft.fridge.db.entry.FridgeEntry
+import com.pyamsoft.fridge.db.item.FridgeItem
 
-    suspend fun publish(event: ChangeEvent)
+interface Fridge {
 
-    suspend fun invalidate()
-
+    @CheckResult
+    suspend fun <R : Any> forAllItemsInEachEntry(
+        force: Boolean,
+        block: suspend (FridgeEntry, List<FridgeItem>) -> R
+    ): List<R>
 }

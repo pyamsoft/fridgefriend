@@ -16,28 +16,15 @@
 
 package com.pyamsoft.fridge.db.zone
 
-import androidx.annotation.CheckResult
-import com.pyamsoft.cachify.Cached
-import com.pyamsoft.cachify.Cached1
 import com.pyamsoft.fridge.db.BaseDb
 
 interface NearbyZoneDb : BaseDb<
-    NearbyZoneChangeEvent,
+        NearbyZoneRealtime,
+        NearbyZoneQueryDao,
+        NearbyZoneInsertDao,
+        NearbyZoneDeleteDao
+        >,
     NearbyZoneRealtime,
     NearbyZoneQueryDao,
     NearbyZoneInsertDao,
     NearbyZoneDeleteDao
-    > {
-
-    companion object {
-
-        @CheckResult
-        fun wrap(
-            cache: Cached<List<NearbyZone>>,
-            insertDao: NearbyZoneInsertDao,
-            deleteDao: NearbyZoneDeleteDao
-        ): NearbyZoneDb {
-            return NearbyZoneDbImpl(cache, insertDao, deleteDao)
-        }
-    }
-}

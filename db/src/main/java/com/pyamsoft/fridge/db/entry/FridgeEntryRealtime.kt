@@ -16,6 +16,6 @@
 
 package com.pyamsoft.fridge.db.entry
 
-import com.pyamsoft.fridge.db.BaseDb
+import com.pyamsoft.fridge.db.DbRealtime
 
-interface FridgeEntryRealtime : BaseDb.Realtime<FridgeEntryChangeEvent>
+interface FridgeEntryRealtime : DbRealtime<FridgeEntryChangeEvent>

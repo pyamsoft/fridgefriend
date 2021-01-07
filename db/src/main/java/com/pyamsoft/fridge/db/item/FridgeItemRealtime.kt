@@ -16,10 +16,10 @@
 
 package com.pyamsoft.fridge.db.item
 
-import com.pyamsoft.fridge.db.BaseDb
+import com.pyamsoft.fridge.db.DbRealtime
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 
-interface FridgeItemRealtime : BaseDb.Realtime<FridgeItemChangeEvent> {
+interface FridgeItemRealtime : DbRealtime<FridgeItemChangeEvent> {
 
     suspend fun listenForChanges(
         id: FridgeEntry.Id,

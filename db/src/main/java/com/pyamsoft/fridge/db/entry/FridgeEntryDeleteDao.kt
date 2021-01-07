@@ -16,9 +16,9 @@
 
 package com.pyamsoft.fridge.db.entry
 
-import com.pyamsoft.fridge.db.BaseDb
+import com.pyamsoft.fridge.db.DbDelete
 
-interface FridgeEntryDeleteDao : BaseDb.Delete<FridgeEntry> {
+interface FridgeEntryDeleteDao : DbDelete<FridgeEntry> {
 
     suspend fun deleteAll()
 }

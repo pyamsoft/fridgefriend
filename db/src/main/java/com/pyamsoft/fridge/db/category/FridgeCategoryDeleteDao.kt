@@ -16,6 +16,6 @@
 
 package com.pyamsoft.fridge.db.category
 
-import com.pyamsoft.fridge.db.BaseDb
+import com.pyamsoft.fridge.db.DbDelete
 
-interface FridgeCategoryDeleteDao : BaseDb.Delete<FridgeCategory>
+interface FridgeCategoryDeleteDao : DbDelete<FridgeCategory>

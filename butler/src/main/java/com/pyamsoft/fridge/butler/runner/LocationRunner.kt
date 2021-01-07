@@ -22,7 +22,7 @@ import com.pyamsoft.fridge.butler.notification.NotificationHandler
 import com.pyamsoft.fridge.butler.notification.NotificationPreferences
 import com.pyamsoft.fridge.butler.params.LocationParameters
 import com.pyamsoft.fridge.core.today
-import com.pyamsoft.fridge.db.Fridge
+import com.pyamsoft.fridge.db.fridge.Fridge
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.isArchived

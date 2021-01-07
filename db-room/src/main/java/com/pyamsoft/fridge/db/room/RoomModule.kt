@@ -25,24 +25,40 @@ import com.pyamsoft.cachify.MultiCached1
 import com.pyamsoft.cachify.MultiCached2
 import com.pyamsoft.cachify.cachify
 import com.pyamsoft.cachify.multiCachify
+import com.pyamsoft.fridge.db.DbApi
 import com.pyamsoft.fridge.db.FridgeDb
 import com.pyamsoft.fridge.db.category.FridgeCategory
+import com.pyamsoft.fridge.db.category.FridgeCategoryDeleteDao
+import com.pyamsoft.fridge.db.category.FridgeCategoryInsertDao
+import com.pyamsoft.fridge.db.category.FridgeCategoryQueryDao
 import com.pyamsoft.fridge.db.category.JsonMappableFridgeCategory
 import com.pyamsoft.fridge.db.entry.FridgeEntry
+import com.pyamsoft.fridge.db.entry.FridgeEntryDeleteDao
+import com.pyamsoft.fridge.db.entry.FridgeEntryInsertDao
+import com.pyamsoft.fridge.db.entry.FridgeEntryQueryDao
 import com.pyamsoft.fridge.db.entry.JsonMappableFridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItemDb
+import com.pyamsoft.fridge.db.item.FridgeItemDeleteDao
+import com.pyamsoft.fridge.db.item.FridgeItemInsertDao
+import com.pyamsoft.fridge.db.item.FridgeItemQueryDao
 import com.pyamsoft.fridge.db.item.JsonMappableFridgeItem
 import com.pyamsoft.fridge.db.store.JsonMappableNearbyStore
 import com.pyamsoft.fridge.db.store.NearbyStore
+import com.pyamsoft.fridge.db.store.NearbyStoreDeleteDao
+import com.pyamsoft.fridge.db.store.NearbyStoreInsertDao
+import com.pyamsoft.fridge.db.store.NearbyStoreQueryDao
 import com.pyamsoft.fridge.db.zone.JsonMappableNearbyZone
 import com.pyamsoft.fridge.db.zone.NearbyZone
+import com.pyamsoft.fridge.db.zone.NearbyZoneDeleteDao
+import com.pyamsoft.fridge.db.zone.NearbyZoneInsertDao
+import com.pyamsoft.fridge.db.zone.NearbyZoneQueryDao
+import dagger.Binds
 import dagger.Module
 import dagger.Provides
 import java.util.Locale
 import java.util.concurrent.TimeUnit.MINUTES
 import javax.inject.Qualifier
-import javax.inject.Singleton
 
 @Qualifier
 @Retention(AnnotationRetention.BINARY)
@@ -50,6 +66,10 @@ private annotation class InternalApi
 
 @Module
 abstract class RoomModule {
+
+    @Binds
+    @CheckResult
+    internal abstract fun provideDb(impl: FridgeDbImpl): FridgeDb
 
     @Module
     companion object {
@@ -71,10 +91,10 @@ abstract class RoomModule {
                 .build()
         }
 
+        @DbApi
         @Provides
         @JvmStatic
         @CheckResult
-        @InternalApi
         internal fun provideEntryCache(@InternalApi db: RoomFridgeDb): Cached<List<FridgeEntry>> {
             return cachify<List<FridgeEntry>>(
                 storage = MemoryCacheStorage.create(cacheTime, cacheUnit)
@@ -85,10 +105,10 @@ abstract class RoomModule {
             }
         }
 
+        @DbApi
         @Provides
         @JvmStatic
         @CheckResult
-        @InternalApi
         internal fun provideAllItemsCache(@InternalApi db: RoomFridgeDb): Cached<List<FridgeItem>> {
             return cachify<List<FridgeItem>>(
                 storage = MemoryCacheStorage.create(cacheTime, cacheUnit)
@@ -99,10 +119,10 @@ abstract class RoomModule {
             }
         }
 
+        @DbApi
         @Provides
         @JvmStatic
         @CheckResult
-        @InternalApi
         internal fun provideItemsByEntryCache(@InternalApi db: RoomFridgeDb): MultiCached1<FridgeEntry.Id, List<FridgeItem>, FridgeEntry.Id> {
             return multiCachify(
                 storage = MemoryCacheStorage.create(cacheTime, cacheUnit)
@@ -113,10 +133,10 @@ abstract class RoomModule {
             }
         }
 
+        @DbApi
         @Provides
         @JvmStatic
         @CheckResult
-        @InternalApi
         internal fun provideSameNameDifferentPresenceCache(@InternalApi db: RoomFridgeDb): MultiCached2<FridgeItemDb.QuerySameNameDifferentPresenceKey, List<FridgeItem>, String, FridgeItem.Presence> {
             return multiCachify(
                 storage = MemoryCacheStorage.create(cacheTime, cacheUnit)
@@ -127,10 +147,10 @@ abstract class RoomModule {
             }
         }
 
+        @DbApi
         @Provides
         @JvmStatic
         @CheckResult
-        @InternalApi
         internal fun provideSimilarlyNamedCache(@InternalApi db: RoomFridgeDb): MultiCached2<FridgeItemDb.QuerySimilarNamedKey, List<FridgeItemDb.SimilarityScore>, FridgeItem.Id, String> {
             return multiCachify(
                 storage = MemoryCacheStorage.create(cacheTime, cacheUnit)
@@ -198,10 +218,10 @@ abstract class RoomModule {
             return (totalLength - matrix[s1Len][s2Len]).toFloat() / totalLength
         }
 
+        @DbApi
         @Provides
         @JvmStatic
         @CheckResult
-        @InternalApi
         internal fun provideZoneCache(@InternalApi db: RoomFridgeDb): Cached<List<NearbyZone>> {
             return cachify<List<NearbyZone>>(
                 storage = MemoryCacheStorage.create(cacheTime, cacheUnit)
@@ -212,10 +232,10 @@ abstract class RoomModule {
             }
         }
 
+        @DbApi
         @Provides
         @JvmStatic
         @CheckResult
-        @InternalApi
         internal fun provideStoreCache(@InternalApi db: RoomFridgeDb): Cached<List<NearbyStore>> {
             return cachify<List<NearbyStore>>(
                 storage = MemoryCacheStorage.create(cacheTime, cacheUnit)
@@ -226,10 +246,10 @@ abstract class RoomModule {
             }
         }
 
+        @DbApi
         @Provides
         @JvmStatic
         @CheckResult
-        @InternalApi
         internal fun provideCategoryCache(@InternalApi db: RoomFridgeDb): Cached<List<FridgeCategory>> {
             return cachify<List<FridgeCategory>>(
                 storage = MemoryCacheStorage.create(cacheTime, cacheUnit)
@@ -240,52 +260,109 @@ abstract class RoomModule {
             }
         }
 
+        @DbApi
         @Provides
         @JvmStatic
-        @Singleton
-        internal fun provideDb(
-            @InternalApi db: RoomFridgeDb,
+        internal fun provideRoomItemQueryDao(@InternalApi db: RoomFridgeDb): FridgeItemQueryDao {
+            return db.roomItemQueryDao()
+        }
 
-            // Items
-            @InternalApi allItemsCache: Cached<List<FridgeItem>>,
-            @InternalApi itemsByEntryCache: MultiCached1<FridgeEntry.Id, List<FridgeItem>, FridgeEntry.Id>,
-            @InternalApi sameNameDifferentPresenceCache: MultiCached2<FridgeItemDb.QuerySameNameDifferentPresenceKey, List<FridgeItem>, String, FridgeItem.Presence>,
-            @InternalApi similarNamedCache: MultiCached2<FridgeItemDb.QuerySimilarNamedKey, List<FridgeItemDb.SimilarityScore>, FridgeItem.Id, String>,
+        @DbApi
+        @Provides
+        @JvmStatic
+        internal fun provideRoomItemInsertDao(@InternalApi db: RoomFridgeDb): FridgeItemInsertDao {
+            return db.roomItemInsertDao()
+        }
 
-            // Entries
-            @InternalApi entryCache: Cached<List<FridgeEntry>>,
+        @DbApi
+        @Provides
+        @JvmStatic
+        internal fun provideRoomItemDeleteDao(@InternalApi db: RoomFridgeDb): FridgeItemDeleteDao {
+            return db.roomItemDeleteDao()
+        }
 
-            // Stores
-            @InternalApi storeCache: Cached<List<NearbyStore>>,
+        @DbApi
+        @Provides
+        @JvmStatic
+        internal fun provideRoomEntryQueryDao(@InternalApi db: RoomFridgeDb): FridgeEntryQueryDao {
+            return db.roomEntryQueryDao()
+        }
 
-            // Zones
-            @InternalApi zoneCache: Cached<List<NearbyZone>>,
+        @DbApi
+        @Provides
+        @JvmStatic
+        internal fun provideRoomEntryInsertDao(@InternalApi db: RoomFridgeDb): FridgeEntryInsertDao {
+            return db.roomEntryInsertDao()
+        }
 
-            // Categories
-            @InternalApi categoryCache: Cached<List<FridgeCategory>>
-        ): FridgeDb {
+        @DbApi
+        @Provides
+        @JvmStatic
+        internal fun provideRoomEntryDeleteDao(@InternalApi db: RoomFridgeDb): FridgeEntryDeleteDao {
+            return db.roomEntryDeleteDao()
+        }
 
-            return FridgeDbImpl(
-                db,
+        @DbApi
+        @Provides
+        @JvmStatic
+        internal fun provideRoomStoreQueryDao(@InternalApi db: RoomFridgeDb): NearbyStoreQueryDao {
+            return db.roomStoreQueryDao()
+        }
 
-                // Items
-                allItemsCache,
-                itemsByEntryCache,
-                sameNameDifferentPresenceCache,
-                similarNamedCache,
+        @DbApi
+        @Provides
+        @JvmStatic
+        internal fun provideRoomStoreInsertDao(@InternalApi db: RoomFridgeDb): NearbyStoreInsertDao {
+            return db.roomStoreInsertDao()
+        }
 
-                // Entries
-                entryCache,
+        @DbApi
+        @Provides
+        @JvmStatic
+        internal fun provideRoomStoreDeleteDao(@InternalApi db: RoomFridgeDb): NearbyStoreDeleteDao {
+            return db.roomStoreDeleteDao()
+        }
 
-                // Stores
-                storeCache,
+        @DbApi
+        @Provides
+        @JvmStatic
+        internal fun provideRoomZoneQueryDao(@InternalApi db: RoomFridgeDb): NearbyZoneQueryDao {
+            return db.roomZoneQueryDao()
+        }
 
-                // Zones
-                zoneCache,
+        @DbApi
+        @Provides
+        @JvmStatic
+        internal fun provideRoomZoneInsertDao(@InternalApi db: RoomFridgeDb): NearbyZoneInsertDao {
+            return db.roomZoneInsertDao()
+        }
 
-                // Categories
-                categoryCache
-            )
+        @DbApi
+        @Provides
+        @JvmStatic
+        internal fun provideRoomZoneDeleteDao(@InternalApi db: RoomFridgeDb): NearbyZoneDeleteDao {
+            return db.roomZoneDeleteDao()
+        }
+
+        @DbApi
+        @Provides
+        @JvmStatic
+        internal fun provideRoomCategoryQueryDao(@InternalApi db: RoomFridgeDb): FridgeCategoryQueryDao {
+            return db.roomCategoryQueryDao()
+        }
+
+        @DbApi
+        @Provides
+        @JvmStatic
+        internal fun provideRoomCategoryInsertDao(@InternalApi db: RoomFridgeDb): FridgeCategoryInsertDao {
+            return db.roomCategoryInsertDao()
+        }
+
+        @DbApi
+        @Provides
+        @JvmStatic
+        internal fun provideRoomCategoryDeleteDao(@InternalApi db: RoomFridgeDb): FridgeCategoryDeleteDao {
+            return db.roomCategoryDeleteDao()
         }
     }
 }

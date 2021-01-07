@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Peter Kenji Yamanaka
+ * Copyright 2021 Peter Kenji Yamanaka
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,14 +17,9 @@
 package com.pyamsoft.fridge.db
 
 import androidx.annotation.CheckResult
-import com.pyamsoft.fridge.db.entry.FridgeEntry
-import com.pyamsoft.fridge.db.item.FridgeItem
 
-interface Fridge {
+interface DbInsert<T : Any> {
 
     @CheckResult
-    suspend fun <R : Any> forAllItemsInEachEntry(
-        force: Boolean,
-        block: suspend (FridgeEntry, List<FridgeItem>) -> R
-    ): List<R>
+    suspend fun insert(o: T): Boolean
 }

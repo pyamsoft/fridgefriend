@@ -16,7 +16,6 @@
 
 package com.pyamsoft.fridge.db.fridge
 
-import com.pyamsoft.fridge.db.Fridge
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.entry.FridgeEntryQueryDao
 import com.pyamsoft.fridge.db.item.FridgeItem

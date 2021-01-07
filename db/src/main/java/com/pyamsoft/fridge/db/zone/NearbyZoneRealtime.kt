@@ -16,6 +16,6 @@
 
 package com.pyamsoft.fridge.db.zone
 
-import com.pyamsoft.fridge.db.BaseDb
+import com.pyamsoft.fridge.db.DbRealtime
 
-interface NearbyZoneRealtime : BaseDb.Realtime<NearbyZoneChangeEvent>
+interface NearbyZoneRealtime : DbRealtime<NearbyZoneChangeEvent>

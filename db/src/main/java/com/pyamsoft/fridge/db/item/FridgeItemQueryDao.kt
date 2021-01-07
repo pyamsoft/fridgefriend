@@ -17,11 +17,11 @@
 package com.pyamsoft.fridge.db.item
 
 import androidx.annotation.CheckResult
-import com.pyamsoft.fridge.db.BaseDb
+import com.pyamsoft.fridge.db.DbQuery
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence
 
-interface FridgeItemQueryDao : BaseDb.Query<FridgeItem> {
+interface FridgeItemQueryDao : DbQuery<FridgeItem> {
 
     @CheckResult
     suspend fun query(force: Boolean, id: FridgeEntry.Id): List<FridgeItem>

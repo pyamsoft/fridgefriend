@@ -19,7 +19,10 @@ package com.pyamsoft.fridge.locator.map.osm.popup
 import com.pyamsoft.fridge.butler.Butler
 import com.pyamsoft.fridge.butler.params.LocationParameters
 import com.pyamsoft.fridge.butler.work.OrderFactory
-import com.pyamsoft.fridge.db.BaseDb
+import com.pyamsoft.fridge.db.DbDelete
+import com.pyamsoft.fridge.db.DbInsert
+import com.pyamsoft.fridge.db.DbQuery
+import com.pyamsoft.fridge.db.DbRealtime
 import com.pyamsoft.fridge.locator.map.popup.base.BaseInfoInteractor
 import com.pyamsoft.pydroid.core.Enforcer
 import kotlinx.coroutines.Dispatchers
@@ -29,10 +32,10 @@ import timber.log.Timber
 abstract class BaseInfoInteractorImpl<
         T : Any,
         RE : Any,
-        R : BaseDb.Realtime<RE>,
-        Q : BaseDb.Query<T>,
-        I : BaseDb.Insert<T>,
-        D : BaseDb.Delete<T>
+        R : DbRealtime<RE>,
+        Q : DbQuery<T>,
+        I : DbInsert<T>,
+        D : DbDelete<T>
         > protected constructor(
     private val butler: Butler,
     private val orderFactory: OrderFactory,

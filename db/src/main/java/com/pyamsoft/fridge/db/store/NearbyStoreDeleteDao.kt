@@ -16,6 +16,6 @@
 
 package com.pyamsoft.fridge.db.store
 
-import com.pyamsoft.fridge.db.BaseDb
+import com.pyamsoft.fridge.db.DbDelete
 
-interface NearbyStoreDeleteDao : BaseDb.Delete<NearbyStore>
+interface NearbyStoreDeleteDao : DbDelete<NearbyStore>

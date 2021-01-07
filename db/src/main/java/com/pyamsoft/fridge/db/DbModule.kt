@@ -18,19 +18,23 @@ package com.pyamsoft.fridge.db
 
 import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.db.category.FridgeCategoryDb
+import com.pyamsoft.fridge.db.category.FridgeCategoryDbImpl
 import com.pyamsoft.fridge.db.category.FridgeCategoryDeleteDao
 import com.pyamsoft.fridge.db.category.FridgeCategoryInsertDao
 import com.pyamsoft.fridge.db.category.FridgeCategoryQueryDao
 import com.pyamsoft.fridge.db.category.FridgeCategoryRealtime
 import com.pyamsoft.fridge.db.entry.FridgeEntryDb
+import com.pyamsoft.fridge.db.entry.FridgeEntryDbImpl
 import com.pyamsoft.fridge.db.entry.FridgeEntryDeleteDao
 import com.pyamsoft.fridge.db.entry.FridgeEntryInsertDao
 import com.pyamsoft.fridge.db.entry.FridgeEntryQueryDao
 import com.pyamsoft.fridge.db.entry.FridgeEntryRealtime
+import com.pyamsoft.fridge.db.fridge.Fridge
 import com.pyamsoft.fridge.db.fridge.FridgeImpl
 import com.pyamsoft.fridge.db.guarantee.EntryGuarantee
 import com.pyamsoft.fridge.db.guarantee.EntryGuaranteeImpl
 import com.pyamsoft.fridge.db.item.FridgeItemDb
+import com.pyamsoft.fridge.db.item.FridgeItemDbImpl
 import com.pyamsoft.fridge.db.item.FridgeItemDeleteDao
 import com.pyamsoft.fridge.db.item.FridgeItemInsertDao
 import com.pyamsoft.fridge.db.item.FridgeItemQueryDao
@@ -38,11 +42,13 @@ import com.pyamsoft.fridge.db.item.FridgeItemRealtime
 import com.pyamsoft.fridge.db.persist.PersistentCategories
 import com.pyamsoft.fridge.db.persist.PersistentCategoriesImpl
 import com.pyamsoft.fridge.db.store.NearbyStoreDb
+import com.pyamsoft.fridge.db.store.NearbyStoreDbImpl
 import com.pyamsoft.fridge.db.store.NearbyStoreDeleteDao
 import com.pyamsoft.fridge.db.store.NearbyStoreInsertDao
 import com.pyamsoft.fridge.db.store.NearbyStoreQueryDao
 import com.pyamsoft.fridge.db.store.NearbyStoreRealtime
 import com.pyamsoft.fridge.db.zone.NearbyZoneDb
+import com.pyamsoft.fridge.db.zone.NearbyZoneDbImpl
 import com.pyamsoft.fridge.db.zone.NearbyZoneDeleteDao
 import com.pyamsoft.fridge.db.zone.NearbyZoneInsertDao
 import com.pyamsoft.fridge.db.zone.NearbyZoneQueryDao
@@ -58,6 +64,26 @@ private annotation class InternalApi
 
 @Module
 abstract class DbModule {
+
+    @Binds
+    @CheckResult
+    internal abstract fun provideItemDbImpl(impl: FridgeItemDbImpl): FridgeItemDb
+
+    @Binds
+    @CheckResult
+    internal abstract fun provideEntryDbImpl(impl: FridgeEntryDbImpl): FridgeEntryDb
+
+    @Binds
+    @CheckResult
+    internal abstract fun provideStoreDbImpl(impl: NearbyStoreDbImpl): NearbyStoreDb
+
+    @Binds
+    @CheckResult
+    internal abstract fun provideZoneDbImpl(impl: NearbyZoneDbImpl): NearbyZoneDb
+
+    @Binds
+    @CheckResult
+    internal abstract fun provideCategoryDbImpl(impl: FridgeCategoryDbImpl): FridgeCategoryDb
 
     @Binds
     @CheckResult

@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Peter Kenji Yamanaka
+ * Copyright 2021 Peter Kenji Yamanaka
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-package com.pyamsoft.fridge.db.item
+package com.pyamsoft.fridge.db
 
-import com.pyamsoft.fridge.db.DbInsert
+interface DbRealtime<T : Any> {
 
-interface FridgeItemInsertDao : DbInsert<FridgeItem>
+    suspend fun listenForChanges(onChange: suspend (event: T) -> Unit)
+}

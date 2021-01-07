@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Peter Kenji Yamanaka
+ * Copyright 2021 Peter Kenji Yamanaka
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,18 +17,13 @@
 package com.pyamsoft.fridge.db
 
 import androidx.annotation.CheckResult
-import com.pyamsoft.fridge.db.BaseDb.Delete
-import com.pyamsoft.fridge.db.BaseDb.Insert
-import com.pyamsoft.fridge.db.BaseDb.Query
-import com.pyamsoft.fridge.db.BaseDb.Realtime
 
 interface BaseDb<
-        ChangeEvent : Any,
-        R : Realtime<*>,
-        Q : Query<*>,
-        I : Insert<*>,
-        D : Delete<*>
-        > : BaseRealtime<ChangeEvent> {
+        R : DbRealtime<*>,
+        Q : DbQuery<*>,
+        I : DbInsert<*>,
+        D : DbDelete<*>,
+        > {
 
     @CheckResult
     fun realtime(): R
@@ -41,27 +36,4 @@ interface BaseDb<
 
     @CheckResult
     fun deleteDao(): D
-
-    interface Realtime<T : Any> {
-
-        suspend fun listenForChanges(onChange: suspend (event: T) -> Unit)
-    }
-
-    interface Delete<T : Any> {
-
-        @CheckResult
-        suspend fun delete(o: T, offerUndo: Boolean): Boolean
-    }
-
-    interface Insert<T : Any> {
-
-        @CheckResult
-        suspend fun insert(o: T): Boolean
-    }
-
-    interface Query<T : Any> {
-
-        @CheckResult
-        suspend fun query(force: Boolean): List<T>
-    }
 }

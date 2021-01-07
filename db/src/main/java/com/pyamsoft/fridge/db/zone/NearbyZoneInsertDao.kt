@@ -16,6 +16,6 @@
 
 package com.pyamsoft.fridge.db.zone
 
-import com.pyamsoft.fridge.db.BaseDb
+import com.pyamsoft.fridge.db.DbInsert
 
-interface NearbyZoneInsertDao : BaseDb.Insert<NearbyZone>
+interface NearbyZoneInsertDao : DbInsert<NearbyZone>

@@ -16,27 +16,15 @@
 
 package com.pyamsoft.fridge.db.entry
 
-import androidx.annotation.CheckResult
-import com.pyamsoft.cachify.Cached
 import com.pyamsoft.fridge.db.BaseDb
 
 interface FridgeEntryDb : BaseDb<
-        FridgeEntryChangeEvent,
         FridgeEntryRealtime,
         FridgeEntryQueryDao,
         FridgeEntryInsertDao,
         FridgeEntryDeleteDao
-        > {
-
-    companion object {
-
-        @CheckResult
-        fun wrap(
-            cache: Cached<List<FridgeEntry>>,
-            insertDao: FridgeEntryInsertDao,
-            deleteDao: FridgeEntryDeleteDao
-        ): FridgeEntryDb {
-            return FridgeEntryDbImpl(cache, insertDao, deleteDao)
-        }
-    }
-}
+        >,
+    FridgeEntryRealtime,
+    FridgeEntryQueryDao,
+    FridgeEntryInsertDao,
+    FridgeEntryDeleteDao

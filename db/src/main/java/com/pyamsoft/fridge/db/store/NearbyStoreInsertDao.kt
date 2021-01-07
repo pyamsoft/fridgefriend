@@ -16,6 +16,6 @@
 
 package com.pyamsoft.fridge.db.store
 
-import com.pyamsoft.fridge.db.BaseDb
+import com.pyamsoft.fridge.db.DbInsert
 
-interface NearbyStoreInsertDao : BaseDb.Insert<NearbyStore>
+interface NearbyStoreInsertDao : DbInsert<NearbyStore>

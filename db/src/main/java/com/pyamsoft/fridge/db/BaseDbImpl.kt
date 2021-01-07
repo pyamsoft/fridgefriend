@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Peter Kenji Yamanaka
+ * Copyright 2021 Peter Kenji Yamanaka
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,16 +14,20 @@
  * limitations under the License.
  */
 
-package com.pyamsoft.fridge.db.fridge
+package com.pyamsoft.fridge.db
 
-import com.pyamsoft.fridge.db.BaseRealtime
 import com.pyamsoft.pydroid.bus.EventBus
 import com.pyamsoft.pydroid.core.Enforcer
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-internal abstract class BaseDbImpl<T : Any, ChangeEvent : Any> protected constructor() :
-    BaseRealtime<ChangeEvent> {
+internal abstract class BaseDbImpl<
+        ChangeEvent : Any,
+        R : DbRealtime<*>,
+        Q : DbQuery<*>,
+        I : DbInsert<*>,
+        D : DbDelete<*>,
+        > protected constructor() : BaseDb<R, Q, I, D> {
 
     private val bus = EventBus.create<ChangeEvent>(emitOnlyWhenActive = true)
 
@@ -33,9 +37,11 @@ internal abstract class BaseDbImpl<T : Any, ChangeEvent : Any> protected constru
             return@withContext bus.onEvent(onEvent)
         }
 
-    final override suspend fun publish(event: ChangeEvent) = withContext(context = Dispatchers.IO) {
+    protected suspend fun publish(event: ChangeEvent) = withContext(context = Dispatchers.IO) {
         Enforcer.assertOffMainThread()
         invalidate()
         bus.send(event)
     }
+
+    protected abstract suspend fun invalidate()
 }

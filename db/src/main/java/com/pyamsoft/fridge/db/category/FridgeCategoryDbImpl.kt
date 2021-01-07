@@ -17,85 +17,83 @@
 package com.pyamsoft.fridge.db.category
 
 import com.pyamsoft.cachify.Cached
-import com.pyamsoft.fridge.db.fridge.BaseDbImpl
+import com.pyamsoft.fridge.db.BaseDbImpl
+import com.pyamsoft.fridge.db.DbApi
 import com.pyamsoft.pydroid.core.Enforcer
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import javax.inject.Inject
+import javax.inject.Singleton
 
-internal class FridgeCategoryDbImpl internal constructor(
-    private val cache: Cached<List<FridgeCategory>>,
-    insertDao: FridgeCategoryInsertDao,
-    deleteDao: FridgeCategoryDeleteDao
-) : BaseDbImpl<FridgeCategory, FridgeCategoryChangeEvent>(), FridgeCategoryDb {
+@Singleton
+internal class FridgeCategoryDbImpl @Inject internal constructor(
+    @param:DbApi private val realQueryDao: Cached<List<FridgeCategory>>,
+    @param:DbApi private val realInsertDao: FridgeCategoryInsertDao,
+    @param:DbApi private val realDeleteDao: FridgeCategoryDeleteDao,
+) : BaseDbImpl<
+        FridgeCategoryChangeEvent,
+        FridgeCategoryRealtime,
+        FridgeCategoryQueryDao,
+        FridgeCategoryInsertDao,
+        FridgeCategoryDeleteDao>(), FridgeCategoryDb {
 
-    private val realtime = object : FridgeCategoryRealtime {
-
-        override suspend fun listenForChanges(onChange: suspend (event: FridgeCategoryChangeEvent) -> Unit) {
-            withContext(context = Dispatchers.IO) {
-                Enforcer.assertOffMainThread()
-                onEvent(onChange)
-            }
+    override suspend fun listenForChanges(onChange: suspend (event: FridgeCategoryChangeEvent) -> Unit) {
+        withContext(context = Dispatchers.IO) {
+            Enforcer.assertOffMainThread()
+            onEvent(onChange)
         }
     }
 
-    private val queryDao = object : FridgeCategoryQueryDao {
-
-        override suspend fun query(force: Boolean): List<FridgeCategory> =
-            withContext(context = Dispatchers.IO) {
-                Enforcer.assertOffMainThread()
-                if (force) {
-                    invalidate()
-                }
-
-                return@withContext cache.call()
+    override suspend fun query(force: Boolean): List<FridgeCategory> =
+        withContext(context = Dispatchers.IO) {
+            Enforcer.assertOffMainThread()
+            if (force) {
+                invalidate()
             }
-    }
 
-    private val insertDao = object : FridgeCategoryInsertDao {
+            return@withContext realQueryDao.call()
+        }
 
-        override suspend fun insert(o: FridgeCategory): Boolean =
-            withContext(context = Dispatchers.IO) {
-                Enforcer.assertOffMainThread()
-                return@withContext insertDao.insert(o).also { inserted ->
-                    if (inserted) {
-                        publish(FridgeCategoryChangeEvent.Insert(o))
-                    } else {
-                        publish(FridgeCategoryChangeEvent.Update(o))
-                    }
+    override suspend fun insert(o: FridgeCategory): Boolean =
+        withContext(context = Dispatchers.IO) {
+            Enforcer.assertOffMainThread()
+            return@withContext realInsertDao.insert(o).also { inserted ->
+                if (inserted) {
+                    publish(FridgeCategoryChangeEvent.Insert(o))
+                } else {
+                    publish(FridgeCategoryChangeEvent.Update(o))
                 }
             }
-    }
+        }
 
-    private val deleteDao = object : FridgeCategoryDeleteDao {
-
-        override suspend fun delete(o: FridgeCategory, offerUndo: Boolean): Boolean =
-            withContext(context = Dispatchers.IO) {
-                Enforcer.assertOffMainThread()
-                return@withContext deleteDao.delete(o, offerUndo).also { deleted ->
-                    if (deleted) {
-                        publish(FridgeCategoryChangeEvent.Delete(o, offerUndo))
-                    }
+    override suspend fun delete(o: FridgeCategory, offerUndo: Boolean): Boolean =
+        withContext(context = Dispatchers.IO) {
+            Enforcer.assertOffMainThread()
+            return@withContext realDeleteDao.delete(o, offerUndo).also { deleted ->
+                if (deleted) {
+                    publish(FridgeCategoryChangeEvent.Delete(o, offerUndo))
                 }
             }
-    }
+        }
 
     override fun realtime(): FridgeCategoryRealtime {
-        return realtime
+        return this
     }
 
     override fun queryDao(): FridgeCategoryQueryDao {
-        return queryDao
+        return this
     }
 
     override fun insertDao(): FridgeCategoryInsertDao {
-        return insertDao
+        return this
     }
 
     override fun deleteDao(): FridgeCategoryDeleteDao {
-        return deleteDao
+        return this
     }
 
     override suspend fun invalidate() = withContext(context = Dispatchers.IO) {
-        cache.clear()
+        realQueryDao.clear()
     }
+
 }
