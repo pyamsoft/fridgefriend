@@ -37,7 +37,7 @@ interface NearbyZone : BaseModel<NearbyZone> {
     data class Point(
         val id: Long,
         val lat: Double,
-        val lon: Double
+        val lon: Double,
     )
 
     data class Id(val id: Long) {
@@ -60,7 +60,7 @@ interface NearbyZone : BaseModel<NearbyZone> {
             id: Id,
             name: String,
             createdTime: Date,
-            points: List<Point>
+            points: List<Point>,
         ): NearbyZone {
             return JsonMappableNearbyZone(id, name, createdTime, points)
         }
@@ -71,7 +71,7 @@ interface NearbyZone : BaseModel<NearbyZone> {
             zone: NearbyZone,
             name: String = zone.name(),
             createdTime: Date = zone.createdTime(),
-            points: List<Point> = zone.points()
+            points: List<Point> = zone.points(),
         ): NearbyZone {
             return JsonMappableNearbyZone(zone.id(), name, createdTime, points)
         }

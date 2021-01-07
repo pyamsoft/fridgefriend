@@ -32,8 +32,8 @@ import javax.inject.Inject
 
 class ItemMoveViewModel @Inject internal constructor(
     private val interactor: DetailInteractor,
-    private val itemId: FridgeItem.Id,
     @param:InternalApi private val delegate: EntryListStateModel,
+    itemId: FridgeItem.Id,
     entryId: FridgeEntry.Id,
 ) : UiViewModel<ItemMoveViewState, ItemMoveViewEvent, ItemMoveControllerEvent>(
     initialState = ItemMoveViewState(
@@ -42,13 +42,9 @@ class ItemMoveViewModel @Inject internal constructor(
     )
 ) {
 
-    private val itemResolveRunner = highlander<Unit, FridgeItem.Id> { resolveItemId ->
-        val item = interactor.loadItem(
-            resolveItemId,
-            entryId,
-            force = false
-        )
-
+    private val itemResolveRunner = highlander<Unit> {
+        Timber.d("Load items: $itemId $entryId")
+        val item = interactor.loadItem(itemId, entryId, true)
         setState { copy(item = item) }
     }
 
@@ -62,10 +58,9 @@ class ItemMoveViewModel @Inject internal constructor(
         doOnCleared { delegate.clear() }
 
         viewModelScope.launch(context = Dispatchers.Default) {
-            itemResolveRunner.call(itemId)
+            itemResolveRunner.call()
         }
     }
-
 
     override fun handleViewEvent(event: ItemMoveViewEvent) {
         return when (event) {

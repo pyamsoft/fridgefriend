@@ -97,7 +97,7 @@ abstract class RoomModule {
         @CheckResult
         internal fun provideEntryCache(@InternalApi db: RoomFridgeDb): Cached<List<FridgeEntry>> {
             return cachify<List<FridgeEntry>>(
-                storage = MemoryCacheStorage.create(cacheTime, cacheUnit)
+                storage = { listOf(MemoryCacheStorage.create(cacheTime, cacheUnit)) }
             ) {
                 db.roomEntryQueryDao()
                     .query(false)
@@ -111,7 +111,7 @@ abstract class RoomModule {
         @CheckResult
         internal fun provideAllItemsCache(@InternalApi db: RoomFridgeDb): Cached<List<FridgeItem>> {
             return cachify<List<FridgeItem>>(
-                storage = MemoryCacheStorage.create(cacheTime, cacheUnit)
+                storage = { listOf(MemoryCacheStorage.create(cacheTime, cacheUnit)) }
             ) {
                 db.roomItemQueryDao()
                     .query(false)
@@ -125,7 +125,7 @@ abstract class RoomModule {
         @CheckResult
         internal fun provideItemsByEntryCache(@InternalApi db: RoomFridgeDb): MultiCached1<FridgeEntry.Id, List<FridgeItem>, FridgeEntry.Id> {
             return multiCachify(
-                storage = MemoryCacheStorage.create(cacheTime, cacheUnit)
+                storage = { listOf(MemoryCacheStorage.create(cacheTime, cacheUnit)) }
             ) { id ->
                 db.roomItemQueryDao()
                     .query(false, id)
@@ -139,7 +139,7 @@ abstract class RoomModule {
         @CheckResult
         internal fun provideSameNameDifferentPresenceCache(@InternalApi db: RoomFridgeDb): MultiCached2<FridgeItemDb.QuerySameNameDifferentPresenceKey, List<FridgeItem>, String, FridgeItem.Presence> {
             return multiCachify(
-                storage = MemoryCacheStorage.create(cacheTime, cacheUnit)
+                storage = { listOf(MemoryCacheStorage.create(cacheTime, cacheUnit)) }
             ) { name, presence ->
                 db.roomItemQueryDao()
                     .querySameNameDifferentPresence(false, name, presence)
@@ -153,7 +153,7 @@ abstract class RoomModule {
         @CheckResult
         internal fun provideSimilarlyNamedCache(@InternalApi db: RoomFridgeDb): MultiCached2<FridgeItemDb.QuerySimilarNamedKey, List<FridgeItemDb.SimilarityScore>, FridgeItem.Id, String> {
             return multiCachify(
-                storage = MemoryCacheStorage.create(cacheTime, cacheUnit)
+                storage = { listOf(MemoryCacheStorage.create(cacheTime, cacheUnit)) }
             ) { id, name ->
                 db.roomItemQueryDao()
                     .querySimilarNamedItems(false, id, name)
@@ -224,7 +224,7 @@ abstract class RoomModule {
         @CheckResult
         internal fun provideZoneCache(@InternalApi db: RoomFridgeDb): Cached<List<NearbyZone>> {
             return cachify<List<NearbyZone>>(
-                storage = MemoryCacheStorage.create(cacheTime, cacheUnit)
+                storage = { listOf(MemoryCacheStorage.create(cacheTime, cacheUnit)) }
             ) {
                 db.roomZoneQueryDao()
                     .query(false)
@@ -238,7 +238,7 @@ abstract class RoomModule {
         @CheckResult
         internal fun provideStoreCache(@InternalApi db: RoomFridgeDb): Cached<List<NearbyStore>> {
             return cachify<List<NearbyStore>>(
-                storage = MemoryCacheStorage.create(cacheTime, cacheUnit)
+                storage = { listOf(MemoryCacheStorage.create(cacheTime, cacheUnit)) }
             ) {
                 db.roomStoreQueryDao()
                     .query(false)
@@ -252,7 +252,7 @@ abstract class RoomModule {
         @CheckResult
         internal fun provideCategoryCache(@InternalApi db: RoomFridgeDb): Cached<List<FridgeCategory>> {
             return cachify<List<FridgeCategory>>(
-                storage = MemoryCacheStorage.create(cacheTime, cacheUnit)
+                storage = { listOf(MemoryCacheStorage.create(cacheTime, cacheUnit)) }
             ) {
                 db.roomCategoryQueryDao()
                     .query(false)

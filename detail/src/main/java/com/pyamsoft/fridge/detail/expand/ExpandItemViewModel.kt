@@ -34,8 +34,8 @@ import com.pyamsoft.fridge.detail.base.createUpdateDelegate
 import com.pyamsoft.fridge.detail.expand.date.DateSelectPayload
 import com.pyamsoft.fridge.detail.item.isNameValid
 import com.pyamsoft.highlander.highlander
-import com.pyamsoft.pydroid.bus.EventBus
 import com.pyamsoft.pydroid.arch.UiViewModel
+import com.pyamsoft.pydroid.bus.EventBus
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -68,7 +68,6 @@ class ExpandItemViewModel @Inject internal constructor(
             resolveItemId,
             itemEntryId,
             defaultPresence,
-            force = false
         )
 
         setState { copy(item = item) }

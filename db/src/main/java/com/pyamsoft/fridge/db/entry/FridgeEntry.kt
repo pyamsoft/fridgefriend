@@ -67,7 +67,7 @@ interface FridgeEntry : BaseModel<FridgeEntry> {
             entry: FridgeEntry,
             name: String = entry.name(),
             createdTime: Date = entry.createdTime(),
-            isReal: Boolean
+            isReal: Boolean,
         ): FridgeEntry {
             return JsonMappableFridgeEntry(entry.id(), name, createdTime, isReal)
         }

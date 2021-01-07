@@ -22,6 +22,7 @@ import com.pyamsoft.fridge.ui.view.UiToolbar
 import com.pyamsoft.pydroid.arch.UiRender
 import com.pyamsoft.pydroid.ui.app.ToolbarActivity
 import com.pyamsoft.pydroid.ui.util.DebouncedOnClickListener
+import com.pyamsoft.pydroid.ui.util.setUpEnabled
 import javax.inject.Inject
 
 class DetailToolbar @Inject internal constructor(
@@ -36,6 +37,7 @@ class DetailToolbar @Inject internal constructor(
     init {
         doOnInflate {
             toolbarActivity.withToolbar { toolbar ->
+                toolbar.setUpEnabled(true)
                 toolbar.setNavigationOnClickListener(DebouncedOnClickListener.create {
                     publish(DetailViewEvent.ToolbarEvent.Back)
                 })
@@ -43,7 +45,10 @@ class DetailToolbar @Inject internal constructor(
         }
 
         doOnTeardown {
-            toolbarActivity.withToolbar { it.setNavigationOnClickListener(null) }
+            toolbarActivity.withToolbar { toolbar ->
+                toolbar.setUpEnabled(false)
+                toolbar.setNavigationOnClickListener(null)
+            }
         }
     }
 

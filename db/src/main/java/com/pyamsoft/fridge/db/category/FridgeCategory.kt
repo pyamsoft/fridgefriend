@@ -103,7 +103,7 @@ interface FridgeCategory : EmptyModel<FridgeCategory> {
         @CheckResult
         fun create(
             id: Id,
-            name: String
+            name: String,
         ): FridgeCategory {
             return JsonMappableFridgeCategory(id, name, currentDate(), null, isDefault = false)
         }
@@ -126,7 +126,7 @@ interface FridgeCategory : EmptyModel<FridgeCategory> {
             name: String = category.name(),
             createdTime: Date = category.createdTime(),
             thumbnail: Thumbnail? = category.thumbnail(),
-            isDefault: Boolean = category.isDefault()
+            isDefault: Boolean = category.isDefault(),
         ): FridgeCategory {
             return JsonMappableFridgeCategory(
                 category.id(),

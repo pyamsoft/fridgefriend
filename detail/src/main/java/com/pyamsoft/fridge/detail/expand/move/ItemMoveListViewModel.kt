@@ -28,13 +28,20 @@ import javax.inject.Inject
 
 class ItemMoveListViewModel @Inject internal constructor(
     @param:InternalApi private val delegate: EntryListStateModel,
+    entryId: FridgeEntry.Id,
 ) : UiViewModel<EntryViewState, EntryViewEvent.ListEvent, ItemMoveListControllerEvent>(
     initialState = delegate.initialState
 ) {
 
     init {
         val job = delegate.bind(Renderable { state ->
-            state.render(viewModelScope) { newState -> setState { newState } }
+            state.render(viewModelScope) { newState ->
+                setState {
+                    newState.copy(
+                        displayedEntries = newState.displayedEntries.filterNot { it.entry.id() == entryId }
+                    )
+                }
+            }
         })
         doOnCleared { job.cancel() }
         doOnCleared { delegate.clear() }

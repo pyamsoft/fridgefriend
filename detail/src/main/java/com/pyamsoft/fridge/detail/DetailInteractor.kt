@@ -133,13 +133,12 @@ internal class DetailInteractor @Inject internal constructor(
         itemId: FridgeItem.Id,
         entryId: FridgeEntry.Id,
         presence: Presence,
-        force: Boolean,
     ): FridgeItem = withContext(context = Dispatchers.Default) {
         Enforcer.assertOffMainThread()
         return@withContext if (itemId.isEmpty()) {
             createNewItem(entryId, presence)
         } else {
-            loadItem(itemId, entryId, force)
+            loadItem(itemId, entryId, false)
         }
     }
 
@@ -161,17 +160,20 @@ internal class DetailInteractor @Inject internal constructor(
     suspend fun loadItem(
         itemId: FridgeItem.Id,
         entryId: FridgeEntry.Id,
-        force: Boolean,
-    ): FridgeItem = getItems(entryId, force).first { it.id() == itemId }
+        log: Boolean
+    ): FridgeItem = getItems(entryId, true).map {
+        if (log) {
+            Timber.d("Found item: $it")
+        }
+        it
+    }.first { it.id() == itemId }
 
     @CheckResult
-    suspend fun getItems(
-        entryId: FridgeEntry.Id,
-        force: Boolean,
-    ): List<FridgeItem> = withContext(context = Dispatchers.Default) {
-        Enforcer.assertOffMainThread()
-        return@withContext itemQueryDao.query(force, entryId)
-    }
+    suspend fun getItems(entryId: FridgeEntry.Id, force: Boolean): List<FridgeItem> =
+        withContext(context = Dispatchers.Default) {
+            Enforcer.assertOffMainThread()
+            return@withContext itemQueryDao.query(force, entryId)
+        }
 
     suspend fun listenForChanges(
         id: FridgeEntry.Id,

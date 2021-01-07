@@ -59,7 +59,7 @@ interface NearbyStore : BaseModel<NearbyStore> {
             name: String,
             createdTime: Date,
             latitude: Double,
-            longitude: Double
+            longitude: Double,
         ): NearbyStore {
             return JsonMappableNearbyStore(id, name, createdTime, latitude, longitude)
         }
@@ -71,7 +71,7 @@ interface NearbyStore : BaseModel<NearbyStore> {
             name: String = store.name(),
             createdTime: Date = store.createdTime(),
             latitude: Double = store.latitude(),
-            longitude: Double = store.longitude()
+            longitude: Double = store.longitude(),
         ): NearbyStore {
             return JsonMappableNearbyStore(store.id(), name, createdTime, latitude, longitude)
         }
