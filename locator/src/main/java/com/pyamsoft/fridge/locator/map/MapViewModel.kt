@@ -25,7 +25,7 @@ import com.pyamsoft.fridge.locator.DeviceGps
 import com.pyamsoft.fridge.locator.MapPermission
 import com.pyamsoft.fridge.ui.BottomOffset
 import com.pyamsoft.highlander.highlander
-import com.pyamsoft.pydroid.arch.EventConsumer
+import com.pyamsoft.pydroid.bus.EventConsumer
 import com.pyamsoft.pydroid.arch.UiViewModel
 import com.pyamsoft.pydroid.arch.onActualError
 import com.pyamsoft.pydroid.util.contains

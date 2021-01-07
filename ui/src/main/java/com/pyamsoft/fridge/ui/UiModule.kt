@@ -17,8 +17,8 @@
 package com.pyamsoft.fridge.ui
 
 import androidx.annotation.CheckResult
-import com.pyamsoft.pydroid.arch.EventBus
-import com.pyamsoft.pydroid.arch.EventConsumer
+import com.pyamsoft.pydroid.bus.EventBus
+import com.pyamsoft.pydroid.bus.EventConsumer
 import dagger.Binds
 import dagger.Module
 

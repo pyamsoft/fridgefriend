@@ -21,7 +21,7 @@ import com.pyamsoft.fridge.core.FragmentScope
 import com.pyamsoft.fridge.entry.EntryInteractor
 import com.pyamsoft.fridge.entry.EntryListStateModel
 import com.pyamsoft.fridge.ui.BottomOffset
-import com.pyamsoft.pydroid.arch.EventBus
+import com.pyamsoft.pydroid.bus.EventBus
 import dagger.Module
 import dagger.Provides
 import javax.inject.Qualifier

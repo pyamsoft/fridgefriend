@@ -56,7 +56,7 @@ import com.pyamsoft.fridge.preference.PreferencesImpl
 import com.pyamsoft.fridge.setting.SettingsComponent
 import com.pyamsoft.fridge.setting.SettingsPreferences
 import com.pyamsoft.fridge.ui.UiModule
-import com.pyamsoft.pydroid.arch.EventBus
+import com.pyamsoft.pydroid.bus.EventBus
 import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.ui.theme.Theming
 import dagger.Binds

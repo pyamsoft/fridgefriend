@@ -34,7 +34,7 @@ import com.pyamsoft.fridge.detail.base.createUpdateDelegate
 import com.pyamsoft.fridge.detail.expand.date.DateSelectPayload
 import com.pyamsoft.fridge.detail.item.isNameValid
 import com.pyamsoft.highlander.highlander
-import com.pyamsoft.pydroid.arch.EventBus
+import com.pyamsoft.pydroid.bus.EventBus
 import com.pyamsoft.pydroid.arch.UiViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch

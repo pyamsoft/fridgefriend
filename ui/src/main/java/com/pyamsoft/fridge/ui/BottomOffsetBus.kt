@@ -16,7 +16,7 @@
 
 package com.pyamsoft.fridge.ui
 
-import com.pyamsoft.pydroid.arch.EventBus
+import com.pyamsoft.pydroid.bus.EventBus
 import com.pyamsoft.pydroid.core.Enforcer
 import javax.inject.Inject
 import javax.inject.Singleton

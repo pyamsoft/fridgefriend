@@ -19,7 +19,7 @@ package com.pyamsoft.fridge.detail.expand.date
 import androidx.lifecycle.viewModelScope
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItem
-import com.pyamsoft.pydroid.arch.EventBus
+import com.pyamsoft.pydroid.bus.EventBus
 import com.pyamsoft.pydroid.arch.UiViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
