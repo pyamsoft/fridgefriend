@@ -79,8 +79,7 @@ internal class MainActivity : ChangeLogActivity(), VersionChecker {
 
     override val changelog = buildChangeLog {
         feature("An Item can be moved from one Group to another via toolbar option.")
-//        // TODO(Do this)
-//        bugfix("Fix tooltip arrow location")
+        bugfix("Fix tooltip arrow location")
 //        // TODO(Do this)
 //        feature("Group names can be edited via long press")
 //        // TODO(Do this)
