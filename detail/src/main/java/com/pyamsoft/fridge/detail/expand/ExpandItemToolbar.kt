@@ -153,7 +153,10 @@ class ExpandItemToolbar @Inject internal constructor(
 
             // Always show delete and move
             requireNotNull(deleteMenuItem).isVisible = isReal
-            requireNotNull(moveMenuItem).isVisible = isReal
+
+            // TODO(Peter): Move item crashes
+//            requireNotNull(moveMenuItem).isVisible = isReal
+            requireNotNull(moveMenuItem).isVisible = false
 
             if (item.isArchived()) {
                 requireNotNull(restoreMenuItem).isVisible = isReal
