@@ -4,6 +4,8 @@ FridgeFriend is an open source application which serves as a psuedo shopping
 list manager, a sort-of fridge inventory management tool, and a kind-of
 reminder tool all in one.
 
+[![Get it on Google Play](https://raw.githubusercontent.com/pyamsoft/fridgefriend/main/art/google-play-badge.png)][1]
+
 # What
 
 Before going shopping, you can tell FridgeFriend which items you plan to buy,
@@ -52,6 +54,8 @@ will be accepted on GitHub only after extensive reading and as long as the reque
 goes in line with the design of the application. Pull Requests will only be
 accepted for new features of the application, for general purpose bug fixes, creating
 an issue is simply faster.
+
+[1]: https://play.google.com/store/apps/details?id=com.pyamsoft.fridge
 
 ## License
 
