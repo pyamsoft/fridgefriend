@@ -36,10 +36,9 @@ class DetailPresenceSwitcher @Inject internal constructor(
 
     private var toolbarActivity: ToolbarActivity? = toolbarSource
 
-    private var bindingRoot: TabLayout? = null
-
+    private var _bindingRoot: TabLayout? = null
     private val layoutRoot: TabLayout
-        get() = requireNotNull(bindingRoot)
+        get() = requireNotNull(_bindingRoot)
 
     init {
         // Replace the app bar background during switcher presence
@@ -47,12 +46,12 @@ class DetailPresenceSwitcher @Inject internal constructor(
             appBarSource.requireAppBar { appBar ->
                 val inflater = LayoutInflater.from(appBar.context)
                 val binding = DetailPresenceSwitchBinding.inflate(inflater, appBar)
-                bindingRoot = binding.detailPresenceSwitcherRoot.also { onCreate(it) }
+                _bindingRoot = binding.detailPresenceSwitcherRoot.also { onCreate(it) }
             }
         }
 
         doOnTeardown {
-            bindingRoot?.also { binding ->
+            _bindingRoot?.also { binding ->
                 appBarSource.withAppBar { appBar ->
                     appBar.removeView(binding)
                 }
@@ -60,7 +59,7 @@ class DetailPresenceSwitcher @Inject internal constructor(
                 onDestroy(binding)
             }
 
-            bindingRoot = null
+            _bindingRoot = null
             toolbarActivity = null
         }
     }
