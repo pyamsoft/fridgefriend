@@ -70,7 +70,9 @@ import timber.log.Timber
 import javax.inject.Inject
 import androidx.fragment.R as R2
 
-internal class MainActivity : ChangeLogActivity(), VersionChecker, AppBarActivity,
+internal class MainActivity : ChangeLogActivity(),
+    VersionChecker,
+    AppBarActivity,
     AppBarActivityProvider {
 
     private var isUpdateChecked = false
