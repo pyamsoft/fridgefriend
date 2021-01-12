@@ -39,7 +39,7 @@ abstract class DetailListModule {
             tooltipCreator: TooltipCreator,
             theming: ThemeProvider
         ): DetailItemComponent.Factory {
-            return Injector.obtain<DetailListComponent.Factory>(context.applicationContext)
+            return Injector.obtainFromApplication<DetailListComponent.Factory>(context)
                 .create(tooltipCreator, theming).plusItemComponent()
         }
     }

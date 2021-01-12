@@ -84,7 +84,7 @@ internal class PermissionFragment : Fragment(), PermissionConsumer<ForegroundLoc
         super.onViewCreated(view, savedInstanceState)
 
         val binding = LayoutConstraintBinding.bind(view)
-        Injector.obtain<FridgeComponent>(view.context.applicationContext)
+        Injector.obtainFromApplication<FridgeComponent>(view.context)
             .plusPermissionComponent()
             .create(binding.layoutConstraint, viewLifecycleOwner)
             .inject(this)

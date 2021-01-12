@@ -90,7 +90,7 @@ internal class EntryFragment : Fragment(), SnackbarContainer {
 
         fragmentContainerId = requireArguments().getInt(FRAGMENT_CONTAINER, 0)
         val binding = LayoutCoordinatorBinding.bind(view)
-        Injector.obtain<FridgeComponent>(view.context.applicationContext)
+        Injector.obtainFromApplication<FridgeComponent>(view.context)
             .plusEntryComponent()
             .create(
                 requireToolbarActivity(),

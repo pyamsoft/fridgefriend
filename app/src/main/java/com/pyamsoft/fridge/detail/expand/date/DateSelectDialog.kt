@@ -46,7 +46,7 @@ internal class DateSelectDialog : AppCompatDialogFragment() {
     private var stateSaver: StateSaver? = null
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        Injector.obtain<FridgeComponent>(requireContext().applicationContext)
+        Injector.obtainFromApplication<FridgeComponent>(requireContext())
             .plusDateSelectComponent()
             .inject(this)
 

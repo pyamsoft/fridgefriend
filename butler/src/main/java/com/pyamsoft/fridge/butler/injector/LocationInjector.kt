@@ -38,7 +38,7 @@ class LocationInjector @Inject constructor(
         tags: Set<String>,
         params: LocationParameters
     ): WorkResult {
-        Injector.obtain<ButlerComponent>(context.applicationContext).inject(this)
+        Injector.obtainFromApplication<ButlerComponent>(context).inject(this)
         return requireNotNull(runner).doWork(id, tags, params) { null }
     }
 }

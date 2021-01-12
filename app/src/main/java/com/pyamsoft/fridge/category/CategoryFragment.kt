@@ -64,7 +64,7 @@ internal class CategoryFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         val binding = LayoutCoordinatorBinding.bind(view)
-        Injector.obtain<FridgeComponent>(view.context.applicationContext)
+        Injector.obtainFromApplication<FridgeComponent>(view.context)
             .plusCategoryComponent()
             .create(
                 requireActivity(),

@@ -69,7 +69,7 @@ internal class CreateEntrySheet : BottomSheetDialogFragment() {
         super.onViewCreated(view, savedInstanceState)
 
         val binding = LayoutLinearVerticalBinding.bind(view)
-        Injector.obtain<FridgeComponent>(view.context.applicationContext)
+        Injector.obtainFromApplication<FridgeComponent>(view.context)
             .plusCreateEntryComponent()
             .create(binding.layoutLinearV)
             .inject(this)

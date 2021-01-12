@@ -37,7 +37,7 @@ abstract class CategoryModule {
             context: Context,
             themeProvider: ThemeProvider
         ): CategoryItemComponent.Factory {
-            return Injector.obtain<CategoryListComponent.Factory>(context.applicationContext)
+            return Injector.obtainFromApplication<CategoryListComponent.Factory>(context)
                 .create(themeProvider).plusItemComponent()
         }
     }

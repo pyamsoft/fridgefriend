@@ -150,7 +150,7 @@ internal class MainActivity : ChangeLogActivity(), VersionChecker {
         val binding = LayoutConstraintBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        Injector.obtain<FridgeComponent>(applicationContext)
+        Injector.obtainFromApplication<FridgeComponent>(this)
             .plusMainComponent()
             .create(this, this, binding.layoutConstraint, this)
             .inject(this)

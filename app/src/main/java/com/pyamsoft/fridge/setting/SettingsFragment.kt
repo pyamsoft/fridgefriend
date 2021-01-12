@@ -78,7 +78,7 @@ internal class SettingsFragment : AppSettingsFragment() {
 
         override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
             super.onViewCreated(view, savedInstanceState)
-            Injector.obtain<FridgeComponent>(view.context.applicationContext)
+            Injector.obtainFromApplication<FridgeComponent>(view.context)
                 .plusSettingsComponent()
                 .create(preferenceScreen)
                 .inject(this)

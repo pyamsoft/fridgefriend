@@ -39,7 +39,7 @@ abstract class EntryListModule {
             tooltipCreator: TooltipCreator,
             theming: ThemeProvider
         ): EntryItemComponent.Factory {
-            return Injector.obtain<EntryListComponent.Factory>(context.applicationContext)
+            return Injector.obtainFromApplication<EntryListComponent.Factory>(context)
                 .create(tooltipCreator, theming).plusItemComponent()
         }
     }

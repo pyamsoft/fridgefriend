@@ -104,7 +104,7 @@ internal class DetailFragment : Fragment(), SnackbarContainer {
         val presence = Presence.valueOf(requireNotNull(requireArguments().getString(PRESENCE)))
 
         val binding = LayoutCoordinatorBinding.bind(view)
-        Injector.obtain<FridgeComponent>(view.context.applicationContext)
+        Injector.obtainFromApplication<FridgeComponent>(view.context)
             .plusDetailComponent()
             .create(
                 requireActivity(),

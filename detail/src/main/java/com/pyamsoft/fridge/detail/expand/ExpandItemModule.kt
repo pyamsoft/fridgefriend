@@ -37,7 +37,7 @@ abstract class ExpandItemModule {
             context: Context,
             themeProvider: ThemeProvider
         ): ExpandCategoryComponent.Factory {
-            return Injector.obtain<ExpandItemCategoryListComponent.Factory>(context.applicationContext)
+            return Injector.obtainFromApplication<ExpandItemCategoryListComponent.Factory>(context)
                 .create(themeProvider)
                 .plusCategoryComponent()
         }

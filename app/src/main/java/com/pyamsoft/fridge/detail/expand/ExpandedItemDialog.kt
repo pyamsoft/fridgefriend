@@ -109,7 +109,7 @@ internal class ExpandedItemDialog : AppCompatDialogFragment() {
         val presenceArgument =
             Presence.valueOf(requireNotNull(requireArguments().getString(PRESENCE)))
 
-        Injector.obtain<FridgeComponent>(view.context.applicationContext)
+        Injector.obtainFromApplication<FridgeComponent>(view.context)
             .plusExpandComponent()
             .create(
                 requireActivity(),

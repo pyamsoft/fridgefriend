@@ -76,7 +76,7 @@ internal class ItemMoveDialog : AppCompatDialogFragment() {
         val entryId = FridgeEntry.Id(requireNotNull(requireArguments().getString(ENTRY)))
 
         val parent = binding.layoutConstraint
-        Injector.obtain<FridgeComponent>(view.context.applicationContext)
+        Injector.obtainFromApplication<FridgeComponent>(view.context)
             .plusItemMoveComponent()
             .create(
                 requireActivity(),

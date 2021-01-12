@@ -75,7 +75,7 @@ internal class MapFragment : Fragment(), SnackbarContainer {
         super.onViewCreated(view, savedInstanceState)
 
         val binding = LayoutCoordinatorBinding.bind(view)
-        Injector.obtain<FridgeComponent>(view.context.applicationContext)
+        Injector.obtainFromApplication<FridgeComponent>(view.context)
             .plusMapComponent()
             .create(
                 requireActivity(),
