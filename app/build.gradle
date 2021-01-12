@@ -26,8 +26,8 @@ android {
     applicationId "com.pyamsoft.fridge"
     minSdkVersion rootProject.ext.minSdk
     targetSdkVersion rootProject.ext.maxSdk
-    versionCode 27
-    versionName "REL.202101081"
+    versionCode 28
+    versionName "DEV.20210111-1"
 
     // For vector drawables
     vectorDrawables.useSupportLibrary = true
