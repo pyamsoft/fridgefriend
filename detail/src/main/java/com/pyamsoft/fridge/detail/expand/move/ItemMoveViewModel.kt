@@ -43,7 +43,6 @@ class ItemMoveViewModel @Inject internal constructor(
 ) {
 
     private val itemResolveRunner = highlander<Unit> {
-        Timber.d("Load items: $itemId $entryId")
         val item = interactor.loadItem(itemId, entryId, true)
         setState { copy(item = item) }
     }
