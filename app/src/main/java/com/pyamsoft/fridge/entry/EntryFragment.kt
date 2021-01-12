@@ -34,6 +34,7 @@ import com.pyamsoft.fridge.detail.DetailFragment
 import com.pyamsoft.fridge.entry.create.CreateEntrySheet
 import com.pyamsoft.fridge.main.VersionChecker
 import com.pyamsoft.fridge.ui.SnackbarContainer
+import com.pyamsoft.fridge.ui.requireAppBarActivity
 import com.pyamsoft.pydroid.arch.StateSaver
 import com.pyamsoft.pydroid.arch.createComponent
 import com.pyamsoft.pydroid.ui.Injector
@@ -93,6 +94,7 @@ internal class EntryFragment : Fragment(), SnackbarContainer {
         Injector.obtainFromApplication<FridgeComponent>(view.context)
             .plusEntryComponent()
             .create(
+                requireAppBarActivity(),
                 requireToolbarActivity(),
                 requireActivity(),
                 viewLifecycleOwner,

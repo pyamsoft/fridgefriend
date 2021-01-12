@@ -24,8 +24,8 @@ import com.pyamsoft.fridge.db.zone.NearbyZone
 import com.pyamsoft.fridge.locator.GpsChangeEvent
 import com.pyamsoft.fridge.locator.MapPermission
 import com.pyamsoft.fridge.ui.BottomOffset
-import com.pyamsoft.pydroid.bus.EventBus
 import com.pyamsoft.pydroid.arch.UiViewModel
+import com.pyamsoft.pydroid.bus.EventBus
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -50,8 +50,6 @@ class MainViewModel @Inject internal constructor(
         hasNearby = false
     )
 ) {
-
-    private var versionChecked: Boolean = false
 
     init {
         viewModelScope.launch(context = Dispatchers.Default) {
@@ -88,7 +86,7 @@ class MainViewModel @Inject internal constructor(
                 storeId = NearbyStore.Id.EMPTY,
                 zoneId = NearbyZone.Id.EMPTY
             )
-            else -> MainPage.Entries
+            else -> throw IllegalStateException("Cannot convert to MainPage: $this")
         }
     }
 

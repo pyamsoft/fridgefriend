@@ -16,33 +16,16 @@
 
 package com.pyamsoft.fridge.detail
 
-import androidx.lifecycle.viewModelScope
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.detail.DetailControllerEvent.ExpandForEditing
-import com.pyamsoft.pydroid.arch.Renderable
-import com.pyamsoft.pydroid.arch.UiViewModel
 import timber.log.Timber
 import javax.inject.Inject
 
 class DetailViewModel @Inject internal constructor(
-    private val delegate: DetailListStateModel,
-) : UiViewModel<DetailViewState, DetailViewEvent, DetailControllerEvent>(
-    initialState = delegate.initialState
-) {
+    @DetailInternalApi delegate: DetailListStateModel,
+) : DelegatedDetailViewModel<DetailViewEvent.ControlledEvents, DetailControllerEvent>(delegate) {
 
     init {
-        val job = delegate.bind(Renderable { state ->
-            state.render(viewModelScope) { newState ->
-                setState { newState }
-            }
-        })
-        doOnCleared {
-            job.cancel()
-        }
-        doOnCleared {
-            delegate.clear()
-        }
-
         doOnSaveState { outState, state ->
             outState.put(SAVED_FILTER, state.showing.name)
         }
@@ -83,26 +66,31 @@ class DetailViewModel @Inject internal constructor(
         }
     }
 
-    override fun handleViewEvent(event: DetailViewEvent) {
+    override fun handleViewEvent(event: DetailViewEvent.ControlledEvents) {
         return when (event) {
-            is DetailViewEvent.ListEvent.ForceRefresh -> delegate.refreshList(true)
-            is DetailViewEvent.ListEvent.ChangeItemPresence -> delegate.commitPresence(event.item)
-            is DetailViewEvent.ListEvent.ConsumeItem -> delegate.consume(event.item)
-            is DetailViewEvent.ListEvent.DeleteItem -> delegate.delete(event.item)
-            is DetailViewEvent.ListEvent.RestoreItem -> delegate.restore(event.item)
-            is DetailViewEvent.ListEvent.SpoilItem -> delegate.spoil(event.item)
-            is DetailViewEvent.ListEvent.IncreaseItemCount -> delegate.increaseCount(event.item)
-            is DetailViewEvent.ListEvent.DecreaseItemCount -> delegate.decreaseCount(event.item)
-            is DetailViewEvent.ListEvent.ExpandItem -> handleExpand(event.item)
-            is DetailViewEvent.AddEvent.ToggleArchiveVisibility -> delegate.toggleArchived()
-            is DetailViewEvent.AddEvent.ReallyDeleteItemNoUndo -> delegate.deleteForever(event.item)
-            is DetailViewEvent.AddEvent.UndoDeleteItem -> delegate.handleUndoDelete(event.item)
-            is DetailViewEvent.AddEvent.ClearListError -> delegate.clearListError()
-            is DetailViewEvent.AddEvent.AddNew -> handleAddNew()
-            is DetailViewEvent.ToolbarEvent.Back -> handleBack()
-            is DetailViewEvent.ToolbarEvent.SearchQuery -> delegate.updateSearch(event.search)
-            is DetailViewEvent.ToolbarEvent.ChangeSort -> delegate.updateSort(event.sort)
-            is DetailViewEvent.SwitcherEvent.PresenceSwitched -> delegate.handlePresenceSwitch(event.presence)
+            is DetailViewEvent.ControlledEvents.ListEvent.ForceRefresh -> delegate.refreshList(true)
+            is DetailViewEvent.ControlledEvents.ListEvent.ChangeItemPresence -> delegate.commitPresence(
+                event.item)
+            is DetailViewEvent.ControlledEvents.ListEvent.ConsumeItem -> delegate.consume(event.item)
+            is DetailViewEvent.ControlledEvents.ListEvent.DeleteItem -> delegate.delete(event.item)
+            is DetailViewEvent.ControlledEvents.ListEvent.RestoreItem -> delegate.restore(event.item)
+            is DetailViewEvent.ControlledEvents.ListEvent.SpoilItem -> delegate.spoil(event.item)
+            is DetailViewEvent.ControlledEvents.ListEvent.IncreaseItemCount -> delegate.increaseCount(
+                event.item)
+            is DetailViewEvent.ControlledEvents.ListEvent.DecreaseItemCount -> delegate.decreaseCount(
+                event.item)
+            is DetailViewEvent.ControlledEvents.ListEvent.ExpandItem -> handleExpand(event.item)
+            is DetailViewEvent.ControlledEvents.AddEvent.ToggleArchiveVisibility -> delegate.toggleArchived()
+            is DetailViewEvent.ControlledEvents.AddEvent.ReallyDeleteItemNoUndo -> delegate.deleteForever(
+                event.item)
+            is DetailViewEvent.ControlledEvents.AddEvent.UndoDeleteItem -> delegate.handleUndoDelete(
+                event.item)
+            is DetailViewEvent.ControlledEvents.AddEvent.ClearListError -> delegate.clearListError()
+            is DetailViewEvent.ControlledEvents.AddEvent.AddNew -> handleAddNew()
+            is DetailViewEvent.ControlledEvents.ToolbarEvent.Back -> handleBack()
+            is DetailViewEvent.ControlledEvents.ToolbarEvent.SearchQuery -> delegate.updateSearch(
+                event.search)
+            is DetailViewEvent.ControlledEvents.ToolbarEvent.ChangeSort -> delegate.updateSort(event.sort)
         }
     }
 

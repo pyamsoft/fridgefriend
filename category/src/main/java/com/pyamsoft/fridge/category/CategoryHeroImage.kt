@@ -20,6 +20,7 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.core.view.isVisible
 import androidx.lifecycle.LifecycleOwner
+import com.pyamsoft.fridge.ui.appbar.AppBarActivity
 import com.pyamsoft.fridge.ui.view.HeroImage
 import com.pyamsoft.pydroid.arch.UiRender
 import com.pyamsoft.pydroid.loader.ImageLoader
@@ -30,7 +31,8 @@ class CategoryHeroImage @Inject internal constructor(
     parent: ViewGroup,
     imageLoader: ImageLoader,
     owner: LifecycleOwner,
-) : HeroImage<CategoryViewState, CategoryViewEvent>(parent, owner, imageLoader) {
+    appBarActivity: AppBarActivity,
+) : HeroImage<CategoryViewState, CategoryViewEvent>(parent, owner, appBarActivity, imageLoader) {
 
     init {
         doOnInflate {

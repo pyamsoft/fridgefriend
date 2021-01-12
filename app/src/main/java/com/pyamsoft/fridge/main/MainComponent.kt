@@ -23,6 +23,7 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModelProvider
 import com.pyamsoft.fridge.ThemeProviderModule
 import com.pyamsoft.fridge.core.FridgeViewModelFactory
+import com.pyamsoft.fridge.ui.appbar.AppBarActivityProvider
 import com.pyamsoft.pydroid.arch.UiViewModel
 import com.pyamsoft.pydroid.ui.app.ToolbarActivityProvider
 import dagger.Binds
@@ -45,7 +46,8 @@ internal interface MainComponent {
             @BindsInstance activity: Activity,
             @BindsInstance owner: LifecycleOwner,
             @BindsInstance parent: ViewGroup,
-            @BindsInstance provider: ToolbarActivityProvider
+            @BindsInstance toolbarProvider: ToolbarActivityProvider,
+            @BindsInstance appBarProvider: AppBarActivityProvider,
         ): MainComponent
     }
 

@@ -28,6 +28,7 @@ import androidx.lifecycle.LifecycleOwner
 import com.pyamsoft.fridge.core.PRIVACY_POLICY_URL
 import com.pyamsoft.fridge.core.TERMS_CONDITIONS_URL
 import com.pyamsoft.fridge.main.databinding.MainToolbarBinding
+import com.pyamsoft.fridge.ui.appbar.AppBarActivityProvider
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.arch.UiRender
 import com.pyamsoft.pydroid.ui.app.ToolbarActivityProvider
@@ -45,6 +46,7 @@ class MainToolbar @Inject internal constructor(
     owner: LifecycleOwner,
     toolbarActivityProvider: ToolbarActivityProvider,
     theming: ThemeProvider,
+    appBarProvider: AppBarActivityProvider,
     parent: ViewGroup,
 ) : BaseUiView<MainViewState, MainViewEvent, MainToolbarBinding>(parent) {
 
@@ -54,6 +56,16 @@ class MainToolbar @Inject internal constructor(
     override val layoutRoot by boundView { mainAppbar }
 
     init {
+        doOnInflate {
+            binding.mainAppbar.apply {
+                appBarProvider.setAppBar(this)
+                ViewCompat.setElevation(this, 8f.asDp(context).toFloat())
+            }
+
+        }
+
+        doOnTeardown { appBarProvider.setAppBar(null) }
+
         doOnInflate {
             inflateToolbar(toolbarActivityProvider, theming, appNameRes)
 
@@ -126,8 +138,8 @@ class MainToolbar @Inject internal constructor(
 
         binding.mainToolbar.apply {
             popupTheme = theme
+            ViewCompat.setElevation(this, 0F)
             setTitle(appNameRes)
-            ViewCompat.setElevation(this, 8f.asDp(context).toFloat())
             toolbarActivityProvider.setToolbar(this)
         }
     }

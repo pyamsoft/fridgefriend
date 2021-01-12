@@ -19,6 +19,7 @@ package com.pyamsoft.fridge.locator.permission
 import android.view.ViewGroup
 import androidx.lifecycle.LifecycleOwner
 import com.pyamsoft.fridge.locator.databinding.PermissionExplanationBinding
+import com.pyamsoft.fridge.ui.appbar.AppBarActivity
 import com.pyamsoft.fridge.ui.applyToolbarOffset
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.arch.UnitViewState
@@ -26,6 +27,7 @@ import javax.inject.Inject
 
 class LocationExplanation @Inject internal constructor(
     parent: ViewGroup,
+    appBarActivity: AppBarActivity,
     owner: LifecycleOwner,
 ) : BaseUiView<UnitViewState, PermissionViewEvent, PermissionExplanationBinding>(parent) {
 
@@ -35,7 +37,7 @@ class LocationExplanation @Inject internal constructor(
 
     init {
         doOnInflate {
-            layoutRoot.applyToolbarOffset(owner)
+            layoutRoot.applyToolbarOffset(appBarActivity, owner)
         }
     }
 }

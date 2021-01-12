@@ -37,6 +37,7 @@ import com.pyamsoft.fridge.locator.permission.PermissionGrant
 import com.pyamsoft.fridge.locator.permission.PermissionHandler
 import com.pyamsoft.fridge.main.VersionChecker
 import com.pyamsoft.fridge.map.MapFragment
+import com.pyamsoft.fridge.ui.requireAppBarActivity
 import com.pyamsoft.pydroid.arch.StateSaver
 import com.pyamsoft.pydroid.arch.createComponent
 import com.pyamsoft.pydroid.ui.Injector
@@ -86,7 +87,11 @@ internal class PermissionFragment : Fragment(), PermissionConsumer<ForegroundLoc
         val binding = LayoutConstraintBinding.bind(view)
         Injector.obtainFromApplication<FridgeComponent>(view.context)
             .plusPermissionComponent()
-            .create(binding.layoutConstraint, viewLifecycleOwner)
+            .create(
+                requireAppBarActivity(),
+                binding.layoutConstraint,
+                viewLifecycleOwner
+            )
             .inject(this)
 
         val requestButton = requireNotNull(requestButton)

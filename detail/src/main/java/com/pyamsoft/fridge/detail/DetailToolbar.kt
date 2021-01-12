@@ -27,7 +27,7 @@ import javax.inject.Inject
 
 class DetailToolbar @Inject internal constructor(
     toolbarActivity: ToolbarActivity,
-) : UiToolbar<DetailViewState.Sorts, DetailViewState, DetailViewEvent.ToolbarEvent>(
+) : UiToolbar<DetailViewState.Sorts, DetailViewState, DetailViewEvent.ControlledEvents.ToolbarEvent>(
     withToolbar = { toolbarActivity.withToolbar(it) }
 ) {
 
@@ -39,7 +39,7 @@ class DetailToolbar @Inject internal constructor(
             toolbarActivity.withToolbar { toolbar ->
                 toolbar.setUpEnabled(true)
                 toolbar.setNavigationOnClickListener(DebouncedOnClickListener.create {
-                    publish(DetailViewEvent.ToolbarEvent.Back)
+                    publish(DetailViewEvent.ControlledEvents.ToolbarEvent.Back)
                 })
             }
         }
@@ -53,11 +53,11 @@ class DetailToolbar @Inject internal constructor(
     }
 
     override fun publishSearchEvent(search: String) {
-        publish(DetailViewEvent.ToolbarEvent.SearchQuery(search))
+        publish(DetailViewEvent.ControlledEvents.ToolbarEvent.SearchQuery(search))
     }
 
     override fun publishSortEvent(sort: State.Sort<DetailViewState.Sorts>) {
-        publish(DetailViewEvent.ToolbarEvent.ChangeSort(sort.original))
+        publish(DetailViewEvent.ControlledEvents.ToolbarEvent.ChangeSort(sort.original))
     }
 
     override fun onGetSortForMenuItem(itemId: Int): DetailViewState.Sorts? {

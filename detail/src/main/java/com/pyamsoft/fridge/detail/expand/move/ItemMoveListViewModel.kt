@@ -27,7 +27,7 @@ import timber.log.Timber
 import javax.inject.Inject
 
 class ItemMoveListViewModel @Inject internal constructor(
-    @param:InternalApi private val delegate: EntryListStateModel,
+    @param:MoveInternalApi private val delegate: EntryListStateModel,
     entryId: FridgeEntry.Id,
 ) : UiViewModel<EntryViewState, EntryViewEvent.ListEvent, ItemMoveListControllerEvent>(
     initialState = delegate.initialState

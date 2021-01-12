@@ -30,6 +30,7 @@ import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentTransaction
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import com.google.android.material.appbar.AppBarLayout
 import com.pyamsoft.fridge.BuildConfig
 import com.pyamsoft.fridge.FridgeComponent
 import com.pyamsoft.fridge.R
@@ -48,6 +49,8 @@ import com.pyamsoft.fridge.map.MapFragment
 import com.pyamsoft.fridge.permission.PermissionFragment
 import com.pyamsoft.fridge.setting.SettingsFragment
 import com.pyamsoft.fridge.ui.SnackbarContainer
+import com.pyamsoft.fridge.ui.appbar.AppBarActivity
+import com.pyamsoft.fridge.ui.appbar.AppBarActivityProvider
 import com.pyamsoft.pydroid.arch.StateSaver
 import com.pyamsoft.pydroid.arch.createComponent
 import com.pyamsoft.pydroid.notify.toNotifyId
@@ -67,7 +70,8 @@ import timber.log.Timber
 import javax.inject.Inject
 import androidx.fragment.R as R2
 
-internal class MainActivity : ChangeLogActivity(), VersionChecker {
+internal class MainActivity : ChangeLogActivity(), VersionChecker, AppBarActivity,
+    AppBarActivityProvider {
 
     private var isUpdateChecked = false
 
@@ -144,6 +148,20 @@ internal class MainActivity : ChangeLogActivity(), VersionChecker {
 
     private val handler by lazy(LazyThreadSafetyMode.NONE) { Handler(Looper.getMainLooper()) }
 
+    private var capturedAppBar: AppBarLayout? = null
+
+    override fun setAppBar(bar: AppBarLayout?) {
+        capturedAppBar = bar
+    }
+
+    override fun requireAppBar(func: (AppBarLayout) -> Unit) {
+        requireNotNull(capturedAppBar).let(func)
+    }
+
+    override fun withAppBar(func: (AppBarLayout) -> Unit) {
+        capturedAppBar?.let(func)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         setTheme(R.style.Theme_Fridge)
         super.onCreate(savedInstanceState)
@@ -152,7 +170,7 @@ internal class MainActivity : ChangeLogActivity(), VersionChecker {
 
         Injector.obtainFromApplication<FridgeComponent>(this)
             .plusMainComponent()
-            .create(this, this, binding.layoutConstraint, this)
+            .create(this, this, binding.layoutConstraint, this, this)
             .inject(this)
 
         stableLayoutHideNavigation()
@@ -164,8 +182,11 @@ internal class MainActivity : ChangeLogActivity(), VersionChecker {
 
         // Load default page
         if (savedInstanceState == null) {
-            Timber.d("Load default ENTRIES page")
-            viewModel.selectPage(force = false, MainPage.Entries)
+            // Post since the viewmodel doesnt always have the controller connected at this point.
+            handler.post {
+                Timber.d("Load default ENTRIES page")
+                viewModel.selectPage(force = true, MainPage.Entries)
+            }
         }
     }
 
@@ -338,6 +359,7 @@ internal class MainActivity : ChangeLogActivity(), VersionChecker {
             navigation,
             snackbar
         ) {
+            Timber.d("page event: $it")
             return@createComponent when (it) {
                 is MainControllerEvent.PushEntry -> pushEntry(it.previousPage, it.force)
                 is MainControllerEvent.PushCategory -> pushCategory(it.previousPage, it.force)
@@ -590,6 +612,8 @@ internal class MainActivity : ChangeLogActivity(), VersionChecker {
         snackbar = null
 
         factory = null
+
+        capturedAppBar = null
 
         handler.removeCallbacksAndMessages(null)
     }

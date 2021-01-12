@@ -30,6 +30,7 @@ import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.entry.EntryList
 import com.pyamsoft.fridge.entry.EntryViewState
+import com.pyamsoft.fridge.ui.requireAppBarActivity
 import com.pyamsoft.pydroid.arch.StateSaver
 import com.pyamsoft.pydroid.arch.createComponent
 import com.pyamsoft.pydroid.ui.Injector
@@ -79,6 +80,7 @@ internal class ItemMoveDialog : AppCompatDialogFragment() {
         Injector.obtainFromApplication<FridgeComponent>(view.context)
             .plusItemMoveComponent()
             .create(
+                requireAppBarActivity(),
                 requireActivity(),
                 viewLifecycleOwner,
                 parent,

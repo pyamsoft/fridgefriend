@@ -14,23 +14,18 @@
  * limitations under the License.
  */
 
-package com.pyamsoft.fridge.ui
+package com.pyamsoft.fridge.detail
 
-import androidx.annotation.CheckResult
-import com.pyamsoft.pydroid.bus.EventBus
-import com.pyamsoft.pydroid.bus.EventConsumer
-import dagger.Binds
-import dagger.Module
+import javax.inject.Inject
 
-@Module
-abstract class UiModule {
+class DetailAppBarViewModel @Inject internal constructor(
+    @DetailInternalApi delegate: DetailListStateModel,
+) : DelegatedDetailViewModel<DetailViewEvent.SwitcherEvent, Nothing>(delegate) {
 
-    @Binds
-    @CheckResult
-    internal abstract fun bindBottomOffsetBus(impl: BottomOffsetBus): EventBus<BottomOffset>
-
-    @Binds
-    @CheckResult
-    internal abstract fun bindBottomOffsetConsumer(impl: EventBus<BottomOffset>): EventConsumer<BottomOffset>
-
+    override fun handleViewEvent(event: DetailViewEvent.SwitcherEvent) {
+        return when (event) {
+            is DetailViewEvent.SwitcherEvent.PresenceSwitched -> delegate.handlePresenceSwitch(event.presence)
+        }
+    }
 }
+

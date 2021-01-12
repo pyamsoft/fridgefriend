@@ -17,7 +17,7 @@
 package com.pyamsoft.fridge.butler.notification
 
 import androidx.annotation.CheckResult
-import com.pyamsoft.fridge.butler.InternalApi
+import com.pyamsoft.fridge.butler.ButlerInternalApi
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.store.NearbyStore
@@ -33,7 +33,7 @@ import javax.inject.Singleton
 
 @Singleton
 internal class NotificationHandlerImpl @Inject internal constructor(
-    @InternalApi private val notifier: Notifier,
+    @param:ButlerInternalApi private val notifier: Notifier,
     private val idMap: NotificationIdMap
 ) : NotificationHandler {
 

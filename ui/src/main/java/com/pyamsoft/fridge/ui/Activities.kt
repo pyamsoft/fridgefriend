@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Peter Kenji Yamanaka
+ * Copyright 2021 Peter Kenji Yamanaka
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,20 +17,16 @@
 package com.pyamsoft.fridge.ui
 
 import androidx.annotation.CheckResult
-import com.pyamsoft.pydroid.bus.EventBus
-import com.pyamsoft.pydroid.bus.EventConsumer
-import dagger.Binds
-import dagger.Module
+import androidx.fragment.app.Fragment
+import com.pyamsoft.fridge.ui.appbar.AppBarActivity
 
-@Module
-abstract class UiModule {
+val Fragment.appBarActivity: AppBarActivity?
+    @get:CheckResult get() {
+        val a = activity
+        return if (a is AppBarActivity) a else null
+    }
 
-    @Binds
-    @CheckResult
-    internal abstract fun bindBottomOffsetBus(impl: BottomOffsetBus): EventBus<BottomOffset>
-
-    @Binds
-    @CheckResult
-    internal abstract fun bindBottomOffsetConsumer(impl: EventBus<BottomOffset>): EventConsumer<BottomOffset>
-
+@CheckResult
+fun Fragment.requireAppBarActivity(): AppBarActivity {
+    return requireNotNull(appBarActivity) { "AppBarActivity is required and cannot be null." }
 }

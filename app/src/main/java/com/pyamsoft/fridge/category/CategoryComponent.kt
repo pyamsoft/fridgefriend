@@ -23,6 +23,7 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModelProvider
 import com.pyamsoft.fridge.ThemeProviderModule
 import com.pyamsoft.fridge.core.FridgeViewModelFactory
+import com.pyamsoft.fridge.ui.appbar.AppBarActivity
 import com.pyamsoft.pydroid.arch.UiViewModel
 import dagger.Binds
 import dagger.BindsInstance
@@ -41,6 +42,7 @@ internal interface CategoryComponent {
 
         @CheckResult
         fun create(
+            @BindsInstance appBarActivity: AppBarActivity,
             @BindsInstance activity: Activity,
             @BindsInstance parent: ViewGroup,
             @BindsInstance owner: LifecycleOwner

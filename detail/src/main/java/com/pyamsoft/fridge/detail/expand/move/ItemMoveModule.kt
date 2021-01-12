@@ -18,34 +18,25 @@ package com.pyamsoft.fridge.detail.expand.move
 
 import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.core.FragmentScope
-import com.pyamsoft.fridge.entry.EntryInteractor
 import com.pyamsoft.fridge.entry.EntryListStateModel
-import com.pyamsoft.fridge.ui.BottomOffset
-import com.pyamsoft.pydroid.bus.EventBus
+import dagger.Binds
 import dagger.Module
-import dagger.Provides
 import javax.inject.Qualifier
 
 @Qualifier
 @Retention(AnnotationRetention.BINARY)
-internal annotation class InternalApi
+internal annotation class MoveInternalApi
 
 @Module
 abstract class ItemMoveModule {
 
-    @Module
-    companion object {
+    /**
+     * Do this so that both ItemMove view models share the same backing EntryListStateModel
+     */
+    @Binds
+    @CheckResult
+    @FragmentScope
+    @MoveInternalApi
+    internal abstract fun bindListStateModel(impl: EntryListStateModel): EntryListStateModel
 
-        @JvmStatic
-        @Provides
-        @CheckResult
-        @InternalApi
-        @FragmentScope
-        internal fun provideListStateModel(
-            interactor: EntryInteractor,
-            bottomOffsetBus: EventBus<BottomOffset>,
-        ): EntryListStateModel {
-            return EntryListStateModel(interactor, bottomOffsetBus)
-        }
-    }
 }

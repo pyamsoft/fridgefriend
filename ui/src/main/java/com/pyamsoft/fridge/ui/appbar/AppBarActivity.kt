@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Peter Kenji Yamanaka
+ * Copyright 2021 Peter Kenji Yamanaka
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,23 +14,14 @@
  * limitations under the License.
  */
 
-package com.pyamsoft.fridge.ui
+package com.pyamsoft.fridge.ui.appbar
 
-import androidx.annotation.CheckResult
-import com.pyamsoft.pydroid.bus.EventBus
-import com.pyamsoft.pydroid.bus.EventConsumer
-import dagger.Binds
-import dagger.Module
+import com.google.android.material.appbar.AppBarLayout
+import com.pyamsoft.pydroid.ui.app.ToolbarActivity
 
-@Module
-abstract class UiModule {
+interface AppBarActivity: ToolbarActivity {
 
-    @Binds
-    @CheckResult
-    internal abstract fun bindBottomOffsetBus(impl: BottomOffsetBus): EventBus<BottomOffset>
+    fun withAppBar(func: (AppBarLayout) -> Unit)
 
-    @Binds
-    @CheckResult
-    internal abstract fun bindBottomOffsetConsumer(impl: EventBus<BottomOffset>): EventConsumer<BottomOffset>
-
+    fun requireAppBar(func: (AppBarLayout) -> Unit)
 }

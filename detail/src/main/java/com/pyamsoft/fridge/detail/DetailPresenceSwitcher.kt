@@ -16,62 +16,121 @@
 
 package com.pyamsoft.fridge.detail
 
-import android.view.ViewGroup
+import android.view.LayoutInflater
 import androidx.annotation.CheckResult
+import androidx.core.view.isVisible
 import com.google.android.material.tabs.TabLayout
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.detail.databinding.DetailPresenceSwitchBinding
-import com.pyamsoft.pydroid.arch.BaseUiView
+import com.pyamsoft.fridge.ui.appbar.AppBarActivity
 import com.pyamsoft.pydroid.arch.UiRender
+import com.pyamsoft.pydroid.arch.UiView
+import com.pyamsoft.pydroid.ui.app.ToolbarActivity
 import timber.log.Timber
 import javax.inject.Inject
+import kotlin.properties.Delegates
 
 class DetailPresenceSwitcher @Inject internal constructor(
-    parent: ViewGroup,
-) : BaseUiView<DetailViewState, DetailViewEvent.SwitcherEvent, DetailPresenceSwitchBinding>(parent) {
+    appBarSource: AppBarActivity,
+    toolbarSource: ToolbarActivity,
+) : UiView<DetailViewState, DetailViewEvent.SwitcherEvent>() {
 
-    override val viewBinding = DetailPresenceSwitchBinding::inflate
+    private var toolbarActivity: ToolbarActivity? = toolbarSource
 
-    override val layoutRoot by boundView { detailPresenceSwitcherRoot }
+    private var bindingRoot: TabLayout? by Delegates.observable(null) { _, oldValue, newValue ->
+        if (oldValue == null && newValue != null) {
+            onCreate(newValue)
+        } else if (oldValue != null && newValue == null) {
+            onDestroy(oldValue)
+        }
+    }
 
+    private val layoutRoot: TabLayout
+        get() = requireNotNull(bindingRoot)
 
     init {
+        // Replace the app bar background during switcher presence
         doOnInflate {
-            layoutRoot.apply {
-                addTab(newTab().setText("NEED").setTag(FridgeItem.Presence.NEED))
-                addTab(newTab().setText("HAVE").setTag(FridgeItem.Presence.HAVE))
+            appBarSource.requireAppBar { appBar ->
+                val inflater = LayoutInflater.from(appBar.context)
+                val binding = DetailPresenceSwitchBinding.inflate(inflater, appBar)
+                bindingRoot = binding.detailPresenceSwitcherRoot
             }
         }
 
         doOnTeardown {
-            layoutRoot.removeAllTabs()
+            bindingRoot?.also { binding ->
+                appBarSource.withAppBar { appBar ->
+                    appBar.removeView(binding)
+                }
+            }
+
+            bindingRoot = null
+            toolbarActivity = null
+        }
+    }
+
+    private fun onDestroy(tabs: TabLayout) {
+        Timber.d("Tab layout has been deleted and removed from AppBar")
+        tabs.removeAllTabs()
+    }
+
+    private fun onCreate(tabs: TabLayout) {
+        Timber.d("Tab layout has been created and attached to AppBar")
+        changeBackground(tabs)
+        addTabs(tabs)
+        attachListener(tabs)
+    }
+
+    private fun attachListener(tabs: TabLayout) {
+        val listener = object : TabLayout.OnTabSelectedListener {
+
+            override fun onTabSelected(tab: TabLayout.Tab) {
+                val presence = getTabPresence(tab) ?: return
+                publish(DetailViewEvent.SwitcherEvent.PresenceSwitched(presence))
+            }
+
+            override fun onTabUnselected(tab: TabLayout.Tab) {
+            }
+
+            override fun onTabReselected(tab: TabLayout.Tab) {
+            }
+
         }
 
-        doOnInflate {
-            val listener = object : TabLayout.OnTabSelectedListener {
-
-                override fun onTabSelected(tab: TabLayout.Tab) {
-                    val presence = getTabPresence(tab) ?: return
-                    publish(DetailViewEvent.SwitcherEvent.PresenceSwitched(presence))
-                }
-
-                override fun onTabUnselected(tab: TabLayout.Tab) {
-                }
-
-                override fun onTabReselected(tab: TabLayout.Tab) {
-                }
-
-            }
-            layoutRoot.apply {
-                addOnTabSelectedListener(listener)
-                doOnTeardown {
-                    removeOnTabSelectedListener(listener)
-                }
+        tabs.apply {
+            addOnTabSelectedListener(listener)
+            doOnTeardown {
+                removeOnTabSelectedListener(listener)
             }
         }
     }
 
-    override fun onRender(state: UiRender<DetailViewState>) {
+    private fun addTabs(tabs: TabLayout) {
+        tabs.apply {
+            addTab(newTab().setText("NEED").setTag(FridgeItem.Presence.NEED))
+            addTab(newTab().setText("HAVE").setTag(FridgeItem.Presence.HAVE))
+        }
+    }
+
+    private fun changeBackground(tabs: TabLayout) {
+        requireNotNull(toolbarActivity).requireToolbar { toolbar ->
+            // Save old background
+            val originalBackground = toolbar.background
+
+            // Once we are set with the new background, show the layout
+            toolbar.setBackgroundResource(R.drawable.curved_toolbar)
+
+            tabs.isVisible = true
+
+            doOnTeardown {
+                // Restore old background
+                toolbar.background = originalBackground
+            }
+        }
+    }
+
+    override fun render(state: UiRender<DetailViewState>) {
         state.distinctBy { it.listItemPresence }.render(viewScope) { handlePresence(it) }
     }
 
@@ -107,5 +166,4 @@ class DetailPresenceSwitcher @Inject internal constructor(
             }
         }
     }
-
 }

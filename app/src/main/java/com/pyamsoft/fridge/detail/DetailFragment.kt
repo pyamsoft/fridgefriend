@@ -33,6 +33,7 @@ import com.pyamsoft.fridge.db.item.FridgeItem.Presence
 import com.pyamsoft.fridge.detail.expand.ExpandedItemDialog
 import com.pyamsoft.fridge.ui.R
 import com.pyamsoft.fridge.ui.SnackbarContainer
+import com.pyamsoft.fridge.ui.requireAppBarActivity
 import com.pyamsoft.pydroid.arch.StateSaver
 import com.pyamsoft.pydroid.arch.createComponent
 import com.pyamsoft.pydroid.ui.Injector
@@ -64,11 +65,6 @@ internal class DetailFragment : Fragment(), SnackbarContainer {
     // Nested in container
     @JvmField
     @Inject
-    internal var switcher: DetailPresenceSwitcher? = null
-
-    // Nested in container
-    @JvmField
-    @Inject
     internal var emptyState: DetailEmptyState? = null
 
     // Nested in container
@@ -76,17 +72,23 @@ internal class DetailFragment : Fragment(), SnackbarContainer {
     @Inject
     internal var list: DetailList? = null
 
+
+    @JvmField
+    @Inject
+    internal var switcher: DetailPresenceSwitcher? = null
+
     @JvmField
     @Inject
     internal var factory: ViewModelProvider.Factory? = null
     private val viewModel by viewModelFactory<DetailViewModel> { factory }
+    private val appBarViewModel by viewModelFactory<DetailAppBarViewModel> { factory }
 
     private var stateSaver: StateSaver? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View? {
         return inflater.inflate(R2.layout.layout_coordinator, container, false).apply {
             // Cover the existing Entry List
@@ -96,7 +98,7 @@ internal class DetailFragment : Fragment(), SnackbarContainer {
 
     override fun onViewCreated(
         view: View,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -107,9 +109,10 @@ internal class DetailFragment : Fragment(), SnackbarContainer {
         Injector.obtainFromApplication<FridgeComponent>(view.context)
             .plusDetailComponent()
             .create(
+                requireToolbarActivity(),
+                requireAppBarActivity(),
                 requireActivity(),
                 binding.layoutCoordinator,
-                requireToolbarActivity(),
                 viewLifecycleOwner,
                 entryId,
                 presence
@@ -117,12 +120,11 @@ internal class DetailFragment : Fragment(), SnackbarContainer {
             .inject(this)
 
         val container = requireNotNull(container)
-        val nestedSwitcher = requireNotNull(switcher)
         val nestedEmptyState = requireNotNull(emptyState)
         val nestedList = requireNotNull(list)
-        container.nest(nestedEmptyState, nestedSwitcher, nestedList)
+        container.nest(nestedEmptyState, nestedList)
 
-        stateSaver = createComponent(
+        val listSaver = createComponent(
             savedInstanceState,
             viewLifecycleOwner,
             viewModel,
@@ -139,19 +141,21 @@ internal class DetailFragment : Fragment(), SnackbarContainer {
             }
         }
 
-        container.layout {
-            nestedSwitcher.let {
-                connect(it.id(), ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP)
-                connect(it.id(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
-                connect(
-                    it.id(),
-                    ConstraintSet.START,
-                    ConstraintSet.PARENT_ID,
-                    ConstraintSet.START
-                )
-                constrainHeight(it.id(), ConstraintSet.WRAP_CONTENT)
-            }
+        val appBarSaver = createComponent(
+            savedInstanceState,
+            viewLifecycleOwner,
+            appBarViewModel,
+            requireNotNull(switcher))
+        {
+            // Intentionally blank
+        }
 
+        stateSaver = StateSaver { outState ->
+            listSaver.saveState(outState)
+            appBarSaver.saveState(outState)
+        }
+
+        container.layout {
             nestedEmptyState.let {
                 connect(
                     it.id(),
@@ -159,7 +163,7 @@ internal class DetailFragment : Fragment(), SnackbarContainer {
                     ConstraintSet.PARENT_ID,
                     ConstraintSet.START
                 )
-                connect(it.id(), ConstraintSet.TOP, nestedSwitcher.id(), ConstraintSet.BOTTOM)
+                connect(it.id(), ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP)
                 connect(
                     it.id(),
                     ConstraintSet.BOTTOM,
@@ -178,7 +182,7 @@ internal class DetailFragment : Fragment(), SnackbarContainer {
                     ConstraintSet.PARENT_ID,
                     ConstraintSet.START
                 )
-                connect(it.id(), ConstraintSet.TOP, nestedSwitcher.id(), ConstraintSet.BOTTOM)
+                connect(it.id(), ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP)
                 connect(
                     it.id(),
                     ConstraintSet.BOTTOM,
@@ -237,7 +241,7 @@ internal class DetailFragment : Fragment(), SnackbarContainer {
         @CheckResult
         fun newInstance(
             entryId: FridgeEntry.Id,
-            filterPresence: Presence
+            filterPresence: Presence,
         ): Fragment {
             return DetailFragment().apply {
                 arguments = Bundle().apply {

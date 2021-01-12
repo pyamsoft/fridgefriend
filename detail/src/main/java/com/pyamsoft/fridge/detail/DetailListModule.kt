@@ -18,15 +18,31 @@ package com.pyamsoft.fridge.detail
 
 import android.content.Context
 import androidx.annotation.CheckResult
+import com.pyamsoft.fridge.core.FragmentScope
 import com.pyamsoft.fridge.detail.item.DetailItemComponent
 import com.pyamsoft.fridge.tooltip.TooltipCreator
 import com.pyamsoft.pydroid.ui.Injector
 import com.pyamsoft.pydroid.ui.theme.ThemeProvider
+import dagger.Binds
 import dagger.Module
 import dagger.Provides
+import javax.inject.Qualifier
+
+@Qualifier
+@Retention(AnnotationRetention.BINARY)
+internal annotation class DetailInternalApi
 
 @Module
 abstract class DetailListModule {
+
+    /**
+     * Do this so that both Detail view models share the same backing DetailListStateModel
+     */
+    @Binds
+    @CheckResult
+    @FragmentScope
+    @DetailInternalApi
+    internal abstract fun bindListStateModel(impl: DetailListStateModel): DetailListStateModel
 
     @Module
     companion object {

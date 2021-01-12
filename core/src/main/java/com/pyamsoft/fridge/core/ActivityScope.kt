@@ -14,23 +14,10 @@
  * limitations under the License.
  */
 
-package com.pyamsoft.fridge.ui
+package com.pyamsoft.fridge.core
 
-import androidx.annotation.CheckResult
-import com.pyamsoft.pydroid.bus.EventBus
-import com.pyamsoft.pydroid.bus.EventConsumer
-import dagger.Binds
-import dagger.Module
+import javax.inject.Scope
 
-@Module
-abstract class UiModule {
-
-    @Binds
-    @CheckResult
-    internal abstract fun bindBottomOffsetBus(impl: BottomOffsetBus): EventBus<BottomOffset>
-
-    @Binds
-    @CheckResult
-    internal abstract fun bindBottomOffsetConsumer(impl: EventBus<BottomOffset>): EventConsumer<BottomOffset>
-
-}
+@Scope
+@Retention(AnnotationRetention.RUNTIME)
+annotation class ActivityScope

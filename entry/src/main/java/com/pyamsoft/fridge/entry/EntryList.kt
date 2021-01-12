@@ -31,6 +31,7 @@ import com.pyamsoft.fridge.entry.item.EntryItemComponent
 import com.pyamsoft.fridge.entry.item.EntryItemViewHolder
 import com.pyamsoft.fridge.entry.item.EntryItemViewState
 import com.pyamsoft.fridge.ui.R
+import com.pyamsoft.fridge.ui.appbar.AppBarActivity
 import com.pyamsoft.fridge.ui.applyToolbarOffset
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.arch.UiRender
@@ -52,6 +53,7 @@ class EntryList @Inject internal constructor(
     private val theming: ThemeProvider,
     private val imageLoader: ImageLoader,
     @Named("is_interactive") interactive: Boolean,
+    appBarActivity: AppBarActivity,
     owner: LifecycleOwner,
     parent: ViewGroup,
     factory: EntryItemComponent.Factory,
@@ -70,7 +72,7 @@ class EntryList @Inject internal constructor(
 
     init {
         doOnInflate {
-            layoutRoot.applyToolbarOffset(owner)
+            layoutRoot.applyToolbarOffset(appBarActivity, owner)
         }
 
         doOnInflate {

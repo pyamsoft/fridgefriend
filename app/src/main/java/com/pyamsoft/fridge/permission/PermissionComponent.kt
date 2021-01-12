@@ -23,6 +23,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.pyamsoft.fridge.core.FridgeViewModelFactory
 import com.pyamsoft.fridge.locator.permission.LocationPermissionViewModel
 import com.pyamsoft.fridge.permission.PermissionComponent.ViewModelModule
+import com.pyamsoft.fridge.ui.appbar.AppBarActivity
 import com.pyamsoft.pydroid.arch.UiViewModel
 import dagger.Binds
 import dagger.BindsInstance
@@ -41,6 +42,7 @@ internal interface PermissionComponent {
 
         @CheckResult
         fun create(
+            @BindsInstance appBarActivity: AppBarActivity,
             @BindsInstance parent: ViewGroup,
             @BindsInstance owner: LifecycleOwner,
         ): PermissionComponent

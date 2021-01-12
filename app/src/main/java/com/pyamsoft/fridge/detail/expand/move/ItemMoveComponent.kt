@@ -28,6 +28,7 @@ import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.entry.EntryListModule
 import com.pyamsoft.fridge.tooltip.balloon.TooltipModule
+import com.pyamsoft.fridge.ui.appbar.AppBarActivity
 import com.pyamsoft.pydroid.arch.UiViewModel
 import dagger.Binds
 import dagger.BindsInstance
@@ -38,6 +39,7 @@ import dagger.multibindings.ClassKey
 import dagger.multibindings.IntoMap
 import javax.inject.Named
 
+@FragmentScope
 @Subcomponent(modules = [
     ItemMoveComponent.ViewModelModule::class,
     ItemMoveModule::class,
@@ -45,7 +47,6 @@ import javax.inject.Named
     ThemeProviderModule::class,
     TooltipModule::class
 ])
-@FragmentScope
 internal interface ItemMoveComponent {
 
     fun inject(dialog: ItemMoveDialog)
@@ -55,6 +56,7 @@ internal interface ItemMoveComponent {
 
         @CheckResult
         fun create(
+            @BindsInstance appBarActivity: AppBarActivity,
             @BindsInstance activity: Activity,
             @BindsInstance owner: LifecycleOwner,
             @BindsInstance parent: ViewGroup,

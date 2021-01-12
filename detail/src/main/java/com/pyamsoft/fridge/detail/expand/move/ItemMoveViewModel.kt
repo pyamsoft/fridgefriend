@@ -32,7 +32,7 @@ import javax.inject.Inject
 
 class ItemMoveViewModel @Inject internal constructor(
     private val interactor: DetailInteractor,
-    @param:InternalApi private val delegate: EntryListStateModel,
+    @param:MoveInternalApi private val delegate: EntryListStateModel,
     itemId: FridgeItem.Id,
     entryId: FridgeEntry.Id,
 ) : UiViewModel<ItemMoveViewState, ItemMoveViewEvent, ItemMoveControllerEvent>(

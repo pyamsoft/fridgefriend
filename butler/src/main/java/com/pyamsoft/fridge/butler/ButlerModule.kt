@@ -37,7 +37,7 @@ import javax.inject.Qualifier
 
 @Qualifier
 @Retention(AnnotationRetention.BINARY)
-internal annotation class InternalApi
+internal annotation class ButlerInternalApi
 
 @Module
 abstract class ButlerModule {
@@ -48,27 +48,27 @@ abstract class ButlerModule {
 
     @Binds
     @IntoSet
-    @InternalApi
+    @ButlerInternalApi
     internal abstract fun bindNeededDispatcher(impl: NeededItemNotifyDispatcher): NotifyDispatcher<*>
 
     @Binds
     @IntoSet
-    @InternalApi
+    @ButlerInternalApi
     internal abstract fun bindExpiringDispatcher(impl: ExpiringItemNotifyDispatcher): NotifyDispatcher<*>
 
     @Binds
     @IntoSet
-    @InternalApi
+    @ButlerInternalApi
     internal abstract fun bindExpiredDispatcher(impl: ExpiredItemNotifyDispatcher): NotifyDispatcher<*>
 
     @Binds
     @IntoSet
-    @InternalApi
+    @ButlerInternalApi
     internal abstract fun bindNearbyDispatcher(impl: NearbyItemNotifyDispatcher): NotifyDispatcher<*>
 
     @Binds
     @IntoSet
-    @InternalApi
+    @ButlerInternalApi
     internal abstract fun bindNightlyDispatcher(impl: NightlyNotifyDispatcher): NotifyDispatcher<*>
 
     @Binds
@@ -81,10 +81,10 @@ abstract class ButlerModule {
         @Provides
         @JvmStatic
         @CheckResult
-        @InternalApi
+        @ButlerInternalApi
         internal fun provideNotifier(
             // Need to use MutableSet instead of Set because of Java -> Kotlin fun.
-            @InternalApi dispatchers: MutableSet<NotifyDispatcher<*>>,
+            @ButlerInternalApi dispatchers: MutableSet<NotifyDispatcher<*>>,
             context: Context
         ): Notifier {
             return Notifier.createDefault(context, dispatchers)

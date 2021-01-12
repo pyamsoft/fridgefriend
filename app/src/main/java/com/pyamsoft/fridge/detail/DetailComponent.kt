@@ -22,11 +22,13 @@ import androidx.annotation.CheckResult
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModelProvider
 import com.pyamsoft.fridge.ThemeProviderModule
+import com.pyamsoft.fridge.core.FragmentScope
 import com.pyamsoft.fridge.core.FridgeViewModelFactory
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence
 import com.pyamsoft.fridge.detail.DetailComponent.ViewModelModule
 import com.pyamsoft.fridge.tooltip.balloon.TooltipModule
+import com.pyamsoft.fridge.ui.appbar.AppBarActivity
 import com.pyamsoft.pydroid.arch.UiViewModel
 import com.pyamsoft.pydroid.ui.app.ToolbarActivity
 import dagger.Binds
@@ -36,6 +38,7 @@ import dagger.Subcomponent
 import dagger.multibindings.ClassKey
 import dagger.multibindings.IntoMap
 
+@FragmentScope
 @Subcomponent(modules = [ViewModelModule::class, DetailListModule::class, TooltipModule::class, ThemeProviderModule::class])
 internal interface DetailComponent {
 
@@ -46,12 +49,13 @@ internal interface DetailComponent {
 
         @CheckResult
         fun create(
+            @BindsInstance toolbarActivity: ToolbarActivity,
+            @BindsInstance appBarActivity: AppBarActivity,
             @BindsInstance activity: Activity,
             @BindsInstance parent: ViewGroup,
-            @BindsInstance toolbarActivity: ToolbarActivity,
             @BindsInstance owner: LifecycleOwner,
             @BindsInstance entryId: FridgeEntry.Id,
-            @BindsInstance filterPresence: Presence
+            @BindsInstance filterPresence: Presence,
         ): DetailComponent
     }
 
@@ -65,5 +69,10 @@ internal interface DetailComponent {
         @IntoMap
         @ClassKey(DetailViewModel::class)
         internal abstract fun detailViewModel(viewModel: DetailViewModel): UiViewModel<*, *, *>
+
+        @Binds
+        @IntoMap
+        @ClassKey(DetailAppBarViewModel::class)
+        internal abstract fun appBarViewModel(viewModel: DetailAppBarViewModel): UiViewModel<*, *, *>
     }
 }

@@ -22,6 +22,7 @@ import android.widget.ImageView
 import androidx.core.view.isVisible
 import androidx.lifecycle.LifecycleOwner
 import com.pyamsoft.fridge.db.item.FridgeItem
+import com.pyamsoft.fridge.ui.appbar.AppBarActivity
 import com.pyamsoft.fridge.ui.view.HeroImage
 import com.pyamsoft.pydroid.arch.UiRender
 import com.pyamsoft.pydroid.loader.ImageLoader
@@ -32,7 +33,8 @@ class DetailHeroImage @Inject internal constructor(
     parent: ViewGroup,
     imageLoader: ImageLoader,
     owner: LifecycleOwner,
-) : HeroImage<DetailViewState, DetailViewEvent>(parent, owner, imageLoader) {
+    appBarActivity: AppBarActivity,
+) : HeroImage<DetailViewState, Nothing>(parent, owner, appBarActivity, imageLoader) {
 
     init {
         doOnTeardown {
