@@ -51,7 +51,7 @@ class MainToolbar @Inject internal constructor(
     private var titleAnimator: ViewPropertyAnimatorCompat? = null
     override val viewBinding = MainToolbarBinding::inflate
 
-    override val layoutRoot by boundView { mainToolbar }
+    override val layoutRoot by boundView { mainAppbar }
 
     init {
         doOnInflate {
