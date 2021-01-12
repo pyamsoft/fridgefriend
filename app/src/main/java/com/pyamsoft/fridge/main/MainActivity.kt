@@ -179,15 +179,6 @@ internal class MainActivity : ChangeLogActivity(), VersionChecker, AppBarActivit
         beginWork()
 
         handleIntentExtras(intent)
-
-        // Load default page
-        if (savedInstanceState == null) {
-            // Post since the viewmodel doesnt always have the controller connected at this point.
-            handler.post {
-                Timber.d("Load default ENTRIES page")
-                viewModel.selectPage(force = true, MainPage.Entries)
-            }
-        }
     }
 
     override fun onVersionCheck() {

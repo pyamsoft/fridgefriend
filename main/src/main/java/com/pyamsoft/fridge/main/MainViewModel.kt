@@ -64,30 +64,12 @@ class MainViewModel @Inject internal constructor(
 
         // This pushes the fragment onto the stack
         doOnRestoreState { savedInstanceState ->
-            savedInstanceState.useIfAvailable<String>(KEY_PAGE) { page ->
-                selectPage(force = false, page.asMainPage())
-            }
+            val page = savedInstanceState.getOrDefault(KEY_PAGE, DEFAULT_PAGE.asString()).asPage()
+            Timber.d("Loading initial page: $page")
+            selectPage(force = false, page)
         }
 
         refreshBadgeCounts()
-    }
-
-    @CheckResult
-    private fun MainPage.asString(): String {
-        return this::class.java.name
-    }
-
-    private fun String.asMainPage(): MainPage {
-        return when (this) {
-            MainPage.Entries::class.java.name -> MainPage.Entries
-            MainPage.Category::class.java.name -> MainPage.Category
-            MainPage.Settings::class.java.name -> MainPage.Settings
-            MainPage.Nearby::class.java.name -> MainPage.Nearby(
-                storeId = NearbyStore.Id.EMPTY,
-                zoneId = NearbyZone.Id.EMPTY
-            )
-            else -> throw IllegalStateException("Cannot convert to MainPage: $this")
-        }
     }
 
     private fun handleRealtime(event: FridgeItemChangeEvent) {
@@ -200,6 +182,26 @@ class MainViewModel @Inject internal constructor(
 
     companion object {
 
+        @CheckResult
+        private fun MainPage.asString(): String {
+            return this::class.java.name
+        }
+
+        @CheckResult
+        private fun String.asPage(): MainPage {
+            return when (this) {
+                MainPage.Entries::class.java.name -> MainPage.Entries
+                MainPage.Category::class.java.name -> MainPage.Category
+                MainPage.Settings::class.java.name -> MainPage.Settings
+                MainPage.Nearby::class.java.name -> MainPage.Nearby(
+                    storeId = NearbyStore.Id.EMPTY,
+                    zoneId = NearbyZone.Id.EMPTY
+                )
+                else -> throw IllegalStateException("Cannot convert to MainPage: $this")
+            }
+        }
+
+        private val DEFAULT_PAGE = MainPage.Entries
         private const val KEY_PAGE = "page"
         private val EMPTY = {}
     }
