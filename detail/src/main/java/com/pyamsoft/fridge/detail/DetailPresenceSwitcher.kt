@@ -28,7 +28,6 @@ import com.pyamsoft.pydroid.arch.UiView
 import com.pyamsoft.pydroid.ui.app.ToolbarActivity
 import timber.log.Timber
 import javax.inject.Inject
-import kotlin.properties.Delegates
 
 class DetailPresenceSwitcher @Inject internal constructor(
     appBarSource: AppBarActivity,
@@ -37,13 +36,7 @@ class DetailPresenceSwitcher @Inject internal constructor(
 
     private var toolbarActivity: ToolbarActivity? = toolbarSource
 
-    private var bindingRoot: TabLayout? by Delegates.observable(null) { _, oldValue, newValue ->
-        if (oldValue == null && newValue != null) {
-            onCreate(newValue)
-        } else if (oldValue != null && newValue == null) {
-            onDestroy(oldValue)
-        }
-    }
+    private var bindingRoot: TabLayout? = null
 
     private val layoutRoot: TabLayout
         get() = requireNotNull(bindingRoot)
@@ -54,7 +47,7 @@ class DetailPresenceSwitcher @Inject internal constructor(
             appBarSource.requireAppBar { appBar ->
                 val inflater = LayoutInflater.from(appBar.context)
                 val binding = DetailPresenceSwitchBinding.inflate(inflater, appBar)
-                bindingRoot = binding.detailPresenceSwitcherRoot
+                bindingRoot = binding.detailPresenceSwitcherRoot.also { onCreate(it) }
             }
         }
 
@@ -63,6 +56,8 @@ class DetailPresenceSwitcher @Inject internal constructor(
                 appBarSource.withAppBar { appBar ->
                     appBar.removeView(binding)
                 }
+
+                onDestroy(binding)
             }
 
             bindingRoot = null
