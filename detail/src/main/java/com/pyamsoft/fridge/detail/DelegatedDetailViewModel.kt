@@ -28,9 +28,7 @@ abstract class DelegatedDetailViewModel<V : DetailViewEvent, C : DetailControlle
 
     init {
         val job = delegate.bind(Renderable { state ->
-            state.render(viewModelScope) { newState ->
-                setState { newState }
-            }
+            state.render(viewModelScope) { setState { it } }
         })
         doOnCleared {
             job.cancel()

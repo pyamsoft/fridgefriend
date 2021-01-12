@@ -32,9 +32,7 @@ class EntryViewModel @Inject internal constructor(
 
     init {
         val job = delegate.bind(Renderable { state ->
-            state.render(viewModelScope) { newState ->
-                setState { newState }
-            }
+            state.render(viewModelScope) { setState { it } }
         })
         doOnCleared { job.cancel() }
         doOnCleared { delegate.clear() }
