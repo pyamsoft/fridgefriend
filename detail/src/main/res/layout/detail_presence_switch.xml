@@ -22,7 +22,7 @@
         xmlns:app="http://schemas.android.com/apk/res-auto"
         android:id="@+id/detail_presence_switcher_root"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="@dimen/detail_presence_switcher_height"
         android:background="@drawable/switcher"
         android:visibility="gone"
         app:tabBackground="@color/transparent"
@@ -30,6 +30,7 @@
         app:tabIndicatorColor="@color/white"
         app:tabIndicatorFullWidth="false"
         app:tabMode="fixed"
+        app:tabPadding="4dp"
         app:tabSelectedTextColor="@color/white"
         app:tabTextColor="@color/grey500" />
 

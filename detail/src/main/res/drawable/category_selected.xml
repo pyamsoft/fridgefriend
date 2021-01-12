@@ -16,12 +16,12 @@
 <shape xmlns:android="http://schemas.android.com/apk/res/android"
     android:shape="rectangle">
     <stroke
-        android:width="@dimen/selected_overlay_border_thickness"
+        android:width="@dimen/detail_category_selected_overlay_border_thickness"
         android:color="@color/blue500" />
     <padding
-        android:bottom="@dimen/selected_overlay_border_thickness"
-        android:left="@dimen/selected_overlay_border_thickness"
-        android:right="@dimen/selected_overlay_border_thickness"
-        android:top="@dimen/selected_overlay_border_thickness" />
-    <corners android:radius="@dimen/corner_radius" />
+        android:bottom="@dimen/detail_category_selected_overlay_border_thickness"
+        android:left="@dimen/detail_category_selected_overlay_border_thickness"
+        android:right="@dimen/detail_category_selected_overlay_border_thickness"
+        android:top="@dimen/detail_category_selected_overlay_border_thickness" />
+    <corners android:radius="@dimen/detail_category_corner_radius" />
 </shape>

@@ -25,7 +25,7 @@
         android:paddingStart="8dp"
         android:paddingTop="4dp"
         android:paddingEnd="8dp"
-        android:paddingBottom="@dimen/selected_overlay_border_thickness"
+        android:paddingBottom="@dimen/detail_category_selected_overlay_border_thickness"
         android:textAppearance="?attr/textAppearanceBody2" />
 
 </merge>
