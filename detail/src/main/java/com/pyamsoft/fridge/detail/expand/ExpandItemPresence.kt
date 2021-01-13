@@ -26,7 +26,7 @@ class ExpandItemPresence @Inject internal constructor(
 ) : BaseItemPresence<ExpandItemViewState, ExpandedItemViewEvent.ItemEvent>(parent) {
 
     override fun onRender(state: UiRender<ExpandItemViewState>) {
-        state.distinctBy { it.item }.render(viewScope) { renderItem(it) }
+        state.mapChanged { it.item }.render(viewScope) { renderItem(it) }
     }
 
     override fun publishChangePresence() {

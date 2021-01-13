@@ -28,7 +28,7 @@ class DetailListItemPresence @Inject internal constructor(
 ) : BaseItemPresence<DetailItemViewState, DetailItemViewEvent>(parent) {
 
     override fun onRender(state: UiRender<DetailItemViewState>) {
-        state.distinctBy { it.item }.render(viewScope) { handleItem(it) }
+        state.mapChanged { it.item }.render(viewScope) { handleItem(it) }
     }
 
     private fun handleItem(item: FridgeItem) {

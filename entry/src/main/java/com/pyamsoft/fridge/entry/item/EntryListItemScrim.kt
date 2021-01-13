@@ -60,7 +60,7 @@ class EntryListItemScrim @Inject internal constructor(
     }
 
     override fun onRender(state: UiRender<EntryItemViewState>) {
-        state.distinctBy { it.itemCount }.render(viewScope) { handleScrim(it) }
+        state.mapChanged { it.itemCount }.render(viewScope) { handleScrim(it) }
     }
 
     private fun handleScrim(itemCount: Int) {

@@ -37,7 +37,7 @@ class EntryListItemName @Inject internal constructor(
     }
 
     override fun onRender(state: UiRender<EntryItemViewState>) {
-        state.distinctBy { it.entry }.distinctBy { it.name() }.render(viewScope) { handleName(it) }
+        state.mapChanged { it.entry }.mapChanged { it.name() }.render(viewScope) { handleName(it) }
     }
 
     private fun clear() {

@@ -76,7 +76,7 @@ class DetailToolbar @Inject internal constructor(
     }
 
     override fun onRender(state: UiRender<DetailViewState>) {
-        state.distinctBy { it.listItemPresence }.render(viewScope) { handleExtraSubItems(it) }
+        state.mapChanged { it.listItemPresence }.render(viewScope) { handleExtraSubItems(it) }
     }
 
     private fun handleExtraSubItems(presence: FridgeItem.Presence) {

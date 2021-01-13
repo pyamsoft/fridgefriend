@@ -73,8 +73,8 @@ class EntryAddNew @Inject internal constructor(
     }
 
     override fun onRender(state: UiRender<EntryViewState>) {
-        state.distinctBy { it.bottomOffset }.render(viewScope) { handleBottomMargin(it) }
-        state.distinctBy { it.undoableEntry }.render(viewScope) { handleUndo(it) }
+        state.mapChanged { it.bottomOffset }.render(viewScope) { handleBottomMargin(it) }
+        state.mapChanged { it.undoableEntry }.render(viewScope) { handleUndo(it) }
     }
 
     private fun handleBottomMargin(height: Int) {

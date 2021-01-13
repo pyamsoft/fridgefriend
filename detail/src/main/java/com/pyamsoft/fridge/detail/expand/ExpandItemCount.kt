@@ -54,8 +54,8 @@ class ExpandItemCount @Inject internal constructor(
     }
 
     override fun onRender(state: UiRender<ExpandItemViewState>) {
-        state.distinctBy { it.item }.render(viewScope) { handleEditable(it) }
-        state.distinctBy { it.item }.render(viewScope) { handleCount(it) }
+        state.mapChanged { it.item }.render(viewScope) { handleEditable(it) }
+        state.mapChanged { it.item }.render(viewScope) { handleCount(it) }
     }
 
     @CheckResult

@@ -122,7 +122,7 @@ class MainToolbar @Inject internal constructor(
     }
 
     override fun onRender(state: UiRender<MainViewState>) {
-        state.distinctBy { it.appNameRes }.render(viewScope) { handleName(it) }
+        state.mapChanged { it.appNameRes }.render(viewScope) { handleName(it) }
     }
 
     private fun inflateToolbar(

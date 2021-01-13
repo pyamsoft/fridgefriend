@@ -43,6 +43,6 @@ class ExpandItemDate @Inject internal constructor(
     }
 
     override fun onRender(state: UiRender<ExpandItemViewState>) {
-        state.distinctBy { it.item }.render(viewScope) { renderItem(it) }
+        state.mapChanged { it.item }.render(viewScope) { renderItem(it) }
     }
 }

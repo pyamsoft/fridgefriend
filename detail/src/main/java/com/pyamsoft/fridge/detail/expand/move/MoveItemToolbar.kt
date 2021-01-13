@@ -133,8 +133,8 @@ class MoveItemToolbar @Inject internal constructor(
     }
 
     override fun onRender(state: UiRender<ItemMoveViewState>) {
-        state.distinctBy { it.item }.render(viewScope) { handleItem(it) }
-        state.distinctBy { it.listState }.render(viewScope) { delegate.render(it.asUiRender()) }
+        state.mapChanged { it.item }.render(viewScope) { handleItem(it) }
+        state.mapChanged { it.listState }.render(viewScope) { delegate.render(it.asUiRender()) }
     }
 }
 

@@ -73,8 +73,8 @@ class CategoryListView @Inject internal constructor(
     }
 
     override fun onRender(state: UiRender<CategoryViewState>) {
-        state.distinctBy { it.categories }.render(viewScope) { handleAnimation(it) }
-        state.distinctBy { it.categories }.render(viewScope) { handleCategories(it) }
+        state.mapChanged { it.categories }.render(viewScope) { handleAnimation(it) }
+        state.mapChanged { it.categories }.render(viewScope) { handleCategories(it) }
     }
 
     private fun handleAnimation(categories: List<CategoryViewState.CategoryItemsPairing>) {

@@ -100,7 +100,7 @@ class MainNavigation @Inject internal constructor(
 
     override fun onRender(state: UiRender<MainViewState>) {
         state.render(viewScope) { correctBackground() }
-        state.distinctBy { it.page }.render(viewScope) { handlePage(it) }
+        state.mapChanged { it.page }.render(viewScope) { handlePage(it) }
     }
 
     private fun handlePage(page: MainPage?) {

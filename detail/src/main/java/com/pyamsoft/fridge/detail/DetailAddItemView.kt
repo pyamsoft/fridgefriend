@@ -103,11 +103,11 @@ class DetailAddItemView @Inject internal constructor(
     }
 
     override fun onRender(state: UiRender<DetailViewState>) {
-        state.distinctBy { it.showing }.render(viewScope) { handleShowing(it) }
-        state.distinctBy { it.listItemPresence }.render(viewScope) { handlePresence(it) }
-        state.distinctBy { it.bottomOffset }.render(viewScope) { handleBottomMargin(it) }
-        state.distinctBy { it.listError }.render(viewScope) { handleError(it) }
-        state.distinctBy { it.undoableItem }.render(viewScope) { handleUndo(it) }
+        state.mapChanged { it.showing }.render(viewScope) { handleShowing(it) }
+        state.mapChanged { it.listItemPresence }.render(viewScope) { handlePresence(it) }
+        state.mapChanged { it.bottomOffset }.render(viewScope) { handleBottomMargin(it) }
+        state.mapChanged { it.listError }.render(viewScope) { handleError(it) }
+        state.mapChanged { it.undoableItem }.render(viewScope) { handleUndo(it) }
     }
 
     private fun handlePresence(presence: FridgeItem.Presence) {

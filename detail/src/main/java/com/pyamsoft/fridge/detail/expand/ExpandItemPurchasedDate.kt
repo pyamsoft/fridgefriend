@@ -45,7 +45,7 @@ class ExpandItemPurchasedDate @Inject internal constructor(
     }
 
     override fun onRender(state: UiRender<ExpandItemViewState>) {
-        state.distinctBy { it.item }.render(viewScope) { handleItem(it) }
+        state.mapChanged { it.item }.render(viewScope) { handleItem(it) }
     }
 
     private fun handleItem(item: FridgeItem?) {

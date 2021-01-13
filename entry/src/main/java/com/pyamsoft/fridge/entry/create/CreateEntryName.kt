@@ -83,7 +83,7 @@ class CreateEntryName @Inject internal constructor(
     }
 
     override fun onRender(state: UiRender<CreateEntryViewState>) {
-        state.distinctBy { it.name }.render(viewScope) { handleName(it) }
+        state.mapChanged { it.name }.render(viewScope) { handleName(it) }
     }
 
     companion object {

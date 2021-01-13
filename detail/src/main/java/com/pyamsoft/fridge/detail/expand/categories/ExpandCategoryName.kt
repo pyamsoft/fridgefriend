@@ -41,7 +41,7 @@ class ExpandCategoryName @Inject internal constructor(
     }
 
     override fun onRender(state: UiRender<ExpandedCategoryViewState>) {
-        state.distinctBy { it.category }.render(viewScope) { handleCategory(it) }
+        state.mapChanged { it.category }.render(viewScope) { handleCategory(it) }
     }
 
     private fun handleCategory(category: ExpandedCategoryViewState.Category?) {

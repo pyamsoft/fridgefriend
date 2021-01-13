@@ -86,8 +86,8 @@ abstract class UiToolbar<E : Enum<E>, S : UiToolbar.State<E>, V : UiViewEvent> p
     }
 
     override fun render(state: UiRender<S>) {
-        state.distinctBy { it.toolbarSort }.render(viewScope) { handleSubmenu(it) }
-        state.distinctBy { it.toolbarSearch }.render(viewScope) { handleInitialSearch(it) }
+        state.mapChanged { it.toolbarSort }.render(viewScope) { handleSubmenu(it) }
+        state.mapChanged { it.toolbarSearch }.render(viewScope) { handleInitialSearch(it) }
         onRender(state)
     }
 
