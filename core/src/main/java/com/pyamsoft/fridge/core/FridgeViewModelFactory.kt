@@ -16,23 +16,47 @@
 
 package com.pyamsoft.fridge.core
 
+import android.os.Bundle
+import androidx.annotation.CheckResult
+import androidx.lifecycle.ViewModel
+import androidx.savedstate.SavedStateRegistryOwner
+import com.pyamsoft.pydroid.arch.UiSavedState
+import com.pyamsoft.pydroid.arch.UiSavedStateViewModelFactory
 import com.pyamsoft.pydroid.arch.UiStateViewModel
-import com.pyamsoft.pydroid.arch.UiViewModel
 import com.pyamsoft.pydroid.arch.UiViewModelFactory
-import timber.log.Timber
-import javax.inject.Inject
 import javax.inject.Provider
 import kotlin.reflect.KClass
 
-class FridgeViewModelFactory @Inject internal constructor(
-    // Need to use MutableMap instead of Map because of Java -> Kotlin fun.
-    private val viewModels: MutableMap<Class<*>, Provider<UiViewModel<*, *, *>>>
-) : UiViewModelFactory() {
+@CheckResult
+@JvmOverloads
+inline fun <reified T : ViewModel> SavedStateRegistryOwner.createAssistedFactory(
+    factory: AssistedFridgeViewModelFactory<T>?,
+    defaultArgs: Bundle? = null
+): UiSavedStateViewModelFactory {
+    return object : UiSavedStateViewModelFactory(this, defaultArgs) {
+        override fun <T : UiStateViewModel<*>> viewModel(
+            modelClass: KClass<T>,
+            savedState: UiSavedState
+        ): UiStateViewModel<*> {
+            @Suppress("UNCHECKED_CAST")
+            return requireNotNull(factory).create(savedState) as? T ?: fail()
+        }
 
-    override fun <T : UiStateViewModel<*>> viewModel(modelClass: KClass<T>): UiStateViewModel<*> {
-        Timber.d("Get ViewModel from factory: ${modelClass.simpleName}")
-
-        @Suppress("UNCHECKED_CAST")
-        return viewModels[modelClass.java]?.get() as? T ?: fail()
     }
 }
+
+@CheckResult
+inline fun <reified T : ViewModel> createFactory(factory: Provider<T>?): UiViewModelFactory {
+    return object : UiViewModelFactory() {
+        override fun <T : UiStateViewModel<*>> viewModel(modelClass: KClass<T>): UiStateViewModel<*> {
+            @Suppress("UNCHECKED_CAST")
+            return requireNotNull(factory).get() as? T ?: fail()
+        }
+    }
+}
+
+interface AssistedFridgeViewModelFactory<T : ViewModel> {
+
+    fun create(savedState: UiSavedState): T
+}
+

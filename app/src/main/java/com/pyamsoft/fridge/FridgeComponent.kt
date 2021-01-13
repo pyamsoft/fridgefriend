@@ -59,11 +59,7 @@ import com.pyamsoft.fridge.ui.UiModule
 import com.pyamsoft.pydroid.bus.EventBus
 import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.ui.theme.Theming
-import dagger.Binds
-import dagger.BindsInstance
-import dagger.Component
-import dagger.Module
-import dagger.Provides
+import dagger.*
 import javax.inject.Named
 import javax.inject.Singleton
 

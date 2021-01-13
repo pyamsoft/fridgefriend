@@ -22,8 +22,8 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.CheckResult
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
 import com.pyamsoft.fridge.FridgeComponent
+import com.pyamsoft.fridge.core.createFactory
 import com.pyamsoft.fridge.ui.requireAppBarActivity
 import com.pyamsoft.pydroid.arch.StateSaver
 import com.pyamsoft.pydroid.arch.createComponent
@@ -31,6 +31,7 @@ import com.pyamsoft.pydroid.ui.Injector
 import com.pyamsoft.pydroid.ui.arch.viewModelFactory
 import com.pyamsoft.pydroid.ui.databinding.LayoutCoordinatorBinding
 import javax.inject.Inject
+import javax.inject.Provider
 import com.pyamsoft.pydroid.ui.R as R2
 
 internal class CategoryFragment : Fragment() {
@@ -45,8 +46,10 @@ internal class CategoryFragment : Fragment() {
 
     @JvmField
     @Inject
-    internal var factory: ViewModelProvider.Factory? = null
-    private val viewModel by viewModelFactory<CategoryViewModel>(activity = true) { factory }
+    internal var provider: Provider<CategoryViewModel>? = null
+    private val viewModel by viewModelFactory<CategoryViewModel>(activity = true) {
+        createFactory(provider)
+    }
 
     private var stateSaver: StateSaver? = null
 
@@ -95,7 +98,7 @@ internal class CategoryFragment : Fragment() {
         super.onDestroyView()
 
         stateSaver = null
-        factory = null
+        provider = null
     }
 
     companion object {

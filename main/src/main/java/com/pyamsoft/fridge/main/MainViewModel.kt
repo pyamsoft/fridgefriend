@@ -18,28 +18,33 @@ package com.pyamsoft.fridge.main
 
 import androidx.annotation.CheckResult
 import androidx.lifecycle.viewModelScope
+import com.pyamsoft.fridge.core.AssistedFridgeViewModelFactory
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent
 import com.pyamsoft.fridge.db.store.NearbyStore
 import com.pyamsoft.fridge.db.zone.NearbyZone
 import com.pyamsoft.fridge.locator.GpsChangeEvent
 import com.pyamsoft.fridge.locator.MapPermission
 import com.pyamsoft.fridge.ui.BottomOffset
-import com.pyamsoft.pydroid.arch.UiViewModel
+import com.pyamsoft.pydroid.arch.UiSavedState
+import com.pyamsoft.pydroid.arch.UiSavedStateViewModel
 import com.pyamsoft.pydroid.bus.EventBus
+import com.squareup.inject.assisted.Assisted
+import com.squareup.inject.assisted.AssistedInject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import timber.log.Timber
-import javax.inject.Inject
 import javax.inject.Named
 
-class MainViewModel @Inject internal constructor(
+class MainViewModel @AssistedInject internal constructor(
+    @Assisted savedState: UiSavedState,
     private val interactor: MainInteractor,
     private val mapPermission: MapPermission,
     private val gpsChangeBus: EventBus<GpsChangeEvent>,
     private val bottomOffsetBus: EventBus<BottomOffset>,
     @Named("app_name") appNameRes: Int,
-) : UiViewModel<MainViewState, MainViewEvent, MainControllerEvent>(
+) : UiSavedStateViewModel<MainViewState, MainViewEvent, MainControllerEvent>(
+    savedState,
     MainViewState(
         page = null,
         appNameRes = appNameRes,
@@ -56,20 +61,17 @@ class MainViewModel @Inject internal constructor(
             interactor.listenForItemChanges { handleRealtime(it) }
         }
 
-        doOnSaveState { outState, state ->
-            state.page?.let { p ->
-                outState.put(KEY_PAGE, p.asString())
-            }
-        }
-
-        // This pushes the fragment onto the stack
-        doOnRestoreState { savedInstanceState ->
-            val page = savedInstanceState.getOrDefault(KEY_PAGE, DEFAULT_PAGE.asString()).asPage()
-            Timber.d("Loading initial page: $page")
-            selectPage(force = false, page)
-        }
-
         refreshBadgeCounts()
+
+        viewModelScope.launch(context = Dispatchers.Default) {
+            loadDefaultPage()
+        }
+    }
+
+    private suspend fun loadDefaultPage() {
+        val page = restoreSavedState(KEY_PAGE) { DEFAULT_PAGE.asString() }.asPage()
+        Timber.d("Loading initial page: $page")
+        selectPage(force = false, page)
     }
 
     private fun handleRealtime(event: FridgeItemChangeEvent) {
@@ -108,10 +110,12 @@ class MainViewModel @Inject internal constructor(
             is MainViewEvent.OpenCategory -> selectPage(force = false, MainPage.Category)
             is MainViewEvent.OpenSettings -> selectPage(force = false, MainPage.Settings)
             is MainViewEvent.BottomBarMeasured -> consumeBottomBarHeight(event.height)
-            is MainViewEvent.OpenNearby -> selectPage(force = false, MainPage.Nearby(
-                storeId = NearbyStore.Id.EMPTY,
-                zoneId = NearbyZone.Id.EMPTY
-            ))
+            is MainViewEvent.OpenNearby -> selectPage(
+                force = false, MainPage.Nearby(
+                    storeId = NearbyStore.Id.EMPTY,
+                    zoneId = NearbyZone.Id.EMPTY
+                )
+            )
         }
     }
 
@@ -151,11 +155,13 @@ class MainViewModel @Inject internal constructor(
         })
     }
 
-    private inline fun publishNewSelection(
+    private suspend inline fun publishNewSelection(
         oldPage: MainPage?,
         crossinline event: (page: MainPage?) -> MainControllerEvent,
     ) {
-        Timber.d("Publish selection: $oldPage -> ${state.page}")
+        val newPage = requireNotNull(state.page)
+        Timber.d("Publish selection: $oldPage -> $newPage")
+        putSavedState(KEY_PAGE, newPage.asString())
         publish(event(oldPage))
     }
 
@@ -204,5 +210,12 @@ class MainViewModel @Inject internal constructor(
         private val DEFAULT_PAGE = MainPage.Entries
         private const val KEY_PAGE = "page"
         private val EMPTY = {}
+    }
+
+    @AssistedInject.Factory
+    interface Factory : AssistedFridgeViewModelFactory<MainViewModel> {
+
+        override fun create(savedState: UiSavedState): MainViewModel
+
     }
 }

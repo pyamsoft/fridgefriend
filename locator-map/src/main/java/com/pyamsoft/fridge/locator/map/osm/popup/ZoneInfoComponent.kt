@@ -18,8 +18,6 @@ package com.pyamsoft.fridge.locator.map.osm.popup
 
 import android.view.ViewGroup
 import androidx.annotation.CheckResult
-import androidx.lifecycle.ViewModelProvider
-import com.pyamsoft.fridge.core.FridgeViewModelFactory
 import com.pyamsoft.fridge.db.zone.NearbyZone
 import com.pyamsoft.fridge.locator.map.osm.popup.ZoneInfoComponent.ViewModelModule
 import com.pyamsoft.fridge.locator.map.popup.zone.ZoneInfoViewModel
@@ -48,9 +46,6 @@ interface ZoneInfoComponent {
 
     @Module
     abstract class ViewModelModule {
-
-        @Binds
-        internal abstract fun bindViewModelFactory(factory: FridgeViewModelFactory): ViewModelProvider.Factory
 
         @Binds
         @IntoMap

@@ -24,8 +24,8 @@ import androidx.annotation.CheckResult
 import androidx.appcompat.app.AppCompatDialogFragment
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.fragment.app.DialogFragment
-import androidx.lifecycle.ViewModelProvider
 import com.pyamsoft.fridge.FridgeComponent
+import com.pyamsoft.fridge.core.createFactory
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.entry.EntryList
@@ -41,14 +41,21 @@ import com.pyamsoft.pydroid.ui.databinding.LayoutConstraintBinding
 import com.pyamsoft.pydroid.ui.util.layout
 import com.pyamsoft.pydroid.ui.widget.shadow.DropshadowView
 import javax.inject.Inject
+import javax.inject.Provider
 
 internal class ItemMoveDialog : AppCompatDialogFragment() {
 
     @JvmField
     @Inject
-    internal var factory: ViewModelProvider.Factory? = null
-    private val viewModel by viewModelFactory<ItemMoveViewModel> { factory }
-    private val listViewModel by viewModelFactory<ItemMoveListViewModel> { factory }
+    internal var provider: Provider<ItemMoveViewModel>? = null
+    private val viewModel by viewModelFactory<ItemMoveViewModel> { createFactory(provider) }
+
+    @JvmField
+    @Inject
+    internal var listProvider: Provider<ItemMoveListViewModel>? = null
+    private val listViewModel by viewModelFactory<ItemMoveListViewModel> {
+        createFactory(listProvider)
+    }
 
     @JvmField
     @Inject
@@ -142,14 +149,26 @@ internal class ItemMoveDialog : AppCompatDialogFragment() {
                 connect(it.id(), ConstraintSet.TOP, toolbar.id(), ConstraintSet.BOTTOM)
                 connect(it.id(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
                 connect(it.id(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
-                connect(it.id(),
+                connect(
+                    it.id(),
                     ConstraintSet.BOTTOM,
                     ConstraintSet.PARENT_ID,
-                    ConstraintSet.BOTTOM)
+                    ConstraintSet.BOTTOM
+                )
                 constrainWidth(it.id(), ConstraintSet.MATCH_CONSTRAINT)
                 constrainHeight(it.id(), ConstraintSet.MATCH_CONSTRAINT)
             }
         }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        provider = null
+        listProvider = null
+
+        list = null
+        toolbar = null
+        stateSaver = null
     }
 
     private fun handleSearch(search: String) {

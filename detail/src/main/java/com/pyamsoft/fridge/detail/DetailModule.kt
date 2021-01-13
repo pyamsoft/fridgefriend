@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Peter Kenji Yamanaka
+ * Copyright 2021 Peter Kenji Yamanaka
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,24 +14,11 @@
  * limitations under the License.
  */
 
-package com.pyamsoft.fridge.setting
+package com.pyamsoft.fridge.detail
 
-import androidx.annotation.CheckResult
-import androidx.preference.PreferenceScreen
-import dagger.BindsInstance
-import dagger.Subcomponent
+import com.squareup.inject.assisted.dagger2.AssistedModule
+import dagger.Module
 
-@Subcomponent
-internal interface SettingsComponent {
-
-    fun inject(fragment: SettingsFragment.SettingsPreferenceFragment)
-
-    @Subcomponent.Factory
-    interface Factory {
-
-        @CheckResult
-        fun create(
-            @BindsInstance parent: PreferenceScreen
-        ): SettingsComponent
-    }
-}
+@AssistedModule
+@Module(includes = [AssistedInject_DetailModule::class])
+internal interface DetailModule

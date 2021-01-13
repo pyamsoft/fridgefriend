@@ -78,10 +78,8 @@ class MainToolbar @Inject internal constructor(
             binding.mainToolbar.addPrivacy(viewScope, PRIVACY_POLICY_URL, TERMS_CONDITIONS_URL)
         }
 
-        doOnInflate { savedInstanceState ->
-            if (savedInstanceState.hasNoSavedState()) {
-                animateToolbar()
-            }
+        doOnInflate {
+            animateToolbar()
         }
 
         doOnTeardown {

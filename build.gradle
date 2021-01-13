@@ -52,6 +52,7 @@ buildscript {
 
     // Dagger
     dagger = "2.30.1"
+    assistedInject = "0.6.0"
 
     // Network
     moshi = "1.11.0"

@@ -116,7 +116,8 @@ class EntryList @Inject internal constructor(
         }
 
         doOnInflate { savedInstanceState ->
-            savedInstanceState.useIfAvailable<Int>(LAST_SCROLL_POSITION) { position ->
+            val position = savedInstanceState.get(LAST_SCROLL_POSITION) ?: -1
+            if (position >= 0) {
                 Timber.d("Last scroll position saved at: $position")
                 lastScrollPosition = position
             }

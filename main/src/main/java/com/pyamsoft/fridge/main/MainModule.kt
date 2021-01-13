@@ -14,25 +14,11 @@
  * limitations under the License.
  */
 
-package com.pyamsoft.fridge.entry.create
+package com.pyamsoft.fridge.main
 
-import android.view.ViewGroup
-import androidx.annotation.CheckResult
-import com.pyamsoft.fridge.ThemeProviderModule
-import com.pyamsoft.fridge.tooltip.balloon.TooltipModule
-import dagger.BindsInstance
-import dagger.Subcomponent
+import com.squareup.inject.assisted.dagger2.AssistedModule
+import dagger.Module
 
-@Subcomponent(modules = [ThemeProviderModule::class, TooltipModule::class])
-internal interface CreateEntryComponent {
-
-    fun inject(sheet: CreateEntrySheet)
-
-    @Subcomponent.Factory
-    interface Factory {
-
-        @CheckResult
-        fun create(@BindsInstance parent: ViewGroup): CreateEntryComponent
-    }
-
-}
+@AssistedModule
+@Module(includes = [AssistedInject_MainModule::class])
+abstract class MainModule

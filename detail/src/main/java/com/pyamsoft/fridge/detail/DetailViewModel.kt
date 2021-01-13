@@ -16,52 +16,42 @@
 
 package com.pyamsoft.fridge.detail
 
+import androidx.lifecycle.viewModelScope
+import com.pyamsoft.fridge.core.AssistedFridgeViewModelFactory
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.detail.DetailControllerEvent.ExpandForEditing
+import com.pyamsoft.pydroid.arch.UiSavedState
+import com.squareup.inject.assisted.Assisted
+import com.squareup.inject.assisted.AssistedInject
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import timber.log.Timber
-import javax.inject.Inject
 
-class DetailViewModel @Inject internal constructor(
+class DetailViewModel @AssistedInject internal constructor(
     @DetailInternalApi delegate: DetailListStateModel,
-) : DelegatedDetailViewModel<DetailViewEvent.ControlledEvents, DetailControllerEvent>(delegate) {
+    @Assisted savedState: UiSavedState,
+) : DelegatedDetailViewModel<DetailViewEvent.ControlledEvents, DetailControllerEvent>(
+    savedState, delegate
+) {
 
     init {
-        doOnSaveState { outState, state ->
-            outState.put(SAVED_FILTER, state.showing.name)
-        }
-
-        doOnSaveState { outState, state ->
-            outState.put(SAVED_SORT, state.sort.name)
-        }
-
-        doOnSaveState { outState, state ->
-            state.search.let { search ->
-                if (search.isNotBlank()) {
-                    outState.put(SAVED_SEARCH, search)
-                    return@doOnSaveState
-                }
-            }
-
-            outState.remove(SAVED_SEARCH)
-        }
-
-        doOnRestoreState { savedInstanceState ->
-            savedInstanceState.useIfAvailable<String>(SAVED_FILTER) { filterName ->
+        viewModelScope.launch(context = Dispatchers.Default) {
+            val filterName = restoreSavedState(SAVED_FILTER) { "" }
+            if (filterName.isNotBlank()) {
                 val filter = DetailViewState.Showing.valueOf(filterName)
                 delegate.updateFilter(filter)
             }
         }
 
-        doOnRestoreState { savedInstanceState ->
-            savedInstanceState.useIfAvailable<String>(SAVED_SORT) { sortName ->
-                val sort = DetailViewState.Sorts.valueOf(sortName)
-                delegate.updateSort(sort)
-            }
+        viewModelScope.launch(context = Dispatchers.Default) {
+            val sort = restoreSavedState(SAVED_SORT) { DetailViewState.Sorts.CREATED }
+            updateSort(sort)
         }
 
-        doOnRestoreState { savedInstanceState ->
-            savedInstanceState.useIfAvailable<String>(SAVED_SEARCH) { search ->
-                delegate.updateSearch(search)
+        viewModelScope.launch(context = Dispatchers.Default) {
+            val search = restoreSavedState(SAVED_SEARCH) { "" }
+            if (search.isNotBlank()) {
+                updateSearch(search)
             }
         }
     }
@@ -70,27 +60,54 @@ class DetailViewModel @Inject internal constructor(
         return when (event) {
             is DetailViewEvent.ControlledEvents.ListEvent.ForceRefresh -> delegate.refreshList(true)
             is DetailViewEvent.ControlledEvents.ListEvent.ChangeItemPresence -> delegate.commitPresence(
-                event.item)
+                event.item
+            )
             is DetailViewEvent.ControlledEvents.ListEvent.ConsumeItem -> delegate.consume(event.item)
             is DetailViewEvent.ControlledEvents.ListEvent.DeleteItem -> delegate.delete(event.item)
             is DetailViewEvent.ControlledEvents.ListEvent.RestoreItem -> delegate.restore(event.item)
             is DetailViewEvent.ControlledEvents.ListEvent.SpoilItem -> delegate.spoil(event.item)
             is DetailViewEvent.ControlledEvents.ListEvent.IncreaseItemCount -> delegate.increaseCount(
-                event.item)
+                event.item
+            )
             is DetailViewEvent.ControlledEvents.ListEvent.DecreaseItemCount -> delegate.decreaseCount(
-                event.item)
+                event.item
+            )
             is DetailViewEvent.ControlledEvents.ListEvent.ExpandItem -> handleExpand(event.item)
-            is DetailViewEvent.ControlledEvents.AddEvent.ToggleArchiveVisibility -> delegate.toggleArchived()
+            is DetailViewEvent.ControlledEvents.AddEvent.ToggleArchiveVisibility -> updateShowing()
             is DetailViewEvent.ControlledEvents.AddEvent.ReallyDeleteItemNoUndo -> delegate.deleteForever(
-                event.item)
+                event.item
+            )
             is DetailViewEvent.ControlledEvents.AddEvent.UndoDeleteItem -> delegate.handleUndoDelete(
-                event.item)
+                event.item
+            )
             is DetailViewEvent.ControlledEvents.AddEvent.ClearListError -> delegate.clearListError()
             is DetailViewEvent.ControlledEvents.AddEvent.AddNew -> handleAddNew()
             is DetailViewEvent.ControlledEvents.ToolbarEvent.Back -> handleBack()
-            is DetailViewEvent.ControlledEvents.ToolbarEvent.SearchQuery -> delegate.updateSearch(
-                event.search)
-            is DetailViewEvent.ControlledEvents.ToolbarEvent.ChangeSort -> delegate.updateSort(event.sort)
+            is DetailViewEvent.ControlledEvents.ToolbarEvent.SearchQuery -> updateSearch(event.search)
+            is DetailViewEvent.ControlledEvents.ToolbarEvent.ChangeSort -> updateSort(event.sort)
+        }
+    }
+
+    private fun updateSearch(search: String) {
+        delegate.updateSearch(search) { newState ->
+            val newSearch = newState.search
+            if (newSearch.isNotBlank()) {
+                putSavedState(SAVED_SEARCH, newSearch)
+            } else {
+                removeSavedState(SAVED_SEARCH)
+            }
+        }
+    }
+
+    private fun updateShowing() {
+        delegate.toggleArchived { newState ->
+            putSavedState(SAVED_FILTER, newState.showing.name)
+        }
+    }
+
+    private fun updateSort(sort: DetailViewState.Sorts) {
+        delegate.updateSort(sort) { newState ->
+            putSavedState(SAVED_SORT, newState.sort.name)
         }
     }
 
@@ -117,5 +134,12 @@ class DetailViewModel @Inject internal constructor(
         private const val SAVED_SORT = "sort"
         private const val SAVED_FILTER = "filter"
         private const val SAVED_SEARCH = "search"
+    }
+
+    @AssistedInject.Factory
+    interface Factory : AssistedFridgeViewModelFactory<DetailViewModel> {
+
+        override fun create(savedState: UiSavedState): DetailViewModel
+
     }
 }

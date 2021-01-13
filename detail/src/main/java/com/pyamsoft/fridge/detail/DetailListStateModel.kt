@@ -19,22 +19,14 @@ package com.pyamsoft.fridge.detail
 import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.core.today
 import com.pyamsoft.fridge.db.entry.FridgeEntry
-import com.pyamsoft.fridge.db.item.FridgeItem
-import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent
-import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent.Delete
-import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent.Insert
-import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent.Update
-import com.pyamsoft.fridge.db.item.cleanMidnight
-import com.pyamsoft.fridge.db.item.daysLaterMidnight
-import com.pyamsoft.fridge.db.item.isArchived
-import com.pyamsoft.fridge.db.item.isExpired
-import com.pyamsoft.fridge.db.item.isExpiringSoon
+import com.pyamsoft.fridge.db.item.*
+import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent.*
 import com.pyamsoft.fridge.detail.base.createUpdateDelegate
 import com.pyamsoft.fridge.ui.BottomOffset
 import com.pyamsoft.highlander.highlander
-import com.pyamsoft.pydroid.bus.EventConsumer
 import com.pyamsoft.pydroid.arch.UiStateModel
 import com.pyamsoft.pydroid.arch.onActualError
+import com.pyamsoft.pydroid.bus.EventConsumer
 import com.pyamsoft.pydroid.util.PreferenceListener
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -42,6 +34,7 @@ import timber.log.Timber
 import java.util.Calendar
 import java.util.Date
 import javax.inject.Inject
+import kotlin.Comparator
 import kotlin.math.max
 
 class DetailListStateModel @Inject internal constructor(
@@ -385,14 +378,18 @@ class DetailListStateModel @Inject internal constructor(
         )
     }
 
-    internal fun updateSearch(search: String) {
+    internal fun updateSearch(
+        search: String,
+        andThen: suspend (newState: DetailViewState) -> Unit
+    ) {
         setState(
             stateChange = {
                 val cleanSearch = if (search.isNotBlank()) search.trim() else ""
                 copy(search = cleanSearch)
             },
-            andThen = {
+            andThen = { newState ->
                 refreshList(false)
+                andThen(newState)
             }
         )
     }
@@ -429,7 +426,9 @@ class DetailListStateModel @Inject internal constructor(
         }
     }
 
-    internal fun toggleArchived() {
+    internal fun toggleArchived(
+        andThen: suspend (newState: DetailViewState) -> Unit
+    ) {
         setState(
             stateChange = {
                 val newShowing = when (showing) {
@@ -439,14 +438,21 @@ class DetailListStateModel @Inject internal constructor(
                 }
                 copy(showing = newShowing)
             },
-            andThen = {
+            andThen = { newState ->
                 refreshList(false)
+                andThen(newState)
             }
         )
     }
 
-    internal fun updateSort(newSort: DetailViewState.Sorts) {
-        setState(stateChange = { copy(sort = newSort) }, andThen = { refreshList(false) })
+    internal fun updateSort(
+        newSort: DetailViewState.Sorts,
+        andThen: suspend (newState: DetailViewState) -> Unit
+    ) {
+        setState(stateChange = { copy(sort = newSort) }, andThen = { newState ->
+            refreshList(false)
+            andThen(newState)
+        })
     }
 
     internal fun refreshList(force: Boolean) {

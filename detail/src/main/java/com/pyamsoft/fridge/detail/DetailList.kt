@@ -54,7 +54,8 @@ class DetailList @Inject internal constructor(
     parent: ViewGroup,
     factory: DetailItemComponent.Factory,
 ) : BaseUiView<DetailViewState, DetailViewEvent.ControlledEvents.ListEvent, DetailListBinding>(
-    parent) {
+    parent
+) {
 
     override val viewBinding = DetailListBinding::inflate
 
@@ -82,23 +83,37 @@ class DetailList @Inject internal constructor(
                 callback = object : DetailListAdapter.Callback {
 
                     override fun onIncreaseCount(index: Int) {
-                        publish(DetailViewEvent.ControlledEvents.ListEvent.IncreaseItemCount(
-                            itemAtIndex(index)))
+                        publish(
+                            DetailViewEvent.ControlledEvents.ListEvent.IncreaseItemCount(
+                                itemAtIndex(index)
+                            )
+                        )
                     }
 
                     override fun onDecreaseCount(index: Int) {
-                        publish(DetailViewEvent.ControlledEvents.ListEvent.DecreaseItemCount(
-                            itemAtIndex(index)))
+                        publish(
+                            DetailViewEvent.ControlledEvents.ListEvent.DecreaseItemCount(
+                                itemAtIndex(index)
+                            )
+                        )
                     }
 
                     override fun onItemExpanded(index: Int) {
-                        publish(DetailViewEvent.ControlledEvents.ListEvent.ExpandItem(itemAtIndex(
-                            index)))
+                        publish(
+                            DetailViewEvent.ControlledEvents.ListEvent.ExpandItem(
+                                itemAtIndex(
+                                    index
+                                )
+                            )
+                        )
                     }
 
                     override fun onPresenceChange(index: Int) {
-                        publish(DetailViewEvent.ControlledEvents.ListEvent.ChangeItemPresence(
-                            itemAtIndex(index)))
+                        publish(
+                            DetailViewEvent.ControlledEvents.ListEvent.ChangeItemPresence(
+                                itemAtIndex(index)
+                            )
+                        )
                     }
                 })
             binding.detailList.adapter = modelAdapter
@@ -119,7 +134,8 @@ class DetailList @Inject internal constructor(
         }
 
         doOnInflate { savedInstanceState ->
-            savedInstanceState.useIfAvailable<Int>(LAST_SCROLL_POSITION) { position ->
+            val position = savedInstanceState.get(LAST_SCROLL_POSITION) ?: -1
+            if (position >= 0) {
                 Timber.d("Last scroll position saved at: $position")
                 lastScrollPosition = position
             }

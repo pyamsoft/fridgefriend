@@ -37,4 +37,5 @@ class CategoryViewModel @Inject internal constructor(
 
     override fun handleViewEvent(event: CategoryViewEvent) {
     }
+
 }

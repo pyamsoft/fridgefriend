@@ -26,8 +26,8 @@ import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.ViewModelProvider
 import com.pyamsoft.fridge.FridgeComponent
+import com.pyamsoft.fridge.core.createFactory
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.detail.DetailFragment
@@ -45,13 +45,16 @@ import com.pyamsoft.pydroid.ui.databinding.LayoutCoordinatorBinding
 import com.pyamsoft.pydroid.ui.util.commit
 import timber.log.Timber
 import javax.inject.Inject
+import javax.inject.Provider
 
 internal class EntryFragment : Fragment(), SnackbarContainer {
 
     @JvmField
     @Inject
-    internal var factory: ViewModelProvider.Factory? = null
-    private val viewModel by viewModelFactory<EntryViewModel>(activity = true) { factory }
+    internal var provider: Provider<EntryViewModel>? = null
+    private val viewModel by viewModelFactory<EntryViewModel>(activity = true) {
+        createFactory(provider)
+    }
 
     @JvmField
     @Inject
@@ -157,7 +160,7 @@ internal class EntryFragment : Fragment(), SnackbarContainer {
     override fun onDestroyView() {
         super.onDestroyView()
         stateSaver = null
-        factory = null
+        provider = null
         container = null
         fragmentContainerId = 0
     }

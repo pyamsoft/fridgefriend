@@ -28,7 +28,6 @@ import androidx.constraintlayout.widget.ConstraintSet
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentTransaction
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.appbar.AppBarLayout
 import com.pyamsoft.fridge.BuildConfig
@@ -38,6 +37,7 @@ import com.pyamsoft.fridge.butler.Butler
 import com.pyamsoft.fridge.butler.notification.NotificationHandler
 import com.pyamsoft.fridge.butler.work.OrderFactory
 import com.pyamsoft.fridge.category.CategoryFragment
+import com.pyamsoft.fridge.core.createAssistedFactory
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.store.NearbyStore
@@ -144,8 +144,8 @@ internal class MainActivity : ChangeLogActivity(),
 
     @JvmField
     @Inject
-    internal var factory: ViewModelProvider.Factory? = null
-    private val viewModel by viewModelFactory<MainViewModel> { factory }
+    internal var factory: MainViewModel.Factory? = null
+    private val viewModel by viewModelFactory<MainViewModel> { createAssistedFactory(factory) }
 
     private val handler by lazy(LazyThreadSafetyMode.NONE) { Handler(Looper.getMainLooper()) }
 
@@ -171,7 +171,7 @@ internal class MainActivity : ChangeLogActivity(),
 
         Injector.obtainFromApplication<FridgeComponent>(this)
             .plusMainComponent()
-            .create(this, this, binding.layoutConstraint, this, this)
+            .create(this, this, this, binding.layoutConstraint, this, this)
             .inject(this)
 
         stableLayoutHideNavigation()
@@ -274,10 +274,12 @@ internal class MainActivity : ChangeLogActivity(),
         }
 
         Timber.d("Map page selected, load nearby: $nearbyStoreId $nearbyZoneId")
-        viewModel.selectPage(force = true, MainPage.Nearby(
-            storeId = nearbyStoreId,
-            zoneId = nearbyZoneId
-        ))
+        viewModel.selectPage(
+            force = true, MainPage.Nearby(
+                storeId = nearbyStoreId,
+                zoneId = nearbyZoneId
+            )
+        )
         return true
     }
 

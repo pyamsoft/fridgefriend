@@ -22,8 +22,8 @@ import androidx.constraintlayout.widget.ConstraintSet
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleRegistry
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStore
+import com.pyamsoft.fridge.core.createFactory
 import com.pyamsoft.fridge.db.zone.NearbyZone
 import com.pyamsoft.fridge.locator.location.LocationUpdateReceiver
 import com.pyamsoft.fridge.locator.map.popup.zone.ZoneInfoLocation
@@ -37,6 +37,7 @@ import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.Polygon
 import org.osmdroid.views.overlay.infowindow.InfoWindow
 import javax.inject.Inject
+import javax.inject.Provider
 
 class ZoneInfoWindow private constructor(
     receiver: LocationUpdateReceiver,
@@ -46,7 +47,7 @@ class ZoneInfoWindow private constructor(
 ) : BaseInfoWindow<Polygon>(receiver, map), LifecycleOwner {
 
     private var stateSaver: StateSaver? = null
-    private val registry by lazy(LazyThreadSafetyMode.NONE) { LifecycleRegistry(this) }
+    private val lifecycleRegistry by lazy(LazyThreadSafetyMode.NONE) { LifecycleRegistry(this) }
 
     @JvmField
     @Inject
@@ -58,11 +59,13 @@ class ZoneInfoWindow private constructor(
 
     @JvmField
     @Inject
-    internal var factory: ViewModelProvider.Factory? = null
-    private val viewModel by viewModelFactory<ZoneInfoViewModel>(ViewModelStore()) { factory }
+    internal var provider: Provider<ZoneInfoViewModel>? = null
+    private val viewModel by viewModelFactory<ZoneInfoViewModel>(ViewModelStore()) {
+        createFactory(provider)
+    }
 
     override fun getLifecycle(): Lifecycle {
-        return registry
+        return lifecycleRegistry
     }
 
     init {
@@ -99,7 +102,7 @@ class ZoneInfoWindow private constructor(
             }
         }
 
-        registry.currentState = Lifecycle.State.RESUMED
+        lifecycleRegistry.currentState = Lifecycle.State.RESUMED
     }
 
     override fun onPopupOpened(popup: Polygon) {
@@ -119,11 +122,11 @@ class ZoneInfoWindow private constructor(
     }
 
     override fun onTeardown() {
-        registry.currentState = Lifecycle.State.DESTROYED
+        lifecycleRegistry.currentState = Lifecycle.State.DESTROYED
 
         infoTitle = null
         infoLocation = null
-        factory = null
+        provider = null
         stateSaver = null
     }
 

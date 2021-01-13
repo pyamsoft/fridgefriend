@@ -25,8 +25,8 @@ import androidx.constraintlayout.widget.ConstraintSet
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
 import com.pyamsoft.fridge.FridgeComponent
+import com.pyamsoft.fridge.core.createAssistedFactory
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence
@@ -79,9 +79,15 @@ internal class DetailFragment : Fragment(), SnackbarContainer {
 
     @JvmField
     @Inject
-    internal var factory: ViewModelProvider.Factory? = null
-    private val viewModel by viewModelFactory<DetailViewModel> { factory }
-    private val appBarViewModel by viewModelFactory<DetailAppBarViewModel> { factory }
+    internal var factory: DetailViewModel.Factory? = null
+    private val viewModel by viewModelFactory<DetailViewModel> { createAssistedFactory(factory) }
+
+    @JvmField
+    @Inject
+    internal var appBarFactory: DetailAppBarViewModel.Factory? = null
+    private val appBarViewModel by viewModelFactory<DetailAppBarViewModel> {
+        createAssistedFactory(appBarFactory)
+    }
 
     private var stateSaver: StateSaver? = null
 
@@ -109,6 +115,7 @@ internal class DetailFragment : Fragment(), SnackbarContainer {
         Injector.obtainFromApplication<FridgeComponent>(view.context)
             .plusDetailComponent()
             .create(
+                requireActivity(),
                 requireToolbarActivity(),
                 requireAppBarActivity(),
                 requireActivity(),
@@ -145,7 +152,8 @@ internal class DetailFragment : Fragment(), SnackbarContainer {
             savedInstanceState,
             viewLifecycleOwner,
             appBarViewModel,
-            requireNotNull(switcher))
+            requireNotNull(switcher)
+        )
         {
             // Intentionally blank
         }
@@ -209,6 +217,7 @@ internal class DetailFragment : Fragment(), SnackbarContainer {
         super.onDestroyView()
 
         factory = null
+        appBarFactory = null
         heroImage = null
         container = null
         addNew = null

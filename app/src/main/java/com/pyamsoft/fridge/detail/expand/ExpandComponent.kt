@@ -20,22 +20,20 @@ import android.app.Activity
 import android.view.ViewGroup
 import androidx.annotation.CheckResult
 import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.ViewModelProvider
+import androidx.savedstate.SavedStateRegistryOwner
 import com.pyamsoft.fridge.ThemeProviderModule
-import com.pyamsoft.fridge.core.FridgeViewModelFactory
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence
-import com.pyamsoft.fridge.detail.expand.ExpandComponent.ViewModelModule
-import com.pyamsoft.pydroid.arch.UiViewModel
-import dagger.Binds
 import dagger.BindsInstance
-import dagger.Module
 import dagger.Subcomponent
-import dagger.multibindings.ClassKey
-import dagger.multibindings.IntoMap
 
-@Subcomponent(modules = [ViewModelModule::class, ExpandItemModule::class, ThemeProviderModule::class])
+@Subcomponent(
+    modules = [
+        ExpandItemModule::class,
+        ThemeProviderModule::class
+    ]
+)
 internal interface ExpandComponent {
 
     fun inject(dialog: ExpandedItemDialog)
@@ -45,6 +43,7 @@ internal interface ExpandComponent {
 
         @CheckResult
         fun create(
+            @BindsInstance savedStateRegistryOwner: SavedStateRegistryOwner,
             @BindsInstance activity: Activity,
             @BindsInstance parent: ViewGroup,
             @BindsInstance owner: LifecycleOwner,
@@ -52,17 +51,5 @@ internal interface ExpandComponent {
             @BindsInstance itemEntryId: FridgeEntry.Id,
             @BindsInstance defaultPresence: Presence
         ): ExpandComponent
-    }
-
-    @Module
-    abstract class ViewModelModule {
-
-        @Binds
-        internal abstract fun bindViewModelFactory(factory: FridgeViewModelFactory): ViewModelProvider.Factory
-
-        @Binds
-        @IntoMap
-        @ClassKey(ExpandItemViewModel::class)
-        internal abstract fun expandViewModel(viewModel: ExpandItemViewModel): UiViewModel<*, *, *>
     }
 }

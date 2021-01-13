@@ -16,30 +16,10 @@
 
 package com.pyamsoft.fridge.detail.expand.date
 
-import androidx.lifecycle.ViewModelProvider
-import com.pyamsoft.fridge.core.FridgeViewModelFactory
-import com.pyamsoft.fridge.detail.expand.date.DateSelectViewModel
-import com.pyamsoft.pydroid.arch.UiViewModel
-import dagger.Binds
-import dagger.Module
 import dagger.Subcomponent
-import dagger.multibindings.ClassKey
-import dagger.multibindings.IntoMap
 
-@Subcomponent(modules = [DateSelectComponent.ViewModelModule::class])
+@Subcomponent
 internal interface DateSelectComponent {
 
     fun inject(fragment: DateSelectDialog)
-
-    @Module
-    abstract class ViewModelModule {
-
-        @Binds
-        internal abstract fun bindViewModelFactory(factory: FridgeViewModelFactory): ViewModelProvider.Factory
-
-        @Binds
-        @IntoMap
-        @ClassKey(DateSelectViewModel::class)
-        internal abstract fun dateSelectViewModel(viewModel: DateSelectViewModel): UiViewModel<*, *, *>
-    }
 }

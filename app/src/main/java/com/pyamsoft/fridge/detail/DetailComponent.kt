@@ -20,26 +20,25 @@ import android.app.Activity
 import android.view.ViewGroup
 import androidx.annotation.CheckResult
 import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.ViewModelProvider
+import androidx.savedstate.SavedStateRegistryOwner
 import com.pyamsoft.fridge.ThemeProviderModule
 import com.pyamsoft.fridge.core.FragmentScope
-import com.pyamsoft.fridge.core.FridgeViewModelFactory
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence
-import com.pyamsoft.fridge.detail.DetailComponent.ViewModelModule
 import com.pyamsoft.fridge.tooltip.balloon.TooltipModule
 import com.pyamsoft.fridge.ui.appbar.AppBarActivity
-import com.pyamsoft.pydroid.arch.UiViewModel
 import com.pyamsoft.pydroid.ui.app.ToolbarActivity
-import dagger.Binds
 import dagger.BindsInstance
-import dagger.Module
 import dagger.Subcomponent
-import dagger.multibindings.ClassKey
-import dagger.multibindings.IntoMap
 
 @FragmentScope
-@Subcomponent(modules = [ViewModelModule::class, DetailListModule::class, TooltipModule::class, ThemeProviderModule::class])
+@Subcomponent(
+    modules = [
+        DetailListModule::class,
+        TooltipModule::class,
+        ThemeProviderModule::class
+    ]
+)
 internal interface DetailComponent {
 
     fun inject(fragment: DetailFragment)
@@ -49,6 +48,7 @@ internal interface DetailComponent {
 
         @CheckResult
         fun create(
+            @BindsInstance savedStateRegistryOwner: SavedStateRegistryOwner,
             @BindsInstance toolbarActivity: ToolbarActivity,
             @BindsInstance appBarActivity: AppBarActivity,
             @BindsInstance activity: Activity,
@@ -59,20 +59,4 @@ internal interface DetailComponent {
         ): DetailComponent
     }
 
-    @Module
-    abstract class ViewModelModule {
-
-        @Binds
-        internal abstract fun bindViewModelFactory(factory: FridgeViewModelFactory): ViewModelProvider.Factory
-
-        @Binds
-        @IntoMap
-        @ClassKey(DetailViewModel::class)
-        internal abstract fun detailViewModel(viewModel: DetailViewModel): UiViewModel<*, *, *>
-
-        @Binds
-        @IntoMap
-        @ClassKey(DetailAppBarViewModel::class)
-        internal abstract fun appBarViewModel(viewModel: DetailAppBarViewModel): UiViewModel<*, *, *>
-    }
 }

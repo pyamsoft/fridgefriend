@@ -20,33 +20,29 @@ import android.app.Activity
 import android.view.ViewGroup
 import androidx.annotation.CheckResult
 import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.ViewModelProvider
 import com.pyamsoft.fridge.ThemeProviderModule
 import com.pyamsoft.fridge.core.FragmentScope
-import com.pyamsoft.fridge.core.FridgeViewModelFactory
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.entry.EntryListModule
 import com.pyamsoft.fridge.tooltip.balloon.TooltipModule
 import com.pyamsoft.fridge.ui.appbar.AppBarActivity
-import com.pyamsoft.pydroid.arch.UiViewModel
-import dagger.Binds
 import dagger.BindsInstance
 import dagger.Module
 import dagger.Provides
 import dagger.Subcomponent
-import dagger.multibindings.ClassKey
-import dagger.multibindings.IntoMap
 import javax.inject.Named
 
 @FragmentScope
-@Subcomponent(modules = [
-    ItemMoveComponent.ViewModelModule::class,
-    ItemMoveModule::class,
-    EntryListModule::class,
-    ThemeProviderModule::class,
-    TooltipModule::class
-])
+@Subcomponent(
+    modules = [
+        ItemMoveComponent.ComponentModule::class,
+        ItemMoveModule::class,
+        EntryListModule::class,
+        ThemeProviderModule::class,
+        TooltipModule::class
+    ]
+)
 internal interface ItemMoveComponent {
 
     fun inject(dialog: ItemMoveDialog)
@@ -66,20 +62,7 @@ internal interface ItemMoveComponent {
     }
 
     @Module
-    abstract class ViewModelModule {
-
-        @Binds
-        internal abstract fun bindViewModelFactory(factory: FridgeViewModelFactory): ViewModelProvider.Factory
-
-        @Binds
-        @IntoMap
-        @ClassKey(ItemMoveViewModel::class)
-        internal abstract fun itemMoveViewModel(viewModel: ItemMoveViewModel): UiViewModel<*, *, *>
-
-        @Binds
-        @IntoMap
-        @ClassKey(ItemMoveListViewModel::class)
-        internal abstract fun itemMoveListViewModel(viewModel: ItemMoveListViewModel): UiViewModel<*, *, *>
+    abstract class ComponentModule {
 
         @Module
         companion object {

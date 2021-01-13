@@ -77,5 +77,4 @@ class CreateEntryViewModel @Inject internal constructor(
             commitRunner.call(state.name)
         }
     }
-
 }

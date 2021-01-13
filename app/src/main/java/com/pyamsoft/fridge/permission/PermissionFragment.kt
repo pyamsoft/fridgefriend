@@ -23,18 +23,12 @@ import android.view.ViewGroup
 import androidx.annotation.CheckResult
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
 import com.pyamsoft.fridge.FridgeComponent
+import com.pyamsoft.fridge.core.createFactory
 import com.pyamsoft.fridge.db.store.NearbyStore
 import com.pyamsoft.fridge.db.zone.NearbyZone
-import com.pyamsoft.fridge.locator.permission.ForegroundLocationPermission
-import com.pyamsoft.fridge.locator.permission.LocationExplanation
-import com.pyamsoft.fridge.locator.permission.LocationPermissionViewModel
-import com.pyamsoft.fridge.locator.permission.LocationRequestButton
-import com.pyamsoft.fridge.locator.permission.PermissionConsumer
+import com.pyamsoft.fridge.locator.permission.*
 import com.pyamsoft.fridge.locator.permission.PermissionControllerEvent.LocationPermissionRequest
-import com.pyamsoft.fridge.locator.permission.PermissionGrant
-import com.pyamsoft.fridge.locator.permission.PermissionHandler
 import com.pyamsoft.fridge.main.VersionChecker
 import com.pyamsoft.fridge.map.MapFragment
 import com.pyamsoft.fridge.ui.requireAppBarActivity
@@ -48,6 +42,7 @@ import com.pyamsoft.pydroid.ui.util.commitNow
 import com.pyamsoft.pydroid.ui.util.layout
 import timber.log.Timber
 import javax.inject.Inject
+import javax.inject.Provider
 
 internal class PermissionFragment : Fragment(), PermissionConsumer<ForegroundLocationPermission> {
 
@@ -65,8 +60,10 @@ internal class PermissionFragment : Fragment(), PermissionConsumer<ForegroundLoc
 
     @JvmField
     @Inject
-    internal var factory: ViewModelProvider.Factory? = null
-    private val viewModel by viewModelFactory<LocationPermissionViewModel>(activity = true) { factory }
+    internal var provider: Provider<LocationPermissionViewModel>? = null
+    private val viewModel by viewModelFactory<LocationPermissionViewModel>(activity = true) {
+        createFactory(provider)
+    }
 
     private var stateSaver: StateSaver? = null
 
@@ -186,7 +183,7 @@ internal class PermissionFragment : Fragment(), PermissionConsumer<ForegroundLoc
 
     override fun onDestroyView() {
         super.onDestroyView()
-        factory = null
+        provider = null
         stateSaver = null
 
         requestButton = null

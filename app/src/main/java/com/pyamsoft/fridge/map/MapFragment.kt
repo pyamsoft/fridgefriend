@@ -23,8 +23,8 @@ import android.view.ViewGroup
 import androidx.annotation.CheckResult
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
 import com.pyamsoft.fridge.FridgeComponent
+import com.pyamsoft.fridge.core.createFactory
 import com.pyamsoft.fridge.db.store.NearbyStore
 import com.pyamsoft.fridge.db.zone.NearbyZone
 import com.pyamsoft.fridge.locator.map.MapActions
@@ -42,6 +42,7 @@ import com.pyamsoft.pydroid.ui.arch.viewModelFactory
 import com.pyamsoft.pydroid.ui.databinding.LayoutCoordinatorBinding
 import timber.log.Timber
 import javax.inject.Inject
+import javax.inject.Provider
 
 internal class MapFragment : Fragment(), SnackbarContainer {
 
@@ -55,8 +56,10 @@ internal class MapFragment : Fragment(), SnackbarContainer {
 
     @JvmField
     @Inject
-    internal var factory: ViewModelProvider.Factory? = null
-    private val viewModel by viewModelFactory<MapViewModel>(activity = true) { factory }
+    internal var provider: Provider<MapViewModel>? = null
+    private val viewModel by viewModelFactory<MapViewModel>(activity = true) {
+        createFactory(provider)
+    }
 
     private var stateSaver: StateSaver? = null
 
@@ -131,7 +134,7 @@ internal class MapFragment : Fragment(), SnackbarContainer {
     override fun onDestroyView() {
         super.onDestroyView()
 
-        factory = null
+        provider = null
         map = null
         actions = null
         stateSaver = null

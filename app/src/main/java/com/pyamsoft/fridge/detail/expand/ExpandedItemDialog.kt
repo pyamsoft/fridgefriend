@@ -24,8 +24,8 @@ import androidx.annotation.CheckResult
 import androidx.appcompat.app.AppCompatDialogFragment
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.fragment.app.DialogFragment
-import androidx.lifecycle.ViewModelProvider
 import com.pyamsoft.fridge.FridgeComponent
+import com.pyamsoft.fridge.core.createAssistedFactory
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence
@@ -85,8 +85,8 @@ internal class ExpandedItemDialog : AppCompatDialogFragment() {
 
     @JvmField
     @Inject
-    internal var factory: ViewModelProvider.Factory? = null
-    private val viewModel by viewModelFactory<ExpandItemViewModel> { factory }
+    internal var factory: ExpandItemViewModel.Factory? = null
+    private val viewModel by viewModelFactory<ExpandItemViewModel> { createAssistedFactory(factory) }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -112,6 +112,7 @@ internal class ExpandedItemDialog : AppCompatDialogFragment() {
         Injector.obtainFromApplication<FridgeComponent>(view.context)
             .plusExpandComponent()
             .create(
+                requireActivity(),
                 requireActivity(),
                 binding.layoutConstraint,
                 viewLifecycleOwner,

@@ -67,6 +67,9 @@ dependencies {
 
   kapt "com.google.dagger:dagger-compiler:$dagger"
 
+  compileOnly "com.squareup.inject:assisted-inject-annotations-dagger2:$assistedInject"
+  kapt "com.squareup.inject:assisted-inject-processor-dagger2:$assistedInject"
+
   implementation "androidx.preference:preference:$preference"
 
   api project(':butler')

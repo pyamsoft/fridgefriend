@@ -20,19 +20,12 @@ import android.app.Activity
 import android.view.ViewGroup
 import androidx.annotation.CheckResult
 import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.ViewModelProvider
 import com.pyamsoft.fridge.ThemeProviderModule
-import com.pyamsoft.fridge.core.FridgeViewModelFactory
 import com.pyamsoft.fridge.ui.appbar.AppBarActivity
-import com.pyamsoft.pydroid.arch.UiViewModel
-import dagger.Binds
 import dagger.BindsInstance
-import dagger.Module
 import dagger.Subcomponent
-import dagger.multibindings.ClassKey
-import dagger.multibindings.IntoMap
 
-@Subcomponent(modules = [CategoryComponent.ViewModelModule::class, CategoryModule::class, ThemeProviderModule::class])
+@Subcomponent(modules = [CategoryModule::class, ThemeProviderModule::class])
 internal interface CategoryComponent {
 
     fun inject(fragment: CategoryFragment)
@@ -47,17 +40,5 @@ internal interface CategoryComponent {
             @BindsInstance parent: ViewGroup,
             @BindsInstance owner: LifecycleOwner
         ): CategoryComponent
-    }
-
-    @Module
-    abstract class ViewModelModule {
-
-        @Binds
-        internal abstract fun bindViewModelFactory(factory: FridgeViewModelFactory): ViewModelProvider.Factory
-
-        @Binds
-        @IntoMap
-        @ClassKey(CategoryViewModel::class)
-        internal abstract fun categoryViewModel(viewModel: CategoryViewModel): UiViewModel<*, *, *>
     }
 }

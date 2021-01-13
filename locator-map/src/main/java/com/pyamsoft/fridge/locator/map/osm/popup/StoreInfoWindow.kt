@@ -22,8 +22,8 @@ import androidx.constraintlayout.widget.ConstraintSet
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleRegistry
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStore
+import com.pyamsoft.fridge.core.createFactory
 import com.pyamsoft.fridge.db.store.NearbyStore
 import com.pyamsoft.fridge.locator.location.LocationUpdateReceiver
 import com.pyamsoft.fridge.locator.map.popup.store.StoreInfoLocation
@@ -37,6 +37,7 @@ import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.Marker
 import org.osmdroid.views.overlay.infowindow.InfoWindow
 import javax.inject.Inject
+import javax.inject.Provider
 
 class StoreInfoWindow private constructor(
     receiver: LocationUpdateReceiver,
@@ -47,11 +48,7 @@ class StoreInfoWindow private constructor(
 
     private var stateSaver: StateSaver? = null
 
-    private val registry by lazy(LazyThreadSafetyMode.NONE) { LifecycleRegistry(this) }
-
-    @JvmField
-    @Inject
-    internal var factory: ViewModelProvider.Factory? = null
+    private val lifecycleRegistry by lazy(LazyThreadSafetyMode.NONE) { LifecycleRegistry(this) }
 
     @JvmField
     @Inject
@@ -60,10 +57,16 @@ class StoreInfoWindow private constructor(
     @JvmField
     @Inject
     internal var infoLocation: StoreInfoLocation? = null
-    private val viewModel by viewModelFactory<StoreInfoViewModel>(ViewModelStore()) { factory }
+
+    @JvmField
+    @Inject
+    internal var provider: Provider<StoreInfoViewModel>? = null
+    private val viewModel by viewModelFactory<StoreInfoViewModel>(ViewModelStore()) {
+        createFactory(provider)
+    }
 
     override fun getLifecycle(): Lifecycle {
-        return registry
+        return lifecycleRegistry
     }
 
     init {
@@ -99,7 +102,7 @@ class StoreInfoWindow private constructor(
             }
         }
 
-        registry.currentState = Lifecycle.State.RESUMED
+        lifecycleRegistry.currentState = Lifecycle.State.RESUMED
     }
 
     override fun onLocationUpdate(location: Location?) {
@@ -119,11 +122,11 @@ class StoreInfoWindow private constructor(
     }
 
     override fun onTeardown() {
-        registry.currentState = Lifecycle.State.DESTROYED
+        lifecycleRegistry.currentState = Lifecycle.State.DESTROYED
 
         infoTitle = null
         infoLocation = null
-        factory = null
+        provider = null
         stateSaver = null
     }
 

@@ -18,15 +18,14 @@ package com.pyamsoft.fridge.detail.expand
 
 import androidx.annotation.CheckResult
 import androidx.lifecycle.viewModelScope
+import com.pyamsoft.fridge.core.AssistedFridgeViewModelFactory
 import com.pyamsoft.fridge.core.today
 import com.pyamsoft.fridge.db.category.FridgeCategory
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent
-import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent.Delete
-import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent.Insert
-import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent.Update
+import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent.*
 import com.pyamsoft.fridge.db.item.FridgeItemRealtime
 import com.pyamsoft.fridge.db.item.isArchived
 import com.pyamsoft.fridge.detail.DetailInteractor
@@ -34,23 +33,26 @@ import com.pyamsoft.fridge.detail.base.createUpdateDelegate
 import com.pyamsoft.fridge.detail.expand.date.DateSelectPayload
 import com.pyamsoft.fridge.detail.item.isNameValid
 import com.pyamsoft.highlander.highlander
-import com.pyamsoft.pydroid.arch.UiViewModel
+import com.pyamsoft.pydroid.arch.UiSavedState
+import com.pyamsoft.pydroid.arch.UiSavedStateViewModel
 import com.pyamsoft.pydroid.bus.EventBus
+import com.squareup.inject.assisted.Assisted
+import com.squareup.inject.assisted.AssistedInject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import timber.log.Timber
-import java.util.Calendar
-import java.util.Locale
-import javax.inject.Inject
+import java.util.*
 
-class ExpandItemViewModel @Inject internal constructor(
+class ExpandItemViewModel @AssistedInject internal constructor(
     private val interactor: DetailInteractor,
+    @Assisted savedState: UiSavedState,
     defaultPresence: Presence,
     dateSelectBus: EventBus<DateSelectPayload>,
     realtime: FridgeItemRealtime,
     possibleItemId: FridgeItem.Id,
     itemEntryId: FridgeEntry.Id,
-) : UiViewModel<ExpandItemViewState, ExpandedItemViewEvent, ExpandItemControllerEvent>(
+) : UiSavedStateViewModel<ExpandItemViewState, ExpandedItemViewEvent, ExpandItemControllerEvent>(
+    savedState,
     ExpandItemViewState(
         item = null,
         throwable = null,
@@ -63,14 +65,12 @@ class ExpandItemViewModel @Inject internal constructor(
     private val updateDelegate =
         createUpdateDelegate(viewModelScope, interactor) { handleError(it) }
 
-    private val itemResolveRunner = highlander<Unit, FridgeItem.Id> { resolveItemId ->
-        val item = interactor.resolveItem(
+    private val itemResolveRunner = highlander<FridgeItem, FridgeItem.Id> { resolveItemId ->
+        interactor.resolveItem(
             resolveItemId,
             itemEntryId,
             defaultPresence,
         )
-
-        setState { copy(item = item) }
     }
 
     init {
@@ -81,31 +81,6 @@ class ExpandItemViewModel @Inject internal constructor(
         viewModelScope.launch(context = Dispatchers.Default) {
             val categories = interactor.loadAllCategories()
             setState { copy(categories = listOf(FridgeCategory.empty()) + categories) }
-        }
-
-        doOnSaveState { outState, state ->
-            // If this viewmodel lives on a "new" item which has since been created
-            if (possibleItemId.isEmpty()) {
-                // Save the newly created item id if possible
-                state.item?.let { item ->
-                    if (item.isReal()) {
-                        outState.put(CREATED_ITEM_ID, item.id().id)
-                        return@doOnSaveState
-                    }
-                }
-            }
-
-            outState.remove(CREATED_ITEM_ID)
-        }
-
-        doOnRestoreState { savedInstanceState ->
-            // Resolve the existing item id
-            savedInstanceState.use(CREATED_ITEM_ID, possibleItemId.id) { savedId ->
-                val resolveItemId = FridgeItem.Id(savedId)
-                viewModelScope.launch(context = Dispatchers.Default) {
-                    itemResolveRunner.call(resolveItemId)
-                }
-            }
         }
 
         viewModelScope.launch(context = Dispatchers.Default) {
@@ -126,6 +101,25 @@ class ExpandItemViewModel @Inject internal constructor(
                     commitDate(item, event.year, event.month, event.day)
                 }
             }
+        }
+
+        viewModelScope.launch(context = Dispatchers.Default) {
+            resolveItem(possibleItemId)
+        }
+    }
+
+    private suspend fun resolveItem(possibleItemId: FridgeItem.Id) {
+        val itemId = restoreSavedState(CREATED_ITEM_ID) { possibleItemId.id }
+        val resolveItemId = FridgeItem.Id(itemId)
+        viewModelScope.launch(context = Dispatchers.Default) {
+            val item = itemResolveRunner.call(resolveItemId)
+            setState(stateChange = { copy(item = item) }, andThen = { newState ->
+                newState.item?.let { newItem ->
+                    if (newItem.isReal()) {
+                        putSavedState(CREATED_ITEM_ID, newItem.id().id)
+                    }
+                }
+            })
         }
     }
 
@@ -392,4 +386,11 @@ class ExpandItemViewModel @Inject internal constructor(
     private data class FixMessageThrowable(
         override val message: String,
     ) : IllegalStateException(message)
+
+    @AssistedInject.Factory
+    interface Factory : AssistedFridgeViewModelFactory<ExpandItemViewModel> {
+
+        override fun create(savedState: UiSavedState): ExpandItemViewModel
+
+    }
 }
