@@ -38,17 +38,15 @@ class EntryViewModel @Inject internal constructor(
         doOnCleared { delegate.clear() }
     }
 
-    override fun handleViewEvent(event: EntryViewEvent) {
-        return when (event) {
-            is EntryViewEvent.ListEvent.SelectEntry -> select(event.entry)
-            is EntryViewEvent.ListEvent.ForceRefresh -> delegate.refreshList(true)
-            is EntryViewEvent.ListEvent.DeleteEntry -> delegate.deleteEntry(event.entry)
-            is EntryViewEvent.AddEvent.AddNew -> handleAddNew()
-            is EntryViewEvent.AddEvent.ReallyDeleteEntryNoUndo -> delegate.deleteForever(event.entry)
-            is EntryViewEvent.AddEvent.UndoDeleteEntry -> delegate.undoDelete(event.entry)
-            is EntryViewEvent.ToolbarEvent.SearchQuery -> delegate.updateSearch(event.search)
-            is EntryViewEvent.ToolbarEvent.ChangeSort -> delegate.changeSort(event.sort)
-        }
+    override fun handleViewEvent(event: EntryViewEvent) = when (event) {
+        is EntryViewEvent.ListEvent.SelectEntry -> select(event.entry)
+        is EntryViewEvent.ListEvent.ForceRefresh -> delegate.refreshList(true)
+        is EntryViewEvent.ListEvent.DeleteEntry -> delegate.deleteEntry(event.entry)
+        is EntryViewEvent.AddEvent.AddNew -> handleAddNew()
+        is EntryViewEvent.AddEvent.ReallyDeleteEntryNoUndo -> delegate.deleteForever(event.entry)
+        is EntryViewEvent.AddEvent.UndoDeleteEntry -> delegate.undoDelete(event.entry)
+        is EntryViewEvent.ToolbarEvent.SearchQuery -> delegate.updateSearch(event.search)
+        is EntryViewEvent.ToolbarEvent.ChangeSort -> delegate.changeSort(event.sort)
     }
 
     private fun handleAddNew() {

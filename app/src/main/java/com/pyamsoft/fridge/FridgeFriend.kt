@@ -70,8 +70,8 @@ class FridgeFriend : Application() {
         return DaggerFridgeComponent.factory().create(
             this,
             isDebugMode(),
-            provider.theming(),
-            provider.imageLoader(),
+            provider.get().theming(),
+            provider.get().imageLoader(),
             MainActivity::class.java
         )
             .also { addLibraries() }
@@ -79,10 +79,6 @@ class FridgeFriend : Application() {
 
     override fun onCreate() {
         super.onCreate()
-        onInitialized()
-    }
-
-    private fun onInitialized() {
         component.inject(this)
         beginWork()
     }

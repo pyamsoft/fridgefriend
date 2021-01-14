@@ -48,12 +48,10 @@ class MoveItemToolbar @Inject internal constructor(
     private val delegate = object : UiToolbar<EntryViewState.Sorts, EntryViewState, EntryViewEvent>(
         withToolbar = { it(binding.expandToolbar) }
     ) {
-        override fun onGetSortForMenuItem(itemId: Int): EntryViewState.Sorts? {
-            return when (itemId) {
-                itemIdCreatedDate -> EntryViewState.Sorts.CREATED
-                itemIdName -> EntryViewState.Sorts.NAME
-                else -> null
-            }
+        override fun onGetSortForMenuItem(itemId: Int): EntryViewState.Sorts? = when (itemId) {
+            itemIdCreatedDate -> EntryViewState.Sorts.CREATED
+            itemIdName -> EntryViewState.Sorts.NAME
+            else -> null
         }
 
         override fun publishSearchEvent(search: String) {

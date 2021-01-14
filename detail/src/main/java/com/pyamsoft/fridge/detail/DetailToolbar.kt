@@ -60,14 +60,12 @@ class DetailToolbar @Inject internal constructor(
         publish(DetailViewEvent.ControlledEvents.ToolbarEvent.ChangeSort(sort.original))
     }
 
-    override fun onGetSortForMenuItem(itemId: Int): DetailViewState.Sorts? {
-        return when (itemId) {
-            itemIdCreatedDate -> DetailViewState.Sorts.CREATED
-            itemIdName -> DetailViewState.Sorts.NAME
-            itemIdPurchasedDate -> DetailViewState.Sorts.PURCHASED
-            itemIdExpirationDate -> DetailViewState.Sorts.EXPIRATION
-            else -> null
-        }
+    override fun onGetSortForMenuItem(itemId: Int): DetailViewState.Sorts? = when (itemId) {
+        itemIdCreatedDate -> DetailViewState.Sorts.CREATED
+        itemIdName -> DetailViewState.Sorts.NAME
+        itemIdPurchasedDate -> DetailViewState.Sorts.PURCHASED
+        itemIdExpirationDate -> DetailViewState.Sorts.EXPIRATION
+        else -> null
     }
 
     override fun onCreateAdditionalSortItems(adder: (Int, CharSequence) -> Unit) {

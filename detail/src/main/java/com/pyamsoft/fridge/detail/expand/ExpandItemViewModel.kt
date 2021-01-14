@@ -123,21 +123,19 @@ class ExpandItemViewModel @AssistedInject internal constructor(
         }
     }
 
-    override fun handleViewEvent(event: ExpandedItemViewEvent) {
-        return when (event) {
-            is ExpandedItemViewEvent.ItemEvent.CommitCategory -> commitCategory(event.index)
-            is ExpandedItemViewEvent.ItemEvent.CommitName -> commitName(event.name)
-            is ExpandedItemViewEvent.ItemEvent.CommitCount -> commitCount(event.count)
-            is ExpandedItemViewEvent.ItemEvent.CommitPresence -> commitPresence()
-            is ExpandedItemViewEvent.ItemEvent.PickDate -> pickDate()
-            is ExpandedItemViewEvent.ItemEvent.SelectSimilar -> similarSelected(event.item)
-            is ExpandedItemViewEvent.ToolbarEvent.CloseItem -> closeSelf()
-            is ExpandedItemViewEvent.ToolbarEvent.DeleteItem -> deleteSelf()
-            is ExpandedItemViewEvent.ToolbarEvent.ConsumeItem -> consumeSelf()
-            is ExpandedItemViewEvent.ToolbarEvent.SpoilItem -> spoilSelf()
-            is ExpandedItemViewEvent.ToolbarEvent.RestoreItem -> restoreSelf()
-            is ExpandedItemViewEvent.ToolbarEvent.MoveItem -> moveItem()
-        }
+    override fun handleViewEvent(event: ExpandedItemViewEvent) = when (event) {
+        is ExpandedItemViewEvent.ItemEvent.CommitCategory -> commitCategory(event.index)
+        is ExpandedItemViewEvent.ItemEvent.CommitName -> commitName(event.name)
+        is ExpandedItemViewEvent.ItemEvent.CommitCount -> commitCount(event.count)
+        is ExpandedItemViewEvent.ItemEvent.CommitPresence -> commitPresence()
+        is ExpandedItemViewEvent.ItemEvent.PickDate -> pickDate()
+        is ExpandedItemViewEvent.ItemEvent.SelectSimilar -> similarSelected(event.item)
+        is ExpandedItemViewEvent.ToolbarEvent.CloseItem -> closeSelf()
+        is ExpandedItemViewEvent.ToolbarEvent.DeleteItem -> deleteSelf()
+        is ExpandedItemViewEvent.ToolbarEvent.ConsumeItem -> consumeSelf()
+        is ExpandedItemViewEvent.ToolbarEvent.SpoilItem -> spoilSelf()
+        is ExpandedItemViewEvent.ToolbarEvent.RestoreItem -> restoreSelf()
+        is ExpandedItemViewEvent.ToolbarEvent.MoveItem -> moveItem()
     }
 
     private fun moveItem() {
@@ -156,12 +154,10 @@ class ExpandItemViewModel @AssistedInject internal constructor(
         // the expiration date
     }
 
-    private fun handleRealtimeEvent(event: FridgeItemChangeEvent) {
-        return when (event) {
-            is Update -> handleModelUpdate(event.item)
-            is Insert -> handleModelUpdate(event.item)
-            is Delete -> closeItem(event.item)
-        }
+    private fun handleRealtimeEvent(event: FridgeItemChangeEvent) = when (event) {
+        is Update -> handleModelUpdate(event.item)
+        is Insert -> handleModelUpdate(event.item)
+        is Delete -> closeItem(event.item)
     }
 
     private fun closeSelf() {

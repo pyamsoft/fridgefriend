@@ -43,10 +43,8 @@ class StoreInfoViewModel @Inject internal constructor(
         return data.id() == storeId
     }
 
-    override fun handleViewEvent(event: StoreInfoViewEvent) {
-        return when (event) {
-            is StoreFavoriteAction -> handleFavoriteAction(event.store, event.add)
-        }
+    override fun handleViewEvent(event: StoreInfoViewEvent) = when (event) {
+        is StoreFavoriteAction -> handleFavoriteAction(event.store, event.add)
     }
 
     override fun copyState(

@@ -74,12 +74,10 @@ class MainViewModel @AssistedInject internal constructor(
         selectPage(force = false, page)
     }
 
-    private fun handleRealtime(event: FridgeItemChangeEvent) {
-        return when (event) {
-            is FridgeItemChangeEvent.Insert -> refreshBadgeCounts()
-            is FridgeItemChangeEvent.Update -> refreshBadgeCounts()
-            is FridgeItemChangeEvent.Delete -> refreshBadgeCounts()
-        }
+    private fun handleRealtime(event: FridgeItemChangeEvent) = when (event) {
+        is FridgeItemChangeEvent.Insert -> refreshBadgeCounts()
+        is FridgeItemChangeEvent.Update -> refreshBadgeCounts()
+        is FridgeItemChangeEvent.Delete -> refreshBadgeCounts()
     }
 
     private fun refreshBadgeCounts() {
@@ -104,19 +102,17 @@ class MainViewModel @AssistedInject internal constructor(
         }
     }
 
-    override fun handleViewEvent(event: MainViewEvent) {
-        return when (event) {
-            is MainViewEvent.OpenEntries -> selectPage(force = false, MainPage.Entries)
-            is MainViewEvent.OpenCategory -> selectPage(force = false, MainPage.Category)
-            is MainViewEvent.OpenSettings -> selectPage(force = false, MainPage.Settings)
-            is MainViewEvent.BottomBarMeasured -> consumeBottomBarHeight(event.height)
-            is MainViewEvent.OpenNearby -> selectPage(
-                force = false, MainPage.Nearby(
-                    storeId = NearbyStore.Id.EMPTY,
-                    zoneId = NearbyZone.Id.EMPTY
-                )
+    override fun handleViewEvent(event: MainViewEvent) = when (event) {
+        is MainViewEvent.OpenEntries -> selectPage(force = false, MainPage.Entries)
+        is MainViewEvent.OpenCategory -> selectPage(force = false, MainPage.Category)
+        is MainViewEvent.OpenSettings -> selectPage(force = false, MainPage.Settings)
+        is MainViewEvent.BottomBarMeasured -> consumeBottomBarHeight(event.height)
+        is MainViewEvent.OpenNearby -> selectPage(
+            force = false, MainPage.Nearby(
+                storeId = NearbyStore.Id.EMPTY,
+                zoneId = NearbyZone.Id.EMPTY
             )
-        }
+        )
     }
 
     private fun consumeBottomBarHeight(height: Int) {
@@ -194,17 +190,15 @@ class MainViewModel @AssistedInject internal constructor(
         }
 
         @CheckResult
-        private fun String.asPage(): MainPage {
-            return when (this) {
-                MainPage.Entries::class.java.name -> MainPage.Entries
-                MainPage.Category::class.java.name -> MainPage.Category
-                MainPage.Settings::class.java.name -> MainPage.Settings
-                MainPage.Nearby::class.java.name -> MainPage.Nearby(
-                    storeId = NearbyStore.Id.EMPTY,
-                    zoneId = NearbyZone.Id.EMPTY
-                )
-                else -> throw IllegalStateException("Cannot convert to MainPage: $this")
-            }
+        private fun String.asPage(): MainPage = when (this) {
+            MainPage.Entries::class.java.name -> MainPage.Entries
+            MainPage.Category::class.java.name -> MainPage.Category
+            MainPage.Settings::class.java.name -> MainPage.Settings
+            MainPage.Nearby::class.java.name -> MainPage.Nearby(
+                storeId = NearbyStore.Id.EMPTY,
+                zoneId = NearbyZone.Id.EMPTY
+            )
+            else -> throw IllegalStateException("Cannot convert to MainPage: $this")
         }
 
         private val DEFAULT_PAGE = MainPage.Entries

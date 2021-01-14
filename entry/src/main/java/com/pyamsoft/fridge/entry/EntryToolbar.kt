@@ -45,11 +45,9 @@ class EntryToolbar @Inject internal constructor(
         publish(EntryViewEvent.ToolbarEvent.ChangeSort(sort.original))
     }
 
-    override fun onGetSortForMenuItem(itemId: Int): EntryViewState.Sorts? {
-        return when (itemId) {
-            itemIdCreatedDate -> EntryViewState.Sorts.CREATED
-            itemIdName -> EntryViewState.Sorts.NAME
-            else -> null
-        }
+    override fun onGetSortForMenuItem(itemId: Int): EntryViewState.Sorts? = when (itemId) {
+        itemIdCreatedDate -> EntryViewState.Sorts.CREATED
+        itemIdName -> EntryViewState.Sorts.NAME
+        else -> null
     }
 }

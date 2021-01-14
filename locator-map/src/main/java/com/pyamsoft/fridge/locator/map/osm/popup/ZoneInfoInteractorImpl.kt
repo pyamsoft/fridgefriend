@@ -18,15 +18,8 @@ package com.pyamsoft.fridge.locator.map.osm.popup
 
 import com.pyamsoft.fridge.butler.Butler
 import com.pyamsoft.fridge.butler.work.OrderFactory
-import com.pyamsoft.fridge.db.zone.NearbyZone
-import com.pyamsoft.fridge.db.zone.NearbyZoneChangeEvent
-import com.pyamsoft.fridge.db.zone.NearbyZoneChangeEvent.Delete
-import com.pyamsoft.fridge.db.zone.NearbyZoneChangeEvent.Insert
-import com.pyamsoft.fridge.db.zone.NearbyZoneChangeEvent.Update
-import com.pyamsoft.fridge.db.zone.NearbyZoneDeleteDao
-import com.pyamsoft.fridge.db.zone.NearbyZoneInsertDao
-import com.pyamsoft.fridge.db.zone.NearbyZoneQueryDao
-import com.pyamsoft.fridge.db.zone.NearbyZoneRealtime
+import com.pyamsoft.fridge.db.zone.*
+import com.pyamsoft.fridge.db.zone.NearbyZoneChangeEvent.*
 import com.pyamsoft.fridge.locator.map.popup.zone.ZoneInfoInteractor
 import javax.inject.Inject
 
@@ -50,14 +43,11 @@ internal class ZoneInfoInteractorImpl @Inject internal constructor(
         event: NearbyZoneChangeEvent,
         onInsert: (NearbyZone) -> Unit,
         onDelete: (NearbyZone) -> Unit
-    ) {
-        return when (event) {
-            is Insert -> onInsert(event.zone)
-            is Delete -> onDelete(event.zone)
-            is Update -> {
-                // Ignore Update events
-                Unit
-            }
+    ) = when (event) {
+        is Insert -> onInsert(event.zone)
+        is Delete -> onDelete(event.zone)
+        is Update -> {
+            // Ignore Update events
         }
     }
 }

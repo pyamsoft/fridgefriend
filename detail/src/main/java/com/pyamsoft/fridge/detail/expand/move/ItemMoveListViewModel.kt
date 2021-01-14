@@ -47,12 +47,10 @@ class ItemMoveListViewModel @Inject internal constructor(
         doOnCleared { delegate.clear() }
     }
 
-    override fun handleViewEvent(event: EntryViewEvent.ListEvent) {
-        return when (event) {
-            is EntryViewEvent.ListEvent.SelectEntry -> selectEntry(event.entry)
-            is EntryViewEvent.ListEvent.ForceRefresh -> delegate.refreshList(true)
-            is EntryViewEvent.ListEvent.DeleteEntry -> notHandled(event)
-        }
+    override fun handleViewEvent(event: EntryViewEvent.ListEvent) = when (event) {
+        is EntryViewEvent.ListEvent.SelectEntry -> selectEntry(event.entry)
+        is EntryViewEvent.ListEvent.ForceRefresh -> delegate.refreshList(true)
+        is EntryViewEvent.ListEvent.DeleteEntry -> notHandled(event)
     }
 
     fun handleUpdateSearch(search: String) {

@@ -138,24 +138,17 @@ class EntryListStateModel @Inject constructor(
         setState { copy(isLoading = false) }
     }
 
-    private fun handleEventRealtime(event: FridgeEntryChangeEvent) {
-        return when (event) {
-            is FridgeEntryChangeEvent.DeleteAll -> handleRealtimeEntryDeleteAll()
-            is FridgeEntryChangeEvent.Insert -> handleRealtimeEntryInsert(event.entry)
-            is FridgeEntryChangeEvent.Update -> handleRealtimeEntryUpdate(event.entry)
-            is FridgeEntryChangeEvent.Delete -> handleRealtimeEntryDelete(
-                event.entry,
-                event.offerUndo
-            )
-        }
+    private fun handleEventRealtime(event: FridgeEntryChangeEvent) = when (event) {
+        is FridgeEntryChangeEvent.DeleteAll -> handleRealtimeEntryDeleteAll()
+        is FridgeEntryChangeEvent.Insert -> handleRealtimeEntryInsert(event.entry)
+        is FridgeEntryChangeEvent.Update -> handleRealtimeEntryUpdate(event.entry)
+        is FridgeEntryChangeEvent.Delete -> handleRealtimeEntryDelete(event.entry, event.offerUndo)
     }
 
-    private fun handleItemRealtime(event: FridgeItemChangeEvent) {
-        return when (event) {
-            is FridgeItemChangeEvent.Insert -> handleRealtimeItemInsert(event.item)
-            is FridgeItemChangeEvent.Update -> handleRealtimeItemUpdate(event.item)
-            is FridgeItemChangeEvent.Delete -> handleRealtimeItemDelete(event.item)
-        }
+    private fun handleItemRealtime(event: FridgeItemChangeEvent) = when (event) {
+        is FridgeItemChangeEvent.Insert -> handleRealtimeItemInsert(event.item)
+        is FridgeItemChangeEvent.Update -> handleRealtimeItemUpdate(event.item)
+        is FridgeItemChangeEvent.Delete -> handleRealtimeItemDelete(event.item)
     }
 
     private fun handleRealtimeItemInsert(item: FridgeItem) {

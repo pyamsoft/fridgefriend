@@ -28,10 +28,8 @@ class LocationPermissionViewModel @Inject internal constructor(
     private val mapPermission: MapPermission,
 ) : UiViewModel<UnitViewState, PermissionViewEvent, PermissionControllerEvent>(UnitViewState) {
 
-    override fun handleViewEvent(event: PermissionViewEvent) {
-        return when (event) {
-            is PermissionViewEvent.FireLocationPermission -> publish(PermissionControllerEvent.LocationPermissionRequest)
-        }
+    override fun handleViewEvent(event: PermissionViewEvent) = when (event) {
+        is PermissionViewEvent.FireLocationPermission -> publish(PermissionControllerEvent.LocationPermissionRequest)
     }
 
     fun requestForegroundPermission(consumer: PermissionConsumer<ForegroundLocationPermission>) {

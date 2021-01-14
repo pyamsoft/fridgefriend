@@ -86,24 +86,22 @@ sealed class OsmNodeOrWay {
 
         @ToJson
         @Suppress("unused")
-        fun toJson(payload: OsmNodeOrWay): AsJson {
-            return when (payload) {
-                is Node -> AsJson(
-                    payload.id,
-                    null,
-                    payload.lat,
-                    payload.lon,
-                    payload.tags
-                )
-                is Way -> AsJson(
-                    payload.id,
-                    payload.nodes,
-                    0.0,
-                    0.0,
-                    payload.tags
-                )
-                else -> throw IllegalArgumentException("Can only convert Node or Way to AsJson")
-            }
+        fun toJson(payload: OsmNodeOrWay): AsJson = when (payload) {
+            is Node -> AsJson(
+                payload.id,
+                null,
+                payload.lat,
+                payload.lon,
+                payload.tags
+            )
+            is Way -> AsJson(
+                payload.id,
+                payload.nodes,
+                0.0,
+                0.0,
+                payload.tags
+            )
+            else -> throw IllegalArgumentException("Can only convert Node or Way to AsJson")
         }
     }
 }

@@ -18,12 +18,7 @@ package com.pyamsoft.fridge.locator.map.osm.popup
 
 import com.pyamsoft.fridge.butler.Butler
 import com.pyamsoft.fridge.butler.work.OrderFactory
-import com.pyamsoft.fridge.db.store.NearbyStore
-import com.pyamsoft.fridge.db.store.NearbyStoreChangeEvent
-import com.pyamsoft.fridge.db.store.NearbyStoreDeleteDao
-import com.pyamsoft.fridge.db.store.NearbyStoreInsertDao
-import com.pyamsoft.fridge.db.store.NearbyStoreQueryDao
-import com.pyamsoft.fridge.db.store.NearbyStoreRealtime
+import com.pyamsoft.fridge.db.store.*
 import com.pyamsoft.fridge.locator.map.popup.store.StoreInfoInteractor
 import javax.inject.Inject
 
@@ -47,14 +42,11 @@ internal class StoreInfoInteractorImpl @Inject internal constructor(
         event: NearbyStoreChangeEvent,
         onInsert: (NearbyStore) -> Unit,
         onDelete: (NearbyStore) -> Unit
-    ) {
-        return when (event) {
-            is NearbyStoreChangeEvent.Insert -> onInsert(event.store)
-            is NearbyStoreChangeEvent.Delete -> onDelete(event.store)
-            is NearbyStoreChangeEvent.Update -> {
-                // Ignore Update events
-                Unit
-            }
+    ) = when (event) {
+        is NearbyStoreChangeEvent.Insert -> onInsert(event.store)
+        is NearbyStoreChangeEvent.Delete -> onDelete(event.store)
+        is NearbyStoreChangeEvent.Update -> {
+            // Ignore Update events
         }
     }
 }

@@ -26,10 +26,8 @@ class DetailAppBarViewModel @AssistedInject internal constructor(
     @Assisted savedState: UiSavedState,
 ) : DelegatedDetailViewModel<DetailViewEvent.SwitcherEvent, Nothing>(savedState, delegate) {
 
-    override fun handleViewEvent(event: DetailViewEvent.SwitcherEvent) {
-        return when (event) {
-            is DetailViewEvent.SwitcherEvent.PresenceSwitched -> delegate.handlePresenceSwitch(event.presence)
-        }
+    override fun handleViewEvent(event: DetailViewEvent.SwitcherEvent) = when (event) {
+        is DetailViewEvent.SwitcherEvent.PresenceSwitched -> delegate.handlePresenceSwitch(event.presence)
     }
 
     @AssistedInject.Factory

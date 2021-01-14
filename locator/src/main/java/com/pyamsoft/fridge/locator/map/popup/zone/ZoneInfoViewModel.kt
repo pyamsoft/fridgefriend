@@ -43,10 +43,8 @@ class ZoneInfoViewModel @Inject internal constructor(
         return data.id() == zoneId
     }
 
-    override fun handleViewEvent(event: ZoneInfoViewEvent) {
-        return when (event) {
-            is ZoneFavoriteAction -> handleFavoriteAction(event.zone, event.add)
-        }
+    override fun handleViewEvent(event: ZoneInfoViewEvent) = when (event) {
+        is ZoneFavoriteAction -> handleFavoriteAction(event.zone, event.add)
     }
 
     override fun copyState(

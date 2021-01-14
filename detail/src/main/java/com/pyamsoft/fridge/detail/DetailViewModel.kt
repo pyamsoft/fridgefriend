@@ -56,36 +56,34 @@ class DetailViewModel @AssistedInject internal constructor(
         }
     }
 
-    override fun handleViewEvent(event: DetailViewEvent.ControlledEvents) {
-        return when (event) {
-            is DetailViewEvent.ControlledEvents.ListEvent.ForceRefresh -> delegate.refreshList(true)
-            is DetailViewEvent.ControlledEvents.ListEvent.ChangeItemPresence -> delegate.commitPresence(
-                event.item
-            )
-            is DetailViewEvent.ControlledEvents.ListEvent.ConsumeItem -> delegate.consume(event.item)
-            is DetailViewEvent.ControlledEvents.ListEvent.DeleteItem -> delegate.delete(event.item)
-            is DetailViewEvent.ControlledEvents.ListEvent.RestoreItem -> delegate.restore(event.item)
-            is DetailViewEvent.ControlledEvents.ListEvent.SpoilItem -> delegate.spoil(event.item)
-            is DetailViewEvent.ControlledEvents.ListEvent.IncreaseItemCount -> delegate.increaseCount(
-                event.item
-            )
-            is DetailViewEvent.ControlledEvents.ListEvent.DecreaseItemCount -> delegate.decreaseCount(
-                event.item
-            )
-            is DetailViewEvent.ControlledEvents.ListEvent.ExpandItem -> handleExpand(event.item)
-            is DetailViewEvent.ControlledEvents.AddEvent.ToggleArchiveVisibility -> updateShowing()
-            is DetailViewEvent.ControlledEvents.AddEvent.ReallyDeleteItemNoUndo -> delegate.deleteForever(
-                event.item
-            )
-            is DetailViewEvent.ControlledEvents.AddEvent.UndoDeleteItem -> delegate.handleUndoDelete(
-                event.item
-            )
-            is DetailViewEvent.ControlledEvents.AddEvent.ClearListError -> delegate.clearListError()
-            is DetailViewEvent.ControlledEvents.AddEvent.AddNew -> handleAddNew()
-            is DetailViewEvent.ControlledEvents.ToolbarEvent.Back -> handleBack()
-            is DetailViewEvent.ControlledEvents.ToolbarEvent.SearchQuery -> updateSearch(event.search)
-            is DetailViewEvent.ControlledEvents.ToolbarEvent.ChangeSort -> updateSort(event.sort)
-        }
+    override fun handleViewEvent(event: DetailViewEvent.ControlledEvents) = when (event) {
+        is DetailViewEvent.ControlledEvents.ListEvent.ForceRefresh -> delegate.refreshList(true)
+        is DetailViewEvent.ControlledEvents.ListEvent.ChangeItemPresence -> delegate.commitPresence(
+            event.item
+        )
+        is DetailViewEvent.ControlledEvents.ListEvent.ConsumeItem -> delegate.consume(event.item)
+        is DetailViewEvent.ControlledEvents.ListEvent.DeleteItem -> delegate.delete(event.item)
+        is DetailViewEvent.ControlledEvents.ListEvent.RestoreItem -> delegate.restore(event.item)
+        is DetailViewEvent.ControlledEvents.ListEvent.SpoilItem -> delegate.spoil(event.item)
+        is DetailViewEvent.ControlledEvents.ListEvent.IncreaseItemCount -> delegate.increaseCount(
+            event.item
+        )
+        is DetailViewEvent.ControlledEvents.ListEvent.DecreaseItemCount -> delegate.decreaseCount(
+            event.item
+        )
+        is DetailViewEvent.ControlledEvents.ListEvent.ExpandItem -> handleExpand(event.item)
+        is DetailViewEvent.ControlledEvents.AddEvent.ToggleArchiveVisibility -> updateShowing()
+        is DetailViewEvent.ControlledEvents.AddEvent.ReallyDeleteItemNoUndo -> delegate.deleteForever(
+            event.item
+        )
+        is DetailViewEvent.ControlledEvents.AddEvent.UndoDeleteItem -> delegate.handleUndoDelete(
+            event.item
+        )
+        is DetailViewEvent.ControlledEvents.AddEvent.ClearListError -> delegate.clearListError()
+        is DetailViewEvent.ControlledEvents.AddEvent.AddNew -> handleAddNew()
+        is DetailViewEvent.ControlledEvents.ToolbarEvent.Back -> handleBack()
+        is DetailViewEvent.ControlledEvents.ToolbarEvent.SearchQuery -> updateSearch(event.search)
+        is DetailViewEvent.ControlledEvents.ToolbarEvent.ChangeSort -> updateSort(event.sort)
     }
 
     private fun updateSearch(search: String) {

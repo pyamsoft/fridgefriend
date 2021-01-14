@@ -59,12 +59,10 @@ class ItemMoveViewModel @Inject internal constructor(
         }
     }
 
-    override fun handleViewEvent(event: ItemMoveViewEvent) {
-        return when (event) {
-            is ItemMoveViewEvent.Close -> closeDialog()
-            is ItemMoveViewEvent.SearchQuery -> publishSearch(event.search)
-            is ItemMoveViewEvent.ChangeSort -> publishSort(event.sort)
-        }
+    override fun handleViewEvent(event: ItemMoveViewEvent) = when (event) {
+        is ItemMoveViewEvent.Close -> closeDialog()
+        is ItemMoveViewEvent.SearchQuery -> publishSearch(event.search)
+        is ItemMoveViewEvent.ChangeSort -> publishSort(event.sort)
     }
 
     private fun publishSort(sort: EntryViewState.Sorts) {

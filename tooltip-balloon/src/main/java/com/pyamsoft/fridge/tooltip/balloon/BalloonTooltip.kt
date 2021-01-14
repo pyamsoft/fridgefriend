@@ -29,24 +29,20 @@ internal class BalloonTooltip internal constructor(
 
     private val balloon: Balloon by lazy(LazyThreadSafetyMode.NONE) { creator.create() }
 
-    override fun show(anchor: View) {
-        return when (direction) {
-            Tooltip.Direction.CENTER -> balloon.show(anchor)
-            Tooltip.Direction.TOP -> balloon.showAlignTop(anchor)
-            Tooltip.Direction.BOTTOM -> balloon.showAlignBottom(anchor)
-            Tooltip.Direction.LEFT -> balloon.showAlignLeft(anchor)
-            Tooltip.Direction.RIGHT -> balloon.showAlignRight(anchor)
-        }
+    override fun show(anchor: View) = when (direction) {
+        Tooltip.Direction.CENTER -> balloon.show(anchor)
+        Tooltip.Direction.TOP -> balloon.showAlignTop(anchor)
+        Tooltip.Direction.BOTTOM -> balloon.showAlignBottom(anchor)
+        Tooltip.Direction.LEFT -> balloon.showAlignLeft(anchor)
+        Tooltip.Direction.RIGHT -> balloon.showAlignRight(anchor)
     }
 
-    override fun show(anchor: View, xOff: Int, yOff: Int) {
-        return when (direction) {
-            Tooltip.Direction.CENTER -> balloon.show(anchor, xOff, yOff)
-            Tooltip.Direction.TOP -> balloon.showAlignTop(anchor, xOff, yOff)
-            Tooltip.Direction.BOTTOM -> balloon.showAlignBottom(anchor, xOff, yOff)
-            Tooltip.Direction.LEFT -> balloon.showAlignLeft(anchor, xOff, yOff)
-            Tooltip.Direction.RIGHT -> balloon.showAlignRight(anchor, xOff, yOff)
-        }
+    override fun show(anchor: View, xOff: Int, yOff: Int) = when (direction) {
+        Tooltip.Direction.CENTER -> balloon.show(anchor, xOff, yOff)
+        Tooltip.Direction.TOP -> balloon.showAlignTop(anchor, xOff, yOff)
+        Tooltip.Direction.BOTTOM -> balloon.showAlignBottom(anchor, xOff, yOff)
+        Tooltip.Direction.LEFT -> balloon.showAlignLeft(anchor, xOff, yOff)
+        Tooltip.Direction.RIGHT -> balloon.showAlignRight(anchor, xOff, yOff)
     }
 
     override fun hide() {

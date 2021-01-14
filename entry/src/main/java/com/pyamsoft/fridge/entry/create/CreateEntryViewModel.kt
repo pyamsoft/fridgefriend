@@ -61,11 +61,9 @@ class CreateEntryViewModel @Inject internal constructor(
         setState { copy(creating = true) }
     }
 
-    override fun handleViewEvent(event: CreateEntryViewEvent) {
-        return when (event) {
-            is CreateEntryViewEvent.Commit -> commitNewEntry()
-            is CreateEntryViewEvent.NameChanged -> updateName(event.name)
-        }
+    override fun handleViewEvent(event: CreateEntryViewEvent) = when (event) {
+        is CreateEntryViewEvent.Commit -> commitNewEntry()
+        is CreateEntryViewEvent.NameChanged -> updateName(event.name)
     }
 
     private fun updateName(name: String) {

@@ -143,12 +143,10 @@ class DetailListStateModel @Inject internal constructor(
         expirationListener = null
     }
 
-    private fun handleRealtime(event: FridgeItemChangeEvent) {
-        return when (event) {
-            is Insert -> handleRealtimeInsert(event.item)
-            is Update -> handleRealtimeUpdate(event.item)
-            is Delete -> handleRealtimeDelete(event.item, event.offerUndo)
-        }
+    private fun handleRealtime(event: FridgeItemChangeEvent) = when (event) {
+        is Insert -> handleRealtimeInsert(event.item)
+        is Update -> handleRealtimeUpdate(event.item)
+        is Delete -> handleRealtimeDelete(event.item, event.offerUndo)
     }
 
     private fun insertOrUpdate(
@@ -271,13 +269,12 @@ class DetailListStateModel @Inject internal constructor(
     }
 
     @CheckResult
-    private fun DetailViewState.calculateCounts(items: List<FridgeItem>): DetailViewState.Counts? {
-        return when (showing) {
+    private fun DetailViewState.calculateCounts(items: List<FridgeItem>): DetailViewState.Counts? =
+        when (showing) {
             DetailViewState.Showing.FRESH -> calculateFreshCounts(items)
             DetailViewState.Showing.CONSUMED -> null
             DetailViewState.Showing.SPOILED -> null
         }
-    }
 
     @CheckResult
     private fun DetailViewState.calculateFreshCounts(items: List<FridgeItem>): DetailViewState.Counts? {
