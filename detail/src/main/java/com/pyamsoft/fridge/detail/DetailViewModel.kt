@@ -17,10 +17,10 @@
 package com.pyamsoft.fridge.detail
 
 import androidx.lifecycle.viewModelScope
-import com.pyamsoft.fridge.core.AssistedFridgeViewModelFactory
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.detail.DetailControllerEvent.ExpandForEditing
 import com.pyamsoft.pydroid.arch.UiSavedState
+import com.pyamsoft.pydroid.arch.UiSavedStateViewModelProvider
 import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.assisted.AssistedInject
 import kotlinx.coroutines.Dispatchers
@@ -137,9 +137,7 @@ class DetailViewModel @AssistedInject internal constructor(
     }
 
     @AssistedInject.Factory
-    interface Factory : AssistedFridgeViewModelFactory<DetailViewModel> {
-
+    interface Factory : UiSavedStateViewModelProvider<DetailViewModel> {
         override fun create(savedState: UiSavedState): DetailViewModel
-
     }
 }

@@ -37,7 +37,6 @@ import com.pyamsoft.fridge.butler.Butler
 import com.pyamsoft.fridge.butler.notification.NotificationHandler
 import com.pyamsoft.fridge.butler.work.OrderFactory
 import com.pyamsoft.fridge.category.CategoryFragment
-import com.pyamsoft.fridge.core.createAssistedFactory
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.store.NearbyStore
@@ -53,6 +52,7 @@ import com.pyamsoft.fridge.ui.appbar.AppBarActivity
 import com.pyamsoft.fridge.ui.appbar.AppBarActivityProvider
 import com.pyamsoft.pydroid.arch.StateSaver
 import com.pyamsoft.pydroid.arch.createComponent
+import com.pyamsoft.fridge.core.createFactory
 import com.pyamsoft.pydroid.notify.toNotifyId
 import com.pyamsoft.pydroid.ui.Injector
 import com.pyamsoft.pydroid.ui.arch.viewModelFactory
@@ -145,7 +145,7 @@ internal class MainActivity : ChangeLogActivity(),
     @JvmField
     @Inject
     internal var factory: MainViewModel.Factory? = null
-    private val viewModel by viewModelFactory<MainViewModel> { createAssistedFactory(factory) }
+    private val viewModel by viewModelFactory<MainViewModel> { createFactory(factory) }
 
     private val handler by lazy(LazyThreadSafetyMode.NONE) { Handler(Looper.getMainLooper()) }
 

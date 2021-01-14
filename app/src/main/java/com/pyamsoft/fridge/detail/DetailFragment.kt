@@ -26,7 +26,6 @@ import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import com.pyamsoft.fridge.FridgeComponent
-import com.pyamsoft.fridge.core.createAssistedFactory
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence
@@ -36,6 +35,7 @@ import com.pyamsoft.fridge.ui.SnackbarContainer
 import com.pyamsoft.fridge.ui.requireAppBarActivity
 import com.pyamsoft.pydroid.arch.StateSaver
 import com.pyamsoft.pydroid.arch.createComponent
+import com.pyamsoft.fridge.core.createFactory
 import com.pyamsoft.pydroid.ui.Injector
 import com.pyamsoft.pydroid.ui.app.requireToolbarActivity
 import com.pyamsoft.pydroid.ui.arch.viewModelFactory
@@ -80,13 +80,13 @@ internal class DetailFragment : Fragment(), SnackbarContainer {
     @JvmField
     @Inject
     internal var factory: DetailViewModel.Factory? = null
-    private val viewModel by viewModelFactory<DetailViewModel> { createAssistedFactory(factory) }
+    private val viewModel by viewModelFactory<DetailViewModel> { createFactory(factory) }
 
     @JvmField
     @Inject
     internal var appBarFactory: DetailAppBarViewModel.Factory? = null
     private val appBarViewModel by viewModelFactory<DetailAppBarViewModel> {
-        createAssistedFactory(appBarFactory)
+        createFactory(appBarFactory)
     }
 
     private var stateSaver: StateSaver? = null

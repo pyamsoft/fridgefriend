@@ -16,8 +16,8 @@
 
 package com.pyamsoft.fridge.detail
 
-import com.pyamsoft.fridge.core.AssistedFridgeViewModelFactory
 import com.pyamsoft.pydroid.arch.UiSavedState
+import com.pyamsoft.pydroid.arch.UiSavedStateViewModelProvider
 import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.assisted.AssistedInject
 
@@ -33,10 +33,8 @@ class DetailAppBarViewModel @AssistedInject internal constructor(
     }
 
     @AssistedInject.Factory
-    interface Factory : AssistedFridgeViewModelFactory<DetailAppBarViewModel> {
-
+    interface Factory : UiSavedStateViewModelProvider<DetailAppBarViewModel> {
         override fun create(savedState: UiSavedState): DetailAppBarViewModel
-
     }
 }
 

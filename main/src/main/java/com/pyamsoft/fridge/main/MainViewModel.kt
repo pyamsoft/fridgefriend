@@ -18,7 +18,6 @@ package com.pyamsoft.fridge.main
 
 import androidx.annotation.CheckResult
 import androidx.lifecycle.viewModelScope
-import com.pyamsoft.fridge.core.AssistedFridgeViewModelFactory
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent
 import com.pyamsoft.fridge.db.store.NearbyStore
 import com.pyamsoft.fridge.db.zone.NearbyZone
@@ -27,6 +26,7 @@ import com.pyamsoft.fridge.locator.MapPermission
 import com.pyamsoft.fridge.ui.BottomOffset
 import com.pyamsoft.pydroid.arch.UiSavedState
 import com.pyamsoft.pydroid.arch.UiSavedStateViewModel
+import com.pyamsoft.pydroid.arch.UiSavedStateViewModelProvider
 import com.pyamsoft.pydroid.bus.EventBus
 import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.assisted.AssistedInject
@@ -213,9 +213,8 @@ class MainViewModel @AssistedInject internal constructor(
     }
 
     @AssistedInject.Factory
-    interface Factory : AssistedFridgeViewModelFactory<MainViewModel> {
-
+    interface Factory : UiSavedStateViewModelProvider<MainViewModel> {
         override fun create(savedState: UiSavedState): MainViewModel
-
     }
+
 }

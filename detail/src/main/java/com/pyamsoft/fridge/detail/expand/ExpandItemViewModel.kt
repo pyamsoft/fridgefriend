@@ -18,7 +18,6 @@ package com.pyamsoft.fridge.detail.expand
 
 import androidx.annotation.CheckResult
 import androidx.lifecycle.viewModelScope
-import com.pyamsoft.fridge.core.AssistedFridgeViewModelFactory
 import com.pyamsoft.fridge.core.today
 import com.pyamsoft.fridge.db.category.FridgeCategory
 import com.pyamsoft.fridge.db.entry.FridgeEntry
@@ -35,6 +34,7 @@ import com.pyamsoft.fridge.detail.item.isNameValid
 import com.pyamsoft.highlander.highlander
 import com.pyamsoft.pydroid.arch.UiSavedState
 import com.pyamsoft.pydroid.arch.UiSavedStateViewModel
+import com.pyamsoft.pydroid.arch.UiSavedStateViewModelProvider
 import com.pyamsoft.pydroid.bus.EventBus
 import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.assisted.AssistedInject
@@ -388,9 +388,7 @@ class ExpandItemViewModel @AssistedInject internal constructor(
     ) : IllegalStateException(message)
 
     @AssistedInject.Factory
-    interface Factory : AssistedFridgeViewModelFactory<ExpandItemViewModel> {
-
+    interface Factory : UiSavedStateViewModelProvider<ExpandItemViewModel> {
         override fun create(savedState: UiSavedState): ExpandItemViewModel
-
     }
 }
