@@ -52,7 +52,7 @@ import com.pyamsoft.fridge.ui.appbar.AppBarActivity
 import com.pyamsoft.fridge.ui.appbar.AppBarActivityProvider
 import com.pyamsoft.pydroid.arch.StateSaver
 import com.pyamsoft.pydroid.arch.createComponent
-import com.pyamsoft.fridge.core.createFactory
+import com.pyamsoft.pydroid.arch.createFactory
 import com.pyamsoft.pydroid.notify.toNotifyId
 import com.pyamsoft.pydroid.ui.Injector
 import com.pyamsoft.pydroid.ui.arch.viewModelFactory

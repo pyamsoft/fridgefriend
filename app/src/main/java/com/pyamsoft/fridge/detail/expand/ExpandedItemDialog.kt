@@ -32,7 +32,7 @@ import com.pyamsoft.fridge.detail.expand.date.DateSelectDialog
 import com.pyamsoft.fridge.detail.expand.move.ItemMoveDialog
 import com.pyamsoft.pydroid.arch.StateSaver
 import com.pyamsoft.pydroid.arch.createComponent
-import com.pyamsoft.fridge.core.createFactory
+import com.pyamsoft.pydroid.arch.createFactory
 import com.pyamsoft.pydroid.ui.Injector
 import com.pyamsoft.pydroid.ui.app.makeFullWidth
 import com.pyamsoft.pydroid.ui.arch.viewModelFactory
