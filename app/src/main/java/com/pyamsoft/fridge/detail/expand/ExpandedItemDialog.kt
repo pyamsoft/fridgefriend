@@ -32,10 +32,10 @@ import com.pyamsoft.fridge.detail.expand.date.DateSelectDialog
 import com.pyamsoft.fridge.detail.expand.move.ItemMoveDialog
 import com.pyamsoft.pydroid.arch.StateSaver
 import com.pyamsoft.pydroid.arch.createComponent
-import com.pyamsoft.pydroid.arch.createFactory
+import com.pyamsoft.pydroid.arch.createSavedStateViewModelFactory
 import com.pyamsoft.pydroid.ui.Injector
 import com.pyamsoft.pydroid.ui.app.makeFullWidth
-import com.pyamsoft.pydroid.ui.arch.viewModelFactory
+import com.pyamsoft.pydroid.ui.arch.fromViewModelFactory
 import com.pyamsoft.pydroid.ui.databinding.LayoutConstraintBinding
 import com.pyamsoft.pydroid.ui.util.layout
 import com.pyamsoft.pydroid.ui.util.show
@@ -86,7 +86,9 @@ internal class ExpandedItemDialog : AppCompatDialogFragment() {
     @JvmField
     @Inject
     internal var factory: ExpandItemViewModel.Factory? = null
-    private val viewModel by viewModelFactory<ExpandItemViewModel> { createFactory(factory) }
+    private val viewModel by fromViewModelFactory<ExpandItemViewModel> {
+        createSavedStateViewModelFactory(factory)
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,

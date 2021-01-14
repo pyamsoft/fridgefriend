@@ -24,7 +24,7 @@ import androidx.annotation.CheckResult
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.fragment.app.Fragment
 import com.pyamsoft.fridge.FridgeComponent
-import com.pyamsoft.fridge.core.createFactory
+import com.pyamsoft.fridge.core.createViewModelFactory
 import com.pyamsoft.fridge.db.store.NearbyStore
 import com.pyamsoft.fridge.db.zone.NearbyZone
 import com.pyamsoft.fridge.locator.permission.*
@@ -36,7 +36,7 @@ import com.pyamsoft.pydroid.arch.StateSaver
 import com.pyamsoft.pydroid.arch.createComponent
 import com.pyamsoft.pydroid.ui.Injector
 import com.pyamsoft.pydroid.ui.R
-import com.pyamsoft.pydroid.ui.arch.viewModelFactory
+import com.pyamsoft.pydroid.ui.arch.fromViewModelFactory
 import com.pyamsoft.pydroid.ui.databinding.LayoutConstraintBinding
 import com.pyamsoft.pydroid.ui.util.commitNow
 import com.pyamsoft.pydroid.ui.util.layout
@@ -61,8 +61,8 @@ internal class PermissionFragment : Fragment(), PermissionConsumer<ForegroundLoc
     @JvmField
     @Inject
     internal var provider: Provider<LocationPermissionViewModel>? = null
-    private val viewModel by viewModelFactory<LocationPermissionViewModel>(activity = true) {
-        createFactory(provider)
+    private val viewModel by fromViewModelFactory<LocationPermissionViewModel>(activity = true) {
+        createViewModelFactory(provider)
     }
 
     private var stateSaver: StateSaver? = null

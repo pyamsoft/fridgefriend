@@ -24,7 +24,7 @@ import androidx.annotation.CheckResult
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.fragment.app.Fragment
 import com.pyamsoft.fridge.FridgeComponent
-import com.pyamsoft.fridge.core.createFactory
+import com.pyamsoft.fridge.core.createViewModelFactory
 import com.pyamsoft.fridge.db.store.NearbyStore
 import com.pyamsoft.fridge.db.zone.NearbyZone
 import com.pyamsoft.fridge.locator.map.MapActions
@@ -38,7 +38,7 @@ import com.pyamsoft.pydroid.arch.StateSaver
 import com.pyamsoft.pydroid.arch.createComponent
 import com.pyamsoft.pydroid.ui.Injector
 import com.pyamsoft.pydroid.ui.R
-import com.pyamsoft.pydroid.ui.arch.viewModelFactory
+import com.pyamsoft.pydroid.ui.arch.fromViewModelFactory
 import com.pyamsoft.pydroid.ui.databinding.LayoutCoordinatorBinding
 import timber.log.Timber
 import javax.inject.Inject
@@ -57,8 +57,8 @@ internal class MapFragment : Fragment(), SnackbarContainer {
     @JvmField
     @Inject
     internal var provider: Provider<MapViewModel>? = null
-    private val viewModel by viewModelFactory<MapViewModel>(activity = true) {
-        createFactory(provider)
+    private val viewModel by fromViewModelFactory<MapViewModel>(activity = true) {
+        createViewModelFactory(provider)
     }
 
     private var stateSaver: StateSaver? = null

@@ -25,7 +25,7 @@ import androidx.appcompat.app.AppCompatDialogFragment
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.fragment.app.DialogFragment
 import com.pyamsoft.fridge.FridgeComponent
-import com.pyamsoft.fridge.core.createFactory
+import com.pyamsoft.fridge.core.createViewModelFactory
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.entry.EntryList
@@ -36,7 +36,7 @@ import com.pyamsoft.pydroid.arch.createComponent
 import com.pyamsoft.pydroid.ui.Injector
 import com.pyamsoft.pydroid.ui.R
 import com.pyamsoft.pydroid.ui.app.makeFullscreen
-import com.pyamsoft.pydroid.ui.arch.viewModelFactory
+import com.pyamsoft.pydroid.ui.arch.fromViewModelFactory
 import com.pyamsoft.pydroid.ui.databinding.LayoutConstraintBinding
 import com.pyamsoft.pydroid.ui.util.layout
 import com.pyamsoft.pydroid.ui.widget.shadow.DropshadowView
@@ -48,13 +48,15 @@ internal class ItemMoveDialog : AppCompatDialogFragment() {
     @JvmField
     @Inject
     internal var provider: Provider<ItemMoveViewModel>? = null
-    private val viewModel by viewModelFactory<ItemMoveViewModel> { createFactory(provider) }
+    private val viewModel by fromViewModelFactory<ItemMoveViewModel> {
+        createViewModelFactory(provider)
+    }
 
     @JvmField
     @Inject
     internal var listProvider: Provider<ItemMoveListViewModel>? = null
-    private val listViewModel by viewModelFactory<ItemMoveListViewModel> {
-        createFactory(listProvider)
+    private val listViewModel by fromViewModelFactory<ItemMoveListViewModel> {
+        createViewModelFactory(listProvider)
     }
 
     @JvmField

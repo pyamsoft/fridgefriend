@@ -27,7 +27,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.LifecycleOwner
 import com.pyamsoft.fridge.FridgeComponent
-import com.pyamsoft.fridge.core.createFactory
+import com.pyamsoft.fridge.core.createViewModelFactory
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.detail.DetailFragment
@@ -40,6 +40,7 @@ import com.pyamsoft.pydroid.arch.createComponent
 import com.pyamsoft.pydroid.ui.Injector
 import com.pyamsoft.pydroid.ui.R
 import com.pyamsoft.pydroid.ui.app.requireToolbarActivity
+import com.pyamsoft.pydroid.ui.arch.fromViewModelFactory
 import com.pyamsoft.pydroid.ui.arch.viewModelFactory
 import com.pyamsoft.pydroid.ui.databinding.LayoutCoordinatorBinding
 import com.pyamsoft.pydroid.ui.util.commit
@@ -52,8 +53,8 @@ internal class EntryFragment : Fragment(), SnackbarContainer {
     @JvmField
     @Inject
     internal var provider: Provider<EntryViewModel>? = null
-    private val viewModel by viewModelFactory<EntryViewModel>(activity = true) {
-        createFactory(provider)
+    private val viewModel by fromViewModelFactory<EntryViewModel>(activity = true) {
+        createViewModelFactory(provider)
     }
 
     @JvmField

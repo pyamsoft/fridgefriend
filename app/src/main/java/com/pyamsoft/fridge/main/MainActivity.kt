@@ -52,9 +52,10 @@ import com.pyamsoft.fridge.ui.appbar.AppBarActivity
 import com.pyamsoft.fridge.ui.appbar.AppBarActivityProvider
 import com.pyamsoft.pydroid.arch.StateSaver
 import com.pyamsoft.pydroid.arch.createComponent
-import com.pyamsoft.pydroid.arch.createFactory
+import com.pyamsoft.pydroid.arch.createSavedStateViewModelFactory
 import com.pyamsoft.pydroid.notify.toNotifyId
 import com.pyamsoft.pydroid.ui.Injector
+import com.pyamsoft.pydroid.ui.arch.fromViewModelFactory
 import com.pyamsoft.pydroid.ui.arch.viewModelFactory
 import com.pyamsoft.pydroid.ui.changelog.ChangeLogActivity
 import com.pyamsoft.pydroid.ui.changelog.buildChangeLog
@@ -145,9 +146,11 @@ internal class MainActivity : ChangeLogActivity(),
     @JvmField
     @Inject
     internal var factory: MainViewModel.Factory? = null
-    private val viewModel by viewModelFactory<MainViewModel> { createFactory(factory) }
+    private val viewModel by fromViewModelFactory<MainViewModel> {
+        createSavedStateViewModelFactory(factory)
+    }
 
-    private val handler by lazy(LazyThreadSafetyMode.NONE) { Handler(Looper.getMainLooper()) }
+    private val handler = Handler(Looper.getMainLooper())
 
     private var capturedAppBar: AppBarLayout? = null
 

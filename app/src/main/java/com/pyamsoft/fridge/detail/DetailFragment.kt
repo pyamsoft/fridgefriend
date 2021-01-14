@@ -35,9 +35,10 @@ import com.pyamsoft.fridge.ui.SnackbarContainer
 import com.pyamsoft.fridge.ui.requireAppBarActivity
 import com.pyamsoft.pydroid.arch.StateSaver
 import com.pyamsoft.pydroid.arch.createComponent
-import com.pyamsoft.pydroid.arch.createFactory
+import com.pyamsoft.pydroid.arch.createSavedStateViewModelFactory
 import com.pyamsoft.pydroid.ui.Injector
 import com.pyamsoft.pydroid.ui.app.requireToolbarActivity
+import com.pyamsoft.pydroid.ui.arch.fromViewModelFactory
 import com.pyamsoft.pydroid.ui.arch.viewModelFactory
 import com.pyamsoft.pydroid.ui.databinding.LayoutCoordinatorBinding
 import com.pyamsoft.pydroid.ui.util.show
@@ -80,13 +81,15 @@ internal class DetailFragment : Fragment(), SnackbarContainer {
     @JvmField
     @Inject
     internal var factory: DetailViewModel.Factory? = null
-    private val viewModel by viewModelFactory<DetailViewModel> { createFactory(factory) }
+    private val viewModel by fromViewModelFactory<DetailViewModel> {
+        createSavedStateViewModelFactory(factory)
+    }
 
     @JvmField
     @Inject
     internal var appBarFactory: DetailAppBarViewModel.Factory? = null
-    private val appBarViewModel by viewModelFactory<DetailAppBarViewModel> {
-        createFactory(appBarFactory)
+    private val appBarViewModel by fromViewModelFactory<DetailAppBarViewModel> {
+        createSavedStateViewModelFactory(appBarFactory)
     }
 
     private var stateSaver: StateSaver? = null

@@ -22,6 +22,6 @@ import androidx.lifecycle.ViewModelProvider
 import javax.inject.Provider
 
 @CheckResult
-inline fun <reified T : ViewModel> createFactory(provider: Provider<T>?): ViewModelProvider.Factory {
-    return com.pyamsoft.pydroid.arch.createFactory { provider?.get() }
+inline fun <reified T : ViewModel> createViewModelFactory(provider: Provider<T>?): ViewModelProvider.Factory {
+    return com.pyamsoft.pydroid.arch.createViewModelFactory { provider?.get() }
 }

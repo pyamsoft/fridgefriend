@@ -23,7 +23,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleRegistry
 import androidx.lifecycle.ViewModelStore
-import com.pyamsoft.fridge.core.createFactory
+import com.pyamsoft.fridge.core.createViewModelFactory
 import com.pyamsoft.fridge.db.store.NearbyStore
 import com.pyamsoft.fridge.locator.location.LocationUpdateReceiver
 import com.pyamsoft.fridge.locator.map.popup.store.StoreInfoLocation
@@ -31,6 +31,7 @@ import com.pyamsoft.fridge.locator.map.popup.store.StoreInfoTitle
 import com.pyamsoft.fridge.locator.map.popup.store.StoreInfoViewModel
 import com.pyamsoft.pydroid.arch.StateSaver
 import com.pyamsoft.pydroid.arch.createComponent
+import com.pyamsoft.pydroid.ui.arch.fromViewModelFactory
 import com.pyamsoft.pydroid.ui.arch.viewModelFactory
 import com.pyamsoft.pydroid.ui.util.layout
 import org.osmdroid.views.MapView
@@ -61,8 +62,8 @@ class StoreInfoWindow private constructor(
     @JvmField
     @Inject
     internal var provider: Provider<StoreInfoViewModel>? = null
-    private val viewModel by viewModelFactory<StoreInfoViewModel>(ViewModelStore()) {
-        createFactory(provider)
+    private val viewModel by fromViewModelFactory<StoreInfoViewModel>(ViewModelStore()) {
+        createViewModelFactory(provider)
     }
 
     override fun getLifecycle(): Lifecycle {
