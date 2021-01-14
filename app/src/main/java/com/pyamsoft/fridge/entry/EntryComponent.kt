@@ -20,17 +20,26 @@ import android.app.Activity
 import android.view.ViewGroup
 import androidx.annotation.CheckResult
 import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.ViewModel
 import com.pyamsoft.fridge.ThemeProviderModule
+import com.pyamsoft.fridge.core.ViewModelFactoryModule
 import com.pyamsoft.fridge.tooltip.balloon.TooltipModule
 import com.pyamsoft.fridge.ui.appbar.AppBarActivity
 import com.pyamsoft.pydroid.ui.app.ToolbarActivity
-import dagger.BindsInstance
-import dagger.Module
-import dagger.Provides
-import dagger.Subcomponent
+import dagger.*
+import dagger.multibindings.ClassKey
+import dagger.multibindings.IntoMap
 import javax.inject.Named
 
-@Subcomponent(modules = [EntryComponent.ComponentModule::class, EntryListModule::class, ThemeProviderModule::class, TooltipModule::class])
+@Subcomponent(
+    modules = [
+        EntryComponent.ComponentModule::class,
+        ViewModelFactoryModule::class,
+        EntryListModule::class,
+        ThemeProviderModule::class,
+        TooltipModule::class
+    ]
+)
 internal interface EntryComponent {
 
     fun inject(fragment: EntryFragment)
@@ -50,6 +59,11 @@ internal interface EntryComponent {
 
     @Module
     abstract class ComponentModule {
+
+        @Binds
+        @IntoMap
+        @ClassKey(EntryViewModel::class)
+        internal abstract fun bindViewModel(impl: EntryViewModel): ViewModel
 
         @Module
         companion object {

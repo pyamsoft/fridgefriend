@@ -23,7 +23,7 @@ import androidx.annotation.CheckResult
 import androidx.appcompat.app.AppCompatDialogFragment
 import androidx.fragment.app.DialogFragment
 import com.pyamsoft.fridge.FridgeComponent
-import com.pyamsoft.fridge.core.createViewModelFactory
+import com.pyamsoft.fridge.core.FridgeViewModelFactory
 import com.pyamsoft.fridge.core.today
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItem
@@ -31,18 +31,16 @@ import com.pyamsoft.pydroid.arch.StateSaver
 import com.pyamsoft.pydroid.arch.createComponent
 import com.pyamsoft.pydroid.ui.Injector
 import com.pyamsoft.pydroid.ui.arch.fromViewModelFactory
-import com.pyamsoft.pydroid.ui.arch.viewModelFactory
 import java.util.*
 import javax.inject.Inject
-import javax.inject.Provider
 
 internal class DateSelectDialog : AppCompatDialogFragment() {
 
     @JvmField
     @Inject
-    internal var provider: Provider<DateSelectViewModel>? = null
+    internal var factory: FridgeViewModelFactory? = null
     private val viewModel by fromViewModelFactory<DateSelectViewModel>(activity = true) {
-        createViewModelFactory(provider)
+        factory?.create(requireActivity())
     }
 
     private var stateSaver: StateSaver? = null

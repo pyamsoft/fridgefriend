@@ -20,11 +20,24 @@ import android.app.Activity
 import android.view.ViewGroup
 import androidx.annotation.CheckResult
 import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.ViewModel
 import com.pyamsoft.fridge.ThemeProviderModule
+import com.pyamsoft.fridge.core.ViewModelFactoryModule
+import com.pyamsoft.fridge.locator.map.MapViewModel
+import dagger.Binds
 import dagger.BindsInstance
+import dagger.Module
 import dagger.Subcomponent
+import dagger.multibindings.ClassKey
+import dagger.multibindings.IntoMap
 
-@Subcomponent(modules = [ThemeProviderModule::class])
+@Subcomponent(
+    modules = [
+        MapComponent.ComponentModule::class,
+        ViewModelFactoryModule::class,
+        ThemeProviderModule::class
+    ]
+)
 internal interface MapComponent {
 
     fun inject(fragment: MapFragment)
@@ -38,5 +51,14 @@ internal interface MapComponent {
             @BindsInstance parent: ViewGroup,
             @BindsInstance owner: LifecycleOwner
         ): MapComponent
+    }
+
+    @Module
+    abstract class ComponentModule {
+
+        @Binds
+        @IntoMap
+        @ClassKey(MapViewModel::class)
+        internal abstract fun bindViewModel(impl: MapViewModel): ViewModel
     }
 }

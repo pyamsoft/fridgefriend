@@ -24,7 +24,7 @@ import androidx.annotation.CheckResult
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.fragment.app.Fragment
 import com.pyamsoft.fridge.FridgeComponent
-import com.pyamsoft.fridge.core.createViewModelFactory
+import com.pyamsoft.fridge.core.FridgeViewModelFactory
 import com.pyamsoft.fridge.db.store.NearbyStore
 import com.pyamsoft.fridge.db.zone.NearbyZone
 import com.pyamsoft.fridge.locator.permission.*
@@ -42,7 +42,6 @@ import com.pyamsoft.pydroid.ui.util.commitNow
 import com.pyamsoft.pydroid.ui.util.layout
 import timber.log.Timber
 import javax.inject.Inject
-import javax.inject.Provider
 
 internal class PermissionFragment : Fragment(), PermissionConsumer<ForegroundLocationPermission> {
 
@@ -60,9 +59,9 @@ internal class PermissionFragment : Fragment(), PermissionConsumer<ForegroundLoc
 
     @JvmField
     @Inject
-    internal var provider: Provider<LocationPermissionViewModel>? = null
+    internal var factory: FridgeViewModelFactory? = null
     private val viewModel by fromViewModelFactory<LocationPermissionViewModel>(activity = true) {
-        createViewModelFactory(provider)
+        factory?.create(requireActivity())
     }
 
     private var stateSaver: StateSaver? = null
@@ -183,7 +182,7 @@ internal class PermissionFragment : Fragment(), PermissionConsumer<ForegroundLoc
 
     override fun onDestroyView() {
         super.onDestroyView()
-        provider = null
+        factory = null
         stateSaver = null
 
         requestButton = null

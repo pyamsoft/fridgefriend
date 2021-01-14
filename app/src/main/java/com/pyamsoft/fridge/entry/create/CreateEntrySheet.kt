@@ -26,7 +26,7 @@ import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.FragmentActivity
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.pyamsoft.fridge.FridgeComponent
-import com.pyamsoft.fridge.core.createViewModelFactory
+import com.pyamsoft.fridge.core.FridgeViewModelFactory
 import com.pyamsoft.pydroid.arch.StateSaver
 import com.pyamsoft.pydroid.arch.createComponent
 import com.pyamsoft.pydroid.ui.Injector
@@ -35,16 +35,13 @@ import com.pyamsoft.pydroid.ui.arch.fromViewModelFactory
 import com.pyamsoft.pydroid.ui.databinding.LayoutLinearVerticalBinding
 import com.pyamsoft.pydroid.ui.util.show
 import javax.inject.Inject
-import javax.inject.Provider
 
 internal class CreateEntrySheet : BottomSheetDialogFragment() {
 
     @JvmField
     @Inject
-    internal var provider: Provider<CreateEntryViewModel>? = null
-    private val viewModel by fromViewModelFactory<CreateEntryViewModel> {
-        createViewModelFactory(provider)
-    }
+    internal var factory: FridgeViewModelFactory? = null
+    private val viewModel by fromViewModelFactory<CreateEntryViewModel> { factory?.create(this) }
 
     @JvmField
     @Inject
@@ -98,7 +95,7 @@ internal class CreateEntrySheet : BottomSheetDialogFragment() {
     override fun onDestroyView() {
         super.onDestroyView()
 
-        provider = null
+        factory = null
         stateSaver = null
         name = null
         commit = null

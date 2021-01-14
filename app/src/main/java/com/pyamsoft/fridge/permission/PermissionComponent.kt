@@ -19,11 +19,23 @@ package com.pyamsoft.fridge.permission
 import android.view.ViewGroup
 import androidx.annotation.CheckResult
 import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.ViewModel
+import com.pyamsoft.fridge.core.ViewModelFactoryModule
+import com.pyamsoft.fridge.locator.permission.LocationPermissionViewModel
 import com.pyamsoft.fridge.ui.appbar.AppBarActivity
+import dagger.Binds
 import dagger.BindsInstance
+import dagger.Module
 import dagger.Subcomponent
+import dagger.multibindings.ClassKey
+import dagger.multibindings.IntoMap
 
-@Subcomponent
+@Subcomponent(
+    modules = [
+        PermissionComponent.ComponentModule::class,
+        ViewModelFactoryModule::class
+    ]
+)
 internal interface PermissionComponent {
 
     fun inject(fragment: PermissionFragment)
@@ -37,5 +49,14 @@ internal interface PermissionComponent {
             @BindsInstance parent: ViewGroup,
             @BindsInstance owner: LifecycleOwner,
         ): PermissionComponent
+    }
+
+    @Module
+    abstract class ComponentModule {
+
+        @Binds
+        @IntoMap
+        @ClassKey(LocationPermissionViewModel::class)
+        internal abstract fun bindViewModel(impl: LocationPermissionViewModel): ViewModel
     }
 }

@@ -17,6 +17,8 @@
 package com.pyamsoft.fridge
 
 import android.app.Application
+import android.os.Handler
+import android.os.Looper
 import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.butler.Butler
 import com.pyamsoft.fridge.butler.injector.ButlerComponent
@@ -86,11 +88,20 @@ class FridgeFriend : Application() {
     }
 
     private fun beginWork() {
-        GlobalScope.launch(context = Dispatchers.Default) {
-            initOnAppStart(
-                requireNotNull(butler),
-                requireNotNull(orderFactory),
-            )
+        // NOTE: We use GlobalScope here because this is an application level thing
+        // Maybe its an anti-pattern but I think in controlled use, its okay.
+        //
+        // https://medium.com/specto/android-startup-tip-dont-use-kotlin-coroutines-a7b3f7176fe5
+        //
+        // Coroutine start up is slow. What we can do instead is create a handler, which is cheap, and post
+        // to the main thread to defer this work until after start up is done
+        Handler(Looper.getMainLooper()).post {
+            GlobalScope.launch(context = Dispatchers.Default) {
+                initOnAppStart(
+                    requireNotNull(butler),
+                    requireNotNull(orderFactory),
+                )
+            }
         }
     }
 

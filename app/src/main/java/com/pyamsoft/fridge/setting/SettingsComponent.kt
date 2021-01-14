@@ -17,11 +17,22 @@
 package com.pyamsoft.fridge.setting
 
 import androidx.annotation.CheckResult
+import androidx.lifecycle.ViewModel
 import androidx.preference.PreferenceScreen
+import com.pyamsoft.fridge.core.ViewModelFactoryModule
+import dagger.Binds
 import dagger.BindsInstance
+import dagger.Module
 import dagger.Subcomponent
+import dagger.multibindings.ClassKey
+import dagger.multibindings.IntoMap
 
-@Subcomponent
+@Subcomponent(
+    modules = [
+        SettingsComponent.ComponentModule::class,
+        ViewModelFactoryModule::class
+    ]
+)
 internal interface SettingsComponent {
 
     fun inject(fragment: SettingsFragment.SettingsPreferenceFragment)
@@ -30,8 +41,16 @@ internal interface SettingsComponent {
     interface Factory {
 
         @CheckResult
-        fun create(
-            @BindsInstance parent: PreferenceScreen
-        ): SettingsComponent
+        fun create(@BindsInstance parent: PreferenceScreen): SettingsComponent
+    }
+
+
+    @Module
+    abstract class ComponentModule {
+
+        @Binds
+        @IntoMap
+        @ClassKey(SettingsViewModel::class)
+        internal abstract fun bindViewModel(impl: SettingsViewModel): ViewModel
     }
 }

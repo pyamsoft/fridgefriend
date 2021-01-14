@@ -18,12 +18,25 @@ package com.pyamsoft.fridge.entry.create
 
 import android.view.ViewGroup
 import androidx.annotation.CheckResult
+import androidx.lifecycle.ViewModel
 import com.pyamsoft.fridge.ThemeProviderModule
+import com.pyamsoft.fridge.core.ViewModelFactoryModule
 import com.pyamsoft.fridge.tooltip.balloon.TooltipModule
+import dagger.Binds
 import dagger.BindsInstance
+import dagger.Module
 import dagger.Subcomponent
+import dagger.multibindings.ClassKey
+import dagger.multibindings.IntoMap
 
-@Subcomponent(modules = [ThemeProviderModule::class, TooltipModule::class])
+@Subcomponent(
+    modules = [
+        CreateEntryComponent.ComponentModule::class,
+        ViewModelFactoryModule::class,
+        ThemeProviderModule::class,
+        TooltipModule::class
+    ]
+)
 internal interface CreateEntryComponent {
 
     fun inject(sheet: CreateEntrySheet)
@@ -33,6 +46,15 @@ internal interface CreateEntryComponent {
 
         @CheckResult
         fun create(@BindsInstance parent: ViewGroup): CreateEntryComponent
+    }
+
+    @Module
+    abstract class ComponentModule {
+
+        @Binds
+        @IntoMap
+        @ClassKey(CreateEntryViewModel::class)
+        internal abstract fun bindViewModel(impl: CreateEntryViewModel): ViewModel
     }
 
 }

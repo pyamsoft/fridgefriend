@@ -21,7 +21,7 @@ import android.view.View
 import androidx.annotation.CheckResult
 import androidx.fragment.app.Fragment
 import com.pyamsoft.fridge.FridgeComponent
-import com.pyamsoft.fridge.core.createViewModelFactory
+import com.pyamsoft.fridge.core.FridgeViewModelFactory
 import com.pyamsoft.fridge.main.VersionChecker
 import com.pyamsoft.fridge.ui.applyToolbarOffset
 import com.pyamsoft.fridge.ui.requireAppBarActivity
@@ -32,7 +32,6 @@ import com.pyamsoft.pydroid.ui.arch.fromViewModelFactory
 import com.pyamsoft.pydroid.ui.settings.AppSettingsFragment
 import com.pyamsoft.pydroid.ui.settings.AppSettingsPreferenceFragment
 import javax.inject.Inject
-import javax.inject.Provider
 
 internal class SettingsFragment : AppSettingsFragment() {
 
@@ -69,9 +68,9 @@ internal class SettingsFragment : AppSettingsFragment() {
 
         @JvmField
         @Inject
-        internal var provider: Provider<SettingsViewModel>? = null
+        internal var factory: FridgeViewModelFactory? = null
         private val viewModel by fromViewModelFactory<SettingsViewModel>(activity = true) {
-            createViewModelFactory(provider)
+            factory?.create(requireActivity())
         }
 
         @JvmField
@@ -111,7 +110,7 @@ internal class SettingsFragment : AppSettingsFragment() {
 
         override fun onDestroyView() {
             super.onDestroyView()
-            provider = null
+            factory = null
             stateSaver = null
         }
 

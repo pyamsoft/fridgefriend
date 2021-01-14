@@ -25,7 +25,7 @@ import androidx.appcompat.app.AppCompatDialogFragment
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.fragment.app.DialogFragment
 import com.pyamsoft.fridge.FridgeComponent
-import com.pyamsoft.fridge.core.createViewModelFactory
+import com.pyamsoft.fridge.core.FridgeViewModelFactory
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.entry.EntryList
@@ -41,23 +41,14 @@ import com.pyamsoft.pydroid.ui.databinding.LayoutConstraintBinding
 import com.pyamsoft.pydroid.ui.util.layout
 import com.pyamsoft.pydroid.ui.widget.shadow.DropshadowView
 import javax.inject.Inject
-import javax.inject.Provider
 
 internal class ItemMoveDialog : AppCompatDialogFragment() {
 
     @JvmField
     @Inject
-    internal var provider: Provider<ItemMoveViewModel>? = null
-    private val viewModel by fromViewModelFactory<ItemMoveViewModel> {
-        createViewModelFactory(provider)
-    }
-
-    @JvmField
-    @Inject
-    internal var listProvider: Provider<ItemMoveListViewModel>? = null
-    private val listViewModel by fromViewModelFactory<ItemMoveListViewModel> {
-        createViewModelFactory(listProvider)
-    }
+    internal var factory: FridgeViewModelFactory? = null
+    private val viewModel by fromViewModelFactory<ItemMoveViewModel> { factory?.create(this) }
+    private val listViewModel by fromViewModelFactory<ItemMoveListViewModel> { factory?.create(this) }
 
     @JvmField
     @Inject
@@ -165,8 +156,7 @@ internal class ItemMoveDialog : AppCompatDialogFragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        provider = null
-        listProvider = null
+        factory = null
 
         list = null
         toolbar = null

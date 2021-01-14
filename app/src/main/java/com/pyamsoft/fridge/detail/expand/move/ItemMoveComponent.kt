@@ -20,23 +20,25 @@ import android.app.Activity
 import android.view.ViewGroup
 import androidx.annotation.CheckResult
 import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.ViewModel
 import com.pyamsoft.fridge.ThemeProviderModule
 import com.pyamsoft.fridge.core.FragmentScope
+import com.pyamsoft.fridge.core.ViewModelFactoryModule
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.entry.EntryListModule
 import com.pyamsoft.fridge.tooltip.balloon.TooltipModule
 import com.pyamsoft.fridge.ui.appbar.AppBarActivity
-import dagger.BindsInstance
-import dagger.Module
-import dagger.Provides
-import dagger.Subcomponent
+import dagger.*
+import dagger.multibindings.ClassKey
+import dagger.multibindings.IntoMap
 import javax.inject.Named
 
 @FragmentScope
 @Subcomponent(
     modules = [
         ItemMoveComponent.ComponentModule::class,
+        ViewModelFactoryModule::class,
         ItemMoveModule::class,
         EntryListModule::class,
         ThemeProviderModule::class,
@@ -63,6 +65,16 @@ internal interface ItemMoveComponent {
 
     @Module
     abstract class ComponentModule {
+
+        @Binds
+        @IntoMap
+        @ClassKey(ItemMoveViewModel::class)
+        internal abstract fun bindViewModel(impl: ItemMoveViewModel): ViewModel
+
+        @Binds
+        @IntoMap
+        @ClassKey(ItemMoveListViewModel::class)
+        internal abstract fun bindListViewModel(impl: ItemMoveListViewModel): ViewModel
 
         @Module
         companion object {

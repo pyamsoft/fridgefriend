@@ -19,9 +19,41 @@ package com.pyamsoft.fridge.core
 import androidx.annotation.CheckResult
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import androidx.savedstate.SavedStateRegistryOwner
+import com.pyamsoft.pydroid.arch.SavedStateViewModelFactory
+import com.pyamsoft.pydroid.arch.UiSavedState
+import dagger.Reusable
+import javax.inject.Inject
 import javax.inject.Provider
 
 @CheckResult
 inline fun <reified T : ViewModel> createViewModelFactory(provider: Provider<T>?): ViewModelProvider.Factory {
     return com.pyamsoft.pydroid.arch.createViewModelFactory { provider?.get() }
+}
+
+interface FridgeViewModelFactory {
+
+    @CheckResult
+    fun create(owner: SavedStateRegistryOwner): ViewModelProvider.Factory
+
+}
+
+@Reusable
+internal class FridgeViewModelFactoryImpl @Inject internal constructor(
+    private val viewModels: Map<Class<*>, @JvmSuppressWildcards Provider<ViewModel>>,
+) : FridgeViewModelFactory {
+
+    override fun create(owner: SavedStateRegistryOwner): ViewModelProvider.Factory {
+        return object : SavedStateViewModelFactory(owner, defaultArgs = null) {
+
+            override fun <T : ViewModel> createViewModel(
+                modelClass: Class<T>,
+                savedState: UiSavedState
+            ): ViewModel {
+                return viewModels[modelClass]?.get() ?: fail(modelClass)
+            }
+        }
+    }
+
+
 }

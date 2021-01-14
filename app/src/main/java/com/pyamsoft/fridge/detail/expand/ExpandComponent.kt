@@ -20,16 +20,25 @@ import android.app.Activity
 import android.view.ViewGroup
 import androidx.annotation.CheckResult
 import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.ViewModel
 import androidx.savedstate.SavedStateRegistryOwner
 import com.pyamsoft.fridge.ThemeProviderModule
+import com.pyamsoft.fridge.core.ViewModelFactoryModule
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence
+import com.pyamsoft.pydroid.arch.UiSavedStateViewModelProvider
+import dagger.Binds
 import dagger.BindsInstance
+import dagger.Module
 import dagger.Subcomponent
+import dagger.multibindings.ClassKey
+import dagger.multibindings.IntoMap
 
 @Subcomponent(
     modules = [
+        ExpandComponent.ComponentModule::class,
+        ViewModelFactoryModule::class,
         ExpandItemModule::class,
         ThemeProviderModule::class
     ]
@@ -51,5 +60,14 @@ internal interface ExpandComponent {
             @BindsInstance itemEntryId: FridgeEntry.Id,
             @BindsInstance defaultPresence: Presence
         ): ExpandComponent
+    }
+
+    @Module
+    abstract class ComponentModule {
+
+        @Binds
+        @IntoMap
+        @ClassKey(ExpandItemViewModel::class)
+        internal abstract fun bindViewModel(impl: ExpandItemViewModel.Factory): UiSavedStateViewModelProvider<out ViewModel>
     }
 }
