@@ -44,8 +44,8 @@ class EntryViewModel @Inject internal constructor(
         is EntryViewEvent.ListEvents.DeleteEntry -> delegate.deleteEntry(event.index)
         is EntryViewEvent.ListEvents.ForceRefresh -> delegate.refreshList(true)
         is EntryViewEvent.AddEvent.AddNew -> handleAddNew()
-        is EntryViewEvent.AddEvent.ReallyDeleteEntryNoUndo -> delegate.deleteForever(event.entry)
-        is EntryViewEvent.AddEvent.UndoDeleteEntry -> delegate.undoDelete(event.entry)
+        is EntryViewEvent.AddEvent.ReallyDeleteEntryNoUndo -> delegate.deleteForever()
+        is EntryViewEvent.AddEvent.UndoDeleteEntry -> delegate.undoDelete()
         is EntryViewEvent.ToolbarEvent.SearchQuery -> delegate.updateSearch(event.search)
         is EntryViewEvent.ToolbarEvent.ChangeSort -> delegate.changeSort(event.sort)
     }

@@ -277,18 +277,13 @@ class EntryListStateModel @Inject constructor(
         }
     }
 
-    internal fun deleteForever(entry: FridgeEntry) {
-        setState {
-            if (undoableEntry?.id() == entry.id()) copy(undoableEntry = null) else this
-        }
+    internal fun deleteForever() {
+        setState { copy(undoableEntry = null) }
     }
 
-    internal fun undoDelete(entry: FridgeEntry) {
-        val undoable = state.undoableEntry
-        if (undoable?.id() == entry.id()) {
-            stateModelScope.launch(context = Dispatchers.Default) {
-                undoRunner.call(entry)
-            }
+    internal fun undoDelete() {
+        stateModelScope.launch(context = Dispatchers.Default) {
+            undoRunner.call(requireNotNull(state.undoableEntry))
         }
     }
 

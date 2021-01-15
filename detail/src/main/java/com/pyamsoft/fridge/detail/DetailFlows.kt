@@ -95,11 +95,9 @@ sealed class DetailViewEvent : UiViewEvent {
 
             object ClearListError : AddEvent()
 
-            data class UndoDeleteItem internal constructor(val item: FridgeItem) : AddEvent()
+            object UndoDeleteItem : AddEvent()
 
-            data class ReallyDeleteItemNoUndo internal constructor(
-                val item: FridgeItem
-            ) : AddEvent()
+            object ReallyDeleteItemNoUndo : AddEvent()
 
         }
 

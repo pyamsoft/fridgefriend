@@ -73,11 +73,9 @@ sealed class EntryViewEvent : UiViewEvent {
 
     sealed class AddEvent : EntryViewEvent() {
 
-        data class ReallyDeleteEntryNoUndo internal constructor(
-            val entry: FridgeEntry,
-        ) : AddEvent()
+        object ReallyDeleteEntryNoUndo : AddEvent()
 
-        data class UndoDeleteEntry internal constructor(val entry: FridgeEntry) : AddEvent()
+        object UndoDeleteEntry : AddEvent()
 
         object AddNew : AddEvent()
 

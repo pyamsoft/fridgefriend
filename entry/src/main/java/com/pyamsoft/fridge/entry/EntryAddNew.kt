@@ -94,10 +94,10 @@ class EntryAddNew @Inject internal constructor(
             long(
                 layoutRoot,
                 "Removed ${undoable.name()}",
-                onHidden = { _, _ -> publish(EntryViewEvent.AddEvent.ReallyDeleteEntryNoUndo(undoable)) }
+                onHidden = { _, _ -> publish(EntryViewEvent.AddEvent.ReallyDeleteEntryNoUndo) }
             ) {
                 // Restore the old item
-                setAction("Undo") { publish(EntryViewEvent.AddEvent.UndoDeleteEntry(undoable)) }
+                setAction("Undo") { publish(EntryViewEvent.AddEvent.UndoDeleteEntry) }
             }
         }
     }

@@ -351,11 +351,8 @@ class DetailListStateModel @Inject internal constructor(
             .toList()
     }
 
-    internal fun reallyDelete(item: FridgeItem) {
-        val undoable = state.undoableItem
-        if (undoable?.id() == item.id()) {
-            setState { copy(undoableItem = null) }
-        }
+    internal fun reallyDelete() {
+        setState { copy(undoableItem = null) }
     }
 
     internal fun handlePresenceSwitch(presence: FridgeItem.Presence) {
@@ -417,12 +414,9 @@ class DetailListStateModel @Inject internal constructor(
         }
     }
 
-    internal fun handleUndoDelete(item: FridgeItem) {
-        val undoable = state.undoableItem
-        if (undoable?.id() == item.id()) {
-            stateModelScope.launch(context = Dispatchers.Default) {
-                undoRunner.call(item)
-            }
+    internal fun handleUndoDelete() {
+        stateModelScope.launch(context = Dispatchers.Default) {
+            undoRunner.call(requireNotNull(state.undoableItem))
         }
     }
 

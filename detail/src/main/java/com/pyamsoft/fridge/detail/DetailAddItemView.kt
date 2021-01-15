@@ -41,7 +41,8 @@ class DetailAddItemView @Inject internal constructor(
     private val imageLoader: ImageLoader,
     parent: ViewGroup,
 ) : BaseUiView<DetailViewState, DetailViewEvent.Main.AddEvent, DetailAddNewBinding>(
-    parent), SnackbarContainer {
+    parent
+), SnackbarContainer {
 
     override val viewBinding = DetailAddNewBinding::inflate
 
@@ -173,14 +174,10 @@ class DetailAddItemView @Inject internal constructor(
             long(
                 layoutRoot,
                 message,
-                onHidden = { _, _ ->
-                    publish(DetailViewEvent.Main.AddEvent.ReallyDeleteItemNoUndo(undoable))
-                }
+                onHidden = { _, _ -> publish(DetailViewEvent.Main.AddEvent.ReallyDeleteItemNoUndo) }
             ) {
                 // Restore the old item
-                setAction("Undo") {
-                    publish(DetailViewEvent.Main.AddEvent.UndoDeleteItem(undoable))
-                }
+                setAction("Undo") { publish(DetailViewEvent.Main.AddEvent.UndoDeleteItem) }
             }
         }
     }
