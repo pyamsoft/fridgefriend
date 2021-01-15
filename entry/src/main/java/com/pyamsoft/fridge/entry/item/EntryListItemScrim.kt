@@ -24,7 +24,6 @@ import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.arch.UiRender
 import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.loader.Loaded
-import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
 import javax.inject.Inject
 
 class EntryListItemScrim @Inject internal constructor(
@@ -41,16 +40,6 @@ class EntryListItemScrim @Inject internal constructor(
     init {
         doOnTeardown {
             clear()
-        }
-
-        doOnInflate {
-            layoutRoot.setOnDebouncedClickListener {
-                publish(EntryItemViewEvent.ExpandEntry)
-            }
-        }
-
-        doOnTeardown {
-            layoutRoot.setOnDebouncedClickListener(null)
         }
     }
 

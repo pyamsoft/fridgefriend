@@ -25,7 +25,6 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.mikepenz.fastadapter.swipe.SimpleSwipeCallback
-import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.entry.databinding.EntryListBinding
 import com.pyamsoft.fridge.entry.item.EntryItemComponent
 import com.pyamsoft.fridge.entry.item.EntryItemViewHolder
@@ -57,7 +56,7 @@ class EntryList @Inject internal constructor(
     owner: LifecycleOwner,
     parent: ViewGroup,
     factory: EntryItemComponent.Factory,
-) : BaseUiView<EntryViewState, EntryViewEvent.ListEvent, EntryListBinding>(parent) {
+) : BaseUiView<EntryViewState, EntryViewEvent.ListEvents, EntryListBinding>(parent) {
 
     override val viewBinding = EntryListBinding::inflate
 
@@ -89,7 +88,11 @@ class EntryList @Inject internal constructor(
                 callback = object : EntryListAdapter.Callback {
 
                     override fun onSelect(index: Int) {
-                        publish(EntryViewEvent.ListEvent.SelectEntry(itemAtIndex(index)))
+                        publish(EntryViewEvent.ListEvents.SelectEntry(index))
+                    }
+
+                    override fun onEdit(index: Int) {
+                        publish(EntryViewEvent.ListEvents.EditEntry(index))
                     }
                 })
             binding.entryList.adapter = modelAdapter
@@ -105,7 +108,7 @@ class EntryList @Inject internal constructor(
 
         doOnInflate {
             binding.entrySwipeRefresh.setOnRefreshListener {
-                publish(EntryViewEvent.ListEvent.ForceRefresh)
+                publish(EntryViewEvent.ListEvents.ForceRefresh)
             }
         }
 
@@ -196,13 +199,8 @@ class EntryList @Inject internal constructor(
         }
     }
 
-    @CheckResult
-    private fun itemAtIndex(index: Int): FridgeEntry {
-        return usingAdapter().currentList[index].entry
-    }
-
     private fun deleteListItem(position: Int) {
-        publish(EntryViewEvent.ListEvent.DeleteEntry(itemAtIndex(position)))
+        publish(EntryViewEvent.ListEvents.DeleteEntry(position))
     }
 
     private fun setupSwipeCallback() {

@@ -267,9 +267,13 @@ class EntryListStateModel @Inject constructor(
         }
     }
 
-    internal fun deleteEntry(entry: FridgeEntry) {
+    inline fun withEntryAt(index: Int, block: (FridgeEntry) -> Unit) {
+        block(state.displayedEntries[index].entry)
+    }
+
+    internal fun deleteEntry(index: Int) {
         stateModelScope.launch(context = Dispatchers.Default) {
-            interactor.delete(entry, true)
+            withEntryAt(index) { interactor.delete(it, true) }
         }
     }
 

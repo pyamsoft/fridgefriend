@@ -60,14 +60,15 @@ data class EntryViewState internal constructor(
 
 sealed class EntryViewEvent : UiViewEvent {
 
-    sealed class ListEvent : EntryViewEvent() {
+    sealed class ListEvents : EntryViewEvent() {
 
-        data class SelectEntry internal constructor(val entry: FridgeEntry) : ListEvent()
+        data class EditEntry internal constructor(val index: Int) : ListEvents()
 
-        object ForceRefresh : ListEvent()
+        data class SelectEntry internal constructor(val index: Int) : ListEvents()
 
-        data class DeleteEntry internal constructor(val entry: FridgeEntry) : ListEvent()
+        data class DeleteEntry internal constructor(val index: Int) : ListEvents()
 
+        object ForceRefresh : ListEvents()
     }
 
     sealed class AddEvent : EntryViewEvent() {
@@ -96,6 +97,8 @@ sealed class EntryViewEvent : UiViewEvent {
 sealed class EntryControllerEvent : UiControllerEvent {
 
     object AddEntry : EntryControllerEvent()
+
+    data class EditEntry internal constructor(val entry: FridgeEntry) : EntryControllerEvent()
 
     data class LoadEntry internal constructor(
         val entry: FridgeEntry,

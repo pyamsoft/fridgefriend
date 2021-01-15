@@ -42,9 +42,8 @@ class ItemMoveViewModel @Inject internal constructor(
     )
 ) {
 
-    private val itemResolveRunner = highlander<Unit> {
-        val item = interactor.loadItem(itemId, entryId, true)
-        setState { copy(item = item) }
+    private val itemResolveRunner = highlander<FridgeItem> {
+        interactor.loadItem(itemId, entryId, true)
     }
 
     init {
@@ -55,7 +54,8 @@ class ItemMoveViewModel @Inject internal constructor(
         doOnCleared { delegate.clear() }
 
         viewModelScope.launch(context = Dispatchers.Default) {
-            itemResolveRunner.call()
+            val item = itemResolveRunner.call()
+            setState { copy(item = item) }
         }
     }
 

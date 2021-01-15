@@ -27,6 +27,7 @@ import androidx.fragment.app.FragmentActivity
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.pyamsoft.fridge.FridgeComponent
 import com.pyamsoft.fridge.core.FridgeViewModelFactory
+import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.pydroid.arch.StateSaver
 import com.pyamsoft.pydroid.arch.createComponent
 import com.pyamsoft.pydroid.ui.Injector
@@ -69,9 +70,10 @@ internal class CreateEntrySheet : BottomSheetDialogFragment() {
         super.onViewCreated(view, savedInstanceState)
 
         val binding = LayoutLinearVerticalBinding.bind(view)
+        val entryId = FridgeEntry.Id(requireArguments().getString(ENTRY_ID, ""))
         Injector.obtainFromApplication<FridgeComponent>(view.context)
             .plusCreateEntryComponent()
-            .create(binding.layoutLinearV)
+            .create(binding.layoutLinearV, entryId)
             .inject(this)
 
         stateSaver = createComponent(
@@ -104,17 +106,23 @@ internal class CreateEntrySheet : BottomSheetDialogFragment() {
     companion object {
 
         private const val TAG = "EntryAddSheet"
+        private const val ENTRY_ID = "entry_id"
 
         @CheckResult
-        private fun newInstance(): DialogFragment {
+        private fun newInstance(entry: FridgeEntry?): DialogFragment {
             return CreateEntrySheet().apply {
                 arguments = Bundle().apply {
+                    entry?.let { putString(ENTRY_ID, it.id().id) }
                 }
             }
         }
 
-        fun show(activity: FragmentActivity) {
-            newInstance().show(activity, TAG)
+        fun create(activity: FragmentActivity) {
+            newInstance(null).show(activity, TAG)
+        }
+
+        fun edit(activity: FragmentActivity, entry: FridgeEntry) {
+            newInstance(entry).show(activity, TAG)
         }
     }
 

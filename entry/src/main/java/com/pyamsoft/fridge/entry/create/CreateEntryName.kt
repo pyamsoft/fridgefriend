@@ -78,12 +78,12 @@ class CreateEntryName @Inject internal constructor(
         }
     }
 
-    private fun handleName(name: String) {
-        delegate.render(name)
+    private fun handleName(name: String?) {
+        delegate.render(name.orEmpty())
     }
 
     override fun onRender(state: UiRender<CreateEntryViewState>) {
-        state.mapChanged { it.name }.render(viewScope) { handleName(it) }
+        state.mapChanged { it.entry }.mapChanged { it?.name() }.render(viewScope) { handleName(it) }
     }
 
     companion object {

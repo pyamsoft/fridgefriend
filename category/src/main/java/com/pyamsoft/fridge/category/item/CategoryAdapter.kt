@@ -35,7 +35,7 @@ class CategoryAdapter internal constructor(
     }
 
     override fun getItemId(position: Int): Long {
-        return getItem(position).category.id().id.hashCode().toLong()
+        return getItem(position).category.id().hashCode().toLong()
     }
 
     override fun getItemViewType(position: Int): Int {

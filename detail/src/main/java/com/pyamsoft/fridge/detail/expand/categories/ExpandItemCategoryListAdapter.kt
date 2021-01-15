@@ -34,7 +34,7 @@ internal class ExpandItemCategoryListAdapter internal constructor(
     }
 
     override fun getItemId(position: Int): Long {
-        return getItem(position).category?.id?.id.hashCode().toLong()
+        return getItem(position).category?.id?.hashCode()?.toLong() ?: 0L
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ExpandedCategoryViewHolder {

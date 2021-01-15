@@ -21,6 +21,7 @@ import androidx.annotation.CheckResult
 import androidx.lifecycle.ViewModel
 import com.pyamsoft.fridge.ThemeProviderModule
 import com.pyamsoft.fridge.core.ViewModelFactoryModule
+import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.tooltip.balloon.TooltipModule
 import dagger.Binds
 import dagger.BindsInstance
@@ -45,7 +46,10 @@ internal interface CreateEntryComponent {
     interface Factory {
 
         @CheckResult
-        fun create(@BindsInstance parent: ViewGroup): CreateEntryComponent
+        fun create(
+            @BindsInstance parent: ViewGroup,
+            @BindsInstance entryId: FridgeEntry.Id
+        ): CreateEntryComponent
     }
 
     @Module

@@ -19,22 +19,13 @@ package com.pyamsoft.fridge.entry
 import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.core.currentDate
 import com.pyamsoft.fridge.core.today
-import com.pyamsoft.fridge.db.entry.FridgeEntry
-import com.pyamsoft.fridge.db.entry.FridgeEntryChangeEvent
-import com.pyamsoft.fridge.db.entry.FridgeEntryDeleteDao
-import com.pyamsoft.fridge.db.entry.FridgeEntryInsertDao
-import com.pyamsoft.fridge.db.entry.FridgeEntryQueryDao
-import com.pyamsoft.fridge.db.entry.FridgeEntryRealtime
-import com.pyamsoft.fridge.db.item.FridgeItem
-import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent
-import com.pyamsoft.fridge.db.item.FridgeItemInsertDao
-import com.pyamsoft.fridge.db.item.FridgeItemQueryDao
-import com.pyamsoft.fridge.db.item.FridgeItemRealtime
+import com.pyamsoft.fridge.db.entry.*
+import com.pyamsoft.fridge.db.item.*
 import com.pyamsoft.pydroid.core.Enforcer
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import timber.log.Timber
-import java.util.Calendar
+import java.util.*
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -95,12 +86,10 @@ class EntryInteractor @Inject internal constructor(
             return@withContext itemRealtime.listenForChanges(onChange)
         }
 
-    suspend fun createEntry(name: String) = withContext(context = Dispatchers.IO) {
-        require(name.isNotBlank()) { "Name cannot be blank" }
-
+    @CheckResult
+    suspend fun loadEntry(id: FridgeEntry.Id): FridgeEntry = withContext(context = Dispatchers.IO) {
         Enforcer.assertOffMainThread()
-        val entry = FridgeEntry.create(name)
-        entryInsertDao.insert(entry.makeReal())
+        return@withContext entryQueryDao.query(false).first { it.id() == id }
     }
 
     suspend fun delete(entry: FridgeEntry, offerUndo: Boolean) =

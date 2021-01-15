@@ -17,7 +17,6 @@
 package com.pyamsoft.fridge.detail
 
 import androidx.lifecycle.viewModelScope
-import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.detail.DetailControllerEvent.ExpandForEditing
 import com.pyamsoft.pydroid.arch.UiSavedState
 import com.pyamsoft.pydroid.arch.UiSavedStateViewModelProvider
@@ -30,7 +29,7 @@ import timber.log.Timber
 class DetailViewModel @AssistedInject internal constructor(
     @DetailInternalApi delegate: DetailListStateModel,
     @Assisted savedState: UiSavedState,
-) : DelegatedDetailViewModel<DetailViewEvent.ControlledEvents, DetailControllerEvent>(
+) : DelegatedDetailViewModel<DetailViewEvent.Main, DetailControllerEvent>(
     savedState, delegate
 ) {
 
@@ -56,34 +55,24 @@ class DetailViewModel @AssistedInject internal constructor(
         }
     }
 
-    override fun handleViewEvent(event: DetailViewEvent.ControlledEvents) = when (event) {
-        is DetailViewEvent.ControlledEvents.ListEvent.ForceRefresh -> delegate.refreshList(true)
-        is DetailViewEvent.ControlledEvents.ListEvent.ChangeItemPresence -> delegate.commitPresence(
-            event.item
-        )
-        is DetailViewEvent.ControlledEvents.ListEvent.ConsumeItem -> delegate.consume(event.item)
-        is DetailViewEvent.ControlledEvents.ListEvent.DeleteItem -> delegate.delete(event.item)
-        is DetailViewEvent.ControlledEvents.ListEvent.RestoreItem -> delegate.restore(event.item)
-        is DetailViewEvent.ControlledEvents.ListEvent.SpoilItem -> delegate.spoil(event.item)
-        is DetailViewEvent.ControlledEvents.ListEvent.IncreaseItemCount -> delegate.increaseCount(
-            event.item
-        )
-        is DetailViewEvent.ControlledEvents.ListEvent.DecreaseItemCount -> delegate.decreaseCount(
-            event.item
-        )
-        is DetailViewEvent.ControlledEvents.ListEvent.ExpandItem -> handleExpand(event.item)
-        is DetailViewEvent.ControlledEvents.AddEvent.ToggleArchiveVisibility -> updateShowing()
-        is DetailViewEvent.ControlledEvents.AddEvent.ReallyDeleteItemNoUndo -> delegate.deleteForever(
-            event.item
-        )
-        is DetailViewEvent.ControlledEvents.AddEvent.UndoDeleteItem -> delegate.handleUndoDelete(
-            event.item
-        )
-        is DetailViewEvent.ControlledEvents.AddEvent.ClearListError -> delegate.clearListError()
-        is DetailViewEvent.ControlledEvents.AddEvent.AddNew -> handleAddNew()
-        is DetailViewEvent.ControlledEvents.ToolbarEvent.Back -> handleBack()
-        is DetailViewEvent.ControlledEvents.ToolbarEvent.SearchQuery -> updateSearch(event.search)
-        is DetailViewEvent.ControlledEvents.ToolbarEvent.ChangeSort -> updateSort(event.sort)
+    override fun handleViewEvent(event: DetailViewEvent.Main) = when (event) {
+        is DetailViewEvent.Main.ListEvent.ForceRefresh -> delegate.refreshList(true)
+        is DetailViewEvent.Main.ListEvent.ChangeItemPresence -> delegate.commitPresence(event.index)
+        is DetailViewEvent.Main.ListEvent.ConsumeItem -> delegate.consume(event.index)
+        is DetailViewEvent.Main.ListEvent.DeleteItem -> delegate.delete(event.index)
+        is DetailViewEvent.Main.ListEvent.RestoreItem -> delegate.restore(event.index)
+        is DetailViewEvent.Main.ListEvent.SpoilItem -> delegate.spoil(event.index)
+        is DetailViewEvent.Main.ListEvent.IncreaseItemCount -> delegate.increaseCount(event.index)
+        is DetailViewEvent.Main.ListEvent.DecreaseItemCount -> delegate.decreaseCount(event.index)
+        is DetailViewEvent.Main.ListEvent.ExpandItem -> handleExpand(event.index)
+        is DetailViewEvent.Main.AddEvent.ToggleArchiveVisibility -> updateShowing()
+        is DetailViewEvent.Main.AddEvent.ReallyDeleteItemNoUndo -> delegate.reallyDelete(event.item)
+        is DetailViewEvent.Main.AddEvent.UndoDeleteItem -> delegate.handleUndoDelete(event.item)
+        is DetailViewEvent.Main.AddEvent.ClearListError -> delegate.clearListError()
+        is DetailViewEvent.Main.AddEvent.AddNew -> handleAddNew()
+        is DetailViewEvent.Main.ToolbarEvent.Back -> handleBack()
+        is DetailViewEvent.Main.ToolbarEvent.SearchQuery -> updateSearch(event.search)
+        is DetailViewEvent.Main.ToolbarEvent.ChangeSort -> updateSort(event.sort)
     }
 
     private fun updateSearch(search: String) {
@@ -124,8 +113,8 @@ class DetailViewModel @AssistedInject internal constructor(
         }
     }
 
-    private fun handleExpand(item: FridgeItem) {
-        publish(ExpandForEditing(item))
+    private fun handleExpand(index: Int) {
+        delegate.withItemAt(index) { publish(ExpandForEditing(it)) }
     }
 
     companion object {

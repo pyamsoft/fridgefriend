@@ -17,7 +17,6 @@
 package com.pyamsoft.fridge.entry
 
 import androidx.lifecycle.viewModelScope
-import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.pydroid.arch.Renderable
 import com.pyamsoft.pydroid.arch.UiViewModel
@@ -39,9 +38,10 @@ class EntryViewModel @Inject internal constructor(
     }
 
     override fun handleViewEvent(event: EntryViewEvent) = when (event) {
-        is EntryViewEvent.ListEvent.SelectEntry -> select(event.entry)
-        is EntryViewEvent.ListEvent.ForceRefresh -> delegate.refreshList(true)
-        is EntryViewEvent.ListEvent.DeleteEntry -> delegate.deleteEntry(event.entry)
+        is EntryViewEvent.ListEvents.EditEntry -> edit(event.index)
+        is EntryViewEvent.ListEvents.SelectEntry -> select(event.index)
+        is EntryViewEvent.ListEvents.DeleteEntry -> delegate.deleteEntry(event.index)
+        is EntryViewEvent.ListEvents.ForceRefresh -> delegate.refreshList(true)
         is EntryViewEvent.AddEvent.AddNew -> handleAddNew()
         is EntryViewEvent.AddEvent.ReallyDeleteEntryNoUndo -> delegate.deleteForever(event.entry)
         is EntryViewEvent.AddEvent.UndoDeleteEntry -> delegate.undoDelete(event.entry)
@@ -54,9 +54,18 @@ class EntryViewModel @Inject internal constructor(
         publish(EntryControllerEvent.AddEntry)
     }
 
-    private fun select(entry: FridgeEntry) {
-        Timber.d("Loading entry page: $entry")
-        publish(EntryControllerEvent.LoadEntry(entry, FridgeItem.Presence.NEED))
+    private fun select(index: Int) {
+        delegate.withEntryAt(index) { entry ->
+            Timber.d("Loading entry page: $entry")
+            publish(EntryControllerEvent.LoadEntry(entry, FridgeItem.Presence.NEED))
+        }
+    }
+
+    private fun edit(index: Int) {
+        delegate.withEntryAt(index) { entry ->
+            Timber.d("Editing entry: $entry")
+            publish(EntryControllerEvent.EditEntry(entry))
+        }
     }
 
 }

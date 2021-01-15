@@ -38,7 +38,7 @@ class EntryListAdapter internal constructor(
     }
 
     override fun getItemId(position: Int): Long {
-        return getItem(position).entry.id().id.hashCode().toLong()
+        return getItem(position).entry.id().hashCode().toLong()
     }
 
     override fun getPopupText(position: Int): String {
@@ -65,6 +65,8 @@ class EntryListAdapter internal constructor(
     interface Callback {
 
         fun onSelect(index: Int)
+
+        fun onEdit(index: Int)
 
     }
 

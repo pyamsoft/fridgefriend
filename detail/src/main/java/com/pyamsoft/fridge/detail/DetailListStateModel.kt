@@ -351,7 +351,7 @@ class DetailListStateModel @Inject internal constructor(
             .toList()
     }
 
-    internal fun deleteForever(item: FridgeItem) {
+    internal fun reallyDelete(item: FridgeItem) {
         val undoable = state.undoableItem
         if (undoable?.id() == item.id()) {
             setState { copy(undoableItem = null) }
@@ -391,21 +391,24 @@ class DetailListStateModel @Inject internal constructor(
         )
     }
 
-    internal fun decreaseCount(item: FridgeItem) {
-        val newCount = item.count() - 1
-        val newItem = item.count(max(1, newCount))
-        updateCount(newItem)
-        if (newCount <= 0 && newItem.presence() == FridgeItem.Presence.HAVE) {
-            stateModelScope.launch(context = Dispatchers.Default) {
-                if (interactor.isZeroCountConsideredConsumed()) {
-                    consume(newItem)
+    internal fun decreaseCount(index: Int) {
+        withItemAt(index) { item ->
+            val newCount = item.count() - 1
+            val newItem = item.count(max(1, newCount))
+            updateCount(newItem)
+
+            if (newCount <= 0 && newItem.presence() == FridgeItem.Presence.HAVE) {
+                stateModelScope.launch(context = Dispatchers.Default) {
+                    if (interactor.isZeroCountConsideredConsumed()) {
+                        consume(index)
+                    }
                 }
             }
         }
     }
 
-    internal fun increaseCount(item: FridgeItem) {
-        updateCount(item.count(item.count() + 1))
+    internal fun increaseCount(index: Int) {
+        withItemAt(index) { updateCount(it.count(it.count() + 1)) }
     }
 
     private fun updateCount(item: FridgeItem) {
@@ -458,28 +461,32 @@ class DetailListStateModel @Inject internal constructor(
         }
     }
 
-    internal fun commitPresence(item: FridgeItem) {
-        changePresence(item, item.presence().flip())
+    internal inline fun withItemAt(index: Int, block: (FridgeItem) -> Unit) {
+        block(state.displayedItems[index])
+    }
+
+    internal fun commitPresence(index: Int) {
+        withItemAt(index) { changePresence(it, it.presence().flip()) }
     }
 
     internal fun changePresence(oldItem: FridgeItem, newPresence: FridgeItem.Presence) {
         updateDelegate.updateItem(oldItem.presence(newPresence))
     }
 
-    internal fun consume(item: FridgeItem) {
-        updateDelegate.consumeItem(item)
+    internal fun consume(index: Int) {
+        withItemAt(index) { updateDelegate.consumeItem(it) }
     }
 
-    internal fun restore(item: FridgeItem) {
-        updateDelegate.restoreItem(item)
+    internal fun restore(index: Int) {
+        withItemAt(index) { updateDelegate.restoreItem(it) }
     }
 
-    internal fun spoil(item: FridgeItem) {
-        updateDelegate.spoilItem(item)
+    internal fun spoil(index: Int) {
+        withItemAt(index) { updateDelegate.spoilItem(it) }
     }
 
-    internal fun delete(item: FridgeItem) {
-        updateDelegate.deleteItem(item)
+    internal fun delete(index: Int) {
+        withItemAt(index) { updateDelegate.deleteItem(it) }
     }
 
     internal fun clearListError() {

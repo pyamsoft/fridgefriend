@@ -14,41 +14,38 @@
  * limitations under the License.
  */
 
-package com.pyamsoft.fridge.entry.create
+package com.pyamsoft.fridge.entry.item
 
 import android.view.ViewGroup
-import com.pyamsoft.fridge.entry.databinding.CreateEntryCommitBinding
-import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.arch.UiRender
+import com.pyamsoft.pydroid.arch.UiView
 import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
 import javax.inject.Inject
 
-class CreateEntryCommit @Inject internal constructor(
+class EntryListItemClick @Inject internal constructor(
     parent: ViewGroup,
-) : BaseUiView<CreateEntryViewState, CreateEntryViewEvent, CreateEntryCommitBinding>(parent) {
-
-    override val viewBinding = CreateEntryCommitBinding::inflate
-
-    override val layoutRoot by boundView { createEntryCommit }
+) : UiView<EntryItemViewState, EntryItemViewEvent>() {
 
     init {
         doOnInflate {
-            layoutRoot.setOnDebouncedClickListener {
-                publish(CreateEntryViewEvent.Commit)
+            parent.setOnDebouncedClickListener {
+                publish(EntryItemViewEvent.ExpandEntry)
+            }
+
+            parent.setOnLongClickListener {
+                publish(EntryItemViewEvent.EditEntry)
+                return@setOnLongClickListener true
             }
         }
 
         doOnTeardown {
-            layoutRoot.setOnDebouncedClickListener(null)
+            parent.setOnDebouncedClickListener(null)
+            parent.setOnLongClickListener(null)
         }
     }
 
-    private fun handleName(name: String?) {
-        layoutRoot.isEnabled = name.orEmpty().isNotBlank()
+    override fun render(state: UiRender<EntryItemViewState>) {
     }
 
-    override fun onRender(state: UiRender<CreateEntryViewState>) {
-        state.mapChanged { it.entry }.mapChanged { it?.name() }.render(viewScope) { handleName(it) }
-    }
 
 }

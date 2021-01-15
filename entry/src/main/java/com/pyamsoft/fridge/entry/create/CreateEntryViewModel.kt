@@ -17,6 +17,7 @@
 package com.pyamsoft.fridge.entry.create
 
 import androidx.lifecycle.viewModelScope
+import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.entry.EntryInteractor
 import com.pyamsoft.highlander.highlander
 import com.pyamsoft.pydroid.arch.UiViewModel
@@ -27,18 +28,19 @@ import javax.inject.Inject
 
 class CreateEntryViewModel @Inject internal constructor(
     private val interactor: EntryInteractor,
+    entryId: FridgeEntry.Id,
 ) : UiViewModel<CreateEntryViewState, CreateEntryViewEvent, CreateEntryControllerEvent>(
     CreateEntryViewState(
-        name = "",
-        creating = false,
+        entry = null,
+        working = false,
         throwable = null
     )
 ) {
 
-    private val commitRunner = highlander<Unit, String> { name ->
+    private val commitRunner = highlander<Unit, FridgeEntry> { entry ->
         handleCreateBegin()
         try {
-            interactor.createEntry(name)
+            interactor.commit(entry)
             publish(CreateEntryControllerEvent.Commit)
         } catch (throwable: Throwable) {
             throwable.onActualError {
@@ -49,8 +51,19 @@ class CreateEntryViewModel @Inject internal constructor(
         }
     }
 
+    private val loadRunner = highlander<FridgeEntry?, FridgeEntry.Id> { id ->
+        if (id.isEmpty()) FridgeEntry.create("") else interactor.loadEntry(id)
+    }
+
+    init {
+        viewModelScope.launch(context = Dispatchers.Default) {
+            val entry = loadRunner.call(entryId)
+            setState { copy(entry = entry) }
+        }
+    }
+
     private fun handleCreateComplete() {
-        setState { copy(creating = false) }
+        setState { copy(working = false) }
     }
 
     private fun handleCreateError(throwable: Throwable) {
@@ -58,7 +71,7 @@ class CreateEntryViewModel @Inject internal constructor(
     }
 
     private fun handleCreateBegin() {
-        setState { copy(creating = true) }
+        setState { copy(working = true) }
     }
 
     override fun handleViewEvent(event: CreateEntryViewEvent) = when (event) {
@@ -67,12 +80,16 @@ class CreateEntryViewModel @Inject internal constructor(
     }
 
     private fun updateName(name: String) {
-        setState { copy(name = name) }
+        requireNotNull(state.entry).let { e ->
+            setState { copy(entry = e.name(name)) }
+        }
     }
 
     private fun commitNewEntry() {
         viewModelScope.launch(context = Dispatchers.Default) {
-            commitRunner.call(state.name)
+            requireNotNull(state.entry).let { e ->
+                commitRunner.call(e)
+            }
         }
     }
 }

@@ -119,6 +119,7 @@ internal class EntryFragment : Fragment(), SnackbarContainer {
             return@createComponent when (it) {
                 is EntryControllerEvent.LoadEntry -> pushPage(it.entry, it.presence)
                 is EntryControllerEvent.AddEntry -> startAddFlow()
+                is EntryControllerEvent.EditEntry -> startEditFlow(it.entry)
             }
         }
 
@@ -144,7 +145,12 @@ internal class EntryFragment : Fragment(), SnackbarContainer {
 
     private fun startAddFlow() {
         Timber.d("Add new entry")
-        CreateEntrySheet.show(requireActivity())
+        CreateEntrySheet.create(requireActivity())
+    }
+
+    private fun startEditFlow(entry: FridgeEntry) {
+        Timber.d("Edit existing entry: $entry")
+        CreateEntrySheet.edit(requireActivity(), entry)
     }
 
     override fun container(): CoordinatorLayout? {

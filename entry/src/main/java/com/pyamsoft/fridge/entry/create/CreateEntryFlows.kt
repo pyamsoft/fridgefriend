@@ -16,13 +16,14 @@
 
 package com.pyamsoft.fridge.entry.create
 
+import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.pydroid.arch.UiControllerEvent
 import com.pyamsoft.pydroid.arch.UiViewEvent
 import com.pyamsoft.pydroid.arch.UiViewState
 
 data class CreateEntryViewState internal constructor(
-    val name: String,
-    val creating: Boolean,
+    val entry: FridgeEntry?,
+    val working: Boolean,
     val throwable: Throwable?
 ) : UiViewState
 

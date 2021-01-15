@@ -29,7 +29,7 @@ import javax.inject.Inject
 class ItemMoveListViewModel @Inject internal constructor(
     @param:MoveInternalApi private val delegate: EntryListStateModel,
     entryId: FridgeEntry.Id,
-) : UiViewModel<EntryViewState, EntryViewEvent.ListEvent, ItemMoveListControllerEvent>(
+) : UiViewModel<EntryViewState, EntryViewEvent.ListEvents, ItemMoveListControllerEvent>(
     initialState = delegate.initialState
 ) {
 
@@ -47,10 +47,11 @@ class ItemMoveListViewModel @Inject internal constructor(
         doOnCleared { delegate.clear() }
     }
 
-    override fun handleViewEvent(event: EntryViewEvent.ListEvent) = when (event) {
-        is EntryViewEvent.ListEvent.SelectEntry -> selectEntry(event.entry)
-        is EntryViewEvent.ListEvent.ForceRefresh -> delegate.refreshList(true)
-        is EntryViewEvent.ListEvent.DeleteEntry -> notHandled(event)
+    override fun handleViewEvent(event: EntryViewEvent.ListEvents) = when (event) {
+        is EntryViewEvent.ListEvents.ForceRefresh -> delegate.refreshList(true)
+        is EntryViewEvent.ListEvents.SelectEntry -> selectEntry(event.index)
+        is EntryViewEvent.ListEvents.DeleteEntry -> notHandled(event)
+        is EntryViewEvent.ListEvents.EditEntry -> editEntry(event.index)
     }
 
     fun handleUpdateSearch(search: String) {
@@ -65,8 +66,16 @@ class ItemMoveListViewModel @Inject internal constructor(
         throw IllegalStateException("Event not handled: $event")
     }
 
-    private fun selectEntry(entry: FridgeEntry) {
-        Timber.d("Selected entry $entry")
-        publish(ItemMoveListControllerEvent.SelectedTarget(entry))
+    private fun editEntry(index: Int) {
+        delegate.withEntryAt(index) { entry ->
+            Timber.d("Edit triggered from move list is unsupported: $entry")
+        }
+    }
+
+    private fun selectEntry(index: Int) {
+        delegate.withEntryAt(index) { entry ->
+            Timber.d("Selected entry $entry")
+            publish(ItemMoveListControllerEvent.SelectedTarget(entry))
+        }
     }
 }

@@ -29,4 +29,6 @@ sealed class EntryItemViewEvent : UiViewEvent {
 
     object ExpandEntry : EntryItemViewEvent()
 
+    object EditEntry : EntryItemViewEvent()
+
 }

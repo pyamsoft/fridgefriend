@@ -37,17 +37,23 @@ class EntryItemViewHolder internal constructor(
     @JvmField
     internal var nameView: EntryListItemName? = null
 
+    @Inject
+    @JvmField
+    internal var clickView: EntryListItemClick? = null
+
     private var viewBinder: ViewBinder<EntryItemViewState>
 
     init {
         factory.create(binding.entryListItem).inject(this)
 
         viewBinder = createViewBinder(
+            requireNotNull(nameView),
             requireNotNull(scrimView),
-            requireNotNull(nameView)
+            requireNotNull(clickView)
         ) {
             return@createViewBinder when (it) {
                 is EntryItemViewEvent.ExpandEntry -> callback.onSelect(adapterPosition)
+                is EntryItemViewEvent.EditEntry -> callback.onEdit(adapterPosition)
             }
         }
     }
@@ -60,6 +66,7 @@ class EntryItemViewHolder internal constructor(
         viewBinder.teardown()
         scrimView = null
         nameView = null
+        clickView = null
     }
 
 }

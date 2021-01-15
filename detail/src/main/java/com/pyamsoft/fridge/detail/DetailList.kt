@@ -53,7 +53,7 @@ class DetailList @Inject internal constructor(
     private val theming: ThemeProvider,
     parent: ViewGroup,
     factory: DetailItemComponent.Factory,
-) : BaseUiView<DetailViewState, DetailViewEvent.ControlledEvents.ListEvent, DetailListBinding>(
+) : BaseUiView<DetailViewState, DetailViewEvent.Main.ListEvent, DetailListBinding>(
     parent
 ) {
 
@@ -84,35 +84,25 @@ class DetailList @Inject internal constructor(
 
                     override fun onIncreaseCount(index: Int) {
                         publish(
-                            DetailViewEvent.ControlledEvents.ListEvent.IncreaseItemCount(
-                                itemAtIndex(index)
-                            )
+                            DetailViewEvent.Main.ListEvent.IncreaseItemCount(index)
                         )
                     }
 
                     override fun onDecreaseCount(index: Int) {
                         publish(
-                            DetailViewEvent.ControlledEvents.ListEvent.DecreaseItemCount(
-                                itemAtIndex(index)
-                            )
+                            DetailViewEvent.Main.ListEvent.DecreaseItemCount(index)
                         )
                     }
 
                     override fun onItemExpanded(index: Int) {
                         publish(
-                            DetailViewEvent.ControlledEvents.ListEvent.ExpandItem(
-                                itemAtIndex(
-                                    index
-                                )
-                            )
+                            DetailViewEvent.Main.ListEvent.ExpandItem(index)
                         )
                     }
 
                     override fun onPresenceChange(index: Int) {
                         publish(
-                            DetailViewEvent.ControlledEvents.ListEvent.ChangeItemPresence(
-                                itemAtIndex(index)
-                            )
+                            DetailViewEvent.Main.ListEvent.ChangeItemPresence(index)
                         )
                     }
                 })
@@ -129,7 +119,7 @@ class DetailList @Inject internal constructor(
 
         doOnInflate {
             binding.detailSwipeRefresh.setOnRefreshListener {
-                publish(DetailViewEvent.ControlledEvents.ListEvent.ForceRefresh)
+                publish(DetailViewEvent.Main.ListEvent.ForceRefresh)
             }
         }
 
@@ -182,11 +172,6 @@ class DetailList @Inject internal constructor(
     private fun removeBottomMargin() {
         bottomMarginDecoration?.also { binding.detailList.removeItemDecoration(it) }
         bottomMarginDecoration = null
-    }
-
-    @CheckResult
-    private fun itemAtIndex(index: Int): FridgeItem {
-        return usingAdapter().currentList[index].item
     }
 
     private fun setupSwipeCallback(state: DetailViewState) {
@@ -299,19 +284,19 @@ class DetailList @Inject internal constructor(
     }
 
     private fun restoreListItem(position: Int) {
-        publish(DetailViewEvent.ControlledEvents.ListEvent.RestoreItem(itemAtIndex(position)))
+        publish(DetailViewEvent.Main.ListEvent.RestoreItem(position))
     }
 
     private fun deleteListItem(position: Int) {
-        publish(DetailViewEvent.ControlledEvents.ListEvent.DeleteItem(itemAtIndex(position)))
+        publish(DetailViewEvent.Main.ListEvent.DeleteItem(position))
     }
 
     private fun consumeListItem(position: Int) {
-        publish(DetailViewEvent.ControlledEvents.ListEvent.ConsumeItem(itemAtIndex(position)))
+        publish(DetailViewEvent.Main.ListEvent.ConsumeItem(position))
     }
 
     private fun spoilListItem(position: Int) {
-        publish(DetailViewEvent.ControlledEvents.ListEvent.SpoilItem(itemAtIndex(position)))
+        publish(DetailViewEvent.Main.ListEvent.SpoilItem(position))
     }
 
     private fun setList(

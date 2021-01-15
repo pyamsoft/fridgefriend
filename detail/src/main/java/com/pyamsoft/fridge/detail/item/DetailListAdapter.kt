@@ -21,7 +21,6 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.pyamsoft.fridge.db.item.JsonMappableFridgeItem
 import com.pyamsoft.fridge.detail.databinding.DetailListItemHolderBinding
 import com.pyamsoft.pydroid.ui.util.teardownAdapter
 import me.zhanghai.android.fastscroll.PopupTextProvider
@@ -41,7 +40,7 @@ class DetailListAdapter internal constructor(
     }
 
     override fun getItemId(position: Int): Long {
-        return getItem(position).item.id().id.hashCode().toLong()
+        return getItem(position).item.id().hashCode().toLong()
     }
 
     override fun onCreateViewHolder(
