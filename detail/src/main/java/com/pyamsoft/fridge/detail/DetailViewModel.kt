@@ -58,14 +58,14 @@ class DetailViewModel @AssistedInject internal constructor(
 
     override fun handleViewEvent(event: DetailViewEvent.Main) = when (event) {
         is DetailViewEvent.Main.ListEvent.ForceRefresh -> delegate.refreshList(true)
-        is DetailViewEvent.Main.ListEvent.ChangeItemPresence -> delegate.commitPresence(event.item)
-        is DetailViewEvent.Main.ListEvent.ConsumeItem -> delegate.consume(event.item)
-        is DetailViewEvent.Main.ListEvent.DeleteItem -> delegate.delete(event.item)
-        is DetailViewEvent.Main.ListEvent.RestoreItem -> delegate.restore(event.item)
-        is DetailViewEvent.Main.ListEvent.SpoilItem -> delegate.spoil(event.item)
-        is DetailViewEvent.Main.ListEvent.IncreaseItemCount -> delegate.increaseCount(event.item)
-        is DetailViewEvent.Main.ListEvent.DecreaseItemCount -> delegate.decreaseCount(event.item)
-        is DetailViewEvent.Main.ListEvent.ExpandItem -> handleExpand(event.item)
+        is DetailViewEvent.Main.ListEvent.ChangeItemPresence -> delegate.commitPresence(event.index)
+        is DetailViewEvent.Main.ListEvent.ConsumeItem -> delegate.consume(event.index)
+        is DetailViewEvent.Main.ListEvent.DeleteItem -> delegate.delete(event.index)
+        is DetailViewEvent.Main.ListEvent.RestoreItem -> delegate.restore(event.index)
+        is DetailViewEvent.Main.ListEvent.SpoilItem -> delegate.spoil(event.index)
+        is DetailViewEvent.Main.ListEvent.IncreaseItemCount -> delegate.increaseCount(event.index)
+        is DetailViewEvent.Main.ListEvent.DecreaseItemCount -> delegate.decreaseCount(event.index)
+        is DetailViewEvent.Main.ListEvent.ExpandItem -> handleExpand(event.index)
         is DetailViewEvent.Main.AddEvent.ToggleArchiveVisibility -> updateShowing()
         is DetailViewEvent.Main.AddEvent.ReallyDeleteItemNoUndo -> delegate.reallyDelete(event.item)
         is DetailViewEvent.Main.AddEvent.UndoDeleteItem -> delegate.handleUndoDelete(event.item)
@@ -114,8 +114,12 @@ class DetailViewModel @AssistedInject internal constructor(
         }
     }
 
-    private fun handleExpand(item: FridgeItem) {
-        publish(ExpandForEditing(item))
+    private inline fun withItemAt(index: Int, block: (FridgeItem) -> Unit) {
+        block(state.displayedItems[index])
+    }
+
+    private fun handleExpand(index: Int) {
+        withItemAt(index) { publish(ExpandForEditing(it)) }
     }
 
     companion object {

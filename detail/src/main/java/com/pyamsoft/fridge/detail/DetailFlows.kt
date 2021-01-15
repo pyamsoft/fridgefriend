@@ -107,21 +107,21 @@ sealed class DetailViewEvent : UiViewEvent {
 
             object ForceRefresh : ListEvent()
 
-            data class IncreaseItemCount internal constructor(val item: FridgeItem) : ListEvent()
+            data class IncreaseItemCount internal constructor(val index: Int) : ListEvent()
 
-            data class DecreaseItemCount internal constructor(val item: FridgeItem) : ListEvent()
+            data class DecreaseItemCount internal constructor(val index: Int) : ListEvent()
 
-            data class ConsumeItem internal constructor(val item: FridgeItem) : ListEvent()
+            data class ConsumeItem internal constructor(val index: Int) : ListEvent()
 
-            data class DeleteItem internal constructor(val item: FridgeItem) : ListEvent()
+            data class DeleteItem internal constructor(val index: Int) : ListEvent()
 
-            data class RestoreItem internal constructor(val item: FridgeItem) : ListEvent()
+            data class RestoreItem internal constructor(val index: Int) : ListEvent()
 
-            data class SpoilItem internal constructor(val item: FridgeItem) : ListEvent()
+            data class SpoilItem internal constructor(val index: Int) : ListEvent()
 
-            data class ExpandItem internal constructor(val item: FridgeItem) : ListEvent()
+            data class ExpandItem internal constructor(val index: Int) : ListEvent()
 
-            data class ChangeItemPresence internal constructor(val item: FridgeItem) : ListEvent()
+            data class ChangeItemPresence internal constructor(val index: Int) : ListEvent()
 
         }
 

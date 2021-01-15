@@ -25,7 +25,6 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.mikepenz.fastadapter.swipe.SimpleSwipeCallback
-import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.entry.databinding.EntryListBinding
 import com.pyamsoft.fridge.entry.item.EntryItemComponent
 import com.pyamsoft.fridge.entry.item.EntryItemViewHolder
@@ -88,13 +87,12 @@ class EntryList @Inject internal constructor(
                 callback = object : EntryListAdapter.Callback {
 
                     override fun onSelect(index: Int) {
-                        publish(EntryViewEvent.ListEvents.SelectEntry(entryAtIndex(index)))
+                        publish(EntryViewEvent.ListEvents.SelectEntry(index))
                     }
 
                     override fun onEdit(index: Int) {
-                        publish(EntryViewEvent.ListEvents.EditEntry(entryAtIndex(index)))
+                        publish(EntryViewEvent.ListEvents.EditEntry(index))
                     }
-
                 })
             binding.entryList.adapter = modelAdapter
         }
@@ -200,13 +198,8 @@ class EntryList @Inject internal constructor(
         }
     }
 
-    @CheckResult
-    private fun entryAtIndex(index: Int): FridgeEntry {
-        return usingAdapter().currentList[index].entry
-    }
-
     private fun deleteListItem(position: Int) {
-        publish(EntryViewEvent.ListEvents.DeleteEntry(entryAtIndex(position)))
+        publish(EntryViewEvent.ListEvents.DeleteEntry(position))
     }
 
     private fun setupSwipeCallback() {

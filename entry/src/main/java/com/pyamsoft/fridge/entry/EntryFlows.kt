@@ -62,11 +62,11 @@ sealed class EntryViewEvent : UiViewEvent {
 
     sealed class ListEvents : EntryViewEvent() {
 
-        data class EditEntry internal constructor(val entry: FridgeEntry) : ListEvents()
+        data class EditEntry internal constructor(val index: Int) : ListEvents()
 
-        data class SelectEntry internal constructor(val entry: FridgeEntry) : ListEvents()
+        data class SelectEntry internal constructor(val index: Int) : ListEvents()
 
-        data class DeleteEntry internal constructor(val entry: FridgeEntry) : ListEvents()
+        data class DeleteEntry internal constructor(val index: Int) : ListEvents()
 
         object ForceRefresh : ListEvents()
     }
@@ -90,6 +90,7 @@ sealed class EntryViewEvent : UiViewEvent {
         data class ChangeSort(val sort: EntryViewState.Sorts) : ToolbarEvent()
 
     }
+
 
 }
 

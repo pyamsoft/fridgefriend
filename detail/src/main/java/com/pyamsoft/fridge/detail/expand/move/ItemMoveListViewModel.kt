@@ -49,9 +49,9 @@ class ItemMoveListViewModel @Inject internal constructor(
 
     override fun handleViewEvent(event: EntryViewEvent.ListEvents) = when (event) {
         is EntryViewEvent.ListEvents.ForceRefresh -> delegate.refreshList(true)
-        is EntryViewEvent.ListEvents.SelectEntry -> selectEntry(event.entry)
+        is EntryViewEvent.ListEvents.SelectEntry -> selectEntry(event.index)
         is EntryViewEvent.ListEvents.DeleteEntry -> notHandled(event)
-        is EntryViewEvent.ListEvents.EditEntry -> editEntry(event.entry)
+        is EntryViewEvent.ListEvents.EditEntry -> editEntry(event.index)
     }
 
     fun handleUpdateSearch(search: String) {
@@ -66,12 +66,20 @@ class ItemMoveListViewModel @Inject internal constructor(
         throw IllegalStateException("Event not handled: $event")
     }
 
-    private fun editEntry(entry: FridgeEntry) {
-        Timber.d("Edit triggered from move list is unsupported: $entry")
+    private inline fun withEntryAt(index: Int, block: (FridgeEntry) -> Unit) {
+        block(state.displayedEntries[index].entry)
     }
 
-    private fun selectEntry(entry: FridgeEntry) {
-        Timber.d("Selected entry $entry")
-        publish(ItemMoveListControllerEvent.SelectedTarget(entry))
+    private fun editEntry(index: Int) {
+        withEntryAt(index) { entry ->
+            Timber.d("Edit triggered from move list is unsupported: $entry")
+        }
+    }
+
+    private fun selectEntry(index: Int) {
+        withEntryAt(index) { entry ->
+            Timber.d("Selected entry $entry")
+            publish(ItemMoveListControllerEvent.SelectedTarget(entry))
+        }
     }
 }
