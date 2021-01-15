@@ -17,6 +17,7 @@
 package com.pyamsoft.fridge.detail.expand.move
 
 import androidx.lifecycle.viewModelScope
+import com.pyamsoft.fridge.db.DbCache
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.detail.DetailInteractor
@@ -32,6 +33,7 @@ import javax.inject.Inject
 
 class ItemMoveViewModel @Inject internal constructor(
     private val interactor: DetailInteractor,
+    private val dbCache: DbCache,
     @MoveInternalApi delegate: EntryListStateModel,
     itemId: FridgeItem.Id,
     entryId: FridgeEntry.Id,
@@ -79,11 +81,6 @@ class ItemMoveViewModel @Inject internal constructor(
 
     fun handleMoveItemToEntry(entry: FridgeEntry) {
         state.item?.let { item ->
-            if (item.entryId() == entry.id()) {
-                Timber.w("Cannot move item to same entry: ${entry.id()}")
-                return
-            }
-
             Timber.d("Move item from ${item.entryId()} to ${entry.id()}")
             viewModelScope.launch(context = Dispatchers.Default) {
                 Timber.d("Remove old item")
@@ -91,6 +88,9 @@ class ItemMoveViewModel @Inject internal constructor(
 
                 Timber.d("Create item with new entry id")
                 interactor.commit(item.migrateTo(entry.id()))
+
+                Timber.d("Clear all db caches")
+                dbCache.invalidate()
 
                 Timber.d("All done moving, close dialog")
                 closeDialog()

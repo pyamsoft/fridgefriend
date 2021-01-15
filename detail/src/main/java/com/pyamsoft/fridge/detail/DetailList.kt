@@ -82,27 +82,19 @@ class DetailList @Inject internal constructor(
                 callback = object : DetailListAdapter.Callback {
 
                     override fun onIncreaseCount(index: Int) {
-                        publish(
-                            DetailViewEvent.Main.ListEvent.IncreaseItemCount(index)
-                        )
+                        publish(DetailViewEvent.Main.ListEvent.IncreaseItemCount(itemAtIndex(index)))
                     }
 
                     override fun onDecreaseCount(index: Int) {
-                        publish(
-                            DetailViewEvent.Main.ListEvent.DecreaseItemCount(index)
-                        )
+                        publish(DetailViewEvent.Main.ListEvent.DecreaseItemCount(itemAtIndex(index)))
                     }
 
                     override fun onItemExpanded(index: Int) {
-                        publish(
-                            DetailViewEvent.Main.ListEvent.ExpandItem(index)
-                        )
+                        publish(DetailViewEvent.Main.ListEvent.ExpandItem(itemAtIndex(index)))
                     }
 
                     override fun onPresenceChange(index: Int) {
-                        publish(
-                            DetailViewEvent.Main.ListEvent.ChangeItemPresence(index)
-                        )
+                        publish(DetailViewEvent.Main.ListEvent.ChangeItemPresence(itemAtIndex(index)))
                     }
                 })
             binding.detailList.adapter = modelAdapter
@@ -166,6 +158,11 @@ class DetailList @Inject internal constructor(
             modelAdapter = null
             touchHelper = null
         }
+    }
+
+    @CheckResult
+    private fun itemAtIndex(index: Int): FridgeItem {
+        return usingAdapter().currentList[index].item
     }
 
     private fun removeBottomMargin() {
@@ -283,19 +280,19 @@ class DetailList @Inject internal constructor(
     }
 
     private fun restoreListItem(position: Int) {
-        publish(DetailViewEvent.Main.ListEvent.RestoreItem(position))
+        publish(DetailViewEvent.Main.ListEvent.RestoreItem(itemAtIndex(position)))
     }
 
     private fun deleteListItem(position: Int) {
-        publish(DetailViewEvent.Main.ListEvent.DeleteItem(position))
+        publish(DetailViewEvent.Main.ListEvent.DeleteItem(itemAtIndex(position)))
     }
 
     private fun consumeListItem(position: Int) {
-        publish(DetailViewEvent.Main.ListEvent.ConsumeItem(position))
+        publish(DetailViewEvent.Main.ListEvent.ConsumeItem(itemAtIndex(position)))
     }
 
     private fun spoilListItem(position: Int) {
-        publish(DetailViewEvent.Main.ListEvent.SpoilItem(position))
+        publish(DetailViewEvent.Main.ListEvent.SpoilItem(itemAtIndex(position)))
     }
 
     private fun setList(

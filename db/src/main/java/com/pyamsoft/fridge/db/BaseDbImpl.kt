@@ -42,6 +42,4 @@ internal abstract class BaseDbImpl<
         invalidate()
         bus.send(event)
     }
-
-    protected abstract suspend fun invalidate()
 }

@@ -19,44 +19,19 @@ package com.pyamsoft.fridge.db.room
 import android.content.Context
 import androidx.annotation.CheckResult
 import androidx.room.Room
-import com.pyamsoft.cachify.Cached
-import com.pyamsoft.cachify.MemoryCacheStorage
-import com.pyamsoft.cachify.MultiCached1
-import com.pyamsoft.cachify.MultiCached2
-import com.pyamsoft.cachify.cachify
-import com.pyamsoft.cachify.multiCachify
+import com.pyamsoft.cachify.*
 import com.pyamsoft.fridge.db.DbApi
+import com.pyamsoft.fridge.db.DbCache
 import com.pyamsoft.fridge.db.FridgeDb
-import com.pyamsoft.fridge.db.category.FridgeCategory
-import com.pyamsoft.fridge.db.category.FridgeCategoryDeleteDao
-import com.pyamsoft.fridge.db.category.FridgeCategoryInsertDao
-import com.pyamsoft.fridge.db.category.FridgeCategoryQueryDao
-import com.pyamsoft.fridge.db.category.JsonMappableFridgeCategory
-import com.pyamsoft.fridge.db.entry.FridgeEntry
-import com.pyamsoft.fridge.db.entry.FridgeEntryDeleteDao
-import com.pyamsoft.fridge.db.entry.FridgeEntryInsertDao
-import com.pyamsoft.fridge.db.entry.FridgeEntryQueryDao
-import com.pyamsoft.fridge.db.entry.JsonMappableFridgeEntry
-import com.pyamsoft.fridge.db.item.FridgeItem
-import com.pyamsoft.fridge.db.item.FridgeItemDb
-import com.pyamsoft.fridge.db.item.FridgeItemDeleteDao
-import com.pyamsoft.fridge.db.item.FridgeItemInsertDao
-import com.pyamsoft.fridge.db.item.FridgeItemQueryDao
-import com.pyamsoft.fridge.db.item.JsonMappableFridgeItem
-import com.pyamsoft.fridge.db.store.JsonMappableNearbyStore
-import com.pyamsoft.fridge.db.store.NearbyStore
-import com.pyamsoft.fridge.db.store.NearbyStoreDeleteDao
-import com.pyamsoft.fridge.db.store.NearbyStoreInsertDao
-import com.pyamsoft.fridge.db.store.NearbyStoreQueryDao
-import com.pyamsoft.fridge.db.zone.JsonMappableNearbyZone
-import com.pyamsoft.fridge.db.zone.NearbyZone
-import com.pyamsoft.fridge.db.zone.NearbyZoneDeleteDao
-import com.pyamsoft.fridge.db.zone.NearbyZoneInsertDao
-import com.pyamsoft.fridge.db.zone.NearbyZoneQueryDao
+import com.pyamsoft.fridge.db.category.*
+import com.pyamsoft.fridge.db.entry.*
+import com.pyamsoft.fridge.db.item.*
+import com.pyamsoft.fridge.db.store.*
+import com.pyamsoft.fridge.db.zone.*
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
-import java.util.Locale
+import java.util.*
 import java.util.concurrent.TimeUnit.MINUTES
 import javax.inject.Qualifier
 
@@ -70,6 +45,10 @@ abstract class RoomModule {
     @Binds
     @CheckResult
     internal abstract fun provideDb(impl: FridgeDbImpl): FridgeDb
+
+    @Binds
+    @CheckResult
+    internal abstract fun provideDbCache(impl: FridgeDbImpl): DbCache
 
     @Module
     companion object {

@@ -35,6 +35,14 @@ internal class FridgeDbImpl @Inject internal constructor(
     private val categoryDb: FridgeCategoryDb,
 ) : FridgeDb {
 
+    override suspend fun invalidate() {
+        itemDb.invalidate()
+        entryDb.invalidate()
+        storeDb.invalidate()
+        zoneDb.invalidate()
+        categoryDb.invalidate()
+    }
+
     @CheckResult
     override fun items(): FridgeItemDb {
         return itemDb

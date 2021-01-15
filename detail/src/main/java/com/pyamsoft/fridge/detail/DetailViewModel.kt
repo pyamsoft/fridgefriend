@@ -17,6 +17,7 @@
 package com.pyamsoft.fridge.detail
 
 import androidx.lifecycle.viewModelScope
+import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.detail.DetailControllerEvent.ExpandForEditing
 import com.pyamsoft.pydroid.arch.UiSavedState
 import com.pyamsoft.pydroid.arch.UiSavedStateViewModelProvider
@@ -57,14 +58,14 @@ class DetailViewModel @AssistedInject internal constructor(
 
     override fun handleViewEvent(event: DetailViewEvent.Main) = when (event) {
         is DetailViewEvent.Main.ListEvent.ForceRefresh -> delegate.refreshList(true)
-        is DetailViewEvent.Main.ListEvent.ChangeItemPresence -> delegate.commitPresence(event.index)
-        is DetailViewEvent.Main.ListEvent.ConsumeItem -> delegate.consume(event.index)
-        is DetailViewEvent.Main.ListEvent.DeleteItem -> delegate.delete(event.index)
-        is DetailViewEvent.Main.ListEvent.RestoreItem -> delegate.restore(event.index)
-        is DetailViewEvent.Main.ListEvent.SpoilItem -> delegate.spoil(event.index)
-        is DetailViewEvent.Main.ListEvent.IncreaseItemCount -> delegate.increaseCount(event.index)
-        is DetailViewEvent.Main.ListEvent.DecreaseItemCount -> delegate.decreaseCount(event.index)
-        is DetailViewEvent.Main.ListEvent.ExpandItem -> handleExpand(event.index)
+        is DetailViewEvent.Main.ListEvent.ChangeItemPresence -> delegate.commitPresence(event.item)
+        is DetailViewEvent.Main.ListEvent.ConsumeItem -> delegate.consume(event.item)
+        is DetailViewEvent.Main.ListEvent.DeleteItem -> delegate.delete(event.item)
+        is DetailViewEvent.Main.ListEvent.RestoreItem -> delegate.restore(event.item)
+        is DetailViewEvent.Main.ListEvent.SpoilItem -> delegate.spoil(event.item)
+        is DetailViewEvent.Main.ListEvent.IncreaseItemCount -> delegate.increaseCount(event.item)
+        is DetailViewEvent.Main.ListEvent.DecreaseItemCount -> delegate.decreaseCount(event.item)
+        is DetailViewEvent.Main.ListEvent.ExpandItem -> handleExpand(event.item)
         is DetailViewEvent.Main.AddEvent.ToggleArchiveVisibility -> updateShowing()
         is DetailViewEvent.Main.AddEvent.ReallyDeleteItemNoUndo -> delegate.reallyDelete(event.item)
         is DetailViewEvent.Main.AddEvent.UndoDeleteItem -> delegate.handleUndoDelete(event.item)
@@ -113,8 +114,8 @@ class DetailViewModel @AssistedInject internal constructor(
         }
     }
 
-    private fun handleExpand(index: Int) {
-        delegate.withItemAt(index) { publish(ExpandForEditing(it)) }
+    private fun handleExpand(item: FridgeItem) {
+        publish(ExpandForEditing(item))
     }
 
     companion object {

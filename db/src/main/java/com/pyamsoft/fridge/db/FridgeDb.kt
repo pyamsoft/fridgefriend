@@ -23,7 +23,7 @@ import com.pyamsoft.fridge.db.item.FridgeItemDb
 import com.pyamsoft.fridge.db.store.NearbyStoreDb
 import com.pyamsoft.fridge.db.zone.NearbyZoneDb
 
-interface FridgeDb {
+interface FridgeDb : DbCache {
 
     @CheckResult
     fun items(): FridgeItemDb
