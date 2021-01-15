@@ -36,7 +36,6 @@ import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.arch.UiRender
 import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.ui.theme.ThemeProvider
-import com.pyamsoft.pydroid.ui.util.refreshing
 import com.pyamsoft.pydroid.ui.util.removeAllItemDecorations
 import com.pyamsoft.pydroid.util.asDp
 import com.pyamsoft.pydroid.util.tintWith
@@ -313,7 +312,7 @@ class DetailList @Inject internal constructor(
     }
 
     private fun handleLoading(loading: Boolean) {
-        binding.detailSwipeRefresh.refreshing(loading)
+        binding.detailSwipeRefresh.isRefreshing = loading
     }
 
     private fun handleList(state: DetailViewState) {

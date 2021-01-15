@@ -36,7 +36,6 @@ import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.arch.UiRender
 import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.ui.theme.ThemeProvider
-import com.pyamsoft.pydroid.ui.util.refreshing
 import com.pyamsoft.pydroid.ui.util.removeAllItemDecorations
 import com.pyamsoft.pydroid.util.asDp
 import com.pyamsoft.pydroid.util.tintWith
@@ -291,7 +290,7 @@ class EntryList @Inject internal constructor(
     }
 
     private fun handleLoading(loading: Boolean) {
-        binding.entrySwipeRefresh.refreshing(loading)
+        binding.entrySwipeRefresh.isRefreshing = loading
     }
 
     private fun handleList(entries: List<EntryViewState.EntryGroup>) {
