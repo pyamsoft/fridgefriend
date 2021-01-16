@@ -36,8 +36,9 @@ import com.pyamsoft.pydroid.arch.UiSavedState
 import com.pyamsoft.pydroid.arch.UiSavedStateViewModel
 import com.pyamsoft.pydroid.arch.UiSavedStateViewModelProvider
 import com.pyamsoft.pydroid.bus.EventBus
-import com.squareup.inject.assisted.Assisted
-import com.squareup.inject.assisted.AssistedInject
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -383,7 +384,7 @@ class ExpandItemViewModel @AssistedInject internal constructor(
         override val message: String,
     ) : IllegalStateException(message)
 
-    @AssistedInject.Factory
+    @AssistedFactory
     interface Factory : UiSavedStateViewModelProvider<ExpandItemViewModel> {
         override fun create(savedState: UiSavedState): ExpandItemViewModel
     }

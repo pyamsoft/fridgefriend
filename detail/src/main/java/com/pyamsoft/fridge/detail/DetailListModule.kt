@@ -32,7 +32,7 @@ import javax.inject.Qualifier
 @Retention(AnnotationRetention.BINARY)
 internal annotation class DetailInternalApi
 
-@Module(includes = [DetailModule::class])
+@Module
 abstract class DetailListModule {
 
     /**
@@ -53,7 +53,7 @@ abstract class DetailListModule {
         internal fun provideDetailListItemComponentCreator(
             context: Context,
             tooltipCreator: TooltipCreator,
-            theming: ThemeProvider
+            theming: ThemeProvider,
         ): DetailItemComponent.Factory {
             return Injector.obtainFromApplication<DetailListComponent.Factory>(context)
                 .create(tooltipCreator, theming).plusItemComponent()

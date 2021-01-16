@@ -110,9 +110,6 @@ dependencies {
   // Dagger
   kapt "com.google.dagger:dagger-compiler:$dagger"
 
-  compileOnly "com.squareup.inject:assisted-inject-annotations-dagger2:$assistedInject"
-  kapt "com.squareup.inject:assisted-inject-processor-dagger2:$assistedInject"
-
   implementation project(':butler-workmanager')
   implementation project(':db-room')
   implementation project(':category')

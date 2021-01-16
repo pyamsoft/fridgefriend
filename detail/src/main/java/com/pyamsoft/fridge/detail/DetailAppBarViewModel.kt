@@ -18,8 +18,9 @@ package com.pyamsoft.fridge.detail
 
 import com.pyamsoft.pydroid.arch.UiSavedState
 import com.pyamsoft.pydroid.arch.UiSavedStateViewModelProvider
-import com.squareup.inject.assisted.Assisted
-import com.squareup.inject.assisted.AssistedInject
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 
 class DetailAppBarViewModel @AssistedInject internal constructor(
     @DetailInternalApi delegate: DetailListStateModel,
@@ -30,7 +31,7 @@ class DetailAppBarViewModel @AssistedInject internal constructor(
         is DetailViewEvent.SwitcherEvent.PresenceSwitched -> delegate.handlePresenceSwitch(event.presence)
     }
 
-    @AssistedInject.Factory
+    @AssistedFactory
     interface Factory : UiSavedStateViewModelProvider<DetailAppBarViewModel> {
         override fun create(savedState: UiSavedState): DetailAppBarViewModel
     }

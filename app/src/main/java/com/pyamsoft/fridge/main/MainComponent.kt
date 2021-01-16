@@ -27,7 +27,7 @@ import com.pyamsoft.pydroid.ui.app.ToolbarActivityProvider
 import dagger.BindsInstance
 import dagger.Subcomponent
 
-@Subcomponent(modules = [MainModule::class, ThemeProviderModule::class])
+@Subcomponent(modules = [ThemeProviderModule::class])
 internal interface MainComponent {
 
     fun inject(activity: MainActivity)

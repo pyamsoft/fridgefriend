@@ -18,15 +18,13 @@ package com.pyamsoft.fridge.detail.expand
 
 import android.content.Context
 import androidx.annotation.CheckResult
-import com.pyamsoft.fridge.detail.DetailModule
 import com.pyamsoft.fridge.detail.expand.categories.ExpandCategoryComponent
 import com.pyamsoft.pydroid.ui.Injector
 import com.pyamsoft.pydroid.ui.theme.ThemeProvider
-import com.squareup.inject.assisted.dagger2.AssistedModule
 import dagger.Module
 import dagger.Provides
 
-@Module(includes = [DetailModule::class])
+@Module
 abstract class ExpandItemModule {
 
     @Module
@@ -37,7 +35,7 @@ abstract class ExpandItemModule {
         @CheckResult
         internal fun provideExpandCategoryComponentCreator(
             context: Context,
-            themeProvider: ThemeProvider
+            themeProvider: ThemeProvider,
         ): ExpandCategoryComponent.Factory {
             return Injector.obtainFromApplication<ExpandItemCategoryListComponent.Factory>(context)
                 .create(themeProvider)

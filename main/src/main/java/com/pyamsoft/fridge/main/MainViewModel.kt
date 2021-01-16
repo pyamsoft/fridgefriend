@@ -28,12 +28,14 @@ import com.pyamsoft.pydroid.arch.UiSavedState
 import com.pyamsoft.pydroid.arch.UiSavedStateViewModel
 import com.pyamsoft.pydroid.arch.UiSavedStateViewModelProvider
 import com.pyamsoft.pydroid.bus.EventBus
-import com.squareup.inject.assisted.Assisted
-import com.squareup.inject.assisted.AssistedInject
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import timber.log.Timber
+import javax.inject.Inject
 import javax.inject.Named
 
 class MainViewModel @AssistedInject internal constructor(
@@ -206,7 +208,7 @@ class MainViewModel @AssistedInject internal constructor(
         private val EMPTY = {}
     }
 
-    @AssistedInject.Factory
+    @AssistedFactory
     interface Factory : UiSavedStateViewModelProvider<MainViewModel> {
         override fun create(savedState: UiSavedState): MainViewModel
     }

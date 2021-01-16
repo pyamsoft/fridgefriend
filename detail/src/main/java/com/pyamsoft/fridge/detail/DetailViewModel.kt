@@ -21,8 +21,9 @@ import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.detail.DetailControllerEvent.ExpandForEditing
 import com.pyamsoft.pydroid.arch.UiSavedState
 import com.pyamsoft.pydroid.arch.UiSavedStateViewModelProvider
-import com.squareup.inject.assisted.Assisted
-import com.squareup.inject.assisted.AssistedInject
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -128,7 +129,7 @@ class DetailViewModel @AssistedInject internal constructor(
         private const val SAVED_SEARCH = "search"
     }
 
-    @AssistedInject.Factory
+    @AssistedFactory
     interface Factory : UiSavedStateViewModelProvider<DetailViewModel> {
         override fun create(savedState: UiSavedState): DetailViewModel
     }

@@ -62,9 +62,6 @@ dependencies {
 
   kapt "com.google.dagger:dagger-compiler:$dagger"
 
-  compileOnly "com.squareup.inject:assisted-inject-annotations-dagger2:$assistedInject"
-  kapt "com.squareup.inject:assisted-inject-processor-dagger2:$assistedInject"
-
   // AndroidX
   implementation "androidx.preference:preference:$preference"
 
