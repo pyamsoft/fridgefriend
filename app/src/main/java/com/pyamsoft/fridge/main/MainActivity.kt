@@ -56,7 +56,6 @@ import com.pyamsoft.pydroid.arch.createSavedStateViewModelFactory
 import com.pyamsoft.pydroid.notify.toNotifyId
 import com.pyamsoft.pydroid.ui.Injector
 import com.pyamsoft.pydroid.ui.arch.fromViewModelFactory
-import com.pyamsoft.pydroid.ui.arch.viewModelFactory
 import com.pyamsoft.pydroid.ui.changelog.ChangeLogActivity
 import com.pyamsoft.pydroid.ui.changelog.buildChangeLog
 import com.pyamsoft.pydroid.ui.databinding.LayoutConstraintBinding
@@ -86,8 +85,7 @@ internal class MainActivity : ChangeLogActivity(),
 
     override val changelog = buildChangeLog {
         change("The NEED and HAVE tabs in a group view have moved to the top toolbar")
-//        // TODO(Do this)
-//        feature("Group names can be edited via long press")
+        feature("Group names can be edited via long press")
 //        // TODO(Do this)
 //        feature("More information on Group overview screen")
 //        // TODO(Do this): Entry screen empty state
