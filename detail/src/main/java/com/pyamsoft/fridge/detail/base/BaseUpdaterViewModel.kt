@@ -16,44 +16,15 @@
 
 package com.pyamsoft.fridge.detail.base
 
-import androidx.annotation.CheckResult
-import androidx.lifecycle.viewModelScope
 import com.pyamsoft.fridge.core.currentDate
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.detail.DetailInteractor
 import com.pyamsoft.highlander.highlander
-import com.pyamsoft.pydroid.arch.UiControllerEvent
-import com.pyamsoft.pydroid.arch.UiViewEvent
-import com.pyamsoft.pydroid.arch.UiViewModel
-import com.pyamsoft.pydroid.arch.UiViewState
 import com.pyamsoft.pydroid.arch.onActualError
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import timber.log.Timber
-
-abstract class BaseUpdaterViewModel<S : UiViewState, V : UiViewEvent, C : UiControllerEvent> protected constructor(
-    initialState: S,
-) : UiViewModel<S, V, C>(initialState) {
-
-    @CheckResult
-    internal fun createUpdateDelegate(
-        interactor: DetailInteractor,
-        onError: (Throwable) -> Unit,
-    ): UpdateDelegate {
-        return createUpdateDelegate(viewModelScope, interactor, onError)
-    }
-
-}
-
-@CheckResult
-internal fun createUpdateDelegate(
-    scope: CoroutineScope,
-    interactor: DetailInteractor,
-    onError: (Throwable) -> Unit,
-): UpdateDelegate {
-    return UpdateDelegate(scope, interactor, onError)
-}
 
 internal class UpdateDelegate internal constructor(
     viewModelScope: CoroutineScope,

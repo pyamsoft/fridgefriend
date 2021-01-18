@@ -21,7 +21,7 @@ import com.pyamsoft.fridge.core.today
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.item.*
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent.*
-import com.pyamsoft.fridge.detail.base.createUpdateDelegate
+import com.pyamsoft.fridge.detail.base.UpdateDelegate
 import com.pyamsoft.fridge.ui.BottomOffset
 import com.pyamsoft.highlander.highlander
 import com.pyamsoft.pydroid.arch.UiStateModel
@@ -60,8 +60,7 @@ class DetailListStateModel @Inject internal constructor(
     )
 ) {
 
-    private val updateDelegate =
-        createUpdateDelegate(stateModelScope, interactor) { handleError(it) }
+    private val updateDelegate = UpdateDelegate(stateModelScope, interactor) { handleError(it) }
 
     private var expirationListener: PreferenceListener? = null
     private var sameDayListener: PreferenceListener? = null

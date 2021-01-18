@@ -28,7 +28,7 @@ import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent.*
 import com.pyamsoft.fridge.db.item.FridgeItemRealtime
 import com.pyamsoft.fridge.db.item.isArchived
 import com.pyamsoft.fridge.detail.DetailInteractor
-import com.pyamsoft.fridge.detail.base.createUpdateDelegate
+import com.pyamsoft.fridge.detail.base.UpdateDelegate
 import com.pyamsoft.fridge.detail.expand.date.DateSelectPayload
 import com.pyamsoft.fridge.detail.item.isNameValid
 import com.pyamsoft.highlander.highlander
@@ -63,8 +63,7 @@ class ExpandItemViewModel @AssistedInject internal constructor(
     )
 ) {
 
-    private val updateDelegate =
-        createUpdateDelegate(viewModelScope, interactor) { handleError(it) }
+    private val updateDelegate = UpdateDelegate(viewModelScope, interactor) { handleError(it) }
 
     private val itemResolveRunner = highlander<FridgeItem, FridgeItem.Id> { resolveItemId ->
         interactor.resolveItem(
