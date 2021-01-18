@@ -38,17 +38,18 @@ class CreateEntryViewModel @Inject internal constructor(
 ) {
 
     private val commitRunner = highlander<Unit, FridgeEntry> { entry ->
-        handleCreateBegin()
-        try {
-            interactor.commit(entry)
-            publish(CreateEntryControllerEvent.Commit)
-        } catch (throwable: Throwable) {
-            throwable.onActualError {
-                handleCreateError(throwable)
+        setState(stateChange = { copy(working = true) }, andThen = {
+            try {
+                interactor.commit(entry)
+                publish(CreateEntryControllerEvent.Commit)
+            } catch (throwable: Throwable) {
+                throwable.onActualError {
+                    handleCreateError(throwable)
+                }
+            } finally {
+                setState { copy(working = false) }
             }
-        } finally {
-            handleCreateComplete()
-        }
+        })
     }
 
     private val loadRunner = highlander<FridgeEntry?, FridgeEntry.Id> { id ->
@@ -62,16 +63,8 @@ class CreateEntryViewModel @Inject internal constructor(
         }
     }
 
-    private fun handleCreateComplete() {
-        setState { copy(working = false) }
-    }
-
     private fun handleCreateError(throwable: Throwable) {
         setState { copy(throwable = throwable) }
-    }
-
-    private fun handleCreateBegin() {
-        setState { copy(working = true) }
     }
 
     override fun handleViewEvent(event: CreateEntryViewEvent) = when (event) {

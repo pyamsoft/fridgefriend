@@ -58,39 +58,39 @@ class MapViewModel @Inject internal constructor(
             NearbyStore.Id,
             NearbyZone.Id
             > { box, storeId, zoneId ->
-        try {
-            setState { copy(loading = true) }
-
-            // Run jobs in parallel
-            val jobs = mutableListOf<Deferred<*>>()
-            jobs += async(context = Dispatchers.Default) {
-                try {
-                    updateMarkers(interactor.fromCache(), storeId, zoneId)
-                } catch (error: Throwable) {
-                    error.onActualError { e ->
-                        Timber.e(e, "Error getting cached supermarkets")
-                        handleCachedFetchError(e)
-                    }
-                }
-            }
-
-            if (box != null) {
+        setState(stateChange = { copy(loading = true) }, andThen = {
+            try {
+                // Run jobs in parallel
+                val jobs = mutableListOf<Deferred<*>>()
                 jobs += async(context = Dispatchers.Default) {
                     try {
-                        updateMarkers(interactor.nearbyLocations(box), storeId, zoneId)
+                        updateMarkers(interactor.fromCache(), storeId, zoneId)
                     } catch (error: Throwable) {
                         error.onActualError { e ->
-                            Timber.e(e, "Error fetching nearby supermarkets")
-                            handleNearbyError(e)
+                            Timber.e(e, "Error getting cached supermarkets")
+                            handleCachedFetchError(e)
                         }
                     }
                 }
-            }
 
-            jobs.awaitAll()
-        } finally {
-            setState { copy(loading = false) }
-        }
+                if (box != null) {
+                    jobs += async(context = Dispatchers.Default) {
+                        try {
+                            updateMarkers(interactor.nearbyLocations(box), storeId, zoneId)
+                        } catch (error: Throwable) {
+                            error.onActualError { e ->
+                                Timber.e(e, "Error fetching nearby supermarkets")
+                                handleNearbyError(e)
+                            }
+                        }
+                    }
+                }
+
+                jobs.awaitAll()
+            } finally {
+                setState { copy(loading = false) }
+            }
+        })
     }
 
     init {

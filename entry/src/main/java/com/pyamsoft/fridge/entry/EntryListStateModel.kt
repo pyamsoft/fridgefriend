@@ -49,22 +49,22 @@ class EntryListStateModel @Inject constructor(
 ) {
 
     private val refreshRunner = highlander<Unit, Boolean> { force ->
-        handleListRefreshBegin()
-
-        try {
-            val groups = interactor.loadEntries(force).map { entry ->
-                val items = interactor.loadItems(force, entry)
-                return@map EntryViewState.EntryGroup(entry = entry, items = items)
+        setState(stateChange = { copy(isLoading = true) }, andThen = {
+            try {
+                val groups = interactor.loadEntries(force).map { entry ->
+                    val items = interactor.loadItems(force, entry)
+                    return@map EntryViewState.EntryGroup(entry = entry, items = items)
+                }
+                handleListRefreshed(groups)
+            } catch (error: Throwable) {
+                error.onActualError { e ->
+                    Timber.e(e, "Error refreshing entry list")
+                    handleListRefreshError(e)
+                }
+            } finally {
+                setState { copy(isLoading = false) }
             }
-            handleListRefreshed(groups)
-        } catch (error: Throwable) {
-            error.onActualError { e ->
-                Timber.e(e, "Error refreshing entry list")
-                handleListRefreshError(e)
-            }
-        } finally {
-            handleListRefreshComplete()
-        }
+        })
     }
 
     private val undoRunner = highlander<Unit, FridgeEntry> { entry ->
@@ -115,11 +115,6 @@ class EntryListStateModel @Inject constructor(
             .toList()
     }
 
-
-    private fun handleListRefreshBegin() {
-        setState { copy(isLoading = true) }
-    }
-
     private fun handleListRefreshed(entries: List<EntryViewState.EntryGroup>) {
         setState { regenerateEntries(entries).copy(error = null) }
     }
@@ -132,10 +127,6 @@ class EntryListStateModel @Inject constructor(
                 error = throwable
             )
         }
-    }
-
-    private fun handleListRefreshComplete() {
-        setState { copy(isLoading = false) }
     }
 
     private fun handleEventRealtime(event: FridgeEntryChangeEvent) = when (event) {

@@ -34,7 +34,6 @@ import timber.log.Timber
 import java.util.Calendar
 import java.util.Date
 import javax.inject.Inject
-import kotlin.Comparator
 import kotlin.math.max
 
 class DetailListStateModel @Inject internal constructor(
@@ -79,18 +78,19 @@ class DetailListStateModel @Inject internal constructor(
     }
 
     private val refreshRunner = highlander<Unit, Boolean> { force ->
-        try {
-            handleListRefreshBegin()
-            val items = interactor.getItems(entryId, force)
-            handleListRefreshed(items)
-        } catch (error: Throwable) {
-            error.onActualError { e ->
-                Timber.e(e, "Error refreshing item list")
-                handleListRefreshError(e)
+        setState(stateChange = { copy(isLoading = true) }, andThen = {
+            try {
+                val items = interactor.getItems(entryId, force)
+                handleListRefreshed(items)
+            } catch (error: Throwable) {
+                error.onActualError { e ->
+                    Timber.e(e, "Error refreshing item list")
+                    handleListRefreshError(e)
+                }
+            } finally {
+                setState(stateChange = { copy(isLoading = false) })
             }
-        } finally {
-            handleListRefreshComplete()
-        }
+        })
     }
 
     init {
@@ -219,10 +219,6 @@ class DetailListStateModel @Inject internal constructor(
         }
     }
 
-    private fun handleListRefreshBegin() {
-        setState { copy(isLoading = true) }
-    }
-
     private fun handleListRefreshError(throwable: Throwable) {
         setState {
             copy(
@@ -232,10 +228,6 @@ class DetailListStateModel @Inject internal constructor(
                 listError = throwable
             )
         }
-    }
-
-    private fun handleListRefreshComplete() {
-        setState { copy(isLoading = false) }
     }
 
     private fun handleError(throwable: Throwable?) {
@@ -374,7 +366,7 @@ class DetailListStateModel @Inject internal constructor(
 
     internal fun updateSearch(
         search: String,
-        andThen: suspend (newState: DetailViewState) -> Unit
+        andThen: suspend (newState: DetailViewState) -> Unit,
     ) {
         setState(
             stateChange = {
@@ -421,7 +413,7 @@ class DetailListStateModel @Inject internal constructor(
     }
 
     internal fun toggleArchived(
-        andThen: suspend (newState: DetailViewState) -> Unit
+        andThen: suspend (newState: DetailViewState) -> Unit,
     ) {
         setState(
             stateChange = {
@@ -441,7 +433,7 @@ class DetailListStateModel @Inject internal constructor(
 
     internal fun updateSort(
         newSort: DetailViewState.Sorts,
-        andThen: suspend (newState: DetailViewState) -> Unit
+        andThen: suspend (newState: DetailViewState) -> Unit,
     ) {
         setState(stateChange = { copy(sort = newSort) }, andThen = { newState ->
             refreshList(false)
