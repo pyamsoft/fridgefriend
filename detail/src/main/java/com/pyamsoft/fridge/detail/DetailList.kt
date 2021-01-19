@@ -140,7 +140,7 @@ class DetailList @Inject internal constructor(
                 }
             }
 
-            outState.remove(LAST_SCROLL_POSITION)
+            outState.remove<Nothing>(LAST_SCROLL_POSITION)
         }
 
         doOnInflate {

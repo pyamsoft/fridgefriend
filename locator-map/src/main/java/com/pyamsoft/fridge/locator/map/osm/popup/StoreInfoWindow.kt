@@ -32,7 +32,6 @@ import com.pyamsoft.fridge.locator.map.popup.store.StoreInfoViewModel
 import com.pyamsoft.pydroid.arch.StateSaver
 import com.pyamsoft.pydroid.arch.createComponent
 import com.pyamsoft.pydroid.ui.arch.fromViewModelFactory
-import com.pyamsoft.pydroid.ui.arch.viewModelFactory
 import com.pyamsoft.pydroid.ui.util.layout
 import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.Marker
