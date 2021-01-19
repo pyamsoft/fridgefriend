@@ -27,6 +27,7 @@ import com.pyamsoft.highlander.highlander
 import com.pyamsoft.pydroid.arch.UiStateModel
 import com.pyamsoft.pydroid.arch.onActualError
 import com.pyamsoft.pydroid.bus.EventConsumer
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -115,34 +116,28 @@ class EntryListStateModel @Inject constructor(
             .toList()
     }
 
-    private fun handleListRefreshed(entries: List<EntryViewState.EntryGroup>) {
-        setState { regenerateEntries(entries).copy(error = null) }
+    private fun CoroutineScope.handleListRefreshed(entries: List<EntryViewState.EntryGroup>) {
+        setState { regenerateEntries(entries) }
     }
 
-    private fun handleListRefreshError(throwable: Throwable) {
-        setState {
-            copy(
-                allEntries = emptyList(),
-                displayedEntries = emptyList(),
-                error = throwable
-            )
-        }
+    private fun CoroutineScope.handleListRefreshError(throwable: Throwable) {
+        setState { copy(error = throwable) }
     }
 
-    private fun handleEventRealtime(event: FridgeEntryChangeEvent) = when (event) {
+    private fun CoroutineScope.handleEventRealtime(event: FridgeEntryChangeEvent) = when (event) {
         is FridgeEntryChangeEvent.DeleteAll -> handleRealtimeEntryDeleteAll()
         is FridgeEntryChangeEvent.Insert -> handleRealtimeEntryInsert(event.entry)
         is FridgeEntryChangeEvent.Update -> handleRealtimeEntryUpdate(event.entry)
         is FridgeEntryChangeEvent.Delete -> handleRealtimeEntryDelete(event.entry, event.offerUndo)
     }
 
-    private fun handleItemRealtime(event: FridgeItemChangeEvent) = when (event) {
+    private fun CoroutineScope.handleItemRealtime(event: FridgeItemChangeEvent) = when (event) {
         is FridgeItemChangeEvent.Insert -> handleRealtimeItemInsert(event.item)
         is FridgeItemChangeEvent.Update -> handleRealtimeItemUpdate(event.item)
         is FridgeItemChangeEvent.Delete -> handleRealtimeItemDelete(event.item)
     }
 
-    private fun handleRealtimeItemInsert(item: FridgeItem) {
+    private fun CoroutineScope.handleRealtimeItemInsert(item: FridgeItem) {
         setState {
             val newEntries = allEntries.map { group ->
                 if (group.entry.id() != item.entryId()) group else {
@@ -153,7 +148,7 @@ class EntryListStateModel @Inject constructor(
         }
     }
 
-    private fun handleRealtimeItemUpdate(item: FridgeItem) {
+    private fun CoroutineScope.handleRealtimeItemUpdate(item: FridgeItem) {
         setState {
             val newEntries = allEntries.map { group ->
                 if (group.entry.id() != item.entryId()) group else {
@@ -164,7 +159,7 @@ class EntryListStateModel @Inject constructor(
         }
     }
 
-    private fun handleRealtimeItemDelete(item: FridgeItem) {
+    private fun CoroutineScope.handleRealtimeItemDelete(item: FridgeItem) {
         setState {
             val newEntries = allEntries.map { group ->
                 if (group.entry.id() != item.entryId()) group else {
@@ -175,14 +170,14 @@ class EntryListStateModel @Inject constructor(
         }
     }
 
-    private fun handleRealtimeEntryDeleteAll() {
+    private fun CoroutineScope.handleRealtimeEntryDeleteAll() {
         Timber.d("Realtime DELETE ALL")
         setState {
             copy(allEntries = emptyList(), displayedEntries = emptyList())
         }
     }
 
-    private fun handleRealtimeEntryInsert(entry: FridgeEntry) {
+    private fun CoroutineScope.handleRealtimeEntryInsert(entry: FridgeEntry) {
         setState {
             val newEntries = allEntries + EntryViewState.EntryGroup(
                 entry = entry,
@@ -192,7 +187,7 @@ class EntryListStateModel @Inject constructor(
         }
     }
 
-    private fun handleRealtimeEntryUpdate(entry: FridgeEntry) {
+    private fun CoroutineScope.handleRealtimeEntryUpdate(entry: FridgeEntry) {
         Timber.d("Realtime update: $entry")
         setState {
             val newEntries = allEntries.map { group ->
@@ -204,7 +199,7 @@ class EntryListStateModel @Inject constructor(
         }
     }
 
-    private fun handleRealtimeEntryDelete(entry: FridgeEntry, offerUndo: Boolean) {
+    private fun CoroutineScope.handleRealtimeEntryDelete(entry: FridgeEntry, offerUndo: Boolean) {
         Timber.d("Realtime delete: $entry")
         setState {
             val newEntries = allEntries.filterNot { it.entry.id() == entry.id() }

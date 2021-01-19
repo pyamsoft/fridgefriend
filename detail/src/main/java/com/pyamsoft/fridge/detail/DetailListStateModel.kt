@@ -28,6 +28,7 @@ import com.pyamsoft.pydroid.arch.UiStateModel
 import com.pyamsoft.pydroid.arch.onActualError
 import com.pyamsoft.pydroid.bus.EventConsumer
 import com.pyamsoft.pydroid.util.PreferenceListener
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -142,7 +143,7 @@ class DetailListStateModel @Inject internal constructor(
         expirationListener = null
     }
 
-    private fun handleRealtime(event: FridgeItemChangeEvent) = when (event) {
+    private fun CoroutineScope.handleRealtime(event: FridgeItemChangeEvent) = when (event) {
         is Insert -> handleRealtimeInsert(event.item)
         is Update -> handleRealtimeUpdate(event.item)
         is Delete -> handleRealtimeDelete(event.item, event.offerUndo)
@@ -172,15 +173,14 @@ class DetailListStateModel @Inject internal constructor(
         return items.any { item.id() == it.id() && item.entryId() == it.entryId() }
     }
 
-    private fun handleRealtimeInsert(item: FridgeItem) {
+    private fun CoroutineScope.handleRealtimeInsert(item: FridgeItem) {
         setState {
             val newItems = allItems.toMutableList().also { insertOrUpdate(it, item) }
             regenerateItems(newItems)
         }
     }
 
-    private fun handleRealtimeUpdate(item: FridgeItem) {
-        Timber.d("Realtime update: $item ${item.isArchived()}")
+    private fun CoroutineScope.handleRealtimeUpdate(item: FridgeItem) {
         setState {
             val newItems = allItems.toMutableList().also { insertOrUpdate(it, item) }
             regenerateItems(newItems).copy(
@@ -190,8 +190,7 @@ class DetailListStateModel @Inject internal constructor(
         }
     }
 
-    private fun handleRealtimeDelete(item: FridgeItem, offerUndo: Boolean) {
-        Timber.d("Realtime delete: $item")
+    private fun CoroutineScope.handleRealtimeDelete(item: FridgeItem, offerUndo: Boolean) {
         setState {
             val newItems = allItems.filterNot { it.id() == item.id() }
             regenerateItems(newItems).copy(
@@ -212,24 +211,15 @@ class DetailListStateModel @Inject internal constructor(
         )
     }
 
-    private fun handleListRefreshed(items: List<FridgeItem>) {
-        setState {
-            regenerateItems(items).copy(listError = null)
-        }
+    private fun CoroutineScope.handleListRefreshed(items: List<FridgeItem>) {
+        setState { regenerateItems(items) }
     }
 
-    private fun handleListRefreshError(throwable: Throwable) {
-        setState {
-            copy(
-                allItems = emptyList(),
-                displayedItems = emptyList(),
-                counts = null,
-                listError = throwable
-            )
-        }
+    private fun CoroutineScope.handleListRefreshError(throwable: Throwable) {
+        setState { copy(listError = throwable) }
     }
 
-    private fun handleError(throwable: Throwable?) {
+    private fun CoroutineScope.handleError(throwable: Throwable?) {
         setState { copy(listError = throwable) }
     }
 
@@ -363,7 +353,7 @@ class DetailListStateModel @Inject internal constructor(
         )
     }
 
-    internal fun updateSearch(
+    internal fun CoroutineScope.updateSearch(
         search: String,
         andThen: suspend (newState: DetailViewState) -> Unit,
     ) {
@@ -430,7 +420,7 @@ class DetailListStateModel @Inject internal constructor(
         )
     }
 
-    internal fun updateSort(
+    internal fun CoroutineScope.updateSort(
         newSort: DetailViewState.Sorts,
         andThen: suspend (newState: DetailViewState) -> Unit,
     ) {
@@ -454,7 +444,7 @@ class DetailListStateModel @Inject internal constructor(
         withItemAt(index) { changePresence(it, it.presence().flip()) }
     }
 
-    internal fun changePresence(oldItem: FridgeItem, newPresence: FridgeItem.Presence) {
+    private fun changePresence(oldItem: FridgeItem, newPresence: FridgeItem.Presence) {
         updateDelegate.updateItem(oldItem.presence(newPresence))
     }
 
@@ -475,10 +465,10 @@ class DetailListStateModel @Inject internal constructor(
     }
 
     internal fun clearListError() {
-        handleError(null)
+        stateModelScope.handleError(null)
     }
 
-    internal fun updateFilter(showing: DetailViewState.Showing) {
+    internal fun CoroutineScope.updateFilter(showing: DetailViewState.Showing) {
         setState { copy(showing = showing) }
     }
 }

@@ -22,6 +22,7 @@ import androidx.lifecycle.viewModelScope
 import com.pyamsoft.pydroid.arch.UiControllerEvent
 import com.pyamsoft.pydroid.arch.UiViewEvent
 import com.pyamsoft.pydroid.arch.UiViewModel
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlin.math.abs
@@ -90,7 +91,7 @@ abstract class BaseInfoViewModel<T : Any, S : BaseInfoViewState, V : UiViewEvent
         return (abs(value) * 10.0.pow(5))
     }
 
-    private fun restoreStateFromCachedData(cached: List<T>) {
+    private fun CoroutineScope.restoreStateFromCachedData(cached: List<T>) {
         setState {
             copyState(
                 this,

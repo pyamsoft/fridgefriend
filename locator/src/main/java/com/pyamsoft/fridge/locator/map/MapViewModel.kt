@@ -99,11 +99,7 @@ class MapViewModel @Inject internal constructor(
         }
     }
 
-    private fun handleNearbyError(throwable: Throwable?) {
-        setState { copy(nearbyError = throwable).resetForceOpen() }
-    }
-
-    private fun updateMarkers(
+    private fun CoroutineScope.updateMarkers(
         markers: MapMarkers,
         storeId: NearbyStore.Id,
         zoneId: NearbyZone.Id,
@@ -141,8 +137,20 @@ class MapViewModel @Inject internal constructor(
         return result
     }
 
-    private fun handleCachedFetchError(throwable: Throwable?) {
+    private fun CoroutineScope.handleCachedFetchError(throwable: Throwable) {
         setState { copy(cachedFetchError = throwable).resetForceOpen() }
+    }
+
+    private fun handleClearCachedFetchError() {
+        setState { copy(cachedFetchError = null).resetForceOpen() }
+    }
+
+    private fun CoroutineScope.handleNearbyError(throwable: Throwable) {
+        setState { copy(nearbyError = throwable).resetForceOpen() }
+    }
+
+    private fun handleClearNearbyError() {
+        setState { copy(nearbyError = null).resetForceOpen() }
     }
 
     override fun handleViewEvent(event: MapViewEvent) = when (event) {
@@ -152,8 +160,8 @@ class MapViewModel @Inject internal constructor(
         is MapViewEvent.MapEvent.FindMyLocation -> findMyLocation(true)
         is MapViewEvent.ActionEvent.RequestMyLocation -> findMyLocation(false)
         is MapViewEvent.ActionEvent.RequestFindNearby -> nearbySupermarkets()
-        is MapViewEvent.ActionEvent.HideFetchError -> handleNearbyError(null)
-        is MapViewEvent.ActionEvent.HideCacheError -> handleCachedFetchError(null)
+        is MapViewEvent.ActionEvent.HideFetchError -> handleClearNearbyError()
+        is MapViewEvent.ActionEvent.HideCacheError -> handleClearCachedFetchError()
     }
 
     private fun handleBoundingBox(box: BBox) {

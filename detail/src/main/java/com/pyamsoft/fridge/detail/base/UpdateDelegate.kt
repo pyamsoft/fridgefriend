@@ -29,15 +29,15 @@ import timber.log.Timber
 internal class UpdateDelegate internal constructor(
     viewModelScope: CoroutineScope,
     interactor: DetailInteractor,
-    handleError: (Throwable) -> Unit,
+    handleError: CoroutineScope.(Throwable) -> Unit,
 ) {
 
-    private var viewModelScope: CoroutineScope? = viewModelScope
+    private var coroutineScope: CoroutineScope? = viewModelScope
     private var interactor: DetailInteractor? = interactor
-    private var handleError: ((Throwable) -> Unit)? = handleError
+    private var handleError: (CoroutineScope.(Throwable) -> Unit)? = handleError
 
     fun teardown() {
-        viewModelScope = null
+        coroutineScope = null
         interactor = null
         handleError = null
     }
@@ -46,7 +46,7 @@ internal class UpdateDelegate internal constructor(
             Unit,
             FridgeItem,
             suspend (item: FridgeItem) -> Unit,
-                (throwable: Throwable) -> Unit
+            CoroutineScope.(throwable: Throwable) -> Unit
             > { item, doUpdate, onError ->
         try {
             doUpdate(item.makeReal())
@@ -59,7 +59,7 @@ internal class UpdateDelegate internal constructor(
     }
 
     private fun update(item: FridgeItem, doUpdate: suspend (item: FridgeItem) -> Unit) {
-        requireNotNull(viewModelScope).launch(context = Dispatchers.Default) {
+        requireNotNull(coroutineScope).launch(context = Dispatchers.Default) {
             updateRunner.call(item, doUpdate, requireNotNull(handleError))
         }
     }
@@ -104,10 +104,7 @@ internal class UpdateDelegate internal constructor(
             return@run this
         }
 
-        update(
-            updated,
-            doUpdate = requireNotNull(interactor)::commit,
-        )
+        update(updated) { requireNotNull(interactor).commit(it) }
     }
 }
 

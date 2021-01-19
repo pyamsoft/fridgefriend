@@ -24,6 +24,7 @@ import com.pyamsoft.pydroid.arch.UiSavedStateViewModelProvider
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -40,7 +41,7 @@ class DetailViewModel @AssistedInject internal constructor(
             val filterName = restoreSavedState(SAVED_FILTER) { "" }
             if (filterName.isNotBlank()) {
                 val filter = DetailViewState.Showing.valueOf(filterName)
-                delegate.updateFilter(filter)
+                updateFilter(filter)
             }
         }
 
@@ -78,12 +79,19 @@ class DetailViewModel @AssistedInject internal constructor(
     }
 
     private fun updateSearch(search: String) {
-        delegate.updateSearch(search) { newState ->
-            val newSearch = newState.search
-            if (newSearch.isNotBlank()) {
-                putSavedState(SAVED_SEARCH, newSearch)
-            } else {
-                removeSavedState(SAVED_SEARCH)
+        viewModelScope.updateSearch(search)
+    }
+
+    private fun CoroutineScope.updateSearch(search: String) {
+        val scope = this
+        delegate.apply {
+            scope.updateSearch(search) { newState ->
+                val newSearch = newState.search
+                if (newSearch.isNotBlank()) {
+                    putSavedState(SAVED_SEARCH, newSearch)
+                } else {
+                    removeSavedState(SAVED_SEARCH)
+                }
             }
         }
     }
@@ -95,8 +103,24 @@ class DetailViewModel @AssistedInject internal constructor(
     }
 
     private fun updateSort(sort: DetailViewState.Sorts) {
-        delegate.updateSort(sort) { newState ->
-            putSavedState(SAVED_SORT, newState.sort.name)
+        viewModelScope.updateSort(sort)
+    }
+
+    private fun CoroutineScope.updateFilter(filter: DetailViewState.Showing) {
+        val scope = this
+
+        delegate.apply {
+            scope.updateFilter(filter)
+        }
+    }
+
+    private fun CoroutineScope.updateSort(sort: DetailViewState.Sorts) {
+        val scope = this
+
+        delegate.apply {
+            scope.updateSort(sort) { newState ->
+                putSavedState(SAVED_SORT, newState.sort.name)
+            }
         }
     }
 

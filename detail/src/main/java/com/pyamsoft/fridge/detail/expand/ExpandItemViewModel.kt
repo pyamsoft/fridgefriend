@@ -39,6 +39,7 @@ import com.pyamsoft.pydroid.bus.EventBus
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -104,14 +105,8 @@ class ExpandItemViewModel @AssistedInject internal constructor(
         }
 
         viewModelScope.launch(context = Dispatchers.Default) {
-            resolveItem(possibleItemId)
-        }
-    }
-
-    private suspend fun resolveItem(possibleItemId: FridgeItem.Id) {
-        val itemId = restoreSavedState(CREATED_ITEM_ID) { possibleItemId.id }
-        val resolveItemId = FridgeItem.Id(itemId)
-        viewModelScope.launch(context = Dispatchers.Default) {
+            val itemId = restoreSavedState(CREATED_ITEM_ID) { possibleItemId.id }
+            val resolveItemId = FridgeItem.Id(itemId)
             val item = itemResolveRunner.call(resolveItemId)
             setState(stateChange = { copy(item = item) }, andThen = { newState ->
                 newState.item?.let { newItem ->
@@ -154,27 +149,27 @@ class ExpandItemViewModel @AssistedInject internal constructor(
         // the expiration date
     }
 
-    private fun handleRealtimeEvent(event: FridgeItemChangeEvent) = when (event) {
+    private fun CoroutineScope.handleRealtimeEvent(event: FridgeItemChangeEvent) = when (event) {
         is Update -> handleModelUpdate(event.item)
         is Insert -> handleModelUpdate(event.item)
         is Delete -> closeItem(event.item)
     }
 
     private fun closeSelf() {
-        closeItem(requireNotNull(state.item))
+        viewModelScope.closeItem(requireNotNull(state.item))
     }
 
-    private fun closeItem(closeMe: FridgeItem) {
-        requireNotNull(state.item).let { item ->
-            if (closeMe.id() == item.id() && closeMe.entryId() == item.entryId()) {
-                viewModelScope.launch(context = Dispatchers.Default) {
+    private fun CoroutineScope.closeItem(closeMe: FridgeItem) {
+        this.launch(context = Dispatchers.Default) {
+            requireNotNull(state.item).let { item ->
+                if (closeMe.id() == item.id() && closeMe.entryId() == item.entryId()) {
                     publish(ExpandItemControllerEvent.CloseExpand)
                 }
             }
         }
     }
 
-    private fun handleModelUpdate(newItem: FridgeItem) {
+    private fun CoroutineScope.handleModelUpdate(newItem: FridgeItem) {
         requireNotNull(state.item).let { item ->
             if (item.id() == newItem.id() && item.entryId() == newItem.entryId()) {
                 setState(
@@ -331,7 +326,7 @@ class ExpandItemViewModel @AssistedInject internal constructor(
             Timber.w("Commit called on a non-real item: $item")
             // Don't beacon the update anywhere since we don't want the UI to respond
             // But, commit the changes as a potential update
-            handleModelUpdate(item)
+            viewModelScope.handleModelUpdate(item)
             return
         }
 
@@ -362,7 +357,7 @@ class ExpandItemViewModel @AssistedInject internal constructor(
         setFixMessage("ERROR: Count $count is invalid. Please fix.")
     }
 
-    private fun handleError(throwable: Throwable) {
+    private fun CoroutineScope.handleError(throwable: Throwable) {
         setState { copy(throwable = throwable) }
     }
 

@@ -22,6 +22,7 @@ import com.pyamsoft.fridge.entry.EntryInteractor
 import com.pyamsoft.highlander.highlander
 import com.pyamsoft.pydroid.arch.UiViewModel
 import com.pyamsoft.pydroid.arch.onActualError
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -63,7 +64,7 @@ class CreateEntryViewModel @Inject internal constructor(
         }
     }
 
-    private fun handleCreateError(throwable: Throwable) {
+    private fun CoroutineScope.handleCreateError(throwable: Throwable) {
         setState { copy(throwable = throwable) }
     }
 
