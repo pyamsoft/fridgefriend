@@ -118,6 +118,7 @@ dependencies {
   implementation project(':locator-map')
   implementation project(':main')
   //  implementation project(':ocr')
+  implementation project(':search')
   implementation project(':setting')
   implementation project(':tooltip-balloon')
 }

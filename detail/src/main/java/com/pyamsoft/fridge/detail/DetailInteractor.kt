@@ -125,6 +125,7 @@ internal class DetailInteractor @Inject internal constructor(
     suspend fun loadEntry(entryId: FridgeEntry.Id): FridgeEntry =
         withContext(context = Dispatchers.Default) {
             Enforcer.assertOffMainThread()
+            ensureEntryId(entryId)
             return@withContext entryQueryDao.query(false).first { it.id() == entryId }
         }
 
@@ -135,10 +136,11 @@ internal class DetailInteractor @Inject internal constructor(
         presence: Presence,
     ): FridgeItem = withContext(context = Dispatchers.Default) {
         Enforcer.assertOffMainThread()
+        ensureEntryId(entryId)
         return@withContext if (itemId.isEmpty()) {
             createNewItem(entryId, presence)
         } else {
-            loadItem(itemId, entryId, false)
+            loadItem(itemId, entryId)
         }
     }
 
@@ -148,6 +150,7 @@ internal class DetailInteractor @Inject internal constructor(
     @CheckResult
     private fun createNewItem(entryId: FridgeEntry.Id, presence: Presence): FridgeItem {
         Enforcer.assertOffMainThread()
+        ensureEntryId(entryId)
         return FridgeItem.create(entryId = entryId, presence = presence)
     }
 
@@ -159,30 +162,38 @@ internal class DetailInteractor @Inject internal constructor(
     @CheckResult
     suspend fun loadItem(
         itemId: FridgeItem.Id,
-        entryId: FridgeEntry.Id,
-        log: Boolean
-    ): FridgeItem = getItems(entryId, true).map {
-        if (log) {
-            Timber.d("Found item: $it")
-        }
-        it
-    }.first { it.id() == itemId }
+        entryId: FridgeEntry.Id
+    ): FridgeItem = getItems(entryId, true).first { it.id() == itemId }
 
     @CheckResult
     suspend fun getItems(entryId: FridgeEntry.Id, force: Boolean): List<FridgeItem> =
         withContext(context = Dispatchers.Default) {
             Enforcer.assertOffMainThread()
+            ensureEntryId(entryId)
             return@withContext itemQueryDao.query(force, entryId)
+        }
+
+    @CheckResult
+    suspend fun getAllItems(force: Boolean): List<FridgeItem> =
+        withContext(context = Dispatchers.Default) {
+            Enforcer.assertOffMainThread()
+            return@withContext itemQueryDao.query(force)
+        }
+
+    suspend fun listenForAllChanges(onChange: suspend (event: FridgeItemChangeEvent) -> Unit) =
+        withContext(context = Dispatchers.Default) {
+            Enforcer.assertOffMainThread()
+            return@withContext itemRealtime.listenForChanges(onChange)
         }
 
     suspend fun listenForChanges(
         id: FridgeEntry.Id,
         onChange: suspend (event: FridgeItemChangeEvent) -> Unit,
-    ) =
-        withContext(context = Dispatchers.Default) {
-            Enforcer.assertOffMainThread()
-            return@withContext itemRealtime.listenForChanges(id, onChange)
-        }
+    ) = withContext(context = Dispatchers.Default) {
+        Enforcer.assertOffMainThread()
+        ensureEntryId(id)
+        return@withContext itemRealtime.listenForChanges(id, onChange)
+    }
 
     suspend fun commit(item: FridgeItem) = withContext(context = Dispatchers.Default) {
         Enforcer.assertOffMainThread()
@@ -205,13 +216,23 @@ internal class DetailInteractor @Inject internal constructor(
         }
     }
 
-    suspend fun delete(item: FridgeItem, offerUndo: Boolean) =
-        withContext(context = Dispatchers.Default) {
-            Enforcer.assertOffMainThread()
-            require(item.isReal()) { "Cannot delete item that is not real: $item" }
-            Timber.d("Deleting item [${item.id()}]: $item")
-            if (itemDeleteDao.delete(item, offerUndo)) {
-                Timber.d("Item deleted: $item")
-            }
+    suspend fun delete(
+        item: FridgeItem,
+        offerUndo: Boolean
+    ) = withContext(context = Dispatchers.Default) {
+        Enforcer.assertOffMainThread()
+        require(item.isReal()) { "Cannot delete item that is not real: $item" }
+        Timber.d("Deleting item [${item.id()}]: $item")
+        if (itemDeleteDao.delete(item, offerUndo)) {
+            Timber.d("Item deleted: $item")
         }
+    }
+
+    companion object {
+
+        @JvmStatic
+        private fun ensureEntryId(entryId: FridgeEntry.Id) {
+            require(!entryId.isEmpty()) { "FridgeEntry.Id cannot be empty" }
+        }
+    }
 }

@@ -26,6 +26,7 @@ import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import com.pyamsoft.fridge.FridgeComponent
+import com.pyamsoft.fridge.core.FridgeViewModelFactory
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence
@@ -86,9 +87,9 @@ internal class DetailFragment : Fragment(), SnackbarContainer {
 
     @JvmField
     @Inject
-    internal var appBarFactory: DetailAppBarViewModel.Factory? = null
+    internal var appBarFactory: FridgeViewModelFactory? = null
     private val appBarViewModel by fromViewModelFactory<DetailAppBarViewModel> {
-        createSavedStateViewModelFactory(appBarFactory)
+        appBarFactory?.create(this)
     }
 
     private var stateSaver: StateSaver? = null

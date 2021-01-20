@@ -44,9 +44,7 @@ class ItemMoveViewModel @Inject internal constructor(
     )
 ) {
 
-    private val itemResolveRunner = highlander<FridgeItem> {
-        interactor.loadItem(itemId, entryId, true)
-    }
+    private val itemResolveRunner = highlander<FridgeItem> { interactor.loadItem(itemId, entryId) }
 
     init {
         val job = delegate.bind(Renderable { state ->

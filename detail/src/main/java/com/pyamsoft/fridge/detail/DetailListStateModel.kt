@@ -35,6 +35,7 @@ import timber.log.Timber
 import java.util.Calendar
 import java.util.Date
 import javax.inject.Inject
+import kotlin.Comparator
 import kotlin.math.max
 
 class DetailListStateModel @Inject internal constructor(
@@ -80,7 +81,11 @@ class DetailListStateModel @Inject internal constructor(
     private val refreshRunner = highlander<Unit, Boolean> { force ->
         setState(stateChange = { copy(isLoading = true) }, andThen = {
             try {
-                val items = interactor.getItems(entryId, force)
+                val items = if (entryId.isEmpty()) {
+                    interactor.getAllItems(force)
+                } else {
+                    interactor.getItems(entryId, force)
+                }
                 handleListRefreshed(items)
             } catch (error: Throwable) {
                 error.onActualError { e ->
@@ -99,8 +104,10 @@ class DetailListStateModel @Inject internal constructor(
         }
 
         stateModelScope.launch(context = Dispatchers.Default) {
-            val entry = interactor.loadEntry(entryId)
-            setState { copy(entry = entry) }
+            if (!entryId.isEmpty()) {
+                val entry = interactor.loadEntry(entryId)
+                setState { copy(entry = entry) }
+            }
         }
 
         stateModelScope.launch(context = Dispatchers.Default) {
@@ -126,7 +133,11 @@ class DetailListStateModel @Inject internal constructor(
         }
 
         stateModelScope.launch(context = Dispatchers.Default) {
-            interactor.listenForChanges(entryId) { handleRealtime(it) }
+            if (entryId.isEmpty()) {
+                interactor.listenForAllChanges { handleRealtime(it) }
+            } else {
+                interactor.listenForChanges(entryId) { handleRealtime(it) }
+            }
         }
 
         refreshList(false)

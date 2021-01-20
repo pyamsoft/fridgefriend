@@ -19,7 +19,9 @@ package com.pyamsoft.fridge.detail
 import androidx.lifecycle.viewModelScope
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.detail.DetailControllerEvent.ExpandForEditing
+import com.pyamsoft.pydroid.arch.Renderable
 import com.pyamsoft.pydroid.arch.UiSavedState
+import com.pyamsoft.pydroid.arch.UiSavedStateViewModel
 import com.pyamsoft.pydroid.arch.UiSavedStateViewModelProvider
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
@@ -30,13 +32,23 @@ import kotlinx.coroutines.launch
 import timber.log.Timber
 
 class DetailViewModel @AssistedInject internal constructor(
-    @DetailInternalApi delegate: DetailListStateModel,
+    @DetailInternalApi private val delegate: DetailListStateModel,
     @Assisted savedState: UiSavedState,
-) : DelegatedDetailViewModel<DetailViewEvent.Main, DetailControllerEvent>(
-    savedState, delegate
+) : UiSavedStateViewModel<DetailViewState, DetailViewEvent.Main, DetailControllerEvent>(
+    savedState, initialState = delegate.initialState
 ) {
 
     init {
+        val job = delegate.bind(Renderable { state ->
+            state.render(viewModelScope) { setState { it } }
+        })
+        doOnCleared {
+            job.cancel()
+        }
+        doOnCleared {
+            delegate.clear()
+        }
+
         viewModelScope.launch(context = Dispatchers.Default) {
             val filterName = restoreSavedState(SAVED_FILTER) { "" }
             if (filterName.isNotBlank()) {
