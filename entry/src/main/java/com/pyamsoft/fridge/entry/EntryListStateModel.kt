@@ -112,7 +112,7 @@ class EntryListStateModel @Inject constructor(
     ): List<EntryViewState.EntryGroup> {
         return entries
             .asSequence()
-            .filter { it.entry.matchesQuery(search) }
+            .filter { it.entry.matchesQuery(search, true) }
             .toList()
     }
 

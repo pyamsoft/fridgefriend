@@ -45,9 +45,9 @@ data class EntryViewState internal constructor(
     )
 
     @CheckResult
-    internal fun FridgeEntry.matchesQuery(query: String): Boolean {
+    internal fun FridgeEntry.matchesQuery(query: String, defaultValue: Boolean): Boolean {
         // Empty query always matches
-        return if (query.isBlank()) true else {
+        return if (query.isBlank()) defaultValue else {
             this.name().contains(query, ignoreCase = true)
         }
     }

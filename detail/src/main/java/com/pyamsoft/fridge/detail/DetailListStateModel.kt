@@ -326,13 +326,13 @@ class DetailListStateModel @Inject internal constructor(
         return items
             .asSequence()
             .filter {
-                when (shows) {
+                return@filter when (shows) {
                     DetailViewState.Showing.FRESH -> !it.isArchived()
                     DetailViewState.Showing.CONSUMED -> it.isConsumed()
                     DetailViewState.Showing.SPOILED -> it.isSpoiled()
                 }
             }
-            .filter { it.matchesQuery(query) }
+            .filter { it.matchesQuery(query, !isAllEntries) }
             .toList()
     }
 
