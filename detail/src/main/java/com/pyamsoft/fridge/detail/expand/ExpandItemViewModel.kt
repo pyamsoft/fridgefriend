@@ -24,7 +24,6 @@ import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent
-import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent.*
 import com.pyamsoft.fridge.db.item.FridgeItemRealtime
 import com.pyamsoft.fridge.db.item.isArchived
 import com.pyamsoft.fridge.detail.DetailInteractor
@@ -43,7 +42,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import timber.log.Timber
-import java.util.*
+import java.util.Calendar
+import java.util.Locale
 
 class ExpandItemViewModel @AssistedInject internal constructor(
     private val interactor: DetailInteractor,
@@ -150,9 +150,9 @@ class ExpandItemViewModel @AssistedInject internal constructor(
     }
 
     private fun CoroutineScope.handleRealtimeEvent(event: FridgeItemChangeEvent) = when (event) {
-        is Update -> handleModelUpdate(event.item)
-        is Insert -> handleModelUpdate(event.item)
-        is Delete -> closeItem(event.item)
+        is FridgeItemChangeEvent.Update -> handleModelUpdate(event.item)
+        is FridgeItemChangeEvent.Insert -> handleModelUpdate(event.item)
+        is FridgeItemChangeEvent.Delete -> closeItem(event.item)
     }
 
     private fun closeSelf() {

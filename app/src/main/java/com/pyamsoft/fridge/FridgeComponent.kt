@@ -44,14 +44,7 @@ import com.pyamsoft.fridge.entry.EntryComponent
 import com.pyamsoft.fridge.entry.EntryListComponent
 import com.pyamsoft.fridge.entry.EntryPreferences
 import com.pyamsoft.fridge.entry.create.CreateEntryComponent
-import com.pyamsoft.fridge.locator.GpsChangeEvent
-import com.pyamsoft.fridge.locator.LocatorModule
-import com.pyamsoft.fridge.locator.map.MapModule
-import com.pyamsoft.fridge.locator.map.osm.popup.StoreInfoComponent
-import com.pyamsoft.fridge.locator.map.osm.popup.ZoneInfoComponent
 import com.pyamsoft.fridge.main.MainComponent
-import com.pyamsoft.fridge.map.MapComponent
-import com.pyamsoft.fridge.permission.PermissionComponent
 import com.pyamsoft.fridge.preference.PreferencesImpl
 import com.pyamsoft.fridge.search.SearchComponent
 import com.pyamsoft.fridge.setting.SettingsComponent
@@ -74,10 +67,8 @@ import javax.inject.Singleton
         FridgeProvider::class,
         DbModule::class,
         ButlerModule::class,
-        LocatorModule::class,
         WorkManagerModule::class,
         RoomModule::class,
-        MapModule::class,
         UiModule::class
     ]
 )
@@ -104,14 +95,6 @@ internal interface FridgeComponent {
     /* FROM inside ExpandItemCategoryList: See FridgeFriend Injector */
     @CheckResult
     fun plusExpandCategoryListComponent(): ExpandItemCategoryListComponent.Factory
-
-    /* FROM inside OsmMap: See FridgeFriend Injector */
-    @CheckResult
-    fun plusStoreComponent(): StoreInfoComponent.Factory
-
-    /* FROM inside OsmMap: See FridgeFriend Injector */
-    @CheckResult
-    fun plusZoneComponent(): ZoneInfoComponent.Factory
 
     /* FROM inside LocationInjector, ExpirationInjector: See FridgeFriend Injector */
     @CheckResult
@@ -145,12 +128,6 @@ internal interface FridgeComponent {
 
     @CheckResult
     fun plusMainComponent(): MainComponent.Factory
-
-    @CheckResult
-    fun plusMapComponent(): MapComponent.Factory
-
-    @CheckResult
-    fun plusPermissionComponent(): PermissionComponent.Factory
 
     @CheckResult
     fun plusDateSelectComponent(): DateSelectComponent
@@ -193,13 +170,6 @@ internal interface FridgeComponent {
 
         @Module
         companion object {
-
-            @Provides
-            @JvmStatic
-            @Singleton
-            internal fun provideGpsStateBus(): EventBus<GpsChangeEvent> {
-                return EventBus.create(emitOnlyWhenActive = true)
-            }
 
             @Provides
             @JvmStatic

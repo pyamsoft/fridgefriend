@@ -29,7 +29,11 @@ import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.entry.EntryListModule
 import com.pyamsoft.fridge.tooltip.balloon.TooltipModule
 import com.pyamsoft.fridge.ui.appbar.AppBarActivity
-import dagger.*
+import dagger.Binds
+import dagger.BindsInstance
+import dagger.Module
+import dagger.Provides
+import dagger.Subcomponent
 import dagger.multibindings.ClassKey
 import dagger.multibindings.IntoMap
 import javax.inject.Named

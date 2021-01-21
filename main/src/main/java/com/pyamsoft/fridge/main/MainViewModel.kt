@@ -19,10 +19,6 @@ package com.pyamsoft.fridge.main
 import androidx.annotation.CheckResult
 import androidx.lifecycle.viewModelScope
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent
-import com.pyamsoft.fridge.db.store.NearbyStore
-import com.pyamsoft.fridge.db.zone.NearbyZone
-import com.pyamsoft.fridge.locator.GpsChangeEvent
-import com.pyamsoft.fridge.locator.MapPermission
 import com.pyamsoft.fridge.ui.BottomOffset
 import com.pyamsoft.pydroid.arch.UiSavedState
 import com.pyamsoft.pydroid.arch.UiSavedStateViewModel
@@ -33,15 +29,12 @@ import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import timber.log.Timber
 import javax.inject.Named
 
 class MainViewModel @AssistedInject internal constructor(
     @Assisted savedState: UiSavedState,
     private val interactor: MainInteractor,
-    private val mapPermission: MapPermission,
-    private val gpsChangeBus: EventBus<GpsChangeEvent>,
     private val bottomOffsetBus: EventBus<BottomOffset>,
     @Named("app_name") appNameRes: Int,
 ) : UiSavedStateViewModel<MainViewState, MainViewEvent, MainControllerEvent>(
@@ -51,9 +44,6 @@ class MainViewModel @AssistedInject internal constructor(
         appNameRes = appNameRes,
         countNeeded = 0,
         countExpiringOrExpired = 0,
-        countNearbyStores = 0,
-        countNearbyZones = 0,
-        hasNearby = false
     )
 ) {
 
@@ -89,16 +79,6 @@ class MainViewModel @AssistedInject internal constructor(
             val expiredExpiringCount = interactor.getExpiredOrExpiringCount()
             setState { copy(countExpiringOrExpired = expiredExpiringCount) }
         }
-
-        viewModelScope.launch(context = Dispatchers.Default) {
-            val nearby = interactor.getNearbyStoreCount()
-            setState { copy(countNearbyStores = nearby) }
-        }
-
-        viewModelScope.launch(context = Dispatchers.Default) {
-            val nearby = interactor.getNearbyZoneCount()
-            setState { copy(countNearbyZones = nearby) }
-        }
     }
 
     override fun handleViewEvent(event: MainViewEvent) = when (event) {
@@ -107,12 +87,6 @@ class MainViewModel @AssistedInject internal constructor(
         is MainViewEvent.OpenSettings -> selectPage(force = false, MainPage.Settings)
         is MainViewEvent.OpenSearch -> selectPage(force = false, MainPage.Search)
         is MainViewEvent.BottomBarMeasured -> consumeBottomBarHeight(event.height)
-        is MainViewEvent.OpenNearby -> selectPage(
-            force = false, MainPage.Nearby(
-                storeId = NearbyStore.Id.EMPTY,
-                zoneId = NearbyZone.Id.EMPTY
-            )
-        )
     }
 
     private fun consumeBottomBarHeight(height: Int) {
@@ -126,9 +100,6 @@ class MainViewModel @AssistedInject internal constructor(
         is MainPage.Category -> select(page) { MainControllerEvent.PushCategory(it, force) }
         is MainPage.Settings -> select(page) { MainControllerEvent.PushSettings(it, force) }
         is MainPage.Search -> select(page) { MainControllerEvent.PushSearch(it, force) }
-        is MainPage.Nearby -> select(page) {
-            MainControllerEvent.PushNearby(it, page.storeId, page.zoneId, force)
-        }
     }
 
     private inline fun select(
@@ -155,27 +126,6 @@ class MainViewModel @AssistedInject internal constructor(
         publish(event(oldPage))
     }
 
-    @JvmOverloads
-    fun withForegroundPermission(
-        withPermission: () -> Unit = EMPTY,
-        withoutPermission: () -> Unit = EMPTY,
-    ) {
-        viewModelScope.launch(context = Dispatchers.Default) {
-            if (mapPermission.hasForegroundPermission()) {
-                withContext(context = Dispatchers.Main) { withPermission() }
-            } else {
-                withContext(context = Dispatchers.Main) { withoutPermission() }
-            }
-        }
-    }
-
-    fun publishGpsChange(isEnabled: Boolean) {
-        viewModelScope.launch(context = Dispatchers.Default) {
-            Timber.d("Publish GPS state change: $isEnabled")
-            gpsChangeBus.send(GpsChangeEvent(isEnabled))
-        }
-    }
-
     companion object {
 
         @CheckResult
@@ -188,15 +138,10 @@ class MainViewModel @AssistedInject internal constructor(
             MainPage.Entries::class.java.name -> MainPage.Entries
             MainPage.Category::class.java.name -> MainPage.Category
             MainPage.Settings::class.java.name -> MainPage.Settings
-            MainPage.Nearby::class.java.name -> MainPage.Nearby(
-                storeId = NearbyStore.Id.EMPTY,
-                zoneId = NearbyZone.Id.EMPTY
-            )
             else -> throw IllegalStateException("Cannot convert to MainPage: $this")
         }
 
         private const val KEY_PAGE = "page"
-        private val EMPTY = {}
     }
 
     @AssistedFactory

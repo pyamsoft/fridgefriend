@@ -26,7 +26,11 @@ import com.pyamsoft.fridge.core.ViewModelFactoryModule
 import com.pyamsoft.fridge.tooltip.balloon.TooltipModule
 import com.pyamsoft.fridge.ui.appbar.AppBarActivity
 import com.pyamsoft.pydroid.ui.app.ToolbarActivity
-import dagger.*
+import dagger.Binds
+import dagger.BindsInstance
+import dagger.Module
+import dagger.Provides
+import dagger.Subcomponent
 import dagger.multibindings.ClassKey
 import dagger.multibindings.IntoMap
 import javax.inject.Named

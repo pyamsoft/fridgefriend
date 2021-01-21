@@ -18,7 +18,6 @@ package com.pyamsoft.fridge.butler.work
 
 import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.butler.params.ItemParameters
-import com.pyamsoft.fridge.butler.params.LocationParameters
 import javax.inject.Singleton
 
 @Singleton
@@ -26,9 +25,6 @@ interface OrderFactory {
 
     @CheckResult
     fun itemOrder(params: ItemParameters): Order
-
-    @CheckResult
-    fun locationOrder(params: LocationParameters): Order
 
     @CheckResult
     fun nightlyOrder(): Order

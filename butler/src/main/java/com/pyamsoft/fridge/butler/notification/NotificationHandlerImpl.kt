@@ -20,8 +20,6 @@ import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.butler.ButlerInternalApi
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItem
-import com.pyamsoft.fridge.db.store.NearbyStore
-import com.pyamsoft.fridge.db.zone.NearbyZone
 import com.pyamsoft.pydroid.notify.Notifier
 import com.pyamsoft.pydroid.notify.NotifyChannelInfo
 import com.pyamsoft.pydroid.notify.NotifyData
@@ -71,53 +69,6 @@ internal class NotificationHandlerImpl @Inject internal constructor(
             )
         ).also { Timber.d("Showing expired notification: $it") }
         return true
-    }
-
-    private fun cancelAllNeededNotifications() {
-        idMap.getNotifications(NotificationType.NEEDED)
-            .values
-            .forEach { cancel(it) }
-    }
-
-    @CheckResult
-    private fun notifyNearby(
-        nearbyId: Long,
-        nearbyName: String,
-        nearbyType: String,
-        items: List<FridgeItem>
-    ): Boolean {
-        // Plain needed notifications are overruled by location aware Nearby notifications
-        cancelAllNeededNotifications()
-
-        show(
-            id = idMap.getNotificationId(NotificationType.NEARBY) { nearbyId.toString() },
-            channelInfo = NotificationChannelInfo.NEARBY,
-            notification = NearbyItemNotifyData(
-                id = nearbyId,
-                name = nearbyName,
-                type = nearbyType,
-                items = items
-            )
-        ).also { Timber.d("Showing nearby notification: $it") }
-        return true
-    }
-
-    override fun notifyNearby(zone: NearbyZone, items: List<FridgeItem>): Boolean {
-        return notifyNearby(
-            zone.id().id,
-            zone.name(),
-            NotificationHandler.VALUE_NEARBY_TYPE_ZONE,
-            items
-        )
-    }
-
-    override fun notifyNearby(store: NearbyStore, items: List<FridgeItem>): Boolean {
-        return notifyNearby(
-            store.id().id,
-            store.name(),
-            NotificationHandler.VALUE_NEARBY_TYPE_STORE,
-            items
-        )
     }
 
     override fun notifyNightly(): Boolean {

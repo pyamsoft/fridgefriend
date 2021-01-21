@@ -41,18 +41,6 @@ import com.pyamsoft.fridge.db.item.FridgeItemQueryDao
 import com.pyamsoft.fridge.db.item.FridgeItemRealtime
 import com.pyamsoft.fridge.db.persist.PersistentCategories
 import com.pyamsoft.fridge.db.persist.PersistentCategoriesImpl
-import com.pyamsoft.fridge.db.store.NearbyStoreDb
-import com.pyamsoft.fridge.db.store.NearbyStoreDbImpl
-import com.pyamsoft.fridge.db.store.NearbyStoreDeleteDao
-import com.pyamsoft.fridge.db.store.NearbyStoreInsertDao
-import com.pyamsoft.fridge.db.store.NearbyStoreQueryDao
-import com.pyamsoft.fridge.db.store.NearbyStoreRealtime
-import com.pyamsoft.fridge.db.zone.NearbyZoneDb
-import com.pyamsoft.fridge.db.zone.NearbyZoneDbImpl
-import com.pyamsoft.fridge.db.zone.NearbyZoneDeleteDao
-import com.pyamsoft.fridge.db.zone.NearbyZoneInsertDao
-import com.pyamsoft.fridge.db.zone.NearbyZoneQueryDao
-import com.pyamsoft.fridge.db.zone.NearbyZoneRealtime
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
@@ -72,14 +60,6 @@ abstract class DbModule {
     @Binds
     @CheckResult
     internal abstract fun provideEntryDbImpl(impl: FridgeEntryDbImpl): FridgeEntryDb
-
-    @Binds
-    @CheckResult
-    internal abstract fun provideStoreDbImpl(impl: NearbyStoreDbImpl): NearbyStoreDb
-
-    @Binds
-    @CheckResult
-    internal abstract fun provideZoneDbImpl(impl: NearbyZoneDbImpl): NearbyZoneDb
 
     @Binds
     @CheckResult
@@ -169,78 +149,6 @@ abstract class DbModule {
         @Provides
         @CheckResult
         internal fun provideEntryDeleteDao(@InternalApi db: FridgeEntryDb): FridgeEntryDeleteDao {
-            return db.deleteDao()
-        }
-
-        @JvmStatic
-        @Provides
-        @CheckResult
-        @InternalApi
-        internal fun provideStoreDb(db: FridgeDb): NearbyStoreDb {
-            return db.stores()
-        }
-
-        @JvmStatic
-        @Provides
-        @CheckResult
-        internal fun provideStoreRealtimeDao(@InternalApi db: NearbyStoreDb): NearbyStoreRealtime {
-            return db.realtime()
-        }
-
-        @JvmStatic
-        @Provides
-        @CheckResult
-        internal fun provideStoreQueryDao(@InternalApi db: NearbyStoreDb): NearbyStoreQueryDao {
-            return db.queryDao()
-        }
-
-        @JvmStatic
-        @Provides
-        @CheckResult
-        internal fun provideStoreInsertDao(@InternalApi db: NearbyStoreDb): NearbyStoreInsertDao {
-            return db.insertDao()
-        }
-
-        @JvmStatic
-        @Provides
-        @CheckResult
-        internal fun provideStoreDeleteDao(@InternalApi db: NearbyStoreDb): NearbyStoreDeleteDao {
-            return db.deleteDao()
-        }
-
-        @JvmStatic
-        @Provides
-        @CheckResult
-        @InternalApi
-        internal fun provideZoneDb(db: FridgeDb): NearbyZoneDb {
-            return db.zones()
-        }
-
-        @JvmStatic
-        @Provides
-        @CheckResult
-        internal fun provideZoneRealtimeDao(@InternalApi db: NearbyZoneDb): NearbyZoneRealtime {
-            return db.realtime()
-        }
-
-        @JvmStatic
-        @Provides
-        @CheckResult
-        internal fun provideZoneQueryDao(@InternalApi db: NearbyZoneDb): NearbyZoneQueryDao {
-            return db.queryDao()
-        }
-
-        @JvmStatic
-        @Provides
-        @CheckResult
-        internal fun provideZoneInsertDao(@InternalApi db: NearbyZoneDb): NearbyZoneInsertDao {
-            return db.insertDao()
-        }
-
-        @JvmStatic
-        @Provides
-        @CheckResult
-        internal fun provideZoneDeleteDao(@InternalApi db: NearbyZoneDb): NearbyZoneDeleteDao {
             return db.deleteDao()
         }
 

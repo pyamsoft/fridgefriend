@@ -31,7 +31,7 @@ import com.pyamsoft.pydroid.arch.StateSaver
 import com.pyamsoft.pydroid.arch.createComponent
 import com.pyamsoft.pydroid.ui.Injector
 import com.pyamsoft.pydroid.ui.arch.fromViewModelFactory
-import java.util.*
+import java.util.Calendar
 import javax.inject.Inject
 
 internal class DateSelectDialog : AppCompatDialogFragment() {

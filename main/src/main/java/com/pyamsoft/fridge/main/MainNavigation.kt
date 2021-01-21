@@ -71,7 +71,6 @@ class MainNavigation @Inject internal constructor(
                 return@setOnNavigationItemSelectedListener when (item.itemId) {
                     R.id.menu_item_nav_entries -> select(MainViewEvent.OpenEntries)
                     R.id.menu_item_nav_category -> select(MainViewEvent.OpenCategory)
-                    R.id.menu_item_nav_nearby -> select(MainViewEvent.OpenNearby)
                     R.id.menu_item_nav_settings -> select(MainViewEvent.OpenSettings)
                     R.id.menu_item_nav_search -> select(MainViewEvent.OpenSearch)
                     else -> false
@@ -82,7 +81,6 @@ class MainNavigation @Inject internal constructor(
         doOnTeardown {
             binding.mainBottomNavigationMenu.setOnNavigationItemSelectedListener(null)
             binding.mainBottomNavigationMenu.removeBadge(R.id.menu_item_nav_entries)
-            binding.mainBottomNavigationMenu.removeBadge(R.id.menu_item_nav_nearby)
         }
 
         doOnTeardown {
@@ -125,7 +123,6 @@ class MainNavigation @Inject internal constructor(
             when (page) {
                 is MainPage.Entries -> R.id.menu_item_nav_entries
                 is MainPage.Category -> R.id.menu_item_nav_category
-                is MainPage.Nearby -> R.id.menu_item_nav_nearby
                 is MainPage.Settings -> R.id.menu_item_nav_settings
                 is MainPage.Search -> R.id.menu_item_nav_search
             }

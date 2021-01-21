@@ -115,7 +115,6 @@ dependencies {
   implementation project(':category')
   implementation project(':detail')
   implementation project(':entry')
-  implementation project(':locator-map')
   implementation project(':main')
   //  implementation project(':ocr')
   implementation project(':search')

@@ -19,19 +19,11 @@ package com.pyamsoft.fridge.butler.notification
 import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItem
-import com.pyamsoft.fridge.db.store.NearbyStore
-import com.pyamsoft.fridge.db.zone.NearbyZone
 import com.pyamsoft.pydroid.notify.NotifyId
 
 interface NotificationHandler {
 
     fun cancel(notificationId: NotifyId)
-
-    @CheckResult
-    fun notifyNearby(store: NearbyStore, items: List<FridgeItem>): Boolean
-
-    @CheckResult
-    fun notifyNearby(zone: NearbyZone, items: List<FridgeItem>): Boolean
 
     @CheckResult
     fun notifyNeeded(entry: FridgeEntry, items: List<FridgeItem>): Boolean
@@ -51,10 +43,5 @@ interface NotificationHandler {
 
         const val KEY_ENTRY_ID = "key_entry_id"
         const val KEY_PRESENCE_TYPE = "key_presence_type"
-
-        const val KEY_NEARBY_ID = "key_nearby_id"
-        const val KEY_NEARBY_TYPE = "key_nearby_type"
-        const val VALUE_NEARBY_TYPE_STORE = "nearby_store"
-        const val VALUE_NEARBY_TYPE_ZONE = "nearby_zone"
     }
 }

@@ -29,8 +29,6 @@ import com.pyamsoft.fridge.core.TERMS_CONDITIONS_URL
 import com.pyamsoft.fridge.detail.DetailListComponent
 import com.pyamsoft.fridge.detail.expand.ExpandItemCategoryListComponent
 import com.pyamsoft.fridge.entry.EntryListComponent
-import com.pyamsoft.fridge.locator.map.osm.popup.StoreInfoComponent
-import com.pyamsoft.fridge.locator.map.osm.popup.ZoneInfoComponent
 import com.pyamsoft.fridge.main.MainActivity
 import com.pyamsoft.pydroid.bootstrap.libraries.OssLibraries
 import com.pyamsoft.pydroid.bootstrap.libraries.OssLicenses
@@ -93,10 +91,7 @@ class FridgeFriend : Application() {
         // to the main thread to defer this work until after start up is done
         Handler(Looper.getMainLooper()).post {
             GlobalScope.launch(context = Dispatchers.Default) {
-                initOnAppStart(
-                    requireNotNull(butler),
-                    requireNotNull(orderFactory),
-                )
+                requireNotNull(butler).initOnAppStart(requireNotNull(orderFactory))
             }
         }
     }
@@ -122,8 +117,6 @@ class FridgeFriend : Application() {
                 DetailListComponent.Factory::class.java.name -> plusDetailListComponent()
                 EntryListComponent.Factory::class.java.name -> plusEntryListComponent()
                 ExpandItemCategoryListComponent.Factory::class.java.name -> plusExpandCategoryListComponent()
-                StoreInfoComponent.Factory::class.java.name -> plusStoreComponent()
-                ZoneInfoComponent.Factory::class.java.name -> plusZoneComponent()
                 else -> null
             }
         }

@@ -16,13 +16,9 @@
 
 package com.pyamsoft.fridge.main
 
-import com.pyamsoft.fridge.db.store.NearbyStore
-import com.pyamsoft.fridge.db.zone.NearbyZone
-
 sealed class MainPage {
     object Entries : MainPage()
     object Category : MainPage()
-    data class Nearby(val storeId: NearbyStore.Id, val zoneId: NearbyZone.Id) : MainPage()
     object Settings : MainPage()
     object Search : MainPage()
 }

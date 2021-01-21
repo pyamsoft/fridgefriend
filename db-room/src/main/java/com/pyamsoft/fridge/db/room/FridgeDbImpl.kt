@@ -21,8 +21,6 @@ import com.pyamsoft.fridge.db.FridgeDb
 import com.pyamsoft.fridge.db.category.FridgeCategoryDb
 import com.pyamsoft.fridge.db.entry.FridgeEntryDb
 import com.pyamsoft.fridge.db.item.FridgeItemDb
-import com.pyamsoft.fridge.db.store.NearbyStoreDb
-import com.pyamsoft.fridge.db.zone.NearbyZoneDb
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -30,16 +28,12 @@ import javax.inject.Singleton
 internal class FridgeDbImpl @Inject internal constructor(
     private val itemDb: FridgeItemDb,
     private val entryDb: FridgeEntryDb,
-    private val storeDb: NearbyStoreDb,
-    private val zoneDb: NearbyZoneDb,
     private val categoryDb: FridgeCategoryDb,
 ) : FridgeDb {
 
     override suspend fun invalidate() {
         itemDb.invalidate()
         entryDb.invalidate()
-        storeDb.invalidate()
-        zoneDb.invalidate()
         categoryDb.invalidate()
     }
 
@@ -51,16 +45,6 @@ internal class FridgeDbImpl @Inject internal constructor(
     @CheckResult
     override fun entries(): FridgeEntryDb {
         return entryDb
-    }
-
-    @CheckResult
-    override fun stores(): NearbyStoreDb {
-        return storeDb
-    }
-
-    @CheckResult
-    override fun zones(): NearbyZoneDb {
-        return zoneDb
     }
 
     @CheckResult

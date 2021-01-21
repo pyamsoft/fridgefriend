@@ -23,36 +23,26 @@ import com.pyamsoft.fridge.db.room.converter.CategoryIdConverter
 import com.pyamsoft.fridge.db.room.converter.DateTypeConverter
 import com.pyamsoft.fridge.db.room.converter.EntryIdConverter
 import com.pyamsoft.fridge.db.room.converter.ItemIdConverter
-import com.pyamsoft.fridge.db.room.converter.NearbyZonePointListConverter
 import com.pyamsoft.fridge.db.room.converter.PresenceTypeConverter
-import com.pyamsoft.fridge.db.room.converter.StoreIdConverter
 import com.pyamsoft.fridge.db.room.converter.ThumbnailTypeConverter
-import com.pyamsoft.fridge.db.room.converter.ZoneIdConverter
 import com.pyamsoft.fridge.db.room.entity.RoomFridgeCategory
 import com.pyamsoft.fridge.db.room.entity.RoomFridgeEntry
 import com.pyamsoft.fridge.db.room.entity.RoomFridgeItem
-import com.pyamsoft.fridge.db.room.entity.RoomNearbyStore
-import com.pyamsoft.fridge.db.room.entity.RoomNearbyZone
 
 @Database(
     version = 1,
     entities = [
         RoomFridgeItem::class,
         RoomFridgeEntry::class,
-        RoomNearbyStore::class,
-        RoomNearbyZone::class,
         RoomFridgeCategory::class
     ]
 )
 @TypeConverters(
     PresenceTypeConverter::class,
     DateTypeConverter::class,
-    NearbyZonePointListConverter::class,
     ThumbnailTypeConverter::class,
     EntryIdConverter::class,
     ItemIdConverter::class,
     CategoryIdConverter::class,
-    ZoneIdConverter::class,
-    StoreIdConverter::class
 )
 internal abstract class RoomFridgeDbImpl internal constructor() : RoomDatabase(), RoomFridgeDb

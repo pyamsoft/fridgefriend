@@ -22,11 +22,6 @@ import java.util.Calendar
 interface ButlerPreferences {
 
     @CheckResult
-    suspend fun getLastNotificationTimeNearby(): Long
-
-    suspend fun markNotificationNearby(calendar: Calendar)
-
-    @CheckResult
     suspend fun getLastNotificationTimeNeeded(): Long
 
     suspend fun markNotificationNeeded(calendar: Calendar)

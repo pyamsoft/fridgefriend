@@ -26,12 +26,6 @@ import com.pyamsoft.fridge.db.room.dao.entry.RoomFridgeEntryQueryDao
 import com.pyamsoft.fridge.db.room.dao.item.RoomFridgeItemDeleteDao
 import com.pyamsoft.fridge.db.room.dao.item.RoomFridgeItemInsertDao
 import com.pyamsoft.fridge.db.room.dao.item.RoomFridgeItemQueryDao
-import com.pyamsoft.fridge.db.room.dao.store.RoomNearbyStoreDeleteDao
-import com.pyamsoft.fridge.db.room.dao.store.RoomNearbyStoreInsertDao
-import com.pyamsoft.fridge.db.room.dao.store.RoomNearbyStoreQueryDao
-import com.pyamsoft.fridge.db.room.dao.zone.RoomNearbyZoneDeleteDao
-import com.pyamsoft.fridge.db.room.dao.zone.RoomNearbyZoneInsertDao
-import com.pyamsoft.fridge.db.room.dao.zone.RoomNearbyZoneQueryDao
 
 internal interface RoomFridgeDb {
 
@@ -52,24 +46,6 @@ internal interface RoomFridgeDb {
 
     @CheckResult
     fun roomEntryDeleteDao(): RoomFridgeEntryDeleteDao
-
-    @CheckResult
-    fun roomStoreQueryDao(): RoomNearbyStoreQueryDao
-
-    @CheckResult
-    fun roomStoreInsertDao(): RoomNearbyStoreInsertDao
-
-    @CheckResult
-    fun roomStoreDeleteDao(): RoomNearbyStoreDeleteDao
-
-    @CheckResult
-    fun roomZoneQueryDao(): RoomNearbyZoneQueryDao
-
-    @CheckResult
-    fun roomZoneInsertDao(): RoomNearbyZoneInsertDao
-
-    @CheckResult
-    fun roomZoneDeleteDao(): RoomNearbyZoneDeleteDao
 
     @CheckResult
     fun roomCategoryQueryDao(): RoomFridgeCategoryQueryDao

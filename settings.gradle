@@ -15,6 +15,16 @@
  */
 include ':search'
 include ':tooltip-balloon'
-
-include ':app', ':entry', ':core', ':main', ':setting', ':db', ':category', ':tooltip', ':ui',
-    ':locator-map', ':locator', ':butler-workmanager', ':butler', ':db-room', ':detail'
+include ':app'
+include ':entry'
+include ':core'
+include ':main'
+include ':setting'
+include ':db'
+include ':category'
+include ':tooltip'
+include ':ui'
+include ':butler-workmanager'
+include ':butler'
+include ':db-room'
+include ':detail'

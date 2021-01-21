@@ -16,29 +16,11 @@
 
 package com.pyamsoft.fridge
 
-import android.app.Activity
-import android.app.Application
 import com.pyamsoft.fridge.butler.Butler
 import com.pyamsoft.fridge.butler.params.ItemParameters
-import com.pyamsoft.fridge.butler.params.LocationParameters
 import com.pyamsoft.fridge.butler.work.OrderFactory
 
-suspend fun Activity.initOnAppStart(
-    butler: Butler,
-    orderFactory: OrderFactory,
-) {
-    butler.initOnAppStart(isForeground = true, orderFactory)
-}
-
-suspend fun Application.initOnAppStart(
-    butler: Butler,
-    orderFactory: OrderFactory,
-) {
-    butler.initOnAppStart(isForeground = false, orderFactory)
-}
-
-private suspend fun Butler.initOnAppStart(
-    isForeground: Boolean,
+suspend fun Butler.initOnAppStart(
     orderFactory: OrderFactory
 ) {
     cancel()
@@ -55,17 +37,4 @@ private suspend fun Butler.initOnAppStart(
 
     // Nightly notifications are always scheduled since they must fire at an exact time.
     scheduleOrder(orderFactory.nightlyOrder())
-
-    // No location in background
-    if (!isForeground) {
-        return
-    }
-
-    placeOrder(
-        orderFactory.locationOrder(
-            LocationParameters(
-                forceNotifyNearby = true,
-            )
-        )
-    )
 }

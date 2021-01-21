@@ -25,13 +25,6 @@ data class NeededItemNotifyData internal constructor(
     val items: List<FridgeItem>
 ) : NotifyData
 
-data class NearbyItemNotifyData(
-    val id: Long,
-    val name: String,
-    val type: String,
-    val items: List<FridgeItem>
-) : NotifyData
-
 data class ExpiringItemNotifyData internal constructor(
     val entry: FridgeEntry,
     val items: List<FridgeItem>

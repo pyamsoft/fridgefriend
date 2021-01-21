@@ -16,7 +16,6 @@
 
 package com.pyamsoft.fridge.main
 
-import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
@@ -39,13 +38,8 @@ import com.pyamsoft.fridge.butler.work.OrderFactory
 import com.pyamsoft.fridge.category.CategoryFragment
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItem
-import com.pyamsoft.fridge.db.store.NearbyStore
-import com.pyamsoft.fridge.db.zone.NearbyZone
 import com.pyamsoft.fridge.entry.EntryFragment
 import com.pyamsoft.fridge.initOnAppStart
-import com.pyamsoft.fridge.locator.DeviceGps
-import com.pyamsoft.fridge.map.MapFragment
-import com.pyamsoft.fridge.permission.PermissionFragment
 import com.pyamsoft.fridge.search.SearchFragment
 import com.pyamsoft.fridge.setting.SettingsFragment
 import com.pyamsoft.fridge.ui.SnackbarContainer
@@ -249,50 +243,9 @@ internal class MainActivity : ChangeLogActivity(),
         return true
     }
 
-    @CheckResult
-    private fun handleNearbyIntent(intent: Intent): Boolean {
-        val longNearbyId = intent.getLongExtra(NotificationHandler.KEY_NEARBY_ID, 0L)
-        if (longNearbyId == 0L) {
-            return false
-        }
-
-        val nearbyType = intent.getStringExtra(NotificationHandler.KEY_NEARBY_TYPE)
-        if (nearbyType == null) {
-            Timber.d("New intent had nearby key but no type")
-            return false
-        }
-        val nearbyStoreId: NearbyStore.Id
-        val nearbyZoneId: NearbyZone.Id
-        when (nearbyType) {
-            NotificationHandler.VALUE_NEARBY_TYPE_STORE -> {
-                nearbyStoreId = NearbyStore.Id(longNearbyId)
-                nearbyZoneId = NearbyZone.Id.EMPTY
-            }
-            NotificationHandler.VALUE_NEARBY_TYPE_ZONE -> {
-                nearbyStoreId = NearbyStore.Id.EMPTY
-                nearbyZoneId = NearbyZone.Id(longNearbyId)
-            }
-            else -> return false
-        }
-
-        Timber.d("Map page selected, load nearby: $nearbyStoreId $nearbyZoneId")
-        viewModel.selectPage(
-            force = true, MainPage.Nearby(
-                storeId = nearbyStoreId,
-                zoneId = nearbyZoneId
-            )
-        )
-        return true
-    }
-
     private fun handleIntentExtras(intent: Intent) {
         if (handleEntryIntent(intent)) {
             Timber.d("New intent handled entry extras")
-            return
-        }
-
-        if (handleNearbyIntent(intent)) {
-            Timber.d("New intent handled nearby extras")
             return
         }
 
@@ -315,11 +268,6 @@ internal class MainActivity : ChangeLogActivity(),
         }
     }
 
-    override fun onStart() {
-        super.onStart()
-        checkNearbyFragmentPermissions()
-    }
-
     override fun onResume() {
         super.onResume()
         clearLaunchNotification()
@@ -327,7 +275,7 @@ internal class MainActivity : ChangeLogActivity(),
 
     private fun beginWork() {
         this.lifecycleScope.launch(context = Dispatchers.Default) {
-            initOnAppStart(requireNotNull(butler), requireNotNull(orderFactory))
+            requireNotNull(butler).initOnAppStart(requireNotNull(orderFactory))
         }
     }
 
@@ -360,12 +308,6 @@ internal class MainActivity : ChangeLogActivity(),
                 is MainControllerEvent.PushCategory -> pushCategory(it.previousPage, it.force)
                 is MainControllerEvent.PushSettings -> pushSettings(it.previousPage, it.force)
                 is MainControllerEvent.PushSearch -> pushSearch(it.previousPage, it.force)
-                is MainControllerEvent.PushNearby -> pushNearby(
-                    it.previousPage,
-                    it.storeId,
-                    it.zoneId,
-                    it.force
-                )
             }
         }
 
@@ -451,75 +393,6 @@ internal class MainActivity : ChangeLogActivity(),
         )
     }
 
-    private fun pushNearby(
-        previousPage: MainPage?,
-        storeId: NearbyStore.Id,
-        zoneId: NearbyZone.Id,
-        force: Boolean,
-    ) {
-        commitNearbyFragment(previousPage, storeId, zoneId, force)
-    }
-
-    private fun checkNearbyFragmentPermissions() {
-        val fm = supportFragmentManager
-        if (fm.findFragmentByTag(PermissionFragment.TAG) != null) {
-            viewModel.withForegroundPermission(withPermission = {
-                // Replace permission with map
-                // Don't need animation because we are already on this page
-                Timber.d("Permission gained, commit Map fragment")
-                commitMapFragment(
-                    null,
-                    storeId = NearbyStore.Id.EMPTY,
-                    zoneId = NearbyZone.Id.EMPTY,
-                    force = true
-                )
-            })
-        } else if (fm.findFragmentByTag(MapFragment.TAG) != null) {
-            viewModel.withForegroundPermission(withoutPermission = {
-                // Replace map with permission
-                // Don't need animation because we are already on this page
-                Timber.d("Permission lost, commit Permission fragment")
-                commitPermissionFragment(null, force = true)
-            })
-        }
-    }
-
-    private fun commitMapFragment(
-        previousPage: MainPage?,
-        storeId: NearbyStore.Id,
-        zoneId: NearbyZone.Id, force: Boolean,
-    ) {
-        commitPage(
-            MapFragment.newInstance(storeId, zoneId),
-            MainPage.Nearby(storeId, zoneId),
-            previousPage,
-            MapFragment.TAG,
-            force
-        )
-    }
-
-    private fun commitPermissionFragment(previousPage: MainPage?, force: Boolean) {
-        commitPage(
-            PermissionFragment.newInstance(fragmentContainerId),
-            MainPage.Nearby(storeId = NearbyStore.Id.EMPTY, zoneId = NearbyZone.Id.EMPTY),
-            previousPage,
-            PermissionFragment.TAG,
-            force
-        )
-    }
-
-    private fun commitNearbyFragment(
-        previousPage: MainPage?,
-        storeId: NearbyStore.Id,
-        zoneId: NearbyZone.Id,
-        force: Boolean,
-    ) {
-        viewModel.withForegroundPermission(
-            withPermission = { commitMapFragment(previousPage, storeId, zoneId, force) },
-            withoutPermission = { commitPermissionFragment(previousPage, force) }
-        )
-    }
-
     private fun pushEntry(previousPage: MainPage?, force: Boolean) {
         commitPage(
             EntryFragment.newInstance(fragmentContainerId),
@@ -570,29 +443,23 @@ internal class MainActivity : ChangeLogActivity(),
             is MainPage.Search -> when (oldPage) {
                 null -> R2.anim.fragment_open_enter to R2.anim.fragment_open_exit
                 is MainPage.Entries -> R.anim.slide_in_right to R.anim.slide_out_left
-                is MainPage.Category, is MainPage.Nearby, is MainPage.Settings -> R.anim.slide_in_left to R.anim.slide_out_right
+                is MainPage.Category, is MainPage.Settings -> R.anim.slide_in_left to R.anim.slide_out_right
                 is MainPage.Search -> null
             }
             is MainPage.Entries -> when (oldPage) {
                 null -> R2.anim.fragment_open_enter to R2.anim.fragment_open_exit
-                is MainPage.Search, is MainPage.Category, is MainPage.Nearby, is MainPage.Settings -> R.anim.slide_in_left to R.anim.slide_out_right
+                is MainPage.Search, is MainPage.Category, is MainPage.Settings -> R.anim.slide_in_left to R.anim.slide_out_right
                 is MainPage.Entries -> null
             }
             is MainPage.Category -> when (oldPage) {
                 null -> R2.anim.fragment_open_enter to R2.anim.fragment_open_exit
                 is MainPage.Search, is MainPage.Entries -> R.anim.slide_in_right to R.anim.slide_out_left
-                is MainPage.Nearby, is MainPage.Settings -> R.anim.slide_in_left to R.anim.slide_out_right
-                is MainPage.Category -> null
-            }
-            is MainPage.Nearby -> when (oldPage) {
-                null -> R2.anim.fragment_open_enter to R2.anim.fragment_open_exit
-                is MainPage.Search, is MainPage.Entries, is MainPage.Category -> R.anim.slide_in_right to R.anim.slide_out_left
                 is MainPage.Settings -> R.anim.slide_in_left to R.anim.slide_out_right
-                is MainPage.Nearby -> null
+                is MainPage.Category -> null
             }
             is MainPage.Settings -> when (oldPage) {
                 null -> R2.anim.fragment_open_enter to R2.anim.fragment_open_exit
-                is MainPage.Search, is MainPage.Entries, is MainPage.Category, is MainPage.Nearby -> R.anim.slide_in_right to R.anim.slide_out_left
+                is MainPage.Search, is MainPage.Entries, is MainPage.Category -> R.anim.slide_in_right to R.anim.slide_out_left
                 is MainPage.Settings -> null
             }
         }
@@ -606,17 +473,6 @@ internal class MainActivity : ChangeLogActivity(),
     override fun onSaveInstanceState(outState: Bundle) {
         stateSaver?.saveState(outState)
         super.onSaveInstanceState(outState)
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == DeviceGps.ENABLE_GPS_REQUEST_CODE) {
-            handleGpsRequest(resultCode)
-        }
-    }
-
-    private fun handleGpsRequest(resultCode: Int) {
-        viewModel.publishGpsChange(resultCode == Activity.RESULT_OK)
     }
 
     override fun onDestroy() {

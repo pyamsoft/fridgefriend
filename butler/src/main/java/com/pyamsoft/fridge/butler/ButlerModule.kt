@@ -22,7 +22,6 @@ import com.pyamsoft.fridge.butler.notification.NotificationHandler
 import com.pyamsoft.fridge.butler.notification.NotificationHandlerImpl
 import com.pyamsoft.fridge.butler.notification.dispatcher.ExpiredItemNotifyDispatcher
 import com.pyamsoft.fridge.butler.notification.dispatcher.ExpiringItemNotifyDispatcher
-import com.pyamsoft.fridge.butler.notification.dispatcher.NearbyItemNotifyDispatcher
 import com.pyamsoft.fridge.butler.notification.dispatcher.NeededItemNotifyDispatcher
 import com.pyamsoft.fridge.butler.notification.dispatcher.NightlyNotifyDispatcher
 import com.pyamsoft.fridge.butler.work.OrderFactory
@@ -60,11 +59,6 @@ abstract class ButlerModule {
     @IntoSet
     @ButlerInternalApi
     internal abstract fun bindExpiredDispatcher(impl: ExpiredItemNotifyDispatcher): NotifyDispatcher<*>
-
-    @Binds
-    @IntoSet
-    @ButlerInternalApi
-    internal abstract fun bindNearbyDispatcher(impl: NearbyItemNotifyDispatcher): NotifyDispatcher<*>
 
     @Binds
     @IntoSet

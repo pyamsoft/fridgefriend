@@ -104,20 +104,6 @@ internal class PreferencesImpl @Inject internal constructor(
         }
     }
 
-    override suspend fun getLastNotificationTimeNearby(): Long =
-        withContext(context = Dispatchers.IO) {
-            Enforcer.assertOffMainThread()
-            return@withContext preferences.getLong(KEY_LAST_NOTIFICATION_TIME_NEARBY, 0)
-        }
-
-    override suspend fun markNotificationNearby(calendar: Calendar) =
-        withContext(context = Dispatchers.IO) {
-            Enforcer.assertOffMainThread()
-            preferences.edit {
-                putLong(KEY_LAST_NOTIFICATION_TIME_NEARBY, calendar.timeInMillis)
-            }
-        }
-
     override suspend fun getLastNotificationTimeExpiringSoon(): Long =
         withContext(context = Dispatchers.IO) {
             Enforcer.assertOffMainThread()
@@ -277,7 +263,6 @@ internal class PreferencesImpl @Inject internal constructor(
         private const val KEY_PERSISTENT_CATEGORIES = "persistent_categories_v1"
         private const val KEY_PERSISTENT_ENTRIES = "persistent_entries_v1"
 
-        private const val KEY_LAST_NOTIFICATION_TIME_NEARBY = "last_notification_nearby_v1"
         private const val KEY_LAST_NOTIFICATION_TIME_EXPIRING_SOON =
             "last_notification_expiring_soon_v1"
         private const val KEY_LAST_NOTIFICATION_TIME_EXPIRED = "last_notification_expired_v1"

@@ -20,5 +20,4 @@ enum class NotificationType {
     EXPIRING,
     EXPIRED,
     NEEDED,
-    NEARBY,
 }

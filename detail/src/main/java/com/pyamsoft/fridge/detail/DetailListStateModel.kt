@@ -19,8 +19,13 @@ package com.pyamsoft.fridge.detail
 import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.core.today
 import com.pyamsoft.fridge.db.entry.FridgeEntry
-import com.pyamsoft.fridge.db.item.*
-import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent.*
+import com.pyamsoft.fridge.db.item.FridgeItem
+import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent
+import com.pyamsoft.fridge.db.item.cleanMidnight
+import com.pyamsoft.fridge.db.item.daysLaterMidnight
+import com.pyamsoft.fridge.db.item.isArchived
+import com.pyamsoft.fridge.db.item.isExpired
+import com.pyamsoft.fridge.db.item.isExpiringSoon
 import com.pyamsoft.fridge.detail.base.UpdateDelegate
 import com.pyamsoft.fridge.ui.BottomOffset
 import com.pyamsoft.highlander.highlander
@@ -156,9 +161,9 @@ class DetailListStateModel @Inject internal constructor(
     }
 
     private fun CoroutineScope.handleRealtime(event: FridgeItemChangeEvent) = when (event) {
-        is Insert -> handleRealtimeInsert(event.item)
-        is Update -> handleRealtimeUpdate(event.item)
-        is Delete -> handleRealtimeDelete(event.item, event.offerUndo)
+        is FridgeItemChangeEvent.Insert -> handleRealtimeInsert(event.item)
+        is FridgeItemChangeEvent.Update -> handleRealtimeUpdate(event.item)
+        is FridgeItemChangeEvent.Delete -> handleRealtimeDelete(event.item, event.offerUndo)
     }
 
     private fun insertOrUpdate(

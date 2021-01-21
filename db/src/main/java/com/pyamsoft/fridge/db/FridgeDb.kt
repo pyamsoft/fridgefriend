@@ -20,8 +20,6 @@ import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.db.category.FridgeCategoryDb
 import com.pyamsoft.fridge.db.entry.FridgeEntryDb
 import com.pyamsoft.fridge.db.item.FridgeItemDb
-import com.pyamsoft.fridge.db.store.NearbyStoreDb
-import com.pyamsoft.fridge.db.zone.NearbyZoneDb
 
 interface FridgeDb : DbCache {
 
@@ -30,12 +28,6 @@ interface FridgeDb : DbCache {
 
     @CheckResult
     fun entries(): FridgeEntryDb
-
-    @CheckResult
-    fun stores(): NearbyStoreDb
-
-    @CheckResult
-    fun zones(): NearbyZoneDb
 
     @CheckResult
     fun categories(): FridgeCategoryDb

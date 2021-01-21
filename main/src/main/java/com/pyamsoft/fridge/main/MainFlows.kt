@@ -16,8 +16,6 @@
 
 package com.pyamsoft.fridge.main
 
-import com.pyamsoft.fridge.db.store.NearbyStore
-import com.pyamsoft.fridge.db.zone.NearbyZone
 import com.pyamsoft.pydroid.arch.UiControllerEvent
 import com.pyamsoft.pydroid.arch.UiViewEvent
 import com.pyamsoft.pydroid.arch.UiViewState
@@ -27,9 +25,6 @@ data class MainViewState internal constructor(
     val appNameRes: Int,
     val countNeeded: Int,
     val countExpiringOrExpired: Int,
-    val countNearbyStores: Int,
-    val countNearbyZones: Int,
-    val hasNearby: Boolean,
 ) : UiViewState
 
 sealed class MainViewEvent : UiViewEvent {
@@ -39,8 +34,6 @@ sealed class MainViewEvent : UiViewEvent {
     object OpenCategory : MainViewEvent()
 
     object OpenSearch : MainViewEvent()
-
-    object OpenNearby : MainViewEvent()
 
     object OpenSettings : MainViewEvent()
 
@@ -61,13 +54,6 @@ sealed class MainControllerEvent : UiControllerEvent {
 
     data class PushSearch internal constructor(
         val previousPage: MainPage?,
-        val force: Boolean,
-    ) : MainControllerEvent()
-
-    data class PushNearby internal constructor(
-        val previousPage: MainPage?,
-        val storeId: NearbyStore.Id,
-        val zoneId: NearbyZone.Id,
         val force: Boolean,
     ) : MainControllerEvent()
 

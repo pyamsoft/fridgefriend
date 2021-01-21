@@ -23,7 +23,5 @@ interface ButlerComponent {
 
     fun inject(injector: ItemInjector)
 
-    fun inject(injector: LocationInjector)
-
     fun inject(injector: NightlyInjector)
 }

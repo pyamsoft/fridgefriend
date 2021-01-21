@@ -17,7 +17,6 @@
 package com.pyamsoft.fridge.locator.map.osm.popup
 
 import com.pyamsoft.fridge.butler.Butler
-import com.pyamsoft.fridge.butler.params.LocationParameters
 import com.pyamsoft.fridge.butler.work.OrderFactory
 import com.pyamsoft.fridge.db.DbDelete
 import com.pyamsoft.fridge.db.DbInsert

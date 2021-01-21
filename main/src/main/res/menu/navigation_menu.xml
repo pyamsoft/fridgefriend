@@ -38,12 +38,6 @@
         app:showAsAction="ifRoom" />
 
     <item
-        android:id="@+id/menu_item_nav_nearby"
-        android:icon="@drawable/ic_location_24dp"
-        android:title="@string/nav_nearby"
-        app:showAsAction="ifRoom" />
-
-    <item
         android:id="@+id/menu_item_nav_settings"
         android:icon="@drawable/ic_settings_24dp"
         android:title="@string/nav_settings"

@@ -28,8 +28,6 @@ import com.pyamsoft.fridge.db.item.daysLaterMidnight
 import com.pyamsoft.fridge.db.item.isArchived
 import com.pyamsoft.fridge.db.item.isExpired
 import com.pyamsoft.fridge.db.item.isExpiringSoon
-import com.pyamsoft.fridge.locator.Geofencer
-import com.pyamsoft.fridge.locator.Nearby
 import com.pyamsoft.pydroid.core.Enforcer
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -38,7 +36,6 @@ import javax.inject.Singleton
 
 @Singleton
 internal class MainInteractor @Inject internal constructor(
-    private val nearby: Nearby,
     private val itemQueryDao: FridgeItemQueryDao,
     private val itemRealtime: FridgeItemRealtime,
     private val fridgeItemPreferences: FridgeItemPreferences
@@ -64,22 +61,6 @@ internal class MainInteractor @Inject internal constructor(
                     isSameDayExpired
                 )
             }
-            .count()
-    }
-
-    suspend fun getNearbyStoreCount(): Int = withContext(context = Dispatchers.Default) {
-        Enforcer.assertOffMainThread()
-        return@withContext nearby.nearbyStores(false, Geofencer.DEFAULT_RADIUS_IN_METERS)
-            .sortedBy { it.distance }
-            .map { it.nearby }
-            .count()
-    }
-
-    suspend fun getNearbyZoneCount(): Int = withContext(context = Dispatchers.Default) {
-        Enforcer.assertOffMainThread()
-        return@withContext nearby.nearbyZones(false, Geofencer.DEFAULT_RADIUS_IN_METERS)
-            .sortedBy { it.distance }
-            .map { it.nearby }
             .count()
     }
 
