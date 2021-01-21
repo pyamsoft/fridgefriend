@@ -53,20 +53,12 @@ buildscript {
     // Dagger
     dagger = "2.31"
 
-
-    // Network
     moshi = "1.11.0"
-    retrofit = '2.9.0'
-    okhttp = "4.9.0"
 
     fastAdapter = "5.3.2"
 
     // Jobs
     workmanager = "2.4.0"
-
-    // Maps
-    osmdroid = "6.1.8"
-    gmsLocation = "17.1.0" // Just for FusedLocationProvider
 
     // Tooltips
     balloon = "1.2.8"
