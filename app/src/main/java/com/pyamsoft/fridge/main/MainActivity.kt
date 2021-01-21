@@ -414,6 +414,11 @@ internal class MainActivity : ChangeLogActivity(),
                 constrainWidth(it.id(), ConstraintSet.MATCH_CONSTRAINT)
             }
         }
+
+        val existingFragment = supportFragmentManager.findFragmentById(fragmentContainerId)
+        if (savedInstanceState == null || existingFragment == null) {
+            viewModel.loadDefaultPage()
+        }
     }
 
     private fun pushSearch(previousPage: MainPage?, force: Boolean) {

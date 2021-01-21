@@ -63,16 +63,14 @@ class MainViewModel @AssistedInject internal constructor(
         }
 
         refreshBadgeCounts()
-
-        viewModelScope.launch(context = Dispatchers.Default) {
-            loadDefaultPage()
-        }
     }
 
-    private suspend fun loadDefaultPage() {
-        val page = restoreSavedState(KEY_PAGE) { DEFAULT_PAGE.asString() }.asPage()
-        Timber.d("Loading initial page: $page")
-        selectPage(force = false, page)
+    fun loadDefaultPage() {
+        viewModelScope.launch(context = Dispatchers.Default) {
+            val page = restoreSavedState(KEY_PAGE) { MainPage.Entries.asString() }.asPage()
+            Timber.d("Loading initial page: $page")
+            selectPage(force = true, page)
+        }
     }
 
     private fun handleRealtime(event: FridgeItemChangeEvent) = when (event) {
@@ -142,16 +140,17 @@ class MainViewModel @AssistedInject internal constructor(
 
         // If the pages match we can just run the after, no need to set and publish
         val oldPage = state.page
-        setState(stateChange = { copy(page = newPage) }, andThen = {
-            publishNewSelection(oldPage, event)
-        })
+        setState { copy(page = newPage) }
+        viewModelScope.launch(context = Dispatchers.Default) {
+            publishNewSelection(newPage, oldPage, event)
+        }
     }
 
     private suspend inline fun publishNewSelection(
+        newPage: MainPage,
         oldPage: MainPage?,
         crossinline event: (page: MainPage?) -> MainControllerEvent,
     ) {
-        val newPage = requireNotNull(state.page)
         Timber.d("Publish selection: $oldPage -> $newPage")
         putSavedState(KEY_PAGE, newPage.asString())
         publish(event(oldPage))
@@ -197,7 +196,6 @@ class MainViewModel @AssistedInject internal constructor(
             else -> throw IllegalStateException("Cannot convert to MainPage: $this")
         }
 
-        private val DEFAULT_PAGE = MainPage.Entries
         private const val KEY_PAGE = "page"
         private val EMPTY = {}
     }
