@@ -21,6 +21,7 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.Ignore
 import androidx.room.PrimaryKey
+import com.pyamsoft.fridge.core.today
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import java.util.Date
 
@@ -37,7 +38,11 @@ internal data class RoomFridgeEntry internal constructor(
 
     @JvmField
     @ColumnInfo(name = COLUMN_CREATED_TIME)
-    val createdTime: Date
+    val createdTime: Date,
+
+    @JvmField
+    @ColumnInfo(name = COLUMN_ARCHIVED_AT)
+    val archivedAt: Date?
 ) : FridgeEntry {
 
     @Ignore
@@ -56,8 +61,30 @@ internal data class RoomFridgeEntry internal constructor(
     }
 
     @Ignore
+    override fun archivedAt(): Date? {
+        return archivedAt
+    }
+
+    @Ignore
+    override fun isArchived(): Boolean {
+        return archivedAt != null
+    }
+
+    @Ignore
     override fun isReal(): Boolean {
         return true
+    }
+
+    @Ignore
+    override fun archive(): FridgeEntry {
+        require(isReal()) { "Cannot archive non-real entry: $this" }
+        return FridgeEntry.create(this, archivedAt = today().time, isReal = isReal())
+    }
+
+    @Ignore
+    override fun invalidateArchived(): FridgeEntry {
+        require(isReal()) { "Cannot archive non-real entry: $this" }
+        return FridgeEntry.create(this, archivedAt = null, isReal = isReal())
     }
 
     @Ignore
@@ -85,6 +112,9 @@ internal data class RoomFridgeEntry internal constructor(
         internal const val COLUMN_CREATED_TIME = "created_time"
 
         @Ignore
+        internal const val COLUMN_ARCHIVED_AT = "archived_at"
+
+        @Ignore
         @JvmStatic
         @CheckResult
         internal fun create(entry: FridgeEntry): RoomFridgeEntry {
@@ -92,7 +122,8 @@ internal data class RoomFridgeEntry internal constructor(
                 RoomFridgeEntry(
                     entry.id(),
                     entry.name(),
-                    entry.createdTime()
+                    entry.createdTime(),
+                    entry.archivedAt()
                 )
             }
         }

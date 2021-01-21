@@ -17,6 +17,7 @@
 package com.pyamsoft.fridge.db.entry
 
 import androidx.annotation.CheckResult
+import com.pyamsoft.fridge.core.today
 import com.squareup.moshi.JsonClass
 import java.util.Date
 
@@ -25,6 +26,7 @@ data class JsonMappableFridgeEntry internal constructor(
     internal val id: FridgeEntry.Id,
     internal val name: String,
     internal val createdTime: Date,
+    internal val archivedAt: Date?,
     internal val isReal: Boolean
 ) : FridgeEntry {
 
@@ -40,8 +42,24 @@ data class JsonMappableFridgeEntry internal constructor(
         return createdTime
     }
 
+    override fun archivedAt(): Date? {
+        return archivedAt
+    }
+
+    override fun isArchived(): Boolean {
+        return archivedAt != null
+    }
+
     override fun isReal(): Boolean {
         return isReal
+    }
+
+    override fun invalidateArchived(): FridgeEntry {
+        return this.copy(archivedAt = null)
+    }
+
+    override fun archive(): FridgeEntry {
+        return this.copy(archivedAt = today().time)
     }
 
     override fun name(name: String): FridgeEntry {
@@ -62,6 +80,7 @@ data class JsonMappableFridgeEntry internal constructor(
                     entry.id(),
                     entry.name(),
                     entry.createdTime(),
+                    entry.archivedAt(),
                     entry.isReal()
                 )
             }

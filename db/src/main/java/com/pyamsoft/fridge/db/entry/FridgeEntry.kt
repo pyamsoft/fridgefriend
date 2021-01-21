@@ -33,6 +33,18 @@ interface FridgeEntry : BaseModel<FridgeEntry> {
     @CheckResult
     fun makeReal(): FridgeEntry
 
+    @CheckResult
+    fun archivedAt(): Date?
+
+    @CheckResult
+    fun isArchived(): Boolean
+
+    @CheckResult
+    fun invalidateArchived(): FridgeEntry
+
+    @CheckResult
+    fun archive(): FridgeEntry
+
     data class Id(val id: String) {
 
         @CheckResult
@@ -57,6 +69,7 @@ interface FridgeEntry : BaseModel<FridgeEntry> {
                 Id(IdGenerator.generate()),
                 name,
                 currentDate(),
+                null,
                 isReal = true
             )
         }
@@ -67,9 +80,10 @@ interface FridgeEntry : BaseModel<FridgeEntry> {
             entry: FridgeEntry,
             name: String = entry.name(),
             createdTime: Date = entry.createdTime(),
+            archivedAt: Date? = entry.archivedAt(),
             isReal: Boolean,
         ): FridgeEntry {
-            return JsonMappableFridgeEntry(entry.id(), name, createdTime, isReal)
+            return JsonMappableFridgeEntry(entry.id(), name, createdTime, archivedAt, isReal)
         }
     }
 }

@@ -44,6 +44,7 @@ import com.pyamsoft.fridge.db.item.FridgeItemDeleteDao
 import com.pyamsoft.fridge.db.item.FridgeItemInsertDao
 import com.pyamsoft.fridge.db.item.FridgeItemQueryDao
 import com.pyamsoft.fridge.db.item.JsonMappableFridgeItem
+import com.pyamsoft.fridge.db.room.migrate.Migrate1To2
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
@@ -69,6 +70,7 @@ abstract class RoomModule {
     @Module
     companion object {
 
+        private const val DB_NAME = "fridge_room_db.db"
         private const val SIMILARITY_MIN_SCORE_CUTOFF = 0.45F
         private const val cacheTime = 10L
         private val cacheUnit = MINUTES
@@ -78,11 +80,9 @@ abstract class RoomModule {
         @CheckResult
         @InternalApi
         internal fun provideRoom(context: Context): RoomFridgeDb {
-            return Room.databaseBuilder(
-                context.applicationContext,
-                RoomFridgeDbImpl::class.java,
-                "fridge_room_db.db"
-            )
+            val appContext = context.applicationContext
+            return Room.databaseBuilder(appContext, RoomFridgeDbImpl::class.java, DB_NAME)
+                .addMigrations(Migrate1To2)
                 .build()
         }
 

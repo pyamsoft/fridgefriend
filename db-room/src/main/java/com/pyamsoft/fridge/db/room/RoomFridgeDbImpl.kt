@@ -30,7 +30,7 @@ import com.pyamsoft.fridge.db.room.entity.RoomFridgeEntry
 import com.pyamsoft.fridge.db.room.entity.RoomFridgeItem
 
 @Database(
-    version = 1,
+    version = 2,
     entities = [
         RoomFridgeItem::class,
         RoomFridgeEntry::class,
