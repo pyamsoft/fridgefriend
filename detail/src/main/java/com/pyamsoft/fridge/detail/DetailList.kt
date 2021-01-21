@@ -24,6 +24,7 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.mikepenz.fastadapter.swipe.SimpleSwipeCallback
+import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence.HAVE
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence.NEED
@@ -51,10 +52,11 @@ class DetailList @Inject internal constructor(
     private val imageLoader: ImageLoader,
     private val theming: ThemeProvider,
     parent: ViewGroup,
+    entryId: FridgeEntry.Id,
     factory: DetailItemComponent.Factory,
-) : BaseUiView<DetailViewState, DetailViewEvent.Main.ListEvent, DetailListBinding>(
-    parent
-) {
+) : BaseUiView<DetailViewState, DetailViewEvent.Main.ListEvent, DetailListBinding>(parent) {
+
+    private val noExtraBottomSpace = entryId.isEmpty()
 
     override val viewBinding = DetailListBinding::inflate
 
@@ -332,8 +334,10 @@ class DetailList @Inject internal constructor(
         removeBottomMargin()
         if (height > 0) {
             // The bottom has additional space to fit the FAB
-            val fabSpacing = 72.asDp(binding.detailList.context)
-            LinearBoundsMarginDecoration(bottomMargin = fabSpacing + height).apply {
+            val bottomMargin = if (noExtraBottomSpace) height else {
+                height + 72.asDp(binding.detailList.context)
+            }
+            LinearBoundsMarginDecoration(bottomMargin = bottomMargin).apply {
                 binding.detailList.addItemDecoration(this)
                 bottomMarginDecoration = this
             }

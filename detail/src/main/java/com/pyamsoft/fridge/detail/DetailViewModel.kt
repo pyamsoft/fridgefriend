@@ -18,7 +18,6 @@ package com.pyamsoft.fridge.detail
 
 import androidx.lifecycle.viewModelScope
 import com.pyamsoft.fridge.db.item.FridgeItem
-import com.pyamsoft.fridge.detail.DetailControllerEvent.ExpandForEditing
 import com.pyamsoft.pydroid.arch.Renderable
 import com.pyamsoft.pydroid.arch.UiSavedState
 import com.pyamsoft.pydroid.arch.UiSavedStateViewModel
@@ -56,18 +55,6 @@ class DetailViewModel @AssistedInject internal constructor(
                 updateFilter(filter)
             }
         }
-
-        viewModelScope.launch(context = Dispatchers.Default) {
-            val sort = restoreSavedState(SAVED_SORT) { DetailViewState.Sorts.CREATED }
-            updateSort(sort)
-        }
-
-        viewModelScope.launch(context = Dispatchers.Default) {
-            val search = restoreSavedState(SAVED_SEARCH) { "" }
-            if (search.isNotBlank()) {
-                updateSearch(search)
-            }
-        }
     }
 
     override fun handleViewEvent(event: DetailViewEvent.Main) = when (event) {
@@ -85,27 +72,6 @@ class DetailViewModel @AssistedInject internal constructor(
         is DetailViewEvent.Main.AddEvent.UndoDeleteItem -> delegate.handleUndoDelete()
         is DetailViewEvent.Main.AddEvent.ClearListError -> delegate.clearListError()
         is DetailViewEvent.Main.AddEvent.AddNew -> handleAddNew()
-        is DetailViewEvent.Main.ToolbarEvent.Back -> handleBack()
-        is DetailViewEvent.Main.ToolbarEvent.SearchQuery -> updateSearch(event.search)
-        is DetailViewEvent.Main.ToolbarEvent.ChangeSort -> updateSort(event.sort)
-    }
-
-    private fun updateSearch(search: String) {
-        viewModelScope.updateSearch(search)
-    }
-
-    private fun CoroutineScope.updateSearch(search: String) {
-        val scope = this
-        delegate.apply {
-            scope.updateSearch(search) { newState ->
-                val newSearch = newState.search
-                if (newSearch.isNotBlank()) {
-                    putSavedState(SAVED_SEARCH, newSearch)
-                } else {
-                    removeSavedState(SAVED_SEARCH)
-                }
-            }
-        }
     }
 
     private fun updateShowing() {
@@ -114,30 +80,12 @@ class DetailViewModel @AssistedInject internal constructor(
         }
     }
 
-    private fun updateSort(sort: DetailViewState.Sorts) {
-        viewModelScope.updateSort(sort)
-    }
-
     private fun CoroutineScope.updateFilter(filter: DetailViewState.Showing) {
         val scope = this
 
         delegate.apply {
             scope.updateFilter(filter)
         }
-    }
-
-    private fun CoroutineScope.updateSort(sort: DetailViewState.Sorts) {
-        val scope = this
-
-        delegate.apply {
-            scope.updateSort(sort) { newState ->
-                putSavedState(SAVED_SORT, newState.sort.name)
-            }
-        }
-    }
-
-    private fun handleBack() {
-        publish(DetailControllerEvent.Back)
     }
 
     private fun handleAddNew() {
@@ -156,13 +104,11 @@ class DetailViewModel @AssistedInject internal constructor(
     }
 
     private fun handleExpand(index: Int) {
-        withItemAt(index) { publish(ExpandForEditing(it)) }
+        withItemAt(index) { publish(DetailControllerEvent.Expand.ExpandForEditing(it)) }
     }
 
     companion object {
-        private const val SAVED_SORT = "sort"
         private const val SAVED_FILTER = "filter"
-        private const val SAVED_SEARCH = "search"
     }
 
     @AssistedFactory

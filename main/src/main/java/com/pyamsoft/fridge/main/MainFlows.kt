@@ -38,6 +38,8 @@ sealed class MainViewEvent : UiViewEvent {
 
     object OpenCategory : MainViewEvent()
 
+    object OpenSearch : MainViewEvent()
+
     object OpenNearby : MainViewEvent()
 
     object OpenSettings : MainViewEvent()
@@ -53,6 +55,11 @@ sealed class MainControllerEvent : UiControllerEvent {
     ) : MainControllerEvent()
 
     data class PushCategory internal constructor(
+        val previousPage: MainPage?,
+        val force: Boolean,
+    ) : MainControllerEvent()
+
+    data class PushSearch internal constructor(
         val previousPage: MainPage?,
         val force: Boolean,
     ) : MainControllerEvent()

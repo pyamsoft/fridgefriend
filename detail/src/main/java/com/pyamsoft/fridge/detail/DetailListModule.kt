@@ -30,7 +30,7 @@ import javax.inject.Qualifier
 
 @Qualifier
 @Retention(AnnotationRetention.BINARY)
-internal annotation class DetailInternalApi
+annotation class DetailInternalApi
 
 @Module
 abstract class DetailListModule {

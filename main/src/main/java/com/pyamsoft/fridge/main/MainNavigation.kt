@@ -73,6 +73,7 @@ class MainNavigation @Inject internal constructor(
                     R.id.menu_item_nav_category -> select(MainViewEvent.OpenCategory)
                     R.id.menu_item_nav_nearby -> select(MainViewEvent.OpenNearby)
                     R.id.menu_item_nav_settings -> select(MainViewEvent.OpenSettings)
+                    R.id.menu_item_nav_search -> select(MainViewEvent.OpenSearch)
                     else -> false
                 }
             }
@@ -126,6 +127,7 @@ class MainNavigation @Inject internal constructor(
                 is MainPage.Category -> R.id.menu_item_nav_category
                 is MainPage.Nearby -> R.id.menu_item_nav_nearby
                 is MainPage.Settings -> R.id.menu_item_nav_settings
+                is MainPage.Search -> R.id.menu_item_nav_search
             }
         }
     }

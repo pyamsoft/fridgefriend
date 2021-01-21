@@ -46,6 +46,7 @@ import com.pyamsoft.fridge.initOnAppStart
 import com.pyamsoft.fridge.locator.DeviceGps
 import com.pyamsoft.fridge.map.MapFragment
 import com.pyamsoft.fridge.permission.PermissionFragment
+import com.pyamsoft.fridge.search.SearchFragment
 import com.pyamsoft.fridge.setting.SettingsFragment
 import com.pyamsoft.fridge.ui.SnackbarContainer
 import com.pyamsoft.fridge.ui.appbar.AppBarActivity
@@ -354,11 +355,11 @@ internal class MainActivity : ChangeLogActivity(),
             navigation,
             snackbar
         ) {
-            Timber.d("page event: $it")
             return@createComponent when (it) {
                 is MainControllerEvent.PushEntry -> pushEntry(it.previousPage, it.force)
                 is MainControllerEvent.PushCategory -> pushCategory(it.previousPage, it.force)
                 is MainControllerEvent.PushSettings -> pushSettings(it.previousPage, it.force)
+                is MainControllerEvent.PushSearch -> pushSearch(it.previousPage, it.force)
                 is MainControllerEvent.PushNearby -> pushNearby(
                     it.previousPage,
                     it.storeId,
@@ -413,6 +414,16 @@ internal class MainActivity : ChangeLogActivity(),
                 constrainWidth(it.id(), ConstraintSet.MATCH_CONSTRAINT)
             }
         }
+    }
+
+    private fun pushSearch(previousPage: MainPage?, force: Boolean) {
+        commitPage(
+            SearchFragment.newInstance(),
+            MainPage.Search,
+            previousPage,
+            SearchFragment.TAG,
+            force
+        )
     }
 
     private fun pushSettings(previousPage: MainPage?, force: Boolean) {
@@ -551,26 +562,32 @@ internal class MainActivity : ChangeLogActivity(),
 
     private fun FragmentTransaction.decideAnimationForPage(oldPage: MainPage?, newPage: MainPage) {
         val animations = when (newPage) {
+            is MainPage.Search -> when (oldPage) {
+                null -> R2.anim.fragment_open_enter to R2.anim.fragment_open_exit
+                is MainPage.Entries -> R.anim.slide_in_right to R.anim.slide_out_left
+                is MainPage.Category, is MainPage.Nearby, is MainPage.Settings -> R.anim.slide_in_left to R.anim.slide_out_right
+                is MainPage.Search -> null
+            }
             is MainPage.Entries -> when (oldPage) {
                 null -> R2.anim.fragment_open_enter to R2.anim.fragment_open_exit
-                is MainPage.Category, is MainPage.Nearby, is MainPage.Settings -> R.anim.slide_in_left to R.anim.slide_out_right
+                is MainPage.Search, is MainPage.Category, is MainPage.Nearby, is MainPage.Settings -> R.anim.slide_in_left to R.anim.slide_out_right
                 is MainPage.Entries -> null
             }
             is MainPage.Category -> when (oldPage) {
                 null -> R2.anim.fragment_open_enter to R2.anim.fragment_open_exit
-                is MainPage.Entries -> R.anim.slide_in_right to R.anim.slide_out_left
+                is MainPage.Search, is MainPage.Entries -> R.anim.slide_in_right to R.anim.slide_out_left
                 is MainPage.Nearby, is MainPage.Settings -> R.anim.slide_in_left to R.anim.slide_out_right
                 is MainPage.Category -> null
             }
             is MainPage.Nearby -> when (oldPage) {
                 null -> R2.anim.fragment_open_enter to R2.anim.fragment_open_exit
-                is MainPage.Entries, is MainPage.Category -> R.anim.slide_in_right to R.anim.slide_out_left
+                is MainPage.Search, is MainPage.Entries, is MainPage.Category -> R.anim.slide_in_right to R.anim.slide_out_left
                 is MainPage.Settings -> R.anim.slide_in_left to R.anim.slide_out_right
                 is MainPage.Nearby -> null
             }
             is MainPage.Settings -> when (oldPage) {
                 null -> R2.anim.fragment_open_enter to R2.anim.fragment_open_exit
-                is MainPage.Entries, is MainPage.Category, is MainPage.Nearby -> R.anim.slide_in_right to R.anim.slide_out_left
+                is MainPage.Search, is MainPage.Entries, is MainPage.Category, is MainPage.Nearby -> R.anim.slide_in_right to R.anim.slide_out_left
                 is MainPage.Settings -> null
             }
         }

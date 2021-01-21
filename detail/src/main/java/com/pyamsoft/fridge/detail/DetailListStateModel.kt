@@ -35,7 +35,6 @@ import timber.log.Timber
 import java.util.Calendar
 import java.util.Date
 import javax.inject.Inject
-import kotlin.Comparator
 import kotlin.math.max
 
 class DetailListStateModel @Inject internal constructor(
@@ -62,6 +61,8 @@ class DetailListStateModel @Inject internal constructor(
     )
 ) {
 
+    private val isAllEntries = entryId.isEmpty()
+
     private val updateDelegate = UpdateDelegate(stateModelScope, interactor) { handleError(it) }
 
     private var expirationListener: PreferenceListener? = null
@@ -81,7 +82,7 @@ class DetailListStateModel @Inject internal constructor(
     private val refreshRunner = highlander<Unit, Boolean> { force ->
         setState(stateChange = { copy(isLoading = true) }, andThen = {
             try {
-                val items = if (entryId.isEmpty()) {
+                val items = if (isAllEntries) {
                     interactor.getAllItems(force)
                 } else {
                     interactor.getItems(entryId, force)
@@ -104,7 +105,7 @@ class DetailListStateModel @Inject internal constructor(
         }
 
         stateModelScope.launch(context = Dispatchers.Default) {
-            if (!entryId.isEmpty()) {
+            if (!isAllEntries) {
                 val entry = interactor.loadEntry(entryId)
                 setState { copy(entry = entry) }
             }
@@ -133,7 +134,7 @@ class DetailListStateModel @Inject internal constructor(
         }
 
         stateModelScope.launch(context = Dispatchers.Default) {
-            if (entryId.isEmpty()) {
+            if (isAllEntries) {
                 interactor.listenForAllChanges { handleRealtime(it) }
             } else {
                 interactor.listenForChanges(entryId) { handleRealtime(it) }
@@ -176,14 +177,6 @@ class DetailListStateModel @Inject internal constructor(
         }
     }
 
-    @CheckResult
-    private fun checkExists(
-        items: List<FridgeItem>,
-        item: FridgeItem,
-    ): Boolean {
-        return items.any { item.id() == it.id() && item.entryId() == it.entryId() }
-    }
-
     private fun CoroutineScope.handleRealtimeInsert(item: FridgeItem) {
         setState {
             val newItems = allItems.toMutableList().also { insertOrUpdate(it, item) }
@@ -214,7 +207,7 @@ class DetailListStateModel @Inject internal constructor(
     @CheckResult
     private fun DetailViewState.regenerateItems(items: List<FridgeItem>): DetailViewState {
         val newItems = prepareListItems(items)
-        val visibleItems = getOnlyVisibleItems(newItems, search)
+        val visibleItems = getOnlyVisibleItems(newItems)
         return copy(
             allItems = newItems,
             displayedItems = visibleItems,
@@ -327,19 +320,19 @@ class DetailListStateModel @Inject internal constructor(
     }
 
     @CheckResult
-    private fun DetailViewState.getOnlyVisibleItems(
-        items: List<FridgeItem>,
-        search: String,
-    ): List<FridgeItem> {
+    private fun DetailViewState.getOnlyVisibleItems(items: List<FridgeItem>): List<FridgeItem> {
+        val query = search
+        val shows = showing
         return items
             .asSequence()
             .filter {
-                return@filter when (showing) {
+                when (shows) {
                     DetailViewState.Showing.FRESH -> !it.isArchived()
                     DetailViewState.Showing.CONSUMED -> it.isConsumed()
                     DetailViewState.Showing.SPOILED -> it.isSpoiled()
                 }
-            }.filter { it.matchesQuery(search) }
+            }
+            .filter { it.matchesQuery(query) }
             .toList()
     }
 
@@ -364,13 +357,13 @@ class DetailListStateModel @Inject internal constructor(
         )
     }
 
-    internal fun CoroutineScope.updateSearch(
-        search: String,
+    fun CoroutineScope.updateSearch(
+        newSearch: String,
         andThen: suspend (newState: DetailViewState) -> Unit,
     ) {
         setState(
             stateChange = {
-                val cleanSearch = if (search.isNotBlank()) search.trim() else ""
+                val cleanSearch = if (newSearch.isNotBlank()) newSearch.trim() else ""
                 copy(search = cleanSearch)
             },
             andThen = { newState ->
@@ -380,7 +373,7 @@ class DetailListStateModel @Inject internal constructor(
         )
     }
 
-    internal fun decreaseCount(index: Int) {
+    fun decreaseCount(index: Int) {
         withItemAt(index) { item ->
             val newCount = item.count() - 1
             val newItem = item.count(max(1, newCount))
@@ -396,7 +389,7 @@ class DetailListStateModel @Inject internal constructor(
         }
     }
 
-    internal fun increaseCount(index: Int) {
+    fun increaseCount(index: Int) {
         withItemAt(index) { updateCount(it.count(it.count() + 1)) }
     }
 
@@ -441,7 +434,7 @@ class DetailListStateModel @Inject internal constructor(
         })
     }
 
-    internal fun refreshList(force: Boolean) {
+    fun refreshList(force: Boolean) {
         stateModelScope.launch(context = Dispatchers.Default) {
             refreshRunner.call(force)
         }
@@ -451,7 +444,7 @@ class DetailListStateModel @Inject internal constructor(
         block(state.displayedItems[index])
     }
 
-    internal fun commitPresence(index: Int) {
+    fun commitPresence(index: Int) {
         withItemAt(index) { changePresence(it, it.presence().flip()) }
     }
 
@@ -459,19 +452,19 @@ class DetailListStateModel @Inject internal constructor(
         updateDelegate.updateItem(oldItem.presence(newPresence))
     }
 
-    internal fun consume(index: Int) {
+    fun consume(index: Int) {
         withItemAt(index) { updateDelegate.consumeItem(it) }
     }
 
-    internal fun restore(index: Int) {
+    fun restore(index: Int) {
         withItemAt(index) { updateDelegate.restoreItem(it) }
     }
 
-    internal fun spoil(index: Int) {
+    fun spoil(index: Int) {
         withItemAt(index) { updateDelegate.spoilItem(it) }
     }
 
-    internal fun delete(index: Int) {
+    fun delete(index: Int) {
         withItemAt(index) { updateDelegate.deleteItem(it) }
     }
 
@@ -481,5 +474,17 @@ class DetailListStateModel @Inject internal constructor(
 
     internal fun CoroutineScope.updateFilter(showing: DetailViewState.Showing) {
         setState { copy(showing = showing) }
+    }
+
+    companion object {
+
+        @JvmStatic
+        @CheckResult
+        private fun checkExists(
+            items: List<FridgeItem>,
+            item: FridgeItem,
+        ): Boolean {
+            return items.any { item.id() == it.id() && item.entryId() == it.entryId() }
+        }
     }
 }

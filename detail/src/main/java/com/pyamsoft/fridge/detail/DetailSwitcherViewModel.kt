@@ -19,7 +19,7 @@ package com.pyamsoft.fridge.detail
 import com.pyamsoft.pydroid.arch.UiViewModel
 import javax.inject.Inject
 
-class DetailAppBarViewModel @Inject internal constructor(
+class DetailSwitcherViewModel @Inject internal constructor(
     @DetailInternalApi private val delegate: DetailListStateModel,
 ) : UiViewModel<DetailViewState, DetailViewEvent.SwitcherEvent, Nothing>(
     initialState = delegate.initialState

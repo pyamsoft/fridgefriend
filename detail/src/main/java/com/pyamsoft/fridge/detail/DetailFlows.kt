@@ -123,15 +123,21 @@ sealed class DetailViewEvent : UiViewEvent {
 
         }
 
-        sealed class ToolbarEvent : Main() {
+    }
 
-            data class SearchQuery internal constructor(val search: String) : ToolbarEvent()
+    sealed class ToolbarEvent : DetailViewEvent() {
 
-            object Back : ToolbarEvent()
+        sealed class Search : ToolbarEvent() {
 
-            data class ChangeSort internal constructor(
-                val sort: DetailViewState.Sorts
-            ) : ToolbarEvent()
+            data class Query(val search: String) : Search()
+
+        }
+
+        sealed class Toolbar : ToolbarEvent() {
+
+            object Back : Toolbar()
+
+            data class ChangeSort internal constructor(val sort: DetailViewState.Sorts) : Toolbar()
 
         }
 
@@ -153,11 +159,15 @@ sealed class DetailControllerEvent : UiControllerEvent {
         val presence: FridgeItem.Presence,
     ) : DetailControllerEvent()
 
-    data class ExpandForEditing internal constructor(
-        val item: FridgeItem,
-    ) : DetailControllerEvent()
-
     object EntryArchived : DetailControllerEvent()
 
-    object Back : DetailControllerEvent()
+    sealed class Expand : DetailControllerEvent() {
+
+        data class ExpandForEditing(val item: FridgeItem) : Expand()
+    }
+}
+
+sealed class DetailToolbarControllerEvent : UiControllerEvent {
+
+    object Back : DetailToolbarControllerEvent()
 }

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.pyamsoft.fridge.detail
+package com.pyamsoft.fridge.search
 
 import android.app.Activity
 import android.view.ViewGroup
@@ -27,6 +27,8 @@ import com.pyamsoft.fridge.core.FragmentScope
 import com.pyamsoft.fridge.core.ViewModelFactoryModule
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence
+import com.pyamsoft.fridge.detail.DetailComponent
+import com.pyamsoft.fridge.detail.DetailListModule
 import com.pyamsoft.fridge.tooltip.balloon.TooltipModule
 import com.pyamsoft.fridge.ui.appbar.AppBarActivity
 import com.pyamsoft.pydroid.ui.app.ToolbarActivity
@@ -40,6 +42,7 @@ import dagger.multibindings.IntoMap
 @FragmentScope
 @Subcomponent(
     modules = [
+        SearchComponent.ComponentModule::class,
         DetailComponent.ComponentModule::class,
         ViewModelFactoryModule::class,
         DetailListModule::class,
@@ -47,9 +50,9 @@ import dagger.multibindings.IntoMap
         ThemeProviderModule::class
     ]
 )
-internal interface DetailComponent {
+internal interface SearchComponent {
 
-    fun inject(fragment: DetailFragment)
+    fun inject(fragment: SearchFragment)
 
     @Subcomponent.Factory
     interface Factory {
@@ -64,16 +67,15 @@ internal interface DetailComponent {
             @BindsInstance owner: LifecycleOwner,
             @BindsInstance entryId: FridgeEntry.Id,
             @BindsInstance filterPresence: Presence,
-        ): DetailComponent
+        ): SearchComponent
     }
-
 
     @Module
     abstract class ComponentModule {
 
         @Binds
         @IntoMap
-        @ClassKey(DetailSwitcherViewModel::class)
-        internal abstract fun bindAppBarViewModel(impl: DetailSwitcherViewModel): ViewModel
+        @ClassKey(SearchListViewModel::class)
+        internal abstract fun bindListViewModel(impl: SearchListViewModel): ViewModel
     }
 }

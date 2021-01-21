@@ -14,12 +14,11 @@
   ~ limitations under the License.
   -->
 
-<resources>
-    <string name="settings">Settings</string>
-    <string name="nav_entries">Fridge</string>
-    <string name="nav_have">Have</string>
-    <string name="nav_search">Search</string>
-    <string name="nav_categories">Categories</string>
-    <string name="nav_nearby">Nearby</string>
-    <string name="nav_settings">Settings</string>
-</resources>
+<merge>
+
+    <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/search_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+</merge>

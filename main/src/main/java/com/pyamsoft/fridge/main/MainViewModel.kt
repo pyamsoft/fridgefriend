@@ -35,7 +35,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import timber.log.Timber
-import javax.inject.Inject
 import javax.inject.Named
 
 class MainViewModel @AssistedInject internal constructor(
@@ -108,6 +107,7 @@ class MainViewModel @AssistedInject internal constructor(
         is MainViewEvent.OpenEntries -> selectPage(force = false, MainPage.Entries)
         is MainViewEvent.OpenCategory -> selectPage(force = false, MainPage.Category)
         is MainViewEvent.OpenSettings -> selectPage(force = false, MainPage.Settings)
+        is MainViewEvent.OpenSearch -> selectPage(force = false, MainPage.Search)
         is MainViewEvent.BottomBarMeasured -> consumeBottomBarHeight(event.height)
         is MainViewEvent.OpenNearby -> selectPage(
             force = false, MainPage.Nearby(
@@ -123,19 +123,13 @@ class MainViewModel @AssistedInject internal constructor(
         }
     }
 
-    fun selectPage(force: Boolean, page: MainPage) {
-        when (page) {
-            is MainPage.Entries -> select(page) { MainControllerEvent.PushEntry(it, force) }
-            is MainPage.Category -> select(page) { MainControllerEvent.PushCategory(it, force) }
-            is MainPage.Settings -> select(page) { MainControllerEvent.PushSettings(it, force) }
-            is MainPage.Nearby -> select(page) {
-                MainControllerEvent.PushNearby(
-                    it,
-                    page.storeId,
-                    page.zoneId,
-                    force
-                )
-            }
+    fun selectPage(force: Boolean, page: MainPage) = when (page) {
+        is MainPage.Entries -> select(page) { MainControllerEvent.PushEntry(it, force) }
+        is MainPage.Category -> select(page) { MainControllerEvent.PushCategory(it, force) }
+        is MainPage.Settings -> select(page) { MainControllerEvent.PushSettings(it, force) }
+        is MainPage.Search -> select(page) { MainControllerEvent.PushSearch(it, force) }
+        is MainPage.Nearby -> select(page) {
+            MainControllerEvent.PushNearby(it, page.storeId, page.zoneId, force)
         }
     }
 

@@ -24,4 +24,5 @@ sealed class MainPage {
     object Category : MainPage()
     data class Nearby(val storeId: NearbyStore.Id, val zoneId: NearbyZone.Id) : MainPage()
     object Settings : MainPage()
+    object Search : MainPage()
 }

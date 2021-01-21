@@ -29,7 +29,6 @@ import com.pyamsoft.fridge.butler.workmanager.WorkManagerModule
 import com.pyamsoft.fridge.category.CategoryComponent
 import com.pyamsoft.fridge.category.CategoryListComponent
 import com.pyamsoft.fridge.core.R
-import com.pyamsoft.fridge.core.ViewModelFactoryModule
 import com.pyamsoft.fridge.db.DbModule
 import com.pyamsoft.fridge.db.item.FridgeItemPreferences
 import com.pyamsoft.fridge.db.persist.PersistentCategoryPreferences
@@ -54,13 +53,18 @@ import com.pyamsoft.fridge.main.MainComponent
 import com.pyamsoft.fridge.map.MapComponent
 import com.pyamsoft.fridge.permission.PermissionComponent
 import com.pyamsoft.fridge.preference.PreferencesImpl
+import com.pyamsoft.fridge.search.SearchComponent
 import com.pyamsoft.fridge.setting.SettingsComponent
 import com.pyamsoft.fridge.setting.SettingsPreferences
 import com.pyamsoft.fridge.ui.UiModule
 import com.pyamsoft.pydroid.bus.EventBus
 import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.ui.theme.Theming
-import dagger.*
+import dagger.Binds
+import dagger.BindsInstance
+import dagger.Component
+import dagger.Module
+import dagger.Provides
 import javax.inject.Named
 import javax.inject.Singleton
 
@@ -129,6 +133,9 @@ internal interface FridgeComponent {
 
     @CheckResult
     fun plusDetailComponent(): DetailComponent.Factory
+
+    @CheckResult
+    fun plusSearchComponent(): SearchComponent.Factory
 
     @CheckResult
     fun plusEntryComponent(): EntryComponent.Factory

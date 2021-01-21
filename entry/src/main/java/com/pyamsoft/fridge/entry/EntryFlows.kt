@@ -89,7 +89,6 @@ sealed class EntryViewEvent : UiViewEvent {
 
     }
 
-
 }
 
 sealed class EntryControllerEvent : UiControllerEvent {
