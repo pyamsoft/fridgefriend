@@ -27,12 +27,12 @@
         android:visibility="gone"
         app:tabBackground="@color/transparent"
         app:tabGravity="fill"
-        app:tabIndicatorColor="@color/white"
+        app:tabIndicatorColor="@color/colorOnPrimary"
         app:tabIndicatorFullWidth="false"
         app:tabMode="fixed"
         app:tabPadding="4dp"
-        app:tabSelectedTextColor="@color/white"
-        app:tabTextColor="@color/grey500" />
+        app:tabSelectedTextColor="@color/colorOnPrimary"
+        app:tabTextColor="@color/disabledColor" />
 
 </merge>
 

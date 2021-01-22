@@ -20,5 +20,5 @@
     <!-- Status bar is transparent so content can scroll behind it -->
     <color name="statusBarColor">@color/transparent</color>
 
-    <color name="disabledColor">#ffaaaaaa</color>
+    <color name="disabledColor">#BBCACACA</color>
 </resources>

@@ -16,45 +16,69 @@
 
 package com.pyamsoft.fridge.search
 
-import android.view.ViewGroup
+import android.view.LayoutInflater
+import androidx.core.view.isVisible
 import com.pyamsoft.fridge.detail.DetailViewEvent
 import com.pyamsoft.fridge.detail.DetailViewState
 import com.pyamsoft.fridge.search.databinding.SearchBarBinding
+import com.pyamsoft.fridge.ui.appbar.AppBarActivity
 import com.pyamsoft.fridge.ui.view.UiEditTextDelegate
-import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.arch.UiRender
+import com.pyamsoft.pydroid.arch.UiView
+import com.pyamsoft.pydroid.ui.app.ToolbarActivity
+import timber.log.Timber
 import javax.inject.Inject
 
 class SearchBarView @Inject internal constructor(
-    parent: ViewGroup,
-) : BaseUiView<DetailViewState, DetailViewEvent.ToolbarEvent.Search, SearchBarBinding>(parent) {
+    appBarSource: AppBarActivity,
+    toolbarSource: ToolbarActivity,
+) : UiView<DetailViewState, DetailViewEvent.ToolbarEvent.Search>() {
 
-    override val viewBinding = SearchBarBinding::inflate
+    private var toolbarActivity: ToolbarActivity? = toolbarSource
 
-    override val layoutRoot by boundView { searchbarRoot }
-
-    private val delegate by lazy {
-        UiEditTextDelegate(binding.searchbarName) { _, newText ->
-            publish(DetailViewEvent.ToolbarEvent.Search.Query(newText))
-        }
-    }
+    private var delegate: UiEditTextDelegate? = null
 
     init {
-        doOnTeardown {
-            delegate.destroy()
+        // Replace the app bar background during switcher presence
+        doOnInflate {
+            appBarSource.requireAppBar { appBar ->
+                val inflater = LayoutInflater.from(appBar.context)
+                val binding = SearchBarBinding.inflate(inflater, appBar)
+                onCreate(binding)
+
+                doOnTeardown {
+                    appBar.removeView(binding.searchbarRoot)
+                }
+            }
         }
 
-        doOnInflate {
-            delegate.create()
+        doOnTeardown {
+            onDestroy()
+
+            delegate = null
+            toolbarActivity = null
         }
     }
 
-    override fun onRender(state: UiRender<DetailViewState>) {
+    private fun onDestroy() {
+        Timber.d("Search layout has been deleted and removed from AppBar")
+        delegate?.destroy()
+    }
+
+    private fun onCreate(binding: SearchBarBinding) {
+        Timber.d("Search layout has been created and attached to AppBar")
+        binding.searchbarRoot.isVisible = true
+        delegate = UiEditTextDelegate(binding.searchbarName) { _, newText ->
+            publish(DetailViewEvent.ToolbarEvent.Search.Query(newText))
+        }.apply { create() }
+    }
+
+    override fun render(state: UiRender<DetailViewState>) {
         state.mapChanged { it.search }.render(viewScope) { handleSearch(it) }
     }
 
     private fun handleSearch(search: String) {
-        delegate.render(search)
+        delegate?.render(search)
     }
 
 }

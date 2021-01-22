@@ -40,9 +40,7 @@ import com.pyamsoft.pydroid.arch.createSavedStateViewModelFactory
 import com.pyamsoft.pydroid.ui.Injector
 import com.pyamsoft.pydroid.ui.app.requireToolbarActivity
 import com.pyamsoft.pydroid.ui.arch.fromViewModelFactory
-import com.pyamsoft.pydroid.ui.databinding.LayoutConstraintBinding
 import com.pyamsoft.pydroid.ui.databinding.LayoutCoordinatorBinding
-import com.pyamsoft.pydroid.ui.util.layout
 import com.pyamsoft.pydroid.ui.util.show
 import javax.inject.Inject
 import com.pyamsoft.pydroid.ui.R as R2
@@ -105,8 +103,6 @@ internal class SearchFragment : Fragment() {
             FridgeItem.Presence.valueOf(requireNotNull(requireArguments().getString(PRESENCE)))
 
         val binding = LayoutCoordinatorBinding.bind(view)
-        // Inflate and add a ConstraintLayout here for laying out the later views
-        val constraintBinding = LayoutConstraintBinding.inflate(layoutInflater, binding.root, true)
         Injector.obtainFromApplication<FridgeComponent>(view.context)
             .plusSearchComponent()
             .create(
@@ -114,7 +110,7 @@ internal class SearchFragment : Fragment() {
                 requireToolbarActivity(),
                 requireAppBarActivity(),
                 requireActivity(),
-                constraintBinding.layoutConstraint,
+                binding.layoutCoordinator,
                 viewLifecycleOwner,
                 entryId,
                 presence
@@ -136,6 +132,16 @@ internal class SearchFragment : Fragment() {
             // Intentionally blank
         }
 
+        val appBarSaver = createComponent(
+            savedInstanceState,
+            viewLifecycleOwner,
+            appBarViewModel,
+            requireNotNull(switcher)
+        )
+        {
+            // Intentionally blank
+        }
+
         val listSaver = createComponent(
             savedInstanceState,
             viewLifecycleOwner,
@@ -145,16 +151,6 @@ internal class SearchFragment : Fragment() {
             return@createComponent when (it) {
                 is DetailControllerEvent.Expand.ExpandForEditing -> openExisting(it.item)
             }
-        }
-
-        val appBarSaver = createComponent(
-            savedInstanceState,
-            viewLifecycleOwner,
-            appBarViewModel,
-            requireNotNull(switcher)
-        )
-        {
-            // Intentionally blank
         }
 
         stateSaver = StateSaver { outState ->
@@ -191,40 +187,6 @@ internal class SearchFragment : Fragment() {
                     ConstraintSet.START
                 )
                 connect(it.id(), ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP)
-                connect(
-                    it.id(),
-                    ConstraintSet.BOTTOM,
-                    ConstraintSet.PARENT_ID,
-                    ConstraintSet.BOTTOM
-                )
-                connect(it.id(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
-                constrainWidth(it.id(), ConstraintSet.MATCH_CONSTRAINT)
-                constrainHeight(it.id(), ConstraintSet.MATCH_CONSTRAINT)
-            }
-        }
-
-        constraintBinding.layoutConstraint.layout {
-            search.let {
-                connect(
-                    it.id(),
-                    ConstraintSet.START,
-                    ConstraintSet.PARENT_ID,
-                    ConstraintSet.START
-                )
-                connect(it.id(), ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP)
-                connect(it.id(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
-                constrainWidth(it.id(), ConstraintSet.MATCH_CONSTRAINT)
-                constrainHeight(it.id(), ConstraintSet.WRAP_CONTENT)
-            }
-
-            container.let {
-                connect(
-                    it.id(),
-                    ConstraintSet.START,
-                    ConstraintSet.PARENT_ID,
-                    ConstraintSet.START
-                )
-                connect(it.id(), ConstraintSet.TOP, search.id(), ConstraintSet.BOTTOM)
                 connect(
                     it.id(),
                     ConstraintSet.BOTTOM,

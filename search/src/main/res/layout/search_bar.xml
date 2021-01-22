@@ -19,25 +19,33 @@
 <merge>
 
     <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
         android:id="@+id/searchbar_root"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:animateLayoutChanges="true"
+        android:background="@color/colorPrimary"
         android:paddingStart="16dp"
-        android:paddingTop="16dp"
+        android:paddingTop="0dp"
         android:paddingEnd="16dp"
-        android:paddingBottom="8dp">
+        android:paddingBottom="0dp"
+        android:visibility="gone">
 
-        <com.google.android.material.textfield.TextInputLayout xmlns:app="http://schemas.android.com/apk/res-auto"
+        <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical|start"
+            android:background="@color/transparent"
             android:gravity="center_vertical|start"
+            android:textColorHint="@color/white"
             app:boxBackgroundColor="@null"
             app:boxBackgroundMode="outline"
             app:boxCornerRadiusBottomEnd="8dp"
             app:boxCornerRadiusBottomStart="8dp"
             app:boxCornerRadiusTopEnd="8dp"
             app:boxCornerRadiusTopStart="8dp"
+            app:boxStrokeColor="@color/search_outline"
+            app:hintTextColor="@color/white"
             app:startIconCheckable="false"
             app:startIconContentDescription="Search"
             app:startIconDrawable="@drawable/ic_search_24dp">
@@ -52,7 +60,9 @@
                 android:paddingTop="16dp"
                 android:paddingEnd="8dp"
                 android:paddingBottom="16dp"
-                android:textAppearance="?attr/textAppearanceBody1" />
+                android:textAppearance="?attr/textAppearanceBody1"
+                android:textColor="@color/white"
+                android:textColorHint="@color/white" />
 
         </com.google.android.material.textfield.TextInputLayout>
 
