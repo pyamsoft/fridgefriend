@@ -29,7 +29,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class DetailToolbarViewModel @AssistedInject internal constructor(
-    @DetailInternalApi private val delegate: DetailListStateModel,
+    private val delegate: DetailListStateModel,
     @Assisted savedState: UiSavedState,
 ) : UiSavedStateViewModel<DetailViewState, DetailViewEvent.ToolbarEvent, DetailToolbarControllerEvent>(
     savedState, initialState = delegate.initialState

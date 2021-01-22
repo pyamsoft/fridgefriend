@@ -20,7 +20,7 @@ import com.pyamsoft.pydroid.arch.UiViewModel
 import javax.inject.Inject
 
 class DetailSwitcherViewModel @Inject internal constructor(
-    @DetailInternalApi private val delegate: DetailListStateModel,
+    private val delegate: DetailListStateModel,
 ) : UiViewModel<DetailViewState, DetailViewEvent.SwitcherEvent, Nothing>(
     initialState = delegate.initialState
 ) {

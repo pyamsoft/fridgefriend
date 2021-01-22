@@ -17,7 +17,6 @@
 package com.pyamsoft.fridge.search
 
 import androidx.lifecycle.viewModelScope
-import com.pyamsoft.fridge.detail.DetailInternalApi
 import com.pyamsoft.fridge.detail.DetailListStateModel
 import com.pyamsoft.fridge.detail.DetailViewEvent
 import com.pyamsoft.fridge.detail.DetailViewState
@@ -31,7 +30,7 @@ import dagger.assisted.AssistedInject
 import kotlinx.coroutines.CoroutineScope
 
 class SearchViewModel @AssistedInject internal constructor(
-    @DetailInternalApi private val delegate: DetailListStateModel,
+    private val delegate: DetailListStateModel,
     @Assisted savedState: UiSavedState
 ) : UiSavedStateViewModel<DetailViewState, DetailViewEvent.ToolbarEvent.Search, Nothing>(
     savedState, initialState = delegate.initialState

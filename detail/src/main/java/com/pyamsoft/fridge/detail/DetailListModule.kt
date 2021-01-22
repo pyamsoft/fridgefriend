@@ -28,21 +28,8 @@ import dagger.Module
 import dagger.Provides
 import javax.inject.Qualifier
 
-@Qualifier
-@Retention(AnnotationRetention.BINARY)
-annotation class DetailInternalApi
-
 @Module
 abstract class DetailListModule {
-
-    /**
-     * Do this so that both Detail view models share the same backing DetailListStateModel
-     */
-    @Binds
-    @CheckResult
-    @FragmentScope
-    @DetailInternalApi
-    internal abstract fun bindListStateModel(impl: DetailListStateModel): DetailListStateModel
 
     @Module
     companion object {

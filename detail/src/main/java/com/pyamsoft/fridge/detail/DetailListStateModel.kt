@@ -17,6 +17,7 @@
 package com.pyamsoft.fridge.detail
 
 import androidx.annotation.CheckResult
+import com.pyamsoft.fridge.core.FragmentScope
 import com.pyamsoft.fridge.core.today
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItem
@@ -42,6 +43,7 @@ import java.util.Date
 import javax.inject.Inject
 import kotlin.math.max
 
+@FragmentScope
 class DetailListStateModel @Inject internal constructor(
     private val interactor: DetailInteractor,
     entryId: FridgeEntry.Id,

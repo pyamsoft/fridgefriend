@@ -19,7 +19,6 @@ package com.pyamsoft.fridge.search
 import androidx.lifecycle.viewModelScope
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.detail.DetailControllerEvent
-import com.pyamsoft.fridge.detail.DetailInternalApi
 import com.pyamsoft.fridge.detail.DetailListStateModel
 import com.pyamsoft.fridge.detail.DetailViewEvent
 import com.pyamsoft.fridge.detail.DetailViewState
@@ -28,7 +27,7 @@ import com.pyamsoft.pydroid.arch.UiViewModel
 import javax.inject.Inject
 
 class SearchListViewModel @Inject internal constructor(
-    @DetailInternalApi private val delegate: DetailListStateModel,
+    private val delegate: DetailListStateModel,
 ) : UiViewModel<DetailViewState, DetailViewEvent.Main.ListEvent, DetailControllerEvent.Expand>(
     initialState = delegate.initialState
 ) {

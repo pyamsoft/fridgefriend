@@ -31,7 +31,7 @@ import kotlinx.coroutines.launch
 import timber.log.Timber
 
 class DetailViewModel @AssistedInject internal constructor(
-    @DetailInternalApi private val delegate: DetailListStateModel,
+    private val delegate: DetailListStateModel,
     @Assisted savedState: UiSavedState,
 ) : UiSavedStateViewModel<DetailViewState, DetailViewEvent.Main, DetailControllerEvent>(
     savedState, initialState = delegate.initialState
