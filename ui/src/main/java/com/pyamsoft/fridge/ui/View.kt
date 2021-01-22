@@ -22,6 +22,7 @@ import androidx.lifecycle.LifecycleOwner
 import com.pyamsoft.fridge.ui.appbar.AppBarActivity
 import com.pyamsoft.pydroid.util.doOnApplyWindowInsets
 import com.pyamsoft.pydroid.util.doOnDestroy
+import timber.log.Timber
 
 private inline fun watchToolbarOffset(
     view: View,
@@ -60,7 +61,9 @@ private fun applyNewViewOffset(
         return
     }
 
-    view.updatePadding(top = initialTopPadding + offset + appBarHeight)
+    val newPadding = initialTopPadding + offset + appBarHeight
+    Timber.d("Apply new offset padding: $view $newPadding")
+    view.updatePadding(top = newPadding)
 }
 
 fun View.applyToolbarOffset(appBarActivity: AppBarActivity, owner: LifecycleOwner) {

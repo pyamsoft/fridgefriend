@@ -57,6 +57,10 @@ internal class EntryFragment : Fragment(), SnackbarContainer {
 
     @JvmField
     @Inject
+    internal var spacer: EntryAppBarSpacer? = null
+
+    @JvmField
+    @Inject
     internal var container: EntryContainer? = null
 
     @JvmField
@@ -111,6 +115,7 @@ internal class EntryFragment : Fragment(), SnackbarContainer {
             savedInstanceState,
             viewLifecycleOwner,
             viewModel,
+            requireNotNull(spacer),
             container,
             requireNotNull(toolbar),
             requireNotNull(addNew),
@@ -169,6 +174,8 @@ internal class EntryFragment : Fragment(), SnackbarContainer {
         container = null
         toolbar = null
         addNew = null
+        spacer = null
+
         nestedList = null
 
         fragmentContainerId = 0

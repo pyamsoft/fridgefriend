@@ -32,7 +32,6 @@ import com.pyamsoft.fridge.detail.DetailList
 import com.pyamsoft.fridge.detail.DetailPresenceSwitcher
 import com.pyamsoft.fridge.detail.DetailSwitcherViewModel
 import com.pyamsoft.fridge.detail.expand.ExpandedItemDialog
-import com.pyamsoft.fridge.ui.applyToolbarOffset
 import com.pyamsoft.fridge.ui.requireAppBarActivity
 import com.pyamsoft.pydroid.arch.StateSaver
 import com.pyamsoft.pydroid.arch.createComponent
@@ -58,6 +57,10 @@ internal class SearchFragment : Fragment() {
     @JvmField
     @Inject
     internal var nestedList: DetailList? = null
+
+    @JvmField
+    @Inject
+    internal var spacer: SearchAppbarSpacer? = null
 
     @JvmField
     @Inject
@@ -96,7 +99,6 @@ internal class SearchFragment : Fragment() {
         savedInstanceState: Bundle?,
     ) {
         super.onViewCreated(view, savedInstanceState)
-        view.applyToolbarOffset(requireAppBarActivity(), viewLifecycleOwner)
 
         val entryId = FridgeEntry.Id(requireNotNull(requireArguments().getString(ENTRY)))
         val presence =
@@ -120,14 +122,13 @@ internal class SearchFragment : Fragment() {
         val nestedList = requireNotNull(nestedList)
         val nestedEmptyState = requireNotNull(nestedEmptyState)
         val container = requireNotNull(container)
-        val search = requireNotNull(search)
         container.nest(nestedEmptyState, nestedList)
 
         val searchSaver = createComponent(
             savedInstanceState,
             viewLifecycleOwner,
             viewModel,
-            search
+            requireNotNull(search)
         ) {
             // Intentionally blank
         }
@@ -146,6 +147,7 @@ internal class SearchFragment : Fragment() {
             savedInstanceState,
             viewLifecycleOwner,
             listViewModel,
+            requireNotNull(spacer),
             container
         ) {
             return@createComponent when (it) {
@@ -213,6 +215,7 @@ internal class SearchFragment : Fragment() {
         container = null
         switcher = null
         search = null
+        spacer = null
 
         nestedList = null
         nestedEmptyState = null

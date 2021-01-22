@@ -20,7 +20,6 @@ import android.graphics.Color
 import android.graphics.drawable.Drawable
 import android.view.ViewGroup
 import androidx.annotation.CheckResult
-import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.ItemTouchHelper
 import com.mikepenz.fastadapter.swipe.SimpleSwipeCallback
@@ -29,8 +28,6 @@ import com.pyamsoft.fridge.entry.item.EntryItemComponent
 import com.pyamsoft.fridge.entry.item.EntryItemViewHolder
 import com.pyamsoft.fridge.entry.item.EntryItemViewState
 import com.pyamsoft.fridge.ui.R
-import com.pyamsoft.fridge.ui.appbar.AppBarActivity
-import com.pyamsoft.fridge.ui.applyToolbarOffset
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.arch.UiRender
 import com.pyamsoft.pydroid.loader.ImageLoader
@@ -50,8 +47,6 @@ class EntryList @Inject internal constructor(
     private val theming: ThemeProvider,
     private val imageLoader: ImageLoader,
     @Named("is_interactive") interactive: Boolean,
-    appBarActivity: AppBarActivity,
-    owner: LifecycleOwner,
     parent: ViewGroup,
     factory: EntryItemComponent.Factory,
 ) : BaseUiView<EntryViewState, EntryViewEvent.ListEvents, EntryListBinding>(parent) {
@@ -66,10 +61,6 @@ class EntryList @Inject internal constructor(
     private var lastScrollPosition = 0
 
     init {
-        doOnInflate {
-            layoutRoot.applyToolbarOffset(appBarActivity, owner)
-        }
-
         doOnInflate {
             binding.entryList.layoutManager =
                 GridLayoutManager(binding.entryList.context, 2).apply {

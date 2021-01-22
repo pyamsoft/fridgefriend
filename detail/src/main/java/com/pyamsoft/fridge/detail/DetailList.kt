@@ -55,11 +55,11 @@ class DetailList @Inject internal constructor(
     factory: DetailItemComponent.Factory,
 ) : BaseUiView<DetailViewState, DetailViewEvent.Main.ListEvent, DetailListBinding>(parent) {
 
-    private val extraFabOffsetSpace = !entryId.isEmpty()
+    private val isForAllItems = entryId.isEmpty()
 
     override val viewBinding = DetailListBinding::inflate
 
-    override val layoutRoot by boundView { detailSwipeRefresh }
+    override val layoutRoot by boundView { detailListRoot }
 
     private var touchHelper: ItemTouchHelper? = null
     private var modelAdapter: DetailListAdapter? = null
@@ -150,7 +150,7 @@ class DetailList @Inject internal constructor(
                 binding.detailList.addItemDecoration(this)
             }
 
-            if (extraFabOffsetSpace) {
+            if (!isForAllItems) {
                 // The bottom has additional space to fit the FAB
                 val bottomMargin = 72.asDp(binding.detailList.context)
                 LinearBoundsMarginDecoration(bottomMargin = bottomMargin).apply {

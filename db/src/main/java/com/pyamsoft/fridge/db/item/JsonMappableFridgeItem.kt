@@ -80,32 +80,26 @@ data class JsonMappableFridgeItem internal constructor(
     }
 
     override fun consumptionDate(): Date? {
-        require(isReal()) { "Cannot query consumptionDate on non-real item: $this" }
         return consumptionDate
     }
 
     override fun invalidateConsumption(): FridgeItem {
-        require(isReal()) { "Cannot invalidate consumptionDate on non-real item: $this" }
         return this.copy(consumptionDate = null)
     }
 
     override fun isConsumed(): Boolean {
-        require(isReal()) { "Cannot query consumptionDate on non-real item: $this" }
         return consumptionDate != null
     }
 
     override fun spoiledDate(): Date? {
-        require(isReal()) { "Cannot query spoiledDate on non-real item: $this" }
         return spoiledDate
     }
 
     override fun invalidateSpoiled(): FridgeItem {
-        require(isReal()) { "Cannot invalidate spoiledDate on non-real item: $this" }
         return this.copy(spoiledDate = null)
     }
 
     override fun isSpoiled(): Boolean {
-        require(isReal()) { "Cannot query spoiledDate on non-real item: $this" }
         return spoiledDate != null
     }
 

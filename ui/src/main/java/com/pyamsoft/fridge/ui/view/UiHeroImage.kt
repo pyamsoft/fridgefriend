@@ -30,7 +30,7 @@ import com.pyamsoft.pydroid.arch.UiViewState
 import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.loader.Loaded
 
-abstract class HeroImage<S : UiViewState, V : UiViewEvent> protected constructor(
+abstract class UiHeroImage<S : UiViewState, V : UiViewEvent> protected constructor(
     parent: ViewGroup,
     owner: LifecycleOwner,
     appBarActivity: AppBarActivity,
