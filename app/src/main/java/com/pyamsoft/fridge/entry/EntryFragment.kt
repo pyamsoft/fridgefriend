@@ -105,9 +105,8 @@ internal class EntryFragment : Fragment(), SnackbarContainer {
             .inject(this)
 
         val container = requireNotNull(container)
-        val nestedAddNew = requireNotNull(addNew)
         val nestedList = requireNotNull(list)
-        container.nest(nestedList, nestedAddNew)
+        container.nest(nestedList)
 
         stateSaver = createComponent(
             savedInstanceState,
@@ -115,6 +114,7 @@ internal class EntryFragment : Fragment(), SnackbarContainer {
             viewModel,
             container,
             requireNotNull(toolbar),
+            requireNotNull(addNew),
         ) {
             return@createComponent when (it) {
                 is EntryControllerEvent.LoadEntry -> pushPage(it.entry, it.presence)
