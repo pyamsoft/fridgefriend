@@ -51,7 +51,15 @@ internal class SearchFragment : Fragment() {
 
     @JvmField
     @Inject
-    internal var list: DetailList? = null
+    internal var container: SearchContainer? = null
+
+    @JvmField
+    @Inject
+    internal var nestedEmptyState: SearchEmptyState? = null
+
+    @JvmField
+    @Inject
+    internal var nestedList: DetailList? = null
 
     @JvmField
     @Inject
@@ -113,8 +121,11 @@ internal class SearchFragment : Fragment() {
             )
             .inject(this)
 
-        val list = requireNotNull(list)
+        val nestedList = requireNotNull(nestedList)
+        val nestedEmptyState = requireNotNull(nestedEmptyState)
+        val container = requireNotNull(container)
         val search = requireNotNull(search)
+        container.nest(nestedEmptyState, nestedList)
 
         val searchSaver = createComponent(
             savedInstanceState,
@@ -129,7 +140,7 @@ internal class SearchFragment : Fragment() {
             savedInstanceState,
             viewLifecycleOwner,
             listViewModel,
-            list
+            container
         ) {
             return@createComponent when (it) {
                 is DetailControllerEvent.Expand.ExpandForEditing -> openExisting(it.item)
@@ -152,6 +163,46 @@ internal class SearchFragment : Fragment() {
             searchSaver.saveState(outState)
         }
 
+        container.layout {
+            nestedEmptyState.let {
+                connect(
+                    it.id(),
+                    ConstraintSet.START,
+                    ConstraintSet.PARENT_ID,
+                    ConstraintSet.START
+                )
+                connect(it.id(), ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP)
+                connect(
+                    it.id(),
+                    ConstraintSet.BOTTOM,
+                    ConstraintSet.PARENT_ID,
+                    ConstraintSet.BOTTOM
+                )
+                connect(it.id(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
+                constrainWidth(it.id(), ConstraintSet.MATCH_CONSTRAINT)
+                constrainHeight(it.id(), ConstraintSet.MATCH_CONSTRAINT)
+            }
+
+            nestedList.let {
+                connect(
+                    it.id(),
+                    ConstraintSet.START,
+                    ConstraintSet.PARENT_ID,
+                    ConstraintSet.START
+                )
+                connect(it.id(), ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP)
+                connect(
+                    it.id(),
+                    ConstraintSet.BOTTOM,
+                    ConstraintSet.PARENT_ID,
+                    ConstraintSet.BOTTOM
+                )
+                connect(it.id(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
+                constrainWidth(it.id(), ConstraintSet.MATCH_CONSTRAINT)
+                constrainHeight(it.id(), ConstraintSet.MATCH_CONSTRAINT)
+            }
+        }
+
         constraintBinding.layoutConstraint.layout {
             search.let {
                 connect(
@@ -166,7 +217,7 @@ internal class SearchFragment : Fragment() {
                 constrainHeight(it.id(), ConstraintSet.WRAP_CONTENT)
             }
 
-            list.let {
+            container.let {
                 connect(
                     it.id(),
                     ConstraintSet.START,
@@ -197,9 +248,12 @@ internal class SearchFragment : Fragment() {
 
         factory = null
 
-        list = null
+        container = null
         switcher = null
         search = null
+
+        nestedList = null
+        nestedEmptyState = null
 
         stateSaver = null
     }

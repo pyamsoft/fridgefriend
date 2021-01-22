@@ -23,7 +23,6 @@ import androidx.annotation.CheckResult
 import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.ItemTouchHelper
-import androidx.recyclerview.widget.RecyclerView
 import com.mikepenz.fastadapter.swipe.SimpleSwipeCallback
 import com.pyamsoft.fridge.entry.databinding.EntryListBinding
 import com.pyamsoft.fridge.entry.item.EntryItemComponent
@@ -63,8 +62,6 @@ class EntryList @Inject internal constructor(
 
     private var touchHelper: ItemTouchHelper? = null
     private var modelAdapter: EntryListAdapter? = null
-
-    private var bottomMarginDecoration: RecyclerView.ItemDecoration? = null
 
     private var lastScrollPosition = 0
 
@@ -148,6 +145,12 @@ class EntryList @Inject internal constructor(
                 binding.entryList.addItemDecoration(this)
             }
 
+            // The bottom has additional space to fit the FAB
+            val bottomMargin = 72.asDp(binding.entryList.context)
+            LinearBoundsMarginDecoration(bottomMargin = bottomMargin).apply {
+                binding.entryList.addItemDecoration(this)
+            }
+
             // Left margin on items on the left
             LinearMarginDecoration(
                 leftMargin = margin,
@@ -182,7 +185,6 @@ class EntryList @Inject internal constructor(
         }
 
         doOnTeardown {
-            removeBottomMargin()
             binding.entryList.removeAllItemDecorations()
         }
 
@@ -264,7 +266,6 @@ class EntryList @Inject internal constructor(
     }
 
     override fun onRender(state: UiRender<EntryViewState>) {
-        state.mapChanged { it.bottomOffset }.render(viewScope) { handleBottomMargin(it) }
         state.mapChanged { it.displayedEntries }.render(viewScope) { handleList(it) }
         state.mapChanged { it.isLoading }.render(viewScope) { handleLoading(it) }
     }
@@ -272,11 +273,6 @@ class EntryList @Inject internal constructor(
     @CheckResult
     private fun usingAdapter(): EntryListAdapter {
         return requireNotNull(modelAdapter)
-    }
-
-    private fun removeBottomMargin() {
-        bottomMarginDecoration?.also { binding.entryList.removeItemDecoration(it) }
-        bottomMarginDecoration = null
     }
 
     private fun setList(list: List<EntryViewState.EntryGroup>) {
@@ -297,18 +293,6 @@ class EntryList @Inject internal constructor(
         when {
             entries.isEmpty() -> clearList()
             else -> setList(entries)
-        }
-    }
-
-    private fun handleBottomMargin(height: Int) {
-        removeBottomMargin()
-        if (height > 0) {
-            // The bottom has additional space to fit the FAB
-            val fabSpacing = 72.asDp(binding.entryList.context)
-            LinearBoundsMarginDecoration(bottomMargin = fabSpacing + height).apply {
-                binding.entryList.addItemDecoration(this)
-                bottomMarginDecoration = this
-            }
         }
     }
 

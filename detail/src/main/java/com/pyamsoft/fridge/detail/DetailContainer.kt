@@ -21,10 +21,12 @@ import android.graphics.drawable.GradientDrawable
 import android.view.ViewGroup
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.view.ViewPropertyAnimatorCompat
+import androidx.core.view.updatePadding
 import com.pyamsoft.fridge.detail.databinding.DetailContainerBinding
 import com.pyamsoft.fridge.ui.R
 import com.pyamsoft.fridge.ui.animatePopInFromBottom
 import com.pyamsoft.pydroid.arch.BaseUiView
+import com.pyamsoft.pydroid.arch.UiRender
 import com.pyamsoft.pydroid.ui.theme.ThemeProvider
 import com.pyamsoft.pydroid.ui.util.layout
 import com.pyamsoft.pydroid.util.asDp
@@ -78,4 +80,11 @@ class DetailContainer @Inject internal constructor(
         return binding.detailContainer.layout(func)
     }
 
+    override fun onRender(state: UiRender<DetailViewState>) {
+        state.mapChanged { it.bottomOffset }.render(viewScope) { handleBottomMargin(it) }
+    }
+
+    private fun handleBottomMargin(height: Int) {
+        layoutRoot.updatePadding(bottom = height)
+    }
 }

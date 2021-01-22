@@ -14,28 +14,37 @@
  * limitations under the License.
  */
 
-package com.pyamsoft.fridge.entry
+package com.pyamsoft.fridge.search
 
 import android.view.ViewGroup
+import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.view.updatePadding
-import com.pyamsoft.fridge.entry.databinding.EntryContainerBinding
+import com.pyamsoft.fridge.detail.DetailViewEvent
+import com.pyamsoft.fridge.detail.DetailViewState
+import com.pyamsoft.fridge.search.databinding.SearchContainerBinding
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.arch.UiRender
+import com.pyamsoft.pydroid.ui.util.layout
 import javax.inject.Inject
 
-class EntryContainer @Inject internal constructor(
+class SearchContainer @Inject internal constructor(
     parent: ViewGroup,
-) : BaseUiView<EntryViewState, EntryViewEvent, EntryContainerBinding>(parent) {
+) : BaseUiView<DetailViewState, DetailViewEvent.Main.ListEvent, SearchContainerBinding>(parent) {
 
-    override val viewBinding = EntryContainerBinding::inflate
+    override val viewBinding = SearchContainerBinding::inflate
 
-    override val layoutRoot by boundView { entryContainer }
+    override val layoutRoot by boundView { searchContainer }
 
-    override fun onRender(state: UiRender<EntryViewState>) {
+    fun layout(func: ConstraintSet.() -> Unit) {
+        return binding.searchContainer.layout(func)
+    }
+
+    override fun onRender(state: UiRender<DetailViewState>) {
         state.mapChanged { it.bottomOffset }.render(viewScope) { handleBottomMargin(it) }
     }
 
     private fun handleBottomMargin(height: Int) {
         layoutRoot.updatePadding(bottom = height)
     }
+
 }

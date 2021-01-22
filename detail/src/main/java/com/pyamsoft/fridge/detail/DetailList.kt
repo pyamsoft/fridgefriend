@@ -22,7 +22,6 @@ import android.view.ViewGroup
 import androidx.annotation.CheckResult
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.mikepenz.fastadapter.swipe.SimpleSwipeCallback
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItem
@@ -56,7 +55,7 @@ class DetailList @Inject internal constructor(
     factory: DetailItemComponent.Factory,
 ) : BaseUiView<DetailViewState, DetailViewEvent.Main.ListEvent, DetailListBinding>(parent) {
 
-    private val noExtraBottomSpace = entryId.isEmpty()
+    private val extraFabOffsetSpace = !entryId.isEmpty()
 
     override val viewBinding = DetailListBinding::inflate
 
@@ -64,8 +63,6 @@ class DetailList @Inject internal constructor(
 
     private var touchHelper: ItemTouchHelper? = null
     private var modelAdapter: DetailListAdapter? = null
-
-    private var bottomMarginDecoration: RecyclerView.ItemDecoration? = null
 
     private var lastScrollPosition = 0
 
@@ -152,10 +149,17 @@ class DetailList @Inject internal constructor(
             LinearMarginDecoration.create(margin = margin).apply {
                 binding.detailList.addItemDecoration(this)
             }
+
+            if (extraFabOffsetSpace) {
+                // The bottom has additional space to fit the FAB
+                val bottomMargin = 72.asDp(binding.detailList.context)
+                LinearBoundsMarginDecoration(bottomMargin = bottomMargin).apply {
+                    binding.detailList.addItemDecoration(this)
+                }
+            }
         }
 
         doOnTeardown {
-            removeBottomMargin()
             binding.detailList.removeAllItemDecorations()
         }
 
@@ -168,11 +172,6 @@ class DetailList @Inject internal constructor(
             modelAdapter = null
             touchHelper = null
         }
-    }
-
-    private fun removeBottomMargin() {
-        bottomMarginDecoration?.also { binding.detailList.removeItemDecoration(it) }
-        bottomMarginDecoration = null
     }
 
     private fun setupSwipeCallback(state: DetailViewState) {
@@ -330,20 +329,6 @@ class DetailList @Inject internal constructor(
         }
     }
 
-    private fun handleBottomMargin(height: Int) {
-        removeBottomMargin()
-        if (height > 0) {
-            // The bottom has additional space to fit the FAB
-            val bottomMargin = if (noExtraBottomSpace) height else {
-                height + 72.asDp(binding.detailList.context)
-            }
-            LinearBoundsMarginDecoration(bottomMargin = bottomMargin).apply {
-                binding.detailList.addItemDecoration(this)
-                bottomMarginDecoration = this
-            }
-        }
-    }
-
     private fun restoreLastScrollPosition(state: DetailViewState) {
         if (lastScrollPosition > 0) {
             if (!state.isLoading && state.displayedItems.isNotEmpty()) {
@@ -357,7 +342,6 @@ class DetailList @Inject internal constructor(
     }
 
     override fun onRender(state: UiRender<DetailViewState>) {
-        state.mapChanged { it.bottomOffset }.render(viewScope) { handleBottomMargin(it) }
         state.mapChanged { it.isLoading }.render(viewScope) { handleLoading(it) }
         state.render(viewScope) { s ->
             handleList(s)
