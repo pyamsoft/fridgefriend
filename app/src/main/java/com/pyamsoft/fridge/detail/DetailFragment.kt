@@ -66,12 +66,12 @@ internal class DetailFragment : Fragment(), SnackbarContainer {
     // Nested in container
     @JvmField
     @Inject
-    internal var emptyState: DetailEmptyState? = null
+    internal var nestedEmptyState: DetailEmptyState? = null
 
     // Nested in container
     @JvmField
     @Inject
-    internal var list: DetailList? = null
+    internal var nestedList: DetailList? = null
 
     @JvmField
     @Inject
@@ -136,8 +136,8 @@ internal class DetailFragment : Fragment(), SnackbarContainer {
             .inject(this)
 
         val container = requireNotNull(container)
-        val nestedEmptyState = requireNotNull(emptyState)
-        val nestedList = requireNotNull(list)
+        val nestedEmptyState = requireNotNull(nestedEmptyState)
+        val nestedList = requireNotNull(nestedList)
         container.nest(nestedEmptyState, nestedList)
 
         val listSaver = createComponent(
@@ -242,8 +242,8 @@ internal class DetailFragment : Fragment(), SnackbarContainer {
 
         heroImage = null
         container = null
-        list = null
-        emptyState = null
+        nestedList = null
+        nestedEmptyState = null
         addNew = null
         toolbar = null
         switcher = null

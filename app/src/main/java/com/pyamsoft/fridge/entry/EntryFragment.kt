@@ -63,7 +63,6 @@ internal class EntryFragment : Fragment(), SnackbarContainer {
     @Inject
     internal var toolbar: EntryToolbar? = null
 
-    // Nested in container
     @JvmField
     @Inject
     internal var addNew: EntryAddNew? = null
@@ -71,7 +70,7 @@ internal class EntryFragment : Fragment(), SnackbarContainer {
     // Nested in container
     @JvmField
     @Inject
-    internal var list: EntryList? = null
+    internal var nestedList: EntryList? = null
 
     private var stateSaver: StateSaver? = null
 
@@ -105,7 +104,7 @@ internal class EntryFragment : Fragment(), SnackbarContainer {
             .inject(this)
 
         val container = requireNotNull(container)
-        val nestedList = requireNotNull(list)
+        val nestedList = requireNotNull(nestedList)
         container.nest(nestedList)
 
         stateSaver = createComponent(
@@ -166,7 +165,12 @@ internal class EntryFragment : Fragment(), SnackbarContainer {
         super.onDestroyView()
         stateSaver = null
         factory = null
+
         container = null
+        toolbar = null
+        addNew = null
+        nestedList = null
+
         fragmentContainerId = 0
     }
 
