@@ -25,16 +25,11 @@ import com.pyamsoft.fridge.ui.appbar.AppBarActivity
 import com.pyamsoft.fridge.ui.view.UiEditTextDelegate
 import com.pyamsoft.pydroid.arch.UiRender
 import com.pyamsoft.pydroid.arch.UiView
-import com.pyamsoft.pydroid.ui.app.ToolbarActivity
-import timber.log.Timber
 import javax.inject.Inject
 
 class SearchBarView @Inject internal constructor(
     appBarSource: AppBarActivity,
-    toolbarSource: ToolbarActivity,
 ) : UiView<DetailViewState, DetailViewEvent.ToolbarEvent.Search>() {
-
-    private var toolbarActivity: ToolbarActivity? = toolbarSource
 
     private var delegate: UiEditTextDelegate? = null
 
@@ -56,17 +51,14 @@ class SearchBarView @Inject internal constructor(
             onDestroy()
 
             delegate = null
-            toolbarActivity = null
         }
     }
 
     private fun onDestroy() {
-        Timber.d("Search layout has been deleted and removed from AppBar")
         delegate?.destroy()
     }
 
     private fun onCreate(binding: SearchBarBinding) {
-        Timber.d("Search layout has been created and attached to AppBar")
         binding.searchbarRoot.isVisible = true
         delegate = UiEditTextDelegate(binding.searchbarName) { _, newText ->
             publish(DetailViewEvent.ToolbarEvent.Search.Query(newText))

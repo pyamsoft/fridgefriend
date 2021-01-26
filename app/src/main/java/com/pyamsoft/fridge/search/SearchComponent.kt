@@ -31,7 +31,6 @@ import com.pyamsoft.fridge.detail.DetailComponent
 import com.pyamsoft.fridge.detail.DetailListModule
 import com.pyamsoft.fridge.tooltip.balloon.TooltipModule
 import com.pyamsoft.fridge.ui.appbar.AppBarActivity
-import com.pyamsoft.pydroid.ui.app.ToolbarActivity
 import dagger.Binds
 import dagger.BindsInstance
 import dagger.Module
@@ -60,7 +59,6 @@ internal interface SearchComponent {
         @CheckResult
         fun create(
             @BindsInstance savedStateRegistryOwner: SavedStateRegistryOwner,
-            @BindsInstance toolbarActivity: ToolbarActivity,
             @BindsInstance appBarActivity: AppBarActivity,
             @BindsInstance activity: Activity,
             @BindsInstance parent: ViewGroup,

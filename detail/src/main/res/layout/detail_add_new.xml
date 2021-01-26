@@ -47,7 +47,7 @@
             android:layout_marginBottom="20dp"
             android:contentDescription="@string/blank"
             android:visibility="invisible"
-            app:backgroundTint="@color/white"
+            app:backgroundTint="@color/colorPrimary"
             app:elevation="6dp"
             app:fabSize="mini"
             app:pressedTranslationZ="12dp" />

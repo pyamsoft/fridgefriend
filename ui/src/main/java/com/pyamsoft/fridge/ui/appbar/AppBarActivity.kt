@@ -19,7 +19,7 @@ package com.pyamsoft.fridge.ui.appbar
 import com.google.android.material.appbar.AppBarLayout
 import com.pyamsoft.pydroid.ui.app.ToolbarActivity
 
-interface AppBarActivity: ToolbarActivity {
+interface AppBarActivity : ToolbarActivity {
 
     fun withAppBar(func: (AppBarLayout) -> Unit)
 

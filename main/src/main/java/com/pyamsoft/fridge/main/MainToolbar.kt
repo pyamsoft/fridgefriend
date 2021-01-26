@@ -16,6 +16,7 @@
 
 package com.pyamsoft.fridge.main
 
+import android.view.View
 import android.view.ViewGroup
 import android.view.ViewGroup.MarginLayoutParams
 import android.widget.TextView
@@ -90,6 +91,23 @@ class MainToolbar @Inject internal constructor(
         doOnTeardown {
             binding.mainToolbar.removePrivacy()
             toolbarActivityProvider.setToolbar(null)
+        }
+
+        doOnInflate {
+            val listener = View.OnLayoutChangeListener { _, _, _, _, _, _, _, _, _ ->
+                // Only child is normally the toolbar
+                val resource = if (binding.mainAppbar.childCount > 1) {
+                    R.drawable.curved_toolbar
+                } else {
+                    R.drawable.toolbar
+                }
+                binding.mainToolbar.setBackgroundResource(resource)
+            }
+            binding.mainAppbar.addOnLayoutChangeListener(listener)
+
+            doOnTeardown {
+                binding.mainAppbar.removeOnLayoutChangeListener(listener)
+            }
         }
     }
 

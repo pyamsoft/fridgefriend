@@ -30,11 +30,8 @@ import timber.log.Timber
 import javax.inject.Inject
 
 class DetailPresenceSwitcher @Inject internal constructor(
-    appBarSource: AppBarActivity,
-    toolbarSource: ToolbarActivity,
+    appBarActivity: AppBarActivity,
 ) : UiView<DetailViewState, DetailViewEvent.SwitcherEvent>() {
-
-    private var toolbarActivity: ToolbarActivity? = toolbarSource
 
     private var _bindingRoot: TabLayout? = null
     private val layoutRoot: TabLayout
@@ -43,7 +40,7 @@ class DetailPresenceSwitcher @Inject internal constructor(
     init {
         // Replace the app bar background during switcher presence
         doOnInflate {
-            appBarSource.requireAppBar { appBar ->
+            appBarActivity.requireAppBar { appBar ->
                 val inflater = LayoutInflater.from(appBar.context)
                 val binding = DetailPresenceSwitchBinding.inflate(inflater, appBar)
                 _bindingRoot = binding.detailPresenceSwitcherRoot.also { onCreate(it) }
@@ -52,25 +49,20 @@ class DetailPresenceSwitcher @Inject internal constructor(
 
         doOnTeardown {
             _bindingRoot?.also { binding ->
-                appBarSource.withAppBar { appBar ->
+                appBarActivity.withAppBar { appBar ->
                     appBar.removeView(binding)
                 }
 
                 onDestroy(binding)
             }
-
-            _bindingRoot = null
-            toolbarActivity = null
         }
     }
 
     private fun onDestroy(tabs: TabLayout) {
-        Timber.d("Tab layout has been deleted and removed from AppBar")
         tabs.removeAllTabs()
     }
 
     private fun onCreate(tabs: TabLayout) {
-        Timber.d("Tab layout has been created and attached to AppBar")
         changeBackground(tabs)
         addTabs(tabs)
         attachListener(tabs)
@@ -108,20 +100,7 @@ class DetailPresenceSwitcher @Inject internal constructor(
     }
 
     private fun changeBackground(tabs: TabLayout) {
-        requireNotNull(toolbarActivity).requireToolbar { toolbar ->
-            // Save old background
-            val originalBackground = toolbar.background
-
-            // Once we are set with the new background, show the layout
-            toolbar.setBackgroundResource(R.drawable.curved_toolbar)
-
-            tabs.isVisible = true
-
-            doOnTeardown {
-                // Restore old background
-                toolbar.background = originalBackground
-            }
-        }
+        tabs.isVisible = true
     }
 
     override fun render(state: UiRender<DetailViewState>) {

@@ -23,7 +23,7 @@
     <color name="colorOnSecondary">@color/colorOnPrimary</color>
 
     <color name="windowBackground">@color/material_light_background</color>
-    <color name="dialogBackground">#FFFFFFFF</color>
+    <color name="dialogBackground">@color/white</color>
 
     <color name="colorPrimarySeeThrough">#D7F44336</color>
 
