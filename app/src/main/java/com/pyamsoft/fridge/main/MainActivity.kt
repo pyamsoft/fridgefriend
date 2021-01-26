@@ -79,8 +79,8 @@ internal class MainActivity : ChangeLogActivity(),
     override val versionName = BuildConfig.VERSION_NAME
 
     override val changelog = buildChangeLog {
-        change("The NEED and HAVE tabs in a group view have moved to the top toolbar")
-        feature("Group names can be edited via long press")
+        change("The Map screen was removed since.")
+        feature("A new Search screen has been added to lookup Items across all your Groups")
 //        // TODO(Do this)
 //        feature("More information on Group overview screen")
 //        // TODO(Do this): Entry screen empty state
