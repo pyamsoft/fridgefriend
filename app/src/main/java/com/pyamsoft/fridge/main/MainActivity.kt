@@ -84,6 +84,10 @@ internal class MainActivity : ChangeLogActivity(),
 //        // TODO(Do this)
 //        feature("More information on Group overview screen")
 //        // TODO(Do this): Entry screen empty state
+        // TODO(Do this)
+        // On consume, prompt to re-add the item to the Need list as a "recurring" item
+        // TODO(Do this)
+        // When selecting suggested items, we can try to derive a new expiration date
     }
 
     override val fragmentContainerId: Int
