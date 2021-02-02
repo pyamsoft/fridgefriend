@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?><!--
-  ~ Copyright 2020 Peter Kenji Yamanaka
+  ~ Copyright 2021 Peter Kenji Yamanaka
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -54,6 +54,12 @@
     <string name="do_not_disturb_title">Do Not Disturb</string>
     <string name="do_not_disturb_summary">Do not send notifications between the hours of 10PM and 7AM</string>
     <bool name="do_not_disturb_default">true</bool>
+
+    <string name="search_empty_state_key">search_empty_state_v1</string>
+    <string name="search_empty_state_title">Show All Items</string>
+    <string name="search_empty_state_summary_on">Show all Items by default on Search screen</string>
+    <string name="search_empty_state_summary_off">Show no Items by default on Search screen</string>
+    <bool name="search_empty_state_default">true</bool>
 
     <!-- Values are strings because ListPreference only handles strings -_- -->
     <string name="notification_period_range_key">notification_period_range_v1</string>

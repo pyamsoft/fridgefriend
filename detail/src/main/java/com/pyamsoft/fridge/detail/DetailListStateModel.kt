@@ -60,6 +60,7 @@ class DetailListStateModel @Inject internal constructor(
         undoableItem = null,
         expirationRange = null,
         isSameDayExpired = null,
+        isShowAllItemsEmptyState = null,
         listItemPresence = listItemPresence,
         counts = null,
         bottomOffset = 0,
@@ -74,6 +75,7 @@ class DetailListStateModel @Inject internal constructor(
 
     private var expirationListener: PreferenceListener? = null
     private var sameDayListener: PreferenceListener? = null
+    private var searchEmptyStateListener: PreferenceListener? = null
 
     private val undoRunner = highlander<Unit, FridgeItem> { item ->
         try {
@@ -129,6 +131,11 @@ class DetailListStateModel @Inject internal constructor(
         }
 
         stateModelScope.launch(context = Dispatchers.Default) {
+            val show = interactor.isSearchEmptyStateShowAll()
+            setState { copy(isShowAllItemsEmptyState = DetailViewState.ShowAllItemsEmptyState(show)) }
+        }
+
+        stateModelScope.launch(context = Dispatchers.Default) {
             expirationListener = interactor.listenForExpiringSoonRangeChanged { range ->
                 setState { copy(expirationRange = DetailViewState.ExpirationRange(range)) }
             }
@@ -137,6 +144,14 @@ class DetailListStateModel @Inject internal constructor(
         stateModelScope.launch(context = Dispatchers.Default) {
             sameDayListener = interactor.listenForSameDayExpiredChanged { same ->
                 setState { copy(isSameDayExpired = DetailViewState.IsSameDayExpired(same)) }
+            }
+        }
+
+        stateModelScope.launch(context = Dispatchers.Default) {
+            searchEmptyStateListener = interactor.listenForSearchEmptyStateChanged { show ->
+                setState {
+                    copy(isShowAllItemsEmptyState = DetailViewState.ShowAllItemsEmptyState(show))
+                }
             }
         }
 
@@ -328,6 +343,7 @@ class DetailListStateModel @Inject internal constructor(
 
     @CheckResult
     private fun DetailViewState.getOnlyVisibleItems(items: List<FridgeItem>): List<FridgeItem> {
+        val showAllItems = if (isAllEntries) isShowAllItemsEmptyState?.showAll ?: false else false
         val query = search
         val shows = showing
         return items
@@ -339,7 +355,7 @@ class DetailListStateModel @Inject internal constructor(
                     DetailViewState.Showing.SPOILED -> it.isSpoiled()
                 }
             }
-            .filter { it.matchesQuery(query, !isAllEntries) }
+            .filter { it.matchesQuery(query, showAllItems) }
             .toList()
     }
 

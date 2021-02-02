@@ -37,6 +37,7 @@ data class DetailViewState internal constructor(
     val undoableItem: FridgeItem?,
     val expirationRange: ExpirationRange?,
     val isSameDayExpired: IsSameDayExpired?,
+    val isShowAllItemsEmptyState: ShowAllItemsEmptyState?,
     val listItemPresence: FridgeItem.Presence,
     val counts: Counts?,
     val bottomOffset: Int,
@@ -81,6 +82,8 @@ data class DetailViewState internal constructor(
     data class ExpirationRange internal constructor(val range: Int)
 
     data class IsSameDayExpired internal constructor(val isSame: Boolean)
+
+    data class ShowAllItemsEmptyState internal constructor(val showAll: Boolean)
 }
 
 sealed class DetailViewEvent : UiViewEvent {

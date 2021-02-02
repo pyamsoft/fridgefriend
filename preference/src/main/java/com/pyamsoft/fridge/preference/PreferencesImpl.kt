@@ -34,7 +34,7 @@ import javax.inject.Singleton
 
 @Singleton
 internal class PreferencesImpl @Inject internal constructor(
-    context: Context
+    context: Context,
 ) : NeededPreferences,
     ExpiringPreferences,
     ExpiredPreferences,
@@ -43,7 +43,8 @@ internal class PreferencesImpl @Inject internal constructor(
     PersistentPreferences,
     SettingsPreferences,
     NotificationPreferences,
-    EntryPreferences {
+    EntryPreferences,
+    SearchPreferences {
 
     private val preferences by lazy {
         Enforcer.assertOffMainThread()
@@ -68,6 +69,9 @@ internal class PreferencesImpl @Inject internal constructor(
     private val isZeroCountConsumedDefault: Boolean
     private val isZeroCountConsumedKey: String
 
+    private val searchEmptyStateDefault: Boolean
+    private val searchEmptyStateKey: String
+
     init {
         context.applicationContext.resources.apply {
             expiringSoonKey = getString(R.string.expiring_soon_range_key)
@@ -84,6 +88,9 @@ internal class PreferencesImpl @Inject internal constructor(
 
             isZeroCountConsumedKey = getString(R.string.zero_count_consumed_key)
             isZeroCountConsumedDefault = getBoolean(R.bool.zero_count_consumed_default)
+
+            searchEmptyStateKey = getString(R.string.search_empty_state_key)
+            searchEmptyStateDefault = getBoolean(R.bool.search_empty_state_default)
         }
 
         clearOldPreferences()
@@ -98,6 +105,11 @@ internal class PreferencesImpl @Inject internal constructor(
                 remove(KEY_PERSISTENT_ENTRIES)
             }
         }
+    }
+
+    override suspend fun isEmptyStateAllItems(): Boolean = withContext(context = Dispatchers.IO) {
+        Enforcer.assertOffMainThread()
+        return@withContext preferences.getBoolean(searchEmptyStateKey, searchEmptyStateDefault)
     }
 
     override suspend fun getLastNotificationTimeExpiringSoon(): Long =
@@ -205,6 +217,14 @@ internal class PreferencesImpl @Inject internal constructor(
             Enforcer.assertOffMainThread()
             return@withContext preferences.onChange(isSameDayExpiredKey) {
                 onChange(isSameDayExpired())
+            }
+        }
+
+    override suspend fun watchForSearchEmptyStateChange(onChange: (Boolean) -> Unit): PreferenceListener =
+        withContext(context = Dispatchers.IO) {
+            Enforcer.assertOffMainThread()
+            return@withContext preferences.onChange(searchEmptyStateKey) {
+                onChange(isEmptyStateAllItems())
             }
         }
 

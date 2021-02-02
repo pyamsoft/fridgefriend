@@ -49,6 +49,18 @@
 
     </androidx.preference.PreferenceCategory>
 
+    <androidx.preference.PreferenceCategory android:title="Search Settings">
+
+        <com.pyamsoft.pydroid.ui.preference.SwitchPreferenceCompat
+            android:defaultValue="@bool/search_empty_state_default"
+            android:key="@string/search_empty_state_key"
+            android:summaryOff="@string/search_empty_state_summary_off"
+            android:summaryOn="@string/search_empty_state_summary_on"
+            android:title="@string/search_empty_state_title"
+            app:iconCompat="@drawable/ic_search_24dp" />
+
+    </androidx.preference.PreferenceCategory>
+
     <androidx.preference.PreferenceCategory android:title="Notification Settings">
 
         <com.pyamsoft.pydroid.ui.preference.SwitchPreferenceCompat

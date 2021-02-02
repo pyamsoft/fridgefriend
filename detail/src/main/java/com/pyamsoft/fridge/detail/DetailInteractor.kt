@@ -31,6 +31,7 @@ import com.pyamsoft.fridge.db.item.FridgeItemQueryDao
 import com.pyamsoft.fridge.db.item.FridgeItemRealtime
 import com.pyamsoft.fridge.db.persist.PersistentCategories
 import com.pyamsoft.fridge.preference.DetailPreferences
+import com.pyamsoft.fridge.preference.SearchPreferences
 import com.pyamsoft.pydroid.core.Enforcer
 import com.pyamsoft.pydroid.util.PreferenceListener
 import kotlinx.coroutines.Dispatchers
@@ -48,40 +49,54 @@ internal class DetailInteractor @Inject internal constructor(
     private val entryQueryDao: FridgeEntryQueryDao,
     private val persistentCategories: PersistentCategories,
     private val categoryQueryDao: FridgeCategoryQueryDao,
-    private val preferences: DetailPreferences,
+    private val detailPreferences: DetailPreferences,
+    private val searchPreferences: SearchPreferences,
 ) {
+
+    @CheckResult
+    suspend fun isSearchEmptyStateShowAll(): Boolean = withContext(context = Dispatchers.Default) {
+        Enforcer.assertOffMainThread()
+        return@withContext searchPreferences.isEmptyStateAllItems()
+    }
 
     @CheckResult
     suspend fun isZeroCountConsideredConsumed(): Boolean =
         withContext(context = Dispatchers.Default) {
             Enforcer.assertOffMainThread()
-            return@withContext preferences.isZeroCountConsideredConsumed()
+            return@withContext detailPreferences.isZeroCountConsideredConsumed()
         }
 
     @CheckResult
     suspend fun getExpiringSoonRange(): Int = withContext(context = Dispatchers.Default) {
         Enforcer.assertOffMainThread()
-        return@withContext preferences.getExpiringSoonRange()
+        return@withContext detailPreferences.getExpiringSoonRange()
     }
 
     @CheckResult
     suspend fun isSameDayExpired(): Boolean = withContext(context = Dispatchers.Default) {
         Enforcer.assertOffMainThread()
-        return@withContext preferences.isSameDayExpired()
+        return@withContext detailPreferences.isSameDayExpired()
     }
 
     @CheckResult
     suspend fun listenForExpiringSoonRangeChanged(onChange: (newRange: Int) -> Unit): PreferenceListener =
         withContext(context = Dispatchers.Default) {
             Enforcer.assertOffMainThread()
-            return@withContext preferences.watchForExpiringSoonChange(onChange)
+            return@withContext detailPreferences.watchForExpiringSoonChange(onChange)
+        }
+
+    @CheckResult
+    suspend fun listenForSearchEmptyStateChanged(onChange: (newState: Boolean) -> Unit): PreferenceListener =
+        withContext(context = Dispatchers.Default) {
+            Enforcer.assertOffMainThread()
+            return@withContext searchPreferences.watchForSearchEmptyStateChange(onChange)
         }
 
     @CheckResult
     suspend fun listenForSameDayExpiredChanged(onChange: (newSameDay: Boolean) -> Unit): PreferenceListener =
         withContext(context = Dispatchers.Default) {
             Enforcer.assertOffMainThread()
-            return@withContext preferences.watchForSameDayExpiredChange(onChange)
+            return@withContext detailPreferences.watchForSameDayExpiredChange(onChange)
         }
 
     @CheckResult
@@ -162,7 +177,7 @@ internal class DetailInteractor @Inject internal constructor(
     @CheckResult
     suspend fun loadItem(
         itemId: FridgeItem.Id,
-        entryId: FridgeEntry.Id
+        entryId: FridgeEntry.Id,
     ): FridgeItem = getItems(entryId, true).first { it.id() == itemId }
 
     @CheckResult
@@ -218,7 +233,7 @@ internal class DetailInteractor @Inject internal constructor(
 
     suspend fun delete(
         item: FridgeItem,
-        offerUndo: Boolean
+        offerUndo: Boolean,
     ) = withContext(context = Dispatchers.Default) {
         Enforcer.assertOffMainThread()
         require(item.isReal()) { "Cannot delete item that is not real: $item" }

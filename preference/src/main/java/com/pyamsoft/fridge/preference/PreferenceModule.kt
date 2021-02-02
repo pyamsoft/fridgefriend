@@ -35,6 +35,9 @@ abstract class PreferenceModule {
     internal abstract fun bindExpiredPreference(impl: PreferencesImpl): ExpiredPreferences
 
     @Binds
+    internal abstract fun bindSearchPreferences(impl: PreferencesImpl): SearchPreferences
+
+    @Binds
     internal abstract fun bindNotificationPreferences(impl: PreferencesImpl): NotificationPreferences
 
     @Binds
