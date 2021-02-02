@@ -51,7 +51,7 @@
 
     <androidx.preference.PreferenceCategory android:title="Search Settings">
 
-        <com.pyamsoft.pydroid.ui.preference.SwitchPreferenceCompat
+        <com.pyamsoft.pydroid.ui.preference.CheckBoxPreferenceCompat
             android:defaultValue="@bool/search_empty_state_default"
             android:key="@string/search_empty_state_key"
             android:summaryOff="@string/search_empty_state_summary_off"
