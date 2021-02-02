@@ -65,7 +65,8 @@ dependencies {
   // FastAdapter (extensions just for Swipe leave behind)
   implementation "com.mikepenz:fastadapter-extensions-swipe:$fastAdapter"
 
-  api project(':db')
-  api project(':tooltip')
-  api project(':ui')
+  implementation project(':db')
+  implementation project(':preference')
+  implementation project(':tooltip')
+  implementation project(':ui')
 }

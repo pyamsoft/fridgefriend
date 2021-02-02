@@ -65,6 +65,6 @@ dependencies {
   // AndroidX
   implementation "androidx.preference:preference:$preference"
 
-  api project(':preference')
-  api project(':ui')
+  implementation project(':preference')
+  implementation project(':ui')
 }

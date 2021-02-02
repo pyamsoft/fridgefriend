@@ -30,6 +30,7 @@ import com.pyamsoft.fridge.db.item.FridgeItemInsertDao
 import com.pyamsoft.fridge.db.item.FridgeItemQueryDao
 import com.pyamsoft.fridge.db.item.FridgeItemRealtime
 import com.pyamsoft.fridge.db.persist.PersistentCategories
+import com.pyamsoft.fridge.preference.DetailPreferences
 import com.pyamsoft.pydroid.core.Enforcer
 import com.pyamsoft.pydroid.util.PreferenceListener
 import kotlinx.coroutines.Dispatchers
@@ -47,7 +48,7 @@ internal class DetailInteractor @Inject internal constructor(
     private val entryQueryDao: FridgeEntryQueryDao,
     private val persistentCategories: PersistentCategories,
     private val categoryQueryDao: FridgeCategoryQueryDao,
-    private val preferences: com.pyamsoft.fridge.preference.DetailPreferences,
+    private val preferences: DetailPreferences,
 ) {
 
     @CheckResult

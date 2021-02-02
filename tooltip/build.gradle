@@ -62,8 +62,8 @@ dependencies {
 
   kapt "com.google.dagger:dagger-compiler:$dagger"
 
-  api "com.pyamsoft.pydroid:ui:$pydroid"
+  implementation "com.pyamsoft.pydroid:ui:$pydroid"
 
-  api project(':core')
+  implementation project(':core')
 
 }

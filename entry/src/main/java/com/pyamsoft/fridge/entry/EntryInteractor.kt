@@ -30,6 +30,7 @@ import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent
 import com.pyamsoft.fridge.db.item.FridgeItemInsertDao
 import com.pyamsoft.fridge.db.item.FridgeItemQueryDao
 import com.pyamsoft.fridge.db.item.FridgeItemRealtime
+import com.pyamsoft.fridge.preference.EntryPreferences
 import com.pyamsoft.pydroid.core.Enforcer
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -40,7 +41,7 @@ import javax.inject.Singleton
 
 @Singleton
 class EntryInteractor @Inject internal constructor(
-    private val preferences: com.pyamsoft.fridge.preference.EntryPreferences,
+    private val preferences: EntryPreferences,
     private val itemInsertDao: FridgeItemInsertDao,
     private val itemQueryDao: FridgeItemQueryDao,
     private val itemRealtime: FridgeItemRealtime,

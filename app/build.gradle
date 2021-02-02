@@ -110,16 +110,21 @@ dependencies {
   // Dagger
   kapt "com.google.dagger:dagger-compiler:$dagger"
 
+  implementation project(':butler')
   implementation project(':butler-workmanager')
-  implementation project(':db-room')
   implementation project(':category')
+  implementation project(':db')
+  implementation project(':db-room')
   implementation project(':detail')
   implementation project(':entry')
   implementation project(':main')
+  implementation project(':preference')
   //  implementation project(':ocr')
   implementation project(':search')
   implementation project(':setting')
+  implementation project(':tooltip')
   implementation project(':tooltip-balloon')
+  implementation project(':ui')
 }
 
 // Leave at bottom

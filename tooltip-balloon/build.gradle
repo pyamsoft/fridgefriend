@@ -64,6 +64,7 @@ dependencies {
 
     implementation "com.github.skydoves:balloon:$balloon"
 
-    api project(':tooltip')
+    implementation project(':core')
+    implementation project(':tooltip')
 
 }

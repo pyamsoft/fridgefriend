@@ -70,6 +70,6 @@ dependencies {
   // For category image loader
   api "com.pyamsoft.pydroid:loader:$pydroid"
 
-  api project(':core')
-  api project(':preference')
+  implementation project(':core')
+  implementation project(':preference')
 }

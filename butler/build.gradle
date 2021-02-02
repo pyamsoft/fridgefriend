@@ -66,7 +66,7 @@ dependencies {
   // API for dagger
   api "com.pyamsoft.pydroid:notify:$pydroid"
 
-  api project(':db')
-  api project(':preference')
-  api project(':ui')
+  implementation project(':db')
+  implementation project(':preference')
+  implementation project(':ui')
 }
