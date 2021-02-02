@@ -67,5 +67,6 @@ dependencies {
   api "com.pyamsoft.pydroid:notify:$pydroid"
 
   api project(':db')
+  api project(':preference')
   api project(':ui')
 }

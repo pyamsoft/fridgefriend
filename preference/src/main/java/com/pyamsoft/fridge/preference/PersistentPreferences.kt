@@ -14,16 +14,14 @@
  * limitations under the License.
  */
 
-package com.pyamsoft.fridge.entry
+package com.pyamsoft.fridge.preference
 
 import androidx.annotation.CheckResult
-import com.pyamsoft.pydroid.util.PreferenceListener
 
-interface EntryPreferences {
+interface PersistentPreferences {
 
     @CheckResult
-    suspend fun isDefaultEntryCreated(): Boolean
+    suspend fun isPersistentCategoriesInserted(): Boolean
 
-    suspend fun markDefaultEntryCreated()
-
+    suspend fun setPersistentCategoriesInserted()
 }

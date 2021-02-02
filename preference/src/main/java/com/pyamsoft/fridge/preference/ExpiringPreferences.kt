@@ -14,25 +14,16 @@
  * limitations under the License.
  */
 
-package com.pyamsoft.fridge.db.item
+package com.pyamsoft.fridge.preference
 
 import androidx.annotation.CheckResult
-import com.pyamsoft.pydroid.util.PreferenceListener
+import java.util.Calendar
 
-interface FridgeItemPreferences {
-
-    @CheckResult
-    suspend fun isZeroCountConsideredConsumed(): Boolean
+interface ExpiringPreferences {
 
     @CheckResult
-    suspend fun getExpiringSoonRange(): Int
+    suspend fun getLastNotificationTimeExpiringSoon(): Long
 
-    @CheckResult
-    suspend fun isSameDayExpired(): Boolean
+    suspend fun markNotificationExpiringSoon(calendar: Calendar)
 
-    @CheckResult
-    suspend fun watchForExpiringSoonChange(onChange: (newRange: Int) -> Unit): PreferenceListener
-
-    @CheckResult
-    suspend fun watchForSameDayExpiredChange(onChange: (newSameDay: Boolean) -> Unit): PreferenceListener
 }

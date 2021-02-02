@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Peter Kenji Yamanaka
+ * Copyright 2021 Peter Kenji Yamanaka
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,13 +19,6 @@ package com.pyamsoft.fridge.preference
 import android.content.Context
 import androidx.core.content.edit
 import androidx.preference.PreferenceManager
-import com.pyamsoft.fridge.butler.ButlerPreferences
-import com.pyamsoft.fridge.butler.notification.NotificationPreferences
-import com.pyamsoft.fridge.db.item.FridgeItemPreferences
-import com.pyamsoft.fridge.db.persist.PersistentCategoryPreferences
-import com.pyamsoft.fridge.entry.EntryPreferences
-import com.pyamsoft.fridge.setting.R
-import com.pyamsoft.fridge.setting.SettingsPreferences
 import com.pyamsoft.pydroid.core.Enforcer
 import com.pyamsoft.pydroid.util.PreferenceListener
 import com.pyamsoft.pydroid.util.onChange
@@ -42,9 +35,12 @@ import javax.inject.Singleton
 @Singleton
 internal class PreferencesImpl @Inject internal constructor(
     context: Context
-) : ButlerPreferences,
-    FridgeItemPreferences,
-    PersistentCategoryPreferences,
+) : NeededPreferences,
+    ExpiringPreferences,
+    ExpiredPreferences,
+    NightlyPreferences,
+    DetailPreferences,
+    PersistentPreferences,
     SettingsPreferences,
     NotificationPreferences,
     EntryPreferences {

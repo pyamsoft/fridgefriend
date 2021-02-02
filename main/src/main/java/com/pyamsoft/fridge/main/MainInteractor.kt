@@ -20,7 +20,6 @@ import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.core.today
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItemChangeEvent
-import com.pyamsoft.fridge.db.item.FridgeItemPreferences
 import com.pyamsoft.fridge.db.item.FridgeItemQueryDao
 import com.pyamsoft.fridge.db.item.FridgeItemRealtime
 import com.pyamsoft.fridge.db.item.cleanMidnight
@@ -28,6 +27,7 @@ import com.pyamsoft.fridge.db.item.daysLaterMidnight
 import com.pyamsoft.fridge.db.item.isArchived
 import com.pyamsoft.fridge.db.item.isExpired
 import com.pyamsoft.fridge.db.item.isExpiringSoon
+import com.pyamsoft.fridge.preference.DetailPreferences
 import com.pyamsoft.pydroid.core.Enforcer
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -38,7 +38,7 @@ import javax.inject.Singleton
 internal class MainInteractor @Inject internal constructor(
     private val itemQueryDao: FridgeItemQueryDao,
     private val itemRealtime: FridgeItemRealtime,
-    private val fridgeItemPreferences: FridgeItemPreferences
+    private val detailPreferences: DetailPreferences,
 ) {
 
     @CheckResult
@@ -51,8 +51,8 @@ internal class MainInteractor @Inject internal constructor(
     suspend fun getExpiredOrExpiringCount(): Int = withContext(context = Dispatchers.Default) {
         Enforcer.assertOffMainThread()
         val now = today().cleanMidnight()
-        val later = today().daysLaterMidnight(fridgeItemPreferences.getExpiringSoonRange())
-        val isSameDayExpired = fridgeItemPreferences.isSameDayExpired()
+        val later = today().daysLaterMidnight(detailPreferences.getExpiringSoonRange())
+        val isSameDayExpired = detailPreferences.isSameDayExpired()
         return@withContext itemQueryDao.query(false).byPresence(FridgeItem.Presence.HAVE)
             .filter {
                 it.isExpired(now, isSameDayExpired) || it.isExpiringSoon(

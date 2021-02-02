@@ -14,9 +14,16 @@
  * limitations under the License.
  */
 
-package com.pyamsoft.fridge.setting
+package com.pyamsoft.fridge.preference
 
-interface SettingsPreferences {
+import androidx.annotation.CheckResult
+import java.util.Calendar
 
-    suspend fun clear()
+interface NightlyPreferences {
+
+    @CheckResult
+    suspend fun getLastNotificationTimeNightly(): Long
+
+    suspend fun markNotificationNightly(calendar: Calendar)
+
 }

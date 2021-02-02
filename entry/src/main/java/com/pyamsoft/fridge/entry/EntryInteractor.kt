@@ -40,7 +40,7 @@ import javax.inject.Singleton
 
 @Singleton
 class EntryInteractor @Inject internal constructor(
-    private val preferences: EntryPreferences,
+    private val preferences: com.pyamsoft.fridge.preference.EntryPreferences,
     private val itemInsertDao: FridgeItemInsertDao,
     private val itemQueryDao: FridgeItemQueryDao,
     private val itemRealtime: FridgeItemRealtime,

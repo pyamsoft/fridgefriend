@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Peter Kenji Yamanaka
+ * Copyright 2021 Peter Kenji Yamanaka
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,19 +14,25 @@
  * limitations under the License.
  */
 
-package com.pyamsoft.fridge.butler.notification
+package com.pyamsoft.fridge.preference
 
 import androidx.annotation.CheckResult
-import java.util.Calendar
+import com.pyamsoft.pydroid.util.PreferenceListener
 
-interface NotificationPreferences {
-
-    @CheckResult
-    suspend fun canNotify(now: Calendar, lastNotificationTime: Long): Boolean
+interface DetailPreferences {
 
     @CheckResult
-    suspend fun getNotificationPeriod(): Long
+    suspend fun isZeroCountConsideredConsumed(): Boolean
 
     @CheckResult
-    suspend fun isDoNotDisturb(now: Calendar): Boolean
+    suspend fun getExpiringSoonRange(): Int
+
+    @CheckResult
+    suspend fun isSameDayExpired(): Boolean
+
+    @CheckResult
+    suspend fun watchForExpiringSoonChange(onChange: (newRange: Int) -> Unit): PreferenceListener
+
+    @CheckResult
+    suspend fun watchForSameDayExpiredChange(onChange: (newSameDay: Boolean) -> Unit): PreferenceListener
 }

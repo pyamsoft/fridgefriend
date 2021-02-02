@@ -14,18 +14,15 @@
  * limitations under the License.
  */
 
-package com.pyamsoft.fridge.butler.work.order
+package com.pyamsoft.fridge.preference
 
-import com.pyamsoft.fridge.preference.NotificationPreferences
-import com.pyamsoft.fridge.butler.work.Order
+import androidx.annotation.CheckResult
+import java.util.Calendar
 
-abstract class NotifyingOrder protected constructor(
-    private val preferences: NotificationPreferences,
-) : Order {
+interface ExpiredPreferences {
 
-    final override suspend fun period(): Long {
-        return preferences.getNotificationPeriod()
-    }
+    @CheckResult
+    suspend fun getLastNotificationTimeExpired(): Long
 
+    suspend fun markNotificationExpired(calendar: Calendar)
 }
-

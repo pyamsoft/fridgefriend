@@ -25,6 +25,7 @@ import com.pyamsoft.fridge.db.R
 import com.pyamsoft.fridge.db.category.FridgeCategory
 import com.pyamsoft.fridge.db.category.FridgeCategoryInsertDao
 import com.pyamsoft.fridge.db.category.toThumbnail
+import com.pyamsoft.fridge.preference.PersistentPreferences
 import com.pyamsoft.pydroid.core.Enforcer
 import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.loader.ImageTarget
@@ -39,7 +40,7 @@ import kotlin.coroutines.resume
 internal class PersistentCategoriesImpl @Inject internal constructor(
     private val imageLoader: ImageLoader,
     private val insertDao: FridgeCategoryInsertDao,
-    private val preferences: PersistentCategoryPreferences
+    private val preferences: PersistentPreferences,
 ) : PersistentCategories {
 
     private suspend fun guaranteeCategoriesInserted() {

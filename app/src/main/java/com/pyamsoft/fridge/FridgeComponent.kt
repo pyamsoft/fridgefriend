@@ -22,16 +22,12 @@ import android.content.Context
 import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.FridgeComponent.FridgeProvider
 import com.pyamsoft.fridge.butler.ButlerModule
-import com.pyamsoft.fridge.butler.ButlerPreferences
 import com.pyamsoft.fridge.butler.injector.ButlerComponent
-import com.pyamsoft.fridge.butler.notification.NotificationPreferences
 import com.pyamsoft.fridge.butler.workmanager.WorkManagerModule
 import com.pyamsoft.fridge.category.CategoryComponent
 import com.pyamsoft.fridge.category.CategoryListComponent
 import com.pyamsoft.fridge.core.R
 import com.pyamsoft.fridge.db.DbModule
-import com.pyamsoft.fridge.db.item.FridgeItemPreferences
-import com.pyamsoft.fridge.db.persist.PersistentCategoryPreferences
 import com.pyamsoft.fridge.db.room.RoomModule
 import com.pyamsoft.fridge.detail.DetailComponent
 import com.pyamsoft.fridge.detail.DetailListComponent
@@ -42,18 +38,15 @@ import com.pyamsoft.fridge.detail.expand.date.DateSelectPayload
 import com.pyamsoft.fridge.detail.expand.move.ItemMoveComponent
 import com.pyamsoft.fridge.entry.EntryComponent
 import com.pyamsoft.fridge.entry.EntryListComponent
-import com.pyamsoft.fridge.entry.EntryPreferences
 import com.pyamsoft.fridge.entry.create.CreateEntryComponent
 import com.pyamsoft.fridge.main.MainComponent
-import com.pyamsoft.fridge.preference.PreferencesImpl
+import com.pyamsoft.fridge.preference.PreferenceModule
 import com.pyamsoft.fridge.search.SearchComponent
 import com.pyamsoft.fridge.setting.SettingsComponent
-import com.pyamsoft.fridge.setting.SettingsPreferences
 import com.pyamsoft.fridge.ui.UiModule
 import com.pyamsoft.pydroid.bus.EventBus
 import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.ui.theme.Theming
-import dagger.Binds
 import dagger.BindsInstance
 import dagger.Component
 import dagger.Module
@@ -65,6 +58,7 @@ import javax.inject.Singleton
 @Component(
     modules = [
         FridgeProvider::class,
+        PreferenceModule::class,
         DbModule::class,
         ButlerModule::class,
         WorkManagerModule::class,
@@ -143,30 +137,12 @@ internal interface FridgeComponent {
             @Named("debug") @BindsInstance debug: Boolean,
             @BindsInstance theming: Theming,
             @BindsInstance imageLoader: ImageLoader,
-            @BindsInstance activityClass: Class<out Activity>
+            @BindsInstance activityClass: Class<out Activity>,
         ): FridgeComponent
     }
 
     @Module
     abstract class FridgeProvider {
-
-        @Binds
-        internal abstract fun bindButlerPreferences(impl: PreferencesImpl): ButlerPreferences
-
-        @Binds
-        internal abstract fun bindNotificationPreferences(impl: PreferencesImpl): NotificationPreferences
-
-        @Binds
-        internal abstract fun bindDetailPreferences(impl: PreferencesImpl): FridgeItemPreferences
-
-        @Binds
-        internal abstract fun bindPersistentCategoryPreferences(impl: PreferencesImpl): PersistentCategoryPreferences
-
-        @Binds
-        internal abstract fun bindSettingsPreferences(impl: PreferencesImpl): SettingsPreferences
-
-        @Binds
-        internal abstract fun bindEntryPreferences(impl: PreferencesImpl): EntryPreferences
 
         @Module
         companion object {

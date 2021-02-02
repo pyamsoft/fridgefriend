@@ -14,18 +14,9 @@
  * limitations under the License.
  */
 
-package com.pyamsoft.fridge.butler.work.order
+package com.pyamsoft.fridge.preference
 
-import com.pyamsoft.fridge.preference.NotificationPreferences
-import com.pyamsoft.fridge.butler.work.Order
+interface SettingsPreferences {
 
-abstract class NotifyingOrder protected constructor(
-    private val preferences: NotificationPreferences,
-) : Order {
-
-    final override suspend fun period(): Long {
-        return preferences.getNotificationPeriod()
-    }
-
+    suspend fun clear()
 }
-

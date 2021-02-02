@@ -16,7 +16,7 @@
 
 package com.pyamsoft.fridge.butler.work.order
 
-import com.pyamsoft.fridge.butler.notification.NotificationPreferences
+import com.pyamsoft.fridge.preference.NotificationPreferences
 import com.pyamsoft.fridge.butler.params.ItemParameters
 import com.pyamsoft.fridge.butler.work.OrderParameters
 

@@ -14,30 +14,16 @@
  * limitations under the License.
  */
 
-package com.pyamsoft.fridge.butler
+package com.pyamsoft.fridge.preference
 
 import androidx.annotation.CheckResult
 import java.util.Calendar
 
-interface ButlerPreferences {
+interface NeededPreferences {
 
     @CheckResult
     suspend fun getLastNotificationTimeNeeded(): Long
 
     suspend fun markNotificationNeeded(calendar: Calendar)
 
-    @CheckResult
-    suspend fun getLastNotificationTimeExpiringSoon(): Long
-
-    suspend fun markNotificationExpiringSoon(calendar: Calendar)
-
-    @CheckResult
-    suspend fun getLastNotificationTimeExpired(): Long
-
-    suspend fun markNotificationExpired(calendar: Calendar)
-
-    @CheckResult
-    suspend fun getLastNotificationTimeNightly(): Long
-
-    suspend fun markNotificationNightly(calendar: Calendar)
 }

@@ -14,28 +14,19 @@
  * limitations under the License.
  */
 
-package com.pyamsoft.fridge.butler.work.order
+package com.pyamsoft.fridge.preference
 
 import androidx.annotation.CheckResult
-import com.pyamsoft.fridge.preference.NotificationPreferences
-import com.pyamsoft.fridge.butler.params.ItemParameters
-import com.pyamsoft.fridge.butler.work.Order
-import com.pyamsoft.fridge.butler.work.OrderFactory
-import javax.inject.Inject
-import javax.inject.Singleton
+import java.util.Calendar
 
-@Singleton
-internal class OrderFactoryImpl @Inject internal constructor(
-    private val preferences: NotificationPreferences
-) : OrderFactory {
+interface NotificationPreferences {
 
     @CheckResult
-    override fun itemOrder(params: ItemParameters): Order {
-        return ItemOrder(params, preferences)
-    }
+    suspend fun canNotify(now: Calendar, lastNotificationTime: Long): Boolean
 
     @CheckResult
-    override fun nightlyOrder(): Order {
-        return NightlyOrder()
-    }
+    suspend fun getNotificationPeriod(): Long
+
+    @CheckResult
+    suspend fun isDoNotDisturb(now: Calendar): Boolean
 }

@@ -17,12 +17,11 @@
 package com.pyamsoft.fridge.butler.runner
 
 import androidx.annotation.CheckResult
-import com.pyamsoft.fridge.butler.ButlerPreferences
 import com.pyamsoft.fridge.butler.notification.NotificationHandler
-import com.pyamsoft.fridge.butler.notification.NotificationPreferences
 import com.pyamsoft.fridge.butler.params.BaseParameters
 import com.pyamsoft.fridge.butler.work.Order
 import com.pyamsoft.fridge.db.entry.FridgeEntry
+import com.pyamsoft.fridge.preference.NotificationPreferences
 import com.pyamsoft.pydroid.core.Enforcer
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
@@ -34,7 +33,6 @@ import java.util.UUID
 internal abstract class BaseRunner<P : BaseParameters> protected constructor(
     private val handler: NotificationHandler,
     private val notificationPreferences: NotificationPreferences,
-    private val butlerPreferences: ButlerPreferences
 ) {
 
     protected open suspend fun onReschedule(order: Order) {
@@ -56,7 +54,7 @@ internal abstract class BaseRunner<P : BaseParameters> protected constructor(
         Enforcer.assertOffMainThread()
         val identifier = identifier(id, tags)
         try {
-            performWork(butlerPreferences, params)
+            performWork(params)
             success(identifier).also {
                 order()?.also { onReschedule(it) }
             }
@@ -71,10 +69,7 @@ internal abstract class BaseRunner<P : BaseParameters> protected constructor(
         }
     }
 
-    protected abstract suspend fun performWork(
-        preferences: ButlerPreferences,
-        params: P
-    )
+    protected abstract suspend fun performWork(params: P)
 
     @CheckResult
     private fun success(identifier: String): WorkResult {
@@ -122,7 +117,7 @@ internal abstract class BaseRunner<P : BaseParameters> protected constructor(
         val needed: Boolean,
         val expiring: Boolean,
         val expired: Boolean,
-        val nearby: Boolean
+        val nearby: Boolean,
     )
 }
 
