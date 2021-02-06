@@ -99,8 +99,8 @@ class Pie @JvmOverloads constructor(
      * Initialization will not animate.
      */
     fun initializeWith(
-        values: List<PieData.Data>,
-        colors: List<PieData.Color>,
+        values: List<PieData.Part.Data>,
+        colors: List<PieData.Part.Color>,
         title: String,
         description: String,
     ) = initializeWith(zipToParts(values, colors), title, description)
@@ -129,8 +129,8 @@ class Pie @JvmOverloads constructor(
      * Triggers re-render
      */
     fun setData(
-        values: List<PieData.Data>,
-        colors: List<PieData.Color>
+        values: List<PieData.Part.Data>,
+        colors: List<PieData.Part.Color>
     ) = setData(zipToParts(values, colors))
 
     /**
@@ -311,8 +311,8 @@ class Pie @JvmOverloads constructor(
         @JvmStatic
         @CheckResult
         private fun zipToParts(
-            values: List<PieData.Data>,
-            colors: List<PieData.Color>
+            values: List<PieData.Part.Data>,
+            colors: List<PieData.Part.Color>
         ): List<PieData.Part> {
             return values.zip(colors) { value, color -> PieData.Part(value, color) }
         }

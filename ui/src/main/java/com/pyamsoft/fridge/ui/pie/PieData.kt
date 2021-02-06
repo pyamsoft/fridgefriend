@@ -20,10 +20,12 @@ import androidx.annotation.ColorInt
 
 sealed class PieData {
 
-    data class Data(internal val value: Float) : PieData()
+    data class Part(internal val data: Data, internal val color: Color) : PieData() {
 
-    data class Color(@ColorInt internal val color: Int) : PieData()
+        data class Data(internal val value: Float) : PieData()
 
-    data class Part(internal val data: Data, internal val color: Color) : PieData()
+        data class Color(@ColorInt internal val color: Int) : PieData()
+
+    }
 
 }

@@ -42,11 +42,11 @@ internal fun Context.getAttributeColor(@AttrRes attrRes: Int): Int {
 }
 
 @CheckResult
-fun @receiver:ColorInt Int.asColor(): PieData.Color {
-    return PieData.Color(this)
+fun @receiver:ColorInt Int.asColor(): PieData.Part.Color {
+    return PieData.Part.Color(this)
 }
 
 @CheckResult
-fun Float.asData(): PieData.Data {
-    return PieData.Data(this)
+fun Float.asData(): PieData.Part.Data {
+    return PieData.Part.Data(this)
 }

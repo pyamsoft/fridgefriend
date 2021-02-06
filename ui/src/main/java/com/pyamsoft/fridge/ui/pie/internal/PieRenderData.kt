@@ -21,5 +21,5 @@ import com.pyamsoft.fridge.ui.pie.PieData
 internal data class PieRenderData internal constructor(
     val startAngle: Float,
     val sweepAngle: Float,
-    val color: PieData.Color
+    val color: PieData.Part.Color
 )
