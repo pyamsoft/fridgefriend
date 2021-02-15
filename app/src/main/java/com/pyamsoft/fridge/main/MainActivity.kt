@@ -78,8 +78,7 @@ internal class MainActivity : ChangeLogActivity(),
     override val versionName = BuildConfig.VERSION_NAME
 
     override val changelog = buildChangeLog {
-        change("The Map screen was removed since.")
-        feature("A new Search screen has been added to lookup Items across all your Groups")
+        feature("Preference to default the search screen to showing all or no items")
 //        // TODO(Do this)
 //        feature("More information on Group overview screen")
 //        // TODO(Do this): Entry screen empty state
