@@ -63,7 +63,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
-import androidx.fragment.R as R2
 
 internal class MainActivity : ChangeLogActivity(),
     VersionChecker,
@@ -445,24 +444,24 @@ internal class MainActivity : ChangeLogActivity(),
     private fun FragmentTransaction.decideAnimationForPage(oldPage: MainPage?, newPage: MainPage) {
         val animations = when (newPage) {
             is MainPage.Search -> when (oldPage) {
-                null -> R2.anim.fragment_open_enter to R2.anim.fragment_open_exit
+                null -> R.anim.fragment_open_enter to R.anim.fragment_open_exit
                 is MainPage.Entries -> R.anim.slide_in_right to R.anim.slide_out_left
                 is MainPage.Category, is MainPage.Settings -> R.anim.slide_in_left to R.anim.slide_out_right
                 is MainPage.Search -> null
             }
             is MainPage.Entries -> when (oldPage) {
-                null -> R2.anim.fragment_open_enter to R2.anim.fragment_open_exit
+                null -> R.anim.fragment_open_enter to R.anim.fragment_open_exit
                 is MainPage.Search, is MainPage.Category, is MainPage.Settings -> R.anim.slide_in_left to R.anim.slide_out_right
                 is MainPage.Entries -> null
             }
             is MainPage.Category -> when (oldPage) {
-                null -> R2.anim.fragment_open_enter to R2.anim.fragment_open_exit
+                null -> R.anim.fragment_open_enter to R.anim.fragment_open_exit
                 is MainPage.Search, is MainPage.Entries -> R.anim.slide_in_right to R.anim.slide_out_left
                 is MainPage.Settings -> R.anim.slide_in_left to R.anim.slide_out_right
                 is MainPage.Category -> null
             }
             is MainPage.Settings -> when (oldPage) {
-                null -> R2.anim.fragment_open_enter to R2.anim.fragment_open_exit
+                null -> R.anim.fragment_open_enter to R.anim.fragment_open_exit
                 is MainPage.Search, is MainPage.Entries, is MainPage.Category -> R.anim.slide_in_right to R.anim.slide_out_left
                 is MainPage.Settings -> null
             }
