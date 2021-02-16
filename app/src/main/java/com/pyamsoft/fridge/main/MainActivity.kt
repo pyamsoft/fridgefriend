@@ -78,7 +78,9 @@ internal class MainActivity : ChangeLogActivity(),
     override val versionName = BuildConfig.VERSION_NAME
 
     override val changelog = buildChangeLog {
-        feature("Preference to default the search screen to showing all or no items")
+        feature("Preference to default the Search screen to showing all or no items")
+        feature("Add item filters to Search screen")
+        feature("Add ability to undo delete/consume/spoil from the Search screen")
 //        // TODO(Do this)
 //        feature("More information on Group overview screen")
 //        // TODO(Do this): Entry screen empty state
