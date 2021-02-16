@@ -28,4 +28,4 @@ class SearchAppbarSpacer @Inject internal constructor(
     parent: ViewGroup,
     owner: LifecycleOwner,
     appBarActivity: AppBarActivity,
-) : UiAppBarSpacer<DetailViewState, DetailViewEvent.Main.ListEvent>(parent, owner, appBarActivity)
+) : UiAppBarSpacer<DetailViewState, DetailViewEvent.ListEvent>(parent, owner, appBarActivity)

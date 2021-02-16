@@ -23,14 +23,12 @@ import com.pyamsoft.fridge.detail.DetailViewState
 import com.pyamsoft.fridge.detail.databinding.DetailEmptyBinding
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.arch.UiRender
-import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.loader.Loaded
 import javax.inject.Inject
 
 class SearchEmptyState @Inject internal constructor(
     parent: ViewGroup,
-    private val imageLoader: ImageLoader,
-) : BaseUiView<DetailViewState, DetailViewEvent.Main.ListEvent, DetailEmptyBinding>(parent) {
+) : BaseUiView<DetailViewState, DetailViewEvent.ListEvent, DetailEmptyBinding>(parent) {
 
     override val viewBinding = DetailEmptyBinding::inflate
 

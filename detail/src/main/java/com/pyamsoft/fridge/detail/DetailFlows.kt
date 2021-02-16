@@ -88,43 +88,35 @@ data class DetailViewState internal constructor(
 
 sealed class DetailViewEvent : UiViewEvent {
 
-    sealed class Main : DetailViewEvent() {
+    sealed class ListEvent : DetailViewEvent() {
 
-        sealed class AddEvent : Main() {
+        object AddNew : ListEvent()
 
-            object AddNew : AddEvent()
+        object ChangeCurrentFilter : ListEvent()
 
-            object ToggleArchiveVisibility : AddEvent()
+        object ClearListError : ListEvent()
 
-            object ClearListError : AddEvent()
+        object UndoDeleteItem : ListEvent()
 
-            object UndoDeleteItem : AddEvent()
+        object ReallyDeleteItemNoUndo : ListEvent()
 
-            object ReallyDeleteItemNoUndo : AddEvent()
+        object ForceRefresh : ListEvent()
 
-        }
+        data class IncreaseItemCount internal constructor(val index: Int) : ListEvent()
 
-        sealed class ListEvent : Main() {
+        data class DecreaseItemCount internal constructor(val index: Int) : ListEvent()
 
-            object ForceRefresh : ListEvent()
+        data class ConsumeItem internal constructor(val index: Int) : ListEvent()
 
-            data class IncreaseItemCount internal constructor(val index: Int) : ListEvent()
+        data class DeleteItem internal constructor(val index: Int) : ListEvent()
 
-            data class DecreaseItemCount internal constructor(val index: Int) : ListEvent()
+        data class RestoreItem internal constructor(val index: Int) : ListEvent()
 
-            data class ConsumeItem internal constructor(val index: Int) : ListEvent()
+        data class SpoilItem internal constructor(val index: Int) : ListEvent()
 
-            data class DeleteItem internal constructor(val index: Int) : ListEvent()
+        data class ExpandItem internal constructor(val index: Int) : ListEvent()
 
-            data class RestoreItem internal constructor(val index: Int) : ListEvent()
-
-            data class SpoilItem internal constructor(val index: Int) : ListEvent()
-
-            data class ExpandItem internal constructor(val index: Int) : ListEvent()
-
-            data class ChangeItemPresence internal constructor(val index: Int) : ListEvent()
-
-        }
+        data class ChangeItemPresence internal constructor(val index: Int) : ListEvent()
 
     }
 

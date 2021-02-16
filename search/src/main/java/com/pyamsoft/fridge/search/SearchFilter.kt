@@ -14,83 +14,59 @@
  * limitations under the License.
  */
 
-package com.pyamsoft.fridge.detail
+package com.pyamsoft.fridge.search
 
 import android.view.ViewGroup
 import androidx.coordinatorlayout.widget.CoordinatorLayout
-import androidx.core.view.ViewPropertyAnimatorCompat
-import androidx.core.view.isVisible
 import androidx.core.view.updatePadding
 import androidx.lifecycle.LifecycleOwner
 import com.pyamsoft.fridge.db.item.FridgeItem
-import com.pyamsoft.fridge.detail.databinding.DetailAddNewBinding
+import com.pyamsoft.fridge.detail.DetailViewEvent
+import com.pyamsoft.fridge.detail.DetailViewState
+import com.pyamsoft.fridge.search.databinding.SearchFilterBinding
 import com.pyamsoft.fridge.ui.R
 import com.pyamsoft.fridge.ui.SnackbarContainer
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.arch.UiRender
 import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.loader.Loaded
-import com.pyamsoft.pydroid.loader.disposeOnDestroy
 import com.pyamsoft.pydroid.ui.util.Snackbreak
 import com.pyamsoft.pydroid.ui.util.popShow
 import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
+import timber.log.Timber
 import javax.inject.Inject
 
-class DetailAddItemView @Inject internal constructor(
+class SearchFilter @Inject internal constructor(
     private val owner: LifecycleOwner,
     private val imageLoader: ImageLoader,
     parent: ViewGroup,
-) : BaseUiView<DetailViewState, DetailViewEvent.ListEvent, DetailAddNewBinding>(
-    parent
-), SnackbarContainer {
+) : BaseUiView<DetailViewState, DetailViewEvent.ListEvent, SearchFilterBinding>(parent),
+    SnackbarContainer {
 
-    override val viewBinding = DetailAddNewBinding::inflate
+    override val viewBinding = SearchFilterBinding::inflate
 
-    override val layoutRoot by boundView { detailAddNewRoot }
+    override val layoutRoot by boundView { searchFilterRoot }
 
     private var filterIconLoaded: Loaded? = null
 
-    private var addNewAnimatorCompat: ViewPropertyAnimatorCompat? = null
-    private var filterAnimatorCompat: ViewPropertyAnimatorCompat? = null
-
     init {
         doOnInflate {
-            imageLoader
-                .load(R.drawable.ic_add_24dp)
-                .into(binding.detailAddNewItem)
-                .disposeOnDestroy(owner)
-
-            binding.detailAddNewItem.setOnDebouncedClickListener {
-                publish(DetailViewEvent.ListEvent.AddNew)
-            }
-        }
-
-        doOnTeardown {
-            binding.detailAddNewItem.setOnClickListener(null)
-        }
-
-        doOnInflate {
-            binding.detailFilterItem.setOnDebouncedClickListener {
+            binding.searchFilter.setOnDebouncedClickListener {
                 publish(DetailViewEvent.ListEvent.ChangeCurrentFilter)
             }
         }
 
         doOnTeardown {
-            binding.detailFilterItem.setOnClickListener(null)
+            binding.searchFilter.setOnClickListener(null)
         }
 
         doOnInflate {
-            addNewAnimatorCompat = binding.detailAddNewItem.popShow()
+            val animator = binding.searchFilter.popShow()
+            doOnTeardown { animator.cancel() }
         }
 
         doOnTeardown {
-            addNewAnimatorCompat?.cancel()
-            addNewAnimatorCompat = null
-        }
-
-        doOnTeardown {
-            filterAnimatorCompat?.cancel()
-            filterAnimatorCompat = null
+            clearFilter()
         }
     }
 
@@ -99,33 +75,9 @@ class DetailAddItemView @Inject internal constructor(
         filterIconLoaded = null
     }
 
-    override fun container(): CoordinatorLayout {
-        return layoutRoot
-    }
-
-    override fun onRender(state: UiRender<DetailViewState>) {
-        state.mapChanged { it.showing }.render(viewScope) { handleShowing(it) }
-        state.mapChanged { it.listItemPresence }.render(viewScope) { handlePresence(it) }
-        state.mapChanged { it.bottomOffset }.render(viewScope) { handleBottomMargin(it) }
-        state.mapChanged { it.listError }.render(viewScope) { handleError(it) }
-        state.mapChanged { it.undoableItem }.render(viewScope) { handleUndo(it) }
-    }
-
-    private fun handlePresence(presence: FridgeItem.Presence) {
-        // Hide filter button for NEED
-        if (presence == FridgeItem.Presence.NEED) {
-            binding.detailFilterItem.isVisible = false
-            filterAnimatorCompat?.cancel()
-            filterAnimatorCompat = null
-        } else {
-            if (filterAnimatorCompat == null) {
-                filterAnimatorCompat = binding.detailFilterItem.popShow()
-            }
-        }
-    }
-
     private fun handleShowing(showing: DetailViewState.Showing) {
         clearFilter()
+
         filterIconLoaded = imageLoader.load(
             when (showing) {
                 DetailViewState.Showing.FRESH -> R.drawable.ic_category_24
@@ -133,7 +85,17 @@ class DetailAddItemView @Inject internal constructor(
                 DetailViewState.Showing.SPOILED -> R.drawable.ic_spoiled_24dp
             }
         )
-            .into(binding.detailFilterItem)
+            .into(binding.searchFilter)
+    }
+
+    override fun container(): CoordinatorLayout {
+        return layoutRoot
+    }
+
+    override fun onRender(state: UiRender<DetailViewState>) {
+        state.mapChanged { it.bottomOffset }.render(viewScope) { handleBottomMargin(it) }
+        state.mapChanged { it.undoableItem }.render(viewScope) { handleUndo(it) }
+        state.mapChanged { it.showing }.render(viewScope) { handleShowing(it) }
     }
 
     private fun handleBottomMargin(height: Int) {
@@ -142,25 +104,9 @@ class DetailAddItemView @Inject internal constructor(
         }
     }
 
-    private fun handleError(throwable: Throwable?) {
-        if (throwable != null) {
-            showListError(throwable)
-        }
-    }
-
     private fun handleUndo(undoable: FridgeItem?) {
         if (undoable != null) {
             showUndoSnackbar(undoable)
-        }
-    }
-
-    private fun showListError(throwable: Throwable) {
-        Snackbreak.bindTo(owner) {
-            long(
-                layoutRoot,
-                throwable.message ?: "An unexpected error has occurred.",
-                onHidden = { _, _ -> publish(DetailViewEvent.ListEvent.ClearListError) }
-            )
         }
     }
 

@@ -51,11 +51,8 @@ class DetailList @Inject internal constructor(
     private val imageLoader: ImageLoader,
     private val theming: ThemeProvider,
     parent: ViewGroup,
-    entryId: FridgeEntry.Id,
     factory: DetailItemComponent.Factory,
-) : BaseUiView<DetailViewState, DetailViewEvent.Main.ListEvent, DetailListBinding>(parent) {
-
-    private val isForAllItems = entryId.isEmpty()
+) : BaseUiView<DetailViewState, DetailViewEvent.ListEvent, DetailListBinding>(parent) {
 
     override val viewBinding = DetailListBinding::inflate
 
@@ -82,25 +79,25 @@ class DetailList @Inject internal constructor(
 
                     override fun onIncreaseCount(index: Int) {
                         publish(
-                            DetailViewEvent.Main.ListEvent.IncreaseItemCount(index)
+                            DetailViewEvent.ListEvent.IncreaseItemCount(index)
                         )
                     }
 
                     override fun onDecreaseCount(index: Int) {
                         publish(
-                            DetailViewEvent.Main.ListEvent.DecreaseItemCount(index)
+                            DetailViewEvent.ListEvent.DecreaseItemCount(index)
                         )
                     }
 
                     override fun onItemExpanded(index: Int) {
                         publish(
-                            DetailViewEvent.Main.ListEvent.ExpandItem(index)
+                            DetailViewEvent.ListEvent.ExpandItem(index)
                         )
                     }
 
                     override fun onPresenceChange(index: Int) {
                         publish(
-                            DetailViewEvent.Main.ListEvent.ChangeItemPresence(index)
+                            DetailViewEvent.ListEvent.ChangeItemPresence(index)
                         )
                     }
                 })
@@ -117,7 +114,7 @@ class DetailList @Inject internal constructor(
 
         doOnInflate {
             binding.detailSwipeRefresh.setOnRefreshListener {
-                publish(DetailViewEvent.Main.ListEvent.ForceRefresh)
+                publish(DetailViewEvent.ListEvent.ForceRefresh)
             }
         }
 
@@ -150,12 +147,10 @@ class DetailList @Inject internal constructor(
                 binding.detailList.addItemDecoration(this)
             }
 
-            if (!isForAllItems) {
-                // The bottom has additional space to fit the FAB
-                val bottomMargin = 72.asDp(binding.detailList.context)
-                LinearBoundsMarginDecoration(bottomMargin = bottomMargin).apply {
-                    binding.detailList.addItemDecoration(this)
-                }
+            // The bottom has additional space to fit the FAB
+            val bottomMargin = 72.asDp(binding.detailList.context)
+            LinearBoundsMarginDecoration(bottomMargin = bottomMargin).apply {
+                binding.detailList.addItemDecoration(this)
             }
         }
 
@@ -284,19 +279,19 @@ class DetailList @Inject internal constructor(
     }
 
     private fun restoreListItem(position: Int) {
-        publish(DetailViewEvent.Main.ListEvent.RestoreItem(position))
+        publish(DetailViewEvent.ListEvent.RestoreItem(position))
     }
 
     private fun deleteListItem(position: Int) {
-        publish(DetailViewEvent.Main.ListEvent.DeleteItem(position))
+        publish(DetailViewEvent.ListEvent.DeleteItem(position))
     }
 
     private fun consumeListItem(position: Int) {
-        publish(DetailViewEvent.Main.ListEvent.ConsumeItem(position))
+        publish(DetailViewEvent.ListEvent.ConsumeItem(position))
     }
 
     private fun spoilListItem(position: Int) {
-        publish(DetailViewEvent.Main.ListEvent.SpoilItem(position))
+        publish(DetailViewEvent.ListEvent.SpoilItem(position))
     }
 
     private fun setList(

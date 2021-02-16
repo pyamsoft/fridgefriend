@@ -359,7 +359,7 @@ class DetailListStateModel @Inject internal constructor(
             .toList()
     }
 
-    internal fun reallyDelete() {
+    fun reallyDelete() {
         setState { copy(undoableItem = null) }
     }
 
@@ -422,13 +422,13 @@ class DetailListStateModel @Inject internal constructor(
         }
     }
 
-    internal fun handleUndoDelete() {
+    fun handleUndoDelete() {
         stateModelScope.launch(context = Dispatchers.Default) {
             undoRunner.call(requireNotNull(state.undoableItem))
         }
     }
 
-    internal fun toggleArchived(
+    fun toggleArchived(
         andThen: suspend (newState: DetailViewState) -> Unit,
     ) {
         setState(
@@ -491,7 +491,7 @@ class DetailListStateModel @Inject internal constructor(
         withItemAt(index) { updateDelegate.deleteItem(it) }
     }
 
-    internal fun clearListError() {
+    fun clearListError() {
         stateModelScope.handleError(null)
     }
 

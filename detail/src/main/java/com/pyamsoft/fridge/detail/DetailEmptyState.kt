@@ -28,7 +28,7 @@ import javax.inject.Inject
 class DetailEmptyState @Inject internal constructor(
     parent: ViewGroup,
     private val imageLoader: ImageLoader,
-) : BaseUiView<DetailViewState, DetailViewEvent.Main, DetailEmptyBinding>(parent) {
+) : BaseUiView<DetailViewState, DetailViewEvent.ListEvent, DetailEmptyBinding>(parent) {
 
     override val viewBinding = DetailEmptyBinding::inflate
 

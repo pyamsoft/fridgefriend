@@ -67,14 +67,25 @@ internal class SearchFragment : Fragment() {
 
     @JvmField
     @Inject
+    internal var filter: SearchFilter? = null
+
+    @JvmField
+    @Inject
     internal var switcher: DetailPresenceSwitcher? = null
 
     @JvmField
     @Inject
     internal var factory: FridgeViewModelFactory? = null
-    private val factoryFactory by lazy { factory?.create(this) }
-    private val listViewModel by fromViewModelFactory<SearchListViewModel> { factoryFactory }
-    private val appBarViewModel by fromViewModelFactory<DetailSwitcherViewModel> { factoryFactory }
+    private val appBarViewModel by fromViewModelFactory<DetailSwitcherViewModel> {
+        factory?.create(this)
+    }
+
+    @JvmField
+    @Inject
+    internal var listViewFactory: SearchListViewModel.Factory? = null
+    private val listViewModel by fromViewModelFactory<SearchListViewModel> {
+        createSavedStateViewModelFactory(listViewFactory)
+    }
 
     @JvmField
     @Inject
@@ -146,7 +157,8 @@ internal class SearchFragment : Fragment() {
             viewLifecycleOwner,
             listViewModel,
             requireNotNull(spacer),
-            container
+            container,
+            requireNotNull(filter),
         ) {
             return@createComponent when (it) {
                 is DetailControllerEvent.Expand.ExpandForEditing -> openExisting(it.item)
@@ -209,7 +221,10 @@ internal class SearchFragment : Fragment() {
         super.onDestroyView()
 
         factory = null
+        listViewFactory = null
+        searchFactory = null
 
+        filter = null
         container = null
         switcher = null
         search = null

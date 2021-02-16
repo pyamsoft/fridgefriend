@@ -29,7 +29,7 @@ import javax.inject.Inject
 
 class SearchContainer @Inject internal constructor(
     parent: ViewGroup,
-) : BaseUiView<DetailViewState, DetailViewEvent.Main.ListEvent, SearchContainerBinding>(parent) {
+) : BaseUiView<DetailViewState, DetailViewEvent.ListEvent, SearchContainerBinding>(parent) {
 
     override val viewBinding = SearchContainerBinding::inflate
 

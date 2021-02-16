@@ -21,15 +21,24 @@ import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.detail.DetailControllerEvent
 import com.pyamsoft.fridge.detail.DetailListStateModel
 import com.pyamsoft.fridge.detail.DetailViewEvent
+import com.pyamsoft.fridge.detail.DetailViewModel
 import com.pyamsoft.fridge.detail.DetailViewState
 import com.pyamsoft.pydroid.arch.Renderable
-import com.pyamsoft.pydroid.arch.UiViewModel
-import javax.inject.Inject
+import com.pyamsoft.pydroid.arch.UiSavedState
+import com.pyamsoft.pydroid.arch.UiSavedStateViewModel
+import com.pyamsoft.pydroid.arch.UiSavedStateViewModelProvider
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
-class SearchListViewModel @Inject internal constructor(
+class SearchListViewModel @AssistedInject internal constructor(
     private val delegate: DetailListStateModel,
-) : UiViewModel<DetailViewState, DetailViewEvent.Main.ListEvent, DetailControllerEvent.Expand>(
-    initialState = delegate.initialState
+    @Assisted savedState: UiSavedState,
+) : UiSavedStateViewModel<DetailViewState, DetailViewEvent.ListEvent, DetailControllerEvent.Expand>(
+    savedState, initialState = delegate.initialState
 ) {
 
     init {
@@ -42,18 +51,49 @@ class SearchListViewModel @Inject internal constructor(
         doOnCleared {
             delegate.clear()
         }
+
+        viewModelScope.launch(context = Dispatchers.Default) {
+            val filterName = restoreSavedState(SAVED_FILTER) { "" }
+            if (filterName.isNotBlank()) {
+                val filter = DetailViewState.Showing.valueOf(filterName)
+                updateFilter(filter)
+            }
+        }
     }
 
-    override fun handleViewEvent(event: DetailViewEvent.Main.ListEvent) = when (event) {
-        is DetailViewEvent.Main.ListEvent.ForceRefresh -> delegate.refreshList(true)
-        is DetailViewEvent.Main.ListEvent.ChangeItemPresence -> delegate.commitPresence(event.index)
-        is DetailViewEvent.Main.ListEvent.ConsumeItem -> delegate.consume(event.index)
-        is DetailViewEvent.Main.ListEvent.DeleteItem -> delegate.delete(event.index)
-        is DetailViewEvent.Main.ListEvent.RestoreItem -> delegate.restore(event.index)
-        is DetailViewEvent.Main.ListEvent.SpoilItem -> delegate.spoil(event.index)
-        is DetailViewEvent.Main.ListEvent.IncreaseItemCount -> delegate.increaseCount(event.index)
-        is DetailViewEvent.Main.ListEvent.DecreaseItemCount -> delegate.decreaseCount(event.index)
-        is DetailViewEvent.Main.ListEvent.ExpandItem -> handleExpand(event.index)
+    override fun handleViewEvent(event: DetailViewEvent.ListEvent) = when (event) {
+        is DetailViewEvent.ListEvent.ForceRefresh -> delegate.refreshList(true)
+        is DetailViewEvent.ListEvent.ChangeItemPresence -> delegate.commitPresence(event.index)
+        is DetailViewEvent.ListEvent.ConsumeItem -> delegate.consume(event.index)
+        is DetailViewEvent.ListEvent.DeleteItem -> delegate.delete(event.index)
+        is DetailViewEvent.ListEvent.RestoreItem -> delegate.restore(event.index)
+        is DetailViewEvent.ListEvent.SpoilItem -> delegate.spoil(event.index)
+        is DetailViewEvent.ListEvent.IncreaseItemCount -> delegate.increaseCount(event.index)
+        is DetailViewEvent.ListEvent.DecreaseItemCount -> delegate.decreaseCount(event.index)
+        is DetailViewEvent.ListEvent.ExpandItem -> handleExpand(event.index)
+        is DetailViewEvent.ListEvent.ChangeCurrentFilter -> updateShowing()
+        is DetailViewEvent.ListEvent.ReallyDeleteItemNoUndo -> delegate.reallyDelete()
+        is DetailViewEvent.ListEvent.UndoDeleteItem -> delegate.handleUndoDelete()
+        is DetailViewEvent.ListEvent.ClearListError -> delegate.clearListError()
+        is DetailViewEvent.ListEvent.AddNew -> handleAddNew()
+    }
+
+    private fun handleAddNew() {
+        throw IllegalStateException("Cannot AddNew from Search view")
+    }
+
+    private fun CoroutineScope.updateFilter(filter: DetailViewState.Showing) {
+        val scope = this
+
+        delegate.apply {
+            scope.updateFilter(filter)
+        }
+    }
+
+    private fun updateShowing() {
+        delegate.toggleArchived { newState ->
+            putSavedState(SAVED_FILTER, newState.showing.name)
+        }
     }
 
     private inline fun withItemAt(index: Int, block: (FridgeItem) -> Unit) {
@@ -62,5 +102,15 @@ class SearchListViewModel @Inject internal constructor(
 
     private fun handleExpand(index: Int) {
         withItemAt(index) { publish(DetailControllerEvent.Expand.ExpandForEditing(it)) }
+    }
+
+    companion object {
+        private const val SAVED_FILTER = "filter"
+    }
+
+
+    @AssistedFactory
+    interface Factory : UiSavedStateViewModelProvider<SearchListViewModel> {
+        override fun create(savedState: UiSavedState): SearchListViewModel
     }
 }

@@ -33,7 +33,7 @@ import timber.log.Timber
 class DetailViewModel @AssistedInject internal constructor(
     private val delegate: DetailListStateModel,
     @Assisted savedState: UiSavedState,
-) : UiSavedStateViewModel<DetailViewState, DetailViewEvent.Main, DetailControllerEvent>(
+) : UiSavedStateViewModel<DetailViewState, DetailViewEvent.ListEvent, DetailControllerEvent>(
     savedState, initialState = delegate.initialState
 ) {
 
@@ -57,21 +57,21 @@ class DetailViewModel @AssistedInject internal constructor(
         }
     }
 
-    override fun handleViewEvent(event: DetailViewEvent.Main) = when (event) {
-        is DetailViewEvent.Main.ListEvent.ForceRefresh -> delegate.refreshList(true)
-        is DetailViewEvent.Main.ListEvent.ChangeItemPresence -> delegate.commitPresence(event.index)
-        is DetailViewEvent.Main.ListEvent.ConsumeItem -> delegate.consume(event.index)
-        is DetailViewEvent.Main.ListEvent.DeleteItem -> delegate.delete(event.index)
-        is DetailViewEvent.Main.ListEvent.RestoreItem -> delegate.restore(event.index)
-        is DetailViewEvent.Main.ListEvent.SpoilItem -> delegate.spoil(event.index)
-        is DetailViewEvent.Main.ListEvent.IncreaseItemCount -> delegate.increaseCount(event.index)
-        is DetailViewEvent.Main.ListEvent.DecreaseItemCount -> delegate.decreaseCount(event.index)
-        is DetailViewEvent.Main.ListEvent.ExpandItem -> handleExpand(event.index)
-        is DetailViewEvent.Main.AddEvent.ToggleArchiveVisibility -> updateShowing()
-        is DetailViewEvent.Main.AddEvent.ReallyDeleteItemNoUndo -> delegate.reallyDelete()
-        is DetailViewEvent.Main.AddEvent.UndoDeleteItem -> delegate.handleUndoDelete()
-        is DetailViewEvent.Main.AddEvent.ClearListError -> delegate.clearListError()
-        is DetailViewEvent.Main.AddEvent.AddNew -> handleAddNew()
+    override fun handleViewEvent(event: DetailViewEvent.ListEvent) = when (event) {
+        is DetailViewEvent.ListEvent.ForceRefresh -> delegate.refreshList(true)
+        is DetailViewEvent.ListEvent.ChangeItemPresence -> delegate.commitPresence(event.index)
+        is DetailViewEvent.ListEvent.ConsumeItem -> delegate.consume(event.index)
+        is DetailViewEvent.ListEvent.DeleteItem -> delegate.delete(event.index)
+        is DetailViewEvent.ListEvent.RestoreItem -> delegate.restore(event.index)
+        is DetailViewEvent.ListEvent.SpoilItem -> delegate.spoil(event.index)
+        is DetailViewEvent.ListEvent.IncreaseItemCount -> delegate.increaseCount(event.index)
+        is DetailViewEvent.ListEvent.DecreaseItemCount -> delegate.decreaseCount(event.index)
+        is DetailViewEvent.ListEvent.ExpandItem -> handleExpand(event.index)
+        is DetailViewEvent.ListEvent.ChangeCurrentFilter -> updateShowing()
+        is DetailViewEvent.ListEvent.ReallyDeleteItemNoUndo -> delegate.reallyDelete()
+        is DetailViewEvent.ListEvent.UndoDeleteItem -> delegate.handleUndoDelete()
+        is DetailViewEvent.ListEvent.ClearListError -> delegate.clearListError()
+        is DetailViewEvent.ListEvent.AddNew -> handleAddNew()
     }
 
     private fun updateShowing() {
