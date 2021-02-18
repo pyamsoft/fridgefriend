@@ -81,6 +81,7 @@ internal class MainActivity : ChangeLogActivity(),
         feature("Preference to default the Search screen to showing all or no items")
         feature("Add item filters to Search screen")
         feature("Add ability to undo delete/consume/spoil from the Search screen")
+        bugfix("Group detail screens were showing empty lists when there was no active search instead of showing all Items.")
 //        // TODO(Do this)
 //        feature("More information on Group overview screen")
 //        // TODO(Do this): Entry screen empty state
