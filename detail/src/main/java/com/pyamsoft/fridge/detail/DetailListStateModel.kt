@@ -343,7 +343,9 @@ class DetailListStateModel @Inject internal constructor(
 
     @CheckResult
     private fun DetailViewState.getOnlyVisibleItems(items: List<FridgeItem>): List<FridgeItem> {
-        val showAllItems = if (isAllEntries) isShowAllItemsEmptyState?.showAll ?: false else false
+        // Default to showing all
+        val showAllItems = if (isAllEntries) isShowAllItemsEmptyState?.showAll ?: true else true
+
         val query = search
         val shows = showing
         return items
