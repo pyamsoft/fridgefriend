@@ -34,7 +34,7 @@ data class DetailViewState internal constructor(
     val sort: Sorts,
     val showing: Showing,
     val listError: Throwable?,
-    val undoableItem: FridgeItem?,
+    val undoable: Undoable?,
     val expirationRange: ExpirationRange?,
     val isSameDayExpired: IsSameDayExpired?,
     val isShowAllItemsEmptyState: ShowAllItemsEmptyState?,
@@ -45,6 +45,11 @@ data class DetailViewState internal constructor(
 
     override val toolbarSearch = search
     override val toolbarSort = sort.asToolbarSort()
+
+    data class Undoable internal constructor(
+        val item: FridgeItem,
+        val canQuickAdd: Boolean
+    )
 
     data class Counts internal constructor(
         val totalCount: Int,

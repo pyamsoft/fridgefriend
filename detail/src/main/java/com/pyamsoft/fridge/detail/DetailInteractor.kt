@@ -54,6 +54,12 @@ internal class DetailInteractor @Inject internal constructor(
 ) {
 
     @CheckResult
+    suspend fun isQuickAddEnabled(): Boolean = withContext(context = Dispatchers.Default) {
+        Enforcer.assertOffMainThread()
+        return@withContext detailPreferences.isQuickAddEnabled()
+    }
+
+    @CheckResult
     suspend fun isSearchEmptyStateShowAll(): Boolean = withContext(context = Dispatchers.Default) {
         Enforcer.assertOffMainThread()
         return@withContext searchPreferences.isEmptyStateAllItems()

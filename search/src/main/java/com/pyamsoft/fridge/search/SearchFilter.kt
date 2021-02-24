@@ -20,7 +20,6 @@ import android.view.ViewGroup
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.view.updatePadding
 import androidx.lifecycle.LifecycleOwner
-import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.detail.DetailViewEvent
 import com.pyamsoft.fridge.detail.DetailViewState
 import com.pyamsoft.fridge.search.databinding.SearchFilterBinding
@@ -93,7 +92,7 @@ class SearchFilter @Inject internal constructor(
 
     override fun onRender(state: UiRender<DetailViewState>) {
         state.mapChanged { it.bottomOffset }.render(viewScope) { handleBottomMargin(it) }
-        state.mapChanged { it.undoableItem }.render(viewScope) { handleUndo(it) }
+        state.mapChanged { it.undoable }.render(viewScope) { handleUndo(it) }
         state.mapChanged { it.showing }.render(viewScope) { handleShowing(it) }
     }
 
@@ -103,18 +102,22 @@ class SearchFilter @Inject internal constructor(
         }
     }
 
-    private fun handleUndo(undoable: FridgeItem?) {
+    private fun handleUndo(undoable: DetailViewState.Undoable?) {
         if (undoable != null) {
             showUndoSnackbar(undoable)
         }
     }
 
-    private fun showUndoSnackbar(undoable: FridgeItem) {
+    private fun showUndoSnackbar(undoable: DetailViewState.Undoable) {
+        val item = undoable.item
+        val canAddAgain = undoable.canQuickAdd
+
         val message = when {
-            undoable.isConsumed() -> "Consumed ${undoable.name()}"
-            undoable.isSpoiled() -> "${undoable.name()} spoiled"
-            else -> "Removed ${undoable.name()}"
+            item.isConsumed() -> "Consumed ${item.name()}"
+            item.isSpoiled() -> "${item.name()} spoiled"
+            else -> "Removed ${item.name()}"
         }
+
         Snackbreak.bindTo(owner) {
             long(
                 layoutRoot,
@@ -123,8 +126,8 @@ class SearchFilter @Inject internal constructor(
             ) {
                 // If we have consumed/spoiled this item
                 // We can offer it as 're-add'
-                if (undoable.isConsumed() || undoable.isSpoiled()) {
-                    setAction("Again") { publish(DetailViewEvent.ListEvent.AnotherOne(undoable)) }
+                if ((item.isConsumed() || item.isSpoiled()) && canAddAgain) {
+                    setAction("Again") { publish(DetailViewEvent.ListEvent.AnotherOne(item)) }
                 }
 
                 // Restore the old item

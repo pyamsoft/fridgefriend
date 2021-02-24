@@ -44,9 +44,6 @@ abstract class UiAppBarSpacer<S : UiViewState, V : UiViewEvent> protected constr
 
     final override fun onRender(state: UiRender<S>) {
         super.onRender(state)
-    }
-
-    final override fun render(state: UiRender<S>) {
-        super.render(state)
+        // Don't let subclasses override this method
     }
 }

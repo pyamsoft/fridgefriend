@@ -22,6 +22,9 @@ import com.pyamsoft.pydroid.util.PreferenceListener
 interface DetailPreferences {
 
     @CheckResult
+    suspend fun isQuickAddEnabled(): Boolean
+
+    @CheckResult
     suspend fun isZeroCountConsideredConsumed(): Boolean
 
     @CheckResult

@@ -57,7 +57,7 @@ class DetailListStateModel @Inject internal constructor(
         showing = DetailViewState.Showing.FRESH,
         sort = DetailViewState.Sorts.CREATED,
         listError = null,
-        undoableItem = null,
+        undoable = null,
         expirationRange = null,
         isSameDayExpired = null,
         isShowAllItemsEmptyState = null,
@@ -199,6 +199,15 @@ class DetailListStateModel @Inject internal constructor(
         }
     }
 
+    @CheckResult
+    private suspend fun FridgeItem.asUndoable(): DetailViewState.Undoable {
+        val canQuickAdd = interactor.isQuickAddEnabled()
+        return DetailViewState.Undoable(
+            item = this,
+            canQuickAdd = canQuickAdd
+        )
+    }
+
     private fun CoroutineScope.handleRealtimeInsert(item: FridgeItem) {
         setState {
             val newItems = allItems.toMutableList().also { insertOrUpdate(it, item) }
@@ -211,7 +220,7 @@ class DetailListStateModel @Inject internal constructor(
             val newItems = allItems.toMutableList().also { insertOrUpdate(it, item) }
             regenerateItems(newItems).copy(
                 // Show undo banner if we are archiving this item, otherwise no-op
-                undoableItem = if (item.isArchived()) item else undoableItem
+                undoable = if (item.isArchived()) item.asUndoable() else undoable
             )
         }
     }
@@ -221,7 +230,7 @@ class DetailListStateModel @Inject internal constructor(
             val newItems = allItems.filterNot { it.id() == item.id() }
             regenerateItems(newItems).copy(
                 // Show undo banner
-                undoableItem = if (offerUndo) item else null
+                undoable = if (offerUndo) item.asUndoable() else null
             )
         }
     }
@@ -403,7 +412,7 @@ class DetailListStateModel @Inject internal constructor(
     }
 
     fun reallyDelete() {
-        setState { copy(undoableItem = null) }
+        setState { copy(undoable = null) }
     }
 
     fun CoroutineScope.updateSearch(
@@ -444,7 +453,8 @@ class DetailListStateModel @Inject internal constructor(
 
     fun handleUndoDelete() {
         stateModelScope.launch(context = Dispatchers.Default) {
-            undoRunner.call(requireNotNull(state.undoableItem))
+            val u = requireNotNull(state.undoable)
+            undoRunner.call(u.item)
         }
     }
 

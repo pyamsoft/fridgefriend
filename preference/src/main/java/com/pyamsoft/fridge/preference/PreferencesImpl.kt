@@ -107,6 +107,11 @@ internal class PreferencesImpl @Inject internal constructor(
         }
     }
 
+    override suspend fun isQuickAddEnabled(): Boolean {
+        // TODO(Peter): Implement
+        return true
+    }
+
     override suspend fun isEmptyStateAllItems(): Boolean = withContext(context = Dispatchers.IO) {
         Enforcer.assertOffMainThread()
         return@withContext preferences.getBoolean(searchEmptyStateKey, searchEmptyStateDefault)
