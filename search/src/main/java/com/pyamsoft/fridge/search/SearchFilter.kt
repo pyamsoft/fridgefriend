@@ -33,7 +33,6 @@ import com.pyamsoft.pydroid.loader.Loaded
 import com.pyamsoft.pydroid.ui.util.Snackbreak
 import com.pyamsoft.pydroid.ui.util.popShow
 import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
-import timber.log.Timber
 import javax.inject.Inject
 
 class SearchFilter @Inject internal constructor(
@@ -122,6 +121,12 @@ class SearchFilter @Inject internal constructor(
                 message,
                 onHidden = { _, _ -> publish(DetailViewEvent.ListEvent.ReallyDeleteItemNoUndo) }
             ) {
+                // If we have consumed/spoiled this item
+                // We can offer it as 're-add'
+                if (undoable.isConsumed() || undoable.isSpoiled()) {
+                    setAction("Again") { publish(DetailViewEvent.ListEvent.AnotherOne(undoable)) }
+                }
+
                 // Restore the old item
                 setAction("Undo") { publish(DetailViewEvent.ListEvent.UndoDeleteItem) }
             }

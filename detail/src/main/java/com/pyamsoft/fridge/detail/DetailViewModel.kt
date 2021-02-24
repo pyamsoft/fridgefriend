@@ -71,6 +71,7 @@ class DetailViewModel @AssistedInject internal constructor(
         is DetailViewEvent.ListEvent.ReallyDeleteItemNoUndo -> delegate.reallyDelete()
         is DetailViewEvent.ListEvent.UndoDeleteItem -> delegate.handleUndoDelete()
         is DetailViewEvent.ListEvent.ClearListError -> delegate.clearListError()
+        is DetailViewEvent.ListEvent.AnotherOne -> delegate.handleAddAgain(event.item)
         is DetailViewEvent.ListEvent.AddNew -> handleAddNew()
     }
 

@@ -499,6 +499,23 @@ class DetailListStateModel @Inject internal constructor(
         setState { copy(showing = showing) }
     }
 
+    fun handleAddAgain(oldItem: FridgeItem) {
+        stateModelScope.launch(context = Dispatchers.Default) {
+            Timber.d("Add again - create a new item with copied fields")
+            val newItem = FridgeItem.create(
+                entryId = oldItem.entryId(),
+                presence = FridgeItem.Presence.NEED
+            )
+                .name(oldItem.name())
+                .count(oldItem.count())
+                .apply {
+                    oldItem.categoryId()?.also { this.categoryId(it) }
+                }
+
+            interactor.commit(newItem)
+        }
+    }
+
     companion object {
 
         @JvmStatic

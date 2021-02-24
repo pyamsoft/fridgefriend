@@ -102,6 +102,8 @@ sealed class DetailViewEvent : UiViewEvent {
 
         object ForceRefresh : ListEvent()
 
+        data class AnotherOne(val item: FridgeItem) : ListEvent()
+
         data class IncreaseItemCount internal constructor(val index: Int) : ListEvent()
 
         data class DecreaseItemCount internal constructor(val index: Int) : ListEvent()
