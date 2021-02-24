@@ -78,15 +78,11 @@ internal class MainActivity : ChangeLogActivity(),
     override val versionName = BuildConfig.VERSION_NAME
 
     override val changelog = buildChangeLog {
-        feature("Preference to default the Search screen to showing all or no items")
-        feature("Add item filters to Search screen")
-        feature("Add ability to undo delete/consume/spoil from the Search screen")
-        bugfix("Group detail screens were showing empty lists when there was no active search instead of showing all Items.")
+        feature("Adds the ability to quickly re-add an Item to your Shopping list when swiping it away for Consume or Spoil")
+        bugfix("Preserve the search state on device rotation on the Search screen")
 //        // TODO(Do this)
 //        feature("More information on Group overview screen")
 //        // TODO(Do this): Entry screen empty state
-        // TODO(Do this)
-        // On consume, prompt to re-add the item to the Need list as a "recurring" item
         // TODO(Do this)
         // When selecting suggested items, we can try to derive a new expiration date
     }
