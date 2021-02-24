@@ -48,28 +48,28 @@ class DetailToolbarViewModel @AssistedInject internal constructor(
 
         viewModelScope.launch(context = Dispatchers.Default) {
             val sort = restoreSavedState(SAVED_SORT) { DetailViewState.Sorts.CREATED }
-            updateSort(sort)
+            handleUpdateSort(sort)
         }
 
         viewModelScope.launch(context = Dispatchers.Default) {
             val search = restoreSavedState(SAVED_SEARCH) { "" }
             if (search.isNotBlank()) {
-                updateSearch(search)
+                handleUpdateSearch(search)
             }
         }
     }
 
     override fun handleViewEvent(event: DetailViewEvent.ToolbarEvent) = when (event) {
         is DetailViewEvent.ToolbarEvent.Toolbar.Back -> handleBack()
-        is DetailViewEvent.ToolbarEvent.Toolbar.ChangeSort -> updateSort(event.sort)
-        is DetailViewEvent.ToolbarEvent.Search.Query -> updateSearch(event.search)
+        is DetailViewEvent.ToolbarEvent.Toolbar.ChangeSort -> handleUpdateSort(event.sort)
+        is DetailViewEvent.ToolbarEvent.Search.Query -> handleUpdateSearch(event.search)
     }
 
-    private fun updateSearch(search: String) {
-        viewModelScope.updateSearch(search)
+    private fun handleUpdateSearch(search: String) {
+        viewModelScope.handleUpdateSearch(search)
     }
 
-    private fun CoroutineScope.updateSearch(search: String) {
+    private fun CoroutineScope.handleUpdateSearch(search: String) {
         val scope = this
         delegate.apply {
             scope.updateSearch(search) { newState ->
@@ -83,11 +83,11 @@ class DetailToolbarViewModel @AssistedInject internal constructor(
         }
     }
 
-    private fun updateSort(sort: DetailViewState.Sorts) {
-        viewModelScope.updateSort(sort)
+    private fun handleUpdateSort(sort: DetailViewState.Sorts) {
+        viewModelScope.handleUpdateSort(sort)
     }
 
-    private fun CoroutineScope.updateSort(sort: DetailViewState.Sorts) {
+    private fun CoroutineScope.handleUpdateSort(sort: DetailViewState.Sorts) {
         val scope = this
 
         delegate.apply {

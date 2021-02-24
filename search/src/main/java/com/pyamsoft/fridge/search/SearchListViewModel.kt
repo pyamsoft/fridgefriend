@@ -56,7 +56,7 @@ class SearchListViewModel @AssistedInject internal constructor(
             val filterName = restoreSavedState(SAVED_FILTER) { "" }
             if (filterName.isNotBlank()) {
                 val filter = DetailViewState.Showing.valueOf(filterName)
-                updateFilter(filter)
+                handleUpdateFilter(filter)
             }
         }
     }
@@ -82,9 +82,8 @@ class SearchListViewModel @AssistedInject internal constructor(
         throw IllegalStateException("Cannot AddNew from Search view")
     }
 
-    private fun CoroutineScope.updateFilter(filter: DetailViewState.Showing) {
+    private fun CoroutineScope.handleUpdateFilter(filter: DetailViewState.Showing) {
         val scope = this
-
         delegate.apply {
             scope.updateFilter(filter)
         }

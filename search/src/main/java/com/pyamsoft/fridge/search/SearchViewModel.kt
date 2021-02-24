@@ -49,14 +49,14 @@ class SearchViewModel @AssistedInject internal constructor(
     }
 
     override fun handleViewEvent(event: DetailViewEvent.ToolbarEvent.Search) = when (event) {
-        is DetailViewEvent.ToolbarEvent.Search.Query -> updateSearch(event.search)
+        is DetailViewEvent.ToolbarEvent.Search.Query -> handleUpdateSearch(event.search)
     }
 
-    private fun updateSearch(search: String) {
-        viewModelScope.updateSearch(search)
+    private fun handleUpdateSearch(search: String) {
+        viewModelScope.handleUpdateSearch(search)
     }
 
-    private fun CoroutineScope.updateSearch(search: String) {
+    private fun CoroutineScope.handleUpdateSearch(search: String) {
         val scope = this
         delegate.apply {
             scope.updateSearch(search) { newState ->

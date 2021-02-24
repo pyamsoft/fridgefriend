@@ -497,7 +497,7 @@ class DetailListStateModel @Inject internal constructor(
         stateModelScope.handleError(null)
     }
 
-    internal fun CoroutineScope.updateFilter(showing: DetailViewState.Showing) {
+    fun CoroutineScope.updateFilter(showing: DetailViewState.Showing) {
         setState { copy(showing = showing) }
     }
 

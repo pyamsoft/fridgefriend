@@ -52,7 +52,7 @@ class DetailViewModel @AssistedInject internal constructor(
             val filterName = restoreSavedState(SAVED_FILTER) { "" }
             if (filterName.isNotBlank()) {
                 val filter = DetailViewState.Showing.valueOf(filterName)
-                updateFilter(filter)
+                handleUpdateFilter(filter)
             }
         }
     }
@@ -80,7 +80,7 @@ class DetailViewModel @AssistedInject internal constructor(
         }
     }
 
-    private fun CoroutineScope.updateFilter(filter: DetailViewState.Showing) {
+    private fun CoroutineScope.handleUpdateFilter(filter: DetailViewState.Showing) {
         val scope = this
 
         delegate.apply {
