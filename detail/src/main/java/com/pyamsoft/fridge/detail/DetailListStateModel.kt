@@ -361,8 +361,28 @@ class DetailListStateModel @Inject internal constructor(
             .toList()
     }
 
-    fun reallyDelete() {
-        setState { copy(undoableItem = null) }
+    private fun updateCount(item: FridgeItem) {
+        if (!item.isArchived()) {
+            updateDelegate.updateItem(item)
+        }
+    }
+
+    private inline fun withItemAt(index: Int, block: (FridgeItem) -> Unit) {
+        block(state.displayedItems[index])
+    }
+
+    private fun changePresence(oldItem: FridgeItem, newPresence: FridgeItem.Presence) {
+        updateDelegate.updateItem(oldItem.presence(newPresence))
+    }
+
+    internal fun CoroutineScope.updateSort(
+        newSort: DetailViewState.Sorts,
+        andThen: suspend (newState: DetailViewState) -> Unit,
+    ) {
+        setState(stateChange = { copy(sort = newSort) }, andThen = { newState ->
+            refreshList(false)
+            andThen(newState)
+        })
     }
 
     internal fun handlePresenceSwitch(presence: FridgeItem.Presence) {
@@ -380,6 +400,10 @@ class DetailListStateModel @Inject internal constructor(
                 refreshList(false)
             }
         )
+    }
+
+    fun reallyDelete() {
+        setState { copy(undoableItem = null) }
     }
 
     fun CoroutineScope.updateSearch(
@@ -418,21 +442,13 @@ class DetailListStateModel @Inject internal constructor(
         withItemAt(index) { updateCount(it.count(it.count() + 1)) }
     }
 
-    private fun updateCount(item: FridgeItem) {
-        if (!item.isArchived()) {
-            updateDelegate.updateItem(item)
-        }
-    }
-
     fun handleUndoDelete() {
         stateModelScope.launch(context = Dispatchers.Default) {
             undoRunner.call(requireNotNull(state.undoableItem))
         }
     }
 
-    fun toggleArchived(
-        andThen: suspend (newState: DetailViewState) -> Unit,
-    ) {
+    fun toggleArchived(andThen: suspend (newState: DetailViewState) -> Unit) {
         setState(
             stateChange = {
                 val newShowing = when (showing) {
@@ -449,32 +465,14 @@ class DetailListStateModel @Inject internal constructor(
         )
     }
 
-    internal fun CoroutineScope.updateSort(
-        newSort: DetailViewState.Sorts,
-        andThen: suspend (newState: DetailViewState) -> Unit,
-    ) {
-        setState(stateChange = { copy(sort = newSort) }, andThen = { newState ->
-            refreshList(false)
-            andThen(newState)
-        })
-    }
-
     fun refreshList(force: Boolean) {
         stateModelScope.launch(context = Dispatchers.Default) {
             refreshRunner.call(force)
         }
     }
 
-    private inline fun withItemAt(index: Int, block: (FridgeItem) -> Unit) {
-        block(state.displayedItems[index])
-    }
-
     fun commitPresence(index: Int) {
         withItemAt(index) { changePresence(it, it.presence().flip()) }
-    }
-
-    private fun changePresence(oldItem: FridgeItem, newPresence: FridgeItem.Presence) {
-        updateDelegate.updateItem(oldItem.presence(newPresence))
     }
 
     fun consume(index: Int) {
