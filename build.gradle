@@ -18,7 +18,7 @@
 
 buildscript {
   ext {
-    kotlin_version = '1.4.30'
+    kotlin_version = '1.4.31'
   }
 
   repositories {
@@ -51,11 +51,11 @@ buildscript {
     timber = "4.7.1"
 
     // Dagger
-    dagger = "2.32"
+    dagger = "2.33"
 
     moshi = "1.11.0"
 
-    fastAdapter = "5.3.4"
+    fastAdapter = "5.3.5"
 
     // Jobs
     workmanager = "2.5.0"
