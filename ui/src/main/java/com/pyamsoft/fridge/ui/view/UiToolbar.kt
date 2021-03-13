@@ -112,11 +112,10 @@ abstract class UiToolbar<E : Enum<E>, S : UiToolbar.State<E>, V : UiViewEvent> p
         if (initialRenderPerformed) {
             return
         }
+        initialRenderPerformed = true
 
         val item = searchItem ?: return
         val searchView = item.actionView as? SearchView ?: return
-
-        initialRenderPerformed = true
 
         if (search.isNotBlank()) {
             if (item.expandActionView()) {

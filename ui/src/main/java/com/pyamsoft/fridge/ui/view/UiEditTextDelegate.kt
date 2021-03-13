@@ -87,11 +87,13 @@ class UiEditTextDelegate(
     }
 
     fun render(text: String) {
-        if (!initialRenderPerformed) {
-            if (text.isNotBlank()) {
-                setText(text)
-                initialRenderPerformed = true
-            }
+        if (initialRenderPerformed) {
+            return;
+        }
+
+        initialRenderPerformed = true
+        if (text.isNotBlank()) {
+            setText(text)
         }
     }
 
