@@ -58,8 +58,8 @@ class EntryItemViewHolder internal constructor(
         }
     }
 
-    override fun bind(state: EntryItemViewState) {
-        viewBinder.bind(state)
+    override fun bindState(state: EntryItemViewState) {
+        viewBinder.bindState(state)
     }
 
     override fun teardown() {

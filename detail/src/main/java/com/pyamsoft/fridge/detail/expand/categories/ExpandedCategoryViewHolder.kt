@@ -133,8 +133,8 @@ class ExpandedCategoryViewHolder internal constructor(
         }
     }
 
-    override fun bind(state: ExpandedCategoryViewState) {
-        viewBinder.bind(state)
+    override fun bindState(state: ExpandedCategoryViewState) {
+        viewBinder.bindState(state)
     }
 
     override fun teardown() {

@@ -76,8 +76,8 @@ class CategoryViewHolder internal constructor(
         }
     }
 
-    override fun bind(state: CategoryItemViewState) {
-        viewBinder.bind(state)
+    override fun bindState(state: CategoryItemViewState) {
+        viewBinder.bindState(state)
     }
 
     override fun teardown() {

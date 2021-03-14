@@ -62,7 +62,7 @@ class CategoryAdapter internal constructor(
 
     override fun onBindViewHolder(holder: CategoryViewHolder, position: Int) {
         val state = getItem(position)
-        holder.bind(state)
+        holder.bindState(state)
     }
 
     override fun onDetachedFromRecyclerView(recyclerView: RecyclerView) {

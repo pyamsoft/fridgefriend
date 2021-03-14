@@ -177,8 +177,8 @@ class DetailItemViewHolder internal constructor(
         }
     }
 
-    override fun bind(state: DetailItemViewState) {
-        viewBinder.bind(state)
+    override fun bindState(state: DetailItemViewState) {
+        viewBinder.bindState(state)
     }
 
     override fun teardown() {

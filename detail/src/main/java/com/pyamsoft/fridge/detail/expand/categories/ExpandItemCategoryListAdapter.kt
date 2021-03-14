@@ -45,7 +45,7 @@ internal class ExpandItemCategoryListAdapter internal constructor(
 
     override fun onBindViewHolder(holder: ExpandedCategoryViewHolder, position: Int) {
         val category = getItem(position)
-        holder.bind(category)
+        holder.bindState(category)
     }
 
     override fun onDetachedFromRecyclerView(recyclerView: RecyclerView) {

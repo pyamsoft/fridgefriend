@@ -54,7 +54,7 @@ class EntryListAdapter internal constructor(
 
     override fun onBindViewHolder(holder: EntryItemViewHolder, position: Int) {
         val item = getItem(position)
-        holder.bind(item)
+        holder.bindState(item)
     }
 
     override fun onDetachedFromRecyclerView(recyclerView: RecyclerView) {
