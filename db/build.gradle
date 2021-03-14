@@ -68,7 +68,7 @@ dependencies {
   kapt "com.google.dagger:dagger-compiler:$dagger"
 
   // For category image loader
-  api "com.pyamsoft.pydroid:loader:$pydroid"
+  api "com.github.pyamsoft.pydroid:loader:$pydroid"
 
   implementation project(':core')
   implementation project(':preference')

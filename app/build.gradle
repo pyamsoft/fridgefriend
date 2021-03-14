@@ -105,7 +105,7 @@ dependencies {
   debugImplementation "com.squareup.leakcanary:leakcanary-android:$leakCanary"
   implementation "com.squareup.leakcanary:plumber-android:$leakCanary"
 
-  debugImplementation "com.pyamsoft.pydroid:autopsy:$pydroid"
+  debugImplementation "com.github.pyamsoft.pydroid:autopsy:$pydroid"
 
   // Dagger
   kapt "com.google.dagger:dagger-compiler:$dagger"

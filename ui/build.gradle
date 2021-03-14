@@ -76,8 +76,8 @@ dependencies {
   api "me.zhanghai.android.fastscroll:library:$fastscroll"
 
   // PYDroid
-  api "com.pyamsoft.pydroid:ui:$pydroid"
-  api "com.pyamsoft.pydroid:loader:$pydroid"
+  api "com.github.pyamsoft.pydroid:ui:$pydroid"
+  api "com.github.pyamsoft.pydroid:loader:$pydroid"
 
   api project(':core')
 }
