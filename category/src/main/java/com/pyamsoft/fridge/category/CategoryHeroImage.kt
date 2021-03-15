@@ -23,6 +23,7 @@ import androidx.lifecycle.LifecycleOwner
 import com.pyamsoft.fridge.ui.appbar.AppBarActivity
 import com.pyamsoft.fridge.ui.view.UiHeroImage
 import com.pyamsoft.pydroid.arch.UiRender
+import com.pyamsoft.pydroid.arch.UnitViewEvent
 import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.loader.Loaded
 import javax.inject.Inject
@@ -32,7 +33,7 @@ class CategoryHeroImage @Inject internal constructor(
     imageLoader: ImageLoader,
     owner: LifecycleOwner,
     appBarActivity: AppBarActivity,
-) : UiHeroImage<CategoryViewState, CategoryViewEvent>(parent, owner, appBarActivity, imageLoader) {
+) : UiHeroImage<CategoryViewState, UnitViewEvent>(parent, owner, appBarActivity, imageLoader) {
 
     init {
         doOnInflate {

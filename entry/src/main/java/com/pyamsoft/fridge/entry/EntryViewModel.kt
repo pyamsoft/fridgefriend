@@ -21,12 +21,13 @@ import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.pydroid.arch.Renderable
 import com.pyamsoft.pydroid.arch.UiViewModel
+import com.pyamsoft.pydroid.arch.UnitControllerEvent
 import timber.log.Timber
 import javax.inject.Inject
 
 class EntryViewModel @Inject internal constructor(
     private val delegate: EntryListStateModel,
-) : UiViewModel<EntryViewState, EntryViewEvent, EntryControllerEvent>(
+) : UiViewModel<EntryViewState, EntryViewEvent, UnitControllerEvent>(
     initialState = delegate.initialState
 ) {
 

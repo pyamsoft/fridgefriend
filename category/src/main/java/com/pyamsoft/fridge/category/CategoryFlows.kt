@@ -18,8 +18,6 @@ package com.pyamsoft.fridge.category
 
 import com.pyamsoft.fridge.db.category.FridgeCategory
 import com.pyamsoft.fridge.db.item.FridgeItem
-import com.pyamsoft.pydroid.arch.UiControllerEvent
-import com.pyamsoft.pydroid.arch.UiViewEvent
 import com.pyamsoft.pydroid.arch.UiViewState
 
 data class CategoryViewState internal constructor(
@@ -31,7 +29,3 @@ data class CategoryViewState internal constructor(
         val items: List<FridgeItem>
     )
 }
-
-sealed class CategoryViewEvent : UiViewEvent
-
-sealed class CategoryControllerEvent : UiControllerEvent

@@ -34,6 +34,7 @@ import com.pyamsoft.highlander.highlander
 import com.pyamsoft.pydroid.arch.UiSavedState
 import com.pyamsoft.pydroid.arch.UiSavedStateViewModel
 import com.pyamsoft.pydroid.arch.UiSavedStateViewModelProvider
+import com.pyamsoft.pydroid.arch.UnitControllerEvent
 import com.pyamsoft.pydroid.bus.EventBus
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
@@ -53,7 +54,7 @@ class ExpandItemViewModel @AssistedInject internal constructor(
     @Assisted savedState: UiSavedState,
     defaultPresence: Presence,
     possibleItemId: FridgeItem.Id,
-) : UiSavedStateViewModel<ExpandItemViewState, ExpandedItemViewEvent, ExpandItemControllerEvent>(
+) : UiSavedStateViewModel<ExpandItemViewState, ExpandedItemViewEvent, UnitControllerEvent>(
     savedState,
     ExpandItemViewState(
         item = null,
@@ -354,7 +355,7 @@ class ExpandItemViewModel @AssistedInject internal constructor(
     }
 
     private fun setFixMessage(message: String) {
-        setState {
+        viewModelScope.setState {
             copy(throwable = if (message.isBlank()) null else FixMessageThrowable(message))
         }
     }

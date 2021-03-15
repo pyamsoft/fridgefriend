@@ -23,13 +23,14 @@ import com.pyamsoft.fridge.entry.EntryViewEvent
 import com.pyamsoft.fridge.entry.EntryViewState
 import com.pyamsoft.pydroid.arch.Renderable
 import com.pyamsoft.pydroid.arch.UiViewModel
+import com.pyamsoft.pydroid.arch.UnitControllerEvent
 import timber.log.Timber
 import javax.inject.Inject
 
 class ItemMoveListViewModel @Inject internal constructor(
     @param:MoveInternalApi private val delegate: EntryListStateModel,
     entryId: FridgeEntry.Id,
-) : UiViewModel<EntryViewState, EntryViewEvent.ListEvents, ItemMoveListControllerEvent>(
+) : UiViewModel<EntryViewState, EntryViewEvent.ListEvents, UnitControllerEvent>(
     initialState = delegate.initialState
 ) {
 

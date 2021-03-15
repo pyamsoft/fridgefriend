@@ -23,6 +23,7 @@ import com.pyamsoft.fridge.ui.BottomOffset
 import com.pyamsoft.pydroid.arch.UiSavedState
 import com.pyamsoft.pydroid.arch.UiSavedStateViewModel
 import com.pyamsoft.pydroid.arch.UiSavedStateViewModelProvider
+import com.pyamsoft.pydroid.arch.UnitControllerEvent
 import com.pyamsoft.pydroid.bus.EventBus
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
@@ -38,7 +39,7 @@ class MainViewModel @AssistedInject internal constructor(
     private val interactor: MainInteractor,
     private val bottomOffsetBus: EventBus<BottomOffset>,
     @Named("app_name") appNameRes: Int,
-) : UiSavedStateViewModel<MainViewState, MainViewEvent, MainControllerEvent>(
+) : UiSavedStateViewModel<MainViewState, MainViewEvent, UnitControllerEvent>(
     savedState,
     MainViewState(
         page = null,

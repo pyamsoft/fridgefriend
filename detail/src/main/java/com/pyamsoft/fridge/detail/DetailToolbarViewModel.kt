@@ -21,6 +21,7 @@ import com.pyamsoft.pydroid.arch.Renderable
 import com.pyamsoft.pydroid.arch.UiSavedState
 import com.pyamsoft.pydroid.arch.UiSavedStateViewModel
 import com.pyamsoft.pydroid.arch.UiSavedStateViewModelProvider
+import com.pyamsoft.pydroid.arch.UnitControllerEvent
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
@@ -30,14 +31,14 @@ import kotlinx.coroutines.launch
 class DetailToolbarViewModel @AssistedInject internal constructor(
     private val delegate: DetailListStateModel,
     @Assisted savedState: UiSavedState,
-) : UiSavedStateViewModel<DetailViewState, DetailViewEvent.ToolbarEvent, DetailToolbarControllerEvent>(
+) : UiSavedStateViewModel<DetailViewState, DetailViewEvent.ToolbarEvent, UnitControllerEvent>(
     savedState, initialState = delegate.initialState
 ) {
 
     init {
         val scope = viewModelScope
         val job = delegate.bindState(scope, Renderable { state ->
-            state.render(scope) { setState { it } }
+            state.render(scope) { scope.setState { it } }
         })
         doOnCleared {
             job.cancel()

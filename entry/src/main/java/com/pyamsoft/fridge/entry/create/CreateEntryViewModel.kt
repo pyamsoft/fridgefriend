@@ -21,6 +21,7 @@ import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.entry.EntryInteractor
 import com.pyamsoft.highlander.highlander
 import com.pyamsoft.pydroid.arch.UiViewModel
+import com.pyamsoft.pydroid.arch.UnitControllerEvent
 import com.pyamsoft.pydroid.arch.onActualError
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -30,7 +31,7 @@ import javax.inject.Inject
 class CreateEntryViewModel @Inject internal constructor(
     private val interactor: EntryInteractor,
     entryId: FridgeEntry.Id,
-) : UiViewModel<CreateEntryViewState, CreateEntryViewEvent, CreateEntryControllerEvent>(
+) : UiViewModel<CreateEntryViewState, CreateEntryViewEvent, UnitControllerEvent>(
     CreateEntryViewState(
         entry = null,
         working = false,

@@ -20,7 +20,6 @@ import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.ui.view.UiToolbar
-import com.pyamsoft.pydroid.arch.UiControllerEvent
 import com.pyamsoft.pydroid.arch.UiViewEvent
 
 data class DetailViewState internal constructor(
@@ -154,22 +153,3 @@ sealed class DetailViewEvent : UiViewEvent {
 
 }
 
-sealed class DetailControllerEvent : UiControllerEvent {
-
-    data class AddNew internal constructor(
-        val id: FridgeEntry.Id,
-        val presence: FridgeItem.Presence,
-    ) : DetailControllerEvent()
-
-    object EntryArchived : DetailControllerEvent()
-
-    sealed class Expand : DetailControllerEvent() {
-
-        data class ExpandForEditing(val item: FridgeItem) : Expand()
-    }
-}
-
-sealed class DetailToolbarControllerEvent : UiControllerEvent {
-
-    object Back : DetailToolbarControllerEvent()
-}

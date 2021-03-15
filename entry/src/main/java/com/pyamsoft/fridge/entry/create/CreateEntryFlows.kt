@@ -17,7 +17,6 @@
 package com.pyamsoft.fridge.entry.create
 
 import com.pyamsoft.fridge.db.entry.FridgeEntry
-import com.pyamsoft.pydroid.arch.UiControllerEvent
 import com.pyamsoft.pydroid.arch.UiViewEvent
 import com.pyamsoft.pydroid.arch.UiViewState
 
@@ -32,10 +31,5 @@ sealed class CreateEntryViewEvent : UiViewEvent {
     data class NameChanged internal constructor(val name: String) : CreateEntryViewEvent()
 
     object Commit : CreateEntryViewEvent()
-}
-
-sealed class CreateEntryControllerEvent : UiControllerEvent {
-
-    object Commit : CreateEntryControllerEvent()
 }
 

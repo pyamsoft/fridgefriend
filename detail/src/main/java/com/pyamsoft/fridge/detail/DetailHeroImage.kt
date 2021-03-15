@@ -73,12 +73,12 @@ class DetailHeroImage @Inject internal constructor(
     private fun handleShowing(state: DetailViewState) {
         when (state.showing) {
             DetailViewState.Showing.FRESH -> renderFresh(state)
-            DetailViewState.Showing.CONSUMED -> renderConsumed(state)
-            DetailViewState.Showing.SPOILED -> renderSpoiled(state)
+            DetailViewState.Showing.CONSUMED -> renderConsumed()
+            DetailViewState.Showing.SPOILED -> renderSpoiled()
         }
     }
 
-    private fun renderSpoiled(state: DetailViewState) {
+    private fun renderSpoiled() {
         binding.coreHeroFirstLineLabel.isVisible = false
         binding.coreHeroFirstLineValue.isVisible = false
         binding.coreHeroSecondLineLabel.isVisible = false
@@ -89,7 +89,7 @@ class DetailHeroImage @Inject internal constructor(
         binding.coreHeroFourthLineValue.isVisible = false
     }
 
-    private fun renderConsumed(state: DetailViewState) {
+    private fun renderConsumed() {
         binding.coreHeroFirstLineLabel.isVisible = false
         binding.coreHeroFirstLineValue.isVisible = false
         binding.coreHeroSecondLineLabel.isVisible = false

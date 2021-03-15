@@ -27,12 +27,13 @@ import com.pyamsoft.fridge.category.item.CategoryItemViewState
 import com.pyamsoft.fridge.ui.animatePopInFromBottom
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.arch.UiRender
+import com.pyamsoft.pydroid.arch.UnitViewEvent
 import javax.inject.Inject
 
 class CategoryListView @Inject internal constructor(
     factory: CategoryItemComponent.Factory,
     parent: ViewGroup,
-) : BaseUiView<CategoryViewState, CategoryViewEvent, CategoryListViewBinding>(parent) {
+) : BaseUiView<CategoryViewState, UnitViewEvent, CategoryListViewBinding>(parent) {
 
     override val viewBinding = CategoryListViewBinding::inflate
 

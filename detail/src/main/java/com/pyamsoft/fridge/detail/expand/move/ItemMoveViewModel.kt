@@ -25,6 +25,7 @@ import com.pyamsoft.fridge.entry.EntryListStateModel
 import com.pyamsoft.highlander.highlander
 import com.pyamsoft.pydroid.arch.Renderable
 import com.pyamsoft.pydroid.arch.UiViewModel
+import com.pyamsoft.pydroid.arch.UnitControllerEvent
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -37,7 +38,7 @@ class ItemMoveViewModel @Inject internal constructor(
     @MoveInternalApi delegate: EntryListStateModel,
     itemId: FridgeItem.Id,
     entryId: FridgeEntry.Id,
-) : UiViewModel<ItemMoveViewState, ItemMoveViewEvent, ItemMoveControllerEvent>(
+) : UiViewModel<ItemMoveViewState, ItemMoveViewEvent, UnitControllerEvent>(
     initialState = ItemMoveViewState(
         item = null,
         listState = delegate.initialState

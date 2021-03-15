@@ -18,13 +18,15 @@ package com.pyamsoft.fridge.category
 
 import androidx.lifecycle.viewModelScope
 import com.pyamsoft.pydroid.arch.UiViewModel
+import com.pyamsoft.pydroid.arch.UnitControllerEvent
+import com.pyamsoft.pydroid.arch.UnitViewEvent
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class CategoryViewModel @Inject internal constructor(
     private val interactor: CategoryInteractor,
-) : UiViewModel<CategoryViewState, CategoryViewEvent, CategoryControllerEvent>(
+) : UiViewModel<CategoryViewState, UnitViewEvent, UnitControllerEvent>(
     CategoryViewState(categories = emptyList())
 ) {
 
