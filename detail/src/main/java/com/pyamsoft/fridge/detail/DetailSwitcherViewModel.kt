@@ -16,6 +16,8 @@
 
 package com.pyamsoft.fridge.detail
 
+import androidx.lifecycle.viewModelScope
+import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.pydroid.arch.UiViewModel
 import javax.inject.Inject
 
@@ -25,8 +27,12 @@ class DetailSwitcherViewModel @Inject internal constructor(
     initialState = delegate.initialState
 ) {
 
-    override fun handleViewEvent(event: DetailViewEvent.SwitcherEvent) = when (event) {
-        is DetailViewEvent.SwitcherEvent.PresenceSwitched -> delegate.handlePresenceSwitch(event.presence)
+    init {
+        delegate.initialize(viewModelScope)
+    }
+
+    fun handlePresenceSwitch(presence: FridgeItem.Presence) {
+        delegate.handlePresenceSwitch(viewModelScope, presence)
     }
 }
 

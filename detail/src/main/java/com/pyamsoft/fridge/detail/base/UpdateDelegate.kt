@@ -27,17 +27,14 @@ import kotlinx.coroutines.launch
 import timber.log.Timber
 
 internal class UpdateDelegate internal constructor(
-    viewModelScope: CoroutineScope,
     interactor: DetailInteractor,
     handleError: CoroutineScope.(Throwable) -> Unit,
 ) {
 
-    private var coroutineScope: CoroutineScope? = viewModelScope
     private var interactor: DetailInteractor? = interactor
     private var handleError: (CoroutineScope.(Throwable) -> Unit)? = handleError
 
     fun teardown() {
-        coroutineScope = null
         interactor = null
         handleError = null
     }
@@ -58,31 +55,34 @@ internal class UpdateDelegate internal constructor(
         }
     }
 
-    private fun update(item: FridgeItem, doUpdate: suspend (item: FridgeItem) -> Unit) {
-        requireNotNull(coroutineScope).launch(context = Dispatchers.Default) {
+    private fun CoroutineScope.update(
+        item: FridgeItem,
+        doUpdate: suspend (item: FridgeItem) -> Unit
+    ) {
+        launch(context = Dispatchers.Default) {
             updateRunner.call(item, doUpdate, requireNotNull(handleError))
         }
     }
 
-    internal fun consumeItem(item: FridgeItem) {
-        update(item) { requireNotNull(interactor).commit(it.consume(currentDate())) }
+    internal fun consumeItem(scope: CoroutineScope, item: FridgeItem) {
+        scope.update(item) { requireNotNull(interactor).commit(it.consume(currentDate())) }
     }
 
-    internal fun restoreItem(item: FridgeItem) {
-        update(item) {
+    internal fun restoreItem(scope: CoroutineScope, item: FridgeItem) {
+        scope.update(item) {
             requireNotNull(interactor).commit(it.invalidateConsumption().invalidateSpoiled())
         }
     }
 
-    internal fun spoilItem(item: FridgeItem) {
-        update(item) { requireNotNull(interactor).commit(it.spoil(currentDate())) }
+    internal fun spoilItem(scope: CoroutineScope, item: FridgeItem) {
+        scope.update(item) { requireNotNull(interactor).commit(it.spoil(currentDate())) }
     }
 
-    internal fun deleteItem(item: FridgeItem) {
-        update(item) { requireNotNull(interactor).delete(it, true) }
+    internal fun deleteItem(scope: CoroutineScope, item: FridgeItem) {
+        scope.update(item) { requireNotNull(interactor).delete(it, true) }
     }
 
-    internal fun updateItem(item: FridgeItem) {
+    internal fun updateItem(scope: CoroutineScope, item: FridgeItem) {
         val updated = item.run {
             val dateOfPurchase = this.purchaseTime()
             if (this.presence() == FridgeItem.Presence.HAVE) {
@@ -104,7 +104,7 @@ internal class UpdateDelegate internal constructor(
             return@run this
         }
 
-        update(updated) { requireNotNull(interactor).commit(it) }
+        scope.update(updated) { requireNotNull(interactor).commit(it) }
     }
 }
 

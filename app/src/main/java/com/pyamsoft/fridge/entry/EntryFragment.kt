@@ -36,7 +36,7 @@ import com.pyamsoft.fridge.main.VersionChecker
 import com.pyamsoft.fridge.ui.SnackbarContainer
 import com.pyamsoft.fridge.ui.requireAppBarActivity
 import com.pyamsoft.pydroid.arch.StateSaver
-import com.pyamsoft.pydroid.arch.createComponent
+import com.pyamsoft.pydroid.arch.bindController
 import com.pyamsoft.pydroid.ui.Injector
 import com.pyamsoft.pydroid.ui.R
 import com.pyamsoft.pydroid.ui.app.requireToolbarActivity
@@ -111,19 +111,28 @@ internal class EntryFragment : Fragment(), SnackbarContainer {
         val nestedList = requireNotNull(nestedList)
         container.nest(nestedList)
 
-        stateSaver = createComponent(
+        stateSaver = viewModel.bindController(
             savedInstanceState,
             viewLifecycleOwner,
-            viewModel,
             requireNotNull(spacer),
             container,
             requireNotNull(toolbar),
             requireNotNull(addNew),
         ) {
-            return@createComponent when (it) {
-                is EntryControllerEvent.LoadEntry -> pushPage(it.entry, it.presence)
-                is EntryControllerEvent.AddEntry -> startAddFlow()
-                is EntryControllerEvent.EditEntry -> startEditFlow(it.entry)
+            return@bindController when (it) {
+                is EntryViewEvent.AddEvent.AddNew -> viewModel.handleAddNew { startAddFlow() }
+                is EntryViewEvent.AddEvent.ReallyDeleteEntryNoUndo -> viewModel.handleDeleteForever()
+                is EntryViewEvent.AddEvent.UndoDeleteEntry -> viewModel.handleUndoDelete()
+                is EntryViewEvent.ListEvents.DeleteEntry -> viewModel.handleDelete(it.index)
+                is EntryViewEvent.ListEvents.EditEntry -> viewModel.handleEdit(it.index) { entry ->
+                    startEditFlow(entry)
+                }
+                is EntryViewEvent.ListEvents.ForceRefresh -> viewModel.handleRefresh()
+                is EntryViewEvent.ListEvents.SelectEntry -> viewModel.handleSelect(it.index) { entry, presence ->
+                    pushPage(entry, presence)
+                }
+                is EntryViewEvent.ToolbarEvent.ChangeSort -> viewModel.handleChangeSort(it.sort)
+                is EntryViewEvent.ToolbarEvent.SearchQuery -> viewModel.handleUpdateSearch(it.search)
             }
         }
 

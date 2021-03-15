@@ -35,7 +35,7 @@ import com.pyamsoft.fridge.ui.R
 import com.pyamsoft.fridge.ui.SnackbarContainer
 import com.pyamsoft.fridge.ui.requireAppBarActivity
 import com.pyamsoft.pydroid.arch.StateSaver
-import com.pyamsoft.pydroid.arch.createComponent
+import com.pyamsoft.pydroid.arch.bindController
 import com.pyamsoft.pydroid.arch.createSavedStateViewModelFactory
 import com.pyamsoft.pydroid.ui.Injector
 import com.pyamsoft.pydroid.ui.app.requireToolbarActivity
@@ -140,40 +140,63 @@ internal class DetailFragment : Fragment(), SnackbarContainer {
         val nestedList = requireNotNull(nestedList)
         container.nest(nestedEmptyState, nestedList)
 
-        val listSaver = createComponent(
+        val listSaver = viewModel.bindController(
             savedInstanceState,
             viewLifecycleOwner,
-            viewModel,
             requireNotNull(heroImage),
             container,
             requireNotNull(addNew),
         ) {
-            return@createComponent when (it) {
-                is DetailControllerEvent.Expand.ExpandForEditing -> openExisting(it.item)
-                is DetailControllerEvent.EntryArchived -> close()
-                is DetailControllerEvent.AddNew -> createItem(it.id, it.presence)
+            return@bindController when (it) {
+                is DetailViewEvent.ListEvent.AddNew -> viewModel.handleAddNew { entryId, presence ->
+                    createItem(entryId, presence)
+                }
+                is DetailViewEvent.ListEvent.AnotherOne -> viewModel.handleAddAgain(it.item)
+                is DetailViewEvent.ListEvent.ChangeCurrentFilter -> viewModel.handleUpdateShowing()
+                is DetailViewEvent.ListEvent.ChangeItemPresence -> viewModel.handleCommitPresence(it.index)
+                is DetailViewEvent.ListEvent.ClearListError -> viewModel.handleClearListError()
+                is DetailViewEvent.ListEvent.ConsumeItem -> viewModel.handleConsume(it.index)
+                is DetailViewEvent.ListEvent.DecreaseItemCount -> viewModel.handleDecreaseCount(it.index)
+                is DetailViewEvent.ListEvent.DeleteItem -> viewModel.handleDelete(it.index)
+                is DetailViewEvent.ListEvent.ExpandItem -> viewModel.handleExpand(it.index) { item ->
+                    openExisting(item)
+                }
+                is DetailViewEvent.ListEvent.ForceRefresh -> viewModel.handleRefreshList(true)
+                is DetailViewEvent.ListEvent.IncreaseItemCount -> viewModel.handleIncreaseCount(it.index)
+                is DetailViewEvent.ListEvent.ReallyDeleteItemNoUndo -> viewModel.handleDeleteForever()
+                is DetailViewEvent.ListEvent.RestoreItem -> viewModel.handleRestore(it.index)
+                is DetailViewEvent.ListEvent.SpoilItem -> viewModel.handleSpoil(it.index)
+                is DetailViewEvent.ListEvent.UndoDeleteItem -> viewModel.handleUndoDelete()
             }
         }
 
-        val switcherSaver = createComponent(
+        val switcherSaver = switcherViewModel.bindController(
             savedInstanceState,
             viewLifecycleOwner,
-            switcherViewModel,
             requireNotNull(switcher)
         )
         {
-            // Intentionally blank
+            return@bindController when (it) {
+                is DetailViewEvent.SwitcherEvent.PresenceSwitched -> switcherViewModel.handlePresenceSwitch(
+                    it.presence
+                )
+            }
         }
 
-        val toolbarSaver = createComponent(
+        val toolbarSaver = toolbarViewModel.bindController(
             savedInstanceState,
             viewLifecycleOwner,
-            toolbarViewModel,
             requireNotNull(toolbar)
         )
         {
-            return@createComponent when (it) {
-                is DetailToolbarControllerEvent.Back -> close()
+            return@bindController when (it) {
+                is DetailViewEvent.ToolbarEvent.Toolbar.Back -> close()
+                is DetailViewEvent.ToolbarEvent.Search.Query -> toolbarViewModel.handleUpdateSearch(
+                    it.search
+                )
+                is DetailViewEvent.ToolbarEvent.Toolbar.ChangeSort -> toolbarViewModel.handleUpdateSort(
+                    it.sort
+                )
             }
         }
 

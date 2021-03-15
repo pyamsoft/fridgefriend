@@ -31,45 +31,63 @@ class EntryViewModel @Inject internal constructor(
 ) {
 
     init {
-        val job = delegate.bind(Renderable { state ->
-            state.render(viewModelScope) { setState { it } }
+        val scope = viewModelScope
+        val job = delegate.bindState(scope, Renderable { state ->
+            state.render(scope) { scope.setState { it } }
         })
         doOnCleared { job.cancel() }
         doOnCleared { delegate.clear() }
+
+        delegate.initialize(scope)
     }
 
-    override fun handleViewEvent(event: EntryViewEvent) = when (event) {
-        is EntryViewEvent.ListEvents.EditEntry -> edit(event.index)
-        is EntryViewEvent.ListEvents.SelectEntry -> select(event.index)
-        is EntryViewEvent.ListEvents.DeleteEntry -> delegate.deleteEntry(event.index)
-        is EntryViewEvent.ListEvents.ForceRefresh -> delegate.refreshList(true)
-        is EntryViewEvent.AddEvent.AddNew -> handleAddNew()
-        is EntryViewEvent.AddEvent.ReallyDeleteEntryNoUndo -> delegate.deleteForever()
-        is EntryViewEvent.AddEvent.UndoDeleteEntry -> delegate.undoDelete()
-        is EntryViewEvent.ToolbarEvent.SearchQuery -> delegate.updateSearch(event.search)
-        is EntryViewEvent.ToolbarEvent.ChangeSort -> delegate.changeSort(event.sort)
+    fun handleChangeSort(sort: EntryViewState.Sorts) {
+        delegate.handleChangeSort(viewModelScope, sort)
     }
 
-    private fun handleAddNew() {
+    fun handleUpdateSearch(search: String) {
+        delegate.handleUpdateSearch(viewModelScope, search)
+    }
+
+    fun handleUndoDelete() {
+        delegate.handleUndoDelete(viewModelScope)
+    }
+
+    fun handleDeleteForever() {
+        delegate.handleDeleteForever(viewModelScope)
+    }
+
+    fun handleRefresh() {
+        delegate.handleRefreshList(viewModelScope, true)
+    }
+
+    fun handleDelete(index: Int) {
+        delegate.handleDeleteEntry(viewModelScope, index)
+    }
+
+    inline fun handleAddNew(onAdd: () -> Unit) {
         Timber.d("Add new entry")
-        publish(EntryControllerEvent.AddEntry)
+        onAdd()
     }
 
-    private inline fun withEntryAt(index: Int, block: (FridgeEntry) -> Unit) {
+    private fun withEntryAt(index: Int, block: (FridgeEntry) -> Unit) {
         block(state.displayedEntries[index].entry)
     }
 
-    private fun select(index: Int) {
+    fun handleSelect(
+        index: Int,
+        onLoad: (FridgeEntry, FridgeItem.Presence) -> Unit
+    ) {
         withEntryAt(index) { entry ->
             Timber.d("Loading entry page: $entry")
-            publish(EntryControllerEvent.LoadEntry(entry, FridgeItem.Presence.NEED))
+            onLoad(entry, FridgeItem.Presence.NEED)
         }
     }
 
-    private fun edit(index: Int) {
+    fun handleEdit(index: Int, onEdit: (FridgeEntry) -> Unit) {
         withEntryAt(index) { entry ->
             Timber.d("Editing entry: $entry")
-            publish(EntryControllerEvent.EditEntry(entry))
+            onEdit(entry)
         }
     }
 

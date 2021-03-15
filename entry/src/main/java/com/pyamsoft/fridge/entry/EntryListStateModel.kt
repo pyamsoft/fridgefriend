@@ -35,7 +35,7 @@ import javax.inject.Inject
 
 class EntryListStateModel @Inject constructor(
     private val interactor: EntryInteractor,
-    bottomOffsetBus: EventConsumer<BottomOffset>,
+    private val bottomOffsetBus: EventConsumer<BottomOffset>,
 ) : UiStateModel<EntryViewState>(
     EntryViewState(
         isLoading = false,
@@ -50,22 +50,18 @@ class EntryListStateModel @Inject constructor(
 ) {
 
     private val refreshRunner = highlander<Unit, Boolean> { force ->
-        setState(stateChange = { copy(isLoading = true) }, andThen = {
-            try {
-                val groups = interactor.loadEntries(force).map { entry ->
-                    val items = interactor.loadItems(force, entry)
-                    return@map EntryViewState.EntryGroup(entry = entry, items = items)
-                }
-                handleListRefreshed(groups)
-            } catch (error: Throwable) {
-                error.onActualError { e ->
-                    Timber.e(e, "Error refreshing entry list")
-                    handleListRefreshError(e)
-                }
-            } finally {
-                setState { copy(isLoading = false) }
+        try {
+            val groups = interactor.loadEntries(force).map { entry ->
+                val items = interactor.loadItems(force, entry)
+                return@map EntryViewState.EntryGroup(entry = entry, items = items)
             }
-        })
+            handleListRefreshed(groups)
+        } catch (error: Throwable) {
+            error.onActualError { e ->
+                Timber.e(e, "Error refreshing entry list")
+                handleListRefreshError(e)
+            }
+        }
     }
 
     private val undoRunner = highlander<Unit, FridgeEntry> { entry ->
@@ -79,20 +75,20 @@ class EntryListStateModel @Inject constructor(
         }
     }
 
-    init {
-        stateModelScope.launch(context = Dispatchers.Default) {
+    internal fun initialize(scope: CoroutineScope) {
+        scope.launch(context = Dispatchers.Default) {
             bottomOffsetBus.onEvent { setState { copy(bottomOffset = it.height) } }
         }
 
-        stateModelScope.launch(context = Dispatchers.Default) {
+        scope.launch(context = Dispatchers.Default) {
             interactor.listenForEntryChanges { handleEventRealtime(it) }
         }
 
-        stateModelScope.launch(context = Dispatchers.Default) {
+        scope.launch(context = Dispatchers.Default) {
             interactor.listenForItemChanges { handleItemRealtime(it) }
         }
 
-        refreshList(false)
+        handleRefreshList(scope, false)
     }
 
     @CheckResult
@@ -235,21 +231,22 @@ class EntryListStateModel @Inject constructor(
             .toList()
     }
 
-    fun updateSearch(search: String) {
-        setState(
+    fun handleUpdateSearch(scope: CoroutineScope, search: String) {
+        scope.setState(
             stateChange = {
                 val cleanSearch = if (search.isNotBlank()) search.trim() else ""
                 copy(search = cleanSearch)
             },
-            andThen = {
-                refreshList(false)
-            }
+            andThen = { handleRefreshList(this, false) }
         )
     }
 
-    fun refreshList(force: Boolean) {
-        stateModelScope.launch(context = Dispatchers.Default) {
-            refreshRunner.call(force)
+    fun handleRefreshList(scope: CoroutineScope, force: Boolean) {
+        scope.launch(context = Dispatchers.Default) {
+            setState(stateChange = { copy(isLoading = true) }, andThen = {
+                refreshRunner.call(force)
+                setState { copy(isLoading = false) }
+            })
         }
     }
 
@@ -257,23 +254,26 @@ class EntryListStateModel @Inject constructor(
         block(state.displayedEntries[index].entry)
     }
 
-    internal fun deleteEntry(index: Int) {
-        stateModelScope.launch(context = Dispatchers.Default) {
+    internal fun handleDeleteEntry(scope: CoroutineScope, index: Int) {
+        scope.launch(context = Dispatchers.Default) {
             withEntryAt(index) { interactor.delete(it, true) }
         }
     }
 
-    internal fun deleteForever() {
-        setState { copy(undoableEntry = null) }
+    internal fun handleDeleteForever(scope: CoroutineScope) {
+        scope.setState { copy(undoableEntry = null) }
     }
 
-    internal fun undoDelete() {
-        stateModelScope.launch(context = Dispatchers.Default) {
+    internal fun handleUndoDelete(scope: CoroutineScope) {
+        scope.launch(context = Dispatchers.Default) {
             undoRunner.call(requireNotNull(state.undoableEntry))
         }
     }
 
-    fun changeSort(newSort: EntryViewState.Sorts) {
-        setState(stateChange = { copy(sort = newSort) }, andThen = { refreshList(false) })
+    fun handleChangeSort(scope: CoroutineScope, newSort: EntryViewState.Sorts) {
+        scope.setState(
+            stateChange = { copy(sort = newSort) },
+            andThen = { handleRefreshList(this, false) }
+        )
     }
 }

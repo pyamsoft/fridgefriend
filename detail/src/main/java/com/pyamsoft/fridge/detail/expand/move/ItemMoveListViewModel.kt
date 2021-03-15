@@ -34,11 +34,14 @@ class ItemMoveListViewModel @Inject internal constructor(
 ) {
 
     init {
-        val job = delegate.bind(Renderable { state ->
-            state.render(viewModelScope) { newState ->
-                setState {
+        val scope = viewModelScope
+        val job = delegate.bindState(scope, Renderable { state ->
+            state.render(scope) { newState ->
+                scope.setState {
                     newState.copy(
-                        displayedEntries = newState.displayedEntries.filterNot { it.entry.id() == entryId }
+                        displayedEntries = newState.displayedEntries.filterNot {
+                            it.entry.id() == entryId
+                        }
                     )
                 }
             }
@@ -47,39 +50,26 @@ class ItemMoveListViewModel @Inject internal constructor(
         doOnCleared { delegate.clear() }
     }
 
-    override fun handleViewEvent(event: EntryViewEvent.ListEvents) = when (event) {
-        is EntryViewEvent.ListEvents.ForceRefresh -> delegate.refreshList(true)
-        is EntryViewEvent.ListEvents.SelectEntry -> selectEntry(event.index)
-        is EntryViewEvent.ListEvents.DeleteEntry -> notHandled(event)
-        is EntryViewEvent.ListEvents.EditEntry -> editEntry(event.index)
+    fun handleRefreshList() {
+        delegate.handleRefreshList(viewModelScope, true)
     }
 
     fun handleUpdateSearch(search: String) {
-        delegate.updateSearch(search)
+        delegate.handleUpdateSearch(viewModelScope, search)
     }
 
     fun handleUpdateSort(sort: EntryViewState.Sorts) {
-        delegate.changeSort(sort)
-    }
-
-    private fun notHandled(event: EntryViewEvent) {
-        throw IllegalStateException("Event not handled: $event")
+        delegate.handleChangeSort(viewModelScope, sort)
     }
 
     private inline fun withEntryAt(index: Int, block: (FridgeEntry) -> Unit) {
         block(state.displayedEntries[index].entry)
     }
 
-    private fun editEntry(index: Int) {
-        withEntryAt(index) { entry ->
-            Timber.d("Edit triggered from move list is unsupported: $entry")
-        }
-    }
-
-    private fun selectEntry(index: Int) {
+    fun handleSelectEntry(index: Int, onSelected: (FridgeEntry) -> Unit) {
         withEntryAt(index) { entry ->
             Timber.d("Selected entry $entry")
-            publish(ItemMoveListControllerEvent.SelectedTarget(entry))
+            onSelected(entry)
         }
     }
 }

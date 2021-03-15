@@ -24,7 +24,6 @@ import com.pyamsoft.pydroid.arch.UiSavedStateViewModelProvider
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -36,8 +35,9 @@ class DetailToolbarViewModel @AssistedInject internal constructor(
 ) {
 
     init {
-        val job = delegate.bind(Renderable { state ->
-            state.render(viewModelScope) { setState { it } }
+        val scope = viewModelScope
+        val job = delegate.bindState(scope, Renderable { state ->
+            state.render(scope) { setState { it } }
         })
         doOnCleared {
             job.cancel()
@@ -45,6 +45,8 @@ class DetailToolbarViewModel @AssistedInject internal constructor(
         doOnCleared {
             delegate.clear()
         }
+
+        delegate.initialize(scope)
 
         viewModelScope.launch(context = Dispatchers.Default) {
             val sort = restoreSavedState(SAVED_SORT) { DetailViewState.Sorts.CREATED }
@@ -59,46 +61,20 @@ class DetailToolbarViewModel @AssistedInject internal constructor(
         }
     }
 
-    override fun handleViewEvent(event: DetailViewEvent.ToolbarEvent) = when (event) {
-        is DetailViewEvent.ToolbarEvent.Toolbar.Back -> handleBack()
-        is DetailViewEvent.ToolbarEvent.Toolbar.ChangeSort -> handleUpdateSort(event.sort)
-        is DetailViewEvent.ToolbarEvent.Search.Query -> handleUpdateSearch(event.search)
-    }
-
-    private fun handleUpdateSearch(search: String) {
-        viewModelScope.handleUpdateSearch(search)
-    }
-
-    private fun CoroutineScope.handleUpdateSearch(search: String) {
-        val scope = this
-        delegate.apply {
-            scope.updateSearch(search) { newState ->
-                val newSearch = newState.search
-                if (newSearch.isNotBlank()) {
-                    putSavedState(SAVED_SEARCH, newSearch)
-                } else {
-                    removeSavedState(SAVED_SEARCH)
-                }
+    fun handleUpdateSearch(search: String) {
+        delegate.handleUpdateSearch(viewModelScope, search) { newSearch ->
+            if (newSearch.isNotBlank()) {
+                putSavedState(SAVED_SEARCH, newSearch)
+            } else {
+                removeSavedState(SAVED_SEARCH)
             }
         }
     }
 
-    private fun handleUpdateSort(sort: DetailViewState.Sorts) {
-        viewModelScope.handleUpdateSort(sort)
-    }
-
-    private fun CoroutineScope.handleUpdateSort(sort: DetailViewState.Sorts) {
-        val scope = this
-
-        delegate.apply {
-            scope.updateSort(sort) { newState ->
-                putSavedState(SAVED_SORT, newState.sort.name)
-            }
+    fun handleUpdateSort(sort: DetailViewState.Sorts) {
+        delegate.handleUpdateSort(viewModelScope, sort) { newSort ->
+            putSavedState(SAVED_SORT, newSort.name)
         }
-    }
-
-    private fun handleBack() {
-        publish(DetailToolbarControllerEvent.Back)
     }
 
     companion object {

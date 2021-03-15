@@ -22,10 +22,10 @@ import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.detail.DetailInteractor
 import com.pyamsoft.fridge.entry.EntryListStateModel
-import com.pyamsoft.fridge.entry.EntryViewState
 import com.pyamsoft.highlander.highlander
 import com.pyamsoft.pydroid.arch.Renderable
 import com.pyamsoft.pydroid.arch.UiViewModel
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -47,8 +47,9 @@ class ItemMoveViewModel @Inject internal constructor(
     private val itemResolveRunner = highlander<FridgeItem> { interactor.loadItem(itemId, entryId) }
 
     init {
-        val job = delegate.bind(Renderable { state ->
-            state.render(viewModelScope) { setState { copy(listState = it) } }
+        val scope = viewModelScope
+        val job = delegate.bindState(scope, Renderable { state ->
+            state.render(scope) { scope.setState { copy(listState = it) } }
         })
         doOnCleared { job.cancel() }
         doOnCleared { delegate.clear() }
@@ -59,28 +60,10 @@ class ItemMoveViewModel @Inject internal constructor(
         }
     }
 
-    override fun handleViewEvent(event: ItemMoveViewEvent) = when (event) {
-        is ItemMoveViewEvent.Close -> closeDialog()
-        is ItemMoveViewEvent.SearchQuery -> publishSearch(event.search)
-        is ItemMoveViewEvent.ChangeSort -> publishSort(event.sort)
-    }
-
-    private fun publishSort(sort: EntryViewState.Sorts) {
-        publish(ItemMoveControllerEvent.PublishSort(sort))
-    }
-
-    private fun publishSearch(search: String) {
-        publish(ItemMoveControllerEvent.PublishSearch(search))
-    }
-
-    private fun closeDialog() {
-        publish(ItemMoveControllerEvent.Close)
-    }
-
-    fun handleMoveItemToEntry(entry: FridgeEntry) {
+    fun handleMoveItemToEntry(scope: CoroutineScope, entry: FridgeEntry, onMoved: () -> Unit) {
         state.item?.let { item ->
             Timber.d("Move item from ${item.entryId()} to ${entry.id()}")
-            viewModelScope.launch(context = Dispatchers.Default) {
+            scope.launch(context = Dispatchers.Default) {
                 Timber.d("Remove old item")
                 interactor.delete(item, false)
 
@@ -90,8 +73,8 @@ class ItemMoveViewModel @Inject internal constructor(
                 Timber.d("Clear all db caches")
                 dbCache.invalidate()
 
-                Timber.d("All done moving, close dialog")
-                closeDialog()
+                Timber.d("All done moving")
+                onMoved()
             }
         }
     }

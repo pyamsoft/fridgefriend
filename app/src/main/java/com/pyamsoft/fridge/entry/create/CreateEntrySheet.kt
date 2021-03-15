@@ -29,7 +29,7 @@ import com.pyamsoft.fridge.FridgeComponent
 import com.pyamsoft.fridge.core.FridgeViewModelFactory
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.pydroid.arch.StateSaver
-import com.pyamsoft.pydroid.arch.createComponent
+import com.pyamsoft.pydroid.arch.bindController
 import com.pyamsoft.pydroid.ui.Injector
 import com.pyamsoft.pydroid.ui.R
 import com.pyamsoft.pydroid.ui.arch.fromViewModelFactory
@@ -76,15 +76,15 @@ internal class CreateEntrySheet : BottomSheetDialogFragment() {
             .create(binding.layoutLinearV, entryId)
             .inject(this)
 
-        stateSaver = createComponent(
+        stateSaver = viewModel.bindController(
             savedInstanceState,
             viewLifecycleOwner,
-            viewModel,
             requireNotNull(name),
             requireNotNull(commit)
         ) {
-            return@createComponent when (it) {
-                is CreateEntryControllerEvent.Commit -> dismiss()
+            return@bindController when (it) {
+                is CreateEntryViewEvent.Commit -> viewModel.handleCommitNewEntry(this) { dismiss() }
+                is CreateEntryViewEvent.NameChanged -> viewModel.handleUpdateName(it.name)
             }
         }
     }

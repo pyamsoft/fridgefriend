@@ -47,12 +47,12 @@ import java.util.Locale
 
 class ExpandItemViewModel @AssistedInject internal constructor(
     private val interactor: DetailInteractor,
+    private val realtime: FridgeItemRealtime,
+    private val itemEntryId: FridgeEntry.Id,
+    private val dateSelectBus: EventBus<DateSelectPayload>,
     @Assisted savedState: UiSavedState,
     defaultPresence: Presence,
-    dateSelectBus: EventBus<DateSelectPayload>,
-    realtime: FridgeItemRealtime,
     possibleItemId: FridgeItem.Id,
-    itemEntryId: FridgeEntry.Id,
 ) : UiSavedStateViewModel<ExpandItemViewState, ExpandedItemViewEvent, ExpandItemControllerEvent>(
     savedState,
     ExpandItemViewState(
@@ -64,7 +64,7 @@ class ExpandItemViewModel @AssistedInject internal constructor(
     )
 ) {
 
-    private val updateDelegate = UpdateDelegate(viewModelScope, interactor) { handleError(it) }
+    private val updateDelegate = UpdateDelegate(interactor) { handleError(it) }
 
     private val itemResolveRunner = highlander<FridgeItem, FridgeItem.Id> { resolveItemId ->
         interactor.resolveItem(
@@ -85,26 +85,6 @@ class ExpandItemViewModel @AssistedInject internal constructor(
         }
 
         viewModelScope.launch(context = Dispatchers.Default) {
-            realtime.listenForChanges(itemEntryId) { handleRealtimeEvent(it) }
-        }
-
-        viewModelScope.launch(context = Dispatchers.Default) {
-            dateSelectBus.onEvent { event ->
-                state.item?.let { item ->
-                    if (event.entryId != item.entryId()) {
-                        return@let
-                    }
-
-                    if (event.itemId != item.id()) {
-                        return@let
-                    }
-
-                    commitDate(item, event.year, event.month, event.day)
-                }
-            }
-        }
-
-        viewModelScope.launch(context = Dispatchers.Default) {
             val itemId = restoreSavedState(CREATED_ITEM_ID) { possibleItemId.id }
             val resolveItemId = FridgeItem.Id(itemId)
             val item = itemResolveRunner.call(resolveItemId)
@@ -118,29 +98,36 @@ class ExpandItemViewModel @AssistedInject internal constructor(
         }
     }
 
-    override fun handleViewEvent(event: ExpandedItemViewEvent) = when (event) {
-        is ExpandedItemViewEvent.ItemEvent.CommitCategory -> commitCategory(event.index)
-        is ExpandedItemViewEvent.ItemEvent.CommitName -> commitName(event.name)
-        is ExpandedItemViewEvent.ItemEvent.CommitCount -> commitCount(event.count)
-        is ExpandedItemViewEvent.ItemEvent.CommitPresence -> commitPresence()
-        is ExpandedItemViewEvent.ItemEvent.PickDate -> pickDate()
-        is ExpandedItemViewEvent.ItemEvent.SelectSimilar -> similarSelected(event.item)
-        is ExpandedItemViewEvent.ToolbarEvent.CloseItem -> closeSelf()
-        is ExpandedItemViewEvent.ToolbarEvent.DeleteItem -> deleteSelf()
-        is ExpandedItemViewEvent.ToolbarEvent.ConsumeItem -> consumeSelf()
-        is ExpandedItemViewEvent.ToolbarEvent.SpoilItem -> spoilSelf()
-        is ExpandedItemViewEvent.ToolbarEvent.RestoreItem -> restoreSelf()
-        is ExpandedItemViewEvent.ToolbarEvent.MoveItem -> moveItem()
-    }
+    fun initialize(scope: CoroutineScope, onClose: () -> Unit) {
+        scope.launch(context = Dispatchers.Default) {
+            realtime.listenForChanges(itemEntryId) { handleRealtimeEvent(it, onClose) }
+        }
 
-    private fun moveItem() {
-        state.item?.let { item ->
-            Timber.d("Move item from entry: $item")
-            publish(ExpandItemControllerEvent.BeginMove(item))
+        scope.launch(context = Dispatchers.Default) {
+            dateSelectBus.onEvent { event ->
+                state.item?.let { item ->
+                    if (event.entryId != item.entryId()) {
+                        return@let
+                    }
+
+                    if (event.itemId != item.id()) {
+                        return@let
+                    }
+
+                    commitDate(this, item, event.year, event.month, event.day, onClose)
+                }
+            }
         }
     }
 
-    private fun similarSelected(item: FridgeItem) {
+    fun handleMoveItem(onMove: (FridgeItem) -> Unit) {
+        state.item?.let { item ->
+            Timber.d("Move item from entry: $item")
+            onMove(item)
+        }
+    }
+
+    fun handleSimilarSelected(item: FridgeItem) {
         Timber.d("Selected similar item: $item")
         // TODO(Peter): Similar item selected response
         //
@@ -149,27 +136,30 @@ class ExpandItemViewModel @AssistedInject internal constructor(
         // the expiration date
     }
 
-    private fun CoroutineScope.handleRealtimeEvent(event: FridgeItemChangeEvent) = when (event) {
-        is FridgeItemChangeEvent.Update -> handleModelUpdate(event.item)
-        is FridgeItemChangeEvent.Insert -> handleModelUpdate(event.item)
-        is FridgeItemChangeEvent.Delete -> closeItem(event.item)
+    private fun CoroutineScope.handleRealtimeEvent(
+        event: FridgeItemChangeEvent,
+        onClose: () -> Unit
+    ) = when (event) {
+        is FridgeItemChangeEvent.Update -> handleModelUpdate(event.item, onClose)
+        is FridgeItemChangeEvent.Insert -> handleModelUpdate(event.item, onClose)
+        is FridgeItemChangeEvent.Delete -> closeItem(event.item, onClose)
     }
 
-    private fun closeSelf() {
-        viewModelScope.closeItem(requireNotNull(state.item))
+    fun handleCloseSelf(scope: CoroutineScope, onClose: () -> Unit) {
+        scope.closeItem(requireNotNull(state.item), onClose)
     }
 
-    private fun CoroutineScope.closeItem(closeMe: FridgeItem) {
+    private fun CoroutineScope.closeItem(closeMe: FridgeItem, onClose: () -> Unit) {
         this.launch(context = Dispatchers.Default) {
             requireNotNull(state.item).let { item ->
                 if (closeMe.id() == item.id() && closeMe.entryId() == item.entryId()) {
-                    publish(ExpandItemControllerEvent.CloseExpand)
+                    onClose()
                 }
             }
         }
     }
 
-    private fun CoroutineScope.handleModelUpdate(newItem: FridgeItem) {
+    private fun CoroutineScope.handleModelUpdate(newItem: FridgeItem, onClose: () -> Unit) {
         requireNotNull(state.item).let { item ->
             if (item.id() == newItem.id() && item.entryId() == newItem.entryId()) {
                 setState(
@@ -178,7 +168,7 @@ class ExpandItemViewModel @AssistedInject internal constructor(
                         val currentItem = requireNotNull(newState.item)
                         if (currentItem.isConsumed() || currentItem.isSpoiled()) {
                             Timber.d("Close item since it has been consumed/spoiled")
-                            closeItem(currentItem)
+                            closeItem(currentItem, onClose)
                         }
                     }
                 )
@@ -186,7 +176,7 @@ class ExpandItemViewModel @AssistedInject internal constructor(
         }
     }
 
-    private fun pickDate() {
+    fun handlePickDate(onPickDate: (FridgeItem, Int, Int, Int) -> Unit) {
         val item = requireNotNull(state.item)
         if (item.isArchived()) {
             return
@@ -211,7 +201,7 @@ class ExpandItemViewModel @AssistedInject internal constructor(
         }
 
         Timber.d("Launch date picker from date: $year ${month + 1} $day")
-        publish(ExpandItemControllerEvent.DatePick(item, year, month, day))
+        onPickDate(item, year, month, day)
     }
 
     @CheckResult
@@ -219,11 +209,11 @@ class ExpandItemViewModel @AssistedInject internal constructor(
         return isNameValid(item.name())
     }
 
-    private fun commitCount(count: Int) {
+    fun handleCommitCount(scope: CoroutineScope, count: Int, onClose: () -> Unit) {
         requireNotNull(state.item).let { item ->
             if (count > 0) {
                 setFixMessage("")
-                commitItem(item.count(count))
+                commitItem(scope, item.count(count), onClose)
             } else {
                 Timber.w("Invalid count: $count")
                 handleInvalidCount(count)
@@ -231,11 +221,11 @@ class ExpandItemViewModel @AssistedInject internal constructor(
         }
     }
 
-    private fun commitName(name: String) {
+    fun handleCommitName(scope: CoroutineScope, name: String, onClose: () -> Unit) {
         requireNotNull(state.item).let { item ->
             if (isNameValid(name)) {
                 setFixMessage("")
-                commitItem(item.name(name))
+                commitItem(scope, item.name(name), onClose)
             } else {
                 Timber.w("Invalid name: $name")
                 handleInvalidName(name)
@@ -243,7 +233,7 @@ class ExpandItemViewModel @AssistedInject internal constructor(
         }
     }
 
-    private fun commitCategory(index: Int) {
+    fun handleCommitCategory(scope: CoroutineScope, index: Int, onClose: () -> Unit) {
         state.apply {
             requireNotNull(item).let { item ->
                 if (item.isArchived()) {
@@ -255,10 +245,10 @@ class ExpandItemViewModel @AssistedInject internal constructor(
                     val existingCategoryId = item.categoryId()
                     if (existingCategoryId != null && existingCategoryId == category.id()) {
                         Timber.d("Clearing category id")
-                        commitItem(item.invalidateCategoryId())
+                        commitItem(scope, item.invalidateCategoryId(), onClose)
                     } else {
                         Timber.d("Attempt save category: $category")
-                        commitItem(item.categoryId(category.id()))
+                        commitItem(scope, item.categoryId(category.id()), onClose)
                     }
                 }
             }
@@ -266,10 +256,12 @@ class ExpandItemViewModel @AssistedInject internal constructor(
     }
 
     private fun commitDate(
+        scope: CoroutineScope,
         item: FridgeItem,
         year: Int,
         month: Int,
         day: Int,
+        onClose: () -> Unit,
     ) {
         Timber.d("Attempt save time: $year/${month + 1}/$day")
         val newTime = today()
@@ -280,18 +272,18 @@ class ExpandItemViewModel @AssistedInject internal constructor(
             }
             .time
         Timber.d("Save expire time: $newTime")
-        commitItem(item.expireTime(newTime))
+        commitItem(scope, item.expireTime(newTime), onClose)
     }
 
-    private fun commitPresence() {
+    fun handleCommitPresence(scope: CoroutineScope, onClose: () -> Unit) {
         state.item?.let { item ->
             val newItem = item.presence(item.presence().flip())
-            commitItem(newItem)
+            commitItem(scope, newItem, onClose)
         }
     }
 
-    private fun commitItem(item: FridgeItem) {
-        updateItem(item)
+    private fun commitItem(scope: CoroutineScope, item: FridgeItem, onClose: () -> Unit) {
+        updateItem(scope, item, onClose)
         findSameNamedItems(item)
         findSimilarItems(item)
     }
@@ -320,33 +312,33 @@ class ExpandItemViewModel @AssistedInject internal constructor(
         }
     }
 
-    private fun updateItem(item: FridgeItem) {
+    private fun updateItem(scope: CoroutineScope, item: FridgeItem, onClose: () -> Unit) {
         val real = item.isReal() || isReadyToBeReal(item)
         if (!real) {
             Timber.w("Commit called on a non-real item: $item")
             // Don't beacon the update anywhere since we don't want the UI to respond
             // But, commit the changes as a potential update
-            viewModelScope.handleModelUpdate(item)
+            scope.handleModelUpdate(item, onClose)
             return
         }
 
-        updateDelegate.updateItem(item)
+        updateDelegate.updateItem(scope, item)
     }
 
-    private fun consumeSelf() {
-        state.item?.let { updateDelegate.consumeItem(it) }
+    fun handleConsumeSelf(scope: CoroutineScope) {
+        state.item?.let { updateDelegate.consumeItem(scope, it) }
     }
 
-    private fun restoreSelf() {
-        state.item?.let { updateDelegate.restoreItem(it) }
+    fun handleRestoreSelf(scope: CoroutineScope) {
+        state.item?.let { updateDelegate.restoreItem(scope, it) }
     }
 
-    private fun spoilSelf() {
-        state.item?.let { updateDelegate.spoilItem(it) }
+    fun handleSpoilSelf(scope: CoroutineScope) {
+        state.item?.let { updateDelegate.spoilItem(scope, it) }
     }
 
-    private fun deleteSelf() {
-        state.item?.let { updateDelegate.deleteItem(it) }
+    fun handleDeleteSelf(scope: CoroutineScope) {
+        state.item?.let { updateDelegate.deleteItem(scope, it) }
     }
 
     private fun handleInvalidName(name: String) {

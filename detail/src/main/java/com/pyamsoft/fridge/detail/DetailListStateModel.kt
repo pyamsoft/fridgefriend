@@ -46,9 +46,9 @@ import kotlin.math.max
 @FragmentScope
 class DetailListStateModel @Inject internal constructor(
     private val interactor: DetailInteractor,
-    entryId: FridgeEntry.Id,
+    private val entryId: FridgeEntry.Id,
+    private val bottomOffsetBus: EventConsumer<BottomOffset>,
     listItemPresence: FridgeItem.Presence,
-    bottomOffsetBus: EventConsumer<BottomOffset>,
 ) : UiStateModel<DetailViewState>(
     initialState = DetailViewState(
         entry = null,
@@ -71,7 +71,7 @@ class DetailListStateModel @Inject internal constructor(
 
     private val isAllEntries = entryId.isEmpty()
 
-    private val updateDelegate = UpdateDelegate(stateModelScope, interactor) { handleError(it) }
+    private val updateDelegate = UpdateDelegate(interactor) { handleError(it) }
 
     private var expirationListener: PreferenceListener? = null
     private var sameDayListener: PreferenceListener? = null
@@ -108,46 +108,46 @@ class DetailListStateModel @Inject internal constructor(
         })
     }
 
-    init {
-        stateModelScope.launch(context = Dispatchers.Default) {
+    fun initialize(scope: CoroutineScope) {
+        scope.launch(context = Dispatchers.Default) {
             bottomOffsetBus.onEvent { setState { copy(bottomOffset = it.height) } }
         }
 
-        stateModelScope.launch(context = Dispatchers.Default) {
+        scope.launch(context = Dispatchers.Default) {
             if (!isAllEntries) {
                 val entry = interactor.loadEntry(entryId)
                 setState { copy(entry = entry) }
             }
         }
 
-        stateModelScope.launch(context = Dispatchers.Default) {
+        scope.launch(context = Dispatchers.Default) {
             val range = interactor.getExpiringSoonRange()
             setState { copy(expirationRange = DetailViewState.ExpirationRange(range)) }
         }
 
-        stateModelScope.launch(context = Dispatchers.Default) {
+        scope.launch(context = Dispatchers.Default) {
             val isSame = interactor.isSameDayExpired()
             setState { copy(isSameDayExpired = DetailViewState.IsSameDayExpired(isSame)) }
         }
 
-        stateModelScope.launch(context = Dispatchers.Default) {
+        scope.launch(context = Dispatchers.Default) {
             val show = interactor.isSearchEmptyStateShowAll()
             setState { copy(isShowAllItemsEmptyState = DetailViewState.ShowAllItemsEmptyState(show)) }
         }
 
-        stateModelScope.launch(context = Dispatchers.Default) {
+        scope.launch(context = Dispatchers.Default) {
             expirationListener = interactor.listenForExpiringSoonRangeChanged { range ->
                 setState { copy(expirationRange = DetailViewState.ExpirationRange(range)) }
             }
         }
 
-        stateModelScope.launch(context = Dispatchers.Default) {
+        scope.launch(context = Dispatchers.Default) {
             sameDayListener = interactor.listenForSameDayExpiredChanged { same ->
                 setState { copy(isSameDayExpired = DetailViewState.IsSameDayExpired(same)) }
             }
         }
 
-        stateModelScope.launch(context = Dispatchers.Default) {
+        scope.launch(context = Dispatchers.Default) {
             searchEmptyStateListener = interactor.listenForSearchEmptyStateChanged { show ->
                 setState {
                     copy(isShowAllItemsEmptyState = DetailViewState.ShowAllItemsEmptyState(show))
@@ -155,7 +155,7 @@ class DetailListStateModel @Inject internal constructor(
             }
         }
 
-        stateModelScope.launch(context = Dispatchers.Default) {
+        scope.launch(context = Dispatchers.Default) {
             if (isAllEntries) {
                 interactor.listenForAllChanges { handleRealtime(it) }
             } else {
@@ -163,7 +163,7 @@ class DetailListStateModel @Inject internal constructor(
             }
         }
 
-        refreshList(false)
+        handleRefreshList(scope, false)
     }
 
     override fun clear() {
@@ -370,32 +370,33 @@ class DetailListStateModel @Inject internal constructor(
             .toList()
     }
 
-    private fun updateCount(item: FridgeItem) {
+    private fun updateCount(scope: CoroutineScope, item: FridgeItem) {
         if (!item.isArchived()) {
-            updateDelegate.updateItem(item)
+            updateDelegate.updateItem(scope, item)
         }
     }
 
-    private inline fun withItemAt(index: Int, block: (FridgeItem) -> Unit) {
-        block(state.displayedItems[index])
-    }
-
-    private fun changePresence(oldItem: FridgeItem, newPresence: FridgeItem.Presence) {
-        updateDelegate.updateItem(oldItem.presence(newPresence))
-    }
-
-    internal fun CoroutineScope.updateSort(
-        newSort: DetailViewState.Sorts,
-        andThen: suspend (newState: DetailViewState) -> Unit,
+    private fun changePresence(
+        scope: CoroutineScope,
+        oldItem: FridgeItem,
+        newPresence: FridgeItem.Presence
     ) {
-        setState(stateChange = { copy(sort = newSort) }, andThen = { newState ->
-            refreshList(false)
-            andThen(newState)
+        updateDelegate.updateItem(scope, oldItem.presence(newPresence))
+    }
+
+    fun handleUpdateSort(
+        scope: CoroutineScope,
+        newSort: DetailViewState.Sorts,
+        andThen: suspend (DetailViewState.Sorts) -> Unit,
+    ) {
+        scope.setState(stateChange = { copy(sort = newSort) }, andThen = { newState ->
+            handleRefreshList(this, false)
+            andThen(newState.sort)
         })
     }
 
-    internal fun handlePresenceSwitch(presence: FridgeItem.Presence) {
-        setState(
+    fun handlePresenceSwitch(scope: CoroutineScope, presence: FridgeItem.Presence) {
+        scope.setState(
             stateChange = {
                 copy(
                     listItemPresence = presence,
@@ -405,61 +406,67 @@ class DetailListStateModel @Inject internal constructor(
                     sort = DetailViewState.Sorts.CREATED
                 )
             },
-            andThen = {
-                refreshList(false)
-            }
+            andThen = { handleRefreshList(this, false) }
         )
     }
 
-    fun reallyDelete() {
-        setState { copy(undoable = null) }
+    fun handleDeleteForever(scope: CoroutineScope) {
+        scope.setState { copy(undoable = null) }
     }
 
-    fun CoroutineScope.updateSearch(
+    fun handleUpdateSearch(
+        scope: CoroutineScope,
         newSearch: String,
-        andThen: suspend (newState: DetailViewState) -> Unit,
+        andThen: suspend (String) -> Unit,
     ) {
-        setState(
+        scope.setState(
             stateChange = {
                 val cleanSearch = if (newSearch.isNotBlank()) newSearch.trim() else ""
                 copy(search = cleanSearch)
             },
             andThen = { newState ->
-                refreshList(false)
-                andThen(newState)
+                handleRefreshList(this, false)
+                andThen(newState.search)
             }
         )
     }
 
-    fun decreaseCount(index: Int) {
+    private inline fun withItemAt(index: Int, block: (FridgeItem) -> Unit) {
+        block(state.displayedItems[index])
+    }
+
+    fun handleDecreaseCount(scope: CoroutineScope, index: Int) {
         withItemAt(index) { item ->
             val newCount = item.count() - 1
             val newItem = item.count(max(1, newCount))
-            updateCount(newItem)
+            updateCount(scope, newItem)
 
             if (newCount <= 0 && newItem.presence() == FridgeItem.Presence.HAVE) {
-                stateModelScope.launch(context = Dispatchers.Default) {
+                scope.launch(context = Dispatchers.Default) {
                     if (interactor.isZeroCountConsideredConsumed()) {
-                        consume(index)
+                        handleConsume(this, index)
                     }
                 }
             }
         }
     }
 
-    fun increaseCount(index: Int) {
-        withItemAt(index) { updateCount(it.count(it.count() + 1)) }
+    fun handleIncreaseCount(scope: CoroutineScope, index: Int) {
+        withItemAt(index) { updateCount(scope, it.count(it.count() + 1)) }
     }
 
-    fun handleUndoDelete() {
-        stateModelScope.launch(context = Dispatchers.Default) {
+    fun handleUndoDelete(scope: CoroutineScope) {
+        scope.launch(context = Dispatchers.Default) {
             val u = requireNotNull(state.undoable)
             undoRunner.call(u.item)
         }
     }
 
-    fun toggleArchived(andThen: suspend (newState: DetailViewState) -> Unit) {
-        setState(
+    fun handleToggleArchived(
+        scope: CoroutineScope,
+        andThen: suspend (DetailViewState.Showing) -> Unit
+    ) {
+        scope.setState(
             stateChange = {
                 val newShowing = when (showing) {
                     DetailViewState.Showing.FRESH -> DetailViewState.Showing.CONSUMED
@@ -469,48 +476,48 @@ class DetailListStateModel @Inject internal constructor(
                 copy(showing = newShowing)
             },
             andThen = { newState ->
-                refreshList(false)
-                andThen(newState)
+                handleRefreshList(this, false)
+                andThen(newState.showing)
             }
         )
     }
 
-    fun refreshList(force: Boolean) {
-        stateModelScope.launch(context = Dispatchers.Default) {
+    fun handleRefreshList(scope: CoroutineScope, force: Boolean) {
+        scope.launch(context = Dispatchers.Default) {
             refreshRunner.call(force)
         }
     }
 
-    fun commitPresence(index: Int) {
-        withItemAt(index) { changePresence(it, it.presence().flip()) }
+    fun handleCommitPresence(scope: CoroutineScope, index: Int) {
+        withItemAt(index) { changePresence(scope, it, it.presence().flip()) }
     }
 
-    fun consume(index: Int) {
-        withItemAt(index) { updateDelegate.consumeItem(it) }
+    fun handleConsume(scope: CoroutineScope, index: Int) {
+        withItemAt(index) { updateDelegate.consumeItem(scope, it) }
     }
 
-    fun restore(index: Int) {
-        withItemAt(index) { updateDelegate.restoreItem(it) }
+    fun handleRestore(scope: CoroutineScope, index: Int) {
+        withItemAt(index) { updateDelegate.restoreItem(scope, it) }
     }
 
-    fun spoil(index: Int) {
-        withItemAt(index) { updateDelegate.spoilItem(it) }
+    fun handleSpoil(scope: CoroutineScope, index: Int) {
+        withItemAt(index) { updateDelegate.spoilItem(scope, it) }
     }
 
-    fun delete(index: Int) {
-        withItemAt(index) { updateDelegate.deleteItem(it) }
+    fun handleDelete(scope: CoroutineScope, index: Int) {
+        withItemAt(index) { updateDelegate.deleteItem(scope, it) }
     }
 
-    fun clearListError() {
-        stateModelScope.handleError(null)
+    fun handleClearListError(scope: CoroutineScope) {
+        scope.handleError(null)
     }
 
-    fun CoroutineScope.updateFilter(showing: DetailViewState.Showing) {
-        setState { copy(showing = showing) }
+    fun handleUpdateFilter(scope: CoroutineScope, showing: DetailViewState.Showing) {
+        scope.setState { copy(showing = showing) }
     }
 
-    fun handleAddAgain(oldItem: FridgeItem) {
-        stateModelScope.launch(context = Dispatchers.Default) {
+    fun handleAddAgain(scope: CoroutineScope, oldItem: FridgeItem) {
+        scope.launch(context = Dispatchers.Default) {
             Timber.d("Add again - create a new item with copied fields")
             val newItem = FridgeItem.create(
                 entryId = oldItem.entryId(),

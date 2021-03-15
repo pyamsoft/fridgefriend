@@ -27,6 +27,7 @@ import com.pyamsoft.pydroid.bus.EventBus
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -55,11 +56,11 @@ class MainViewModel @AssistedInject internal constructor(
         refreshBadgeCounts()
     }
 
-    fun loadDefaultPage() {
+    fun handleLoadDefaultPage(onLoad: (MainPage, MainPage?, Boolean) -> Unit) {
         viewModelScope.launch(context = Dispatchers.Default) {
             val page = restoreSavedState(KEY_PAGE) { MainPage.Entries.asString() }.asPage()
             Timber.d("Loading initial page: $page")
-            selectPage(force = true, page)
+            handleSelectPage(this, page, force = true, onLoad)
         }
     }
 
@@ -81,49 +82,37 @@ class MainViewModel @AssistedInject internal constructor(
         }
     }
 
-    override fun handleViewEvent(event: MainViewEvent) = when (event) {
-        is MainViewEvent.OpenEntries -> selectPage(force = false, MainPage.Entries)
-        is MainViewEvent.OpenCategory -> selectPage(force = false, MainPage.Category)
-        is MainViewEvent.OpenSettings -> selectPage(force = false, MainPage.Settings)
-        is MainViewEvent.OpenSearch -> selectPage(force = false, MainPage.Search)
-        is MainViewEvent.BottomBarMeasured -> consumeBottomBarHeight(event.height)
-    }
-
-    private fun consumeBottomBarHeight(height: Int) {
+    fun handleConsumeBottomBarHeight(height: Int) {
         viewModelScope.launch(context = Dispatchers.Default) {
             bottomOffsetBus.send(BottomOffset(height))
         }
     }
 
-    fun selectPage(force: Boolean, page: MainPage) = when (page) {
-        is MainPage.Entries -> select(page) { MainControllerEvent.PushEntry(it, force) }
-        is MainPage.Category -> select(page) { MainControllerEvent.PushCategory(it, force) }
-        is MainPage.Settings -> select(page) { MainControllerEvent.PushSettings(it, force) }
-        is MainPage.Search -> select(page) { MainControllerEvent.PushSearch(it, force) }
-    }
-
-    private inline fun select(
+    fun handleSelectPage(
+        scope: CoroutineScope,
         newPage: MainPage,
-        crossinline event: (page: MainPage?) -> (MainControllerEvent),
+        force: Boolean,
+        onNewSelection: (MainPage, MainPage?, Boolean) -> Unit
     ) {
         Timber.d("Select entry: $newPage")
         refreshBadgeCounts()
 
         // If the pages match we can just run the after, no need to set and publish
         val oldPage = state.page
-        setState(stateChange = { copy(page = newPage) }, andThen = { newState ->
-            publishNewSelection(requireNotNull(newState.page), oldPage, event)
+        scope.setState(stateChange = { copy(page = newPage) }, andThen = { newState ->
+            publishNewSelection(requireNotNull(newState.page), oldPage, force, onNewSelection)
         })
     }
 
     private suspend inline fun publishNewSelection(
         newPage: MainPage,
         oldPage: MainPage?,
-        event: (page: MainPage?) -> MainControllerEvent,
+        force: Boolean,
+        onNewSelection: (MainPage, MainPage?, Boolean) -> Unit
     ) {
         Timber.d("Publish selection: $oldPage -> $newPage")
         putSavedState(KEY_PAGE, newPage.asString())
-        publish(event(oldPage))
+        onNewSelection(newPage, oldPage, force)
     }
 
     companion object {

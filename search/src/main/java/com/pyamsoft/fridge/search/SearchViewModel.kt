@@ -27,7 +27,6 @@ import com.pyamsoft.pydroid.arch.UiSavedStateViewModelProvider
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
-import kotlinx.coroutines.CoroutineScope
 
 class SearchViewModel @AssistedInject internal constructor(
     private val delegate: DetailListStateModel,
@@ -37,8 +36,9 @@ class SearchViewModel @AssistedInject internal constructor(
 ) {
 
     init {
-        val job = delegate.bind(Renderable { state ->
-            state.render(viewModelScope) { setState { it } }
+        val scope = viewModelScope
+        val job = delegate.bindState(scope, Renderable { state ->
+            state.render(scope) { scope.setState { it } }
         })
         doOnCleared {
             job.cancel()
@@ -46,26 +46,16 @@ class SearchViewModel @AssistedInject internal constructor(
         doOnCleared {
             delegate.clear()
         }
+
+        delegate.initialize(scope)
     }
 
-    override fun handleViewEvent(event: DetailViewEvent.ToolbarEvent.Search) = when (event) {
-        is DetailViewEvent.ToolbarEvent.Search.Query -> handleUpdateSearch(event.search)
-    }
-
-    private fun handleUpdateSearch(search: String) {
-        viewModelScope.handleUpdateSearch(search)
-    }
-
-    private fun CoroutineScope.handleUpdateSearch(search: String) {
-        val scope = this
-        delegate.apply {
-            scope.updateSearch(search) { newState ->
-                val newSearch = newState.search
-                if (newSearch.isNotBlank()) {
-                    putSavedState(SAVED_SEARCH, newSearch)
-                } else {
-                    removeSavedState(SAVED_SEARCH)
-                }
+    fun handleUpdateSearch(search: String) {
+        delegate.handleUpdateSearch(viewModelScope, search) { newSearch ->
+            if (newSearch.isNotBlank()) {
+                putSavedState(SAVED_SEARCH, newSearch)
+            } else {
+                removeSavedState(SAVED_SEARCH)
             }
         }
     }

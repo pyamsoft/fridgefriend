@@ -46,7 +46,7 @@ import com.pyamsoft.fridge.ui.SnackbarContainer
 import com.pyamsoft.fridge.ui.appbar.AppBarActivity
 import com.pyamsoft.fridge.ui.appbar.AppBarActivityProvider
 import com.pyamsoft.pydroid.arch.StateSaver
-import com.pyamsoft.pydroid.arch.createComponent
+import com.pyamsoft.pydroid.arch.bindController
 import com.pyamsoft.pydroid.arch.createSavedStateViewModelFactory
 import com.pyamsoft.pydroid.notify.toNotifyId
 import com.pyamsoft.pydroid.ui.Injector
@@ -231,7 +231,14 @@ internal class MainActivity : ChangeLogActivity(),
         val presence = FridgeItem.Presence.valueOf(pres)
         Timber.d("Entries page selected, load entry $entryId with presence: $presence")
 
-        viewModel.selectPage(force = true, MainPage.Entries)
+        viewModel.handleSelectPage(
+            lifecycleScope,
+            MainPage.Entries,
+            force = true
+        ) { newPage, oldPage, force ->
+            onSelectPage(newPage, oldPage, force)
+        }
+
         handleNotificationAction { fm ->
             EntryFragment.pushDetailPage(
                 fm,
@@ -287,6 +294,15 @@ internal class MainActivity : ChangeLogActivity(),
         }
     }
 
+    private fun onSelectPage(newPage: MainPage, oldPage: MainPage?, force: Boolean) {
+        return when (newPage) {
+            is MainPage.Entries -> pushEntry(oldPage, force)
+            is MainPage.Search -> pushCategory(oldPage, force)
+            is MainPage.Settings -> pushSettings(oldPage, force)
+            is MainPage.Category -> pushSearch(oldPage, force)
+        }
+    }
+
     private fun inflateComponents(
         constraintLayout: ConstraintLayout,
         savedInstanceState: Bundle?,
@@ -295,20 +311,44 @@ internal class MainActivity : ChangeLogActivity(),
         val toolbar = requireNotNull(toolbar)
         val navigation = requireNotNull(navigation)
         val snackbar = requireNotNull(snackbar)
-        stateSaver = createComponent(
+        stateSaver = viewModel.bindController(
             savedInstanceState,
             this,
-            viewModel,
             container,
             toolbar,
             navigation,
             snackbar
         ) {
-            return@createComponent when (it) {
-                is MainControllerEvent.PushEntry -> pushEntry(it.previousPage, it.force)
-                is MainControllerEvent.PushCategory -> pushCategory(it.previousPage, it.force)
-                is MainControllerEvent.PushSettings -> pushSettings(it.previousPage, it.force)
-                is MainControllerEvent.PushSearch -> pushSearch(it.previousPage, it.force)
+            return@bindController when (it) {
+                is MainViewEvent.BottomBarMeasured -> viewModel.handleConsumeBottomBarHeight(it.height)
+                is MainViewEvent.OpenCategory -> viewModel.handleSelectPage(
+                    this,
+                    MainPage.Category,
+                    force = false
+                ) { newPage, oldPage, force ->
+                    onSelectPage(newPage, oldPage, force)
+                }
+                is MainViewEvent.OpenEntries -> viewModel.handleSelectPage(
+                    this,
+                    MainPage.Entries,
+                    force = false
+                ) { newPage, oldPage, force ->
+                    onSelectPage(newPage, oldPage, force)
+                }
+                is MainViewEvent.OpenSearch -> viewModel.handleSelectPage(
+                    this,
+                    MainPage.Search,
+                    force = false
+                ) { newPage, oldPage, force ->
+                    onSelectPage(newPage, oldPage, force)
+                }
+                is MainViewEvent.OpenSettings -> viewModel.handleSelectPage(
+                    this,
+                    MainPage.Settings,
+                    force = false
+                ) { newPage, oldPage, force ->
+                    onSelectPage(newPage, oldPage, force)
+                }
             }
         }
 
@@ -360,7 +400,9 @@ internal class MainActivity : ChangeLogActivity(),
 
         val existingFragment = supportFragmentManager.findFragmentById(fragmentContainerId)
         if (savedInstanceState == null || existingFragment == null) {
-            viewModel.loadDefaultPage()
+            viewModel.handleLoadDefaultPage { newPage, oldPage, force ->
+                onSelectPage(newPage, oldPage, force)
+            }
         }
     }
 

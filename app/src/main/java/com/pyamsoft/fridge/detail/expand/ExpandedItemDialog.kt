@@ -24,6 +24,7 @@ import androidx.annotation.CheckResult
 import androidx.appcompat.app.AppCompatDialogFragment
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.fragment.app.DialogFragment
+import androidx.lifecycle.lifecycleScope
 import com.pyamsoft.fridge.FridgeComponent
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItem
@@ -31,7 +32,7 @@ import com.pyamsoft.fridge.db.item.FridgeItem.Presence
 import com.pyamsoft.fridge.detail.expand.date.DateSelectDialog
 import com.pyamsoft.fridge.detail.expand.move.ItemMoveDialog
 import com.pyamsoft.pydroid.arch.StateSaver
-import com.pyamsoft.pydroid.arch.createComponent
+import com.pyamsoft.pydroid.arch.bindController
 import com.pyamsoft.pydroid.arch.createSavedStateViewModelFactory
 import com.pyamsoft.pydroid.ui.Injector
 import com.pyamsoft.pydroid.ui.app.makeFullWidth
@@ -135,10 +136,12 @@ internal class ExpandedItemDialog : AppCompatDialogFragment() {
         val purchased = requireNotNull(purchased)
         val shadow =
             DropshadowView.createTyped<ExpandItemViewState, ExpandedItemViewEvent>(binding.layoutConstraint)
-        stateSaver = createComponent(
+
+        viewModel.initialize(viewLifecycleOwner.lifecycleScope) { dismiss() }
+
+        stateSaver = viewModel.bindController(
             savedInstanceState,
             viewLifecycleOwner,
-            viewModel,
             name,
             date,
             presence,
@@ -150,15 +153,49 @@ internal class ExpandedItemDialog : AppCompatDialogFragment() {
             toolbar,
             shadow
         ) {
-            return@createComponent when (it) {
-                is ExpandItemControllerEvent.DatePick -> pickDate(
-                    it.oldItem,
-                    it.year,
-                    it.month,
-                    it.day
+            return@bindController when (it) {
+                is ExpandedItemViewEvent.ItemEvent.CommitCategory -> viewModel.handleCommitCategory(
+                    this, it.index
+                ) {
+                    dismiss()
+                }
+                is ExpandedItemViewEvent.ItemEvent.CommitCount -> viewModel.handleCommitCount(
+                    this,
+                    it.count
+                ) {
+                    dismiss()
+                }
+                is ExpandedItemViewEvent.ItemEvent.CommitName -> viewModel.handleCommitName(
+                    this,
+                    it.name
+                ) {
+                    dismiss()
+                }
+                is ExpandedItemViewEvent.ItemEvent.CommitPresence -> viewModel.handleCommitPresence(
+                    this
+                ) {
+                    dismiss()
+                }
+                is ExpandedItemViewEvent.ItemEvent.PickDate -> viewModel.handlePickDate { oldItem, year, month, day ->
+                    pickDate(oldItem, year, month, day)
+                }
+                is ExpandedItemViewEvent.ItemEvent.SelectSimilar -> viewModel.handleSimilarSelected(
+                    it.item
                 )
-                is ExpandItemControllerEvent.CloseExpand -> dismiss()
-                is ExpandItemControllerEvent.BeginMove -> loadMoveSubDialog(it.item)
+                is ExpandedItemViewEvent.ToolbarEvent.CloseItem -> viewModel.handleCloseSelf(this) {
+                    dismiss()
+                }
+                is ExpandedItemViewEvent.ToolbarEvent.ConsumeItem -> viewModel.handleConsumeSelf(
+                    this
+                )
+                is ExpandedItemViewEvent.ToolbarEvent.DeleteItem -> viewModel.handleDeleteSelf(this)
+                is ExpandedItemViewEvent.ToolbarEvent.MoveItem -> viewModel.handleMoveItem { item ->
+                    loadMoveSubDialog(item)
+                }
+                is ExpandedItemViewEvent.ToolbarEvent.RestoreItem -> viewModel.handleRestoreSelf(
+                    this
+                )
+                is ExpandedItemViewEvent.ToolbarEvent.SpoilItem -> viewModel.handleSpoilSelf(this)
             }
         }
 

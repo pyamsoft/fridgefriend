@@ -38,6 +38,4 @@ class SettingsViewModel @Inject internal constructor(
         }
     }
 
-    override fun handleViewEvent(event: UnitViewEvent) {
-    }
 }

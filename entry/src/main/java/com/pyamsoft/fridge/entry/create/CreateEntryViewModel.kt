@@ -39,18 +39,13 @@ class CreateEntryViewModel @Inject internal constructor(
 ) {
 
     private val commitRunner = highlander<Unit, FridgeEntry> { entry ->
-        setState(stateChange = { copy(working = true) }, andThen = {
-            try {
-                interactor.commit(entry)
-                publish(CreateEntryControllerEvent.Commit)
-            } catch (throwable: Throwable) {
-                throwable.onActualError {
-                    handleCreateError(throwable)
-                }
-            } finally {
-                setState { copy(working = false) }
+        try {
+            interactor.commit(entry)
+        } catch (throwable: Throwable) {
+            throwable.onActualError {
+                handleCreateError(throwable)
             }
-        })
+        }
     }
 
     private val loadRunner = highlander<FridgeEntry?, FridgeEntry.Id> { id ->
@@ -68,21 +63,20 @@ class CreateEntryViewModel @Inject internal constructor(
         setState { copy(throwable = throwable) }
     }
 
-    override fun handleViewEvent(event: CreateEntryViewEvent) = when (event) {
-        is CreateEntryViewEvent.Commit -> commitNewEntry()
-        is CreateEntryViewEvent.NameChanged -> updateName(event.name)
-    }
-
-    private fun updateName(name: String) {
+    fun handleUpdateName(name: String) {
         requireNotNull(state.entry).let { e ->
-            setState { copy(entry = e.name(name)) }
+            viewModelScope.setState { copy(entry = e.name(name)) }
         }
     }
 
-    private fun commitNewEntry() {
-        viewModelScope.launch(context = Dispatchers.Default) {
+    fun handleCommitNewEntry(scope: CoroutineScope, onCommit: () -> Unit) {
+        scope.launch(context = Dispatchers.Default) {
             requireNotNull(state.entry).let { e ->
-                commitRunner.call(e)
+                setState(stateChange = { copy(working = true) }, andThen = {
+                    commitRunner.call(e)
+                    onCommit()
+                    setState { copy(working = false) }
+                })
             }
         }
     }

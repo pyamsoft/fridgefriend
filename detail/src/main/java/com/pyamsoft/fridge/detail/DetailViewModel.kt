@@ -16,100 +16,29 @@
 
 package com.pyamsoft.fridge.detail
 
-import androidx.lifecycle.viewModelScope
+import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItem
-import com.pyamsoft.pydroid.arch.Renderable
 import com.pyamsoft.pydroid.arch.UiSavedState
-import com.pyamsoft.pydroid.arch.UiSavedStateViewModel
 import com.pyamsoft.pydroid.arch.UiSavedStateViewModelProvider
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import timber.log.Timber
 
 class DetailViewModel @AssistedInject internal constructor(
-    private val delegate: DetailListStateModel,
+    delegate: DetailListStateModel,
     @Assisted savedState: UiSavedState,
-) : UiSavedStateViewModel<DetailViewState, DetailViewEvent.ListEvent, DetailControllerEvent>(
-    savedState, initialState = delegate.initialState
-) {
+) : BaseDetailViewModel(delegate, savedState) {
 
-    init {
-        val job = delegate.bind(Renderable { state ->
-            state.render(viewModelScope) { setState { it } }
-        })
-        doOnCleared {
-            job.cancel()
-        }
-        doOnCleared {
-            delegate.clear()
-        }
-
-        viewModelScope.launch(context = Dispatchers.Default) {
-            val filterName = restoreSavedState(SAVED_FILTER) { "" }
-            if (filterName.isNotBlank()) {
-                val filter = DetailViewState.Showing.valueOf(filterName)
-                handleUpdateFilter(filter)
-            }
-        }
-    }
-
-    override fun handleViewEvent(event: DetailViewEvent.ListEvent) = when (event) {
-        is DetailViewEvent.ListEvent.ForceRefresh -> delegate.refreshList(true)
-        is DetailViewEvent.ListEvent.ChangeItemPresence -> delegate.commitPresence(event.index)
-        is DetailViewEvent.ListEvent.ConsumeItem -> delegate.consume(event.index)
-        is DetailViewEvent.ListEvent.DeleteItem -> delegate.delete(event.index)
-        is DetailViewEvent.ListEvent.RestoreItem -> delegate.restore(event.index)
-        is DetailViewEvent.ListEvent.SpoilItem -> delegate.spoil(event.index)
-        is DetailViewEvent.ListEvent.IncreaseItemCount -> delegate.increaseCount(event.index)
-        is DetailViewEvent.ListEvent.DecreaseItemCount -> delegate.decreaseCount(event.index)
-        is DetailViewEvent.ListEvent.ExpandItem -> handleExpand(event.index)
-        is DetailViewEvent.ListEvent.ChangeCurrentFilter -> updateShowing()
-        is DetailViewEvent.ListEvent.ReallyDeleteItemNoUndo -> delegate.reallyDelete()
-        is DetailViewEvent.ListEvent.UndoDeleteItem -> delegate.handleUndoDelete()
-        is DetailViewEvent.ListEvent.ClearListError -> delegate.clearListError()
-        is DetailViewEvent.ListEvent.AnotherOne -> delegate.handleAddAgain(event.item)
-        is DetailViewEvent.ListEvent.AddNew -> handleAddNew()
-    }
-
-    private fun updateShowing() {
-        delegate.toggleArchived { newState ->
-            putSavedState(SAVED_FILTER, newState.showing.name)
-        }
-    }
-
-    private fun CoroutineScope.handleUpdateFilter(filter: DetailViewState.Showing) {
-        val scope = this
-
-        delegate.apply {
-            scope.updateFilter(filter)
-        }
-    }
-
-    private fun handleAddNew() {
+    fun handleAddNew(onAddNew: (FridgeEntry.Id, FridgeItem.Presence) -> Unit) {
         state.apply {
             val e = entry
             if (e == null) {
                 Timber.w("Cannot add new, detail entry null!")
             } else {
-                publish(DetailControllerEvent.AddNew(e.id(), listItemPresence))
+                onAddNew(e.id(), listItemPresence)
             }
         }
-    }
-
-    private inline fun withItemAt(index: Int, block: (FridgeItem) -> Unit) {
-        block(state.displayedItems[index])
-    }
-
-    private fun handleExpand(index: Int) {
-        withItemAt(index) { publish(DetailControllerEvent.Expand.ExpandForEditing(it)) }
-    }
-
-    companion object {
-        private const val SAVED_FILTER = "filter"
     }
 
     @AssistedFactory
