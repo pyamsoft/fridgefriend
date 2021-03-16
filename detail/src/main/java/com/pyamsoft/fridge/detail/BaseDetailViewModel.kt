@@ -19,16 +19,16 @@ package com.pyamsoft.fridge.detail
 import androidx.lifecycle.viewModelScope
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.pydroid.arch.Renderable
+import com.pyamsoft.pydroid.arch.UiControllerEvent
 import com.pyamsoft.pydroid.arch.UiSavedState
 import com.pyamsoft.pydroid.arch.UiSavedStateViewModel
-import com.pyamsoft.pydroid.arch.UnitControllerEvent
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-abstract class BaseDetailViewModel protected constructor(
+abstract class BaseDetailViewModel<C : UiControllerEvent> protected constructor(
     private val delegate: DetailListStateModel,
     savedState: UiSavedState,
-) : UiSavedStateViewModel<DetailViewState, DetailViewEvent.ListEvent, UnitControllerEvent>(
+) : UiSavedStateViewModel<DetailViewState, C>(
     savedState, initialState = delegate.initialState
 ) {
 
@@ -113,9 +113,13 @@ abstract class BaseDetailViewModel protected constructor(
         block(state.displayedItems[index])
     }
 
-    fun handleExpand(index: Int, onExpand: (FridgeItem) -> Unit) {
-        withItemAt(index) { onExpand(it) }
+    fun handleExpand(index: Int) {
+        withItemAt(index) {
+            onExpand(it)
+        }
     }
+
+    protected abstract fun onExpand(item: FridgeItem)
 
     companion object {
         private const val SAVED_FILTER = "filter"

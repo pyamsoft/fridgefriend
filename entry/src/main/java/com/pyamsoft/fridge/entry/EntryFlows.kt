@@ -20,6 +20,7 @@ import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.ui.view.UiToolbar
+import com.pyamsoft.pydroid.arch.UiControllerEvent
 import com.pyamsoft.pydroid.arch.UiViewEvent
 
 data class EntryViewState internal constructor(
@@ -57,6 +58,13 @@ data class EntryViewState internal constructor(
     }
 }
 
+sealed class ReadOnlyListEvents : UiViewEvent {
+
+    data class Select internal constructor(val index: Int) : ReadOnlyListEvents()
+
+    object ForceRefresh : ReadOnlyListEvents()
+}
+
 sealed class EntryViewEvent : UiViewEvent {
 
     sealed class ListEvents : EntryViewEvent() {
@@ -87,6 +95,17 @@ sealed class EntryViewEvent : UiViewEvent {
         data class ChangeSort(val sort: EntryViewState.Sorts) : ToolbarEvent()
 
     }
+}
+
+sealed class EntryControllerEvent : UiControllerEvent {
+
+    data class LoadEntry internal constructor(
+        val entry: FridgeEntry
+    ) : EntryControllerEvent()
+
+    data class EditEntry internal constructor(
+        val entry: FridgeEntry
+    ) : EntryControllerEvent()
 
 }
 

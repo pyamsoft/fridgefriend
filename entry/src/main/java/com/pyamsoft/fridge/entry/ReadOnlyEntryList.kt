@@ -14,26 +14,27 @@
  * limitations under the License.
  */
 
-package com.pyamsoft.fridge.detail
+package com.pyamsoft.fridge.entry
 
-import androidx.lifecycle.viewModelScope
-import com.pyamsoft.fridge.db.item.FridgeItem
-import com.pyamsoft.pydroid.arch.UiViewModel
-import com.pyamsoft.pydroid.arch.UnitControllerEvent
+import android.view.ViewGroup
+import com.pyamsoft.fridge.entry.item.EntryItemComponent
 import javax.inject.Inject
 
-class DetailSwitcherViewModel @Inject internal constructor(
-    private val delegate: DetailListStateModel,
-) : UiViewModel<DetailViewState, UnitControllerEvent>(
-    initialState = delegate.initialState
-) {
+class ReadOnlyEntryList @Inject internal constructor(
+    parent: ViewGroup,
+    factory: EntryItemComponent.Factory,
+) : BaseEntryList<ReadOnlyListEvents>(parent, factory) {
 
-    init {
-        delegate.initialize(viewModelScope)
+    override fun onRefresh() {
+        publish(ReadOnlyListEvents.ForceRefresh)
     }
 
-    fun handlePresenceSwitch(presence: FridgeItem.Presence) {
-        delegate.handlePresenceSwitch(viewModelScope, presence)
+    override fun onClick(index: Int) {
+        publish(ReadOnlyListEvents.Select(index))
     }
+
+    override fun onLongPress(index: Int) {
+        publish(ReadOnlyListEvents.Select(index))
+    }
+
 }
-

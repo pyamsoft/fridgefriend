@@ -38,7 +38,7 @@ import com.pyamsoft.pydroid.ui.R as R2
 class ExpandItemToolbar @Inject internal constructor(
     imageLoader: ImageLoader,
     parent: ViewGroup,
-) : BaseUiView<ExpandItemViewState, ExpandedItemViewEvent.ToolbarEvent, ExpandToolbarBinding>(parent) {
+) : BaseUiView<ExpandedViewState, ExpandedViewEvent.ToolbarEvent, ExpandToolbarBinding>(parent) {
 
     override val viewBinding = ExpandToolbarBinding::inflate
 
@@ -93,29 +93,29 @@ class ExpandItemToolbar @Inject internal constructor(
 
         doOnInflate {
             binding.expandToolbar.setNavigationOnClickListener(DebouncedOnClickListener.create {
-                publish(ExpandedItemViewEvent.ToolbarEvent.CloseItem)
+                publish(ExpandedViewEvent.ToolbarEvent.CloseItem)
             })
 
             binding.expandToolbar.setOnMenuItemClickListener { menuItem ->
                 return@setOnMenuItemClickListener when (menuItem.itemId) {
                     R.id.menu_item_move -> {
-                        publish(ExpandedItemViewEvent.ToolbarEvent.MoveItem)
+                        publish(ExpandedViewEvent.ToolbarEvent.MoveItem)
                         true
                     }
                     R.id.menu_item_delete -> {
-                        publish(ExpandedItemViewEvent.ToolbarEvent.DeleteItem)
+                        publish(ExpandedViewEvent.ToolbarEvent.DeleteItem)
                         true
                     }
                     R.id.menu_item_consume -> {
-                        publish(ExpandedItemViewEvent.ToolbarEvent.ConsumeItem)
+                        publish(ExpandedViewEvent.ToolbarEvent.ConsumeItem)
                         true
                     }
                     R.id.menu_item_spoil -> {
-                        publish(ExpandedItemViewEvent.ToolbarEvent.SpoilItem)
+                        publish(ExpandedViewEvent.ToolbarEvent.SpoilItem)
                         true
                     }
                     R.id.menu_item_restore -> {
-                        publish(ExpandedItemViewEvent.ToolbarEvent.RestoreItem)
+                        publish(ExpandedViewEvent.ToolbarEvent.RestoreItem)
                         true
                     }
                     else -> false
@@ -167,7 +167,7 @@ class ExpandItemToolbar @Inject internal constructor(
         }
     }
 
-    override fun onRender(state: UiRender<ExpandItemViewState>) {
+    override fun onRender(state: UiRender<ExpandedViewState>) {
         state.mapChanged { it.item }.render(viewScope) { handleItem(it) }
     }
 }

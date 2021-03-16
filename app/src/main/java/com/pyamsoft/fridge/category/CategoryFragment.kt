@@ -26,7 +26,8 @@ import com.pyamsoft.fridge.FridgeComponent
 import com.pyamsoft.fridge.core.FridgeViewModelFactory
 import com.pyamsoft.fridge.ui.requireAppBarActivity
 import com.pyamsoft.pydroid.arch.StateSaver
-import com.pyamsoft.pydroid.arch.bindController
+import com.pyamsoft.pydroid.arch.UiController
+import com.pyamsoft.pydroid.arch.UnitControllerEvent
 import com.pyamsoft.pydroid.arch.createComponent
 import com.pyamsoft.pydroid.ui.Injector
 import com.pyamsoft.pydroid.ui.arch.fromViewModelFactory
@@ -34,7 +35,7 @@ import com.pyamsoft.pydroid.ui.databinding.LayoutCoordinatorBinding
 import javax.inject.Inject
 import com.pyamsoft.pydroid.ui.R as R2
 
-internal class CategoryFragment : Fragment() {
+internal class CategoryFragment : Fragment(), UiController<UnitControllerEvent> {
 
     @JvmField
     @Inject
@@ -78,12 +79,17 @@ internal class CategoryFragment : Fragment() {
             )
             .inject(this)
 
-        stateSaver = viewModel.bindController(
+        stateSaver = createComponent(
             savedInstanceState,
             viewLifecycleOwner,
+            viewModel,
+            this,
             requireNotNull(heroImage),
             requireNotNull(list)
         ) {}
+    }
+
+    override fun onControllerEvent(event: UnitControllerEvent) {
     }
 
     override fun onSaveInstanceState(outState: Bundle) {

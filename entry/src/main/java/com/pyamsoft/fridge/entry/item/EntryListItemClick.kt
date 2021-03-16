@@ -29,11 +29,11 @@ class EntryListItemClick @Inject internal constructor(
     init {
         doOnInflate {
             parent.setOnDebouncedClickListener {
-                publish(EntryItemViewEvent.ExpandEntry)
+                publish(EntryItemViewEvent.OnClick)
             }
 
             parent.setOnLongClickListener {
-                publish(EntryItemViewEvent.EditEntry)
+                publish(EntryItemViewEvent.OnLongPress)
                 return@setOnLongClickListener true
             }
         }

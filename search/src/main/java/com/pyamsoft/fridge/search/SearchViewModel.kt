@@ -18,12 +18,12 @@ package com.pyamsoft.fridge.search
 
 import androidx.lifecycle.viewModelScope
 import com.pyamsoft.fridge.detail.DetailListStateModel
-import com.pyamsoft.fridge.detail.DetailViewEvent
 import com.pyamsoft.fridge.detail.DetailViewState
 import com.pyamsoft.pydroid.arch.Renderable
 import com.pyamsoft.pydroid.arch.UiSavedState
 import com.pyamsoft.pydroid.arch.UiSavedStateViewModel
 import com.pyamsoft.pydroid.arch.UiSavedStateViewModelProvider
+import com.pyamsoft.pydroid.arch.UnitControllerEvent
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
@@ -31,7 +31,7 @@ import dagger.assisted.AssistedInject
 class SearchViewModel @AssistedInject internal constructor(
     private val delegate: DetailListStateModel,
     @Assisted savedState: UiSavedState
-) : UiSavedStateViewModel<DetailViewState, DetailViewEvent.ToolbarEvent.Search, Nothing>(
+) : UiSavedStateViewModel<DetailViewState, UnitControllerEvent>(
     savedState, initialState = delegate.initialState
 ) {
 

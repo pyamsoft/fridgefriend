@@ -26,7 +26,6 @@ import com.pyamsoft.highlander.highlander
 import com.pyamsoft.pydroid.arch.Renderable
 import com.pyamsoft.pydroid.arch.UiViewModel
 import com.pyamsoft.pydroid.arch.UnitControllerEvent
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -38,7 +37,7 @@ class ItemMoveViewModel @Inject internal constructor(
     @MoveInternalApi delegate: EntryListStateModel,
     itemId: FridgeItem.Id,
     entryId: FridgeEntry.Id,
-) : UiViewModel<ItemMoveViewState, ItemMoveViewEvent, UnitControllerEvent>(
+) : UiViewModel<ItemMoveViewState, ItemMoveControllerEvent>(
     initialState = ItemMoveViewState(
         item = null,
         listState = delegate.initialState
@@ -61,10 +60,10 @@ class ItemMoveViewModel @Inject internal constructor(
         }
     }
 
-    fun handleMoveItemToEntry(scope: CoroutineScope, entry: FridgeEntry, onMoved: () -> Unit) {
+    fun handleMoveItemToEntry(entry: FridgeEntry) {
         state.item?.let { item ->
             Timber.d("Move item from ${item.entryId()} to ${entry.id()}")
-            scope.launch(context = Dispatchers.Default) {
+            viewModelScope.launch(context = Dispatchers.Default) {
                 Timber.d("Remove old item")
                 interactor.delete(item, false)
 
@@ -75,7 +74,7 @@ class ItemMoveViewModel @Inject internal constructor(
                 dbCache.invalidate()
 
                 Timber.d("All done moving")
-                onMoved()
+                publish(ItemMoveControllerEvent.Close)
             }
         }
     }

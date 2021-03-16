@@ -26,7 +26,9 @@ import com.pyamsoft.fridge.main.VersionChecker
 import com.pyamsoft.fridge.ui.applyToolbarOffset
 import com.pyamsoft.fridge.ui.requireAppBarActivity
 import com.pyamsoft.pydroid.arch.StateSaver
-import com.pyamsoft.pydroid.arch.bindController
+import com.pyamsoft.pydroid.arch.UiController
+import com.pyamsoft.pydroid.arch.UnitControllerEvent
+import com.pyamsoft.pydroid.arch.createComponent
 import com.pyamsoft.pydroid.ui.Injector
 import com.pyamsoft.pydroid.ui.arch.fromViewModelFactory
 import com.pyamsoft.pydroid.ui.settings.AppSettingsFragment
@@ -62,7 +64,9 @@ internal class SettingsFragment : AppSettingsFragment() {
         }
     }
 
-    internal class SettingsPreferenceFragment : AppSettingsPreferenceFragment() {
+    internal class SettingsPreferenceFragment :
+        AppSettingsPreferenceFragment(),
+        UiController<UnitControllerEvent> {
 
         override val preferenceXmlResId: Int = R.xml.preferences
 
@@ -86,13 +90,18 @@ internal class SettingsFragment : AppSettingsFragment() {
                 .create(preferenceScreen)
                 .inject(this)
 
-            stateSaver = viewModel.bindController(
+            stateSaver = createComponent(
                 savedInstanceState,
                 viewLifecycleOwner,
+                viewModel,
+                this,
                 requireNotNull(spacer)
             ) {}
 
             initializeUpdate()
+        }
+
+        override fun onControllerEvent(event: UnitControllerEvent) {
         }
 
         private fun initializeUpdate() {

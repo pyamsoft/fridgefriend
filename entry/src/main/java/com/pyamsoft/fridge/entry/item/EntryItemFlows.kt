@@ -27,8 +27,8 @@ data class EntryItemViewState internal constructor(
 
 sealed class EntryItemViewEvent : UiViewEvent {
 
-    object ExpandEntry : EntryItemViewEvent()
+    object OnClick : EntryItemViewEvent()
 
-    object EditEntry : EntryItemViewEvent()
+    object OnLongPress : EntryItemViewEvent()
 
 }

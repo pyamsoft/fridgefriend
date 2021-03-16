@@ -22,20 +22,23 @@ import android.os.Bundle
 import androidx.annotation.CheckResult
 import androidx.appcompat.app.AppCompatDialogFragment
 import androidx.fragment.app.DialogFragment
-import androidx.lifecycle.lifecycleScope
 import com.pyamsoft.fridge.FridgeComponent
 import com.pyamsoft.fridge.core.FridgeViewModelFactory
 import com.pyamsoft.fridge.core.today
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.pydroid.arch.StateSaver
-import com.pyamsoft.pydroid.arch.bindController
+import com.pyamsoft.pydroid.arch.UiController
+import com.pyamsoft.pydroid.arch.UnitViewEvent
+import com.pyamsoft.pydroid.arch.UnitViewState
+import com.pyamsoft.pydroid.arch.createComponent
 import com.pyamsoft.pydroid.ui.Injector
 import com.pyamsoft.pydroid.ui.arch.fromViewModelFactory
 import java.util.Calendar
 import javax.inject.Inject
 
-internal class DateSelectDialog : AppCompatDialogFragment() {
+internal class DateSelectDialog : AppCompatDialogFragment(),
+    UiController<DateSelectControllerEvent> {
 
     @JvmField
     @Inject
@@ -51,7 +54,12 @@ internal class DateSelectDialog : AppCompatDialogFragment() {
             .plusDateSelectComponent()
             .inject(this)
 
-        stateSaver = viewModel.bindController(savedInstanceState, viewLifecycleOwner) {}
+        stateSaver = createComponent<UnitViewState, UnitViewEvent, DateSelectControllerEvent>(
+            savedInstanceState,
+            viewLifecycleOwner,
+            viewModel,
+            this
+        ) {}
 
         val today = today()
         val itemId = FridgeItem.Id(requireNotNull(requireArguments().getString(ITEM)))
@@ -71,21 +79,24 @@ internal class DateSelectDialog : AppCompatDialogFragment() {
 
         val listener = DatePickerDialog.OnDateSetListener { _, year, month, dayOfMonth ->
             viewModel.handleDateSelected(
-                viewLifecycleOwner.lifecycleScope,
                 itemId,
                 entryId,
                 year,
                 month,
                 dayOfMonth
-            ) {
-                dismiss()
-            }
+            )
         }
 
         return DatePickerDialog(
             requireActivity(), listener, initialYear, initialMonth, initialDay
         ).apply {
             datePicker.minDate = today.timeInMillis
+        }
+    }
+
+    override fun onControllerEvent(event: DateSelectControllerEvent) {
+        return when (event) {
+            is DateSelectControllerEvent.Close -> dismiss()
         }
     }
 

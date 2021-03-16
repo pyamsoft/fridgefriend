@@ -16,6 +16,7 @@
 
 package com.pyamsoft.fridge.main
 
+import com.pyamsoft.pydroid.arch.UiControllerEvent
 import com.pyamsoft.pydroid.arch.UiViewEvent
 import com.pyamsoft.pydroid.arch.UiViewState
 
@@ -37,5 +38,15 @@ sealed class MainViewEvent : UiViewEvent {
     object OpenSettings : MainViewEvent()
 
     data class BottomBarMeasured(val height: Int) : MainViewEvent()
+}
+
+sealed class MainControllerEvent : UiControllerEvent {
+
+    data class PushPage internal constructor(
+        val newPage: MainPage,
+        val oldPage: MainPage?,
+        val force: Boolean
+    ) : MainControllerEvent()
+
 }
 

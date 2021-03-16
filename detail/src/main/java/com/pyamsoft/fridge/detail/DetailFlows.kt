@@ -20,6 +20,7 @@ import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.ui.view.UiToolbar
+import com.pyamsoft.pydroid.arch.UiControllerEvent
 import com.pyamsoft.pydroid.arch.UiViewEvent
 
 data class DetailViewState internal constructor(
@@ -92,21 +93,27 @@ data class DetailViewState internal constructor(
 
 sealed class DetailViewEvent : UiViewEvent {
 
+    sealed class ButtonEvent : DetailViewEvent() {
+
+        object AddNew : ButtonEvent()
+
+        object ChangeCurrentFilter : ButtonEvent()
+
+        object ClearListError : ButtonEvent()
+
+        object UndoDeleteItem : ButtonEvent()
+
+        object ReallyDeleteItemNoUndo : ButtonEvent()
+
+        data class AnotherOne(val item: FridgeItem) : ButtonEvent()
+
+    }
+
     sealed class ListEvent : DetailViewEvent() {
-
-        object AddNew : ListEvent()
-
-        object ChangeCurrentFilter : ListEvent()
-
-        object ClearListError : ListEvent()
-
-        object UndoDeleteItem : ListEvent()
-
-        object ReallyDeleteItemNoUndo : ListEvent()
 
         object ForceRefresh : ListEvent()
 
-        data class AnotherOne(val item: FridgeItem) : ListEvent()
+        data class ExpandItem internal constructor(val index: Int) : ListEvent()
 
         data class IncreaseItemCount internal constructor(val index: Int) : ListEvent()
 
@@ -119,8 +126,6 @@ sealed class DetailViewEvent : UiViewEvent {
         data class RestoreItem internal constructor(val index: Int) : ListEvent()
 
         data class SpoilItem internal constructor(val index: Int) : ListEvent()
-
-        data class ExpandItem internal constructor(val index: Int) : ListEvent()
 
         data class ChangeItemPresence internal constructor(val index: Int) : ListEvent()
 
@@ -153,3 +158,14 @@ sealed class DetailViewEvent : UiViewEvent {
 
 }
 
+sealed class DetailControllerEvent : UiControllerEvent {
+
+    data class AddNew internal constructor(
+        val entryId: FridgeEntry.Id,
+        val presence: FridgeItem.Presence
+    ) : DetailControllerEvent()
+
+    data class ExpandItem internal constructor(
+        val item: FridgeItem
+    ) : DetailControllerEvent()
+}

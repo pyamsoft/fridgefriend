@@ -20,7 +20,6 @@ import android.view.ViewGroup
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.view.updatePadding
 import androidx.lifecycle.LifecycleOwner
-import com.pyamsoft.fridge.detail.DetailViewEvent
 import com.pyamsoft.fridge.detail.DetailViewState
 import com.pyamsoft.fridge.search.databinding.SearchFilterBinding
 import com.pyamsoft.fridge.ui.R
@@ -38,7 +37,7 @@ class SearchFilter @Inject internal constructor(
     private val owner: LifecycleOwner,
     private val imageLoader: ImageLoader,
     parent: ViewGroup,
-) : BaseUiView<DetailViewState, DetailViewEvent.ListEvent, SearchFilterBinding>(parent),
+) : BaseUiView<DetailViewState, SearchViewEvent, SearchFilterBinding>(parent),
     SnackbarContainer {
 
     override val viewBinding = SearchFilterBinding::inflate
@@ -50,7 +49,7 @@ class SearchFilter @Inject internal constructor(
     init {
         doOnInflate {
             binding.searchFilter.setOnDebouncedClickListener {
-                publish(DetailViewEvent.ListEvent.ChangeCurrentFilter)
+                publish(SearchViewEvent.ChangeCurrentFilter)
             }
         }
 
@@ -122,16 +121,16 @@ class SearchFilter @Inject internal constructor(
             long(
                 layoutRoot,
                 message,
-                onHidden = { _, _ -> publish(DetailViewEvent.ListEvent.ReallyDeleteItemNoUndo) }
+                onHidden = { _, _ -> publish(SearchViewEvent.ReallyDeleteItemNoUndo) }
             ) {
                 // If we have consumed/spoiled this item
                 // We can offer it as 're-add'
                 if ((item.isConsumed() || item.isSpoiled()) && canAddAgain) {
-                    setAction("Again") { publish(DetailViewEvent.ListEvent.AnotherOne(item)) }
+                    setAction("Again") { publish(SearchViewEvent.AnotherOne(item)) }
                 }
 
                 // Restore the old item
-                setAction("Undo") { publish(DetailViewEvent.ListEvent.UndoDeleteItem) }
+                setAction("Undo") { publish(SearchViewEvent.UndoDeleteItem) }
             }
         }
     }

@@ -35,8 +35,9 @@ import com.pyamsoft.fridge.ui.R
 import com.pyamsoft.fridge.ui.SnackbarContainer
 import com.pyamsoft.fridge.ui.requireAppBarActivity
 import com.pyamsoft.pydroid.arch.StateSaver
-import com.pyamsoft.pydroid.arch.bindController
+import com.pyamsoft.pydroid.arch.createComponent
 import com.pyamsoft.pydroid.arch.createSavedStateViewModelFactory
+import com.pyamsoft.pydroid.arch.newUiController
 import com.pyamsoft.pydroid.ui.Injector
 import com.pyamsoft.pydroid.ui.app.requireToolbarActivity
 import com.pyamsoft.pydroid.ui.arch.fromViewModelFactory
@@ -140,56 +141,71 @@ internal class DetailFragment : Fragment(), SnackbarContainer {
         val nestedList = requireNotNull(nestedList)
         container.nest(nestedEmptyState, nestedList)
 
-        val listSaver = viewModel.bindController(
+        val listSaver = createComponent(
             savedInstanceState,
             viewLifecycleOwner,
+            viewModel,
+            controller = newUiController {
+                return@newUiController when (it) {
+                    is DetailControllerEvent.ExpandItem -> openExisting(it.item)
+                    is DetailControllerEvent.AddNew -> createItem(it.entryId, it.presence)
+                }
+            },
             requireNotNull(heroImage),
             container,
-            requireNotNull(addNew),
         ) {
-            return@bindController when (it) {
-                is DetailViewEvent.ListEvent.AddNew -> viewModel.handleAddNew { entryId, presence ->
-                    createItem(entryId, presence)
-                }
-                is DetailViewEvent.ListEvent.AnotherOne -> viewModel.handleAddAgain(it.item)
-                is DetailViewEvent.ListEvent.ChangeCurrentFilter -> viewModel.handleUpdateShowing()
+            return@createComponent when (it) {
                 is DetailViewEvent.ListEvent.ChangeItemPresence -> viewModel.handleCommitPresence(it.index)
-                is DetailViewEvent.ListEvent.ClearListError -> viewModel.handleClearListError()
                 is DetailViewEvent.ListEvent.ConsumeItem -> viewModel.handleConsume(it.index)
                 is DetailViewEvent.ListEvent.DecreaseItemCount -> viewModel.handleDecreaseCount(it.index)
                 is DetailViewEvent.ListEvent.DeleteItem -> viewModel.handleDelete(it.index)
-                is DetailViewEvent.ListEvent.ExpandItem -> viewModel.handleExpand(it.index) { item ->
-                    openExisting(item)
-                }
                 is DetailViewEvent.ListEvent.ForceRefresh -> viewModel.handleRefreshList(true)
                 is DetailViewEvent.ListEvent.IncreaseItemCount -> viewModel.handleIncreaseCount(it.index)
-                is DetailViewEvent.ListEvent.ReallyDeleteItemNoUndo -> viewModel.handleDeleteForever()
                 is DetailViewEvent.ListEvent.RestoreItem -> viewModel.handleRestore(it.index)
                 is DetailViewEvent.ListEvent.SpoilItem -> viewModel.handleSpoil(it.index)
-                is DetailViewEvent.ListEvent.UndoDeleteItem -> viewModel.handleUndoDelete()
+                is DetailViewEvent.ListEvent.ExpandItem -> viewModel.handleExpand(it.index)
             }
         }
 
-        val switcherSaver = switcherViewModel.bindController(
+        val addSaver = createComponent(
             savedInstanceState,
             viewLifecycleOwner,
+            viewModel,
+            controller = newUiController { },
+            requireNotNull(addNew),
+        ) {
+            return@createComponent when (it) {
+                is DetailViewEvent.ButtonEvent.AddNew -> viewModel.handleAddNew()
+                is DetailViewEvent.ButtonEvent.AnotherOne -> viewModel.handleAddAgain(it.item)
+                is DetailViewEvent.ButtonEvent.ChangeCurrentFilter -> viewModel.handleUpdateShowing()
+                is DetailViewEvent.ButtonEvent.ClearListError -> viewModel.handleClearListError()
+                is DetailViewEvent.ButtonEvent.ReallyDeleteItemNoUndo -> viewModel.handleDeleteForever()
+                is DetailViewEvent.ButtonEvent.UndoDeleteItem -> viewModel.handleUndoDelete()
+            }
+        }
+
+        val switcherSaver = createComponent(
+            savedInstanceState,
+            viewLifecycleOwner,
+            switcherViewModel,
+            controller = newUiController {},
             requireNotNull(switcher)
-        )
-        {
-            return@bindController when (it) {
+        ) {
+            return@createComponent when (it) {
                 is DetailViewEvent.SwitcherEvent.PresenceSwitched -> switcherViewModel.handlePresenceSwitch(
                     it.presence
                 )
             }
         }
 
-        val toolbarSaver = toolbarViewModel.bindController(
+        val toolbarSaver = createComponent(
             savedInstanceState,
             viewLifecycleOwner,
+            toolbarViewModel,
+            controller = newUiController {},
             requireNotNull(toolbar)
-        )
-        {
-            return@bindController when (it) {
+        ) {
+            return@createComponent when (it) {
                 is DetailViewEvent.ToolbarEvent.Toolbar.Back -> close()
                 is DetailViewEvent.ToolbarEvent.Search.Query -> toolbarViewModel.handleUpdateSearch(
                     it.search
@@ -204,6 +220,7 @@ internal class DetailFragment : Fragment(), SnackbarContainer {
             listSaver.saveState(outState)
             switcherSaver.saveState(outState)
             toolbarSaver.saveState(outState)
+            addSaver.saveState(outState)
         }
 
         container.layout {

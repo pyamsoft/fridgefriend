@@ -36,7 +36,8 @@ import com.pyamsoft.fridge.main.VersionChecker
 import com.pyamsoft.fridge.ui.SnackbarContainer
 import com.pyamsoft.fridge.ui.requireAppBarActivity
 import com.pyamsoft.pydroid.arch.StateSaver
-import com.pyamsoft.pydroid.arch.bindController
+import com.pyamsoft.pydroid.arch.UiController
+import com.pyamsoft.pydroid.arch.createComponent
 import com.pyamsoft.pydroid.ui.Injector
 import com.pyamsoft.pydroid.ui.R
 import com.pyamsoft.pydroid.ui.app.requireToolbarActivity
@@ -46,7 +47,7 @@ import com.pyamsoft.pydroid.ui.util.commit
 import timber.log.Timber
 import javax.inject.Inject
 
-internal class EntryFragment : Fragment(), SnackbarContainer {
+internal class EntryFragment : Fragment(), SnackbarContainer, UiController<EntryControllerEvent> {
 
     @JvmField
     @Inject
@@ -111,26 +112,24 @@ internal class EntryFragment : Fragment(), SnackbarContainer {
         val nestedList = requireNotNull(nestedList)
         container.nest(nestedList)
 
-        stateSaver = viewModel.bindController(
+        stateSaver = createComponent(
             savedInstanceState,
             viewLifecycleOwner,
+            viewModel,
+            this,
             requireNotNull(spacer),
             container,
             requireNotNull(toolbar),
             requireNotNull(addNew),
         ) {
-            return@bindController when (it) {
-                is EntryViewEvent.AddEvent.AddNew -> viewModel.handleAddNew { startAddFlow() }
+            return@createComponent when (it) {
+                is EntryViewEvent.AddEvent.AddNew -> startAddFlow()
                 is EntryViewEvent.AddEvent.ReallyDeleteEntryNoUndo -> viewModel.handleDeleteForever()
                 is EntryViewEvent.AddEvent.UndoDeleteEntry -> viewModel.handleUndoDelete()
                 is EntryViewEvent.ListEvents.DeleteEntry -> viewModel.handleDelete(it.index)
-                is EntryViewEvent.ListEvents.EditEntry -> viewModel.handleEdit(it.index) { entry ->
-                    startEditFlow(entry)
-                }
+                is EntryViewEvent.ListEvents.EditEntry -> viewModel.handleEdit(it.index)
                 is EntryViewEvent.ListEvents.ForceRefresh -> viewModel.handleRefresh()
-                is EntryViewEvent.ListEvents.SelectEntry -> viewModel.handleSelect(it.index) { entry, presence ->
-                    pushPage(entry, presence)
-                }
+                is EntryViewEvent.ListEvents.SelectEntry -> viewModel.handleSelect(it.index)
                 is EntryViewEvent.ToolbarEvent.ChangeSort -> viewModel.handleChangeSort(it.sort)
                 is EntryViewEvent.ToolbarEvent.SearchQuery -> viewModel.handleUpdateSearch(it.search)
             }
@@ -146,13 +145,20 @@ internal class EntryFragment : Fragment(), SnackbarContainer {
         }
     }
 
-    private fun pushPage(entry: FridgeEntry, presence: FridgeItem.Presence) {
+    override fun onControllerEvent(event: EntryControllerEvent) {
+        return when (event) {
+            is EntryControllerEvent.EditEntry -> startEditFlow(event.entry)
+            is EntryControllerEvent.LoadEntry -> pushPage(event.entry)
+        }
+    }
+
+    private fun pushPage(entry: FridgeEntry) {
         pushDetailPage(
             parentFragmentManager,
             viewLifecycleOwner,
             fragmentContainerId,
             entry.id(),
-            presence
+            FridgeItem.Presence.NEED
         )
     }
 

@@ -64,9 +64,9 @@ class EntryListAdapter internal constructor(
 
     interface Callback {
 
-        fun onSelect(index: Int)
+        fun onClick(index: Int)
 
-        fun onEdit(index: Int)
+        fun onLongPress(index: Int)
 
     }
 

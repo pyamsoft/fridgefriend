@@ -31,7 +31,7 @@ import javax.inject.Inject
 class CreateEntryViewModel @Inject internal constructor(
     private val interactor: EntryInteractor,
     entryId: FridgeEntry.Id,
-) : UiViewModel<CreateEntryViewState, CreateEntryViewEvent, UnitControllerEvent>(
+) : UiViewModel<CreateEntryViewState, CreateEntryControllerEvent>(
     CreateEntryViewState(
         entry = null,
         working = false,
@@ -70,13 +70,14 @@ class CreateEntryViewModel @Inject internal constructor(
         }
     }
 
-    fun handleCommitNewEntry(scope: CoroutineScope, onCommit: () -> Unit) {
-        scope.launch(context = Dispatchers.Default) {
+    fun handleCommitNewEntry() {
+        viewModelScope.launch(context = Dispatchers.Default) {
             requireNotNull(state.entry).let { e ->
                 setState(stateChange = { copy(working = true) }, andThen = {
                     commitRunner.call(e)
-                    onCommit()
-                    setState { copy(working = false) }
+                    setState(stateChange = { copy(working = false) }, andThen = {
+                        publish(CreateEntryControllerEvent.Commit)
+                    })
                 })
             }
         }

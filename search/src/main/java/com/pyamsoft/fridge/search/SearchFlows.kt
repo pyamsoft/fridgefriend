@@ -14,26 +14,28 @@
  * limitations under the License.
  */
 
-package com.pyamsoft.fridge.detail
+package com.pyamsoft.fridge.search
 
-import androidx.lifecycle.viewModelScope
 import com.pyamsoft.fridge.db.item.FridgeItem
-import com.pyamsoft.pydroid.arch.UiViewModel
-import com.pyamsoft.pydroid.arch.UnitControllerEvent
-import javax.inject.Inject
+import com.pyamsoft.pydroid.arch.UiControllerEvent
+import com.pyamsoft.pydroid.arch.UiViewEvent
 
-class DetailSwitcherViewModel @Inject internal constructor(
-    private val delegate: DetailListStateModel,
-) : UiViewModel<DetailViewState, UnitControllerEvent>(
-    initialState = delegate.initialState
-) {
+sealed class SearchControllerEvent : UiControllerEvent {
 
-    init {
-        delegate.initialize(viewModelScope)
-    }
+    data class ExpandItem internal constructor(
+        val item: FridgeItem
+    ) : SearchControllerEvent()
 
-    fun handlePresenceSwitch(presence: FridgeItem.Presence) {
-        delegate.handlePresenceSwitch(viewModelScope, presence)
-    }
 }
 
+sealed class SearchViewEvent : UiViewEvent {
+
+    object ChangeCurrentFilter : SearchViewEvent()
+
+    object UndoDeleteItem : SearchViewEvent()
+
+    object ReallyDeleteItemNoUndo : SearchViewEvent()
+
+    data class AnotherOne(val item: FridgeItem) : SearchViewEvent()
+
+}

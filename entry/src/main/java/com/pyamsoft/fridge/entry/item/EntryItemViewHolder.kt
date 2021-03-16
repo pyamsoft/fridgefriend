@@ -52,8 +52,8 @@ class EntryItemViewHolder internal constructor(
             requireNotNull(clickView)
         ) {
             return@createViewBinder when (it) {
-                is EntryItemViewEvent.ExpandEntry -> callback.onSelect(adapterPosition)
-                is EntryItemViewEvent.EditEntry -> callback.onEdit(adapterPosition)
+                is EntryItemViewEvent.OnClick -> callback.onClick(adapterPosition)
+                is EntryItemViewEvent.OnLongPress -> callback.onLongPress(adapterPosition)
             }
         }
     }

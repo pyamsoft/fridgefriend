@@ -20,7 +20,6 @@ import androidx.lifecycle.viewModelScope
 import com.pyamsoft.fridge.ui.BottomOffset
 import com.pyamsoft.pydroid.arch.UiViewModel
 import com.pyamsoft.pydroid.arch.UnitControllerEvent
-import com.pyamsoft.pydroid.arch.UnitViewEvent
 import com.pyamsoft.pydroid.bus.EventConsumer
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -28,7 +27,7 @@ import javax.inject.Inject
 
 class SettingsViewModel @Inject internal constructor(
     bottomOffsetBus: EventConsumer<BottomOffset>,
-) : UiViewModel<SettingsViewState, UnitViewEvent, UnitControllerEvent>(
+) : UiViewModel<SettingsViewState, UnitControllerEvent>(
     SettingsViewState(bottomOffset = 0)
 ) {
 

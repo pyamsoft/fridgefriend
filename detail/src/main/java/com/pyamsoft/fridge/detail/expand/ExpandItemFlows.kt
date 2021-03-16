@@ -18,10 +18,11 @@ package com.pyamsoft.fridge.detail.expand
 
 import com.pyamsoft.fridge.db.category.FridgeCategory
 import com.pyamsoft.fridge.db.item.FridgeItem
+import com.pyamsoft.pydroid.arch.UiControllerEvent
 import com.pyamsoft.pydroid.arch.UiViewEvent
 import com.pyamsoft.pydroid.arch.UiViewState
 
-data class ExpandItemViewState internal constructor(
+data class ExpandedViewState internal constructor(
     val item: FridgeItem?,
     val throwable: Throwable?,
     val sameNamedItems: Collection<FridgeItem>,
@@ -32,9 +33,9 @@ data class ExpandItemViewState internal constructor(
     data class SimilarItem internal constructor(val item: FridgeItem?, val display: String)
 }
 
-sealed class ExpandedItemViewEvent : UiViewEvent {
+sealed class ExpandedViewEvent : UiViewEvent {
 
-    sealed class ItemEvent : ExpandedItemViewEvent() {
+    sealed class ItemEvent : ExpandedViewEvent() {
 
         data class CommitCategory internal constructor(val index: Int) : ItemEvent()
 
@@ -50,7 +51,7 @@ sealed class ExpandedItemViewEvent : UiViewEvent {
 
     }
 
-    sealed class ToolbarEvent : ExpandedItemViewEvent() {
+    sealed class ToolbarEvent : ExpandedViewEvent() {
 
         object CloseItem : ToolbarEvent()
 
@@ -68,3 +69,20 @@ sealed class ExpandedItemViewEvent : UiViewEvent {
 
 }
 
+
+sealed class ExpandedControllerEvent : UiControllerEvent {
+
+    object Close : ExpandedControllerEvent()
+
+    data class MoveItem internal constructor(
+        val item: FridgeItem
+    ) : ExpandedControllerEvent()
+
+    data class DatePicked internal constructor(
+        val oldItem: FridgeItem,
+        val year: Int,
+        val month: Int,
+        val day: Int,
+    ) : ExpandedControllerEvent()
+
+}

@@ -19,18 +19,16 @@ package com.pyamsoft.fridge.detail.expand.move
 import androidx.lifecycle.viewModelScope
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.entry.EntryListStateModel
-import com.pyamsoft.fridge.entry.EntryViewEvent
 import com.pyamsoft.fridge.entry.EntryViewState
 import com.pyamsoft.pydroid.arch.Renderable
 import com.pyamsoft.pydroid.arch.UiViewModel
-import com.pyamsoft.pydroid.arch.UnitControllerEvent
 import timber.log.Timber
 import javax.inject.Inject
 
 class ItemMoveListViewModel @Inject internal constructor(
     @param:MoveInternalApi private val delegate: EntryListStateModel,
     entryId: FridgeEntry.Id,
-) : UiViewModel<EntryViewState, EntryViewEvent.ListEvents, UnitControllerEvent>(
+) : UiViewModel<EntryViewState, ItemMoveListControllerEvent>(
     initialState = delegate.initialState
 ) {
 
@@ -67,10 +65,10 @@ class ItemMoveListViewModel @Inject internal constructor(
         block(state.displayedEntries[index].entry)
     }
 
-    fun handleSelectEntry(index: Int, onSelected: (FridgeEntry) -> Unit) {
+    fun handleSelectEntry(index: Int) {
         withEntryAt(index) { entry ->
             Timber.d("Selected entry $entry")
-            onSelected(entry)
+            publish(ItemMoveListControllerEvent.Selected(entry))
         }
     }
 }

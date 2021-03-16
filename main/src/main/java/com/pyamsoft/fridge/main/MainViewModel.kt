@@ -23,12 +23,10 @@ import com.pyamsoft.fridge.ui.BottomOffset
 import com.pyamsoft.pydroid.arch.UiSavedState
 import com.pyamsoft.pydroid.arch.UiSavedStateViewModel
 import com.pyamsoft.pydroid.arch.UiSavedStateViewModelProvider
-import com.pyamsoft.pydroid.arch.UnitControllerEvent
 import com.pyamsoft.pydroid.bus.EventBus
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -39,7 +37,7 @@ class MainViewModel @AssistedInject internal constructor(
     private val interactor: MainInteractor,
     private val bottomOffsetBus: EventBus<BottomOffset>,
     @Named("app_name") appNameRes: Int,
-) : UiSavedStateViewModel<MainViewState, MainViewEvent, UnitControllerEvent>(
+) : UiSavedStateViewModel<MainViewState, MainControllerEvent>(
     savedState,
     MainViewState(
         page = null,
@@ -57,11 +55,11 @@ class MainViewModel @AssistedInject internal constructor(
         refreshBadgeCounts()
     }
 
-    fun handleLoadDefaultPage(onLoad: (MainPage, MainPage?, Boolean) -> Unit) {
+    fun handleLoadDefaultPage() {
         viewModelScope.launch(context = Dispatchers.Default) {
             val page = restoreSavedState(KEY_PAGE) { MainPage.Entries.asString() }.asPage()
             Timber.d("Loading initial page: $page")
-            handleSelectPage(this, page, force = true, onLoad)
+            handleSelectPage(page, force = true)
         }
     }
 
@@ -90,18 +88,16 @@ class MainViewModel @AssistedInject internal constructor(
     }
 
     fun handleSelectPage(
-        scope: CoroutineScope,
         newPage: MainPage,
         force: Boolean,
-        onNewSelection: (MainPage, MainPage?, Boolean) -> Unit
     ) {
         Timber.d("Select entry: $newPage")
         refreshBadgeCounts()
 
         // If the pages match we can just run the after, no need to set and publish
         val oldPage = state.page
-        scope.setState(stateChange = { copy(page = newPage) }, andThen = { newState ->
-            publishNewSelection(requireNotNull(newState.page), oldPage, force, onNewSelection)
+        viewModelScope.setState(stateChange = { copy(page = newPage) }, andThen = { newState ->
+            publishNewSelection(requireNotNull(newState.page), oldPage, force)
         })
     }
 
@@ -109,11 +105,10 @@ class MainViewModel @AssistedInject internal constructor(
         newPage: MainPage,
         oldPage: MainPage?,
         force: Boolean,
-        onNewSelection: (MainPage, MainPage?, Boolean) -> Unit
     ) {
         Timber.d("Publish selection: $oldPage -> $newPage")
         putSavedState(KEY_PAGE, newPage.asString())
-        onNewSelection(newPage, oldPage, force)
+        publish(MainControllerEvent.PushPage(newPage, oldPage, force))
     }
 
     companion object {

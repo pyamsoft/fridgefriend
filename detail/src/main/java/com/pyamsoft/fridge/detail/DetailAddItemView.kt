@@ -40,7 +40,7 @@ class DetailAddItemView @Inject internal constructor(
     private val owner: LifecycleOwner,
     private val imageLoader: ImageLoader,
     parent: ViewGroup,
-) : BaseUiView<DetailViewState, DetailViewEvent.ListEvent, DetailAddNewBinding>(
+) : BaseUiView<DetailViewState, DetailViewEvent.ButtonEvent, DetailAddNewBinding>(
     parent
 ), SnackbarContainer {
 
@@ -61,7 +61,7 @@ class DetailAddItemView @Inject internal constructor(
                 .disposeOnDestroy(owner)
 
             binding.detailAddNewItem.setOnDebouncedClickListener {
-                publish(DetailViewEvent.ListEvent.AddNew)
+                publish(DetailViewEvent.ButtonEvent.AddNew)
             }
         }
 
@@ -71,7 +71,7 @@ class DetailAddItemView @Inject internal constructor(
 
         doOnInflate {
             binding.detailFilterItem.setOnDebouncedClickListener {
-                publish(DetailViewEvent.ListEvent.ChangeCurrentFilter)
+                publish(DetailViewEvent.ButtonEvent.ChangeCurrentFilter)
             }
         }
 
@@ -159,7 +159,7 @@ class DetailAddItemView @Inject internal constructor(
             long(
                 layoutRoot,
                 throwable.message ?: "An unexpected error has occurred.",
-                onHidden = { _, _ -> publish(DetailViewEvent.ListEvent.ClearListError) }
+                onHidden = { _, _ -> publish(DetailViewEvent.ButtonEvent.ClearListError) }
             )
         }
     }
@@ -178,16 +178,16 @@ class DetailAddItemView @Inject internal constructor(
             long(
                 layoutRoot,
                 message,
-                onHidden = { _, _ -> publish(DetailViewEvent.ListEvent.ReallyDeleteItemNoUndo) }
+                onHidden = { _, _ -> publish(DetailViewEvent.ButtonEvent.ReallyDeleteItemNoUndo) }
             ) {
                 // If we have consumed/spoiled this item
                 // We can offer it as 're-add'
                 if ((item.isConsumed() || item.isSpoiled()) && canAddAgain) {
-                    setAction("Again") { publish(DetailViewEvent.ListEvent.AnotherOne(item)) }
+                    setAction("Again") { publish(DetailViewEvent.ButtonEvent.AnotherOne(item)) }
                 }
 
                 // Restore the old item
-                setAction("Undo") { publish(DetailViewEvent.ListEvent.UndoDeleteItem) }
+                setAction("Undo") { publish(DetailViewEvent.ButtonEvent.UndoDeleteItem) }
             }
         }
     }

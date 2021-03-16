@@ -28,12 +28,14 @@ import com.pyamsoft.fridge.FridgeComponent
 import com.pyamsoft.fridge.core.FridgeViewModelFactory
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItem
-import com.pyamsoft.fridge.entry.EntryList
 import com.pyamsoft.fridge.entry.EntryViewEvent
 import com.pyamsoft.fridge.entry.EntryViewState
+import com.pyamsoft.fridge.entry.ReadOnlyEntryList
+import com.pyamsoft.fridge.entry.ReadOnlyListEvents
 import com.pyamsoft.fridge.ui.requireAppBarActivity
 import com.pyamsoft.pydroid.arch.StateSaver
-import com.pyamsoft.pydroid.arch.bindController
+import com.pyamsoft.pydroid.arch.createComponent
+import com.pyamsoft.pydroid.arch.newUiController
 import com.pyamsoft.pydroid.ui.Injector
 import com.pyamsoft.pydroid.ui.R
 import com.pyamsoft.pydroid.ui.app.makeFullscreen
@@ -41,8 +43,6 @@ import com.pyamsoft.pydroid.ui.arch.fromViewModelFactory
 import com.pyamsoft.pydroid.ui.databinding.LayoutConstraintBinding
 import com.pyamsoft.pydroid.ui.util.layout
 import com.pyamsoft.pydroid.ui.widget.shadow.DropshadowView
-import kotlinx.coroutines.CoroutineScope
-import timber.log.Timber
 import javax.inject.Inject
 
 internal class ItemMoveDialog : AppCompatDialogFragment() {
@@ -59,7 +59,7 @@ internal class ItemMoveDialog : AppCompatDialogFragment() {
 
     @JvmField
     @Inject
-    internal var list: EntryList? = null
+    internal var list: ReadOnlyEntryList? = null
 
     private var stateSaver: StateSaver? = null
 
@@ -96,28 +96,36 @@ internal class ItemMoveDialog : AppCompatDialogFragment() {
         val toolbar = requireNotNull(toolbar)
         val dropshadow = DropshadowView.createTyped<ItemMoveViewState, ItemMoveViewEvent>(parent)
 
-        val listSaver = listViewModel.bindController(
+        val listSaver = createComponent(
             savedInstanceState,
             viewLifecycleOwner,
+            listViewModel,
+            controller = newUiController {
+                return@newUiController when (it) {
+                    is ItemMoveListControllerEvent.Selected -> handleEntrySelect(it.entry)
+                }
+            },
             list
         ) {
-            return@bindController when (it) {
-                is EntryViewEvent.ListEvents.DeleteEntry -> Timber.w("Cannot delete from this context")
-                is EntryViewEvent.ListEvents.EditEntry -> Timber.w("Cannot edit from this context")
-                is EntryViewEvent.ListEvents.ForceRefresh -> listViewModel.handleRefreshList()
-                is EntryViewEvent.ListEvents.SelectEntry -> listViewModel.handleSelectEntry(it.index) { entry ->
-                    handleEntrySelect(this, entry)
-                }
+            return@createComponent when (it) {
+                is ReadOnlyListEvents.ForceRefresh -> listViewModel.handleRefreshList()
+                is ReadOnlyListEvents.Select -> listViewModel.handleSelectEntry(it.index)
             }
         }
 
-        val moveSaver = viewModel.bindController(
+        val moveSaver = createComponent(
             savedInstanceState,
             viewLifecycleOwner,
+            viewModel,
+            controller = newUiController {
+                return@newUiController when (it) {
+                    is ItemMoveControllerEvent.Close -> dismiss()
+                }
+            },
             toolbar,
             dropshadow,
         ) {
-            return@bindController when (it) {
+            return@createComponent when (it) {
                 is ItemMoveViewEvent.ChangeSort -> handleSort(it.sort)
                 is ItemMoveViewEvent.Close -> dismiss()
                 is ItemMoveViewEvent.SearchQuery -> handleSearch(it.search)
@@ -177,10 +185,8 @@ internal class ItemMoveDialog : AppCompatDialogFragment() {
         listViewModel.handleUpdateSort(sort)
     }
 
-    private fun handleEntrySelect(scope: CoroutineScope, entry: FridgeEntry) {
-        viewModel.handleMoveItemToEntry(scope, entry) {
-            dismiss()
-        }
+    private fun handleEntrySelect(entry: FridgeEntry) {
+        viewModel.handleMoveItemToEntry(entry)
     }
 
     companion object {

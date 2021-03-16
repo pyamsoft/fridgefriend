@@ -16,36 +16,32 @@
 
 package com.pyamsoft.fridge.detail.expand.date
 
+import androidx.lifecycle.viewModelScope
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.pydroid.arch.UiViewModel
-import com.pyamsoft.pydroid.arch.UnitControllerEvent
-import com.pyamsoft.pydroid.arch.UnitViewEvent
 import com.pyamsoft.pydroid.arch.UnitViewState
 import com.pyamsoft.pydroid.bus.EventBus
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class DateSelectViewModel @Inject internal constructor(
     private val dateSelectBus: EventBus<DateSelectPayload>,
-) : UiViewModel<UnitViewState, UnitViewEvent, UnitControllerEvent>(
+) : UiViewModel<UnitViewState, DateSelectControllerEvent>(
     initialState = UnitViewState
 ) {
 
     fun handleDateSelected(
-        scope: CoroutineScope,
         itemId: FridgeItem.Id,
         entryId: FridgeEntry.Id,
         year: Int,
         month: Int,
         day: Int,
-        onClose: () -> Unit
     ) {
-        scope.launch(context = Dispatchers.Default) {
+        viewModelScope.launch(context = Dispatchers.Default) {
             dateSelectBus.send(DateSelectPayload(itemId, entryId, year, month, day))
-            onClose()
+            publish(DateSelectControllerEvent.Close)
         }
     }
 }

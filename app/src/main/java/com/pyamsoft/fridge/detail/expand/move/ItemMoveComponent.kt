@@ -32,11 +32,9 @@ import com.pyamsoft.fridge.ui.appbar.AppBarActivity
 import dagger.Binds
 import dagger.BindsInstance
 import dagger.Module
-import dagger.Provides
 import dagger.Subcomponent
 import dagger.multibindings.ClassKey
 import dagger.multibindings.IntoMap
-import javax.inject.Named
 
 @FragmentScope
 @Subcomponent(
@@ -79,18 +77,5 @@ internal interface ItemMoveComponent {
         @IntoMap
         @ClassKey(ItemMoveListViewModel::class)
         internal abstract fun bindListViewModel(impl: ItemMoveListViewModel): ViewModel
-
-        @Module
-        companion object {
-
-            @JvmStatic
-            @Provides
-            @CheckResult
-            @Named("is_interactive")
-            internal fun provideInteractive(): Boolean {
-                return false
-            }
-
-        }
     }
 }

@@ -29,7 +29,8 @@ import com.pyamsoft.fridge.FridgeComponent
 import com.pyamsoft.fridge.core.FridgeViewModelFactory
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.pydroid.arch.StateSaver
-import com.pyamsoft.pydroid.arch.bindController
+import com.pyamsoft.pydroid.arch.UiController
+import com.pyamsoft.pydroid.arch.createComponent
 import com.pyamsoft.pydroid.ui.Injector
 import com.pyamsoft.pydroid.ui.R
 import com.pyamsoft.pydroid.ui.arch.fromViewModelFactory
@@ -37,7 +38,8 @@ import com.pyamsoft.pydroid.ui.databinding.LayoutLinearVerticalBinding
 import com.pyamsoft.pydroid.ui.util.show
 import javax.inject.Inject
 
-internal class CreateEntrySheet : BottomSheetDialogFragment() {
+internal class CreateEntrySheet : BottomSheetDialogFragment(),
+    UiController<CreateEntryControllerEvent> {
 
     @JvmField
     @Inject
@@ -76,16 +78,24 @@ internal class CreateEntrySheet : BottomSheetDialogFragment() {
             .create(binding.layoutLinearV, entryId)
             .inject(this)
 
-        stateSaver = viewModel.bindController(
+        stateSaver = createComponent(
             savedInstanceState,
             viewLifecycleOwner,
+            viewModel,
+            this,
             requireNotNull(name),
             requireNotNull(commit)
         ) {
-            return@bindController when (it) {
-                is CreateEntryViewEvent.Commit -> viewModel.handleCommitNewEntry(this) { dismiss() }
+            return@createComponent when (it) {
+                is CreateEntryViewEvent.Commit -> viewModel.handleCommitNewEntry()
                 is CreateEntryViewEvent.NameChanged -> viewModel.handleUpdateName(it.name)
             }
+        }
+    }
+
+    override fun onControllerEvent(event: CreateEntryControllerEvent) {
+        return when (event) {
+            is CreateEntryControllerEvent.Commit -> dismiss()
         }
     }
 

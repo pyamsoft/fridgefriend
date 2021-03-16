@@ -31,7 +31,7 @@ import javax.inject.Inject
 class ExpandItemCategoryList @Inject internal constructor(
     parent: ViewGroup,
     factory: ExpandCategoryComponent.Factory,
-) : BaseUiView<ExpandItemViewState, ExpandedItemViewEvent.ItemEvent, ExpandCategoriesBinding>(parent) {
+) : BaseUiView<ExpandedViewState, ExpandedViewEvent.ItemEvent, ExpandCategoriesBinding>(parent) {
 
     override val viewBinding = ExpandCategoriesBinding::inflate
 
@@ -57,7 +57,7 @@ class ExpandItemCategoryList @Inject internal constructor(
                 callback = object : ExpandItemCategoryListAdapter.Callback {
 
                     override fun onCategorySelected(index: Int) {
-                        publish(ExpandedItemViewEvent.ItemEvent.CommitCategory(index))
+                        publish(ExpandedViewEvent.ItemEvent.CommitCategory(index))
                     }
                 })
             binding.expandItemCategories.adapter = modelAdapter
@@ -75,11 +75,11 @@ class ExpandItemCategoryList @Inject internal constructor(
         return requireNotNull(modelAdapter)
     }
 
-    override fun onRender(state: UiRender<ExpandItemViewState>) {
+    override fun onRender(state: UiRender<ExpandedViewState>) {
         state.render(viewScope) { handleCategories(it) }
     }
 
-    private fun handleCategories(state: ExpandItemViewState) {
+    private fun handleCategories(state: ExpandedViewState) {
         state.categories.let { categories ->
             when {
                 categories.isEmpty() -> clearList()

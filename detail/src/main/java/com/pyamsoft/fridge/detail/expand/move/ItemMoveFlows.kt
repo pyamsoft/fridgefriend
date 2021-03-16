@@ -16,8 +16,10 @@
 
 package com.pyamsoft.fridge.detail.expand.move
 
+import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.entry.EntryViewState
+import com.pyamsoft.pydroid.arch.UiControllerEvent
 import com.pyamsoft.pydroid.arch.UiViewEvent
 import com.pyamsoft.pydroid.arch.UiViewState
 
@@ -33,5 +35,19 @@ sealed class ItemMoveViewEvent : UiViewEvent {
     data class ChangeSort(val sort: EntryViewState.Sorts) : ItemMoveViewEvent()
 
     object Close : ItemMoveViewEvent()
+}
+
+sealed class ItemMoveControllerEvent : UiControllerEvent {
+
+    object Close : ItemMoveControllerEvent()
+
+}
+
+sealed class ItemMoveListControllerEvent : UiControllerEvent {
+
+    data class Selected internal constructor(
+        val entry: FridgeEntry
+    ) : ItemMoveListControllerEvent()
+
 }
 

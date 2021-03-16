@@ -31,7 +31,7 @@ import javax.inject.Inject
 
 class ExpandItemName @Inject internal constructor(
     parent: ViewGroup,
-) : BaseUiView<ExpandItemViewState, ExpandedItemViewEvent.ItemEvent, ExpandNameBinding>(parent) {
+) : BaseUiView<ExpandedViewState, ExpandedViewEvent.ItemEvent, ExpandNameBinding>(parent) {
 
     override val viewBinding = ExpandNameBinding::inflate
 
@@ -41,7 +41,7 @@ class ExpandItemName @Inject internal constructor(
 
     private val delegate by lazy {
         UiEditTextDelegate(binding.expandItemName) { _, newText ->
-            publish(ExpandedItemViewEvent.ItemEvent.CommitName(newText))
+            publish(ExpandedViewEvent.ItemEvent.CommitName(newText))
         }
     }
 
@@ -86,10 +86,10 @@ class ExpandItemName @Inject internal constructor(
     private fun selectSimilar(item: FridgeItem) {
         Timber.d("Similar popup FridgeItem selected: $item")
         delegate.setText(item.name())
-        publish(ExpandedItemViewEvent.ItemEvent.SelectSimilar(item))
+        publish(ExpandedViewEvent.ItemEvent.SelectSimilar(item))
     }
 
-    override fun onRender(state: UiRender<ExpandItemViewState>) {
+    override fun onRender(state: UiRender<ExpandedViewState>) {
         state.mapChanged { it.item }.render(viewScope) { handleName(it) }
         state.mapChanged { it.item }.render(viewScope) { handleEditable(it) }
         state.mapChanged { it.similarItems }.render(viewScope) { handlePopupWindow(it) }
@@ -107,7 +107,7 @@ class ExpandItemName @Inject internal constructor(
         }
     }
 
-    private fun handlePopupWindow(similarItems: Collection<ExpandItemViewState.SimilarItem>) {
+    private fun handlePopupWindow(similarItems: Collection<ExpandedViewState.SimilarItem>) {
         popupWindow.set(similarItems, binding.expandItemName.isFocused)
     }
 

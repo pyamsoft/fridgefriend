@@ -28,12 +28,12 @@ class ExpandItemDate @Inject internal constructor(
     imageLoader: ImageLoader,
     theming: ThemeProvider,
     parent: ViewGroup,
-) : BaseItemDate<ExpandItemViewState, ExpandedItemViewEvent.ItemEvent>(imageLoader, theming, parent) {
+) : BaseItemDate<ExpandedViewState, ExpandedViewEvent.ItemEvent>(imageLoader, theming, parent) {
 
     init {
         doOnInflate {
             layoutRoot.setOnDebouncedClickListener {
-                publish(ExpandedItemViewEvent.ItemEvent.PickDate)
+                publish(ExpandedViewEvent.ItemEvent.PickDate)
             }
         }
 
@@ -42,7 +42,7 @@ class ExpandItemDate @Inject internal constructor(
         }
     }
 
-    override fun onRender(state: UiRender<ExpandItemViewState>) {
+    override fun onRender(state: UiRender<ExpandedViewState>) {
         state.mapChanged { it.item }.render(viewScope) { renderItem(it) }
     }
 }

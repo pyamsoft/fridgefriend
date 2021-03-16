@@ -25,7 +25,7 @@ import javax.inject.Inject
 
 class ExpandItemError @Inject internal constructor(
     parent: ViewGroup,
-) : BaseUiView<ExpandItemViewState, ExpandedItemViewEvent, ExpandErrorBinding>(parent) {
+) : BaseUiView<ExpandedViewState, ExpandedViewEvent, ExpandErrorBinding>(parent) {
 
     override val viewBinding = ExpandErrorBinding::inflate
 
@@ -56,7 +56,7 @@ class ExpandItemError @Inject internal constructor(
         }
     }
 
-    override fun onRender(state: UiRender<ExpandItemViewState>) {
+    override fun onRender(state: UiRender<ExpandedViewState>) {
         state.mapChanged { it.throwable }.render(viewScope) { handleError(it) }
     }
 }

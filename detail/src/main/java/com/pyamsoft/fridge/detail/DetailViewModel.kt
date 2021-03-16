@@ -16,7 +16,6 @@
 
 package com.pyamsoft.fridge.detail
 
-import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.pydroid.arch.UiSavedState
 import com.pyamsoft.pydroid.arch.UiSavedStateViewModelProvider
@@ -28,17 +27,21 @@ import timber.log.Timber
 class DetailViewModel @AssistedInject internal constructor(
     delegate: DetailListStateModel,
     @Assisted savedState: UiSavedState,
-) : BaseDetailViewModel(delegate, savedState) {
+) : BaseDetailViewModel<DetailControllerEvent>(delegate, savedState) {
 
-    fun handleAddNew(onAddNew: (FridgeEntry.Id, FridgeItem.Presence) -> Unit) {
+    fun handleAddNew() {
         state.apply {
             val e = entry
             if (e == null) {
                 Timber.w("Cannot add new, detail entry null!")
             } else {
-                onAddNew(e.id(), listItemPresence)
+                publish(DetailControllerEvent.AddNew(e.id(), listItemPresence))
             }
         }
+    }
+
+    override fun onExpand(item: FridgeItem) {
+        publish(DetailControllerEvent.ExpandItem(item))
     }
 
     @AssistedFactory

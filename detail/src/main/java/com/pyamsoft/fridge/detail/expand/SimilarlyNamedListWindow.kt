@@ -61,7 +61,7 @@ internal class SimilarlyNamedListWindow internal constructor(context: Context) {
     }
 
     private inline fun withRealItem(
-        model: ExpandItemViewState.SimilarItem,
+        model: ExpandedViewState.SimilarItem,
         func: (FridgeItem) -> Unit
     ) {
         if (model.item != null) {
@@ -91,7 +91,7 @@ internal class SimilarlyNamedListWindow internal constructor(context: Context) {
         popupWindow.setAdapter(null)
     }
 
-    fun set(items: Collection<ExpandItemViewState.SimilarItem>, isFocused: Boolean) {
+    fun set(items: Collection<ExpandedViewState.SimilarItem>, isFocused: Boolean) {
         adapter.set(items)
 
         if (isFocused) {
@@ -112,10 +112,10 @@ internal class SimilarlyNamedListWindow internal constructor(context: Context) {
 
     private abstract class PopupWindowListAdapter protected constructor() : BaseAdapter() {
 
-        private val fridgeItems = mutableListOf<ExpandItemViewState.SimilarItem>()
+        private val fridgeItems = mutableListOf<ExpandedViewState.SimilarItem>()
 
         @CheckResult
-        fun getModel(position: Int): ExpandItemViewState.SimilarItem {
+        fun getModel(position: Int): ExpandedViewState.SimilarItem {
             return fridgeItems[position]
         }
 
@@ -137,7 +137,7 @@ internal class SimilarlyNamedListWindow internal constructor(context: Context) {
             fridgeItems.clear()
         }
 
-        fun set(items: Collection<ExpandItemViewState.SimilarItem>) {
+        fun set(items: Collection<ExpandedViewState.SimilarItem>) {
             clear()
             fridgeItems.addAll(TITLE_ITEM + items)
             notifyDataSetChanged()
@@ -146,7 +146,7 @@ internal class SimilarlyNamedListWindow internal constructor(context: Context) {
         companion object {
 
             private val TITLE_ITEM = listOf(
-                ExpandItemViewState.SimilarItem(item = null, display = "Similar Items")
+                ExpandedViewState.SimilarItem(item = null, display = "Similar Items")
             )
 
         }
@@ -160,16 +160,16 @@ internal class SimilarlyNamedListWindow internal constructor(context: Context) {
         }
 
         @CheckResult
-        private fun isTitle(model: ExpandItemViewState.SimilarItem): Boolean {
+        private fun isTitle(model: ExpandedViewState.SimilarItem): Boolean {
             return model.item == null
         }
 
-        private fun bindItem(view: View, model: ExpandItemViewState.SimilarItem) {
+        private fun bindItem(view: View, model: ExpandedViewState.SimilarItem) {
             val holder = view.requireItemViewHolder()
             holder.binding.similarlyNamedItemName.text = model.display
         }
 
-        private fun bindTitle(view: View, model: ExpandItemViewState.SimilarItem) {
+        private fun bindTitle(view: View, model: ExpandedViewState.SimilarItem) {
             val holder = view.requireTitleViewHolder()
             holder.binding.similarlyNamedItemTitle.text = model.display
         }

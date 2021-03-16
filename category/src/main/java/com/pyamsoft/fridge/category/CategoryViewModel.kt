@@ -26,7 +26,7 @@ import javax.inject.Inject
 
 class CategoryViewModel @Inject internal constructor(
     private val interactor: CategoryInteractor,
-) : UiViewModel<CategoryViewState, UnitViewEvent, UnitControllerEvent>(
+) : UiViewModel<CategoryViewState, UnitControllerEvent>(
     CategoryViewState(categories = emptyList())
 ) {
 

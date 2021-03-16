@@ -27,7 +27,7 @@ import javax.inject.Inject
 
 class ExpandItemPurchasedDate @Inject internal constructor(
     parent: ViewGroup,
-) : BaseUiView<ExpandItemViewState, ExpandedItemViewEvent, ExpandPurchasedBinding>(parent) {
+) : BaseUiView<ExpandedViewState, ExpandedViewEvent, ExpandPurchasedBinding>(parent) {
 
     override val viewBinding = ExpandPurchasedBinding::inflate
 
@@ -44,7 +44,7 @@ class ExpandItemPurchasedDate @Inject internal constructor(
         }
     }
 
-    override fun onRender(state: UiRender<ExpandItemViewState>) {
+    override fun onRender(state: UiRender<ExpandedViewState>) {
         state.mapChanged { it.item }.render(viewScope) { handleItem(it) }
     }
 

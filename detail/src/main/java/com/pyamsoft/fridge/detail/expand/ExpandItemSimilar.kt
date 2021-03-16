@@ -27,7 +27,7 @@ import javax.inject.Inject
 
 class ExpandItemSimilar @Inject internal constructor(
     parent: ViewGroup,
-) : BaseUiView<ExpandItemViewState, ExpandedItemViewEvent, ExpandSimilarBinding>(parent) {
+) : BaseUiView<ExpandedViewState, ExpandedViewEvent, ExpandSimilarBinding>(parent) {
 
     override val viewBinding = ExpandSimilarBinding::inflate
 
@@ -44,7 +44,7 @@ class ExpandItemSimilar @Inject internal constructor(
         }
     }
 
-    override fun onRender(state: UiRender<ExpandItemViewState>) {
+    override fun onRender(state: UiRender<ExpandedViewState>) {
         state.render(viewScope) { handleSameNamedItems(it) }
     }
 
@@ -53,7 +53,7 @@ class ExpandItemSimilar @Inject internal constructor(
         binding.expandItemSimilarMsg.text = null
     }
 
-    private fun handleSameNamedItems(state: ExpandItemViewState) {
+    private fun handleSameNamedItems(state: ExpandedViewState) {
         val sameName = state.sameNamedItems
         val item = state.item
         if (sameName.isEmpty() || item == null || item.presence() != FridgeItem.Presence.NEED) {

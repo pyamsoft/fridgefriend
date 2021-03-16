@@ -14,27 +14,12 @@
  * limitations under the License.
  */
 
-package com.pyamsoft.fridge.entry.create
+package com.pyamsoft.fridge.detail.expand.date
 
-import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.pydroid.arch.UiControllerEvent
-import com.pyamsoft.pydroid.arch.UiViewEvent
-import com.pyamsoft.pydroid.arch.UiViewState
 
-data class CreateEntryViewState internal constructor(
-    val entry: FridgeEntry?,
-    val working: Boolean,
-    val throwable: Throwable?
-) : UiViewState
+sealed class DateSelectControllerEvent : UiControllerEvent {
 
-sealed class CreateEntryViewEvent : UiViewEvent {
+    object Close : DateSelectControllerEvent()
 
-    data class NameChanged internal constructor(val name: String) : CreateEntryViewEvent()
-
-    object Commit : CreateEntryViewEvent()
-}
-
-sealed class CreateEntryControllerEvent : UiControllerEvent {
-
-    object Commit : CreateEntryControllerEvent()
 }

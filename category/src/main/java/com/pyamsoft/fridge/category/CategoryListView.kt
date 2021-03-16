@@ -66,6 +66,7 @@ class CategoryListView @Inject internal constructor(
     }
 
     private fun clearList() {
+        usingAdapter().submitList(null)
     }
 
     @CheckResult

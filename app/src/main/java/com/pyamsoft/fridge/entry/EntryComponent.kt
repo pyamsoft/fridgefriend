@@ -29,11 +29,9 @@ import com.pyamsoft.pydroid.ui.app.ToolbarActivity
 import dagger.Binds
 import dagger.BindsInstance
 import dagger.Module
-import dagger.Provides
 import dagger.Subcomponent
 import dagger.multibindings.ClassKey
 import dagger.multibindings.IntoMap
-import javax.inject.Named
 
 @Subcomponent(
     modules = [
@@ -68,18 +66,5 @@ internal interface EntryComponent {
         @IntoMap
         @ClassKey(EntryViewModel::class)
         internal abstract fun bindViewModel(impl: EntryViewModel): ViewModel
-
-        @Module
-        companion object {
-
-            @JvmStatic
-            @Provides
-            @CheckResult
-            @Named("is_interactive")
-            internal fun provideInteractive(): Boolean {
-                return true
-            }
-
-        }
     }
 }

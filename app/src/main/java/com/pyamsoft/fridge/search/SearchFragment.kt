@@ -34,13 +34,13 @@ import com.pyamsoft.fridge.detail.DetailViewEvent
 import com.pyamsoft.fridge.detail.expand.ExpandedItemDialog
 import com.pyamsoft.fridge.ui.requireAppBarActivity
 import com.pyamsoft.pydroid.arch.StateSaver
-import com.pyamsoft.pydroid.arch.bindController
+import com.pyamsoft.pydroid.arch.createComponent
 import com.pyamsoft.pydroid.arch.createSavedStateViewModelFactory
+import com.pyamsoft.pydroid.arch.newUiController
 import com.pyamsoft.pydroid.ui.Injector
 import com.pyamsoft.pydroid.ui.arch.fromViewModelFactory
 import com.pyamsoft.pydroid.ui.databinding.LayoutCoordinatorBinding
 import com.pyamsoft.pydroid.ui.util.show
-import timber.log.Timber
 import javax.inject.Inject
 import com.pyamsoft.pydroid.ui.R as R2
 
@@ -134,60 +134,72 @@ internal class SearchFragment : Fragment() {
         val container = requireNotNull(container)
         container.nest(nestedEmptyState, nestedList)
 
-        val searchSaver = viewModel.bindController(
+        val searchSaver = createComponent(
             savedInstanceState,
             viewLifecycleOwner,
+            viewModel,
+            controller = newUiController {},
             requireNotNull(search)
         ) {
-            return@bindController when (it) {
+            return@createComponent when (it) {
                 is DetailViewEvent.ToolbarEvent.Search.Query -> viewModel.handleUpdateSearch(it.search)
             }
         }
 
-        val appBarSaver = appBarViewModel.bindController(
+        val appBarSaver = createComponent(
             savedInstanceState,
             viewLifecycleOwner,
+            appBarViewModel,
+            controller = newUiController { },
             requireNotNull(switcher)
         )
         {
-            return@bindController when (it) {
+            return@createComponent when (it) {
                 is DetailViewEvent.SwitcherEvent.PresenceSwitched -> appBarViewModel.handlePresenceSwitch(
                     it.presence
                 )
             }
         }
 
-        val listSaver = listViewModel.bindController(
+        val listController = newUiController<SearchControllerEvent> {
+            return@newUiController when (it) {
+                is SearchControllerEvent.ExpandItem -> openExisting(it.item)
+            }
+        }
+
+        val listSaver = createComponent(
             savedInstanceState,
             viewLifecycleOwner,
+            listViewModel,
+            controller = listController,
             requireNotNull(spacer),
             container,
-            requireNotNull(filter),
         ) {
-            return@bindController when (it) {
-                is DetailViewEvent.ListEvent.AnotherOne -> listViewModel.handleAddAgain(it.item)
-                is DetailViewEvent.ListEvent.ChangeCurrentFilter -> listViewModel.handleUpdateShowing()
-                is DetailViewEvent.ListEvent.ChangeItemPresence -> listViewModel.handleCommitPresence(
-                    it.index
-                )
-                is DetailViewEvent.ListEvent.ClearListError -> listViewModel.handleClearListError()
+            return@createComponent when (it) {
+                is DetailViewEvent.ListEvent.ChangeItemPresence -> listViewModel.handleCommitPresence(it.index)
                 is DetailViewEvent.ListEvent.ConsumeItem -> listViewModel.handleConsume(it.index)
-                is DetailViewEvent.ListEvent.DecreaseItemCount -> listViewModel.handleDecreaseCount(
-                    it.index
-                )
+                is DetailViewEvent.ListEvent.DecreaseItemCount -> listViewModel.handleDecreaseCount(it.index)
                 is DetailViewEvent.ListEvent.DeleteItem -> listViewModel.handleDelete(it.index)
-                is DetailViewEvent.ListEvent.ExpandItem -> listViewModel.handleExpand(it.index) { item ->
-                    openExisting(item)
-                }
+                is DetailViewEvent.ListEvent.ExpandItem -> listViewModel.handleExpand(it.index)
                 is DetailViewEvent.ListEvent.ForceRefresh -> listViewModel.handleRefreshList(true)
-                is DetailViewEvent.ListEvent.IncreaseItemCount -> listViewModel.handleIncreaseCount(
-                    it.index
-                )
-                is DetailViewEvent.ListEvent.ReallyDeleteItemNoUndo -> listViewModel.handleDeleteForever()
+                is DetailViewEvent.ListEvent.IncreaseItemCount -> listViewModel.handleIncreaseCount(it.index)
                 is DetailViewEvent.ListEvent.RestoreItem -> listViewModel.handleRestore(it.index)
                 is DetailViewEvent.ListEvent.SpoilItem -> listViewModel.handleSpoil(it.index)
-                is DetailViewEvent.ListEvent.UndoDeleteItem -> listViewModel.handleUndoDelete()
-                is DetailViewEvent.ListEvent.AddNew -> Timber.e("Unable to handle AddNew")
+            }
+        }
+
+        val filterSaver = createComponent(
+            savedInstanceState,
+            viewLifecycleOwner,
+            listViewModel,
+            controller = listController,
+            requireNotNull(filter)
+        ) {
+            return@createComponent when (it) {
+                is SearchViewEvent.AnotherOne -> listViewModel.handleAddAgain(it.item)
+                is SearchViewEvent.ChangeCurrentFilter -> listViewModel.handleUpdateShowing()
+                is SearchViewEvent.ReallyDeleteItemNoUndo -> listViewModel.handleDeleteForever()
+                is SearchViewEvent.UndoDeleteItem -> listViewModel.handleUndoDelete()
             }
         }
 
@@ -195,6 +207,7 @@ internal class SearchFragment : Fragment() {
             listSaver.saveState(outState)
             appBarSaver.saveState(outState)
             searchSaver.saveState(outState)
+            filterSaver.saveState(outState)
         }
 
         container.layout {
