@@ -66,7 +66,7 @@ class CreateEntryViewModel @Inject internal constructor(
 
     fun handleUpdateName(name: String) {
         requireNotNull(state.entry).let { e ->
-            viewModelScope.setState { copy(entry = e.name(name)) }
+            setState { copy(entry = e.name(name)) }
         }
     }
 

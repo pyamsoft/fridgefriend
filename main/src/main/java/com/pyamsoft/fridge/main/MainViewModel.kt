@@ -96,7 +96,7 @@ class MainViewModel @AssistedInject internal constructor(
 
         // If the pages match we can just run the after, no need to set and publish
         val oldPage = state.page
-        viewModelScope.setState(stateChange = { copy(page = newPage) }, andThen = { newState ->
+        setState(stateChange = { copy(page = newPage) }, andThen = { newState ->
             publishNewSelection(requireNotNull(newState.page), oldPage, force)
         })
     }

@@ -349,7 +349,7 @@ class ExpandItemViewModel @AssistedInject internal constructor(
     }
 
     private fun setFixMessage(message: String) {
-        viewModelScope.setState {
+        setState {
             copy(throwable = if (message.isBlank()) null else FixMessageThrowable(message))
         }
     }
