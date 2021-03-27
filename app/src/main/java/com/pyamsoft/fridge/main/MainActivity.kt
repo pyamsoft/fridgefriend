@@ -293,9 +293,9 @@ internal class MainActivity : ChangeLogActivity(),
     private fun handleSelectPage(newPage: MainPage, oldPage: MainPage?, force: Boolean) {
         return when (newPage) {
             is MainPage.Entries -> pushEntry(oldPage, force)
-            is MainPage.Search -> pushCategory(oldPage, force)
+            is MainPage.Search -> pushSearch(oldPage, force)
             is MainPage.Settings -> pushSettings(oldPage, force)
-            is MainPage.Category -> pushSearch(oldPage, force)
+            is MainPage.Category -> pushCategory(oldPage, force)
         }
     }
 
