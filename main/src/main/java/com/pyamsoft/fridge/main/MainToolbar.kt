@@ -16,16 +16,21 @@
 
 package com.pyamsoft.fridge.main
 
+import android.content.res.ColorStateList
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewGroup.MarginLayoutParams
 import android.widget.TextView
 import androidx.annotation.StringRes
+import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.ViewPropertyAnimatorCompat
 import androidx.core.view.updateLayoutParams
 import androidx.interpolator.view.animation.FastOutLinearInInterpolator
 import androidx.lifecycle.LifecycleOwner
+import com.google.android.material.shape.MaterialShapeDrawable
+import com.google.android.material.shape.RoundedCornerTreatment
+import com.google.android.material.shape.ShapeAppearanceModel
 import com.pyamsoft.fridge.core.PRIVACY_POLICY_URL
 import com.pyamsoft.fridge.core.TERMS_CONDITIONS_URL
 import com.pyamsoft.fridge.main.databinding.MainToolbarBinding
@@ -41,6 +46,7 @@ import com.pyamsoft.pydroid.util.doOnApplyWindowInsets
 import javax.inject.Inject
 import javax.inject.Named
 import com.google.android.material.R as R2
+import com.pyamsoft.fridge.ui.R as R3
 
 class MainToolbar @Inject internal constructor(
     @Named("app_name") appNameRes: Int,
@@ -60,7 +66,7 @@ class MainToolbar @Inject internal constructor(
         doOnInflate {
             binding.mainAppbar.apply {
                 appBarProvider.setAppBar(this)
-                ViewCompat.setElevation(this, 8f.asDp(context).toFloat())
+                elevation = 0F
             }
 
         }
@@ -95,13 +101,27 @@ class MainToolbar @Inject internal constructor(
 
         doOnInflate {
             val listener = View.OnLayoutChangeListener { _, _, _, _, _, _, _, _, _ ->
-                // Only child is normally the toolbar
-                val resource = if (binding.mainAppbar.childCount > 1) {
-                    R.drawable.curved_toolbar
-                } else {
-                    R.drawable.toolbar
+
+                val context = layoutRoot.context
+                val cornerSize = 16.asDp(layoutRoot.context).toFloat()
+
+                val shapeModel = ShapeAppearanceModel.Builder().apply {
+                    setAllCorners(RoundedCornerTreatment())
+                    setAllCornerSizes(cornerSize)
+                }.build()
+
+                // Create background
+                val color = ContextCompat.getColor(context, R3.color.colorPrimary)
+                val materialShapeDrawable = MaterialShapeDrawable(shapeModel)
+                materialShapeDrawable.initializeElevationOverlay(context)
+                materialShapeDrawable.fillColor = ColorStateList.valueOf(color)
+                materialShapeDrawable.elevation = 0F
+
+                binding.mainAppbar.apply {
+                    elevation = 8.asDp(context).toFloat()
+                    background = materialShapeDrawable
                 }
-                binding.mainToolbar.setBackgroundResource(resource)
+                binding.mainToolbar.elevation = 0F
             }
             binding.mainAppbar.addOnLayoutChangeListener(listener)
 
