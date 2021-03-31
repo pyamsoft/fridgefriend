@@ -45,7 +45,7 @@ buildscript {
     room = "2.2.6"
 
     // Leak Canary
-    leakCanary = "2.6"
+    leakCanary = "2.7"
 
     // Logging
     timber = "4.7.1"
