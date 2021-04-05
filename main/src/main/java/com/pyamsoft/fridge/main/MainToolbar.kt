@@ -114,6 +114,8 @@ class MainToolbar @Inject internal constructor(
                 val color = ContextCompat.getColor(context, R3.color.colorPrimary)
                 val materialShapeDrawable = MaterialShapeDrawable(shapeModel)
                 materialShapeDrawable.initializeElevationOverlay(context)
+                materialShapeDrawable.shadowCompatibilityMode =
+                    MaterialShapeDrawable.SHADOW_COMPAT_MODE_ALWAYS
                 materialShapeDrawable.fillColor = ColorStateList.valueOf(color)
                 materialShapeDrawable.elevation = 0F
 

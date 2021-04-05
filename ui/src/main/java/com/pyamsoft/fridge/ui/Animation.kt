@@ -28,7 +28,7 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.ViewPropertyAnimatorCompat
 import androidx.core.view.isVisible
 
-private val interpolator by lazy(LazyThreadSafetyMode.NONE) { OvershootInterpolator(1.4F) }
+private val overshootInterpolator by lazy(LazyThreadSafetyMode.NONE) { OvershootInterpolator(1.4F) }
 
 @CheckResult
 private fun animatingHeight(activityContext: Context): Int {
@@ -46,14 +46,18 @@ private fun animatingHeight(activityContext: Context): Int {
 }
 
 @CheckResult
-fun animatePopInFromBottom(view: View): ViewPropertyAnimatorCompat {
+@JvmOverloads
+fun animatePopInFromBottom(view: View, delay: Long = 300L, overshoot: Boolean = true): ViewPropertyAnimatorCompat {
     view.translationY = animatingHeight(view.context).toFloat()
     view.scaleX = 0.4F
     view.isVisible = true
-    return ViewCompat.animate(view)
-        .translationY(0F)
-        .scaleX(1.0F)
-        .setDuration(700)
-        .setStartDelay(300)
-        .setInterpolator(interpolator)
+    return ViewCompat.animate(view).apply {
+        translationY(0F)
+        scaleX(1.0F)
+        duration = 700
+        startDelay = delay
+        if (overshoot) {
+            interpolator = overshootInterpolator
+        }
+    }
 }

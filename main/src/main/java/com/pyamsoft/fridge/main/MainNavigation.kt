@@ -16,17 +16,25 @@
 
 package com.pyamsoft.fridge.main
 
+import android.content.res.ColorStateList
 import android.os.Handler
 import android.os.Looper
 import android.view.ViewGroup
 import androidx.annotation.CheckResult
 import androidx.core.content.ContextCompat
+import androidx.core.view.ViewPropertyAnimatorCompat
 import androidx.core.view.doOnLayout
 import androidx.core.view.updatePadding
 import androidx.lifecycle.LifecycleOwner
+import com.google.android.material.shape.MaterialShapeDrawable
+import com.google.android.material.shape.RoundedCornerTreatment
+import com.google.android.material.shape.ShapeAppearanceModel
 import com.pyamsoft.fridge.main.databinding.MainNavigationBinding
+import com.pyamsoft.fridge.ui.animatePopInFromBottom
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.arch.UiRender
+import com.pyamsoft.pydroid.ui.util.popShow
+import com.pyamsoft.pydroid.util.asDp
 import com.pyamsoft.pydroid.util.doOnApplyWindowInsets
 import timber.log.Timber
 import javax.inject.Inject
@@ -42,10 +50,12 @@ class MainNavigation @Inject internal constructor(
     override val layoutRoot by boundView { mainBottomNavigationMenu }
 
     private val handler = Handler(Looper.getMainLooper())
+    private var animator: ViewPropertyAnimatorCompat? = null
 
     init {
         doOnInflate {
             correctBackground()
+            animateIn()
         }
 
         doOnInflate {
@@ -86,6 +96,11 @@ class MainNavigation @Inject internal constructor(
         doOnTeardown {
             handler.removeCallbacksAndMessages(null)
         }
+
+        doOnTeardown {
+            animator?.cancel()
+            animator = null
+        }
     }
 
     /**
@@ -93,12 +108,38 @@ class MainNavigation @Inject internal constructor(
      * funny through the transparent bar
      */
     private fun correctBackground() {
+        val context = layoutRoot.context
+        val cornerSize = 16.asDp(layoutRoot.context).toFloat()
+
+        val shapeModel = ShapeAppearanceModel.Builder().apply {
+            setTopLeftCorner(RoundedCornerTreatment())
+            setTopRightCorner(RoundedCornerTreatment())
+            setTopLeftCornerSize(cornerSize)
+            setTopRightCornerSize(cornerSize)
+        }.build()
+
+        // Create background
         val color = ContextCompat.getColor(layoutRoot.context, R2.color.colorPrimarySeeThrough)
-        binding.mainBottomNavigationMenu.setBackgroundColor(color)
+        val materialShapeDrawable = MaterialShapeDrawable(shapeModel)
+        materialShapeDrawable.initializeElevationOverlay(context)
+        materialShapeDrawable.shadowCompatibilityMode =
+            MaterialShapeDrawable.SHADOW_COMPAT_MODE_ALWAYS
+        materialShapeDrawable.fillColor = ColorStateList.valueOf(color)
+        materialShapeDrawable.elevation = 0F
+
+        binding.mainBottomNavigationMenu.apply {
+            elevation = 8.asDp(context).toFloat()
+            background = materialShapeDrawable
+        }
+    }
+
+    private fun animateIn() {
+        if (animator == null) {
+            animator = animatePopInFromBottom(binding.mainBottomNavigationMenu, 600, false)
+        }
     }
 
     override fun onRender(state: UiRender<MainViewState>) {
-        state.render(viewScope) { correctBackground() }
         state.mapChanged { it.page }.render(viewScope) { handlePage(it) }
     }
 
