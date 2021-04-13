@@ -19,12 +19,13 @@ package com.pyamsoft.fridge.detail
 import androidx.lifecycle.viewModelScope
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.pydroid.arch.Renderable
+import com.pyamsoft.pydroid.arch.UiControllerEvent
 import com.pyamsoft.pydroid.arch.UiSavedState
 import com.pyamsoft.pydroid.arch.UiSavedStateViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-abstract class BaseDetailViewModel<C : DetailControllerEvent> protected constructor(
+abstract class BaseDetailViewModel<C : UiControllerEvent> protected constructor(
     private val delegate: DetailListStateModel,
     savedState: UiSavedState,
 ) : UiSavedStateViewModel<DetailViewState, C>(

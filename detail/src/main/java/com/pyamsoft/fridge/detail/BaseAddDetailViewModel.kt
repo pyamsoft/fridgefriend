@@ -17,9 +17,10 @@
 package com.pyamsoft.fridge.detail
 
 import androidx.lifecycle.viewModelScope
+import com.pyamsoft.pydroid.arch.UiControllerEvent
 import com.pyamsoft.pydroid.arch.UiSavedState
 
-abstract class BaseAddDetailViewModel<C : DetailControllerEvent> protected constructor(
+abstract class BaseAddDetailViewModel<C : UiControllerEvent> protected constructor(
     private val delegate: DetailListStateModel,
     savedState: UiSavedState,
 ) : BaseDetailViewModel<C>(
