@@ -36,12 +36,12 @@ import com.pyamsoft.fridge.ui.requireAppBarActivity
 import com.pyamsoft.pydroid.arch.StateSaver
 import com.pyamsoft.pydroid.arch.createComponent
 import com.pyamsoft.pydroid.arch.createSavedStateViewModelFactory
+import com.pyamsoft.pydroid.arch.emptyController
 import com.pyamsoft.pydroid.arch.newUiController
 import com.pyamsoft.pydroid.ui.Injector
 import com.pyamsoft.pydroid.ui.arch.fromViewModelFactory
 import com.pyamsoft.pydroid.ui.databinding.LayoutCoordinatorBinding
 import com.pyamsoft.pydroid.ui.util.show
-import timber.log.Timber
 import javax.inject.Inject
 import com.pyamsoft.pydroid.ui.R as R2
 
@@ -147,7 +147,7 @@ internal class SearchFragment : Fragment() {
             savedInstanceState,
             viewLifecycleOwner,
             viewModel,
-            controller = newUiController {},
+            controller = emptyController(),
             requireNotNull(search)
         ) {
             return@createComponent when (it) {
@@ -159,10 +159,9 @@ internal class SearchFragment : Fragment() {
             savedInstanceState,
             viewLifecycleOwner,
             appBarViewModel,
-            controller = newUiController {},
+            controller = emptyController(),
             requireNotNull(switcher)
-        )
-        {
+        ) {
             return@createComponent when (it) {
                 is DetailViewEvent.SwitcherEvent.PresenceSwitched -> appBarViewModel.handlePresenceSwitch(
                     it.presence
@@ -185,15 +184,18 @@ internal class SearchFragment : Fragment() {
         ) {
             return@createComponent when (it) {
                 is DetailViewEvent.ListEvent.ChangeItemPresence -> listViewModel.handleCommitPresence(
-                    it.index)
+                    it.index
+                )
                 is DetailViewEvent.ListEvent.ConsumeItem -> listViewModel.handleConsume(it.index)
                 is DetailViewEvent.ListEvent.DecreaseItemCount -> listViewModel.handleDecreaseCount(
-                    it.index)
+                    it.index
+                )
                 is DetailViewEvent.ListEvent.DeleteItem -> listViewModel.handleDelete(it.index)
                 is DetailViewEvent.ListEvent.ExpandItem -> listViewModel.handleExpand(it.index)
                 is DetailViewEvent.ListEvent.ForceRefresh -> listViewModel.handleRefreshList(true)
                 is DetailViewEvent.ListEvent.IncreaseItemCount -> listViewModel.handleIncreaseCount(
-                    it.index)
+                    it.index
+                )
                 is DetailViewEvent.ListEvent.RestoreItem -> listViewModel.handleRestore(it.index)
                 is DetailViewEvent.ListEvent.SpoilItem -> listViewModel.handleSpoil(it.index)
             }
@@ -203,7 +205,7 @@ internal class SearchFragment : Fragment() {
             savedInstanceState,
             viewLifecycleOwner,
             filterViewModel,
-            controller = newUiController {},
+            controller = emptyController(),
             requireNotNull(filter)
         ) {
             return@createComponent when (it) {
@@ -271,6 +273,7 @@ internal class SearchFragment : Fragment() {
         super.onDestroyView()
 
         factory = null
+        filterViewFactory = null
         listViewFactory = null
         searchFactory = null
 

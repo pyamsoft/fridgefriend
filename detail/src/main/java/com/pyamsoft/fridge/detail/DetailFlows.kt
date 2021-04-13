@@ -158,14 +158,23 @@ sealed class DetailViewEvent : UiViewEvent {
 
 }
 
+
 sealed class DetailControllerEvent : UiControllerEvent {
 
-    data class AddNew internal constructor(
-        val entryId: FridgeEntry.Id,
-        val presence: FridgeItem.Presence
-    ) : DetailControllerEvent()
+    sealed class ListEvent : DetailControllerEvent() {
 
-    data class ExpandItem internal constructor(
-        val item: FridgeItem
-    ) : DetailControllerEvent()
+        data class ExpandItem internal constructor(
+            val item: FridgeItem
+        ) : ListEvent()
+    }
+
+    sealed class AddEvent : DetailControllerEvent() {
+
+        data class AddNew internal constructor(
+            val entryId: FridgeEntry.Id,
+            val presence: FridgeItem.Presence
+        ) : AddEvent()
+    }
+
 }
+

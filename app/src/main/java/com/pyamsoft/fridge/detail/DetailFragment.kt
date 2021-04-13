@@ -37,6 +37,7 @@ import com.pyamsoft.fridge.ui.requireAppBarActivity
 import com.pyamsoft.pydroid.arch.StateSaver
 import com.pyamsoft.pydroid.arch.createComponent
 import com.pyamsoft.pydroid.arch.createSavedStateViewModelFactory
+import com.pyamsoft.pydroid.arch.emptyController
 import com.pyamsoft.pydroid.arch.newUiController
 import com.pyamsoft.pydroid.ui.Injector
 import com.pyamsoft.pydroid.ui.app.requireToolbarActivity
@@ -80,9 +81,16 @@ internal class DetailFragment : Fragment(), SnackbarContainer {
 
     @JvmField
     @Inject
-    internal var factory: DetailViewModel.Factory? = null
-    private val viewModel by fromViewModelFactory<DetailViewModel> {
-        createSavedStateViewModelFactory(factory)
+    internal var listFactory: DetailListViewModel.Factory? = null
+    private val listViewModel by fromViewModelFactory<DetailListViewModel> {
+        createSavedStateViewModelFactory(listFactory)
+    }
+
+    @JvmField
+    @Inject
+    internal var addFactory: DetailAddViewModel.Factory? = null
+    private val addViewModel by fromViewModelFactory<DetailAddViewModel> {
+        createSavedStateViewModelFactory(addFactory)
     }
 
     @JvmField
@@ -144,43 +152,46 @@ internal class DetailFragment : Fragment(), SnackbarContainer {
         val listSaver = createComponent(
             savedInstanceState,
             viewLifecycleOwner,
-            viewModel,
+            listViewModel,
             controller = newUiController {
                 return@newUiController when (it) {
-                    is DetailControllerEvent.ExpandItem -> openExisting(it.item)
-                    is DetailControllerEvent.AddNew -> createItem(it.entryId, it.presence)
+                    is DetailControllerEvent.ListEvent.ExpandItem -> openExisting(it.item)
                 }
             },
             requireNotNull(heroImage),
             container,
         ) {
             return@createComponent when (it) {
-                is DetailViewEvent.ListEvent.ChangeItemPresence -> viewModel.handleCommitPresence(it.index)
-                is DetailViewEvent.ListEvent.ConsumeItem -> viewModel.handleConsume(it.index)
-                is DetailViewEvent.ListEvent.DecreaseItemCount -> viewModel.handleDecreaseCount(it.index)
-                is DetailViewEvent.ListEvent.DeleteItem -> viewModel.handleDelete(it.index)
-                is DetailViewEvent.ListEvent.ForceRefresh -> viewModel.handleRefreshList(true)
-                is DetailViewEvent.ListEvent.IncreaseItemCount -> viewModel.handleIncreaseCount(it.index)
-                is DetailViewEvent.ListEvent.RestoreItem -> viewModel.handleRestore(it.index)
-                is DetailViewEvent.ListEvent.SpoilItem -> viewModel.handleSpoil(it.index)
-                is DetailViewEvent.ListEvent.ExpandItem -> viewModel.handleExpand(it.index)
+                is DetailViewEvent.ListEvent.ChangeItemPresence -> listViewModel.handleCommitPresence(it.index)
+                is DetailViewEvent.ListEvent.ConsumeItem -> listViewModel.handleConsume(it.index)
+                is DetailViewEvent.ListEvent.DecreaseItemCount -> listViewModel.handleDecreaseCount(it.index)
+                is DetailViewEvent.ListEvent.DeleteItem -> listViewModel.handleDelete(it.index)
+                is DetailViewEvent.ListEvent.ForceRefresh -> listViewModel.handleRefreshList(true)
+                is DetailViewEvent.ListEvent.IncreaseItemCount -> listViewModel.handleIncreaseCount(it.index)
+                is DetailViewEvent.ListEvent.RestoreItem -> listViewModel.handleRestore(it.index)
+                is DetailViewEvent.ListEvent.SpoilItem -> listViewModel.handleSpoil(it.index)
+                is DetailViewEvent.ListEvent.ExpandItem -> listViewModel.handleExpand(it.index)
             }
         }
 
         val addSaver = createComponent(
             savedInstanceState,
             viewLifecycleOwner,
-            viewModel,
-            controller = newUiController { },
+            addViewModel,
+            controller = newUiController {
+                return@newUiController when(it) {
+                    is DetailControllerEvent.AddEvent.AddNew -> createItem(it.entryId, it.presence)
+                }
+            },
             requireNotNull(addNew),
         ) {
             return@createComponent when (it) {
-                is DetailViewEvent.ButtonEvent.AddNew -> viewModel.handleAddNew()
-                is DetailViewEvent.ButtonEvent.AnotherOne -> viewModel.handleAddAgain(it.item)
-                is DetailViewEvent.ButtonEvent.ChangeCurrentFilter -> viewModel.handleUpdateShowing()
-                is DetailViewEvent.ButtonEvent.ClearListError -> viewModel.handleClearListError()
-                is DetailViewEvent.ButtonEvent.ReallyDeleteItemNoUndo -> viewModel.handleDeleteForever()
-                is DetailViewEvent.ButtonEvent.UndoDeleteItem -> viewModel.handleUndoDelete()
+                is DetailViewEvent.ButtonEvent.AddNew -> addViewModel.handleAddNew()
+                is DetailViewEvent.ButtonEvent.AnotherOne -> addViewModel.handleAddAgain(it.item)
+                is DetailViewEvent.ButtonEvent.ChangeCurrentFilter -> addViewModel.handleUpdateShowing()
+                is DetailViewEvent.ButtonEvent.ClearListError -> addViewModel.handleClearListError()
+                is DetailViewEvent.ButtonEvent.ReallyDeleteItemNoUndo -> addViewModel.handleDeleteForever()
+                is DetailViewEvent.ButtonEvent.UndoDeleteItem -> addViewModel.handleUndoDelete()
             }
         }
 
@@ -188,7 +199,7 @@ internal class DetailFragment : Fragment(), SnackbarContainer {
             savedInstanceState,
             viewLifecycleOwner,
             switcherViewModel,
-            controller = newUiController {},
+            controller = emptyController(),
             requireNotNull(switcher)
         ) {
             return@createComponent when (it) {
@@ -202,7 +213,7 @@ internal class DetailFragment : Fragment(), SnackbarContainer {
             savedInstanceState,
             viewLifecycleOwner,
             toolbarViewModel,
-            controller = newUiController {},
+            controller = emptyController(),
             requireNotNull(toolbar)
         ) {
             return@createComponent when (it) {
@@ -276,7 +287,8 @@ internal class DetailFragment : Fragment(), SnackbarContainer {
     override fun onDestroyView() {
         super.onDestroyView()
 
-        factory = null
+        addFactory = null
+        listFactory = null
         switcherFactory = null
         toolbarFactory = null
 

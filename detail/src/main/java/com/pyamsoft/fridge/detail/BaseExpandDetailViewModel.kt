@@ -18,41 +18,14 @@ package com.pyamsoft.fridge.detail
 
 import androidx.lifecycle.viewModelScope
 import com.pyamsoft.fridge.db.item.FridgeItem
-import com.pyamsoft.pydroid.arch.Renderable
-import com.pyamsoft.pydroid.arch.UiControllerEvent
 import com.pyamsoft.pydroid.arch.UiSavedState
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 
-abstract class BaseExpandDetailViewModel<C : UiControllerEvent> protected constructor(
+abstract class BaseExpandDetailViewModel<C : DetailControllerEvent> protected constructor(
     private val delegate: DetailListStateModel,
     savedState: UiSavedState,
 ) : BaseDetailViewModel<C>(
     delegate, savedState
 ) {
-
-    init {
-        val scope = viewModelScope
-        val job = delegate.bindState(scope, Renderable { state ->
-            state.render(scope) { scope.setState { it } }
-        })
-        doOnCleared {
-            job.cancel()
-        }
-        doOnCleared {
-            delegate.clear()
-        }
-
-        delegate.initialize(scope)
-
-        viewModelScope.launch(context = Dispatchers.Default) {
-            val filterName = restoreSavedState(SAVED_FILTER) { "" }
-            if (filterName.isNotBlank()) {
-                val filter = DetailViewState.Showing.valueOf(filterName)
-                delegate.handleUpdateFilter(this, filter)
-            }
-        }
-    }
 
     fun handleRefreshList(force: Boolean) {
         delegate.handleRefreshList(viewModelScope, force)
@@ -86,10 +59,6 @@ abstract class BaseExpandDetailViewModel<C : UiControllerEvent> protected constr
         delegate.handleDecreaseCount(viewModelScope, index)
     }
 
-    fun handleClearListError() {
-        delegate.handleClearListError(viewModelScope)
-    }
-
     private inline fun withItemAt(index: Int, block: (FridgeItem) -> Unit) {
         block(state.displayedItems[index])
     }
@@ -101,8 +70,4 @@ abstract class BaseExpandDetailViewModel<C : UiControllerEvent> protected constr
     }
 
     protected abstract fun onExpand(item: FridgeItem)
-
-    companion object {
-        private const val SAVED_FILTER = "filter"
-    }
 }

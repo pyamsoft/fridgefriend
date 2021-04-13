@@ -16,7 +16,6 @@
 
 package com.pyamsoft.fridge.detail
 
-import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.pydroid.arch.UiSavedState
 import com.pyamsoft.pydroid.arch.UiSavedStateViewModelProvider
 import dagger.assisted.Assisted
@@ -24,10 +23,10 @@ import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import timber.log.Timber
 
-class DetailViewModel @AssistedInject internal constructor(
+class DetailAddViewModel @AssistedInject internal constructor(
     delegate: DetailListStateModel,
     @Assisted savedState: UiSavedState,
-) : BaseExpandDetailViewModel<DetailControllerEvent>(delegate, savedState) {
+) : BaseAddDetailViewModel<DetailControllerEvent.AddEvent>(delegate, savedState) {
 
     fun handleAddNew() {
         state.apply {
@@ -35,17 +34,13 @@ class DetailViewModel @AssistedInject internal constructor(
             if (e == null) {
                 Timber.w("Cannot add new, detail entry null!")
             } else {
-                publish(DetailControllerEvent.AddNew(e.id(), listItemPresence))
+                publish(DetailControllerEvent.AddEvent.AddNew(e.id(), listItemPresence))
             }
         }
     }
 
-    override fun onExpand(item: FridgeItem) {
-        publish(DetailControllerEvent.ExpandItem(item))
-    }
-
     @AssistedFactory
-    interface Factory : UiSavedStateViewModelProvider<DetailViewModel> {
-        override fun create(savedState: UiSavedState): DetailViewModel
+    interface Factory : UiSavedStateViewModelProvider<DetailAddViewModel> {
+        override fun create(savedState: UiSavedState): DetailAddViewModel
     }
 }
