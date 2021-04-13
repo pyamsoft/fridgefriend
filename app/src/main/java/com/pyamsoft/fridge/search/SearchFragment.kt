@@ -41,6 +41,7 @@ import com.pyamsoft.pydroid.ui.Injector
 import com.pyamsoft.pydroid.ui.arch.fromViewModelFactory
 import com.pyamsoft.pydroid.ui.databinding.LayoutCoordinatorBinding
 import com.pyamsoft.pydroid.ui.util.show
+import timber.log.Timber
 import javax.inject.Inject
 import com.pyamsoft.pydroid.ui.R as R2
 
@@ -86,6 +87,14 @@ internal class SearchFragment : Fragment() {
     internal var listViewFactory: SearchListViewModel.Factory? = null
     private val listViewModel by fromViewModelFactory<SearchListViewModel> {
         createSavedStateViewModelFactory(listViewFactory)
+    }
+
+
+    @JvmField
+    @Inject
+    internal var filterViewFactory: SearchFilterViewModel.Factory? = null
+    private val filterViewModel by fromViewModelFactory<SearchFilterViewModel> {
+        createSavedStateViewModelFactory(filterViewFactory)
     }
 
     @JvmField
@@ -150,7 +159,7 @@ internal class SearchFragment : Fragment() {
             savedInstanceState,
             viewLifecycleOwner,
             appBarViewModel,
-            controller = newUiController { },
+            controller = newUiController {},
             requireNotNull(switcher)
         )
         {
@@ -161,28 +170,30 @@ internal class SearchFragment : Fragment() {
             }
         }
 
-        val listController = newUiController<SearchControllerEvent> {
-            return@newUiController when (it) {
-                is SearchControllerEvent.ExpandItem -> openExisting(it.item)
-            }
-        }
 
         val listSaver = createComponent(
             savedInstanceState,
             viewLifecycleOwner,
             listViewModel,
-            controller = listController,
+            controller = newUiController {
+                return@newUiController when (it) {
+                    is SearchControllerEvent.ExpandItem -> openExisting(it.item)
+                }
+            },
             requireNotNull(spacer),
             container,
         ) {
             return@createComponent when (it) {
-                is DetailViewEvent.ListEvent.ChangeItemPresence -> listViewModel.handleCommitPresence(it.index)
+                is DetailViewEvent.ListEvent.ChangeItemPresence -> listViewModel.handleCommitPresence(
+                    it.index)
                 is DetailViewEvent.ListEvent.ConsumeItem -> listViewModel.handleConsume(it.index)
-                is DetailViewEvent.ListEvent.DecreaseItemCount -> listViewModel.handleDecreaseCount(it.index)
+                is DetailViewEvent.ListEvent.DecreaseItemCount -> listViewModel.handleDecreaseCount(
+                    it.index)
                 is DetailViewEvent.ListEvent.DeleteItem -> listViewModel.handleDelete(it.index)
                 is DetailViewEvent.ListEvent.ExpandItem -> listViewModel.handleExpand(it.index)
                 is DetailViewEvent.ListEvent.ForceRefresh -> listViewModel.handleRefreshList(true)
-                is DetailViewEvent.ListEvent.IncreaseItemCount -> listViewModel.handleIncreaseCount(it.index)
+                is DetailViewEvent.ListEvent.IncreaseItemCount -> listViewModel.handleIncreaseCount(
+                    it.index)
                 is DetailViewEvent.ListEvent.RestoreItem -> listViewModel.handleRestore(it.index)
                 is DetailViewEvent.ListEvent.SpoilItem -> listViewModel.handleSpoil(it.index)
             }
@@ -191,15 +202,15 @@ internal class SearchFragment : Fragment() {
         val filterSaver = createComponent(
             savedInstanceState,
             viewLifecycleOwner,
-            listViewModel,
-            controller = listController,
+            filterViewModel,
+            controller = newUiController {},
             requireNotNull(filter)
         ) {
             return@createComponent when (it) {
-                is SearchViewEvent.AnotherOne -> listViewModel.handleAddAgain(it.item)
-                is SearchViewEvent.ChangeCurrentFilter -> listViewModel.handleUpdateShowing()
-                is SearchViewEvent.ReallyDeleteItemNoUndo -> listViewModel.handleDeleteForever()
-                is SearchViewEvent.UndoDeleteItem -> listViewModel.handleUndoDelete()
+                is SearchViewEvent.AnotherOne -> filterViewModel.handleAddAgain(it.item)
+                is SearchViewEvent.ChangeCurrentFilter -> filterViewModel.handleUpdateShowing()
+                is SearchViewEvent.ReallyDeleteItemNoUndo -> filterViewModel.handleDeleteForever()
+                is SearchViewEvent.UndoDeleteItem -> filterViewModel.handleUndoDelete()
             }
         }
 

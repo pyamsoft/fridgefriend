@@ -23,7 +23,7 @@ import androidx.annotation.CheckResult
 
 class UiEditTextDelegate(
     private val view: EditText,
-    private val watcher: UiTextWatcher
+    private val watcher: UiTextWatcher,
 ) {
 
     // NOTE(Peter): Hack because Android does not allow us to use Controlled view components like
@@ -46,7 +46,7 @@ class UiEditTextDelegate(
     private fun createTextWatcher(): TextWatcher {
         return object : TextWatcher {
 
-            private var oldText = ""
+            private var oldText = view.text?.toString().orEmpty()
 
             override fun afterTextChanged(s: Editable) {
                 val newText = s.toString()
@@ -61,7 +61,7 @@ class UiEditTextDelegate(
                 s: CharSequence,
                 start: Int,
                 count: Int,
-                after: Int
+                after: Int,
             ) {
             }
 
@@ -69,7 +69,7 @@ class UiEditTextDelegate(
                 s: CharSequence,
                 start: Int,
                 before: Int,
-                count: Int
+                count: Int,
             ) {
             }
         }
@@ -79,6 +79,7 @@ class UiEditTextDelegate(
         killWatcher()
         val watcher = createTextWatcher()
         view.addTextChangedListener(watcher)
+        textWatcher = watcher
     }
 
     fun destroy() {
@@ -86,9 +87,15 @@ class UiEditTextDelegate(
         clear()
     }
 
+    private inline fun ignoreWatcher(block: () -> Unit) {
+        textWatcher?.also { view.removeTextChangedListener(it) }
+        block()
+        textWatcher?.also { view.addTextChangedListener(it) }
+    }
+
     fun render(text: String) {
         if (initialRenderPerformed) {
-            return;
+            return
         }
 
         initialRenderPerformed = true
@@ -98,11 +105,15 @@ class UiEditTextDelegate(
     }
 
     fun setText(text: String) {
-        view.setTextKeepState(text)
+        ignoreWatcher {
+            view.setTextKeepState(text)
+        }
     }
 
     fun clear() {
-        view.text.clear()
+        ignoreWatcher {
+            view.text.clear()
+        }
     }
 
 }

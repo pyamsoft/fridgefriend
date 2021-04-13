@@ -20,6 +20,7 @@ import android.view.ViewGroup
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.view.updatePadding
 import androidx.lifecycle.LifecycleOwner
+import com.pyamsoft.fridge.detail.snackbar.CustomSnackbar
 import com.pyamsoft.fridge.detail.DetailViewState
 import com.pyamsoft.fridge.search.databinding.SearchFilterBinding
 import com.pyamsoft.fridge.ui.R
@@ -28,7 +29,6 @@ import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.arch.UiRender
 import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.loader.Loaded
-import com.pyamsoft.pydroid.ui.util.Snackbreak
 import com.pyamsoft.pydroid.ui.util.popShow
 import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
 import javax.inject.Inject
@@ -117,7 +117,7 @@ class SearchFilter @Inject internal constructor(
             else -> "Removed ${item.name()}"
         }
 
-        Snackbreak.bindTo(owner) {
+        CustomSnackbar.Break.bindTo(owner) {
             long(
                 layoutRoot,
                 message,
@@ -126,11 +126,11 @@ class SearchFilter @Inject internal constructor(
                 // If we have consumed/spoiled this item
                 // We can offer it as 're-add'
                 if ((item.isConsumed() || item.isSpoiled()) && canAddAgain) {
-                    setAction("Again") { publish(SearchViewEvent.AnotherOne(item)) }
+                    setAction1("Again") { publish(SearchViewEvent.AnotherOne(item)) }
                 }
 
                 // Restore the old item
-                setAction("Undo") { publish(SearchViewEvent.UndoDeleteItem) }
+                setAction2("Undo") { publish(SearchViewEvent.UndoDeleteItem) }
             }
         }
     }

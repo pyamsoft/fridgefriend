@@ -16,26 +16,22 @@
 
 package com.pyamsoft.fridge.search
 
-import com.pyamsoft.fridge.db.item.FridgeItem
-import com.pyamsoft.fridge.detail.BaseExpandDetailViewModel
+import com.pyamsoft.fridge.detail.BaseDetailViewModel
 import com.pyamsoft.fridge.detail.DetailListStateModel
 import com.pyamsoft.pydroid.arch.UiSavedState
 import com.pyamsoft.pydroid.arch.UiSavedStateViewModelProvider
+import com.pyamsoft.pydroid.arch.UnitControllerEvent
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 
-class SearchListViewModel @AssistedInject internal constructor(
+class SearchFilterViewModel @AssistedInject internal constructor(
     delegate: DetailListStateModel,
     @Assisted savedState: UiSavedState,
-) : BaseExpandDetailViewModel<SearchControllerEvent>(delegate, savedState) {
-
-    override fun onExpand(item: FridgeItem) {
-        publish(SearchControllerEvent.ExpandItem(item))
-    }
+) : BaseDetailViewModel<UnitControllerEvent>(delegate, savedState) {
 
     @AssistedFactory
-    interface Factory : UiSavedStateViewModelProvider<SearchListViewModel> {
-        override fun create(savedState: UiSavedState): SearchListViewModel
+    interface Factory : UiSavedStateViewModelProvider<SearchFilterViewModel> {
+        override fun create(savedState: UiSavedState): SearchFilterViewModel
     }
 }

@@ -21,15 +21,14 @@ import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.pydroid.arch.Renderable
 import com.pyamsoft.pydroid.arch.UiControllerEvent
 import com.pyamsoft.pydroid.arch.UiSavedState
-import com.pyamsoft.pydroid.arch.UiSavedStateViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-abstract class BaseDetailViewModel<C : UiControllerEvent> protected constructor(
+abstract class BaseExpandDetailViewModel<C : UiControllerEvent> protected constructor(
     private val delegate: DetailListStateModel,
     savedState: UiSavedState,
-) : UiSavedStateViewModel<DetailViewState, C>(
-    savedState, initialState = delegate.initialState
+) : BaseDetailViewModel<C>(
+    delegate, savedState
 ) {
 
     init {
@@ -55,23 +54,53 @@ abstract class BaseDetailViewModel<C : UiControllerEvent> protected constructor(
         }
     }
 
-    fun handleAddAgain(item: FridgeItem) {
-        delegate.handleAddAgain(viewModelScope, item)
+    fun handleRefreshList(force: Boolean) {
+        delegate.handleRefreshList(viewModelScope, force)
     }
 
-    fun handleDeleteForever() {
-        delegate.handleDeleteForever(viewModelScope)
+    fun handleCommitPresence(index: Int) {
+        delegate.handleCommitPresence(viewModelScope, index)
     }
 
-    fun handleUndoDelete() {
-        delegate.handleUndoDelete(viewModelScope)
+    fun handleDelete(index: Int) {
+        delegate.handleDelete(viewModelScope, index)
     }
 
-    fun handleUpdateShowing() {
-        delegate.handleToggleArchived(viewModelScope) { newShowing ->
-            putSavedState(SAVED_FILTER, newShowing.name)
+    fun handleConsume(index: Int) {
+        delegate.handleConsume(viewModelScope, index)
+    }
+
+    fun handleRestore(index: Int) {
+        delegate.handleRestore(viewModelScope, index)
+    }
+
+    fun handleSpoil(index: Int) {
+        delegate.handleSpoil(viewModelScope, index)
+    }
+
+    fun handleIncreaseCount(index: Int) {
+        delegate.handleIncreaseCount(viewModelScope, index)
+    }
+
+    fun handleDecreaseCount(index: Int) {
+        delegate.handleDecreaseCount(viewModelScope, index)
+    }
+
+    fun handleClearListError() {
+        delegate.handleClearListError(viewModelScope)
+    }
+
+    private inline fun withItemAt(index: Int, block: (FridgeItem) -> Unit) {
+        block(state.displayedItems[index])
+    }
+
+    fun handleExpand(index: Int) {
+        withItemAt(index) {
+            onExpand(it)
         }
     }
+
+    protected abstract fun onExpand(item: FridgeItem)
 
     companion object {
         private const val SAVED_FILTER = "filter"

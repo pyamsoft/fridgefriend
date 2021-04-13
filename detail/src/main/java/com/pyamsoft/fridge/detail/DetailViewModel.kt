@@ -27,7 +27,7 @@ import timber.log.Timber
 class DetailViewModel @AssistedInject internal constructor(
     delegate: DetailListStateModel,
     @Assisted savedState: UiSavedState,
-) : BaseDetailViewModel<DetailControllerEvent>(delegate, savedState) {
+) : BaseExpandDetailViewModel<DetailControllerEvent>(delegate, savedState) {
 
     fun handleAddNew() {
         state.apply {

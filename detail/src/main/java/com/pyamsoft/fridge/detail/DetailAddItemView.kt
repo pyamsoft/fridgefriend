@@ -24,6 +24,7 @@ import androidx.core.view.updatePadding
 import androidx.lifecycle.LifecycleOwner
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.detail.databinding.DetailAddNewBinding
+import com.pyamsoft.fridge.detail.snackbar.CustomSnackbar
 import com.pyamsoft.fridge.ui.R
 import com.pyamsoft.fridge.ui.SnackbarContainer
 import com.pyamsoft.pydroid.arch.BaseUiView
@@ -155,7 +156,7 @@ class DetailAddItemView @Inject internal constructor(
     }
 
     private fun showListError(throwable: Throwable) {
-        Snackbreak.bindTo(owner) {
+        CustomSnackbar.Break.bindTo(owner) {
             long(
                 layoutRoot,
                 throwable.message ?: "An unexpected error has occurred.",
@@ -174,7 +175,7 @@ class DetailAddItemView @Inject internal constructor(
             else -> "Removed ${item.name()}"
         }
 
-        Snackbreak.bindTo(owner) {
+        CustomSnackbar.Break.bindTo(owner) {
             long(
                 layoutRoot,
                 message,
@@ -183,11 +184,11 @@ class DetailAddItemView @Inject internal constructor(
                 // If we have consumed/spoiled this item
                 // We can offer it as 're-add'
                 if ((item.isConsumed() || item.isSpoiled()) && canAddAgain) {
-                    setAction("Again") { publish(DetailViewEvent.ButtonEvent.AnotherOne(item)) }
+                    setAction1("Again") { publish(DetailViewEvent.ButtonEvent.AnotherOne(item)) }
                 }
 
                 // Restore the old item
-                setAction("Undo") { publish(DetailViewEvent.ButtonEvent.UndoDeleteItem) }
+                setAction2("Undo") { publish(DetailViewEvent.ButtonEvent.UndoDeleteItem) }
             }
         }
     }
