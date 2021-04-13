@@ -36,6 +36,6 @@ sealed class SearchViewEvent : UiViewEvent {
 
     object ReallyDeleteItemNoUndo : SearchViewEvent()
 
-    data class AnotherOne(val item: FridgeItem) : SearchViewEvent()
+    data class AnotherOne internal constructor(val item: FridgeItem) : SearchViewEvent()
 
 }

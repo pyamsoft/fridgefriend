@@ -62,7 +62,7 @@ class ExpandedCategoryViewHolder internal constructor(
             nameView
         ) {
             return@createViewBinder when (it) {
-                is ExpandedCategoryViewEvent.Select -> callback.onCategorySelected(adapterPosition)
+                is ExpandedCategoryViewEvent.Select -> callback.onCategorySelected(bindingAdapterPosition)
             }
         }
 

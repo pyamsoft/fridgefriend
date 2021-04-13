@@ -105,7 +105,7 @@ sealed class DetailViewEvent : UiViewEvent {
 
         object ReallyDeleteItemNoUndo : ButtonEvent()
 
-        data class AnotherOne(val item: FridgeItem) : ButtonEvent()
+        data class AnotherOne internal constructor(val item: FridgeItem) : ButtonEvent()
 
     }
 

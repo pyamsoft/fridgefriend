@@ -87,10 +87,10 @@ class DetailItemViewHolder internal constructor(
             presence
         ) {
             return@createViewBinder when (it) {
-                is DetailItemViewEvent.ExpandItem -> callback.onItemExpanded(adapterPosition)
-                is DetailItemViewEvent.CommitPresence -> callback.onPresenceChange(adapterPosition)
-                is DetailItemViewEvent.IncreaseCount -> callback.onIncreaseCount(adapterPosition)
-                is DetailItemViewEvent.DecreaseCount -> callback.onDecreaseCount(adapterPosition)
+                is DetailItemViewEvent.ExpandItem -> callback.onItemExpanded(bindingAdapterPosition)
+                is DetailItemViewEvent.CommitPresence -> callback.onPresenceChange(bindingAdapterPosition)
+                is DetailItemViewEvent.IncreaseCount -> callback.onIncreaseCount(bindingAdapterPosition)
+                is DetailItemViewEvent.DecreaseCount -> callback.onDecreaseCount(bindingAdapterPosition)
             }
         }
 
