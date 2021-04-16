@@ -28,6 +28,10 @@ buildscript {
     jcenter()
 
     maven {
+      url "https://jitpack.io"
+    }
+
+    maven {
       url "https://plugins.gradle.org/m2/"
     }
   }
@@ -37,9 +41,9 @@ buildscript {
     maxSdk = 30
 
     // Us
-    pydroid = "23.0.0-SNAPSHOT"
-    cachify = "0.0.21"
-    highlander = "0.0.16"
+    pydroid = "23.0.1"
+    cachify = "0.0.22"
+    highlander = "0.0.17"
 
     // Room
     room = "2.2.6"
@@ -152,6 +156,10 @@ allprojects {
     google()
     mavenCentral()
     jcenter()
+
+    maven {
+      url "https://jitpack.io"
+    }
 
     maven {
       url "https://plugins.gradle.org/m2/"

@@ -26,11 +26,6 @@ import dagger.Reusable
 import javax.inject.Inject
 import javax.inject.Provider
 
-@CheckResult
-inline fun <reified T : ViewModel> createViewModelFactory(provider: Provider<T>?): ViewModelProvider.Factory {
-    return com.pyamsoft.pydroid.arch.createViewModelFactory { provider?.get() }
-}
-
 interface FridgeViewModelFactory {
 
     @CheckResult

@@ -67,10 +67,10 @@ dependencies {
   api "com.github.pyamsoft.pydroid:util:$pydroid"
 
   // Cachify
-  api "com.github.pyamsoft.cachify:cachify:$cachify"
+  api "com.github.pyamsoft:cachify:$cachify"
 
   // Highlander
-  api "com.github.pyamsoft.highlander:highlander:$highlander"
+  api "com.github.pyamsoft:highlander:$highlander"
 
   // Android support library.
   api "androidx.core:core-ktx:$core"
