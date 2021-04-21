@@ -81,6 +81,9 @@ buildscript {
     // Recyclerview
     decorator = "1.3.0"
     fastscroll = "1.1.5"
+
+    // mpandroidchart
+    mpchart = "v3.1.0"
   }
 
   dependencies {

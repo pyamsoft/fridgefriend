@@ -61,10 +61,10 @@
                 android:padding="8dp"
                 app:layout_collapseMode="parallax">
 
-                <com.pyamsoft.fridge.ui.pie.Pie
+                <com.github.mikephil.charting.charts.PieChart
                     android:id="@+id/core_hero_pie"
-                    android:layout_width="116dp"
-                    android:layout_height="116dp"
+                    android:layout_width="136dp"
+                    android:layout_height="136dp"
                     android:layout_gravity="center_vertical|start" />
 
             </FrameLayout>

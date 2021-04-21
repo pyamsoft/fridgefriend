@@ -22,7 +22,7 @@ import android.widget.ImageView
 import androidx.lifecycle.LifecycleOwner
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.ui.appbar.AppBarActivity
-import com.pyamsoft.fridge.ui.pie.PieData
+import com.pyamsoft.fridge.ui.chart.Pie
 import com.pyamsoft.fridge.ui.view.UiHeroImage
 import com.pyamsoft.pydroid.arch.UiRender
 import com.pyamsoft.pydroid.loader.ImageLoader
@@ -35,6 +35,19 @@ class DetailHeroImage @Inject internal constructor(
     owner: LifecycleOwner,
     appBarActivity: AppBarActivity,
 ) : UiHeroImage<DetailViewState, Nothing>(parent, owner, appBarActivity, imageLoader) {
+
+    private var pie: Pie? = null
+
+    init {
+        doOnInflate {
+            pie = Pie.fromChart(binding.coreHeroPie)
+        }
+
+        doOnTeardown {
+            pie?.clear()
+            pie = null
+        }
+    }
 
     override fun onLoadImage(
         imageView: ImageView,
@@ -86,22 +99,22 @@ class DetailHeroImage @Inject internal constructor(
             }
         }
 
-        val freshData = PieData.Part(
-            data = PieData.Part.Data(freshItems.toFloat()),
-            color = PieData.Part.Color(Color.parseColor("#00FF00"))
+        val freshData = Pie.Data(
+            value = freshItems.toFloat(),
+            color = Color.parseColor("#00FF00")
         )
 
-        val consumedData = PieData.Part(
-            data = PieData.Part.Data(consumedItems.toFloat()),
-            color = PieData.Part.Color(Color.parseColor("#0000FF"))
+        val consumedData = Pie.Data(
+            value = consumedItems.toFloat(),
+            color = Color.parseColor("#0000FF")
         )
 
-        val spoiledData = PieData.Part(
-            data = PieData.Part.Data(spoiledItems.toFloat()),
-            color = PieData.Part.Color(Color.parseColor("#FF0000"))
+        val spoiledData = Pie.Data(
+            value = spoiledItems.toFloat(),
+            color = Color.parseColor("#FF0000")
         )
 
-        binding.coreHeroPie.setData(freshData, consumedData, spoiledData)
+        requireNotNull(pie).setData(listOf(freshData, consumedData, spoiledData))
     }
 
     companion object {
