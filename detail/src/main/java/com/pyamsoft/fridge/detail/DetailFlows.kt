@@ -24,11 +24,13 @@ import com.pyamsoft.pydroid.arch.UiControllerEvent
 import com.pyamsoft.pydroid.arch.UiViewEvent
 
 data class DetailViewState internal constructor(
-    val isLoading: Boolean,
     // All currently displayed list items
     val displayedItems: List<FridgeItem>,
     // All the list items before filtering
-    internal val allItems: List<FridgeItem>,
+    val allItems: List<FridgeItem>,
+   
+
+    val isLoading: Boolean,
     val search: String,
     val entry: FridgeEntry?,
     val sort: Sorts,

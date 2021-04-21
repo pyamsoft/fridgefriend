@@ -16,13 +16,13 @@
 
 package com.pyamsoft.fridge.detail
 
-import android.annotation.SuppressLint
+import android.graphics.Color
 import android.view.ViewGroup
 import android.widget.ImageView
-import androidx.core.view.isVisible
 import androidx.lifecycle.LifecycleOwner
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.ui.appbar.AppBarActivity
+import com.pyamsoft.fridge.ui.pie.PieData
 import com.pyamsoft.fridge.ui.view.UiHeroImage
 import com.pyamsoft.pydroid.arch.UiRender
 import com.pyamsoft.pydroid.loader.ImageLoader
@@ -36,12 +36,6 @@ class DetailHeroImage @Inject internal constructor(
     appBarActivity: AppBarActivity,
 ) : UiHeroImage<DetailViewState, Nothing>(parent, owner, appBarActivity, imageLoader) {
 
-    init {
-        doOnTeardown {
-            clearExtras()
-        }
-    }
-
     override fun onLoadImage(
         imageView: ImageView,
         imageLoader: ImageLoader,
@@ -52,98 +46,68 @@ class DetailHeroImage @Inject internal constructor(
         return imageLoader.load(icon).into(imageView)
     }
 
-    @SuppressLint("SetTextI18n")
-    private fun handleTitle(state: DetailViewState) {
-        val type = when (state.showing) {
-            DetailViewState.Showing.FRESH -> when (state.listItemPresence) {
-                FridgeItem.Presence.HAVE -> "current"
-                FridgeItem.Presence.NEED -> "needed"
-            }
-            DetailViewState.Showing.CONSUMED -> "consumed"
-            DetailViewState.Showing.SPOILED -> "spoiled"
-        }
-        binding.coreHeroTitle.text = "${state.entry?.name().orEmpty()}: $type items"
-    }
-
     override fun onAdditionalRender(state: UiRender<DetailViewState>) {
-        state.render(viewScope) { handleTitle(it) }
-        state.render(viewScope) { handleShowing(it) }
+        state.mapChanged { it.allItems }.render(viewScope) { handleItems(it) }
+        state.mapChanged { it.entry }.mapChanged { it?.name().orEmpty() }
+            .render(viewScope) { handleTitle(it) }
+        state.mapChanged { it.showing }.render(viewScope) { handleDescription(it) }
     }
 
-    private fun handleShowing(state: DetailViewState) {
-        when (state.showing) {
-            DetailViewState.Showing.FRESH -> renderFresh(state)
-            DetailViewState.Showing.CONSUMED -> renderConsumed()
-            DetailViewState.Showing.SPOILED -> renderSpoiled()
-        }
+    private fun handleDescription(showing: DetailViewState.Showing) {
+//        binding.coreHeroPie.setDescription(
+//            when (showing) {
+//                DetailViewState.Showing.FRESH -> "Fresh Items"
+//                DetailViewState.Showing.CONSUMED -> "Consumed Items"
+//                DetailViewState.Showing.SPOILED -> "Spoiled Items"
+//            }
+//        )
     }
 
-    private fun renderSpoiled() {
-        binding.coreHeroFirstLineLabel.isVisible = false
-        binding.coreHeroFirstLineValue.isVisible = false
-        binding.coreHeroSecondLineLabel.isVisible = false
-        binding.coreHeroSecondLineValue.isVisible = false
-        binding.coreHeroThirdLineLabel.isVisible = false
-        binding.coreHeroThirdLineValue.isVisible = false
-        binding.coreHeroFourthLineLabel.isVisible = false
-        binding.coreHeroFourthLineValue.isVisible = false
+    private fun handleTitle(name: String) {
+//        binding.coreHeroPie.setTitle(name)
     }
 
-    private fun renderConsumed() {
-        binding.coreHeroFirstLineLabel.isVisible = false
-        binding.coreHeroFirstLineValue.isVisible = false
-        binding.coreHeroSecondLineLabel.isVisible = false
-        binding.coreHeroSecondLineValue.isVisible = false
-        binding.coreHeroThirdLineLabel.isVisible = false
-        binding.coreHeroThirdLineValue.isVisible = false
-        binding.coreHeroFourthLineLabel.isVisible = false
-        binding.coreHeroFourthLineValue.isVisible = false
-    }
+    private fun handleItems(items: List<FridgeItem>) {
+        var freshItems = 0
+        var consumedItems = 0
+        var spoiledItems = 0
 
-    private fun renderFresh(state: DetailViewState) {
-        binding.coreHeroFirstLineLabel.setText(R.string.total_number_of_items)
-        binding.coreHeroFirstLineLabel.isVisible = true
-        binding.coreHeroFirstLineValue.isVisible = true
-
-        val showExtras = state.listItemPresence == FridgeItem.Presence.HAVE
-        binding.coreHeroSecondLineLabel.isVisible = showExtras
-        binding.coreHeroSecondLineValue.isVisible = showExtras
-        binding.coreHeroThirdLineLabel.isVisible = showExtras
-        binding.coreHeroThirdLineValue.isVisible = showExtras
-        binding.coreHeroFourthLineLabel.isVisible = showExtras
-        binding.coreHeroFourthLineValue.isVisible = showExtras
-
-        if (showExtras) {
-            binding.coreHeroSecondLineLabel.setText(R.string.number_of_fresh_items)
-            binding.coreHeroThirdLineLabel.setText(R.string.number_of_expiring_items)
-            binding.coreHeroFourthLineLabel.setText(R.string.number_of_expired_items)
-        } else {
-            clearExtras()
-        }
-
-        state.counts.let { counts ->
-            if (counts != null) {
-                binding.coreHeroFirstLineValue.text = "${counts.totalCount}"
-                binding.coreHeroSecondLineValue.text = "${counts.firstCount}"
-                binding.coreHeroThirdLineValue.text = "${counts.secondCount}"
-                binding.coreHeroFourthLineValue.text = "${counts.thirdCount}"
-            } else {
-                binding.coreHeroFirstLineValue.text = null
-                binding.coreHeroSecondLineValue.text = null
-                binding.coreHeroThirdLineValue.text = null
-                binding.coreHeroFourthLineValue.text = null
+        items.groupBy { item ->
+            return@groupBy when {
+                item.isSpoiled() -> GROUP_SPOILED
+                item.isConsumed() -> GROUP_CONSUMED
+                else -> GROUP_FRESH
+            }
+        }.forEach { entry ->
+            when {
+                entry.key === GROUP_SPOILED -> ++spoiledItems
+                entry.key === GROUP_CONSUMED -> ++consumedItems
+                else -> ++freshItems
             }
         }
+
+        val freshData = PieData.Part(
+            data = PieData.Part.Data(freshItems.toFloat()),
+            color = PieData.Part.Color(Color.parseColor("#00FF00"))
+        )
+
+        val consumedData = PieData.Part(
+            data = PieData.Part.Data(consumedItems.toFloat()),
+            color = PieData.Part.Color(Color.parseColor("#0000FF"))
+        )
+
+        val spoiledData = PieData.Part(
+            data = PieData.Part.Data(spoiledItems.toFloat()),
+            color = PieData.Part.Color(Color.parseColor("#FF0000"))
+        )
+
+        binding.coreHeroPie.setData(freshData, consumedData, spoiledData)
     }
 
-    private fun clearExtras() {
-        binding.coreHeroSecondLineLabel.text = null
-        binding.coreHeroSecondLineValue.text = null
+    companion object {
 
-        binding.coreHeroThirdLineLabel.text = null
-        binding.coreHeroThirdLineValue.text = null
-
-        binding.coreHeroFourthLineLabel.text = null
-        binding.coreHeroFourthLineValue.text = null
+        private const val GROUP_FRESH = "Fresh"
+        private const val GROUP_SPOILED = "Spoiled"
+        private const val GROUP_CONSUMED = "Consumed"
     }
 }

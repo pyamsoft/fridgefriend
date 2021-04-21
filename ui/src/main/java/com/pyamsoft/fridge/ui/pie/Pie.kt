@@ -18,10 +18,8 @@ package com.pyamsoft.fridge.ui.pie
 
 import android.content.Context
 import android.graphics.Canvas
-import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.RectF
-import android.text.TextPaint
 import android.util.AttributeSet
 import android.view.View
 import androidx.annotation.CheckResult
@@ -29,8 +27,8 @@ import androidx.interpolator.view.animation.FastOutSlowInInterpolator
 import com.pyamsoft.fridge.ui.pie.internal.PieChartAnimation
 import com.pyamsoft.fridge.ui.pie.internal.PiePreview
 import com.pyamsoft.fridge.ui.pie.internal.PieRenderData
-import com.pyamsoft.fridge.ui.pie.internal.getAttributeColor
 import com.pyamsoft.fridge.ui.pie.internal.toPx
+import timber.log.Timber
 
 /**
  * Pie Chart
@@ -45,21 +43,11 @@ class Pie @JvmOverloads constructor(
     defStyleAttr: Int = 0
 ) : View(context, attrs, defStyleAttr) {
 
-    private var title = ""
-    private var description = ""
-
     private var renderData = listOf<PieRenderData>()
     private var progressRenderData = listOf<PieRenderData>()
 
     private val chartArea by lazy(LazyThreadSafetyMode.NONE) { RectF() }
     private val partSize by lazy(LazyThreadSafetyMode.NONE) { context.toPx(PORTION_SIZE_DP) }
-
-    // Optimization for text paint instead of fetching this twice
-    private val textPaintColor by lazy(LazyThreadSafetyMode.NONE) {
-        if (isInEditMode) Color.BLACK else {
-            context.getAttributeColor(android.R.attr.textColorPrimary)
-        }
-    }
 
     private val dataPaint by lazy(LazyThreadSafetyMode.NONE) {
         Paint().apply {
@@ -69,69 +57,12 @@ class Pie @JvmOverloads constructor(
         }
     }
 
-    private val titlePaint by lazy(LazyThreadSafetyMode.NONE) {
-        TextPaint(Paint.ANTI_ALIAS_FLAG).apply {
-            textSize = context.toPx(PRIMARY_TEXT_SIZE_SP)
-            color = textPaintColor
-        }
-    }
-
-    private val descriptionPaint by lazy(LazyThreadSafetyMode.NONE) {
-        TextPaint(Paint.ANTI_ALIAS_FLAG).apply {
-            textSize = context.toPx(SECONDARY_TEXT_SIZE_SP)
-            color = textPaintColor
-        }
-    }
-
     init {
         if (isInEditMode) {
-            initializeWith(
-                PiePreview.PREVIEW_DATA,
-                title = "Example Pie",
-                description = "Look at my pie!"
-            )
+            renderData = buildRenderData(PiePreview.PREVIEW_DATA)
+            redraw(animate = false)
         }
     }
-
-    /**
-     * Initialize the chart with pre-prepared data.
-     *
-     * Initialization will not animate.
-     */
-    fun initializeWith(
-        values: List<PieData.Part.Data>,
-        colors: List<PieData.Part.Color>,
-        title: String,
-        description: String,
-    ) = initializeWith(zipToParts(values, colors), title, description)
-
-    /**
-     * Initialize the chart with pre-prepared data.
-     *
-     * Initialization will not animate.
-     */
-    fun initializeWith(
-        data: List<PieData.Part>,
-        title: String,
-        description: String,
-    ) {
-        this.title = title
-        this.description = description
-        renderData = buildRenderData(data)
-        redraw(animate = false)
-    }
-
-    /**
-     * Set the pie data with a list of values and colors
-     *
-     * Lists must be the same length
-     *
-     * Triggers re-render
-     */
-    fun setData(
-        values: List<PieData.Part.Data>,
-        colors: List<PieData.Part.Color>
-    ) = setData(zipToParts(values, colors))
 
     /**
      * Set the pie data with a vararg list of Parts
@@ -149,26 +80,6 @@ class Pie @JvmOverloads constructor(
      */
     fun setData(data: List<PieData.Part>) {
         renderData = buildRenderData(data)
-        redraw(animate = true)
-    }
-
-    /**
-     * Set the pie title
-     *
-     * Triggers re-render
-     */
-    fun setTitle(title: String) {
-        this.title = title
-        redraw(animate = true)
-    }
-
-    /**
-     * Set the pie description
-     *
-     * Triggers re-render
-     */
-    fun setDescription(description: String) {
-        this.description = description
         redraw(animate = true)
     }
 
@@ -190,22 +101,6 @@ class Pie @JvmOverloads constructor(
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
 
-        // Draw title
-        canvas.drawText(
-            title,
-            getTextCenterX(title, titlePaint),
-            getCenterY(),
-            titlePaint
-        )
-
-        // Draw description
-        canvas.drawText(
-            description,
-            getTextCenterX(description, descriptionPaint),
-            getCenterY() + titlePaint.textSize,
-            descriptionPaint
-        )
-
         // Draw pie itself.
         renderData.forEachIndexed { i, data ->
             dataPaint.color = data.color.color
@@ -218,11 +113,6 @@ class Pie @JvmOverloads constructor(
                 dataPaint
             )
         }
-    }
-
-    @CheckResult
-    private fun getCenterY(): Float {
-        return chartArea.centerY()
     }
 
     private fun redraw(animate: Boolean) {
@@ -279,24 +169,15 @@ class Pie @JvmOverloads constructor(
     }
 
     @CheckResult
-    private fun getTextCenterX(text: String, paint: Paint): Float {
-        val textWidth = paint.measureText(text)
-        return (measuredWidth + partSize - textWidth) / 2F - paint.textSize / 2F
-    }
-
-    @CheckResult
     private fun Float.toDisplayValue(): Float {
         return this.coerceAtLeast(2F)
     }
 
     companion object {
 
-        private const val PRIMARY_TEXT_SIZE_SP = 20F
-        private const val SECONDARY_TEXT_SIZE_SP = 14F
-
         private const val PORTION_SIZE_DP = 15
         private const val ANIMATION_DURATION = 1000L
-        private const val DISTANCE_BETWEEN_PARTS = 4F
+        private const val DISTANCE_BETWEEN_PARTS = 0F
 
         private val ANIMATION_INTERPOLATOR by lazy(LazyThreadSafetyMode.NONE) {
             FastOutSlowInInterpolator()
@@ -306,15 +187,6 @@ class Pie @JvmOverloads constructor(
         @CheckResult
         private fun getMaxValue(parts: List<PieData.Part>): Float {
             return parts.fold(0F, { acc, v -> acc + v.data.value })
-        }
-
-        @JvmStatic
-        @CheckResult
-        private fun zipToParts(
-            values: List<PieData.Part.Data>,
-            colors: List<PieData.Part.Color>
-        ): List<PieData.Part> {
-            return values.zip(colors) { value, color -> PieData.Part(value, color) }
         }
     }
 }

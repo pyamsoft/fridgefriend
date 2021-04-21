@@ -33,14 +33,6 @@ internal fun Context.toPx(@Dp dp: Int): Float = dp * resources.displayMetrics.de
 internal fun Context.toPx(@Sp sp: Float): Float =
     TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, sp, resources.displayMetrics)
 
-@ColorInt
-@CheckResult
-internal fun Context.getAttributeColor(@AttrRes attrRes: Int): Int {
-    val typedValue = TypedValue()
-    this.theme.resolveAttribute(attrRes, typedValue, true)
-    return typedValue.data
-}
-
 @CheckResult
 fun @receiver:ColorInt Int.asColor(): PieData.Part.Color {
     return PieData.Part.Color(this)

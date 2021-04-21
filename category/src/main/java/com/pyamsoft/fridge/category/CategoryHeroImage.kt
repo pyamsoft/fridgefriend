@@ -18,7 +18,6 @@ package com.pyamsoft.fridge.category
 
 import android.view.ViewGroup
 import android.widget.ImageView
-import androidx.core.view.isVisible
 import androidx.lifecycle.LifecycleOwner
 import com.pyamsoft.fridge.ui.appbar.AppBarActivity
 import com.pyamsoft.fridge.ui.view.UiHeroImage
@@ -35,17 +34,6 @@ class CategoryHeroImage @Inject internal constructor(
     appBarActivity: AppBarActivity,
 ) : UiHeroImage<CategoryViewState, UnitViewEvent>(parent, owner, appBarActivity, imageLoader) {
 
-    init {
-        doOnInflate {
-            binding.coreHeroSecondLineLabel.isVisible = false
-            binding.coreHeroSecondLineValue.isVisible = false
-            binding.coreHeroThirdLineLabel.isVisible = false
-            binding.coreHeroThirdLineValue.isVisible = false
-            binding.coreHeroFourthLineLabel.isVisible = false
-            binding.coreHeroFourthLineValue.isVisible = false
-        }
-    }
-
     override fun onLoadImage(
         imageView: ImageView,
         imageLoader: ImageLoader,
@@ -55,17 +43,6 @@ class CategoryHeroImage @Inject internal constructor(
     }
 
     override fun onAdditionalRender(state: UiRender<CategoryViewState>) {
-        state.render(viewScope) { handleTitle() }
-        state.mapChanged { it.categories }.render(viewScope) { handleCategories(it) }
-    }
-
-    private fun handleTitle() {
-        binding.coreHeroTitle.setText(R.string.categories)
-        binding.coreHeroFirstLineLabel.setText(R.string.total_number_of_categories)
-    }
-
-    private fun handleCategories(categories: List<CategoryViewState.CategoryItemsPairing>) {
-        binding.coreHeroFirstLineValue.text = "${categories.size}"
     }
 
 }
