@@ -76,7 +76,8 @@ class DetailEmptyState @Inject internal constructor(
 
     private fun loadImage(isNeed: Boolean) {
         val icon = if (isNeed) R.drawable.bg_item_need else R.drawable.bg_item_have
-        loaded = imageLoader.load(icon)
+        loaded = imageLoader.asDrawable()
+            .load(icon)
             .into(binding.detailEmptyImage)
     }
 }

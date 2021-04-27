@@ -109,7 +109,8 @@ internal class PersistentCategoriesImpl @Inject internal constructor(
         Enforcer.assertOffMainThread()
         return suspendCancellableCoroutine { continuation ->
             Enforcer.assertOffMainThread()
-            imageLoader.load(res)
+            imageLoader.asDrawable()
+                .load(res)
                 .onError {
                     Timber.e("Error occurred while loading image thumbnail for default category")
                     continuation.resume(null)

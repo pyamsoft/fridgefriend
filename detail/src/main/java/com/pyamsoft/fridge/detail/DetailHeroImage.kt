@@ -56,7 +56,9 @@ class DetailHeroImage @Inject internal constructor(
     ): Loaded {
         val need = state.listItemPresence == FridgeItem.Presence.NEED
         val icon = if (need) R.drawable.bg_item_need else R.drawable.bg_item_have
-        return imageLoader.load(icon).into(imageView)
+        return imageLoader.asDrawable()
+            .load(icon)
+            .into(imageView)
     }
 
     override fun onAdditionalRender(state: UiRender<DetailViewState>) {

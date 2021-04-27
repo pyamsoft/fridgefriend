@@ -20,8 +20,8 @@ import android.view.ViewGroup
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.view.updatePadding
 import androidx.lifecycle.LifecycleOwner
-import com.pyamsoft.fridge.detail.snackbar.CustomSnackbar
 import com.pyamsoft.fridge.detail.DetailViewState
+import com.pyamsoft.fridge.detail.snackbar.CustomSnackbar
 import com.pyamsoft.fridge.search.databinding.SearchFilterBinding
 import com.pyamsoft.fridge.ui.R
 import com.pyamsoft.fridge.ui.SnackbarContainer
@@ -75,13 +75,14 @@ class SearchFilter @Inject internal constructor(
     private fun handleShowing(showing: DetailViewState.Showing) {
         clearFilter()
 
-        filterIconLoaded = imageLoader.load(
-            when (showing) {
-                DetailViewState.Showing.FRESH -> R.drawable.ic_category_24
-                DetailViewState.Showing.CONSUMED -> R.drawable.ic_consumed_24dp
-                DetailViewState.Showing.SPOILED -> R.drawable.ic_spoiled_24dp
-            }
-        )
+        filterIconLoaded = imageLoader.asDrawable()
+            .load(
+                when (showing) {
+                    DetailViewState.Showing.FRESH -> R.drawable.ic_category_24
+                    DetailViewState.Showing.CONSUMED -> R.drawable.ic_consumed_24dp
+                    DetailViewState.Showing.SPOILED -> R.drawable.ic_spoiled_24dp
+                }
+            )
             .into(binding.searchFilter)
     }
 

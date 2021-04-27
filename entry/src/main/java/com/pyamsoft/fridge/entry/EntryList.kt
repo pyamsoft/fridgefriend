@@ -26,11 +26,12 @@ import com.pyamsoft.fridge.entry.item.EntryItemComponent
 import com.pyamsoft.fridge.entry.item.EntryItemViewHolder
 import com.pyamsoft.fridge.ui.R
 import com.pyamsoft.pydroid.loader.ImageLoader
+import com.pyamsoft.pydroid.loader.ImageTarget
+import com.pyamsoft.pydroid.loader.Loaded
 import com.pyamsoft.pydroid.ui.theme.ThemeProvider
 import com.pyamsoft.pydroid.util.tintWith
 import timber.log.Timber
 import javax.inject.Inject
-import javax.inject.Named
 
 class EntryList @Inject internal constructor(
     private val theming: ThemeProvider,
@@ -41,6 +42,12 @@ class EntryList @Inject internal constructor(
 
     private var touchHelper: ItemTouchHelper? = null
 
+    private var leftBehindLoaded: Loaded? = null
+    private var leftBehindDrawable: Drawable? = null
+
+    private var rightBehindLoaded: Loaded? = null
+    private var rightBehindDrawable: Drawable? = null
+
     init {
         doOnInflate {
             setupSwipeCallback()
@@ -50,6 +57,21 @@ class EntryList @Inject internal constructor(
             touchHelper?.attachToRecyclerView(null)
             touchHelper = null
         }
+
+        doOnTeardown {
+            clearLoaded()
+        }
+    }
+
+    private fun clearLoaded() {
+        leftBehindLoaded?.dispose()
+        leftBehindLoaded = null
+
+        rightBehindLoaded?.dispose()
+        rightBehindLoaded = null
+
+        leftBehindDrawable = null
+        rightBehindDrawable = null
     }
 
     private fun deleteListItem(position: Int) {
@@ -79,30 +101,26 @@ class EntryList @Inject internal constructor(
         return this.tintWith(layoutRoot.context, color)
     }
 
-    private inline fun applySwipeCallback(
+    private inline fun createSwipeCallback(
         directions: Int,
         crossinline itemSwipeCallback: (position: Int, directions: Int) -> Unit,
     ) {
-        val leftBehindDrawable = imageLoader.load(R.drawable.ic_delete_24dp)
-            .mutate { it.themeIcon() }
-            .immediate()
+        val left = leftBehindDrawable
+        val right = rightBehindDrawable
+        if (left == null || right == null) {
+            return
+        }
 
-        val swipeCallback = SimpleSwipeCallback(
-            object : SimpleSwipeCallback.ItemSwipeCallback {
+        val cb = object : SimpleSwipeCallback.ItemSwipeCallback {
 
-                override fun itemSwiped(position: Int, direction: Int) {
-                    itemSwipeCallback(position, direction)
-                }
-            },
-            requireNotNull(leftBehindDrawable),
-            directions,
-            Color.TRANSPARENT
-        ).apply {
-            val rightBehindDrawable = imageLoader.load(R.drawable.ic_delete_24dp)
-                .mutate { it.themeIcon() }
-                .immediate()
+            override fun itemSwiped(position: Int, direction: Int) {
+                itemSwipeCallback(position, direction)
+            }
+        }
+
+        val swipeCallback = SimpleSwipeCallback(cb, left, directions, Color.TRANSPARENT).apply {
             withBackgroundSwipeRight(Color.TRANSPARENT)
-            withLeaveBehindSwipeRight(requireNotNull(rightBehindDrawable))
+            withLeaveBehindSwipeRight(right)
         }
 
         // Detach any existing helper from the recyclerview
@@ -115,6 +133,43 @@ class EntryList @Inject internal constructor(
 
         // Set helper for cleanup later
         touchHelper = helper
+    }
+
+    private inline fun applySwipeCallback(
+        directions: Int,
+        crossinline itemSwipeCallback: (position: Int, directions: Int) -> Unit,
+    ) {
+
+        clearLoaded()
+        leftBehindLoaded = imageLoader.asDrawable()
+            .load(R.drawable.ic_delete_24dp)
+            .mutate { it.themeIcon() }
+            .into(object : ImageTarget<Drawable> {
+                override fun clear() {
+                    // Does nothing on its own, clear the touch helper to free
+                }
+
+                override fun setImage(image: Drawable) {
+                    leftBehindDrawable = image
+                    createSwipeCallback(directions, itemSwipeCallback)
+                }
+
+            })
+
+        rightBehindLoaded = imageLoader.asDrawable()
+            .load(R.drawable.ic_delete_24dp)
+            .mutate { it.themeIcon() }
+            .into(object : ImageTarget<Drawable> {
+                override fun clear() {
+                    // Does nothing on its own, clear the touch helper to free
+                }
+
+                override fun setImage(image: Drawable) {
+                    rightBehindDrawable = image
+                    createSwipeCallback(directions, itemSwipeCallback)
+                }
+
+            })
     }
 
     override fun onRefresh() {

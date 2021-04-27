@@ -42,14 +42,16 @@ class DetailListItemCount @Inject internal constructor(
 
     init {
         doOnInflate {
-            imageLoader.load(R.drawable.ic_arrow_drop_down_24dp)
+            imageLoader.asDrawable()
+                .load(R.drawable.ic_arrow_drop_down_24dp)
                 .mutate { icon ->
                     val color = if (theming.isDarkTheme()) R2.color.white else R2.color.black
                     icon.tintWith(layoutRoot.context, color)
                 }.into(binding.detailItemCountDown)
                 .apply { doOnTeardown { dispose() } }
 
-            imageLoader.load(R.drawable.ic_arrow_drop_up_24dp)
+            imageLoader.asDrawable()
+                .load(R.drawable.ic_arrow_drop_up_24dp)
                 .mutate { icon ->
                     val color = if (theming.isDarkTheme()) R2.color.white else R2.color.black
                     icon.tintWith(layoutRoot.context, color)

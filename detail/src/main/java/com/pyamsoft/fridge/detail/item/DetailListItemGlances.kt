@@ -263,7 +263,8 @@ class DetailListItemGlances @Inject internal constructor(
                 val color =
                     if (isColored) R2.color.colorSecondary else if (theming.isDarkTheme()) R3.color.white else R3.color.black
                 loaded?.dispose()
-                return imageLoader.load(drawable)
+                return imageLoader.asDrawable()
+                    .load(drawable)
                     .mutate { it.tintWith(view.context, color) }
                     .into(view)
             }

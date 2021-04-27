@@ -23,7 +23,6 @@ import androidx.annotation.CheckResult
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.mikepenz.fastadapter.swipe.SimpleSwipeCallback
-import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence.HAVE
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence.NEED
@@ -35,6 +34,8 @@ import com.pyamsoft.fridge.detail.item.DetailListAdapter
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.arch.UiRender
 import com.pyamsoft.pydroid.loader.ImageLoader
+import com.pyamsoft.pydroid.loader.ImageTarget
+import com.pyamsoft.pydroid.loader.Loaded
 import com.pyamsoft.pydroid.ui.theme.ThemeProvider
 import com.pyamsoft.pydroid.ui.util.removeAllItemDecorations
 import com.pyamsoft.pydroid.util.asDp
@@ -62,6 +63,12 @@ class DetailList @Inject internal constructor(
     private var modelAdapter: DetailListAdapter? = null
 
     private var lastScrollPosition = 0
+
+    private var leftBehindLoaded: Loaded? = null
+    private var leftBehindDrawable: Drawable? = null
+
+    private var rightBehindLoaded: Loaded? = null
+    private var rightBehindDrawable: Drawable? = null
 
     init {
         doOnInflate {
@@ -167,7 +174,23 @@ class DetailList @Inject internal constructor(
             modelAdapter = null
             touchHelper = null
         }
+
+        doOnTeardown {
+            clearLoaded()
+        }
     }
+
+    private fun clearLoaded() {
+        leftBehindLoaded?.dispose()
+        leftBehindLoaded = null
+
+        rightBehindLoaded?.dispose()
+        rightBehindLoaded = null
+
+        leftBehindDrawable = null
+        rightBehindDrawable = null
+    }
+
 
     private fun setupSwipeCallback(state: DetailViewState) {
         val isFresh = state.showing == DetailViewState.Showing.FRESH
@@ -179,9 +202,9 @@ class DetailList @Inject internal constructor(
         val directions = consumeSwipeDirection or spoilSwipeDirection
 
         applySwipeCallback(
-            directions,
             swipeAwayDeletes,
-            swipeAwayRestores
+            swipeAwayRestores,
+            directions,
         ) { position, direction ->
             val holder = binding.detailList.findViewHolderForAdapterPosition(position)
             if (holder == null) {
@@ -221,44 +244,26 @@ class DetailList @Inject internal constructor(
         return this.tintWith(layoutRoot.context, color)
     }
 
-    private inline fun applySwipeCallback(
+    private inline fun createSwipeCallback(
         directions: Int,
-        swipeAwayDeletes: Boolean,
-        swipeAwayRestores: Boolean,
         crossinline itemSwipeCallback: (position: Int, directions: Int) -> Unit,
     ) {
-        val leftBehindDrawable = imageLoader.load(
-            when {
-                swipeAwayDeletes -> R2.drawable.ic_delete_24dp
-                swipeAwayRestores -> R2.drawable.ic_delete_24dp
-                else -> R2.drawable.ic_spoiled_24dp
+        val left = leftBehindDrawable
+        val right = rightBehindDrawable
+        if (left == null || right == null) {
+            return
+        }
+
+        val cb = object : SimpleSwipeCallback.ItemSwipeCallback {
+
+            override fun itemSwiped(position: Int, direction: Int) {
+                itemSwipeCallback(position, direction)
             }
-        )
-            .mutate { it.themeIcon() }
-            .immediate()
+        }
 
-        val swipeCallback = SimpleSwipeCallback(
-            object : SimpleSwipeCallback.ItemSwipeCallback {
-
-                override fun itemSwiped(position: Int, direction: Int) {
-                    itemSwipeCallback(position, direction)
-                }
-            },
-            requireNotNull(leftBehindDrawable),
-            directions,
-            Color.TRANSPARENT
-        ).apply {
-            val rightBehindDrawable = imageLoader.load(
-                when {
-                    swipeAwayDeletes -> R2.drawable.ic_delete_24dp
-                    swipeAwayRestores -> R.drawable.ic_restore_from_trash_24
-                    else -> R2.drawable.ic_consumed_24dp
-                }
-            )
-                .mutate { it.themeIcon() }
-                .immediate()
+        val swipeCallback = SimpleSwipeCallback(cb, left, directions, Color.TRANSPARENT).apply {
             withBackgroundSwipeRight(Color.TRANSPARENT)
-            withLeaveBehindSwipeRight(requireNotNull(rightBehindDrawable))
+            withLeaveBehindSwipeRight(right)
         }
 
         // Detach any existing helper from the recyclerview
@@ -271,6 +276,56 @@ class DetailList @Inject internal constructor(
 
         // Set helper for cleanup later
         touchHelper = helper
+    }
+
+    private inline fun applySwipeCallback(
+        swipeAwayDeletes: Boolean,
+        swipeAwayRestores: Boolean,
+        directions: Int,
+        crossinline itemSwipeCallback: (position: Int, directions: Int) -> Unit,
+    ) {
+        clearLoaded()
+        leftBehindLoaded = imageLoader.asDrawable()
+            .load(
+                when {
+                    swipeAwayDeletes -> R2.drawable.ic_delete_24dp
+                    swipeAwayRestores -> R2.drawable.ic_delete_24dp
+                    else -> R2.drawable.ic_spoiled_24dp
+                }
+            )
+            .mutate { it.themeIcon() }
+            .into(object : ImageTarget<Drawable> {
+                override fun clear() {
+                    // Does nothing on its own, clear the touch helper to free
+                }
+
+                override fun setImage(image: Drawable) {
+                    leftBehindDrawable = image
+                    createSwipeCallback(directions, itemSwipeCallback)
+                }
+
+            })
+
+        rightBehindLoaded = imageLoader.asDrawable()
+            .load(
+                when {
+                    swipeAwayDeletes -> R2.drawable.ic_delete_24dp
+                    swipeAwayRestores -> R.drawable.ic_restore_from_trash_24
+                    else -> R2.drawable.ic_consumed_24dp
+                }
+            )
+            .mutate { it.themeIcon() }
+            .into(object : ImageTarget<Drawable> {
+                override fun clear() {
+                    // Does nothing on its own, clear the touch helper to free
+                }
+
+                override fun setImage(image: Drawable) {
+                    rightBehindDrawable = image
+                    createSwipeCallback(directions, itemSwipeCallback)
+                }
+
+            })
     }
 
     @CheckResult

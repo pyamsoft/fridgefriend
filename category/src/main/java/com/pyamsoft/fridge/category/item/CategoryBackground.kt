@@ -61,6 +61,8 @@ class CategoryBackground @Inject internal constructor(
     }
 
     private fun loadImage(image: FridgeCategory.Thumbnail) {
-        loaded = imageLoader.load(image.data).into(binding.categoryBackgroundImage)
+        loaded = imageLoader.asDrawable()
+            .load(image.data)
+            .into(binding.categoryBackgroundImage)
     }
 }

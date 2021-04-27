@@ -32,7 +32,6 @@ import com.pyamsoft.pydroid.arch.UiRender
 import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.loader.Loaded
 import com.pyamsoft.pydroid.loader.disposeOnDestroy
-import com.pyamsoft.pydroid.ui.util.Snackbreak
 import com.pyamsoft.pydroid.ui.util.popShow
 import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
 import javax.inject.Inject
@@ -127,13 +126,14 @@ class DetailAddItemView @Inject internal constructor(
 
     private fun handleShowing(showing: DetailViewState.Showing) {
         clearFilter()
-        filterIconLoaded = imageLoader.load(
-            when (showing) {
-                DetailViewState.Showing.FRESH -> R.drawable.ic_category_24
-                DetailViewState.Showing.CONSUMED -> R.drawable.ic_consumed_24dp
-                DetailViewState.Showing.SPOILED -> R.drawable.ic_spoiled_24dp
-            }
-        )
+        filterIconLoaded = imageLoader.asDrawable()
+            .load(
+                when (showing) {
+                    DetailViewState.Showing.FRESH -> R.drawable.ic_category_24
+                    DetailViewState.Showing.CONSUMED -> R.drawable.ic_consumed_24dp
+                    DetailViewState.Showing.SPOILED -> R.drawable.ic_spoiled_24dp
+                }
+            )
             .into(binding.detailFilterItem)
     }
 

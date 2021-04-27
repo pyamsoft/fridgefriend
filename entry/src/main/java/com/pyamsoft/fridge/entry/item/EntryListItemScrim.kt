@@ -55,7 +55,9 @@ class EntryListItemScrim @Inject internal constructor(
     private fun handleScrim(itemCount: Int) {
         clear()
         if (itemCount > 0) {
-            loaded = imageLoader.load(R.drawable.entry_item_scrim).intoBackground(layoutRoot)
+            loaded = imageLoader.asDrawable()
+                .load(R.drawable.entry_item_scrim)
+                .intoBackground(layoutRoot)
         }
     }
 

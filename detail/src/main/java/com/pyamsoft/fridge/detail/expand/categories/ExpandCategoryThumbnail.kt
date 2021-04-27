@@ -58,6 +58,8 @@ class ExpandCategoryThumbnail @Inject internal constructor(
     }
 
     private fun loadImage(thumbnail: FridgeCategory.Thumbnail) {
-        loaded = imageLoader.load(thumbnail.data).into(layoutRoot)
+        loaded = imageLoader.asBitmap()
+            .load(thumbnail.data)
+            .into(layoutRoot)
     }
 }

@@ -52,7 +52,9 @@ class ExpandItemToolbar @Inject internal constructor(
 
     init {
         doOnInflate {
-            imageLoader.load(R2.drawable.ic_close_24dp).mutate { it.tintWith(Color.WHITE) }
+            imageLoader.asDrawable()
+                .load(R2.drawable.ic_close_24dp)
+                .mutate { it.tintWith(Color.WHITE) }
                 .into(object : ImageTarget<Drawable> {
 
                     override fun clear() {
