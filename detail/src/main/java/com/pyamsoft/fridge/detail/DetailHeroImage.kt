@@ -61,9 +61,9 @@ class DetailHeroImage @Inject internal constructor(
 
     override fun onAdditionalRender(state: UiRender<DetailViewState>) {
         state.mapChanged { it.allItems }.render(viewScope) { handleItems(it) }
+        state.mapChanged { it.showing }.render(viewScope) { handleDescription(it) }
         state.mapChanged { it.entry }.mapChanged { it?.name().orEmpty() }
             .render(viewScope) { handleTitle(it) }
-        state.mapChanged { it.showing }.render(viewScope) { handleDescription(it) }
     }
 
     private fun handleDescription(showing: DetailViewState.Showing) {

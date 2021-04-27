@@ -19,21 +19,33 @@ package com.pyamsoft.fridge.ui.chart
 import android.graphics.Color
 import androidx.annotation.CheckResult
 import androidx.annotation.ColorInt
-import com.github.mikephil.charting.animation.Easing
 import com.github.mikephil.charting.charts.PieChart
 import com.github.mikephil.charting.data.PieData
 import com.github.mikephil.charting.data.PieDataSet
 import com.github.mikephil.charting.data.PieEntry
 import com.github.mikephil.charting.formatter.ValueFormatter
 
-class Pie internal constructor(private val chart: PieChart) {
+class Pie private constructor(private val chart: PieChart) {
 
     fun setData(data: List<Data>) {
+        setData(data, NOOP_FORMATTER)
+    }
+
+    inline fun setData(data: List<Data>, crossinline formatter: (Float) -> String) {
+        setData(data, createFormatter(formatter))
+    }
+
+    @PublishedApi
+    internal fun setData(data: List<Data>, formatter: ValueFormatter) {
+        applyNewData(data, formatter)
+    }
+
+    private fun applyNewData(data: List<Data>, formatter: ValueFormatter) {
         val entries = data.map { PieEntry(it.value, "") }
         val colors = data.map { it.color }
         val dataSet = PieDataSet(entries, "").apply {
             this.colors = colors
-            this.valueFormatter = NOOP_FORMATTER
+            this.valueFormatter = formatter
         }
 
         chart.data = PieData(dataSet)
@@ -59,24 +71,29 @@ class Pie internal constructor(private val chart: PieChart) {
         chart.clear()
     }
 
-    data class Data constructor(
-        val value: Float,
-        @ColorInt val color: Int
-    )
+    data class Data(val value: Float, @ColorInt val color: Int)
 
     companion object {
 
-        private val NOOP_FORMATTER = object : ValueFormatter() {
+        @JvmStatic
+        @CheckResult
+        @PublishedApi
+        internal inline fun createFormatter(crossinline format: (Float) -> String): ValueFormatter {
+            return object : ValueFormatter() {
 
-            override fun getPieLabel(value: Float, pieEntry: PieEntry?): String {
-                return ""
+                override fun getPieLabel(value: Float, pieEntry: PieEntry?): String {
+                    return format(value)
+                }
+
+                override fun getFormattedValue(value: Float): String {
+                    return format(value)
+                }
+
             }
-
-            override fun getFormattedValue(value: Float): String {
-                return ""
-            }
-
         }
+
+        @PublishedApi
+        internal val NOOP_FORMATTER = createFormatter { "" }
 
         @JvmStatic
         @CheckResult
