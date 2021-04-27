@@ -28,7 +28,6 @@ import com.pyamsoft.fridge.FridgeComponent
 import com.pyamsoft.fridge.core.FridgeViewModelFactory
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItem
-import com.pyamsoft.fridge.entry.EntryViewEvent
 import com.pyamsoft.fridge.entry.EntryViewState
 import com.pyamsoft.fridge.entry.ReadOnlyEntryList
 import com.pyamsoft.fridge.entry.ReadOnlyListEvents

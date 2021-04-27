@@ -41,9 +41,4 @@ enum class NotificationChannelInfo(
         title = "Nightly Reminders",
         description = "Regular reminders each night to clean out your fridge"
     ),
-    NEARBY(
-        id = "fridge_nearby_reminders_channel_v1",
-        title = "Nearby Reminders",
-        description = "Reminders for items that may be at locations nearby."
-    );
 }

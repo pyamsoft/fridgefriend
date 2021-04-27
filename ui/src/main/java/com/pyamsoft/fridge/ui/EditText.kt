@@ -30,10 +30,6 @@ val EditText.isEditable: Boolean
         return isEditableType(inputType)
     }
 
-fun EditText.setNotEditable() {
-    setEditable(InputType.TYPE_NULL)
-}
-
 fun EditText.setEditable(inputType: Int) {
     val isEditable = isEditableType(inputType)
     this.inputType = inputType

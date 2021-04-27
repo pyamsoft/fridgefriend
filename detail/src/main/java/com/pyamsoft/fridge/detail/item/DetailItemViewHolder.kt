@@ -22,7 +22,6 @@ import com.pyamsoft.fridge.detail.databinding.DetailListItemHolderBinding
 import com.pyamsoft.pydroid.arch.ViewBinder
 import com.pyamsoft.pydroid.arch.createViewBinder
 import com.pyamsoft.pydroid.ui.util.layout
-import timber.log.Timber
 import javax.inject.Inject
 
 class DetailItemViewHolder internal constructor(

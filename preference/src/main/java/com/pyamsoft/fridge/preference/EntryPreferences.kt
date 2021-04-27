@@ -17,7 +17,6 @@
 package com.pyamsoft.fridge.preference
 
 import androidx.annotation.CheckResult
-import com.pyamsoft.pydroid.util.PreferenceListener
 
 interface EntryPreferences {
 

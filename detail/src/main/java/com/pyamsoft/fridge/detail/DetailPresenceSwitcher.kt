@@ -25,7 +25,6 @@ import com.pyamsoft.fridge.detail.databinding.DetailPresenceSwitchBinding
 import com.pyamsoft.fridge.ui.appbar.AppBarActivity
 import com.pyamsoft.pydroid.arch.UiRender
 import com.pyamsoft.pydroid.arch.UiView
-import com.pyamsoft.pydroid.ui.app.ToolbarActivity
 import timber.log.Timber
 import javax.inject.Inject
 

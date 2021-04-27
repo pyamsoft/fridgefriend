@@ -247,7 +247,7 @@ internal class SimilarlyNamedListWindow internal constructor(context: Context) {
 
         @CheckResult
         private inline fun <reified S : Any> View.requireViewHolder(): S {
-            return this.getViewHolder<S>()
+            return this.getViewHolder()
                 ?: throw IllegalStateException("View is not ViewHolder: ${this.tag}")
         }
 

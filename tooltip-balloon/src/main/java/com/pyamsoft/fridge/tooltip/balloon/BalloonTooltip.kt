@@ -74,7 +74,7 @@ internal class BalloonTooltip internal constructor(
             @JvmStatic
             @CheckResult
             private fun makeNew(builder: Balloon.Builder): Tooltip.Builder {
-                return BalloonTooltip.Builder(builder)
+                return Builder(builder)
             }
         }
     }
