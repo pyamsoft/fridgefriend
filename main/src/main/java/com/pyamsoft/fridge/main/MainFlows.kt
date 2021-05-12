@@ -37,7 +37,7 @@ sealed class MainViewEvent : UiViewEvent {
 
     object OpenSettings : MainViewEvent()
 
-    data class BottomBarMeasured(val height: Int) : MainViewEvent()
+    data class BottomBarMeasured internal constructor(val height: Int) : MainViewEvent()
 }
 
 sealed class MainControllerEvent : UiControllerEvent {

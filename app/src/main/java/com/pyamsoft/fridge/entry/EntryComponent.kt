@@ -37,7 +37,6 @@ import dagger.multibindings.IntoMap
     modules = [
         EntryComponent.ComponentModule::class,
         ViewModelFactoryModule::class,
-        EntryListModule::class,
         ThemeProviderModule::class,
         TooltipModule::class
     ]

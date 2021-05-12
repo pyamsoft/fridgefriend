@@ -39,6 +39,7 @@ import com.pyamsoft.fridge.detail.expand.move.ItemMoveComponent
 import com.pyamsoft.fridge.entry.EntryComponent
 import com.pyamsoft.fridge.entry.EntryListComponent
 import com.pyamsoft.fridge.entry.create.CreateEntryComponent
+import com.pyamsoft.fridge.entry.item.EntryItemComponent
 import com.pyamsoft.fridge.main.MainComponent
 import com.pyamsoft.fridge.preference.PreferenceModule
 import com.pyamsoft.fridge.search.SearchComponent
@@ -116,6 +117,9 @@ internal interface FridgeComponent {
 
     @CheckResult
     fun plusEntryComponent(): EntryComponent.Factory
+
+    @CheckResult
+    fun plusEntryItemComponent(): EntryItemComponent.Factory
 
     @CheckResult
     fun plusCreateEntryComponent(): CreateEntryComponent.Factory

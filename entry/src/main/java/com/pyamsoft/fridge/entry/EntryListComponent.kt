@@ -26,9 +26,6 @@ import dagger.Subcomponent
 @Subcomponent
 interface EntryListComponent {
 
-    @CheckResult
-    fun plusItemComponent(): EntryItemComponent.Factory
-
     @Subcomponent.Factory
     interface Factory {
 

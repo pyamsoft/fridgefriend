@@ -26,7 +26,6 @@ import com.pyamsoft.fridge.core.FragmentScope
 import com.pyamsoft.fridge.core.ViewModelFactoryModule
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItem
-import com.pyamsoft.fridge.entry.EntryListModule
 import com.pyamsoft.fridge.tooltip.balloon.TooltipModule
 import com.pyamsoft.fridge.ui.appbar.AppBarActivity
 import dagger.Binds
@@ -42,7 +41,6 @@ import dagger.multibindings.IntoMap
         ItemMoveComponent.ComponentModule::class,
         ViewModelFactoryModule::class,
         ItemMoveModule::class,
-        EntryListModule::class,
         ThemeProviderModule::class,
         TooltipModule::class
     ]
