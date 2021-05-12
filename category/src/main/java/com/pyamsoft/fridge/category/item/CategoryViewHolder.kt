@@ -29,7 +29,7 @@ class CategoryViewHolder internal constructor(
     factory: CategoryItemComponent.Factory
 ) : RecyclerView.ViewHolder(constraintLayout), ViewBinder<CategoryItemViewState> {
 
-    private var viewBinder: ViewBinder<CategoryItemViewState>
+    private val viewBinder: ViewBinder<CategoryItemViewState>
 
     @Inject
     @JvmField

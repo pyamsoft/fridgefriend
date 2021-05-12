@@ -41,7 +41,7 @@ class EntryItemViewHolder internal constructor(
     @JvmField
     internal var clickView: EntryListItemClick? = null
 
-    private var viewBinder: ViewBinder<EntryItemViewState>
+    private val viewBinder: ViewBinder<EntryItemViewState>
 
     init {
         factory.create(binding.entryListItem).inject(this)
