@@ -21,13 +21,12 @@ import android.view.ViewGroup
 import androidx.annotation.CheckResult
 import androidx.lifecycle.LifecycleOwner
 import androidx.savedstate.SavedStateRegistryOwner
-import com.pyamsoft.fridge.ThemeProviderModule
+import com.pyamsoft.fridge.ui.ThemeProviderModule
 import com.pyamsoft.fridge.core.FragmentScope
 import com.pyamsoft.fridge.core.ViewModelFactoryModule
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence
 import com.pyamsoft.fridge.detail.DetailComponent
-import com.pyamsoft.fridge.detail.DetailListModule
 import com.pyamsoft.fridge.tooltip.balloon.TooltipModule
 import com.pyamsoft.fridge.ui.appbar.AppBarActivity
 import dagger.BindsInstance
@@ -38,7 +37,6 @@ import dagger.Subcomponent
     modules = [
         DetailComponent.ComponentModule::class,
         ViewModelFactoryModule::class,
-        DetailListModule::class,
         TooltipModule::class,
         ThemeProviderModule::class
     ]

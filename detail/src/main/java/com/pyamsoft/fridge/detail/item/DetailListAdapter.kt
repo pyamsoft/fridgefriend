@@ -22,10 +22,14 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.pyamsoft.fridge.detail.databinding.DetailListItemHolderBinding
+import com.pyamsoft.fridge.tooltip.TooltipCreator
+import com.pyamsoft.pydroid.ui.theme.ThemeProvider
 import com.pyamsoft.pydroid.ui.util.teardownAdapter
 import me.zhanghai.android.fastscroll.PopupTextProvider
 
 class DetailListAdapter internal constructor(
+    private val themeProvider: ThemeProvider,
+    private val tooltipCreator: TooltipCreator,
     private val factory: DetailItemComponent.Factory,
     private val callback: Callback
 ) : ListAdapter<DetailItemViewState, DetailItemViewHolder>(DIFFER), PopupTextProvider {
@@ -49,7 +53,14 @@ class DetailListAdapter internal constructor(
     ): DetailItemViewHolder {
         val inflater = LayoutInflater.from(parent.context)
         val binding = DetailListItemHolderBinding.inflate(inflater, parent, false)
-        return DetailItemViewHolder(binding, editable = false, factory, callback)
+        return DetailItemViewHolder(
+            binding,
+            editable = false,
+            themeProvider,
+            tooltipCreator,
+            factory,
+            callback
+        )
     }
 
     override fun onBindViewHolder(

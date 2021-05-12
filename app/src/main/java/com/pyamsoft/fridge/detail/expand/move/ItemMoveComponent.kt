@@ -21,7 +21,7 @@ import android.view.ViewGroup
 import androidx.annotation.CheckResult
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModel
-import com.pyamsoft.fridge.ThemeProviderModule
+import com.pyamsoft.fridge.ui.ThemeProviderModule
 import com.pyamsoft.fridge.core.FragmentScope
 import com.pyamsoft.fridge.core.ViewModelFactoryModule
 import com.pyamsoft.fridge.db.entry.FridgeEntry

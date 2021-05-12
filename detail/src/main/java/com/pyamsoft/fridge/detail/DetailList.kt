@@ -31,6 +31,7 @@ import com.pyamsoft.fridge.detail.item.DetailItemComponent
 import com.pyamsoft.fridge.detail.item.DetailItemViewHolder
 import com.pyamsoft.fridge.detail.item.DetailItemViewState
 import com.pyamsoft.fridge.detail.item.DetailListAdapter
+import com.pyamsoft.fridge.tooltip.TooltipCreator
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.arch.UiRender
 import com.pyamsoft.pydroid.loader.ImageLoader
@@ -51,6 +52,7 @@ import com.pyamsoft.pydroid.ui.R as R3
 class DetailList @Inject internal constructor(
     private val imageLoader: ImageLoader,
     private val theming: ThemeProvider,
+    tooltipCreator: TooltipCreator,
     parent: ViewGroup,
     factory: DetailItemComponent.Factory,
 ) : BaseUiView<DetailViewState, DetailViewEvent.ListEvent, DetailListBinding>(parent) {
@@ -81,6 +83,8 @@ class DetailList @Inject internal constructor(
 
         doOnInflate {
             modelAdapter = DetailListAdapter(
+                themeProvider = theming,
+                tooltipCreator = tooltipCreator,
                 factory = factory,
                 callback = object : DetailListAdapter.Callback {
 

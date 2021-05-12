@@ -14,28 +14,20 @@
  * limitations under the License.
  */
 
-package com.pyamsoft.fridge.detail
+package com.pyamsoft.fridge.ui
 
-import androidx.annotation.CheckResult
-import com.pyamsoft.fridge.detail.item.DetailItemComponent
-import com.pyamsoft.fridge.tooltip.TooltipCreator
+import android.app.Activity
 import com.pyamsoft.pydroid.ui.theme.ThemeProvider
-import dagger.BindsInstance
-import dagger.Subcomponent
+import com.pyamsoft.pydroid.ui.theme.Theming
+import dagger.Module
+import dagger.Provides
 
-@Subcomponent
-interface DetailListComponent {
+@Module
+object ThemeProviderModule {
 
-    @CheckResult
-    fun plusItemComponent(): DetailItemComponent.Factory
-
-    @Subcomponent.Factory
-    interface Factory {
-
-        @CheckResult
-        fun create(
-            @BindsInstance tooltipCreator: TooltipCreator,
-            @BindsInstance themeProvider: ThemeProvider
-        ): DetailListComponent
+    @Provides
+    @JvmStatic
+    fun provideThemeProvider(activity: Activity, theming: Theming): ThemeProvider {
+        return ThemeProvider { theming.isDarkTheme(activity) }
     }
 }

@@ -19,14 +19,18 @@ package com.pyamsoft.fridge.detail.item
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.recyclerview.widget.RecyclerView
 import com.pyamsoft.fridge.detail.databinding.DetailListItemHolderBinding
+import com.pyamsoft.fridge.tooltip.TooltipCreator
 import com.pyamsoft.pydroid.arch.ViewBinder
 import com.pyamsoft.pydroid.arch.createViewBinder
+import com.pyamsoft.pydroid.ui.theme.ThemeProvider
 import com.pyamsoft.pydroid.ui.util.layout
 import javax.inject.Inject
 
 class DetailItemViewHolder internal constructor(
     binding: DetailListItemHolderBinding,
     editable: Boolean,
+    themeProvider: ThemeProvider,
+    tooltipCreator: TooltipCreator,
     factory: DetailItemComponent.Factory,
     callback: DetailListAdapter.Callback
 ) : RecyclerView.ViewHolder(binding.root), ViewBinder<DetailItemViewState> {
@@ -66,7 +70,7 @@ class DetailItemViewHolder internal constructor(
     private val viewBinder: ViewBinder<DetailItemViewState>
 
     init {
-        factory.create(binding.detailListItem, editable).inject(this)
+        factory.create(binding.detailListItem, editable, themeProvider, tooltipCreator).inject(this)
 
         // Nest views
         val extra = requireNotNull(extraContainer)
@@ -87,9 +91,15 @@ class DetailItemViewHolder internal constructor(
         ) {
             return@createViewBinder when (it) {
                 is DetailItemViewEvent.ExpandItem -> callback.onItemExpanded(bindingAdapterPosition)
-                is DetailItemViewEvent.CommitPresence -> callback.onPresenceChange(bindingAdapterPosition)
-                is DetailItemViewEvent.IncreaseCount -> callback.onIncreaseCount(bindingAdapterPosition)
-                is DetailItemViewEvent.DecreaseCount -> callback.onDecreaseCount(bindingAdapterPosition)
+                is DetailItemViewEvent.CommitPresence -> callback.onPresenceChange(
+                    bindingAdapterPosition
+                )
+                is DetailItemViewEvent.IncreaseCount -> callback.onIncreaseCount(
+                    bindingAdapterPosition
+                )
+                is DetailItemViewEvent.DecreaseCount -> callback.onDecreaseCount(
+                    bindingAdapterPosition
+                )
             }
         }
 

@@ -30,14 +30,13 @@ import com.pyamsoft.fridge.core.R
 import com.pyamsoft.fridge.db.DbModule
 import com.pyamsoft.fridge.db.room.RoomModule
 import com.pyamsoft.fridge.detail.DetailComponent
-import com.pyamsoft.fridge.detail.DetailListComponent
 import com.pyamsoft.fridge.detail.expand.ExpandComponent
 import com.pyamsoft.fridge.detail.expand.ExpandItemCategoryListComponent
 import com.pyamsoft.fridge.detail.expand.date.DateSelectComponent
 import com.pyamsoft.fridge.detail.expand.date.DateSelectPayload
 import com.pyamsoft.fridge.detail.expand.move.ItemMoveComponent
+import com.pyamsoft.fridge.detail.item.DetailItemComponent
 import com.pyamsoft.fridge.entry.EntryComponent
-import com.pyamsoft.fridge.entry.EntryListComponent
 import com.pyamsoft.fridge.entry.create.CreateEntryComponent
 import com.pyamsoft.fridge.entry.item.EntryItemComponent
 import com.pyamsoft.fridge.main.MainComponent
@@ -69,6 +68,20 @@ import javax.inject.Singleton
 )
 internal interface FridgeComponent {
 
+    /**
+     * Not actually used.
+     */
+    @CheckResult
+    @Suppress("FunctionName")
+    fun `$$plusEntryItemComponent`(): EntryItemComponent.Factory
+
+    /**
+     * Not actually used.
+     */
+    @CheckResult
+    @Suppress("FunctionName")
+    fun `$$plusDetailItemComponent`(): DetailItemComponent.Factory
+
     //  @CheckResult
     //  fun plusScannerComponent(): OcrComponent.Factory
 
@@ -78,14 +91,6 @@ internal interface FridgeComponent {
     /* FROM inside CategoryListView: See FridgeFriend Injector */
     @CheckResult
     fun plusCategoryListComponent(): CategoryListComponent.Factory
-
-    /* FROM inside DetailList: See FridgeFriend Injector */
-    @CheckResult
-    fun plusDetailListComponent(): DetailListComponent.Factory
-
-    /* FROM inside EntryList: See FridgeFriend Injector */
-    @CheckResult
-    fun plusEntryListComponent(): EntryListComponent.Factory
 
     /* FROM inside ExpandItemCategoryList: See FridgeFriend Injector */
     @CheckResult
@@ -117,9 +122,6 @@ internal interface FridgeComponent {
 
     @CheckResult
     fun plusEntryComponent(): EntryComponent.Factory
-
-    @CheckResult
-    fun plusEntryItemComponent(): EntryItemComponent.Factory
 
     @CheckResult
     fun plusCreateEntryComponent(): CreateEntryComponent.Factory

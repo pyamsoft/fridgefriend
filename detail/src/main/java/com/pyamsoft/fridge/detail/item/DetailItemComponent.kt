@@ -18,6 +18,8 @@ package com.pyamsoft.fridge.detail.item
 
 import android.view.ViewGroup
 import androidx.annotation.CheckResult
+import com.pyamsoft.fridge.tooltip.TooltipCreator
+import com.pyamsoft.pydroid.ui.theme.ThemeProvider
 import dagger.BindsInstance
 import dagger.Subcomponent
 import javax.inject.Named
@@ -33,7 +35,9 @@ interface DetailItemComponent {
         @CheckResult
         fun create(
             @BindsInstance parent: ViewGroup,
-            @BindsInstance @Named("item_editable") editable: Boolean
+            @BindsInstance @Named("item_editable") editable: Boolean,
+            @BindsInstance themeProvider: ThemeProvider,
+            @BindsInstance tooltipCreator: TooltipCreator
         ): DetailItemComponent
     }
 }

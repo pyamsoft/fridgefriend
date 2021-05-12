@@ -22,7 +22,7 @@ import androidx.annotation.CheckResult
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModel
 import androidx.savedstate.SavedStateRegistryOwner
-import com.pyamsoft.fridge.ThemeProviderModule
+import com.pyamsoft.fridge.ui.ThemeProviderModule
 import com.pyamsoft.fridge.core.ViewModelFactoryModule
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItem
