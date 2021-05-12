@@ -21,8 +21,8 @@ import android.view.ViewGroup
 import androidx.annotation.CheckResult
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModel
-import com.pyamsoft.fridge.ui.ThemeProviderModule
 import com.pyamsoft.fridge.core.ViewModelFactoryModule
+import com.pyamsoft.fridge.ui.ThemeProviderModule
 import com.pyamsoft.fridge.ui.appbar.AppBarActivity
 import dagger.Binds
 import dagger.BindsInstance
@@ -34,7 +34,6 @@ import dagger.multibindings.IntoMap
 @Subcomponent(
     modules = [
         CategoryComponent.ComponentModule::class,
-        CategoryModule::class,
         ThemeProviderModule::class,
         ViewModelFactoryModule::class
     ]

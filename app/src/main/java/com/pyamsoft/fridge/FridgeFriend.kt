@@ -23,10 +23,8 @@ import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.butler.Butler
 import com.pyamsoft.fridge.butler.injector.ButlerComponent
 import com.pyamsoft.fridge.butler.work.OrderFactory
-import com.pyamsoft.fridge.category.CategoryListComponent
 import com.pyamsoft.fridge.core.PRIVACY_POLICY_URL
 import com.pyamsoft.fridge.core.TERMS_CONDITIONS_URL
-import com.pyamsoft.fridge.detail.expand.ExpandItemCategoryListComponent
 import com.pyamsoft.fridge.main.MainActivity
 import com.pyamsoft.pydroid.bootstrap.libraries.OssLibraries
 import com.pyamsoft.pydroid.bootstrap.libraries.OssLicenses
@@ -111,8 +109,6 @@ class FridgeFriend : Application() {
         return component.run {
             when (name) {
                 ButlerComponent::class.java.name -> plusButlerComponent()
-                CategoryListComponent.Factory::class.java.name -> plusCategoryListComponent()
-                ExpandItemCategoryListComponent.Factory::class.java.name -> plusExpandCategoryListComponent()
                 else -> null
             }
         }

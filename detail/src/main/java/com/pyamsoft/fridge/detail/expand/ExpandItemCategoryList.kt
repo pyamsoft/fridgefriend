@@ -26,9 +26,11 @@ import com.pyamsoft.fridge.detail.expand.categories.ExpandItemCategoryListAdapte
 import com.pyamsoft.fridge.detail.expand.categories.ExpandedCategoryViewState
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.arch.UiRender
+import com.pyamsoft.pydroid.ui.theme.ThemeProvider
 import javax.inject.Inject
 
 class ExpandItemCategoryList @Inject internal constructor(
+    themeProvider: ThemeProvider,
     parent: ViewGroup,
     factory: ExpandCategoryComponent.Factory,
 ) : BaseUiView<ExpandedViewState, ExpandedViewEvent.ItemEvent, ExpandCategoriesBinding>(parent) {
@@ -53,6 +55,7 @@ class ExpandItemCategoryList @Inject internal constructor(
 
         doOnInflate {
             modelAdapter = ExpandItemCategoryListAdapter(
+                themeProvider = themeProvider,
                 factory = factory,
                 callback = object : ExpandItemCategoryListAdapter.Callback {
 

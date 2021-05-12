@@ -22,11 +22,11 @@ import androidx.annotation.CheckResult
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModel
 import androidx.savedstate.SavedStateRegistryOwner
-import com.pyamsoft.fridge.ui.ThemeProviderModule
 import com.pyamsoft.fridge.core.ViewModelFactoryModule
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence
+import com.pyamsoft.fridge.ui.ThemeProviderModule
 import com.pyamsoft.pydroid.arch.UiSavedStateViewModelProvider
 import dagger.Binds
 import dagger.BindsInstance
@@ -39,7 +39,6 @@ import dagger.multibindings.IntoMap
     modules = [
         ExpandComponent.ComponentModule::class,
         ViewModelFactoryModule::class,
-        ExpandItemModule::class,
         ThemeProviderModule::class
     ]
 )

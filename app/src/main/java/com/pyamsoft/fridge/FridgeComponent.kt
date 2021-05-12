@@ -25,13 +25,13 @@ import com.pyamsoft.fridge.butler.ButlerModule
 import com.pyamsoft.fridge.butler.injector.ButlerComponent
 import com.pyamsoft.fridge.butler.workmanager.WorkManagerModule
 import com.pyamsoft.fridge.category.CategoryComponent
-import com.pyamsoft.fridge.category.CategoryListComponent
+import com.pyamsoft.fridge.category.item.CategoryItemComponent
 import com.pyamsoft.fridge.core.R
 import com.pyamsoft.fridge.db.DbModule
 import com.pyamsoft.fridge.db.room.RoomModule
 import com.pyamsoft.fridge.detail.DetailComponent
 import com.pyamsoft.fridge.detail.expand.ExpandComponent
-import com.pyamsoft.fridge.detail.expand.ExpandItemCategoryListComponent
+import com.pyamsoft.fridge.detail.expand.categories.ExpandCategoryComponent
 import com.pyamsoft.fridge.detail.expand.date.DateSelectComponent
 import com.pyamsoft.fridge.detail.expand.date.DateSelectPayload
 import com.pyamsoft.fridge.detail.expand.move.ItemMoveComponent
@@ -69,34 +69,37 @@ import javax.inject.Singleton
 internal interface FridgeComponent {
 
     /**
-     * Not actually used.
+     * Not actually used, just here so graph can compile
      */
     @CheckResult
     @Suppress("FunctionName")
-    fun `$$plusEntryItemComponent`(): EntryItemComponent.Factory
+    fun `$$daggerRequiredEntryItemComponent`(): EntryItemComponent.Factory
 
     /**
-     * Not actually used.
+     * Not actually used, just here so graph can compile
      */
     @CheckResult
     @Suppress("FunctionName")
-    fun `$$plusDetailItemComponent`(): DetailItemComponent.Factory
+    fun `$$daggerRequiredDetailItemComponent`(): DetailItemComponent.Factory
 
-    //  @CheckResult
-    //  fun plusScannerComponent(): OcrComponent.Factory
+    /**
+     * Not actually used, just here so graph can compile
+     */
+    @CheckResult
+    @Suppress("FunctionName")
+    fun `$$daggerRequiredExpandCategoryComponent`(): ExpandCategoryComponent.Factory
+
+    /**
+     * Not actually used, just here so graph can compile
+     */
+    @CheckResult
+    @Suppress("FunctionName")
+    fun `$$daggerRequiredCategoryItemComponent`(): CategoryItemComponent.Factory
 
     // ===============================================
     // HACKY INJECTORS
 
-    /* FROM inside CategoryListView: See FridgeFriend Injector */
-    @CheckResult
-    fun plusCategoryListComponent(): CategoryListComponent.Factory
-
-    /* FROM inside ExpandItemCategoryList: See FridgeFriend Injector */
-    @CheckResult
-    fun plusExpandCategoryListComponent(): ExpandItemCategoryListComponent.Factory
-
-    /* FROM inside LocationInjector, ExpirationInjector: See FridgeFriend Injector */
+    /* FROM inside NightlyInjector, ItemInjector: See FridgeFriend Injector */
     @CheckResult
     fun plusButlerComponent(): ButlerComponent
 
