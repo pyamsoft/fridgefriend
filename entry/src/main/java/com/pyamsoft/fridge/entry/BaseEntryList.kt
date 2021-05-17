@@ -150,7 +150,6 @@ abstract class BaseEntryList<V : UiViewEvent> protected constructor(
         }
 
         doOnTeardown {
-            clearList()
             binding.entryList.adapter = null
 
             binding.entrySwipeRefresh.setOnRefreshListener(null)
