@@ -23,12 +23,9 @@ import com.pyamsoft.fridge.db.item.FridgeItemDb
 
 interface FridgeDb : DbCache {
 
-    @CheckResult
-    fun items(): FridgeItemDb
+  @CheckResult fun items(): FridgeItemDb
 
-    @CheckResult
-    fun entries(): FridgeEntryDb
+  @CheckResult fun entries(): FridgeEntryDb
 
-    @CheckResult
-    fun categories(): FridgeCategoryDb
+  @CheckResult fun categories(): FridgeCategoryDb
 }

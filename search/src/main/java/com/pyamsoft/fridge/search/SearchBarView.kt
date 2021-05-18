@@ -27,50 +27,51 @@ import com.pyamsoft.pydroid.arch.UiRender
 import com.pyamsoft.pydroid.arch.UiView
 import javax.inject.Inject
 
-class SearchBarView @Inject internal constructor(
+class SearchBarView
+@Inject
+internal constructor(
     appBarSource: AppBarActivity,
 ) : UiView<DetailViewState, DetailViewEvent.ToolbarEvent.Search>() {
 
-    private var delegate: UiEditTextDelegate? = null
+  private var delegate: UiEditTextDelegate? = null
 
-    init {
-        // Replace the app bar background during switcher presence
-        doOnInflate {
-            appBarSource.requireAppBar { appBar ->
-                val inflater = LayoutInflater.from(appBar.context)
-                val binding = SearchBarBinding.inflate(inflater, appBar)
-                onCreate(binding)
+  init {
+    // Replace the app bar background during switcher presence
+    doOnInflate {
+      appBarSource.requireAppBar { appBar ->
+        val inflater = LayoutInflater.from(appBar.context)
+        val binding = SearchBarBinding.inflate(inflater, appBar)
+        onCreate(binding)
 
-                doOnTeardown {
-                    appBar.removeView(binding.searchbarRoot)
-                }
-            }
+        doOnTeardown { appBar.removeView(binding.searchbarRoot) }
+      }
+    }
+
+    doOnTeardown {
+      onDestroy()
+
+      delegate = null
+    }
+  }
+
+  private fun onDestroy() {
+    delegate?.destroy()
+  }
+
+  private fun onCreate(binding: SearchBarBinding) {
+    binding.searchbarRoot.isVisible = true
+    delegate =
+        UiEditTextDelegate(binding.searchbarName) { _, newText ->
+          publish(DetailViewEvent.ToolbarEvent.Search.Query(newText))
         }
+            .apply { create() }
+  }
 
-        doOnTeardown {
-            onDestroy()
+  override fun render(state: UiRender<DetailViewState>) {
+    state.mapChanged { it.search }.render(viewScope) { handleSearch(it) }
+  }
 
-            delegate = null
-        }
-    }
-
-    private fun onDestroy() {
-        delegate?.destroy()
-    }
-
-    private fun onCreate(binding: SearchBarBinding) {
-        binding.searchbarRoot.isVisible = true
-        delegate = UiEditTextDelegate(binding.searchbarName) { _, newText ->
-            publish(DetailViewEvent.ToolbarEvent.Search.Query(newText))
-        }.apply { create() }
-    }
-
-    override fun render(state: UiRender<DetailViewState>) {
-        state.mapChanged { it.search }.render(viewScope) { handleSearch(it) }
-    }
-
-    private fun handleSearch(search: String) {
-        delegate?.render(search)
-    }
-
+  private fun handleSearch(search: String) {
+    delegate?.render(search)
+  }
 }

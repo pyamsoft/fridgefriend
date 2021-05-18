@@ -27,69 +27,70 @@ import com.pyamsoft.pydroid.arch.UiViewEvent
 import com.pyamsoft.pydroid.arch.UiViewState
 import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.loader.Loaded
+import com.pyamsoft.pydroid.ui.R as R2
 import com.pyamsoft.pydroid.ui.theme.ThemeProvider
 import com.pyamsoft.pydroid.util.tintWith
-import timber.log.Timber
 import java.util.Calendar
-import com.pyamsoft.pydroid.ui.R as R2
+import timber.log.Timber
 
-abstract class BaseItemDate<S : UiViewState, V : UiViewEvent> protected constructor(
+abstract class BaseItemDate<S : UiViewState, V : UiViewEvent>
+protected constructor(
     private val imageLoader: ImageLoader,
     private val theming: ThemeProvider,
     parent: ViewGroup
 ) : BaseUiView<S, V, DetailListItemDateBinding>(parent) {
 
-    final override val viewBinding = DetailListItemDateBinding::inflate
+  final override val viewBinding = DetailListItemDateBinding::inflate
 
-    final override val layoutRoot by boundView { detailItemDate }
+  final override val layoutRoot by boundView { detailItemDate }
 
-    private var dateLoaded: Loaded? = null
+  private var dateLoaded: Loaded? = null
 
-    init {
-        doOnTeardown {
-            clear()
-        }
-    }
+  init {
+    doOnTeardown { clear() }
+  }
 
-    private fun clear() {
-        dateLoaded?.dispose()
-        dateLoaded = null
-        binding.detailItemDateText.text = ""
-    }
+  private fun clear() {
+    dateLoaded?.dispose()
+    dateLoaded = null
+    binding.detailItemDateText.text = ""
+  }
 
-    protected fun renderItem(item: FridgeItem?) {
-        clear()
-        if (item != null) {
-            val expireTime = item.expireTime()
-            if (expireTime != null) {
-                val date = today().apply { time = expireTime }
-                Timber.d("Expire time is: $date")
+  protected fun renderItem(item: FridgeItem?) {
+    clear()
+    if (item != null) {
+      val expireTime = item.expireTime()
+      if (expireTime != null) {
+        val date = today().apply { time = expireTime }
+        Timber.d("Expire time is: $date")
 
-                // Month is zero indexed in storage
-                val month = date.get(Calendar.MONTH)
-                val day = date.get(Calendar.DAY_OF_MONTH)
-                val year = date.get(Calendar.YEAR)
+        // Month is zero indexed in storage
+        val month = date.get(Calendar.MONTH)
+        val day = date.get(Calendar.DAY_OF_MONTH)
+        val year = date.get(Calendar.YEAR)
 
-                val dateString =
-                    "${"${month + 1}".padStart(2, '0')}/${
+        val dateString =
+            "${"${month + 1}".padStart(2, '0')}/${
                         "$day".padStart(2, '0')
                     }/${
                         "$year".padStart(4, '0')
                     }"
-                binding.detailItemDateText.text = dateString
-                binding.detailItemDateIcon.isVisible = false
-            } else {
-                binding.detailItemDateText.text = "-----"
-                binding.detailItemDateIcon.isVisible = true
+        binding.detailItemDateText.text = dateString
+        binding.detailItemDateIcon.isVisible = false
+      } else {
+        binding.detailItemDateText.text = "-----"
+        binding.detailItemDateIcon.isVisible = true
 
-                dateLoaded = imageLoader.asDrawable()
-                    .load(R.drawable.ic_date_range_24dp)
-                    .mutate { icon ->
-                        val color = if (theming.isDarkTheme()) R2.color.white else R2.color.black
-                        icon.tintWith(layoutRoot.context, color)
-                    }
-                    .into(binding.detailItemDateIcon)
-            }
-        }
+        dateLoaded =
+            imageLoader
+                .asDrawable()
+                .load(R.drawable.ic_date_range_24dp)
+                .mutate { icon ->
+                  val color = if (theming.isDarkTheme()) R2.color.white else R2.color.black
+                  icon.tintWith(layoutRoot.context, color)
+                }
+                .into(binding.detailItemDateIcon)
+      }
     }
+  }
 }

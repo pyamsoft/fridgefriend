@@ -56,125 +56,105 @@ import javax.inject.Singleton
 
 @Singleton
 @Component(
-    modules = [
-        FridgeProvider::class,
-        PreferenceModule::class,
-        DbModule::class,
-        ButlerModule::class,
-        WorkManagerModule::class,
-        RoomModule::class,
-        UiModule::class
-    ]
-)
+    modules =
+        [
+            FridgeProvider::class,
+            PreferenceModule::class,
+            DbModule::class,
+            ButlerModule::class,
+            WorkManagerModule::class,
+            RoomModule::class,
+            UiModule::class])
 internal interface FridgeComponent {
 
-    /**
-     * Not actually used, just here so graph can compile
-     */
-    @CheckResult
-    @Suppress("FunctionName")
-    fun `$$daggerRequiredEntryItemComponent`(): EntryItemComponent.Factory
+  /** Not actually used, just here so graph can compile */
+  @CheckResult
+  @Suppress("FunctionName")
+  fun `$$daggerRequiredEntryItemComponent`(): EntryItemComponent.Factory
 
-    /**
-     * Not actually used, just here so graph can compile
-     */
-    @CheckResult
-    @Suppress("FunctionName")
-    fun `$$daggerRequiredDetailItemComponent`(): DetailItemComponent.Factory
+  /** Not actually used, just here so graph can compile */
+  @CheckResult
+  @Suppress("FunctionName")
+  fun `$$daggerRequiredDetailItemComponent`(): DetailItemComponent.Factory
 
-    /**
-     * Not actually used, just here so graph can compile
-     */
-    @CheckResult
-    @Suppress("FunctionName")
-    fun `$$daggerRequiredExpandCategoryComponent`(): ExpandCategoryComponent.Factory
+  /** Not actually used, just here so graph can compile */
+  @CheckResult
+  @Suppress("FunctionName")
+  fun `$$daggerRequiredExpandCategoryComponent`(): ExpandCategoryComponent.Factory
 
-    /**
-     * Not actually used, just here so graph can compile
-     */
-    @CheckResult
-    @Suppress("FunctionName")
-    fun `$$daggerRequiredCategoryItemComponent`(): CategoryItemComponent.Factory
+  /** Not actually used, just here so graph can compile */
+  @CheckResult
+  @Suppress("FunctionName")
+  fun `$$daggerRequiredCategoryItemComponent`(): CategoryItemComponent.Factory
 
-    // ===============================================
-    // HACKY INJECTORS
+  // ===============================================
+  // HACKY INJECTORS
 
-    /* FROM inside NightlyInjector, ItemInjector: See FridgeFriend Injector */
-    @CheckResult
-    fun plusButlerComponent(): ButlerComponent
+  /* FROM inside NightlyInjector, ItemInjector: See FridgeFriend Injector */
+  @CheckResult fun plusButlerComponent(): ButlerComponent
 
-    // ===============================================
+  // ===============================================
 
-    @CheckResult
-    fun plusSettingsComponent(): SettingsComponent.Factory
+  @CheckResult fun plusSettingsComponent(): SettingsComponent.Factory
 
-    @CheckResult
-    fun plusCategoryComponent(): CategoryComponent.Factory
+  @CheckResult fun plusCategoryComponent(): CategoryComponent.Factory
 
-    @CheckResult
-    fun plusItemMoveComponent(): ItemMoveComponent.Factory
+  @CheckResult fun plusItemMoveComponent(): ItemMoveComponent.Factory
 
-    @CheckResult
-    fun plusExpandComponent(): ExpandComponent.Factory
+  @CheckResult fun plusExpandComponent(): ExpandComponent.Factory
 
-    @CheckResult
-    fun plusDetailComponent(): DetailComponent.Factory
+  @CheckResult fun plusDetailComponent(): DetailComponent.Factory
 
-    @CheckResult
-    fun plusSearchComponent(): SearchComponent.Factory
+  @CheckResult fun plusSearchComponent(): SearchComponent.Factory
+
+  @CheckResult fun plusEntryComponent(): EntryComponent.Factory
+
+  @CheckResult fun plusCreateEntryComponent(): CreateEntryComponent.Factory
+
+  @CheckResult fun plusMainComponent(): MainComponent.Factory
+
+  @CheckResult fun plusDateSelectComponent(): DateSelectComponent
+
+  fun inject(application: FridgeFriend)
+
+  @Component.Factory
+  interface Factory {
 
     @CheckResult
-    fun plusEntryComponent(): EntryComponent.Factory
+    fun create(
+        @BindsInstance application: Application,
+        @Named("debug") @BindsInstance debug: Boolean,
+        @BindsInstance theming: Theming,
+        @BindsInstance imageLoader: ImageLoader,
+        @BindsInstance activityClass: Class<out Activity>,
+    ): FridgeComponent
+  }
 
-    @CheckResult
-    fun plusCreateEntryComponent(): CreateEntryComponent.Factory
-
-    @CheckResult
-    fun plusMainComponent(): MainComponent.Factory
-
-    @CheckResult
-    fun plusDateSelectComponent(): DateSelectComponent
-
-    fun inject(application: FridgeFriend)
-
-    @Component.Factory
-    interface Factory {
-
-        @CheckResult
-        fun create(
-            @BindsInstance application: Application,
-            @Named("debug") @BindsInstance debug: Boolean,
-            @BindsInstance theming: Theming,
-            @BindsInstance imageLoader: ImageLoader,
-            @BindsInstance activityClass: Class<out Activity>,
-        ): FridgeComponent
-    }
+  @Module
+  abstract class FridgeProvider {
 
     @Module
-    abstract class FridgeProvider {
+    companion object {
 
-        @Module
-        companion object {
+      @Provides
+      @JvmStatic
+      @Singleton
+      internal fun provideDateSelectBus(): EventBus<DateSelectPayload> {
+        return EventBus.create(emitOnlyWhenActive = true)
+      }
 
-            @Provides
-            @JvmStatic
-            @Singleton
-            internal fun provideDateSelectBus(): EventBus<DateSelectPayload> {
-                return EventBus.create(emitOnlyWhenActive = true)
-            }
+      @Provides
+      @JvmStatic
+      internal fun provideContext(application: Application): Context {
+        return application
+      }
 
-            @Provides
-            @JvmStatic
-            internal fun provideContext(application: Application): Context {
-                return application
-            }
-
-            @Provides
-            @JvmStatic
-            @Named("app_name")
-            internal fun provideAppNameRes(): Int {
-                return R.string.app_name
-            }
-        }
+      @Provides
+      @JvmStatic
+      @Named("app_name")
+      internal fun provideAppNameRes(): Int {
+        return R.string.app_name
+      }
     }
+  }
 }

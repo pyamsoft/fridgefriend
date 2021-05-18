@@ -19,29 +19,26 @@ package com.pyamsoft.fridge.db.item
 import com.pyamsoft.fridge.db.BaseDb
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence
 
-interface FridgeItemDb : BaseDb<
-        FridgeItemRealtime,
-        FridgeItemQueryDao,
-        FridgeItemInsertDao,
-        FridgeItemDeleteDao
-        >,
+interface FridgeItemDb :
+    BaseDb<FridgeItemRealtime, FridgeItemQueryDao, FridgeItemInsertDao, FridgeItemDeleteDao>,
     FridgeItemRealtime,
     FridgeItemQueryDao,
     FridgeItemInsertDao,
     FridgeItemDeleteDao {
 
-    data class QuerySameNameDifferentPresenceKey(
-        val name: String,
-        val presence: Presence,
-    )
+  data class QuerySameNameDifferentPresenceKey(
+      val name: String,
+      val presence: Presence,
+  )
 
-    data class QuerySimilarNamedKey(
-        val id: FridgeItem.Id,
-        val name: String,
-    )
+  data class QuerySimilarNamedKey(
+      val id: FridgeItem.Id,
+      val name: String,
+  )
 
-    data class SimilarityScore constructor(
-        val item: FridgeItem,
-        val score: Float,
-    )
+  data class SimilarityScore
+  constructor(
+      val item: FridgeItem,
+      val score: Float,
+  )
 }

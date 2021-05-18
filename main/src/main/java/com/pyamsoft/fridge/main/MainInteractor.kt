@@ -29,55 +29,55 @@ import com.pyamsoft.fridge.db.item.isExpired
 import com.pyamsoft.fridge.db.item.isExpiringSoon
 import com.pyamsoft.fridge.preference.DetailPreferences
 import com.pyamsoft.pydroid.core.Enforcer
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 @Singleton
-internal class MainInteractor @Inject internal constructor(
+internal class MainInteractor
+@Inject
+internal constructor(
     private val itemQueryDao: FridgeItemQueryDao,
     private val itemRealtime: FridgeItemRealtime,
     private val detailPreferences: DetailPreferences,
 ) {
 
-    @CheckResult
-    suspend fun getNeededCount(): Int = withContext(context = Dispatchers.Default) {
+  @CheckResult
+  suspend fun getNeededCount(): Int =
+      withContext(context = Dispatchers.Default) {
         Enforcer.assertOffMainThread()
         return@withContext itemQueryDao.query(false).byPresence(FridgeItem.Presence.NEED).count()
-    }
+      }
 
-    @CheckResult
-    suspend fun getExpiredOrExpiringCount(): Int = withContext(context = Dispatchers.Default) {
+  @CheckResult
+  suspend fun getExpiredOrExpiringCount(): Int =
+      withContext(context = Dispatchers.Default) {
         Enforcer.assertOffMainThread()
         val now = today().cleanMidnight()
         val later = today().daysLaterMidnight(detailPreferences.getExpiringSoonRange())
         val isSameDayExpired = detailPreferences.isSameDayExpired()
-        return@withContext itemQueryDao.query(false).byPresence(FridgeItem.Presence.HAVE)
+        return@withContext itemQueryDao
+            .query(false)
+            .byPresence(FridgeItem.Presence.HAVE)
             .filter {
-                it.isExpired(now, isSameDayExpired) || it.isExpiringSoon(
-                    now,
-                    later,
-                    isSameDayExpired
-                )
+              it.isExpired(now, isSameDayExpired) || it.isExpiringSoon(now, later, isSameDayExpired)
             }
             .count()
+      }
+
+  suspend fun listenForItemChanges(onEvent: suspend (FridgeItemChangeEvent) -> Unit) =
+      withContext(context = Dispatchers.Default) {
+        Enforcer.assertOffMainThread()
+        return@withContext itemRealtime.listenForChanges(onEvent)
+      }
+
+  companion object {
+
+    @JvmStatic
+    @CheckResult
+    private fun List<FridgeItem>.byPresence(presence: FridgeItem.Presence): Sequence<FridgeItem> {
+      return this.asSequence().filterNot { it.isArchived() }.filter { it.presence() == presence }
     }
-
-    suspend fun listenForItemChanges(onEvent: suspend (FridgeItemChangeEvent) -> Unit) =
-        withContext(context = Dispatchers.Default) {
-            Enforcer.assertOffMainThread()
-            return@withContext itemRealtime.listenForChanges(onEvent)
-        }
-
-    companion object {
-
-        @JvmStatic
-        @CheckResult
-        private fun List<FridgeItem>.byPresence(presence: FridgeItem.Presence): Sequence<FridgeItem> {
-            return this.asSequence()
-                .filterNot { it.isArchived() }
-                .filter { it.presence() == presence }
-        }
-    }
+  }
 }

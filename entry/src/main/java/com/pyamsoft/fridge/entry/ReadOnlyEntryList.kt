@@ -20,21 +20,22 @@ import android.view.ViewGroup
 import com.pyamsoft.fridge.entry.item.EntryItemComponent
 import javax.inject.Inject
 
-class ReadOnlyEntryList @Inject internal constructor(
+class ReadOnlyEntryList
+@Inject
+internal constructor(
     parent: ViewGroup,
     factory: EntryItemComponent.Factory,
 ) : BaseEntryList<ReadOnlyListEvents>(parent, factory) {
 
-    override fun onRefresh() {
-        publish(ReadOnlyListEvents.ForceRefresh)
-    }
+  override fun onRefresh() {
+    publish(ReadOnlyListEvents.ForceRefresh)
+  }
 
-    override fun onClick(index: Int) {
-        publish(ReadOnlyListEvents.Select(index))
-    }
+  override fun onClick(index: Int) {
+    publish(ReadOnlyListEvents.Select(index))
+  }
 
-    override fun onLongPress(index: Int) {
-        publish(ReadOnlyListEvents.Select(index))
-    }
-
+  override fun onLongPress(index: Int) {
+    publish(ReadOnlyListEvents.Select(index))
+  }
 }

@@ -22,17 +22,17 @@ import com.pyamsoft.fridge.db.category.FridgeCategory
 
 internal object CategoryIdConverter {
 
-    @JvmStatic
-    @TypeConverter
-    @CheckResult
-    fun toId(id: String?): FridgeCategory.Id? {
-        return if (id == null) null else FridgeCategory.Id(id)
-    }
+  @JvmStatic
+  @TypeConverter
+  @CheckResult
+  fun toId(id: String?): FridgeCategory.Id? {
+    return if (id == null) null else FridgeCategory.Id(id)
+  }
 
-    @JvmStatic
-    @TypeConverter
-    @CheckResult
-    fun fromId(id: FridgeCategory.Id?): String? {
-        return id?.id
-    }
+  @JvmStatic
+  @TypeConverter
+  @CheckResult
+  fun fromId(id: FridgeCategory.Id?): String? {
+    return id?.id
+  }
 }

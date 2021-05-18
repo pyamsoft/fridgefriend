@@ -18,5 +18,5 @@ package com.pyamsoft.fridge.db
 
 interface DbCache {
 
-    suspend fun invalidate()
+  suspend fun invalidate()
 }

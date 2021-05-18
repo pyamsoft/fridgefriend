@@ -21,8 +21,8 @@ import com.pyamsoft.fridge.db.entry.FridgeEntry
 
 interface FridgeItemRealtime : DbRealtime<FridgeItemChangeEvent> {
 
-    suspend fun listenForChanges(
-        id: FridgeEntry.Id,
-        onChange: suspend (event: FridgeItemChangeEvent) -> Unit
-    )
+  suspend fun listenForChanges(
+      id: FridgeEntry.Id,
+      onChange: suspend (event: FridgeItemChangeEvent) -> Unit
+  )
 }

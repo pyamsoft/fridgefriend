@@ -31,139 +31,123 @@ import com.pyamsoft.pydroid.bootstrap.libraries.OssLicenses
 import com.pyamsoft.pydroid.ui.ModuleProvider
 import com.pyamsoft.pydroid.ui.PYDroid
 import com.pyamsoft.pydroid.util.isDebugMode
+import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 class FridgeFriend : Application() {
 
-    @Inject
-    @JvmField
-    internal var butler: Butler? = null
+  @Inject @JvmField internal var butler: Butler? = null
 
-    @Inject
-    @JvmField
-    internal var orderFactory: OrderFactory? = null
+  @Inject @JvmField internal var orderFactory: OrderFactory? = null
 
-    private val component by lazy {
-        val url = "https://github.com/pyamsoft/fridgefriend"
-        val parameters = PYDroid.Parameters(
-            url,
-            "$url/issues",
-            PRIVACY_POLICY_URL,
-            TERMS_CONDITIONS_URL,
-            BuildConfig.VERSION_CODE
-        )
+  private val component by lazy {
+    val url = "https://github.com/pyamsoft/fridgefriend"
+    val parameters =
+        PYDroid.Parameters(
+            url, "$url/issues", PRIVACY_POLICY_URL, TERMS_CONDITIONS_URL, BuildConfig.VERSION_CODE)
 
-        return@lazy createComponent(PYDroid.init(this, parameters))
-    }
+    return@lazy createComponent(PYDroid.init(this, parameters))
+  }
 
-    @CheckResult
-    private fun createComponent(provider: ModuleProvider): FridgeComponent {
-        return DaggerFridgeComponent.factory().create(
+  @CheckResult
+  private fun createComponent(provider: ModuleProvider): FridgeComponent {
+    return DaggerFridgeComponent.factory()
+        .create(
             this,
             isDebugMode(),
             provider.get().theming(),
             provider.get().imageLoader(),
-            MainActivity::class.java
-        )
-            .also { addLibraries() }
+            MainActivity::class.java)
+        .also { addLibraries() }
+  }
+
+  override fun onCreate() {
+    super.onCreate()
+    component.inject(this)
+    beginWork()
+  }
+
+  private fun beginWork() {
+    // NOTE: We use GlobalScope here because this is an application level thing
+    // Maybe its an anti-pattern but I think in controlled use, its okay.
+    //
+    // https://medium.com/specto/android-startup-tip-dont-use-kotlin-coroutines-a7b3f7176fe5
+    //
+    // Coroutine start up is slow. What we can do instead is create a handler, which is cheap, and
+    // post
+    // to the main thread to defer this work until after start up is done
+    Handler(Looper.getMainLooper()).post {
+      GlobalScope.launch(context = Dispatchers.Default) {
+        requireNotNull(butler).initOnAppStart(requireNotNull(orderFactory))
+      }
     }
+  }
 
-    override fun onCreate() {
-        super.onCreate()
-        component.inject(this)
-        beginWork()
+  override fun getSystemService(name: String): Any? {
+    // Use component here in a weird way to guarantee the lazy is initialized.
+    return component.run { PYDroid.getSystemService(name) } ?: fallbackGetSystemService(name)
+  }
+
+  @CheckResult
+  private fun fallbackGetSystemService(name: String): Any? {
+    return if (name == FridgeComponent::class.java.name) component
+    else {
+      provideModuleDependencies(name) ?: super.getSystemService(name)
     }
+  }
 
-    private fun beginWork() {
-        // NOTE: We use GlobalScope here because this is an application level thing
-        // Maybe its an anti-pattern but I think in controlled use, its okay.
-        //
-        // https://medium.com/specto/android-startup-tip-dont-use-kotlin-coroutines-a7b3f7176fe5
-        //
-        // Coroutine start up is slow. What we can do instead is create a handler, which is cheap, and post
-        // to the main thread to defer this work until after start up is done
-        Handler(Looper.getMainLooper()).post {
-            GlobalScope.launch(context = Dispatchers.Default) {
-                requireNotNull(butler).initOnAppStart(requireNotNull(orderFactory))
-            }
-        }
+  @CheckResult
+  private fun provideModuleDependencies(name: String): Any? {
+    return component.run {
+      when (name) {
+        ButlerComponent::class.java.name -> plusButlerComponent()
+        else -> null
+      }
     }
+  }
 
-    override fun getSystemService(name: String): Any? {
-        // Use component here in a weird way to guarantee the lazy is initialized.
-        return component.run { PYDroid.getSystemService(name) } ?: fallbackGetSystemService(name)
+  companion object {
+
+    @JvmStatic
+    private fun addLibraries() {
+      // We are using pydroid-notify
+      OssLibraries.usingNotify = true
+
+      // We are using pydroid-autopsy
+      OssLibraries.usingAutopsy = true
+
+      OssLibraries.add(
+          "Room",
+          "https://android.googlesource.com/platform/frameworks/support/+/androidx-master-dev/room/",
+          "The AndroidX Jetpack Room library. Fluent SQLite database access.")
+      OssLibraries.add(
+          "WorkManager",
+          "https://android.googlesource.com/platform/frameworks/support/+/androidx-master-dev/work/",
+          "The AndroidX Jetpack WorkManager library. Schedule periodic work in a device friendly way.")
+      OssLibraries.add(
+          "Dagger",
+          "https://github.com/google/dagger",
+          "A fast dependency injector for Android and Java.")
+      OssLibraries.add(
+          "FastAdapter",
+          "https://github.com/mikepenz/fastadapter",
+          "The bullet proof, fast and easy to use adapter library, which minimizes developing time to a fraction...")
+      OssLibraries.add(
+          "OsmDroid", "https://github.com/osmdroid/osmdroid", "OpenStreetMap-Tools for Android")
+      OssLibraries.add(
+          "Balloon",
+          "https://github.com/skydoves/Balloon",
+          "A lightweight popup like tooltips, fully customizable with arrow and animations.")
+      OssLibraries.add(
+          "Google Play Location Services",
+          "https://developers.google.com/android/",
+          "Google Play Services Location client for Android.",
+          license =
+              OssLicenses.custom(
+                  license = "Custom Google License",
+                  location = "https://developer.android.com/distribute/play-services"))
     }
-
-    @CheckResult
-    private fun fallbackGetSystemService(name: String): Any? {
-        return if (name == FridgeComponent::class.java.name) component else {
-            provideModuleDependencies(name) ?: super.getSystemService(name)
-        }
-    }
-
-    @CheckResult
-    private fun provideModuleDependencies(name: String): Any? {
-        return component.run {
-            when (name) {
-                ButlerComponent::class.java.name -> plusButlerComponent()
-                else -> null
-            }
-        }
-    }
-
-    companion object {
-
-        @JvmStatic
-        private fun addLibraries() {
-            // We are using pydroid-notify
-            OssLibraries.usingNotify = true
-
-            // We are using pydroid-autopsy
-            OssLibraries.usingAutopsy = true
-
-            OssLibraries.add(
-                "Room",
-                "https://android.googlesource.com/platform/frameworks/support/+/androidx-master-dev/room/",
-                "The AndroidX Jetpack Room library. Fluent SQLite database access."
-            )
-            OssLibraries.add(
-                "WorkManager",
-                "https://android.googlesource.com/platform/frameworks/support/+/androidx-master-dev/work/",
-                "The AndroidX Jetpack WorkManager library. Schedule periodic work in a device friendly way."
-            )
-            OssLibraries.add(
-                "Dagger",
-                "https://github.com/google/dagger",
-                "A fast dependency injector for Android and Java."
-            )
-            OssLibraries.add(
-                "FastAdapter",
-                "https://github.com/mikepenz/fastadapter",
-                "The bullet proof, fast and easy to use adapter library, which minimizes developing time to a fraction..."
-            )
-            OssLibraries.add(
-                "OsmDroid",
-                "https://github.com/osmdroid/osmdroid",
-                "OpenStreetMap-Tools for Android"
-            )
-            OssLibraries.add(
-                "Balloon",
-                "https://github.com/skydoves/Balloon",
-                "A lightweight popup like tooltips, fully customizable with arrow and animations."
-            )
-            OssLibraries.add(
-                "Google Play Location Services",
-                "https://developers.google.com/android/",
-                "Google Play Services Location client for Android.",
-                license = OssLicenses.custom(
-                    license = "Custom Google License",
-                    location = "https://developer.android.com/distribute/play-services"
-                )
-            )
-        }
-
-    }
+  }
 }

@@ -21,5 +21,5 @@ import com.pyamsoft.fridge.db.item.FridgeItem
 
 @CheckResult
 internal fun isNameValid(name: String): Boolean {
-    return FridgeItem.isValidName(name)
+  return FridgeItem.isValidName(name)
 }

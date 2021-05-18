@@ -31,110 +31,109 @@ import com.pyamsoft.pydroid.arch.UiRender
 import com.pyamsoft.pydroid.arch.asUiRender
 import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.loader.ImageTarget
+import com.pyamsoft.pydroid.ui.R as R2
 import com.pyamsoft.pydroid.ui.theme.ThemeProvider
 import com.pyamsoft.pydroid.ui.util.DebouncedOnClickListener
 import com.pyamsoft.pydroid.ui.util.setUpEnabled
 import com.pyamsoft.pydroid.util.asDp
 import com.pyamsoft.pydroid.util.tintWith
 import javax.inject.Inject
-import com.pyamsoft.pydroid.ui.R as R2
 
-class MoveItemToolbar @Inject internal constructor(
+class MoveItemToolbar
+@Inject
+internal constructor(
     imageLoader: ImageLoader,
     parent: ViewGroup,
     theming: ThemeProvider,
 ) : BaseUiView<ItemMoveViewState, ItemMoveViewEvent, ExpandToolbarBinding>(parent) {
 
-    private val delegate = object : UiToolbar<EntryViewState.Sorts, EntryViewState, EntryViewEvent>(
-        withToolbar = { it(binding.expandToolbar) }
-    ) {
-        override fun onGetSortForMenuItem(itemId: Int): EntryViewState.Sorts? = when (itemId) {
-            itemIdCreatedDate -> EntryViewState.Sorts.CREATED
-            itemIdName -> EntryViewState.Sorts.NAME
-            else -> null
-        }
+  private val delegate =
+      object :
+          UiToolbar<EntryViewState.Sorts, EntryViewState, EntryViewEvent>(
+              withToolbar = { it(binding.expandToolbar) }) {
+        override fun onGetSortForMenuItem(itemId: Int): EntryViewState.Sorts? =
+            when (itemId) {
+              itemIdCreatedDate -> EntryViewState.Sorts.CREATED
+              itemIdName -> EntryViewState.Sorts.NAME
+              else -> null
+            }
 
         override fun publishSearchEvent(search: String) {
-            publish(ItemMoveViewEvent.SearchQuery(search))
+          publish(ItemMoveViewEvent.SearchQuery(search))
         }
 
         override fun publishSortEvent(sort: State.Sort<EntryViewState.Sorts>) {
-            publish(ItemMoveViewEvent.ChangeSort(sort.original))
+          publish(ItemMoveViewEvent.ChangeSort(sort.original))
         }
+      }
 
+  override val viewBinding = ExpandToolbarBinding::inflate
+
+  override val layoutRoot by boundView { expandToolbar }
+
+  init {
+    doOnSaveState { delegate.saveState(it) }
+    doOnTeardown { delegate.teardown() }
+    doOnInflate { savedInstanceState ->
+      // Set the theme before inflating the delegate or popup theme will be wrong.
+      val theme =
+          if (theming.isDarkTheme()) {
+            R.style.ThemeOverlay_MaterialComponents
+          } else {
+            R.style.ThemeOverlay_MaterialComponents_Light
+          }
+
+      binding.expandToolbar.apply {
+        popupTheme = theme
+        ViewCompat.setElevation(this, 8f.asDp(context).toFloat())
+      }
+
+      delegate.init(savedInstanceState)
+      delegate.inflate(savedInstanceState)
     }
 
-    override val viewBinding = ExpandToolbarBinding::inflate
+    doOnInflate {
+      imageLoader
+          .asDrawable()
+          .load(R2.drawable.ic_close_24dp)
+          .mutate { it.tintWith(Color.WHITE) }
+          .into(
+              object : ImageTarget<Drawable> {
 
-    override val layoutRoot by boundView { expandToolbar }
-
-    init {
-        doOnSaveState { delegate.saveState(it) }
-        doOnTeardown { delegate.teardown() }
-        doOnInflate { savedInstanceState ->
-            // Set the theme before inflating the delegate or popup theme will be wrong.
-            val theme = if (theming.isDarkTheme()) {
-                R.style.ThemeOverlay_MaterialComponents
-            } else {
-                R.style.ThemeOverlay_MaterialComponents_Light
-            }
-
-            binding.expandToolbar.apply {
-                popupTheme = theme
-                ViewCompat.setElevation(this, 8f.asDp(context).toFloat())
-            }
-
-            delegate.init(savedInstanceState)
-            delegate.inflate(savedInstanceState)
-        }
-
-        doOnInflate {
-            imageLoader.asDrawable()
-                .load(R2.drawable.ic_close_24dp)
-                .mutate { it.tintWith(Color.WHITE) }
-                .into(object : ImageTarget<Drawable> {
-
-                    override fun clear() {
-                        binding.expandToolbar.navigationIcon = null
-                    }
-
-                    override fun setImage(image: Drawable) {
-                        binding.expandToolbar.setUpEnabled(true, image)
-                    }
-                }).also { loaded ->
-                    doOnTeardown {
-                        loaded.dispose()
-                    }
+                override fun clear() {
+                  binding.expandToolbar.navigationIcon = null
                 }
-        }
 
-        doOnInflate {
-            binding.expandToolbar.setNavigationOnClickListener(DebouncedOnClickListener.create {
-                publish(ItemMoveViewEvent.Close)
-            })
-        }
-
-        doOnTeardown {
-            clear()
-        }
+                override fun setImage(image: Drawable) {
+                  binding.expandToolbar.setUpEnabled(true, image)
+                }
+              })
+          .also { loaded -> doOnTeardown { loaded.dispose() } }
     }
 
-    private fun clear() {
-        binding.expandToolbar.setNavigationOnClickListener(null)
-        binding.expandToolbar.setOnMenuItemClickListener(null)
+    doOnInflate {
+      binding.expandToolbar.setNavigationOnClickListener(
+          DebouncedOnClickListener.create { publish(ItemMoveViewEvent.Close) })
     }
 
-    private fun handleItem(item: FridgeItem?) {
-        if (item == null) {
-            binding.expandToolbar.title = ""
-        } else {
-            binding.expandToolbar.title = "Move ${item.name()}"
-        }
-    }
+    doOnTeardown { clear() }
+  }
 
-    override fun onRender(state: UiRender<ItemMoveViewState>) {
-        state.mapChanged { it.item }.render(viewScope) { handleItem(it) }
-        state.mapChanged { it.listState }.render(viewScope) { delegate.render(it.asUiRender()) }
+  private fun clear() {
+    binding.expandToolbar.setNavigationOnClickListener(null)
+    binding.expandToolbar.setOnMenuItemClickListener(null)
+  }
+
+  private fun handleItem(item: FridgeItem?) {
+    if (item == null) {
+      binding.expandToolbar.title = ""
+    } else {
+      binding.expandToolbar.title = "Move ${item.name()}"
     }
+  }
+
+  override fun onRender(state: UiRender<ItemMoveViewState>) {
+    state.mapChanged { it.item }.render(viewScope) { handleItem(it) }
+    state.mapChanged { it.listState }.render(viewScope) { delegate.render(it.asUiRender()) }
+  }
 }
-

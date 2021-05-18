@@ -16,16 +16,15 @@
 
 package com.pyamsoft.fridge.butler.work.order
 
-import com.pyamsoft.fridge.preference.NotificationPreferences
 import com.pyamsoft.fridge.butler.work.Order
+import com.pyamsoft.fridge.preference.NotificationPreferences
 
-abstract class NotifyingOrder protected constructor(
+abstract class NotifyingOrder
+protected constructor(
     private val preferences: NotificationPreferences,
 ) : Order {
 
-    final override suspend fun period(): Long {
-        return preferences.getNotificationPeriod()
-    }
-
+  final override suspend fun period(): Long {
+    return preferences.getNotificationPeriod()
+  }
 }
-

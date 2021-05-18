@@ -20,6 +20,5 @@ import com.pyamsoft.pydroid.arch.UiControllerEvent
 
 sealed class DateSelectControllerEvent : UiControllerEvent {
 
-    object Close : DateSelectControllerEvent()
-
+  object Close : DateSelectControllerEvent()
 }

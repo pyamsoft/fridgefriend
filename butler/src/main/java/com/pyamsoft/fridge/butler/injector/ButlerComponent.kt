@@ -21,7 +21,7 @@ import dagger.Subcomponent
 @Subcomponent
 interface ButlerComponent {
 
-    fun inject(injector: ItemInjector)
+  fun inject(injector: ItemInjector)
 
-    fun inject(injector: NightlyInjector)
+  fun inject(injector: NightlyInjector)
 }

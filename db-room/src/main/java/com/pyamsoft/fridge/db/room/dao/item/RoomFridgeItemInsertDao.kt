@@ -31,30 +31,29 @@ import kotlinx.coroutines.withContext
 @Dao
 internal abstract class RoomFridgeItemInsertDao internal constructor() : FridgeItemInsertDao {
 
-    final override suspend fun insert(o: FridgeItem) = withContext(context = Dispatchers.IO) {
+  final override suspend fun insert(o: FridgeItem) =
+      withContext(context = Dispatchers.IO) {
         val roomItem = RoomFridgeItem.create(o)
         return@withContext if (daoQuery(roomItem.id()) == null) {
-            daoInsert(roomItem)
-            true
+          daoInsert(roomItem)
+          true
         } else {
-            daoUpdate(roomItem)
-            false
+          daoUpdate(roomItem)
+          false
         }
-    }
+      }
 
-    @Insert(onConflict = OnConflictStrategy.ABORT)
-    internal abstract fun daoInsert(item: RoomFridgeItem)
+  @Insert(onConflict = OnConflictStrategy.ABORT)
+  internal abstract fun daoInsert(item: RoomFridgeItem)
 
-    @CheckResult
-    @Query(
-        """
-        SELECT * FROM ${RoomFridgeItem.TABLE_NAME} WHERE 
+  @CheckResult
+  @Query(
+      """
+        SELECT * FROM ${RoomFridgeItem.TABLE_NAME} WHERE
         ${RoomFridgeItem.COLUMN_ID} = :id
         LIMIT 1
-        """
-    )
-    internal abstract suspend fun daoQuery(id: FridgeItem.Id): RoomFridgeItem?
+        """)
+  internal abstract suspend fun daoQuery(id: FridgeItem.Id): RoomFridgeItem?
 
-    @Update
-    internal abstract suspend fun daoUpdate(entry: RoomFridgeItem)
+  @Update internal abstract suspend fun daoUpdate(entry: RoomFridgeItem)
 }

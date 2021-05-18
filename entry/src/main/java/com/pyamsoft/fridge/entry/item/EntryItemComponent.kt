@@ -24,12 +24,11 @@ import dagger.Subcomponent
 @Subcomponent
 interface EntryItemComponent {
 
-    fun inject(holder: EntryItemViewHolder)
+  fun inject(holder: EntryItemViewHolder)
 
-    @Subcomponent.Factory
-    interface Factory {
+  @Subcomponent.Factory
+  interface Factory {
 
-        @CheckResult
-        fun create(@BindsInstance parent: ViewGroup): EntryItemComponent
-    }
+    @CheckResult fun create(@BindsInstance parent: ViewGroup): EntryItemComponent
+  }
 }

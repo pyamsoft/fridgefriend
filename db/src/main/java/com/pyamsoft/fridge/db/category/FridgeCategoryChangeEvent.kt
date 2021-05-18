@@ -18,12 +18,12 @@ package com.pyamsoft.fridge.db.category
 
 sealed class FridgeCategoryChangeEvent {
 
-    data class Insert(val category: FridgeCategory) : FridgeCategoryChangeEvent()
+  data class Insert(val category: FridgeCategory) : FridgeCategoryChangeEvent()
 
-    data class Update(val category: FridgeCategory) : FridgeCategoryChangeEvent()
+  data class Update(val category: FridgeCategory) : FridgeCategoryChangeEvent()
 
-    data class Delete(
-        val category: FridgeCategory,
-        val offerUndo: Boolean,
-    ) : FridgeCategoryChangeEvent()
+  data class Delete(
+      val category: FridgeCategory,
+      val offerUndo: Boolean,
+  ) : FridgeCategoryChangeEvent()
 }

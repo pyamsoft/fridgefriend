@@ -34,162 +34,159 @@ import io.cabriole.decorator.LinearMarginDecoration
 import me.zhanghai.android.fastscroll.FastScrollerBuilder
 import timber.log.Timber
 
-abstract class BaseEntryList<V : UiViewEvent> protected constructor(
+abstract class BaseEntryList<V : UiViewEvent>
+protected constructor(
     parent: ViewGroup,
     factory: EntryItemComponent.Factory,
-) : BaseUiView<EntryViewState, V, EntryListBinding>(parent),
+) :
+    BaseUiView<EntryViewState, V, EntryListBinding>(parent),
     SwipeRefreshLayout.OnRefreshListener,
     EntryListAdapter.Callback {
 
-    final override val viewBinding = EntryListBinding::inflate
+  final override val viewBinding = EntryListBinding::inflate
 
-    final override val layoutRoot by boundView { entryListRoot }
+  final override val layoutRoot by boundView { entryListRoot }
 
-    private var modelAdapter: EntryListAdapter? = null
+  private var modelAdapter: EntryListAdapter? = null
 
-    private var lastScrollPosition = 0
+  private var lastScrollPosition = 0
 
-    init {
-        doOnInflate {
-            binding.entryList.layoutManager =
-                GridLayoutManager(binding.entryList.context, 2).apply {
-                    isItemPrefetchEnabled = true
-                    initialPrefetchItemCount = 3
-                }
+  init {
+    doOnInflate {
+      binding.entryList.layoutManager =
+          GridLayoutManager(binding.entryList.context, 2).apply {
+            isItemPrefetchEnabled = true
+            initialPrefetchItemCount = 3
+          }
+    }
+
+    doOnInflate {
+      modelAdapter = EntryListAdapter(factory = factory, callback = this)
+      binding.entryList.adapter = modelAdapter
+    }
+
+    doOnInflate {
+      // Fast Scroll
+      FastScrollerBuilder(binding.entryList)
+          .useMd2Style()
+          .setPopupTextProvider(usingAdapter())
+          .build()
+    }
+
+    doOnInflate { binding.entrySwipeRefresh.setOnRefreshListener(this) }
+
+    doOnInflate { savedInstanceState ->
+      val position = savedInstanceState.get(LAST_SCROLL_POSITION) ?: -1
+      if (position >= 0) {
+        Timber.d("Last scroll position saved at: $position")
+        lastScrollPosition = position
+      }
+    }
+
+    doOnSaveState { outState ->
+      val manager = binding.entryList.layoutManager
+      if (manager is GridLayoutManager) {
+        val position = manager.findFirstVisibleItemPosition()
+        if (position > 0) {
+          outState.put(LAST_SCROLL_POSITION, position)
+          return@doOnSaveState
         }
+      }
 
-        doOnInflate {
-            modelAdapter = EntryListAdapter(factory = factory, callback = this)
-            binding.entryList.adapter = modelAdapter
-        }
+      outState.remove<Nothing>(LAST_SCROLL_POSITION)
+    }
 
-        doOnInflate {
-            // Fast Scroll
-            FastScrollerBuilder(binding.entryList)
-                .useMd2Style()
-                .setPopupTextProvider(usingAdapter())
-                .build()
-        }
+    doOnInflate {
+      val margin = 16.asDp(binding.entryList.context)
 
-        doOnInflate {
-            binding.entrySwipeRefresh.setOnRefreshListener(this)
-        }
+      // Standard margin on all items
+      // For some reason, the margin registers only half as large as it needs to
+      // be, so we must double it.
+      LinearMarginDecoration(bottomMargin = margin * 2).apply {
+        binding.entryList.addItemDecoration(this)
+      }
 
-        doOnInflate { savedInstanceState ->
-            val position = savedInstanceState.get(LAST_SCROLL_POSITION) ?: -1
-            if (position >= 0) {
-                Timber.d("Last scroll position saved at: $position")
-                lastScrollPosition = position
-            }
-        }
+      // The bottom has additional space to fit the FAB
+      val bottomMargin = 72.asDp(binding.entryList.context)
+      LinearBoundsMarginDecoration(bottomMargin = bottomMargin).apply {
+        binding.entryList.addItemDecoration(this)
+      }
 
-        doOnSaveState { outState ->
-            val manager = binding.entryList.layoutManager
-            if (manager is GridLayoutManager) {
-                val position = manager.findFirstVisibleItemPosition()
-                if (position > 0) {
-                    outState.put(LAST_SCROLL_POSITION, position)
-                    return@doOnSaveState
-                }
-            }
-
-            outState.remove<Nothing>(LAST_SCROLL_POSITION)
-        }
-
-        doOnInflate {
-            val margin = 16.asDp(binding.entryList.context)
-
-            // Standard margin on all items
-            // For some reason, the margin registers only half as large as it needs to
-            // be, so we must double it.
-            LinearMarginDecoration(bottomMargin = margin * 2).apply {
-                binding.entryList.addItemDecoration(this)
-            }
-
-            // The bottom has additional space to fit the FAB
-            val bottomMargin = 72.asDp(binding.entryList.context)
-            LinearBoundsMarginDecoration(bottomMargin = bottomMargin).apply {
-                binding.entryList.addItemDecoration(this)
-            }
-
-            // Left margin on items on the left
-            LinearMarginDecoration(
-                leftMargin = margin,
-                // Half margin since these cards will meet in the middle
-                rightMargin = margin / 2,
-                decorationLookup = object : DecorationLookup {
+      // Left margin on items on the left
+      LinearMarginDecoration(
+              leftMargin = margin,
+              // Half margin since these cards will meet in the middle
+              rightMargin = margin / 2,
+              decorationLookup =
+                  object : DecorationLookup {
                     override fun shouldApplyDecoration(position: Int, itemCount: Int): Boolean {
-                        // If the position is even, its on the left side and should have a left margin
-                        // Bitwise is faster than modulo
-                        return position and 1 == 0
+                      // If the position is even, its on the left side and should have a left margin
+                      // Bitwise is faster than modulo
+                      return position and 1 == 0
                     }
-                })
-                .apply {
-                    binding.entryList.addItemDecoration(this)
-                }
+                  })
+          .apply { binding.entryList.addItemDecoration(this) }
 
-            // Right margin on items on the right
-            LinearMarginDecoration(
-                rightMargin = margin,
-                // Half margin since these cards will meet in the middle
-                leftMargin = margin / 2,
-                decorationLookup = object : DecorationLookup {
+      // Right margin on items on the right
+      LinearMarginDecoration(
+              rightMargin = margin,
+              // Half margin since these cards will meet in the middle
+              leftMargin = margin / 2,
+              decorationLookup =
+                  object : DecorationLookup {
                     override fun shouldApplyDecoration(position: Int, itemCount: Int): Boolean {
-                        // If the position is odd, its on the right side and should have a right margin
-                        // Bitwise is faster than modulo
-                        return position and 1 == 1
+                      // If the position is odd, its on the right side and should have a right
+                      // margin
+                      // Bitwise is faster than modulo
+                      return position and 1 == 1
                     }
-                })
-                .apply {
-                    binding.entryList.addItemDecoration(this)
-                }
-        }
-
-        doOnTeardown {
-            binding.entryList.removeAllItemDecorations()
-        }
-
-        doOnTeardown {
-            binding.entryList.adapter = null
-
-            binding.entrySwipeRefresh.setOnRefreshListener(null)
-
-            modelAdapter = null
-        }
+                  })
+          .apply { binding.entryList.addItemDecoration(this) }
     }
 
-    final override fun onRender(state: UiRender<EntryViewState>) {
-        state.mapChanged { it.displayedEntries }.render(viewScope) { handleList(it) }
-        state.mapChanged { it.isLoading }.render(viewScope) { handleLoading(it) }
-    }
+    doOnTeardown { binding.entryList.removeAllItemDecorations() }
 
-    @CheckResult
-    private fun usingAdapter(): EntryListAdapter {
-        return requireNotNull(modelAdapter)
-    }
+    doOnTeardown {
+      binding.entryList.adapter = null
 
-    private fun setList(list: List<EntryViewState.EntryGroup>) {
-        val data = list.map { EntryItemViewState(it.entry, itemCount = it.items.size) }
-        Timber.d("Submit data list: $data")
-        usingAdapter().submitList(data)
-    }
+      binding.entrySwipeRefresh.setOnRefreshListener(null)
 
-    private fun clearList() {
-        usingAdapter().submitList(null)
+      modelAdapter = null
     }
+  }
 
-    private fun handleLoading(loading: Boolean) {
-        binding.entrySwipeRefresh.isRefreshing = loading
-    }
+  final override fun onRender(state: UiRender<EntryViewState>) {
+    state.mapChanged { it.displayedEntries }.render(viewScope) { handleList(it) }
+    state.mapChanged { it.isLoading }.render(viewScope) { handleLoading(it) }
+  }
 
-    private fun handleList(entries: List<EntryViewState.EntryGroup>) {
-        when {
-            entries.isEmpty() -> clearList()
-            else -> setList(entries)
-        }
-    }
+  @CheckResult
+  private fun usingAdapter(): EntryListAdapter {
+    return requireNotNull(modelAdapter)
+  }
 
-    companion object {
-        private const val LAST_SCROLL_POSITION = "entry_last_scroll_position"
+  private fun setList(list: List<EntryViewState.EntryGroup>) {
+    val data = list.map { EntryItemViewState(it.entry, itemCount = it.items.size) }
+    Timber.d("Submit data list: $data")
+    usingAdapter().submitList(data)
+  }
+
+  private fun clearList() {
+    usingAdapter().submitList(null)
+  }
+
+  private fun handleLoading(loading: Boolean) {
+    binding.entrySwipeRefresh.isRefreshing = loading
+  }
+
+  private fun handleList(entries: List<EntryViewState.EntryGroup>) {
+    when {
+      entries.isEmpty() -> clearList()
+      else -> setList(entries)
     }
+  }
+
+  companion object {
+    private const val LAST_SCROLL_POSITION = "entry_last_scroll_position"
+  }
 }

@@ -27,25 +27,21 @@ import javax.inject.Inject
 
 class NightlyInjector(context: Context) : BaseInjector<EmptyParameters>(context) {
 
-    @JvmField
-    @Inject
-    internal var runner: NightlyRunner? = null
+  @JvmField @Inject internal var runner: NightlyRunner? = null
 
-    // TODO(Peter) For some reason this is null if we inject it in BaseInjector
-    @JvmField
-    @Inject
-    internal var orderFactory: OrderFactory? = null
+  // TODO(Peter) For some reason this is null if we inject it in BaseInjector
+  @JvmField @Inject internal var orderFactory: OrderFactory? = null
 
-    override suspend fun onExecute(
-        context: Context,
-        id: UUID,
-        tags: Set<String>,
-        params: EmptyParameters
-    ): WorkResult {
-        Injector.obtainFromApplication<ButlerComponent>(context).inject(this)
+  override suspend fun onExecute(
+      context: Context,
+      id: UUID,
+      tags: Set<String>,
+      params: EmptyParameters
+  ): WorkResult {
+    Injector.obtainFromApplication<ButlerComponent>(context).inject(this)
 
-        return requireNotNull(runner).doWork(id, tags, params) {
-            requireNotNull(orderFactory).nightlyOrder()
-        }
+    return requireNotNull(runner).doWork(id, tags, params) {
+      requireNotNull(orderFactory).nightlyOrder()
     }
+  }
 }

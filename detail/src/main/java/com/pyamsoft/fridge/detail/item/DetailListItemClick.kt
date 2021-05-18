@@ -22,23 +22,17 @@ import com.pyamsoft.pydroid.arch.UiView
 import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
 import javax.inject.Inject
 
-class DetailListItemClick @Inject internal constructor(
+class DetailListItemClick
+@Inject
+internal constructor(
     parent: ViewGroup,
 ) : UiView<DetailItemViewState, DetailItemViewEvent>() {
 
-    init {
-        doOnInflate {
-            parent.setOnDebouncedClickListener {
-                publish(DetailItemViewEvent.ExpandItem)
-            }
-        }
+  init {
+    doOnInflate { parent.setOnDebouncedClickListener { publish(DetailItemViewEvent.ExpandItem) } }
 
-        doOnTeardown {
-            parent.setOnDebouncedClickListener(null)
-        }
-    }
+    doOnTeardown { parent.setOnDebouncedClickListener(null) }
+  }
 
-    override fun render(state: UiRender<DetailItemViewState>) {
-    }
-
+  override fun render(state: UiRender<DetailItemViewState>) {}
 }

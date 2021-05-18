@@ -26,85 +26,86 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
-internal class UpdateDelegate internal constructor(
+internal class UpdateDelegate
+internal constructor(
     interactor: DetailInteractor,
     handleError: CoroutineScope.(Throwable) -> Unit,
 ) {
 
-    private var interactor: DetailInteractor? = interactor
-    private var handleError: (CoroutineScope.(Throwable) -> Unit)? = handleError
+  private var interactor: DetailInteractor? = interactor
+  private var handleError: (CoroutineScope.(Throwable) -> Unit)? = handleError
 
-    fun teardown() {
-        interactor = null
-        handleError = null
-    }
+  fun teardown() {
+    interactor = null
+    handleError = null
+  }
 
-    private val updateRunner = highlander<
-            Unit,
-            FridgeItem,
-            suspend (item: FridgeItem) -> Unit,
-            CoroutineScope.(throwable: Throwable) -> Unit
-            > { item, doUpdate, onError ->
+  private val updateRunner =
+      highlander<
+          Unit,
+          FridgeItem,
+          suspend (item: FridgeItem) -> Unit,
+          CoroutineScope.(throwable: Throwable) -> Unit> { item, doUpdate, onError ->
         try {
-            doUpdate(item.makeReal())
+          doUpdate(item.makeReal())
         } catch (error: Throwable) {
-            error.onActualError { e ->
-                Timber.e(e, "Error updating item: ${item.id()}")
-                onError(e)
+          error.onActualError { e ->
+            Timber.e(e, "Error updating item: ${item.id()}")
+            onError(e)
+          }
+        }
+      }
+
+  private fun CoroutineScope.update(
+      item: FridgeItem,
+      doUpdate: suspend (item: FridgeItem) -> Unit
+  ) {
+    launch(context = Dispatchers.Default) {
+      updateRunner.call(item, doUpdate, requireNotNull(handleError))
+    }
+  }
+
+  internal fun consumeItem(scope: CoroutineScope, item: FridgeItem) {
+    scope.update(item) { requireNotNull(interactor).commit(it.consume(currentDate())) }
+  }
+
+  internal fun restoreItem(scope: CoroutineScope, item: FridgeItem) {
+    scope.update(item) {
+      requireNotNull(interactor).commit(it.invalidateConsumption().invalidateSpoiled())
+    }
+  }
+
+  internal fun spoilItem(scope: CoroutineScope, item: FridgeItem) {
+    scope.update(item) { requireNotNull(interactor).commit(it.spoil(currentDate())) }
+  }
+
+  internal fun deleteItem(scope: CoroutineScope, item: FridgeItem) {
+    scope.update(item) { requireNotNull(interactor).delete(it, true) }
+  }
+
+  internal fun updateItem(scope: CoroutineScope, item: FridgeItem) {
+    val updated =
+        item.run {
+          val dateOfPurchase = this.purchaseTime()
+          if (this.presence() == FridgeItem.Presence.HAVE) {
+            // If we are HAVE but don't have a purchase date, we just purchased the item!
+            if (dateOfPurchase == null) {
+              val now = currentDate()
+              Timber.d("${item.name()} purchased! $now")
+              return@run this.purchaseTime(now)
             }
-        }
-    }
-
-    private fun CoroutineScope.update(
-        item: FridgeItem,
-        doUpdate: suspend (item: FridgeItem) -> Unit
-    ) {
-        launch(context = Dispatchers.Default) {
-            updateRunner.call(item, doUpdate, requireNotNull(handleError))
-        }
-    }
-
-    internal fun consumeItem(scope: CoroutineScope, item: FridgeItem) {
-        scope.update(item) { requireNotNull(interactor).commit(it.consume(currentDate())) }
-    }
-
-    internal fun restoreItem(scope: CoroutineScope, item: FridgeItem) {
-        scope.update(item) {
-            requireNotNull(interactor).commit(it.invalidateConsumption().invalidateSpoiled())
-        }
-    }
-
-    internal fun spoilItem(scope: CoroutineScope, item: FridgeItem) {
-        scope.update(item) { requireNotNull(interactor).commit(it.spoil(currentDate())) }
-    }
-
-    internal fun deleteItem(scope: CoroutineScope, item: FridgeItem) {
-        scope.update(item) { requireNotNull(interactor).delete(it, true) }
-    }
-
-    internal fun updateItem(scope: CoroutineScope, item: FridgeItem) {
-        val updated = item.run {
-            val dateOfPurchase = this.purchaseTime()
-            if (this.presence() == FridgeItem.Presence.HAVE) {
-                // If we are HAVE but don't have a purchase date, we just purchased the item!
-                if (dateOfPurchase == null) {
-                    val now = currentDate()
-                    Timber.d("${item.name()} purchased! $now")
-                    return@run this.purchaseTime(now)
-                }
-            } else {
-                // If we are NEED but have a purchase date, we must invalidate the date
-                if (dateOfPurchase != null) {
-                    Timber.d("${item.name()} purchase date cleared")
-                    return@run this.invalidatePurchase()
-                }
+          } else {
+            // If we are NEED but have a purchase date, we must invalidate the date
+            if (dateOfPurchase != null) {
+              Timber.d("${item.name()} purchase date cleared")
+              return@run this.invalidatePurchase()
             }
+          }
 
-            // No side effects
-            return@run this
+          // No side effects
+          return@run this
         }
 
-        scope.update(updated) { requireNotNull(interactor).commit(it) }
-    }
+    scope.update(updated) { requireNotNull(interactor).commit(it) }
+  }
 }
-

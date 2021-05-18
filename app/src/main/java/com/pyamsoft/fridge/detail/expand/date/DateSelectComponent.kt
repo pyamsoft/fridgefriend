@@ -27,14 +27,14 @@ import dagger.multibindings.IntoMap
 @Subcomponent(modules = [DateSelectComponent.ComponentModule::class, ViewModelFactoryModule::class])
 internal interface DateSelectComponent {
 
-    fun inject(fragment: DateSelectDialog)
+  fun inject(fragment: DateSelectDialog)
 
-    @Module
-    abstract class ComponentModule {
+  @Module
+  abstract class ComponentModule {
 
-        @Binds
-        @IntoMap
-        @ClassKey(DateSelectViewModel::class)
-        internal abstract fun bindViewModel(impl: DateSelectViewModel): ViewModel
-    }
+    @Binds
+    @IntoMap
+    @ClassKey(DateSelectViewModel::class)
+    internal abstract fun bindViewModel(impl: DateSelectViewModel): ViewModel
+  }
 }

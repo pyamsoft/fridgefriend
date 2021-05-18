@@ -24,7 +24,8 @@ import com.squareup.moshi.JsonClass
 import java.util.Date
 
 @JsonClass(generateAdapter = true)
-data class JsonMappableFridgeItem internal constructor(
+data class JsonMappableFridgeItem
+internal constructor(
     internal val id: FridgeItem.Id,
     internal val entryId: FridgeEntry.Id,
     internal val name: String,
@@ -39,149 +40,149 @@ data class JsonMappableFridgeItem internal constructor(
     internal val isReal: Boolean,
 ) : FridgeItem {
 
-    override fun id(): FridgeItem.Id {
-        return id
-    }
+  override fun id(): FridgeItem.Id {
+    return id
+  }
 
-    override fun entryId(): FridgeEntry.Id {
-        return entryId
-    }
+  override fun entryId(): FridgeEntry.Id {
+    return entryId
+  }
 
-    override fun name(): String {
-        return name
-    }
+  override fun name(): String {
+    return name
+  }
 
-    override fun count(): Int {
-        return count
-    }
+  override fun count(): Int {
+    return count
+  }
 
-    override fun createdTime(): Date {
-        return createdTime
-    }
+  override fun createdTime(): Date {
+    return createdTime
+  }
 
-    override fun purchaseTime(): Date? {
-        return purchasedTime
-    }
+  override fun purchaseTime(): Date? {
+    return purchasedTime
+  }
 
-    override fun expireTime(): Date? {
-        return expireTime
-    }
+  override fun expireTime(): Date? {
+    return expireTime
+  }
 
-    override fun presence(): Presence {
-        return presence
-    }
+  override fun presence(): Presence {
+    return presence
+  }
 
-    override fun categoryId(): FridgeCategory.Id? {
-        return categoryId
-    }
+  override fun categoryId(): FridgeCategory.Id? {
+    return categoryId
+  }
 
-    override fun isReal(): Boolean {
-        return isReal
-    }
+  override fun isReal(): Boolean {
+    return isReal
+  }
 
-    override fun consumptionDate(): Date? {
-        return consumptionDate
-    }
+  override fun consumptionDate(): Date? {
+    return consumptionDate
+  }
 
-    override fun invalidateConsumption(): FridgeItem {
-        return this.copy(consumptionDate = null)
-    }
+  override fun invalidateConsumption(): FridgeItem {
+    return this.copy(consumptionDate = null)
+  }
 
-    override fun isConsumed(): Boolean {
-        return consumptionDate != null
-    }
+  override fun isConsumed(): Boolean {
+    return consumptionDate != null
+  }
 
-    override fun spoiledDate(): Date? {
-        return spoiledDate
-    }
+  override fun spoiledDate(): Date? {
+    return spoiledDate
+  }
 
-    override fun invalidateSpoiled(): FridgeItem {
-        return this.copy(spoiledDate = null)
-    }
+  override fun invalidateSpoiled(): FridgeItem {
+    return this.copy(spoiledDate = null)
+  }
 
-    override fun isSpoiled(): Boolean {
-        return spoiledDate != null
-    }
+  override fun isSpoiled(): Boolean {
+    return spoiledDate != null
+  }
 
-    override fun isEmpty(): Boolean {
-        return id().isEmpty()
-    }
+  override fun isEmpty(): Boolean {
+    return id().isEmpty()
+  }
 
-    override fun migrateTo(entryId: FridgeEntry.Id): FridgeItem {
-        return this.copy(entryId = entryId)
-    }
+  override fun migrateTo(entryId: FridgeEntry.Id): FridgeItem {
+    return this.copy(entryId = entryId)
+  }
 
-    override fun name(name: String): FridgeItem {
-        return this.copy(name = name.trim())
-    }
+  override fun name(name: String): FridgeItem {
+    return this.copy(name = name.trim())
+  }
 
-    override fun count(count: Int): FridgeItem {
-        return this.copy(count = count)
-    }
+  override fun count(count: Int): FridgeItem {
+    return this.copy(count = count)
+  }
 
-    override fun expireTime(expireTime: Date): FridgeItem {
-        return this.copy(expireTime = expireTime)
-    }
+  override fun expireTime(expireTime: Date): FridgeItem {
+    return this.copy(expireTime = expireTime)
+  }
 
-    override fun invalidateExpiration(): FridgeItem {
-        return this.copy(expireTime = null)
-    }
+  override fun invalidateExpiration(): FridgeItem {
+    return this.copy(expireTime = null)
+  }
 
-    override fun purchaseTime(purchaseTime: Date): FridgeItem {
-        return this.copy(purchasedTime = purchaseTime)
-    }
+  override fun purchaseTime(purchaseTime: Date): FridgeItem {
+    return this.copy(purchasedTime = purchaseTime)
+  }
 
-    override fun invalidatePurchase(): FridgeItem {
-        return this.copy(purchasedTime = null)
-    }
+  override fun invalidatePurchase(): FridgeItem {
+    return this.copy(purchasedTime = null)
+  }
 
-    override fun presence(presence: Presence): FridgeItem {
-        return this.copy(presence = presence)
-    }
+  override fun presence(presence: Presence): FridgeItem {
+    return this.copy(presence = presence)
+  }
 
-    override fun makeReal(): FridgeItem {
-        return this.copy(isReal = true)
-    }
+  override fun makeReal(): FridgeItem {
+    return this.copy(isReal = true)
+  }
 
-    override fun consume(date: Date): FridgeItem {
-        require(isReal()) { "Cannot consume non-real item: $this" }
-        return this.copy(consumptionDate = date)
-    }
+  override fun consume(date: Date): FridgeItem {
+    require(isReal()) { "Cannot consume non-real item: $this" }
+    return this.copy(consumptionDate = date)
+  }
 
-    override fun spoil(date: Date): FridgeItem {
-        require(isReal()) { "Cannot spoil non-real item: $this" }
-        return this.copy(spoiledDate = date)
-    }
+  override fun spoil(date: Date): FridgeItem {
+    require(isReal()) { "Cannot spoil non-real item: $this" }
+    return this.copy(spoiledDate = date)
+  }
 
-    override fun invalidateCategoryId(): FridgeItem {
-        return this.copy(categoryId = null)
-    }
+  override fun invalidateCategoryId(): FridgeItem {
+    return this.copy(categoryId = null)
+  }
 
-    override fun categoryId(id: FridgeCategory.Id): FridgeItem {
-        return this.copy(categoryId = id)
-    }
+  override fun categoryId(id: FridgeCategory.Id): FridgeItem {
+    return this.copy(categoryId = id)
+  }
 
-    companion object {
+  companion object {
 
-        @JvmStatic
-        @CheckResult
-        fun from(item: FridgeItem): JsonMappableFridgeItem {
-            return if (item is JsonMappableFridgeItem) item else {
-                JsonMappableFridgeItem(
-                    item.id(),
-                    item.entryId(),
-                    item.name(),
-                    item.count(),
-                    item.createdTime(),
-                    item.purchaseTime(),
-                    item.expireTime(),
-                    item.presence(),
-                    item.consumptionDate(),
-                    item.spoiledDate(),
-                    item.categoryId(),
-                    item.isReal()
-                )
-            }
-        }
+    @JvmStatic
+    @CheckResult
+    fun from(item: FridgeItem): JsonMappableFridgeItem {
+      return if (item is JsonMappableFridgeItem) item
+      else {
+        JsonMappableFridgeItem(
+            item.id(),
+            item.entryId(),
+            item.name(),
+            item.count(),
+            item.createdTime(),
+            item.purchaseTime(),
+            item.expireTime(),
+            item.presence(),
+            item.consumptionDate(),
+            item.spoiledDate(),
+            item.categoryId(),
+            item.isReal())
+      }
     }
+  }
 }

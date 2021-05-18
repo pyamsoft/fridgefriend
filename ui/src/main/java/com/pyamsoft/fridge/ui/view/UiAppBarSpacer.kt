@@ -26,24 +26,23 @@ import com.pyamsoft.pydroid.arch.UiRender
 import com.pyamsoft.pydroid.arch.UiViewEvent
 import com.pyamsoft.pydroid.arch.UiViewState
 
-abstract class UiAppBarSpacer<S : UiViewState, V : UiViewEvent> protected constructor(
+abstract class UiAppBarSpacer<S : UiViewState, V : UiViewEvent>
+protected constructor(
     parent: ViewGroup,
     owner: LifecycleOwner,
     appBarActivity: AppBarActivity,
 ) : BaseUiView<S, V, UiAppbarSpacerBinding>(parent) {
 
-    final override val viewBinding = UiAppbarSpacerBinding::inflate
+  final override val viewBinding = UiAppbarSpacerBinding::inflate
 
-    final override val layoutRoot by boundView { uiAppbarRoot }
+  final override val layoutRoot by boundView { uiAppbarRoot }
 
-    init {
-        doOnInflate {
-            binding.uiAppbarSpace.applyToolbarOffset(appBarActivity, owner)
-        }
-    }
+  init {
+    doOnInflate { binding.uiAppbarSpace.applyToolbarOffset(appBarActivity, owner) }
+  }
 
-    final override fun onRender(state: UiRender<S>) {
-        super.onRender(state)
-        // Don't let subclasses override this method
-    }
+  final override fun onRender(state: UiRender<S>) {
+    super.onRender(state)
+    // Don't let subclasses override this method
+  }
 }

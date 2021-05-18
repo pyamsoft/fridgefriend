@@ -32,15 +32,17 @@ import com.pyamsoft.fridge.db.item.FridgeItemQueryDao
 import com.pyamsoft.fridge.db.item.FridgeItemRealtime
 import com.pyamsoft.fridge.preference.EntryPreferences
 import com.pyamsoft.pydroid.core.Enforcer
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
-import timber.log.Timber
 import java.util.Calendar
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import timber.log.Timber
 
 @Singleton
-class EntryInteractor @Inject internal constructor(
+class EntryInteractor
+@Inject
+internal constructor(
     private val preferences: EntryPreferences,
     private val itemInsertDao: FridgeItemInsertDao,
     private val itemQueryDao: FridgeItemQueryDao,
@@ -51,103 +53,97 @@ class EntryInteractor @Inject internal constructor(
     private val entryRealtime: FridgeEntryRealtime,
 ) {
 
-    @CheckResult
-    suspend fun loadEntries(force: Boolean): List<FridgeEntry> =
-        withContext(context = Dispatchers.IO) {
-            Enforcer.assertOffMainThread()
-            var entries = entryQueryDao.query(force)
-            if (entries.isEmpty() && !preferences.isDefaultEntryCreated()) {
-                Timber.d("Create first entry when entries list is empty")
-                val entry = FridgeEntry.create("My Fridge")
-                if (entryInsertDao.insert(entry)) {
-                    Timber.d("First entry created: $entry")
-                    preferences.markDefaultEntryCreated()
+  @CheckResult
+  suspend fun loadEntries(force: Boolean): List<FridgeEntry> =
+      withContext(context = Dispatchers.IO) {
+        Enforcer.assertOffMainThread()
+        var entries = entryQueryDao.query(force)
+        if (entries.isEmpty() && !preferences.isDefaultEntryCreated()) {
+          Timber.d("Create first entry when entries list is empty")
+          val entry = FridgeEntry.create("My Fridge")
+          if (entryInsertDao.insert(entry)) {
+            Timber.d("First entry created: $entry")
+            preferences.markDefaultEntryCreated()
 
-                    val items = generateItems(entry)
-                    for (item in items) {
-                        if (itemInsertDao.insert(item.makeReal())) {
-                            Timber.d("Item created in first entry: $item")
-                        }
-                    }
-
-                    entries = entryQueryDao.query(force)
-                }
+            val items = generateItems(entry)
+            for (item in items) {
+              if (itemInsertDao.insert(item.makeReal())) {
+                Timber.d("Item created in first entry: $item")
+              }
             }
 
-            return@withContext entries
+            entries = entryQueryDao.query(force)
+          }
         }
 
-    @CheckResult
-    suspend fun loadItems(force: Boolean, entry: FridgeEntry): List<FridgeItem> =
-        withContext(context = Dispatchers.IO) {
-            Enforcer.assertOffMainThread()
-            return@withContext itemQueryDao.query(force, entry.id())
-        }
+        return@withContext entries
+      }
 
-    suspend fun listenForEntryChanges(onChange: suspend (FridgeEntryChangeEvent) -> Unit) =
-        withContext(context = Dispatchers.IO) {
-            Enforcer.assertOffMainThread()
-            return@withContext entryRealtime.listenForChanges(onChange)
-        }
+  @CheckResult
+  suspend fun loadItems(force: Boolean, entry: FridgeEntry): List<FridgeItem> =
+      withContext(context = Dispatchers.IO) {
+        Enforcer.assertOffMainThread()
+        return@withContext itemQueryDao.query(force, entry.id())
+      }
 
-    suspend fun listenForItemChanges(onChange: suspend (FridgeItemChangeEvent) -> Unit) =
-        withContext(context = Dispatchers.IO) {
-            Enforcer.assertOffMainThread()
-            return@withContext itemRealtime.listenForChanges(onChange)
-        }
+  suspend fun listenForEntryChanges(onChange: suspend (FridgeEntryChangeEvent) -> Unit) =
+      withContext(context = Dispatchers.IO) {
+        Enforcer.assertOffMainThread()
+        return@withContext entryRealtime.listenForChanges(onChange)
+      }
 
-    @CheckResult
-    suspend fun loadEntry(id: FridgeEntry.Id): FridgeEntry = withContext(context = Dispatchers.IO) {
+  suspend fun listenForItemChanges(onChange: suspend (FridgeItemChangeEvent) -> Unit) =
+      withContext(context = Dispatchers.IO) {
+        Enforcer.assertOffMainThread()
+        return@withContext itemRealtime.listenForChanges(onChange)
+      }
+
+  @CheckResult
+  suspend fun loadEntry(id: FridgeEntry.Id): FridgeEntry =
+      withContext(context = Dispatchers.IO) {
         Enforcer.assertOffMainThread()
         return@withContext entryQueryDao.query(false).first { it.id() == id }
-    }
+      }
 
-    suspend fun delete(entry: FridgeEntry, offerUndo: Boolean) =
-        withContext(context = Dispatchers.IO) {
-            require(entry.isReal()) { "Entry must be real" }
+  suspend fun delete(entry: FridgeEntry, offerUndo: Boolean) =
+      withContext(context = Dispatchers.IO) {
+        require(entry.isReal()) { "Entry must be real" }
 
-            Enforcer.assertOffMainThread()
-            entryDeleteDao.delete(entry, offerUndo)
-        }
+        Enforcer.assertOffMainThread()
+        entryDeleteDao.delete(entry, offerUndo)
+      }
 
-    suspend fun commit(entry: FridgeEntry) = withContext(context = Dispatchers.IO) {
+  suspend fun commit(entry: FridgeEntry) =
+      withContext(context = Dispatchers.IO) {
         require(entry.isReal()) { "Entry must be real" }
         Enforcer.assertOffMainThread()
         entryInsertDao.insert(entry)
+      }
+
+  companion object {
+
+    @CheckResult
+    private fun generateItems(entry: FridgeEntry): List<FridgeItem> {
+      return listOf(
+          FridgeItem.create(entryId = entry.id(), presence = FridgeItem.Presence.NEED)
+              .name("Need First Item"),
+          FridgeItem.create(entryId = entry.id(), presence = FridgeItem.Presence.NEED)
+              .name("Need Second Item"),
+          FridgeItem.create(entryId = entry.id(), presence = FridgeItem.Presence.NEED)
+              .name("Need Third Item"),
+          FridgeItem.create(entryId = entry.id(), presence = FridgeItem.Presence.HAVE)
+              .name("Have First Item")
+              .purchaseTime(currentDate())
+              .expireTime(today().apply { add(Calendar.DAY_OF_YEAR, 5) }.time),
+          FridgeItem.create(entryId = entry.id(), presence = FridgeItem.Presence.HAVE)
+              .name("Have Second Item")
+              .purchaseTime(currentDate())
+              .expireTime(today().apply { add(Calendar.DAY_OF_YEAR, 7) }.time),
+          FridgeItem.create(entryId = entry.id(), presence = FridgeItem.Presence.HAVE)
+              .name("Have Third Item")
+              .purchaseTime(currentDate())
+              .expireTime(today().apply { add(Calendar.DAY_OF_YEAR, 10) }.time),
+      )
     }
-
-    companion object {
-
-        @CheckResult
-        private fun generateItems(entry: FridgeEntry): List<FridgeItem> {
-            return listOf(
-                FridgeItem.create(entryId = entry.id(), presence = FridgeItem.Presence.NEED)
-                    .name("Need First Item"),
-                FridgeItem.create(entryId = entry.id(), presence = FridgeItem.Presence.NEED)
-                    .name("Need Second Item"),
-                FridgeItem.create(entryId = entry.id(), presence = FridgeItem.Presence.NEED)
-                    .name("Need Third Item"),
-                FridgeItem.create(entryId = entry.id(), presence = FridgeItem.Presence.HAVE)
-                    .name("Have First Item")
-                    .purchaseTime(currentDate())
-                    .expireTime(today().apply {
-                        add(Calendar.DAY_OF_YEAR, 5)
-                    }.time),
-                FridgeItem.create(entryId = entry.id(), presence = FridgeItem.Presence.HAVE)
-                    .name("Have Second Item")
-                    .purchaseTime(currentDate())
-                    .expireTime(today().apply {
-                        add(Calendar.DAY_OF_YEAR, 7)
-                    }.time),
-                FridgeItem.create(entryId = entry.id(), presence = FridgeItem.Presence.HAVE)
-                    .name("Have Third Item")
-                    .purchaseTime(currentDate())
-                    .expireTime(today().apply {
-                        add(Calendar.DAY_OF_YEAR, 10)
-                    }.time),
-            )
-        }
-
-    }
-
+  }
 }

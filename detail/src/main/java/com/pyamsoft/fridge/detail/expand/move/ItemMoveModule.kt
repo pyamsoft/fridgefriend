@@ -23,20 +23,15 @@ import dagger.Binds
 import dagger.Module
 import javax.inject.Qualifier
 
-@Qualifier
-@Retention(AnnotationRetention.BINARY)
-internal annotation class MoveInternalApi
+@Qualifier @Retention(AnnotationRetention.BINARY) internal annotation class MoveInternalApi
 
 @Module
 abstract class ItemMoveModule {
 
-    /**
-     * Do this so that both ItemMove view models share the same backing EntryListStateModel
-     */
-    @Binds
-    @CheckResult
-    @FragmentScope
-    @MoveInternalApi
-    internal abstract fun bindListStateModel(impl: EntryListStateModel): EntryListStateModel
-
+  /** Do this so that both ItemMove view models share the same backing EntryListStateModel */
+  @Binds
+  @CheckResult
+  @FragmentScope
+  @MoveInternalApi
+  internal abstract fun bindListStateModel(impl: EntryListStateModel): EntryListStateModel
 }

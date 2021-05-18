@@ -21,6 +21,5 @@ import androidx.coordinatorlayout.widget.CoordinatorLayout
 
 interface SnackbarContainer {
 
-    @CheckResult
-    fun container(): CoordinatorLayout?
+  @CheckResult fun container(): CoordinatorLayout?
 }

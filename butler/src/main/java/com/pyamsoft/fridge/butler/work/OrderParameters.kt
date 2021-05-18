@@ -20,53 +20,51 @@ import androidx.annotation.CheckResult
 
 interface OrderParameters {
 
+  @CheckResult fun getBooleanParameters(): Map<String, Boolean>
+
+  // TODO(Peter): Support all data types
+
+  class Builder {
+
+    private val booleans = mutableMapOf<String, Boolean>()
+
     @CheckResult
-    fun getBooleanParameters(): Map<String, Boolean>
-
-    // TODO(Peter): Support all data types
-
-    class Builder {
-
-        private val booleans = mutableMapOf<String, Boolean>()
-
-        @CheckResult
-        fun putBoolean(key: String, value: Boolean): Builder {
-            booleans[key] = value
-            return this
-        }
-
-        @CheckResult
-        fun build(): OrderParameters {
-            return object : OrderParameters {
-
-                override fun getBooleanParameters(): Map<String, Boolean> {
-                    return booleans.toMap()
-                }
-
-            }
-        }
-
+    fun putBoolean(key: String, value: Boolean): Builder {
+      booleans[key] = value
+      return this
     }
 
-    companion object {
+    @CheckResult
+    fun build(): OrderParameters {
+      return object : OrderParameters {
 
-        private val EMPTY = object : OrderParameters {
-            override fun getBooleanParameters(): Map<String, Boolean> {
-                return emptyMap()
-            }
+        override fun getBooleanParameters(): Map<String, Boolean> {
+          return booleans.toMap()
         }
-
-        @JvmStatic
-        @CheckResult
-        fun empty(): OrderParameters {
-            return EMPTY
-        }
+      }
     }
+  }
+
+  companion object {
+
+    private val EMPTY =
+        object : OrderParameters {
+          override fun getBooleanParameters(): Map<String, Boolean> {
+            return emptyMap()
+          }
+        }
+
+    @JvmStatic
+    @CheckResult
+    fun empty(): OrderParameters {
+      return EMPTY
+    }
+  }
 }
 
 @CheckResult
 inline fun OrderParameters(block: OrderParameters.Builder.() -> Unit): OrderParameters {
-    val builder = OrderParameters.Builder()
-    builder.apply(block)
-    return builder.build()
+  val builder = OrderParameters.Builder()
+  builder.apply(block)
+  return builder.build()
 }

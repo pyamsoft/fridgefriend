@@ -20,15 +20,15 @@ import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.pydroid.arch.UiViewEvent
 import com.pyamsoft.pydroid.arch.UiViewState
 
-data class EntryItemViewState internal constructor(
+data class EntryItemViewState
+internal constructor(
     val entry: FridgeEntry,
     val itemCount: Int,
 ) : UiViewState
 
 sealed class EntryItemViewEvent : UiViewEvent {
 
-    object OnClick : EntryItemViewEvent()
+  object OnClick : EntryItemViewEvent()
 
-    object OnLongPress : EntryItemViewEvent()
-
+  object OnLongPress : EntryItemViewEvent()
 }

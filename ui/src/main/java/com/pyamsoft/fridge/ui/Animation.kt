@@ -32,32 +32,35 @@ private val overshootInterpolator by lazy(LazyThreadSafetyMode.NONE) { Overshoot
 
 @CheckResult
 private fun animatingHeight(activityContext: Context): Int {
-    val windowManager = requireNotNull(activityContext.getSystemService<WindowManager>())
-    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-        windowManager.currentWindowMetrics.bounds.bottom
-    } else {
-        val point = Point()
+  val windowManager = requireNotNull(activityContext.getSystemService<WindowManager>())
+  return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+    windowManager.currentWindowMetrics.bounds.bottom
+  } else {
+    val point = Point()
 
-        @Suppress("DEPRECATION")
-        windowManager.defaultDisplay.getSize(point)
+    @Suppress("DEPRECATION") windowManager.defaultDisplay.getSize(point)
 
-        point.y
-    }
+    point.y
+  }
 }
 
 @CheckResult
 @JvmOverloads
-fun animatePopInFromBottom(view: View, delay: Long = 300L, overshoot: Boolean = true): ViewPropertyAnimatorCompat {
-    view.translationY = animatingHeight(view.context).toFloat()
-    view.scaleX = 0.4F
-    view.isVisible = true
-    return ViewCompat.animate(view).apply {
-        translationY(0F)
-        scaleX(1.0F)
-        duration = 700
-        startDelay = delay
-        if (overshoot) {
-            interpolator = overshootInterpolator
-        }
+fun animatePopInFromBottom(
+    view: View,
+    delay: Long = 300L,
+    overshoot: Boolean = true
+): ViewPropertyAnimatorCompat {
+  view.translationY = animatingHeight(view.context).toFloat()
+  view.scaleX = 0.4F
+  view.isVisible = true
+  return ViewCompat.animate(view).apply {
+    translationY(0F)
+    scaleX(1.0F)
+    duration = 700
+    startDelay = delay
+    if (overshoot) {
+      interpolator = overshootInterpolator
     }
+  }
 }

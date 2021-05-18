@@ -31,12 +31,7 @@ import com.pyamsoft.fridge.db.room.entity.RoomFridgeItem
 
 @Database(
     version = 2,
-    entities = [
-        RoomFridgeItem::class,
-        RoomFridgeEntry::class,
-        RoomFridgeCategory::class
-    ]
-)
+    entities = [RoomFridgeItem::class, RoomFridgeEntry::class, RoomFridgeCategory::class])
 @TypeConverters(
     PresenceTypeConverter::class,
     DateTypeConverter::class,

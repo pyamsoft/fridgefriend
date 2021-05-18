@@ -30,158 +30,160 @@ import com.pyamsoft.pydroid.loader.ImageTarget
 import com.pyamsoft.pydroid.loader.Loaded
 import com.pyamsoft.pydroid.ui.theme.ThemeProvider
 import com.pyamsoft.pydroid.util.tintWith
-import timber.log.Timber
 import javax.inject.Inject
+import timber.log.Timber
 
-class EntryList @Inject internal constructor(
+class EntryList
+@Inject
+internal constructor(
     private val theming: ThemeProvider,
     private val imageLoader: ImageLoader,
     parent: ViewGroup,
     factory: EntryItemComponent.Factory,
 ) : BaseEntryList<EntryViewEvent.ListEvents>(parent, factory) {
 
-    private var touchHelper: ItemTouchHelper? = null
+  private var touchHelper: ItemTouchHelper? = null
 
-    private var leftBehindLoaded: Loaded? = null
-    private var leftBehindDrawable: Drawable? = null
+  private var leftBehindLoaded: Loaded? = null
+  private var leftBehindDrawable: Drawable? = null
 
-    private var rightBehindLoaded: Loaded? = null
-    private var rightBehindDrawable: Drawable? = null
+  private var rightBehindLoaded: Loaded? = null
+  private var rightBehindDrawable: Drawable? = null
 
-    init {
-        doOnInflate {
-            setupSwipeCallback()
-        }
+  init {
+    doOnInflate { setupSwipeCallback() }
 
-        doOnTeardown {
-            touchHelper?.attachToRecyclerView(null)
-            touchHelper = null
-        }
-
-        doOnTeardown {
-            clearLoaded()
-        }
+    doOnTeardown {
+      touchHelper?.attachToRecyclerView(null)
+      touchHelper = null
     }
 
-    private fun clearLoaded() {
-        leftBehindLoaded?.dispose()
-        leftBehindLoaded = null
+    doOnTeardown { clearLoaded() }
+  }
 
-        rightBehindLoaded?.dispose()
-        rightBehindLoaded = null
+  private fun clearLoaded() {
+    leftBehindLoaded?.dispose()
+    leftBehindLoaded = null
 
-        leftBehindDrawable = null
-        rightBehindDrawable = null
+    rightBehindLoaded?.dispose()
+    rightBehindLoaded = null
+
+    leftBehindDrawable = null
+    rightBehindDrawable = null
+  }
+
+  private fun deleteListItem(position: Int) {
+    publish(EntryViewEvent.ListEvents.DeleteEntry(position))
+  }
+
+  private fun setupSwipeCallback() {
+    applySwipeCallback(ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT) { position, _ ->
+      val holder = binding.entryList.findViewHolderForAdapterPosition(position)
+      if (holder == null) {
+        Timber.w("ViewHolder is null, cannot respond to swipe")
+        return@applySwipeCallback
+      }
+      if (holder !is EntryItemViewHolder) {
+        Timber.w("ViewHolder is not EntryItemViewHolder, cannot respond to swipe")
+        return@applySwipeCallback
+      }
+
+      deleteListItem(position)
+    }
+  }
+
+  @CheckResult
+  private fun Drawable.themeIcon(): Drawable {
+    val color =
+        if (theming.isDarkTheme()) com.pyamsoft.pydroid.ui.R.color.white
+        else com.pyamsoft.pydroid.ui.R.color.black
+    return this.tintWith(layoutRoot.context, color)
+  }
+
+  private inline fun createSwipeCallback(
+      directions: Int,
+      crossinline itemSwipeCallback: (position: Int, directions: Int) -> Unit,
+  ) {
+    val left = leftBehindDrawable
+    val right = rightBehindDrawable
+    if (left == null || right == null) {
+      return
     }
 
-    private fun deleteListItem(position: Int) {
-        publish(EntryViewEvent.ListEvents.DeleteEntry(position))
-    }
+    val cb =
+        object : SimpleSwipeCallback.ItemSwipeCallback {
 
-    private fun setupSwipeCallback() {
-        applySwipeCallback(ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT) { position, _ ->
-            val holder = binding.entryList.findViewHolderForAdapterPosition(position)
-            if (holder == null) {
-                Timber.w("ViewHolder is null, cannot respond to swipe")
-                return@applySwipeCallback
-            }
-            if (holder !is EntryItemViewHolder) {
-                Timber.w("ViewHolder is not EntryItemViewHolder, cannot respond to swipe")
-                return@applySwipeCallback
-            }
-
-            deleteListItem(position)
-        }
-    }
-
-    @CheckResult
-    private fun Drawable.themeIcon(): Drawable {
-        val color =
-            if (theming.isDarkTheme()) com.pyamsoft.pydroid.ui.R.color.white else com.pyamsoft.pydroid.ui.R.color.black
-        return this.tintWith(layoutRoot.context, color)
-    }
-
-    private inline fun createSwipeCallback(
-        directions: Int,
-        crossinline itemSwipeCallback: (position: Int, directions: Int) -> Unit,
-    ) {
-        val left = leftBehindDrawable
-        val right = rightBehindDrawable
-        if (left == null || right == null) {
-            return
+          override fun itemSwiped(position: Int, direction: Int) {
+            itemSwipeCallback(position, direction)
+          }
         }
 
-        val cb = object : SimpleSwipeCallback.ItemSwipeCallback {
-
-            override fun itemSwiped(position: Int, direction: Int) {
-                itemSwipeCallback(position, direction)
-            }
+    val swipeCallback =
+        SimpleSwipeCallback(cb, left, directions, Color.TRANSPARENT).apply {
+          withBackgroundSwipeRight(Color.TRANSPARENT)
+          withLeaveBehindSwipeRight(right)
         }
 
-        val swipeCallback = SimpleSwipeCallback(cb, left, directions, Color.TRANSPARENT).apply {
-            withBackgroundSwipeRight(Color.TRANSPARENT)
-            withLeaveBehindSwipeRight(right)
-        }
+    // Detach any existing helper from the recyclerview
+    touchHelper?.attachToRecyclerView(null)
 
-        // Detach any existing helper from the recyclerview
-        touchHelper?.attachToRecyclerView(null)
+    // Attach new helper
+    val helper = ItemTouchHelper(swipeCallback).apply { attachToRecyclerView(binding.entryList) }
 
-        // Attach new helper
-        val helper = ItemTouchHelper(swipeCallback).apply {
-            attachToRecyclerView(binding.entryList)
-        }
+    // Set helper for cleanup later
+    touchHelper = helper
+  }
 
-        // Set helper for cleanup later
-        touchHelper = helper
-    }
+  private inline fun applySwipeCallback(
+      directions: Int,
+      crossinline itemSwipeCallback: (position: Int, directions: Int) -> Unit,
+  ) {
 
-    private inline fun applySwipeCallback(
-        directions: Int,
-        crossinline itemSwipeCallback: (position: Int, directions: Int) -> Unit,
-    ) {
-
-        clearLoaded()
-        leftBehindLoaded = imageLoader.asDrawable()
+    clearLoaded()
+    leftBehindLoaded =
+        imageLoader
+            .asDrawable()
             .load(R.drawable.ic_delete_24dp)
             .mutate { it.themeIcon() }
-            .into(object : ImageTarget<Drawable> {
-                override fun clear() {
+            .into(
+                object : ImageTarget<Drawable> {
+                  override fun clear() {
                     // Does nothing on its own, clear the touch helper to free
-                }
+                  }
 
-                override fun setImage(image: Drawable) {
+                  override fun setImage(image: Drawable) {
                     leftBehindDrawable = image
                     createSwipeCallback(directions, itemSwipeCallback)
-                }
+                  }
+                })
 
-            })
-
-        rightBehindLoaded = imageLoader.asDrawable()
+    rightBehindLoaded =
+        imageLoader
+            .asDrawable()
             .load(R.drawable.ic_delete_24dp)
             .mutate { it.themeIcon() }
-            .into(object : ImageTarget<Drawable> {
-                override fun clear() {
+            .into(
+                object : ImageTarget<Drawable> {
+                  override fun clear() {
                     // Does nothing on its own, clear the touch helper to free
-                }
+                  }
 
-                override fun setImage(image: Drawable) {
+                  override fun setImage(image: Drawable) {
                     rightBehindDrawable = image
                     createSwipeCallback(directions, itemSwipeCallback)
-                }
+                  }
+                })
+  }
 
-            })
-    }
+  override fun onRefresh() {
+    publish(EntryViewEvent.ListEvents.ForceRefresh)
+  }
 
-    override fun onRefresh() {
-        publish(EntryViewEvent.ListEvents.ForceRefresh)
-    }
+  override fun onClick(index: Int) {
+    publish(EntryViewEvent.ListEvents.SelectEntry(index))
+  }
 
-    override fun onClick(index: Int) {
-        publish(EntryViewEvent.ListEvents.SelectEntry(index))
-    }
-
-    override fun onLongPress(index: Int) {
-        publish(EntryViewEvent.ListEvents.EditEntry(index))
-    }
-
+  override fun onLongPress(index: Int) {
+    publish(EntryViewEvent.ListEvents.EditEntry(index))
+  }
 }

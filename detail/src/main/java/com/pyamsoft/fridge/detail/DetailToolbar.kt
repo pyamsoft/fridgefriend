@@ -25,62 +25,64 @@ import com.pyamsoft.pydroid.ui.util.DebouncedOnClickListener
 import com.pyamsoft.pydroid.ui.util.setUpEnabled
 import javax.inject.Inject
 
-class DetailToolbar @Inject internal constructor(
+class DetailToolbar
+@Inject
+internal constructor(
     toolbarActivity: ToolbarActivity,
-) : UiToolbar<DetailViewState.Sorts, DetailViewState, DetailViewEvent.ToolbarEvent>(
-    withToolbar = { toolbarActivity.withToolbar(it) }
-) {
+) :
+    UiToolbar<DetailViewState.Sorts, DetailViewState, DetailViewEvent.ToolbarEvent>(
+        withToolbar = { toolbarActivity.withToolbar(it) }) {
 
-    private val itemIdPurchasedDate = View.generateViewId()
-    private val itemIdExpirationDate = View.generateViewId()
+  private val itemIdPurchasedDate = View.generateViewId()
+  private val itemIdExpirationDate = View.generateViewId()
 
-    init {
-        doOnInflate {
-            toolbarActivity.withToolbar { toolbar ->
-                toolbar.setUpEnabled(true)
-                toolbar.setNavigationOnClickListener(DebouncedOnClickListener.create {
-                    publish(DetailViewEvent.ToolbarEvent.Toolbar.Back)
-                })
-            }
-        }
-
-        doOnTeardown {
-            toolbarActivity.withToolbar { toolbar ->
-                toolbar.setUpEnabled(false)
-                toolbar.setNavigationOnClickListener(null)
-            }
-        }
+  init {
+    doOnInflate {
+      toolbarActivity.withToolbar { toolbar ->
+        toolbar.setUpEnabled(true)
+        toolbar.setNavigationOnClickListener(
+            DebouncedOnClickListener.create { publish(DetailViewEvent.ToolbarEvent.Toolbar.Back) })
+      }
     }
 
-    override fun publishSearchEvent(search: String) {
-        publish(DetailViewEvent.ToolbarEvent.Search.Query(search))
+    doOnTeardown {
+      toolbarActivity.withToolbar { toolbar ->
+        toolbar.setUpEnabled(false)
+        toolbar.setNavigationOnClickListener(null)
+      }
     }
+  }
 
-    override fun publishSortEvent(sort: State.Sort<DetailViewState.Sorts>) {
-        publish(DetailViewEvent.ToolbarEvent.Toolbar.ChangeSort(sort.original))
-    }
+  override fun publishSearchEvent(search: String) {
+    publish(DetailViewEvent.ToolbarEvent.Search.Query(search))
+  }
 
-    override fun onGetSortForMenuItem(itemId: Int): DetailViewState.Sorts? = when (itemId) {
+  override fun publishSortEvent(sort: State.Sort<DetailViewState.Sorts>) {
+    publish(DetailViewEvent.ToolbarEvent.Toolbar.ChangeSort(sort.original))
+  }
+
+  override fun onGetSortForMenuItem(itemId: Int): DetailViewState.Sorts? =
+      when (itemId) {
         itemIdCreatedDate -> DetailViewState.Sorts.CREATED
         itemIdName -> DetailViewState.Sorts.NAME
         itemIdPurchasedDate -> DetailViewState.Sorts.PURCHASED
         itemIdExpirationDate -> DetailViewState.Sorts.EXPIRATION
         else -> null
-    }
+      }
 
-    override fun onCreateAdditionalSortItems(adder: (Int, CharSequence) -> Unit) {
-        adder(itemIdPurchasedDate, "Purchase Date")
-        adder(itemIdExpirationDate, "Expiration Date")
-    }
+  override fun onCreateAdditionalSortItems(adder: (Int, CharSequence) -> Unit) {
+    adder(itemIdPurchasedDate, "Purchase Date")
+    adder(itemIdExpirationDate, "Expiration Date")
+  }
 
-    override fun onRender(state: UiRender<DetailViewState>) {
-        state.mapChanged { it.listItemPresence }.render(viewScope) { handleExtraSubItems(it) }
-    }
+  override fun onRender(state: UiRender<DetailViewState>) {
+    state.mapChanged { it.listItemPresence }.render(viewScope) { handleExtraSubItems(it) }
+  }
 
-    private fun handleExtraSubItems(presence: FridgeItem.Presence) {
-        val isHavePresence = presence == FridgeItem.Presence.HAVE
-        val showExtraMenuItems = isHavePresence && !isSearchExpanded()
-        setItemVisibility(itemIdPurchasedDate, showExtraMenuItems)
-        setItemVisibility(itemIdExpirationDate, showExtraMenuItems)
-    }
+  private fun handleExtraSubItems(presence: FridgeItem.Presence) {
+    val isHavePresence = presence == FridgeItem.Presence.HAVE
+    val showExtraMenuItems = isHavePresence && !isSearchExpanded()
+    setItemVisibility(itemIdPurchasedDate, showExtraMenuItems)
+    setItemVisibility(itemIdExpirationDate, showExtraMenuItems)
+  }
 }

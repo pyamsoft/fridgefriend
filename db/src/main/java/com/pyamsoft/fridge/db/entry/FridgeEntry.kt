@@ -24,66 +24,53 @@ import java.util.Date
 
 interface FridgeEntry : BaseModel<FridgeEntry> {
 
-    @CheckResult
-    fun id(): Id
+  @CheckResult fun id(): Id
+
+  @CheckResult fun isReal(): Boolean
+
+  @CheckResult fun makeReal(): FridgeEntry
+
+  @CheckResult fun archivedAt(): Date?
+
+  @CheckResult fun isArchived(): Boolean
+
+  @CheckResult fun invalidateArchived(): FridgeEntry
+
+  @CheckResult fun archive(): FridgeEntry
+
+  data class Id(val id: String) {
 
     @CheckResult
-    fun isReal(): Boolean
-
-    @CheckResult
-    fun makeReal(): FridgeEntry
-
-    @CheckResult
-    fun archivedAt(): Date?
-
-    @CheckResult
-    fun isArchived(): Boolean
-
-    @CheckResult
-    fun invalidateArchived(): FridgeEntry
-
-    @CheckResult
-    fun archive(): FridgeEntry
-
-    data class Id(val id: String) {
-
-        @CheckResult
-        fun isEmpty(): Boolean {
-            return id.isBlank()
-        }
-
-        companion object {
-
-            @JvmField
-            val EMPTY = Id("")
-        }
+    fun isEmpty(): Boolean {
+      return id.isBlank()
     }
 
     companion object {
 
-        const val DEFAULT_NAME = "My Fridge"
-
-        @CheckResult
-        fun create(name: String): FridgeEntry {
-            return JsonMappableFridgeEntry(
-                Id(IdGenerator.generate()),
-                name,
-                currentDate(),
-                null,
-                isReal = true
-            )
-        }
-
-        @CheckResult
-        @JvmOverloads
-        fun create(
-            entry: FridgeEntry,
-            name: String = entry.name(),
-            createdTime: Date = entry.createdTime(),
-            archivedAt: Date? = entry.archivedAt(),
-            isReal: Boolean,
-        ): FridgeEntry {
-            return JsonMappableFridgeEntry(entry.id(), name, createdTime, archivedAt, isReal)
-        }
+      @JvmField val EMPTY = Id("")
     }
+  }
+
+  companion object {
+
+    const val DEFAULT_NAME = "My Fridge"
+
+    @CheckResult
+    fun create(name: String): FridgeEntry {
+      return JsonMappableFridgeEntry(
+          Id(IdGenerator.generate()), name, currentDate(), null, isReal = true)
+    }
+
+    @CheckResult
+    @JvmOverloads
+    fun create(
+        entry: FridgeEntry,
+        name: String = entry.name(),
+        createdTime: Date = entry.createdTime(),
+        archivedAt: Date? = entry.archivedAt(),
+        isReal: Boolean,
+    ): FridgeEntry {
+      return JsonMappableFridgeEntry(entry.id(), name, createdTime, archivedAt, isReal)
+    }
+  }
 }

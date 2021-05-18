@@ -33,72 +33,67 @@ import com.pyamsoft.pydroid.ui.util.popShow
 import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
 import javax.inject.Inject
 
-class EntryAddNew @Inject internal constructor(
+class EntryAddNew
+@Inject
+internal constructor(
     private val owner: LifecycleOwner,
     private val imageLoader: ImageLoader,
     parent: ViewGroup,
-) : BaseUiView<EntryViewState, EntryViewEvent.AddEvent, EntryAddNewBinding>(parent),
+) :
+    BaseUiView<EntryViewState, EntryViewEvent.AddEvent, EntryAddNewBinding>(parent),
     SnackbarContainer {
 
-    override val viewBinding = EntryAddNewBinding::inflate
+  override val viewBinding = EntryAddNewBinding::inflate
 
-    override val layoutRoot by boundView { entryAddNewRoot }
+  override val layoutRoot by boundView { entryAddNewRoot }
 
-    init {
-        doOnInflate {
-            imageLoader
-                .load(R.drawable.ic_add_24dp)
-                .into(binding.entryAddNew)
-                .disposeOnDestroy(owner)
-        }
-
-        doOnInflate {
-            binding.entryAddNew.setOnDebouncedClickListener {
-                publish(EntryViewEvent.AddEvent.AddNew)
-            }
-        }
-
-        doOnTeardown {
-            binding.entryAddNew.setOnClickListener(null)
-        }
-
-        doOnInflate {
-            val animator = binding.entryAddNew.popShow()
-            doOnTeardown { animator.cancel() }
-        }
+  init {
+    doOnInflate {
+      imageLoader.load(R.drawable.ic_add_24dp).into(binding.entryAddNew).disposeOnDestroy(owner)
     }
 
-    override fun container(): CoordinatorLayout {
-        return layoutRoot
+    doOnInflate {
+      binding.entryAddNew.setOnDebouncedClickListener { publish(EntryViewEvent.AddEvent.AddNew) }
     }
 
-    override fun onRender(state: UiRender<EntryViewState>) {
-        state.mapChanged { it.bottomOffset }.render(viewScope) { handleBottomMargin(it) }
-        state.mapChanged { it.undoableEntry }.render(viewScope) { handleUndo(it) }
-    }
+    doOnTeardown { binding.entryAddNew.setOnClickListener(null) }
 
-    private fun handleBottomMargin(height: Int) {
-        if (height > 0) {
-            layoutRoot.updatePadding(bottom = height)
-        }
+    doOnInflate {
+      val animator = binding.entryAddNew.popShow()
+      doOnTeardown { animator.cancel() }
     }
+  }
 
-    private fun handleUndo(undoable: FridgeEntry?) {
-        if (undoable != null) {
-            showUndoSnackbar(undoable)
-        }
-    }
+  override fun container(): CoordinatorLayout {
+    return layoutRoot
+  }
 
-    private fun showUndoSnackbar(undoable: FridgeEntry) {
-        Snackbreak.bindTo(owner) {
-            long(
-                layoutRoot,
-                "Removed ${undoable.name()}",
-                onHidden = { _, _ -> publish(EntryViewEvent.AddEvent.ReallyDeleteEntryNoUndo) }
-            ) {
-                // Restore the old item
-                setAction("Undo") { publish(EntryViewEvent.AddEvent.UndoDeleteEntry) }
-            }
-        }
+  override fun onRender(state: UiRender<EntryViewState>) {
+    state.mapChanged { it.bottomOffset }.render(viewScope) { handleBottomMargin(it) }
+    state.mapChanged { it.undoableEntry }.render(viewScope) { handleUndo(it) }
+  }
+
+  private fun handleBottomMargin(height: Int) {
+    if (height > 0) {
+      layoutRoot.updatePadding(bottom = height)
     }
+  }
+
+  private fun handleUndo(undoable: FridgeEntry?) {
+    if (undoable != null) {
+      showUndoSnackbar(undoable)
+    }
+  }
+
+  private fun showUndoSnackbar(undoable: FridgeEntry) {
+    Snackbreak.bindTo(owner) {
+      long(
+          layoutRoot,
+          "Removed ${undoable.name()}",
+          onHidden = { _, _ -> publish(EntryViewEvent.AddEvent.ReallyDeleteEntryNoUndo) }) {
+        // Restore the old item
+        setAction("Undo") { publish(EntryViewEvent.AddEvent.UndoDeleteEntry) }
+      }
+    }
+  }
 }

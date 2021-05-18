@@ -23,20 +23,19 @@ import com.pyamsoft.fridge.db.item.FridgeItem.Presence
 
 interface FridgeItemQueryDao : DbQuery<FridgeItem> {
 
-    @CheckResult
-    suspend fun query(force: Boolean, id: FridgeEntry.Id): List<FridgeItem>
+  @CheckResult suspend fun query(force: Boolean, id: FridgeEntry.Id): List<FridgeItem>
 
-    @CheckResult
-    suspend fun querySameNameDifferentPresence(
-        force: Boolean,
-        name: String,
-        presence: Presence
-    ): List<FridgeItem>
+  @CheckResult
+  suspend fun querySameNameDifferentPresence(
+      force: Boolean,
+      name: String,
+      presence: Presence
+  ): List<FridgeItem>
 
-    @CheckResult
-    suspend fun querySimilarNamedItems(
-        force: Boolean,
-        id: FridgeItem.Id,
-        name: String
-    ): List<FridgeItem>
+  @CheckResult
+  suspend fun querySimilarNamedItems(
+      force: Boolean,
+      id: FridgeItem.Id,
+      name: String
+  ): List<FridgeItem>
 }

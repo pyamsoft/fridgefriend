@@ -31,44 +31,43 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-internal class NightlyNotifyDispatcher @Inject internal constructor(
-    context: Context,
-    activityClass: Class<out Activity>
-) : BaseNotifyDispatcher<NightlyNotifyData>(
-    context,
-    activityClass = activityClass
-) {
+internal class NightlyNotifyDispatcher
+@Inject
+internal constructor(context: Context, activityClass: Class<out Activity>) :
+    BaseNotifyDispatcher<NightlyNotifyData>(context, activityClass = activityClass) {
 
-    override fun canShow(notification: NotifyData): Boolean {
-        return notification is NightlyNotifyData
+  override fun canShow(notification: NotifyData): Boolean {
+    return notification is NightlyNotifyData
+  }
+
+  override fun onBuildNotification(
+      id: NotifyId,
+      notification: NightlyNotifyData,
+      builder: NotificationCompat.Builder
+  ): Notification {
+    builder.apply {
+      setSmallIcon(R.drawable.ic_category_24)
+      setContentTitle(
+          buildSpannedString {
+            bold { append("Nightly reminder") }
+            append(" to ")
+            bold { append("clean") }
+            append(" the fridge")
+          })
+      setContentText(
+          buildSpannedString {
+            append("Reminder to ")
+            bold { append("mark off") }
+            append(" anything you consumed today!")
+          })
+
+      setContentIntent(createContentIntent(id, NOTHING))
     }
+    return builder.build()
+  }
 
-    override fun onBuildNotification(
-        id: NotifyId,
-        notification: NightlyNotifyData,
-        builder: NotificationCompat.Builder
-    ): Notification {
-        builder.apply {
-            setSmallIcon(R.drawable.ic_category_24)
-            setContentTitle(buildSpannedString {
-                bold { append("Nightly reminder") }
-                append(" to ")
-                bold { append("clean") }
-                append(" the fridge")
-            })
-            setContentText(buildSpannedString {
-                append("Reminder to ")
-                bold { append("mark off") }
-                append(" anything you consumed today!")
-            })
+  companion object {
 
-            setContentIntent(createContentIntent(id, NOTHING))
-        }
-        return builder.build()
-    }
-
-    companion object {
-
-        private val NOTHING: Intent.() -> Unit = {}
-    }
+    private val NOTHING: Intent.() -> Unit = {}
+  }
 }

@@ -25,21 +25,18 @@ import javax.inject.Singleton
 @Singleton
 internal class NotificationIdMap @Inject internal constructor() {
 
-    private val map by lazy { mutableMapOf<NotificationType, IdMap>() }
+  private val map by lazy { mutableMapOf<NotificationType, IdMap>() }
 
-    @CheckResult
-    fun getNotifications(type: NotificationType): IdMap {
-        return map.getOrPut(type) { mutableMapOf() }
-    }
+  @CheckResult
+  fun getNotifications(type: NotificationType): IdMap {
+    return map.getOrPut(type) { mutableMapOf() }
+  }
 
-    @CheckResult
-    inline fun getNotificationId(
-        type: NotificationType,
-        key: () -> String
-    ): NotifyId {
-        val k = key()
-        return getNotifications(type).getOrPut(k) { (k.hashCode() + type.ordinal).toNotifyId() }
-    }
+  @CheckResult
+  inline fun getNotificationId(type: NotificationType, key: () -> String): NotifyId {
+    val k = key()
+    return getNotifications(type).getOrPut(k) { (k.hashCode() + type.ordinal).toNotifyId() }
+  }
 }
 
 typealias IdMap = MutableMap<String, NotifyId>

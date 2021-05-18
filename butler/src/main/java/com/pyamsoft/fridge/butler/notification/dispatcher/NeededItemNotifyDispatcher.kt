@@ -32,53 +32,46 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-internal class NeededItemNotifyDispatcher @Inject internal constructor(
-    context: Context,
-    activityClass: Class<out Activity>
-) : ItemNotifyDispatcher<NeededItemNotifyData>(
-    context,
-    activityClass = activityClass
-) {
+internal class NeededItemNotifyDispatcher
+@Inject
+internal constructor(context: Context, activityClass: Class<out Activity>) :
+    ItemNotifyDispatcher<NeededItemNotifyData>(context, activityClass = activityClass) {
 
-    override fun canShow(notification: NotifyData): Boolean {
-        return notification is NeededItemNotifyData
+  override fun canShow(notification: NotifyData): Boolean {
+    return notification is NeededItemNotifyData
+  }
+
+  override fun onBuildNotification(
+      id: NotifyId,
+      notification: NeededItemNotifyData,
+      builder: NotificationCompat.Builder
+  ): Notification {
+    builder.apply {
+      setSmallIcon(R.drawable.ic_shopping_cart_24dp)
+      setContentTitle(
+          buildSpannedString {
+            bold { append("Shopping reminder") }
+            append(" for ")
+            bold { append(notification.entry.name()) }
+          })
+
+      val text = buildSpannedString {
+        append("You still ")
+        bold { append("need to shop") }
+        append(" for ")
+        bold { append("${notification.items.size}") }
+        append(" items")
+      }
+      setContentText(text)
+      setStyle(
+          createBigTextStyle(text, notification.items, isExpired = false, isExpiringSoon = false))
+
+      setContentIntent(
+          createContentIntent(id) {
+            putExtra(NotificationHandler.KEY_ENTRY_ID, notification.entry.id().id)
+            putExtra(NotificationHandler.KEY_PRESENCE_TYPE, FridgeItem.Presence.NEED.name)
+          })
     }
-
-    override fun onBuildNotification(
-        id: NotifyId,
-        notification: NeededItemNotifyData,
-        builder: NotificationCompat.Builder
-    ): Notification {
-        builder.apply {
-            setSmallIcon(R.drawable.ic_shopping_cart_24dp)
-            setContentTitle(buildSpannedString {
-                bold { append("Shopping reminder") }
-                append(" for ")
-                bold { append(notification.entry.name()) }
-            })
-
-            val text = buildSpannedString {
-                append("You still ")
-                bold { append("need to shop") }
-                append(" for ")
-                bold { append("${notification.items.size}") }
-                append(" items")
-            }
-            setContentText(text)
-            setStyle(
-                createBigTextStyle(
-                    text,
-                    notification.items,
-                    isExpired = false,
-                    isExpiringSoon = false
-                )
-            )
-
-            setContentIntent(createContentIntent(id) {
-                putExtra(NotificationHandler.KEY_ENTRY_ID, notification.entry.id().id)
-                putExtra(NotificationHandler.KEY_PRESENCE_TYPE, FridgeItem.Presence.NEED.name)
-            })
-        }
-        return builder.build()
-    }
+    return builder.build()
+  }
 }

@@ -18,7 +18,8 @@ package com.pyamsoft.fridge.db.category
 
 import com.pyamsoft.fridge.db.BaseDb
 
-interface FridgeCategoryDb : BaseDb<
+interface FridgeCategoryDb :
+    BaseDb<
         FridgeCategoryRealtime,
         FridgeCategoryQueryDao,
         FridgeCategoryInsertDao,

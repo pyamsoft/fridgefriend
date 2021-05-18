@@ -27,30 +27,22 @@ import javax.inject.Inject
 
 class ItemInjector(context: Context) : BaseInjector<ItemParameters>(context) {
 
-    @JvmField
-    @Inject
-    internal var runner: ItemRunner? = null
+  @JvmField @Inject internal var runner: ItemRunner? = null
 
-    // TODO(Peter) For some reason this is null if we inject it in BaseInjector
-    @JvmField
-    @Inject
-    internal var orderFactory: OrderFactory? = null
+  // TODO(Peter) For some reason this is null if we inject it in BaseInjector
+  @JvmField @Inject internal var orderFactory: OrderFactory? = null
 
-    override suspend fun onExecute(
-        context: Context,
-        id: UUID,
-        tags: Set<String>,
-        params: ItemParameters
-    ): WorkResult {
-        Injector.obtainFromApplication<ButlerComponent>(context).inject(this)
+  override suspend fun onExecute(
+      context: Context,
+      id: UUID,
+      tags: Set<String>,
+      params: ItemParameters
+  ): WorkResult {
+    Injector.obtainFromApplication<ButlerComponent>(context).inject(this)
 
-        return requireNotNull(runner).doWork(id, tags, params) {
-            requireNotNull(orderFactory).itemOrder(
-                ItemParameters(
-                    forceNotifyExpiring = false,
-                    forceNotifyNeeded = false
-                )
-            )
-        }
+    return requireNotNull(runner).doWork(id, tags, params) {
+      requireNotNull(orderFactory)
+          .itemOrder(ItemParameters(forceNotifyExpiring = false, forceNotifyNeeded = false))
     }
+  }
 }

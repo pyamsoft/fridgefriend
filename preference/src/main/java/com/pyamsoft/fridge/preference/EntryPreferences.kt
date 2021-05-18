@@ -20,9 +20,7 @@ import androidx.annotation.CheckResult
 
 interface EntryPreferences {
 
-    @CheckResult
-    suspend fun isDefaultEntryCreated(): Boolean
+  @CheckResult suspend fun isDefaultEntryCreated(): Boolean
 
-    suspend fun markDefaultEntryCreated()
-
+  suspend fun markDefaultEntryCreated()
 }

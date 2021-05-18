@@ -21,33 +21,32 @@ import com.pyamsoft.pydroid.ui.app.ToolbarActivity
 import com.pyamsoft.pydroid.ui.util.setUpEnabled
 import javax.inject.Inject
 
-class EntryToolbar @Inject internal constructor(
+class EntryToolbar
+@Inject
+internal constructor(
     toolbarActivity: ToolbarActivity,
-) : UiToolbar<EntryViewState.Sorts, EntryViewState, EntryViewEvent.ToolbarEvent>(
-    withToolbar = { toolbarActivity.withToolbar(it) }
-) {
+) :
+    UiToolbar<EntryViewState.Sorts, EntryViewState, EntryViewEvent.ToolbarEvent>(
+        withToolbar = { toolbarActivity.withToolbar(it) }) {
 
-    init {
-        doOnInflate {
-            toolbarActivity.withToolbar { it.setUpEnabled(false) }
-        }
+  init {
+    doOnInflate { toolbarActivity.withToolbar { it.setUpEnabled(false) } }
 
-        doOnTeardown {
-            toolbarActivity.withToolbar { it.setUpEnabled(false) }
-        }
-    }
+    doOnTeardown { toolbarActivity.withToolbar { it.setUpEnabled(false) } }
+  }
 
-    override fun publishSearchEvent(search: String) {
-        publish(EntryViewEvent.ToolbarEvent.SearchQuery(search))
-    }
+  override fun publishSearchEvent(search: String) {
+    publish(EntryViewEvent.ToolbarEvent.SearchQuery(search))
+  }
 
-    override fun publishSortEvent(sort: State.Sort<EntryViewState.Sorts>) {
-        publish(EntryViewEvent.ToolbarEvent.ChangeSort(sort.original))
-    }
+  override fun publishSortEvent(sort: State.Sort<EntryViewState.Sorts>) {
+    publish(EntryViewEvent.ToolbarEvent.ChangeSort(sort.original))
+  }
 
-    override fun onGetSortForMenuItem(itemId: Int): EntryViewState.Sorts? = when (itemId) {
+  override fun onGetSortForMenuItem(itemId: Int): EntryViewState.Sorts? =
+      when (itemId) {
         itemIdCreatedDate -> EntryViewState.Sorts.CREATED
         itemIdName -> EntryViewState.Sorts.NAME
         else -> null
-    }
+      }
 }

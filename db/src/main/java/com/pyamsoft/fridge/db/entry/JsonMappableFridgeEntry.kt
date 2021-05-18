@@ -22,7 +22,8 @@ import com.squareup.moshi.JsonClass
 import java.util.Date
 
 @JsonClass(generateAdapter = true)
-data class JsonMappableFridgeEntry internal constructor(
+data class JsonMappableFridgeEntry
+internal constructor(
     internal val id: FridgeEntry.Id,
     internal val name: String,
     internal val createdTime: Date,
@@ -30,60 +31,56 @@ data class JsonMappableFridgeEntry internal constructor(
     internal val isReal: Boolean
 ) : FridgeEntry {
 
-    override fun id(): FridgeEntry.Id {
-        return id
-    }
+  override fun id(): FridgeEntry.Id {
+    return id
+  }
 
-    override fun name(): String {
-        return name
-    }
+  override fun name(): String {
+    return name
+  }
 
-    override fun createdTime(): Date {
-        return createdTime
-    }
+  override fun createdTime(): Date {
+    return createdTime
+  }
 
-    override fun archivedAt(): Date? {
-        return archivedAt
-    }
+  override fun archivedAt(): Date? {
+    return archivedAt
+  }
 
-    override fun isArchived(): Boolean {
-        return archivedAt != null
-    }
+  override fun isArchived(): Boolean {
+    return archivedAt != null
+  }
 
-    override fun isReal(): Boolean {
-        return isReal
-    }
+  override fun isReal(): Boolean {
+    return isReal
+  }
 
-    override fun invalidateArchived(): FridgeEntry {
-        return this.copy(archivedAt = null)
-    }
+  override fun invalidateArchived(): FridgeEntry {
+    return this.copy(archivedAt = null)
+  }
 
-    override fun archive(): FridgeEntry {
-        return this.copy(archivedAt = today().time)
-    }
+  override fun archive(): FridgeEntry {
+    return this.copy(archivedAt = today().time)
+  }
 
-    override fun name(name: String): FridgeEntry {
-        return this.copy(name = name.trim())
-    }
+  override fun name(name: String): FridgeEntry {
+    return this.copy(name = name.trim())
+  }
 
-    override fun makeReal(): FridgeEntry {
-        return this.copy(isReal = true)
-    }
+  override fun makeReal(): FridgeEntry {
+    return this.copy(isReal = true)
+  }
 
-    companion object {
+  companion object {
 
-        @JvmStatic
-        @CheckResult
-        fun from(entry: FridgeEntry): JsonMappableFridgeEntry {
-            return if (entry is JsonMappableFridgeEntry) entry else {
-                JsonMappableFridgeEntry(
-                    entry.id(),
-                    entry.name(),
-                    entry.createdTime(),
-                    entry.archivedAt(),
-                    entry.isReal()
-                )
-            }
-        }
+    @JvmStatic
+    @CheckResult
+    fun from(entry: FridgeEntry): JsonMappableFridgeEntry {
+      return if (entry is JsonMappableFridgeEntry) entry
+      else {
+        JsonMappableFridgeEntry(
+            entry.id(), entry.name(), entry.createdTime(), entry.archivedAt(), entry.isReal())
+      }
     }
+  }
 }

@@ -18,12 +18,8 @@ package com.pyamsoft.fridge.db.entry
 
 import com.pyamsoft.fridge.db.BaseDb
 
-interface FridgeEntryDb : BaseDb<
-        FridgeEntryRealtime,
-        FridgeEntryQueryDao,
-        FridgeEntryInsertDao,
-        FridgeEntryDeleteDao
-        >,
+interface FridgeEntryDb :
+    BaseDb<FridgeEntryRealtime, FridgeEntryQueryDao, FridgeEntryInsertDao, FridgeEntryDeleteDao>,
     FridgeEntryRealtime,
     FridgeEntryQueryDao,
     FridgeEntryInsertDao,

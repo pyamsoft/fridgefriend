@@ -23,36 +23,34 @@ import java.util.Calendar
 
 class NightlyOrder internal constructor() : Order {
 
-    override suspend fun tag(): String {
-        return "Nightly Reminder 1"
+  override suspend fun tag(): String {
+    return "Nightly Reminder 1"
+  }
+
+  override suspend fun parameters(): OrderParameters {
+    return OrderParameters.empty()
+  }
+
+  override suspend fun period(): Long {
+    // Get the time now
+    val now = today { set(Calendar.MILLISECOND, 0) }
+
+    // Get the time in the evening at our notification hour
+    val evening = today {
+      set(Calendar.HOUR_OF_DAY, 8 + 12)
+      set(Calendar.MINUTE, 0)
+      set(Calendar.SECOND, 0)
+      set(Calendar.MILLISECOND, 0)
     }
 
-    override suspend fun parameters(): OrderParameters {
-        return OrderParameters.empty()
+    // If it is after this evening, schedule for tomorrow evening
+    if (now.after(evening)) {
+      evening.add(Calendar.DAY_OF_MONTH, 1)
     }
 
-    override suspend fun period(): Long {
-        // Get the time now
-        val now = today { set(Calendar.MILLISECOND, 0) }
-
-        // Get the time in the evening at our notification hour
-        val evening = today {
-            set(Calendar.HOUR_OF_DAY, 8 + 12)
-            set(Calendar.MINUTE, 0)
-            set(Calendar.SECOND, 0)
-            set(Calendar.MILLISECOND, 0)
-        }
-
-        // If it is after this evening, schedule for tomorrow evening
-        if (now.after(evening)) {
-            evening.add(Calendar.DAY_OF_MONTH, 1)
-        }
-
-        // Calculate the difference
-        val nowMillis = now.timeInMillis
-        val eveningMillis = evening.timeInMillis
-        return eveningMillis - nowMillis
-    }
-
+    // Calculate the difference
+    val nowMillis = now.timeInMillis
+    val eveningMillis = evening.timeInMillis
+    return eveningMillis - nowMillis
+  }
 }
-

@@ -22,63 +22,61 @@ import com.pyamsoft.fridge.entry.EntryInteractor
 import com.pyamsoft.highlander.highlander
 import com.pyamsoft.pydroid.arch.UiViewModel
 import com.pyamsoft.pydroid.arch.onActualError
+import javax.inject.Inject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
-class CreateEntryViewModel @Inject internal constructor(
+class CreateEntryViewModel
+@Inject
+internal constructor(
     private val interactor: EntryInteractor,
     entryId: FridgeEntry.Id,
-) : UiViewModel<CreateEntryViewState, CreateEntryControllerEvent>(
-    CreateEntryViewState(
-        entry = null,
-        working = false,
-        throwable = null
-    )
-) {
+) :
+    UiViewModel<CreateEntryViewState, CreateEntryControllerEvent>(
+        CreateEntryViewState(entry = null, working = false, throwable = null)) {
 
-    private val commitRunner = highlander<Unit, FridgeEntry> { entry ->
+  private val commitRunner =
+      highlander<Unit, FridgeEntry> { entry ->
         try {
-            interactor.commit(entry)
+          interactor.commit(entry)
         } catch (throwable: Throwable) {
-            throwable.onActualError {
-                handleCreateError(throwable)
-            }
+          throwable.onActualError { handleCreateError(throwable) }
         }
-    }
+      }
 
-    private val loadRunner = highlander<FridgeEntry?, FridgeEntry.Id> { id ->
+  private val loadRunner =
+      highlander<FridgeEntry?, FridgeEntry.Id> { id ->
         if (id.isEmpty()) FridgeEntry.create("") else interactor.loadEntry(id)
-    }
+      }
 
-    init {
-        viewModelScope.launch(context = Dispatchers.Default) {
-            val entry = loadRunner.call(entryId)
-            setState { copy(entry = entry) }
-        }
+  init {
+    viewModelScope.launch(context = Dispatchers.Default) {
+      val entry = loadRunner.call(entryId)
+      setState { copy(entry = entry) }
     }
+  }
 
-    private fun CoroutineScope.handleCreateError(throwable: Throwable) {
-        setState { copy(throwable = throwable) }
-    }
+  private fun CoroutineScope.handleCreateError(throwable: Throwable) {
+    setState { copy(throwable = throwable) }
+  }
 
-    fun handleUpdateName(name: String) {
-        requireNotNull(state.entry).let { e ->
-            setState { copy(entry = e.name(name)) }
-        }
-    }
+  fun handleUpdateName(name: String) {
+    requireNotNull(state.entry).let { e -> setState { copy(entry = e.name(name)) } }
+  }
 
-    fun handleCommitNewEntry() {
-        viewModelScope.launch(context = Dispatchers.Default) {
-            requireNotNull(state.entry).let { e ->
-                setState(stateChange = { copy(working = true) }, andThen = {
-                    commitRunner.call(e)
-                    setState(stateChange = { copy(working = false) }, andThen = {
-                        publish(CreateEntryControllerEvent.Commit)
-                    })
-                })
-            }
-        }
+  fun handleCommitNewEntry() {
+    viewModelScope.launch(context = Dispatchers.Default) {
+      requireNotNull(state.entry).let { e ->
+        setState(
+            stateChange = { copy(working = true) },
+            andThen = {
+              commitRunner.call(e)
+              setState(
+                  stateChange = { copy(working = false) },
+                  andThen = { publish(CreateEntryControllerEvent.Commit) })
+            })
+      }
     }
+  }
 }

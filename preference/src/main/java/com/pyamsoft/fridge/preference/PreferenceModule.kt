@@ -22,33 +22,27 @@ import dagger.Module
 @Module
 abstract class PreferenceModule {
 
-    @Binds
-    internal abstract fun bindNeededPreference(impl: PreferencesImpl): NeededPreferences
+  @Binds internal abstract fun bindNeededPreference(impl: PreferencesImpl): NeededPreferences
 
-    @Binds
-    internal abstract fun bindNightlyPreference(impl: PreferencesImpl): NightlyPreferences
+  @Binds internal abstract fun bindNightlyPreference(impl: PreferencesImpl): NightlyPreferences
 
-    @Binds
-    internal abstract fun bindExpiringPreference(impl: PreferencesImpl): ExpiringPreferences
+  @Binds internal abstract fun bindExpiringPreference(impl: PreferencesImpl): ExpiringPreferences
 
-    @Binds
-    internal abstract fun bindExpiredPreference(impl: PreferencesImpl): ExpiredPreferences
+  @Binds internal abstract fun bindExpiredPreference(impl: PreferencesImpl): ExpiredPreferences
 
-    @Binds
-    internal abstract fun bindSearchPreferences(impl: PreferencesImpl): SearchPreferences
+  @Binds internal abstract fun bindSearchPreferences(impl: PreferencesImpl): SearchPreferences
 
-    @Binds
-    internal abstract fun bindNotificationPreferences(impl: PreferencesImpl): NotificationPreferences
+  @Binds
+  internal abstract fun bindNotificationPreferences(impl: PreferencesImpl): NotificationPreferences
 
-    @Binds
-    internal abstract fun bindDetailPreferences(impl: PreferencesImpl): DetailPreferences
+  @Binds internal abstract fun bindDetailPreferences(impl: PreferencesImpl): DetailPreferences
 
-    @Binds
-    internal abstract fun bindPersistentCategoryPreferences(impl: PreferencesImpl): PersistentPreferences
+  @Binds
+  internal abstract fun bindPersistentCategoryPreferences(
+      impl: PreferencesImpl
+  ): PersistentPreferences
 
-    @Binds
-    internal abstract fun bindSettingsPreferences(impl: PreferencesImpl): SettingsPreferences
+  @Binds internal abstract fun bindSettingsPreferences(impl: PreferencesImpl): SettingsPreferences
 
-    @Binds
-    internal abstract fun bindEntryPreferences(impl: PreferencesImpl): EntryPreferences
+  @Binds internal abstract fun bindEntryPreferences(impl: PreferencesImpl): EntryPreferences
 }

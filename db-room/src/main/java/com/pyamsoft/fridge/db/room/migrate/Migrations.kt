@@ -24,8 +24,7 @@ internal inline fun Migration.performMigration(
     database: SupportSQLiteDatabase,
     block: SupportSQLiteDatabase.() -> Unit
 ) {
-    Timber.d("Migrating from ${this.startVersion} -> ${this.endVersion} starting")
-    block(database)
-    Timber.d("Migration from ${this.startVersion} -> ${this.endVersion} complete")
+  Timber.d("Migrating from ${this.startVersion} -> ${this.endVersion} starting")
+  block(database)
+  Timber.d("Migration from ${this.startVersion} -> ${this.endVersion} complete")
 }
-

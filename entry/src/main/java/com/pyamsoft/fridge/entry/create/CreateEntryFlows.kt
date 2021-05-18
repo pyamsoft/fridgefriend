@@ -21,20 +21,18 @@ import com.pyamsoft.pydroid.arch.UiControllerEvent
 import com.pyamsoft.pydroid.arch.UiViewEvent
 import com.pyamsoft.pydroid.arch.UiViewState
 
-data class CreateEntryViewState internal constructor(
-    val entry: FridgeEntry?,
-    val working: Boolean,
-    val throwable: Throwable?
-) : UiViewState
+data class CreateEntryViewState
+internal constructor(val entry: FridgeEntry?, val working: Boolean, val throwable: Throwable?) :
+    UiViewState
 
 sealed class CreateEntryViewEvent : UiViewEvent {
 
-    data class NameChanged internal constructor(val name: String) : CreateEntryViewEvent()
+  data class NameChanged internal constructor(val name: String) : CreateEntryViewEvent()
 
-    object Commit : CreateEntryViewEvent()
+  object Commit : CreateEntryViewEvent()
 }
 
 sealed class CreateEntryControllerEvent : UiControllerEvent {
 
-    object Commit : CreateEntryControllerEvent()
+  object Commit : CreateEntryControllerEvent()
 }

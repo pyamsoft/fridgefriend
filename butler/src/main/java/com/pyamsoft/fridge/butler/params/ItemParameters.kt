@@ -16,7 +16,5 @@
 
 package com.pyamsoft.fridge.butler.params
 
-data class ItemParameters(
-    val forceNotifyNeeded: Boolean,
-    val forceNotifyExpiring: Boolean
-) : BaseParameters
+data class ItemParameters(val forceNotifyNeeded: Boolean, val forceNotifyExpiring: Boolean) :
+    BaseParameters

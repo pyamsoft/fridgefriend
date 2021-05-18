@@ -20,8 +20,7 @@ import androidx.annotation.CheckResult
 
 interface PersistentPreferences {
 
-    @CheckResult
-    suspend fun isPersistentCategoriesInserted(): Boolean
+  @CheckResult suspend fun isPersistentCategoriesInserted(): Boolean
 
-    suspend fun setPersistentCategoriesInserted()
+  suspend fun setPersistentCategoriesInserted()
 }

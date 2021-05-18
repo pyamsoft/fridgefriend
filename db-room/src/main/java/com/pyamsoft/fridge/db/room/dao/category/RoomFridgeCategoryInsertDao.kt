@@ -32,32 +32,29 @@ import kotlinx.coroutines.withContext
 internal abstract class RoomFridgeCategoryInsertDao internal constructor() :
     FridgeCategoryInsertDao {
 
-    final override suspend fun insert(o: FridgeCategory): Boolean =
-        withContext(context = Dispatchers.IO) {
-            val roomCategory = RoomFridgeCategory.create(o)
-            return@withContext if (daoQuery(roomCategory.id()) == null) {
-                daoInsert(roomCategory)
-                true
-            } else {
-                daoUpdate(roomCategory)
-                false
-            }
+  final override suspend fun insert(o: FridgeCategory): Boolean =
+      withContext(context = Dispatchers.IO) {
+        val roomCategory = RoomFridgeCategory.create(o)
+        return@withContext if (daoQuery(roomCategory.id()) == null) {
+          daoInsert(roomCategory)
+          true
+        } else {
+          daoUpdate(roomCategory)
+          false
         }
+      }
 
-    @Insert(onConflict = OnConflictStrategy.ABORT)
-    internal abstract fun daoInsert(entry: RoomFridgeCategory)
+  @Insert(onConflict = OnConflictStrategy.ABORT)
+  internal abstract fun daoInsert(entry: RoomFridgeCategory)
 
-
-    @CheckResult
-    @Query(
-        """
-        SELECT * FROM ${RoomFridgeCategory.TABLE_NAME} WHERE 
+  @CheckResult
+  @Query(
+      """
+        SELECT * FROM ${RoomFridgeCategory.TABLE_NAME} WHERE
         ${RoomFridgeCategory.COLUMN_ID} = :id
         LIMIT 1
-        """
-    )
-    internal abstract suspend fun daoQuery(id: FridgeCategory.Id): RoomFridgeCategory?
+        """)
+  internal abstract suspend fun daoQuery(id: FridgeCategory.Id): RoomFridgeCategory?
 
-    @Update
-    internal abstract suspend fun daoUpdate(category: RoomFridgeCategory)
+  @Update internal abstract suspend fun daoUpdate(category: RoomFridgeCategory)
 }

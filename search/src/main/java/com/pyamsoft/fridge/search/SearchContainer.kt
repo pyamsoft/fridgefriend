@@ -27,24 +27,25 @@ import com.pyamsoft.pydroid.arch.UiRender
 import com.pyamsoft.pydroid.ui.util.layout
 import javax.inject.Inject
 
-class SearchContainer @Inject internal constructor(
+class SearchContainer
+@Inject
+internal constructor(
     parent: ViewGroup,
 ) : BaseUiView<DetailViewState, DetailViewEvent.ListEvent, SearchContainerBinding>(parent) {
 
-    override val viewBinding = SearchContainerBinding::inflate
+  override val viewBinding = SearchContainerBinding::inflate
 
-    override val layoutRoot by boundView { searchContainer }
+  override val layoutRoot by boundView { searchContainer }
 
-    fun layout(func: ConstraintSet.() -> Unit) {
-        return binding.searchContainer.layout(func)
-    }
+  fun layout(func: ConstraintSet.() -> Unit) {
+    return binding.searchContainer.layout(func)
+  }
 
-    override fun onRender(state: UiRender<DetailViewState>) {
-        state.mapChanged { it.bottomOffset }.render(viewScope) { handleBottomMargin(it) }
-    }
+  override fun onRender(state: UiRender<DetailViewState>) {
+    state.mapChanged { it.bottomOffset }.render(viewScope) { handleBottomMargin(it) }
+  }
 
-    private fun handleBottomMargin(height: Int) {
-        layoutRoot.updatePadding(bottom = height)
-    }
-
+  private fun handleBottomMargin(height: Int) {
+    layoutRoot.updatePadding(bottom = height)
+  }
 }

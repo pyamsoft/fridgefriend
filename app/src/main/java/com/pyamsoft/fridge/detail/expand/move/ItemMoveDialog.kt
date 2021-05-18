@@ -46,165 +46,153 @@ import javax.inject.Inject
 
 internal class ItemMoveDialog : AppCompatDialogFragment() {
 
-    @JvmField
-    @Inject
-    internal var factory: FridgeViewModelFactory? = null
-    private val viewModel by fromViewModelFactory<ItemMoveViewModel> { factory?.create(this) }
-    private val listViewModel by fromViewModelFactory<ItemMoveListViewModel> { factory?.create(this) }
+  @JvmField @Inject internal var factory: FridgeViewModelFactory? = null
+  private val viewModel by fromViewModelFactory<ItemMoveViewModel> { factory?.create(this) }
+  private val listViewModel by fromViewModelFactory<ItemMoveListViewModel> { factory?.create(this) }
 
-    @JvmField
-    @Inject
-    internal var toolbar: MoveItemToolbar? = null
+  @JvmField @Inject internal var toolbar: MoveItemToolbar? = null
 
-    @JvmField
-    @Inject
-    internal var list: ReadOnlyEntryList? = null
+  @JvmField @Inject internal var list: ReadOnlyEntryList? = null
 
-    private var stateSaver: StateSaver? = null
+  private var stateSaver: StateSaver? = null
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?,
-    ): View? {
-        return inflater.inflate(R.layout.layout_constraint, container, false)
-    }
+  override fun onCreateView(
+      inflater: LayoutInflater,
+      container: ViewGroup?,
+      savedInstanceState: Bundle?,
+  ): View? {
+    return inflater.inflate(R.layout.layout_constraint, container, false)
+  }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        makeFullscreen()
+  override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+    super.onViewCreated(view, savedInstanceState)
+    makeFullscreen()
 
-        val binding = LayoutConstraintBinding.bind(view)
-        val itemId = FridgeItem.Id(requireNotNull(requireArguments().getString(ITEM)))
-        val entryId = FridgeEntry.Id(requireNotNull(requireArguments().getString(ENTRY)))
+    val binding = LayoutConstraintBinding.bind(view)
+    val itemId = FridgeItem.Id(requireNotNull(requireArguments().getString(ITEM)))
+    val entryId = FridgeEntry.Id(requireNotNull(requireArguments().getString(ENTRY)))
 
-        val parent = binding.layoutConstraint
-        Injector.obtainFromApplication<FridgeComponent>(view.context)
-            .plusItemMoveComponent()
-            .create(
-                requireAppBarActivity(),
-                requireActivity(),
-                viewLifecycleOwner,
-                parent,
-                itemId,
-                entryId
-            )
-            .inject(this)
+    val parent = binding.layoutConstraint
+    Injector.obtainFromApplication<FridgeComponent>(view.context)
+        .plusItemMoveComponent()
+        .create(
+            requireAppBarActivity(), requireActivity(), viewLifecycleOwner, parent, itemId, entryId)
+        .inject(this)
 
-        val list = requireNotNull(list)
-        val toolbar = requireNotNull(toolbar)
-        val dropshadow = DropshadowView.createTyped<ItemMoveViewState, ItemMoveViewEvent>(parent)
+    val list = requireNotNull(list)
+    val toolbar = requireNotNull(toolbar)
+    val dropshadow = DropshadowView.createTyped<ItemMoveViewState, ItemMoveViewEvent>(parent)
 
-        val listSaver = createComponent(
+    val listSaver =
+        createComponent(
             savedInstanceState,
             viewLifecycleOwner,
             listViewModel,
-            controller = newUiController {
-                return@newUiController when (it) {
+            controller =
+                newUiController {
+                  return@newUiController when (it) {
                     is ItemMoveListControllerEvent.Selected -> handleEntrySelect(it.entry)
-                }
-            },
-            list
-        ) {
-            return@createComponent when (it) {
-                is ReadOnlyListEvents.ForceRefresh -> listViewModel.handleRefreshList()
-                is ReadOnlyListEvents.Select -> listViewModel.handleSelectEntry(it.index)
-            }
+                  }
+                },
+            list) {
+          return@createComponent when (it) {
+            is ReadOnlyListEvents.ForceRefresh -> listViewModel.handleRefreshList()
+            is ReadOnlyListEvents.Select -> listViewModel.handleSelectEntry(it.index)
+          }
         }
 
-        val moveSaver = createComponent(
+    val moveSaver =
+        createComponent(
             savedInstanceState,
             viewLifecycleOwner,
             viewModel,
-            controller = newUiController {
-                return@newUiController when (it) {
+            controller =
+                newUiController {
+                  return@newUiController when (it) {
                     is ItemMoveControllerEvent.Close -> dismiss()
-                }
-            },
+                  }
+                },
             toolbar,
             dropshadow,
         ) {
-            return@createComponent when (it) {
-                is ItemMoveViewEvent.ChangeSort -> handleSort(it.sort)
-                is ItemMoveViewEvent.Close -> dismiss()
-                is ItemMoveViewEvent.SearchQuery -> handleSearch(it.search)
-            }
+          return@createComponent when (it) {
+            is ItemMoveViewEvent.ChangeSort -> handleSort(it.sort)
+            is ItemMoveViewEvent.Close -> dismiss()
+            is ItemMoveViewEvent.SearchQuery -> handleSearch(it.search)
+          }
         }
 
-        stateSaver = StateSaver { outState ->
-            listSaver.saveState(outState)
-            moveSaver.saveState(outState)
+    stateSaver =
+        StateSaver { outState ->
+          listSaver.saveState(outState)
+          moveSaver.saveState(outState)
         }
 
-        parent.layout {
-            toolbar.also {
-                connect(it.id(), ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP)
-                connect(it.id(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
-                connect(it.id(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
-                constrainWidth(it.id(), ConstraintSet.MATCH_CONSTRAINT)
+    parent.layout {
+      toolbar.also {
+        connect(it.id(), ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP)
+        connect(it.id(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
+        connect(it.id(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
+        constrainWidth(it.id(), ConstraintSet.MATCH_CONSTRAINT)
+      }
+
+      dropshadow.also {
+        connect(it.id(), ConstraintSet.TOP, toolbar.id(), ConstraintSet.BOTTOM)
+        connect(it.id(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
+        connect(it.id(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
+        constrainWidth(it.id(), ConstraintSet.MATCH_CONSTRAINT)
+      }
+
+      list.also {
+        connect(it.id(), ConstraintSet.TOP, toolbar.id(), ConstraintSet.BOTTOM)
+        connect(it.id(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
+        connect(it.id(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
+        connect(it.id(), ConstraintSet.BOTTOM, ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM)
+        constrainWidth(it.id(), ConstraintSet.MATCH_CONSTRAINT)
+        constrainHeight(it.id(), ConstraintSet.MATCH_CONSTRAINT)
+      }
+    }
+  }
+
+  override fun onDestroyView() {
+    super.onDestroyView()
+    factory = null
+
+    list = null
+    toolbar = null
+    stateSaver = null
+  }
+
+  private fun handleSearch(search: String) {
+    listViewModel.handleUpdateSearch(search)
+  }
+
+  private fun handleSort(sort: EntryViewState.Sorts) {
+    listViewModel.handleUpdateSort(sort)
+  }
+
+  private fun handleEntrySelect(entry: FridgeEntry) {
+    viewModel.handleMoveItemToEntry(entry)
+  }
+
+  companion object {
+
+    const val TAG = "ItemMoveDialog"
+    private const val ENTRY = "entry"
+    private const val ITEM = "item"
+
+    @JvmStatic
+    @CheckResult
+    fun newInstance(
+        item: FridgeItem,
+    ): DialogFragment {
+      return ItemMoveDialog().apply {
+        arguments =
+            Bundle().apply {
+              putString(ITEM, item.id().id)
+              putString(ENTRY, item.entryId().id)
             }
-
-            dropshadow.also {
-                connect(it.id(), ConstraintSet.TOP, toolbar.id(), ConstraintSet.BOTTOM)
-                connect(it.id(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
-                connect(it.id(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
-                constrainWidth(it.id(), ConstraintSet.MATCH_CONSTRAINT)
-            }
-
-            list.also {
-                connect(it.id(), ConstraintSet.TOP, toolbar.id(), ConstraintSet.BOTTOM)
-                connect(it.id(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
-                connect(it.id(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
-                connect(
-                    it.id(),
-                    ConstraintSet.BOTTOM,
-                    ConstraintSet.PARENT_ID,
-                    ConstraintSet.BOTTOM
-                )
-                constrainWidth(it.id(), ConstraintSet.MATCH_CONSTRAINT)
-                constrainHeight(it.id(), ConstraintSet.MATCH_CONSTRAINT)
-            }
-        }
+      }
     }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        factory = null
-
-        list = null
-        toolbar = null
-        stateSaver = null
-    }
-
-    private fun handleSearch(search: String) {
-        listViewModel.handleUpdateSearch(search)
-    }
-
-    private fun handleSort(sort: EntryViewState.Sorts) {
-        listViewModel.handleUpdateSort(sort)
-    }
-
-    private fun handleEntrySelect(entry: FridgeEntry) {
-        viewModel.handleMoveItemToEntry(entry)
-    }
-
-    companion object {
-
-        const val TAG = "ItemMoveDialog"
-        private const val ENTRY = "entry"
-        private const val ITEM = "item"
-
-        @JvmStatic
-        @CheckResult
-        fun newInstance(
-            item: FridgeItem,
-        ): DialogFragment {
-            return ItemMoveDialog().apply {
-                arguments = Bundle().apply {
-                    putString(ITEM, item.id().id)
-                    putString(ENTRY, item.entryId().id)
-                }
-            }
-        }
-    }
+  }
 }

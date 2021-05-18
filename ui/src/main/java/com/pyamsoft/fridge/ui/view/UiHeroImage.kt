@@ -30,51 +30,47 @@ import com.pyamsoft.pydroid.arch.UiViewState
 import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.loader.Loaded
 
-abstract class UiHeroImage<S : UiViewState, V : UiViewEvent> protected constructor(
+abstract class UiHeroImage<S : UiViewState, V : UiViewEvent>
+protected constructor(
     parent: ViewGroup,
     owner: LifecycleOwner,
     appBarActivity: AppBarActivity,
     private val imageLoader: ImageLoader,
 ) : BaseUiView<S, V, UiHeroImageBinding>(parent) {
 
-    override val viewBinding = UiHeroImageBinding::inflate
+  override val viewBinding = UiHeroImageBinding::inflate
 
-    override val layoutRoot by boundView { coreHeroRoot }
+  override val layoutRoot by boundView { coreHeroRoot }
 
-    private var loaded: Loaded? = null
+  private var loaded: Loaded? = null
 
-    init {
-        doOnInflate {
-            binding.coreHeroCollapse.applyToolbarOffset(appBarActivity, owner)
-        }
+  init {
+    doOnInflate { binding.coreHeroCollapse.applyToolbarOffset(appBarActivity, owner) }
 
-        doOnTeardown {
-            clear()
-        }
-    }
+    doOnTeardown { clear() }
+  }
 
-    private fun clear() {
-        loaded?.dispose()
-        loaded = null
-    }
+  private fun clear() {
+    loaded?.dispose()
+    loaded = null
+  }
 
-    override fun onRender(state: UiRender<S>) {
-        state.render(viewScope) { loadImage(it) }
-        onAdditionalRender(state)
-    }
+  override fun onRender(state: UiRender<S>) {
+    state.render(viewScope) { loadImage(it) }
+    onAdditionalRender(state)
+  }
 
-    private fun loadImage(state: S) {
-        clear()
-        loaded = onLoadImage(binding.coreHeroImage, imageLoader, state)
-    }
+  private fun loadImage(state: S) {
+    clear()
+    loaded = onLoadImage(binding.coreHeroImage, imageLoader, state)
+  }
 
-    protected open fun onAdditionalRender(state: UiRender<S>) {
-    }
+  protected open fun onAdditionalRender(state: UiRender<S>) {}
 
-    @CheckResult
-    protected abstract fun onLoadImage(
-        imageView: ImageView,
-        imageLoader: ImageLoader,
-        state: S,
-    ): Loaded?
+  @CheckResult
+  protected abstract fun onLoadImage(
+      imageView: ImageView,
+      imageLoader: ImageLoader,
+      state: S,
+  ): Loaded?
 }

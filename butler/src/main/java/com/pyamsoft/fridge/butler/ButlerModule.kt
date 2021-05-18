@@ -34,54 +34,54 @@ import dagger.Provides
 import dagger.multibindings.IntoSet
 import javax.inject.Qualifier
 
-@Qualifier
-@Retention(AnnotationRetention.BINARY)
-internal annotation class ButlerInternalApi
+@Qualifier @Retention(AnnotationRetention.BINARY) internal annotation class ButlerInternalApi
 
 @Module
 abstract class ButlerModule {
 
-    @Binds
+  @Binds
+  @CheckResult
+  internal abstract fun bindNotificationHandler(impl: NotificationHandlerImpl): NotificationHandler
+
+  @Binds
+  @IntoSet
+  @ButlerInternalApi
+  internal abstract fun bindNeededDispatcher(impl: NeededItemNotifyDispatcher): NotifyDispatcher<*>
+
+  @Binds
+  @IntoSet
+  @ButlerInternalApi
+  internal abstract fun bindExpiringDispatcher(
+      impl: ExpiringItemNotifyDispatcher
+  ): NotifyDispatcher<*>
+
+  @Binds
+  @IntoSet
+  @ButlerInternalApi
+  internal abstract fun bindExpiredDispatcher(
+      impl: ExpiredItemNotifyDispatcher
+  ): NotifyDispatcher<*>
+
+  @Binds
+  @IntoSet
+  @ButlerInternalApi
+  internal abstract fun bindNightlyDispatcher(impl: NightlyNotifyDispatcher): NotifyDispatcher<*>
+
+  @Binds @CheckResult internal abstract fun bindOrderFactory(impl: OrderFactoryImpl): OrderFactory
+
+  @Module
+  companion object {
+
+    @Provides
+    @JvmStatic
     @CheckResult
-    internal abstract fun bindNotificationHandler(impl: NotificationHandlerImpl): NotificationHandler
-
-    @Binds
-    @IntoSet
     @ButlerInternalApi
-    internal abstract fun bindNeededDispatcher(impl: NeededItemNotifyDispatcher): NotifyDispatcher<*>
-
-    @Binds
-    @IntoSet
-    @ButlerInternalApi
-    internal abstract fun bindExpiringDispatcher(impl: ExpiringItemNotifyDispatcher): NotifyDispatcher<*>
-
-    @Binds
-    @IntoSet
-    @ButlerInternalApi
-    internal abstract fun bindExpiredDispatcher(impl: ExpiredItemNotifyDispatcher): NotifyDispatcher<*>
-
-    @Binds
-    @IntoSet
-    @ButlerInternalApi
-    internal abstract fun bindNightlyDispatcher(impl: NightlyNotifyDispatcher): NotifyDispatcher<*>
-
-    @Binds
-    @CheckResult
-    internal abstract fun bindOrderFactory(impl: OrderFactoryImpl): OrderFactory
-
-    @Module
-    companion object {
-
-        @Provides
-        @JvmStatic
-        @CheckResult
-        @ButlerInternalApi
-        internal fun provideNotifier(
-            // Need to use MutableSet instead of Set because of Java -> Kotlin fun.
-            @ButlerInternalApi dispatchers: MutableSet<NotifyDispatcher<*>>,
-            context: Context
-        ): Notifier {
-            return Notifier.createDefault(context, dispatchers)
-        }
+    internal fun provideNotifier(
+        // Need to use MutableSet instead of Set because of Java -> Kotlin fun.
+        @ButlerInternalApi dispatchers: MutableSet<NotifyDispatcher<*>>,
+        context: Context
+    ): Notifier {
+      return Notifier.createDefault(context, dispatchers)
     }
+  }
 }

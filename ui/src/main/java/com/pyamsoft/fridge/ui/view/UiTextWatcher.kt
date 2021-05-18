@@ -18,6 +18,5 @@ package com.pyamsoft.fridge.ui.view
 
 fun interface UiTextWatcher {
 
-    fun onTextChanged(oldText: String, newText: String)
-
+  fun onTextChanged(oldText: String, newText: String)
 }

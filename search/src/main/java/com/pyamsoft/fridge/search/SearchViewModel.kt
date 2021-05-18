@@ -28,45 +28,42 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 
-class SearchViewModel @AssistedInject internal constructor(
+class SearchViewModel
+@AssistedInject
+internal constructor(
     private val delegate: DetailListStateModel,
     @Assisted savedState: UiSavedState
-) : UiSavedStateViewModel<DetailViewState, UnitControllerEvent>(
-    savedState, initialState = delegate.initialState
-) {
+) :
+    UiSavedStateViewModel<DetailViewState, UnitControllerEvent>(
+        savedState, initialState = delegate.initialState) {
 
-    init {
-        val scope = viewModelScope
-        val job = delegate.bindState(scope, Renderable { state ->
-            state.render(scope) { scope.setState { it } }
-        })
-        doOnCleared {
-            job.cancel()
-        }
-        doOnCleared {
-            delegate.clear()
-        }
+  init {
+    val scope = viewModelScope
+    val job =
+        delegate.bindState(
+            scope, Renderable { state -> state.render(scope) { scope.setState { it } } })
+    doOnCleared { job.cancel() }
+    doOnCleared { delegate.clear() }
 
-        delegate.initialize(scope)
+    delegate.initialize(scope)
+  }
+
+  fun handleUpdateSearch(search: String) {
+    delegate.handleUpdateSearch(viewModelScope, search) { newSearch ->
+      if (newSearch.isNotBlank()) {
+        putSavedState(SAVED_SEARCH, newSearch)
+      } else {
+        removeSavedState(SAVED_SEARCH)
+      }
     }
+  }
 
-    fun handleUpdateSearch(search: String) {
-        delegate.handleUpdateSearch(viewModelScope, search) { newSearch ->
-            if (newSearch.isNotBlank()) {
-                putSavedState(SAVED_SEARCH, newSearch)
-            } else {
-                removeSavedState(SAVED_SEARCH)
-            }
-        }
-    }
+  companion object {
+    private const val SAVED_SEARCH = "search"
+  }
 
-    companion object {
-        private const val SAVED_SEARCH = "search"
-    }
-
-    @AssistedFactory
-    interface Factory : UiSavedStateViewModelProvider<SearchViewModel> {
-        override fun create(savedState: UiSavedState): SearchViewModel
-    }
-
+  @AssistedFactory
+  interface Factory : UiSavedStateViewModelProvider<SearchViewModel> {
+    override fun create(savedState: UiSavedState): SearchViewModel
+  }
 }

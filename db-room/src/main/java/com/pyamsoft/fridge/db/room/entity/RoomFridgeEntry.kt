@@ -26,106 +26,86 @@ import com.pyamsoft.fridge.db.entry.FridgeEntry
 import java.util.Date
 
 @Entity(tableName = RoomFridgeEntry.TABLE_NAME)
-internal data class RoomFridgeEntry internal constructor(
-    @JvmField
-    @PrimaryKey
-    @ColumnInfo(name = COLUMN_ID)
-    val id: FridgeEntry.Id,
-
-    @JvmField
-    @ColumnInfo(name = COLUMN_NAME)
-    val name: String,
-
-    @JvmField
-    @ColumnInfo(name = COLUMN_CREATED_TIME)
-    val createdTime: Date,
-
-    @JvmField
-    @ColumnInfo(name = COLUMN_ARCHIVED_AT)
-    val archivedAt: Date?
+internal data class RoomFridgeEntry
+internal constructor(
+    @JvmField @PrimaryKey @ColumnInfo(name = COLUMN_ID) val id: FridgeEntry.Id,
+    @JvmField @ColumnInfo(name = COLUMN_NAME) val name: String,
+    @JvmField @ColumnInfo(name = COLUMN_CREATED_TIME) val createdTime: Date,
+    @JvmField @ColumnInfo(name = COLUMN_ARCHIVED_AT) val archivedAt: Date?
 ) : FridgeEntry {
 
-    @Ignore
-    override fun id(): FridgeEntry.Id {
-        return id
-    }
+  @Ignore
+  override fun id(): FridgeEntry.Id {
+    return id
+  }
+
+  @Ignore
+  override fun name(): String {
+    return name
+  }
+
+  @Ignore
+  override fun createdTime(): Date {
+    return createdTime
+  }
+
+  @Ignore
+  override fun archivedAt(): Date? {
+    return archivedAt
+  }
+
+  @Ignore
+  override fun isArchived(): Boolean {
+    return archivedAt != null
+  }
+
+  @Ignore
+  override fun isReal(): Boolean {
+    return true
+  }
+
+  @Ignore
+  override fun archive(): FridgeEntry {
+    require(isReal()) { "Cannot archive non-real entry: $this" }
+    return FridgeEntry.create(this, archivedAt = today().time, isReal = isReal())
+  }
+
+  @Ignore
+  override fun invalidateArchived(): FridgeEntry {
+    require(isReal()) { "Cannot archive non-real entry: $this" }
+    return FridgeEntry.create(this, archivedAt = null, isReal = isReal())
+  }
+
+  @Ignore
+  override fun name(name: String): FridgeEntry {
+    return FridgeEntry.create(this, name = name, isReal = isReal())
+  }
+
+  @Ignore
+  override fun makeReal(): FridgeEntry {
+    return FridgeEntry.create(this, isReal = true)
+  }
+
+  companion object {
+
+    @Ignore internal const val TABLE_NAME = "room_fridge_entry_table"
+
+    @Ignore internal const val COLUMN_ID = "_id"
+
+    @Ignore internal const val COLUMN_NAME = "name"
+
+    @Ignore internal const val COLUMN_CREATED_TIME = "created_time"
+
+    @Ignore internal const val COLUMN_ARCHIVED_AT = "archived_at"
 
     @Ignore
-    override fun name(): String {
-        return name
+    @JvmStatic
+    @CheckResult
+    internal fun create(entry: FridgeEntry): RoomFridgeEntry {
+      return if (entry is RoomFridgeEntry) entry
+      else {
+        RoomFridgeEntry(entry.id(), entry.name(), entry.createdTime(), entry.archivedAt())
+      }
     }
-
-    @Ignore
-    override fun createdTime(): Date {
-        return createdTime
-    }
-
-    @Ignore
-    override fun archivedAt(): Date? {
-        return archivedAt
-    }
-
-    @Ignore
-    override fun isArchived(): Boolean {
-        return archivedAt != null
-    }
-
-    @Ignore
-    override fun isReal(): Boolean {
-        return true
-    }
-
-    @Ignore
-    override fun archive(): FridgeEntry {
-        require(isReal()) { "Cannot archive non-real entry: $this" }
-        return FridgeEntry.create(this, archivedAt = today().time, isReal = isReal())
-    }
-
-    @Ignore
-    override fun invalidateArchived(): FridgeEntry {
-        require(isReal()) { "Cannot archive non-real entry: $this" }
-        return FridgeEntry.create(this, archivedAt = null, isReal = isReal())
-    }
-
-    @Ignore
-    override fun name(name: String): FridgeEntry {
-        return FridgeEntry.create(this, name = name, isReal = isReal())
-    }
-
-    @Ignore
-    override fun makeReal(): FridgeEntry {
-        return FridgeEntry.create(this, isReal = true)
-    }
-
-    companion object {
-
-        @Ignore
-        internal const val TABLE_NAME = "room_fridge_entry_table"
-
-        @Ignore
-        internal const val COLUMN_ID = "_id"
-
-        @Ignore
-        internal const val COLUMN_NAME = "name"
-
-        @Ignore
-        internal const val COLUMN_CREATED_TIME = "created_time"
-
-        @Ignore
-        internal const val COLUMN_ARCHIVED_AT = "archived_at"
-
-        @Ignore
-        @JvmStatic
-        @CheckResult
-        internal fun create(entry: FridgeEntry): RoomFridgeEntry {
-            return if (entry is RoomFridgeEntry) entry else {
-                RoomFridgeEntry(
-                    entry.id(),
-                    entry.name(),
-                    entry.createdTime(),
-                    entry.archivedAt()
-                )
-            }
-        }
-    }
+  }
 }

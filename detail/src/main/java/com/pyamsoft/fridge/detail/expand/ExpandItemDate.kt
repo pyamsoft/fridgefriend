@@ -24,25 +24,23 @@ import com.pyamsoft.pydroid.ui.theme.ThemeProvider
 import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
 import javax.inject.Inject
 
-class ExpandItemDate @Inject internal constructor(
+class ExpandItemDate
+@Inject
+internal constructor(
     imageLoader: ImageLoader,
     theming: ThemeProvider,
     parent: ViewGroup,
 ) : BaseItemDate<ExpandedViewState, ExpandedViewEvent.ItemEvent>(imageLoader, theming, parent) {
 
-    init {
-        doOnInflate {
-            layoutRoot.setOnDebouncedClickListener {
-                publish(ExpandedViewEvent.ItemEvent.PickDate)
-            }
-        }
-
-        doOnTeardown {
-            layoutRoot.setOnDebouncedClickListener(null)
-        }
+  init {
+    doOnInflate {
+      layoutRoot.setOnDebouncedClickListener { publish(ExpandedViewEvent.ItemEvent.PickDate) }
     }
 
-    override fun onRender(state: UiRender<ExpandedViewState>) {
-        state.mapChanged { it.item }.render(viewScope) { renderItem(it) }
-    }
+    doOnTeardown { layoutRoot.setOnDebouncedClickListener(null) }
+  }
+
+  override fun onRender(state: UiRender<ExpandedViewState>) {
+    state.mapChanged { it.item }.render(viewScope) { renderItem(it) }
+  }
 }

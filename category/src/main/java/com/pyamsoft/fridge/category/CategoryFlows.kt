@@ -20,12 +20,9 @@ import com.pyamsoft.fridge.db.category.FridgeCategory
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.pydroid.arch.UiViewState
 
-data class CategoryViewState internal constructor(
-    val categories: List<CategoryItemsPairing>
-) : UiViewState {
+data class CategoryViewState internal constructor(val categories: List<CategoryItemsPairing>) :
+    UiViewState {
 
-    data class CategoryItemsPairing internal constructor(
-        val category: FridgeCategory,
-        val items: List<FridgeItem>
-    )
+  data class CategoryItemsPairing
+  internal constructor(val category: FridgeCategory, val items: List<FridgeItem>)
 }

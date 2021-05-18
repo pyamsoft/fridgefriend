@@ -23,17 +23,19 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 
-class DetailListViewModel @AssistedInject internal constructor(
+class DetailListViewModel
+@AssistedInject
+internal constructor(
     delegate: DetailListStateModel,
     @Assisted savedState: UiSavedState,
 ) : BaseExpandDetailViewModel<DetailControllerEvent.ListEvent>(delegate, savedState) {
 
-    override fun onExpand(item: FridgeItem) {
-        publish(DetailControllerEvent.ListEvent.ExpandItem(item))
-    }
+  override fun onExpand(item: FridgeItem) {
+    publish(DetailControllerEvent.ListEvent.ExpandItem(item))
+  }
 
-    @AssistedFactory
-    interface Factory : UiSavedStateViewModelProvider<DetailListViewModel> {
-        override fun create(savedState: UiSavedState): DetailListViewModel
-    }
+  @AssistedFactory
+  interface Factory : UiSavedStateViewModelProvider<DetailListViewModel> {
+    override fun create(savedState: UiSavedState): DetailListViewModel
+  }
 }

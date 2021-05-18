@@ -21,7 +21,7 @@ import com.pyamsoft.pydroid.ui.app.ToolbarActivity
 
 interface AppBarActivity : ToolbarActivity {
 
-    fun withAppBar(func: (AppBarLayout) -> Unit)
+  fun withAppBar(func: (AppBarLayout) -> Unit)
 
-    fun requireAppBar(func: (AppBarLayout) -> Unit)
+  fun requireAppBar(func: (AppBarLayout) -> Unit)
 }

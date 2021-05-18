@@ -21,21 +21,19 @@ import com.pyamsoft.pydroid.util.PreferenceListener
 
 interface DetailPreferences {
 
-    @CheckResult
-    suspend fun isQuickAddEnabled(): Boolean
+  @CheckResult suspend fun isQuickAddEnabled(): Boolean
 
-    @CheckResult
-    suspend fun isZeroCountConsideredConsumed(): Boolean
+  @CheckResult suspend fun isZeroCountConsideredConsumed(): Boolean
 
-    @CheckResult
-    suspend fun getExpiringSoonRange(): Int
+  @CheckResult suspend fun getExpiringSoonRange(): Int
 
-    @CheckResult
-    suspend fun isSameDayExpired(): Boolean
+  @CheckResult suspend fun isSameDayExpired(): Boolean
 
-    @CheckResult
-    suspend fun watchForExpiringSoonChange(onChange: (newRange: Int) -> Unit): PreferenceListener
+  @CheckResult
+  suspend fun watchForExpiringSoonChange(onChange: (newRange: Int) -> Unit): PreferenceListener
 
-    @CheckResult
-    suspend fun watchForSameDayExpiredChange(onChange: (newSameDay: Boolean) -> Unit): PreferenceListener
+  @CheckResult
+  suspend fun watchForSameDayExpiredChange(
+      onChange: (newSameDay: Boolean) -> Unit
+  ): PreferenceListener
 }

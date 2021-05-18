@@ -23,26 +23,25 @@ import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.arch.UiRender
 import javax.inject.Inject
 
-class DetailListItemName @Inject internal constructor(
+class DetailListItemName
+@Inject
+internal constructor(
     parent: ViewGroup,
 ) : BaseUiView<DetailItemViewState, DetailItemViewEvent, DetailListItemNameBinding>(parent) {
 
-    override val viewBinding = DetailListItemNameBinding::inflate
+  override val viewBinding = DetailListItemNameBinding::inflate
 
-    override val layoutRoot by boundView { detailItemNameRoot }
+  override val layoutRoot by boundView { detailItemNameRoot }
 
-    init {
-        doOnTeardown {
-            binding.detailItemName.text = ""
-        }
-    }
+  init {
+    doOnTeardown { binding.detailItemName.text = "" }
+  }
 
-    override fun onRender(state: UiRender<DetailItemViewState>) {
-        state.mapChanged { it.item }.render(viewScope) { handleItem(it) }
-    }
+  override fun onRender(state: UiRender<DetailItemViewState>) {
+    state.mapChanged { it.item }.render(viewScope) { handleItem(it) }
+  }
 
-    private fun handleItem(item: FridgeItem) {
-        binding.detailItemName.text = item.name()
-    }
-
+  private fun handleItem(item: FridgeItem) {
+    binding.detailItemName.text = item.name()
+  }
 }

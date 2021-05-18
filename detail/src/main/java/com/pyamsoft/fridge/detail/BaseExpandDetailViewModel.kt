@@ -21,54 +21,51 @@ import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.pydroid.arch.UiControllerEvent
 import com.pyamsoft.pydroid.arch.UiSavedState
 
-abstract class BaseExpandDetailViewModel<C : UiControllerEvent> protected constructor(
+abstract class BaseExpandDetailViewModel<C : UiControllerEvent>
+protected constructor(
     private val delegate: DetailListStateModel,
     savedState: UiSavedState,
-) : BaseDetailViewModel<C>(
-    delegate, savedState
-) {
+) : BaseDetailViewModel<C>(delegate, savedState) {
 
-    fun handleRefreshList(force: Boolean) {
-        delegate.handleRefreshList(viewModelScope, force)
-    }
+  fun handleRefreshList(force: Boolean) {
+    delegate.handleRefreshList(viewModelScope, force)
+  }
 
-    fun handleCommitPresence(index: Int) {
-        delegate.handleCommitPresence(viewModelScope, index)
-    }
+  fun handleCommitPresence(index: Int) {
+    delegate.handleCommitPresence(viewModelScope, index)
+  }
 
-    fun handleDelete(index: Int) {
-        delegate.handleDelete(viewModelScope, index)
-    }
+  fun handleDelete(index: Int) {
+    delegate.handleDelete(viewModelScope, index)
+  }
 
-    fun handleConsume(index: Int) {
-        delegate.handleConsume(viewModelScope, index)
-    }
+  fun handleConsume(index: Int) {
+    delegate.handleConsume(viewModelScope, index)
+  }
 
-    fun handleRestore(index: Int) {
-        delegate.handleRestore(viewModelScope, index)
-    }
+  fun handleRestore(index: Int) {
+    delegate.handleRestore(viewModelScope, index)
+  }
 
-    fun handleSpoil(index: Int) {
-        delegate.handleSpoil(viewModelScope, index)
-    }
+  fun handleSpoil(index: Int) {
+    delegate.handleSpoil(viewModelScope, index)
+  }
 
-    fun handleIncreaseCount(index: Int) {
-        delegate.handleIncreaseCount(viewModelScope, index)
-    }
+  fun handleIncreaseCount(index: Int) {
+    delegate.handleIncreaseCount(viewModelScope, index)
+  }
 
-    fun handleDecreaseCount(index: Int) {
-        delegate.handleDecreaseCount(viewModelScope, index)
-    }
+  fun handleDecreaseCount(index: Int) {
+    delegate.handleDecreaseCount(viewModelScope, index)
+  }
 
-    private inline fun withItemAt(index: Int, block: (FridgeItem) -> Unit) {
-        block(state.displayedItems[index])
-    }
+  private inline fun withItemAt(index: Int, block: (FridgeItem) -> Unit) {
+    block(state.displayedItems[index])
+  }
 
-    fun handleExpand(index: Int) {
-        withItemAt(index) {
-            onExpand(it)
-        }
-    }
+  fun handleExpand(index: Int) {
+    withItemAt(index) { onExpand(it) }
+  }
 
-    protected abstract fun onExpand(item: FridgeItem)
+  protected abstract fun onExpand(item: FridgeItem)
 }

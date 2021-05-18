@@ -29,51 +29,48 @@ import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.arch.UiRender
 import javax.inject.Inject
 
-class ExpandItemCount @Inject internal constructor(
+class ExpandItemCount
+@Inject
+internal constructor(
     parent: ViewGroup,
 ) : BaseUiView<ExpandedViewState, ExpandedViewEvent.ItemEvent, ExpandCountBinding>(parent) {
 
-    override val viewBinding = ExpandCountBinding::inflate
+  override val viewBinding = ExpandCountBinding::inflate
 
-    override val layoutRoot by boundView { expandItemCount }
+  override val layoutRoot by boundView { expandItemCount }
 
-    private val delegate by lazy {
-        UiEditTextDelegate(binding.expandItemCountEditable) { _, newText ->
-            publish(ExpandedViewEvent.ItemEvent.CommitCount(newText.toIntOrNull() ?: 0))
-        }
+  private val delegate by lazy {
+    UiEditTextDelegate(binding.expandItemCountEditable) { _, newText ->
+      publish(ExpandedViewEvent.ItemEvent.CommitCount(newText.toIntOrNull() ?: 0))
     }
+  }
 
-    init {
-        doOnInflate {
-            delegate.create()
-        }
+  init {
+    doOnInflate { delegate.create() }
 
-        doOnTeardown {
-            delegate.destroy()
-        }
+    doOnTeardown { delegate.destroy() }
+  }
+
+  override fun onRender(state: UiRender<ExpandedViewState>) {
+    state.mapChanged { it.item }.render(viewScope) { handleEditable(it) }
+    state.mapChanged { it.item }.render(viewScope) { handleCount(it) }
+  }
+
+  @CheckResult
+  private fun getCountAsText(item: FridgeItem): String {
+    val count = item.count()
+    return if (count > 0) "$count" else ""
+  }
+
+  private fun handleCount(item: FridgeItem?) {
+    item?.let { delegate.render(getCountAsText(it)) }
+  }
+
+  private fun handleEditable(item: FridgeItem?) {
+    val isEditable = if (item == null) false else !item.isArchived()
+    if (binding.expandItemCountEditable.isEditable != isEditable) {
+      val inputType = if (isEditable) InputType.TYPE_CLASS_NUMBER else InputType.TYPE_NULL
+      binding.expandItemCountEditable.setEditable(inputType)
     }
-
-    override fun onRender(state: UiRender<ExpandedViewState>) {
-        state.mapChanged { it.item }.render(viewScope) { handleEditable(it) }
-        state.mapChanged { it.item }.render(viewScope) { handleCount(it) }
-    }
-
-    @CheckResult
-    private fun getCountAsText(item: FridgeItem): String {
-        val count = item.count()
-        return if (count > 0) "$count" else ""
-    }
-
-    private fun handleCount(item: FridgeItem?) {
-        item?.let { delegate.render(getCountAsText(it)) }
-    }
-
-    private fun handleEditable(item: FridgeItem?) {
-        val isEditable = if (item == null) false else !item.isArchived()
-        if (binding.expandItemCountEditable.isEditable != isEditable) {
-            val inputType = if (isEditable) InputType.TYPE_CLASS_NUMBER else InputType.TYPE_NULL
-            binding.expandItemCountEditable.setEditable(inputType)
-        }
-    }
-
+  }
 }

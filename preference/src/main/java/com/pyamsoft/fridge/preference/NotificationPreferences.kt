@@ -21,12 +21,9 @@ import java.util.Calendar
 
 interface NotificationPreferences {
 
-    @CheckResult
-    suspend fun canNotify(now: Calendar, lastNotificationTime: Long): Boolean
+  @CheckResult suspend fun canNotify(now: Calendar, lastNotificationTime: Long): Boolean
 
-    @CheckResult
-    suspend fun getNotificationPeriod(): Long
+  @CheckResult suspend fun getNotificationPeriod(): Long
 
-    @CheckResult
-    suspend fun isDoNotDisturb(now: Calendar): Boolean
+  @CheckResult suspend fun isDoNotDisturb(now: Calendar): Boolean
 }

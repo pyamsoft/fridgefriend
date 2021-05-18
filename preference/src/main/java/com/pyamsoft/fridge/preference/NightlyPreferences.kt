@@ -21,9 +21,7 @@ import java.util.Calendar
 
 interface NightlyPreferences {
 
-    @CheckResult
-    suspend fun getLastNotificationTimeNightly(): Long
+  @CheckResult suspend fun getLastNotificationTimeNightly(): Long
 
-    suspend fun markNotificationNightly(calendar: Calendar)
-
+  suspend fun markNotificationNightly(calendar: Calendar)
 }

@@ -28,10 +28,10 @@ import kotlinx.coroutines.withContext
 @Dao
 internal abstract class RoomFridgeCategoryQueryDao internal constructor() : FridgeCategoryQueryDao {
 
-    final override suspend fun query(force: Boolean): List<FridgeCategory> =
-        withContext(context = Dispatchers.IO) { daoQuery() }
+  final override suspend fun query(force: Boolean): List<FridgeCategory> =
+      withContext(context = Dispatchers.IO) { daoQuery() }
 
-    @CheckResult
-    @Query("SELECT * FROM ${RoomFridgeCategory.TABLE_NAME}")
-    internal abstract suspend fun daoQuery(): List<RoomFridgeCategory>
+  @CheckResult
+  @Query("SELECT * FROM ${RoomFridgeCategory.TABLE_NAME}")
+  internal abstract suspend fun daoQuery(): List<RoomFridgeCategory>
 }

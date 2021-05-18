@@ -24,12 +24,11 @@ import dagger.Subcomponent
 @Subcomponent
 interface CategoryItemComponent {
 
-    fun inject(holder: CategoryViewHolder)
+  fun inject(holder: CategoryViewHolder)
 
-    @Subcomponent.Factory
-    interface Factory {
+  @Subcomponent.Factory
+  interface Factory {
 
-        @CheckResult
-        fun create(@BindsInstance parent: ViewGroup): CategoryItemComponent
-    }
+    @CheckResult fun create(@BindsInstance parent: ViewGroup): CategoryItemComponent
+  }
 }

@@ -21,15 +21,14 @@ import com.pyamsoft.fridge.detail.base.BaseItemPresence
 import com.pyamsoft.pydroid.arch.UiRender
 import javax.inject.Inject
 
-class ExpandItemPresence @Inject internal constructor(
-    parent: ViewGroup
-) : BaseItemPresence<ExpandedViewState, ExpandedViewEvent.ItemEvent>(parent) {
+class ExpandItemPresence @Inject internal constructor(parent: ViewGroup) :
+    BaseItemPresence<ExpandedViewState, ExpandedViewEvent.ItemEvent>(parent) {
 
-    override fun onRender(state: UiRender<ExpandedViewState>) {
-        state.mapChanged { it.item }.render(viewScope) { renderItem(it) }
-    }
+  override fun onRender(state: UiRender<ExpandedViewState>) {
+    state.mapChanged { it.item }.render(viewScope) { renderItem(it) }
+  }
 
-    override fun publishChangePresence() {
-        publish(ExpandedViewEvent.ItemEvent.CommitPresence)
-    }
+  override fun publishChangePresence() {
+    publish(ExpandedViewEvent.ItemEvent.CommitPresence)
+  }
 }

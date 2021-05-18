@@ -21,9 +21,9 @@ import android.view.ViewGroup
 import androidx.annotation.CheckResult
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModel
-import com.pyamsoft.fridge.ui.ThemeProviderModule
 import com.pyamsoft.fridge.core.ViewModelFactoryModule
 import com.pyamsoft.fridge.tooltip.balloon.TooltipModule
+import com.pyamsoft.fridge.ui.ThemeProviderModule
 import com.pyamsoft.fridge.ui.appbar.AppBarActivity
 import com.pyamsoft.pydroid.ui.app.ToolbarActivity
 import dagger.Binds
@@ -34,36 +34,35 @@ import dagger.multibindings.ClassKey
 import dagger.multibindings.IntoMap
 
 @Subcomponent(
-    modules = [
-        EntryComponent.ComponentModule::class,
-        ViewModelFactoryModule::class,
-        ThemeProviderModule::class,
-        TooltipModule::class
-    ]
-)
+    modules =
+        [
+            EntryComponent.ComponentModule::class,
+            ViewModelFactoryModule::class,
+            ThemeProviderModule::class,
+            TooltipModule::class])
 internal interface EntryComponent {
 
-    fun inject(fragment: EntryFragment)
+  fun inject(fragment: EntryFragment)
 
-    @Subcomponent.Factory
-    interface Factory {
+  @Subcomponent.Factory
+  interface Factory {
 
-        @CheckResult
-        fun create(
-            @BindsInstance appBarActivity: AppBarActivity,
-            @BindsInstance toolbarActivity: ToolbarActivity,
-            @BindsInstance activity: Activity,
-            @BindsInstance owner: LifecycleOwner,
-            @BindsInstance parent: ViewGroup,
-        ): EntryComponent
-    }
+    @CheckResult
+    fun create(
+        @BindsInstance appBarActivity: AppBarActivity,
+        @BindsInstance toolbarActivity: ToolbarActivity,
+        @BindsInstance activity: Activity,
+        @BindsInstance owner: LifecycleOwner,
+        @BindsInstance parent: ViewGroup,
+    ): EntryComponent
+  }
 
-    @Module
-    abstract class ComponentModule {
+  @Module
+  abstract class ComponentModule {
 
-        @Binds
-        @IntoMap
-        @ClassKey(EntryViewModel::class)
-        internal abstract fun bindViewModel(impl: EntryViewModel): ViewModel
-    }
+    @Binds
+    @IntoMap
+    @ClassKey(EntryViewModel::class)
+    internal abstract fun bindViewModel(impl: EntryViewModel): ViewModel
+  }
 }

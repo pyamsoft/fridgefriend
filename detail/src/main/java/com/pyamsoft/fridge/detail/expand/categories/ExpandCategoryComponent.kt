@@ -25,15 +25,15 @@ import dagger.Subcomponent
 @Subcomponent
 interface ExpandCategoryComponent {
 
-    fun inject(holder: ExpandedCategoryViewHolder)
+  fun inject(holder: ExpandedCategoryViewHolder)
 
-    @Subcomponent.Factory
-    interface Factory {
+  @Subcomponent.Factory
+  interface Factory {
 
-        @CheckResult
-        fun create(
-            @BindsInstance parent: ViewGroup,
-            @BindsInstance themeProvider: ThemeProvider,
-        ): ExpandCategoryComponent
-    }
+    @CheckResult
+    fun create(
+        @BindsInstance parent: ViewGroup,
+        @BindsInstance themeProvider: ThemeProvider,
+    ): ExpandCategoryComponent
+  }
 }

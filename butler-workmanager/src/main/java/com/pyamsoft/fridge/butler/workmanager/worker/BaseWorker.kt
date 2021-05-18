@@ -28,36 +28,33 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import timber.log.Timber
 
-internal abstract class BaseWorker<P : BaseParameters> protected constructor(
-    context: Context,
-    params: WorkerParameters
-) : CoroutineWorker(context.applicationContext, params) {
+internal abstract class BaseWorker<P : BaseParameters>
+protected constructor(context: Context, params: WorkerParameters) :
+    CoroutineWorker(context.applicationContext, params) {
 
-    final override suspend fun doWork(): Result = withContext(context = Dispatchers.Default) {
+  final override suspend fun doWork(): Result =
+      withContext(context = Dispatchers.Default) {
         val injector = getInjector(applicationContext)
-        return@withContext when (val result = injector.execute(
-            id, tags.toSet(), getParams(inputData)
-        )) {
-            is WorkResult.Success -> {
-                Timber.d("Work succeeded ${result.id}")
-                Result.success()
-            }
-            is WorkResult.Cancel -> {
-                Timber.w("Work cancelled: ${result.id}")
+        return@withContext when (val result =
+            injector.execute(id, tags.toSet(), getParams(inputData))) {
+          is WorkResult.Success -> {
+            Timber.d("Work succeeded ${result.id}")
+            Result.success()
+          }
+          is WorkResult.Cancel -> {
+            Timber.w("Work cancelled: ${result.id}")
 
-                // Return success so that the work chain continues, even though the work was cancelled
-                Result.success()
-            }
-            is WorkResult.Failure -> {
-                Timber.e("Work failed: ${result.id}")
-                Result.failure()
-            }
+            // Return success so that the work chain continues, even though the work was cancelled
+            Result.success()
+          }
+          is WorkResult.Failure -> {
+            Timber.e("Work failed: ${result.id}")
+            Result.failure()
+          }
         }
-    }
+      }
 
-    @CheckResult
-    protected abstract fun getInjector(context: Context): BaseInjector<P>
+  @CheckResult protected abstract fun getInjector(context: Context): BaseInjector<P>
 
-    @CheckResult
-    protected abstract fun getParams(data: Data): P
+  @CheckResult protected abstract fun getParams(data: Data): P
 }

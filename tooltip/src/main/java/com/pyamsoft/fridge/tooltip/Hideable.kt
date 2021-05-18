@@ -18,5 +18,5 @@ package com.pyamsoft.fridge.tooltip
 
 interface Hideable {
 
-    fun hide()
+  fun hide()
 }

@@ -27,17 +27,17 @@ import javax.inject.Named
 @Subcomponent
 interface DetailItemComponent {
 
-    fun inject(holder: DetailItemViewHolder)
+  fun inject(holder: DetailItemViewHolder)
 
-    @Subcomponent.Factory
-    interface Factory {
+  @Subcomponent.Factory
+  interface Factory {
 
-        @CheckResult
-        fun create(
-            @BindsInstance parent: ViewGroup,
-            @BindsInstance @Named("item_editable") editable: Boolean,
-            @BindsInstance themeProvider: ThemeProvider,
-            @BindsInstance tooltipCreator: TooltipCreator
-        ): DetailItemComponent
-    }
+    @CheckResult
+    fun create(
+        @BindsInstance parent: ViewGroup,
+        @BindsInstance @Named("item_editable") editable: Boolean,
+        @BindsInstance themeProvider: ThemeProvider,
+        @BindsInstance tooltipCreator: TooltipCreator
+    ): DetailItemComponent
+  }
 }

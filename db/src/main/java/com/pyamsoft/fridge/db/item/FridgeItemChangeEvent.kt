@@ -20,12 +20,12 @@ import com.pyamsoft.fridge.db.entry.FridgeEntry
 
 sealed class FridgeItemChangeEvent(val entryId: FridgeEntry.Id) {
 
-    data class Insert(val item: FridgeItem) : FridgeItemChangeEvent(item.entryId())
+  data class Insert(val item: FridgeItem) : FridgeItemChangeEvent(item.entryId())
 
-    data class Update(val item: FridgeItem) : FridgeItemChangeEvent(item.entryId())
+  data class Update(val item: FridgeItem) : FridgeItemChangeEvent(item.entryId())
 
-    data class Delete(
-        val item: FridgeItem,
-        val offerUndo: Boolean,
-    ) : FridgeItemChangeEvent(item.entryId())
+  data class Delete(
+      val item: FridgeItem,
+      val offerUndo: Boolean,
+  ) : FridgeItemChangeEvent(item.entryId())
 }

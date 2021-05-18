@@ -26,7 +26,6 @@ buildscript {
     mavenLocal()
     google()
     mavenCentral()
-    jcenter()
 
     maven {
       url "https://jitpack.io"
@@ -42,9 +41,9 @@ buildscript {
     maxSdk = 30
 
     // Us
-    pydroid = "23.0.2"
-    cachify = "0.0.22"
-    highlander = "0.0.17"
+    pydroid = "23.0.5"
+    cachify = "0.0.23"
+    highlander = "0.0.18"
 
     // Room
     room = "2.3.0"
@@ -117,7 +116,7 @@ allprojects {
     }
     kotlin {
       target "src/**/*.kt"
-      ktlint()
+      ktfmt()
 
       trimTrailingWhitespace()
       endWithNewline()
@@ -134,24 +133,15 @@ allprojects {
   }
 
   // Ignore non-release libraries
-  dependencyUpdates.resolutionStrategy {
-    componentSelection { rules ->
-      rules.all { selection ->
-        boolean rejected = [
-          'alpha',
-          'beta',
-          'rc',
-          'eap',
-          'cr',
-          'm',
-          'preview'
-        ].any { qualifier ->
-          selection.candidate.version ==~ /(?i).*[.-]${qualifier}[.\d-]*/
-        }
-        if (rejected) {
-          selection.reject('Release candidate')
-        }
-      }
+  def isNonStable = { String version ->
+    def stableKeyword = ['RELEASE', 'FINAL', 'GA'].any { version.toUpperCase().contains(it) }
+    def regex = /^[0-9,.v-]+(-r)?$/
+    return !stableKeyword && !(version ==~ regex)
+  }
+
+  tasks.named("dependencyUpdates").configure {
+    rejectVersionIf {
+      isNonStable(it.candidate.version)
     }
   }
 
@@ -159,7 +149,6 @@ allprojects {
     mavenLocal()
     google()
     mavenCentral()
-    jcenter()
 
     maven {
       url "https://jitpack.io"

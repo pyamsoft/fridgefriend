@@ -23,31 +23,27 @@ import com.pyamsoft.pydroid.arch.UiControllerEvent
 import com.pyamsoft.pydroid.arch.UiViewEvent
 import com.pyamsoft.pydroid.arch.UiViewState
 
-data class ItemMoveViewState internal constructor(
+data class ItemMoveViewState
+internal constructor(
     val item: FridgeItem?,
     val listState: EntryViewState,
 ) : UiViewState
 
 sealed class ItemMoveViewEvent : UiViewEvent {
 
-    data class SearchQuery(val search: String) : ItemMoveViewEvent()
+  data class SearchQuery(val search: String) : ItemMoveViewEvent()
 
-    data class ChangeSort(val sort: EntryViewState.Sorts) : ItemMoveViewEvent()
+  data class ChangeSort(val sort: EntryViewState.Sorts) : ItemMoveViewEvent()
 
-    object Close : ItemMoveViewEvent()
+  object Close : ItemMoveViewEvent()
 }
 
 sealed class ItemMoveControllerEvent : UiControllerEvent {
 
-    object Close : ItemMoveControllerEvent()
-
+  object Close : ItemMoveControllerEvent()
 }
 
 sealed class ItemMoveListControllerEvent : UiControllerEvent {
 
-    data class Selected internal constructor(
-        val entry: FridgeEntry
-    ) : ItemMoveListControllerEvent()
-
+  data class Selected internal constructor(val entry: FridgeEntry) : ItemMoveListControllerEvent()
 }
-

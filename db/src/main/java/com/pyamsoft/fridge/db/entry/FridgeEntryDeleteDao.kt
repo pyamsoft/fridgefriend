@@ -20,5 +20,5 @@ import com.pyamsoft.fridge.db.DbDelete
 
 interface FridgeEntryDeleteDao : DbDelete<FridgeEntry> {
 
-    suspend fun deleteAll()
+  suspend fun deleteAll()
 }

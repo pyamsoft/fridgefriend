@@ -20,22 +20,21 @@ import androidx.annotation.CheckResult
 import java.util.Calendar
 import java.util.Date
 
-const val PRIVACY_POLICY_URL =
-    "https://pyamsoft.blogspot.com/p/fridgefriend-privacy-policy.html"
+const val PRIVACY_POLICY_URL = "https://pyamsoft.blogspot.com/p/fridgefriend-privacy-policy.html"
 const val TERMS_CONDITIONS_URL =
     "https://pyamsoft.blogspot.com/p/fridgefriend-terms-and-conditions.html"
 
 @CheckResult
 fun currentDate(): Date {
-    return today().time
+  return today().time
 }
 
 @CheckResult
 fun today(): Calendar {
-    return Calendar.getInstance()
+  return Calendar.getInstance()
 }
 
 @CheckResult
 inline fun today(func: Calendar.() -> Unit): Calendar {
-    return Calendar.getInstance().apply(func)
+  return Calendar.getInstance().apply(func)
 }

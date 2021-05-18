@@ -22,28 +22,29 @@ import com.pyamsoft.pydroid.arch.UnitViewEvent
 import com.pyamsoft.pydroid.ui.arch.PrefUiView
 import javax.inject.Inject
 
-class SettingsSpacer @Inject internal constructor(
+class SettingsSpacer
+@Inject
+internal constructor(
     private val parent: PreferenceScreen,
 ) : PrefUiView<SettingsViewState, UnitViewEvent>(parent) {
 
-    private var space: PreferenceBottomSpace? = null
+  private var space: PreferenceBottomSpace? = null
 
-    private fun addSpacer(height: Int) {
-        space?.let { preference ->
-            parent.removePreference(preference)
+  private fun addSpacer(height: Int) {
+    space?.let { preference -> parent.removePreference(preference) }
+    space =
+        PreferenceBottomSpace(height, parent.context).also { preference ->
+          parent.addPreference(preference)
         }
-        space = PreferenceBottomSpace(height, parent.context).also { preference ->
-            parent.addPreference(preference)
-        }
-    }
+  }
 
-    override fun onRender(state: UiRender<SettingsViewState>) {
-        state.mapChanged { it.bottomOffset }.render(viewScope) { handleBottomMargin(it) }
-    }
+  override fun onRender(state: UiRender<SettingsViewState>) {
+    state.mapChanged { it.bottomOffset }.render(viewScope) { handleBottomMargin(it) }
+  }
 
-    private fun handleBottomMargin(height: Int) {
-        if (height > 0) {
-            addSpacer(height)
-        }
+  private fun handleBottomMargin(height: Int) {
+    if (height > 0) {
+      addSpacer(height)
     }
+  }
 }

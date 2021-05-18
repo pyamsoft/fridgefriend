@@ -22,23 +22,19 @@ import androidx.core.view.updateLayoutParams
 import androidx.preference.PreferenceViewHolder
 import com.pyamsoft.pydroid.ui.preference.PreferenceCompat
 
-internal class PreferenceBottomSpace internal constructor(
-    private val height: Int,
-    context: Context
-) : PreferenceCompat(context) {
+internal class PreferenceBottomSpace
+internal constructor(private val height: Int, context: Context) : PreferenceCompat(context) {
 
-    init {
-        layoutResource = R.layout.preference_spacer
-    }
+  init {
+    layoutResource = R.layout.preference_spacer
+  }
 
-    override fun onBindViewHolder(holder: PreferenceViewHolder) {
-        super.onBindViewHolder(holder)
-        height.let { h ->
-            if (h > 0) {
-                holder.itemView.updateLayoutParams<ViewGroup.LayoutParams> {
-                    height = h
-                }
-            }
-        }
+  override fun onBindViewHolder(holder: PreferenceViewHolder) {
+    super.onBindViewHolder(holder)
+    height.let { h ->
+      if (h > 0) {
+        holder.itemView.updateLayoutParams<ViewGroup.LayoutParams> { height = h }
+      }
     }
+  }
 }

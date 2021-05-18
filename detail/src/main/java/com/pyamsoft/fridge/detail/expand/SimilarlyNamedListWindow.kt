@@ -31,244 +31,238 @@ import timber.log.Timber
 
 internal class SimilarlyNamedListWindow internal constructor(context: Context) {
 
-    private val popupWindow = ListPopupWindow(context)
-    private val adapter = SimilarlyNamedListAdapter()
+  private val popupWindow = ListPopupWindow(context)
+  private val adapter = SimilarlyNamedListAdapter()
 
-    init {
-        popupWindow.setAdapter(adapter)
-        popupWindow.isModal = false
+  init {
+    popupWindow.setAdapter(adapter)
+    popupWindow.isModal = false
+  }
+
+  fun dismiss() {
+    try {
+      if (popupWindow.isShowing) {
+        popupWindow.dismiss()
+      }
+    } catch (e: Exception) {
+      Timber.w("Caught exception on dismiss: $e")
     }
+  }
 
-    fun dismiss() {
-        try {
-            if (popupWindow.isShowing) {
-                popupWindow.dismiss()
-            }
-        } catch (e: Exception) {
-            Timber.w("Caught exception on dismiss: $e")
-        }
+  private fun clear() {
+    adapter.clear()
+    popupWindow.height = 0
+  }
+
+  fun initializeView(anchor: View) {
+    anchor.doOnLayout { popupWindow.anchorView = anchor }
+  }
+
+  private inline fun withRealItem(
+      model: ExpandedViewState.SimilarItem,
+      func: (FridgeItem) -> Unit
+  ) {
+    if (model.item != null) {
+      func(model.item)
     }
+  }
 
-    private fun clear() {
-        adapter.clear()
-        popupWindow.height = 0
-    }
-
-    fun initializeView(anchor: View) {
-        anchor.doOnLayout {
-            popupWindow.anchorView = anchor
-        }
-    }
-
-    private inline fun withRealItem(
-        model: ExpandedViewState.SimilarItem,
-        func: (FridgeItem) -> Unit
-    ) {
-        if (model.item != null) {
-            func(model.item)
-        }
-    }
-
-    fun setOnItemClickListener(listener: (item: FridgeItem) -> Unit) {
-        popupWindow.setOnItemClickListener { _, _, position, _ ->
-            val model = adapter.getModel(position)
-            withRealItem(model) { item ->
-                listener(item)
-                dismiss()
-            }
-        }
-    }
-
-    fun setOnDismissListener(listener: () -> Unit) {
-        popupWindow.setOnDismissListener(listener)
-    }
-
-    fun teardown() {
-        clear()
+  fun setOnItemClickListener(listener: (item: FridgeItem) -> Unit) {
+    popupWindow.setOnItemClickListener { _, _, position, _ ->
+      val model = adapter.getModel(position)
+      withRealItem(model) { item ->
+        listener(item)
         dismiss()
-        popupWindow.setOnItemClickListener(null)
-        popupWindow.setOnDismissListener(null)
-        popupWindow.setAdapter(null)
+      }
+    }
+  }
+
+  fun setOnDismissListener(listener: () -> Unit) {
+    popupWindow.setOnDismissListener(listener)
+  }
+
+  fun teardown() {
+    clear()
+    dismiss()
+    popupWindow.setOnItemClickListener(null)
+    popupWindow.setOnDismissListener(null)
+    popupWindow.setAdapter(null)
+  }
+
+  fun set(items: Collection<ExpandedViewState.SimilarItem>, isFocused: Boolean) {
+    adapter.set(items)
+
+    if (isFocused) {
+      show()
+    } else {
+      dismiss()
+    }
+  }
+
+  fun show() {
+    // The only item is the title item
+    if (adapter.count <= 1) {
+      dismiss()
+    } else {
+      popupWindow.show()
+    }
+  }
+
+  private abstract class PopupWindowListAdapter protected constructor() : BaseAdapter() {
+
+    private val fridgeItems = mutableListOf<ExpandedViewState.SimilarItem>()
+
+    @CheckResult
+    fun getModel(position: Int): ExpandedViewState.SimilarItem {
+      return fridgeItems[position]
     }
 
-    fun set(items: Collection<ExpandedViewState.SimilarItem>, isFocused: Boolean) {
-        adapter.set(items)
-
-        if (isFocused) {
-            show()
-        } else {
-            dismiss()
-        }
+    final override fun getItem(position: Int): Any {
+      return getModel(position)
     }
 
-    fun show() {
-        // The only item is the title item
-        if (adapter.count <= 1) {
-            dismiss()
-        } else {
-            popupWindow.show()
-        }
+    final override fun getItemId(position: Int): Long {
+      val model = getModel(position)
+      val item = model.item
+      return item?.id()?.hashCode()?.toLong() ?: 0
     }
 
-    private abstract class PopupWindowListAdapter protected constructor() : BaseAdapter() {
-
-        private val fridgeItems = mutableListOf<ExpandedViewState.SimilarItem>()
-
-        @CheckResult
-        fun getModel(position: Int): ExpandedViewState.SimilarItem {
-            return fridgeItems[position]
-        }
-
-        final override fun getItem(position: Int): Any {
-            return getModel(position)
-        }
-
-        final override fun getItemId(position: Int): Long {
-            val model = getModel(position)
-            val item = model.item
-            return item?.id()?.hashCode()?.toLong() ?: 0
-        }
-
-        final override fun getCount(): Int {
-            return fridgeItems.size
-        }
-
-        fun clear() {
-            fridgeItems.clear()
-        }
-
-        fun set(items: Collection<ExpandedViewState.SimilarItem>) {
-            clear()
-            fridgeItems.addAll(TITLE_ITEM + items)
-            notifyDataSetChanged()
-        }
-
-        companion object {
-
-            private val TITLE_ITEM = listOf(
-                ExpandedViewState.SimilarItem(item = null, display = "Similar Items")
-            )
-
-        }
+    final override fun getCount(): Int {
+      return fridgeItems.size
     }
 
-    private class SimilarlyNamedListAdapter : PopupWindowListAdapter() {
-
-        @CheckResult
-        private fun isTitle(position: Int): Boolean {
-            return position == 0
-        }
-
-        @CheckResult
-        private fun isTitle(model: ExpandedViewState.SimilarItem): Boolean {
-            return model.item == null
-        }
-
-        private fun bindItem(view: View, model: ExpandedViewState.SimilarItem) {
-            val holder = view.requireItemViewHolder()
-            holder.binding.similarlyNamedItemName.text = model.display
-        }
-
-        private fun bindTitle(view: View, model: ExpandedViewState.SimilarItem) {
-            val holder = view.requireTitleViewHolder()
-            holder.binding.similarlyNamedItemTitle.text = model.display
-        }
-
-        override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
-            val view = inflateView(position, convertView, parent)
-            val model = getModel(position)
-            if (isTitle(model)) {
-                bindTitle(view, model)
-            } else {
-                bindItem(view, model)
-            }
-
-            return view
-        }
-
-        @CheckResult
-        private fun inflateNewView(position: Int, parent: ViewGroup): View {
-            return if (isTitle(position)) {
-                Timber.d("Inflating new title view into null scrap")
-                inflateTitleView(parent)
-            } else {
-                Timber.d("Inflating new item view into null scrap")
-                inflateItemView(parent)
-            }
-        }
-
-        @CheckResult
-        private fun View.recycleView(position: Int, parent: ViewGroup): View {
-            return if (isTitle(position)) {
-                if (this.getTitleViewHolder() != null) this else {
-                    Timber.d("Inflating new title view into recycled scrap")
-                    inflateTitleView(parent)
-                }
-            } else {
-                if (this.getItemViewHolder() != null) this else {
-                    Timber.d("Inflating new item view into recycled scrap")
-                    inflateItemView(parent)
-                }
-            }
-        }
-
-        @CheckResult
-        private fun inflateView(position: Int, scrap: View?, parent: ViewGroup): View {
-            return scrap?.recycleView(position, parent) ?: inflateNewView(position, parent)
-        }
-
-        @CheckResult
-        private fun inflateItemView(parent: ViewGroup): View {
-            val inflater = LayoutInflater.from(parent.context)
-            val binding = SimilarlyNamedListItemBinding.inflate(inflater, parent, false)
-            return binding.root.apply {
-                tag = ItemViewHolder(binding)
-            }
-        }
-
-        @CheckResult
-        private fun inflateTitleView(parent: ViewGroup): View {
-            val inflater = LayoutInflater.from(parent.context)
-            val binding = SimilarlyNamedListTitleBinding.inflate(inflater, parent, false)
-            return binding.root.apply {
-                tag = TitleViewHolder(binding)
-            }
-        }
-
-        @CheckResult
-        private fun View.requireItemViewHolder(): ItemViewHolder {
-            return this.requireViewHolder()
-        }
-
-        @CheckResult
-        private fun View.requireTitleViewHolder(): TitleViewHolder {
-            return this.requireViewHolder()
-        }
-
-        @CheckResult
-        private inline fun <reified S : Any> View.requireViewHolder(): S {
-            return this.getViewHolder()
-                ?: throw IllegalStateException("View is not ViewHolder: ${this.tag}")
-        }
-
-        @CheckResult
-        private fun View.getItemViewHolder(): ItemViewHolder? {
-            return this.getViewHolder()
-        }
-
-        @CheckResult
-        private fun View.getTitleViewHolder(): TitleViewHolder? {
-            return this.getViewHolder()
-        }
-
-        @CheckResult
-        private inline fun <reified S : Any> View.getViewHolder(): S? {
-            val tag = this.tag
-            return if (tag is S) tag else null
-        }
+    fun clear() {
+      fridgeItems.clear()
     }
 
-    private data class ItemViewHolder(val binding: SimilarlyNamedListItemBinding)
+    fun set(items: Collection<ExpandedViewState.SimilarItem>) {
+      clear()
+      fridgeItems.addAll(TITLE_ITEM + items)
+      notifyDataSetChanged()
+    }
 
-    private data class TitleViewHolder(val binding: SimilarlyNamedListTitleBinding)
+    companion object {
+
+      private val TITLE_ITEM =
+          listOf(ExpandedViewState.SimilarItem(item = null, display = "Similar Items"))
+    }
+  }
+
+  private class SimilarlyNamedListAdapter : PopupWindowListAdapter() {
+
+    @CheckResult
+    private fun isTitle(position: Int): Boolean {
+      return position == 0
+    }
+
+    @CheckResult
+    private fun isTitle(model: ExpandedViewState.SimilarItem): Boolean {
+      return model.item == null
+    }
+
+    private fun bindItem(view: View, model: ExpandedViewState.SimilarItem) {
+      val holder = view.requireItemViewHolder()
+      holder.binding.similarlyNamedItemName.text = model.display
+    }
+
+    private fun bindTitle(view: View, model: ExpandedViewState.SimilarItem) {
+      val holder = view.requireTitleViewHolder()
+      holder.binding.similarlyNamedItemTitle.text = model.display
+    }
+
+    override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
+      val view = inflateView(position, convertView, parent)
+      val model = getModel(position)
+      if (isTitle(model)) {
+        bindTitle(view, model)
+      } else {
+        bindItem(view, model)
+      }
+
+      return view
+    }
+
+    @CheckResult
+    private fun inflateNewView(position: Int, parent: ViewGroup): View {
+      return if (isTitle(position)) {
+        Timber.d("Inflating new title view into null scrap")
+        inflateTitleView(parent)
+      } else {
+        Timber.d("Inflating new item view into null scrap")
+        inflateItemView(parent)
+      }
+    }
+
+    @CheckResult
+    private fun View.recycleView(position: Int, parent: ViewGroup): View {
+      return if (isTitle(position)) {
+        if (this.getTitleViewHolder() != null) this
+        else {
+          Timber.d("Inflating new title view into recycled scrap")
+          inflateTitleView(parent)
+        }
+      } else {
+        if (this.getItemViewHolder() != null) this
+        else {
+          Timber.d("Inflating new item view into recycled scrap")
+          inflateItemView(parent)
+        }
+      }
+    }
+
+    @CheckResult
+    private fun inflateView(position: Int, scrap: View?, parent: ViewGroup): View {
+      return scrap?.recycleView(position, parent) ?: inflateNewView(position, parent)
+    }
+
+    @CheckResult
+    private fun inflateItemView(parent: ViewGroup): View {
+      val inflater = LayoutInflater.from(parent.context)
+      val binding = SimilarlyNamedListItemBinding.inflate(inflater, parent, false)
+      return binding.root.apply { tag = ItemViewHolder(binding) }
+    }
+
+    @CheckResult
+    private fun inflateTitleView(parent: ViewGroup): View {
+      val inflater = LayoutInflater.from(parent.context)
+      val binding = SimilarlyNamedListTitleBinding.inflate(inflater, parent, false)
+      return binding.root.apply { tag = TitleViewHolder(binding) }
+    }
+
+    @CheckResult
+    private fun View.requireItemViewHolder(): ItemViewHolder {
+      return this.requireViewHolder()
+    }
+
+    @CheckResult
+    private fun View.requireTitleViewHolder(): TitleViewHolder {
+      return this.requireViewHolder()
+    }
+
+    @CheckResult
+    private inline fun <reified S : Any> View.requireViewHolder(): S {
+      return this.getViewHolder()
+          ?: throw IllegalStateException("View is not ViewHolder: ${this.tag}")
+    }
+
+    @CheckResult
+    private fun View.getItemViewHolder(): ItemViewHolder? {
+      return this.getViewHolder()
+    }
+
+    @CheckResult
+    private fun View.getTitleViewHolder(): TitleViewHolder? {
+      return this.getViewHolder()
+    }
+
+    @CheckResult
+    private inline fun <reified S : Any> View.getViewHolder(): S? {
+      val tag = this.tag
+      return if (tag is S) tag else null
+    }
+  }
+
+  private data class ItemViewHolder(val binding: SimilarlyNamedListItemBinding)
+
+  private data class TitleViewHolder(val binding: SimilarlyNamedListTitleBinding)
 }

@@ -25,13 +25,15 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 
-class SearchFilterViewModel @AssistedInject internal constructor(
+class SearchFilterViewModel
+@AssistedInject
+internal constructor(
     delegate: DetailListStateModel,
     @Assisted savedState: UiSavedState,
 ) : BaseDetailViewModel<UnitControllerEvent>(delegate, savedState) {
 
-    @AssistedFactory
-    interface Factory : UiSavedStateViewModelProvider<SearchFilterViewModel> {
-        override fun create(savedState: UiSavedState): SearchFilterViewModel
-    }
+  @AssistedFactory
+  interface Factory : UiSavedStateViewModelProvider<SearchFilterViewModel> {
+    override fun create(savedState: UiSavedState): SearchFilterViewModel
+  }
 }

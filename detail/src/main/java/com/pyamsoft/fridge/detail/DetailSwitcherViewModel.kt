@@ -22,18 +22,17 @@ import com.pyamsoft.pydroid.arch.UiViewModel
 import com.pyamsoft.pydroid.arch.UnitControllerEvent
 import javax.inject.Inject
 
-class DetailSwitcherViewModel @Inject internal constructor(
+class DetailSwitcherViewModel
+@Inject
+internal constructor(
     private val delegate: DetailListStateModel,
-) : UiViewModel<DetailViewState, UnitControllerEvent>(
-    initialState = delegate.initialState
-) {
+) : UiViewModel<DetailViewState, UnitControllerEvent>(initialState = delegate.initialState) {
 
-    init {
-        delegate.initialize(viewModelScope)
-    }
+  init {
+    delegate.initialize(viewModelScope)
+  }
 
-    fun handlePresenceSwitch(presence: FridgeItem.Presence) {
-        delegate.handlePresenceSwitch(viewModelScope, presence)
-    }
+  fun handlePresenceSwitch(presence: FridgeItem.Presence) {
+    delegate.handlePresenceSwitch(viewModelScope, presence)
+  }
 }
-

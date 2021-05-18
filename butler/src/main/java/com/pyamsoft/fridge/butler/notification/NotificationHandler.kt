@@ -23,25 +23,21 @@ import com.pyamsoft.pydroid.notify.NotifyId
 
 interface NotificationHandler {
 
-    fun cancel(notificationId: NotifyId)
+  fun cancel(notificationId: NotifyId)
 
-    @CheckResult
-    fun notifyNeeded(entry: FridgeEntry, items: List<FridgeItem>): Boolean
+  @CheckResult fun notifyNeeded(entry: FridgeEntry, items: List<FridgeItem>): Boolean
 
-    @CheckResult
-    fun notifyExpiring(entry: FridgeEntry, items: List<FridgeItem>): Boolean
+  @CheckResult fun notifyExpiring(entry: FridgeEntry, items: List<FridgeItem>): Boolean
 
-    @CheckResult
-    fun notifyExpired(entry: FridgeEntry, items: List<FridgeItem>): Boolean
+  @CheckResult fun notifyExpired(entry: FridgeEntry, items: List<FridgeItem>): Boolean
 
-    @CheckResult
-    fun notifyNightly(): Boolean
+  @CheckResult fun notifyNightly(): Boolean
 
-    companion object {
+  companion object {
 
-        const val KEY_NOTIFICATION_ID = "key_notification_id"
+    const val KEY_NOTIFICATION_ID = "key_notification_id"
 
-        const val KEY_ENTRY_ID = "key_entry_id"
-        const val KEY_PRESENCE_TYPE = "key_presence_type"
-    }
+    const val KEY_ENTRY_ID = "key_entry_id"
+    const val KEY_PRESENCE_TYPE = "key_presence_type"
+  }
 }

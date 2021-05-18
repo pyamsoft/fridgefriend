@@ -27,40 +27,38 @@ import com.pyamsoft.pydroid.ui.theme.ThemeProvider
 import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
 import javax.inject.Inject
 
-class DetailListItemDate @Inject internal constructor(
+class DetailListItemDate
+@Inject
+internal constructor(
     imageLoader: ImageLoader,
     theming: ThemeProvider,
     parent: ViewGroup,
 ) : BaseItemDate<DetailItemViewState, DetailItemViewEvent>(imageLoader, theming, parent) {
 
-    init {
-        doOnInflate {
-            layoutRoot.setOnDebouncedClickListener {
-                publish(DetailItemViewEvent.ExpandItem)
-            }
-        }
-
-        doOnTeardown {
-            layoutRoot.setOnDebouncedClickListener(null)
-        }
+  init {
+    doOnInflate {
+      layoutRoot.setOnDebouncedClickListener { publish(DetailItemViewEvent.ExpandItem) }
     }
 
-    private fun handleItem(item: FridgeItem) {
-        require(item.isReal()) { "Cannot render non-real item: $item" }
-        renderItem(item)
-    }
+    doOnTeardown { layoutRoot.setOnDebouncedClickListener(null) }
+  }
 
-    private fun handlePresence(item: FridgeItem) {
-        val presence = item.presence()
-        if (presence == FridgeItem.Presence.NEED) {
-            layoutRoot.isVisible = true
-        } else {
-            layoutRoot.isGone = true
-        }
-    }
+  private fun handleItem(item: FridgeItem) {
+    require(item.isReal()) { "Cannot render non-real item: $item" }
+    renderItem(item)
+  }
 
-    override fun onRender(state: UiRender<DetailItemViewState>) {
-        state.mapChanged { it.item }.render(viewScope) { handleItem(it) }
-        state.mapChanged { it.item }.render(viewScope) { handlePresence(it) }
+  private fun handlePresence(item: FridgeItem) {
+    val presence = item.presence()
+    if (presence == FridgeItem.Presence.NEED) {
+      layoutRoot.isVisible = true
+    } else {
+      layoutRoot.isGone = true
     }
+  }
+
+  override fun onRender(state: UiRender<DetailItemViewState>) {
+    state.mapChanged { it.item }.render(viewScope) { handleItem(it) }
+    state.mapChanged { it.item }.render(viewScope) { handlePresence(it) }
+  }
 }

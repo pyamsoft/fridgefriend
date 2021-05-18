@@ -60,477 +60,435 @@ import com.pyamsoft.pydroid.ui.util.layout
 import com.pyamsoft.pydroid.util.doOnResume
 import com.pyamsoft.pydroid.util.doOnStart
 import com.pyamsoft.pydroid.util.stableLayoutHideNavigation
+import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import timber.log.Timber
-import javax.inject.Inject
 
-internal class MainActivity : ChangeLogActivity(),
+internal class MainActivity :
+    ChangeLogActivity(),
     VersionChecker,
     AppBarActivity,
     AppBarActivityProvider,
     UiController<MainControllerEvent> {
 
-    private var isUpdateChecked = false
+  private var isUpdateChecked = false
 
-    override val checkForUpdates = false
+  override val checkForUpdates = false
 
-    override val applicationIcon = R.mipmap.ic_launcher
+  override val applicationIcon = R.mipmap.ic_launcher
 
-    override val versionName = BuildConfig.VERSION_NAME
+  override val versionName = BuildConfig.VERSION_NAME
 
-    override val changelog = buildChangeLog {
-        feature("Adds the ability to quickly re-add an Item to your Shopping list when swiping it away for Consume or Spoil")
-        bugfix("Preserve the search state on device rotation on the Search screen")
-//        // TODO(Do this)
-//        feature("More information on Group overview screen")
-//        // TODO(Do this): Entry screen empty state
-        // TODO(Do this)
-        // When selecting suggested items, we can try to derive a new expiration date
+  override val changelog = buildChangeLog {
+    feature(
+        "Adds the ability to quickly re-add an Item to your Shopping list when swiping it away for Consume or Spoil")
+    bugfix("Preserve the search state on device rotation on the Search screen")
+    //        // TODO(Do this)
+    //        feature("More information on Group overview screen")
+    //        // TODO(Do this): Entry screen empty state
+    // TODO(Do this)
+    // When selecting suggested items, we can try to derive a new expiration date
+  }
+
+  override val fragmentContainerId: Int
+    get() = requireNotNull(container).id()
+
+  override val snackbarRoot: ViewGroup
+    get() {
+      val fm = supportFragmentManager
+      val fragment = fm.findFragmentById(fragmentContainerId)
+      if (fragment is SnackbarContainer) {
+        val container = fragment.container()
+        if (container != null) {
+          Timber.d("Return fragment snackbar container: $fragment $container")
+          return container
+        }
+      }
+
+      val fallbackContainer = requireNotNull(snackbar?.container())
+      Timber.d("Return activity snackbar container: $fallbackContainer")
+      return fallbackContainer
     }
 
-    override val fragmentContainerId: Int
-        get() = requireNotNull(container).id()
+  private var stateSaver: StateSaver? = null
 
-    override val snackbarRoot: ViewGroup
-        get() {
+  @JvmField @Inject internal var butler: Butler? = null
+
+  @JvmField @Inject internal var orderFactory: OrderFactory? = null
+
+  @JvmField @Inject internal var notificationHandler: NotificationHandler? = null
+
+  @JvmField @Inject internal var toolbar: MainToolbar? = null
+
+  @JvmField @Inject internal var navigation: MainNavigation? = null
+
+  @JvmField @Inject internal var container: MainContainer? = null
+
+  @JvmField @Inject internal var snackbar: MainSnackbar? = null
+
+  @JvmField @Inject internal var factory: MainViewModel.Factory? = null
+  private val viewModel by fromViewModelFactory<MainViewModel> {
+    createSavedStateViewModelFactory(factory)
+  }
+
+  private val handler = Handler(Looper.getMainLooper())
+
+  private var capturedAppBar: AppBarLayout? = null
+
+  override fun setAppBar(bar: AppBarLayout?) {
+    capturedAppBar = bar
+  }
+
+  override fun requireAppBar(func: (AppBarLayout) -> Unit) {
+    requireNotNull(capturedAppBar).let(func)
+  }
+
+  override fun withAppBar(func: (AppBarLayout) -> Unit) {
+    capturedAppBar?.let(func)
+  }
+
+  override fun onCreate(savedInstanceState: Bundle?) {
+    setTheme(R.style.Theme_Fridge)
+    super.onCreate(savedInstanceState)
+    val binding = LayoutConstraintBinding.inflate(layoutInflater)
+    setContentView(binding.root)
+
+    Injector.obtainFromApplication<FridgeComponent>(this)
+        .plusMainComponent()
+        .create(this, this, this, binding.layoutConstraint, this, this)
+        .inject(this)
+
+    stableLayoutHideNavigation()
+
+    inflateComponents(binding.layoutConstraint, savedInstanceState)
+    beginWork()
+
+    handleIntentExtras(intent)
+  }
+
+  override fun onVersionCheck() {
+    if (!isUpdateChecked) {
+      isUpdateChecked = true
+      Timber.d("Queue new update check")
+
+      // Queue this for doOnResume because the VersionCheck code is only available after
+      // onPostCreate and will otherwise throw an NPE
+      doOnResume {
+        Timber.d("Checking for a new update")
+        checkForUpdates()
+      }
+    }
+  }
+
+  private inline fun handleNotificationAction(crossinline action: (FragmentManager) -> Unit) {
+    handler.removeCallbacksAndMessages(null)
+
+    // No good way to figure out when the FM is done transacting from a different context I think
+    //
+    // Assuming that the FM handler uses the main thread, we post twice
+    // The first post puts us into the queue and basically waits for everything to clear out
+    // this would include the FM pending transactions which may also include the page select
+    // commit.
+    //
+    // We post delayed just in case the transaction takes longer than it takes to queue the new
+    // message up
+    // to be safe, we should try to use commitNow whenever possible.
+    handler.post {
+      handler.postDelayed(
+          {
             val fm = supportFragmentManager
-            val fragment = fm.findFragmentById(fragmentContainerId)
-            if (fragment is SnackbarContainer) {
-                val container = fragment.container()
-                if (container != null) {
-                    Timber.d("Return fragment snackbar container: $fragment $container")
-                    return container
-                }
-            }
 
-            val fallbackContainer = requireNotNull(snackbar?.container())
-            Timber.d("Return activity snackbar container: $fallbackContainer")
-            return fallbackContainer
-        }
+            // Clear the back stack
+            // In case we are already on a detail fragment for example, this will clear the stack.
+            fm.clearBackStack()
+            action(fm)
+          },
+          200)
+    }
+  }
 
-    private var stateSaver: StateSaver? = null
+  @CheckResult
+  private fun handleEntryIntent(intent: Intent): Boolean {
+    val stringEntryId = intent.getStringExtra(NotificationHandler.KEY_ENTRY_ID) ?: return false
 
-    @JvmField
-    @Inject
-    internal var butler: Butler? = null
-
-    @JvmField
-    @Inject
-    internal var orderFactory: OrderFactory? = null
-
-    @JvmField
-    @Inject
-    internal var notificationHandler: NotificationHandler? = null
-
-    @JvmField
-    @Inject
-    internal var toolbar: MainToolbar? = null
-
-    @JvmField
-    @Inject
-    internal var navigation: MainNavigation? = null
-
-    @JvmField
-    @Inject
-    internal var container: MainContainer? = null
-
-    @JvmField
-    @Inject
-    internal var snackbar: MainSnackbar? = null
-
-    @JvmField
-    @Inject
-    internal var factory: MainViewModel.Factory? = null
-    private val viewModel by fromViewModelFactory<MainViewModel> {
-        createSavedStateViewModelFactory(factory)
+    val pres = intent.getStringExtra(NotificationHandler.KEY_PRESENCE_TYPE)
+    if (pres == null) {
+      Timber.d("New intent had entry key but no presence type")
+      return false
     }
 
-    private val handler = Handler(Looper.getMainLooper())
+    val entryId = FridgeEntry.Id(stringEntryId)
+    val presence = FridgeItem.Presence.valueOf(pres)
+    Timber.d("Entries page selected, load entry $entryId with presence: $presence")
 
-    private var capturedAppBar: AppBarLayout? = null
+    viewModel.handleSelectPage(MainPage.Entries, force = true)
 
-    override fun setAppBar(bar: AppBarLayout?) {
-        capturedAppBar = bar
+    handleNotificationAction { fm ->
+      EntryFragment.pushDetailPage(fm, this, fragmentContainerId, entryId, presence)
+    }
+    return true
+  }
+
+  private fun handleIntentExtras(intent: Intent) {
+    if (handleEntryIntent(intent)) {
+      Timber.d("New intent handled entry extras")
+      return
     }
 
-    override fun requireAppBar(func: (AppBarLayout) -> Unit) {
-        requireNotNull(capturedAppBar).let(func)
+    Timber.d("New intent no extras")
+  }
+
+  override fun onNewIntent(intent: Intent) {
+    super.onNewIntent(intent)
+    setIntent(intent)
+    handleIntentExtras(intent)
+  }
+
+  override fun onBackPressed() {
+    onBackPressedDispatcher.also { dispatcher ->
+      if (dispatcher.hasEnabledCallbacks()) {
+        dispatcher.onBackPressed()
+      } else {
+        super.onBackPressed()
+      }
     }
+  }
 
-    override fun withAppBar(func: (AppBarLayout) -> Unit) {
-        capturedAppBar?.let(func)
+  override fun onResume() {
+    super.onResume()
+    clearLaunchNotification()
+  }
+
+  private fun beginWork() {
+    this.lifecycleScope.launch(context = Dispatchers.Default) {
+      requireNotNull(butler).initOnAppStart(requireNotNull(orderFactory))
     }
+  }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        setTheme(R.style.Theme_Fridge)
-        super.onCreate(savedInstanceState)
-        val binding = LayoutConstraintBinding.inflate(layoutInflater)
-        setContentView(binding.root)
-
-        Injector.obtainFromApplication<FridgeComponent>(this)
-            .plusMainComponent()
-            .create(this, this, this, binding.layoutConstraint, this, this)
-            .inject(this)
-
-        stableLayoutHideNavigation()
-
-        inflateComponents(binding.layoutConstraint, savedInstanceState)
-        beginWork()
-
-        handleIntentExtras(intent)
+  private fun clearLaunchNotification() {
+    val id = intent.getIntExtra(NotificationHandler.KEY_NOTIFICATION_ID, 0)
+    if (id != 0) {
+      requireNotNull(notificationHandler).cancel(id.toNotifyId())
     }
+  }
 
-    override fun onVersionCheck() {
-        if (!isUpdateChecked) {
-            isUpdateChecked = true
-            Timber.d("Queue new update check")
-
-            // Queue this for doOnResume because the VersionCheck code is only available after
-            // onPostCreate and will otherwise throw an NPE
-            doOnResume {
-                Timber.d("Checking for a new update")
-                checkForUpdates()
-            }
-        }
+  private fun handleSelectPage(newPage: MainPage, oldPage: MainPage?, force: Boolean) {
+    return when (newPage) {
+      is MainPage.Entries -> pushEntry(oldPage, force)
+      is MainPage.Search -> pushSearch(oldPage, force)
+      is MainPage.Settings -> pushSettings(oldPage, force)
+      is MainPage.Category -> pushCategory(oldPage, force)
     }
+  }
 
-    private inline fun handleNotificationAction(crossinline action: (FragmentManager) -> Unit) {
-        handler.removeCallbacksAndMessages(null)
+  private fun inflateComponents(
+      constraintLayout: ConstraintLayout,
+      savedInstanceState: Bundle?,
+  ) {
+    val container = requireNotNull(container)
+    val toolbar = requireNotNull(toolbar)
+    val navigation = requireNotNull(navigation)
+    val snackbar = requireNotNull(snackbar)
 
-        // No good way to figure out when the FM is done transacting from a different context I think
-        //
-        // Assuming that the FM handler uses the main thread, we post twice
-        // The first post puts us into the queue and basically waits for everything to clear out
-        // this would include the FM pending transactions which may also include the page select
-        // commit.
-        //
-        // We post delayed just in case the transaction takes longer than it takes to queue the new message up
-        // to be safe, we should try to use commitNow whenever possible.
-        handler.post {
-            handler.postDelayed({
-                val fm = supportFragmentManager
-
-                // Clear the back stack
-                // In case we are already on a detail fragment for example, this will clear the stack.
-                fm.clearBackStack()
-                action(fm)
-            }, 200)
-        }
-    }
-
-    @CheckResult
-    private fun handleEntryIntent(intent: Intent): Boolean {
-        val stringEntryId = intent.getStringExtra(NotificationHandler.KEY_ENTRY_ID) ?: return false
-
-        val pres = intent.getStringExtra(NotificationHandler.KEY_PRESENCE_TYPE)
-        if (pres == null) {
-            Timber.d("New intent had entry key but no presence type")
-            return false
-        }
-
-        val entryId = FridgeEntry.Id(stringEntryId)
-        val presence = FridgeItem.Presence.valueOf(pres)
-        Timber.d("Entries page selected, load entry $entryId with presence: $presence")
-
-        viewModel.handleSelectPage(MainPage.Entries, force = true)
-
-        handleNotificationAction { fm ->
-            EntryFragment.pushDetailPage(
-                fm,
-                this,
-                fragmentContainerId,
-                entryId,
-                presence
-            )
-        }
-        return true
-    }
-
-    private fun handleIntentExtras(intent: Intent) {
-        if (handleEntryIntent(intent)) {
-            Timber.d("New intent handled entry extras")
-            return
-        }
-
-        Timber.d("New intent no extras")
-    }
-
-    override fun onNewIntent(intent: Intent) {
-        super.onNewIntent(intent)
-        setIntent(intent)
-        handleIntentExtras(intent)
-    }
-
-    override fun onBackPressed() {
-        onBackPressedDispatcher.also { dispatcher ->
-            if (dispatcher.hasEnabledCallbacks()) {
-                dispatcher.onBackPressed()
-            } else {
-                super.onBackPressed()
-            }
-        }
-    }
-
-    override fun onResume() {
-        super.onResume()
-        clearLaunchNotification()
-    }
-
-    private fun beginWork() {
-        this.lifecycleScope.launch(context = Dispatchers.Default) {
-            requireNotNull(butler).initOnAppStart(requireNotNull(orderFactory))
-        }
-    }
-
-    private fun clearLaunchNotification() {
-        val id = intent.getIntExtra(NotificationHandler.KEY_NOTIFICATION_ID, 0)
-        if (id != 0) {
-            requireNotNull(notificationHandler).cancel(id.toNotifyId())
-        }
-    }
-
-    private fun handleSelectPage(newPage: MainPage, oldPage: MainPage?, force: Boolean) {
-        return when (newPage) {
-            is MainPage.Entries -> pushEntry(oldPage, force)
-            is MainPage.Search -> pushSearch(oldPage, force)
-            is MainPage.Settings -> pushSettings(oldPage, force)
-            is MainPage.Category -> pushCategory(oldPage, force)
-        }
-    }
-
-    private fun inflateComponents(
-        constraintLayout: ConstraintLayout,
-        savedInstanceState: Bundle?,
-    ) {
-        val container = requireNotNull(container)
-        val toolbar = requireNotNull(toolbar)
-        val navigation = requireNotNull(navigation)
-        val snackbar = requireNotNull(snackbar)
-
-        stateSaver = createComponent(
-            savedInstanceState,
-            this,
-            viewModel,
-            this,
-            container,
-            toolbar,
-            navigation,
-            snackbar
-        ) {
-            return@createComponent when (it) {
-                is MainViewEvent.BottomBarMeasured -> viewModel.handleConsumeBottomBarHeight(it.height)
-                is MainViewEvent.OpenCategory -> viewModel.handleSelectPage(
-                    MainPage.Category,
-                    force = false
-                )
-                is MainViewEvent.OpenEntries -> viewModel.handleSelectPage(
+    stateSaver =
+        createComponent(
+            savedInstanceState, this, viewModel, this, container, toolbar, navigation, snackbar) {
+          return@createComponent when (it) {
+            is MainViewEvent.BottomBarMeasured -> viewModel.handleConsumeBottomBarHeight(it.height)
+            is MainViewEvent.OpenCategory ->
+                viewModel.handleSelectPage(MainPage.Category, force = false)
+            is MainViewEvent.OpenEntries ->
+                viewModel.handleSelectPage(
                     MainPage.Entries,
                     force = false,
                 )
-                is MainViewEvent.OpenSearch -> viewModel.handleSelectPage(
-                    MainPage.Search,
-                    force = false
-                )
-                is MainViewEvent.OpenSettings -> viewModel.handleSelectPage(
-                    MainPage.Settings,
-                    force = false
-                )
-            }
+            is MainViewEvent.OpenSearch ->
+                viewModel.handleSelectPage(MainPage.Search, force = false)
+            is MainViewEvent.OpenSettings ->
+                viewModel.handleSelectPage(MainPage.Settings, force = false)
+          }
         }
 
-        constraintLayout.layout {
+    constraintLayout.layout {
+      toolbar.also {
+        connect(it.id(), ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP)
+        connect(it.id(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
+        connect(it.id(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
+        constrainWidth(it.id(), ConstraintSet.MATCH_CONSTRAINT)
+      }
 
-            toolbar.also {
-                connect(it.id(), ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP)
-                connect(it.id(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
-                connect(it.id(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
-                constrainWidth(it.id(), ConstraintSet.MATCH_CONSTRAINT)
-            }
+      navigation.also {
+        connect(it.id(), ConstraintSet.BOTTOM, ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM)
+        connect(it.id(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
+        connect(it.id(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
+        constrainWidth(it.id(), ConstraintSet.MATCH_CONSTRAINT)
+        constrainHeight(it.id(), ConstraintSet.WRAP_CONTENT)
+      }
 
-            navigation.also {
-                connect(
-                    it.id(),
-                    ConstraintSet.BOTTOM,
-                    ConstraintSet.PARENT_ID,
-                    ConstraintSet.BOTTOM
-                )
-                connect(it.id(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
-                connect(it.id(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
-                constrainWidth(it.id(), ConstraintSet.MATCH_CONSTRAINT)
-                constrainHeight(it.id(), ConstraintSet.WRAP_CONTENT)
-            }
+      container.also {
+        connect(it.id(), ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP)
+        connect(it.id(), ConstraintSet.BOTTOM, ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM)
+        connect(it.id(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
+        connect(it.id(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
+        constrainHeight(it.id(), ConstraintSet.MATCH_CONSTRAINT)
+        constrainWidth(it.id(), ConstraintSet.MATCH_CONSTRAINT)
+      }
 
-            container.also {
-                connect(it.id(), ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP)
-                connect(
-                    it.id(),
-                    ConstraintSet.BOTTOM,
-                    ConstraintSet.PARENT_ID,
-                    ConstraintSet.BOTTOM
-                )
-                connect(it.id(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
-                connect(it.id(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
-                constrainHeight(it.id(), ConstraintSet.MATCH_CONSTRAINT)
-                constrainWidth(it.id(), ConstraintSet.MATCH_CONSTRAINT)
-            }
+      snackbar.also {
+        connect(it.id(), ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP)
+        connect(it.id(), ConstraintSet.BOTTOM, navigation.id(), ConstraintSet.TOP)
+        connect(it.id(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
+        connect(it.id(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
+        constrainHeight(it.id(), ConstraintSet.MATCH_CONSTRAINT)
+        constrainWidth(it.id(), ConstraintSet.MATCH_CONSTRAINT)
+      }
+    }
 
-            snackbar.also {
-                connect(it.id(), ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP)
-                connect(it.id(), ConstraintSet.BOTTOM, navigation.id(), ConstraintSet.TOP)
-                connect(it.id(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
-                connect(it.id(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
-                constrainHeight(it.id(), ConstraintSet.MATCH_CONSTRAINT)
-                constrainWidth(it.id(), ConstraintSet.MATCH_CONSTRAINT)
-            }
+    val existingFragment = supportFragmentManager.findFragmentById(fragmentContainerId)
+    if (savedInstanceState == null || existingFragment == null) {
+      viewModel.handleLoadDefaultPage()
+    }
+  }
+
+  override fun onControllerEvent(event: MainControllerEvent) {
+    return when (event) {
+      is MainControllerEvent.PushPage -> handleSelectPage(event.newPage, event.oldPage, event.force)
+    }
+  }
+
+  private fun pushSearch(previousPage: MainPage?, force: Boolean) {
+    commitPage(
+        SearchFragment.newInstance(), MainPage.Search, previousPage, SearchFragment.TAG, force)
+  }
+
+  private fun pushSettings(previousPage: MainPage?, force: Boolean) {
+    commitPage(
+        SettingsFragment.newInstance(),
+        MainPage.Settings,
+        previousPage,
+        SettingsFragment.TAG,
+        force)
+  }
+
+  private fun pushCategory(previousPage: MainPage?, force: Boolean) {
+    commitPage(
+        CategoryFragment.newInstance(),
+        MainPage.Category,
+        previousPage,
+        CategoryFragment.TAG,
+        force)
+  }
+
+  private fun pushEntry(previousPage: MainPage?, force: Boolean) {
+    commitPage(
+        EntryFragment.newInstance(fragmentContainerId),
+        MainPage.Entries,
+        previousPage,
+        EntryFragment.TAG,
+        force)
+  }
+
+  private fun commitPage(
+      fragment: Fragment,
+      newPage: MainPage,
+      previousPage: MainPage?,
+      tag: String,
+      force: Boolean,
+  ) {
+    val fm = supportFragmentManager
+    val container = fragmentContainerId
+
+    val push =
+        when {
+          previousPage != null -> true
+          fm.findFragmentById(container) == null -> true
+          else -> false
         }
 
-        val existingFragment = supportFragmentManager.findFragmentById(fragmentContainerId)
-        if (savedInstanceState == null || existingFragment == null) {
-            viewModel.handleLoadDefaultPage()
+    if (push || force) {
+      if (force) {
+        Timber.d("Force commit fragment: $tag")
+      } else {
+        Timber.d("Commit fragment: $tag")
+      }
+
+      this.doOnStart {
+        // Clear the back stack (for entry->detail stack)
+        fm.clearBackStack()
+
+        fm.commitNow(this) {
+          decideAnimationForPage(previousPage, newPage)
+          replace(container, fragment, tag)
         }
+      }
     }
+  }
 
-    override fun onControllerEvent(event: MainControllerEvent) {
-        return when (event) {
-            is MainControllerEvent.PushPage -> handleSelectPage(
-                event.newPage,
-                event.oldPage,
-                event.force
-            )
-        }
-    }
-
-    private fun pushSearch(previousPage: MainPage?, force: Boolean) {
-        commitPage(
-            SearchFragment.newInstance(),
-            MainPage.Search,
-            previousPage,
-            SearchFragment.TAG,
-            force
-        )
-    }
-
-    private fun pushSettings(previousPage: MainPage?, force: Boolean) {
-        commitPage(
-            SettingsFragment.newInstance(),
-            MainPage.Settings,
-            previousPage,
-            SettingsFragment.TAG,
-            force
-        )
-    }
-
-    private fun pushCategory(previousPage: MainPage?, force: Boolean) {
-        commitPage(
-            CategoryFragment.newInstance(),
-            MainPage.Category,
-            previousPage,
-            CategoryFragment.TAG,
-            force
-        )
-    }
-
-    private fun pushEntry(previousPage: MainPage?, force: Boolean) {
-        commitPage(
-            EntryFragment.newInstance(fragmentContainerId),
-            MainPage.Entries,
-            previousPage,
-            EntryFragment.TAG,
-            force
-        )
-    }
-
-    private fun commitPage(
-        fragment: Fragment,
-        newPage: MainPage,
-        previousPage: MainPage?,
-        tag: String,
-        force: Boolean,
-    ) {
-        val fm = supportFragmentManager
-        val container = fragmentContainerId
-
-        val push = when {
-            previousPage != null -> true
-            fm.findFragmentById(container) == null -> true
-            else -> false
-        }
-
-        if (push || force) {
-            if (force) {
-                Timber.d("Force commit fragment: $tag")
-            } else {
-                Timber.d("Commit fragment: $tag")
-            }
-
-            this.doOnStart {
-                // Clear the back stack (for entry->detail stack)
-                fm.clearBackStack()
-
-                fm.commitNow(this) {
-                    decideAnimationForPage(previousPage, newPage)
-                    replace(container, fragment, tag)
-                }
-            }
-        }
-    }
-
-    private fun FragmentTransaction.decideAnimationForPage(oldPage: MainPage?, newPage: MainPage) {
-        val animations = when (newPage) {
-            is MainPage.Search -> when (oldPage) {
+  private fun FragmentTransaction.decideAnimationForPage(oldPage: MainPage?, newPage: MainPage) {
+    val animations =
+        when (newPage) {
+          is MainPage.Search ->
+              when (oldPage) {
                 null -> R.anim.fragment_open_enter to R.anim.fragment_open_exit
                 is MainPage.Entries -> R.anim.slide_in_right to R.anim.slide_out_left
-                is MainPage.Category, is MainPage.Settings -> R.anim.slide_in_left to R.anim.slide_out_right
+                is MainPage.Category, is MainPage.Settings ->
+                    R.anim.slide_in_left to R.anim.slide_out_right
                 is MainPage.Search -> null
-            }
-            is MainPage.Entries -> when (oldPage) {
+              }
+          is MainPage.Entries ->
+              when (oldPage) {
                 null -> R.anim.fragment_open_enter to R.anim.fragment_open_exit
-                is MainPage.Search, is MainPage.Category, is MainPage.Settings -> R.anim.slide_in_left to R.anim.slide_out_right
+                is MainPage.Search, is MainPage.Category, is MainPage.Settings ->
+                    R.anim.slide_in_left to R.anim.slide_out_right
                 is MainPage.Entries -> null
-            }
-            is MainPage.Category -> when (oldPage) {
+              }
+          is MainPage.Category ->
+              when (oldPage) {
                 null -> R.anim.fragment_open_enter to R.anim.fragment_open_exit
-                is MainPage.Search, is MainPage.Entries -> R.anim.slide_in_right to R.anim.slide_out_left
+                is MainPage.Search, is MainPage.Entries ->
+                    R.anim.slide_in_right to R.anim.slide_out_left
                 is MainPage.Settings -> R.anim.slide_in_left to R.anim.slide_out_right
                 is MainPage.Category -> null
-            }
-            is MainPage.Settings -> when (oldPage) {
+              }
+          is MainPage.Settings ->
+              when (oldPage) {
                 null -> R.anim.fragment_open_enter to R.anim.fragment_open_exit
-                is MainPage.Search, is MainPage.Entries, is MainPage.Category -> R.anim.slide_in_right to R.anim.slide_out_left
+                is MainPage.Search, is MainPage.Entries, is MainPage.Category ->
+                    R.anim.slide_in_right to R.anim.slide_out_left
                 is MainPage.Settings -> null
-            }
+              }
         }
 
-        if (animations != null) {
-            val (enter, exit) = animations
-            setCustomAnimations(enter, exit, enter, exit)
-        }
+    if (animations != null) {
+      val (enter, exit) = animations
+      setCustomAnimations(enter, exit, enter, exit)
     }
+  }
 
-    override fun onSaveInstanceState(outState: Bundle) {
-        stateSaver?.saveState(outState)
-        super.onSaveInstanceState(outState)
-    }
+  override fun onSaveInstanceState(outState: Bundle) {
+    stateSaver?.saveState(outState)
+    super.onSaveInstanceState(outState)
+  }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        stateSaver = null
+  override fun onDestroy() {
+    super.onDestroy()
+    stateSaver = null
 
-        toolbar = null
-        container = null
-        navigation = null
-        snackbar = null
+    toolbar = null
+    container = null
+    navigation = null
+    snackbar = null
 
-        factory = null
+    factory = null
 
-        capturedAppBar = null
+    capturedAppBar = null
 
-        handler.removeCallbacksAndMessages(null)
-    }
+    handler.removeCallbacksAndMessages(null)
+  }
 
-    private fun FragmentManager.clearBackStack() {
-        Timber.d("Clear FM back stack")
-        this.popBackStackImmediate(null, FragmentManager.POP_BACK_STACK_INCLUSIVE)
-    }
+  private fun FragmentManager.clearBackStack() {
+    Timber.d("Clear FM back stack")
+    this.popBackStackImmediate(null, FragmentManager.POP_BACK_STACK_INCLUSIVE)
+  }
 }

@@ -18,5 +18,5 @@ package com.pyamsoft.fridge.preference
 
 interface SettingsPreferences {
 
-    suspend fun clear()
+  suspend fun clear()
 }

@@ -18,5 +18,5 @@ package com.pyamsoft.fridge.main
 
 interface VersionChecker {
 
-    fun onVersionCheck()
+  fun onVersionCheck()
 }

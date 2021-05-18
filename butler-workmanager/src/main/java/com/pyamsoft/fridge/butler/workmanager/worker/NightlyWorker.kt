@@ -23,16 +23,14 @@ import com.pyamsoft.fridge.butler.injector.BaseInjector
 import com.pyamsoft.fridge.butler.injector.NightlyInjector
 import com.pyamsoft.fridge.butler.params.EmptyParameters
 
-internal class NightlyWorker internal constructor(
-    context: Context,
-    params: WorkerParameters
-) : BaseWorker<EmptyParameters>(context.applicationContext, params) {
+internal class NightlyWorker internal constructor(context: Context, params: WorkerParameters) :
+    BaseWorker<EmptyParameters>(context.applicationContext, params) {
 
-    override fun getInjector(context: Context): BaseInjector<EmptyParameters> {
-        return NightlyInjector(context.applicationContext)
-    }
+  override fun getInjector(context: Context): BaseInjector<EmptyParameters> {
+    return NightlyInjector(context.applicationContext)
+  }
 
-    override fun getParams(data: Data): EmptyParameters {
-        return EmptyParameters
-    }
+  override fun getParams(data: Data): EmptyParameters {
+    return EmptyParameters
+  }
 }

@@ -19,10 +19,10 @@ package com.pyamsoft.fridge.entry.create
 import android.view.ViewGroup
 import androidx.annotation.CheckResult
 import androidx.lifecycle.ViewModel
-import com.pyamsoft.fridge.ui.ThemeProviderModule
 import com.pyamsoft.fridge.core.ViewModelFactoryModule
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.tooltip.balloon.TooltipModule
+import com.pyamsoft.fridge.ui.ThemeProviderModule
 import dagger.Binds
 import dagger.BindsInstance
 import dagger.Module
@@ -31,34 +31,32 @@ import dagger.multibindings.ClassKey
 import dagger.multibindings.IntoMap
 
 @Subcomponent(
-    modules = [
-        CreateEntryComponent.ComponentModule::class,
-        ViewModelFactoryModule::class,
-        ThemeProviderModule::class,
-        TooltipModule::class
-    ]
-)
+    modules =
+        [
+            CreateEntryComponent.ComponentModule::class,
+            ViewModelFactoryModule::class,
+            ThemeProviderModule::class,
+            TooltipModule::class])
 internal interface CreateEntryComponent {
 
-    fun inject(sheet: CreateEntrySheet)
+  fun inject(sheet: CreateEntrySheet)
 
-    @Subcomponent.Factory
-    interface Factory {
+  @Subcomponent.Factory
+  interface Factory {
 
-        @CheckResult
-        fun create(
-            @BindsInstance parent: ViewGroup,
-            @BindsInstance entryId: FridgeEntry.Id
-        ): CreateEntryComponent
-    }
+    @CheckResult
+    fun create(
+        @BindsInstance parent: ViewGroup,
+        @BindsInstance entryId: FridgeEntry.Id
+    ): CreateEntryComponent
+  }
 
-    @Module
-    abstract class ComponentModule {
+  @Module
+  abstract class ComponentModule {
 
-        @Binds
-        @IntoMap
-        @ClassKey(CreateEntryViewModel::class)
-        internal abstract fun bindViewModel(impl: CreateEntryViewModel): ViewModel
-    }
-
+    @Binds
+    @IntoMap
+    @ClassKey(CreateEntryViewModel::class)
+    internal abstract fun bindViewModel(impl: CreateEntryViewModel): ViewModel
+  }
 }

@@ -26,67 +26,68 @@ import com.skydoves.balloon.Balloon
 import com.skydoves.balloon.BalloonAnimation
 import javax.inject.Inject
 
-internal class BalloonTooltipCreator @Inject internal constructor(
+internal class BalloonTooltipCreator
+@Inject
+internal constructor(
     private val activity: Activity,
 ) : TooltipCreator {
 
+  @CheckResult
+  private fun newBuilder(withBuilder: Balloon.Builder.() -> Unit): Balloon.Builder {
+    return Balloon.Builder(activity).apply {
+      setIsVisibleArrow(false)
+      setCornerRadius(16F)
+      setAlpha(0.85F)
+      setBackgroundColorResource(R.color.tooltipBackground)
+      setTextColorResource(R.color.tooltipText)
+      setBalloonAnimation(BalloonAnimation.OVERSHOOT)
+      setArrowPosition(0.5F)
+      setTextSize(14F)
+
+      val padding = 4
+      setPaddingTop(padding)
+      setPaddingBottom(padding)
+      setPaddingLeft(padding * 2)
+      setPaddingRight(padding * 2)
+
+      withBuilder(this)
+    }
+  }
+
+  @CheckResult
+  private fun makeBalloon(builder: Balloon.Builder, params: TooltipParameters): Balloon {
+    return builder
+        .setDismissWhenClicked(params.dismissOnClick)
+        .setDismissWhenTouchOutside(params.dismissOnTouchOutside)
+        .build()
+  }
+
+  override fun top(): Tooltip {
+    return top(EMPTY_BUILDER)
+  }
+
+  override fun top(builder: Tooltip.Builder.() -> Tooltip.Builder): Tooltip {
+    return create(build(builder), Tooltip.Direction.TOP)
+  }
+
+  private fun build(builder: Tooltip.Builder.() -> Tooltip.Builder): LazyBalloon {
+    val balloonBuilder = newBuilder {
+      setHeight(65)
+      BalloonTooltip.Builder(this).apply { builder() }
+    }
+
+    val params = TooltipParameters(dismissOnClick = true, dismissOnTouchOutside = true)
+    return LazyBalloon { makeBalloon(balloonBuilder, params) }
+  }
+
+  companion object {
+
+    private val EMPTY_BUILDER: Tooltip.Builder.() -> Tooltip.Builder = { this }
+
+    @JvmStatic
     @CheckResult
-    private fun newBuilder(withBuilder: Balloon.Builder.() -> Unit): Balloon.Builder {
-        return Balloon.Builder(activity).apply {
-            setIsVisibleArrow(false)
-            setCornerRadius(16F)
-            setAlpha(0.85F)
-            setBackgroundColorResource(R.color.tooltipBackground)
-            setTextColorResource(R.color.tooltipText)
-            setBalloonAnimation(BalloonAnimation.OVERSHOOT)
-            setArrowPosition(0.5F)
-            setTextSize(14F)
-
-            val padding = 4
-            setPaddingTop(padding)
-            setPaddingBottom(padding)
-            setPaddingLeft(padding * 2)
-            setPaddingRight(padding * 2)
-
-            withBuilder(this)
-        }
+    private fun create(balloon: LazyBalloon, direction: Tooltip.Direction): BalloonTooltip {
+      return BalloonTooltip(balloon, direction)
     }
-
-    @CheckResult
-    private fun makeBalloon(builder: Balloon.Builder, params: TooltipParameters): Balloon {
-        return builder
-            .setDismissWhenClicked(params.dismissOnClick)
-            .setDismissWhenTouchOutside(params.dismissOnTouchOutside)
-            .build()
-    }
-
-    override fun top(): Tooltip {
-        return top(EMPTY_BUILDER)
-    }
-
-    override fun top(builder: Tooltip.Builder.() -> Tooltip.Builder): Tooltip {
-        return create(build(builder), Tooltip.Direction.TOP)
-    }
-
-    private fun build(builder: Tooltip.Builder.() -> Tooltip.Builder): LazyBalloon {
-        val balloonBuilder = newBuilder {
-            setHeight(65)
-            BalloonTooltip.Builder(this).apply { builder() }
-        }
-
-        val params = TooltipParameters(dismissOnClick = true, dismissOnTouchOutside = true)
-        return LazyBalloon { makeBalloon(balloonBuilder, params) }
-    }
-
-    companion object {
-
-        private val EMPTY_BUILDER: Tooltip.Builder.() -> Tooltip.Builder = { this }
-
-        @JvmStatic
-        @CheckResult
-        private fun create(balloon: LazyBalloon, direction: Tooltip.Direction): BalloonTooltip {
-            return BalloonTooltip(balloon, direction)
-        }
-    }
-
+  }
 }

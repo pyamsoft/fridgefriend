@@ -25,127 +25,71 @@ import com.pyamsoft.pydroid.ui.theme.ThemeProvider
 import com.pyamsoft.pydroid.ui.util.layout
 import javax.inject.Inject
 
-class ExpandedCategoryViewHolder internal constructor(
+class ExpandedCategoryViewHolder
+internal constructor(
     binding: ExpandCategoryItemHolderBinding,
     themeProvider: ThemeProvider,
     factory: ExpandCategoryComponent.Factory,
     callback: ExpandItemCategoryListAdapter.Callback
 ) : RecyclerView.ViewHolder(binding.root), ViewBinder<ExpandedCategoryViewState> {
 
-    private val viewBinder: ViewBinder<ExpandedCategoryViewState>
+  private val viewBinder: ViewBinder<ExpandedCategoryViewState>
 
-    @JvmField
-    @Inject
-    internal var thumbnail: ExpandCategoryThumbnail? = null
+  @JvmField @Inject internal var thumbnail: ExpandCategoryThumbnail? = null
 
-    @JvmField
-    @Inject
-    internal var name: ExpandCategoryName? = null
+  @JvmField @Inject internal var name: ExpandCategoryName? = null
 
-    @JvmField
-    @Inject
-    internal var scrim: ExpandCategoryScrim? = null
+  @JvmField @Inject internal var scrim: ExpandCategoryScrim? = null
 
-    @JvmField
-    @Inject
-    internal var selectOverlay: ExpandCategorySelectOverlay? = null
+  @JvmField @Inject internal var selectOverlay: ExpandCategorySelectOverlay? = null
 
-    init {
-        factory.create(binding.expandCategoryItem, themeProvider).inject(this)
+  init {
+    factory.create(binding.expandCategoryItem, themeProvider).inject(this)
 
-        val thumbnailView = requireNotNull(thumbnail)
-        val scrimView = requireNotNull(scrim)
-        val nameView = requireNotNull(name)
-        val selectOverlayView = requireNotNull(selectOverlay)
-        viewBinder = createViewBinder(
-            thumbnailView,
-            scrimView,
-            selectOverlayView,
-            nameView
-        ) {
-            return@createViewBinder when (it) {
-                is ExpandedCategoryViewEvent.Select -> callback.onCategorySelected(
-                    bindingAdapterPosition
-                )
-            }
+    val thumbnailView = requireNotNull(thumbnail)
+    val scrimView = requireNotNull(scrim)
+    val nameView = requireNotNull(name)
+    val selectOverlayView = requireNotNull(selectOverlay)
+    viewBinder =
+        createViewBinder(thumbnailView, scrimView, selectOverlayView, nameView) {
+          return@createViewBinder when (it) {
+            is ExpandedCategoryViewEvent.Select ->
+                callback.onCategorySelected(bindingAdapterPosition)
+          }
         }
 
-        binding.expandCategoryItem.layout {
-            thumbnailView.also {
-                connect(
-                    it.id(), ConstraintSet.TOP,
-                    ConstraintSet.PARENT_ID,
-                    ConstraintSet.TOP
-                )
-                connect(
-                    it.id(), ConstraintSet.BOTTOM,
-                    ConstraintSet.PARENT_ID,
-                    ConstraintSet.BOTTOM
-                )
-                connect(
-                    it.id(), ConstraintSet.START,
-                    ConstraintSet.PARENT_ID,
-                    ConstraintSet.START
-                )
-                connect(
-                    it.id(), ConstraintSet.END,
-                    ConstraintSet.PARENT_ID,
-                    ConstraintSet.END
-                )
-            }
+    binding.expandCategoryItem.layout {
+      thumbnailView.also {
+        connect(it.id(), ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP)
+        connect(it.id(), ConstraintSet.BOTTOM, ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM)
+        connect(it.id(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
+        connect(it.id(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
+      }
 
-            scrimView.also {
-                connect(
-                    it.id(), ConstraintSet.TOP,
-                    ConstraintSet.PARENT_ID,
-                    ConstraintSet.TOP
-                )
-                connect(
-                    it.id(), ConstraintSet.BOTTOM,
-                    ConstraintSet.PARENT_ID,
-                    ConstraintSet.BOTTOM
-                )
-                connect(
-                    it.id(), ConstraintSet.START,
-                    ConstraintSet.PARENT_ID,
-                    ConstraintSet.START
-                )
-                connect(
-                    it.id(), ConstraintSet.END,
-                    ConstraintSet.PARENT_ID,
-                    ConstraintSet.END
-                )
-            }
+      scrimView.also {
+        connect(it.id(), ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP)
+        connect(it.id(), ConstraintSet.BOTTOM, ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM)
+        connect(it.id(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
+        connect(it.id(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
+      }
 
-            nameView.also {
-                connect(
-                    it.id(), ConstraintSet.BOTTOM,
-                    ConstraintSet.PARENT_ID,
-                    ConstraintSet.BOTTOM
-                )
-                connect(
-                    it.id(), ConstraintSet.START,
-                    ConstraintSet.PARENT_ID,
-                    ConstraintSet.START
-                )
-                connect(
-                    it.id(), ConstraintSet.END,
-                    ConstraintSet.PARENT_ID,
-                    ConstraintSet.END
-                )
-            }
-        }
+      nameView.also {
+        connect(it.id(), ConstraintSet.BOTTOM, ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM)
+        connect(it.id(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
+        connect(it.id(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
+      }
     }
+  }
 
-    override fun bindState(state: ExpandedCategoryViewState) {
-        viewBinder.bindState(state)
-    }
+  override fun bindState(state: ExpandedCategoryViewState) {
+    viewBinder.bindState(state)
+  }
 
-    override fun teardown() {
-        viewBinder.teardown()
-        name = null
-        scrim = null
-        selectOverlay = null
-        thumbnail = null
-    }
+  override fun teardown() {
+    viewBinder.teardown()
+    name = null
+    scrim = null
+    selectOverlay = null
+    thumbnail = null
+  }
 }

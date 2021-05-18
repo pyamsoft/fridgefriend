@@ -22,21 +22,22 @@ import androidx.annotation.CheckResult
 
 @CheckResult
 private fun isEditableType(inputType: Int): Boolean {
-    return inputType != InputType.TYPE_NULL
+  return inputType != InputType.TYPE_NULL
 }
 
 val EditText.isEditable: Boolean
-    @get:CheckResult get() {
-        return isEditableType(inputType)
-    }
+  @get:CheckResult
+  get() {
+    return isEditableType(inputType)
+  }
 
 fun EditText.setEditable(inputType: Int) {
-    val isEditable = isEditableType(inputType)
-    this.inputType = inputType
-    this.isFocusable = isEditable
-    this.isLongClickable = isEditable
-    this.setTextIsSelectable(isEditable)
-    isFocusableInTouchMode = isEditable
-    isFocusable = isEditable
-    isCursorVisible = isEditable
+  val isEditable = isEditableType(inputType)
+  this.inputType = inputType
+  this.isFocusable = isEditable
+  this.isLongClickable = isEditable
+  this.setTextIsSelectable(isEditable)
+  isFocusableInTouchMode = isEditable
+  isFocusable = isEditable
+  isCursorVisible = isEditable
 }

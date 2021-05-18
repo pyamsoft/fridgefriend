@@ -20,18 +20,17 @@ import androidx.lifecycle.viewModelScope
 import com.pyamsoft.pydroid.arch.UiControllerEvent
 import com.pyamsoft.pydroid.arch.UiSavedState
 
-abstract class BaseAddDetailViewModel<C : UiControllerEvent> protected constructor(
+abstract class BaseAddDetailViewModel<C : UiControllerEvent>
+protected constructor(
     private val delegate: DetailListStateModel,
     savedState: UiSavedState,
-) : BaseDetailViewModel<C>(
-    delegate, savedState
-) {
+) : BaseDetailViewModel<C>(delegate, savedState) {
 
-    fun handleDelete(index: Int) {
-        delegate.handleDelete(viewModelScope, index)
-    }
+  fun handleDelete(index: Int) {
+    delegate.handleDelete(viewModelScope, index)
+  }
 
-    fun handleClearListError() {
-        delegate.handleClearListError(viewModelScope)
-    }
+  fun handleClearListError() {
+    delegate.handleClearListError(viewModelScope)
+  }
 }

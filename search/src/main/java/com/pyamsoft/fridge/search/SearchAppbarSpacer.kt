@@ -24,7 +24,9 @@ import com.pyamsoft.fridge.ui.appbar.AppBarActivity
 import com.pyamsoft.fridge.ui.view.UiAppBarSpacer
 import javax.inject.Inject
 
-class SearchAppbarSpacer @Inject internal constructor(
+class SearchAppbarSpacer
+@Inject
+internal constructor(
     parent: ViewGroup,
     owner: LifecycleOwner,
     appBarActivity: AppBarActivity,

@@ -21,9 +21,7 @@ import java.util.Calendar
 
 interface ExpiringPreferences {
 
-    @CheckResult
-    suspend fun getLastNotificationTimeExpiringSoon(): Long
+  @CheckResult suspend fun getLastNotificationTimeExpiringSoon(): Long
 
-    suspend fun markNotificationExpiringSoon(calendar: Calendar)
-
+  suspend fun markNotificationExpiringSoon(calendar: Calendar)
 }

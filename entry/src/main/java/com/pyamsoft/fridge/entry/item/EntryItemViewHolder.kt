@@ -23,50 +23,42 @@ import com.pyamsoft.pydroid.arch.ViewBinder
 import com.pyamsoft.pydroid.arch.createViewBinder
 import javax.inject.Inject
 
-class EntryItemViewHolder internal constructor(
+class EntryItemViewHolder
+internal constructor(
     binding: EntryListItemHolderBinding,
     factory: EntryItemComponent.Factory,
     callback: EntryListAdapter.Callback
 ) : RecyclerView.ViewHolder(binding.root), ViewBinder<EntryItemViewState> {
 
-    @Inject
-    @JvmField
-    internal var scrimView: EntryListItemScrim? = null
+  @Inject @JvmField internal var scrimView: EntryListItemScrim? = null
 
-    @Inject
-    @JvmField
-    internal var nameView: EntryListItemName? = null
+  @Inject @JvmField internal var nameView: EntryListItemName? = null
 
-    @Inject
-    @JvmField
-    internal var clickView: EntryListItemClick? = null
+  @Inject @JvmField internal var clickView: EntryListItemClick? = null
 
-    private val viewBinder: ViewBinder<EntryItemViewState>
+  private val viewBinder: ViewBinder<EntryItemViewState>
 
-    init {
-        factory.create(binding.entryListItem).inject(this)
+  init {
+    factory.create(binding.entryListItem).inject(this)
 
-        viewBinder = createViewBinder(
-            requireNotNull(nameView),
-            requireNotNull(scrimView),
-            requireNotNull(clickView)
-        ) {
-            return@createViewBinder when (it) {
-                is EntryItemViewEvent.OnClick -> callback.onClick(bindingAdapterPosition)
-                is EntryItemViewEvent.OnLongPress -> callback.onLongPress(bindingAdapterPosition)
-            }
+    viewBinder =
+        createViewBinder(
+            requireNotNull(nameView), requireNotNull(scrimView), requireNotNull(clickView)) {
+          return@createViewBinder when (it) {
+            is EntryItemViewEvent.OnClick -> callback.onClick(bindingAdapterPosition)
+            is EntryItemViewEvent.OnLongPress -> callback.onLongPress(bindingAdapterPosition)
+          }
         }
-    }
+  }
 
-    override fun bindState(state: EntryItemViewState) {
-        viewBinder.bindState(state)
-    }
+  override fun bindState(state: EntryItemViewState) {
+    viewBinder.bindState(state)
+  }
 
-    override fun teardown() {
-        viewBinder.teardown()
-        scrimView = null
-        nameView = null
-        clickView = null
-    }
-
+  override fun teardown() {
+    viewBinder.teardown()
+    scrimView = null
+    nameView = null
+    clickView = null
+  }
 }

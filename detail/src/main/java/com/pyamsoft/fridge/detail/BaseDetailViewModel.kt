@@ -25,55 +25,50 @@ import com.pyamsoft.pydroid.arch.UiSavedStateViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-abstract class BaseDetailViewModel<C : UiControllerEvent> protected constructor(
+abstract class BaseDetailViewModel<C : UiControllerEvent>
+protected constructor(
     private val delegate: DetailListStateModel,
     savedState: UiSavedState,
-) : UiSavedStateViewModel<DetailViewState, C>(
-    savedState, initialState = delegate.initialState
-) {
+) : UiSavedStateViewModel<DetailViewState, C>(savedState, initialState = delegate.initialState) {
 
-    init {
-        val scope = viewModelScope
-        val job = delegate.bindState(scope, Renderable { state ->
-            state.render(scope) { scope.setState { it } }
-        })
-        doOnCleared {
-            job.cancel()
-        }
-        doOnCleared {
-            delegate.clear()
-        }
+  init {
+    val scope = viewModelScope
+    val job =
+        delegate.bindState(
+            scope, Renderable { state -> state.render(scope) { scope.setState { it } } })
+    doOnCleared { job.cancel() }
+    doOnCleared { delegate.clear() }
 
-        delegate.initialize(scope)
+    delegate.initialize(scope)
 
-        viewModelScope.launch(context = Dispatchers.Default) {
-            val filterName = restoreSavedState(SAVED_FILTER) { "" }
-            if (filterName.isNotBlank()) {
-                val filter = DetailViewState.Showing.valueOf(filterName)
-                delegate.handleUpdateFilter(this, filter)
-            }
-        }
+    viewModelScope.launch(context = Dispatchers.Default) {
+      val filterName = restoreSavedState(SAVED_FILTER) { "" }
+      if (filterName.isNotBlank()) {
+        val filter = DetailViewState.Showing.valueOf(filterName)
+        delegate.handleUpdateFilter(this, filter)
+      }
     }
+  }
 
-    fun handleAddAgain(item: FridgeItem) {
-        delegate.handleAddAgain(viewModelScope, item)
-    }
+  fun handleAddAgain(item: FridgeItem) {
+    delegate.handleAddAgain(viewModelScope, item)
+  }
 
-    fun handleDeleteForever() {
-        delegate.handleDeleteForever(viewModelScope)
-    }
+  fun handleDeleteForever() {
+    delegate.handleDeleteForever(viewModelScope)
+  }
 
-    fun handleUndoDelete() {
-        delegate.handleUndoDelete(viewModelScope)
-    }
+  fun handleUndoDelete() {
+    delegate.handleUndoDelete(viewModelScope)
+  }
 
-    fun handleUpdateShowing() {
-        delegate.handleToggleArchived(viewModelScope) { newShowing ->
-            putSavedState(SAVED_FILTER, newShowing.name)
-        }
+  fun handleUpdateShowing() {
+    delegate.handleToggleArchived(viewModelScope) { newShowing ->
+      putSavedState(SAVED_FILTER, newShowing.name)
     }
+  }
 
-    companion object {
-        private const val SAVED_FILTER = "filter"
-    }
+  companion object {
+    private const val SAVED_FILTER = "filter"
+  }
 }

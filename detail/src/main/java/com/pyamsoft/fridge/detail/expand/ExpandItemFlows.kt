@@ -22,7 +22,8 @@ import com.pyamsoft.pydroid.arch.UiControllerEvent
 import com.pyamsoft.pydroid.arch.UiViewEvent
 import com.pyamsoft.pydroid.arch.UiViewState
 
-data class ExpandedViewState internal constructor(
+data class ExpandedViewState
+internal constructor(
     val item: FridgeItem?,
     val throwable: Throwable?,
     val sameNamedItems: Collection<FridgeItem>,
@@ -30,59 +31,53 @@ data class ExpandedViewState internal constructor(
     val categories: List<FridgeCategory>,
 ) : UiViewState {
 
-    data class SimilarItem internal constructor(val item: FridgeItem?, val display: String)
+  data class SimilarItem internal constructor(val item: FridgeItem?, val display: String)
 }
 
 sealed class ExpandedViewEvent : UiViewEvent {
 
-    sealed class ItemEvent : ExpandedViewEvent() {
+  sealed class ItemEvent : ExpandedViewEvent() {
 
-        data class CommitCategory internal constructor(val index: Int) : ItemEvent()
+    data class CommitCategory internal constructor(val index: Int) : ItemEvent()
 
-        data class CommitName internal constructor(val name: String) : ItemEvent()
+    data class CommitName internal constructor(val name: String) : ItemEvent()
 
-        data class CommitCount internal constructor(val count: Int) : ItemEvent()
+    data class CommitCount internal constructor(val count: Int) : ItemEvent()
 
-        data class SelectSimilar internal constructor(val item: FridgeItem) : ItemEvent()
+    data class SelectSimilar internal constructor(val item: FridgeItem) : ItemEvent()
 
-        object CommitPresence : ItemEvent()
+    object CommitPresence : ItemEvent()
 
-        object PickDate : ItemEvent()
+    object PickDate : ItemEvent()
+  }
 
-    }
+  sealed class ToolbarEvent : ExpandedViewEvent() {
 
-    sealed class ToolbarEvent : ExpandedViewEvent() {
+    object CloseItem : ToolbarEvent()
 
-        object CloseItem : ToolbarEvent()
+    object DeleteItem : ToolbarEvent()
 
-        object DeleteItem : ToolbarEvent()
+    object ConsumeItem : ToolbarEvent()
 
-        object ConsumeItem : ToolbarEvent()
+    object SpoilItem : ToolbarEvent()
 
-        object SpoilItem : ToolbarEvent()
+    object RestoreItem : ToolbarEvent()
 
-        object RestoreItem : ToolbarEvent()
-
-        object MoveItem : ToolbarEvent()
-
-    }
-
+    object MoveItem : ToolbarEvent()
+  }
 }
-
 
 sealed class ExpandedControllerEvent : UiControllerEvent {
 
-    object Close : ExpandedControllerEvent()
+  object Close : ExpandedControllerEvent()
 
-    data class MoveItem internal constructor(
-        val item: FridgeItem
-    ) : ExpandedControllerEvent()
+  data class MoveItem internal constructor(val item: FridgeItem) : ExpandedControllerEvent()
 
-    data class DatePicked internal constructor(
-        val oldItem: FridgeItem,
-        val year: Int,
-        val month: Int,
-        val day: Int,
-    ) : ExpandedControllerEvent()
-
+  data class DatePicked
+  internal constructor(
+      val oldItem: FridgeItem,
+      val year: Int,
+      val month: Int,
+      val day: Int,
+  ) : ExpandedControllerEvent()
 }

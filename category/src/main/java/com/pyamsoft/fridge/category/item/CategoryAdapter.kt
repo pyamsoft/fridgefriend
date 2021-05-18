@@ -26,70 +26,70 @@ import com.pyamsoft.fridge.category.databinding.CategoryItemHolderMediumBinding
 import com.pyamsoft.fridge.category.databinding.CategoryItemHolderSmallBinding
 import com.pyamsoft.pydroid.ui.util.teardownAdapter
 
-class CategoryAdapter internal constructor(
-    private val factory: CategoryItemComponent.Factory
-) : ListAdapter<CategoryItemViewState, CategoryViewHolder>(DIFFER) {
+class CategoryAdapter internal constructor(private val factory: CategoryItemComponent.Factory) :
+    ListAdapter<CategoryItemViewState, CategoryViewHolder>(DIFFER) {
 
-    init {
-        setHasStableIds(true)
+  init {
+    setHasStableIds(true)
+  }
+
+  override fun getItemId(position: Int): Long {
+    return getItem(position).category.id().hashCode().toLong()
+  }
+
+  override fun getItemViewType(position: Int): Int {
+    val item = getItem(position)
+    return when {
+      item.itemCount <= 0 -> VIEW_TYPE_SMALL
+      item.itemCount <= 5 -> VIEW_TYPE_MEDIUM
+      else -> VIEW_TYPE_LARGE
     }
+  }
 
-    override fun getItemId(position: Int): Long {
-        return getItem(position).category.id().hashCode().toLong()
-    }
-
-    override fun getItemViewType(position: Int): Int {
-        val item = getItem(position)
-        return when {
-            item.itemCount <= 0 -> VIEW_TYPE_SMALL
-            item.itemCount <= 5 -> VIEW_TYPE_MEDIUM
-            else -> VIEW_TYPE_LARGE
+  override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CategoryViewHolder {
+    val inflater = LayoutInflater.from(parent.context)
+    val view =
+        when (viewType) {
+          VIEW_TYPE_SMALL ->
+              CategoryItemHolderSmallBinding.inflate(inflater, parent, false).categoryHolder
+          VIEW_TYPE_MEDIUM ->
+              CategoryItemHolderMediumBinding.inflate(inflater, parent, false).categoryHolder
+          else -> CategoryItemHolderLargeBinding.inflate(inflater, parent, false).categoryHolder
         }
-    }
+    return CategoryViewHolder(view, factory)
+  }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CategoryViewHolder {
-        val inflater = LayoutInflater.from(parent.context)
-        val view = when (viewType) {
-            VIEW_TYPE_SMALL -> CategoryItemHolderSmallBinding
-                .inflate(inflater, parent, false).categoryHolder
-            VIEW_TYPE_MEDIUM -> CategoryItemHolderMediumBinding
-                .inflate(inflater, parent, false).categoryHolder
-            else -> CategoryItemHolderLargeBinding
-                .inflate(inflater, parent, false).categoryHolder
-        }
-        return CategoryViewHolder(view, factory)
-    }
+  override fun onBindViewHolder(holder: CategoryViewHolder, position: Int) {
+    val state = getItem(position)
+    holder.bindState(state)
+  }
 
-    override fun onBindViewHolder(holder: CategoryViewHolder, position: Int) {
-        val state = getItem(position)
-        holder.bindState(state)
-    }
+  override fun onDetachedFromRecyclerView(recyclerView: RecyclerView) {
+    super.onDetachedFromRecyclerView(recyclerView)
+    teardownAdapter(recyclerView)
+  }
 
-    override fun onDetachedFromRecyclerView(recyclerView: RecyclerView) {
-        super.onDetachedFromRecyclerView(recyclerView)
-        teardownAdapter(recyclerView)
-    }
+  companion object {
 
-    companion object {
+    private val DIFFER =
+        object : DiffUtil.ItemCallback<CategoryItemViewState>() {
+          override fun areItemsTheSame(
+              oldItem: CategoryItemViewState,
+              newItem: CategoryItemViewState
+          ): Boolean {
+            return oldItem.category.id() == newItem.category.id()
+          }
 
-        private val DIFFER = object : DiffUtil.ItemCallback<CategoryItemViewState>() {
-            override fun areItemsTheSame(
-                oldItem: CategoryItemViewState,
-                newItem: CategoryItemViewState
-            ): Boolean {
-                return oldItem.category.id() == newItem.category.id()
-            }
-
-            override fun areContentsTheSame(
-                oldItem: CategoryItemViewState,
-                newItem: CategoryItemViewState
-            ): Boolean {
-                return oldItem == newItem
-            }
+          override fun areContentsTheSame(
+              oldItem: CategoryItemViewState,
+              newItem: CategoryItemViewState
+          ): Boolean {
+            return oldItem == newItem
+          }
         }
 
-        private const val VIEW_TYPE_LARGE = 0
-        private const val VIEW_TYPE_MEDIUM = 1
-        private const val VIEW_TYPE_SMALL = 2
-    }
+    private const val VIEW_TYPE_LARGE = 0
+    private const val VIEW_TYPE_MEDIUM = 1
+    private const val VIEW_TYPE_SMALL = 2
+  }
 }

@@ -19,21 +19,17 @@ package com.pyamsoft.fridge.db
 import androidx.annotation.CheckResult
 
 interface BaseDb<
-        R : DbRealtime<*>,
-        Q : DbQuery<*>,
-        I : DbInsert<*>,
-        D : DbDelete<*>,
-        > : DbCache {
+    R : DbRealtime<*>,
+    Q : DbQuery<*>,
+    I : DbInsert<*>,
+    D : DbDelete<*>,
+> : DbCache {
 
-    @CheckResult
-    fun realtime(): R
+  @CheckResult fun realtime(): R
 
-    @CheckResult
-    fun queryDao(): Q
+  @CheckResult fun queryDao(): Q
 
-    @CheckResult
-    fun insertDao(): I
+  @CheckResult fun insertDao(): I
 
-    @CheckResult
-    fun deleteDao(): D
+  @CheckResult fun deleteDao(): D
 }

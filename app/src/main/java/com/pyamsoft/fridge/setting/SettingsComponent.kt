@@ -27,30 +27,23 @@ import dagger.Subcomponent
 import dagger.multibindings.ClassKey
 import dagger.multibindings.IntoMap
 
-@Subcomponent(
-    modules = [
-        SettingsComponent.ComponentModule::class,
-        ViewModelFactoryModule::class
-    ]
-)
+@Subcomponent(modules = [SettingsComponent.ComponentModule::class, ViewModelFactoryModule::class])
 internal interface SettingsComponent {
 
-    fun inject(fragment: SettingsFragment.SettingsPreferenceFragment)
+  fun inject(fragment: SettingsFragment.SettingsPreferenceFragment)
 
-    @Subcomponent.Factory
-    interface Factory {
+  @Subcomponent.Factory
+  interface Factory {
 
-        @CheckResult
-        fun create(@BindsInstance parent: PreferenceScreen): SettingsComponent
-    }
+    @CheckResult fun create(@BindsInstance parent: PreferenceScreen): SettingsComponent
+  }
 
+  @Module
+  abstract class ComponentModule {
 
-    @Module
-    abstract class ComponentModule {
-
-        @Binds
-        @IntoMap
-        @ClassKey(SettingsViewModel::class)
-        internal abstract fun bindViewModel(impl: SettingsViewModel): ViewModel
-    }
+    @Binds
+    @IntoMap
+    @ClassKey(SettingsViewModel::class)
+    internal abstract fun bindViewModel(impl: SettingsViewModel): ViewModel
+  }
 }

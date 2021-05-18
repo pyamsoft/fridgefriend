@@ -20,14 +20,9 @@ import androidx.annotation.CheckResult
 
 interface Order {
 
-    @CheckResult
-    suspend fun tag(): String
+  @CheckResult suspend fun tag(): String
 
-    @CheckResult
-    suspend fun parameters(): OrderParameters
+  @CheckResult suspend fun parameters(): OrderParameters
 
-    @CheckResult
-    suspend fun period(): Long
-
+  @CheckResult suspend fun period(): Long
 }
-

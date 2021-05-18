@@ -22,17 +22,17 @@ import com.pyamsoft.fridge.db.category.FridgeCategory
 
 internal object ThumbnailTypeConverter {
 
-    @JvmStatic
-    @TypeConverter
-    @CheckResult
-    fun toThumbnail(data: ByteArray?): FridgeCategory.Thumbnail? {
-        return if (data == null) null else FridgeCategory.Thumbnail.create(data)
-    }
+  @JvmStatic
+  @TypeConverter
+  @CheckResult
+  fun toThumbnail(data: ByteArray?): FridgeCategory.Thumbnail? {
+    return if (data == null) null else FridgeCategory.Thumbnail.create(data)
+  }
 
-    @JvmStatic
-    @TypeConverter
-    @CheckResult
-    fun toByteArray(thumbnail: FridgeCategory.Thumbnail?): ByteArray? {
-        return thumbnail?.data
-    }
+  @JvmStatic
+  @TypeConverter
+  @CheckResult
+  fun toByteArray(thumbnail: FridgeCategory.Thumbnail?): ByteArray? {
+    return thumbnail?.data
+  }
 }

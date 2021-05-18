@@ -27,40 +27,35 @@ import com.pyamsoft.pydroid.arch.UiViewEvent
 import com.pyamsoft.pydroid.arch.UiViewState
 import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
 
-abstract class BaseItemPresence<S : UiViewState, V : UiViewEvent> protected constructor(
-    parent: ViewGroup
-) : BaseUiView<S, V, DetailListItemPresenceBinding>(parent) {
+abstract class BaseItemPresence<S : UiViewState, V : UiViewEvent>
+protected constructor(parent: ViewGroup) : BaseUiView<S, V, DetailListItemPresenceBinding>(parent) {
 
-    final override val viewBinding = DetailListItemPresenceBinding::inflate
+  final override val viewBinding = DetailListItemPresenceBinding::inflate
 
-    final override val layoutRoot by boundView { detailItemPresence }
+  final override val layoutRoot by boundView { detailItemPresence }
 
-    init {
-        doOnInflate {
-            layoutRoot.setOnDebouncedClickListener {
-                publishChangePresence()
-            }
+  init {
+    doOnInflate {
+      layoutRoot.setOnDebouncedClickListener { publishChangePresence() }
 
-            binding.detailItemPresenceSwitch.setOnDebouncedClickListener {
-                publishChangePresence()
-            }
-        }
-
-        doOnTeardown {
-            layoutRoot.setOnDebouncedClickListener(null)
-            binding.detailItemPresenceSwitch.setOnDebouncedClickListener(null)
-        }
+      binding.detailItemPresenceSwitch.setOnDebouncedClickListener { publishChangePresence() }
     }
 
-    protected fun renderItem(item: FridgeItem?) {
-        binding.detailItemPresenceSwitch.isEnabled = item != null && !item.isArchived()
-        if (item != null) {
-            binding.detailItemPresenceSwitch.isVisible = true
-            binding.detailItemPresenceSwitch.isChecked = item.presence() == FridgeItem.Presence.HAVE
-        } else {
-            binding.detailItemPresenceSwitch.isInvisible = true
-        }
+    doOnTeardown {
+      layoutRoot.setOnDebouncedClickListener(null)
+      binding.detailItemPresenceSwitch.setOnDebouncedClickListener(null)
     }
+  }
 
-    protected abstract fun publishChangePresence()
+  protected fun renderItem(item: FridgeItem?) {
+    binding.detailItemPresenceSwitch.isEnabled = item != null && !item.isArchived()
+    if (item != null) {
+      binding.detailItemPresenceSwitch.isVisible = true
+      binding.detailItemPresenceSwitch.isChecked = item.presence() == FridgeItem.Presence.HAVE
+    } else {
+      binding.detailItemPresenceSwitch.isInvisible = true
+    }
+  }
+
+  protected abstract fun publishChangePresence()
 }

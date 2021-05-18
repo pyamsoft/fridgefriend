@@ -40,302 +40,266 @@ import com.pyamsoft.pydroid.arch.createSavedStateViewModelFactory
 import com.pyamsoft.pydroid.arch.emptyController
 import com.pyamsoft.pydroid.arch.newUiController
 import com.pyamsoft.pydroid.ui.Injector
+import com.pyamsoft.pydroid.ui.R as R2
 import com.pyamsoft.pydroid.ui.app.requireToolbarActivity
 import com.pyamsoft.pydroid.ui.arch.fromViewModelFactory
 import com.pyamsoft.pydroid.ui.databinding.LayoutCoordinatorBinding
 import com.pyamsoft.pydroid.ui.util.show
 import javax.inject.Inject
-import com.pyamsoft.pydroid.ui.R as R2
 
 internal class DetailFragment : Fragment(), SnackbarContainer {
 
-    @JvmField
-    @Inject
-    internal var container: DetailContainer? = null
+  @JvmField @Inject internal var container: DetailContainer? = null
 
-    @JvmField
-    @Inject
-    internal var addNew: DetailAddItemView? = null
+  @JvmField @Inject internal var addNew: DetailAddItemView? = null
 
-    @JvmField
-    @Inject
-    internal var heroImage: DetailHeroImage? = null
+  @JvmField @Inject internal var heroImage: DetailHeroImage? = null
 
-    @JvmField
-    @Inject
-    internal var toolbar: DetailToolbar? = null
+  @JvmField @Inject internal var toolbar: DetailToolbar? = null
 
-    // Nested in container
-    @JvmField
-    @Inject
-    internal var nestedEmptyState: DetailEmptyState? = null
+  // Nested in container
+  @JvmField @Inject internal var nestedEmptyState: DetailEmptyState? = null
 
-    // Nested in container
-    @JvmField
-    @Inject
-    internal var nestedList: DetailList? = null
+  // Nested in container
+  @JvmField @Inject internal var nestedList: DetailList? = null
 
-    @JvmField
-    @Inject
-    internal var switcher: DetailPresenceSwitcher? = null
+  @JvmField @Inject internal var switcher: DetailPresenceSwitcher? = null
 
-    @JvmField
-    @Inject
-    internal var listFactory: DetailListViewModel.Factory? = null
-    private val listViewModel by fromViewModelFactory<DetailListViewModel> {
-        createSavedStateViewModelFactory(listFactory)
+  @JvmField @Inject internal var listFactory: DetailListViewModel.Factory? = null
+  private val listViewModel by fromViewModelFactory<DetailListViewModel> {
+    createSavedStateViewModelFactory(listFactory)
+  }
+
+  @JvmField @Inject internal var addFactory: DetailAddViewModel.Factory? = null
+  private val addViewModel by fromViewModelFactory<DetailAddViewModel> {
+    createSavedStateViewModelFactory(addFactory)
+  }
+
+  @JvmField @Inject internal var switcherFactory: FridgeViewModelFactory? = null
+  private val switcherViewModel by fromViewModelFactory<DetailSwitcherViewModel> {
+    switcherFactory?.create(this)
+  }
+
+  @JvmField @Inject internal var toolbarFactory: DetailToolbarViewModel.Factory? = null
+  private val toolbarViewModel by fromViewModelFactory<DetailToolbarViewModel> {
+    createSavedStateViewModelFactory(toolbarFactory)
+  }
+
+  private var stateSaver: StateSaver? = null
+
+  override fun onCreateView(
+      inflater: LayoutInflater,
+      container: ViewGroup?,
+      savedInstanceState: Bundle?,
+  ): View? {
+    return inflater.inflate(R2.layout.layout_coordinator, container, false).apply {
+      // Cover the existing Entry List
+      setBackgroundResource(R.color.windowBackground)
     }
+  }
 
-    @JvmField
-    @Inject
-    internal var addFactory: DetailAddViewModel.Factory? = null
-    private val addViewModel by fromViewModelFactory<DetailAddViewModel> {
-        createSavedStateViewModelFactory(addFactory)
-    }
+  override fun onViewCreated(
+      view: View,
+      savedInstanceState: Bundle?,
+  ) {
+    super.onViewCreated(view, savedInstanceState)
 
-    @JvmField
-    @Inject
-    internal var switcherFactory: FridgeViewModelFactory? = null
-    private val switcherViewModel by fromViewModelFactory<DetailSwitcherViewModel> {
-        switcherFactory?.create(this)
-    }
+    val entryId = FridgeEntry.Id(requireNotNull(requireArguments().getString(ENTRY)))
+    val presence = Presence.valueOf(requireNotNull(requireArguments().getString(PRESENCE)))
 
-    @JvmField
-    @Inject
-    internal var toolbarFactory: DetailToolbarViewModel.Factory? = null
-    private val toolbarViewModel by fromViewModelFactory<DetailToolbarViewModel> {
-        createSavedStateViewModelFactory(toolbarFactory)
-    }
+    val binding = LayoutCoordinatorBinding.bind(view)
+    Injector.obtainFromApplication<FridgeComponent>(view.context)
+        .plusDetailComponent()
+        .create(
+            requireActivity(),
+            requireToolbarActivity(),
+            requireAppBarActivity(),
+            requireActivity(),
+            binding.layoutCoordinator,
+            viewLifecycleOwner,
+            entryId,
+            presence)
+        .inject(this)
 
-    private var stateSaver: StateSaver? = null
+    val container = requireNotNull(container)
+    val nestedEmptyState = requireNotNull(nestedEmptyState)
+    val nestedList = requireNotNull(nestedList)
+    container.nest(nestedEmptyState, nestedList)
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?,
-    ): View? {
-        return inflater.inflate(R2.layout.layout_coordinator, container, false).apply {
-            // Cover the existing Entry List
-            setBackgroundResource(R.color.windowBackground)
-        }
-    }
-
-    override fun onViewCreated(
-        view: View,
-        savedInstanceState: Bundle?,
-    ) {
-        super.onViewCreated(view, savedInstanceState)
-
-        val entryId = FridgeEntry.Id(requireNotNull(requireArguments().getString(ENTRY)))
-        val presence = Presence.valueOf(requireNotNull(requireArguments().getString(PRESENCE)))
-
-        val binding = LayoutCoordinatorBinding.bind(view)
-        Injector.obtainFromApplication<FridgeComponent>(view.context)
-            .plusDetailComponent()
-            .create(
-                requireActivity(),
-                requireToolbarActivity(),
-                requireAppBarActivity(),
-                requireActivity(),
-                binding.layoutCoordinator,
-                viewLifecycleOwner,
-                entryId,
-                presence
-            )
-            .inject(this)
-
-        val container = requireNotNull(container)
-        val nestedEmptyState = requireNotNull(nestedEmptyState)
-        val nestedList = requireNotNull(nestedList)
-        container.nest(nestedEmptyState, nestedList)
-
-        val listSaver = createComponent(
+    val listSaver =
+        createComponent(
             savedInstanceState,
             viewLifecycleOwner,
             listViewModel,
-            controller = newUiController {
-                return@newUiController when (it) {
+            controller =
+                newUiController {
+                  return@newUiController when (it) {
                     is DetailControllerEvent.ListEvent.ExpandItem -> openExisting(it.item)
-                }
-            },
+                  }
+                },
             requireNotNull(heroImage),
             container,
         ) {
-            return@createComponent when (it) {
-                is DetailViewEvent.ListEvent.ChangeItemPresence -> listViewModel.handleCommitPresence(it.index)
-                is DetailViewEvent.ListEvent.ConsumeItem -> listViewModel.handleConsume(it.index)
-                is DetailViewEvent.ListEvent.DecreaseItemCount -> listViewModel.handleDecreaseCount(it.index)
-                is DetailViewEvent.ListEvent.DeleteItem -> listViewModel.handleDelete(it.index)
-                is DetailViewEvent.ListEvent.ForceRefresh -> listViewModel.handleRefreshList(true)
-                is DetailViewEvent.ListEvent.IncreaseItemCount -> listViewModel.handleIncreaseCount(it.index)
-                is DetailViewEvent.ListEvent.RestoreItem -> listViewModel.handleRestore(it.index)
-                is DetailViewEvent.ListEvent.SpoilItem -> listViewModel.handleSpoil(it.index)
-                is DetailViewEvent.ListEvent.ExpandItem -> listViewModel.handleExpand(it.index)
-            }
+          return@createComponent when (it) {
+            is DetailViewEvent.ListEvent.ChangeItemPresence ->
+                listViewModel.handleCommitPresence(it.index)
+            is DetailViewEvent.ListEvent.ConsumeItem -> listViewModel.handleConsume(it.index)
+            is DetailViewEvent.ListEvent.DecreaseItemCount ->
+                listViewModel.handleDecreaseCount(it.index)
+            is DetailViewEvent.ListEvent.DeleteItem -> listViewModel.handleDelete(it.index)
+            is DetailViewEvent.ListEvent.ForceRefresh -> listViewModel.handleRefreshList(true)
+            is DetailViewEvent.ListEvent.IncreaseItemCount ->
+                listViewModel.handleIncreaseCount(it.index)
+            is DetailViewEvent.ListEvent.RestoreItem -> listViewModel.handleRestore(it.index)
+            is DetailViewEvent.ListEvent.SpoilItem -> listViewModel.handleSpoil(it.index)
+            is DetailViewEvent.ListEvent.ExpandItem -> listViewModel.handleExpand(it.index)
+          }
         }
 
-        val addSaver = createComponent(
+    val addSaver =
+        createComponent(
             savedInstanceState,
             viewLifecycleOwner,
             addViewModel,
-            controller = newUiController {
-                return@newUiController when(it) {
+            controller =
+                newUiController {
+                  return@newUiController when (it) {
                     is DetailControllerEvent.AddEvent.AddNew -> createItem(it.entryId, it.presence)
-                }
-            },
+                  }
+                },
             requireNotNull(addNew),
         ) {
-            return@createComponent when (it) {
-                is DetailViewEvent.ButtonEvent.AddNew -> addViewModel.handleAddNew()
-                is DetailViewEvent.ButtonEvent.AnotherOne -> addViewModel.handleAddAgain(it.item)
-                is DetailViewEvent.ButtonEvent.ChangeCurrentFilter -> addViewModel.handleUpdateShowing()
-                is DetailViewEvent.ButtonEvent.ClearListError -> addViewModel.handleClearListError()
-                is DetailViewEvent.ButtonEvent.ReallyDeleteItemNoUndo -> addViewModel.handleDeleteForever()
-                is DetailViewEvent.ButtonEvent.UndoDeleteItem -> addViewModel.handleUndoDelete()
-            }
+          return@createComponent when (it) {
+            is DetailViewEvent.ButtonEvent.AddNew -> addViewModel.handleAddNew()
+            is DetailViewEvent.ButtonEvent.AnotherOne -> addViewModel.handleAddAgain(it.item)
+            is DetailViewEvent.ButtonEvent.ChangeCurrentFilter -> addViewModel.handleUpdateShowing()
+            is DetailViewEvent.ButtonEvent.ClearListError -> addViewModel.handleClearListError()
+            is DetailViewEvent.ButtonEvent.ReallyDeleteItemNoUndo ->
+                addViewModel.handleDeleteForever()
+            is DetailViewEvent.ButtonEvent.UndoDeleteItem -> addViewModel.handleUndoDelete()
+          }
         }
 
-        val switcherSaver = createComponent(
+    val switcherSaver =
+        createComponent(
             savedInstanceState,
             viewLifecycleOwner,
             switcherViewModel,
             controller = emptyController(),
-            requireNotNull(switcher)
-        ) {
-            return@createComponent when (it) {
-                is DetailViewEvent.SwitcherEvent.PresenceSwitched -> switcherViewModel.handlePresenceSwitch(
-                    it.presence
-                )
-            }
+            requireNotNull(switcher)) {
+          return@createComponent when (it) {
+            is DetailViewEvent.SwitcherEvent.PresenceSwitched ->
+                switcherViewModel.handlePresenceSwitch(it.presence)
+          }
         }
 
-        val toolbarSaver = createComponent(
+    val toolbarSaver =
+        createComponent(
             savedInstanceState,
             viewLifecycleOwner,
             toolbarViewModel,
             controller = emptyController(),
-            requireNotNull(toolbar)
-        ) {
-            return@createComponent when (it) {
-                is DetailViewEvent.ToolbarEvent.Toolbar.Back -> close()
-                is DetailViewEvent.ToolbarEvent.Search.Query -> toolbarViewModel.handleUpdateSearch(
-                    it.search
-                )
-                is DetailViewEvent.ToolbarEvent.Toolbar.ChangeSort -> toolbarViewModel.handleUpdateSort(
-                    it.sort
-                )
-            }
+            requireNotNull(toolbar)) {
+          return@createComponent when (it) {
+            is DetailViewEvent.ToolbarEvent.Toolbar.Back -> close()
+            is DetailViewEvent.ToolbarEvent.Search.Query ->
+                toolbarViewModel.handleUpdateSearch(it.search)
+            is DetailViewEvent.ToolbarEvent.Toolbar.ChangeSort ->
+                toolbarViewModel.handleUpdateSort(it.sort)
+          }
         }
 
-        stateSaver = StateSaver { outState ->
-            listSaver.saveState(outState)
-            switcherSaver.saveState(outState)
-            toolbarSaver.saveState(outState)
-            addSaver.saveState(outState)
+    stateSaver =
+        StateSaver { outState ->
+          listSaver.saveState(outState)
+          switcherSaver.saveState(outState)
+          toolbarSaver.saveState(outState)
+          addSaver.saveState(outState)
         }
 
-        container.layout {
-            nestedEmptyState.let {
-                connect(
-                    it.id(),
-                    ConstraintSet.START,
-                    ConstraintSet.PARENT_ID,
-                    ConstraintSet.START
-                )
-                connect(it.id(), ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP)
-                connect(
-                    it.id(),
-                    ConstraintSet.BOTTOM,
-                    ConstraintSet.PARENT_ID,
-                    ConstraintSet.BOTTOM
-                )
-                connect(it.id(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
-                constrainWidth(it.id(), ConstraintSet.MATCH_CONSTRAINT)
-                constrainHeight(it.id(), ConstraintSet.MATCH_CONSTRAINT)
+    container.layout {
+      nestedEmptyState.let {
+        connect(it.id(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
+        connect(it.id(), ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP)
+        connect(it.id(), ConstraintSet.BOTTOM, ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM)
+        connect(it.id(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
+        constrainWidth(it.id(), ConstraintSet.MATCH_CONSTRAINT)
+        constrainHeight(it.id(), ConstraintSet.MATCH_CONSTRAINT)
+      }
+
+      nestedList.let {
+        connect(it.id(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
+        connect(it.id(), ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP)
+        connect(it.id(), ConstraintSet.BOTTOM, ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM)
+        connect(it.id(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
+        constrainWidth(it.id(), ConstraintSet.MATCH_CONSTRAINT)
+        constrainHeight(it.id(), ConstraintSet.MATCH_CONSTRAINT)
+      }
+    }
+  }
+
+  override fun container(): CoordinatorLayout? {
+    return addNew?.container()
+  }
+
+  override fun onSaveInstanceState(outState: Bundle) {
+    stateSaver?.saveState(outState)
+    super.onSaveInstanceState(outState)
+  }
+
+  override fun onDestroyView() {
+    super.onDestroyView()
+
+    addFactory = null
+    listFactory = null
+    switcherFactory = null
+    toolbarFactory = null
+
+    heroImage = null
+    container = null
+    nestedList = null
+    nestedEmptyState = null
+    addNew = null
+    toolbar = null
+    switcher = null
+
+    stateSaver = null
+  }
+
+  private fun close() {
+    requireActivity().onBackPressed()
+  }
+
+  private fun createItem(entryId: FridgeEntry.Id, presence: Presence) {
+    showExpandDialog(ExpandedItemDialog.createNew(entryId, presence))
+  }
+
+  private fun openExisting(item: FridgeItem) {
+    showExpandDialog(ExpandedItemDialog.openExisting(item))
+  }
+
+  private fun showExpandDialog(dialogFragment: DialogFragment) {
+    dialogFragment.show(requireActivity(), ExpandedItemDialog.TAG)
+  }
+
+  companion object {
+
+    private const val ENTRY = "entry"
+    private const val PRESENCE = "presence"
+
+    @JvmStatic
+    @CheckResult
+    fun newInstance(
+        entryId: FridgeEntry.Id,
+        filterPresence: Presence,
+    ): Fragment {
+      return DetailFragment().apply {
+        arguments =
+            Bundle().apply {
+              putString(ENTRY, entryId.id)
+              putString(PRESENCE, filterPresence.name)
             }
-
-            nestedList.let {
-                connect(
-                    it.id(),
-                    ConstraintSet.START,
-                    ConstraintSet.PARENT_ID,
-                    ConstraintSet.START
-                )
-                connect(it.id(), ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP)
-                connect(
-                    it.id(),
-                    ConstraintSet.BOTTOM,
-                    ConstraintSet.PARENT_ID,
-                    ConstraintSet.BOTTOM
-                )
-                connect(it.id(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
-                constrainWidth(it.id(), ConstraintSet.MATCH_CONSTRAINT)
-                constrainHeight(it.id(), ConstraintSet.MATCH_CONSTRAINT)
-            }
-        }
+      }
     }
-
-    override fun container(): CoordinatorLayout? {
-        return addNew?.container()
-    }
-
-    override fun onSaveInstanceState(outState: Bundle) {
-        stateSaver?.saveState(outState)
-        super.onSaveInstanceState(outState)
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-
-        addFactory = null
-        listFactory = null
-        switcherFactory = null
-        toolbarFactory = null
-
-        heroImage = null
-        container = null
-        nestedList = null
-        nestedEmptyState = null
-        addNew = null
-        toolbar = null
-        switcher = null
-
-        stateSaver = null
-    }
-
-    private fun close() {
-        requireActivity().onBackPressed()
-    }
-
-    private fun createItem(entryId: FridgeEntry.Id, presence: Presence) {
-        showExpandDialog(ExpandedItemDialog.createNew(entryId, presence))
-    }
-
-    private fun openExisting(item: FridgeItem) {
-        showExpandDialog(ExpandedItemDialog.openExisting(item))
-    }
-
-    private fun showExpandDialog(dialogFragment: DialogFragment) {
-        dialogFragment.show(requireActivity(), ExpandedItemDialog.TAG)
-    }
-
-    companion object {
-
-        private const val ENTRY = "entry"
-        private const val PRESENCE = "presence"
-
-        @JvmStatic
-        @CheckResult
-        fun newInstance(
-            entryId: FridgeEntry.Id,
-            filterPresence: Presence,
-        ): Fragment {
-            return DetailFragment().apply {
-                arguments = Bundle().apply {
-                    putString(ENTRY, entryId.id)
-                    putString(PRESENCE, filterPresence.name)
-                }
-            }
-        }
-    }
+  }
 }

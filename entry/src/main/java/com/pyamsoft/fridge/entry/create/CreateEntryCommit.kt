@@ -23,32 +23,27 @@ import com.pyamsoft.pydroid.arch.UiRender
 import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
 import javax.inject.Inject
 
-class CreateEntryCommit @Inject internal constructor(
+class CreateEntryCommit
+@Inject
+internal constructor(
     parent: ViewGroup,
 ) : BaseUiView<CreateEntryViewState, CreateEntryViewEvent, CreateEntryCommitBinding>(parent) {
 
-    override val viewBinding = CreateEntryCommitBinding::inflate
+  override val viewBinding = CreateEntryCommitBinding::inflate
 
-    override val layoutRoot by boundView { createEntryCommit }
+  override val layoutRoot by boundView { createEntryCommit }
 
-    init {
-        doOnInflate {
-            layoutRoot.setOnDebouncedClickListener {
-                publish(CreateEntryViewEvent.Commit)
-            }
-        }
+  init {
+    doOnInflate { layoutRoot.setOnDebouncedClickListener { publish(CreateEntryViewEvent.Commit) } }
 
-        doOnTeardown {
-            layoutRoot.setOnDebouncedClickListener(null)
-        }
-    }
+    doOnTeardown { layoutRoot.setOnDebouncedClickListener(null) }
+  }
 
-    private fun handleName(name: String?) {
-        layoutRoot.isEnabled = name.orEmpty().isNotBlank()
-    }
+  private fun handleName(name: String?) {
+    layoutRoot.isEnabled = name.orEmpty().isNotBlank()
+  }
 
-    override fun onRender(state: UiRender<CreateEntryViewState>) {
-        state.mapChanged { it.entry }.mapChanged { it?.name() }.render(viewScope) { handleName(it) }
-    }
-
+  override fun onRender(state: UiRender<CreateEntryViewState>) {
+    state.mapChanged { it.entry }.mapChanged { it?.name() }.render(viewScope) { handleName(it) }
+  }
 }

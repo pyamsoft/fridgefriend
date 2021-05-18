@@ -21,19 +21,14 @@ import androidx.viewbinding.ViewBinding
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
 
-abstract class ExpandCategoryClickable<B : ViewBinding> protected constructor(
-    parent: ViewGroup
-) : BaseUiView<ExpandedCategoryViewState, ExpandedCategoryViewEvent, B>(parent) {
+abstract class ExpandCategoryClickable<B : ViewBinding> protected constructor(parent: ViewGroup) :
+    BaseUiView<ExpandedCategoryViewState, ExpandedCategoryViewEvent, B>(parent) {
 
-    init {
-        doOnInflate {
-            layoutRoot.setOnDebouncedClickListener {
-                publish(ExpandedCategoryViewEvent.Select)
-            }
-        }
-
-        doOnTeardown {
-            layoutRoot.setOnDebouncedClickListener(null)
-        }
+  init {
+    doOnInflate {
+      layoutRoot.setOnDebouncedClickListener { publish(ExpandedCategoryViewEvent.Select) }
     }
+
+    doOnTeardown { layoutRoot.setOnDebouncedClickListener(null) }
+  }
 }

@@ -25,9 +25,9 @@ import dagger.Provides
 @Module
 object ThemeProviderModule {
 
-    @Provides
-    @JvmStatic
-    fun provideThemeProvider(activity: Activity, theming: Theming): ThemeProvider {
-        return ThemeProvider { theming.isDarkTheme(activity) }
-    }
+  @Provides
+  @JvmStatic
+  fun provideThemeProvider(activity: Activity, theming: Theming): ThemeProvider {
+    return ThemeProvider { theming.isDarkTheme(activity) }
+  }
 }

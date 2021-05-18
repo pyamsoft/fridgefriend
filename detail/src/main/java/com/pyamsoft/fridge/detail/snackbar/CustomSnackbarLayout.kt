@@ -25,70 +25,68 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.ViewPropertyAnimatorCompat
 import com.pyamsoft.fridge.detail.databinding.DetailCustomSnackbarBinding
 
-class CustomSnackbarLayout internal constructor(
+class CustomSnackbarLayout
+internal constructor(
     context: Context,
     attrs: AttributeSet?,
 ) : LinearLayout(context, attrs), com.google.android.material.snackbar.ContentViewCallback {
 
-    private var textAnimator: ViewPropertyAnimatorCompat? = null
-    private var actionAnimator1: ViewPropertyAnimatorCompat? = null
-    private var actionAnimator2: ViewPropertyAnimatorCompat? = null
+  private var textAnimator: ViewPropertyAnimatorCompat? = null
+  private var actionAnimator1: ViewPropertyAnimatorCompat? = null
+  private var actionAnimator2: ViewPropertyAnimatorCompat? = null
 
-    private var _binding: DetailCustomSnackbarBinding? = null
-    val binding: DetailCustomSnackbarBinding
-        get() = requireNotNull(_binding)
+  private var _binding: DetailCustomSnackbarBinding? = null
+  val binding: DetailCustomSnackbarBinding
+    get() = requireNotNull(_binding)
 
-    override fun onFinishInflate() {
-        super.onFinishInflate()
-        _binding = DetailCustomSnackbarBinding.bind(this)
+  override fun onFinishInflate() {
+    super.onFinishInflate()
+    _binding = DetailCustomSnackbarBinding.bind(this)
+  }
+
+  override fun onDetachedFromWindow() {
+    super.onDetachedFromWindow()
+    _binding = null
+
+    textAnimator?.cancel()
+    textAnimator = null
+
+    actionAnimator1?.cancel()
+    actionAnimator2 = null
+
+    actionAnimator2?.cancel()
+    actionAnimator2 = null
+  }
+
+  @CheckResult
+  private fun animateView(
+      view: View,
+      delay: Int,
+      duration: Int,
+      animateIn: Boolean,
+  ): ViewPropertyAnimatorCompat {
+    return view.run {
+      alpha = if (animateIn) 0F else 1F
+
+      ViewCompat.animate(this)
+          .alpha(if (animateIn) 1F else 0F)
+          .setDuration(duration.toLong())
+          .setStartDelay(delay.toLong())
+          .apply { start() }
     }
+  }
 
-    override fun onDetachedFromWindow() {
-        super.onDetachedFromWindow()
-        _binding = null
+  private fun animate(delay: Int, duration: Int, animateIn: Boolean) {
+    textAnimator = animateView(binding.snackbarText, delay, duration, animateIn)
+    actionAnimator1 = animateView(binding.snackbarAction1, delay, duration, animateIn)
+    actionAnimator2 = animateView(binding.snackbarAction2, delay, duration, animateIn)
+  }
 
-        textAnimator?.cancel()
-        textAnimator = null
+  override fun animateContentIn(delay: Int, duration: Int) {
+    animate(delay, duration, animateIn = true)
+  }
 
-        actionAnimator1?.cancel()
-        actionAnimator2 = null
-
-        actionAnimator2?.cancel()
-        actionAnimator2 = null
-    }
-
-    @CheckResult
-    private fun animateView(
-        view: View,
-        delay: Int,
-        duration: Int,
-        animateIn: Boolean,
-    ): ViewPropertyAnimatorCompat {
-        return view.run {
-            alpha = if (animateIn) 0F else 1F
-
-            ViewCompat.animate(this)
-                .alpha(if (animateIn) 1F else 0F)
-                .setDuration(duration.toLong())
-                .setStartDelay(delay.toLong())
-                .apply {
-                    start()
-                }
-        }
-    }
-
-    private fun animate(delay: Int, duration: Int, animateIn: Boolean) {
-        textAnimator = animateView(binding.snackbarText, delay, duration, animateIn)
-        actionAnimator1 = animateView(binding.snackbarAction1, delay, duration, animateIn)
-        actionAnimator2 = animateView(binding.snackbarAction2, delay, duration, animateIn)
-    }
-
-    override fun animateContentIn(delay: Int, duration: Int) {
-        animate(delay, duration, animateIn = true)
-    }
-
-    override fun animateContentOut(delay: Int, duration: Int) {
-        animate(delay, duration, animateIn = false)
-    }
-
+  override fun animateContentOut(delay: Int, duration: Int) {
+    animate(delay, duration, animateIn = false)
+  }
 }

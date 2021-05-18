@@ -21,6 +21,5 @@ import com.skydoves.balloon.Balloon
 
 internal fun interface LazyBalloon {
 
-    @CheckResult
-    fun create(): Balloon
+  @CheckResult fun create(): Balloon
 }

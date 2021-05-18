@@ -20,6 +20,5 @@ import androidx.annotation.CheckResult
 
 interface EmptyModel<T : Any> : BaseModel<T> {
 
-    @CheckResult
-    fun isEmpty(): Boolean
+  @CheckResult fun isEmpty(): Boolean
 }

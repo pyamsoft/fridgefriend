@@ -22,33 +22,33 @@ import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.arch.UiRender
 import javax.inject.Inject
 
-class EntryListItemName @Inject internal constructor(
+class EntryListItemName
+@Inject
+internal constructor(
     parent: ViewGroup,
 ) : BaseUiView<EntryItemViewState, EntryItemViewEvent, EntryItemNameBinding>(parent) {
 
-    override val viewBinding = EntryItemNameBinding::inflate
+  override val viewBinding = EntryItemNameBinding::inflate
 
-    override val layoutRoot by boundView { entryItemName }
+  override val layoutRoot by boundView { entryItemName }
 
-    init {
-        doOnTeardown {
-            clear()
-        }
+  init {
+    doOnTeardown { clear() }
+  }
+
+  override fun onRender(state: UiRender<EntryItemViewState>) {
+    state.mapChanged { it.entry }.mapChanged { it.name() }.render(viewScope) { handleName(it) }
+  }
+
+  private fun clear() {
+    binding.entryItemName.text = ""
+  }
+
+  private fun handleName(name: String) {
+    if (name.isBlank()) {
+      clear()
+    } else {
+      binding.entryItemName.text = name
     }
-
-    override fun onRender(state: UiRender<EntryItemViewState>) {
-        state.mapChanged { it.entry }.mapChanged { it.name() }.render(viewScope) { handleName(it) }
-    }
-
-    private fun clear() {
-        binding.entryItemName.text = ""
-    }
-
-    private fun handleName(name: String) {
-        if (name.isBlank()) {
-            clear()
-        } else {
-            binding.entryItemName.text = name
-        }
-    }
+  }
 }

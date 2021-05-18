@@ -25,59 +25,58 @@ import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.loader.Loaded
 import javax.inject.Inject
 
-class DetailEmptyState @Inject internal constructor(
+class DetailEmptyState
+@Inject
+internal constructor(
     parent: ViewGroup,
     private val imageLoader: ImageLoader,
 ) : BaseUiView<DetailViewState, DetailViewEvent.ListEvent, DetailEmptyBinding>(parent) {
 
-    override val viewBinding = DetailEmptyBinding::inflate
+  override val viewBinding = DetailEmptyBinding::inflate
 
-    override val layoutRoot by boundView { detailEmptyRoot }
+  override val layoutRoot by boundView { detailEmptyRoot }
 
-    private var loaded: Loaded? = null
+  private var loaded: Loaded? = null
 
-    init {
-        doOnTeardown {
-            clear()
+  init {
+    doOnTeardown { clear() }
+  }
+
+  private fun clear() {
+    loaded?.dispose()
+    loaded = null
+    binding.detailEmptyMessage.text = null
+  }
+
+  override fun onRender(state: UiRender<DetailViewState>) {
+    state.render(viewScope) { handleLoading(it) }
+  }
+
+  private fun handleLoading(state: DetailViewState) {
+    state.isLoading.let { loading ->
+      clear()
+      if (!loading) {
+        if (state.displayedItems.isEmpty()) {
+          val isNeed = state.listItemPresence == NEED
+          loadText(isNeed, state.search.isNotBlank())
+          loadImage(isNeed)
         }
+      }
     }
+  }
 
-    private fun clear() {
-        loaded?.dispose()
-        loaded = null
-        binding.detailEmptyMessage.text = null
-    }
-
-    override fun onRender(state: UiRender<DetailViewState>) {
-        state.render(viewScope) { handleLoading(it) }
-    }
-
-    private fun handleLoading(state: DetailViewState) {
-        state.isLoading.let { loading ->
-            clear()
-            if (!loading) {
-                if (state.displayedItems.isEmpty()) {
-                    val isNeed = state.listItemPresence == NEED
-                    loadText(isNeed, state.search.isNotBlank())
-                    loadImage(isNeed)
-                }
-            }
+  private fun loadText(isNeed: Boolean, isSearch: Boolean) {
+    val text =
+        when {
+          isSearch -> "Your search returned no results."
+          isNeed -> "Your shopping list is empty, make a note about anything you need to buy!"
+          else -> "Your fridge is empty, add items to your shopping list and go to the store!"
         }
-    }
+    binding.detailEmptyMessage.text = text
+  }
 
-    private fun loadText(isNeed: Boolean, isSearch: Boolean) {
-        val text = when {
-            isSearch -> "Your search returned no results."
-            isNeed -> "Your shopping list is empty, make a note about anything you need to buy!"
-            else -> "Your fridge is empty, add items to your shopping list and go to the store!"
-        }
-        binding.detailEmptyMessage.text = text
-    }
-
-    private fun loadImage(isNeed: Boolean) {
-        val icon = if (isNeed) R.drawable.bg_item_need else R.drawable.bg_item_have
-        loaded = imageLoader.asDrawable()
-            .load(icon)
-            .into(binding.detailEmptyImage)
-    }
+  private fun loadImage(isNeed: Boolean) {
+    val icon = if (isNeed) R.drawable.bg_item_need else R.drawable.bg_item_have
+    loaded = imageLoader.asDrawable().load(icon).into(binding.detailEmptyImage)
+  }
 }

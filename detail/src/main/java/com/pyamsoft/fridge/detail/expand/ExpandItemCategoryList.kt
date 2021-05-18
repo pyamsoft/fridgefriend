@@ -29,93 +29,97 @@ import com.pyamsoft.pydroid.arch.UiRender
 import com.pyamsoft.pydroid.ui.theme.ThemeProvider
 import javax.inject.Inject
 
-class ExpandItemCategoryList @Inject internal constructor(
+class ExpandItemCategoryList
+@Inject
+internal constructor(
     themeProvider: ThemeProvider,
     parent: ViewGroup,
     factory: ExpandCategoryComponent.Factory,
 ) : BaseUiView<ExpandedViewState, ExpandedViewEvent.ItemEvent, ExpandCategoriesBinding>(parent) {
 
-    override val viewBinding = ExpandCategoriesBinding::inflate
+  override val viewBinding = ExpandCategoriesBinding::inflate
 
-    override val layoutRoot by boundView { expandItemCategories }
+  override val layoutRoot by boundView { expandItemCategories }
 
-    private var modelAdapter: ExpandItemCategoryListAdapter? = null
+  private var modelAdapter: ExpandItemCategoryListAdapter? = null
 
-    init {
-        doOnInflate {
-            binding.expandItemCategories.layoutManager = LinearLayoutManager(
-                binding.expandItemCategories.context,
-                LinearLayoutManager.HORIZONTAL,
-                false
-            ).apply {
+  init {
+    doOnInflate {
+      binding.expandItemCategories.layoutManager =
+          LinearLayoutManager(
+                  binding.expandItemCategories.context, LinearLayoutManager.HORIZONTAL, false)
+              .apply {
                 isItemPrefetchEnabled = true
                 initialPrefetchItemCount = 3
-            }
-        }
+              }
+    }
 
-        doOnInflate {
-            modelAdapter = ExpandItemCategoryListAdapter(
-                themeProvider = themeProvider,
-                factory = factory,
-                callback = object : ExpandItemCategoryListAdapter.Callback {
+    doOnInflate {
+      modelAdapter =
+          ExpandItemCategoryListAdapter(
+              themeProvider = themeProvider,
+              factory = factory,
+              callback =
+                  object : ExpandItemCategoryListAdapter.Callback {
 
                     override fun onCategorySelected(index: Int) {
-                        publish(ExpandedViewEvent.ItemEvent.CommitCategory(index))
+                      publish(ExpandedViewEvent.ItemEvent.CommitCategory(index))
                     }
-                })
-            binding.expandItemCategories.adapter = modelAdapter
-        }
-
-        doOnTeardown {
-            binding.expandItemCategories.adapter = null
-
-            modelAdapter = null
-        }
+                  })
+      binding.expandItemCategories.adapter = modelAdapter
     }
 
-    @CheckResult
-    private fun usingAdapter(): ExpandItemCategoryListAdapter {
-        return requireNotNull(modelAdapter)
-    }
+    doOnTeardown {
+      binding.expandItemCategories.adapter = null
 
-    override fun onRender(state: UiRender<ExpandedViewState>) {
-        state.render(viewScope) { handleCategories(it) }
+      modelAdapter = null
     }
+  }
 
-    private fun handleCategories(state: ExpandedViewState) {
-        state.categories.let { categories ->
-            when {
-                categories.isEmpty() -> clearList()
-                else -> setList(categories, state.item?.categoryId())
-            }
-        }
+  @CheckResult
+  private fun usingAdapter(): ExpandItemCategoryListAdapter {
+    return requireNotNull(modelAdapter)
+  }
+
+  override fun onRender(state: UiRender<ExpandedViewState>) {
+    state.render(viewScope) { handleCategories(it) }
+  }
+
+  private fun handleCategories(state: ExpandedViewState) {
+    state.categories.let { categories ->
+      when {
+        categories.isEmpty() -> clearList()
+        else -> setList(categories, state.item?.categoryId())
+      }
     }
+  }
 
-    private fun setList(
-        categories: List<FridgeCategory>,
-        selectedCategoryId: FridgeCategory.Id?,
-    ) {
-        val itemList = categories.map { category ->
-            val catView = if (category.isEmpty()) null else {
+  private fun setList(
+      categories: List<FridgeCategory>,
+      selectedCategoryId: FridgeCategory.Id?,
+  ) {
+    val itemList =
+        categories.map { category ->
+          val catView =
+              if (category.isEmpty()) null
+              else {
                 ExpandedCategoryViewState.Category(
-                    category.id(),
-                    category.name(),
-                    category.thumbnail()
-                )
-            }
+                    category.id(), category.name(), category.thumbnail())
+              }
 
-            val isSelected = if (category.isEmpty()) {
+          val isSelected =
+              if (category.isEmpty()) {
                 selectedCategoryId == null
-            } else {
+              } else {
                 category.id() == selectedCategoryId
-            }
+              }
 
-            return@map ExpandedCategoryViewState(catView, isSelected)
+          return@map ExpandedCategoryViewState(catView, isSelected)
         }
-        usingAdapter().submitList(itemList)
-    }
+    usingAdapter().submitList(itemList)
+  }
 
-    private fun clearList() {
-        usingAdapter().submitList(null)
-    }
+  private fun clearList() {
+    usingAdapter().submitList(null)
+  }
 }

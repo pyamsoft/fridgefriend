@@ -36,37 +36,38 @@ import dagger.multibindings.ClassKey
 import dagger.multibindings.IntoMap
 
 @Subcomponent(
-    modules = [
-        ExpandComponent.ComponentModule::class,
-        ViewModelFactoryModule::class,
-        ThemeProviderModule::class
-    ]
-)
+    modules =
+        [
+            ExpandComponent.ComponentModule::class,
+            ViewModelFactoryModule::class,
+            ThemeProviderModule::class])
 internal interface ExpandComponent {
 
-    fun inject(dialog: ExpandedItemDialog)
+  fun inject(dialog: ExpandedItemDialog)
 
-    @Subcomponent.Factory
-    interface Factory {
+  @Subcomponent.Factory
+  interface Factory {
 
-        @CheckResult
-        fun create(
-            @BindsInstance savedStateRegistryOwner: SavedStateRegistryOwner,
-            @BindsInstance activity: Activity,
-            @BindsInstance parent: ViewGroup,
-            @BindsInstance owner: LifecycleOwner,
-            @BindsInstance itemId: FridgeItem.Id,
-            @BindsInstance itemEntryId: FridgeEntry.Id,
-            @BindsInstance defaultPresence: Presence
-        ): ExpandComponent
-    }
+    @CheckResult
+    fun create(
+        @BindsInstance savedStateRegistryOwner: SavedStateRegistryOwner,
+        @BindsInstance activity: Activity,
+        @BindsInstance parent: ViewGroup,
+        @BindsInstance owner: LifecycleOwner,
+        @BindsInstance itemId: FridgeItem.Id,
+        @BindsInstance itemEntryId: FridgeEntry.Id,
+        @BindsInstance defaultPresence: Presence
+    ): ExpandComponent
+  }
 
-    @Module
-    abstract class ComponentModule {
+  @Module
+  abstract class ComponentModule {
 
-        @Binds
-        @IntoMap
-        @ClassKey(ExpandItemViewModel::class)
-        internal abstract fun bindViewModel(impl: ExpandItemViewModel.Factory): UiSavedStateViewModelProvider<out ViewModel>
-    }
+    @Binds
+    @IntoMap
+    @ClassKey(ExpandItemViewModel::class)
+    internal abstract fun bindViewModel(
+        impl: ExpandItemViewModel.Factory
+    ): UiSavedStateViewModelProvider<out ViewModel>
+  }
 }

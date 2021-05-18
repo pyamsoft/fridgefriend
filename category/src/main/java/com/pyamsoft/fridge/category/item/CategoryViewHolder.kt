@@ -24,64 +24,40 @@ import com.pyamsoft.pydroid.arch.createViewBinder
 import com.pyamsoft.pydroid.ui.util.layout
 import javax.inject.Inject
 
-class CategoryViewHolder internal constructor(
-    constraintLayout: ConstraintLayout,
-    factory: CategoryItemComponent.Factory
-) : RecyclerView.ViewHolder(constraintLayout), ViewBinder<CategoryItemViewState> {
+class CategoryViewHolder
+internal constructor(constraintLayout: ConstraintLayout, factory: CategoryItemComponent.Factory) :
+    RecyclerView.ViewHolder(constraintLayout), ViewBinder<CategoryItemViewState> {
 
-    private val viewBinder: ViewBinder<CategoryItemViewState>
+  private val viewBinder: ViewBinder<CategoryItemViewState>
 
-    @Inject
-    @JvmField
-    internal var background: CategoryBackground? = null
+  @Inject @JvmField internal var background: CategoryBackground? = null
 
-    init {
-        // Needs a small amount of margin so the staggered grid effect works
-        factory.create(constraintLayout).inject(this)
+  init {
+    // Needs a small amount of margin so the staggered grid effect works
+    factory.create(constraintLayout).inject(this)
 
-        val backgroundView = requireNotNull(background)
-        viewBinder = createViewBinder(
-            backgroundView
-        ) {
-            // TODO
+    val backgroundView = requireNotNull(background)
+    viewBinder =
+        createViewBinder(backgroundView) {
+          // TODO
         }
 
-        constraintLayout.layout {
-            backgroundView.also {
-                connect(
-                    it.id(),
-                    ConstraintSet.TOP,
-                    ConstraintSet.PARENT_ID,
-                    ConstraintSet.TOP
-                )
-                connect(
-                    it.id(),
-                    ConstraintSet.START,
-                    ConstraintSet.PARENT_ID,
-                    ConstraintSet.START
-                )
-                connect(
-                    it.id(),
-                    ConstraintSet.END,
-                    ConstraintSet.PARENT_ID,
-                    ConstraintSet.END
-                )
-                connect(
-                    it.id(),
-                    ConstraintSet.BOTTOM,
-                    ConstraintSet.PARENT_ID,
-                    ConstraintSet.BOTTOM
-                )
-            }
-        }
+    constraintLayout.layout {
+      backgroundView.also {
+        connect(it.id(), ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP)
+        connect(it.id(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
+        connect(it.id(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
+        connect(it.id(), ConstraintSet.BOTTOM, ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM)
+      }
     }
+  }
 
-    override fun bindState(state: CategoryItemViewState) {
-        viewBinder.bindState(state)
-    }
+  override fun bindState(state: CategoryItemViewState) {
+    viewBinder.bindState(state)
+  }
 
-    override fun teardown() {
-        viewBinder.teardown()
-        background = null
-    }
+  override fun teardown() {
+    viewBinder.teardown()
+    background = null
+  }
 }

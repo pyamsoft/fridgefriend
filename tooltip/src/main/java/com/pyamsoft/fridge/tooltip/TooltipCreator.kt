@@ -20,12 +20,7 @@ import androidx.annotation.CheckResult
 
 interface TooltipCreator {
 
-    @CheckResult
-    fun top(): Tooltip
+  @CheckResult fun top(): Tooltip
 
-    @CheckResult
-    fun top(builder: Tooltip.Builder.() -> Tooltip.Builder): Tooltip
-
+  @CheckResult fun top(builder: Tooltip.Builder.() -> Tooltip.Builder): Tooltip
 }
-
-

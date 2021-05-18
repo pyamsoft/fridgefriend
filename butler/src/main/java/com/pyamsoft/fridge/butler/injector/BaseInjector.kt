@@ -20,33 +20,29 @@ import android.content.Context
 import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.butler.params.BaseParameters
 import com.pyamsoft.fridge.butler.runner.WorkResult
+import java.util.UUID
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import java.util.UUID
 
-abstract class BaseInjector<P : BaseParameters> protected constructor(
-    private val context: Context
-) {
+abstract class BaseInjector<P : BaseParameters>
+protected constructor(private val context: Context) {
 
-    @CheckResult
-    suspend fun execute(
-        id: UUID,
-        tags: Set<String>,
-        params: P
-    ): WorkResult = withContext(context = Dispatchers.Default) {
+  @CheckResult
+  suspend fun execute(id: UUID, tags: Set<String>, params: P): WorkResult =
+      withContext(context = Dispatchers.Default) {
         onExecute(
             context.applicationContext,
             id,
             tags,
             params,
         )
-    }
+      }
 
-    @CheckResult
-    protected abstract suspend fun onExecute(
-        context: Context,
-        id: UUID,
-        tags: Set<String>,
-        params: P
-    ): WorkResult
+  @CheckResult
+  protected abstract suspend fun onExecute(
+      context: Context,
+      id: UUID,
+      tags: Set<String>,
+      params: P
+  ): WorkResult
 }

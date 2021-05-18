@@ -17,8 +17,8 @@
 package com.pyamsoft.fridge.main
 
 sealed class MainPage {
-    object Entries : MainPage()
-    object Category : MainPage()
-    object Settings : MainPage()
-    object Search : MainPage()
+  object Entries : MainPage()
+  object Category : MainPage()
+  object Settings : MainPage()
+  object Search : MainPage()
 }

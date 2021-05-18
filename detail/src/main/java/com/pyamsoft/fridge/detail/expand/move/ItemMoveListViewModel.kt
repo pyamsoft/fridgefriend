@@ -22,53 +22,54 @@ import com.pyamsoft.fridge.entry.EntryListStateModel
 import com.pyamsoft.fridge.entry.EntryViewState
 import com.pyamsoft.pydroid.arch.Renderable
 import com.pyamsoft.pydroid.arch.UiViewModel
-import timber.log.Timber
 import javax.inject.Inject
+import timber.log.Timber
 
-class ItemMoveListViewModel @Inject internal constructor(
+class ItemMoveListViewModel
+@Inject
+internal constructor(
     @param:MoveInternalApi private val delegate: EntryListStateModel,
     entryId: FridgeEntry.Id,
-) : UiViewModel<EntryViewState, ItemMoveListControllerEvent>(
-    initialState = delegate.initialState
-) {
+) : UiViewModel<EntryViewState, ItemMoveListControllerEvent>(initialState = delegate.initialState) {
 
-    init {
-        val scope = viewModelScope
-        val job = delegate.bindState(scope, Renderable { state ->
-            state.render(scope) { newState ->
+  init {
+    val scope = viewModelScope
+    val job =
+        delegate.bindState(
+            scope,
+            Renderable { state ->
+              state.render(scope) { newState ->
                 scope.setState {
-                    newState.copy(
-                        displayedEntries = newState.displayedEntries.filterNot {
-                            it.entry.id() == entryId
-                        }
-                    )
+                  newState.copy(
+                      displayedEntries =
+                          newState.displayedEntries.filterNot { it.entry.id() == entryId })
                 }
-            }
-        })
-        doOnCleared { job.cancel() }
-        doOnCleared { delegate.clear() }
-    }
+              }
+            })
+    doOnCleared { job.cancel() }
+    doOnCleared { delegate.clear() }
+  }
 
-    fun handleRefreshList() {
-        delegate.handleRefreshList(viewModelScope, true)
-    }
+  fun handleRefreshList() {
+    delegate.handleRefreshList(viewModelScope, true)
+  }
 
-    fun handleUpdateSearch(search: String) {
-        delegate.handleUpdateSearch(viewModelScope, search)
-    }
+  fun handleUpdateSearch(search: String) {
+    delegate.handleUpdateSearch(viewModelScope, search)
+  }
 
-    fun handleUpdateSort(sort: EntryViewState.Sorts) {
-        delegate.handleChangeSort(viewModelScope, sort)
-    }
+  fun handleUpdateSort(sort: EntryViewState.Sorts) {
+    delegate.handleChangeSort(viewModelScope, sort)
+  }
 
-    private inline fun withEntryAt(index: Int, block: (FridgeEntry) -> Unit) {
-        block(state.displayedEntries[index].entry)
-    }
+  private inline fun withEntryAt(index: Int, block: (FridgeEntry) -> Unit) {
+    block(state.displayedEntries[index].entry)
+  }
 
-    fun handleSelectEntry(index: Int) {
-        withEntryAt(index) { entry ->
-            Timber.d("Selected entry $entry")
-            publish(ItemMoveListControllerEvent.Selected(entry))
-        }
+  fun handleSelectEntry(index: Int) {
+    withEntryAt(index) { entry ->
+      Timber.d("Selected entry $entry")
+      publish(ItemMoveListControllerEvent.Selected(entry))
     }
+  }
 }

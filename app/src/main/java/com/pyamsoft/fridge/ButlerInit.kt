@@ -20,21 +20,17 @@ import com.pyamsoft.fridge.butler.Butler
 import com.pyamsoft.fridge.butler.params.ItemParameters
 import com.pyamsoft.fridge.butler.work.OrderFactory
 
-suspend fun Butler.initOnAppStart(
-    orderFactory: OrderFactory
-) {
-    cancel()
+suspend fun Butler.initOnAppStart(orderFactory: OrderFactory) {
+  cancel()
 
-    // Fire instantly an item order
-    placeOrder(
-        orderFactory.itemOrder(
-            ItemParameters(
-                forceNotifyNeeded = true,
-                forceNotifyExpiring = true,
-            )
-        )
-    )
+  // Fire instantly an item order
+  placeOrder(
+      orderFactory.itemOrder(
+          ItemParameters(
+              forceNotifyNeeded = true,
+              forceNotifyExpiring = true,
+          )))
 
-    // Nightly notifications are always scheduled since they must fire at an exact time.
-    scheduleOrder(orderFactory.nightlyOrder())
+  // Nightly notifications are always scheduled since they must fire at an exact time.
+  scheduleOrder(orderFactory.nightlyOrder())
 }

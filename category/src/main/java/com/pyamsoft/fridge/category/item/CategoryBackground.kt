@@ -25,44 +25,42 @@ import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.loader.Loaded
 import javax.inject.Inject
 
-class CategoryBackground @Inject internal constructor(
+class CategoryBackground
+@Inject
+internal constructor(
     parent: ViewGroup,
     private val imageLoader: ImageLoader,
 ) : BaseUiView<CategoryItemViewState, CategoryItemViewEvent, CategoryBackgroundBinding>(parent) {
 
-    override val viewBinding = CategoryBackgroundBinding::inflate
+  override val viewBinding = CategoryBackgroundBinding::inflate
 
-    override val layoutRoot by boundView { categoryBackgroundImage }
+  override val layoutRoot by boundView { categoryBackgroundImage }
 
-    private var loaded: Loaded? = null
+  private var loaded: Loaded? = null
 
-    init {
-        doOnTeardown {
-            clear()
-        }
+  init {
+    doOnTeardown { clear() }
+  }
+
+  private fun clear() {
+    loaded?.dispose()
+    loaded = null
+  }
+
+  override fun onRender(state: UiRender<CategoryItemViewState>) {
+    state.mapChanged { it.category }.render(viewScope) { handleCategory(it) }
+  }
+
+  private fun handleCategory(category: FridgeCategory) {
+    clear()
+
+    val thumbnail = category.thumbnail()
+    if (thumbnail != null) {
+      loadImage(thumbnail)
     }
+  }
 
-    private fun clear() {
-        loaded?.dispose()
-        loaded = null
-    }
-
-    override fun onRender(state: UiRender<CategoryItemViewState>) {
-        state.mapChanged { it.category }.render(viewScope) { handleCategory(it) }
-    }
-
-    private fun handleCategory(category: FridgeCategory) {
-        clear()
-
-        val thumbnail = category.thumbnail()
-        if (thumbnail != null) {
-            loadImage(thumbnail)
-        }
-    }
-
-    private fun loadImage(image: FridgeCategory.Thumbnail) {
-        loaded = imageLoader.asDrawable()
-            .load(image.data)
-            .into(binding.categoryBackgroundImage)
-    }
+  private fun loadImage(image: FridgeCategory.Thumbnail) {
+    loaded = imageLoader.asDrawable().load(image.data).into(binding.categoryBackgroundImage)
+  }
 }

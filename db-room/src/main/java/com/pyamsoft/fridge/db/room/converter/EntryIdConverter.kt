@@ -22,17 +22,17 @@ import com.pyamsoft.fridge.db.entry.FridgeEntry
 
 internal object EntryIdConverter {
 
-    @JvmStatic
-    @TypeConverter
-    @CheckResult
-    fun toId(id: String): FridgeEntry.Id {
-        return FridgeEntry.Id(id)
-    }
+  @JvmStatic
+  @TypeConverter
+  @CheckResult
+  fun toId(id: String): FridgeEntry.Id {
+    return FridgeEntry.Id(id)
+  }
 
-    @JvmStatic
-    @TypeConverter
-    @CheckResult
-    fun fromId(id: FridgeEntry.Id): String {
-        return id.id
-    }
+  @JvmStatic
+  @TypeConverter
+  @CheckResult
+  fun fromId(id: FridgeEntry.Id): String {
+    return id.id
+  }
 }

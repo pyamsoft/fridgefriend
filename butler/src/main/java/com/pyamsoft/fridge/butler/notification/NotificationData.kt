@@ -20,19 +20,13 @@ import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.pydroid.notify.NotifyData
 
-data class NeededItemNotifyData internal constructor(
-    val entry: FridgeEntry,
-    val items: List<FridgeItem>
-) : NotifyData
+data class NeededItemNotifyData
+internal constructor(val entry: FridgeEntry, val items: List<FridgeItem>) : NotifyData
 
-data class ExpiringItemNotifyData internal constructor(
-    val entry: FridgeEntry,
-    val items: List<FridgeItem>
-) : NotifyData
+data class ExpiringItemNotifyData
+internal constructor(val entry: FridgeEntry, val items: List<FridgeItem>) : NotifyData
 
-data class ExpiredItemNotifyData internal constructor(
-    val entry: FridgeEntry,
-    val items: List<FridgeItem>
-) : NotifyData
+data class ExpiredItemNotifyData
+internal constructor(val entry: FridgeEntry, val items: List<FridgeItem>) : NotifyData
 
 object NightlyNotifyData : NotifyData

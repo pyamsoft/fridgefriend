@@ -21,10 +21,8 @@ import com.pyamsoft.pydroid.util.PreferenceListener
 
 interface SearchPreferences {
 
-    @CheckResult
-    suspend fun isEmptyStateAllItems(): Boolean
+  @CheckResult suspend fun isEmptyStateAllItems(): Boolean
 
-    @CheckResult
-    suspend fun watchForSearchEmptyStateChange(onChange: (Boolean) -> Unit): PreferenceListener
-
+  @CheckResult
+  suspend fun watchForSearchEmptyStateChange(onChange: (Boolean) -> Unit): PreferenceListener
 }

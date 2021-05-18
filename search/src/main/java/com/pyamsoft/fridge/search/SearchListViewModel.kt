@@ -25,17 +25,19 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 
-class SearchListViewModel @AssistedInject internal constructor(
+class SearchListViewModel
+@AssistedInject
+internal constructor(
     delegate: DetailListStateModel,
     @Assisted savedState: UiSavedState,
 ) : BaseExpandDetailViewModel<SearchControllerEvent>(delegate, savedState) {
 
-    override fun onExpand(item: FridgeItem) {
-        publish(SearchControllerEvent.ExpandItem(item))
-    }
+  override fun onExpand(item: FridgeItem) {
+    publish(SearchControllerEvent.ExpandItem(item))
+  }
 
-    @AssistedFactory
-    interface Factory : UiSavedStateViewModelProvider<SearchListViewModel> {
-        override fun create(savedState: UiSavedState): SearchListViewModel
-    }
+  @AssistedFactory
+  interface Factory : UiSavedStateViewModelProvider<SearchListViewModel> {
+    override fun create(savedState: UiSavedState): SearchListViewModel
+  }
 }

@@ -23,20 +23,22 @@ import com.pyamsoft.fridge.detail.item.DetailItemViewEvent.CommitPresence
 import com.pyamsoft.pydroid.arch.UiRender
 import javax.inject.Inject
 
-class DetailListItemPresence @Inject internal constructor(
+class DetailListItemPresence
+@Inject
+internal constructor(
     parent: ViewGroup,
 ) : BaseItemPresence<DetailItemViewState, DetailItemViewEvent>(parent) {
 
-    override fun onRender(state: UiRender<DetailItemViewState>) {
-        state.mapChanged { it.item }.render(viewScope) { handleItem(it) }
-    }
+  override fun onRender(state: UiRender<DetailItemViewState>) {
+    state.mapChanged { it.item }.render(viewScope) { handleItem(it) }
+  }
 
-    private fun handleItem(item: FridgeItem) {
-        require(item.isReal()) { "Cannot render non-real item: $item" }
-        renderItem(item)
-    }
+  private fun handleItem(item: FridgeItem) {
+    require(item.isReal()) { "Cannot render non-real item: $item" }
+    renderItem(item)
+  }
 
-    override fun publishChangePresence() {
-        publish(CommitPresence)
-    }
+  override fun publishChangePresence() {
+    publish(CommitPresence)
+  }
 }

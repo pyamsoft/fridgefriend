@@ -28,13 +28,11 @@ import kotlinx.coroutines.withContext
 @Dao
 internal abstract class RoomFridgeItemDeleteDao internal constructor() : FridgeItemDeleteDao {
 
-    final override suspend fun delete(o: FridgeItem, offerUndo: Boolean): Boolean =
-        withContext(context = Dispatchers.IO) {
-            val roomItem = RoomFridgeItem.create(o)
-            return@withContext daoDelete(roomItem) > 0
-        }
+  final override suspend fun delete(o: FridgeItem, offerUndo: Boolean): Boolean =
+      withContext(context = Dispatchers.IO) {
+        val roomItem = RoomFridgeItem.create(o)
+        return@withContext daoDelete(roomItem) > 0
+      }
 
-    @Delete
-    @CheckResult
-    internal abstract fun daoDelete(item: RoomFridgeItem): Int
+  @Delete @CheckResult internal abstract fun daoDelete(item: RoomFridgeItem): Int
 }

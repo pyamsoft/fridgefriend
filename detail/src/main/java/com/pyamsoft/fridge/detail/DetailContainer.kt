@@ -34,57 +34,61 @@ import com.pyamsoft.pydroid.util.darker
 import com.pyamsoft.pydroid.util.lighter
 import javax.inject.Inject
 
-class DetailContainer @Inject internal constructor(
+class DetailContainer
+@Inject
+internal constructor(
     private val theming: ThemeProvider,
     parent: ViewGroup,
 ) : BaseUiView<DetailViewState, DetailViewEvent.ListEvent, DetailContainerBinding>(parent) {
 
-    override val viewBinding = DetailContainerBinding::inflate
+  override val viewBinding = DetailContainerBinding::inflate
 
-    override val layoutRoot by boundView { detailContainer }
+  override val layoutRoot by boundView { detailContainer }
 
-    private var animator: ViewPropertyAnimatorCompat? = null
+  private var animator: ViewPropertyAnimatorCompat? = null
 
-    init {
-        doOnTeardown {
-            animator?.cancel()
-            animator = null
-        }
+  init {
+    doOnTeardown {
+      animator?.cancel()
+      animator = null
+    }
 
-        doOnInflate {
-            layoutRoot.background = GradientDrawable().apply {
-                val context = layoutRoot.context
-                shape = GradientDrawable.RECTANGLE
-                val radius = 16.asDp(context).toFloat()
-                cornerRadii = floatArrayOf(radius, radius, radius, radius, 0F, 0F, 0F, 0F)
+    doOnInflate {
+      layoutRoot.background =
+          GradientDrawable().apply {
+            val context = layoutRoot.context
+            shape = GradientDrawable.RECTANGLE
+            val radius = 16.asDp(context).toFloat()
+            cornerRadii = floatArrayOf(radius, radius, radius, radius, 0F, 0F, 0F, 0F)
 
-                val backgroundColor = context.getColor(R.color.windowBackground)
-                val ratio = 0.15F
-                val listBackgroundColor = if (theming.isDarkTheme()) {
-                    backgroundColor.lighter(ratio)
+            val backgroundColor = context.getColor(R.color.windowBackground)
+            val ratio = 0.15F
+            val listBackgroundColor =
+                if (theming.isDarkTheme()) {
+                  backgroundColor.lighter(ratio)
                 } else {
-                    backgroundColor.darker(ratio)
+                  backgroundColor.darker(ratio)
                 }
-                color = ColorStateList.valueOf(listBackgroundColor)
-            }
-        }
-
-        doOnInflate {
-            if (animator == null) {
-                animator = animatePopInFromBottom(layoutRoot)
-            }
-        }
+            color = ColorStateList.valueOf(listBackgroundColor)
+          }
     }
 
-    fun layout(func: ConstraintSet.() -> Unit) {
-        return binding.detailContainer.layout(func)
+    doOnInflate {
+      if (animator == null) {
+        animator = animatePopInFromBottom(layoutRoot)
+      }
     }
+  }
 
-    override fun onRender(state: UiRender<DetailViewState>) {
-        state.mapChanged { it.bottomOffset }.render(viewScope) { handleBottomMargin(it) }
-    }
+  fun layout(func: ConstraintSet.() -> Unit) {
+    return binding.detailContainer.layout(func)
+  }
 
-    private fun handleBottomMargin(height: Int) {
-        layoutRoot.updatePadding(bottom = height)
-    }
+  override fun onRender(state: UiRender<DetailViewState>) {
+    state.mapChanged { it.bottomOffset }.render(viewScope) { handleBottomMargin(it) }
+  }
+
+  private fun handleBottomMargin(height: Int) {
+    layoutRoot.updatePadding(bottom = height)
+  }
 }

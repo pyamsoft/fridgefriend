@@ -21,42 +21,41 @@ import android.view.ViewGroup
 import androidx.annotation.CheckResult
 import androidx.lifecycle.LifecycleOwner
 import androidx.savedstate.SavedStateRegistryOwner
-import com.pyamsoft.fridge.ui.ThemeProviderModule
 import com.pyamsoft.fridge.core.FragmentScope
 import com.pyamsoft.fridge.core.ViewModelFactoryModule
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence
 import com.pyamsoft.fridge.detail.DetailComponent
 import com.pyamsoft.fridge.tooltip.balloon.TooltipModule
+import com.pyamsoft.fridge.ui.ThemeProviderModule
 import com.pyamsoft.fridge.ui.appbar.AppBarActivity
 import dagger.BindsInstance
 import dagger.Subcomponent
 
 @FragmentScope
 @Subcomponent(
-    modules = [
-        DetailComponent.ComponentModule::class,
-        ViewModelFactoryModule::class,
-        TooltipModule::class,
-        ThemeProviderModule::class
-    ]
-)
+    modules =
+        [
+            DetailComponent.ComponentModule::class,
+            ViewModelFactoryModule::class,
+            TooltipModule::class,
+            ThemeProviderModule::class])
 internal interface SearchComponent {
 
-    fun inject(fragment: SearchFragment)
+  fun inject(fragment: SearchFragment)
 
-    @Subcomponent.Factory
-    interface Factory {
+  @Subcomponent.Factory
+  interface Factory {
 
-        @CheckResult
-        fun create(
-            @BindsInstance savedStateRegistryOwner: SavedStateRegistryOwner,
-            @BindsInstance appBarActivity: AppBarActivity,
-            @BindsInstance activity: Activity,
-            @BindsInstance parent: ViewGroup,
-            @BindsInstance owner: LifecycleOwner,
-            @BindsInstance entryId: FridgeEntry.Id,
-            @BindsInstance filterPresence: Presence,
-        ): SearchComponent
-    }
+    @CheckResult
+    fun create(
+        @BindsInstance savedStateRegistryOwner: SavedStateRegistryOwner,
+        @BindsInstance appBarActivity: AppBarActivity,
+        @BindsInstance activity: Activity,
+        @BindsInstance parent: ViewGroup,
+        @BindsInstance owner: LifecycleOwner,
+        @BindsInstance entryId: FridgeEntry.Id,
+        @BindsInstance filterPresence: Presence,
+    ): SearchComponent
+  }
 }

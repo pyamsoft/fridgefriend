@@ -25,58 +25,60 @@ import com.pyamsoft.fridge.detail.databinding.ExpandCategoryItemHolderBinding
 import com.pyamsoft.pydroid.ui.theme.ThemeProvider
 import com.pyamsoft.pydroid.ui.util.teardownAdapter
 
-internal class ExpandItemCategoryListAdapter internal constructor(
+internal class ExpandItemCategoryListAdapter
+internal constructor(
     private val themeProvider: ThemeProvider,
     private val factory: ExpandCategoryComponent.Factory,
     private val callback: Callback
 ) : ListAdapter<ExpandedCategoryViewState, ExpandedCategoryViewHolder>(DIFFER) {
 
-    init {
-        setHasStableIds(true)
-    }
+  init {
+    setHasStableIds(true)
+  }
 
-    override fun getItemId(position: Int): Long {
-        return getItem(position).category?.id?.hashCode()?.toLong() ?: 0L
-    }
+  override fun getItemId(position: Int): Long {
+    return getItem(position).category?.id?.hashCode()?.toLong() ?: 0L
+  }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ExpandedCategoryViewHolder {
-        val inflater = LayoutInflater.from(parent.context)
-        val binding = ExpandCategoryItemHolderBinding.inflate(inflater, parent, false)
-        return ExpandedCategoryViewHolder(binding, themeProvider, factory, callback)
-    }
+  override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ExpandedCategoryViewHolder {
+    val inflater = LayoutInflater.from(parent.context)
+    val binding = ExpandCategoryItemHolderBinding.inflate(inflater, parent, false)
+    return ExpandedCategoryViewHolder(binding, themeProvider, factory, callback)
+  }
 
-    override fun onBindViewHolder(holder: ExpandedCategoryViewHolder, position: Int) {
-        val category = getItem(position)
-        holder.bindState(category)
-    }
+  override fun onBindViewHolder(holder: ExpandedCategoryViewHolder, position: Int) {
+    val category = getItem(position)
+    holder.bindState(category)
+  }
 
-    override fun onDetachedFromRecyclerView(recyclerView: RecyclerView) {
-        super.onDetachedFromRecyclerView(recyclerView)
-        teardownAdapter(recyclerView)
-    }
+  override fun onDetachedFromRecyclerView(recyclerView: RecyclerView) {
+    super.onDetachedFromRecyclerView(recyclerView)
+    teardownAdapter(recyclerView)
+  }
 
-    interface Callback {
+  interface Callback {
 
-        fun onCategorySelected(index: Int)
-    }
+    fun onCategorySelected(index: Int)
+  }
 
-    companion object {
+  companion object {
 
-        private val DIFFER = object : DiffUtil.ItemCallback<ExpandedCategoryViewState>() {
+    private val DIFFER =
+        object : DiffUtil.ItemCallback<ExpandedCategoryViewState>() {
 
-            override fun areItemsTheSame(
-                oldItem: ExpandedCategoryViewState,
-                newItem: ExpandedCategoryViewState
-            ): Boolean {
-                return oldItem.category?.id == newItem.category?.id
-            }
+          override fun areItemsTheSame(
+              oldItem: ExpandedCategoryViewState,
+              newItem: ExpandedCategoryViewState
+          ): Boolean {
+            return oldItem.category?.id == newItem.category?.id
+          }
 
-            override fun areContentsTheSame(
-                oldItem: ExpandedCategoryViewState,
-                newItem: ExpandedCategoryViewState
-            ): Boolean {
-                return oldItem.category == newItem.category && oldItem.isSelected == newItem.isSelected
-            }
+          override fun areContentsTheSame(
+              oldItem: ExpandedCategoryViewState,
+              newItem: ExpandedCategoryViewState
+          ): Boolean {
+            return oldItem.category == newItem.category && oldItem.isSelected == newItem.isSelected
+          }
         }
-    }
+  }
 }

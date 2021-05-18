@@ -24,7 +24,7 @@ import dagger.Module
 @Module
 abstract class TooltipModule {
 
-    @Binds
-    @CheckResult
-    internal abstract fun bindTooltipCreator(impl: BalloonTooltipCreator): TooltipCreator
+  @Binds
+  @CheckResult
+  internal abstract fun bindTooltipCreator(impl: BalloonTooltipCreator): TooltipCreator
 }

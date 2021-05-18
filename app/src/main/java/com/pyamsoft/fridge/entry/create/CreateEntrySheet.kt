@@ -38,102 +38,90 @@ import com.pyamsoft.pydroid.ui.databinding.LayoutLinearVerticalBinding
 import com.pyamsoft.pydroid.ui.util.show
 import javax.inject.Inject
 
-internal class CreateEntrySheet : BottomSheetDialogFragment(),
-    UiController<CreateEntryControllerEvent> {
+internal class CreateEntrySheet :
+    BottomSheetDialogFragment(), UiController<CreateEntryControllerEvent> {
 
-    @JvmField
-    @Inject
-    internal var factory: FridgeViewModelFactory? = null
-    private val viewModel by fromViewModelFactory<CreateEntryViewModel> { factory?.create(this) }
+  @JvmField @Inject internal var factory: FridgeViewModelFactory? = null
+  private val viewModel by fromViewModelFactory<CreateEntryViewModel> { factory?.create(this) }
 
-    @JvmField
-    @Inject
-    internal var name: CreateEntryName? = null
+  @JvmField @Inject internal var name: CreateEntryName? = null
 
-    @JvmField
-    @Inject
-    internal var commit: CreateEntryCommit? = null
+  @JvmField @Inject internal var commit: CreateEntryCommit? = null
 
-    private var stateSaver: StateSaver? = null
+  private var stateSaver: StateSaver? = null
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        return inflater.inflate(R.layout.layout_linear_vertical, container, false)
-    }
+  override fun onCreateView(
+      inflater: LayoutInflater,
+      container: ViewGroup?,
+      savedInstanceState: Bundle?
+  ): View? {
+    return inflater.inflate(R.layout.layout_linear_vertical, container, false)
+  }
 
-    @CallSuper
-    override fun onViewCreated(
-        view: View,
-        savedInstanceState: Bundle?
-    ) {
-        super.onViewCreated(view, savedInstanceState)
+  @CallSuper
+  override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+    super.onViewCreated(view, savedInstanceState)
 
-        val binding = LayoutLinearVerticalBinding.bind(view)
-        val entryId = FridgeEntry.Id(requireArguments().getString(ENTRY_ID, ""))
-        Injector.obtainFromApplication<FridgeComponent>(view.context)
-            .plusCreateEntryComponent()
-            .create(binding.layoutLinearV, entryId)
-            .inject(this)
+    val binding = LayoutLinearVerticalBinding.bind(view)
+    val entryId = FridgeEntry.Id(requireArguments().getString(ENTRY_ID, ""))
+    Injector.obtainFromApplication<FridgeComponent>(view.context)
+        .plusCreateEntryComponent()
+        .create(binding.layoutLinearV, entryId)
+        .inject(this)
 
-        stateSaver = createComponent(
+    stateSaver =
+        createComponent(
             savedInstanceState,
             viewLifecycleOwner,
             viewModel,
             this,
             requireNotNull(name),
-            requireNotNull(commit)
-        ) {
-            return@createComponent when (it) {
-                is CreateEntryViewEvent.Commit -> viewModel.handleCommitNewEntry()
-                is CreateEntryViewEvent.NameChanged -> viewModel.handleUpdateName(it.name)
-            }
+            requireNotNull(commit)) {
+          return@createComponent when (it) {
+            is CreateEntryViewEvent.Commit -> viewModel.handleCommitNewEntry()
+            is CreateEntryViewEvent.NameChanged -> viewModel.handleUpdateName(it.name)
+          }
         }
+  }
+
+  override fun onControllerEvent(event: CreateEntryControllerEvent) {
+    return when (event) {
+      is CreateEntryControllerEvent.Commit -> dismiss()
+    }
+  }
+
+  override fun onSaveInstanceState(outState: Bundle) {
+    super.onSaveInstanceState(outState)
+    stateSaver?.saveState(outState)
+  }
+
+  override fun onDestroyView() {
+    super.onDestroyView()
+
+    factory = null
+    stateSaver = null
+    name = null
+    commit = null
+  }
+
+  companion object {
+
+    private const val TAG = "EntryAddSheet"
+    private const val ENTRY_ID = "entry_id"
+
+    @CheckResult
+    private fun newInstance(entry: FridgeEntry?): DialogFragment {
+      return CreateEntrySheet().apply {
+        arguments = Bundle().apply { entry?.let { putString(ENTRY_ID, it.id().id) } }
+      }
     }
 
-    override fun onControllerEvent(event: CreateEntryControllerEvent) {
-        return when (event) {
-            is CreateEntryControllerEvent.Commit -> dismiss()
-        }
+    fun create(activity: FragmentActivity) {
+      newInstance(null).show(activity, TAG)
     }
 
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
-        stateSaver?.saveState(outState)
+    fun edit(activity: FragmentActivity, entry: FridgeEntry) {
+      newInstance(entry).show(activity, TAG)
     }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-
-        factory = null
-        stateSaver = null
-        name = null
-        commit = null
-    }
-
-    companion object {
-
-        private const val TAG = "EntryAddSheet"
-        private const val ENTRY_ID = "entry_id"
-
-        @CheckResult
-        private fun newInstance(entry: FridgeEntry?): DialogFragment {
-            return CreateEntrySheet().apply {
-                arguments = Bundle().apply {
-                    entry?.let { putString(ENTRY_ID, it.id().id) }
-                }
-            }
-        }
-
-        fun create(activity: FragmentActivity) {
-            newInstance(null).show(activity, TAG)
-        }
-
-        fun edit(activity: FragmentActivity, entry: FridgeEntry) {
-            newInstance(entry).show(activity, TAG)
-        }
-    }
-
+  }
 }

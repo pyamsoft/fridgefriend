@@ -22,62 +22,64 @@ import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.tooltip.Tooltip
 import com.skydoves.balloon.Balloon
 
-internal class BalloonTooltip internal constructor(
+internal class BalloonTooltip
+internal constructor(
     creator: LazyBalloon,
     private val direction: Tooltip.Direction,
 ) : Tooltip {
 
-    private val balloon: Balloon by lazy(LazyThreadSafetyMode.NONE) { creator.create() }
+  private val balloon: Balloon by lazy(LazyThreadSafetyMode.NONE) { creator.create() }
 
-    override fun show(anchor: View) = when (direction) {
+  override fun show(anchor: View) =
+      when (direction) {
         Tooltip.Direction.CENTER -> balloon.show(anchor)
         Tooltip.Direction.TOP -> balloon.showAlignTop(anchor)
         Tooltip.Direction.BOTTOM -> balloon.showAlignBottom(anchor)
         Tooltip.Direction.LEFT -> balloon.showAlignLeft(anchor)
         Tooltip.Direction.RIGHT -> balloon.showAlignRight(anchor)
-    }
+      }
 
-    override fun show(anchor: View, xOff: Int, yOff: Int) = when (direction) {
+  override fun show(anchor: View, xOff: Int, yOff: Int) =
+      when (direction) {
         Tooltip.Direction.CENTER -> balloon.show(anchor, xOff, yOff)
         Tooltip.Direction.TOP -> balloon.showAlignTop(anchor, xOff, yOff)
         Tooltip.Direction.BOTTOM -> balloon.showAlignBottom(anchor, xOff, yOff)
         Tooltip.Direction.LEFT -> balloon.showAlignLeft(anchor, xOff, yOff)
         Tooltip.Direction.RIGHT -> balloon.showAlignRight(anchor, xOff, yOff)
+      }
+
+  override fun hide() {
+    return balloon.dismiss()
+  }
+
+  internal class Builder
+  internal constructor(
+      private val builder: Balloon.Builder,
+  ) : Tooltip.Builder {
+
+    override fun setText(text: String): Tooltip.Builder {
+      return makeNew(builder.setText(text))
     }
 
-    override fun hide() {
-        return balloon.dismiss()
+    override fun setText(text: Int): Tooltip.Builder {
+      return makeNew(builder.setTextResource(text))
     }
 
-    internal class Builder internal constructor(
-        private val builder: Balloon.Builder,
-    ) : Tooltip.Builder {
-
-        override fun setText(text: String): Tooltip.Builder {
-            return makeNew(builder.setText(text))
-        }
-
-        override fun setText(text: Int): Tooltip.Builder {
-            return makeNew(builder.setTextResource(text))
-        }
-
-        override fun setIcon(icon: Drawable): Tooltip.Builder {
-            return makeNew(builder.setIconDrawable(icon))
-        }
-
-        override fun setIconRes(icon: Int): Tooltip.Builder {
-            return makeNew(builder.setIconDrawableResource(icon))
-        }
-
-        companion object {
-
-            @JvmStatic
-            @CheckResult
-            private fun makeNew(builder: Balloon.Builder): Tooltip.Builder {
-                return Builder(builder)
-            }
-        }
+    override fun setIcon(icon: Drawable): Tooltip.Builder {
+      return makeNew(builder.setIconDrawable(icon))
     }
 
+    override fun setIconRes(icon: Int): Tooltip.Builder {
+      return makeNew(builder.setIconDrawableResource(icon))
+    }
+
+    companion object {
+
+      @JvmStatic
+      @CheckResult
+      private fun makeNew(builder: Balloon.Builder): Tooltip.Builder {
+        return Builder(builder)
+      }
+    }
+  }
 }
-

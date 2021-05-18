@@ -23,13 +23,12 @@ import com.pyamsoft.fridge.ui.view.UiToolbar
 import com.pyamsoft.pydroid.arch.UiControllerEvent
 import com.pyamsoft.pydroid.arch.UiViewEvent
 
-data class DetailViewState internal constructor(
+data class DetailViewState
+internal constructor(
     // All currently displayed list items
     val displayedItems: List<FridgeItem>,
     // All the list items before filtering
     val allItems: List<FridgeItem>,
-   
-
     val isLoading: Boolean,
     val search: String,
     val entry: FridgeEntry?,
@@ -45,138 +44,126 @@ data class DetailViewState internal constructor(
     val bottomOffset: Int,
 ) : UiToolbar.State<DetailViewState.Sorts> {
 
-    override val toolbarSearch = search
-    override val toolbarSort = sort.asToolbarSort()
+  override val toolbarSearch = search
+  override val toolbarSort = sort.asToolbarSort()
 
-    data class Undoable internal constructor(
-        val item: FridgeItem,
-        val canQuickAdd: Boolean
-    )
+  data class Undoable internal constructor(val item: FridgeItem, val canQuickAdd: Boolean)
 
-    data class Counts internal constructor(
-        val totalCount: Int,
-        val firstCount: Int,
-        val secondCount: Int,
-        val thirdCount: Int,
-    )
+  data class Counts
+  internal constructor(
+      val totalCount: Int,
+      val firstCount: Int,
+      val secondCount: Int,
+      val thirdCount: Int,
+  )
 
-    @CheckResult
-    internal fun FridgeItem.matchesQuery(query: String, defaultValue: Boolean): Boolean {
-        // Empty query always matches
-        return if (query.isBlank()) defaultValue else {
-            this.name().contains(query, ignoreCase = true)
-        }
+  @CheckResult
+  internal fun FridgeItem.matchesQuery(query: String, defaultValue: Boolean): Boolean {
+    // Empty query always matches
+    return if (query.isBlank()) defaultValue
+    else {
+      this.name().contains(query, ignoreCase = true)
     }
+  }
 
-    enum class Showing {
-        FRESH,
-        CONSUMED,
-        SPOILED
-    }
+  enum class Showing {
+    FRESH,
+    CONSUMED,
+    SPOILED
+  }
 
-    enum class Sorts {
-        CREATED,
-        NAME,
-        PURCHASED,
-        EXPIRATION
-    }
+  enum class Sorts {
+    CREATED,
+    NAME,
+    PURCHASED,
+    EXPIRATION
+  }
 
-    @CheckResult
-    internal fun filterValid(items: List<FridgeItem>): Sequence<FridgeItem> {
-        return items.asSequence().filterNot { it.isEmpty() }
-    }
+  @CheckResult
+  internal fun filterValid(items: List<FridgeItem>): Sequence<FridgeItem> {
+    return items.asSequence().filterNot { it.isEmpty() }
+  }
 
-    data class ExpirationRange internal constructor(val range: Int)
+  data class ExpirationRange internal constructor(val range: Int)
 
-    data class IsSameDayExpired internal constructor(val isSame: Boolean)
+  data class IsSameDayExpired internal constructor(val isSame: Boolean)
 
-    data class ShowAllItemsEmptyState internal constructor(val showAll: Boolean)
+  data class ShowAllItemsEmptyState internal constructor(val showAll: Boolean)
 }
 
 sealed class DetailViewEvent : UiViewEvent {
 
-    sealed class ButtonEvent : DetailViewEvent() {
+  sealed class ButtonEvent : DetailViewEvent() {
 
-        object AddNew : ButtonEvent()
+    object AddNew : ButtonEvent()
 
-        object ChangeCurrentFilter : ButtonEvent()
+    object ChangeCurrentFilter : ButtonEvent()
 
-        object ClearListError : ButtonEvent()
+    object ClearListError : ButtonEvent()
 
-        object UndoDeleteItem : ButtonEvent()
+    object UndoDeleteItem : ButtonEvent()
 
-        object ReallyDeleteItemNoUndo : ButtonEvent()
+    object ReallyDeleteItemNoUndo : ButtonEvent()
 
-        data class AnotherOne internal constructor(val item: FridgeItem) : ButtonEvent()
+    data class AnotherOne internal constructor(val item: FridgeItem) : ButtonEvent()
+  }
 
+  sealed class ListEvent : DetailViewEvent() {
+
+    object ForceRefresh : ListEvent()
+
+    data class ExpandItem internal constructor(val index: Int) : ListEvent()
+
+    data class IncreaseItemCount internal constructor(val index: Int) : ListEvent()
+
+    data class DecreaseItemCount internal constructor(val index: Int) : ListEvent()
+
+    data class ConsumeItem internal constructor(val index: Int) : ListEvent()
+
+    data class DeleteItem internal constructor(val index: Int) : ListEvent()
+
+    data class RestoreItem internal constructor(val index: Int) : ListEvent()
+
+    data class SpoilItem internal constructor(val index: Int) : ListEvent()
+
+    data class ChangeItemPresence internal constructor(val index: Int) : ListEvent()
+  }
+
+  sealed class ToolbarEvent : DetailViewEvent() {
+
+    sealed class Search : ToolbarEvent() {
+
+      data class Query(val search: String) : Search()
     }
 
-    sealed class ListEvent : DetailViewEvent() {
+    sealed class Toolbar : ToolbarEvent() {
 
-        object ForceRefresh : ListEvent()
+      object Back : Toolbar()
 
-        data class ExpandItem internal constructor(val index: Int) : ListEvent()
-
-        data class IncreaseItemCount internal constructor(val index: Int) : ListEvent()
-
-        data class DecreaseItemCount internal constructor(val index: Int) : ListEvent()
-
-        data class ConsumeItem internal constructor(val index: Int) : ListEvent()
-
-        data class DeleteItem internal constructor(val index: Int) : ListEvent()
-
-        data class RestoreItem internal constructor(val index: Int) : ListEvent()
-
-        data class SpoilItem internal constructor(val index: Int) : ListEvent()
-
-        data class ChangeItemPresence internal constructor(val index: Int) : ListEvent()
-
+      data class ChangeSort internal constructor(val sort: DetailViewState.Sorts) : Toolbar()
     }
+  }
 
-    sealed class ToolbarEvent : DetailViewEvent() {
+  sealed class SwitcherEvent : DetailViewEvent() {
 
-        sealed class Search : ToolbarEvent() {
-
-            data class Query(val search: String) : Search()
-
-        }
-
-        sealed class Toolbar : ToolbarEvent() {
-
-            object Back : Toolbar()
-
-            data class ChangeSort internal constructor(val sort: DetailViewState.Sorts) : Toolbar()
-
-        }
-
-    }
-
-    sealed class SwitcherEvent : DetailViewEvent() {
-
-        data class PresenceSwitched internal constructor(
-            val presence: FridgeItem.Presence,
-        ) : SwitcherEvent()
-    }
-
+    data class PresenceSwitched
+    internal constructor(
+        val presence: FridgeItem.Presence,
+    ) : SwitcherEvent()
+  }
 }
-
 
 sealed class DetailControllerEvent : UiControllerEvent {
 
-    sealed class ListEvent : DetailControllerEvent() {
+  sealed class ListEvent : DetailControllerEvent() {
 
-        data class ExpandItem internal constructor(
-            val item: FridgeItem
-        ) : ListEvent()
-    }
+    data class ExpandItem internal constructor(val item: FridgeItem) : ListEvent()
+  }
 
-    sealed class AddEvent : DetailControllerEvent() {
+  sealed class AddEvent : DetailControllerEvent() {
 
-        data class AddNew internal constructor(
-            val entryId: FridgeEntry.Id,
-            val presence: FridgeItem.Presence
-        ) : AddEvent()
-    }
-
+    data class AddNew
+    internal constructor(val entryId: FridgeEntry.Id, val presence: FridgeItem.Presence) :
+        AddEvent()
+  }
 }
-

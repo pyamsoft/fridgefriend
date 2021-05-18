@@ -27,111 +27,116 @@ import com.pyamsoft.pydroid.bus.EventBus
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
+import javax.inject.Named
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import timber.log.Timber
-import javax.inject.Named
 
-class MainViewModel @AssistedInject internal constructor(
+class MainViewModel
+@AssistedInject
+internal constructor(
     @Assisted savedState: UiSavedState,
     private val interactor: MainInteractor,
     private val bottomOffsetBus: EventBus<BottomOffset>,
     @Named("app_name") appNameRes: Int,
-) : UiSavedStateViewModel<MainViewState, MainControllerEvent>(
-    savedState,
-    MainViewState(
-        page = null,
-        appNameRes = appNameRes,
-        countNeeded = 0,
-        countExpiringOrExpired = 0,
-    )
-) {
+) :
+    UiSavedStateViewModel<MainViewState, MainControllerEvent>(
+        savedState,
+        MainViewState(
+            page = null,
+            appNameRes = appNameRes,
+            countNeeded = 0,
+            countExpiringOrExpired = 0,
+        )) {
 
-    init {
-        viewModelScope.launch(context = Dispatchers.Default) {
-            interactor.listenForItemChanges { handleRealtime(it) }
-        }
-
-        refreshBadgeCounts()
+  init {
+    viewModelScope.launch(context = Dispatchers.Default) {
+      interactor.listenForItemChanges { handleRealtime(it) }
     }
 
-    fun handleLoadDefaultPage() {
-        viewModelScope.launch(context = Dispatchers.Default) {
-            val page = restoreSavedState(KEY_PAGE) { MainPage.Entries.asString() }.asPage()
-            Timber.d("Loading initial page: $page")
-            handleSelectPage(page, force = true)
-        }
-    }
+    refreshBadgeCounts()
+  }
 
-    private fun handleRealtime(event: FridgeItemChangeEvent) = when (event) {
+  fun handleLoadDefaultPage() {
+    viewModelScope.launch(context = Dispatchers.Default) {
+      val page = restoreSavedState(KEY_PAGE) { MainPage.Entries.asString() }.asPage()
+      Timber.d("Loading initial page: $page")
+      handleSelectPage(page, force = true)
+    }
+  }
+
+  private fun handleRealtime(event: FridgeItemChangeEvent) =
+      when (event) {
         is FridgeItemChangeEvent.Insert -> refreshBadgeCounts()
         is FridgeItemChangeEvent.Update -> refreshBadgeCounts()
         is FridgeItemChangeEvent.Delete -> refreshBadgeCounts()
+      }
+
+  private fun refreshBadgeCounts() {
+    viewModelScope.launch(context = Dispatchers.Default) {
+      val neededCount = interactor.getNeededCount()
+      setState { copy(countNeeded = neededCount) }
     }
 
-    private fun refreshBadgeCounts() {
-        viewModelScope.launch(context = Dispatchers.Default) {
-            val neededCount = interactor.getNeededCount()
-            setState { copy(countNeeded = neededCount) }
-        }
-
-        viewModelScope.launch(context = Dispatchers.Default) {
-            val expiredExpiringCount = interactor.getExpiredOrExpiringCount()
-            setState { copy(countExpiringOrExpired = expiredExpiringCount) }
-        }
+    viewModelScope.launch(context = Dispatchers.Default) {
+      val expiredExpiringCount = interactor.getExpiredOrExpiringCount()
+      setState { copy(countExpiringOrExpired = expiredExpiringCount) }
     }
+  }
 
-    fun handleConsumeBottomBarHeight(height: Int) {
-        viewModelScope.launch(context = Dispatchers.Default) {
-            bottomOffsetBus.send(BottomOffset(height))
-        }
+  fun handleConsumeBottomBarHeight(height: Int) {
+    viewModelScope.launch(context = Dispatchers.Default) {
+      bottomOffsetBus.send(BottomOffset(height))
     }
+  }
 
-    fun handleSelectPage(
-        newPage: MainPage,
-        force: Boolean,
-    ) {
-        Timber.d("Select entry: $newPage")
-        refreshBadgeCounts()
+  fun handleSelectPage(
+      newPage: MainPage,
+      force: Boolean,
+  ) {
+    Timber.d("Select entry: $newPage")
+    refreshBadgeCounts()
 
-        // If the pages match we can just run the after, no need to set and publish
-        val oldPage = state.page
-        setState(stateChange = { copy(page = newPage) }, andThen = { newState ->
-            publishNewSelection(requireNotNull(newState.page), oldPage, force)
+    // If the pages match we can just run the after, no need to set and publish
+    val oldPage = state.page
+    setState(
+        stateChange = { copy(page = newPage) },
+        andThen = { newState ->
+          publishNewSelection(requireNotNull(newState.page), oldPage, force)
         })
+  }
+
+  private suspend inline fun publishNewSelection(
+      newPage: MainPage,
+      oldPage: MainPage?,
+      force: Boolean,
+  ) {
+    Timber.d("Publish selection: $oldPage -> $newPage")
+    putSavedState(KEY_PAGE, newPage.asString())
+    publish(MainControllerEvent.PushPage(newPage, oldPage, force))
+  }
+
+  companion object {
+
+    @CheckResult
+    private fun MainPage.asString(): String {
+      return this::class.java.name
     }
 
-    private suspend inline fun publishNewSelection(
-        newPage: MainPage,
-        oldPage: MainPage?,
-        force: Boolean,
-    ) {
-        Timber.d("Publish selection: $oldPage -> $newPage")
-        putSavedState(KEY_PAGE, newPage.asString())
-        publish(MainControllerEvent.PushPage(newPage, oldPage, force))
-    }
-
-    companion object {
-
-        @CheckResult
-        private fun MainPage.asString(): String {
-            return this::class.java.name
+    @CheckResult
+    private fun String.asPage(): MainPage =
+        when (this) {
+          MainPage.Entries::class.java.name -> MainPage.Entries
+          MainPage.Category::class.java.name -> MainPage.Category
+          MainPage.Settings::class.java.name -> MainPage.Settings
+          else -> throw IllegalStateException("Cannot convert to MainPage: $this")
         }
 
-        @CheckResult
-        private fun String.asPage(): MainPage = when (this) {
-            MainPage.Entries::class.java.name -> MainPage.Entries
-            MainPage.Category::class.java.name -> MainPage.Category
-            MainPage.Settings::class.java.name -> MainPage.Settings
-            else -> throw IllegalStateException("Cannot convert to MainPage: $this")
-        }
+    private const val KEY_PAGE = "page"
+  }
 
-        private const val KEY_PAGE = "page"
-    }
-
-    @AssistedFactory
-    interface Factory : UiSavedStateViewModelProvider<MainViewModel> {
-        override fun create(savedState: UiSavedState): MainViewModel
-    }
-
+  @AssistedFactory
+  interface Factory : UiSavedStateViewModelProvider<MainViewModel> {
+    override fun create(savedState: UiSavedState): MainViewModel
+  }
 }

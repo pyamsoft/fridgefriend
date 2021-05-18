@@ -26,39 +26,36 @@ import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.loader.Loaded
 import javax.inject.Inject
 
-class EntryListItemScrim @Inject internal constructor(
+class EntryListItemScrim
+@Inject
+internal constructor(
     private val imageLoader: ImageLoader,
     parent: ViewGroup,
 ) : BaseUiView<EntryItemViewState, EntryItemViewEvent, EntryItemScrimBinding>(parent) {
 
-    override val viewBinding = EntryItemScrimBinding::inflate
+  override val viewBinding = EntryItemScrimBinding::inflate
 
-    override val layoutRoot by boundView { entryItemScrim }
+  override val layoutRoot by boundView { entryItemScrim }
 
-    private var loaded: Loaded? = null
+  private var loaded: Loaded? = null
 
-    init {
-        doOnTeardown {
-            clear()
-        }
+  init {
+    doOnTeardown { clear() }
+  }
+
+  private fun clear() {
+    loaded?.dispose()
+    loaded = null
+  }
+
+  override fun onRender(state: UiRender<EntryItemViewState>) {
+    state.mapChanged { it.itemCount }.render(viewScope) { handleScrim(it) }
+  }
+
+  private fun handleScrim(itemCount: Int) {
+    clear()
+    if (itemCount > 0) {
+      loaded = imageLoader.asDrawable().load(R.drawable.entry_item_scrim).intoBackground(layoutRoot)
     }
-
-    private fun clear() {
-        loaded?.dispose()
-        loaded = null
-    }
-
-    override fun onRender(state: UiRender<EntryItemViewState>) {
-        state.mapChanged { it.itemCount }.render(viewScope) { handleScrim(it) }
-    }
-
-    private fun handleScrim(itemCount: Int) {
-        clear()
-        if (itemCount > 0) {
-            loaded = imageLoader.asDrawable()
-                .load(R.drawable.entry_item_scrim)
-                .intoBackground(layoutRoot)
-        }
-    }
-
+  }
 }

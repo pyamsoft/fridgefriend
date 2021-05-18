@@ -20,6 +20,5 @@ import androidx.annotation.CheckResult
 
 interface DbDelete<T : Any> {
 
-    @CheckResult
-    suspend fun delete(o: T, offerUndo: Boolean): Boolean
+  @CheckResult suspend fun delete(o: T, offerUndo: Boolean): Boolean
 }

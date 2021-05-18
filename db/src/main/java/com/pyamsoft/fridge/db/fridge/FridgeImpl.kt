@@ -21,26 +21,28 @@ import com.pyamsoft.fridge.db.entry.FridgeEntryQueryDao
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItemQueryDao
 import com.pyamsoft.pydroid.core.Enforcer
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 @Singleton
-internal class FridgeImpl @Inject internal constructor(
+internal class FridgeImpl
+@Inject
+internal constructor(
     private val entryQueryDao: FridgeEntryQueryDao,
     private val itemQueryDao: FridgeItemQueryDao,
 ) : Fridge {
 
-    override suspend fun <R : Any> forAllItemsInEachEntry(
-        force: Boolean,
-        block: suspend (FridgeEntry, List<FridgeItem>) -> R
-    ): List<R> = withContext(context = Dispatchers.IO) {
+  override suspend fun <R : Any> forAllItemsInEachEntry(
+      force: Boolean,
+      block: suspend (FridgeEntry, List<FridgeItem>) -> R
+  ): List<R> =
+      withContext(context = Dispatchers.IO) {
         Enforcer.assertOffMainThread()
         return@withContext entryQueryDao.query(force).map { entry ->
-            val items = itemQueryDao.query(force, entry.id())
-            block(entry, items)
+          val items = itemQueryDao.query(force, entry.id())
+          block(entry, items)
         }
-    }
-
+      }
 }

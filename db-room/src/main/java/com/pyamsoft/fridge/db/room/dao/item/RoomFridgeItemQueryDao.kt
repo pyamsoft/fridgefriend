@@ -29,65 +29,57 @@ import kotlinx.coroutines.withContext
 @Dao
 internal abstract class RoomFridgeItemQueryDao internal constructor() : FridgeItemQueryDao {
 
-    final override suspend fun query(force: Boolean): List<FridgeItem> =
-        withContext(context = Dispatchers.IO) { daoQuery() }
+  final override suspend fun query(force: Boolean): List<FridgeItem> =
+      withContext(context = Dispatchers.IO) { daoQuery() }
 
-    @CheckResult
-    @Query("""SELECT * FROM ${RoomFridgeItem.TABLE_NAME}""")
-    internal abstract suspend fun daoQuery(): List<RoomFridgeItem>
+  @CheckResult
+  @Query("""SELECT * FROM ${RoomFridgeItem.TABLE_NAME}""")
+  internal abstract suspend fun daoQuery(): List<RoomFridgeItem>
 
-    final override suspend fun query(force: Boolean, id: FridgeEntry.Id): List<FridgeItem> =
-        withContext(context = Dispatchers.IO) {
-            daoQuery(id)
-        }
+  final override suspend fun query(force: Boolean, id: FridgeEntry.Id): List<FridgeItem> =
+      withContext(context = Dispatchers.IO) { daoQuery(id) }
 
-    @CheckResult
-    @Query(
-        """
-        SELECT * FROM ${RoomFridgeItem.TABLE_NAME} WHERE 
+  @CheckResult
+  @Query(
+      """
+        SELECT * FROM ${RoomFridgeItem.TABLE_NAME} WHERE
         ${RoomFridgeItem.COLUMN_ENTRY_ID} = :id
-        """
-    )
-    internal abstract suspend fun daoQuery(id: FridgeEntry.Id): List<RoomFridgeItem>
+        """)
+  internal abstract suspend fun daoQuery(id: FridgeEntry.Id): List<RoomFridgeItem>
 
-    final override suspend fun querySameNameDifferentPresence(
-        force: Boolean,
-        name: String,
-        presence: FridgeItem.Presence
-    ): List<FridgeItem> = withContext(context = Dispatchers.IO) {
-        daoQuerySameNameDifferentPresence(name, presence)
-    }
+  final override suspend fun querySameNameDifferentPresence(
+      force: Boolean,
+      name: String,
+      presence: FridgeItem.Presence
+  ): List<FridgeItem> =
+      withContext(context = Dispatchers.IO) { daoQuerySameNameDifferentPresence(name, presence) }
 
-    @CheckResult
-    @Query(
-        """
-        SELECT * FROM ${RoomFridgeItem.TABLE_NAME} WHERE 
-        ${RoomFridgeItem.COLUMN_PRESENCE} != :presence AND 
+  @CheckResult
+  @Query(
+      """
+        SELECT * FROM ${RoomFridgeItem.TABLE_NAME} WHERE
+        ${RoomFridgeItem.COLUMN_PRESENCE} != :presence AND
         ${RoomFridgeItem.COLUMN_CONSUMED} IS NULL AND
         ${RoomFridgeItem.COLUMN_SPOILED} IS NULL AND
         TRIM(${RoomFridgeItem.COLUMN_NAME})  = :name COLLATE NOCASE
-        """
-    )
-    internal abstract suspend fun daoQuerySameNameDifferentPresence(
-        name: String,
-        presence: FridgeItem.Presence
-    ): List<RoomFridgeItem>
+        """)
+  internal abstract suspend fun daoQuerySameNameDifferentPresence(
+      name: String,
+      presence: FridgeItem.Presence
+  ): List<RoomFridgeItem>
 
-    final override suspend fun querySimilarNamedItems(
-        force: Boolean,
-        id: FridgeItem.Id,
-        name: String
-    ): List<FridgeItem> = withContext(context = Dispatchers.IO) {
-        daoQuerySimilarNamedItems(id)
-    }
+  final override suspend fun querySimilarNamedItems(
+      force: Boolean,
+      id: FridgeItem.Id,
+      name: String
+  ): List<FridgeItem> = withContext(context = Dispatchers.IO) { daoQuerySimilarNamedItems(id) }
 
-    // Filtering done in Kotlin via distance algorithm
-    @CheckResult
-    @Query(
-        """
-        SELECT * FROM ${RoomFridgeItem.TABLE_NAME} WHERE 
+  // Filtering done in Kotlin via distance algorithm
+  @CheckResult
+  @Query(
+      """
+        SELECT * FROM ${RoomFridgeItem.TABLE_NAME} WHERE
         ${RoomFridgeItem.COLUMN_ID} != :id
-        """
-    )
-    internal abstract suspend fun daoQuerySimilarNamedItems(id: FridgeItem.Id): List<RoomFridgeItem>
+        """)
+  internal abstract suspend fun daoQuerySimilarNamedItems(id: FridgeItem.Id): List<RoomFridgeItem>
 }

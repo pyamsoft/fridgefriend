@@ -23,10 +23,7 @@ import javax.inject.Singleton
 @Singleton
 interface OrderFactory {
 
-    @CheckResult
-    fun itemOrder(params: ItemParameters): Order
+  @CheckResult fun itemOrder(params: ItemParameters): Order
 
-    @CheckResult
-    fun nightlyOrder(): Order
-
+  @CheckResult fun nightlyOrder(): Order
 }

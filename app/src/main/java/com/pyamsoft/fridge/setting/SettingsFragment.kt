@@ -37,94 +37,81 @@ import javax.inject.Inject
 
 internal class SettingsFragment : AppSettingsFragment() {
 
+  override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+    super.onViewCreated(view, savedInstanceState)
+    view.applyToolbarOffset(requireAppBarActivity(), viewLifecycleOwner)
+  }
+
+  override fun provideSettingsFragment(): AppSettingsPreferenceFragment {
+    return SettingsPreferenceFragment()
+  }
+
+  override fun provideSettingsTag(): String {
+    return SettingsPreferenceFragment.TAG
+  }
+
+  companion object {
+
+    const val TAG = "SettingsFragment"
+
+    @JvmStatic
+    @CheckResult
+    fun newInstance(): Fragment {
+      return SettingsFragment().apply { arguments = Bundle().apply {} }
+    }
+  }
+
+  internal class SettingsPreferenceFragment :
+      AppSettingsPreferenceFragment(), UiController<UnitControllerEvent> {
+
+    override val preferenceXmlResId: Int = R.xml.preferences
+
+    @JvmField @Inject internal var factory: FridgeViewModelFactory? = null
+    private val viewModel by fromViewModelFactory<SettingsViewModel>(activity = true) {
+      factory?.create(requireActivity())
+    }
+
+    @JvmField @Inject internal var spacer: SettingsSpacer? = null
+
+    private var stateSaver: StateSaver? = null
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        view.applyToolbarOffset(requireAppBarActivity(), viewLifecycleOwner)
+      super.onViewCreated(view, savedInstanceState)
+      Injector.obtainFromApplication<FridgeComponent>(view.context)
+          .plusSettingsComponent()
+          .create(preferenceScreen)
+          .inject(this)
+
+      stateSaver =
+          createComponent(
+              savedInstanceState, viewLifecycleOwner, viewModel, this, requireNotNull(spacer)) {}
+
+      initializeUpdate()
     }
 
-    override fun provideSettingsFragment(): AppSettingsPreferenceFragment {
-        return SettingsPreferenceFragment()
+    override fun onControllerEvent(event: UnitControllerEvent) {}
+
+    private fun initializeUpdate() {
+      val act = requireActivity()
+      if (act is VersionChecker) {
+        act.onVersionCheck()
+      }
     }
 
-    override fun provideSettingsTag(): String {
-        return SettingsPreferenceFragment.TAG
+    override fun onSaveInstanceState(outState: Bundle) {
+      super.onSaveInstanceState(outState)
+      stateSaver?.saveState(outState)
+    }
+
+    override fun onDestroyView() {
+      super.onDestroyView()
+      factory = null
+      stateSaver = null
     }
 
     companion object {
 
-        const val TAG = "SettingsFragment"
-
-        @JvmStatic
-        @CheckResult
-        fun newInstance(): Fragment {
-            return SettingsFragment().apply {
-                arguments = Bundle().apply {
-                }
-            }
-        }
+      const val TAG = "SettingsPreferenceFragment"
     }
-
-    internal class SettingsPreferenceFragment :
-        AppSettingsPreferenceFragment(),
-        UiController<UnitControllerEvent> {
-
-        override val preferenceXmlResId: Int = R.xml.preferences
-
-        @JvmField
-        @Inject
-        internal var factory: FridgeViewModelFactory? = null
-        private val viewModel by fromViewModelFactory<SettingsViewModel>(activity = true) {
-            factory?.create(requireActivity())
-        }
-
-        @JvmField
-        @Inject
-        internal var spacer: SettingsSpacer? = null
-
-        private var stateSaver: StateSaver? = null
-
-        override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-            super.onViewCreated(view, savedInstanceState)
-            Injector.obtainFromApplication<FridgeComponent>(view.context)
-                .plusSettingsComponent()
-                .create(preferenceScreen)
-                .inject(this)
-
-            stateSaver = createComponent(
-                savedInstanceState,
-                viewLifecycleOwner,
-                viewModel,
-                this,
-                requireNotNull(spacer)
-            ) {}
-
-            initializeUpdate()
-        }
-
-        override fun onControllerEvent(event: UnitControllerEvent) {
-        }
-
-        private fun initializeUpdate() {
-            val act = requireActivity()
-            if (act is VersionChecker) {
-                act.onVersionCheck()
-            }
-        }
-
-        override fun onSaveInstanceState(outState: Bundle) {
-            super.onSaveInstanceState(outState)
-            stateSaver?.saveState(outState)
-        }
-
-        override fun onDestroyView() {
-            super.onDestroyView()
-            factory = null
-            stateSaver = null
-        }
-
-        companion object {
-
-            const val TAG = "SettingsPreferenceFragment"
-        }
-    }
+  }
 }

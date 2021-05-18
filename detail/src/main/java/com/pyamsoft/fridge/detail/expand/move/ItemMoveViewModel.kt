@@ -25,56 +25,56 @@ import com.pyamsoft.fridge.entry.EntryListStateModel
 import com.pyamsoft.highlander.highlander
 import com.pyamsoft.pydroid.arch.Renderable
 import com.pyamsoft.pydroid.arch.UiViewModel
+import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import timber.log.Timber
-import javax.inject.Inject
 
-class ItemMoveViewModel @Inject internal constructor(
+class ItemMoveViewModel
+@Inject
+internal constructor(
     private val interactor: DetailInteractor,
     private val dbCache: DbCache,
     @MoveInternalApi delegate: EntryListStateModel,
     itemId: FridgeItem.Id,
     entryId: FridgeEntry.Id,
-) : UiViewModel<ItemMoveViewState, ItemMoveControllerEvent>(
-    initialState = ItemMoveViewState(
-        item = null,
-        listState = delegate.initialState
-    )
-) {
+) :
+    UiViewModel<ItemMoveViewState, ItemMoveControllerEvent>(
+        initialState = ItemMoveViewState(item = null, listState = delegate.initialState)) {
 
-    private val itemResolveRunner = highlander<FridgeItem> { interactor.loadItem(itemId, entryId) }
+  private val itemResolveRunner = highlander<FridgeItem> { interactor.loadItem(itemId, entryId) }
 
-    init {
-        val scope = viewModelScope
-        val job = delegate.bindState(scope, Renderable { state ->
-            state.render(scope) { scope.setState { copy(listState = it) } }
-        })
-        doOnCleared { job.cancel() }
-        doOnCleared { delegate.clear() }
+  init {
+    val scope = viewModelScope
+    val job =
+        delegate.bindState(
+            scope,
+            Renderable { state -> state.render(scope) { scope.setState { copy(listState = it) } } })
+    doOnCleared { job.cancel() }
+    doOnCleared { delegate.clear() }
 
-        viewModelScope.launch(context = Dispatchers.Default) {
-            val item = itemResolveRunner.call()
-            setState { copy(item = item) }
-        }
+    viewModelScope.launch(context = Dispatchers.Default) {
+      val item = itemResolveRunner.call()
+      setState { copy(item = item) }
     }
+  }
 
-    fun handleMoveItemToEntry(entry: FridgeEntry) {
-        state.item?.let { item ->
-            Timber.d("Move item from ${item.entryId()} to ${entry.id()}")
-            viewModelScope.launch(context = Dispatchers.Default) {
-                Timber.d("Remove old item")
-                interactor.delete(item, false)
+  fun handleMoveItemToEntry(entry: FridgeEntry) {
+    state.item?.let { item ->
+      Timber.d("Move item from ${item.entryId()} to ${entry.id()}")
+      viewModelScope.launch(context = Dispatchers.Default) {
+        Timber.d("Remove old item")
+        interactor.delete(item, false)
 
-                Timber.d("Create item with new entry id")
-                interactor.commit(item.migrateTo(entry.id()))
+        Timber.d("Create item with new entry id")
+        interactor.commit(item.migrateTo(entry.id()))
 
-                Timber.d("Clear all db caches")
-                dbCache.invalidate()
+        Timber.d("Clear all db caches")
+        dbCache.invalidate()
 
-                Timber.d("All done moving")
-                publish(ItemMoveControllerEvent.Close)
-            }
-        }
+        Timber.d("All done moving")
+        publish(ItemMoveControllerEvent.Close)
+      }
     }
+  }
 }

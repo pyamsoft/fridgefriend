@@ -44,75 +44,63 @@ import com.pyamsoft.pydroid.ui.app.requireToolbarActivity
 import com.pyamsoft.pydroid.ui.arch.fromViewModelFactory
 import com.pyamsoft.pydroid.ui.databinding.LayoutCoordinatorBinding
 import com.pyamsoft.pydroid.ui.util.commit
-import timber.log.Timber
 import javax.inject.Inject
+import timber.log.Timber
 
 internal class EntryFragment : Fragment(), SnackbarContainer, UiController<EntryControllerEvent> {
 
-    @JvmField
-    @Inject
-    internal var factory: FridgeViewModelFactory? = null
-    private val viewModel by fromViewModelFactory<EntryViewModel>(activity = true) {
-        factory?.create(requireActivity())
-    }
+  @JvmField @Inject internal var factory: FridgeViewModelFactory? = null
+  private val viewModel by fromViewModelFactory<EntryViewModel>(activity = true) {
+    factory?.create(requireActivity())
+  }
 
-    @JvmField
-    @Inject
-    internal var spacer: EntryAppBarSpacer? = null
+  @JvmField @Inject internal var spacer: EntryAppBarSpacer? = null
 
-    @JvmField
-    @Inject
-    internal var container: EntryContainer? = null
+  @JvmField @Inject internal var container: EntryContainer? = null
 
-    @JvmField
-    @Inject
-    internal var toolbar: EntryToolbar? = null
+  @JvmField @Inject internal var toolbar: EntryToolbar? = null
 
-    @JvmField
-    @Inject
-    internal var addNew: EntryAddNew? = null
+  @JvmField @Inject internal var addNew: EntryAddNew? = null
 
-    // Nested in container
-    @JvmField
-    @Inject
-    internal var nestedList: EntryList? = null
+  // Nested in container
+  @JvmField @Inject internal var nestedList: EntryList? = null
 
-    private var stateSaver: StateSaver? = null
+  private var stateSaver: StateSaver? = null
 
-    private var fragmentContainerId = 0
+  private var fragmentContainerId = 0
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?,
-    ): View? {
-        return inflater.inflate(R.layout.layout_coordinator, container, false)
-    }
+  override fun onCreateView(
+      inflater: LayoutInflater,
+      container: ViewGroup?,
+      savedInstanceState: Bundle?,
+  ): View? {
+    return inflater.inflate(R.layout.layout_coordinator, container, false)
+  }
 
-    override fun onViewCreated(
-        view: View,
-        savedInstanceState: Bundle?,
-    ) {
-        super.onViewCreated(view, savedInstanceState)
+  override fun onViewCreated(
+      view: View,
+      savedInstanceState: Bundle?,
+  ) {
+    super.onViewCreated(view, savedInstanceState)
 
-        fragmentContainerId = requireArguments().getInt(FRAGMENT_CONTAINER, 0)
-        val binding = LayoutCoordinatorBinding.bind(view)
-        Injector.obtainFromApplication<FridgeComponent>(view.context)
-            .plusEntryComponent()
-            .create(
-                requireAppBarActivity(),
-                requireToolbarActivity(),
-                requireActivity(),
-                viewLifecycleOwner,
-                binding.layoutCoordinator
-            )
-            .inject(this)
+    fragmentContainerId = requireArguments().getInt(FRAGMENT_CONTAINER, 0)
+    val binding = LayoutCoordinatorBinding.bind(view)
+    Injector.obtainFromApplication<FridgeComponent>(view.context)
+        .plusEntryComponent()
+        .create(
+            requireAppBarActivity(),
+            requireToolbarActivity(),
+            requireActivity(),
+            viewLifecycleOwner,
+            binding.layoutCoordinator)
+        .inject(this)
 
-        val container = requireNotNull(container)
-        val nestedList = requireNotNull(nestedList)
-        container.nest(nestedList)
+    val container = requireNotNull(container)
+    val nestedList = requireNotNull(nestedList)
+    container.nest(nestedList)
 
-        stateSaver = createComponent(
+    stateSaver =
+        createComponent(
             savedInstanceState,
             viewLifecycleOwner,
             viewModel,
@@ -122,113 +110,106 @@ internal class EntryFragment : Fragment(), SnackbarContainer, UiController<Entry
             requireNotNull(toolbar),
             requireNotNull(addNew),
         ) {
-            return@createComponent when (it) {
-                is EntryViewEvent.AddEvent.AddNew -> startAddFlow()
-                is EntryViewEvent.AddEvent.ReallyDeleteEntryNoUndo -> viewModel.handleDeleteForever()
-                is EntryViewEvent.AddEvent.UndoDeleteEntry -> viewModel.handleUndoDelete()
-                is EntryViewEvent.ListEvents.DeleteEntry -> viewModel.handleDelete(it.index)
-                is EntryViewEvent.ListEvents.EditEntry -> viewModel.handleEdit(it.index)
-                is EntryViewEvent.ListEvents.ForceRefresh -> viewModel.handleRefresh()
-                is EntryViewEvent.ListEvents.SelectEntry -> viewModel.handleSelect(it.index)
-                is EntryViewEvent.ToolbarEvent.ChangeSort -> viewModel.handleChangeSort(it.sort)
-                is EntryViewEvent.ToolbarEvent.SearchQuery -> viewModel.handleUpdateSearch(it.search)
-            }
+          return@createComponent when (it) {
+            is EntryViewEvent.AddEvent.AddNew -> startAddFlow()
+            is EntryViewEvent.AddEvent.ReallyDeleteEntryNoUndo -> viewModel.handleDeleteForever()
+            is EntryViewEvent.AddEvent.UndoDeleteEntry -> viewModel.handleUndoDelete()
+            is EntryViewEvent.ListEvents.DeleteEntry -> viewModel.handleDelete(it.index)
+            is EntryViewEvent.ListEvents.EditEntry -> viewModel.handleEdit(it.index)
+            is EntryViewEvent.ListEvents.ForceRefresh -> viewModel.handleRefresh()
+            is EntryViewEvent.ListEvents.SelectEntry -> viewModel.handleSelect(it.index)
+            is EntryViewEvent.ToolbarEvent.ChangeSort -> viewModel.handleChangeSort(it.sort)
+            is EntryViewEvent.ToolbarEvent.SearchQuery -> viewModel.handleUpdateSearch(it.search)
+          }
         }
 
-        initializeUpdate()
+    initializeUpdate()
+  }
+
+  private fun initializeUpdate() {
+    val act = requireActivity()
+    if (act is VersionChecker) {
+      act.onVersionCheck()
+    }
+  }
+
+  override fun onControllerEvent(event: EntryControllerEvent) {
+    return when (event) {
+      is EntryControllerEvent.EditEntry -> startEditFlow(event.entry)
+      is EntryControllerEvent.LoadEntry -> pushPage(event.entry)
+    }
+  }
+
+  private fun pushPage(entry: FridgeEntry) {
+    pushDetailPage(
+        parentFragmentManager,
+        viewLifecycleOwner,
+        fragmentContainerId,
+        entry.id(),
+        FridgeItem.Presence.NEED)
+  }
+
+  private fun startAddFlow() {
+    Timber.d("Add new entry")
+    CreateEntrySheet.create(requireActivity())
+  }
+
+  private fun startEditFlow(entry: FridgeEntry) {
+    Timber.d("Edit existing entry: $entry")
+    CreateEntrySheet.edit(requireActivity(), entry)
+  }
+
+  override fun container(): CoordinatorLayout? {
+    return addNew?.container()
+  }
+
+  override fun onSaveInstanceState(outState: Bundle) {
+    stateSaver?.saveState(outState)
+    super.onSaveInstanceState(outState)
+  }
+
+  override fun onDestroyView() {
+    super.onDestroyView()
+    stateSaver = null
+    factory = null
+
+    container = null
+    toolbar = null
+    addNew = null
+    spacer = null
+
+    nestedList = null
+
+    fragmentContainerId = 0
+  }
+
+  companion object {
+
+    const val TAG = "EntryFragment"
+    private const val FRAGMENT_CONTAINER = "entry_container"
+
+    @JvmStatic
+    @CheckResult
+    fun newInstance(@IdRes containerId: Int): Fragment {
+      return EntryFragment().apply {
+        arguments = Bundle().apply { putInt(FRAGMENT_CONTAINER, containerId) }
+      }
     }
 
-    private fun initializeUpdate() {
-        val act = requireActivity()
-        if (act is VersionChecker) {
-            act.onVersionCheck()
-        }
+    @JvmStatic
+    fun pushDetailPage(
+        fragmentManager: FragmentManager,
+        owner: LifecycleOwner,
+        containerId: Int,
+        entryId: FridgeEntry.Id,
+        presence: FridgeItem.Presence,
+    ) {
+      val tag = entryId.id
+      Timber.d("Push new entry page: $tag")
+      fragmentManager.commit(owner) {
+        replace(containerId, DetailFragment.newInstance(entryId, presence), tag)
+        addToBackStack(null)
+      }
     }
-
-    override fun onControllerEvent(event: EntryControllerEvent) {
-        return when (event) {
-            is EntryControllerEvent.EditEntry -> startEditFlow(event.entry)
-            is EntryControllerEvent.LoadEntry -> pushPage(event.entry)
-        }
-    }
-
-    private fun pushPage(entry: FridgeEntry) {
-        pushDetailPage(
-            parentFragmentManager,
-            viewLifecycleOwner,
-            fragmentContainerId,
-            entry.id(),
-            FridgeItem.Presence.NEED
-        )
-    }
-
-    private fun startAddFlow() {
-        Timber.d("Add new entry")
-        CreateEntrySheet.create(requireActivity())
-    }
-
-    private fun startEditFlow(entry: FridgeEntry) {
-        Timber.d("Edit existing entry: $entry")
-        CreateEntrySheet.edit(requireActivity(), entry)
-    }
-
-    override fun container(): CoordinatorLayout? {
-        return addNew?.container()
-    }
-
-    override fun onSaveInstanceState(outState: Bundle) {
-        stateSaver?.saveState(outState)
-        super.onSaveInstanceState(outState)
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        stateSaver = null
-        factory = null
-
-        container = null
-        toolbar = null
-        addNew = null
-        spacer = null
-
-        nestedList = null
-
-        fragmentContainerId = 0
-    }
-
-    companion object {
-
-        const val TAG = "EntryFragment"
-        private const val FRAGMENT_CONTAINER = "entry_container"
-
-        @JvmStatic
-        @CheckResult
-        fun newInstance(@IdRes containerId: Int): Fragment {
-            return EntryFragment().apply {
-                arguments = Bundle().apply {
-                    putInt(FRAGMENT_CONTAINER, containerId)
-                }
-            }
-        }
-
-        @JvmStatic
-        fun pushDetailPage(
-            fragmentManager: FragmentManager,
-            owner: LifecycleOwner,
-            containerId: Int,
-            entryId: FridgeEntry.Id,
-            presence: FridgeItem.Presence,
-        ) {
-            val tag = entryId.id
-            Timber.d("Push new entry page: $tag")
-            fragmentManager.commit(owner) {
-                replace(
-                    containerId,
-                    DetailFragment.newInstance(entryId, presence),
-                    tag
-                )
-                addToBackStack(null)
-            }
-        }
-    }
+  }
 }

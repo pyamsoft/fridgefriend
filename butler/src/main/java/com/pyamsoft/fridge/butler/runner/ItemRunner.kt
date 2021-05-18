@@ -37,14 +37,16 @@ import com.pyamsoft.fridge.preference.ExpiredPreferences
 import com.pyamsoft.fridge.preference.ExpiringPreferences
 import com.pyamsoft.fridge.preference.NeededPreferences
 import com.pyamsoft.fridge.preference.NotificationPreferences
-import kotlinx.coroutines.coroutineScope
-import timber.log.Timber
 import java.util.Calendar
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlinx.coroutines.coroutineScope
+import timber.log.Timber
 
 @Singleton
-internal class ItemRunner @Inject internal constructor(
+internal class ItemRunner
+@Inject
+internal constructor(
     private val butler: Butler,
     private val fridge: Fridge,
     private val detailPreferences: DetailPreferences,
@@ -55,128 +57,128 @@ internal class ItemRunner @Inject internal constructor(
     notificationPreferences: NotificationPreferences,
 ) : BaseRunner<ItemParameters>(handler, notificationPreferences) {
 
-    override suspend fun onReschedule(order: Order) {
-        Timber.d("Rescheduling order: $order")
-        butler.scheduleOrder(order)
+  override suspend fun onReschedule(order: Order) {
+    Timber.d("Rescheduling order: $order")
+    butler.scheduleOrder(order)
+  }
+
+  @CheckResult
+  private suspend fun notifyNeeded(
+      items: List<FridgeItem>,
+      entry: FridgeEntry,
+      now: Calendar,
+      params: ItemParameters,
+  ): Boolean {
+    if (items.isNotEmpty()) {
+      val lastTime = neededPreferences.getLastNotificationTimeNeeded()
+      if (now.isAllowedToNotify(params.forceNotifyNeeded, lastTime)) {
+        Timber.d("Notify user about items still needed")
+        return notification { notifyNeeded(entry, items) }
+      }
     }
 
-    @CheckResult
-    private suspend fun notifyNeeded(
-        items: List<FridgeItem>,
-        entry: FridgeEntry,
-        now: Calendar,
-        params: ItemParameters,
-    ): Boolean {
-        if (items.isNotEmpty()) {
-            val lastTime = neededPreferences.getLastNotificationTimeNeeded()
-            if (now.isAllowedToNotify(params.forceNotifyNeeded, lastTime)) {
-                Timber.d("Notify user about items still needed")
-                return notification { notifyNeeded(entry, items) }
+    return false
+  }
+
+  @CheckResult
+  private suspend fun notifyExpiringSoon(
+      items: List<FridgeItem>,
+      entry: FridgeEntry,
+      now: Calendar,
+      params: ItemParameters,
+  ): Boolean {
+    if (items.isNotEmpty()) {
+      val lastTime = expiringPreferences.getLastNotificationTimeExpiringSoon()
+      if (now.isAllowedToNotify(params.forceNotifyExpiring, lastTime)) {
+        Timber.d("Notify user about items expiring soon")
+        return notification { notifyExpiring(entry, items) }
+      }
+    }
+
+    return false
+  }
+
+  @CheckResult
+  private suspend fun notifyExpired(
+      items: List<FridgeItem>,
+      entry: FridgeEntry,
+      now: Calendar,
+      params: ItemParameters,
+  ): Boolean {
+    if (items.isNotEmpty()) {
+      val lastTime = expiredPreferences.getLastNotificationTimeExpired()
+      if (now.isAllowedToNotify(params.forceNotifyExpiring, lastTime)) {
+        Timber.d("Notify user about items expired")
+        return notification { notifyExpired(entry, items) }
+      }
+    }
+
+    return false
+  }
+
+  @CheckResult
+  private suspend fun notifyForEntry(
+      params: ItemParameters,
+      now: Calendar,
+      current: Calendar,
+      later: Calendar,
+      isSameDayExpired: Boolean,
+      entry: FridgeEntry,
+      items: List<FridgeItem>,
+  ): NotifyResults {
+    val neededItems = mutableListOf<FridgeItem>()
+    val expiringItems = mutableListOf<FridgeItem>()
+    val expiredItems = mutableListOf<FridgeItem>()
+
+    items.filterNot { it.isArchived() }.forEach { item ->
+      when (item.presence()) {
+        HAVE -> {
+          if (item.isExpired(current, isSameDayExpired)) {
+            Timber.w("${item.name()} expired!")
+            expiredItems.add(item)
+          } else {
+            if (item.isExpiringSoon(current, later, isSameDayExpired)) {
+              Timber.w("${item.name()} is expiring soon!")
+              expiringItems.add(item)
             }
+          }
         }
-
-        return false
-    }
-
-    @CheckResult
-    private suspend fun notifyExpiringSoon(
-        items: List<FridgeItem>,
-        entry: FridgeEntry,
-        now: Calendar,
-        params: ItemParameters,
-    ): Boolean {
-        if (items.isNotEmpty()) {
-            val lastTime = expiringPreferences.getLastNotificationTimeExpiringSoon()
-            if (now.isAllowedToNotify(params.forceNotifyExpiring, lastTime)) {
-                Timber.d("Notify user about items expiring soon")
-                return notification { notifyExpiring(entry, items) }
-            }
+        NEED -> {
+          Timber.w("Still need ${item.name()}")
+          neededItems.add(item)
         }
-
-        return false
+      }
     }
 
-    @CheckResult
-    private suspend fun notifyExpired(
-        items: List<FridgeItem>,
-        entry: FridgeEntry,
-        now: Calendar,
-        params: ItemParameters,
-    ): Boolean {
-        if (items.isNotEmpty()) {
-            val lastTime = expiredPreferences.getLastNotificationTimeExpired()
-            if (now.isAllowedToNotify(params.forceNotifyExpiring, lastTime)) {
-                Timber.d("Notify user about items expired")
-                return notification { notifyExpired(entry, items) }
-            }
+    val needed = notifyNeeded(neededItems, entry, now, params)
+    val expiring = notifyExpiringSoon(expiringItems, entry, now, params)
+    val expired = notifyExpired(expiredItems, entry, now, params)
+    return NotifyResults(entry.id(), needed, expiring, expired, nearby = false)
+  }
+
+  override suspend fun performWork(params: ItemParameters) = coroutineScope {
+    val now = today()
+    val today = today().cleanMidnight()
+    val later = today().daysLaterMidnight(detailPreferences.getExpiringSoonRange())
+    val isSameDayExpired = detailPreferences.isSameDayExpired()
+
+    fridge
+        .forAllItemsInEachEntry(true) { entry, items ->
+          notifyForEntry(params, now, today, later, isSameDayExpired, entry, items)
         }
+        .let { results ->
+          results.firstOrNull { it.needed }?.let { neededPreferences.markNotificationNeeded(now) }
 
-        return false
-    }
+          results.firstOrNull { it.expiring }?.let {
+            expiringPreferences.markNotificationExpiringSoon(now)
+          }
 
-    @CheckResult
-    private suspend fun notifyForEntry(
-        params: ItemParameters,
-        now: Calendar,
-        current: Calendar,
-        later: Calendar,
-        isSameDayExpired: Boolean,
-        entry: FridgeEntry,
-        items: List<FridgeItem>,
-    ): NotifyResults {
-        val neededItems = mutableListOf<FridgeItem>()
-        val expiringItems = mutableListOf<FridgeItem>()
-        val expiredItems = mutableListOf<FridgeItem>()
+          results.firstOrNull { it.expired }?.let {
+            expiredPreferences.markNotificationExpired(now)
+          }
 
-        items.filterNot { it.isArchived() }.forEach { item ->
-            when (item.presence()) {
-                HAVE -> {
-                    if (item.isExpired(current, isSameDayExpired)) {
-                        Timber.w("${item.name()} expired!")
-                        expiredItems.add(item)
-                    } else {
-                        if (item.isExpiringSoon(current, later, isSameDayExpired)) {
-                            Timber.w("${item.name()} is expiring soon!")
-                            expiringItems.add(item)
-                        }
-                    }
-                }
-                NEED -> {
-                    Timber.w("Still need ${item.name()}")
-                    neededItems.add(item)
-                }
-            }
+          // Unit
+          return@coroutineScope
         }
-
-        val needed = notifyNeeded(neededItems, entry, now, params)
-        val expiring = notifyExpiringSoon(expiringItems, entry, now, params)
-        val expired = notifyExpired(expiredItems, entry, now, params)
-        return NotifyResults(entry.id(), needed, expiring, expired, nearby = false)
-    }
-
-    override suspend fun performWork(params: ItemParameters) = coroutineScope {
-        val now = today()
-        val today = today().cleanMidnight()
-        val later = today().daysLaterMidnight(detailPreferences.getExpiringSoonRange())
-        val isSameDayExpired = detailPreferences.isSameDayExpired()
-
-        fridge.forAllItemsInEachEntry(true) { entry, items ->
-            notifyForEntry(params, now, today, later, isSameDayExpired, entry, items)
-        }.let { results ->
-            results.firstOrNull { it.needed }?.let {
-                neededPreferences.markNotificationNeeded(now)
-            }
-
-            results.firstOrNull { it.expiring }?.let {
-                expiringPreferences.markNotificationExpiringSoon(now)
-            }
-
-            results.firstOrNull { it.expired }?.let {
-                expiredPreferences.markNotificationExpired(now)
-            }
-
-            // Unit
-            return@coroutineScope
-        }
-    }
+  }
 }

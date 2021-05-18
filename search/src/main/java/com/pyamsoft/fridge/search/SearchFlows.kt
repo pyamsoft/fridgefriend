@@ -22,20 +22,16 @@ import com.pyamsoft.pydroid.arch.UiViewEvent
 
 sealed class SearchControllerEvent : UiControllerEvent {
 
-    data class ExpandItem internal constructor(
-        val item: FridgeItem
-    ) : SearchControllerEvent()
-
+  data class ExpandItem internal constructor(val item: FridgeItem) : SearchControllerEvent()
 }
 
 sealed class SearchViewEvent : UiViewEvent {
 
-    object ChangeCurrentFilter : SearchViewEvent()
+  object ChangeCurrentFilter : SearchViewEvent()
 
-    object UndoDeleteItem : SearchViewEvent()
+  object UndoDeleteItem : SearchViewEvent()
 
-    object ReallyDeleteItemNoUndo : SearchViewEvent()
+  object ReallyDeleteItemNoUndo : SearchViewEvent()
 
-    data class AnotherOne internal constructor(val item: FridgeItem) : SearchViewEvent()
-
+  data class AnotherOne internal constructor(val item: FridgeItem) : SearchViewEvent()
 }

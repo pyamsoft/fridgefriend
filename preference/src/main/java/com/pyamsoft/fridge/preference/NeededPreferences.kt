@@ -21,9 +21,7 @@ import java.util.Calendar
 
 interface NeededPreferences {
 
-    @CheckResult
-    suspend fun getLastNotificationTimeNeeded(): Long
+  @CheckResult suspend fun getLastNotificationTimeNeeded(): Long
 
-    suspend fun markNotificationNeeded(calendar: Calendar)
-
+  suspend fun markNotificationNeeded(calendar: Calendar)
 }

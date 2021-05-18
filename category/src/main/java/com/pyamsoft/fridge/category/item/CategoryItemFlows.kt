@@ -20,9 +20,7 @@ import com.pyamsoft.fridge.db.category.FridgeCategory
 import com.pyamsoft.pydroid.arch.UiViewEvent
 import com.pyamsoft.pydroid.arch.UiViewState
 
-data class CategoryItemViewState internal constructor(
-    val category: FridgeCategory,
-    val itemCount: Int
-) : UiViewState
+data class CategoryItemViewState
+internal constructor(val category: FridgeCategory, val itemCount: Int) : UiViewState
 
 sealed class CategoryItemViewEvent : UiViewEvent

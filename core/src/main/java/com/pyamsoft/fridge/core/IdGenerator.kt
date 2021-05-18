@@ -21,8 +21,8 @@ import java.util.UUID
 
 object IdGenerator {
 
-    @CheckResult
-    fun generate(): String {
-        return UUID.randomUUID().toString()
-    }
+  @CheckResult
+  fun generate(): String {
+    return UUID.randomUUID().toString()
+  }
 }

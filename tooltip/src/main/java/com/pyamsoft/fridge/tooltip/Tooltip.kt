@@ -24,30 +24,26 @@ import androidx.annotation.StringRes
 
 interface Tooltip : Hideable {
 
-    fun show(anchor: View)
+  fun show(anchor: View)
 
-    fun show(anchor: View, xOff: Int, yOff: Int)
+  fun show(anchor: View, xOff: Int, yOff: Int)
 
-    enum class Direction {
-        CENTER,
-        TOP,
-        BOTTOM,
-        LEFT,
-        RIGHT
-    }
+  enum class Direction {
+    CENTER,
+    TOP,
+    BOTTOM,
+    LEFT,
+    RIGHT
+  }
 
-    interface Builder {
+  interface Builder {
 
-        @CheckResult
-        fun setText(text: String): Builder
+    @CheckResult fun setText(text: String): Builder
 
-        @CheckResult
-        fun setText(@StringRes text: Int): Builder
+    @CheckResult fun setText(@StringRes text: Int): Builder
 
-        @CheckResult
-        fun setIcon(icon: Drawable): Builder
+    @CheckResult fun setIcon(icon: Drawable): Builder
 
-        @CheckResult
-        fun setIconRes(@DrawableRes icon: Int): Builder
-    }
+    @CheckResult fun setIconRes(@DrawableRes icon: Int): Builder
+  }
 }

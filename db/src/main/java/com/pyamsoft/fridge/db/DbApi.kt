@@ -18,9 +18,5 @@ package com.pyamsoft.fridge.db
 
 import javax.inject.Qualifier
 
-/**
- * Scope for anything used internally by the Db implementation
- */
-@Qualifier
-@Retention(AnnotationRetention.BINARY)
-annotation class DbApi
+/** Scope for anything used internally by the Db implementation */
+@Qualifier @Retention(AnnotationRetention.BINARY) annotation class DbApi

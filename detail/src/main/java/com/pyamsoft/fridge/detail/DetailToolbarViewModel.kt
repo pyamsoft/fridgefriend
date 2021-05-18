@@ -28,63 +28,61 @@ import dagger.assisted.AssistedInject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-class DetailToolbarViewModel @AssistedInject internal constructor(
+class DetailToolbarViewModel
+@AssistedInject
+internal constructor(
     private val delegate: DetailListStateModel,
     @Assisted savedState: UiSavedState,
-) : UiSavedStateViewModel<DetailViewState, UnitControllerEvent>(
-    savedState, initialState = delegate.initialState
-) {
+) :
+    UiSavedStateViewModel<DetailViewState, UnitControllerEvent>(
+        savedState, initialState = delegate.initialState) {
 
-    init {
-        val scope = viewModelScope
-        val job = delegate.bindState(scope, Renderable { state ->
-            state.render(scope) { scope.setState { it } }
-        })
-        doOnCleared {
-            job.cancel()
-        }
-        doOnCleared {
-            delegate.clear()
-        }
+  init {
+    val scope = viewModelScope
+    val job =
+        delegate.bindState(
+            scope, Renderable { state -> state.render(scope) { scope.setState { it } } })
+    doOnCleared { job.cancel() }
+    doOnCleared { delegate.clear() }
 
-        delegate.initialize(scope)
+    delegate.initialize(scope)
 
-        viewModelScope.launch(context = Dispatchers.Default) {
-            val sort = restoreSavedState(SAVED_SORT) { DetailViewState.Sorts.CREATED }
-            handleUpdateSort(sort)
-        }
-
-        viewModelScope.launch(context = Dispatchers.Default) {
-            val search = restoreSavedState(SAVED_SEARCH) { "" }
-            if (search.isNotBlank()) {
-                handleUpdateSearch(search)
-            }
-        }
+    viewModelScope.launch(context = Dispatchers.Default) {
+      val sort = restoreSavedState(SAVED_SORT) { DetailViewState.Sorts.CREATED }
+      handleUpdateSort(sort)
     }
 
-    fun handleUpdateSearch(search: String) {
-        delegate.handleUpdateSearch(viewModelScope, search) { newSearch ->
-            if (newSearch.isNotBlank()) {
-                putSavedState(SAVED_SEARCH, newSearch)
-            } else {
-                removeSavedState(SAVED_SEARCH)
-            }
-        }
+    viewModelScope.launch(context = Dispatchers.Default) {
+      val search = restoreSavedState(SAVED_SEARCH) { "" }
+      if (search.isNotBlank()) {
+        handleUpdateSearch(search)
+      }
     }
+  }
 
-    fun handleUpdateSort(sort: DetailViewState.Sorts) {
-        delegate.handleUpdateSort(viewModelScope, sort) { newSort ->
-            putSavedState(SAVED_SORT, newSort.name)
-        }
+  fun handleUpdateSearch(search: String) {
+    delegate.handleUpdateSearch(viewModelScope, search) { newSearch ->
+      if (newSearch.isNotBlank()) {
+        putSavedState(SAVED_SEARCH, newSearch)
+      } else {
+        removeSavedState(SAVED_SEARCH)
+      }
     }
+  }
 
-    companion object {
-        private const val SAVED_SORT = "sort"
-        private const val SAVED_SEARCH = "search"
+  fun handleUpdateSort(sort: DetailViewState.Sorts) {
+    delegate.handleUpdateSort(viewModelScope, sort) { newSort ->
+      putSavedState(SAVED_SORT, newSort.name)
     }
+  }
 
-    @AssistedFactory
-    interface Factory : UiSavedStateViewModelProvider<DetailToolbarViewModel> {
-        override fun create(savedState: UiSavedState): DetailToolbarViewModel
-    }
+  companion object {
+    private const val SAVED_SORT = "sort"
+    private const val SAVED_SEARCH = "search"
+  }
+
+  @AssistedFactory
+  interface Factory : UiSavedStateViewModelProvider<DetailToolbarViewModel> {
+    override fun create(savedState: UiSavedState): DetailToolbarViewModel
+  }
 }

@@ -20,7 +20,8 @@ import com.pyamsoft.pydroid.arch.UiControllerEvent
 import com.pyamsoft.pydroid.arch.UiViewEvent
 import com.pyamsoft.pydroid.arch.UiViewState
 
-data class MainViewState internal constructor(
+data class MainViewState
+internal constructor(
     val page: MainPage?,
     val appNameRes: Int,
     val countNeeded: Int,
@@ -29,24 +30,20 @@ data class MainViewState internal constructor(
 
 sealed class MainViewEvent : UiViewEvent {
 
-    object OpenEntries : MainViewEvent()
+  object OpenEntries : MainViewEvent()
 
-    object OpenCategory : MainViewEvent()
+  object OpenCategory : MainViewEvent()
 
-    object OpenSearch : MainViewEvent()
+  object OpenSearch : MainViewEvent()
 
-    object OpenSettings : MainViewEvent()
+  object OpenSettings : MainViewEvent()
 
-    data class BottomBarMeasured internal constructor(val height: Int) : MainViewEvent()
+  data class BottomBarMeasured internal constructor(val height: Int) : MainViewEvent()
 }
 
 sealed class MainControllerEvent : UiControllerEvent {
 
-    data class PushPage internal constructor(
-        val newPage: MainPage,
-        val oldPage: MainPage?,
-        val force: Boolean
-    ) : MainControllerEvent()
-
+  data class PushPage
+  internal constructor(val newPage: MainPage, val oldPage: MainPage?, val force: Boolean) :
+      MainControllerEvent()
 }
-

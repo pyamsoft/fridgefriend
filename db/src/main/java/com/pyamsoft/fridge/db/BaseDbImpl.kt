@@ -22,24 +22,25 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 internal abstract class BaseDbImpl<
-        ChangeEvent : Any,
-        R : DbRealtime<*>,
-        Q : DbQuery<*>,
-        I : DbInsert<*>,
-        D : DbDelete<*>,
-        > protected constructor() : BaseDb<R, Q, I, D> {
+    ChangeEvent : Any,
+    R : DbRealtime<*>,
+    Q : DbQuery<*>,
+    I : DbInsert<*>,
+    D : DbDelete<*>,
+> protected constructor() : BaseDb<R, Q, I, D> {
 
-    private val bus = EventBus.create<ChangeEvent>(emitOnlyWhenActive = true)
+  private val bus = EventBus.create<ChangeEvent>(emitOnlyWhenActive = true)
 
-    protected suspend fun onEvent(onEvent: suspend (event: ChangeEvent) -> Unit) =
-        withContext(context = Dispatchers.IO) {
-            Enforcer.assertOffMainThread()
-            return@withContext bus.onEvent(onEvent)
-        }
+  protected suspend fun onEvent(onEvent: suspend (event: ChangeEvent) -> Unit) =
+      withContext(context = Dispatchers.IO) {
+        Enforcer.assertOffMainThread()
+        return@withContext bus.onEvent(onEvent)
+      }
 
-    protected suspend fun publish(event: ChangeEvent) = withContext(context = Dispatchers.IO) {
+  protected suspend fun publish(event: ChangeEvent) =
+      withContext(context = Dispatchers.IO) {
         Enforcer.assertOffMainThread()
         invalidate()
         bus.send(event)
-    }
+      }
 }

@@ -29,53 +29,50 @@ import com.pyamsoft.fridge.db.item.getExpiredMessage
 import com.pyamsoft.fridge.db.item.getExpiringSoonMessage
 import com.pyamsoft.pydroid.notify.NotifyData
 
-internal abstract class ItemNotifyDispatcher<T : NotifyData> protected constructor(
-    context: Context,
-    activityClass: Class<out Activity>
-) : BaseNotifyDispatcher<T>(context, activityClass) {
+internal abstract class ItemNotifyDispatcher<T : NotifyData>
+protected constructor(context: Context, activityClass: Class<out Activity>) :
+    BaseNotifyDispatcher<T>(context, activityClass) {
 
-    @CheckResult
-    protected fun createBigTextStyle(
-        topLine: CharSequence?,
-        items: List<FridgeItem>,
-        isExpired: Boolean,
-        isExpiringSoon: Boolean
-    ): NotificationCompat.Style {
-        require(!(isExpired && isExpiringSoon)) { "Items cannot be expired and expiring soon!" }
+  @CheckResult
+  protected fun createBigTextStyle(
+      topLine: CharSequence?,
+      items: List<FridgeItem>,
+      isExpired: Boolean,
+      isExpiringSoon: Boolean
+  ): NotificationCompat.Style {
+    require(!(isExpired && isExpiringSoon)) { "Items cannot be expired and expiring soon!" }
 
-        val now = today()
+    val now = today()
 
-        return NotificationCompat.BigTextStyle().bigText(
+    return NotificationCompat.BigTextStyle()
+        .bigText(
             buildSpannedString {
-                topLine?.let { line ->
-                    appendLine(line)
-                    appendLine("-".repeat(40))
-                    appendLine()
+              topLine?.let { line ->
+                appendLine(line)
+                appendLine("-".repeat(40))
+                appendLine()
+              }
+              items.forEach { item ->
+                bold {
+                  append(
+                      when {
+                        isExpiringSoon -> FridgeItem.MARK_EXPIRING_SOON
+                        isExpired -> FridgeItem.MARK_EXPIRED
+                        else -> FridgeItem.MARK_FRESH
+                      })
                 }
-                items
-                    .forEach { item ->
+                append("   ")
+                italic { append(item.name()) }
+                append("  ")
 
-                        bold {
-                            append(
-                                when {
-                                    isExpiringSoon -> FridgeItem.MARK_EXPIRING_SOON
-                                    isExpired -> FridgeItem.MARK_EXPIRED
-                                    else -> FridgeItem.MARK_FRESH
-                                }
-                            )
-                        }
-                        append("   ")
-                        italic { append(item.name()) }
-                        append("  ")
-
-                        if (isExpiringSoon) {
-                            append(" ${item.getExpiringSoonMessage(now)}")
-                        }
-                        if (isExpired) {
-                            append(" ${item.getExpiredMessage(now)}")
-                        }
-                        appendLine()
-                    }
+                if (isExpiringSoon) {
+                  append(" ${item.getExpiringSoonMessage(now)}")
+                }
+                if (isExpired) {
+                  append(" ${item.getExpiredMessage(now)}")
+                }
+                appendLine()
+              }
             })
-    }
+  }
 }

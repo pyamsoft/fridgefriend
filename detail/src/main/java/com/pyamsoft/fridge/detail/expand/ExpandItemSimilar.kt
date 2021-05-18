@@ -25,45 +25,45 @@ import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.arch.UiRender
 import javax.inject.Inject
 
-class ExpandItemSimilar @Inject internal constructor(
+class ExpandItemSimilar
+@Inject
+internal constructor(
     parent: ViewGroup,
 ) : BaseUiView<ExpandedViewState, ExpandedViewEvent, ExpandSimilarBinding>(parent) {
 
-    override val viewBinding = ExpandSimilarBinding::inflate
+  override val viewBinding = ExpandSimilarBinding::inflate
 
-    override val layoutRoot by boundView { expandItemSimilar }
+  override val layoutRoot by boundView { expandItemSimilar }
 
-    init {
-        doOnInflate {
-            // No similar by default
-            binding.expandItemSimilarMsg.isVisible = false
-        }
-
-        doOnTeardown {
-            clear()
-        }
+  init {
+    doOnInflate {
+      // No similar by default
+      binding.expandItemSimilarMsg.isVisible = false
     }
 
-    override fun onRender(state: UiRender<ExpandedViewState>) {
-        state.render(viewScope) { handleSameNamedItems(it) }
-    }
+    doOnTeardown { clear() }
+  }
 
-    private fun clear() {
-        binding.expandItemSimilarMsg.isVisible = false
-        binding.expandItemSimilarMsg.text = null
-    }
+  override fun onRender(state: UiRender<ExpandedViewState>) {
+    state.render(viewScope) { handleSameNamedItems(it) }
+  }
 
-    private fun handleSameNamedItems(state: ExpandedViewState) {
-        val sameName = state.sameNamedItems
-        val item = state.item
-        if (sameName.isEmpty() || item == null || item.presence() != FridgeItem.Presence.NEED) {
-            clear()
-        } else {
-            val name = item.name().trim()
-            val count = sameName.filterNot { it.isArchived() }.count()
-            val message = "You already have at least $count '$name', do you need more?"
-            binding.expandItemSimilarMsg.isVisible = true
-            binding.expandItemSimilarMsg.text = message
-        }
+  private fun clear() {
+    binding.expandItemSimilarMsg.isVisible = false
+    binding.expandItemSimilarMsg.text = null
+  }
+
+  private fun handleSameNamedItems(state: ExpandedViewState) {
+    val sameName = state.sameNamedItems
+    val item = state.item
+    if (sameName.isEmpty() || item == null || item.presence() != FridgeItem.Presence.NEED) {
+      clear()
+    } else {
+      val name = item.name().trim()
+      val count = sameName.filterNot { it.isArchived() }.count()
+      val message = "You already have at least $count '$name', do you need more?"
+      binding.expandItemSimilarMsg.isVisible = true
+      binding.expandItemSimilarMsg.text = message
     }
+  }
 }

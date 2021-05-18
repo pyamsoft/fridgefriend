@@ -23,7 +23,7 @@ import dagger.Module
 @Module
 abstract class ViewModelFactoryModule {
 
-    @Binds
-    @CheckResult
-    internal abstract fun bindFactory(impl: FridgeViewModelFactoryImpl): FridgeViewModelFactory
+  @Binds
+  @CheckResult
+  internal abstract fun bindFactory(impl: FridgeViewModelFactoryImpl): FridgeViewModelFactory
 }

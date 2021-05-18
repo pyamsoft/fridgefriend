@@ -27,39 +27,41 @@ import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-class CategoryInteractor @Inject internal constructor(
+class CategoryInteractor
+@Inject
+internal constructor(
     private val persistentCategories: PersistentCategories,
     private val categoryQueryDao: FridgeCategoryQueryDao,
     private val itemQueryDao: FridgeItemQueryDao
 ) {
 
-    @CheckResult
-    private suspend fun loadFridgeCategories(): List<FridgeCategory> {
-        Enforcer.assertOffMainThread()
-        persistentCategories.guaranteePersistentCategoriesCreated()
-        return categoryQueryDao.query(false)
-    }
+  @CheckResult
+  private suspend fun loadFridgeCategories(): List<FridgeCategory> {
+    Enforcer.assertOffMainThread()
+    persistentCategories.guaranteePersistentCategoriesCreated()
+    return categoryQueryDao.query(false)
+  }
 
-    @CheckResult
-    private suspend fun loadFridgeItems(): List<FridgeItem> {
-        Enforcer.assertOffMainThread()
-        return itemQueryDao.query(false)
-    }
+  @CheckResult
+  private suspend fun loadFridgeItems(): List<FridgeItem> {
+    Enforcer.assertOffMainThread()
+    return itemQueryDao.query(false)
+  }
 
-    @CheckResult
-    suspend fun loadCategories(): List<CategoryViewState.CategoryItemsPairing> =
-        withContext(context = Dispatchers.Default) {
-            Enforcer.assertOffMainThread()
-            val categories = loadFridgeCategories()
-            val items = loadFridgeItems()
-            return@withContext categories.map { category ->
-                CategoryViewState.CategoryItemsPairing(
-                    category,
-                    items.asSequence()
-                        .filterNot { it.categoryId() == null }
-                        .filter { it.categoryId() == category.id() }
-                        .toList()
-                )
-            }
+  @CheckResult
+  suspend fun loadCategories(): List<CategoryViewState.CategoryItemsPairing> =
+      withContext(context = Dispatchers.Default) {
+        Enforcer.assertOffMainThread()
+        val categories = loadFridgeCategories()
+        val items = loadFridgeItems()
+        return@withContext categories.map { category ->
+          CategoryViewState.CategoryItemsPairing(
+              category,
+              items
+                  .asSequence()
+                  .filterNot { it.categoryId() == null }
+                  .filter { it.categoryId() == category.id() }
+                  .toList())
         }
+      }
 }

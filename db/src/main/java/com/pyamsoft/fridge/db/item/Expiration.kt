@@ -21,18 +21,15 @@ import java.util.Calendar
 
 @CheckResult
 fun Calendar.cleanMidnight(): Calendar {
-    return this.apply {
-        set(Calendar.HOUR, 0)
-        set(Calendar.MINUTE, 0)
-        set(Calendar.SECOND, 0)
-        set(Calendar.MILLISECOND, 0)
-    }
+  return this.apply {
+    set(Calendar.HOUR, 0)
+    set(Calendar.MINUTE, 0)
+    set(Calendar.SECOND, 0)
+    set(Calendar.MILLISECOND, 0)
+  }
 }
 
 @CheckResult
 fun Calendar.daysLaterMidnight(later: Int): Calendar {
-    return this.apply {
-        add(Calendar.DAY_OF_MONTH, later)
-    }
-        .cleanMidnight()
+  return this.apply { add(Calendar.DAY_OF_MONTH, later) }.cleanMidnight()
 }

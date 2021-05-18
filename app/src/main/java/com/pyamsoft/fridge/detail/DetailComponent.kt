@@ -22,12 +22,12 @@ import androidx.annotation.CheckResult
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModel
 import androidx.savedstate.SavedStateRegistryOwner
-import com.pyamsoft.fridge.ui.ThemeProviderModule
 import com.pyamsoft.fridge.core.FragmentScope
 import com.pyamsoft.fridge.core.ViewModelFactoryModule
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence
 import com.pyamsoft.fridge.tooltip.balloon.TooltipModule
+import com.pyamsoft.fridge.ui.ThemeProviderModule
 import com.pyamsoft.fridge.ui.appbar.AppBarActivity
 import com.pyamsoft.pydroid.ui.app.ToolbarActivity
 import dagger.Binds
@@ -39,39 +39,38 @@ import dagger.multibindings.IntoMap
 
 @FragmentScope
 @Subcomponent(
-    modules = [
-        DetailComponent.ComponentModule::class,
-        ViewModelFactoryModule::class,
-        TooltipModule::class,
-        ThemeProviderModule::class
-    ]
-)
+    modules =
+        [
+            DetailComponent.ComponentModule::class,
+            ViewModelFactoryModule::class,
+            TooltipModule::class,
+            ThemeProviderModule::class])
 internal interface DetailComponent {
 
-    fun inject(fragment: DetailFragment)
+  fun inject(fragment: DetailFragment)
 
-    @Subcomponent.Factory
-    interface Factory {
+  @Subcomponent.Factory
+  interface Factory {
 
-        @CheckResult
-        fun create(
-            @BindsInstance savedStateRegistryOwner: SavedStateRegistryOwner,
-            @BindsInstance toolbarActivity: ToolbarActivity,
-            @BindsInstance appBarActivity: AppBarActivity,
-            @BindsInstance activity: Activity,
-            @BindsInstance parent: ViewGroup,
-            @BindsInstance owner: LifecycleOwner,
-            @BindsInstance entryId: FridgeEntry.Id,
-            @BindsInstance filterPresence: Presence,
-        ): DetailComponent
-    }
+    @CheckResult
+    fun create(
+        @BindsInstance savedStateRegistryOwner: SavedStateRegistryOwner,
+        @BindsInstance toolbarActivity: ToolbarActivity,
+        @BindsInstance appBarActivity: AppBarActivity,
+        @BindsInstance activity: Activity,
+        @BindsInstance parent: ViewGroup,
+        @BindsInstance owner: LifecycleOwner,
+        @BindsInstance entryId: FridgeEntry.Id,
+        @BindsInstance filterPresence: Presence,
+    ): DetailComponent
+  }
 
-    @Module
-    abstract class ComponentModule {
+  @Module
+  abstract class ComponentModule {
 
-        @Binds
-        @IntoMap
-        @ClassKey(DetailSwitcherViewModel::class)
-        internal abstract fun bindAppBarViewModel(impl: DetailSwitcherViewModel): ViewModel
-    }
+    @Binds
+    @IntoMap
+    @ClassKey(DetailSwitcherViewModel::class)
+    internal abstract fun bindAppBarViewModel(impl: DetailSwitcherViewModel): ViewModel
+  }
 }

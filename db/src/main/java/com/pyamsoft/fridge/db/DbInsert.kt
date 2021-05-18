@@ -20,6 +20,5 @@ import androidx.annotation.CheckResult
 
 interface DbInsert<T : Any> {
 
-    @CheckResult
-    suspend fun insert(o: T): Boolean
+  @CheckResult suspend fun insert(o: T): Boolean
 }

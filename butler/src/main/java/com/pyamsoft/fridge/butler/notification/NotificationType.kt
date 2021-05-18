@@ -17,7 +17,7 @@
 package com.pyamsoft.fridge.butler.notification
 
 enum class NotificationType {
-    EXPIRING,
-    EXPIRED,
-    NEEDED,
+  EXPIRING,
+  EXPIRED,
+  NEEDED,
 }

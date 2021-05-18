@@ -23,69 +23,73 @@ import com.pyamsoft.fridge.detail.databinding.DetailListItemCountBinding
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.arch.UiRender
 import com.pyamsoft.pydroid.loader.ImageLoader
+import com.pyamsoft.pydroid.ui.R as R2
 import com.pyamsoft.pydroid.ui.theme.ThemeProvider
 import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
 import com.pyamsoft.pydroid.util.tintWith
-import timber.log.Timber
 import javax.inject.Inject
-import com.pyamsoft.pydroid.ui.R as R2
+import timber.log.Timber
 
-class DetailListItemCount @Inject internal constructor(
+class DetailListItemCount
+@Inject
+internal constructor(
     theming: ThemeProvider,
     imageLoader: ImageLoader,
     parent: ViewGroup,
 ) : BaseUiView<DetailItemViewState, DetailItemViewEvent, DetailListItemCountBinding>(parent) {
 
-    override val viewBinding = DetailListItemCountBinding::inflate
+  override val viewBinding = DetailListItemCountBinding::inflate
 
-    override val layoutRoot by boundView { detailItemCount }
+  override val layoutRoot by boundView { detailItemCount }
 
-    init {
-        doOnInflate {
-            imageLoader.asDrawable()
-                .load(R.drawable.ic_arrow_drop_down_24dp)
-                .mutate { icon ->
-                    val color = if (theming.isDarkTheme()) R2.color.white else R2.color.black
-                    icon.tintWith(layoutRoot.context, color)
-                }.into(binding.detailItemCountDown)
-                .apply { doOnTeardown { dispose() } }
+  init {
+    doOnInflate {
+      imageLoader
+          .asDrawable()
+          .load(R.drawable.ic_arrow_drop_down_24dp)
+          .mutate { icon ->
+            val color = if (theming.isDarkTheme()) R2.color.white else R2.color.black
+            icon.tintWith(layoutRoot.context, color)
+          }
+          .into(binding.detailItemCountDown)
+          .apply { doOnTeardown { dispose() } }
 
-            imageLoader.asDrawable()
-                .load(R.drawable.ic_arrow_drop_up_24dp)
-                .mutate { icon ->
-                    val color = if (theming.isDarkTheme()) R2.color.white else R2.color.black
-                    icon.tintWith(layoutRoot.context, color)
-                }.into(binding.detailItemCountUp)
-                .apply { doOnTeardown { dispose() } }
-        }
-
-        doOnInflate {
-            binding.detailItemCountUp.setOnDebouncedClickListener {
-                publish(DetailItemViewEvent.IncreaseCount)
-            }
-
-            binding.detailItemCountDown.setOnDebouncedClickListener {
-                publish(DetailItemViewEvent.DecreaseCount)
-            }
-
-            binding.detailItemCountText.setOnDebouncedClickListener {
-                Timber.d("Count text eat click")
-            }
-        }
-
-        doOnTeardown {
-            binding.detailItemCountUp.setOnDebouncedClickListener(null)
-            binding.detailItemCountDown.setOnDebouncedClickListener(null)
-            binding.detailItemCountText.setOnDebouncedClickListener(null)
-        }
+      imageLoader
+          .asDrawable()
+          .load(R.drawable.ic_arrow_drop_up_24dp)
+          .mutate { icon ->
+            val color = if (theming.isDarkTheme()) R2.color.white else R2.color.black
+            icon.tintWith(layoutRoot.context, color)
+          }
+          .into(binding.detailItemCountUp)
+          .apply { doOnTeardown { dispose() } }
     }
 
-    override fun onRender(state: UiRender<DetailItemViewState>) {
-        state.mapChanged { it.item }.render(viewScope) { handleItem(it) }
+    doOnInflate {
+      binding.detailItemCountUp.setOnDebouncedClickListener {
+        publish(DetailItemViewEvent.IncreaseCount)
+      }
+
+      binding.detailItemCountDown.setOnDebouncedClickListener {
+        publish(DetailItemViewEvent.DecreaseCount)
+      }
+
+      binding.detailItemCountText.setOnDebouncedClickListener { Timber.d("Count text eat click") }
     }
 
-    private fun handleItem(item: FridgeItem) {
-        require(item.isReal()) { "Cannot render non-real item: $item" }
-        binding.detailItemCountText.text = "${item.count()}"
+    doOnTeardown {
+      binding.detailItemCountUp.setOnDebouncedClickListener(null)
+      binding.detailItemCountDown.setOnDebouncedClickListener(null)
+      binding.detailItemCountText.setOnDebouncedClickListener(null)
     }
+  }
+
+  override fun onRender(state: UiRender<DetailItemViewState>) {
+    state.mapChanged { it.item }.render(viewScope) { handleItem(it) }
+  }
+
+  private fun handleItem(item: FridgeItem) {
+    require(item.isReal()) { "Cannot render non-real item: $item" }
+    binding.detailItemCountText.text = "${item.count()}"
+  }
 }

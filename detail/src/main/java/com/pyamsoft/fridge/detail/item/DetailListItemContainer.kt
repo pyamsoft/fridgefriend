@@ -21,12 +21,13 @@ import com.pyamsoft.fridge.detail.databinding.DetailListItemContainerBinding
 import com.pyamsoft.pydroid.arch.BaseUiView
 import javax.inject.Inject
 
-class DetailListItemContainer @Inject internal constructor(
+class DetailListItemContainer
+@Inject
+internal constructor(
     parent: ViewGroup,
 ) : BaseUiView<DetailItemViewState, DetailItemViewEvent, DetailListItemContainerBinding>(parent) {
 
-    override val viewBinding = DetailListItemContainerBinding::inflate
+  override val viewBinding = DetailListItemContainerBinding::inflate
 
-    override val layoutRoot by boundView { detailItemContainer }
-
+  override val layoutRoot by boundView { detailItemContainer }
 }

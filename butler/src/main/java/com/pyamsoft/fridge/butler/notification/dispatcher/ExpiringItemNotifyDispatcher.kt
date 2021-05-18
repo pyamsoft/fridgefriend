@@ -32,50 +32,43 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-internal class ExpiringItemNotifyDispatcher @Inject internal constructor(
-    context: Context,
-    activityClass: Class<out Activity>
-) : ItemNotifyDispatcher<ExpiringItemNotifyData>(
-    context,
-    activityClass = activityClass
-) {
+internal class ExpiringItemNotifyDispatcher
+@Inject
+internal constructor(context: Context, activityClass: Class<out Activity>) :
+    ItemNotifyDispatcher<ExpiringItemNotifyData>(context, activityClass = activityClass) {
 
-    override fun canShow(notification: NotifyData): Boolean {
-        return notification is ExpiringItemNotifyData
+  override fun canShow(notification: NotifyData): Boolean {
+    return notification is ExpiringItemNotifyData
+  }
+
+  override fun onBuildNotification(
+      id: NotifyId,
+      notification: ExpiringItemNotifyData,
+      builder: NotificationCompat.Builder
+  ): Notification {
+    builder.apply {
+      setSmallIcon(R.drawable.ic_consumed_24dp)
+      setContentTitle(
+          buildSpannedString {
+            bold { append("Expiration reminder") }
+            append(" for ")
+            bold { append(notification.entry.name()) }
+          })
+      val text = buildSpannedString {
+        bold { append("${notification.items.size}") }
+        append(" items are ")
+        bold { append("about to expire!") }
+      }
+      setContentText(text)
+      setStyle(
+          createBigTextStyle(text, notification.items, isExpired = false, isExpiringSoon = true))
+
+      setContentIntent(
+          createContentIntent(id) {
+            putExtra(NotificationHandler.KEY_ENTRY_ID, notification.entry.id().id)
+            putExtra(NotificationHandler.KEY_PRESENCE_TYPE, FridgeItem.Presence.HAVE.name)
+          })
     }
-
-    override fun onBuildNotification(
-        id: NotifyId,
-        notification: ExpiringItemNotifyData,
-        builder: NotificationCompat.Builder
-    ): Notification {
-        builder.apply {
-            setSmallIcon(R.drawable.ic_consumed_24dp)
-            setContentTitle(buildSpannedString {
-                bold { append("Expiration reminder") }
-                append(" for ")
-                bold { append(notification.entry.name()) }
-            })
-            val text = buildSpannedString {
-                bold { append("${notification.items.size}") }
-                append(" items are ")
-                bold { append("about to expire!") }
-            }
-            setContentText(text)
-            setStyle(
-                createBigTextStyle(
-                    text,
-                    notification.items,
-                    isExpired = false,
-                    isExpiringSoon = true
-                )
-            )
-
-            setContentIntent(createContentIntent(id) {
-                putExtra(NotificationHandler.KEY_ENTRY_ID, notification.entry.id().id)
-                putExtra(NotificationHandler.KEY_PRESENCE_TYPE, FridgeItem.Presence.HAVE.name)
-            })
-        }
-        return builder.build()
-    }
+    return builder.build()
+  }
 }

@@ -25,12 +25,13 @@ import dagger.Module
 @Module
 abstract class UiModule {
 
-    @Binds
-    @CheckResult
-    internal abstract fun bindBottomOffsetBus(impl: BottomOffsetBus): EventBus<BottomOffset>
+  @Binds
+  @CheckResult
+  internal abstract fun bindBottomOffsetBus(impl: BottomOffsetBus): EventBus<BottomOffset>
 
-    @Binds
-    @CheckResult
-    internal abstract fun bindBottomOffsetConsumer(impl: EventBus<BottomOffset>): EventConsumer<BottomOffset>
-
+  @Binds
+  @CheckResult
+  internal abstract fun bindBottomOffsetConsumer(
+      impl: EventBus<BottomOffset>
+  ): EventConsumer<BottomOffset>
 }

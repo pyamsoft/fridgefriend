@@ -17,25 +17,25 @@
 package com.pyamsoft.fridge.butler.work.order
 
 import androidx.annotation.CheckResult
-import com.pyamsoft.fridge.preference.NotificationPreferences
 import com.pyamsoft.fridge.butler.params.ItemParameters
 import com.pyamsoft.fridge.butler.work.Order
 import com.pyamsoft.fridge.butler.work.OrderFactory
+import com.pyamsoft.fridge.preference.NotificationPreferences
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-internal class OrderFactoryImpl @Inject internal constructor(
-    private val preferences: NotificationPreferences
-) : OrderFactory {
+internal class OrderFactoryImpl
+@Inject
+internal constructor(private val preferences: NotificationPreferences) : OrderFactory {
 
-    @CheckResult
-    override fun itemOrder(params: ItemParameters): Order {
-        return ItemOrder(params, preferences)
-    }
+  @CheckResult
+  override fun itemOrder(params: ItemParameters): Order {
+    return ItemOrder(params, preferences)
+  }
 
-    @CheckResult
-    override fun nightlyOrder(): Order {
-        return NightlyOrder()
-    }
+  @CheckResult
+  override fun nightlyOrder(): Order {
+    return NightlyOrder()
+  }
 }

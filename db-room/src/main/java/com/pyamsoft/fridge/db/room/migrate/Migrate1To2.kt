@@ -23,16 +23,17 @@ import timber.log.Timber
 
 internal object Migrate1To2 : Migration(1, 2) {
 
-    override fun migrate(database: SupportSQLiteDatabase) {
-        performMigration(database) {
-            Timber.d("Add ArchivedAt column to FridgeEntry")
-            execSQL("ALTER TABLE ${RoomFridgeEntry.TABLE_NAME} ADD COLUMN ${RoomFridgeEntry.COLUMN_ARCHIVED_AT} INTEGER")
+  override fun migrate(database: SupportSQLiteDatabase) {
+    performMigration(database) {
+      Timber.d("Add ArchivedAt column to FridgeEntry")
+      execSQL(
+          "ALTER TABLE ${RoomFridgeEntry.TABLE_NAME} ADD COLUMN ${RoomFridgeEntry.COLUMN_ARCHIVED_AT} INTEGER")
 
-            Timber.d("Drop nearby store")
-            execSQL("DROP TABLE room_nearby_store_table")
+      Timber.d("Drop nearby store")
+      execSQL("DROP TABLE room_nearby_store_table")
 
-            Timber.d("Drop nearby zone")
-            execSQL("DROP TABLE room_nearby_zone_table")
-        }
+      Timber.d("Drop nearby zone")
+      execSQL("DROP TABLE room_nearby_zone_table")
     }
+  }
 }

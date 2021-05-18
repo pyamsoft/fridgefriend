@@ -25,30 +25,32 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-internal class FridgeDbImpl @Inject internal constructor(
+internal class FridgeDbImpl
+@Inject
+internal constructor(
     private val itemDb: FridgeItemDb,
     private val entryDb: FridgeEntryDb,
     private val categoryDb: FridgeCategoryDb,
 ) : FridgeDb {
 
-    override suspend fun invalidate() {
-        itemDb.invalidate()
-        entryDb.invalidate()
-        categoryDb.invalidate()
-    }
+  override suspend fun invalidate() {
+    itemDb.invalidate()
+    entryDb.invalidate()
+    categoryDb.invalidate()
+  }
 
-    @CheckResult
-    override fun items(): FridgeItemDb {
-        return itemDb
-    }
+  @CheckResult
+  override fun items(): FridgeItemDb {
+    return itemDb
+  }
 
-    @CheckResult
-    override fun entries(): FridgeEntryDb {
-        return entryDb
-    }
+  @CheckResult
+  override fun entries(): FridgeEntryDb {
+    return entryDb
+  }
 
-    @CheckResult
-    override fun categories(): FridgeCategoryDb {
-        return categoryDb
-    }
+  @CheckResult
+  override fun categories(): FridgeCategoryDb {
+    return categoryDb
+  }
 }

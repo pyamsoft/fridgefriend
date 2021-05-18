@@ -21,5 +21,5 @@ import com.pyamsoft.pydroid.ui.app.ToolbarActivityProvider
 
 interface AppBarActivityProvider : ToolbarActivityProvider {
 
-    fun setAppBar(bar: AppBarLayout?)
+  fun setAppBar(bar: AppBarLayout?)
 }

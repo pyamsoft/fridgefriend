@@ -23,40 +23,40 @@ import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.arch.UiRender
 import javax.inject.Inject
 
-class ExpandItemError @Inject internal constructor(
+class ExpandItemError
+@Inject
+internal constructor(
     parent: ViewGroup,
 ) : BaseUiView<ExpandedViewState, ExpandedViewEvent, ExpandErrorBinding>(parent) {
 
-    override val viewBinding = ExpandErrorBinding::inflate
+  override val viewBinding = ExpandErrorBinding::inflate
 
-    override val layoutRoot by boundView { expandItemErrorRoot }
+  override val layoutRoot by boundView { expandItemErrorRoot }
 
-    init {
-        doOnInflate {
-            // No errors initially right
-            binding.expandItemErrorMsg.isVisible = false
-        }
-
-        doOnTeardown {
-            clear()
-        }
+  init {
+    doOnInflate {
+      // No errors initially right
+      binding.expandItemErrorMsg.isVisible = false
     }
 
-    private fun clear() {
-        binding.expandItemErrorMsg.isVisible = false
-        binding.expandItemErrorMsg.text = ""
-    }
+    doOnTeardown { clear() }
+  }
 
-    private fun handleError(throwable: Throwable?) {
-        if (throwable == null) {
-            clear()
-        } else {
-            binding.expandItemErrorMsg.isVisible = true
-            binding.expandItemErrorMsg.text = throwable.message ?: "An unknown error occurred"
-        }
-    }
+  private fun clear() {
+    binding.expandItemErrorMsg.isVisible = false
+    binding.expandItemErrorMsg.text = ""
+  }
 
-    override fun onRender(state: UiRender<ExpandedViewState>) {
-        state.mapChanged { it.throwable }.render(viewScope) { handleError(it) }
+  private fun handleError(throwable: Throwable?) {
+    if (throwable == null) {
+      clear()
+    } else {
+      binding.expandItemErrorMsg.isVisible = true
+      binding.expandItemErrorMsg.text = throwable.message ?: "An unknown error occurred"
     }
+  }
+
+  override fun onRender(state: UiRender<ExpandedViewState>) {
+    state.mapChanged { it.throwable }.render(viewScope) { handleError(it) }
+  }
 }

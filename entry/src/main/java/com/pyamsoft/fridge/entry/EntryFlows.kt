@@ -23,7 +23,8 @@ import com.pyamsoft.fridge.ui.view.UiToolbar
 import com.pyamsoft.pydroid.arch.UiControllerEvent
 import com.pyamsoft.pydroid.arch.UiViewEvent
 
-data class EntryViewState internal constructor(
+data class EntryViewState
+internal constructor(
     // All currently displayed list entries
     val displayedEntries: List<EntryGroup>,
     // All the list entries before filtering
@@ -36,76 +37,70 @@ data class EntryViewState internal constructor(
     val sort: Sorts,
 ) : UiToolbar.State<EntryViewState.Sorts> {
 
-    override val toolbarSearch = search
-    override val toolbarSort = sort.asToolbarSort()
+  override val toolbarSearch = search
+  override val toolbarSort = sort.asToolbarSort()
 
-    data class EntryGroup internal constructor(
-        val entry: FridgeEntry,
-        val items: List<FridgeItem>,
-    )
+  data class EntryGroup
+  internal constructor(
+      val entry: FridgeEntry,
+      val items: List<FridgeItem>,
+  )
 
-    @CheckResult
-    internal fun FridgeEntry.matchesQuery(query: String, defaultValue: Boolean): Boolean {
-        // Empty query always matches
-        return if (query.isBlank()) defaultValue else {
-            this.name().contains(query, ignoreCase = true)
-        }
+  @CheckResult
+  internal fun FridgeEntry.matchesQuery(query: String, defaultValue: Boolean): Boolean {
+    // Empty query always matches
+    return if (query.isBlank()) defaultValue
+    else {
+      this.name().contains(query, ignoreCase = true)
     }
+  }
 
-    enum class Sorts {
-        CREATED,
-        NAME,
-    }
+  enum class Sorts {
+    CREATED,
+    NAME,
+  }
 }
 
 sealed class ReadOnlyListEvents : UiViewEvent {
 
-    data class Select internal constructor(val index: Int) : ReadOnlyListEvents()
+  data class Select internal constructor(val index: Int) : ReadOnlyListEvents()
 
-    object ForceRefresh : ReadOnlyListEvents()
+  object ForceRefresh : ReadOnlyListEvents()
 }
 
 sealed class EntryViewEvent : UiViewEvent {
 
-    sealed class ListEvents : EntryViewEvent() {
+  sealed class ListEvents : EntryViewEvent() {
 
-        data class EditEntry internal constructor(val index: Int) : ListEvents()
+    data class EditEntry internal constructor(val index: Int) : ListEvents()
 
-        data class SelectEntry internal constructor(val index: Int) : ListEvents()
+    data class SelectEntry internal constructor(val index: Int) : ListEvents()
 
-        data class DeleteEntry internal constructor(val index: Int) : ListEvents()
+    data class DeleteEntry internal constructor(val index: Int) : ListEvents()
 
-        object ForceRefresh : ListEvents()
-    }
+    object ForceRefresh : ListEvents()
+  }
 
-    sealed class AddEvent : EntryViewEvent() {
+  sealed class AddEvent : EntryViewEvent() {
 
-        object ReallyDeleteEntryNoUndo : AddEvent()
+    object ReallyDeleteEntryNoUndo : AddEvent()
 
-        object UndoDeleteEntry : AddEvent()
+    object UndoDeleteEntry : AddEvent()
 
-        object AddNew : AddEvent()
+    object AddNew : AddEvent()
+  }
 
-    }
+  sealed class ToolbarEvent : EntryViewEvent() {
 
-    sealed class ToolbarEvent : EntryViewEvent() {
+    data class SearchQuery(val search: String) : ToolbarEvent()
 
-        data class SearchQuery(val search: String) : ToolbarEvent()
-
-        data class ChangeSort(val sort: EntryViewState.Sorts) : ToolbarEvent()
-
-    }
+    data class ChangeSort(val sort: EntryViewState.Sorts) : ToolbarEvent()
+  }
 }
 
 sealed class EntryControllerEvent : UiControllerEvent {
 
-    data class LoadEntry internal constructor(
-        val entry: FridgeEntry
-    ) : EntryControllerEvent()
+  data class LoadEntry internal constructor(val entry: FridgeEntry) : EntryControllerEvent()
 
-    data class EditEntry internal constructor(
-        val entry: FridgeEntry
-    ) : EntryControllerEvent()
-
+  data class EditEntry internal constructor(val entry: FridgeEntry) : EntryControllerEvent()
 }
-

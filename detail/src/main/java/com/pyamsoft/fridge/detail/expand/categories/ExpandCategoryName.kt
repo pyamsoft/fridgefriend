@@ -24,34 +24,36 @@ import com.pyamsoft.pydroid.arch.UiRender
 import com.pyamsoft.pydroid.ui.theme.ThemeProvider
 import javax.inject.Inject
 
-class ExpandCategoryName @Inject internal constructor(
+class ExpandCategoryName
+@Inject
+internal constructor(
     private val themeProvider: ThemeProvider,
     parent: ViewGroup,
 ) : ExpandCategoryClickable<ExpandCategoryNameBinding>(parent) {
 
-    override val viewBinding = ExpandCategoryNameBinding::inflate
+  override val viewBinding = ExpandCategoryNameBinding::inflate
 
-    override val layoutRoot by boundView { expandCategoryName }
+  override val layoutRoot by boundView { expandCategoryName }
 
-    init {
-        doOnTeardown {
-            layoutRoot.isVisible = false
-            layoutRoot.text = null
-        }
+  init {
+    doOnTeardown {
+      layoutRoot.isVisible = false
+      layoutRoot.text = null
     }
+  }
 
-    override fun onRender(state: UiRender<ExpandedCategoryViewState>) {
-        state.mapChanged { it.category }.render(viewScope) { handleCategory(it) }
-    }
+  override fun onRender(state: UiRender<ExpandedCategoryViewState>) {
+    state.mapChanged { it.category }.render(viewScope) { handleCategory(it) }
+  }
 
-    private fun handleCategory(category: ExpandedCategoryViewState.Category?) {
-        layoutRoot.isVisible = true
-        if (category == null || category.name.isBlank()) {
-            layoutRoot.text = "None"
-            layoutRoot.setTextColor(if (themeProvider.isDarkTheme()) Color.WHITE else Color.BLACK)
-        } else {
-            layoutRoot.text = category.name
-            layoutRoot.setTextColor(Color.WHITE)
-        }
+  private fun handleCategory(category: ExpandedCategoryViewState.Category?) {
+    layoutRoot.isVisible = true
+    if (category == null || category.name.isBlank()) {
+      layoutRoot.text = "None"
+      layoutRoot.setTextColor(if (themeProvider.isDarkTheme()) Color.WHITE else Color.BLACK)
+    } else {
+      layoutRoot.text = category.name
+      layoutRoot.setTextColor(Color.WHITE)
     }
+  }
 }

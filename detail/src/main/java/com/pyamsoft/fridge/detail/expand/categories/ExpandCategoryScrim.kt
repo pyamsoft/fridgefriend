@@ -22,33 +22,33 @@ import com.pyamsoft.fridge.detail.databinding.ExpandCategoryScrimBinding
 import com.pyamsoft.pydroid.arch.UiRender
 import javax.inject.Inject
 
-class ExpandCategoryScrim @Inject internal constructor(
+class ExpandCategoryScrim
+@Inject
+internal constructor(
     parent: ViewGroup,
 ) : ExpandCategoryClickable<ExpandCategoryScrimBinding>(parent) {
 
-    override val viewBinding = ExpandCategoryScrimBinding::inflate
+  override val viewBinding = ExpandCategoryScrimBinding::inflate
 
-    override val layoutRoot by boundView { expandCategoryScrim }
+  override val layoutRoot by boundView { expandCategoryScrim }
 
-    init {
-        doOnTeardown {
-            clear()
-        }
+  init {
+    doOnTeardown { clear() }
+  }
+
+  private fun clear() {
+    layoutRoot.isVisible = false
+  }
+
+  override fun onRender(state: UiRender<ExpandedCategoryViewState>) {
+    state.mapChanged { it.category }.render(viewScope) { handleCategory(it) }
+  }
+
+  private fun handleCategory(category: ExpandedCategoryViewState.Category?) {
+    if (category == null || category.name.isBlank()) {
+      clear()
+    } else {
+      layoutRoot.isVisible = true
     }
-
-    private fun clear() {
-        layoutRoot.isVisible = false
-    }
-
-    override fun onRender(state: UiRender<ExpandedCategoryViewState>) {
-        state.mapChanged { it.category }.render(viewScope) { handleCategory(it) }
-    }
-
-    private fun handleCategory(category: ExpandedCategoryViewState.Category?) {
-        if (category == null || category.name.isBlank()) {
-            clear()
-        } else {
-            layoutRoot.isVisible = true
-        }
-    }
+  }
 }

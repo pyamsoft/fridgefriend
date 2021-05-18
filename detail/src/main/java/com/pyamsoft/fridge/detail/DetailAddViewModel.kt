@@ -23,24 +23,26 @@ import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import timber.log.Timber
 
-class DetailAddViewModel @AssistedInject internal constructor(
+class DetailAddViewModel
+@AssistedInject
+internal constructor(
     delegate: DetailListStateModel,
     @Assisted savedState: UiSavedState,
 ) : BaseAddDetailViewModel<DetailControllerEvent.AddEvent>(delegate, savedState) {
 
-    fun handleAddNew() {
-        state.apply {
-            val e = entry
-            if (e == null) {
-                Timber.w("Cannot add new, detail entry null!")
-            } else {
-                publish(DetailControllerEvent.AddEvent.AddNew(e.id(), listItemPresence))
-            }
-        }
+  fun handleAddNew() {
+    state.apply {
+      val e = entry
+      if (e == null) {
+        Timber.w("Cannot add new, detail entry null!")
+      } else {
+        publish(DetailControllerEvent.AddEvent.AddNew(e.id(), listItemPresence))
+      }
     }
+  }
 
-    @AssistedFactory
-    interface Factory : UiSavedStateViewModelProvider<DetailAddViewModel> {
-        override fun create(savedState: UiSavedState): DetailAddViewModel
-    }
+  @AssistedFactory
+  interface Factory : UiSavedStateViewModelProvider<DetailAddViewModel> {
+    override fun create(savedState: UiSavedState): DetailAddViewModel
+  }
 }

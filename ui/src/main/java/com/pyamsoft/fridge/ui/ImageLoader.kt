@@ -25,15 +25,14 @@ import com.pyamsoft.pydroid.loader.Loader
 
 @CheckResult
 fun Loader<Drawable>.intoBackground(view: View): Loaded {
-    return this.into(object : ImageTarget<Drawable> {
+  return this.into(
+      object : ImageTarget<Drawable> {
         override fun clear() {
-            view.background = null
+          view.background = null
         }
 
         override fun setImage(image: Drawable) {
-            view.background = image
+          view.background = image
         }
-
-    })
+      })
 }
-

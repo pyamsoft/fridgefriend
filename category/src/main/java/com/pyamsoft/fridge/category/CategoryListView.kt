@@ -30,71 +30,75 @@ import com.pyamsoft.pydroid.arch.UiRender
 import com.pyamsoft.pydroid.arch.UnitViewEvent
 import javax.inject.Inject
 
-class CategoryListView @Inject internal constructor(
+class CategoryListView
+@Inject
+internal constructor(
     factory: CategoryItemComponent.Factory,
     parent: ViewGroup,
 ) : BaseUiView<CategoryViewState, UnitViewEvent, CategoryListViewBinding>(parent) {
 
-    override val viewBinding = CategoryListViewBinding::inflate
+  override val viewBinding = CategoryListViewBinding::inflate
 
-    override val layoutRoot by boundView { categoryList }
+  override val layoutRoot by boundView { categoryList }
 
-    private var modelAdapter: CategoryAdapter? = null
-    private var animator: ViewPropertyAnimatorCompat? = null
+  private var modelAdapter: CategoryAdapter? = null
+  private var animator: ViewPropertyAnimatorCompat? = null
 
-    init {
-        doOnInflate {
-            binding.categoryList.layoutManager =
-                StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL).apply {
-                    isItemPrefetchEnabled = true
-                }
+  init {
+    doOnInflate {
+      binding.categoryList.layoutManager =
+          StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL).apply {
+            isItemPrefetchEnabled = true
+          }
 
-            modelAdapter = CategoryAdapter(factory)
-            binding.categoryList.adapter = modelAdapter
-        }
-
-        doOnTeardown {
-            binding.categoryList.adapter = null
-
-            modelAdapter = null
-        }
-
-        doOnTeardown {
-            animator?.cancel()
-            animator = null
-        }
+      modelAdapter = CategoryAdapter(factory)
+      binding.categoryList.adapter = modelAdapter
     }
 
-    private fun clearList() {
-        usingAdapter().submitList(null)
+    doOnTeardown {
+      binding.categoryList.adapter = null
+
+      modelAdapter = null
     }
 
-    @CheckResult
-    private fun usingAdapter(): CategoryAdapter {
-        return requireNotNull(modelAdapter)
+    doOnTeardown {
+      animator?.cancel()
+      animator = null
     }
+  }
 
-    override fun onRender(state: UiRender<CategoryViewState>) {
-        state.mapChanged { it.categories }.render(viewScope) { handleAnimation(it) }
-        state.mapChanged { it.categories }.render(viewScope) { handleCategories(it) }
+  private fun clearList() {
+    usingAdapter().submitList(null)
+  }
+
+  @CheckResult
+  private fun usingAdapter(): CategoryAdapter {
+    return requireNotNull(modelAdapter)
+  }
+
+  override fun onRender(state: UiRender<CategoryViewState>) {
+    state.mapChanged { it.categories }.render(viewScope) { handleAnimation(it) }
+    state.mapChanged { it.categories }.render(viewScope) { handleCategories(it) }
+  }
+
+  private fun handleAnimation(categories: List<CategoryViewState.CategoryItemsPairing>) {
+    if (categories.isNotEmpty()) {
+      // If root is currently hidden, show it
+      if (animator == null) {
+        animator = animatePopInFromBottom(layoutRoot)
+      }
     }
+  }
 
-    private fun handleAnimation(categories: List<CategoryViewState.CategoryItemsPairing>) {
-        if (categories.isNotEmpty()) {
-            // If root is currently hidden, show it
-            if (animator == null) {
-                animator = animatePopInFromBottom(layoutRoot)
-            }
-        }
-    }
-
-    private fun handleCategories(categories: List<CategoryViewState.CategoryItemsPairing>) {
-        if (categories.isEmpty()) {
-            clearList()
-        } else {
-            usingAdapter().submitList(categories.map { p ->
+  private fun handleCategories(categories: List<CategoryViewState.CategoryItemsPairing>) {
+    if (categories.isEmpty()) {
+      clearList()
+    } else {
+      usingAdapter()
+          .submitList(
+              categories.map { p ->
                 CategoryItemViewState(p.category, p.items.asSequence().map { it.count() }.sum())
-            })
-        }
+              })
     }
+  }
 }

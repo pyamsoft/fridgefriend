@@ -29,10 +29,10 @@ private inline fun watchToolbarOffset(
     owner: LifecycleOwner,
     crossinline onNewMargin: (Int) -> Unit,
 ) {
-    view.doOnApplyWindowInsets(owner) { _, insets, _ ->
-        val toolbarTopMargin = insets.systemWindowInsetTop
-        onNewMargin(toolbarTopMargin)
-    }
+  view.doOnApplyWindowInsets(owner) { _, insets, _ ->
+    val toolbarTopMargin = insets.systemWindowInsetTop
+    onNewMargin(toolbarTopMargin)
+  }
 }
 
 private inline fun watchAppBarHeight(
@@ -40,11 +40,9 @@ private inline fun watchAppBarHeight(
     owner: LifecycleOwner,
     crossinline onNewHeight: (Int) -> Unit,
 ) {
-    val listener = View.OnLayoutChangeListener { v, _, _, _, _, _, _, _, _ ->
-        onNewHeight(v.height)
-    }
-    appBar.addOnLayoutChangeListener(listener)
-    owner.doOnDestroy { appBar.removeOnLayoutChangeListener(listener) }
+  val listener = View.OnLayoutChangeListener { v, _, _, _, _, _, _, _, _ -> onNewHeight(v.height) }
+  appBar.addOnLayoutChangeListener(listener)
+  owner.doOnDestroy { appBar.removeOnLayoutChangeListener(listener) }
 }
 
 private fun applyNewViewOffset(
@@ -53,35 +51,35 @@ private fun applyNewViewOffset(
     offset: Int?,
     appBarHeight: Int?,
 ) {
-    if (offset == null) {
-        return
-    }
+  if (offset == null) {
+    return
+  }
 
-    if (appBarHeight == null) {
-        return
-    }
+  if (appBarHeight == null) {
+    return
+  }
 
-    val newPadding = initialTopPadding + offset + appBarHeight
-    Timber.d("Apply new offset padding: $view $newPadding")
-    view.updatePadding(top = newPadding)
+  val newPadding = initialTopPadding + offset + appBarHeight
+  Timber.d("Apply new offset padding: $view $newPadding")
+  view.updatePadding(top = newPadding)
 }
 
 fun View.applyToolbarOffset(appBarActivity: AppBarActivity, owner: LifecycleOwner) {
-    val initialTopPadding = this.paddingTop
-    appBarActivity.withAppBar { appBar ->
+  val initialTopPadding = this.paddingTop
+  appBarActivity.withAppBar { appBar ->
 
-        // Keep track off last seen values here
-        var lastOffset: Int? = null
-        var lastHeight: Int? = null
+    // Keep track off last seen values here
+    var lastOffset: Int? = null
+    var lastHeight: Int? = null
 
-        watchAppBarHeight(appBar, owner) { newHeight ->
-            lastHeight = newHeight
-            applyNewViewOffset(this, initialTopPadding, lastOffset, lastHeight)
-        }
-
-        watchToolbarOffset(this, owner) { newOffset ->
-            lastOffset = newOffset
-            applyNewViewOffset(this, initialTopPadding, lastOffset, lastHeight)
-        }
+    watchAppBarHeight(appBar, owner) { newHeight ->
+      lastHeight = newHeight
+      applyNewViewOffset(this, initialTopPadding, lastOffset, lastHeight)
     }
+
+    watchToolbarOffset(this, owner) { newOffset ->
+      lastOffset = newOffset
+      applyNewViewOffset(this, initialTopPadding, lastOffset, lastHeight)
+    }
+  }
 }

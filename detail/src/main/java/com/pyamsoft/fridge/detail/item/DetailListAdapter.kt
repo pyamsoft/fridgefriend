@@ -27,83 +27,73 @@ import com.pyamsoft.pydroid.ui.theme.ThemeProvider
 import com.pyamsoft.pydroid.ui.util.teardownAdapter
 import me.zhanghai.android.fastscroll.PopupTextProvider
 
-class DetailListAdapter internal constructor(
+class DetailListAdapter
+internal constructor(
     private val themeProvider: ThemeProvider,
     private val tooltipCreator: TooltipCreator,
     private val factory: DetailItemComponent.Factory,
     private val callback: Callback
 ) : ListAdapter<DetailItemViewState, DetailItemViewHolder>(DIFFER), PopupTextProvider {
 
-    init {
-        setHasStableIds(true)
-    }
+  init {
+    setHasStableIds(true)
+  }
 
-    override fun getPopupText(position: Int): String {
-        val item = getItem(position)
-        return item.item.name()
-    }
+  override fun getPopupText(position: Int): String {
+    val item = getItem(position)
+    return item.item.name()
+  }
 
-    override fun getItemId(position: Int): Long {
-        return getItem(position).item.id().hashCode().toLong()
-    }
+  override fun getItemId(position: Int): Long {
+    return getItem(position).item.id().hashCode().toLong()
+  }
 
-    override fun onCreateViewHolder(
-        parent: ViewGroup,
-        viewType: Int
-    ): DetailItemViewHolder {
-        val inflater = LayoutInflater.from(parent.context)
-        val binding = DetailListItemHolderBinding.inflate(inflater, parent, false)
-        return DetailItemViewHolder(
-            binding,
-            editable = false,
-            themeProvider,
-            tooltipCreator,
-            factory,
-            callback
-        )
-    }
+  override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): DetailItemViewHolder {
+    val inflater = LayoutInflater.from(parent.context)
+    val binding = DetailListItemHolderBinding.inflate(inflater, parent, false)
+    return DetailItemViewHolder(
+        binding, editable = false, themeProvider, tooltipCreator, factory, callback)
+  }
 
-    override fun onBindViewHolder(
-        holder: DetailItemViewHolder,
-        position: Int
-    ) {
-        val item = getItem(position)
-        holder.bindState(item)
-    }
+  override fun onBindViewHolder(holder: DetailItemViewHolder, position: Int) {
+    val item = getItem(position)
+    holder.bindState(item)
+  }
 
-    override fun onDetachedFromRecyclerView(recyclerView: RecyclerView) {
-        super.onDetachedFromRecyclerView(recyclerView)
-        teardownAdapter(recyclerView)
-    }
+  override fun onDetachedFromRecyclerView(recyclerView: RecyclerView) {
+    super.onDetachedFromRecyclerView(recyclerView)
+    teardownAdapter(recyclerView)
+  }
 
-    interface Callback {
+  interface Callback {
 
-        fun onIncreaseCount(index: Int)
+    fun onIncreaseCount(index: Int)
 
-        fun onDecreaseCount(index: Int)
+    fun onDecreaseCount(index: Int)
 
-        fun onItemExpanded(index: Int)
+    fun onItemExpanded(index: Int)
 
-        fun onPresenceChange(index: Int)
-    }
+    fun onPresenceChange(index: Int)
+  }
 
-    companion object {
+  companion object {
 
-        private val DIFFER = object : DiffUtil.ItemCallback<DetailItemViewState>() {
+    private val DIFFER =
+        object : DiffUtil.ItemCallback<DetailItemViewState>() {
 
-            override fun areItemsTheSame(
-                oldItem: DetailItemViewState,
-                newItem: DetailItemViewState
-            ): Boolean {
-                return oldItem.item.id() == newItem.item.id()
-            }
+          override fun areItemsTheSame(
+              oldItem: DetailItemViewState,
+              newItem: DetailItemViewState
+          ): Boolean {
+            return oldItem.item.id() == newItem.item.id()
+          }
 
-            override fun areContentsTheSame(
-                oldItem: DetailItemViewState,
-                newItem: DetailItemViewState
-            ): Boolean {
-                return oldItem == newItem
-            }
+          override fun areContentsTheSame(
+              oldItem: DetailItemViewState,
+              newItem: DetailItemViewState
+          ): Boolean {
+            return oldItem == newItem
+          }
         }
-    }
+  }
 }

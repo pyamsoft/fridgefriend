@@ -37,100 +37,88 @@ import com.pyamsoft.pydroid.ui.arch.fromViewModelFactory
 import java.util.Calendar
 import javax.inject.Inject
 
-internal class DateSelectDialog : AppCompatDialogFragment(),
-    UiController<DateSelectControllerEvent> {
+internal class DateSelectDialog :
+    AppCompatDialogFragment(), UiController<DateSelectControllerEvent> {
 
-    @JvmField
-    @Inject
-    internal var factory: FridgeViewModelFactory? = null
-    private val viewModel by fromViewModelFactory<DateSelectViewModel>(activity = true) {
-        factory?.create(requireActivity())
+  @JvmField @Inject internal var factory: FridgeViewModelFactory? = null
+  private val viewModel by fromViewModelFactory<DateSelectViewModel>(activity = true) {
+    factory?.create(requireActivity())
+  }
+
+  private var stateSaver: StateSaver? = null
+
+  override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+    Injector.obtainFromApplication<FridgeComponent>(requireContext())
+        .plusDateSelectComponent()
+        .inject(this)
+
+    stateSaver =
+        createComponent<UnitViewState, UnitViewEvent, DateSelectControllerEvent>(
+            savedInstanceState, viewLifecycleOwner, viewModel, this) {}
+
+    val today = today()
+    val itemId = FridgeItem.Id(requireNotNull(requireArguments().getString(ITEM)))
+    val entryId = FridgeEntry.Id(requireNotNull(requireArguments().getString(ENTRY)))
+    var initialYear = requireArguments().getInt(YEAR, 0)
+    var initialMonth = requireArguments().getInt(MONTH, 0)
+    var initialDay = requireArguments().getInt(DAY, 0)
+    if (initialYear == 0) {
+      initialYear = today.get(Calendar.YEAR)
+    }
+    if (initialMonth == 0) {
+      initialMonth = today.get(Calendar.MONTH)
+    }
+    if (initialDay == 0) {
+      initialDay = today.get(Calendar.DAY_OF_MONTH)
     }
 
-    private var stateSaver: StateSaver? = null
-
-    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        Injector.obtainFromApplication<FridgeComponent>(requireContext())
-            .plusDateSelectComponent()
-            .inject(this)
-
-        stateSaver = createComponent<UnitViewState, UnitViewEvent, DateSelectControllerEvent>(
-            savedInstanceState,
-            viewLifecycleOwner,
-            viewModel,
-            this
-        ) {}
-
-        val today = today()
-        val itemId = FridgeItem.Id(requireNotNull(requireArguments().getString(ITEM)))
-        val entryId = FridgeEntry.Id(requireNotNull(requireArguments().getString(ENTRY)))
-        var initialYear = requireArguments().getInt(YEAR, 0)
-        var initialMonth = requireArguments().getInt(MONTH, 0)
-        var initialDay = requireArguments().getInt(DAY, 0)
-        if (initialYear == 0) {
-            initialYear = today.get(Calendar.YEAR)
-        }
-        if (initialMonth == 0) {
-            initialMonth = today.get(Calendar.MONTH)
-        }
-        if (initialDay == 0) {
-            initialDay = today.get(Calendar.DAY_OF_MONTH)
+    val listener =
+        DatePickerDialog.OnDateSetListener { _, year, month, dayOfMonth ->
+          viewModel.handleDateSelected(itemId, entryId, year, month, dayOfMonth)
         }
 
-        val listener = DatePickerDialog.OnDateSetListener { _, year, month, dayOfMonth ->
-            viewModel.handleDateSelected(
-                itemId,
-                entryId,
-                year,
-                month,
-                dayOfMonth
-            )
-        }
+    return DatePickerDialog(requireActivity(), listener, initialYear, initialMonth, initialDay)
+        .apply { datePicker.minDate = today.timeInMillis }
+  }
 
-        return DatePickerDialog(
-            requireActivity(), listener, initialYear, initialMonth, initialDay
-        ).apply {
-            datePicker.minDate = today.timeInMillis
-        }
+  override fun onControllerEvent(event: DateSelectControllerEvent) {
+    return when (event) {
+      is DateSelectControllerEvent.Close -> dismiss()
     }
+  }
 
-    override fun onControllerEvent(event: DateSelectControllerEvent) {
-        return when (event) {
-            is DateSelectControllerEvent.Close -> dismiss()
-        }
-    }
+  override fun onSaveInstanceState(outState: Bundle) {
+    stateSaver?.saveState(outState)
+    super.onSaveInstanceState(outState)
+  }
 
-    override fun onSaveInstanceState(outState: Bundle) {
-        stateSaver?.saveState(outState)
-        super.onSaveInstanceState(outState)
-    }
+  companion object {
 
-    companion object {
+    const val TAG = "DatePickerDialogFragment"
+    private const val ENTRY = "entry"
+    private const val ITEM = "item"
+    private const val YEAR = "year"
+    private const val MONTH = "month"
+    private const val DAY = "day"
 
-        const val TAG = "DatePickerDialogFragment"
-        private const val ENTRY = "entry"
-        private const val ITEM = "item"
-        private const val YEAR = "year"
-        private const val MONTH = "month"
-        private const val DAY = "day"
-
-        @JvmStatic
-        @CheckResult
-        fun newInstance(
-            item: FridgeItem,
-            year: Int,
-            month: Int,
-            day: Int,
-        ): DialogFragment {
-            return DateSelectDialog().apply {
-                arguments = Bundle().apply {
-                    putString(ITEM, item.id().id)
-                    putString(ENTRY, item.entryId().id)
-                    putInt(YEAR, year)
-                    putInt(MONTH, month)
-                    putInt(DAY, day)
-                }
+    @JvmStatic
+    @CheckResult
+    fun newInstance(
+        item: FridgeItem,
+        year: Int,
+        month: Int,
+        day: Int,
+    ): DialogFragment {
+      return DateSelectDialog().apply {
+        arguments =
+            Bundle().apply {
+              putString(ITEM, item.id().id)
+              putString(ENTRY, item.entryId().id)
+              putInt(YEAR, year)
+              putInt(MONTH, month)
+              putInt(DAY, day)
             }
-        }
+      }
     }
+  }
 }

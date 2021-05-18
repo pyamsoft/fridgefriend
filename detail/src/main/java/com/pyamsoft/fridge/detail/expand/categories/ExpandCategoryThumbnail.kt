@@ -24,42 +24,40 @@ import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.loader.Loaded
 import javax.inject.Inject
 
-class ExpandCategoryThumbnail @Inject internal constructor(
+class ExpandCategoryThumbnail
+@Inject
+internal constructor(
     parent: ViewGroup,
     private val imageLoader: ImageLoader,
 ) : ExpandCategoryClickable<ExpandCategoryThumbnailBinding>(parent) {
 
-    override val viewBinding = ExpandCategoryThumbnailBinding::inflate
+  override val viewBinding = ExpandCategoryThumbnailBinding::inflate
 
-    override val layoutRoot by boundView { expandCategoryThumbnail }
+  override val layoutRoot by boundView { expandCategoryThumbnail }
 
-    private var loaded: Loaded? = null
+  private var loaded: Loaded? = null
 
-    init {
-        doOnTeardown {
-            clear()
-        }
+  init {
+    doOnTeardown { clear() }
+  }
+
+  private fun clear() {
+    loaded?.dispose()
+    loaded = null
+  }
+
+  override fun onRender(state: UiRender<ExpandedCategoryViewState>) {
+    state.mapChanged { it.category }.render(viewScope) { handleCategory(it) }
+  }
+
+  private fun handleCategory(category: ExpandedCategoryViewState.Category?) {
+    clear()
+    if (category?.thumbnail != null) {
+      loadImage(category.thumbnail)
     }
+  }
 
-    private fun clear() {
-        loaded?.dispose()
-        loaded = null
-    }
-
-    override fun onRender(state: UiRender<ExpandedCategoryViewState>) {
-        state.mapChanged { it.category }.render(viewScope) { handleCategory(it) }
-    }
-
-    private fun handleCategory(category: ExpandedCategoryViewState.Category?) {
-        clear()
-        if (category?.thumbnail != null) {
-            loadImage(category.thumbnail)
-        }
-    }
-
-    private fun loadImage(thumbnail: FridgeCategory.Thumbnail) {
-        loaded = imageLoader.asBitmap()
-            .load(thumbnail.data)
-            .into(layoutRoot)
-    }
+  private fun loadImage(thumbnail: FridgeCategory.Thumbnail) {
+    loaded = imageLoader.asBitmap().load(thumbnail.data).into(layoutRoot)
+  }
 }

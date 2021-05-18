@@ -25,69 +25,65 @@ import com.pyamsoft.fridge.ui.setEditable
 import com.pyamsoft.fridge.ui.view.UiEditTextDelegate
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.arch.UiRender
-import timber.log.Timber
 import javax.inject.Inject
+import timber.log.Timber
 
-class CreateEntryName @Inject internal constructor(
+class CreateEntryName
+@Inject
+internal constructor(
     parent: ViewGroup,
 ) : BaseUiView<CreateEntryViewState, CreateEntryViewEvent, CreateEntryNameBinding>(parent) {
 
-    override val viewBinding = CreateEntryNameBinding::inflate
+  override val viewBinding = CreateEntryNameBinding::inflate
 
-    override val layoutRoot by boundView { createEntryNameRoot }
+  override val layoutRoot by boundView { createEntryNameRoot }
 
-    private val delegate by lazy {
-        UiEditTextDelegate(binding.createEntryNameValue) { _, newText ->
-            publish(CreateEntryViewEvent.NameChanged(newText))
-        }
+  private val delegate by lazy {
+    UiEditTextDelegate(binding.createEntryNameValue) { _, newText ->
+      publish(CreateEntryViewEvent.NameChanged(newText))
+    }
+  }
+
+  init {
+    doOnInflate { delegate.create() }
+
+    doOnTeardown { delegate.destroy() }
+
+    doOnInflate {
+      binding.createEntryNameValue.apply {
+        setEditable(EDITABLE_INPUT_TYPE)
+        imeOptions = EditorInfo.IME_ACTION_GO
+        setImeActionLabel("Create", EditorInfo.IME_ACTION_GO)
+      }
     }
 
-    init {
-        doOnInflate {
-            delegate.create()
+    doOnInflate {
+      binding.createEntryNameValue.setOnEditorActionListener { _, _, event ->
+        if (event != null) {
+          if (event.action == KeyEvent.ACTION_DOWN && event.keyCode == KeyEvent.KEYCODE_ENTER) {
+            Timber.d("Commit on IME action Enter")
+            publish(CreateEntryViewEvent.Commit)
+            return@setOnEditorActionListener true
+          }
         }
 
-        doOnTeardown {
-            delegate.destroy()
-        }
-
-        doOnInflate {
-            binding.createEntryNameValue.apply {
-                setEditable(EDITABLE_INPUT_TYPE)
-                imeOptions = EditorInfo.IME_ACTION_GO
-                setImeActionLabel("Create", EditorInfo.IME_ACTION_GO)
-            }
-        }
-
-        doOnInflate {
-            binding.createEntryNameValue.setOnEditorActionListener { _, _, event ->
-                if (event != null) {
-                    if (event.action == KeyEvent.ACTION_DOWN && event.keyCode == KeyEvent.KEYCODE_ENTER) {
-                        Timber.d("Commit on IME action Enter")
-                        publish(CreateEntryViewEvent.Commit)
-                        return@setOnEditorActionListener true
-                    }
-                }
-
-                return@setOnEditorActionListener false
-            }
-        }
-
-        doOnTeardown {
-            binding.createEntryNameValue.setOnEditorActionListener(null)
-        }
+        return@setOnEditorActionListener false
+      }
     }
 
-    private fun handleName(name: String?) {
-        delegate.render(name.orEmpty())
-    }
+    doOnTeardown { binding.createEntryNameValue.setOnEditorActionListener(null) }
+  }
 
-    override fun onRender(state: UiRender<CreateEntryViewState>) {
-        state.mapChanged { it.entry }.mapChanged { it?.name() }.render(viewScope) { handleName(it) }
-    }
+  private fun handleName(name: String?) {
+    delegate.render(name.orEmpty())
+  }
 
-    companion object {
-        private const val EDITABLE_INPUT_TYPE =
-            InputType.TYPE_TEXT_FLAG_AUTO_CORRECT or InputType.TYPE_TEXT_FLAG_CAP_WORDS
-    }
+  override fun onRender(state: UiRender<CreateEntryViewState>) {
+    state.mapChanged { it.entry }.mapChanged { it?.name() }.render(viewScope) { handleName(it) }
+  }
+
+  companion object {
+    private const val EDITABLE_INPUT_TYPE =
+        InputType.TYPE_TEXT_FLAG_AUTO_CORRECT or InputType.TYPE_TEXT_FLAG_CAP_WORDS
+  }
 }

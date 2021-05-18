@@ -18,5 +18,5 @@ package com.pyamsoft.fridge.db.persist
 
 interface PersistentCategories {
 
-    suspend fun guaranteePersistentCategoriesCreated()
+  suspend fun guaranteePersistentCategoriesCreated()
 }

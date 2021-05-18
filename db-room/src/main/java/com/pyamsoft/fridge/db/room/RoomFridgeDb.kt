@@ -29,30 +29,21 @@ import com.pyamsoft.fridge.db.room.dao.item.RoomFridgeItemQueryDao
 
 internal interface RoomFridgeDb {
 
-    @CheckResult
-    fun roomItemQueryDao(): RoomFridgeItemQueryDao
+  @CheckResult fun roomItemQueryDao(): RoomFridgeItemQueryDao
 
-    @CheckResult
-    fun roomItemInsertDao(): RoomFridgeItemInsertDao
+  @CheckResult fun roomItemInsertDao(): RoomFridgeItemInsertDao
 
-    @CheckResult
-    fun roomItemDeleteDao(): RoomFridgeItemDeleteDao
+  @CheckResult fun roomItemDeleteDao(): RoomFridgeItemDeleteDao
 
-    @CheckResult
-    fun roomEntryQueryDao(): RoomFridgeEntryQueryDao
+  @CheckResult fun roomEntryQueryDao(): RoomFridgeEntryQueryDao
 
-    @CheckResult
-    fun roomEntryInsertDao(): RoomFridgeEntryInsertDao
+  @CheckResult fun roomEntryInsertDao(): RoomFridgeEntryInsertDao
 
-    @CheckResult
-    fun roomEntryDeleteDao(): RoomFridgeEntryDeleteDao
+  @CheckResult fun roomEntryDeleteDao(): RoomFridgeEntryDeleteDao
 
-    @CheckResult
-    fun roomCategoryQueryDao(): RoomFridgeCategoryQueryDao
+  @CheckResult fun roomCategoryQueryDao(): RoomFridgeCategoryQueryDao
 
-    @CheckResult
-    fun roomCategoryInsertDao(): RoomFridgeCategoryInsertDao
+  @CheckResult fun roomCategoryInsertDao(): RoomFridgeCategoryInsertDao
 
-    @CheckResult
-    fun roomCategoryDeleteDao(): RoomFridgeCategoryDeleteDao
+  @CheckResult fun roomCategoryDeleteDao(): RoomFridgeCategoryDeleteDao
 }

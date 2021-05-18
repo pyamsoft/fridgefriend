@@ -21,7 +21,8 @@ import com.squareup.moshi.JsonClass
 import java.util.Date
 
 @JsonClass(generateAdapter = true)
-data class JsonMappableFridgeCategory internal constructor(
+data class JsonMappableFridgeCategory
+internal constructor(
     internal val id: FridgeCategory.Id,
     internal val name: String,
     internal val createdTime: Date,
@@ -29,56 +30,56 @@ data class JsonMappableFridgeCategory internal constructor(
     internal val isDefault: Boolean
 ) : FridgeCategory {
 
-    override fun id(): FridgeCategory.Id {
-        return id
-    }
+  override fun id(): FridgeCategory.Id {
+    return id
+  }
 
-    override fun name(): String {
-        return name
-    }
+  override fun name(): String {
+    return name
+  }
 
-    override fun createdTime(): Date {
-        return createdTime
-    }
+  override fun createdTime(): Date {
+    return createdTime
+  }
 
-    override fun thumbnail(): FridgeCategory.Thumbnail? {
-        return thumbnail
-    }
+  override fun thumbnail(): FridgeCategory.Thumbnail? {
+    return thumbnail
+  }
 
-    override fun isDefault(): Boolean {
-        return isDefault
-    }
+  override fun isDefault(): Boolean {
+    return isDefault
+  }
 
-    override fun isEmpty(): Boolean {
-        return id().isEmpty()
-    }
+  override fun isEmpty(): Boolean {
+    return id().isEmpty()
+  }
 
-    override fun name(name: String): FridgeCategory {
-        return this.copy(name = name.trim())
-    }
+  override fun name(name: String): FridgeCategory {
+    return this.copy(name = name.trim())
+  }
 
-    override fun invalidateThumbnail(): FridgeCategory {
-        return this.copy(thumbnail = null)
-    }
+  override fun invalidateThumbnail(): FridgeCategory {
+    return this.copy(thumbnail = null)
+  }
 
-    override fun thumbnail(thumbnail: FridgeCategory.Thumbnail): FridgeCategory {
-        return this.copy(thumbnail = thumbnail)
-    }
+  override fun thumbnail(thumbnail: FridgeCategory.Thumbnail): FridgeCategory {
+    return this.copy(thumbnail = thumbnail)
+  }
 
-    companion object {
+  companion object {
 
-        @JvmStatic
-        @CheckResult
-        fun from(category: FridgeCategory): JsonMappableFridgeCategory {
-            return if (category is JsonMappableFridgeCategory) category else {
-                JsonMappableFridgeCategory(
-                    category.id(),
-                    category.name(),
-                    category.createdTime(),
-                    category.thumbnail(),
-                    category.isDefault()
-                )
-            }
-        }
+    @JvmStatic
+    @CheckResult
+    fun from(category: FridgeCategory): JsonMappableFridgeCategory {
+      return if (category is JsonMappableFridgeCategory) category
+      else {
+        JsonMappableFridgeCategory(
+            category.id(),
+            category.name(),
+            category.createdTime(),
+            category.thumbnail(),
+            category.isDefault())
+      }
     }
+  }
 }

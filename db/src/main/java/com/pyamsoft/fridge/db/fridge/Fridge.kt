@@ -22,9 +22,9 @@ import com.pyamsoft.fridge.db.item.FridgeItem
 
 interface Fridge {
 
-    @CheckResult
-    suspend fun <R : Any> forAllItemsInEachEntry(
-        force: Boolean,
-        block: suspend (FridgeEntry, List<FridgeItem>) -> R
-    ): List<R>
+  @CheckResult
+  suspend fun <R : Any> forAllItemsInEachEntry(
+      force: Boolean,
+      block: suspend (FridgeEntry, List<FridgeItem>) -> R
+  ): List<R>
 }

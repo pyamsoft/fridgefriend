@@ -27,22 +27,22 @@ import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.loader.Loaded
 import javax.inject.Inject
 
-class CategoryHeroImage @Inject internal constructor(
+class CategoryHeroImage
+@Inject
+internal constructor(
     parent: ViewGroup,
     imageLoader: ImageLoader,
     owner: LifecycleOwner,
     appBarActivity: AppBarActivity,
 ) : UiHeroImage<CategoryViewState, UnitViewEvent>(parent, owner, appBarActivity, imageLoader) {
 
-    override fun onLoadImage(
-        imageView: ImageView,
-        imageLoader: ImageLoader,
-        state: CategoryViewState,
-    ): Loaded? {
-        return null
-    }
+  override fun onLoadImage(
+      imageView: ImageView,
+      imageLoader: ImageLoader,
+      state: CategoryViewState,
+  ): Loaded? {
+    return null
+  }
 
-    override fun onAdditionalRender(state: UiRender<CategoryViewState>) {
-    }
-
+  override fun onAdditionalRender(state: UiRender<CategoryViewState>) {}
 }

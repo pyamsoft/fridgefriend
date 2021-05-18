@@ -23,19 +23,21 @@ import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.arch.UiRender
 import javax.inject.Inject
 
-class EntryContainer @Inject internal constructor(
+class EntryContainer
+@Inject
+internal constructor(
     parent: ViewGroup,
 ) : BaseUiView<EntryViewState, EntryViewEvent, EntryContainerBinding>(parent) {
 
-    override val viewBinding = EntryContainerBinding::inflate
+  override val viewBinding = EntryContainerBinding::inflate
 
-    override val layoutRoot by boundView { entryContainer }
+  override val layoutRoot by boundView { entryContainer }
 
-    override fun onRender(state: UiRender<EntryViewState>) {
-        state.mapChanged { it.bottomOffset }.render(viewScope) { handleBottomMargin(it) }
-    }
+  override fun onRender(state: UiRender<EntryViewState>) {
+    state.mapChanged { it.bottomOffset }.render(viewScope) { handleBottomMargin(it) }
+  }
 
-    private fun handleBottomMargin(height: Int) {
-        layoutRoot.updatePadding(bottom = height)
-    }
+  private fun handleBottomMargin(height: Int) {
+    layoutRoot.updatePadding(bottom = height)
+  }
 }

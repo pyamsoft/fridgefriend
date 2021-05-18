@@ -20,19 +20,18 @@ import com.pyamsoft.fridge.db.category.FridgeCategory
 import com.pyamsoft.pydroid.arch.UiViewEvent
 import com.pyamsoft.pydroid.arch.UiViewState
 
-data class ExpandedCategoryViewState internal constructor(
-    val category: Category?,
-    val isSelected: Boolean
-) : UiViewState {
+data class ExpandedCategoryViewState
+internal constructor(val category: Category?, val isSelected: Boolean) : UiViewState {
 
-    data class Category internal constructor(
-        val id: FridgeCategory.Id,
-        val name: String,
-        val thumbnail: FridgeCategory.Thumbnail?
-    )
+  data class Category
+  internal constructor(
+      val id: FridgeCategory.Id,
+      val name: String,
+      val thumbnail: FridgeCategory.Thumbnail?
+  )
 }
 
 sealed class ExpandedCategoryViewEvent : UiViewEvent {
 
-    object Select : ExpandedCategoryViewEvent()
+  object Select : ExpandedCategoryViewEvent()
 }

@@ -22,30 +22,27 @@ import com.pyamsoft.pydroid.arch.UiView
 import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
 import javax.inject.Inject
 
-class EntryListItemClick @Inject internal constructor(
+class EntryListItemClick
+@Inject
+internal constructor(
     parent: ViewGroup,
 ) : UiView<EntryItemViewState, EntryItemViewEvent>() {
 
-    init {
-        doOnInflate {
-            parent.setOnDebouncedClickListener {
-                publish(EntryItemViewEvent.OnClick)
-            }
+  init {
+    doOnInflate {
+      parent.setOnDebouncedClickListener { publish(EntryItemViewEvent.OnClick) }
 
-            parent.setOnLongClickListener {
-                publish(EntryItemViewEvent.OnLongPress)
-                return@setOnLongClickListener true
-            }
-        }
-
-        doOnTeardown {
-            parent.setOnDebouncedClickListener(null)
-            parent.setOnLongClickListener(null)
-        }
+      parent.setOnLongClickListener {
+        publish(EntryItemViewEvent.OnLongPress)
+        return@setOnLongClickListener true
+      }
     }
 
-    override fun render(state: UiRender<EntryItemViewState>) {
+    doOnTeardown {
+      parent.setOnDebouncedClickListener(null)
+      parent.setOnLongClickListener(null)
     }
+  }
 
-
+  override fun render(state: UiRender<EntryItemViewState>) {}
 }

@@ -25,117 +25,113 @@ import com.pyamsoft.fridge.detail.databinding.DetailPresenceSwitchBinding
 import com.pyamsoft.fridge.ui.appbar.AppBarActivity
 import com.pyamsoft.pydroid.arch.UiRender
 import com.pyamsoft.pydroid.arch.UiView
-import timber.log.Timber
 import javax.inject.Inject
+import timber.log.Timber
 
-class DetailPresenceSwitcher @Inject internal constructor(
+class DetailPresenceSwitcher
+@Inject
+internal constructor(
     appBarActivity: AppBarActivity,
 ) : UiView<DetailViewState, DetailViewEvent.SwitcherEvent>() {
 
-    private var _bindingRoot: TabLayout? = null
-    private val layoutRoot: TabLayout
-        get() = requireNotNull(_bindingRoot)
+  private var _bindingRoot: TabLayout? = null
+  private val layoutRoot: TabLayout
+    get() = requireNotNull(_bindingRoot)
 
-    init {
-        // Replace the app bar background during switcher presence
-        doOnInflate {
-            appBarActivity.requireAppBar { appBar ->
-                val inflater = LayoutInflater.from(appBar.context)
-                val binding = DetailPresenceSwitchBinding.inflate(inflater, appBar)
-                _bindingRoot = binding.detailPresenceSwitcherRoot.also { onCreate(it) }
-            }
+  init {
+    // Replace the app bar background during switcher presence
+    doOnInflate {
+      appBarActivity.requireAppBar { appBar ->
+        val inflater = LayoutInflater.from(appBar.context)
+        val binding = DetailPresenceSwitchBinding.inflate(inflater, appBar)
+        _bindingRoot = binding.detailPresenceSwitcherRoot.also { onCreate(it) }
+      }
+    }
+
+    doOnTeardown {
+      _bindingRoot?.also { binding ->
+        appBarActivity.withAppBar { appBar -> appBar.removeView(binding) }
+
+        onDestroy(binding)
+      }
+    }
+  }
+
+  private fun onDestroy(tabs: TabLayout) {
+    tabs.removeAllTabs()
+  }
+
+  private fun onCreate(tabs: TabLayout) {
+    changeBackground(tabs)
+    addTabs(tabs)
+    attachListener(tabs)
+  }
+
+  private fun attachListener(tabs: TabLayout) {
+    val listener =
+        object : TabLayout.OnTabSelectedListener {
+
+          override fun onTabSelected(tab: TabLayout.Tab) {
+            val presence = getTabPresence(tab) ?: return
+            publish(DetailViewEvent.SwitcherEvent.PresenceSwitched(presence))
+          }
+
+          override fun onTabUnselected(tab: TabLayout.Tab) {}
+
+          override fun onTabReselected(tab: TabLayout.Tab) {}
         }
 
-        doOnTeardown {
-            _bindingRoot?.also { binding ->
-                appBarActivity.withAppBar { appBar ->
-                    appBar.removeView(binding)
-                }
+    tabs.apply {
+      addOnTabSelectedListener(listener)
+      doOnTeardown { removeOnTabSelectedListener(listener) }
+    }
+  }
 
-                onDestroy(binding)
-            }
-        }
+  private fun addTabs(tabs: TabLayout) {
+    tabs.apply {
+      addTab(newTab().setText("NEED").setTag(FridgeItem.Presence.NEED))
+      addTab(newTab().setText("HAVE").setTag(FridgeItem.Presence.HAVE))
+    }
+  }
+
+  private fun changeBackground(tabs: TabLayout) {
+    tabs.isVisible = true
+  }
+
+  override fun render(state: UiRender<DetailViewState>) {
+    state.mapChanged { it.listItemPresence }.render(viewScope) { handlePresence(it) }
+  }
+
+  @CheckResult
+  private fun getTabPresence(tab: TabLayout.Tab): FridgeItem.Presence? {
+    val tag = tab.tag
+    if (tag == null) {
+      Timber.w("No tag found on tab: $tab")
+      return null
     }
 
-    private fun onDestroy(tabs: TabLayout) {
-        tabs.removeAllTabs()
+    if (tag !is FridgeItem.Presence) {
+      Timber.w("Tag is not Presence model: $tag")
+      return null
     }
 
-    private fun onCreate(tabs: TabLayout) {
-        changeBackground(tabs)
-        addTabs(tabs)
-        attachListener(tabs)
+    return tag
+  }
+
+  private fun handlePresence(presence: FridgeItem.Presence) {
+    val tabs = layoutRoot
+    for (i in 0 until tabs.tabCount) {
+      val tab = tabs.getTabAt(i)
+      if (tab == null) {
+        Timber.w("No tab found at index: $i")
+        continue
+      }
+
+      val tag = getTabPresence(tab)
+      if (tag == presence) {
+        tabs.selectTab(tab, true)
+        break
+      }
     }
-
-    private fun attachListener(tabs: TabLayout) {
-        val listener = object : TabLayout.OnTabSelectedListener {
-
-            override fun onTabSelected(tab: TabLayout.Tab) {
-                val presence = getTabPresence(tab) ?: return
-                publish(DetailViewEvent.SwitcherEvent.PresenceSwitched(presence))
-            }
-
-            override fun onTabUnselected(tab: TabLayout.Tab) {
-            }
-
-            override fun onTabReselected(tab: TabLayout.Tab) {
-            }
-
-        }
-
-        tabs.apply {
-            addOnTabSelectedListener(listener)
-            doOnTeardown {
-                removeOnTabSelectedListener(listener)
-            }
-        }
-    }
-
-    private fun addTabs(tabs: TabLayout) {
-        tabs.apply {
-            addTab(newTab().setText("NEED").setTag(FridgeItem.Presence.NEED))
-            addTab(newTab().setText("HAVE").setTag(FridgeItem.Presence.HAVE))
-        }
-    }
-
-    private fun changeBackground(tabs: TabLayout) {
-        tabs.isVisible = true
-    }
-
-    override fun render(state: UiRender<DetailViewState>) {
-        state.mapChanged { it.listItemPresence }.render(viewScope) { handlePresence(it) }
-    }
-
-    @CheckResult
-    private fun getTabPresence(tab: TabLayout.Tab): FridgeItem.Presence? {
-        val tag = tab.tag
-        if (tag == null) {
-            Timber.w("No tag found on tab: $tab")
-            return null
-        }
-
-        if (tag !is FridgeItem.Presence) {
-            Timber.w("Tag is not Presence model: $tag")
-            return null
-        }
-
-        return tag
-    }
-
-    private fun handlePresence(presence: FridgeItem.Presence) {
-        val tabs = layoutRoot
-        for (i in 0 until tabs.tabCount) {
-            val tab = tabs.getTabAt(i)
-            if (tab == null) {
-                Timber.w("No tab found at index: $i")
-                continue
-            }
-
-            val tag = getTabPresence(tab)
-            if (tag == presence) {
-                tabs.selectTab(tab, true)
-                break
-            }
-        }
-    }
+  }
 }

@@ -27,14 +27,16 @@ import com.pyamsoft.fridge.db.item.FridgeItem.Presence.HAVE
 import com.pyamsoft.fridge.db.item.FridgeItemQueryDao
 import com.pyamsoft.fridge.preference.NightlyPreferences
 import com.pyamsoft.fridge.preference.NotificationPreferences
-import kotlinx.coroutines.coroutineScope
-import timber.log.Timber
 import java.util.Calendar
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlinx.coroutines.coroutineScope
+import timber.log.Timber
 
 @Singleton
-internal class NightlyRunner @Inject internal constructor(
+internal class NightlyRunner
+@Inject
+internal constructor(
     private val butler: Butler,
     private val fridgeItemQueryDao: FridgeItemQueryDao,
     private val nightlyPreferences: NightlyPreferences,
@@ -42,40 +44,40 @@ internal class NightlyRunner @Inject internal constructor(
     notificationPreferences: NotificationPreferences,
 ) : BaseRunner<EmptyParameters>(handler, notificationPreferences) {
 
-    override suspend fun onReschedule(order: Order) {
-        Timber.d("Rescheduling order: $order")
-        butler.scheduleOrder(order)
-    }
+  override suspend fun onReschedule(order: Order) {
+    Timber.d("Rescheduling order: $order")
+    butler.scheduleOrder(order)
+  }
 
-    private suspend fun notifyNightly(
-        items: List<FridgeItem>,
-        now: Calendar,
-    ) {
-        if (items.isNotEmpty()) {
-            val lastTime = nightlyPreferences.getLastNotificationTimeNightly()
-            if (now.isAllowedToNotify(false, lastTime) && isAtleastTime(now)) {
-                Timber.d("Notify user about items nightly fridge cleanup")
-                if (notification { notifyNightly() }) {
-                    nightlyPreferences.markNotificationNightly(now)
-                }
-            }
+  private suspend fun notifyNightly(
+      items: List<FridgeItem>,
+      now: Calendar,
+  ) {
+    if (items.isNotEmpty()) {
+      val lastTime = nightlyPreferences.getLastNotificationTimeNightly()
+      if (now.isAllowedToNotify(false, lastTime) && isAtleastTime(now)) {
+        Timber.d("Notify user about items nightly fridge cleanup")
+        if (notification { notifyNightly() }) {
+          nightlyPreferences.markNotificationNightly(now)
         }
+      }
     }
+  }
 
-    override suspend fun performWork(params: EmptyParameters) = coroutineScope {
-        val now = today()
-        val items = fridgeItemQueryDao.query(false)
-        notifyNightly(items.filter { it.presence() == HAVE }, now)
-    }
+  override suspend fun performWork(params: EmptyParameters) = coroutineScope {
+    val now = today()
+    val items = fridgeItemQueryDao.query(false)
+    notifyNightly(items.filter { it.presence() == HAVE }, now)
+  }
 
-    @CheckResult
-    private fun isAtleastTime(now: Calendar): Boolean {
-        val hour = now.get(Calendar.HOUR_OF_DAY)
-        return hour >= EVENING_HOUR
-    }
+  @CheckResult
+  private fun isAtleastTime(now: Calendar): Boolean {
+    val hour = now.get(Calendar.HOUR_OF_DAY)
+    return hour >= EVENING_HOUR
+  }
 
-    companion object {
-        // 8PM
-        private const val EVENING_HOUR = 8 + 12
-    }
+  companion object {
+    // 8PM
+    private const val EVENING_HOUR = 8 + 12
+  }
 }

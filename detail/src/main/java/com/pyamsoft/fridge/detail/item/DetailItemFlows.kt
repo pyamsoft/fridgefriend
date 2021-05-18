@@ -21,7 +21,8 @@ import com.pyamsoft.fridge.detail.DetailViewState
 import com.pyamsoft.pydroid.arch.UiViewEvent
 import com.pyamsoft.pydroid.arch.UiViewState
 
-data class DetailItemViewState internal constructor(
+data class DetailItemViewState
+internal constructor(
     val item: FridgeItem,
     val expirationRange: DetailViewState.ExpirationRange?,
     val isSameDayExpired: DetailViewState.IsSameDayExpired?
@@ -29,11 +30,11 @@ data class DetailItemViewState internal constructor(
 
 sealed class DetailItemViewEvent : UiViewEvent {
 
-    object IncreaseCount : DetailItemViewEvent()
+  object IncreaseCount : DetailItemViewEvent()
 
-    object DecreaseCount : DetailItemViewEvent()
+  object DecreaseCount : DetailItemViewEvent()
 
-    object ExpandItem : DetailItemViewEvent()
+  object ExpandItem : DetailItemViewEvent()
 
-    object CommitPresence : DetailItemViewEvent()
+  object CommitPresence : DetailItemViewEvent()
 }
