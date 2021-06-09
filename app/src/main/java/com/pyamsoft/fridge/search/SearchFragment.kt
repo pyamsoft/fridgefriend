@@ -105,7 +105,7 @@ internal class SearchFragment : Fragment() {
     Injector.obtainFromApplication<FridgeComponent>(view.context)
         .plusSearchComponent()
         .create(
-            requireActivity(),
+            this,
             requireAppBarActivity(),
             requireActivity(),
             binding.layoutCoordinator,

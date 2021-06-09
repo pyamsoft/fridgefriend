@@ -95,7 +95,7 @@ internal class ExpandedItemDialog :
     Injector.obtainFromApplication<FridgeComponent>(view.context)
         .plusExpandComponent()
         .create(
-            requireActivity(),
+            this,
             requireActivity(),
             binding.layoutConstraint,
             viewLifecycleOwner,

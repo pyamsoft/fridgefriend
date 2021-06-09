@@ -111,7 +111,7 @@ internal class DetailFragment : Fragment(), SnackbarContainer {
     Injector.obtainFromApplication<FridgeComponent>(view.context)
         .plusDetailComponent()
         .create(
-            requireActivity(),
+            this,
             requireToolbarActivity(),
             requireAppBarActivity(),
             requireActivity(),
