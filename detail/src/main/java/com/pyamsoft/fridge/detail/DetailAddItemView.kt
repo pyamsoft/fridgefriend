@@ -18,8 +18,6 @@ package com.pyamsoft.fridge.detail
 
 import android.view.ViewGroup
 import androidx.coordinatorlayout.widget.CoordinatorLayout
-import androidx.core.view.ViewPropertyAnimatorCompat
-import androidx.core.view.isVisible
 import androidx.core.view.updatePadding
 import androidx.lifecycle.LifecycleOwner
 import com.pyamsoft.fridge.db.item.FridgeItem
@@ -32,7 +30,6 @@ import com.pyamsoft.pydroid.arch.UiRender
 import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.loader.Loaded
 import com.pyamsoft.pydroid.loader.disposeOnDestroy
-import com.pyamsoft.pydroid.ui.util.popShow
 import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
 import javax.inject.Inject
 
@@ -51,9 +48,6 @@ internal constructor(
   override val layoutRoot by boundView { detailAddNewRoot }
 
   private var filterIconLoaded: Loaded? = null
-
-  private var addNewAnimatorCompat: ViewPropertyAnimatorCompat? = null
-  private var filterAnimatorCompat: ViewPropertyAnimatorCompat? = null
 
   init {
     doOnInflate {
@@ -77,17 +71,7 @@ internal constructor(
 
     doOnTeardown { binding.detailFilterItem.setOnClickListener(null) }
 
-    doOnInflate { addNewAnimatorCompat = binding.detailAddNewItem.popShow() }
-
-    doOnTeardown {
-      addNewAnimatorCompat?.cancel()
-      addNewAnimatorCompat = null
-    }
-
-    doOnTeardown {
-      filterAnimatorCompat?.cancel()
-      filterAnimatorCompat = null
-    }
+    doOnInflate { binding.detailAddNewItem.show() }
   }
 
   private fun clearFilter() {
@@ -110,13 +94,9 @@ internal constructor(
   private fun handlePresence(presence: FridgeItem.Presence) {
     // Hide filter button for NEED
     if (presence == FridgeItem.Presence.NEED) {
-      binding.detailFilterItem.isVisible = false
-      filterAnimatorCompat?.cancel()
-      filterAnimatorCompat = null
+      binding.detailFilterItem.hide()
     } else {
-      if (filterAnimatorCompat == null) {
-        filterAnimatorCompat = binding.detailFilterItem.popShow()
-      }
+      binding.detailFilterItem.show()
     }
   }
 

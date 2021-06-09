@@ -29,7 +29,6 @@ import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.arch.UiRender
 import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.loader.Loaded
-import com.pyamsoft.pydroid.ui.util.popShow
 import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
 import javax.inject.Inject
 
@@ -56,10 +55,7 @@ internal constructor(
 
     doOnTeardown { binding.searchFilter.setOnClickListener(null) }
 
-    doOnInflate {
-      val animator = binding.searchFilter.popShow()
-      doOnTeardown { animator.cancel() }
-    }
+    doOnInflate { binding.searchFilter.show() }
 
     doOnTeardown { clearFilter() }
   }

@@ -29,7 +29,6 @@ import com.pyamsoft.pydroid.arch.UiRender
 import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.loader.disposeOnDestroy
 import com.pyamsoft.pydroid.ui.util.Snackbreak
-import com.pyamsoft.pydroid.ui.util.popShow
 import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
 import javax.inject.Inject
 
@@ -58,10 +57,7 @@ internal constructor(
 
     doOnTeardown { binding.entryAddNew.setOnClickListener(null) }
 
-    doOnInflate {
-      val animator = binding.entryAddNew.popShow()
-      doOnTeardown { animator.cancel() }
-    }
+    doOnInflate { binding.entryAddNew.show() }
   }
 
   override fun container(): CoordinatorLayout {
