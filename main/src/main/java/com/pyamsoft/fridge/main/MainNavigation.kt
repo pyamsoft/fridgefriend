@@ -155,21 +155,25 @@ internal constructor(
   }
 
   @CheckResult
-  private fun getIdForPage(page: MainPage?): Int {
-    return if (page == null) 0
-    else {
-      when (page) {
-        is MainPage.Entries -> R.id.menu_item_nav_entries
-        is MainPage.Category -> R.id.menu_item_nav_category
-        is MainPage.Settings -> R.id.menu_item_nav_settings
-        is MainPage.Search -> R.id.menu_item_nav_search
-      }
-    }
-  }
-
-  @CheckResult
   private fun select(viewEvent: MainViewEvent): Boolean {
     publish(viewEvent)
     return false
+  }
+
+  companion object {
+
+    @JvmStatic
+    @CheckResult
+    private fun getIdForPage(page: MainPage?): Int {
+      return if (page == null) 0
+      else {
+        when (page) {
+          is MainPage.Entries -> R.id.menu_item_nav_entries
+          is MainPage.Category -> R.id.menu_item_nav_category
+          is MainPage.Settings -> R.id.menu_item_nav_settings
+          is MainPage.Search -> R.id.menu_item_nav_search
+        }
+      }
+    }
   }
 }
