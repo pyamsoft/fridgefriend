@@ -56,11 +56,6 @@ internal constructor(
     teardownAdapter(recyclerView)
   }
 
-  override fun onViewRecycled(holder: ExpandedCategoryViewHolder) {
-    super.onViewRecycled(holder)
-    holder.teardown()
-  }
-
   interface Callback {
 
     fun onCategorySelected(index: Int)

@@ -63,11 +63,6 @@ internal constructor(
     teardownAdapter(recyclerView)
   }
 
-  override fun onViewRecycled(holder: EntryItemViewHolder) {
-    super.onViewRecycled(holder)
-    holder.teardown()
-  }
-
   interface Callback {
 
     fun onClick(index: Int)
