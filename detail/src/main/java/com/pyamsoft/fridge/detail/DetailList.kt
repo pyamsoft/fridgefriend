@@ -33,6 +33,8 @@ import com.pyamsoft.fridge.detail.item.DetailItemViewState
 import com.pyamsoft.fridge.detail.item.DetailListAdapter
 import com.pyamsoft.fridge.tooltip.TooltipCreator
 import com.pyamsoft.fridge.ui.R as R2
+import com.pyamsoft.fridge.ui.doOnChildRemoved
+import com.pyamsoft.fridge.ui.teardownViewHolderAt
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.arch.UiRender
 import com.pyamsoft.pydroid.loader.ImageLoader
@@ -86,28 +88,32 @@ internal constructor(
     doOnInflate {
       modelAdapter =
           DetailListAdapter(
-              themeProvider = theming,
-              tooltipCreator = tooltipCreator,
-              factory = factory,
-              callback =
-                  object : DetailListAdapter.Callback {
+                  themeProvider = theming,
+                  tooltipCreator = tooltipCreator,
+                  factory = factory,
+                  callback =
+                      object : DetailListAdapter.Callback {
 
-                    override fun onIncreaseCount(index: Int) {
-                      publish(DetailViewEvent.ListEvent.IncreaseItemCount(index))
-                    }
+                        override fun onIncreaseCount(index: Int) {
+                          publish(DetailViewEvent.ListEvent.IncreaseItemCount(index))
+                        }
 
-                    override fun onDecreaseCount(index: Int) {
-                      publish(DetailViewEvent.ListEvent.DecreaseItemCount(index))
-                    }
+                        override fun onDecreaseCount(index: Int) {
+                          publish(DetailViewEvent.ListEvent.DecreaseItemCount(index))
+                        }
 
-                    override fun onItemExpanded(index: Int) {
-                      publish(DetailViewEvent.ListEvent.ExpandItem(index))
-                    }
+                        override fun onItemExpanded(index: Int) {
+                          publish(DetailViewEvent.ListEvent.ExpandItem(index))
+                        }
 
-                    override fun onPresenceChange(index: Int) {
-                      publish(DetailViewEvent.ListEvent.ChangeItemPresence(index))
-                    }
-                  })
+                        override fun onPresenceChange(index: Int) {
+                          publish(DetailViewEvent.ListEvent.ChangeItemPresence(index))
+                        }
+                      })
+              .apply {
+                val registration = doOnChildRemoved { binding.detailList.teardownViewHolderAt(it) }
+                doOnTeardown { registration.unregister() }
+              }
       binding.detailList.adapter = modelAdapter
     }
 

@@ -23,6 +23,8 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.pyamsoft.fridge.entry.databinding.EntryListBinding
 import com.pyamsoft.fridge.entry.item.EntryItemComponent
 import com.pyamsoft.fridge.entry.item.EntryItemViewState
+import com.pyamsoft.fridge.ui.doOnChildRemoved
+import com.pyamsoft.fridge.ui.teardownViewHolderAt
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.arch.UiRender
 import com.pyamsoft.pydroid.arch.UiViewEvent
@@ -61,7 +63,11 @@ protected constructor(
     }
 
     doOnInflate {
-      modelAdapter = EntryListAdapter(factory = factory, callback = this)
+      modelAdapter =
+          EntryListAdapter(factory = factory, callback = this).apply {
+            val registration = doOnChildRemoved { binding.entryList.teardownViewHolderAt(it) }
+            doOnTeardown { registration.unregister() }
+          }
       binding.entryList.adapter = modelAdapter
     }
 
