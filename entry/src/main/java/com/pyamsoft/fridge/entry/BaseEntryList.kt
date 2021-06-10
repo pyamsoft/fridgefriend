@@ -18,6 +18,7 @@ package com.pyamsoft.fridge.entry
 
 import android.view.ViewGroup
 import androidx.annotation.CheckResult
+import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.pyamsoft.fridge.entry.databinding.EntryListBinding
@@ -36,6 +37,7 @@ import timber.log.Timber
 
 abstract class BaseEntryList<V : UiViewEvent>
 protected constructor(
+    owner: LifecycleOwner,
     parent: ViewGroup,
     factory: EntryItemComponent.Factory,
 ) :
@@ -61,7 +63,7 @@ protected constructor(
     }
 
     doOnInflate {
-      modelAdapter = EntryListAdapter(factory = factory, callback = this)
+      modelAdapter = EntryListAdapter(owner = owner, factory = factory, callback = this)
       binding.entryList.adapter = modelAdapter
     }
 

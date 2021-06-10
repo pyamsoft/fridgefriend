@@ -18,6 +18,7 @@ package com.pyamsoft.fridge.entry
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -30,6 +31,7 @@ import me.zhanghai.android.fastscroll.PopupTextProvider
 
 class EntryListAdapter
 internal constructor(
+    private val owner: LifecycleOwner,
     private val factory: EntryItemComponent.Factory,
     private val callback: Callback
 ) : ListAdapter<EntryItemViewState, EntryItemViewHolder>(DIFFER), PopupTextProvider {
@@ -50,17 +52,12 @@ internal constructor(
   override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): EntryItemViewHolder {
     val inflater = LayoutInflater.from(parent.context)
     val binding = EntryListItemHolderBinding.inflate(inflater, parent, false)
-    return EntryItemViewHolder(binding, factory, callback)
+    return EntryItemViewHolder(binding, owner, factory, callback)
   }
 
   override fun onBindViewHolder(holder: EntryItemViewHolder, position: Int) {
     val item = getItem(position)
     holder.bindState(item)
-  }
-
-  override fun onDetachedFromRecyclerView(recyclerView: RecyclerView) {
-    super.onDetachedFromRecyclerView(recyclerView)
-    teardownAdapter(recyclerView)
   }
 
   interface Callback {

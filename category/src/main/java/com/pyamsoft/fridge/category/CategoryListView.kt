@@ -19,6 +19,7 @@ package com.pyamsoft.fridge.category
 import android.view.ViewGroup
 import androidx.annotation.CheckResult
 import androidx.core.view.ViewPropertyAnimatorCompat
+import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.pyamsoft.fridge.category.databinding.CategoryListViewBinding
 import com.pyamsoft.fridge.category.item.CategoryAdapter
@@ -33,6 +34,7 @@ import javax.inject.Inject
 class CategoryListView
 @Inject
 internal constructor(
+    owner: LifecycleOwner,
     factory: CategoryItemComponent.Factory,
     parent: ViewGroup,
 ) : BaseUiView<CategoryViewState, UnitViewEvent, CategoryListViewBinding>(parent) {
@@ -51,7 +53,7 @@ internal constructor(
             isItemPrefetchEnabled = true
           }
 
-      modelAdapter = CategoryAdapter(factory)
+      modelAdapter = CategoryAdapter(owner, factory)
       binding.categoryList.adapter = modelAdapter
     }
 

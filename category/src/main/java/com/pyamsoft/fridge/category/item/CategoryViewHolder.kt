@@ -18,15 +18,20 @@ package com.pyamsoft.fridge.category.item
 
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
+import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.RecyclerView
 import com.pyamsoft.pydroid.arch.ViewBinder
 import com.pyamsoft.pydroid.arch.createViewBinder
 import com.pyamsoft.pydroid.ui.util.layout
+import com.pyamsoft.pydroid.util.doOnDestroy
 import javax.inject.Inject
 
 class CategoryViewHolder
-internal constructor(constraintLayout: ConstraintLayout, factory: CategoryItemComponent.Factory) :
-    RecyclerView.ViewHolder(constraintLayout), ViewBinder<CategoryItemViewState> {
+internal constructor(
+    constraintLayout: ConstraintLayout,
+    owner: LifecycleOwner,
+    factory: CategoryItemComponent.Factory
+) : RecyclerView.ViewHolder(constraintLayout), ViewBinder<CategoryItemViewState> {
 
   private val viewBinder: ViewBinder<CategoryItemViewState>
 
@@ -50,6 +55,8 @@ internal constructor(constraintLayout: ConstraintLayout, factory: CategoryItemCo
         connect(it.id(), ConstraintSet.BOTTOM, ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM)
       }
     }
+
+    owner.doOnDestroy { teardown() }
   }
 
   override fun bindState(state: CategoryItemViewState) {

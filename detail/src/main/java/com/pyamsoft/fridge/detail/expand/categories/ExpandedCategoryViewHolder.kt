@@ -17,17 +17,20 @@
 package com.pyamsoft.fridge.detail.expand.categories
 
 import androidx.constraintlayout.widget.ConstraintSet
+import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.RecyclerView
 import com.pyamsoft.fridge.detail.databinding.ExpandCategoryItemHolderBinding
 import com.pyamsoft.pydroid.arch.ViewBinder
 import com.pyamsoft.pydroid.arch.createViewBinder
 import com.pyamsoft.pydroid.ui.theme.ThemeProvider
 import com.pyamsoft.pydroid.ui.util.layout
+import com.pyamsoft.pydroid.util.doOnDestroy
 import javax.inject.Inject
 
 class ExpandedCategoryViewHolder
 internal constructor(
     binding: ExpandCategoryItemHolderBinding,
+    owner: LifecycleOwner,
     themeProvider: ThemeProvider,
     factory: ExpandCategoryComponent.Factory,
     callback: ExpandItemCategoryListAdapter.Callback
@@ -79,6 +82,8 @@ internal constructor(
         connect(it.id(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
       }
     }
+
+    owner.doOnDestroy { teardown() }
   }
 
   override fun bindState(state: ExpandedCategoryViewState) {

@@ -17,15 +17,17 @@
 package com.pyamsoft.fridge.entry
 
 import android.view.ViewGroup
+import androidx.lifecycle.LifecycleOwner
 import com.pyamsoft.fridge.entry.item.EntryItemComponent
 import javax.inject.Inject
 
 class ReadOnlyEntryList
 @Inject
 internal constructor(
+    owner: LifecycleOwner,
     parent: ViewGroup,
     factory: EntryItemComponent.Factory,
-) : BaseEntryList<ReadOnlyListEvents>(parent, factory) {
+) : BaseEntryList<ReadOnlyListEvents>(owner, parent, factory) {
 
   override fun onRefresh() {
     publish(ReadOnlyListEvents.ForceRefresh)

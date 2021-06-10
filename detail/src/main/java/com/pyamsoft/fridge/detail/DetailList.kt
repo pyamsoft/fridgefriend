@@ -20,6 +20,7 @@ import android.graphics.Color
 import android.graphics.drawable.Drawable
 import android.view.ViewGroup
 import androidx.annotation.CheckResult
+import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.mikepenz.fastadapter.swipe.SimpleSwipeCallback
@@ -52,6 +53,7 @@ import timber.log.Timber
 class DetailList
 @Inject
 internal constructor(
+    owner: LifecycleOwner,
     private val imageLoader: ImageLoader,
     private val theming: ThemeProvider,
     tooltipCreator: TooltipCreator,
@@ -86,6 +88,7 @@ internal constructor(
     doOnInflate {
       modelAdapter =
           DetailListAdapter(
+              owner = owner,
               themeProvider = theming,
               tooltipCreator = tooltipCreator,
               factory = factory,

@@ -18,16 +18,18 @@ package com.pyamsoft.fridge.category.item
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
-import androidx.recyclerview.widget.RecyclerView
 import com.pyamsoft.fridge.category.databinding.CategoryItemHolderLargeBinding
 import com.pyamsoft.fridge.category.databinding.CategoryItemHolderMediumBinding
 import com.pyamsoft.fridge.category.databinding.CategoryItemHolderSmallBinding
-import com.pyamsoft.pydroid.ui.util.teardownAdapter
 
-class CategoryAdapter internal constructor(private val factory: CategoryItemComponent.Factory) :
-    ListAdapter<CategoryItemViewState, CategoryViewHolder>(DIFFER) {
+class CategoryAdapter
+internal constructor(
+    private val owner: LifecycleOwner,
+    private val factory: CategoryItemComponent.Factory
+) : ListAdapter<CategoryItemViewState, CategoryViewHolder>(DIFFER) {
 
   init {
     setHasStableIds(true)
@@ -56,17 +58,12 @@ class CategoryAdapter internal constructor(private val factory: CategoryItemComp
               CategoryItemHolderMediumBinding.inflate(inflater, parent, false).categoryHolder
           else -> CategoryItemHolderLargeBinding.inflate(inflater, parent, false).categoryHolder
         }
-    return CategoryViewHolder(view, factory)
+    return CategoryViewHolder(view, owner, factory)
   }
 
   override fun onBindViewHolder(holder: CategoryViewHolder, position: Int) {
     val state = getItem(position)
     holder.bindState(state)
-  }
-
-  override fun onDetachedFromRecyclerView(recyclerView: RecyclerView) {
-    super.onDetachedFromRecyclerView(recyclerView)
-    teardownAdapter(recyclerView)
   }
 
   companion object {

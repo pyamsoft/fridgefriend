@@ -18,6 +18,7 @@ package com.pyamsoft.fridge.detail.expand
 
 import android.view.ViewGroup
 import androidx.annotation.CheckResult
+import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.pyamsoft.fridge.db.category.FridgeCategory
 import com.pyamsoft.fridge.detail.databinding.ExpandCategoriesBinding
@@ -32,6 +33,7 @@ import javax.inject.Inject
 class ExpandItemCategoryList
 @Inject
 internal constructor(
+    owner: LifecycleOwner,
     themeProvider: ThemeProvider,
     parent: ViewGroup,
     factory: ExpandCategoryComponent.Factory,
@@ -57,6 +59,7 @@ internal constructor(
     doOnInflate {
       modelAdapter =
           ExpandItemCategoryListAdapter(
+              owner = owner,
               themeProvider = themeProvider,
               factory = factory,
               callback =

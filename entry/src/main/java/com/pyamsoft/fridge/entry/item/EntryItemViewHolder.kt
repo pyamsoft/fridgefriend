@@ -16,16 +16,19 @@
 
 package com.pyamsoft.fridge.entry.item
 
+import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.RecyclerView
 import com.pyamsoft.fridge.entry.EntryListAdapter
 import com.pyamsoft.fridge.entry.databinding.EntryListItemHolderBinding
 import com.pyamsoft.pydroid.arch.ViewBinder
 import com.pyamsoft.pydroid.arch.createViewBinder
+import com.pyamsoft.pydroid.util.doOnDestroy
 import javax.inject.Inject
 
 class EntryItemViewHolder
 internal constructor(
     binding: EntryListItemHolderBinding,
+    owner: LifecycleOwner,
     factory: EntryItemComponent.Factory,
     callback: EntryListAdapter.Callback
 ) : RecyclerView.ViewHolder(binding.root), ViewBinder<EntryItemViewState> {
@@ -49,6 +52,8 @@ internal constructor(
             is EntryItemViewEvent.OnLongPress -> callback.onLongPress(bindingAdapterPosition)
           }
         }
+
+    owner.doOnDestroy { teardown() }
   }
 
   override fun bindState(state: EntryItemViewState) {

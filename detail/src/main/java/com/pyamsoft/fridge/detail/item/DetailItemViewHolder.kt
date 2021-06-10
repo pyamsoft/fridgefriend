@@ -17,6 +17,7 @@
 package com.pyamsoft.fridge.detail.item
 
 import androidx.constraintlayout.widget.ConstraintSet
+import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.RecyclerView
 import com.pyamsoft.fridge.detail.databinding.DetailListItemHolderBinding
 import com.pyamsoft.fridge.tooltip.TooltipCreator
@@ -24,12 +25,14 @@ import com.pyamsoft.pydroid.arch.ViewBinder
 import com.pyamsoft.pydroid.arch.createViewBinder
 import com.pyamsoft.pydroid.ui.theme.ThemeProvider
 import com.pyamsoft.pydroid.ui.util.layout
+import com.pyamsoft.pydroid.util.doOnDestroy
 import javax.inject.Inject
 
 class DetailItemViewHolder
 internal constructor(
     binding: DetailListItemHolderBinding,
     editable: Boolean,
+    owner: LifecycleOwner,
     themeProvider: ThemeProvider,
     tooltipCreator: TooltipCreator,
     factory: DetailItemComponent.Factory,
@@ -111,6 +114,8 @@ internal constructor(
         constrainHeight(it.id(), ConstraintSet.WRAP_CONTENT)
       }
     }
+
+    owner.doOnDestroy { teardown() }
   }
 
   override fun bindState(state: DetailItemViewState) {

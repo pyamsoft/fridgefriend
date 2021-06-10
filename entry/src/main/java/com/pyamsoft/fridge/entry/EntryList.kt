@@ -20,6 +20,7 @@ import android.graphics.Color
 import android.graphics.drawable.Drawable
 import android.view.ViewGroup
 import androidx.annotation.CheckResult
+import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.ItemTouchHelper
 import com.mikepenz.fastadapter.swipe.SimpleSwipeCallback
 import com.pyamsoft.fridge.entry.item.EntryItemComponent
@@ -36,11 +37,12 @@ import timber.log.Timber
 class EntryList
 @Inject
 internal constructor(
+    owner: LifecycleOwner,
     private val theming: ThemeProvider,
     private val imageLoader: ImageLoader,
     parent: ViewGroup,
     factory: EntryItemComponent.Factory,
-) : BaseEntryList<EntryViewEvent.ListEvents>(parent, factory) {
+) : BaseEntryList<EntryViewEvent.ListEvents>(owner, parent, factory) {
 
   private var touchHelper: ItemTouchHelper? = null
 
