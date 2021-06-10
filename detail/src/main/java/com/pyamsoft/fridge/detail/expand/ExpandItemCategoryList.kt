@@ -24,8 +24,6 @@ import com.pyamsoft.fridge.detail.databinding.ExpandCategoriesBinding
 import com.pyamsoft.fridge.detail.expand.categories.ExpandCategoryComponent
 import com.pyamsoft.fridge.detail.expand.categories.ExpandItemCategoryListAdapter
 import com.pyamsoft.fridge.detail.expand.categories.ExpandedCategoryViewState
-import com.pyamsoft.fridge.ui.doOnChildRemoved
-import com.pyamsoft.fridge.ui.teardownViewHolderAt
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.arch.UiRender
 import com.pyamsoft.pydroid.ui.theme.ThemeProvider
@@ -59,21 +57,15 @@ internal constructor(
     doOnInflate {
       modelAdapter =
           ExpandItemCategoryListAdapter(
-                  themeProvider = themeProvider,
-                  factory = factory,
-                  callback =
-                      object : ExpandItemCategoryListAdapter.Callback {
+              themeProvider = themeProvider,
+              factory = factory,
+              callback =
+                  object : ExpandItemCategoryListAdapter.Callback {
 
-                        override fun onCategorySelected(index: Int) {
-                          publish(ExpandedViewEvent.ItemEvent.CommitCategory(index))
-                        }
-                      })
-              .apply {
-                val registration = doOnChildRemoved {
-                  binding.expandItemCategories.teardownViewHolderAt(it)
-                }
-                doOnTeardown { registration.unregister() }
-              }
+                    override fun onCategorySelected(index: Int) {
+                      publish(ExpandedViewEvent.ItemEvent.CommitCategory(index))
+                    }
+                  })
       binding.expandItemCategories.adapter = modelAdapter
     }
 

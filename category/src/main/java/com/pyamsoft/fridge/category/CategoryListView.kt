@@ -25,8 +25,6 @@ import com.pyamsoft.fridge.category.item.CategoryAdapter
 import com.pyamsoft.fridge.category.item.CategoryItemComponent
 import com.pyamsoft.fridge.category.item.CategoryItemViewState
 import com.pyamsoft.fridge.ui.animatePopInFromBottom
-import com.pyamsoft.fridge.ui.doOnChildRemoved
-import com.pyamsoft.fridge.ui.teardownViewHolderAt
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.arch.UiRender
 import com.pyamsoft.pydroid.arch.UnitViewEvent
@@ -53,11 +51,7 @@ internal constructor(
             isItemPrefetchEnabled = true
           }
 
-      modelAdapter =
-          CategoryAdapter(factory).apply {
-            val registration = doOnChildRemoved { binding.categoryList.teardownViewHolderAt(it) }
-            doOnTeardown { registration.unregister() }
-          }
+      modelAdapter = CategoryAdapter(factory)
       binding.categoryList.adapter = modelAdapter
     }
 
