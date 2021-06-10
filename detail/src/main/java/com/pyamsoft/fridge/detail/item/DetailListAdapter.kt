@@ -65,6 +65,11 @@ internal constructor(
     teardownAdapter(recyclerView)
   }
 
+  override fun onViewRecycled(holder: DetailItemViewHolder) {
+    super.onViewRecycled(holder)
+    holder.teardown()
+  }
+
   interface Callback {
 
     fun onIncreaseCount(index: Int)

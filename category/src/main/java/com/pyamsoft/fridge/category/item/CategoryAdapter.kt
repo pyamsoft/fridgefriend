@@ -69,6 +69,11 @@ class CategoryAdapter internal constructor(private val factory: CategoryItemComp
     teardownAdapter(recyclerView)
   }
 
+  override fun onViewRecycled(holder: CategoryViewHolder) {
+    super.onViewRecycled(holder)
+    holder.teardown()
+  }
+
   companion object {
 
     private val DIFFER =
