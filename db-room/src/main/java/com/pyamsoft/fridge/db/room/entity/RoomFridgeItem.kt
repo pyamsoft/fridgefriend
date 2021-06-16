@@ -34,8 +34,8 @@ import java.util.Date
         [
             ForeignKey(
                 entity = RoomFridgeEntry::class,
-                parentColumns = arrayOf(RoomFridgeEntry.COLUMN_ID),
-                childColumns = arrayOf(RoomFridgeItem.COLUMN_ENTRY_ID),
+                parentColumns = [RoomFridgeEntry.COLUMN_ID],
+                childColumns = [RoomFridgeItem.COLUMN_ENTRY_ID],
                 onDelete = ForeignKey.CASCADE)])
 internal data class RoomFridgeItem
 internal constructor(

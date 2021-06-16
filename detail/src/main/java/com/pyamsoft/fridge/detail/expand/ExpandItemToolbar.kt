@@ -16,21 +16,16 @@
 
 package com.pyamsoft.fridge.detail.expand
 
-import android.content.res.ColorStateList
 import android.graphics.Color
 import android.graphics.drawable.Drawable
 import android.view.MenuItem
 import android.view.ViewGroup
-import androidx.core.content.ContextCompat
-import com.google.android.material.shape.MaterialShapeDrawable
-import com.google.android.material.shape.RoundedCornerTreatment
-import com.google.android.material.shape.ShapeAppearanceModel
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence.HAVE
 import com.pyamsoft.fridge.db.item.isArchived
 import com.pyamsoft.fridge.detail.R
 import com.pyamsoft.fridge.detail.databinding.ExpandToolbarBinding
-import com.pyamsoft.fridge.ui.R as R3
+import com.pyamsoft.fridge.ui.withRoundedBackground
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.arch.UiRender
 import com.pyamsoft.pydroid.loader.ImageLoader
@@ -38,7 +33,6 @@ import com.pyamsoft.pydroid.loader.ImageTarget
 import com.pyamsoft.pydroid.ui.R as R2
 import com.pyamsoft.pydroid.ui.util.DebouncedOnClickListener
 import com.pyamsoft.pydroid.ui.util.setUpEnabled
-import com.pyamsoft.pydroid.util.asDp
 import com.pyamsoft.pydroid.util.tintWith
 import javax.inject.Inject
 
@@ -79,34 +73,7 @@ internal constructor(
           .also { loaded -> doOnTeardown { loaded.dispose() } }
     }
 
-    doOnInflate {
-      val context = layoutRoot.context
-      val cornerSize = 16.asDp(layoutRoot.context).toFloat()
-
-      val shapeModel =
-          ShapeAppearanceModel.Builder()
-              .apply {
-                setTopRightCorner(RoundedCornerTreatment())
-                setTopLeftCorner(RoundedCornerTreatment())
-                setTopRightCornerSize(cornerSize)
-                setTopLeftCornerSize(cornerSize)
-              }
-              .build()
-
-      // Create background
-      val color = ContextCompat.getColor(context, R3.color.colorPrimary)
-      val materialShapeDrawable = MaterialShapeDrawable(shapeModel)
-      materialShapeDrawable.initializeElevationOverlay(context)
-      materialShapeDrawable.shadowCompatibilityMode =
-          MaterialShapeDrawable.SHADOW_COMPAT_MODE_ALWAYS
-      materialShapeDrawable.fillColor = ColorStateList.valueOf(color)
-      materialShapeDrawable.elevation = 0F
-
-      binding.expandToolbar.apply {
-        elevation = 8.asDp(context).toFloat()
-        background = materialShapeDrawable
-      }
-    }
+    doOnInflate { binding.expandToolbar.withRoundedBackground() }
 
     doOnInflate {
       binding.expandToolbar.apply {
