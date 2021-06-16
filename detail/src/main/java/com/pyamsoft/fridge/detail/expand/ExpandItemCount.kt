@@ -39,16 +39,22 @@ internal constructor(
 
   override val layoutRoot by boundView { expandItemCount }
 
-  private val delegate by lazy {
-    UiEditTextDelegate(binding.expandItemCountEditable) { _, newText ->
-      publish(ExpandedViewEvent.ItemEvent.CommitCount(newText.toIntOrNull() ?: 0))
-    }
-  }
+  private var delegate: UiEditTextDelegate? = null
 
   init {
-    doOnInflate { delegate.create() }
+    doOnInflate {
+      delegate =
+          UiEditTextDelegate.create(binding.expandItemCountEditable) { newText ->
+            publish(ExpandedViewEvent.ItemEvent.CommitCount(newText.toIntOrNull() ?: 0))
+            return@create true
+          }
+              .apply { handleCreate() }
+    }
 
-    doOnTeardown { delegate.destroy() }
+    doOnTeardown {
+      delegate?.handleTeardown()
+      delegate = null
+    }
   }
 
   override fun onRender(state: UiRender<ExpandedViewState>) {
@@ -63,7 +69,7 @@ internal constructor(
   }
 
   private fun handleCount(item: FridgeItem?) {
-    item?.let { delegate.render(getCountAsText(it)) }
+    item?.let { requireNotNull(delegate).handleTextChanged(getCountAsText(it)) }
   }
 
   private fun handleEditable(item: FridgeItem?) {

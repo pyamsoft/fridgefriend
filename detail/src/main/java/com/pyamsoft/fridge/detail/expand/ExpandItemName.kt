@@ -41,11 +41,7 @@ internal constructor(
 
   private val popupWindow = SimilarlyNamedListWindow(parent.context)
 
-  private val delegate by lazy {
-    UiEditTextDelegate(binding.expandItemName) { _, newText ->
-      publish(ExpandedViewEvent.ItemEvent.CommitName(newText))
-    }
-  }
+  private var delegate: UiEditTextDelegate? = null
 
   init {
     doOnInflate {
@@ -70,14 +66,24 @@ internal constructor(
 
     doOnTeardown { popupWindow.teardown() }
 
-    doOnInflate { delegate.create() }
+    doOnInflate {
+      delegate =
+          UiEditTextDelegate.create(binding.expandItemName) { newText ->
+            publish(ExpandedViewEvent.ItemEvent.CommitName(newText))
+            return@create true
+          }
+              .apply { handleCreate() }
+    }
 
-    doOnTeardown { delegate.destroy() }
+    doOnTeardown {
+      delegate?.handleTeardown()
+      delegate = null
+    }
   }
 
   private fun selectSimilar(item: FridgeItem) {
     Timber.d("Similar popup FridgeItem selected: $item")
-    delegate.setText(item.name())
+    requireNotNull(delegate).forceSetText(item.name())
     publish(ExpandedViewEvent.ItemEvent.SelectSimilar(item))
   }
 
@@ -88,7 +94,7 @@ internal constructor(
   }
 
   private fun handleName(item: FridgeItem?) {
-    item?.let { delegate.render(it.name()) }
+    item?.let { requireNotNull(delegate).handleTextChanged(it.name()) }
   }
 
   private fun handleEditable(item: FridgeItem?) {

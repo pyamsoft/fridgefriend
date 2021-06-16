@@ -20,10 +20,12 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.widget.EditText
 import androidx.annotation.CheckResult
+import timber.log.Timber
 
-class UiEditTextDelegate(
-    private val view: EditText,
-    private val watcher: UiTextWatcher,
+class UiEditTextDelegate
+private constructor(
+    private var editText: EditText?,
+    private var onTextChanged: ((String) -> Boolean)?
 ) {
 
   // NOTE(Peter): Hack because Android does not allow us to use Controlled view components like
@@ -39,76 +41,126 @@ class UiEditTextDelegate(
 
   private var textWatcher: TextWatcher? = null
 
+  @CheckResult
+  private fun getEditText(): EditText {
+    return requireNotNull(editText)
+  }
+
   private fun killWatcher() {
-    textWatcher?.also { view.removeTextChangedListener(it) }
+    textWatcher?.also { editText?.removeTextChangedListener(it) }
     textWatcher = null
   }
 
-  @CheckResult
-  private fun createTextWatcher(): TextWatcher {
-    return object : TextWatcher {
-
-      private var oldText = view.text?.toString().orEmpty()
-
-      override fun afterTextChanged(s: Editable) {
-        val newText = s.toString()
-        val previousText = oldText
-        if (newText != previousText) {
-          oldText = newText
-          watcher.onTextChanged(previousText, newText)
-        }
-      }
-
-      override fun beforeTextChanged(
-          s: CharSequence,
-          start: Int,
-          count: Int,
-          after: Int,
-      ) {}
-
-      override fun onTextChanged(
-          s: CharSequence,
-          start: Int,
-          before: Int,
-          count: Int,
-      ) {}
+  private inline fun ignoreWatcher(block: (EditText) -> Unit) {
+    textWatcher?.also { watcher ->
+      val edit = getEditText()
+      ignoreTextWatcher(edit, watcher, block)
     }
   }
 
-  fun create() {
+  fun handleCreate() {
     killWatcher()
-    val watcher = createTextWatcher()
-    view.addTextChangedListener(watcher)
+    val edit = getEditText()
+    val watcher = createTextWatcher(edit, requireNotNull(onTextChanged))
+    edit.addTextChangedListener(watcher)
     textWatcher = watcher
   }
 
-  fun destroy() {
+  fun handleTeardown() {
     killWatcher()
-    clear()
+    editText?.text?.clear()
+
+    editText = null
+    onTextChanged = null
   }
 
-  private inline fun ignoreWatcher(block: () -> Unit) {
-    textWatcher?.also { view.removeTextChangedListener(it) }
-    block()
-    textWatcher?.also { view.addTextChangedListener(it) }
-  }
-
-  fun render(text: String) {
-    if (initialRenderPerformed) {
-      return
-    }
-
-    initialRenderPerformed = true
+  private fun applyText(text: String, stopIfInitialRenderPerformed: Boolean) {
     if (text.isNotBlank()) {
-      setText(text)
+      if (stopIfInitialRenderPerformed) {
+        // Don't keep setting text here as it is too slow
+        if (initialRenderPerformed) {
+          return
+        }
+      }
+
+      ignoreWatcher { it.setTextKeepState(text) }
+    } else {
+      // But if the state has been blanked out, clear out the editable
+      ignoreWatcher { it.text.clear() }
     }
   }
 
-  fun setText(text: String) {
-    ignoreWatcher { view.setTextKeepState(text) }
+  fun forceSetText(text: String) {
+    applyText(text, stopIfInitialRenderPerformed = false)
   }
 
-  fun clear() {
-    ignoreWatcher { view.text.clear() }
+  fun handleTextChanged(text: String) {
+    initialRenderPerformed = true
+    applyText(text, stopIfInitialRenderPerformed = true)
+  }
+
+  companion object {
+
+    /**
+     * onTextChanged is a function which given a string returns a boolean. If it returns false then
+     * the text change is rolled back to the previous text If it returns true, the text change is
+     * approved and continues
+     */
+    @JvmStatic
+    @CheckResult
+    fun create(editText: EditText, onTextChanged: (String) -> Boolean): UiEditTextDelegate {
+      return UiEditTextDelegate(editText, onTextChanged)
+    }
+
+    @JvmStatic
+    private inline fun ignoreTextWatcher(
+        editText: EditText,
+        textWatcher: TextWatcher,
+        block: (EditText) -> Unit
+    ) {
+      editText.removeTextChangedListener(textWatcher)
+      block(editText)
+      editText.addTextChangedListener(textWatcher)
+    }
+
+    @JvmStatic
+    @CheckResult
+    private inline fun createTextWatcher(
+        editText: EditText,
+        crossinline onChange: (String) -> Boolean
+    ): TextWatcher {
+      return object : TextWatcher {
+
+        private var oldText = editText.text?.toString().orEmpty()
+
+        override fun afterTextChanged(s: Editable) {
+          val newText = s.toString()
+          val previousText = oldText
+          if (newText != previousText) {
+            val approved = onChange(newText)
+            if (!approved) {
+              Timber.w("Text change was not approved, roll back: $newText")
+              ignoreTextWatcher(editText, this) { it.setTextKeepState(previousText) }
+            } else {
+              oldText = newText
+            }
+          }
+        }
+
+        override fun beforeTextChanged(
+            s: CharSequence,
+            start: Int,
+            count: Int,
+            after: Int,
+        ) {}
+
+        override fun onTextChanged(
+            s: CharSequence,
+            start: Int,
+            before: Int,
+            count: Int,
+        ) {}
+      }
+    }
   }
 }

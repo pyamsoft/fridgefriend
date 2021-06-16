@@ -48,23 +48,19 @@ internal constructor(
     }
 
     doOnTeardown {
-      onDestroy()
-
+      delegate?.handleTeardown()
       delegate = null
     }
-  }
-
-  private fun onDestroy() {
-    delegate?.destroy()
   }
 
   private fun onCreate(binding: SearchBarBinding) {
     binding.searchbarRoot.isVisible = true
     delegate =
-        UiEditTextDelegate(binding.searchbarName) { _, newText ->
+        UiEditTextDelegate.create(binding.searchbarName) { newText ->
           publish(DetailViewEvent.ToolbarEvent.Search.Query(newText))
+          return@create true
         }
-            .apply { create() }
+            .apply { handleCreate() }
   }
 
   override fun render(state: UiRender<DetailViewState>) {
@@ -72,6 +68,6 @@ internal constructor(
   }
 
   private fun handleSearch(search: String) {
-    delegate?.render(search)
+    requireNotNull(delegate).handleTextChanged(search)
   }
 }
