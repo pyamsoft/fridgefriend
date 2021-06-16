@@ -83,9 +83,11 @@ private constructor(
         }
       }
 
+      initialRenderPerformed = true
       ignoreWatcher { it.setTextKeepState(text) }
     } else {
       // But if the state has been blanked out, clear out the editable
+      initialRenderPerformed = true
       ignoreWatcher { it.text.clear() }
     }
   }
@@ -95,7 +97,6 @@ private constructor(
   }
 
   fun handleTextChanged(text: String) {
-    initialRenderPerformed = true
     applyText(text, stopIfInitialRenderPerformed = true)
   }
 
