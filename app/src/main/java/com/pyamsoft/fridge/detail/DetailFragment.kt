@@ -31,7 +31,7 @@ import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence
 import com.pyamsoft.fridge.detail.expand.ExpandedItemDialog
-import com.pyamsoft.fridge.ui.R
+import com.pyamsoft.fridge.core.R
 import com.pyamsoft.fridge.ui.SnackbarContainer
 import com.pyamsoft.fridge.ui.requireAppBarActivity
 import com.pyamsoft.pydroid.arch.StateSaver

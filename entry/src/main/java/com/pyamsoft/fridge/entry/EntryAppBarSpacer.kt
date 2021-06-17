@@ -18,7 +18,7 @@ package com.pyamsoft.fridge.entry
 
 import android.view.ViewGroup
 import androidx.lifecycle.LifecycleOwner
-import com.pyamsoft.fridge.ui.appbar.AppBarActivity
+import com.pyamsoft.pydroid.ui.app.AppBarActivity
 import com.pyamsoft.fridge.ui.view.UiAppBarSpacer
 import javax.inject.Inject
 

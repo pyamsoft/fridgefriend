@@ -23,7 +23,6 @@ import androidx.fragment.app.Fragment
 import com.pyamsoft.fridge.FridgeComponent
 import com.pyamsoft.fridge.core.FridgeViewModelFactory
 import com.pyamsoft.fridge.main.VersionChecker
-import com.pyamsoft.fridge.ui.applyToolbarOffset
 import com.pyamsoft.fridge.ui.requireAppBarActivity
 import com.pyamsoft.pydroid.arch.StateSaver
 import com.pyamsoft.pydroid.arch.UiController
@@ -33,13 +32,14 @@ import com.pyamsoft.pydroid.inject.Injector
 import com.pyamsoft.pydroid.ui.arch.fromViewModelFactory
 import com.pyamsoft.pydroid.ui.settings.AppSettingsFragment
 import com.pyamsoft.pydroid.ui.settings.AppSettingsPreferenceFragment
+import com.pyamsoft.pydroid.ui.util.applyAppBarOffset
 import javax.inject.Inject
 
 internal class SettingsFragment : AppSettingsFragment() {
 
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     super.onViewCreated(view, savedInstanceState)
-    view.applyToolbarOffset(requireAppBarActivity(), viewLifecycleOwner)
+    view.applyAppBarOffset(requireAppBarActivity(), viewLifecycleOwner)
   }
 
   override fun provideSettingsFragment(): AppSettingsPreferenceFragment {

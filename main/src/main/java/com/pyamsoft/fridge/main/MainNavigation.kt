@@ -26,7 +26,7 @@ import androidx.core.view.doOnLayout
 import androidx.core.view.updatePadding
 import androidx.lifecycle.LifecycleOwner
 import com.pyamsoft.fridge.main.databinding.MainNavigationBinding
-import com.pyamsoft.fridge.ui.R as R2
+import com.pyamsoft.fridge.core.R as R2
 import com.pyamsoft.fridge.ui.animatePopInFromBottom
 import com.pyamsoft.fridge.ui.createRoundedBackground
 import com.pyamsoft.pydroid.arch.BaseUiView

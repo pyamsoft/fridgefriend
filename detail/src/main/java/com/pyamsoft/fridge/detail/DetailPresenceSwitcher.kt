@@ -22,7 +22,7 @@ import androidx.core.view.isVisible
 import com.google.android.material.tabs.TabLayout
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.detail.databinding.DetailPresenceSwitchBinding
-import com.pyamsoft.fridge.ui.appbar.AppBarActivity
+import com.pyamsoft.pydroid.ui.app.AppBarActivity
 import com.pyamsoft.pydroid.arch.UiRender
 import com.pyamsoft.pydroid.arch.UiView
 import javax.inject.Inject

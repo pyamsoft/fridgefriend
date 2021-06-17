@@ -23,7 +23,7 @@ import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.view.ViewPropertyAnimatorCompat
 import androidx.core.view.updatePadding
 import com.pyamsoft.fridge.detail.databinding.DetailContainerBinding
-import com.pyamsoft.fridge.ui.R
+import com.pyamsoft.fridge.core.R
 import com.pyamsoft.fridge.ui.animatePopInFromBottom
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.arch.UiRender

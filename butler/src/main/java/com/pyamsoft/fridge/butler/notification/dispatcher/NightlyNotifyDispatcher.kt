@@ -24,7 +24,7 @@ import androidx.core.app.NotificationCompat
 import androidx.core.text.bold
 import androidx.core.text.buildSpannedString
 import com.pyamsoft.fridge.butler.notification.NightlyNotifyData
-import com.pyamsoft.fridge.ui.R
+import com.pyamsoft.fridge.core.R
 import com.pyamsoft.pydroid.notify.NotifyData
 import com.pyamsoft.pydroid.notify.NotifyId
 import javax.inject.Inject

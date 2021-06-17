@@ -71,6 +71,7 @@ dependencies {
   implementation "com.github.pyamsoft.pydroid:inject:$pydroid"
   api "com.github.pyamsoft.pydroid:notify:$pydroid"
 
+  implementation project(':core')
   implementation project(':db')
   implementation project(':preference')
 }

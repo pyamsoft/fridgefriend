@@ -33,7 +33,8 @@ import com.pyamsoft.fridge.detail.item.DetailItemViewHolder
 import com.pyamsoft.fridge.detail.item.DetailItemViewState
 import com.pyamsoft.fridge.detail.item.DetailListAdapter
 import com.pyamsoft.fridge.tooltip.TooltipCreator
-import com.pyamsoft.fridge.ui.R as R2
+import com.pyamsoft.fridge.ui.R as R4
+import com.pyamsoft.fridge.core.R as R2
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.arch.UiRender
 import com.pyamsoft.pydroid.loader.ImageLoader
@@ -288,8 +289,8 @@ internal constructor(
             .asDrawable()
             .load(
                 when {
-                  swipeAwayDeletes -> R2.drawable.ic_delete_24dp
-                  swipeAwayRestores -> R2.drawable.ic_delete_24dp
+                  swipeAwayDeletes -> R4.drawable.ic_delete_24dp
+                  swipeAwayRestores -> R4.drawable.ic_delete_24dp
                   else -> R2.drawable.ic_spoiled_24dp
                 })
             .mutate { it.themeIcon() }
@@ -310,7 +311,7 @@ internal constructor(
             .asDrawable()
             .load(
                 when {
-                  swipeAwayDeletes -> R2.drawable.ic_delete_24dp
+                  swipeAwayDeletes -> R4.drawable.ic_delete_24dp
                   swipeAwayRestores -> R.drawable.ic_restore_from_trash_24
                   else -> R2.drawable.ic_consumed_24dp
                 })

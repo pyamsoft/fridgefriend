@@ -43,8 +43,8 @@ import com.pyamsoft.fridge.initOnAppStart
 import com.pyamsoft.fridge.search.SearchFragment
 import com.pyamsoft.fridge.setting.SettingsFragment
 import com.pyamsoft.fridge.ui.SnackbarContainer
-import com.pyamsoft.fridge.ui.appbar.AppBarActivity
-import com.pyamsoft.fridge.ui.appbar.AppBarActivityProvider
+import com.pyamsoft.pydroid.ui.app.AppBarActivity
+import com.pyamsoft.pydroid.ui.app.AppBarActivityProvider
 import com.pyamsoft.pydroid.arch.StateSaver
 import com.pyamsoft.pydroid.arch.UiController
 import com.pyamsoft.pydroid.arch.createComponent

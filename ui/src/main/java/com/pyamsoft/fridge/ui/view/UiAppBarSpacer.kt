@@ -18,13 +18,13 @@ package com.pyamsoft.fridge.ui.view
 
 import android.view.ViewGroup
 import androidx.lifecycle.LifecycleOwner
-import com.pyamsoft.fridge.ui.appbar.AppBarActivity
-import com.pyamsoft.fridge.ui.applyToolbarOffset
 import com.pyamsoft.fridge.ui.databinding.UiAppbarSpacerBinding
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.arch.UiRender
 import com.pyamsoft.pydroid.arch.UiViewEvent
 import com.pyamsoft.pydroid.arch.UiViewState
+import com.pyamsoft.pydroid.ui.app.AppBarActivity
+import com.pyamsoft.pydroid.ui.util.applyAppBarOffset
 
 abstract class UiAppBarSpacer<S : UiViewState, V : UiViewEvent>
 protected constructor(
@@ -38,7 +38,7 @@ protected constructor(
   final override val layoutRoot by boundView { uiAppbarRoot }
 
   init {
-    doOnInflate { binding.uiAppbarSpace.applyToolbarOffset(appBarActivity, owner) }
+    doOnInflate { binding.uiAppbarSpace.applyAppBarOffset(appBarActivity, owner) }
   }
 
   final override fun onRender(state: UiRender<S>) {

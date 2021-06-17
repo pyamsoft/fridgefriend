@@ -19,7 +19,7 @@ package com.pyamsoft.fridge.category
 import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.lifecycle.LifecycleOwner
-import com.pyamsoft.fridge.ui.appbar.AppBarActivity
+import com.pyamsoft.pydroid.ui.app.AppBarActivity
 import com.pyamsoft.fridge.ui.view.UiHeroImage
 import com.pyamsoft.pydroid.arch.UiRender
 import com.pyamsoft.pydroid.arch.UnitViewEvent

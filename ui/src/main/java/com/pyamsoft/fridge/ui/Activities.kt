@@ -18,7 +18,7 @@ package com.pyamsoft.fridge.ui
 
 import androidx.annotation.CheckResult
 import androidx.fragment.app.Fragment
-import com.pyamsoft.fridge.ui.appbar.AppBarActivity
+import com.pyamsoft.pydroid.ui.app.AppBarActivity
 
 val Fragment.appBarActivity: AppBarActivity?
   @get:CheckResult

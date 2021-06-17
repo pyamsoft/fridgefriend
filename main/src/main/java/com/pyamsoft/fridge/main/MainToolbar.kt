@@ -30,7 +30,7 @@ import com.google.android.material.R as R2
 import com.pyamsoft.fridge.core.PRIVACY_POLICY_URL
 import com.pyamsoft.fridge.core.TERMS_CONDITIONS_URL
 import com.pyamsoft.fridge.main.databinding.MainToolbarBinding
-import com.pyamsoft.fridge.ui.appbar.AppBarActivityProvider
+import com.pyamsoft.pydroid.ui.app.AppBarActivityProvider
 import com.pyamsoft.fridge.ui.withRoundedBackground
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.arch.UiRender

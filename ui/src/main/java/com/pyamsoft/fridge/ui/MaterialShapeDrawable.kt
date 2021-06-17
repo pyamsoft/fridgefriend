@@ -26,6 +26,7 @@ import androidx.core.content.ContextCompat
 import com.google.android.material.shape.MaterialShapeDrawable
 import com.google.android.material.shape.RoundedCornerTreatment
 import com.google.android.material.shape.ShapeAppearanceModel
+import com.pyamsoft.fridge.core.R
 import com.pyamsoft.pydroid.util.asDp
 
 @CheckResult

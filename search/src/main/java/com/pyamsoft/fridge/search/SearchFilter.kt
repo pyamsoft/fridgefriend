@@ -23,7 +23,7 @@ import androidx.lifecycle.LifecycleOwner
 import com.pyamsoft.fridge.detail.DetailViewState
 import com.pyamsoft.fridge.detail.snackbar.CustomSnackbar
 import com.pyamsoft.fridge.search.databinding.SearchFilterBinding
-import com.pyamsoft.fridge.ui.R
+import com.pyamsoft.fridge.core.R
 import com.pyamsoft.fridge.ui.SnackbarContainer
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.arch.UiRender

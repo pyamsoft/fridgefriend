@@ -20,10 +20,11 @@ import android.view.ViewGroup
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.view.updatePadding
 import androidx.lifecycle.LifecycleOwner
+import com.pyamsoft.fridge.core.R
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.detail.databinding.DetailAddNewBinding
 import com.pyamsoft.fridge.detail.snackbar.CustomSnackbar
-import com.pyamsoft.fridge.ui.R
+import com.pyamsoft.fridge.ui.R as R2
 import com.pyamsoft.fridge.ui.SnackbarContainer
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.arch.UiRender
@@ -52,7 +53,7 @@ internal constructor(
   init {
     doOnInflate {
       imageLoader
-          .load(R.drawable.ic_add_24dp)
+          .load(R2.drawable.ic_add_24dp)
           .into(binding.detailAddNewItem)
           .disposeOnDestroy(owner)
 
