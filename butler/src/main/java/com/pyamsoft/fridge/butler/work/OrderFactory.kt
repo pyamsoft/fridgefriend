@@ -20,7 +20,6 @@ import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.butler.params.ItemParameters
 import javax.inject.Singleton
 
-@Singleton
 interface OrderFactory {
 
   @CheckResult fun itemOrder(params: ItemParameters): Order
