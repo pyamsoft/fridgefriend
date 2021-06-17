@@ -33,7 +33,7 @@ import com.pyamsoft.pydroid.ui.PYDroid
 import com.pyamsoft.pydroid.util.isDebugMode
 import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
 
 class FridgeFriend : Application() {
@@ -50,6 +50,8 @@ class FridgeFriend : Application() {
 
     return@lazy createComponent(PYDroid.init(this, parameters))
   }
+
+  private val applicationScope by lazy(LazyThreadSafetyMode.NONE) { MainScope() }
 
   @CheckResult
   private fun createComponent(provider: ModuleProvider): FridgeComponent {
@@ -70,16 +72,11 @@ class FridgeFriend : Application() {
   }
 
   private fun beginWork() {
-    // NOTE: We use GlobalScope here because this is an application level thing
-    // Maybe its an anti-pattern but I think in controlled use, its okay.
-    //
-    // https://medium.com/specto/android-startup-tip-dont-use-kotlin-coroutines-a7b3f7176fe5
-    //
     // Coroutine start up is slow. What we can do instead is create a handler, which is cheap, and
     // post
     // to the main thread to defer this work until after start up is done
     Handler(Looper.getMainLooper()).post {
-      GlobalScope.launch(context = Dispatchers.Default) {
+      applicationScope.launch(context = Dispatchers.Default) {
         requireNotNull(butler).initOnAppStart(requireNotNull(orderFactory))
       }
     }
