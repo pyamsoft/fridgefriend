@@ -17,7 +17,6 @@
 package com.pyamsoft.fridge.detail.expand.move
 
 import androidx.annotation.CheckResult
-import com.pyamsoft.fridge.core.FragmentScope
 import com.pyamsoft.fridge.entry.EntryListStateModel
 import dagger.Binds
 import dagger.Module
@@ -31,7 +30,6 @@ abstract class ItemMoveModule {
   /** Do this so that both ItemMove view models share the same backing EntryListStateModel */
   @Binds
   @CheckResult
-  @FragmentScope
   @MoveInternalApi
   internal abstract fun bindListStateModel(impl: EntryListStateModel): EntryListStateModel
 }

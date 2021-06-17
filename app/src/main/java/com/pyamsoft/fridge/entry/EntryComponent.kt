@@ -21,6 +21,7 @@ import android.view.ViewGroup
 import androidx.annotation.CheckResult
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModel
+import com.pyamsoft.fridge.core.FragmentScope
 import com.pyamsoft.fridge.core.ViewModelFactoryModule
 import com.pyamsoft.fridge.tooltip.balloon.TooltipModule
 import com.pyamsoft.fridge.ui.ThemeProviderModule
@@ -33,6 +34,7 @@ import dagger.Subcomponent
 import dagger.multibindings.ClassKey
 import dagger.multibindings.IntoMap
 
+@FragmentScope
 @Subcomponent(
     modules =
         [

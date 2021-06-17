@@ -43,6 +43,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
+// Used to share this single state model between entire fragment scope
+// Used for Detail module and Search module
 @FragmentScope
 class DetailListStateModel
 @Inject

@@ -17,6 +17,7 @@
 package com.pyamsoft.fridge.entry
 
 import androidx.annotation.CheckResult
+import com.pyamsoft.fridge.core.FragmentScope
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.entry.FridgeEntryChangeEvent
 import com.pyamsoft.fridge.db.item.FridgeItem
@@ -33,6 +34,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
+// Share this single StateModel between the entire fragment scope
+// Used particularly for ItemMove module
+@FragmentScope
 class EntryListStateModel
 @Inject
 constructor(
