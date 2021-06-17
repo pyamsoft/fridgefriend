@@ -27,7 +27,6 @@ import com.pyamsoft.fridge.core.PRIVACY_POLICY_URL
 import com.pyamsoft.fridge.core.TERMS_CONDITIONS_URL
 import com.pyamsoft.fridge.main.MainActivity
 import com.pyamsoft.pydroid.bootstrap.libraries.OssLibraries
-import com.pyamsoft.pydroid.bootstrap.libraries.OssLicenses
 import com.pyamsoft.pydroid.ui.ModuleProvider
 import com.pyamsoft.pydroid.ui.PYDroid
 import com.pyamsoft.pydroid.util.isDebugMode
@@ -132,19 +131,9 @@ class FridgeFriend : Application() {
           "https://github.com/mikepenz/fastadapter",
           "The bullet proof, fast and easy to use adapter library, which minimizes developing time to a fraction...")
       OssLibraries.add(
-          "OsmDroid", "https://github.com/osmdroid/osmdroid", "OpenStreetMap-Tools for Android")
-      OssLibraries.add(
           "Balloon",
           "https://github.com/skydoves/Balloon",
           "A lightweight popup like tooltips, fully customizable with arrow and animations.")
-      OssLibraries.add(
-          "Google Play Location Services",
-          "https://developers.google.com/android/",
-          "Google Play Services Location client for Android.",
-          license =
-              OssLicenses.custom(
-                  license = "Custom Google License",
-                  location = "https://developer.android.com/distribute/play-services"))
     }
   }
 }
