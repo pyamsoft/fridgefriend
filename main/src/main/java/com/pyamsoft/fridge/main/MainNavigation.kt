@@ -16,6 +16,7 @@
 
 package com.pyamsoft.fridge.main
 
+import android.graphics.drawable.Drawable
 import android.os.Handler
 import android.os.Looper
 import android.view.ViewGroup
@@ -27,9 +28,10 @@ import androidx.lifecycle.LifecycleOwner
 import com.pyamsoft.fridge.main.databinding.MainNavigationBinding
 import com.pyamsoft.fridge.ui.R as R2
 import com.pyamsoft.fridge.ui.animatePopInFromBottom
-import com.pyamsoft.fridge.ui.withRoundedBackground
+import com.pyamsoft.fridge.ui.createRoundedBackground
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.arch.UiRender
+import com.pyamsoft.pydroid.util.asDp
 import com.pyamsoft.pydroid.util.doOnApplyWindowInsets
 import javax.inject.Inject
 import timber.log.Timber
@@ -45,11 +47,15 @@ internal constructor(
 
   override val layoutRoot by boundView { mainBottomNavigationMenu }
 
+  private var backgroundDrawable: Drawable? = null
+
   private val handler = Handler(Looper.getMainLooper())
   private var animator: ViewPropertyAnimatorCompat? = null
 
   init {
     doOnInflate {
+      backgroundDrawable =
+          createRoundedBackground(layoutRoot.context, R2.color.colorPrimarySeeThrough)
       correctBackground()
       animateIn()
     }
@@ -89,6 +95,8 @@ internal constructor(
     doOnTeardown {
       animator?.cancel()
       animator = null
+
+      backgroundDrawable = null
     }
   }
 
@@ -97,7 +105,10 @@ internal constructor(
    * through the transparent bar
    */
   private fun correctBackground() {
-    binding.mainBottomNavigationMenu.withRoundedBackground(R2.color.colorPrimarySeeThrough)
+    binding.mainBottomNavigationMenu.apply {
+      background = requireNotNull(backgroundDrawable)
+      elevation = 8.asDp(context).toFloat()
+    }
   }
 
   private fun animateIn() {
@@ -107,6 +118,7 @@ internal constructor(
   }
 
   override fun onRender(state: UiRender<MainViewState>) {
+    correctBackground()
     state.mapChanged { it.page }.render(viewScope) { handlePage(it) }
   }
 
