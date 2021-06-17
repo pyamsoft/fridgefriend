@@ -29,9 +29,6 @@ class ItemInjector(context: Context) : BaseInjector<ItemParameters>(context) {
 
   @JvmField @Inject internal var runner: ItemRunner? = null
 
-  // TODO(Peter) For some reason this is null if we inject it in BaseInjector
-  @JvmField @Inject internal var orderFactory: OrderFactory? = null
-
   override suspend fun onExecute(
       context: Context,
       id: UUID,

@@ -20,7 +20,6 @@ import android.content.Context
 import com.pyamsoft.fridge.butler.params.EmptyParameters
 import com.pyamsoft.fridge.butler.runner.NightlyRunner
 import com.pyamsoft.fridge.butler.runner.WorkResult
-import com.pyamsoft.fridge.butler.work.OrderFactory
 import com.pyamsoft.pydroid.ui.Injector
 import java.util.UUID
 import javax.inject.Inject
@@ -28,9 +27,6 @@ import javax.inject.Inject
 class NightlyInjector(context: Context) : BaseInjector<EmptyParameters>(context) {
 
   @JvmField @Inject internal var runner: NightlyRunner? = null
-
-  // TODO(Peter) For some reason this is null if we inject it in BaseInjector
-  @JvmField @Inject internal var orderFactory: OrderFactory? = null
 
   override suspend fun onExecute(
       context: Context,
