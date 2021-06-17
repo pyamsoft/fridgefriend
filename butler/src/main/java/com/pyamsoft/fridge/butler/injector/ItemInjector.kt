@@ -21,7 +21,7 @@ import com.pyamsoft.fridge.butler.params.ItemParameters
 import com.pyamsoft.fridge.butler.runner.ItemRunner
 import com.pyamsoft.fridge.butler.runner.WorkResult
 import com.pyamsoft.fridge.butler.work.OrderFactory
-import com.pyamsoft.pydroid.ui.Injector
+import com.pyamsoft.pydroid.inject.Injector
 import java.util.UUID
 import javax.inject.Inject
 

@@ -20,7 +20,7 @@ import android.content.Context
 import com.pyamsoft.fridge.butler.params.EmptyParameters
 import com.pyamsoft.fridge.butler.runner.NightlyRunner
 import com.pyamsoft.fridge.butler.runner.WorkResult
-import com.pyamsoft.pydroid.ui.Injector
+import com.pyamsoft.pydroid.inject.Injector
 import java.util.UUID
 import javax.inject.Inject
 
