@@ -81,8 +81,11 @@ internal constructor(
     doOnCleared { updateDelegate.teardown() }
 
     viewModelScope.launch(context = Dispatchers.Default) {
-      val categories = interactor.loadAllCategories()
-      setState { copy(categories = listOf(FridgeCategory.empty()) + categories) }
+      interactor
+          .loadAllCategories()
+          .onSuccess { setState { copy(categories = listOf(FridgeCategory.empty()) + it) } }
+          .onFailure { Timber.e(it, "Error loading item categories") }
+          .onFailure { setState { copy(categories = emptyList()) } }
     }
 
     viewModelScope.launch(context = Dispatchers.Default) {
@@ -302,25 +305,33 @@ internal constructor(
 
   private fun findSameNamedItems(item: FridgeItem) {
     viewModelScope.launch(context = Dispatchers.Default) {
-      val sameNamedItems = interactor.findSameNamedItems(item)
-      setState { copy(sameNamedItems = sameNamedItems) }
+      interactor
+          .findSameNamedItems(item)
+          .onSuccess { setState { copy(sameNamedItems = it) } }
+          .onFailure { Timber.e(it, "Error loading same named items") }
+          .onFailure { setState { copy(sameNamedItems = emptyList()) } }
     }
   }
 
   private fun findSimilarItems(rootItem: FridgeItem) {
     viewModelScope.launch(context = Dispatchers.Default) {
-      val similarItems = interactor.findSimilarNamedItems(rootItem)
-      setState {
-        copy(
-            similarItems =
-                similarItems
-                    // For now since we do not have the full similar item support
-                    .distinctBy { it.name().lowercase(Locale.getDefault()).trim() }
-                    .map { item ->
-                      ExpandedViewState.SimilarItem(
-                          item, item.name().lowercase(Locale.getDefault()))
-                    })
-      }
+      interactor
+          .findSimilarNamedItems(rootItem)
+          .onSuccess { items ->
+            setState {
+              copy(
+                  similarItems =
+                      items
+                          // For now since we do not have the full similar item support
+                          .distinctBy { it.name().lowercase(Locale.getDefault()).trim() }
+                          .map { item ->
+                            ExpandedViewState.SimilarItem(
+                                item, item.name().lowercase(Locale.getDefault()))
+                          })
+            }
+          }
+          .onFailure { Timber.e(it, "Error loading similar named items") }
+          .onFailure { setState { copy(similarItems = emptyList()) } }
     }
   }
 

@@ -23,9 +23,11 @@ import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItemQueryDao
 import com.pyamsoft.fridge.db.persist.PersistentCategories
 import com.pyamsoft.pydroid.core.Enforcer
+import com.pyamsoft.pydroid.core.ResultWrapper
 import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import timber.log.Timber
 
 class CategoryInteractor
 @Inject
@@ -49,19 +51,26 @@ internal constructor(
   }
 
   @CheckResult
-  suspend fun loadCategories(): List<CategoryViewState.CategoryItemsPairing> =
+  suspend fun loadCategories(): ResultWrapper<List<CategoryViewState.CategoryItemsPairing>> =
       withContext(context = Dispatchers.Default) {
         Enforcer.assertOffMainThread()
-        val categories = loadFridgeCategories()
-        val items = loadFridgeItems()
-        return@withContext categories.map { category ->
-          CategoryViewState.CategoryItemsPairing(
-              category,
-              items
-                  .asSequence()
-                  .filterNot { it.categoryId() == null }
-                  .filter { it.categoryId() == category.id() }
-                  .toList())
+
+        return@withContext try {
+          val categories = loadFridgeCategories()
+          val items = loadFridgeItems()
+          ResultWrapper.success(
+              categories.map { category ->
+                CategoryViewState.CategoryItemsPairing(
+                    category,
+                    items
+                        .asSequence()
+                        .filterNot { it.categoryId() == null }
+                        .filter { it.categoryId() == category.id() }
+                        .toList())
+              })
+        } catch (e: Throwable) {
+          Timber.e(e, "Error loading categories")
+          ResultWrapper.failure(e)
         }
       }
 }

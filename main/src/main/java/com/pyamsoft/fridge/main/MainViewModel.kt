@@ -74,13 +74,19 @@ internal constructor(
 
   private fun refreshBadgeCounts() {
     viewModelScope.launch(context = Dispatchers.Default) {
-      val neededCount = interactor.getNeededCount()
-      setState { copy(countNeeded = neededCount) }
+      interactor
+          .getNeededCount()
+          .onFailure { Timber.e(it, "Error getting needed count") }
+          .recover { 0 }
+          .onSuccess { setState { copy(countNeeded = it) } }
     }
 
     viewModelScope.launch(context = Dispatchers.Default) {
-      val expiredExpiringCount = interactor.getExpiredOrExpiringCount()
-      setState { copy(countExpiringOrExpired = expiredExpiringCount) }
+      interactor
+          .getExpiredOrExpiringCount()
+          .onFailure { Timber.e(it, "Error getting expired/expiring count") }
+          .recover { 0 }
+          .onSuccess { setState { copy(countExpiringOrExpired = it) } }
     }
   }
 

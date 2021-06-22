@@ -103,8 +103,11 @@ internal constructor(
 
     scope.launch(context = Dispatchers.Default) {
       if (!isAllEntries) {
-        val entry = interactor.loadEntry(entryId)
-        setState { copy(entry = entry) }
+        interactor
+            .loadEntry(entryId)
+            .onSuccess { setState { copy(entry = it) } }
+            .onFailure { Timber.e(it, "Failed to initialize entry") }
+            .onFailure { setState { copy(entry = null) } }
       }
     }
 

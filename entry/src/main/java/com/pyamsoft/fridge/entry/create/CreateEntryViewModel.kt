@@ -41,14 +41,18 @@ internal constructor(
       highlander<ResultWrapper<Boolean>, FridgeEntry> { entry -> interactor.commit(entry) }
 
   private val loadRunner =
-      highlander<FridgeEntry?, FridgeEntry.Id> { id ->
-        if (id.isEmpty()) FridgeEntry.create("") else interactor.loadEntry(id)
+      highlander<ResultWrapper<FridgeEntry>, FridgeEntry.Id> { id ->
+        if (id.isEmpty()) ResultWrapper.success(FridgeEntry.create(""))
+        else interactor.loadEntry(id)
       }
 
   init {
     viewModelScope.launch(context = Dispatchers.Default) {
-      val entry = loadRunner.call(entryId)
-      setState { copy(entry = entry) }
+      loadRunner
+          .call(entryId)
+          .onSuccess { setState { copy(entry = it) } }
+          .onFailure { Timber.e(it, "Error loading entry: $entryId") }
+          .onFailure { setState { copy(throwable = it) } }
     }
   }
 

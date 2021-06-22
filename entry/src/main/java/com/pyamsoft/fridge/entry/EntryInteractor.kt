@@ -112,20 +112,33 @@ internal constructor(
       }
 
   @CheckResult
-  suspend fun loadEntry(id: FridgeEntry.Id): FridgeEntry =
+  suspend fun loadEntry(id: FridgeEntry.Id): ResultWrapper<FridgeEntry> =
       withContext(context = Dispatchers.IO) {
         Enforcer.assertOffMainThread()
-        return@withContext entryQueryDao.query(false).first { it.id() == id }
+
+        return@withContext try {
+          ResultWrapper.success(entryQueryDao.query(false).first { it.id() == id })
+        } catch (e: Throwable) {
+          Timber.e(e, "Error loading entry $id")
+          ResultWrapper.failure(e)
+        }
       }
 
-  suspend fun delete(entry: FridgeEntry, offerUndo: Boolean) =
+  @CheckResult
+  suspend fun delete(entry: FridgeEntry, offerUndo: Boolean): ResultWrapper<Boolean> =
       withContext(context = Dispatchers.IO) {
+        Enforcer.assertOffMainThread()
         require(entry.isReal()) { "Entry must be real" }
 
-        Enforcer.assertOffMainThread()
-        entryDeleteDao.delete(entry, offerUndo)
+        return@withContext try {
+          ResultWrapper.success(entryDeleteDao.delete(entry, offerUndo))
+        } catch (e: Throwable) {
+          Timber.e(e, "Error deleting entry $entry")
+          ResultWrapper.failure(e)
+        }
       }
 
+  @CheckResult
   suspend fun commit(entry: FridgeEntry): ResultWrapper<Boolean> =
       withContext(context = Dispatchers.IO) {
         Enforcer.assertOffMainThread()

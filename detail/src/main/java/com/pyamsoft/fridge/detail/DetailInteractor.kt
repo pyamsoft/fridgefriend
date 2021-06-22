@@ -119,7 +119,7 @@ internal constructor(
       }
 
   @CheckResult
-  suspend fun findSameNamedItems(item: FridgeItem): Collection<FridgeItem> =
+  suspend fun findSameNamedItems(item: FridgeItem): ResultWrapper<Collection<FridgeItem>> =
       withContext(context = Dispatchers.Default) {
         Enforcer.assertOffMainThread()
 
@@ -127,36 +127,58 @@ internal constructor(
         // This will currently only prompt the user when they mark something as NEED that they
         // already own
         if (item.presence() == Presence.HAVE) {
-          return@withContext emptyList()
+          return@withContext ResultWrapper.success(emptyList())
         }
 
-        return@withContext itemQueryDao.querySameNameDifferentPresence(
-            false, item.name().trim().lowercase(Locale.getDefault()), item.presence())
+        return@withContext try {
+          ResultWrapper.success(
+              itemQueryDao.querySameNameDifferentPresence(
+                  false, item.name().trim().lowercase(Locale.getDefault()), item.presence()))
+        } catch (e: Throwable) {
+          Timber.e(e, "Error finding same named items: $item")
+          ResultWrapper.failure(e)
+        }
       }
 
   @CheckResult
-  suspend fun findSimilarNamedItems(item: FridgeItem): Collection<FridgeItem> =
+  suspend fun findSimilarNamedItems(item: FridgeItem): ResultWrapper<Collection<FridgeItem>> =
       withContext(context = Dispatchers.Default) {
         Enforcer.assertOffMainThread()
-        return@withContext itemQueryDao.querySimilarNamedItems(
-            false, item.id(), item.name().trim().lowercase(Locale.getDefault())
-        )
+        return@withContext try {
+          ResultWrapper.success(
+              itemQueryDao.querySimilarNamedItems(
+                  false, item.id(), item.name().trim().lowercase(Locale.getDefault())))
+        } catch (e: Throwable) {
+          Timber.e(e, "Error finding similar named items: $item")
+          ResultWrapper.failure(e)
+        }
       }
 
   @CheckResult
-  suspend fun loadAllCategories(): List<FridgeCategory> =
+  suspend fun loadAllCategories(): ResultWrapper<List<FridgeCategory>> =
       withContext(context = Dispatchers.Default) {
         Enforcer.assertOffMainThread()
-        persistentCategories.guaranteePersistentCategoriesCreated()
-        return@withContext categoryQueryDao.query(false)
+
+        return@withContext try {
+          persistentCategories.guaranteePersistentCategoriesCreated()
+          ResultWrapper.success(categoryQueryDao.query(false))
+        } catch (e: Throwable) {
+          Timber.e(e, "Error loading all categories")
+          ResultWrapper.failure(e)
+        }
       }
 
   @CheckResult
-  suspend fun loadEntry(entryId: FridgeEntry.Id): FridgeEntry =
+  suspend fun loadEntry(entryId: FridgeEntry.Id): ResultWrapper<FridgeEntry> =
       withContext(context = Dispatchers.Default) {
         Enforcer.assertOffMainThread()
         ensureEntryId(entryId)
-        return@withContext entryQueryDao.query(false).first { it.id() == entryId }
+        return@withContext try {
+          ResultWrapper.success(entryQueryDao.query(false).first { it.id() == entryId })
+        } catch (e: Throwable) {
+          Timber.e(e, "Error loading entry $entryId")
+          ResultWrapper.failure(e)
+        }
       }
 
   @CheckResult
@@ -245,6 +267,7 @@ internal constructor(
         return@withContext itemRealtime.listenForChanges(id, onChange)
       }
 
+  @CheckResult
   suspend fun commit(item: FridgeItem): ResultWrapper<Unit> =
       withContext(context = Dispatchers.Default) {
         Enforcer.assertOffMainThread()
@@ -274,6 +297,7 @@ internal constructor(
     }
   }
 
+  @CheckResult
   suspend fun delete(
       item: FridgeItem,
       offerUndo: Boolean,

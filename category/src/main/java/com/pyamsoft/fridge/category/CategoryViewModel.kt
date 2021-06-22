@@ -22,6 +22,7 @@ import com.pyamsoft.pydroid.arch.UnitControllerEvent
 import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import timber.log.Timber
 
 class CategoryViewModel
 @Inject
@@ -33,8 +34,11 @@ internal constructor(
 
   init {
     viewModelScope.launch(context = Dispatchers.Default) {
-      val categories = interactor.loadCategories()
-      setState { copy(categories = categories) }
+      interactor
+          .loadCategories()
+          .onSuccess { setState { copy(categories = it) } }
+          .onFailure { Timber.e(it, "Error loading categories") }
+          .onFailure { setState { copy(categories = emptyList()) } }
     }
   }
 }
