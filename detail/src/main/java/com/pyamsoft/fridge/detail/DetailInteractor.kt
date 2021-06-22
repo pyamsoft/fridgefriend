@@ -33,6 +33,7 @@ import com.pyamsoft.fridge.db.persist.PersistentCategories
 import com.pyamsoft.fridge.preference.DetailPreferences
 import com.pyamsoft.fridge.preference.SearchPreferences
 import com.pyamsoft.pydroid.core.Enforcer
+import com.pyamsoft.pydroid.core.ResultWrapper
 import com.pyamsoft.pydroid.util.PreferenceListener
 import java.util.Locale
 import javax.inject.Inject
@@ -130,7 +131,7 @@ internal constructor(
         }
 
         return@withContext itemQueryDao.querySameNameDifferentPresence(
-            false, item.name().trim().toLowerCase(Locale.getDefault()), item.presence())
+            false, item.name().trim().lowercase(Locale.getDefault()), item.presence())
       }
 
   @CheckResult
@@ -138,7 +139,8 @@ internal constructor(
       withContext(context = Dispatchers.Default) {
         Enforcer.assertOffMainThread()
         return@withContext itemQueryDao.querySimilarNamedItems(
-            false, item.id(), item.name().trim().toLowerCase(Locale.getDefault()))
+            false, item.id(), item.name().trim().lowercase(Locale.getDefault())
+        )
       }
 
   @CheckResult
@@ -162,7 +164,7 @@ internal constructor(
       itemId: FridgeItem.Id,
       entryId: FridgeEntry.Id,
       presence: Presence,
-  ): FridgeItem =
+  ): ResultWrapper<FridgeItem> =
       withContext(context = Dispatchers.Default) {
         Enforcer.assertOffMainThread()
         ensureEntryId(entryId)
@@ -175,10 +177,18 @@ internal constructor(
 
   /** Create a new FridgeItem */
   @CheckResult
-  private fun createNewItem(entryId: FridgeEntry.Id, presence: Presence): FridgeItem {
+  private fun createNewItem(
+      entryId: FridgeEntry.Id,
+      presence: Presence
+  ): ResultWrapper<FridgeItem> {
     Enforcer.assertOffMainThread()
     ensureEntryId(entryId)
-    return FridgeItem.create(entryId = entryId, presence = presence)
+    return try {
+      ResultWrapper.success(FridgeItem.create(entryId = entryId, presence = presence))
+    } catch (e: Throwable) {
+      Timber.e(e, "Error creating new item $entryId")
+      ResultWrapper.failure(e)
+    }
   }
 
   /**
@@ -190,21 +200,33 @@ internal constructor(
   suspend fun loadItem(
       itemId: FridgeItem.Id,
       entryId: FridgeEntry.Id,
-  ): FridgeItem = getItems(entryId, true).first { it.id() == itemId }
+  ): ResultWrapper<FridgeItem> =
+      getItems(entryId, true).map { items -> items.first { it.id() == itemId } }
 
   @CheckResult
-  suspend fun getItems(entryId: FridgeEntry.Id, force: Boolean): List<FridgeItem> =
+  suspend fun getItems(entryId: FridgeEntry.Id, force: Boolean): ResultWrapper<List<FridgeItem>> =
       withContext(context = Dispatchers.Default) {
         Enforcer.assertOffMainThread()
-        ensureEntryId(entryId)
-        return@withContext itemQueryDao.query(force, entryId)
+
+        return@withContext try {
+          ensureEntryId(entryId)
+          ResultWrapper.success(itemQueryDao.query(force, entryId))
+        } catch (e: Throwable) {
+          Timber.e(e, "Error getting items for entry: $entryId")
+          ResultWrapper.failure(e)
+        }
       }
 
   @CheckResult
-  suspend fun getAllItems(force: Boolean): List<FridgeItem> =
+  suspend fun getAllItems(force: Boolean): ResultWrapper<List<FridgeItem>> =
       withContext(context = Dispatchers.Default) {
         Enforcer.assertOffMainThread()
-        return@withContext itemQueryDao.query(force)
+        return@withContext try {
+          ResultWrapper.success(itemQueryDao.query(force))
+        } catch (e: Throwable) {
+          Timber.e(e, "Error getting all items")
+          ResultWrapper.failure(e)
+        }
       }
 
   suspend fun listenForAllChanges(onChange: suspend (event: FridgeItemChangeEvent) -> Unit) =
@@ -223,15 +245,22 @@ internal constructor(
         return@withContext itemRealtime.listenForChanges(id, onChange)
       }
 
-  suspend fun commit(item: FridgeItem) =
+  suspend fun commit(item: FridgeItem): ResultWrapper<Unit> =
       withContext(context = Dispatchers.Default) {
         Enforcer.assertOffMainThread()
-        if (FridgeItem.isValidName(item.name())) {
-          val entry = entryGuarantee.existing(item.entryId(), FridgeEntry.DEFAULT_NAME)
-          Timber.d("Guarantee entry exists: $entry")
-          commitItem(item)
-        } else {
-          Timber.w("Do not commit invalid name FridgeItem: $item")
+
+        return@withContext try {
+          if (FridgeItem.isValidName(item.name())) {
+            val entry = entryGuarantee.existing(item.entryId(), FridgeEntry.DEFAULT_NAME)
+            Timber.d("Guarantee entry exists: $entry")
+            commitItem(item)
+          } else {
+            Timber.w("Do not commit invalid name FridgeItem: $item")
+          }
+          ResultWrapper.success(Unit)
+        } catch (e: Throwable) {
+          Timber.e(e, "Error committing item: $item")
+          ResultWrapper.failure(e)
         }
       }
 
@@ -248,13 +277,21 @@ internal constructor(
   suspend fun delete(
       item: FridgeItem,
       offerUndo: Boolean,
-  ) =
+  ): ResultWrapper<Unit> =
       withContext(context = Dispatchers.Default) {
         Enforcer.assertOffMainThread()
-        require(item.isReal()) { "Cannot delete item that is not real: $item" }
-        Timber.d("Deleting item [${item.id()}]: $item")
-        if (itemDeleteDao.delete(item, offerUndo)) {
-          Timber.d("Item deleted: $item")
+
+        return@withContext try {
+          require(item.isReal()) { "Cannot delete item that is not real: $item" }
+          Timber.d("Deleting item [${item.id()}]: $item")
+          if (itemDeleteDao.delete(item, offerUndo)) {
+            Timber.d("Item deleted: $item")
+          }
+
+          ResultWrapper.success(Unit)
+        } catch (e: Throwable) {
+          Timber.e(e, "Error deleting item: $item")
+          ResultWrapper.failure(e)
         }
       }
 

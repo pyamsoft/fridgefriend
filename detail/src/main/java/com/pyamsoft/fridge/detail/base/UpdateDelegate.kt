@@ -20,7 +20,7 @@ import com.pyamsoft.fridge.core.currentDate
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.detail.DetailInteractor
 import com.pyamsoft.highlander.highlander
-import com.pyamsoft.pydroid.arch.onActualError
+import com.pyamsoft.pydroid.core.ResultWrapper
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -42,26 +42,24 @@ internal constructor(
 
   private val updateRunner =
       highlander<
-          Unit,
-          FridgeItem,
-          suspend (item: FridgeItem) -> Unit,
-          CoroutineScope.(throwable: Throwable) -> Unit> { item, doUpdate, onError ->
-        try {
-          doUpdate(item.makeReal())
-        } catch (error: Throwable) {
-          error.onActualError { e ->
-            Timber.e(e, "Error updating item: ${item.id()}")
-            onError(e)
-          }
-        }
+          ResultWrapper<Unit>, FridgeItem, suspend (item: FridgeItem) -> ResultWrapper<Unit>> {
+          item,
+          doUpdate ->
+        doUpdate(item.makeReal())
       }
 
   private fun CoroutineScope.update(
       item: FridgeItem,
-      doUpdate: suspend (item: FridgeItem) -> Unit
+      doUpdate: suspend (item: FridgeItem) -> ResultWrapper<Unit>
   ) {
     launch(context = Dispatchers.Default) {
-      updateRunner.call(item, doUpdate, requireNotNull(handleError))
+      updateRunner
+          .call(item, doUpdate)
+          .onFailure { Timber.e(it, "Error updating item $item") }
+          .onFailure { err ->
+            val handler = requireNotNull(handleError)
+            handler(err)
+          }
     }
   }
 

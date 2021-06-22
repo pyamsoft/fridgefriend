@@ -25,6 +25,7 @@ import com.pyamsoft.fridge.entry.EntryListStateModel
 import com.pyamsoft.highlander.highlander
 import com.pyamsoft.pydroid.arch.Renderable
 import com.pyamsoft.pydroid.arch.UiViewModel
+import com.pyamsoft.pydroid.core.ResultWrapper
 import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -42,7 +43,8 @@ internal constructor(
     UiViewModel<ItemMoveViewState, ItemMoveControllerEvent>(
         initialState = ItemMoveViewState(item = null, listState = delegate.initialState)) {
 
-  private val itemResolveRunner = highlander<FridgeItem> { interactor.loadItem(itemId, entryId) }
+  private val itemResolveRunner =
+      highlander<ResultWrapper<FridgeItem>> { interactor.loadItem(itemId, entryId) }
 
   init {
     val scope = viewModelScope
@@ -54,8 +56,11 @@ internal constructor(
     doOnCleared { delegate.clear() }
 
     viewModelScope.launch(context = Dispatchers.Default) {
-      val item = itemResolveRunner.call()
-      setState { copy(item = item) }
+      itemResolveRunner
+          .call()
+          .onSuccess { setState { copy(item = it) } }
+          .onFailure { Timber.e(it, "Error resolving item") }
+          .onFailure { setState { copy(item = null) } }
     }
   }
 

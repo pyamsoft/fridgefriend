@@ -26,8 +26,8 @@ import com.pyamsoft.fridge.db.item.isArchived
 import com.pyamsoft.fridge.ui.BottomOffset
 import com.pyamsoft.highlander.highlander
 import com.pyamsoft.pydroid.arch.UiStateModel
-import com.pyamsoft.pydroid.arch.onActualError
 import com.pyamsoft.pydroid.bus.EventConsumer
+import com.pyamsoft.pydroid.core.ResultWrapper
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -55,30 +55,23 @@ constructor(
             sort = EntryViewState.Sorts.CREATED)) {
 
   private val refreshRunner =
-      highlander<Unit, Boolean> { force ->
-        try {
-          val groups =
-              interactor.loadEntries(force).map { entry ->
-                val items = interactor.loadItems(force, entry)
-                return@map EntryViewState.EntryGroup(entry = entry, items = items)
-              }
-          handleListRefreshed(groups)
-        } catch (error: Throwable) {
-          error.onActualError { e ->
-            Timber.e(e, "Error refreshing entry list")
-            handleListRefreshError(e)
+      highlander<ResultWrapper<List<EntryViewState.EntryGroup>>, Boolean> { force ->
+        interactor.loadEntries(force).map { entryResult ->
+          entryResult.map { entry ->
+            interactor
+                .loadItems(force, entry)
+                .onFailure { Timber.e(it, "Failed to load items for entry: $entry") }
+                .recover { emptyList() }
+                .map { EntryViewState.EntryGroup(entry, it) }
+                .getOrThrow()
           }
         }
       }
 
   private val undoRunner =
-      highlander<Unit, FridgeEntry> { entry ->
-        try {
-          require(entry.isReal()) { "Cannot undo for non-real entry: $entry" }
-          interactor.commit(entry)
-        } catch (error: Throwable) {
-          error.onActualError { e -> Timber.e(e, "Error undoing entry: ${entry.id()}") }
-        }
+      highlander<ResultWrapper<Boolean>, FridgeEntry> { entry ->
+        require(entry.isReal()) { "Cannot undo for non-real entry: $entry" }
+        interactor.commit(entry)
       }
 
   internal fun initialize(scope: CoroutineScope) {
@@ -253,7 +246,11 @@ constructor(
       setState(
           stateChange = { copy(isLoading = true) },
           andThen = {
-            refreshRunner.call(force)
+            refreshRunner
+                .call(force)
+                .onSuccess { handleListRefreshed(it) }
+                .onFailure { Timber.e(it, "Failed to refresh entry list") }
+                .onFailure { handleListRefreshError(it) }
             setState { copy(isLoading = false) }
           })
     }
@@ -275,7 +272,8 @@ constructor(
 
   internal fun handleUndoDelete(scope: CoroutineScope) {
     scope.launch(context = Dispatchers.Default) {
-      undoRunner.call(requireNotNull(state.undoableEntry))
+      val entry = requireNotNull(state.undoableEntry)
+      undoRunner.call(entry).onFailure { Timber.e(it, "Error undoing entry $entry") }
     }
   }
 

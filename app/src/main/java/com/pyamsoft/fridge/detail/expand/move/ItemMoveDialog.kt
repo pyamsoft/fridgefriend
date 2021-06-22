@@ -31,7 +31,7 @@ import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.entry.EntryViewState
 import com.pyamsoft.fridge.entry.ReadOnlyEntryList
 import com.pyamsoft.fridge.entry.ReadOnlyListEvents
-import com.pyamsoft.fridge.ui.requireAppBarActivity
+import com.pyamsoft.pydroid.ui.app.requireAppBarActivity
 import com.pyamsoft.pydroid.arch.StateSaver
 import com.pyamsoft.pydroid.arch.createComponent
 import com.pyamsoft.pydroid.arch.newUiController

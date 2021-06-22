@@ -33,7 +33,7 @@ import com.pyamsoft.fridge.db.item.FridgeItem.Presence
 import com.pyamsoft.fridge.detail.expand.ExpandedItemDialog
 import com.pyamsoft.fridge.core.R
 import com.pyamsoft.fridge.ui.SnackbarContainer
-import com.pyamsoft.fridge.ui.requireAppBarActivity
+import com.pyamsoft.pydroid.ui.app.requireAppBarActivity
 import com.pyamsoft.pydroid.arch.StateSaver
 import com.pyamsoft.pydroid.arch.createComponent
 import com.pyamsoft.pydroid.arch.createSavedStateViewModelFactory

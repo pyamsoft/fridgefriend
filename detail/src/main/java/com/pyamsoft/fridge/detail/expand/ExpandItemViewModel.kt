@@ -35,6 +35,7 @@ import com.pyamsoft.pydroid.arch.UiSavedState
 import com.pyamsoft.pydroid.arch.UiSavedStateViewModel
 import com.pyamsoft.pydroid.arch.UiSavedStateViewModelProvider
 import com.pyamsoft.pydroid.bus.EventBus
+import com.pyamsoft.pydroid.core.ResultWrapper
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
@@ -68,7 +69,7 @@ internal constructor(
   private val updateDelegate = UpdateDelegate(interactor) { handleError(it) }
 
   private val itemResolveRunner =
-      highlander<FridgeItem, FridgeItem.Id> { resolveItemId ->
+      highlander<ResultWrapper<FridgeItem>, FridgeItem.Id> { resolveItemId ->
         interactor.resolveItem(
             resolveItemId,
             itemEntryId,
@@ -87,16 +88,15 @@ internal constructor(
     viewModelScope.launch(context = Dispatchers.Default) {
       val itemId = restoreSavedState(CREATED_ITEM_ID) { possibleItemId.id }
       val resolveItemId = FridgeItem.Id(itemId)
-      val item = itemResolveRunner.call(resolveItemId)
-      setState(
-          stateChange = { copy(item = item) },
-          andThen = { newState ->
-            newState.item?.let { newItem ->
-              if (newItem.isReal()) {
-                putSavedState(CREATED_ITEM_ID, newItem.id().id)
-              }
-            }
-          })
+      itemResolveRunner
+          .call(resolveItemId)
+          .onSuccess { item ->
+            setState(stateChange = { copy(item = item) }, andThen = { saveCreatedItemId(it) })
+          }
+          .onFailure { Timber.e(it, "Error resolving initial item: $itemId") }
+          .onFailure {
+            setState(stateChange = { copy(throwable = it) }, andThen = { saveCreatedItemId(it) })
+          }
     }
 
     viewModelScope.launch(context = Dispatchers.Default) {
@@ -116,6 +116,19 @@ internal constructor(
 
           commitDate(item, event.year, event.month, event.day)
         }
+      }
+    }
+  }
+
+  private suspend fun saveCreatedItemId(state: ExpandedViewState) {
+    val item = state.item
+    if (item == null) {
+      removeSavedState(CREATED_ITEM_ID)
+    } else {
+      if (item.isReal()) {
+        putSavedState(CREATED_ITEM_ID, item.id().id)
+      } else {
+        removeSavedState(CREATED_ITEM_ID)
       }
     }
   }
@@ -164,6 +177,8 @@ internal constructor(
         setState(
             stateChange = { copy(item = newItem) },
             andThen = { newState ->
+              saveCreatedItemId(newState)
+
               val currentItem = requireNotNull(newState.item)
               if (currentItem.isConsumed() || currentItem.isSpoiled()) {
                 Timber.d("Close item since it has been consumed/spoiled")
@@ -300,10 +315,10 @@ internal constructor(
             similarItems =
                 similarItems
                     // For now since we do not have the full similar item support
-                    .distinctBy { it.name().toLowerCase(Locale.getDefault()).trim() }
+                    .distinctBy { it.name().lowercase(Locale.getDefault()).trim() }
                     .map { item ->
                       ExpandedViewState.SimilarItem(
-                          item, item.name().toLowerCase(Locale.getDefault()))
+                          item, item.name().lowercase(Locale.getDefault()))
                     })
       }
     }

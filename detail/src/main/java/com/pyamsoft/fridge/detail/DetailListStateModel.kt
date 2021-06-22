@@ -31,8 +31,8 @@ import com.pyamsoft.fridge.detail.base.UpdateDelegate
 import com.pyamsoft.fridge.ui.BottomOffset
 import com.pyamsoft.highlander.highlander
 import com.pyamsoft.pydroid.arch.UiStateModel
-import com.pyamsoft.pydroid.arch.onActualError
 import com.pyamsoft.pydroid.bus.EventConsumer
+import com.pyamsoft.pydroid.core.ResultWrapper
 import com.pyamsoft.pydroid.util.PreferenceListener
 import java.util.Calendar
 import java.util.Date
@@ -82,37 +82,18 @@ internal constructor(
   private var searchEmptyStateListener: PreferenceListener? = null
 
   private val undoRunner =
-      highlander<Unit, FridgeItem> { item ->
-        try {
-          require(item.isReal()) { "Cannot undo for non-real item: $item" }
-          interactor.commit(item.invalidateSpoiled().invalidateConsumption())
-        } catch (error: Throwable) {
-          error.onActualError { e -> Timber.e(e, "Error undoing item: ${item.id()}") }
-        }
+      highlander<ResultWrapper<Unit>, FridgeItem> { item ->
+        require(item.isReal()) { "Cannot undo for non-real item: $item" }
+        interactor.commit(item.invalidateSpoiled().invalidateConsumption())
       }
 
   private val refreshRunner =
-      highlander<Unit, Boolean> { force ->
-        setState(
-            stateChange = { copy(isLoading = true) },
-            andThen = {
-              try {
-                val items =
-                    if (isAllEntries) {
-                      interactor.getAllItems(force)
-                    } else {
-                      interactor.getItems(entryId, force)
-                    }
-                handleListRefreshed(items)
-              } catch (error: Throwable) {
-                error.onActualError { e ->
-                  Timber.e(e, "Error refreshing item list")
-                  handleListRefreshError(e)
-                }
-              } finally {
-                setState(stateChange = { copy(isLoading = false) })
-              }
-            })
+      highlander<ResultWrapper<List<FridgeItem>>, Boolean> { force ->
+        if (isAllEntries) {
+          interactor.getAllItems(force)
+        } else {
+          interactor.getItems(entryId, force)
+        }
       }
 
   fun initialize(scope: CoroutineScope) {
@@ -324,7 +305,7 @@ internal constructor(
   ): DetailViewState.Counts {
     val validItems = filterValid(items).filterNot { it.isArchived() }
 
-    val totalCount = validItems.sumBy { it.count() }
+    val totalCount = validItems.sumOf { it.count() }
     return DetailViewState.Counts(
         totalCount = totalCount, firstCount = 0, secondCount = 0, thirdCount = 0)
   }
@@ -338,13 +319,13 @@ internal constructor(
   ): DetailViewState.Counts {
     val validItems = filterValid(items).filterNot { it.isArchived() }
 
-    val totalCount = validItems.sumBy { it.count() }
+    val totalCount = validItems.sumOf { it.count() }
 
     val expiringSoonItemCount =
-        validItems.filter { it.isExpiringSoon(today, later, isSameDayExpired) }.sumBy { it.count() }
+        validItems.filter { it.isExpiringSoon(today, later, isSameDayExpired) }.sumOf { it.count() }
 
     val expiredItemCount =
-        validItems.filter { it.isExpired(today, isSameDayExpired) }.sumBy { it.count() }
+        validItems.filter { it.isExpired(today, isSameDayExpired) }.sumOf { it.count() }
 
     val freshItemCount = totalCount - expiringSoonItemCount - expiredItemCount
 
@@ -462,7 +443,8 @@ internal constructor(
   fun handleUndoDelete(scope: CoroutineScope) {
     scope.launch(context = Dispatchers.Default) {
       val u = requireNotNull(state.undoable)
-      undoRunner.call(u.item)
+      val item = u.item
+      undoRunner.call(item).onFailure { Timber.e(it, "Error undoing item: ${item.id()}") }
     }
   }
 
@@ -487,7 +469,17 @@ internal constructor(
   }
 
   fun handleRefreshList(scope: CoroutineScope, force: Boolean) {
-    scope.launch(context = Dispatchers.Default) { refreshRunner.call(force) }
+    scope.setState(
+        stateChange = { copy(isLoading = true) },
+        andThen = {
+          refreshRunner
+              .call(force)
+              .onSuccess { handleListRefreshed(it) }
+              .onFailure { Timber.e(it, "Error refreshing item list") }
+              .onFailure { handleListRefreshError(it) }
+
+          setState(stateChange = { copy(isLoading = false) })
+        })
   }
 
   fun handleCommitPresence(scope: CoroutineScope, index: Int) {

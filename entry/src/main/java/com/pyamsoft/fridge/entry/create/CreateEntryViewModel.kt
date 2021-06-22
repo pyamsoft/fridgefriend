@@ -21,11 +21,12 @@ import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.entry.EntryInteractor
 import com.pyamsoft.highlander.highlander
 import com.pyamsoft.pydroid.arch.UiViewModel
-import com.pyamsoft.pydroid.arch.onActualError
+import com.pyamsoft.pydroid.core.ResultWrapper
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import timber.log.Timber
 
 class CreateEntryViewModel
 @Inject
@@ -37,13 +38,7 @@ internal constructor(
         CreateEntryViewState(entry = null, working = false, throwable = null)) {
 
   private val commitRunner =
-      highlander<Unit, FridgeEntry> { entry ->
-        try {
-          interactor.commit(entry)
-        } catch (throwable: Throwable) {
-          throwable.onActualError { handleCreateError(throwable) }
-        }
-      }
+      highlander<ResultWrapper<Boolean>, FridgeEntry> { entry -> interactor.commit(entry) }
 
   private val loadRunner =
       highlander<FridgeEntry?, FridgeEntry.Id> { id ->
@@ -71,7 +66,10 @@ internal constructor(
         setState(
             stateChange = { copy(working = true) },
             andThen = {
-              commitRunner.call(e)
+              commitRunner
+                  .call(e)
+                  .onFailure { Timber.e(it, "Error creating new entry $e") }
+                  .onFailure { handleCreateError(it) }
               setState(
                   stateChange = { copy(working = false) },
                   andThen = { publish(CreateEntryControllerEvent.Commit) })
