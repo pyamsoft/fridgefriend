@@ -22,11 +22,11 @@ import android.os.Looper
 import android.view.ViewGroup
 import androidx.annotation.CheckResult
 import androidx.core.view.ViewPropertyAnimatorCompat
-import androidx.core.view.doOnLayout
+import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
 import androidx.lifecycle.LifecycleOwner
-import com.pyamsoft.fridge.main.databinding.MainNavigationBinding
 import com.pyamsoft.fridge.core.R as R2
+import com.pyamsoft.fridge.main.databinding.MainNavigationBinding
 import com.pyamsoft.fridge.ui.animatePopInFromBottom
 import com.pyamsoft.fridge.ui.createRoundedBackground
 import com.pyamsoft.pydroid.arch.BaseUiView
@@ -62,12 +62,16 @@ internal constructor(
 
     doOnInflate {
       layoutRoot.doOnApplyWindowInsets(owner) { view, insets, _ ->
-        view.updatePadding(bottom = insets.systemWindowInsetBottom, left = 0, right = 0, top = 0)
+        view.updatePadding(
+            bottom = insets.getInsets(WindowInsetsCompat.Type.systemBars()).bottom,
+            left = 0,
+            right = 0,
+            top = 0)
 
         // Make sure we are laid out before grabbing the height
-        view.doOnLayout { v ->
+        view.post {
           // Publish the measured height
-          publish(MainViewEvent.BottomBarMeasured(v.height))
+          publish(MainViewEvent.BottomBarMeasured(view.height))
         }
       }
     }
