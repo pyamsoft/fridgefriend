@@ -156,7 +156,7 @@ abstract class RoomModule {
             .asSequence()
             .map { JsonMappableFridgeItem.from(it.makeReal()) }
             .map { fridgeItem ->
-              val itemName = fridgeItem.name().toLowerCase(Locale.getDefault()).trim()
+              val itemName = fridgeItem.name().lowercase(Locale.getDefault()).trim()
 
               val score =
                   when {

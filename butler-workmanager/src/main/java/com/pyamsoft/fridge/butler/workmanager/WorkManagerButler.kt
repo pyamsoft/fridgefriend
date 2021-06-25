@@ -68,7 +68,7 @@ internal constructor(
         when (this) {
           is ItemOrder -> ItemWorker::class.java
           is NightlyOrder -> NightlyWorker::class.java
-          else -> null
+          else -> throw AssertionError("Invalid order to work conversion: $this")
         }
 
     // Basically, this is shit, but hey its Android!
@@ -178,18 +178,24 @@ internal constructor(
         inputData: Data
     ): WorkRequest {
       Enforcer.assertOffMainThread()
-      val builder =
-          if (isPeriodic) {
-            PeriodicWorkRequest.Builder(work, period, PERIOD_UNIT)
-          } else {
-            OneTimeWorkRequest.Builder(work).setInitialDelay(period, PERIOD_UNIT)
-          }
 
-      return builder
-          .setInputData(inputData)
-          .addTag(tag)
-          .setConstraints(generateConstraints())
-          .build()
+      // Need to do this or else the Kotlin compiler has a Backend error
+      // If you try to assign the builder to a variable and then apply the
+      // setInputData addTag setConstraints common methods.
+      return if (isPeriodic) {
+        PeriodicWorkRequest.Builder(work, period, PERIOD_UNIT)
+            .setInputData(inputData)
+            .addTag(tag)
+            .setConstraints(generateConstraints())
+            .build()
+      } else {
+        OneTimeWorkRequest.Builder(work)
+            .setInitialDelay(period, PERIOD_UNIT)
+            .setInputData(inputData)
+            .addTag(tag)
+            .setConstraints(generateConstraints())
+            .build()
+      }
     }
   }
 }

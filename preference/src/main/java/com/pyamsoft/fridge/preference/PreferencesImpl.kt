@@ -27,10 +27,7 @@ import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import kotlinx.coroutines.yield
 
 @Singleton
 internal class PreferencesImpl
@@ -75,6 +72,8 @@ internal constructor(
   private val searchEmptyStateDefault: Boolean
   private val searchEmptyStateKey: String
 
+  private var isOldCleared = false
+
   init {
     context.applicationContext.resources.apply {
       expiringSoonKey = getString(R.string.expiring_soon_range_key)
@@ -95,39 +94,42 @@ internal constructor(
       searchEmptyStateKey = getString(R.string.search_empty_state_key)
       searchEmptyStateDefault = getBoolean(R.bool.search_empty_state_default)
     }
-
-    clearOldPreferences()
   }
 
-  private fun clearOldPreferences() {
-    GlobalScope.launch(context = Dispatchers.IO) {
-      // Wait our turn
-      yield()
+  private suspend fun clearOldPreferences() =
+      withContext(context = Dispatchers.IO) {
+        if (isOldCleared) {
+          return@withContext
+        }
 
-      preferences.edit { remove(KEY_PERSISTENT_ENTRIES) }
-    }
-  }
+        isOldCleared = true
+        preferences.edit { remove(KEY_PERSISTENT_ENTRIES) }
+      }
 
   override suspend fun isQuickAddEnabled(): Boolean {
     // TODO(Peter): Implement
+    clearOldPreferences()
     return true
   }
 
   override suspend fun isEmptyStateAllItems(): Boolean =
       withContext(context = Dispatchers.IO) {
         Enforcer.assertOffMainThread()
+        clearOldPreferences()
         return@withContext preferences.getBoolean(searchEmptyStateKey, searchEmptyStateDefault)
       }
 
   override suspend fun getLastNotificationTimeExpiringSoon(): Long =
       withContext(context = Dispatchers.IO) {
         Enforcer.assertOffMainThread()
+        clearOldPreferences()
         return@withContext preferences.getLong(KEY_LAST_NOTIFICATION_TIME_EXPIRING_SOON, 0)
       }
 
   override suspend fun markNotificationExpiringSoon(calendar: Calendar) =
       withContext(context = Dispatchers.IO) {
         Enforcer.assertOffMainThread()
+        clearOldPreferences()
         preferences.edit {
           putLong(KEY_LAST_NOTIFICATION_TIME_EXPIRING_SOON, calendar.timeInMillis)
         }
@@ -136,12 +138,14 @@ internal constructor(
   override suspend fun getLastNotificationTimeExpired(): Long =
       withContext(context = Dispatchers.IO) {
         Enforcer.assertOffMainThread()
+        clearOldPreferences()
         return@withContext preferences.getLong(KEY_LAST_NOTIFICATION_TIME_EXPIRED, 0)
       }
 
   override suspend fun markNotificationExpired(calendar: Calendar) =
       withContext(context = Dispatchers.IO) {
         Enforcer.assertOffMainThread()
+        clearOldPreferences()
         preferences.edit { putLong(KEY_LAST_NOTIFICATION_TIME_EXPIRED, calendar.timeInMillis) }
       }
 
@@ -154,24 +158,28 @@ internal constructor(
   override suspend fun markNotificationNeeded(calendar: Calendar) =
       withContext(context = Dispatchers.IO) {
         Enforcer.assertOffMainThread()
+        clearOldPreferences()
         preferences.edit { putLong(KEY_LAST_NOTIFICATION_TIME_NEEDED, calendar.timeInMillis) }
       }
 
   override suspend fun getLastNotificationTimeNightly(): Long =
       withContext(context = Dispatchers.IO) {
         Enforcer.assertOffMainThread()
+        clearOldPreferences()
         return@withContext preferences.getLong(KEY_LAST_NOTIFICATION_TIME_NIGHTLY, 0)
       }
 
   override suspend fun markNotificationNightly(calendar: Calendar) =
       withContext(context = Dispatchers.IO) {
         Enforcer.assertOffMainThread()
+        clearOldPreferences()
         preferences.edit { putLong(KEY_LAST_NOTIFICATION_TIME_NIGHTLY, calendar.timeInMillis) }
       }
 
   override suspend fun getExpiringSoonRange(): Int =
       withContext(context = Dispatchers.IO) {
         Enforcer.assertOffMainThread()
+        clearOldPreferences()
         return@withContext preferences
             .getString(expiringSoonKey, expiringSoonDefault)
             ?.toIntOrNull()
@@ -181,6 +189,7 @@ internal constructor(
   override suspend fun isSameDayExpired(): Boolean =
       withContext(context = Dispatchers.IO) {
         Enforcer.assertOffMainThread()
+        clearOldPreferences()
         return@withContext preferences
             .getString(isSameDayExpiredKey, isSameDayExpiredDefault)
             ?.toBoolean()
@@ -190,6 +199,7 @@ internal constructor(
   override suspend fun isZeroCountConsideredConsumed(): Boolean =
       withContext(context = Dispatchers.IO) {
         Enforcer.assertOffMainThread()
+        clearOldPreferences()
         return@withContext preferences.getBoolean(
             isZeroCountConsumedKey, isZeroCountConsumedDefault)
       }
@@ -197,6 +207,7 @@ internal constructor(
   override suspend fun isDoNotDisturb(now: Calendar): Boolean =
       withContext(context = Dispatchers.IO) {
         Enforcer.assertOffMainThread()
+        clearOldPreferences()
         return@withContext if (!preferences.getBoolean(doNotDisturbKey, doNotDisturbDefault)) false
         else {
           val currentHour = now.get(Calendar.HOUR_OF_DAY)
@@ -209,6 +220,7 @@ internal constructor(
   ): PreferenceListener =
       withContext(context = Dispatchers.IO) {
         Enforcer.assertOffMainThread()
+        clearOldPreferences()
         return@withContext preferences.onChange(expiringSoonKey) {
           onChange(getExpiringSoonRange())
         }
@@ -219,6 +231,7 @@ internal constructor(
   ): PreferenceListener =
       withContext(context = Dispatchers.IO) {
         Enforcer.assertOffMainThread()
+        clearOldPreferences()
         return@withContext preferences.onChange(isSameDayExpiredKey) {
           onChange(isSameDayExpired())
         }
@@ -229,6 +242,7 @@ internal constructor(
   ): PreferenceListener =
       withContext(context = Dispatchers.IO) {
         Enforcer.assertOffMainThread()
+        clearOldPreferences()
         return@withContext preferences.onChange(searchEmptyStateKey) {
           onChange(isEmptyStateAllItems())
         }
@@ -237,6 +251,7 @@ internal constructor(
   override suspend fun getNotificationPeriod(): Long =
       withContext(context = Dispatchers.IO) {
         Enforcer.assertOffMainThread()
+        clearOldPreferences()
         val hours =
             preferences.getString(notificationPeriodKey, notificationPeriodDefault)?.toLongOrNull()
                 ?: FALLBACK_NOTIFICATION_PERIOD
@@ -245,36 +260,42 @@ internal constructor(
 
   override suspend fun canNotify(now: Calendar, lastNotificationTime: Long): Boolean =
       withContext(context = Dispatchers.IO) {
+        clearOldPreferences()
         return@withContext lastNotificationTime + getNotificationPeriod() < now.timeInMillis
       }
 
   override suspend fun clear() =
       withContext(context = Dispatchers.IO) {
         Enforcer.assertOffMainThread()
+        clearOldPreferences()
         preferences.edit(commit = true) { clear() }
       }
 
   override suspend fun isPersistentCategoriesInserted(): Boolean =
       withContext(context = Dispatchers.IO) {
         Enforcer.assertOffMainThread()
+        clearOldPreferences()
         return@withContext preferences.getBoolean(KEY_PERSISTENT_CATEGORIES, false)
       }
 
   override suspend fun setPersistentCategoriesInserted() =
       withContext(context = Dispatchers.IO) {
         Enforcer.assertOffMainThread()
+        clearOldPreferences()
         preferences.edit { putBoolean(KEY_PERSISTENT_CATEGORIES, true) }
       }
 
   override suspend fun isDefaultEntryCreated(): Boolean =
       withContext(context = Dispatchers.IO) {
         Enforcer.assertOffMainThread()
+        clearOldPreferences()
         return@withContext preferences.getBoolean(KEY_ENTRY_DEFAULT_CREATED, false)
       }
 
   override suspend fun markDefaultEntryCreated() =
       withContext(context = Dispatchers.IO) {
         Enforcer.assertOffMainThread()
+        clearOldPreferences()
         preferences.edit { putBoolean(KEY_ENTRY_DEFAULT_CREATED, true) }
       }
 

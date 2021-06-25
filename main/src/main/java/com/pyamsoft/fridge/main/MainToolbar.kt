@@ -23,6 +23,7 @@ import android.widget.TextView
 import androidx.annotation.StringRes
 import androidx.core.view.ViewCompat
 import androidx.core.view.ViewPropertyAnimatorCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updateLayoutParams
 import androidx.interpolator.view.animation.FastOutLinearInInterpolator
 import androidx.lifecycle.LifecycleOwner
@@ -30,10 +31,10 @@ import com.google.android.material.R as R2
 import com.pyamsoft.fridge.core.PRIVACY_POLICY_URL
 import com.pyamsoft.fridge.core.TERMS_CONDITIONS_URL
 import com.pyamsoft.fridge.main.databinding.MainToolbarBinding
-import com.pyamsoft.pydroid.ui.app.AppBarActivityProvider
 import com.pyamsoft.fridge.ui.withRoundedBackground
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.arch.UiRender
+import com.pyamsoft.pydroid.ui.app.AppBarActivityProvider
 import com.pyamsoft.pydroid.ui.app.ToolbarActivityProvider
 import com.pyamsoft.pydroid.ui.privacy.addPrivacy
 import com.pyamsoft.pydroid.ui.privacy.removePrivacy
@@ -74,7 +75,10 @@ internal constructor(
 
       layoutRoot.doOnApplyWindowInsets(owner) { v, insets, padding ->
         v.updateLayoutParams<MarginLayoutParams> {
-          topMargin = padding.top + insets.systemWindowInsetTop + 8.asDp(v.context)
+          topMargin =
+              padding.top +
+                  insets.getInsets(WindowInsetsCompat.Type.systemBars()).top +
+                  8.asDp(v.context)
         }
       }
 
