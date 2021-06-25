@@ -17,10 +17,8 @@
 package com.pyamsoft.fridge.butler.runner
 
 import androidx.annotation.CheckResult
-import com.pyamsoft.fridge.butler.Butler
 import com.pyamsoft.fridge.butler.notification.NotificationHandler
 import com.pyamsoft.fridge.butler.params.ItemParameters
-import com.pyamsoft.fridge.butler.work.Order
 import com.pyamsoft.fridge.core.today
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.db.fridge.Fridge
@@ -47,7 +45,6 @@ import timber.log.Timber
 internal class ItemRunner
 @Inject
 internal constructor(
-    private val butler: Butler,
     private val fridge: Fridge,
     private val detailPreferences: DetailPreferences,
     private val neededPreferences: NeededPreferences,
@@ -56,11 +53,6 @@ internal constructor(
     handler: NotificationHandler,
     notificationPreferences: NotificationPreferences,
 ) : BaseRunner<ItemParameters>(handler, notificationPreferences) {
-
-  override suspend fun onReschedule(order: Order) {
-    Timber.d("Rescheduling order: $order")
-    butler.scheduleOrder(order)
-  }
 
   @CheckResult
   private suspend fun notifyNeeded(

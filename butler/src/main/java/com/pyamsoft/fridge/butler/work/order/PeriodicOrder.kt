@@ -19,7 +19,7 @@ package com.pyamsoft.fridge.butler.work.order
 import com.pyamsoft.fridge.butler.work.Order
 import com.pyamsoft.fridge.preference.NotificationPreferences
 
-abstract class NotifyingOrder
+abstract class PeriodicOrder
 protected constructor(
     private val preferences: NotificationPreferences,
 ) : Order {

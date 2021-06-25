@@ -20,7 +20,7 @@ import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.butler.Butler
 import com.pyamsoft.fridge.butler.notification.NotificationHandler
 import com.pyamsoft.fridge.butler.params.EmptyParameters
-import com.pyamsoft.fridge.butler.work.Order
+import com.pyamsoft.fridge.butler.work.OrderFactory
 import com.pyamsoft.fridge.core.today
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence.HAVE
@@ -30,13 +30,17 @@ import com.pyamsoft.fridge.preference.NotificationPreferences
 import java.util.Calendar
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
 import timber.log.Timber
 
 @Singleton
 internal class NightlyRunner
 @Inject
 internal constructor(
+    private val orderFactory: OrderFactory,
     private val butler: Butler,
     private val fridgeItemQueryDao: FridgeItemQueryDao,
     private val nightlyPreferences: NightlyPreferences,
@@ -44,10 +48,12 @@ internal constructor(
     notificationPreferences: NotificationPreferences,
 ) : BaseRunner<EmptyParameters>(handler, notificationPreferences) {
 
-  override suspend fun onReschedule(order: Order) {
-    Timber.d("Rescheduling order: $order")
-    butler.scheduleOrder(order)
-  }
+  private fun CoroutineScope.handleReschedule() =
+      launch(context = Dispatchers.Default) {
+        val order = orderFactory.nightlyOrder()
+        Timber.d("Rescheduling order: $order")
+        butler.placeOrder(order)
+      }
 
   private suspend fun notifyNightly(
       items: List<FridgeItem>,
@@ -67,7 +73,7 @@ internal constructor(
   override suspend fun performWork(params: EmptyParameters) = coroutineScope {
     val now = today()
     val items = fridgeItemQueryDao.query(false)
-    notifyNightly(items.filter { it.presence() == HAVE }, now)
+    notifyNightly(items.filter { it.presence() == HAVE }, now).also { handleReschedule() }
   }
 
   @CheckResult

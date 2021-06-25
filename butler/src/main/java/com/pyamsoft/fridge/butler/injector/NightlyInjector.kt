@@ -36,8 +36,6 @@ class NightlyInjector(context: Context) : BaseInjector<EmptyParameters>(context)
   ): WorkResult {
     Injector.obtainFromApplication<ButlerComponent>(context).inject(this)
 
-    return requireNotNull(runner).doWork(id, tags, params) {
-      requireNotNull(orderFactory).nightlyOrder()
-    }
+    return requireNotNull(runner).doWork(id, tags, params)
   }
 }

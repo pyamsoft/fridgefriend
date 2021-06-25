@@ -20,7 +20,6 @@ import android.content.Context
 import com.pyamsoft.fridge.butler.params.ItemParameters
 import com.pyamsoft.fridge.butler.runner.ItemRunner
 import com.pyamsoft.fridge.butler.runner.WorkResult
-import com.pyamsoft.fridge.butler.work.OrderFactory
 import com.pyamsoft.pydroid.inject.Injector
 import java.util.UUID
 import javax.inject.Inject
@@ -36,10 +35,6 @@ class ItemInjector(context: Context) : BaseInjector<ItemParameters>(context) {
       params: ItemParameters
   ): WorkResult {
     Injector.obtainFromApplication<ButlerComponent>(context).inject(this)
-
-    return requireNotNull(runner).doWork(id, tags, params) {
-      requireNotNull(orderFactory)
-          .itemOrder(ItemParameters(forceNotifyExpiring = false, forceNotifyNeeded = false))
-    }
+    return requireNotNull(runner).doWork(id, tags, params)
   }
 }

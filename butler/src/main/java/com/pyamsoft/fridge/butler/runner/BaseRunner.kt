@@ -19,7 +19,6 @@ package com.pyamsoft.fridge.butler.runner
 import androidx.annotation.CheckResult
 import com.pyamsoft.fridge.butler.notification.NotificationHandler
 import com.pyamsoft.fridge.butler.params.BaseParameters
-import com.pyamsoft.fridge.butler.work.Order
 import com.pyamsoft.fridge.db.entry.FridgeEntry
 import com.pyamsoft.fridge.preference.NotificationPreferences
 import com.pyamsoft.pydroid.core.Enforcer
@@ -36,8 +35,6 @@ protected constructor(
     private val notificationPreferences: NotificationPreferences,
 ) {
 
-  protected open suspend fun onReschedule(order: Order) {}
-
   @CheckResult
   protected suspend inline fun notification(
       crossinline func: suspend NotificationHandler.() -> Boolean
@@ -51,14 +48,13 @@ protected constructor(
       id: UUID,
       tags: Set<String>,
       params: P,
-      order: () -> Order?,
   ): WorkResult =
       withContext(context = Dispatchers.Default) {
         Enforcer.assertOffMainThread()
         val identifier = identifier(id, tags)
         try {
           performWork(params)
-          success(identifier).also { order()?.also { onReschedule(it) } }
+          success(identifier)
         } catch (e: Throwable) {
           if (e is CancellationException) {
             cancelled(identifier, e)

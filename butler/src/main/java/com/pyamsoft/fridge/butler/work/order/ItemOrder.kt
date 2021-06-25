@@ -22,7 +22,7 @@ import com.pyamsoft.fridge.preference.NotificationPreferences
 
 class ItemOrder
 internal constructor(private val params: ItemParameters, preferences: NotificationPreferences) :
-    NotifyingOrder(preferences) {
+    PeriodicOrder(preferences) {
 
   override suspend fun tag(): String {
     return "Items Reminder 1"

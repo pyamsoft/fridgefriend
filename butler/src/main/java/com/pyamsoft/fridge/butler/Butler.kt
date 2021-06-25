@@ -20,11 +20,7 @@ import com.pyamsoft.fridge.butler.work.Order
 
 interface Butler {
 
-  /** Fires first order instantly before repeating */
   suspend fun placeOrder(order: Order)
-
-  /** Queues order after period before repeating */
-  suspend fun scheduleOrder(order: Order)
 
   suspend fun cancelOrder(order: Order)
 

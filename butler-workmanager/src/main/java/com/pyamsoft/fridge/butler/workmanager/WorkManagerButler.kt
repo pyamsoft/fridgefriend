@@ -22,7 +22,9 @@ import androidx.work.Constraints
 import androidx.work.Data
 import androidx.work.OneTimeWorkRequest
 import androidx.work.Operation
+import androidx.work.PeriodicWorkRequest
 import androidx.work.WorkManager
+import androidx.work.WorkRequest
 import androidx.work.Worker
 import com.google.common.util.concurrent.ListenableFuture
 import com.pyamsoft.fridge.butler.Butler
@@ -30,6 +32,7 @@ import com.pyamsoft.fridge.butler.work.Order
 import com.pyamsoft.fridge.butler.work.OrderParameters
 import com.pyamsoft.fridge.butler.work.order.ItemOrder
 import com.pyamsoft.fridge.butler.work.order.NightlyOrder
+import com.pyamsoft.fridge.butler.work.order.PeriodicOrder
 import com.pyamsoft.fridge.butler.workmanager.worker.ItemWorker
 import com.pyamsoft.fridge.butler.workmanager.worker.NightlyWorker
 import com.pyamsoft.pydroid.core.Enforcer
@@ -60,31 +63,6 @@ internal constructor(
   }
 
   @CheckResult
-  private fun generateConstraints(): Constraints {
-    Enforcer.assertOffMainThread()
-    return Constraints.Builder().setRequiresBatteryNotLow(true).build()
-  }
-
-  private fun schedule(work: Class<out Worker>, tag: String, type: WorkType, inputData: Data) {
-    Enforcer.assertOffMainThread()
-    val request =
-        OneTimeWorkRequest.Builder(work)
-            .addTag(tag)
-            .setConstraints(generateConstraints())
-            .apply {
-              // We must manually reschedule since PeriodicWork jobs do not repeat on Samsung...
-              if (type is WorkType.Periodic) {
-                setInitialDelay(type.time, TimeUnit.MILLISECONDS)
-              }
-              setInputData(inputData)
-            }
-            .build()
-
-    workManager().enqueue(request)
-    Timber.d("Queue work [$tag]: ${request.id}")
-  }
-
-  @CheckResult
   private fun Order.asWork(): Class<out Worker> {
     val workClass =
         when (this) {
@@ -98,20 +76,25 @@ internal constructor(
     @Suppress("UNCHECKED_CAST") return workClass as Class<out Worker>
   }
 
-  private suspend fun queueOrder(order: Order, workType: WorkType) {
+  private suspend fun queueOrder(order: Order) {
     Enforcer.assertOffMainThread()
     cancelOrder(order)
 
-    schedule(order.asWork(), order.tag(), workType, order.parameters().toInputData())
+    val tag = order.tag()
+    val request =
+        createWorkRequest(
+            work = order.asWork(),
+            tag = tag,
+            isPeriodic = order is PeriodicOrder,
+            period = order.period(),
+            inputData = order.parameters().toInputData())
+
+    workManager().enqueue(request)
+    Timber.d("Queue work [$tag]: ${request.id}")
   }
 
   override suspend fun placeOrder(order: Order) =
-      withContext(context = Dispatchers.Default) { queueOrder(order, WorkType.Instant) }
-
-  override suspend fun scheduleOrder(order: Order) =
-      withContext(context = Dispatchers.Default) {
-        queueOrder(order, WorkType.Periodic(order.period()))
-      }
+      withContext(context = Dispatchers.Default) { queueOrder(order) }
 
   override suspend fun cancelOrder(order: Order) =
       withContext(context = Dispatchers.Default) {
@@ -124,65 +107,89 @@ internal constructor(
         Enforcer.assertOffMainThread()
         workManager().cancelAllWork().await()
       }
-}
 
-private suspend fun Operation.await() {
-  Enforcer.assertOffMainThread()
-  this.result.await()
-}
+  companion object {
+    private val PERIOD_UNIT = TimeUnit.MILLISECONDS
 
-// Copied out of androidx.work.ListenableFuture
-// since this extension is library private otherwise...
-@Suppress("BlockingMethodInNonBlockingContext")
-private suspend fun <R> ListenableFuture<R>.await(): R {
-  Enforcer.assertOffMainThread()
+    private val butlerExecutor = Executor { it.run() }
 
-  // Fast path
-  if (this.isDone) {
-    try {
-      return this.get()
-    } catch (e: ExecutionException) {
-      throw e.cause ?: e
+    private suspend fun Operation.await() {
+      Enforcer.assertOffMainThread()
+      this.result.await()
+    }
+
+    // Copied out of androidx.work.ListenableFuture
+    // since this extension is library private otherwise...
+    @Suppress("BlockingMethodInNonBlockingContext")
+    private suspend fun <R> ListenableFuture<R>.await(): R {
+      Enforcer.assertOffMainThread()
+
+      // Fast path
+      if (this.isDone) {
+        try {
+          return this.get()
+        } catch (e: ExecutionException) {
+          throw e.cause ?: e
+        }
+      }
+
+      return suspendCancellableCoroutine { continuation ->
+        Enforcer.assertOffMainThread()
+        this.addListener(
+            {
+              Enforcer.assertOffMainThread()
+              try {
+                continuation.resume(this.get())
+              } catch (throwable: Throwable) {
+                val cause = throwable.cause ?: throwable
+                when (throwable) {
+                  is CancellationException -> continuation.cancel(cause)
+                  else -> continuation.resumeWithException(cause)
+                }
+              }
+            },
+            butlerExecutor)
+      }
+    }
+
+    @CheckResult
+    private fun OrderParameters.toInputData(): Data {
+      var builder = Data.Builder()
+      val booleans = this.getBooleanParameters()
+      for (entry in booleans) {
+        builder = builder.putBoolean(entry.key, entry.value)
+      }
+      return builder.build()
+    }
+
+    @CheckResult
+    private fun generateConstraints(): Constraints {
+      Enforcer.assertOffMainThread()
+      return Constraints.Builder().setRequiresBatteryNotLow(true).build()
+    }
+
+    @JvmStatic
+    @CheckResult
+    private fun createWorkRequest(
+        work: Class<out Worker>,
+        tag: String,
+        period: Long,
+        isPeriodic: Boolean,
+        inputData: Data
+    ): WorkRequest {
+      Enforcer.assertOffMainThread()
+      val builder =
+          if (isPeriodic) {
+            PeriodicWorkRequest.Builder(work, period, PERIOD_UNIT)
+          } else {
+            OneTimeWorkRequest.Builder(work).setInitialDelay(period, PERIOD_UNIT)
+          }
+
+      return builder
+          .setInputData(inputData)
+          .addTag(tag)
+          .setConstraints(generateConstraints())
+          .build()
     }
   }
-
-  return suspendCancellableCoroutine { continuation ->
-    Enforcer.assertOffMainThread()
-    this.addListener(
-        {
-          Enforcer.assertOffMainThread()
-          try {
-            continuation.resume(this.get())
-          } catch (throwable: Throwable) {
-            val cause = throwable.cause ?: throwable
-            when (throwable) {
-              is CancellationException -> continuation.cancel(cause)
-              else -> continuation.resumeWithException(cause)
-            }
-          }
-        },
-        ButlerExecutor)
-  }
-}
-
-@CheckResult
-private fun OrderParameters.toInputData(): Data {
-  var builder = Data.Builder()
-  val booleans = this.getBooleanParameters()
-  for (entry in booleans) {
-    builder = builder.putBoolean(entry.key, entry.value)
-  }
-  return builder.build()
-}
-
-private object ButlerExecutor : Executor {
-
-  override fun execute(command: Runnable) {
-    command.run()
-  }
-}
-
-private sealed class WorkType {
-  object Instant : WorkType()
-  data class Periodic(val time: Long) : WorkType()
 }

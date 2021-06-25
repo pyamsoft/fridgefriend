@@ -32,5 +32,5 @@ suspend fun Butler.initOnAppStart(orderFactory: OrderFactory) {
           )))
 
   // Nightly notifications are always scheduled since they must fire at an exact time.
-  scheduleOrder(orderFactory.nightlyOrder())
+  placeOrder(orderFactory.nightlyOrder())
 }
