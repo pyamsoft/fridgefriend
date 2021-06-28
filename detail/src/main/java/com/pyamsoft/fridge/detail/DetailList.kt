@@ -64,7 +64,7 @@ internal constructor(
 
   override val viewBinding = DetailListBinding::inflate
 
-  override val layoutRoot by boundView { detailListRoot }
+  override val layoutRoot by boundView { detailSwipeRefresh }
 
   private var touchHelper: ItemTouchHelper? = null
   private var modelAdapter: DetailListAdapter? = null

@@ -47,7 +47,7 @@ protected constructor(
 
   final override val viewBinding = EntryListBinding::inflate
 
-  final override val layoutRoot by boundView { entryListRoot }
+  final override val layoutRoot by boundView { entrySwipeRefresh }
 
   private var modelAdapter: EntryListAdapter? = null
 
