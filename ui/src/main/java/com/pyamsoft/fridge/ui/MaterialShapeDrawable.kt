@@ -59,7 +59,7 @@ fun createRoundedBackground(
     initializeElevationOverlay(context)
     shadowCompatibilityMode = MaterialShapeDrawable.SHADOW_COMPAT_MODE_ALWAYS
     fillColor = ColorStateList.valueOf(color)
-    elevation = 0F
+    elevation = 8.asDp(context).toFloat()
   }
 }
 
