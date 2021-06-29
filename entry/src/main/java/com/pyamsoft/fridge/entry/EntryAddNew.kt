@@ -48,7 +48,7 @@ internal constructor(
 
   init {
     doOnInflate {
-      imageLoader.load(R.drawable.ic_add_24dp).into(binding.entryAddNew).disposeOnDestroy(owner)
+      imageLoader.asDrawable().load(R.drawable.ic_add_24dp).into(binding.entryAddNew).disposeOnDestroy(owner)
     }
 
     doOnInflate {

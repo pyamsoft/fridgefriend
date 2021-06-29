@@ -17,6 +17,7 @@
 package com.pyamsoft.fridge.main
 
 import android.content.Intent
+import android.graphics.Color
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -55,6 +56,7 @@ import com.pyamsoft.pydroid.ui.arch.fromViewModelFactory
 import com.pyamsoft.pydroid.ui.changelog.ChangeLogActivity
 import com.pyamsoft.pydroid.ui.changelog.buildChangeLog
 import com.pyamsoft.pydroid.ui.databinding.LayoutConstraintBinding
+import com.pyamsoft.pydroid.ui.databinding.LayoutCoordinatorBinding
 import com.pyamsoft.pydroid.ui.util.commitNow
 import com.pyamsoft.pydroid.ui.util.layout
 import com.pyamsoft.pydroid.util.doOnResume
@@ -151,17 +153,17 @@ internal class MainActivity :
   override fun onCreate(savedInstanceState: Bundle?) {
     setTheme(R.style.Theme_Fridge)
     super.onCreate(savedInstanceState)
-    val binding = LayoutConstraintBinding.inflate(layoutInflater)
+    val binding = LayoutCoordinatorBinding.inflate(layoutInflater)
     setContentView(binding.root)
 
     Injector.obtainFromApplication<FridgeComponent>(this)
         .plusMainComponent()
-        .create(this, this, this, binding.layoutConstraint, this, this)
+        .create(this, this, this, binding.layoutCoordinator, this, this)
         .inject(this)
 
     stableLayoutHideNavigation()
 
-    inflateComponents(binding.layoutConstraint, savedInstanceState)
+    inflateComponents(savedInstanceState)
     beginWork()
 
     handleIntentExtras(intent)
@@ -283,7 +285,6 @@ internal class MainActivity :
   }
 
   private fun inflateComponents(
-      constraintLayout: ConstraintLayout,
       savedInstanceState: Bundle?,
   ) {
     val container = requireNotNull(container)
@@ -309,41 +310,6 @@ internal class MainActivity :
                 viewModel.handleSelectPage(MainPage.Settings, force = false)
           }
         }
-
-    constraintLayout.layout {
-      toolbar.also {
-        connect(it.id(), ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP)
-        connect(it.id(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
-        connect(it.id(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
-        constrainWidth(it.id(), ConstraintSet.MATCH_CONSTRAINT)
-      }
-
-      navigation.also {
-        connect(it.id(), ConstraintSet.BOTTOM, ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM)
-        connect(it.id(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
-        connect(it.id(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
-        constrainWidth(it.id(), ConstraintSet.MATCH_CONSTRAINT)
-        constrainHeight(it.id(), ConstraintSet.WRAP_CONTENT)
-      }
-
-      container.also {
-        connect(it.id(), ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP)
-        connect(it.id(), ConstraintSet.BOTTOM, ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM)
-        connect(it.id(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
-        connect(it.id(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
-        constrainHeight(it.id(), ConstraintSet.MATCH_CONSTRAINT)
-        constrainWidth(it.id(), ConstraintSet.MATCH_CONSTRAINT)
-      }
-
-      snackbar.also {
-        connect(it.id(), ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP)
-        connect(it.id(), ConstraintSet.BOTTOM, navigation.id(), ConstraintSet.TOP)
-        connect(it.id(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
-        connect(it.id(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
-        constrainHeight(it.id(), ConstraintSet.MATCH_CONSTRAINT)
-        constrainWidth(it.id(), ConstraintSet.MATCH_CONSTRAINT)
-      }
-    }
 
     val existingFragment = supportFragmentManager.findFragmentById(fragmentContainerId)
     if (savedInstanceState == null || existingFragment == null) {

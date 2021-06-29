@@ -26,6 +26,7 @@ internal constructor(
     val appNameRes: Int,
     val countNeeded: Int,
     val countExpiringOrExpired: Int,
+    val bottomBarHeight: Int,
 ) : UiViewState
 
 sealed class MainViewEvent : UiViewEvent {

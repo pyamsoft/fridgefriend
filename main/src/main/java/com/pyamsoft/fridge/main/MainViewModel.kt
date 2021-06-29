@@ -47,7 +47,7 @@ internal constructor(
             appNameRes = appNameRes,
             countNeeded = 0,
             countExpiringOrExpired = 0,
-        )) {
+            bottomBarHeight = 0)) {
 
   init {
     viewModelScope.launch(context = Dispatchers.Default) {
@@ -92,7 +92,9 @@ internal constructor(
 
   fun handleConsumeBottomBarHeight(height: Int) {
     viewModelScope.launch(context = Dispatchers.Default) {
-      bottomOffsetBus.send(BottomOffset(height))
+      setState(
+          stateChange = { copy(bottomBarHeight = height) },
+          andThen = { bottomOffsetBus.send(BottomOffset(it.bottomBarHeight)) })
     }
   }
 

@@ -21,10 +21,8 @@ import android.view.ViewGroup
 import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
-import androidx.recyclerview.widget.RecyclerView
 import com.pyamsoft.fridge.detail.databinding.ExpandCategoryItemHolderBinding
 import com.pyamsoft.pydroid.ui.theme.ThemeProvider
-import com.pyamsoft.pydroid.ui.util.teardownAdapter
 
 internal class ExpandItemCategoryListAdapter
 internal constructor(

@@ -18,9 +18,11 @@ package com.pyamsoft.fridge.main
 
 import android.view.ViewGroup
 import androidx.coordinatorlayout.widget.CoordinatorLayout
+import androidx.core.view.updateLayoutParams
 import com.pyamsoft.fridge.main.databinding.MainSnackbarBinding
 import com.pyamsoft.fridge.ui.SnackbarContainer
 import com.pyamsoft.pydroid.arch.BaseUiView
+import com.pyamsoft.pydroid.arch.UiRender
 import javax.inject.Inject
 
 class MainSnackbar
@@ -35,5 +37,13 @@ internal constructor(
 
   override fun container(): CoordinatorLayout {
     return layoutRoot
+  }
+
+  override fun onRender(state: UiRender<MainViewState>) {
+    state.mapChanged { it.bottomBarHeight }.render(viewScope) { handleBottomBarHeight(it) }
+  }
+
+  private fun handleBottomBarHeight(height: Int) {
+    layoutRoot.updateLayoutParams<ViewGroup.MarginLayoutParams> { this.bottomMargin = height }
   }
 }

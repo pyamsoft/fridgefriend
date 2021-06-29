@@ -25,8 +25,6 @@
     <color name="windowBackground">@color/material_dark_background</color>
     <color name="dialogBackground">#FF2d2d2d</color>
 
-    <color name="colorPrimarySeeThrough">#D7E57373</color>
-
     <color name="navigationBarColor">#01E57373</color>
     <color name="bottomSheetNavigationBarColor">#FF353535</color>
 </resources>

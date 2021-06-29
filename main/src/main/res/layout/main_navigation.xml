@@ -18,16 +18,32 @@
 
 <merge>
 
-    <com.google.android.material.bottomnavigation.BottomNavigationView xmlns:android="http://schemas.android.com/apk/res/android"
+    <com.google.android.material.bottomappbar.BottomAppBar xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
-        android:id="@+id/main_bottom_navigation_menu"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:id="@+id/main_bottom_bar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:backgroundTint="@color/colorPrimary"
         android:visibility="gone"
-        app:backgroundTint="@color/colorPrimarySeeThrough"
-        app:itemIconTint="@color/navigation_item_tint"
-        app:itemTextColor="@color/navigation_item_tint"
-        app:menu="@menu/navigation_menu" />
+        app:fabCradleMargin="8dp"
+        app:fabCradleRoundedCornerRadius="16dp"
+        tools:ignore="BottomAppBar">
+
+        <com.google.android.material.bottomnavigation.BottomNavigationView
+            android:id="@+id/main_bottom_navigation_menu"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/transparent"
+            android:backgroundTint="@color/transparent"
+            android:elevation="0dp"
+            app:elevation="0dp"
+            app:itemIconTint="@color/navigation_item_tint"
+            app:itemTextColor="@color/navigation_item_tint"
+            app:menu="@menu/navigation_menu" />
+
+    </com.google.android.material.bottomappbar.BottomAppBar>
 
 </merge>
 

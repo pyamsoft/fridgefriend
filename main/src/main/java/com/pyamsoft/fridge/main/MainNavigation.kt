@@ -22,10 +22,8 @@ import android.os.Looper
 import android.view.ViewGroup
 import androidx.annotation.CheckResult
 import androidx.core.view.ViewPropertyAnimatorCompat
-import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
 import androidx.lifecycle.LifecycleOwner
-import com.pyamsoft.fridge.core.R as R2
 import com.pyamsoft.fridge.main.databinding.MainNavigationBinding
 import com.pyamsoft.fridge.ui.animatePopInFromBottom
 import com.pyamsoft.fridge.ui.createRoundedBackground
@@ -45,7 +43,7 @@ internal constructor(
 
   override val viewBinding = MainNavigationBinding::inflate
 
-  override val layoutRoot by boundView { mainBottomNavigationMenu }
+  override val layoutRoot by boundView { mainBottomBar }
 
   private var backgroundDrawable: Drawable? = null
 
@@ -54,19 +52,16 @@ internal constructor(
 
   init {
     doOnInflate {
-      backgroundDrawable =
-          createRoundedBackground(layoutRoot.context, R2.color.colorPrimarySeeThrough)
+      backgroundDrawable = createRoundedBackground(layoutRoot.context)
       correctBackground()
       animateIn()
     }
 
     doOnInflate {
       layoutRoot.doOnApplyWindowInsets(owner) { view, insets, _ ->
-        view.updatePadding(
-            bottom = insets.getInsets(WindowInsetsCompat.Type.systemBars()).bottom,
-            left = 0,
-            right = 0,
-            top = 0)
+        // Set padding to all zero otherwise the bottom bar gets too puffy when nav buttons are
+        // enabled
+        view.updatePadding(left = 0, right = 0, top = 0, bottom = 0)
 
         // Make sure we are laid out before grabbing the height
         view.post {
@@ -109,7 +104,7 @@ internal constructor(
    * through the transparent bar
    */
   private fun correctBackground() {
-    binding.mainBottomNavigationMenu.apply {
+    layoutRoot.apply {
       background = requireNotNull(backgroundDrawable)
       elevation = 8.asDp(context).toFloat()
     }
@@ -117,7 +112,7 @@ internal constructor(
 
   private fun animateIn() {
     if (animator == null) {
-      animator = animatePopInFromBottom(binding.mainBottomNavigationMenu, 600, false)
+      animator = animatePopInFromBottom(layoutRoot, 600, false)
     }
   }
 

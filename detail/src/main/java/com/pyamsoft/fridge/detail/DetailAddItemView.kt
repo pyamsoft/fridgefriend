@@ -53,6 +53,7 @@ internal constructor(
   init {
     doOnInflate {
       imageLoader
+          .asDrawable()
           .load(R2.drawable.ic_add_24dp)
           .into(binding.detailAddNewItem)
           .disposeOnDestroy(owner)
