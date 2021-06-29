@@ -48,6 +48,8 @@ internal constructor(
             })
     doOnCleared { job.cancel() }
     doOnCleared { delegate.clear() }
+
+    delegate.initialize(scope)
   }
 
   fun handleRefreshList() {

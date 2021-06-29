@@ -21,6 +21,7 @@ import com.pyamsoft.pydroid.arch.UiRender
 import com.pyamsoft.pydroid.arch.UiView
 import com.pyamsoft.pydroid.ui.util.setOnDebouncedClickListener
 import javax.inject.Inject
+import timber.log.Timber
 
 class EntryListItemClick
 @Inject
@@ -30,7 +31,10 @@ internal constructor(
 
   init {
     doOnInflate {
-      parent.setOnDebouncedClickListener { publish(EntryItemViewEvent.OnClick) }
+      parent.setOnDebouncedClickListener {
+        Timber.d("Entry on click")
+        publish(EntryItemViewEvent.OnClick)
+      }
 
       parent.setOnLongClickListener {
         publish(EntryItemViewEvent.OnLongPress)

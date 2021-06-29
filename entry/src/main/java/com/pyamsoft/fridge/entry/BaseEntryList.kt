@@ -19,7 +19,8 @@ package com.pyamsoft.fridge.entry
 import android.view.ViewGroup
 import androidx.annotation.CheckResult
 import androidx.lifecycle.LifecycleOwner
-import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.pyamsoft.fridge.entry.databinding.EntryListBinding
 import com.pyamsoft.fridge.entry.item.EntryItemComponent
@@ -30,7 +31,6 @@ import com.pyamsoft.pydroid.arch.UiViewEvent
 import com.pyamsoft.pydroid.ui.util.removeAllItemDecorations
 import com.pyamsoft.pydroid.util.asDp
 import io.cabriole.decorator.DecorationLookup
-import io.cabriole.decorator.LinearBoundsMarginDecoration
 import io.cabriole.decorator.LinearMarginDecoration
 import me.zhanghai.android.fastscroll.FastScrollerBuilder
 import timber.log.Timber
@@ -56,10 +56,10 @@ protected constructor(
   init {
     doOnInflate {
       binding.entryList.layoutManager =
-          GridLayoutManager(binding.entryList.context, 2).apply {
-            isItemPrefetchEnabled = true
-            initialPrefetchItemCount = 3
-          }
+          LinearLayoutManager(binding.entryList.context).apply {
+        isItemPrefetchEnabled = true
+        initialPrefetchItemCount = 3
+      }
     }
 
     doOnInflate {
@@ -87,7 +87,7 @@ protected constructor(
 
     doOnSaveState { outState ->
       val manager = binding.entryList.layoutManager
-      if (manager is GridLayoutManager) {
+      if (manager is LinearLayoutManager) {
         val position = manager.findFirstVisibleItemPosition()
         if (position > 0) {
           outState.put(LAST_SCROLL_POSITION, position)
@@ -101,46 +101,23 @@ protected constructor(
     doOnInflate {
       val margin = 16.asDp(binding.entryList.context)
 
-      // Standard margin on all items
-      // For some reason, the margin registers only half as large as it needs to
-      // be, so we must double it.
-      LinearMarginDecoration(bottomMargin = margin * 2).apply {
-        binding.entryList.addItemDecoration(this)
-      }
-
-      // The bottom has additional space to fit the FAB
-      val bottomMargin = 72.asDp(binding.entryList.context)
-      LinearBoundsMarginDecoration(bottomMargin = bottomMargin).apply {
-        binding.entryList.addItemDecoration(this)
-      }
-
-      // Left margin on items on the left
-      LinearMarginDecoration(
-              leftMargin = margin,
-              // Half margin since these cards will meet in the middle
-              rightMargin = margin / 2,
-              decorationLookup =
-                  object : DecorationLookup {
-                    override fun shouldApplyDecoration(position: Int, itemCount: Int): Boolean {
-                      // If the position is even, its on the left side and should have a left margin
-                      // Bitwise is faster than modulo
-                      return position and 1 == 0
-                    }
-                  })
+      LinearMarginDecoration.createHorizontal(
+              horizontalMargin = margin, orientation = RecyclerView.VERTICAL)
           .apply { binding.entryList.addItemDecoration(this) }
 
-      // Right margin on items on the right
+      // Everything has a bottom margin
+      LinearMarginDecoration(bottomMargin = margin, orientation = RecyclerView.VERTICAL).apply {
+        binding.entryList.addItemDecoration(this)
+      }
+
+      // Everything but first item has a top margin
       LinearMarginDecoration(
-              rightMargin = margin,
-              // Half margin since these cards will meet in the middle
-              leftMargin = margin / 2,
+              topMargin = margin,
+              orientation = RecyclerView.VERTICAL,
               decorationLookup =
                   object : DecorationLookup {
                     override fun shouldApplyDecoration(position: Int, itemCount: Int): Boolean {
-                      // If the position is odd, its on the right side and should have a right
-                      // margin
-                      // Bitwise is faster than modulo
-                      return position and 1 == 1
+                      return position > 0
                     }
                   })
           .apply { binding.entryList.addItemDecoration(this) }
@@ -160,7 +137,10 @@ protected constructor(
   final override fun onRender(state: UiRender<EntryViewState>) {
     state.mapChanged { it.displayedEntries }.render(viewScope) { handleList(it) }
     state.mapChanged { it.isLoading }.render(viewScope) { handleLoading(it) }
+    state.mapChanged { it.bottomOffset }.render(viewScope) { handleBottomOffset(it) }
   }
+
+  protected open fun handleBottomOffset(height: Int) {}
 
   @CheckResult
   private fun usingAdapter(): EntryListAdapter {

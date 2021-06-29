@@ -22,6 +22,7 @@ import android.view.ViewGroup
 import androidx.annotation.CheckResult
 import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.ItemTouchHelper
+import androidx.recyclerview.widget.RecyclerView
 import com.mikepenz.fastadapter.swipe.SimpleSwipeCallback
 import com.pyamsoft.fridge.entry.item.EntryItemComponent
 import com.pyamsoft.fridge.entry.item.EntryItemViewHolder
@@ -30,7 +31,9 @@ import com.pyamsoft.pydroid.loader.ImageLoader
 import com.pyamsoft.pydroid.loader.ImageTarget
 import com.pyamsoft.pydroid.loader.Loaded
 import com.pyamsoft.pydroid.ui.theme.ThemeProvider
+import com.pyamsoft.pydroid.util.asDp
 import com.pyamsoft.pydroid.util.tintWith
+import io.cabriole.decorator.LinearBoundsMarginDecoration
 import javax.inject.Inject
 import timber.log.Timber
 
@@ -52,6 +55,8 @@ internal constructor(
   private var rightBehindLoaded: Loaded? = null
   private var rightBehindDrawable: Drawable? = null
 
+  private var bottomDecoration: RecyclerView.ItemDecoration? = null
+
   init {
     doOnInflate { setupSwipeCallback() }
 
@@ -61,6 +66,16 @@ internal constructor(
     }
 
     doOnTeardown { clearLoaded() }
+
+    doOnTeardown { bottomDecoration = null }
+
+    doOnInflate {
+      // The bottom has additional space to fit the FAB
+      val bottomMargin = (56 + 16).asDp(binding.entryList.context)
+      LinearBoundsMarginDecoration(bottomMargin = bottomMargin).apply {
+        binding.entryList.addItemDecoration(this)
+      }
+    }
   }
 
   private fun clearLoaded() {
@@ -175,6 +190,15 @@ internal constructor(
                     createSwipeCallback(directions, itemSwipeCallback)
                   }
                 })
+  }
+
+  override fun handleBottomOffset(height: Int) {
+    // Add additional padding to the list bottom to account for the height change in MainContainer
+    bottomDecoration?.also { binding.entryList.removeItemDecoration(it) }
+    bottomDecoration =
+        LinearBoundsMarginDecoration(bottomMargin = height).apply {
+      binding.entryList.addItemDecoration(this)
+    }
   }
 
   override fun onRefresh() {

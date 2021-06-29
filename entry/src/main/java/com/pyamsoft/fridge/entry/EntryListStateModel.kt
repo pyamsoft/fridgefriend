@@ -74,7 +74,7 @@ constructor(
         interactor.commit(entry)
       }
 
-  internal fun initialize(scope: CoroutineScope) {
+  fun initialize(scope: CoroutineScope) {
     scope.launch(context = Dispatchers.Default) {
       bottomOffsetBus.onEvent { setState { copy(bottomOffset = it.height) } }
     }

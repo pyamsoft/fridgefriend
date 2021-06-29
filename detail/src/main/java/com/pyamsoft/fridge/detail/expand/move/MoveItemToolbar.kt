@@ -26,6 +26,7 @@ import com.pyamsoft.fridge.detail.databinding.ExpandToolbarBinding
 import com.pyamsoft.fridge.entry.EntryViewEvent
 import com.pyamsoft.fridge.entry.EntryViewState
 import com.pyamsoft.fridge.ui.view.UiToolbar
+import com.pyamsoft.fridge.ui.withRoundedBackground
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.arch.UiRender
 import com.pyamsoft.pydroid.arch.asUiRender
@@ -110,6 +111,8 @@ internal constructor(
               })
           .also { loaded -> doOnTeardown { loaded.dispose() } }
     }
+
+    doOnInflate { binding.expandToolbar.withRoundedBackground() }
 
     doOnInflate {
       binding.expandToolbar.setNavigationOnClickListener(

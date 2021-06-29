@@ -18,7 +18,7 @@ package com.pyamsoft.fridge.detail
 
 import android.view.ViewGroup
 import androidx.coordinatorlayout.widget.CoordinatorLayout
-import androidx.core.view.updatePadding
+import androidx.core.view.updateLayoutParams
 import androidx.lifecycle.LifecycleOwner
 import com.pyamsoft.fridge.core.R
 import com.pyamsoft.fridge.db.item.FridgeItem
@@ -117,9 +117,8 @@ internal constructor(
   }
 
   private fun handleBottomMargin(height: Int) {
-    if (height > 0) {
-      layoutRoot.updatePadding(bottom = height)
-    }
+    // Multiply by 2 to account for the bar offset and the height change in MainContainer
+    layoutRoot.updateLayoutParams<ViewGroup.MarginLayoutParams> { this.bottomMargin = height * 2 }
   }
 
   private fun handleError(throwable: Throwable?) {

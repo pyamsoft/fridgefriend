@@ -23,13 +23,13 @@
         android:id="@+id/core_hero_root"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="?android:attr/windowBackground">
+        android:background="@color/transparent">
 
         <com.google.android.material.appbar.CollapsingToolbarLayout
             android:id="@+id/core_hero_collapse"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            app:contentScrim="?android:attr/windowBackground"
+            app:contentScrim="@color/transparent"
             app:layout_scrollFlags="scroll|enterAlwaysCollapsed">
 
             <ImageView

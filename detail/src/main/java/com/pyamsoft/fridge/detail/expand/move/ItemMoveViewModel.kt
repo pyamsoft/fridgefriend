@@ -62,6 +62,8 @@ internal constructor(
           .onFailure { Timber.e(it, "Error resolving item") }
           .onFailure { setState { copy(item = null) } }
     }
+
+    delegate.initialize(scope)
   }
 
   fun handleMoveItemToEntry(entry: FridgeEntry) {

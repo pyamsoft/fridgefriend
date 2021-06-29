@@ -16,15 +16,9 @@
 
 <resources>
     <!-- If primary and secondary are the same, so are their On colors -->
-    <color name="colorPrimary">#FFE57373</color>
-    <color name="colorOnPrimary">@color/white</color>
-
-    <color name="colorSecondary">@color/colorPrimary</color>
-    <color name="colorOnSecondary">@color/colorOnPrimary</color>
-
     <color name="windowBackground">@color/material_dark_background</color>
     <color name="dialogBackground">#FF2d2d2d</color>
 
-    <color name="navigationBarColor">#01E57373</color>
+    <color name="navigationBarColor">@color/transparent</color>
     <color name="bottomSheetNavigationBarColor">#FF353535</color>
 </resources>

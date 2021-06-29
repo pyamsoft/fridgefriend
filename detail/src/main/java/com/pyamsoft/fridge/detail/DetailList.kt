@@ -23,7 +23,9 @@ import androidx.annotation.CheckResult
 import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.mikepenz.fastadapter.swipe.SimpleSwipeCallback
+import com.pyamsoft.fridge.core.R as R2
 import com.pyamsoft.fridge.db.item.FridgeItem
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence.HAVE
 import com.pyamsoft.fridge.db.item.FridgeItem.Presence.NEED
@@ -34,7 +36,6 @@ import com.pyamsoft.fridge.detail.item.DetailItemViewState
 import com.pyamsoft.fridge.detail.item.DetailListAdapter
 import com.pyamsoft.fridge.tooltip.TooltipCreator
 import com.pyamsoft.fridge.ui.R as R4
-import com.pyamsoft.fridge.core.R as R2
 import com.pyamsoft.pydroid.arch.BaseUiView
 import com.pyamsoft.pydroid.arch.UiRender
 import com.pyamsoft.pydroid.loader.ImageLoader
@@ -77,13 +78,15 @@ internal constructor(
   private var rightBehindLoaded: Loaded? = null
   private var rightBehindDrawable: Drawable? = null
 
+  private var bottomDecoration: RecyclerView.ItemDecoration? = null
+
   init {
     doOnInflate {
       binding.detailList.layoutManager =
           LinearLayoutManager(binding.detailList.context).apply {
-            isItemPrefetchEnabled = true
-            initialPrefetchItemCount = 3
-          }
+        isItemPrefetchEnabled = true
+        initialPrefetchItemCount = 3
+      }
     }
 
     doOnInflate {
@@ -159,13 +162,16 @@ internal constructor(
       }
 
       // The bottom has additional space to fit the FAB
-      val bottomMargin = 72.asDp(binding.detailList.context)
+      val bottomMargin = 56.asDp(binding.detailList.context) + margin
       LinearBoundsMarginDecoration(bottomMargin = bottomMargin).apply {
         binding.detailList.addItemDecoration(this)
       }
     }
 
-    doOnTeardown { binding.detailList.removeAllItemDecorations() }
+    doOnTeardown {
+      binding.detailList.removeAllItemDecorations()
+      bottomDecoration = null
+    }
 
     doOnTeardown {
       binding.detailList.adapter = null
@@ -388,7 +394,17 @@ internal constructor(
     }
   }
 
+  private fun handleBottomOffset(height: Int) {
+    // Add additional padding to the list bottom to account for the height change in MainContainer
+    bottomDecoration?.also { binding.detailList.removeItemDecoration(it) }
+    bottomDecoration =
+        LinearBoundsMarginDecoration(bottomMargin = height).apply {
+      binding.detailList.addItemDecoration(this)
+    }
+  }
+
   override fun onRender(state: UiRender<DetailViewState>) {
+    state.mapChanged { it.bottomOffset }.render(viewScope) { handleBottomOffset(it) }
     state.mapChanged { it.isLoading }.render(viewScope) { handleLoading(it) }
     state.render(viewScope) { s ->
       handleList(s)
