@@ -20,6 +20,7 @@ import android.graphics.drawable.Drawable
 import android.os.Handler
 import android.os.Looper
 import android.view.ViewGroup
+import android.view.ViewOutlineProvider
 import androidx.annotation.CheckResult
 import androidx.core.view.ViewPropertyAnimatorCompat
 import androidx.core.view.updatePadding
@@ -51,6 +52,10 @@ internal constructor(
   private var animator: ViewPropertyAnimatorCompat? = null
 
   init {
+    doOnInflate { layoutRoot.outlineProvider = ViewOutlineProvider.BACKGROUND }
+
+    doOnInflate { binding.mainBottomNavigationMenu.outlineProvider = null }
+
     doOnInflate {
       backgroundDrawable = createRoundedBackground(layoutRoot.context)
       correctBackground()
@@ -58,7 +63,7 @@ internal constructor(
     }
 
     doOnInflate {
-      layoutRoot.doOnApplyWindowInsets(owner) { view, insets, _ ->
+      layoutRoot.doOnApplyWindowInsets(owner) { view, _, _ ->
         // Set padding to all zero otherwise the bottom bar gets too puffy when nav buttons are
         // enabled
         view.updatePadding(left = 0, right = 0, top = 0, bottom = 0)
