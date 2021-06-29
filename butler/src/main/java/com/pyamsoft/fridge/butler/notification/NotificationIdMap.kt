@@ -28,7 +28,7 @@ internal class NotificationIdMap @Inject internal constructor() {
   private val map by lazy { mutableMapOf<NotificationType, IdMap>() }
 
   @CheckResult
-  fun getNotifications(type: NotificationType): IdMap {
+  private fun getNotifications(type: NotificationType): IdMap {
     return map.getOrPut(type) { mutableMapOf() }
   }
 
