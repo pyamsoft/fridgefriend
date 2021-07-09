@@ -22,7 +22,7 @@ import com.pyamsoft.pydroid.arch.UiViewState
 
 data class MainViewState
 internal constructor(
-    val page: MainPage?,
+    val page: MainPage,
     val appNameRes: Int,
     val countNeeded: Int,
     val countExpiringOrExpired: Int,

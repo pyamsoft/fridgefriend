@@ -43,7 +43,7 @@ internal constructor(
     UiSavedStateViewModel<MainViewState, MainControllerEvent>(
         savedState,
         MainViewState(
-            page = null,
+            page = DEFAULT_PAGE,
             appNameRes = appNameRes,
             countNeeded = 0,
             countExpiringOrExpired = 0,
@@ -59,7 +59,7 @@ internal constructor(
 
   fun handleLoadDefaultPage() {
     viewModelScope.launch(context = Dispatchers.Default) {
-      val page = restoreSavedState(KEY_PAGE) { MainPage.Entries.asString() }.asPage()
+      val page = restoreSavedState(KEY_PAGE) { DEFAULT_PAGE.asString() }.asPage()
       Timber.d("Loading initial page: $page")
       handleSelectPage(page, force = true)
     }
@@ -125,6 +125,8 @@ internal constructor(
   }
 
   companion object {
+
+    private val DEFAULT_PAGE = MainPage.Entries
 
     @CheckResult
     private fun MainPage.asString(): String {

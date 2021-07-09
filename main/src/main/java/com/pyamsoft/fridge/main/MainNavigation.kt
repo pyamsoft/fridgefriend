@@ -130,7 +130,7 @@ internal constructor(
     state.mapChanged { it.page }.render(viewScope) { handlePage(it) }
   }
 
-  private fun handlePage(page: MainPage?) {
+  private fun handlePage(page: MainPage) {
     Timber.d("Handle page: $page")
     val pageId = getIdForPage(page)
     if (pageId != 0) {
@@ -155,15 +155,12 @@ internal constructor(
 
     @JvmStatic
     @CheckResult
-    private fun getIdForPage(page: MainPage?): Int {
-      return if (page == null) 0
-      else {
-        when (page) {
-          is MainPage.Entries -> R.id.menu_item_nav_entries
-          is MainPage.Category -> R.id.menu_item_nav_category
-          is MainPage.Settings -> R.id.menu_item_nav_settings
-          is MainPage.Search -> R.id.menu_item_nav_search
-        }
+    private fun getIdForPage(page: MainPage): Int {
+      return when (page) {
+        is MainPage.Entries -> R.id.menu_item_nav_entries
+        is MainPage.Category -> R.id.menu_item_nav_category
+        is MainPage.Settings -> R.id.menu_item_nav_settings
+        is MainPage.Search -> R.id.menu_item_nav_search
       }
     }
   }
